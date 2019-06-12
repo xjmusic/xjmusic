@@ -8,9 +8,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
 import io.xj.core.ingest.Ingest;
-import io.xj.core.model.chord.Sort;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern_chord.PatternChord;
+import io.xj.core.model.program.sub.SequenceChord;
 import io.xj.craft.chord.ChordMarkovNode;
 import io.xj.craft.chord.ChordNode;
 import io.xj.craft.digest.DigestType;
@@ -21,6 +19,7 @@ import io.xj.music.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -31,13 +30,13 @@ import java.util.Objects;
  <p>
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  <p>
- DigestChordMarkov transposes all of its observations into the Key of the sequence/pattern the entities are being observed in-- so if a Sequence in the Key of GenericChord begins with a PatternChord D Major, that will be considered a modulo 2 semitones delta at the beginning of the sequence. Later, when generating a super sequence, if the target sequence is in the key of G and this outcome is selected, the first chord in the generated sequence which actually be A.
+ DigestChordMarkov transposes all of its observations into the Key of the sequence/pattern the entities are being observed in-- so if a Sequence in the Key of GenericChord begins with a SequenceChord D Major, that will be considered a modulo 2 semitones delta at the beginning of the sequence. Later, when generating a super sequence, if the target sequence is in the key of G and this outcome is selected, the first chord in the generated sequence which actually be A.
  */
 public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMarkov {
-  private final Map<String, ChordMarkovNode> forwardNodeMap = Maps.newConcurrentMap();
-  private final Map<String, ChordMarkovNode> reverseNodeMap = Maps.newConcurrentMap();
+  private final Map<String, ChordMarkovNode> forwardNodeMap = Maps.newHashMap();
+  private final Map<String, ChordMarkovNode> reverseNodeMap = Maps.newHashMap();
   private final Logger log = LoggerFactory.getLogger(DigestChordMarkovImpl.class);
-  private final Integer markovOrder = Config.chordMarkovOrder();
+  private final Integer markovOrder = Config.getChordMarkovOrder();
 
   /**
    Instantiate a new digest with a collection of target entities
@@ -64,10 +63,10 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
    @param parentId (pattern) to get pattern entities of
    @return collection of audio entities
    */
-  private static Collection<PatternChord> chordsOf(Iterable<? extends PatternChord> chords, Object parentId) {
-    Collection<PatternChord> result = Lists.newArrayList();
-    chords.forEach(patternChord -> {
-      if (Objects.equals(parentId, patternChord.getParentId())) result.add(patternChord);
+  private static Collection<SequenceChord> chordsOf(Iterable<? extends SequenceChord> chords, Object parentId) {
+    Collection<SequenceChord> result = Lists.newArrayList();
+    chords.forEach(sequenceChord -> {
+      if (Objects.equals(parentId, sequenceChord.getParentId())) result.add(sequenceChord);
     });
     return result;
   }
@@ -86,7 +85,7 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
   }
 
   /**
-   Put a PatternChord markov into the in-memory store. Keyed by precedent state (the chord leading up to these observations).
+   Put a SequenceChord markov into the in-memory store. Keyed by precedent state (the chord leading up to these observations).
    If no observations have been added with the given precedent state, a new chord markov node will be instantiated.
 
    @param precedentState the chord progression preceding this observation
@@ -104,16 +103,44 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
    Digest entities from ingest
    */
   private void digest() throws CraftException {
+/*
     for (Pattern pattern : ingest.getAllPatterns()) {
       try {
-        computeAllNodes(ingest.getKeyOfPattern(pattern.getId()),
-          chordsOf(ingest.getAllPatternChords(), pattern.getId()));
+        computeAllNodes(ingest.getKeyOfPattern(pattern.getId()), pattern.getChords()); // FUTURE implement getChords() on pattern
 
       } catch (CoreException e) {
         throw exception("Could not compute nodes", e);
       }
     }
+*/
   }
+
+  /**
+   Get the key of any pattern-- if the pattern has no key, get the pattern of its sequence
+
+   @param id of pattern to get key of
+   @return key of pattern
+   */
+  private Key getKeyOfPattern(BigInteger id) throws CoreException {
+/*
+    // if null pattern return empty key
+    Pattern pattern = ingest.fetchOnePattern(id);
+    if (Objects.isNull(pattern))
+      return Key.of("");
+
+    // if pattern has key, use that
+    if (Objects.nonNull(pattern.getKey()) && !pattern.getKey().isEmpty())
+      return Key.of(pattern.getKey());
+
+    // pattern has no key; use sequence key. if null sequence return empty key
+    Sequence sequence = ingest.fetchOneSequence(pattern.getSequenceId());
+    if (Objects.isNull(sequence))
+      return Key.of("");
+    return Key.of(sequence.getKey());
+*/
+    return Key.of("C");
+  }
+
 
   /**
    Compute all possible chord markov nodes given a set of entities (e.g. from a Pattern or Audio)
@@ -121,18 +148,20 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
    @param key    relative to which each chord's root will be computed in semitones modulo
    @param chords to compute all possible markov nodes of
    */
-  private void computeAllNodes(Key key, Collection<PatternChord> chords) {
+  private void computeAllNodes(Key key, Collection<SequenceChord> chords) {
+/*
     if (chords.isEmpty()) return;
 
     // Forward nodes (likelihood of following node based on observation of preceding nodes)
-    List<PatternChord> forwardNodes = Lists.newArrayList(chords);
-    forwardNodes.sort(Sort.byPositionAscending);
+    List<SequenceChord> forwardNodes = Lists.newArrayList(chords);
+    forwardNodes.sort(Chord.byPositionAscending);
     computeNodes(forwardNodeMap, key, forwardNodes);
 
     // Reverse nodes (likelihood of preceding node based on observation of following nodes in reverse time)
-    List<PatternChord> reverseNodes = Lists.newArrayList(chords);
-    reverseNodes.sort(Sort.byPositionDescending);
+    List<SequenceChord> reverseNodes = Lists.newArrayList(chords);
+    reverseNodes.sort(Chord.byPositionDescending);
     computeNodes(reverseNodeMap, key, reverseNodes);
+*/
   }
 
   /**
@@ -142,7 +171,8 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
    @param key           relative to which each chord's root will be computed in semitones modulo
    @param orderedChords to compute all possible markov nodes of -- THE ORDER IS IMPORTANT: any node's precedent state is a snapshot of the nodes preceding it.
    */
-  private void computeNodes(Map<String, ChordMarkovNode> markovNodeMap, Key key, List<PatternChord> orderedChords) {
+  private void computeNodes(Map<String, ChordMarkovNode> markovNodeMap, Key key, List<SequenceChord> orderedChords) {
+/*
     if (orderedChords.isEmpty()) return;
 
     // keep a buffer of the preceding N entities
@@ -152,7 +182,7 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
     buffer.add(new ChordNode());
 
     // for each chord in sequence, compute and store all possible orders preceding it.
-    for (PatternChord chord : orderedChords) {
+    for (SequenceChord chord : orderedChords) {
       computeNode(buffer, markovNodeMap, key, chord);
     }
 
@@ -160,6 +190,7 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
     addObservationToAllSubsets(markovNodeMap, buffer, new ChordNode());
 
     log.debug("totaled {} nodes in map, after computing nodes for {} entities", markovNodeMap.size(), orderedChords.size());
+*/
   }
 
   /**
@@ -170,7 +201,8 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
    @param key           relative to which each chord's root will be computed in semitones modulo
    @param chord         to compute markov node of -- THE ORDER IS IMPORTANT: any node's precedent state is a snapshot of the nodes preceding it.
    */
-  private void computeNode(List<ChordNode> buffer, Map<String, ChordMarkovNode> markovNodeMap, Key key, PatternChord chord) {
+  private void computeNode(List<ChordNode> buffer, Map<String, ChordMarkovNode> markovNodeMap, Key key, SequenceChord chord) {
+/*
     // the observation is transposed to the key of the pattern/sequence
     ChordNode chordNode = new ChordNode(key, chord);
 
@@ -180,6 +212,7 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
     // add the just-added chord to the buffer; if buffer is longer than the markov order, shift items from the top until it's the right size
     buffer.add(chordNode);
     if (buffer.size() > markovOrder) buffer.remove(0);
+*/
   }
 
   @Override
@@ -195,6 +228,11 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
   @Override
   public Integer getMarkovOrder() {
     return markovOrder;
+  }
+
+  @Override
+  public DigestChordMarkov validate() {
+    return this;
   }
 
 }

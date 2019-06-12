@@ -4,14 +4,11 @@ package io.xj.craft.digest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import io.xj.core.CoreModule;
+import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
 import io.xj.core.ingest.IngestFactory;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.entity.Entity;
-import io.xj.core.model.library.Library;
-import io.xj.craft.BaseIT;
+import io.xj.core.model.chain.sub.ChainBinding;
 import io.xj.craft.CraftModule;
 import io.xj.craft.digest.chord_progression.DigestChordProgression;
 import org.junit.Before;
@@ -21,21 +18,20 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DigestChordProgressionIT extends BaseIT {
-  private final Injector injector = Guice.createInjector(new CoreModule(), new CraftModule());
+public class DigestChordProgressionIT extends FixtureIT {
   private IngestFactory ingestFactory;
   private DigestFactory digestFactory;
 
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.reset();
-    insertLibraryA();
+    reset();
+    insertFixtureA();
 
+    injector = Guice.createInjector(new CoreModule(), new CraftModule());
     ingestFactory = injector.getInstance(IngestFactory.class);
     digestFactory = injector.getInstance(DigestFactory.class);
   }
@@ -47,7 +43,7 @@ public class DigestChordProgressionIT extends BaseIT {
       "accounts", "1"
     ));
 
-    DigestChordProgression result = digestFactory.chordProgression(ingestFactory.evaluate(access, ImmutableList.of(new Library(10000001))));
+    DigestChordProgression result = digestFactory.chordProgression(ingestFactory.ingest(access, ImmutableList.of(newChainBinding("Library", 10000001))));
 
     assertNotNull(result);
   }
@@ -58,11 +54,11 @@ public class DigestChordProgressionIT extends BaseIT {
       "roles", "User,Artist",
       "accounts", "1"
     ));
-    Collection<Entity> entities = ImmutableList.of(new Library(10000001));
+    Collection<ChainBinding> entities = ImmutableList.of(newChainBinding("Library", 10000001));
 
-    DigestChordProgression result = digestFactory.chordProgression(ingestFactory.evaluate(access, entities));
+    DigestChordProgression result = digestFactory.chordProgression(ingestFactory.ingest(access, entities));
 
-    assertEquals(16, result.getEvaluatedSequenceMap().size());
+    assertNotNull(result);
   }
 
 }

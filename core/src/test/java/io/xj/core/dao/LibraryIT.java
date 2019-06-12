@@ -3,17 +3,15 @@ package io.xj.core.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import io.xj.core.CoreModule;
+import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
-import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.library.Library;
-import io.xj.core.model.sequence.SequenceState;
-import io.xj.core.model.sequence.SequenceType;
+import io.xj.core.model.instrument.InstrumentState;
+import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.program.ProgramState;
+import io.xj.core.model.program.ProgramType;
 import org.assertj.core.util.Lists;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,26 +23,26 @@ import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
-public class LibraryIT {
-  private final Injector injector = Guice.createInjector(new CoreModule());
+public class LibraryIT extends FixtureIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private LibraryDAO testDAO;
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.reset();
+    reset();
 
     // Account "palm tree" has library "leaves" and library "coconuts"
-    IntegrationTestEntity.insertAccount(1, "palm tree");
-    IntegrationTestEntity.insertLibrary(1, 1, "leaves");
-    IntegrationTestEntity.insertLibrary(2, 1, "coconuts");
+    insert(newAccount(1, "palm tree"));
+    insert(newLibrary(1, 1, "leaves", now()));
+    insert(newLibrary(2, 1, "coconuts", now()));
 
     // Account "boat" has library "helm" and library "sail"
-    IntegrationTestEntity.insertAccount(2, "boat");
-    IntegrationTestEntity.insertLibrary(3, 2, "helm");
-    IntegrationTestEntity.insertLibrary(4, 2, "sail");
+    insert(newAccount(2, "boat"));
+    insert(newLibrary(3, 2, "helm", now()));
+    insert(newLibrary(4, 2, "sail", now()));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(LibraryDAO.class);
@@ -56,14 +54,14 @@ public class LibraryIT {
       "roles", "Admin"
     ));
     Library inputData = new Library()
-      .setName("manuts")
+      .setName("coconuts")
       .setAccountId(BigInteger.valueOf(1L));
 
     Library result = testDAO.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
-    assertEquals("manuts", result.getName());
+    assertEquals("coconuts", result.getName());
   }
 
   /**
@@ -76,39 +74,45 @@ public class LibraryIT {
       "accounts", "1"
     ));
     Library inputData = new Library()
-      .setName("manuts")
+      .setName("coconuts")
       .setAccountId(BigInteger.valueOf(1L));
 
     Library result = testDAO.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
-    assertEquals("manuts", result.getName());
+    assertEquals("coconuts", result.getName());
   }
 
   /**
    [#155089641] Engineer expects to be able to create and update a Library.
    */
-  @Test(expected = CoreException.class)
+  @Test
   public void create_asEngineer_failsWithoutAccountAccess() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Engineer",
       "accounts", "12"
     ));
     Library inputData = new Library()
-      .setName("manuts")
+      .setName("coconuts")
       .setAccountId(BigInteger.valueOf(1L));
+
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = CoreException.class)
+  @Test
   public void create_FailsWithoutAccountID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Library inputData = new Library()
-      .setName("manuts");
+      .setName("coconuts");
+
+    failure.expect(CoreException.class);
+    failure.expectMessage("Account ID is required");
 
     testDAO.create(access, inputData);
   }
@@ -147,7 +151,7 @@ public class LibraryIT {
       "accounts", "1"
     ));
 
-    Collection<Library> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
+    Collection<Library> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertEquals(2L, result.size());
     Iterator<Library> resultIt = result.iterator();
@@ -162,7 +166,7 @@ public class LibraryIT {
       "accounts", "1,2"
     ));
 
-    Collection<Library> result = testDAO.readAll(access, Lists.newArrayList());
+    Collection<Library> result = testDAO.readMany(access, Lists.newArrayList());
 
     assertEquals(4L, result.size());
     Iterator<Library> it = result.iterator();
@@ -179,12 +183,12 @@ public class LibraryIT {
       "accounts", "345"
     ));
 
-    Collection<Library> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
+    Collection<Library> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertEquals(0L, result.size());
   }
 
-  @Test(expected = CoreException.class)
+  @Test
   public void update_FailsWithoutAccountID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
@@ -192,16 +196,22 @@ public class LibraryIT {
     Library inputData = new Library()
       .setName("cannons");
 
+    failure.expect(CoreException.class);
+    failure.expectMessage("Account ID is required");
+
     testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
 
-  @Test(expected = CoreException.class)
+  @Test
   public void update_FailsWithoutName() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Library inputData = new Library()
       .setAccountId(BigInteger.valueOf(3L));
+
+    failure.expect(CoreException.class);
+    failure.expectMessage("Name is required");
 
     testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
@@ -247,7 +257,7 @@ public class LibraryIT {
   /**
    [#155089641] Engineer expects to be able to create and update a Library.
    */
-  @Test(expected = CoreException.class)
+  @Test
   public void update_asEngineer_failsWithoutAccountAccess() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Engineer",
@@ -257,10 +267,13 @@ public class LibraryIT {
       .setName("cannons")
       .setAccountId(BigInteger.valueOf(1L));
 
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
+
     testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
 
-  @Test(expected = CoreException.class)
+  @Test
   public void update_FailsUpdatingToNonexistentAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
@@ -277,7 +290,7 @@ public class LibraryIT {
       assertNotNull(result);
       assertEquals("helm", result.getName());
       assertEquals(BigInteger.valueOf(2L), result.getAccountId());
-      throw e;
+      assertSame(CoreException.class, e.getClass());
     }
   }
 
@@ -323,23 +336,42 @@ public class LibraryIT {
 
     testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(1L));
+    assertNotExist(testDAO, BigInteger.valueOf(1L));
   }
 
-  @Test(expected = CoreException.class)
-  public void delete_FailsIfLibraryHasChilds() throws Exception {
+  @Test
+  public void delete_FailsIfLibraryHasProgram() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertUser(101, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertSequence(301, 101, 2, SequenceType.Main, SequenceState.Published, "brilliant", 0.342, "C#", 0.286);
+    insert(newUser(101, "bill", "bill@email.com", "http://pictures.com/bill.gif"));
+    insert(newProgram(301, 101, 2, ProgramType.Main, ProgramState.Published, "brilliant", "C#", 120.0, now()));
 
     try {
       testDAO.destroy(access, BigInteger.valueOf(2L));
     } catch (Exception e) {
       Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
       assertNotNull(result);
-      throw e;
+      assertSame(CoreException.class, e.getClass());
+      assertEquals("Found Program in Library", e.getMessage());
+    }
+  }
+
+  @Test
+  public void delete_FailsIfLibraryHasInstrument() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+    insert(newUser(101, "bill", "bill@email.com", "http://pictures.com/bill.gif"));
+    insert(newInstrument(301, 101, 2, InstrumentType.Percussive, InstrumentState.Published, "brilliant", now()));
+
+    try {
+      testDAO.destroy(access, BigInteger.valueOf(2L));
+    } catch (Exception e) {
+      Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
+      assertNotNull(result);
+      assertSame(CoreException.class, e.getClass());
+      assertEquals("Found Instrument in Library", e.getMessage());
     }
   }
 }

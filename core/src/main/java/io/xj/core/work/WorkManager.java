@@ -88,66 +88,6 @@ public interface WorkManager {
   void stopChainErase(BigInteger chainId);
 
   /**
-   Erase a Sequence,
-   by creating a one-time`SequenceEraseJob`.
-
-   @param sequenceId to erase
-   */
-  void doSequenceErase(BigInteger sequenceId);
-
-  /**
-   Erase a Pattern,
-   by creating a one-time`PatternEraseJob`.
-
-   @param patternId to erase
-   */
-  void doPatternErase(BigInteger patternId);
-
-  /**
-   Erase an Audio,
-   by creating a one-time `AudioEraseJob`.
-
-   @param audioId to erase
-   */
-  void doAudioErase(BigInteger audioId);
-
-  /**
-   Clone an Instrument,
-   by creating a one-time `InstrumentCloneJob`.
-
-   @param sourceId from which to Clone
-   @param targetId to clone into
-   */
-  void doInstrumentClone(BigInteger sourceId, BigInteger targetId);
-
-  /**
-   Clone an Audio,
-   by creating a one-time `AudioCloneJob`.
-
-   @param sourceId from which to Clone
-   @param targetId to clone into
-   */
-  void doAudioClone(BigInteger sourceId, BigInteger targetId);
-
-  /**
-   Clone a Sequence,
-   by creating a one-time `SequenceCloneJob`.
-
-   @param sourceId from which to Clone
-   @param targetId to clone into
-   */
-  void doSequenceClone(BigInteger sourceId, BigInteger targetId);
-
-  /**
-   Clone an Pattern,
-   by creating a one-time `PatternCloneJob`.
-
-   @param sourceId from which to Clone
-   @param targetId to clone into
-   */
-  void doPatternClone(BigInteger sourceId, BigInteger targetId);
-
-  /**
    Get a Worker
 
    @param jobFactory to get job from

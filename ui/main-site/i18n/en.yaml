@@ -1,74 +1,28 @@
-- id: about
-  translation: "About"
-
-- id: home
-  translation: "Home"
-
-- id: recentPosts
-  translation: "Recent Posts"
-
-- id: readMore
-  translation: "Read more →"
-
-- id: translations
-  translation: "Translations"
-
-- id: share
-  translation: "Share"
-
-- id: paginatorPrevious
-  translation: "Previous page"
-
-- id: paginatorNext
-  translation: "Next page"
-
-- id: cookieMessage
-  translation: "This website uses cookies."
-
-- id: cookieLink
-  translation: "Learn more."
-
-- id: cookieDismiss
-  translation: "Got it!"
-
-- id: backToTop
-  translation: "Back to top"
-
-- id: links
-  translation: "Links"
-
-- id: xjIsTheFutureOfAmbientMusic
-  translation: "<strong>XJ</strong> is an AI-powered instrument for collaborative music production."
-
-- id: signIn
-  translation: "Sign In"
-
-- id: aboutCallout
-  translation: "About"
-
-- id: aboutBlurb
-  translation: "We are defining a completely new, information age sound."
-
-- id: loginBlurb
-  translation: "Our cloud-based software platform is now undergoing private Beta testing."
-
-- id: contactMadeIn
-  translation: "Made in"
-
-- id: contactTeamHead
-  translation: "Join the team"
-
-- id: contactTeamBody
-  translation: "If you are a **scientist**, **music professional**, **software developer,** **engineer,** and/or our work interests you, please email [team@xj.io](mailto:team@xj.io)."
-
-- id: contactBetaHead
-  translation: "Beta testing"
-
-- id: contactBetaBody
-  translation: "[Sign in](https://hub.xj.io/login) for a chance to participate."
-
-- id: contactSolutionsHead
-  translation: "Solutions"
-
-- id: contactSolutionsBody
-  translation: "Research, design, and implementation exclusively by [Aircraft](https://ambience.co/)<sup>&reg;</sup>"
+en:
+  about: "About"
+  home: "Home"
+  recentPosts: "Recent Posts"
+  readMore: "Read more →"
+  translations: "Translations"
+  share: "Share"
+  paginatorPrevious: "Previous page"
+  paginatorNext: "Next page"
+  cookieMessage: "This website uses cookies."
+  cookieLink: "Learn more."
+  cookieDismiss: "Got it!"
+  backToTop: "Back to top"
+  links: "Links"
+  xjIsTheFutureOfAmbientMusic: "<strong>XJ Music<sup>&trade;</sup></strong> is an AI-powered instrument for collaborative ambient music production."
+  signIn: "Sign In"
+  aboutCallout: "About"
+  aboutBlurb: "We are defining a completely new, information age sound."
+  listenCallout: "Listen"
+  listenBlurb: "Our early pre-release demo <strong>Cool&nbsp;Ambience<sup>&trade;</sup></strong> is streaming&nbsp;live 24/7&nbsp;for&nbsp;free!"
+  loginBlurb: "Our cloud-based software platform is now undergoing private Beta testing."
+  contactMadeIn: "Made in"
+  contactTeamHead: "Join the team"
+  contactTeamBody: "If you are a **scientist**, **music professional**, **software developer,** **engineer,** and/or our work interests you, please email [team@xj.io](mailto:team@xj.io)."
+  contactBetaHead: "Beta testing"
+  contactBetaBody: "[Sign in](https://hub.xj.io/login) to participate."
+  contactSolutionsHead: "Solutions"
+  contactSolutionsBody: "Research, design, and implementation exclusively by [Aircraft](https://ambience.co/)<sup>&trade;</sup>"

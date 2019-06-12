@@ -1,8 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.library;
 
+import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
+import io.xj.core.model.account.Account;
 import io.xj.core.model.entity.impl.EntityImpl;
+import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.program.Program;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -18,38 +22,25 @@ import java.util.Objects;
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class Library extends EntityImpl {
-  public static final String KEY_ONE = "library";
-  public static final String KEY_MANY = "libraries";
   private String name;
   private BigInteger accountId;
 
-  public Library() {
-  }
+  /**
+   get AccountId
 
-  public Library(long id) {
-    this.id = BigInteger.valueOf(id);
-  }
-
-  public Library(BigInteger id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public Library setName(String name) {
-    this.name = name;
-    return this;
-  }
-
+   @return AccountId
+   */
   public BigInteger getAccountId() {
     return accountId;
   }
 
-  public Library setAccountId(BigInteger accountId) {
-    this.accountId = accountId;
-    return this;
+  /**
+   get Name
+
+   @return Name
+   */
+  public String getName() {
+    return name;
   }
 
   @Override
@@ -58,13 +49,60 @@ public class Library extends EntityImpl {
   }
 
   @Override
-  public void validate() throws CoreException {
-    if (Objects.isNull(name) || name.isEmpty()) {
+  public ImmutableList<String> getResourceAttributeNames() {
+    return ImmutableList.<String>builder()
+      .addAll(super.getResourceAttributeNames())
+      .add("name")
+      .build();
+  }
+
+  @Override
+  public ImmutableList<Class> getResourceBelongsTo() {
+    return ImmutableList.<Class>builder()
+      .addAll(super.getResourceBelongsTo())
+      .add(Account.class)
+      .build();
+  }
+
+  @Override
+  public ImmutableList<Class> getResourceHasMany() {
+    return ImmutableList.<Class>builder()
+      .addAll(super.getResourceHasMany())
+      .add(Instrument.class)
+      .add(Program.class)
+      .build();
+  }
+
+  /**
+   set AccountId
+
+   @param accountId to set
+   @return this Library (for chaining methods)
+   */
+  public Library setAccountId(BigInteger accountId) {
+    this.accountId = accountId;
+    return this;
+  }
+
+  /**
+   set Name
+
+   @param name to set
+   @return this Library (for chaining methods)
+   */
+  public Library setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  @Override
+  public Library validate() throws CoreException {
+    if (Objects.isNull(name) || name.isEmpty())
       throw new CoreException("Name is required.");
-    }
-    if (Objects.isNull(accountId)) {
-      throw new CoreException("Account ID is required.");
-    }
+
+    require(accountId, "Account ID");
+
+    return this;
   }
 
 }

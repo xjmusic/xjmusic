@@ -40,10 +40,10 @@ public class MixerImpl implements Mixer {
   private final int totalBytes;
   private final int totalFrames;
   // fields: in-memory storage via concurrent maps
-  private final Map<String, Source> sources = Maps.newConcurrentMap();
-  private final Map<Long, Put> readyPuts = Maps.newConcurrentMap();
-  private final Map<Long, Put> livePuts = Maps.newConcurrentMap();
-  private final Map<Long, Put> donePuts = Maps.newConcurrentMap();
+  private final Map<String, Source> sources = Maps.newConcurrentMap(); // concurrency required
+  private final Map<Long, Put> readyPuts = Maps.newConcurrentMap(); // concurrency required
+  private final Map<Long, Put> livePuts = Maps.newConcurrentMap(); // concurrency required
+  private final Map<Long, Put> donePuts = Maps.newConcurrentMap(); // concurrency required
   // fields: mix macro and audio format
   private final MixerFactory factory;
   private final MixerConfig config;
@@ -210,6 +210,11 @@ public class MixerImpl implements Mixer {
   }
 
   @Override
+  public boolean hasLoadedSource(String sourceId) {
+    return sources.containsKey(sourceId);
+  }
+
+  @Override
   public boolean isDebugging() {
     return debugging;
   }
@@ -241,8 +246,8 @@ public class MixerImpl implements Mixer {
     // This alters the relative amplitudes from the previous step, implicitly normalizing them well below amplitude 1.0
     applyLogarithmicDynamicRange();
 
-    // The lowpass filter ensures there are no screeching extra-high tones in the mix.
-    // The highpass filter ensures there are no distorting ultra-low tones in the mix.
+    // The low-pass filter ensures there are no screeching extra-high tones in the mix.
+    // The high-pass filter ensures there are no distorting ultra-low tones in the mix.
     applyBandpass();
 
     // Compression is more predictable within the logarithmic range

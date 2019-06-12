@@ -1,7 +1,7 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { set, get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -21,16 +21,6 @@ export default Route.extend({
         get(self, 'display').error(error);
         self.transitionTo('users');
       });
-  },
-
-  /**
-   * Breadcrumb & Headline
-   * @param model
-   */
-  afterModel(model) {
-    set(this, 'breadCrumb', {
-      title: model.get("name")
-    });
   },
 
   /**

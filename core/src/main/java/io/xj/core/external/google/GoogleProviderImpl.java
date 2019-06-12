@@ -2,7 +2,6 @@
 package io.xj.core.external.google;
 
 import io.xj.core.config.Config;
-import io.xj.core.config.Exposure;
 import io.xj.core.exception.CoreException;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
@@ -46,8 +45,8 @@ public class GoogleProviderImpl implements GoogleProvider {
     this.googleHttpProvider = googleHttpProvider;
     this.jsonFactory = jsonFactory;
     try {
-      clientId = Config.authGoogleId();
-      clientSecret = Config.authGoogleSecret();
+      clientId = Config.getAuthGoogleId();
+      clientSecret = Config.getAuthGoogleSecret();
     } catch (CoreException e) {
       log.error("Failed to initialize Google Provider: {}", e.getMessage());
     }
@@ -65,7 +64,7 @@ public class GoogleProviderImpl implements GoogleProvider {
 
   @Override
   public String getCallbackUrl() {
-    return Exposure.apiUrlString(CALLBACK_PATH);
+    return Config.getApiUrlString(CALLBACK_PATH);
   }
 
   @Override
@@ -119,7 +118,7 @@ public class GoogleProviderImpl implements GoogleProvider {
     try {
       person = jsonFactory.createJsonParser(responseJson).parse(Person.class);
     } catch (Exception e) {
-      throw new CoreException("Google API result is not isValid JSON", e);
+      throw new CoreException("Google API result is not valid JSON", e);
     }
 
     return person;

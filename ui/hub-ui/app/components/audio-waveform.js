@@ -1,6 +1,5 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import {get} from '@ember/object';
 import {inject as service} from '@ember/service';
 import Component from '@ember/component';
 
@@ -14,7 +13,7 @@ const AudioWaveformComponent = Component.extend({
 
   didRender() {
     let self = this;
-    get(self, 'config').promises.config.then(
+    this.config.getConfig().then(
       (config) => {
         self.set('audioBaseUrl', config.audioBaseUrl);
         //Create and initialize instance of wavesurfer
@@ -29,7 +28,7 @@ const AudioWaveformComponent = Component.extend({
             splitChannels: false
           }));
 
-        let waveformURL = this.get("audioBaseUrl") + self.get("model").get("waveformKey");
+        let waveformURL = this.audioBaseUrl + self.get("model").get("waveformKey");
         self.get('wavesurfer').on('ready', function () {
           self.onWavesurferReady();
         });
@@ -54,7 +53,6 @@ const AudioWaveformComponent = Component.extend({
     let vFloor = self.get('wavesurfer.params.minPxPerSec');
 
     slider.oninput = function () {
-      // let width = self.$().width();
       let zoomRatio = Number(slider.value) / 1000;
       let pxPerSec = vFloor + (vCeiling - vFloor) * zoomRatio;
       Wave.zoom(pxPerSec);

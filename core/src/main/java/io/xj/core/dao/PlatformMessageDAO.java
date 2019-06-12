@@ -3,7 +3,7 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.platform_message.PlatformMessage;
+import io.xj.core.model.message.platform.PlatformMessage;
 
 import java.util.Collection;
 

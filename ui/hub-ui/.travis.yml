@@ -1,23 +1,13 @@
 ---
 language: node_js
 node_js:
-  - "4"
+  - "8"
 
 sudo: false
 
 cache:
   directories:
     - node_modules
-
-before_install:
-  - npm config set spin false
-  - npm install phantomjs-prebuilt
-
-install:
-  - npm install
-
-script:
-  - npm test
 
 script:
   - npm run lint:js

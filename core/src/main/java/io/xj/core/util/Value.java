@@ -1,10 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
-import org.jooq.types.ULong;
-
-import java.math.BigInteger;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,17 +11,6 @@ public interface Value {
   String CHORD_MARKER_NON_CHORD = "---";
   double entityPositionDecimalPlaces = 2.0;
   double roundPositionMultiplier = StrictMath.pow(10.0, entityPositionDecimalPlaces);
-
-  /**
-   Increment a BigInteger by an integer
-
-   @param base  to begin with
-   @param delta to increment base
-   @return incremented base
-   */
-  static BigInteger inc(BigInteger base, int delta) {
-    return base.add(BigInteger.valueOf(delta));
-  }
 
   /**
    Return the first value if it's non-null, else the second
@@ -67,20 +52,6 @@ public interface Value {
   }
 
   /**
-   Return the maximum from a set of values
-
-   @param values to return maximum of
-   @return maximum value
-   */
-  static BigInteger max(List<BigInteger> values) {
-    BigInteger max = BigInteger.ZERO;
-    for (BigInteger value : values)
-      if (Objects.equals(1, value.compareTo(max)))
-        max = value;
-    return max;
-  }
-
-  /**
    Calculate ratio (from 0 to 1) within a zero-to-N limit
 
    @param value to calculate radio of
@@ -92,38 +63,6 @@ public interface Value {
   }
 
   /**
-   Is value greater than or equal to zero?
-
-   @param value to check
-   @return true if greater than or equal to zero
-   */
-  static boolean isGreaterThanOrEqualToZero(BigInteger value) {
-    return 0 >= BigInteger.ZERO.compareTo(value);
-  }
-
-  /**
-   Allows a negative BigInteger to be passed in, which will return ULong value of 0.
-   A positive number is returned.
-
-   @param value to get ULong of
-   @return ULong of positive value, or zero
-   */
-  static ULong safeULong(BigInteger value) {
-    return isNegative(value) ? ULong.valueOf(BigInteger.ZERO) : ULong.valueOf(value);
-  }
-
-  /**
-   Allows a negative BigInteger to be passed in, which will return ULong value of 0.
-   A positive number is returned.
-
-   @param value to get ULong of
-   @return ULong of positive value, or zero
-   */
-  static Boolean isNegative(BigInteger value) {
-    return 0 > value.compareTo(BigInteger.ZERO);
-  }
-
-  /**
    Round a value to N decimal places.
    [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
 
@@ -132,5 +71,15 @@ public interface Value {
    */
   static Double limitFloatingPointPlaces(Double value) {
     return Math.floor(value * roundPositionMultiplier) / roundPositionMultiplier;
+  }
+
+  /**
+   True if input string is an integer
+
+   @param raw text to check if it's an integer
+   @return true if it's an integer
+   */
+  static Boolean isInteger(String raw) {
+    return Text.isInteger.matcher(raw).matches();
   }
 }

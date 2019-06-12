@@ -5,6 +5,6 @@
 
 # apps, configs, static assets
 HUB_BASEURL="http://localhost/api/1"
-HEARTBEAT_KEY="12345"
+HEARTBEAT_KEY="1234"
 
 curl -v --data "key=${HEARTBEAT_KEY}" -H "Content-Type: application/x-www-form-urlencoded" "${HUB_BASEURL}/heartbeat" | jq .

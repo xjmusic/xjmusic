@@ -1,10 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Route from '@ember/routing/route';
 
-import { get } from '@ember/object';
-
-import { Promise as EmberPromise } from 'rsvp';
-import { inject as service } from '@ember/service';
+import {Promise as EmberPromise} from 'rsvp';
+import {inject as service} from '@ember/service';
 
 export default Route.extend({
 
@@ -19,7 +17,7 @@ export default Route.extend({
   model() {
     let self = this;
     return new EmberPromise((resolve, reject) => {
-      get(self, 'config').promises.config.then(
+      this.config.getConfig().then(
         () => {
           resolve(self.resolvedModel());
         },
@@ -38,7 +36,6 @@ export default Route.extend({
     if (this.get('auth.isUser')) {
       this.transitionTo('');
     }
-  },
+  }
 
-  breadCrumb: null
 });

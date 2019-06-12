@@ -8,11 +8,13 @@
 {{#each show as |act|}}
 
   {{#if modelF}}
-    {{#link-to (concat (concat base ".") act) modelA modelB modelC modelD modelE modelF class=(concat "action action-" act)}}{{fa-icon
+    {{#link-to (concat (concat base ".") act) modelA modelB modelC modelD modelE modelF
+               class=(concat "action action-" act)}}{{fa-icon
       (action-icon act)}}{{/link-to}}
 
   {{else if modelE}}
-    {{#link-to (concat (concat base ".") act) modelA modelB modelC modelD modelE class=(concat "action action-" act)}}{{fa-icon
+    {{#link-to (concat (concat base ".") act) modelA modelB modelC modelD modelE
+               class=(concat "action action-" act)}}{{fa-icon
       (action-icon act)}}{{/link-to}}
 
   {{else if modelD}}

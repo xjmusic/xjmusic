@@ -164,7 +164,7 @@ export class SegmentAudio {
       } catch (e) {
         self.error("Caught exception while decoding audio data", e);
       }
-    }
+    };
     request.send();
   }
 

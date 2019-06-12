@@ -6,22 +6,22 @@ import Component from '@ember/component';
  */
 const EntityActionsComponent = Component.extend({
   willRender() {
-    if (typeof this.get("show") === "string") {
-      this.set("show", this.get("show").split("|"));
+    if (typeof this.show === "string") {
+      this.set("show", this.show.split("|"));
     }
 
-/*
-    console.log("EntityActionsComponent", {
-      base: this.get("base"),
-      show: this.get("show"),
-      model0: this.get("modelA"),
-      model1: this.get("modelB"),
-      model2: this.get("modelC"),
-      model3: this.get("modelD"),
-      model4: this.get("modelE"),
-      model5: this.get("modelF")
-    });
-*/
+    /*
+        console.log("EntityActionsComponent", {
+          base: this.get("base"),
+          show: this.get("show"),
+          model0: this.get("modelA"),
+          model1: this.get("modelB"),
+          model2: this.get("modelC"),
+          model3: this.get("modelD"),
+          model4: this.get("modelE"),
+          model5: this.get("modelF")
+        });
+    */
   },
 
   actions: {

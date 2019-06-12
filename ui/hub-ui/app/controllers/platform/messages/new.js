@@ -1,5 +1,5 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { set } from '@ember/object';
+import {set} from '@ember/object';
 import Controller from '@ember/controller';
 
 export default Controller.extend({
@@ -11,7 +11,7 @@ export default Controller.extend({
      * @param type
      * @returns {*}
      */
-    selectMessageType(type){
+    selectMessageType(type) {
       set(this, 'model.type', type);
       return type;
     },

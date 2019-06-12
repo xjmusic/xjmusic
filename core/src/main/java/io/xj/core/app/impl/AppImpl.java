@@ -9,7 +9,7 @@ import io.xj.core.config.Config;
 import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.message.MessageType;
-import io.xj.core.model.platform_message.PlatformMessage;
+import io.xj.core.model.message.platform.PlatformMessage;
 import io.xj.core.transport.HttpServerProvider;
 import io.xj.core.transport.ResourceConfigProvider;
 import io.xj.core.work.WorkManager;
@@ -63,7 +63,7 @@ public class AppImpl implements App {
   ) {
     // Use specified packages plus default resource package
     String[] finalPackages = new String[packages.length + 1];
-    finalPackages[0] = "io.xj.core.resource";
+    finalPackages[0] = "io.xj.core.common";
     System.arraycopy(packages, 0, finalPackages, 1, packages.length);
     for (String finalPackage : finalPackages) {
       log.info("Resources: {}", finalPackage);
@@ -101,7 +101,7 @@ public class AppImpl implements App {
 
     if (Objects.nonNull(jobFactory)) {
       workerPool = new RobustWorkerPool(() -> workManager.getWorker(jobFactory),
-        Config.workConcurrency(), Executors.defaultThreadFactory());
+        Config.getWorkConcurrency(), Executors.defaultThreadFactory());
 
       // Handle errors from the worker pool
       workerPool.getWorkerEventEmitter().addListener(
@@ -119,10 +119,10 @@ public class AppImpl implements App {
 
     sendPlatformMessage(MessageType.Debug, String.format(
       "%s (%s) is up on %s:%s",
-      Config.appName(),
-      Config.platformRelease(),
-      Config.appHostname(),
-      Config.appPort()
+      Config.getAppName(),
+      Config.getPlatformRelease(),
+      Config.getAppHostname(),
+      Config.getAppPort()
     ));
   }
 
@@ -155,16 +155,16 @@ public class AppImpl implements App {
 
     sendPlatformMessage(MessageType.Debug, String.format(
       "%s (%s) did exit OK on %s:%s",
-      Config.appName(),
-      Config.platformRelease(),
-      Config.appHostname(),
-      Config.appPort()
+      Config.getAppName(),
+      Config.getPlatformRelease(),
+      Config.getAppHostname(),
+      Config.getAppPort()
     ));
   }
 
   @Override
   public String baseURI() {
-    return "http://" + Config.appHost() + ":" + Config.appPort() + "/";
+    return "http://" + Config.getAppHost() + ":" + Config.getAppPort() + "/";
   }
 
 

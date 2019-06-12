@@ -113,7 +113,7 @@ public class Isometry {
    @return unique constellation for this set of strings.
    */
   public String getConstellation() {
-    Map<String, Boolean> uniqueStems = Maps.newConcurrentMap();
+    Map<String, Boolean> uniqueStems = Maps.newHashMap();
     sources.forEach(stem -> uniqueStems.put(stem, true));
     Set<String> pieces = Sets.newTreeSet(uniqueStems.keySet());
     return String.join(CONSTELLATION_DELIMITER, pieces);

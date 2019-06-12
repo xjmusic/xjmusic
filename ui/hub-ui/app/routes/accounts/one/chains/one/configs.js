@@ -1,9 +1,9 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+import Route from '@ember/routing/route';
 import {get} from '@ember/object';
-
 import {hash, Promise as EmberPromise} from 'rsvp';
 import {inject as service} from '@ember/service';
-import Route from '@ember/routing/route';
+import {v4 as uuid} from "ember-uuid";
 
 export default Route.extend({
 
@@ -15,70 +15,90 @@ export default Route.extend({
 
   /**
    * Model is a promise because it depends on promised configs
-   * @returns {Ember.RSVP.Promise}
+   * @returns {Promise}
    */
   model() {
     return new EmberPromise((resolve, reject) => {
       let self = this;
-      get(this, 'config').promises.config.then(
-        (config) => {
-          resolve(self.resolvedModel(config));
+      this.config.getConfig().then(
+        () => {
+          resolve(hash({
+            chain: self.modelFor('accounts.one.chains.one'),
+            configType: '',
+            configValue: '',
+            chainConfigTypes: self.config.chainConfigTypes,
+          }, 'chain, chain configs, chain config types, config to add to chain'));
+
         },
         (error) => {
-          reject('Could not instantiate new Chain', error);
+          reject('Failed to load config', error);
         }
       );
     });
   },
 
-  /**
-   * Resolved (with configs) model
-   * @param config
-   * @returns {*} hash
-   */
-  resolvedModel(config) {
-    let chain = this.modelFor('accounts.one.chains.one');
-    return hash({
-      chain: chain,
-      chainConfigToAdd: this.store.createRecord('chain-config', {
-        chain: chain,
-        type: ''
-      }),
-      chainConfigTypes: config.chainConfigTypes,
-      chainConfigs: this.store.query('chain-config', {chainId: chain.id}),
-    }, 'chain, chain configs, chain config types, config to add to chain');
-  },
-
-  /**
-   * Route Actions
-   */
+  //
   actions: {
 
+    //
     sessionChanged: function () {
+      this.modelFor('accounts.one.chains.one').reload();
       this.refresh();
     },
 
-    removeConfig(model) {
-      model.destroyRecord({}).then(
-        () => {
-          get(this, 'display').success('Removed Config from Chain.');
-        },
-        (error) => {
-          get(this, 'display').error(error);
-        });
-    },
-
-    addConfig(model) {
+    /**
+     * Remove a chainConfig record
+     * @param chainConfig record to remove
+     */
+    removeConfig(chainConfig) {
       let self = this;
-      let chainConfig = model.chainConfigToAdd;
-      chainConfig.save().then(
-        (saved) => {
-          get(self, 'display').success('Added ' + saved.get('type') + '=' + saved.get('value'));
-          // this.transitionToRoute('chains.one.configs',model.chain);
+      let chain = this.modelFor('accounts.one.chains.one');
+      this.store.deleteRecord(chainConfig);
+      chain.save().then(
+        () => {
+          self.display.success('Removed Config from Chain.');
           self.send("sessionChanged");
         },
         (error) => {
           get(self, 'display').error(error);
+        });
+    },
+
+    /**
+     * Add a new Config
+     * @param type of new config
+     * @param value of new config
+     */
+    addConfig(type, value) {
+      let self = this;
+      let chain = this.modelFor('accounts.one.chains.one');
+      let addedConfig = this.store.push({
+        data: {
+          id: uuid(),
+          type: 'chain-config',
+          attributes: {
+            type: type,
+            value: value
+          },
+          relationships: {
+            chain: {
+              data: {
+                id: chain.get('id'),
+                type: 'chain'
+              }
+            }
+          }
+        }
+      });
+      chain.save().then(
+        () => {
+          get(self, 'display').success(`Added ${addedConfig.get('type')}="${addedConfig.get('value')}"`);
+        },
+        (error) => {
+          chain.rollbackAttributes();
+          chain.reload().then(() => {
+            get(self, 'display').error(error);
+          });
         });
     },
 

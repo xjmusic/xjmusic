@@ -1,0 +1,45 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Upper Container -->
+{{#if (or auth.isArtist auth.isAdmin)}}
+  <div class="form-horizontal container-fluid">
+    <div class="col-sm-12 text-right">
+      {{#edit-program-attributes model.newProgram}}{{fa-icon "plus"}} New Program{{/edit-program-attributes}}
+    </div>
+  </div>
+{{/if}}
+
+<div class="table-list">
+  <table class="table">
+    <thead>
+    <tr>
+      <th width="1%">By</th>
+      <th width="1%">Type</th>
+      <th width="1%">State</th>
+      <th>Name</th>
+      <th width="4%">Key</th>
+      <th width="4%">Density</th>
+      <th width="4%">Tempo</th>
+      <th width="1%">#</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#each model.programs as |program|}}
+      <tr class="item">
+        <td>{{#link-to "users.one" program.user}}
+          <img src="{{program.user.avatarUrl}}" alt="{{program.user.name}}" class="avatar"/>{{/link-to}}</td>
+        <td>{{program.type}}</td>
+        <td>{{program.state}}</td>
+        <td>{{#link-to "accounts.one.libraries.one.programs.editor" program.library.account.id program.library.id program.id}}{{program.name}}{{/link-to}}</td>
+        <td>{{program.key}}</td>
+        <td style="white-space: nowrap">{{program.density}}</td>
+        <td>{{program.tempo}}</td>
+        <th scope="row">{{program.id}}</th>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
+</div>

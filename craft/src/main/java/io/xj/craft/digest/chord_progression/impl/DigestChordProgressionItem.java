@@ -2,7 +2,7 @@
 package io.xj.craft.digest.chord_progression.impl;
 
 import io.xj.craft.chord.ChordProgression;
-import io.xj.craft.chord.PatternChordProgression;
+import io.xj.craft.chord.SequenceChordProgression;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -22,7 +22,7 @@ import java.util.Map;
 public class DigestChordProgressionItem {
   static final Comparator<? super DigestChordProgressionItem> byUsageTimesLengthDescending = (o1, o2) -> Integer.compare(o2.computeUsageTimesLength(), o1.computeUsageTimesLength());
   private final ChordProgression chordProgression;
-  private final Collection<PatternChordProgression> usages = Lists.newArrayList();
+  private final Collection<SequenceChordProgression> usages = Lists.newArrayList();
 
   /**
    New instance
@@ -38,7 +38,7 @@ public class DigestChordProgressionItem {
 
    @return chord progressions
    */
-  Collection<PatternChordProgression> getUsages() {
+  Collection<SequenceChordProgression> getUsages() {
     return Collections.unmodifiableCollection(usages);
   }
 
@@ -65,7 +65,7 @@ public class DigestChordProgressionItem {
 
    @param chordProgression to add
    */
-  public void add(PatternChordProgression chordProgression) {
+  public void add(SequenceChordProgression chordProgression) {
     usages.add(chordProgression);
   }
 
@@ -74,8 +74,8 @@ public class DigestChordProgressionItem {
 
    @param candidate to maybe add
    */
-  void addIfUniqueParent(PatternChordProgression candidate) {
-    for (PatternChordProgression existing : usages)
+  void addIfUniqueParent(SequenceChordProgression candidate) {
+    for (SequenceChordProgression existing : usages)
       if (Objects.equal(existing.getParentId(), candidate.getParentId()))
         return;
 
@@ -97,7 +97,7 @@ public class DigestChordProgressionItem {
    @return count of unique usages
    */
   private int computeUniqueUsages() {
-    Map<BigInteger, Boolean> search = Maps.newConcurrentMap();
+    Map<BigInteger, Boolean> search = Maps.newHashMap();
     getUsages().forEach(chordProgression ->
       search.put(chordProgression.getParentId(), true)
     );

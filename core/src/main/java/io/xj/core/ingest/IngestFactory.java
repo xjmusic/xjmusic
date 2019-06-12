@@ -2,7 +2,7 @@
 package io.xj.core.ingest;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.model.chain.sub.ChainBinding;
 
 import com.google.inject.assistedinject.Assisted;
 import io.xj.core.exception.CoreException;
@@ -10,7 +10,7 @@ import io.xj.core.exception.CoreException;
 import java.util.Collection;
 
 /**
- [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
+ [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
  Ingest ingest = evaluationFactory.of(...any combination of libraries, instruments, and sequences...);
  */
 @FunctionalInterface
@@ -23,8 +23,8 @@ public interface IngestFactory {
    @return entities to be evaluated
    @throws CoreException on failure to of target entities
    */
-  Ingest evaluate(
+  Ingest ingest(
     @Assisted("access") Access access,
-    @Assisted("entities") Collection<Entity> entities
+    @Assisted("bindings") Collection<ChainBinding> bindings
   ) throws CoreException;
 }

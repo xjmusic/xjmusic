@@ -1,36 +1,29 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.instrument;
 
-import io.xj.core.access.impl.Access;
 import io.xj.core.dao.InstrumentDAO;
-import io.xj.core.exception.CoreException;
-import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.instrument.InstrumentWrapper;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.transport.HttpResponseProvider;
+import io.xj.core.model.payload.MediaType;
+import io.xj.core.model.payload.Payload;
+import io.xj.core.model.user.role.UserRoleType;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.math.BigInteger;
 
 /**
  Instrument record
  */
 @Path("instruments/{id}")
+// TODO don't necessarily include all sub-entities--- only do so on request, and probably not at all for the index resources
 public class InstrumentOneResource extends HubResource {
-  private final InstrumentDAO instrumentDAO = injector.getInstance(InstrumentDAO.class);
-  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
   String id;
@@ -42,39 +35,21 @@ public class InstrumentOneResource extends HubResource {
    */
   @GET
   @RolesAllowed(UserRoleType.USER)
-  public Response readOne(@Context ContainerRequestContext crc) throws IOException {
-    try {
-      return response.readOne(
-        Instrument.KEY_ONE,
-        instrumentDAO.readOne(
-          Access.fromContext(crc),
-          new BigInteger(id)));
-
-    } catch (CoreException ignored) {
-      return response.notFound("Instrument");
-
-    } catch (Exception e) {
-      return response.failure(e);
-    }
+  public Response readOne(@Context ContainerRequestContext crc) {
+    return readOne(crc, dao(), id);
   }
 
   /**
    Update one instrument
 
-   @param data with which to update Instrument record.
+   @param payload with which to update Instrument record.
    @return Response
    */
-  @PUT
-  @Consumes(MediaType.APPLICATION_JSON)
+  @PATCH
+  @Consumes(MediaType.APPLICATION_JSON_API)
   @RolesAllowed(UserRoleType.ARTIST)
-  public Response update(InstrumentWrapper data, @Context ContainerRequestContext crc) {
-    try {
-      instrumentDAO.update(Access.fromContext(crc), new BigInteger(id), data.getInstrument());
-      return Response.accepted("{}").build();
-
-    } catch (Exception e) {
-      return response.failureToUpdate(e);
-    }
+  public Response update(Payload payload, @Context ContainerRequestContext crc) {
+    return update(crc, dao(), id, payload);
   }
 
   /**
@@ -85,13 +60,15 @@ public class InstrumentOneResource extends HubResource {
   @DELETE
   @RolesAllowed(UserRoleType.ADMIN)
   public Response delete(@Context ContainerRequestContext crc) {
-    try {
-      instrumentDAO.destroy(Access.fromContext(crc), new BigInteger(id));
-      return Response.accepted("{}").build();
-
-    } catch (Exception e) {
-      return response.failure(e);
-    }
+    return delete(crc, dao(), id);
   }
 
+  /**
+   Get DAO from injector
+
+   @return DAO
+   */
+  private InstrumentDAO dao() {
+    return injector.getInstance(InstrumentDAO.class);
+  }
 }

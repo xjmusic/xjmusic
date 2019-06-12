@@ -30,9 +30,9 @@ public class TimeComputerImpl implements TimeComputer {
   double toVelocity;
   double fromVelocity;
   double velocityDelta;
-  Map<Integer, Double> timeAtPosition = Maps.newConcurrentMap();
-  double div = Config.computeTimeFramesPerBeat();
-  double sub = Config.computeTimeResolutionHz();
+  Map<Integer, Double> timeAtPosition = Maps.newHashMap();
+  double div = Config.getComputeTimeFramesPerBeat();
+  double sub = Config.getComputeTimeResolutionHz();
   double inc = 1 / div;
 
   /**

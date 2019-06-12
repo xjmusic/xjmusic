@@ -18,7 +18,7 @@ import java.net.URI;
  */
 @Path("auth/google")
 public class AuthGoogleResource extends HubResource {
-  private static Logger log = LoggerFactory.getLogger(AuthGoogleResource.class);
+  private static final Logger log = LoggerFactory.getLogger(AuthGoogleResource.class);
 
   /**
    Begin user OAuth2 authentication via Google.

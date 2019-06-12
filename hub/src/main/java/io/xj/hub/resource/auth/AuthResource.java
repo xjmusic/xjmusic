@@ -2,7 +2,7 @@
 package io.xj.hub.resource.auth;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.user.role.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;

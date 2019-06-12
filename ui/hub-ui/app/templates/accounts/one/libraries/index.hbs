@@ -7,7 +7,7 @@
 {{#if (or auth.isAdmin auth.isEngineer)}}
   <div class="form-horizontal container-fluid">
     <div class="col-sm-12 text-right">
-      {{#link-to 'accounts.one.libraries.new' model.account}}{{fa-icon "plus"}} Create New Library{{/link-to}}
+      {{#link-to 'accounts.one.libraries.new' model.account}}{{fa-icon "plus"}} New Library{{/link-to}}
     </div>
   </div>
 {{/if}}
@@ -27,7 +27,7 @@
       <tr class="item">
         <td>{{#link-to "accounts.one.libraries.one" library}}{{library.name}}{{/link-to}}</td>
         <td>
-          {{#link-to 'accounts.one.libraries.one.sequences' library.account library}}Sequences{{/link-to}}
+          {{#link-to 'accounts.one.libraries.one.programs' library.account library}}Programs{{/link-to}}
           <span>&nbsp;</span>
           {{#link-to 'accounts.one.libraries.one.instruments' library.account library}}Instruments{{/link-to}}<span>&nbsp;</span>
           {{#link-to 'accounts.one.libraries.one.digest' library.account library}}Digest{{/link-to}}<span>&nbsp;</span>

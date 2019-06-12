@@ -1,7 +1,7 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Component from '@ember/component';
-import { get, set } from '@ember/object';
-import { inject as service } from '@ember/service';
+import {set} from '@ember/object';
+import {inject as service} from '@ember/service';
 
 // Must correspond to backend in [core/model/Chord]
 const SEPARATOR_PRIMARY = ":";
@@ -19,9 +19,9 @@ const ChordProgressionComponent = Component.extend({
    Component will render
    */
   willRender() {
-    if (typeof get(this, "descriptor") === "string") {
+    if (typeof this.descriptor === "string") {
       let segmentsArr = [];
-      get(this, "descriptor").split(SEPARATOR_PRIMARY).forEach((segmentString) => {
+      this.descriptor.split(SEPARATOR_PRIMARY).forEach((segmentString) => {
         let segmentArr = segmentString.split(SEPARATOR_SECONDARY);
         let segmentObj = {};
         if (1 === segmentArr.length) {

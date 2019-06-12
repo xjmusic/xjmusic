@@ -2,62 +2,15 @@
   <dictionary name="charney">
     <words>
       <w>ambience</w>
-      <w>arraybuffer</w>
-      <w>artangel</w>
-      <w>autoplay</w>
-      <w>berklee</w>
-      <w>charney</w>
-      <w>chorddigest</w>
-      <w>cloudfront</w>
-      <w>coolambience</w>
-      <w>decascale</w>
-      <w>deinterlace</w>
-      <w>deloitte</w>
-      <w>demoscene</w>
-      <w>doneness</w>
-      <w>dropdown</w>
-      <w>farkas</w>
+      <w>deserialized</w>
+      <w>deserializing</w>
       <w>gson</w>
-      <w>guice</w>
-      <w>heartbeater</w>
-      <w>highpass</w>
-      <w>iamus</w>
-      <w>isometry</w>
-      <w>jabberwocky</w>
-      <w>jesque</w>
-      <w>knowlden</w>
-      <w>levenshtein</w>
-      <w>longplayer</w>
-      <w>lowpass</w>
-      <w>melomics</w>
-      <w>memedigest</w>
-      <w>metaphone</w>
-      <w>modernizr</w>
-      <w>moleman</w>
-      <w>mysqldump</w>
-      <w>málaga</w>
-      <w>nanos</w>
-      <w>nobuild</w>
-      <w>noop</w>
-      <w>ogg</w>
+      <w>healthcheck</w>
       <w>outro</w>
-      <w>paam</w>
-      <w>pluggable</w>
       <w>pojo</w>
-      <w>poom</w>
-      <w>qmon</w>
-      <w>requeues</w>
-      <w>steirman</w>
-      <w>stemmer</w>
+      <w>prepending</w>
+      <w>sies</w>
       <w>stepmatic</w>
-      <w>superpattern</w>
-      <w>superphase</w>
-      <w>tarsos</w>
-      <w>thang</w>
-      <w>universidad</w>
-      <w>vorbis</w>
-      <w>wavesurfer</w>
-      <w>xjmusic</w>
     </words>
   </dictionary>
 </component>

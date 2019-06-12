@@ -15,7 +15,7 @@ import java.util.logging.SimpleFormatter;
 public class AccessLogFilterProviderImpl implements AccessLogFilterProvider {
   private static LoggingFeature instance;
   private final Logger log = LoggerFactory.getLogger(AccessLogFilterProviderImpl.class);
-  private final String pathToWriteAccessLog = Config.logAccessFilename();
+  private final String pathToWriteAccessLog = Config.getLogAccessFilename();
 
   /**
    * Setup a path and max entity size

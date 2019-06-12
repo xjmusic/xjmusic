@@ -1,16 +1,17 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.ingest.cache.impl;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.core.access.impl.Access;
 import io.xj.core.cache.CacheKey;
-import io.xj.core.model.entity.Entity;
 import io.xj.core.exception.CoreException;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.ingest.IngestFactory;
 import io.xj.core.ingest.cache.IngestCacheProvider;
+import io.xj.core.model.chain.sub.ChainBinding;
 
 import java.util.Collection;
 import java.util.Map;
@@ -28,13 +29,13 @@ public class IngestCacheProviderImpl implements IngestCacheProvider {
   }
 
   @Override
-  public Ingest evaluate(Access access, Collection<Entity> entities) throws CoreException {
+  public Ingest ingest(Access access, Collection<ChainBinding> bindings) throws CoreException {
     prune();
 
-    String cacheKey = CacheKey.of(access, entities);
+    String cacheKey = CacheKey.of(access, bindings);
 
     if (!cachedIngestMap.containsKey(cacheKey)) {
-      Ingest ingest = ingestFactory.evaluate(access, entities);
+      Ingest ingest = ingestFactory.ingest(access, bindings);
       cachedIngestMap.put(cacheKey, new IngestCacheItem(ingest));
     }
 
@@ -45,10 +46,12 @@ public class IngestCacheProviderImpl implements IngestCacheProvider {
    Prune expired entries from cache
    */
   private void prune() {
+    Collection<String> keysToRemove = Lists.newArrayList();
     cachedIngestMap.forEach((key, ingestCacheItem) -> {
       if (!ingestCacheItem.isValid())
-        cachedIngestMap.remove(key);
+        keysToRemove.add(key);
     });
+    keysToRemove.forEach(cachedIngestMap::remove);
   }
 
 }

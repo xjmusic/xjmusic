@@ -3,12 +3,12 @@ package io.xj.core.cache.audio.impl;
 
 import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,14 +16,13 @@ import java.io.OutputStream;
 import java.util.Objects;
 
 public class Item {
-  private final String _key;
   private static final String DASH = "-";
-  private int _bytes; // in bytes
-  private final String _path;
-
   final Logger log = LoggerFactory.getLogger(Item.class);
-  final String pathPrefix = Config.cacheFilePathPrefix();
-  final String pathSuffix = Config.cacheFilePathSuffix();
+  final String pathPrefix = Config.getCacheFilePathPrefix();
+  final String pathSuffix = Config.getCacheFilePathSuffix();
+  private final String _key;
+  private final String _path;
+  private int _bytes; // in bytes
 
   /**
    New Item
@@ -36,7 +35,7 @@ public class Item {
    */
   public Item(String key) throws CoreException {
     _key = key;
-    String bucket = Config.audioFileBucket();
+    String bucket = Config.getAudioFileBucket();
     _path = pathPrefix +
       bucket + File.separator +
       ItemNumber.next() + DASH + // atomic integer is always unique
@@ -57,8 +56,8 @@ public class Item {
 
    @return content
    */
-  public InputStream stream() throws IOException {
-    return FileUtils.openInputStream(new File(_path));
+  public BufferedInputStream stream() throws IOException {
+    return new BufferedInputStream(FileUtils.openInputStream(new File(_path)));
   }
 
   /**

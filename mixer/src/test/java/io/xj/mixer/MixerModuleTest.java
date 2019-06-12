@@ -2,7 +2,6 @@
 package io.xj.mixer;
 
 import com.google.inject.Guice;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,11 +19,6 @@ public class MixerModuleTest {
   @Before
   public void setUp() {
     mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
-  }
-
-  @After
-  public void tearDown() {
-    mixerFactory = null;
   }
 
   @Test

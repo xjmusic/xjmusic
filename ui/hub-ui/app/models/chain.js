@@ -1,19 +1,17 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import DS from "ember-data";
+import Model, {attr, belongsTo, hasMany} from '@ember-data/model';
 
-export default DS.Model.extend({
-  account: DS.belongsTo({}),
-  name: DS.attr('string'),
-  state: DS.attr('string'),
-  type: DS.attr('string'),
-  startAt: DS.attr('string',{defaultValue:'now'}),
-  stopAt: DS.attr('string',{defaultValue:''}),
-  embedKey: DS.attr('string',{defaultValue:''}),
+export default Model.extend({
+  account: belongsTo({}),
+  name: attr('string'),
+  state: attr('string'),
+  type: attr('string'),
+  startAt: attr('string', {defaultValue: 'now'}),
+  stopAt: attr('string', {defaultValue: ''}),
+  embedKey: attr('string', {defaultValue: ''}),
 
-  segments: DS.hasMany('segment'),
-  configs: DS.hasMany('chain-config'),
-  libraries: DS.hasMany('chain-library'),
-  instruments: DS.hasMany('chain-instrument'),
-  sequences: DS.hasMany('chain-sequence')
+  segments: hasMany('segment'),
+  chainConfigs: hasMany('chain-config'),
+  chainBindings: hasMany('chain-binding'),
 });
 

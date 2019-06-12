@@ -1,11 +1,15 @@
 //  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.entity.impl;
 
+import com.google.common.collect.ImmutableList;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
+import io.xj.core.model.payload.PayloadObject;
+import io.xj.core.util.Value;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.time.Instant;
+import java.util.Objects;
 
 /**
  POJO for persisting data in memory while performing business logic,
@@ -17,16 +21,61 @@ import java.time.Instant;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public abstract class EntityImpl implements Entity {
+public abstract class EntityImpl extends ResourceImpl implements Entity {
+  private static final ImmutableList<String> RESOURCE_ATTRIBUTE_NAMES = ImmutableList.of("createdAt", "updatedAt");
   protected BigInteger id;
-  @Nullable
   protected Instant createdAt;
-  @Nullable
   protected Instant updatedAt;
+
+  @Override
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
 
   @Override
   public BigInteger getId() {
     return id;
+  }
+
+  @Override
+  public ImmutableList<String> getResourceAttributeNames() {
+    return RESOURCE_ATTRIBUTE_NAMES;
+  }
+
+  @Override
+  public String getResourceId() {
+    return String.valueOf(id);
+  }
+
+  @Override
+  public Instant getUpdatedAt() {
+    return updatedAt;
+  }
+
+  @Override
+  public Entity consume(PayloadObject payloadObject) throws CoreException {
+    super.consume(payloadObject);
+
+    if (Objects.nonNull(payloadObject.getId()) && Value.isInteger(payloadObject.getId()))
+      setId(new BigInteger(payloadObject.getId()));
+
+    return this;
+  }
+
+  @Override
+  public Entity setCreatedAt(String createdAt) {
+    try {
+      this.createdAt = Instant.parse(createdAt);
+    } catch (Exception ignored) {
+      // value unchanged
+    }
+    return this;
+  }
+
+  @Override
+  public Entity setCreatedAtInstant(Instant createdAt) {
+    this.createdAt = createdAt;
+    return this;
   }
 
   @Override
@@ -36,34 +85,18 @@ public abstract class EntityImpl implements Entity {
   }
 
   @Override
-  @Nullable
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  @Override
-  public Entity setCreatedAt(String createdAt) {
+  public Entity setUpdatedAt(String updatedAt) {
     try {
-      this.createdAt = Instant.parse(createdAt);
-    } catch (Exception e) {
-      this.createdAt = null;
+      this.updatedAt = Instant.parse(updatedAt);
+    } catch (Exception ignored) {
+      // value unchanged
     }
     return this;
   }
 
   @Override
-  @Nullable
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
-
-  @Override
-  public Entity setUpdatedAt(String updatedAt) {
-    try {
-      this.updatedAt = Instant.parse(updatedAt);
-    } catch (Exception e) {
-      this.updatedAt = null;
-    }
+  public Entity setUpdatedAtInstant(Instant updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 

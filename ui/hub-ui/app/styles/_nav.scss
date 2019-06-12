@@ -14,6 +14,7 @@ nav.navbar {
     &:focus {
       outline-color: $blue;
     }
+
     margin: 5px 15px;
   }
 
@@ -29,6 +30,7 @@ nav.navbar {
   .dropdown-menu {
     position: absolute;
     right: 0;
+
     .nav-item {
       text-align: left;
     }
@@ -38,6 +40,7 @@ nav.navbar {
     text-align: right;
     margin-left: 5px;
     margin-right: 5px;
+
     a {
       padding-right: 10px;
     }
@@ -55,6 +58,7 @@ nav.navbar {
     a {
       padding-top: 12px;
       padding-bottom: 12px;
+
       img {
         height: 24px;
         width: auto;
@@ -64,6 +68,7 @@ nav.navbar {
 
   .navbar-brand {
     margin-left: 1rem;
+
     img {
       width: 28px;
       height: auto;
@@ -73,13 +78,16 @@ nav.navbar {
   .inverse-dropdown {
     background-color: #222;
     border-color: #080808;
+
     & > li > a {
       color: #999;
+
       &:hover {
         color: #fff;
         background-color: #000;
       }
     }
+
     & > .divider {
       background-color: #000;
     }
@@ -97,9 +105,11 @@ nav.navbar {
       padding-bottom: 0;
       padding-right: 1em;
       font-size: 1.5em;
+
       &:hover {
         color: whitesmoke;
       }
+
       &:active {
         color: lighten($green, 40%);
       }
@@ -113,9 +123,11 @@ nav.navbar {
     font-family: ClockMono, monospace;
     font-size: 20px;
     cursor: pointer;
+
     &:hover {
       color: whitesmoke;
     }
+
     &:active {
       color: lighten($green, 40%);
     }
@@ -132,6 +144,7 @@ nav.navbar {
     &:first-child {
       margin-left: 15px;
     }
+
     &.active {
       border: $nav-tabs-border;
       border-bottom-color: $body-background-color;

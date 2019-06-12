@@ -8,6 +8,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class ConfigTest {
+
   @Test
   public void setDefault_newProperty() throws Exception {
     Config.setDefault("bun", "tabby");
@@ -23,7 +24,7 @@ public class ConfigTest {
 
   @Test
   public void getRequiredProperty() throws Exception {
-    assertEquals("http://mush/", Config.appBaseUrl());
+    assertEquals("http://mush/", Config.getAppBaseUrl());
   }
 
   @After

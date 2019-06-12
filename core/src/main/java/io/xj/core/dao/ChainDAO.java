@@ -7,10 +7,10 @@ import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.segment.Segment;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Optional;
 
 public interface ChainDAO extends DAO<Chain> {
 
@@ -33,7 +33,6 @@ public interface ChainDAO extends DAO<Chain> {
    @return retrieved record
    @throws CoreException on failure
    */
-  @Nullable
   Chain readOne(Access access, String embedKey) throws CoreException;
 
   /**
@@ -47,13 +46,14 @@ public interface ChainDAO extends DAO<Chain> {
   /**
    [INTERNAL USE ONLY]
    Build a template for the next segment in this Chain,
-   or set the Chain state to COMPLETE.@param chain                   to build segment for
+   or set the Chain state to COMPLETE we are past the end time
+   @param chain                   to build segment for
    @param segmentBeginBefore      ahead to create Segment before end of previous Segment  @return array of chain Ids
    @param chainStopCompleteBefore behind to consider a chain complete
 
 
    */
-  Segment buildNextSegmentOrComplete(Access access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteBefore) throws CoreException;
+  Optional<Segment> buildNextSegmentOrComplete(Access access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteBefore) throws CoreException;
 
   /**
    Erase a specified Chain (mark it for deletion by worker)

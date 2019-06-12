@@ -18,12 +18,12 @@
     font-weight: 700;
     font-size: 3.5rem;
     line-height: 4rem;
+
     sup {
       font-size: 6pt;
       vertical-align: super;
     }
   }
-
 
 
   p {
@@ -78,21 +78,27 @@
     width: 100%;
     height: 4px;
     margin: 0 0 0 0;
+
     &.magenta {
       background-color: $magenta;
     }
+
     &.purple {
       background-color: $purple;
     }
+
     &.blue {
       background-color: $blue;
     }
+
     &.cyan {
       background-color: $cyan;
     }
+
     &.green {
       background-color: $green;
     }
+
     &.gold {
       background-color: $gold;
     }

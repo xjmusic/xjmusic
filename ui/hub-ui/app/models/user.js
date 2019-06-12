@@ -1,9 +1,9 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import DS from 'ember-data';
+import Model, {attr} from '@ember-data/model';
 
-export default DS.Model.extend({
-  name: DS.attr('string'),
-  avatarUrl: DS.attr('string'),
-  email: DS.attr('string'),
-  roles: DS.attr('string')
+export default Model.extend({
+  name: attr('string'),
+  avatarUrl: attr('string'),
+  email: attr('string'),
+  roles: attr('string')
 });

@@ -2,17 +2,17 @@
 package io.xj.hub.resource.digest;
 
 import com.google.common.collect.ImmutableList;
-
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.library.Library;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.transport.HttpResponseProvider;
-import io.xj.craft.digest.cache.DigestCacheProvider;
+import io.xj.core.ingest.Ingest;
 import io.xj.core.ingest.cache.IngestCacheProvider;
+import io.xj.core.model.chain.sub.ChainBinding;
+import io.xj.core.model.library.Library;
+import io.xj.core.model.payload.Payload;
+import io.xj.core.model.user.role.UserRoleType;
 import io.xj.craft.digest.Digest;
 import io.xj.craft.digest.DigestType;
-import io.xj.core.ingest.Ingest;
+import io.xj.craft.digest.cache.DigestCacheProvider;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
@@ -32,7 +32,6 @@ import java.util.Objects;
  */
 @Path("digest")
 public class DigestResource extends HubResource {
-  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
   private final IngestCacheProvider ingestProvider = injector.getInstance(IngestCacheProvider.class);
   private final DigestCacheProvider digestProvider = injector.getInstance(DigestCacheProvider.class);
 
@@ -72,12 +71,12 @@ public class DigestResource extends HubResource {
     }
 
     try {
-      return response.readOne(
-        Digest.KEY_ONE,
-        evaluate(
-          Access.fromContext(crc),
-          digestType, libraryId
-        ));
+      Payload payload = new Payload();
+      payload.setDataEntity(evaluate(
+        Access.fromContext(crc),
+        digestType, libraryId
+      ));
+      return response.ok(payload);
 
     } catch (Exception e) {
       return response.failure(e);
@@ -93,7 +92,7 @@ public class DigestResource extends HubResource {
    @return ingest
    */
   private Digest evaluate(Access access, DigestType type, BigInteger targetId) throws Exception {
-    Ingest ingest = ingestProvider.evaluate(access, ImmutableList.of(new Library(targetId)));
+    Ingest ingest = ingestProvider.ingest(access, ImmutableList.of(ChainBinding.from(new Library().setId(targetId))));
     switch (type) {
 
       case DigestHash:

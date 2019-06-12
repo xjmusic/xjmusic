@@ -1,25 +1,26 @@
 //  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.segment.impl;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import io.xj.core.exception.CoreException;
 import io.xj.core.fabricator.FabricatorType;
-import io.xj.core.model.arrangement.Arrangement;
-import io.xj.core.model.choice.Choice;
-import io.xj.core.model.entity.impl.EntityImpl;
-import io.xj.core.model.pick.Pick;
+import io.xj.core.model.entity.SubEntity;
+import io.xj.core.model.entity.impl.SuperEntityImpl;
+import io.xj.core.model.payload.Payload;
+import io.xj.core.model.program.ProgramType;
 import io.xj.core.model.segment.Segment;
-import io.xj.core.model.segment.SegmentEntity;
 import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.segment_chord.SegmentChord;
-import io.xj.core.model.segment_meme.SegmentMeme;
-import io.xj.core.model.segment_message.SegmentMessage;
-import io.xj.core.model.sequence.SequenceType;
+import io.xj.core.model.segment.sub.Arrangement;
+import io.xj.core.model.segment.sub.Choice;
+import io.xj.core.model.segment.sub.SegmentChord;
+import io.xj.core.model.segment.sub.SegmentMeme;
+import io.xj.core.model.segment.sub.SegmentMessage;
+import io.xj.core.model.segment.sub.Pick;
 import io.xj.core.transport.GsonProvider;
-import io.xj.core.util.Value;
 
 import java.math.BigInteger;
 import java.time.Instant;
@@ -33,28 +34,29 @@ import java.util.stream.Collectors;
  [#166132897] Segment model handles all of its own entities
  [#166273140] Segment Child Entities are identified and related by UUID (not id)
  */
-public class SegmentImpl extends EntityImpl implements Segment {
+public class SegmentImpl extends SuperEntityImpl implements Segment {
   private final GsonProvider gsonProvider;
-  private final Map<String, Object> report = Maps.newConcurrentMap();
-  private final Map<UUID, Arrangement> arrangementMap = Maps.newConcurrentMap();
-  private final Map<UUID, Choice> choiceMap = Maps.newConcurrentMap();
-  private final Map<UUID, Pick> pickMap = Maps.newConcurrentMap();
-  private final Map<UUID, SegmentChord> chordMap = Maps.newConcurrentMap();
-  private final Map<UUID, SegmentMeme> memeMap = Maps.newConcurrentMap();
-  private final Map<UUID, SegmentMessage> messageMap = Maps.newConcurrentMap();
+  private final Map<String, Object> report = Maps.newHashMap();
+  private final Map<UUID, Arrangement> arrangementMap = Maps.newHashMap();
+  private final Map<UUID, Choice> choiceMap = Maps.newHashMap();
+  private final Map<UUID, Pick> pickMap = Maps.newHashMap();
+  private final Map<UUID, SegmentChord> chordMap = Maps.newHashMap();
+  private final Map<UUID, SegmentMeme> memeMap = Maps.newHashMap();
+  private final Map<UUID, SegmentMessage> messageMap = Maps.newHashMap();
   private BigInteger chainId;
   private SegmentState state;
   private Instant beginAt;
-  private String beginAtError;
+  private Exception beginAtException;
   private Instant endAt; // optional
-  private String endAtError;
+  private Exception endAtException;
   private String key;
   private Integer total;
-  private BigInteger offset;
+  private Long offset;
   private Double density;
   private Double tempo;
   private String waveformKey;
   private FabricatorType type;
+  private Exception stateException;
 
   /**
    Constructor with Segment id
@@ -78,74 +80,98 @@ public class SegmentImpl extends EntityImpl implements Segment {
     this.gsonProvider = gsonProvider;
   }
 
-  /**
-   Add an entity to its internal map
-   Assign the next unique Id to an entity,
-   unless that entity already as an Id, in which case, ensure that the next unique one will be higher.
-   Also ensure that id does not already exist in its map
-
-   @param entity to assign next unique id
-   */
-  private static <N extends SegmentEntity> N add(Map<UUID, N> entities, N entity) throws CoreException {
-    if (Objects.isNull(entity.getUuid())) {
-      entity.setUuid(UUID.randomUUID());
-    } else {
-      if (entities.containsKey(entity.getUuid())) {
-        throw new CoreException(String.format("%s uuid=%s already exists", entity.getClass().getSimpleName(), entity.getUuid()));
-      }
+  @Override
+  public Arrangement add(Arrangement arrangement) {
+    try {
+      arrangement.setSegmentId(getId());
+      ensureRelations(arrangement);
+      return SubEntity.add(arrangementMap, arrangement);
+    } catch (CoreException e) {
+      add(e);
+      return arrangement;
     }
-    entity.validate();
-    entities.put(entity.getUuid(), entity);
-    return entity;
   }
 
   @Override
-  public Arrangement add(Arrangement arrangement) throws CoreException {
-    arrangement.setSegmentId(getId());
-    ensureRelations(arrangement);
-    return add(arrangementMap, arrangement);
+  public Choice add(Choice choice) {
+    try {
+      choice.setSegmentId(getId());
+      return SubEntity.add(choiceMap, choice);
+    } catch (CoreException e) {
+      add(e);
+      return choice;
+    }
   }
 
   @Override
-  public Choice add(Choice choice) throws CoreException {
-    choice.setSegmentId(getId());
-    return add(choiceMap, choice);
+  public Pick add(Pick pick) {
+    try {
+      pick.setSegmentId(getId());
+      ensureRelations(pick);
+      return SubEntity.add(pickMap, pick);
+    } catch (CoreException e) {
+      add(e);
+      return pick;
+    }
   }
 
   @Override
-  public Pick add(Pick pick) throws CoreException {
-    pick.setSegmentId(getId());
-    ensureRelations(pick);
-    return add(pickMap, pick);
+  public SegmentChord add(SegmentChord chord) {
+    try {
+      chord.setSegmentId(getId());
+      return SubEntity.add(chordMap, chord);
+    } catch (CoreException e) {
+      add(e);
+      return chord;
+    }
   }
 
   @Override
-  public SegmentChord add(SegmentChord chord) throws CoreException {
-    chord.setSegmentId(getId());
-    return add(chordMap, chord);
+  public SegmentMeme add(SegmentMeme meme) {
+    try {
+      meme.setSegmentId(getId());
+      return SubEntity.add(memeMap, meme);
+    } catch (CoreException e) {
+      add(e);
+      return meme;
+    }
   }
 
   @Override
-  public SegmentMeme add(SegmentMeme meme) throws CoreException {
-    meme.setSegmentId(getId());
-    return add(memeMap, meme);
+  public SegmentMessage add(SegmentMessage message) {
+    try {
+      message.setSegmentId(getId());
+      return SubEntity.add(messageMap, message);
+    } catch (CoreException e) {
+      add(e);
+      return message;
+    }
   }
 
   @Override
-  public SegmentMessage add(SegmentMessage message) throws CoreException {
-    message.setSegmentId(getId());
-    return add(messageMap, message);
+  public Segment consume(Payload payload) throws CoreException {
+    super.consume(payload);
+    syncSubEntities(payload, choiceMap, Choice.class);
+    syncSubEntities(payload, chordMap, SegmentChord.class);
+    syncSubEntities(payload, memeMap, SegmentMeme.class);
+    syncSubEntities(payload, messageMap, SegmentMessage.class);
+    syncSubEntities(payload, arrangementMap, Arrangement.class);
+    syncSubEntities(payload, pickMap, Pick.class);
+    return this;
   }
 
   @Override
-  public Collection<SegmentEntity> getAllEntities() {
-    Collection<SegmentEntity> out = Lists.newArrayList();
+  public Collection<SubEntity> getAllSubEntities() {
+    Collection<SubEntity> out = Lists.newArrayList();
     out.addAll(getMemes());
     out.addAll(getMessages());
     out.addAll(getChoices());
     out.addAll(getArrangements());
     out.addAll(getChords());
-    out.addAll(getPicks());
+
+    // FUTURE: picks are available via API on request, for example to generate detailed visualizations
+    // out.addAll(getPicks());
+
     return out;
   }
 
@@ -156,7 +182,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
 
   @Override
   public Collection<Arrangement> getArrangementsForChoice(Choice choice) {
-    return getArrangements().stream().filter(arrangement -> choice.getUuid().equals(arrangement.getChoiceUuid())).collect(Collectors.toList());
+    return getArrangements().stream().filter(arrangement -> choice.getId().equals(arrangement.getChoiceId())).collect(Collectors.toList());
   }
 
   @Override
@@ -170,11 +196,17 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public Choice getChoiceOfType(SequenceType type) throws CoreException {
+  public Choice getChoice(UUID id) throws CoreException {
+    if (!choiceMap.containsKey(id))
+      throw new CoreException(String.format("Found no Choice id=%s", id));
+    return choiceMap.get(id);
+  }
+
+  @Override
+  public Choice getChoiceOfType(ProgramType type) throws CoreException {
     Collection<Choice> out = getChoicesOfType(type);
-    if (out.isEmpty()) {
+    if (out.isEmpty())
       throw new CoreException(String.format("Found no Choice type=%s", type));
-    }
     return out.iterator().next();
   }
 
@@ -184,7 +216,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public Collection<Choice> getChoicesOfType(SequenceType type) {
+  public Collection<Choice> getChoicesOfType(ProgramType type) {
     return getChoices()
       .stream()
       .filter(choice -> type == choice.getType())
@@ -227,7 +259,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public BigInteger getOffset() {
+  public Long getOffset() {
     return offset;
   }
 
@@ -237,15 +269,32 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
+  public ImmutableList<String> getResourceAttributeNames() {
+    return ImmutableList.<String>builder()
+      .addAll(super.getResourceAttributeNames())
+      .add("state")
+      .add("beginAt")
+      .add("endAt")
+      .add("key")
+      .add("total")
+      .add("offset")
+      .add("density")
+      .add("tempo")
+      .add("waveformKey")
+      .add("type")
+      .build();
+  }
+
+  @Override
   public Collection<Pick> getPicks() {
     return pickMap.values();
   }
 
   @Override
-  public BigInteger getPreviousOffset() throws CoreException {
-    if (Objects.equals(offset, BigInteger.valueOf(0L)))
+  public Long getPreviousOffset() throws CoreException {
+    if (isInitial())
       throw new CoreException("Cannot get previous id of initial Segment!");
-    return Value.inc(offset, -1);
+    return offset - 1;
   }
 
   @Override
@@ -280,7 +329,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
 
   @Override
   public boolean isInitial() {
-    return Objects.equals(getOffset(), BigInteger.valueOf(0));
+    return 0L == offset;
   }
 
   @Override
@@ -298,7 +347,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public void setArrangements(Collection<Arrangement> arrangements) throws CoreException {
+  public void setArrangements(Collection<Arrangement> arrangements) {
     arrangementMap.clear();
     for (Arrangement arrangement : arrangements) {
       add(arrangement);
@@ -310,7 +359,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
     try {
       this.beginAt = Instant.parse(beginAt);
     } catch (Exception e) {
-      beginAtError = e.getMessage();
+      beginAtException = e;
     }
     return this;
   }
@@ -328,7 +377,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public void setChoices(Collection<Choice> choices) throws CoreException {
+  public void setChoices(Collection<Choice> choices) {
     choiceMap.clear();
     for (Choice choice : choices) {
       add(choice);
@@ -336,7 +385,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public void setChords(Collection<SegmentChord> chords) throws CoreException {
+  public void setChords(Collection<SegmentChord> chords) {
     chordMap.clear();
     for (SegmentChord chord : chords) {
       add(chord);
@@ -358,6 +407,18 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
+  public Segment setCreatedAt(String createdAt) {
+    super.setCreatedAt(createdAt);
+    return this;
+  }
+
+  @Override
+  public Segment setCreatedAtInstant(Instant createdAt) {
+    super.setCreatedAtInstant(createdAt);
+    return this;
+  }
+
+  @Override
   public Segment setDensity(Double density) {
     this.density = density;
     return this;
@@ -368,7 +429,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
     try {
       this.endAt = Instant.parse(endAt);
     } catch (Exception e) {
-      endAtError = e.getMessage();
+      endAtException = e;
     }
     return this;
   }
@@ -386,7 +447,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public void setMemes(Collection<SegmentMeme> memes) throws CoreException {
+  public void setMemes(Collection<SegmentMeme> memes) {
     memeMap.clear();
     for (SegmentMeme meme : memes) {
       add(meme);
@@ -394,7 +455,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public void setMessages(Collection<SegmentMessage> messages) throws CoreException {
+  public void setMessages(Collection<SegmentMessage> messages) {
     messageMap.clear();
     for (SegmentMessage message : messages) {
       add(message);
@@ -402,17 +463,17 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public Segment setOffset(BigInteger offset) {
+  public Segment setOffset(Long offset) {
     if (Objects.nonNull(offset)) {
       this.offset = offset;
     } else {
-      this.offset = BigInteger.valueOf(0L);
+      this.offset = 0L;
     }
     return this;
   }
 
   @Override
-  public void setPicks(Collection<Pick> picks) throws CoreException {
+  public void setPicks(Collection<Pick> picks) {
     pickMap.clear();
     for (Pick pick : picks) {
       add(pick);
@@ -425,8 +486,12 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public Segment setState(String value) throws CoreException {
-    state = SegmentState.validate(value);
+  public Segment setState(String value) {
+    try {
+      state = SegmentState.validate(value);
+    } catch (CoreException e) {
+      stateException = e;
+    }
     return this;
   }
 
@@ -459,63 +524,46 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
+  public Segment setUpdatedAt(String updatedAt) {
+    super.setUpdatedAt(updatedAt);
+    return this;
+  }
+
+  @Override
+  public Segment setUpdatedAtInstant(Instant updatedAt) {
+    super.setUpdatedAtInstant(updatedAt);
+    return this;
+  }
+
+  @Override
   public Segment setWaveformKey(String waveformKey) {
     this.waveformKey = waveformKey;
     return this;
   }
 
   @Override
-  public void validate() throws CoreException {
-    if (Objects.isNull(state)) {
-      throw new CoreException("State is required.");
-    }
+  public Segment validate() throws CoreException {
+    require(chainId, "Chain ID");
+    require(offset, "Offset");
 
-    if (Objects.isNull(chainId)) {
-      throw new CoreException("Chain ID is required.");
-    }
+    requireNo(stateException, "State");
+    require(state, "State");
 
-    if (Objects.isNull(beginAt)) {
-      throw new CoreException("Begin-at is required." + (Objects.nonNull(beginAtError) ? " " + beginAtError : ""));
-    }
+    requireNo(beginAtException, "Begin-at");
+    require(beginAt, "Begin-at");
 
-    if (Objects.nonNull(endAtError) && !endAtError.isEmpty()) {
-      throw new CoreException("End-at must be isValid time." + endAtError);
-    }
+    requireNo(endAtException, "End-at");
 
-    if (Objects.isNull(offset)) {
-      throw new CoreException("Offset is required.");
-    }
-
-    validateContent();
+    return validateContent();
   }
 
   @Override
-  public void validateContent() throws CoreException {
-    Collection<UUID> ids = Lists.newArrayList();
-    for (SegmentEntity entity : getAllEntities()) {
-      if (Objects.isNull(entity.getUuid())) {
-        throw new CoreException(String.format("Contains a %s with null id", entity.getClass().getSimpleName()));
-      }
-      if (ids.contains(entity.getUuid())) {
-        throw new CoreException(String.format("Contains %s with duplicate uuid=%s", entity.getClass().getSimpleName(), entity.getUuid()));
-      }
-      try {
-        entity.validate();
-      } catch (CoreException e) {
-        throw new CoreException(String.format("%s with uuid=%s is invalid", entity.getClass().getSimpleName(), entity.getUuid()), e);
-      }
-      ids.add(entity.getUuid());
-    }
-    // arrangements have existing choice
-    for (Arrangement arrangement : getArrangements()) {
-      ensureRelations(arrangement);
-    }
-    // picks have existing arrangement
-    for (Pick pick : getPicks()) {
-      ensureRelations(pick);
-    }
+  public Segment validateContent() throws CoreException {
+    SubEntity.validate(this.getAllSubEntities());
+    for (Arrangement arrangement : getArrangements()) ensureRelations(arrangement);
+    for (Pick pick : getPicks()) ensureRelations(pick);
+    return this;
   }
-
 
   /**
    Ensure that an Arrangement relates to an existing Choice stored in the Segment
@@ -524,11 +572,11 @@ public class SegmentImpl extends EntityImpl implements Segment {
    @throws CoreException if no such Choice exists
    */
   private void ensureRelations(Arrangement arrangement) throws CoreException {
-    if (Objects.isNull(arrangement.getChoiceUuid())) {
-      throw new CoreException(String.format("Arrangement id=%s has null choiceId", arrangement.getUuid()));
+    if (Objects.isNull(arrangement.getChoiceId())) {
+      throw new CoreException(String.format("Arrangement id=%s has null choiceId", arrangement.getId()));
     }
-    if (!choiceMap.containsKey(arrangement.getChoiceUuid())) {
-      throw new CoreException(String.format("Arrangement id=%s has nonexistent choiceId=%s", arrangement.getUuid(), arrangement.getChoiceUuid()));
+    if (!choiceMap.containsKey(arrangement.getChoiceId())) {
+      throw new CoreException(String.format("Arrangement id=%s has nonexistent choiceId=%s", arrangement.getId(), arrangement.getChoiceId()));
     }
   }
 
@@ -539,11 +587,11 @@ public class SegmentImpl extends EntityImpl implements Segment {
    @throws CoreException if no such Arrangement exists
    */
   private void ensureRelations(Pick pick) throws CoreException {
-    if (Objects.isNull(pick.getArrangementUuid())) {
-      throw new CoreException(String.format("Pick id=%s has null arrangementId", pick.getUuid()));
+    if (Objects.isNull(pick.getArrangementId())) {
+      throw new CoreException(String.format("Pick id=%s has null arrangementId", pick.getId()));
     }
-    if (!arrangementMap.containsKey(pick.getArrangementUuid())) {
-      throw new CoreException(String.format("Pick id=%s has nonexistent arrangementId=%s", pick.getUuid(), pick.getArrangementUuid()));
+    if (!arrangementMap.containsKey(pick.getArrangementId())) {
+      throw new CoreException(String.format("Pick id=%s has nonexistent arrangementId=%s", pick.getId(), pick.getArrangementId()));
     }
   }
 

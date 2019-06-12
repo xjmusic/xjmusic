@@ -5,25 +5,16 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
+import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
 import io.xj.core.external.amazon.AmazonProvider;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.choice.Choice;
-import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.segment.Segment;
-import io.xj.core.model.segment.SegmentFactory;
 import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.sequence.SequenceState;
-import io.xj.core.model.sequence.SequenceType;
 import org.jooq.impl.DSL;
 import org.junit.After;
 import org.junit.Before;
@@ -49,84 +40,81 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SegmentIT {
+public class SegmentIT extends FixtureIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   @Mock
   AmazonProvider amazonProvider;
-  private SegmentFactory segmentFactory;
   private SegmentDAO testDAO;
-
-  /**
-   Shared fixtures for tests that require a library and some entities
-   */
-  private void setupFixturesA() throws CoreException {
-    // User "bill"
-    IntegrationTestEntity.insertUser(2, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-
-    // Library "test sounds"
-    IntegrationTestEntity.insertLibrary(1, 1, "test sounds");
-    IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Macro, SequenceState.Published, "epic concept", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(1, 1, PatternType.Macro, PatternState.Published, 16, "Ants", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertSequencePattern(110, 1, 1, 0);
-    IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
-    IntegrationTestEntity.insertPatternEvent(1, 8, 0, 1.0, "KICK", "C", 0.8, 1.0);
-
-    // Library has Instrument with Audio
-    IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", InstrumentType.Percussive, 0.6);
-    IntegrationTestEntity.insertAudio(1, 9, "Published", "Kick", "instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440.0);
-
-    // Chain "Test Print #1" has one segment
-    IntegrationTestEntity.insertChain(3, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null);
-    // segment-17 at offset-0 of chain-3
-    Segment seg17 = segmentFactory.newSegment(BigInteger.valueOf(17))
-      .setChainId(BigInteger.valueOf(3))
-      .setOffset(BigInteger.valueOf(0))
-      .setStateEnum(SegmentState.Dubbed)
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setEndAt("2017-02-14T12:01:32.000001Z")
-      .setKey("D Major")
-      .setTotal(64)
-      .setDensity(0.73)
-      .setTempo(120.0)
-      .setWaveformKey("chain-1-segment-9f7s89d8a7892.wav");
-    seg17.add(new Choice()
-      .setSegmentId(BigInteger.valueOf(17))
-      .setSequencePatternId(BigInteger.valueOf(110))
-      .setTypeEnum(SequenceType.Macro)
-      .setTranspose(-5));
-    IntegrationTestEntity.insert(seg17);
-  }
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.reset();
+    reset();
 
-    Injector injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
           bind(AmazonProvider.class).toInstance(amazonProvider);
         }
       }));
-    segmentFactory = injector.getInstance(SegmentFactory.class);
+
+    // test subject
+    testDAO = injector.getInstance(SegmentDAO.class);
 
     // configs
     System.setProperty("segment.file.bucket", "xj-segment-test");
 
     // Account "Testing" has chain "Test Print #1"
-    IntegrationTestEntity.insertAccount(1, "Testing");
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
+    insert(newAccount(1, "Testing"));
+    insert(newChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null, now()));
 
     // Chain "Test Print #1" has 5 sequential segments
-    IntegrationTestEntity.insertSegment_NoContent(1, 1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(2, 1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(3, 1, 2, SegmentState.Crafted, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "F major", 64, 0.30, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(4, 1, 3, SegmentState.Crafting, Instant.parse("2017-02-14T12:02:36.000001Z"), Instant.parse("2017-02-14T12:03:08.000001Z"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_Planned(5, 1, 4, Instant.parse("2017-02-14T12:03:08.000001Z"));
-
-    // Instantiate the test subject
-    testDAO = injector.getInstance(SegmentDAO.class);
+    insert(segmentFactory.newSegment(BigInteger.valueOf(1))
+      .setChainId(BigInteger.valueOf(1))
+      .setOffset(0L)
+      .setStateEnum(SegmentState.Dubbed)
+      .setKey("D major")
+      .setTotal(64)
+      .setDensity(0.73)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setBeginAt("2017-02-14T12:01:00.000001Z")
+      .setEndAt("2017-02-14T12:01:32.000001Z"));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(2))
+      .setChainId(BigInteger.valueOf(1))
+      .setOffset(1L)
+      .setStateEnum(SegmentState.Dubbing)
+      .setKey("Db minor")
+      .setTotal(64)
+      .setDensity(0.85)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setBeginAt("2017-02-14T12:01:32.000001Z")
+      .setEndAt("2017-02-14T12:02:04.000001Z"));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(3))
+      .setChainId(BigInteger.valueOf(1))
+      .setOffset(2L)
+      .setStateEnum(SegmentState.Crafted)
+      .setKey("F major")
+      .setTotal(64)
+      .setDensity(0.30)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setBeginAt("2017-02-14T12:02:04.000001Z")
+      .setEndAt("2017-02-14T12:02:36.000001Z"));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(4))
+      .setChainId(BigInteger.valueOf(1))
+      .setOffset(3L)
+      .setStateEnum(SegmentState.Crafting)
+      .setKey("E minor")
+      .setTotal(64)
+      .setDensity(0.41)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setBeginAt("2017-02-14T12:02:36.000001Z")
+      .setEndAt("2017-02-14T12:03:08.000001Z"));
+    insert(newSegment(5, 1, 4, Instant.parse("2017-02-14T12:03:08.000001Z")));
   }
 
   @After
@@ -144,7 +132,7 @@ public class SegmentIT {
     ));
     Segment inputData = segmentFactory.newSegment(BigInteger.valueOf(4))
       .setChainId(BigInteger.valueOf(1L))
-      .setOffset(BigInteger.valueOf(5L))
+      .setOffset(5L)
       .setState("Planned")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
@@ -153,14 +141,14 @@ public class SegmentIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
-      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.ogg");
+    when(amazonProvider.generateKey("chains-1-segments", "ogg"))
+      .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
     Segment result = testDAO.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(1L), result.getChainId());
-    assertEquals(BigInteger.valueOf(5L), result.getOffset());
+    assertEquals(Long.valueOf(5L), result.getOffset());
     assertEquals(SegmentState.Planned, result.getState());
     assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt().toString());
     assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt().toString());
@@ -182,7 +170,7 @@ public class SegmentIT {
     ));
     Segment inputData = segmentFactory.newSegment(BigInteger.valueOf(4))
       .setChainId(BigInteger.valueOf(1L))
-      .setOffset(BigInteger.valueOf(5L))
+      .setOffset(5L)
       .setState("Crafting")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
@@ -191,14 +179,14 @@ public class SegmentIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
-      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.ogg");
+    when(amazonProvider.generateKey("chains-1-segments", "ogg"))
+      .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
     Segment result = testDAO.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(1L), result.getChainId());
-    assertEquals(BigInteger.valueOf(5L), result.getOffset());
+    assertEquals(Long.valueOf(5L), result.getOffset());
     assertEquals(SegmentState.Planned, result.getState());
     assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt().toString());
     assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt().toString());
@@ -216,7 +204,7 @@ public class SegmentIT {
     ));
     Segment inputData = segmentFactory.newSegment(BigInteger.valueOf(4))
       .setChainId(BigInteger.valueOf(1L))
-      .setOffset(BigInteger.valueOf(4L))
+      .setOffset(4L)
       .setState("Crafting")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
@@ -225,8 +213,8 @@ public class SegmentIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
-      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.ogg");
+    when(amazonProvider.generateKey("chains-1-segments", "ogg"))
+      .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
     failure.expect(CoreException.class);
     failure.expectMessage("Found Segment at same offset in Chain");
@@ -241,7 +229,7 @@ public class SegmentIT {
     ));
     Segment inputData = segmentFactory.newSegment(BigInteger.valueOf(4))
       .setChainId(BigInteger.valueOf(1L))
-      .setOffset(BigInteger.valueOf(4L))
+      .setOffset(4L)
       .setState("Crafting")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
@@ -250,8 +238,8 @@ public class SegmentIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
-      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.ogg");
+    when(amazonProvider.generateKey("chains-1-segments", "ogg"))
+      .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
     failure.expect(CoreException.class);
     failure.expectMessage("top-level access is required");
@@ -265,7 +253,7 @@ public class SegmentIT {
       "roles", "Admin"
     ));
     Segment inputData = segmentFactory.newSegment(BigInteger.valueOf(4))
-      .setOffset(BigInteger.valueOf(4L))
+      .setOffset(4L)
       .setState("Crafting")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
@@ -274,8 +262,8 @@ public class SegmentIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
-      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.ogg");
+    when(amazonProvider.generateKey("chains-1-segments", "ogg"))
+      .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
     failure.expect(CoreException.class);
     failure.expectMessage("Chain ID is required");
@@ -295,7 +283,7 @@ public class SegmentIT {
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(2L), result.getId());
     assertEquals(BigInteger.valueOf(1L), result.getChainId());
-    assertEquals(BigInteger.valueOf(1L), result.getOffset());
+    assertEquals(Long.valueOf(1L), result.getOffset());
     assertEquals(SegmentState.Dubbing, result.getState());
     assertEquals("2017-02-14T12:01:32.000001Z", result.getBeginAt().toString());
     assertEquals("2017-02-14T12:02:04.000001Z", result.getEndAt().toString());
@@ -324,7 +312,7 @@ public class SegmentIT {
       "accounts", "1"
     ));
 
-    Collection<Segment> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
+    Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertNotNull(result);
     assertEquals(5L, result.size());
@@ -348,12 +336,52 @@ public class SegmentIT {
 
   @Test
   public void readAll_byChainEmbedKey() throws Exception {
-    IntegrationTestEntity.insertChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich");
-    IntegrationTestEntity.insertSegment_NoContent(51, 5, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(52, 5, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(53, 5, 2, SegmentState.Crafted, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "F major", 64, 0.30, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(54, 5, 3, SegmentState.Crafting, Instant.parse("2017-02-14T12:02:36.000001Z"), Instant.parse("2017-02-14T12:03:08.000001Z"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Instant.parse("2017-02-14T12:03:08.000001Z"));
+    insert(newChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich", now()));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(51))
+      .setChainId(BigInteger.valueOf(5))
+      .setOffset(0L)
+      .setStateEnum(SegmentState.Dubbed)
+      .setKey("D major")
+      .setTotal(64)
+      .setDensity(0.73)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setCreatedAt("2017-02-14T12:01:00.000001Z")
+      .setUpdatedAt("2017-02-14T12:01:32.000001Z"));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(52))
+      .setChainId(BigInteger.valueOf(5))
+      .setOffset(1L)
+      .setStateEnum(SegmentState.Dubbing)
+      .setKey("Db minor")
+      .setTotal(64)
+      .setDensity(0.85)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setCreatedAt("2017-02-14T12:01:32.000001Z")
+      .setUpdatedAt("2017-02-14T12:02:04.000001Z"));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(53))
+      .setChainId(BigInteger.valueOf(5))
+      .setOffset(2L)
+      .setStateEnum(SegmentState.Crafted)
+      .setKey("F major")
+      .setTotal(64)
+      .setDensity(0.30)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setCreatedAt("2017-02-14T12:02:04.000001Z")
+      .setUpdatedAt("2017-02-14T12:02:36.000001Z"));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(54))
+      .setChainId(BigInteger.valueOf(5))
+      .setOffset(3L)
+      .setStateEnum(SegmentState.Crafting)
+      .setKey("E minor")
+      .setTotal(64)
+      .setDensity(0.41)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setCreatedAt("2017-02-14T12:02:36.000001Z")
+      .setUpdatedAt("2017-02-14T12:03:08.000001Z"));
+    insert(newSegment(55, 5, 4, Instant.parse("2017-02-14T12:03:08.000001Z")));
 
     Collection<Segment> result = testDAO.readAll("JamSandwich");
 
@@ -378,7 +406,7 @@ public class SegmentIT {
       "accounts", "1"
     ));
 
-    Collection<Segment> result = testDAO.readAllFromOffset(access, BigInteger.valueOf(1L), BigInteger.valueOf(2L));
+    Collection<Segment> result = testDAO.readAllFromOffset(access, BigInteger.valueOf(1L), 2L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -397,7 +425,7 @@ public class SegmentIT {
       "accounts", "1"
     ));
 
-    Collection<Segment> result = testDAO.readAllFromToOffset(access, BigInteger.valueOf(1L), BigInteger.valueOf(2L), BigInteger.valueOf(3L));
+    Collection<Segment> result = testDAO.readAllFromToOffset(access, BigInteger.valueOf(1L), 2L, 3L);
 
     assertEquals(2L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -414,21 +442,61 @@ public class SegmentIT {
       "accounts", "1"
     ));
 
-    Collection<Segment> result = testDAO.readAllFromToOffset(access, BigInteger.valueOf(1L), BigInteger.valueOf(-1L), BigInteger.valueOf(-1L));
+    Collection<Segment> result = testDAO.readAllFromToOffset(access, BigInteger.valueOf(1L), -1L, -1L);
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void readAllFromOffset_byChainEmbedKey() throws Exception {
-    IntegrationTestEntity.insertChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich");
-    IntegrationTestEntity.insertSegment_NoContent(51, 5, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(52, 5, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(53, 5, 2, SegmentState.Crafted, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "F major", 64, 0.30, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(54, 5, 3, SegmentState.Crafting, Instant.parse("2017-02-14T12:02:36.000001Z"), Instant.parse("2017-02-14T12:03:08.000001Z"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Instant.parse("2017-02-14T12:03:08.000001Z"));
+    insert(newChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich", now()));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(51))
+      .setChainId(BigInteger.valueOf(5))
+      .setOffset(0L)
+      .setStateEnum(SegmentState.Dubbed)
+      .setKey("D major")
+      .setTotal(64)
+      .setDensity(0.73)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setCreatedAt("2017-02-14T12:01:00.000001Z")
+      .setUpdatedAt("2017-02-14T12:01:32.000001Z"));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(52))
+      .setChainId(BigInteger.valueOf(5))
+      .setOffset(1L)
+      .setStateEnum(SegmentState.Dubbing)
+      .setKey("Db minor")
+      .setTotal(64)
+      .setDensity(0.85)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setCreatedAt("2017-02-14T12:01:32.000001Z")
+      .setUpdatedAt("2017-02-14T12:02:04.000001Z"));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(53))
+      .setChainId(BigInteger.valueOf(5))
+      .setOffset(2L)
+      .setStateEnum(SegmentState.Crafted)
+      .setKey("F major")
+      .setTotal(64)
+      .setDensity(0.30)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setCreatedAt("2017-02-14T12:02:04.000001Z")
+      .setUpdatedAt("2017-02-14T12:02:36.000001Z"));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(54))
+      .setChainId(BigInteger.valueOf(5))
+      .setOffset(3L)
+      .setStateEnum(SegmentState.Crafting)
+      .setKey("E minor")
+      .setTotal(64)
+      .setDensity(0.41)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setCreatedAt("2017-02-14T12:02:36.000001Z")
+      .setUpdatedAt("2017-02-14T12:03:08.000001Z"));
+    insert(newSegment(55, 5, 4, Instant.parse("2017-02-14T12:03:08.000001Z")));
 
-    Collection<Segment> result = testDAO.readAllFromOffset("JamSandwich", BigInteger.valueOf(2L));
+    Collection<Segment> result = testDAO.readAllFromOffset("JamSandwich", 2L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -462,12 +530,52 @@ public class SegmentIT {
 
   @Test
   public void readAllFromSecondsUTC_byChainEmbedKey() throws Exception {
-    IntegrationTestEntity.insertChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich");
-    IntegrationTestEntity.insertSegment_NoContent(51, 5, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(52, 5, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(53, 5, 2, SegmentState.Crafted, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "F major", 64, 0.30, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(54, 5, 3, SegmentState.Crafting, Instant.parse("2017-02-14T12:02:36.000001Z"), Instant.parse("2017-02-14T12:03:08.000001Z"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Instant.parse("2017-02-14T12:03:08.000001Z"));
+    insert(newChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich", now()));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(51))
+      .setChainId(BigInteger.valueOf(5))
+      .setOffset(0L)
+      .setStateEnum(SegmentState.Dubbed)
+      .setKey("D major")
+      .setTotal(64)
+      .setDensity(0.73)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setBeginAt("2017-02-14T12:01:00.000001Z")
+      .setEndAt("2017-02-14T12:01:32.000001Z"));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(52))
+      .setChainId(BigInteger.valueOf(5))
+      .setOffset(1L)
+      .setStateEnum(SegmentState.Dubbing)
+      .setKey("Db minor")
+      .setTotal(64)
+      .setDensity(0.85)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setBeginAt("2017-02-14T12:01:32.000001Z")
+      .setEndAt("2017-02-14T12:02:04.000001Z"));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(53))
+      .setChainId(BigInteger.valueOf(5))
+      .setOffset(2L)
+      .setStateEnum(SegmentState.Crafted)
+      .setKey("F major")
+      .setTotal(64)
+      .setDensity(0.30)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setBeginAt("2017-02-14T12:02:04.000001Z")
+      .setEndAt("2017-02-14T12:02:36.000001Z"));
+    insert(segmentFactory.newSegment(BigInteger.valueOf(54))
+      .setChainId(BigInteger.valueOf(5))
+      .setOffset(3L)
+      .setStateEnum(SegmentState.Crafting)
+      .setKey("E minor")
+      .setTotal(64)
+      .setDensity(0.41)
+      .setTempo(120.0)
+      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setBeginAt("2017-02-14T12:02:36.000001Z")
+      .setEndAt("2017-02-14T12:03:08.000001Z"));
+    insert(newSegment(55, 5, 4, Instant.parse("2017-02-14T12:03:08.000001Z")));
 
     Collection<Segment> result = testDAO.readAllFromSecondsUTC("JamSandwich", 1487073724L);
 
@@ -491,7 +599,7 @@ public class SegmentIT {
 
     assertEquals(BigInteger.valueOf(5L), result.getId());
     assertEquals(BigInteger.valueOf(1L), result.getChainId());
-    assertEquals(BigInteger.valueOf(4L), result.getOffset());
+    assertEquals(Long.valueOf(4L), result.getOffset());
     assertEquals(SegmentState.Planned, result.getState());
     assertEquals("2017-02-14T12:03:08.000001Z", result.getBeginAt().toString());
     assertNull(result.getEndAt());
@@ -502,7 +610,7 @@ public class SegmentIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
+    insert(newChain(2, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null, now()));
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
@@ -516,7 +624,7 @@ public class SegmentIT {
       "accounts", "345"
     ));
 
-    Collection<Segment> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
+    Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertEquals(0L, result.size());
   }
@@ -528,7 +636,7 @@ public class SegmentIT {
     ));
     Segment inputData = segmentFactory.newSegment(BigInteger.valueOf(4))
       .setChainId(BigInteger.valueOf(1L))
-      .setOffset(BigInteger.valueOf(5L))
+      .setOffset(5L)
       .setState("Dubbed")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
@@ -556,9 +664,9 @@ public class SegmentIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-    Segment seg4 = segmentFactory.newSegment(BigInteger.valueOf(4))
+    segment4 = segmentFactory.newSegment(BigInteger.valueOf(4))
       .setChainId(BigInteger.valueOf(1L))
-      .setOffset(BigInteger.valueOf(5L))
+      .setOffset(5L)
       .setState("Dubbed")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
@@ -566,9 +674,9 @@ public class SegmentIT {
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
-    seg4.putReport("funky", "chicken");
+    segment4.putReport("funky", "chicken");
 
-    testDAO.update(access, BigInteger.valueOf(2L), seg4);
+    testDAO.update(access, BigInteger.valueOf(2L), segment4);
 
     Segment result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
@@ -593,7 +701,7 @@ public class SegmentIT {
       "roles", "Admin"
     ));
     Segment inputData = segmentFactory.newSegment(BigInteger.valueOf(4))
-      .setOffset(BigInteger.valueOf(4L))
+      .setOffset(4L)
       .setState("Crafting")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
@@ -615,7 +723,7 @@ public class SegmentIT {
     ));
     Segment inputData = segmentFactory.newSegment(BigInteger.valueOf(4))
       .setChainId(BigInteger.valueOf(12L))
-      .setOffset(BigInteger.valueOf(4L))
+      .setOffset(4L)
       .setState("Crafting")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
@@ -641,21 +749,21 @@ public class SegmentIT {
 
   @Test
   public void destroy() throws Exception {
-    IntegrationTestService.getDb().update(CHAIN)
+    db.update(CHAIN)
       .set(CHAIN.STATE, "Erase")
       .execute();
 
     testDAO.destroy(Access.internal(), BigInteger.valueOf(1L));
 
-    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(1L));
+    assertNotExist(testDAO, BigInteger.valueOf(1L));
   }
 
   @Test
   public void destroy_succeedsEvenIfSegmentHasNullWaveformKey() throws Exception {
-    IntegrationTestService.getDb().update(CHAIN)
+    db.update(CHAIN)
       .set(CHAIN.STATE, "Erase")
       .execute();
-    IntegrationTestService.getDb().update(SEGMENT)
+    db.update(SEGMENT)
       .set(SEGMENT.WAVEFORM_KEY, DSL.value((String) null))
       .execute();
 
@@ -663,7 +771,7 @@ public class SegmentIT {
 
     verify(amazonProvider, never()).deleteS3Object("xj-segment-test", null);
 
-    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(1L));
+    assertNotExist(testDAO, BigInteger.valueOf(1L));
   }
 
   @Test
@@ -677,7 +785,7 @@ public class SegmentIT {
 
   @Test
   public void destroy_allChildEntities() throws Exception {
-    setupFixturesA();
+    insertFixtureC();
 
     // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
 
@@ -692,21 +800,20 @@ public class SegmentIT {
     //
 
     // [#263] expect request to delete segment waveform from Amazon S3
-    verify(amazonProvider).deleteS3Object("xj-segment-test", "chain-1-segment-9f7s89d8a7892.wav");
+    verify(amazonProvider).deleteS3Object("xj-segment-test", "chains-1-segments-9f7s89d8a7892.wav");
 
     // Assert annihilation
-    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(17L));
+    assertNotExist(testDAO, BigInteger.valueOf(17L));
   }
 
   @Test
   public void revert_emptiesContent() throws Exception {
-    setupFixturesA();
+    insertFixtureC();
 
     testDAO.revert(Access.internal(), BigInteger.valueOf(17L));
 
     Segment result = testDAO.readOne(Access.internal(), BigInteger.valueOf(17L));
     assertEquals(0, result.getChoices().size());
   }
-
 
 }

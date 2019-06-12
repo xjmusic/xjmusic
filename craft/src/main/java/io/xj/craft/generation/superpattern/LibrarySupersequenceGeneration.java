@@ -3,9 +3,9 @@ package io.xj.craft.generation.superpattern;
 
 import io.xj.craft.chord.ChordNode;
 import io.xj.craft.generation.Generation;
-import io.xj.core.model.sequence.Sequence;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern_chord.PatternChord;
+import io.xj.core.model.program.sub.Sequence;
+import io.xj.core.model.program.sub.Pattern;
+import io.xj.core.model.program.sub.SequenceChord;
 
 import java.math.BigInteger;
 import java.util.Collection;
@@ -36,7 +36,7 @@ public interface LibrarySupersequenceGeneration extends Generation {
 
    @return map of pattern id to list of generated pattern entities
    */
-  Map<BigInteger, List<PatternChord>> getGeneratedPatternChords();
+  Map<BigInteger, List<SequenceChord>> getGeneratedSequenceChords();
 
   /**
    Get the sequence that was provided as a target to generate supersequence around

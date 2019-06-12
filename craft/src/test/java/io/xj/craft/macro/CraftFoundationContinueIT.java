@@ -3,22 +3,19 @@ package io.xj.craft.macro;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import io.xj.core.CoreModule;
+import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorFactory;
 import io.xj.core.fabricator.FabricatorType;
-import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.choice.Choice;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentFactory;
 import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.sequence.SequenceType;
-import io.xj.craft.BaseIT;
+import io.xj.core.model.program.ProgramType;
 import io.xj.craft.CraftFactory;
 import io.xj.craft.CraftModule;
 import org.junit.Before;
@@ -29,65 +26,41 @@ import org.junit.rules.ExpectedException;
 import java.math.BigInteger;
 import java.time.Instant;
 
-import static io.xj.core.Assert.assertExactChords;
-import static io.xj.core.Assert.assertExactMemes;
+import static io.xj.core.testing.Assert.assertExactChords;
+import static io.xj.core.testing.Assert.assertExactMemes;
 import static org.junit.Assert.assertEquals;
 
-public class CraftFoundationContinueIT extends BaseIT {
-  private final Injector injector = Guice.createInjector(new CoreModule(), new CraftModule());
+public class CraftFoundationContinueIT extends FixtureIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
 
-  // Testing entities for reference
-  private Segment segment4;
-
   @Before
   public void setUp() throws Exception {
+    injector = Guice.createInjector(new CoreModule(), new CraftModule());
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     craftFactory = injector.getInstance(CraftFactory.class);
-    SegmentFactory segmentFactory = injector.getInstance(SegmentFactory.class);
+    segmentFactory = injector.getInstance(SegmentFactory.class);
 
     // Fixtures
-    IntegrationTestEntity.reset();
-    insertLibraryB1();
-    insertLibraryB2();
+    reset();
+    insertFixtureB1();
+    insertFixtureB2();
 
     // Chain "Test Print #1" has 5 total segments
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
-    IntegrationTestEntity.insertSegment_NoContent(1, 1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(2, 1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120, "chain-1-segment-9f7s89d8a7892.wav");
+    insert(newChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null, now(), newChainBinding(library2)));
+    insert(newSegment(1, 1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120, "chains-1-segments-9f7s89d8a7892.wav"));
+    insert(newSegment(2, 1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120, "chains-1-segments-9f7s89d8a7892.wav"));
 
     // Chain "Test Print #1" has this segment that was just crafted
-    Segment seg3 = segmentFactory.newSegment(BigInteger.valueOf(3))
-      .setChainId(BigInteger.valueOf(1))
-      .setOffset(BigInteger.valueOf(2))
-      .setStateEnum(SegmentState.Crafted)
-      .setBeginAt("2017-02-14T12:02:04.000001Z")
-      .setEndAt("2017-02-14T12:02:36.000001Z")
-      .setKey("F Major")
-      .setTotal(64)
-      .setDensity(0.30)
-      .setTempo(120.0)
-      .setWaveformKey("chain-1-segment-9f7s89d8a7892.wav");
-    seg3.add(new Choice()
-      .setSegmentId(BigInteger.valueOf(3))
-      .setSequencePatternId(BigInteger.valueOf(441))
-      .setTypeEnum(SequenceType.Macro)
-      .setTranspose(3));
-    seg3.add(new Choice()
-      .setSegmentId(BigInteger.valueOf(3))
-      .setSequencePatternId(BigInteger.valueOf(1550))
-      .setTypeEnum(SequenceType.Main)
-      .setTranspose(5));
-    IntegrationTestEntity.insert(seg3);
+    segment3 = newSegment(3, 1,2, SegmentState.Crafted, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "F Major", 64, 0.30, 120.0, "chains-1-segments-9f7s89d8a7892.wav");
+    segment3.add(newChoice(ProgramType.Macro,4,program4_binding1.getId(),3));
+    segment3.add(newChoice(ProgramType.Main,5,program5_binding0.getId(),5));
+    insert(segment3);
 
     // Chain "Test Print #1" has a planned segment
-    segment4 = IntegrationTestEntity.insertSegment_Planned(4, 1, 3, Instant.parse("2017-02-14T12:03:08.000001Z"));
-
-    // Bind the library to the chain
-    IntegrationTestEntity.insertChainLibrary(1, 2);
+    segment4 = insert(newSegment(4, 1, 3, Instant.parse("2017-02-14T12:03:08.000001Z")));
   }
 
   /**
@@ -99,7 +72,8 @@ public class CraftFoundationContinueIT extends BaseIT {
 
     craftFactory.macroMain(fabricator).doWork();
 
-    Segment result = injector.getInstance(SegmentDAO.class).readOneAtChainOffset(Access.internal(), BigInteger.valueOf(1), BigInteger.valueOf(3));
+    Segment result = injector.getInstance(SegmentDAO.class).readOneAtChainOffset(Access.internal(), BigInteger.valueOf(1), 3L);
+    assertEquals(FabricatorType.Continue, result.getType());
     assertEquals("2017-02-14T12:03:23.680157Z", result.getEndAt().toString());
     assertEquals(Integer.valueOf(32), result.getTotal());
     assertEquals(Double.valueOf(0.45), result.getDensity());
@@ -108,12 +82,12 @@ public class CraftFoundationContinueIT extends BaseIT {
     assertEquals(FabricatorType.Continue, result.getType());
     assertExactMemes(Lists.newArrayList("Outlook", "Tropical", "Cozy", "Wild", "Pessimism"), result.getMemes());
     assertExactChords(Lists.newArrayList("B minor", "C# major"), result.getChords());
-    assertEquals(BigInteger.valueOf(4), fabricator.getSequenceOfChoice(result.getChoiceOfType(SequenceType.Macro)).getId());
-    assertEquals(Integer.valueOf(3), result.getChoiceOfType(SequenceType.Macro).getTranspose());
-    assertEquals(BigInteger.valueOf(1), fabricator.getSequencePatternOffsetForChoice(result.getChoiceOfType(SequenceType.Macro)));
-    assertEquals(BigInteger.valueOf(5), fabricator.getSequenceOfChoice(result.getChoiceOfType(SequenceType.Main)).getId());
-    assertEquals(Integer.valueOf(1), result.getChoiceOfType(SequenceType.Main).getTranspose());
-    assertEquals(BigInteger.valueOf(1), fabricator.getSequencePatternOffsetForChoice(result.getChoiceOfType(SequenceType.Main)));
+    assertEquals(program4_binding1.getId(), result.getChoiceOfType(ProgramType.Macro).getSequenceBindingId());
+    assertEquals(Integer.valueOf(3), result.getChoiceOfType(ProgramType.Macro).getTranspose());
+    assertEquals(Long.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(result.getChoiceOfType(ProgramType.Macro)));
+    assertEquals(program5_binding1.getId(), result.getChoiceOfType(ProgramType.Main).getSequenceBindingId());
+    assertEquals(Integer.valueOf(1), result.getChoiceOfType(ProgramType.Main).getTranspose());
+    assertEquals(Long.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(result.getChoiceOfType(ProgramType.Main)));
   }
 
 }

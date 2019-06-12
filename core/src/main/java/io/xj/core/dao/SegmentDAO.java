@@ -20,7 +20,7 @@ public interface SegmentDAO extends DAO<Segment> {
    @param offset  to fetch segment at
    @return segment id
    */
-  Segment readOneAtChainOffset(Access access, BigInteger chainId, BigInteger offset) throws CoreException;
+  Segment readOneAtChainOffset(Access access, BigInteger chainId, Long offset) throws CoreException;
 
   /**
    Fetch one Segment by chainId and state, if present
@@ -53,7 +53,7 @@ public interface SegmentDAO extends DAO<Segment> {
    @return array of segments as JSON
    @throws CoreException on failure
    */
-  Collection<Segment> readAllFromOffset(Access access, BigInteger chainId, BigInteger fromOffset) throws CoreException;
+  Collection<Segment> readAllFromOffset(Access access, BigInteger chainId, Long fromOffset) throws CoreException;
 
   /**
    Read all Segments that are accessible, by Chain Id, starting and ending at particular offsets
@@ -61,10 +61,11 @@ public interface SegmentDAO extends DAO<Segment> {
    @param access     control
    @param chainId    to read all segments from
    @param fromOffset to read segments form
+   @param toOffset   to read segments to
    @return array of segments as JSON
    @throws CoreException on failure
    */
-  Collection<Segment> readAllFromToOffset(Access access, BigInteger chainId, BigInteger fromOffset, BigInteger toOffset) throws CoreException;
+  Collection<Segment> readAllFromToOffset(Access access, BigInteger chainId, Long fromOffset, Long toOffset) throws CoreException;
 
   /**
    Read all Segments in a specified state
@@ -81,12 +82,12 @@ public interface SegmentDAO extends DAO<Segment> {
    limit max # of segments readable at once in environment configuration
    [#150279540] Unauthenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
 
-   @param chainEmbedKey to read all segments from
-   @param fromOffset    to read segments form
    @return array of segments as JSON
    @throws CoreException on failure
+   @param chainEmbedKey to read all segments from
+   @param fromOffset    to read segments form
    */
-  Collection<Segment> readAllFromOffset(String chainEmbedKey, BigInteger fromOffset) throws CoreException;
+  Collection<Segment> readAllFromOffset(String chainEmbedKey, Long fromOffset) throws CoreException;
 
   /**
    Read all Segments that are accessible, by Chain Id, starting at a particular time in seconds UTC since epoch.
@@ -94,11 +95,11 @@ public interface SegmentDAO extends DAO<Segment> {
    <p>
    [#278] Chain Player lives in navbar, and handles all playback (audio waveform, segment waveform, continuous chain) so the user always has central control over listening.
 
-   @return array of segments as JSON
-   @throws CoreException on failure
    @param access         control
    @param chainId        to read all segments from
    @param fromSecondsUTC to read segments from
+   @return array of segments as JSON
+   @throws CoreException on failure
    */
   Collection<Segment> readAllFromSecondsUTC(Access access, BigInteger chainId, Long fromSecondsUTC) throws CoreException;
 
@@ -108,10 +109,10 @@ public interface SegmentDAO extends DAO<Segment> {
    <p>
    [#150279540] Unauthenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
 
-   @return array of segments as JSON
-   @throws CoreException on failure
    @param chainEmbedKey  to read all segments from
    @param fromSecondsUTC to read segments from
+   @return array of segments as JSON
+   @throws CoreException on failure
    */
   Collection<Segment> readAllFromSecondsUTC(String chainEmbedKey, Long fromSecondsUTC) throws CoreException;
 

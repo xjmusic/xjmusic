@@ -28,6 +28,7 @@
       color: $gold;
       border: 2px solid darken($gold, 25%);
     }
+
     .loader {
       display: block;
     }
@@ -46,6 +47,7 @@
       display: block;
       width: 100%;
     }
+
     .active.btn-default {
       background: #222;
       color: $green;

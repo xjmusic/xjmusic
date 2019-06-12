@@ -10,7 +10,7 @@ public class CraftException extends Exception {
   }
 
   public CraftException(String msg, Exception e) {
-    super(String.format("%s %s\n%s", msg, e.toString(), Text.formatStackTrace(e)));
+    super(String.format("%s %s at %s", msg, e.toString(), Text.formatSimpleTrace(e)));
   }
 
 }

@@ -4,10 +4,9 @@ package io.xj.hub.resource.platform_message;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.dao.PlatformMessageDAO;
-import io.xj.core.model.platform_message.PlatformMessage;
-import io.xj.core.model.platform_message.PlatformMessageWrapper;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.transport.HttpResponseProvider;
+import io.xj.core.model.payload.MediaType;
+import io.xj.core.model.payload.Payload;
+import io.xj.core.model.user.role.UserRoleType;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
@@ -18,17 +17,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 
 /**
  PlatformMessages
  */
 @Path("platform-messages")
 public class PlatformMessageIndexResource extends HubResource {
-  private final PlatformMessageDAO platformMessageDAO = injector.getInstance(PlatformMessageDAO.class);
-  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("previousDays")
   Integer previousDays;
@@ -40,18 +35,17 @@ public class PlatformMessageIndexResource extends HubResource {
    */
   @GET
   @RolesAllowed({UserRoleType.ADMIN, UserRoleType.ENGINEER})
-  public Response readAll(@Context ContainerRequestContext crc) throws IOException {
+  public Response readAll(@Context ContainerRequestContext crc) {
 
-    if (null == previousDays || 0 == previousDays) {
-      previousDays = Config.platformMessageReadPreviousDays();
-    }
+    if (null == previousDays || 0 == previousDays)
+      previousDays = Config.getPlatformMessageReadPreviousDays();
 
     try {
-      return response.readMany(
-        PlatformMessage.KEY_MANY,
-        platformMessageDAO.readAllPreviousDays(
-          Access.fromContext(crc),
-          previousDays));
+      return response.ok(
+        new Payload().setDataEntities(
+          dao().readAllPreviousDays(
+            Access.fromContext(crc),
+            previousDays), false));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -61,24 +55,22 @@ public class PlatformMessageIndexResource extends HubResource {
   /**
    Create new platform message
 
-   @param data with which to update Chain record.
+   @param payload with which to update Chain record.
    @return Response
    */
   @POST
-  @Consumes(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON_API)
   @RolesAllowed({UserRoleType.ADMIN, UserRoleType.ENGINEER})
-  public Response create(PlatformMessageWrapper data, @Context ContainerRequestContext crc) {
-    try {
-      return response.create(
-        PlatformMessage.KEY_MANY,
-        PlatformMessage.KEY_ONE,
-        platformMessageDAO.create(
-          Access.fromContext(crc),
-          data.getPlatformMessage()));
-
-    } catch (Exception e) {
-      return response.failureToCreate(e);
-    }
+  public Response create(Payload payload, @Context ContainerRequestContext crc) {
+    return create(crc, dao(), payload);
   }
 
+  /**
+   Get DAO from injector
+
+   @return DAO
+   */
+  private PlatformMessageDAO dao() {
+    return injector.getInstance(PlatformMessageDAO.class);
+  }
 }

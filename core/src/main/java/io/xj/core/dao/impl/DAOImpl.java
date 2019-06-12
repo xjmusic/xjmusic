@@ -1,13 +1,16 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.common.base.CaseFormat;
 import com.google.common.collect.Lists;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
-import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.entity.EntityFactory;
+import io.xj.core.model.entity.Resource;
+import io.xj.core.model.user.role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
-import io.xj.core.util.CamelCasify;
+import io.xj.core.util.Text;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
@@ -18,12 +21,7 @@ import org.jooq.types.ULong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -33,7 +31,7 @@ import static io.xj.core.Tables.LIBRARY;
 
 public class DAOImpl {
   private static final Logger log = LoggerFactory.getLogger(DAOImpl.class);
-  SQLDatabaseProvider dbProvider;
+  protected SQLDatabaseProvider dbProvider;
 
   /**
    Execute a database CREATE operation
@@ -51,8 +49,8 @@ public class DAOImpl {
     try {
       record.store();
     } catch (Exception e) {
-      log.error("Cannot create record", e);
-      throw new CoreException("Cannot create record", e);
+      log.error("Cannot create record because {}", e.getMessage());
+      throw new CoreException(String.format("Cannot create record because %s", e.getMessage()));
     }
 
     return record;
@@ -74,8 +72,8 @@ public class DAOImpl {
     try {
       return db.executeUpdate(record);
     } catch (Exception e) {
-      log.error("Cannot update record", e);
-      throw new CoreException("Cannot update record", e);
+      log.error("Cannot update record because {}", e.getMessage());
+      throw new CoreException(String.format("Cannot update record because %s", e.getMessage()));
     }
   }
 
@@ -141,29 +139,9 @@ public class DAOImpl {
   }
 
   /**
-   Require that a count of any of a list of record isNonNull
-
-   @param message for error, if thrown
-   @param counts  to require existence of any of
-   @throws CoreException if not isNonNull
-   */
-  static void requireExistsAnyOf(String message, int... counts) throws CoreException {
-    boolean missing = true;
-    for (int count : counts) {
-      if (0 < count) {
-        missing = false;
-      }
-    }
-    if (missing) {
-      throw new CoreException(message);
-    }
-  }
-
-
-  /**
    Definitely not null, or string "null"
 
-   @param obj to evaluate for non-nullness
+   @param obj to ingest for non-nullness
    @return true if non-null
    */
   static boolean isNonNull(Object obj) {
@@ -180,17 +158,6 @@ public class DAOImpl {
    */
   static void requireAccount(Access access, ULong accountId) throws CoreException {
     require("access to account #" + accountId, access.hasAccount(accountId.toBigInteger()));
-  }
-
-  /**
-   Require a given integer is greater than zero
-
-   @param description           what is it
-   @param mustBeGreaterThanZero value
-   @throws CoreException if null
-   */
-  static void requireGreaterThanZero(String description, @Nullable Integer mustBeGreaterThanZero) throws CoreException {
-    require(description, "must be greater than zero", Objects.nonNull(mustBeGreaterThanZero) && 0 < mustBeGreaterThanZero);
   }
 
   /**
@@ -291,9 +258,21 @@ public class DAOImpl {
    */
   static <R extends Record, E extends Entity> Collection<E> modelsFrom(Iterable<R> records, Class<E> modelClass) throws CoreException {
     Collection<E> models = Lists.newArrayList();
-    for (R record : records) {
-      models.add(modelFrom(record, modelClass));
-    }
+    for (R record : records) models.add(modelFrom(record, modelClass));
+    return models;
+  }
+
+  /**
+   Transmogrify a jOOQ Result set into a Collection of POJO entities
+
+   @param records to source values from
+   @param factory from which to get a new entity instance
+   @return entity after transmogrification
+   @throws CoreException on failure to transmogrify
+   */
+  static <R extends Record, E extends Entity> Collection<E> modelsFrom(Iterable<R> records, EntityFactory<E> factory) throws CoreException {
+    Collection<E> models = Lists.newArrayList();
+    for (R record : records) models.add(modelFrom(record, factory));
     return models;
   }
 
@@ -308,27 +287,43 @@ public class DAOImpl {
   static <R extends Record, E extends Entity> E modelFrom(R record, Class<E> modelClass) throws CoreException {
     if (Objects.isNull(modelClass))
       throw new CoreException("Will not transmogrify null modelClass");
-    if (Objects.isNull(record))
-      throw new CoreException("Record does not exist");
 
     // new instance of model
     E model;
     try {
       model = modelClass.getConstructor().newInstance();
     } catch (Exception e) {
-      throw new CoreException(String.format("Could not get a new instance class: %s", modelClass), e);
+      throw new CoreException(String.format("Could not get a new instance of class %s because %s", modelClass, e));
     }
 
     // set all values
     modelSetTransmogrified(record, model);
 
-    // this is necessary to port in some values, e.g. state enums from string setters
+    return model;
+  }
+
+  /**
+   Transmogrify the field-value pairs from a jOOQ record and set values on the corresponding POJO entity.
+
+   @param record  to source field-values from
+   @param factory from which to get a new entity instance
+   @return entity after transmogrification
+   @throws CoreException on failure to transmogrify
+   */
+  static <R extends Record, E extends Entity> E modelFrom(R record, EntityFactory<E> factory) throws CoreException {
+    if (Objects.isNull(record))
+      throw new CoreException("Record does not exist");
+
+    // new instance of model
+    E model;
     try {
-      model.validate();
+      model = factory.newInstance();
     } catch (Exception e) {
-      log.error("Entity threw exception during post-transmogrification validation", e);
-      throw new CoreException("Entity threw exception during post-transmogrification validation", e);
+      throw new CoreException(String.format("Could not get a new instance from %s because %s", Text.getSimpleName(factory), e));
     }
+
+    // set all values
+    modelSetTransmogrified(record, model);
 
     return model;
   }
@@ -342,99 +337,19 @@ public class DAOImpl {
    @param <E>    type of Entity
    @throws CoreException on failure to set transmogrified values
    */
-  static <R extends Record, E extends Entity> void modelSetTransmogrified(R record, E model) throws CoreException {
-    if (Objects.isNull(record)) {
+  static <R extends Record, E extends Resource> void modelSetTransmogrified(R record, E model) throws CoreException {
+    if (Objects.isNull(record))
       throw new CoreException("Cannot transmogrify; record does not exist");
-    }
+
     Map<String, Object> fieldValues = record.intoMap();
-    for (Map.Entry<String, Object> field : fieldValues.entrySet()) {
+    for (Map.Entry<String, Object> field : fieldValues.entrySet())
       if (isNonNull(field.getValue())) try {
-        modelSetTransmogrified(model, field.getKey(), field.getValue());
+        String attributeName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, field.getKey());
+        model.set(attributeName, field.getValue());
       } catch (Exception e) {
-        log.error("Could not transmogrify key:{} val:{}", field.getKey(), field.getValue(), e);
-        throw new CoreException(String.format("Could not transmogrify key:%s val:%s", field.getKey(), field.getValue()), e);
+        log.error("Could not transmogrify key:{} val:{} because {}", field.getKey(), field.getValue(), e);
+        throw new CoreException(String.format("Could not transmogrify key:%s val:%s because %s", field.getKey(), field.getValue(), e));
       }
-    }
-  }
-
-  /**
-   Set the setter of a POJO Entity, based on the transmogrified value from a jOOQ Record Field
-
-   @param model to set the setter of
-   @param key   of the jOOQ Record Field
-   @param value from the jOOQ Record Field
-   @param <E>   is the type of the entity being written to
-   */
-  private static <E extends Object> void modelSetTransmogrified(E model, String key, Object value) throws CoreException {
-    String setterName = String.format("set%s", CamelCasify.upper(key));
-
-    /*
-    Allows for special columns from db transactions to be mapped to special setters,
-    while being tolerant of extra columns, e.g. join artifacts
-     */
-    if (!hasMethod(model, setterName)) {
-      log.debug("{} does not have {}(); skipping.", model, setterName);
-      return;
-    }
-
-    try {
-      if (isNonNull(value)) switch (value.getClass().getSimpleName()) {
-
-        case "ULong":
-        case "BigInteger":
-          model.getClass().getMethod(setterName, BigInteger.class)
-            .invoke(model, new BigInteger(String.valueOf(value)));
-          break;
-
-        case "UInteger":
-        case "Integer":
-          model.getClass().getMethod(setterName, Integer.class)
-            .invoke(model, Integer.valueOf(String.valueOf(value)));
-          break;
-
-        case "Long":
-          model.getClass().getMethod(setterName, Long.class)
-            .invoke(model, Long.valueOf(String.valueOf(value)));
-          break;
-
-        case "Double":
-          model.getClass().getMethod(setterName, Double.class)
-            .invoke(model, Double.valueOf(String.valueOf(value)));
-          break;
-
-        case "Float":
-          model.getClass().getMethod(setterName, Float.class)
-            .invoke(model, Float.valueOf(String.valueOf(value)));
-          break;
-
-        case "Timestamp":
-          model.getClass().getMethod(setterName, String.class)
-            .invoke(model, Timestamp.valueOf(String.valueOf(value)).toInstant().truncatedTo(ChronoUnit.MICROS).toString());
-          break;
-
-        default:
-          model.getClass().getMethod(setterName, String.class)
-            .invoke(model, String.valueOf(value));
-          break;
-      }
-    } catch (InvocationTargetException ignored) {
-      throw new CoreException(String.format("Failed to set %s, reason: %s", key, ignored.getTargetException().getMessage()));
-
-    } catch (NoSuchMethodException | IllegalAccessException e) {
-      throw new CoreException(String.format("Failed to set transmogrified key=%s, value=%s on model=%s", key, value, model), e);
-    }
-  }
-
-  /**
-   Check if the target entity has any given method
-
-   @param model      to test for methods
-   @param setterName of method to test for
-   @param <E>        extends Entity
-   @return true if found, else false
-   */
-  private static <E extends Object> boolean hasMethod(E model, String setterName) {
-    return Arrays.stream(model.getClass().getMethods()).anyMatch(method -> Objects.equals(method.getName(), setterName));
   }
 
   /**

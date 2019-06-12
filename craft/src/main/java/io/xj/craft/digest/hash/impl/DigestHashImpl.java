@@ -9,6 +9,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.transport.CSV;
+import io.xj.core.util.Text;
 import io.xj.craft.digest.DigestType;
 import io.xj.craft.digest.hash.DigestHash;
 import io.xj.craft.digest.impl.DigestImpl;
@@ -27,7 +28,7 @@ import java.util.Objects;
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  */
 public class DigestHashImpl extends DigestImpl implements DigestHash {
-  private final Map<String, String> hash = Maps.newConcurrentMap();
+  private final Map<String, String> hash = Maps.newHashMap();
 
   /**
    Instantiate a new digest with a collection of target entities
@@ -55,7 +56,7 @@ public class DigestHashImpl extends DigestImpl implements DigestHash {
    */
   private static String hashKey(Entity entity) {
     return String.format("%s-%s",
-      entity.getClass().getSimpleName(),
+      Text.getSimpleName(entity),
       entity.getId());
   }
 
@@ -90,6 +91,11 @@ public class DigestHashImpl extends DigestImpl implements DigestHash {
     return Hashing.sha256()
       .hashString(toString(), StandardCharsets.UTF_8)
       .toString();
+  }
+
+  @Override
+  public DigestHash validate() {
+    return this;
   }
 
 }

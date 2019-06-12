@@ -4,25 +4,24 @@ package io.xj.worker.job.special;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
+import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.external.amazon.AmazonProvider;
-import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.fabricator.impl.FabricatorImpl;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkType;
-import java.time.Instant;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
-import io.xj.worker.BaseIT;
 import io.xj.worker.WorkerModule;
+import io.xj.worker.job.impl.SegmentFabricateJobImpl;
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -32,9 +31,16 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -44,31 +50,33 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ComplexLibraryIT extends BaseIT {
+public class ComplexLibraryIT extends FixtureIT {
   private static final int MILLIS_PER_SECOND = 1000;
-  private static final int MARATHON_NUMBER_OF_SEGMENTS = 12;
+  private static final int MARATHON_NUMBER_OF_SEGMENTS = 7;
   private static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
   @Rule
   public ExpectedException failure = ExpectedException.none();
   long startTime = System.currentTimeMillis();
   @Mock
   AmazonProvider amazonProvider;
-  private Injector injector;
   private App app;
 
   @Before
   public void setUp() throws Exception {
-    createInjector();
+    injector = Guice.createInjector(Modules.override(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule()).with(
+      new AbstractModule() {
+        @Override
+        public void configure() {
+          bind(AmazonProvider.class).toInstance(amazonProvider);
+        }
+      }));
 
     // reset to shared fixtures
-    IntegrationTestEntity.reset();
-    IntegrationTestEntity.insertLibraryGenerated(3);
+    reset();
+    insertGeneratedFixture(3);
 
     // Chain "Test Print #1" is ready to begin
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(1000), null, null);
-
-    // Bind the library to the chain
-    IntegrationTestEntity.insertChainLibrary(1, 1);
+    insert(newChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(1000), null, null, now(), newChainBinding(library1)));
 
     // Config
     System.setProperty("app.port", "9043");
@@ -93,20 +101,12 @@ public class ComplexLibraryIT extends BaseIT {
     System.clearProperty("work.concurrency");
   }
 
-  private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule()).with(
-      new AbstractModule() {
-        @Override
-        public void configure() {
-          bind(AmazonProvider.class).toInstance(amazonProvider);
-        }
-      }));
-  }
-
   @Test
   public void fabricatesManySegments() throws Exception {
-    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
-      .thenReturn("chain-1-segment-12345.ogg");
+    when(amazonProvider.generateKey("chains-1-segments", "ogg"))
+      .thenReturn("chains-1-segments-12345.ogg");
+    when(amazonProvider.streamS3Object(any(), any()))
+      .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(resourceFile("source_audio/kick1.wav")));
     app.getWorkManager().startChainFabrication(BigInteger.valueOf(1));
     assertTrue(hasRemainingWork(WorkType.ChainFabricate));
 
@@ -120,8 +120,10 @@ public class ComplexLibraryIT extends BaseIT {
     app.stop();
 
     // assertions
-    verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).putS3Object(eq("/tmp/chain-1-segment-12345.ogg"), eq("xj-segment-test"), any());
-    Collection<Segment> result = injector.getInstance(SegmentDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1)));
+    verify(amazonProvider, atLeast(assertShippedSegmentsMinimum))
+      .putS3Object(eq("/tmp/chains-1-segments-12345.ogg"), eq("xj-segment-test"), any());
+    Collection<Segment> result = injector.getInstance(SegmentDAO.class)
+      .readMany(Access.internal(), ImmutableList.of(BigInteger.valueOf(1)));
     assertTrue(assertShippedSegmentsMinimum <= result.size());
   }
 
@@ -141,9 +143,8 @@ public class ComplexLibraryIT extends BaseIT {
    */
   private boolean hasRemainingWork(WorkType type) throws Exception {
     int total = 0;
-    for (Work work : app.getWorkManager().readAllWork()) {
+    for (Work work : app.getWorkManager().readAllWork())
       if (type == work.getType()) total++;
-    }
     return 0 < total;
   }
 

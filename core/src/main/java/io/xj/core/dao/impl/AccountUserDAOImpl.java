@@ -4,8 +4,7 @@ package io.xj.core.dao.impl;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AccountUserDAO;
 import io.xj.core.exception.CoreException;
-import io.xj.core.exception.CoreException;
-import io.xj.core.model.account_user.AccountUser;
+import io.xj.core.model.account.AccountUser;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 
@@ -147,7 +146,7 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
   }
 
   @Override
-  public Collection<AccountUser> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
+  public Collection<AccountUser> readMany(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
@@ -170,6 +169,11 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
     } catch (CoreException e) {
       throw tx.failure(e);
     }
+  }
+
+  @Override
+  public AccountUser newInstance() {
+    return new AccountUser();
   }
 
 }

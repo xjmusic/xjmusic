@@ -4,7 +4,6 @@ package io.xj.hub.resource.auth.nullify;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.UserDAO;
-import io.xj.core.transport.HttpResponseProvider;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.PermitAll;
@@ -13,8 +12,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.Objects;
 
 /**
  Nullify current authentication
@@ -22,7 +19,6 @@ import java.util.Objects;
 @Path("auth/no")
 public class AuthNullifyResource extends HubResource {
   private final UserDAO userDAO = injector.getInstance(UserDAO.class);
-  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
   private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
 
   /**
@@ -32,7 +28,7 @@ public class AuthNullifyResource extends HubResource {
    */
   @GET
   @PermitAll
-  public Response nullifyAuthentication(@Context ContainerRequestContext crc) throws IOException {
+  public Response nullifyAuthentication(@Context ContainerRequestContext crc) {
     Access access = Access.fromContext(crc);
 
     if (access.isValid()) {

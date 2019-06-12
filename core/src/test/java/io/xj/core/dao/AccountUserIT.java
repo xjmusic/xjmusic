@@ -3,14 +3,10 @@ package io.xj.core.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import io.xj.core.CoreModule;
+import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.account_user.AccountUser;
-import org.junit.After;
+import io.xj.core.model.account.AccountUser;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -23,33 +19,30 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 // future test: permissions of different users to readMany vs. create vs. update or delete account users
-public class AccountUserIT {
-  private final Injector injector = Guice.createInjector(new CoreModule());
+public class AccountUserIT extends FixtureIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private AccountUserDAO testDAO;
+  private AccountUser accountUser_1_2;
+    private AccountUser accountUser_1_3;
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.reset();
+    reset();
 
     // Account "bananas"
-    IntegrationTestEntity.insertAccount(1, "bananas");
+    insert(newAccount(1, "bananas"));
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertAccountUser(1, 2);
+    insert(newUser(2, "john", "john@email.com", "http://pictures.com/john.gif"));
+    accountUser_1_2 = insert(newAccountUser(1, 2));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertAccountUser(1, 3);
+    insert(newUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
+    accountUser_1_3 = insert(newAccountUser(1, 3));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AccountUserDAO.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
   }
 
   @Test
@@ -57,7 +50,7 @@ public class AccountUserIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertUser(5, "Jim", "jim@email.com", "http://pictures.com/jim.gif");
+    insert(newUser(5, "Jim", "jim@email.com", "http://pictures.com/jim.gif"));
     AccountUser inputData = new AccountUser()
       .setAccountId(BigInteger.valueOf(1L))
       .setUserId(BigInteger.valueOf(5L));
@@ -69,7 +62,7 @@ public class AccountUserIT {
     assertEquals(BigInteger.valueOf(5L), result.getUserId());
   }
 
-  @Test(expected = CoreException.class)
+  @Test
   public void create_FailIfAlreadyExists() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
@@ -78,10 +71,13 @@ public class AccountUserIT {
       .setAccountId(BigInteger.valueOf(1L))
       .setUserId(BigInteger.valueOf(2L));
 
+    failure.expect(CoreException.class);
+    failure.expectMessage("Account User already exists!");
+
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = CoreException.class)
+  @Test
   public void create_FailIfNotAdmin() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "User"
@@ -90,10 +86,13 @@ public class AccountUserIT {
       .setAccountId(BigInteger.valueOf(1L))
       .setUserId(BigInteger.valueOf(2L));
 
+    failure.expect(CoreException.class);
+    failure.expectMessage("top-level access is required");
+
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = CoreException.class)
+  @Test
   public void create_FailsWithoutAccountID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
@@ -101,16 +100,22 @@ public class AccountUserIT {
     AccountUser inputData = new AccountUser()
       .setUserId(BigInteger.valueOf(2L));
 
+    failure.expect(CoreException.class);
+    failure.expectMessage("Account ID is required");
+
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = CoreException.class)
+  @Test
   public void create_FailsWithoutUserId() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     AccountUser inputData = new AccountUser()
       .setAccountId(BigInteger.valueOf(1L));
+
+    failure.expect(CoreException.class);
+    failure.expectMessage("User ID is required");
 
     testDAO.create(access, inputData);
   }
@@ -122,10 +127,9 @@ public class AccountUserIT {
       "accounts", "1"
     ));
 
-    AccountUser result = testDAO.readOne(access, BigInteger.valueOf(1002000L));
+    AccountUser result = testDAO.readOne(access, accountUser_1_2.getId());
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1002000L), result.getId());
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
     assertEquals(BigInteger.valueOf(2L), result.getUserId());
   }
@@ -148,7 +152,7 @@ public class AccountUserIT {
       "roles", "Admin"
     ));
 
-    Collection<AccountUser> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
+    Collection<AccountUser> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertEquals(2L, result.size());
   }
@@ -160,7 +164,7 @@ public class AccountUserIT {
       "accounts", "1"
     ));
 
-    Collection<AccountUser> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
+    Collection<AccountUser> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertEquals(2L, result.size());
   }
@@ -172,7 +176,7 @@ public class AccountUserIT {
       "accounts", "345"
     ));
 
-    Collection<AccountUser> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
+    Collection<AccountUser> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertNotNull(result);
     assertEquals(0L, result.size());
@@ -186,14 +190,17 @@ public class AccountUserIT {
 
     testDAO.destroy(access, BigInteger.valueOf(1002000L));
 
-    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(1002000L));
+    assertNotExist(testDAO, BigInteger.valueOf(1002000L));
   }
 
-  @Test(expected = CoreException.class)
+  @Test
   public void delete_FailIfNotAdmin() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "User"
     ));
+
+    failure.expect(CoreException.class);
+    failure.expectMessage("top-level access is required");
 
     testDAO.destroy(access, BigInteger.valueOf(1002000L));
   }

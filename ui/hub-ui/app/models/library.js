@@ -1,11 +1,11 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import DS from 'ember-data';
+import Model, {attr, belongsTo, hasMany} from '@ember-data/model';
 
-export default DS.Model.extend({
-  account: DS.belongsTo({}),
-  name: DS.attr('string'),
+export default Model.extend({
+  account: belongsTo({}),
+  name: attr('string'),
 
-  sequences: DS.hasMany('sequence'),
-  instruments: DS.hasMany('instrument'),
+  programs: hasMany('program'),
+  instruments: hasMany('instrument'),
 });
 

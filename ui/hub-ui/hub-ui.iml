@@ -7,6 +7,9 @@
       <sourceFolder url="file://$MODULE_DIR$/addon" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/public" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/tests/unit" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/tests/integration" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/tests/acceptance" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests/dummy/app" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.bower_components.ember-try" />
       <excludeFolder url="file://$MODULE_DIR$/.node_modules.ember-try" />

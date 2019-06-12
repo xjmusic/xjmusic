@@ -20,6 +20,30 @@ public interface DAO<E extends Entity> {
   E create(Access access, E entity) throws CoreException;
 
   /**
+   Delete a specified Entity
+
+   @param access control
+   @param id     of specific Entity to delete.
+   */
+  void destroy(Access access, BigInteger id) throws CoreException;
+
+  /**
+   Create a new instance of this type of Entity
+   @return new entity instance
+   */
+  E newInstance();
+
+  /**
+   Fetch many records for many parents by id, if accessible
+
+   @param access    control
+   @param parentIds to fetch records for.
+   @return collection of retrieved records
+   @throws CoreException on failure
+   */
+  Collection<E> readMany(Access access, Collection<BigInteger> parentIds) throws CoreException;
+
+  /**
    Fetch one record  if accessible
 
    @param access control
@@ -30,16 +54,6 @@ public interface DAO<E extends Entity> {
   E readOne(Access access, BigInteger id) throws CoreException;
 
   /**
-   Fetch many records for many parents by id, if accessible
-
-   @param access    control
-   @param parentIds to fetch records for.
-   @return collection of retrieved records
-   @throws CoreException on failure
-   */
-  Collection<E> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException;
-
-  /**
    Update a specified Entity
 
    @param access control
@@ -47,12 +61,4 @@ public interface DAO<E extends Entity> {
    @param entity for the updated Entity.
    */
   void update(Access access, BigInteger id, E entity) throws CoreException;
-
-  /**
-   Delete a specified Entity
-
-   @param access control
-   @param id     of specific Entity to delete.
-   */
-  void destroy(Access access, BigInteger id) throws CoreException;
 }

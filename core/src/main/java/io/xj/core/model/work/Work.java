@@ -7,26 +7,27 @@ import io.xj.core.model.entity.impl.EntityImpl;
 import java.math.BigInteger;
 
 public class Work extends EntityImpl {
-  public static final String KEY_ONE = "work";
-  public static final String KEY_MANY = "works";
-  public static final String KEY_SOURCE_ID = "sourceId";
   public static final String KEY_TARGET_ID = "targetId";
-
+  public static final String RESOURCE_TYPE = "works";
   private BigInteger targetId;
   private WorkState state;
   private WorkType type;
+
+  @Override
+  public String getResourceType() {
+    return RESOURCE_TYPE;
+  }
+
+  public WorkState getState() {
+    return state;
+  }
 
   public BigInteger getTargetId() {
     return targetId;
   }
 
-  public Work setTargetId(BigInteger value) {
-    targetId = value;
-    return this;
-  }
-
-  public WorkState getState() {
-    return state;
+  public WorkType getType() {
+    return type;
   }
 
   public Work setState(WorkState value) {
@@ -34,8 +35,9 @@ public class Work extends EntityImpl {
     return this;
   }
 
-  public WorkType getType() {
-    return type;
+  public Work setTargetId(BigInteger value) {
+    targetId = value;
+    return this;
   }
 
   public Work setType(WorkType value) {
@@ -49,13 +51,14 @@ public class Work extends EntityImpl {
   }
 
   @Override
-  public void validate() throws CoreException {
-    if (null == targetId) {
+  public Work validate() throws CoreException {
+    if (null == targetId)
       throw new CoreException("Target ID is required.");
-    }
-    if (null == type || type.toString().isEmpty()) {
+
+    if (null == type || type.toString().isEmpty())
       throw new CoreException("Type is required.");
-    }
+
+    return this;
   }
 
   @Override

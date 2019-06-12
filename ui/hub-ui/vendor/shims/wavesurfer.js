@@ -1,11 +1,11 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-(function() {
+(function () {
   /* globals define, wavesurfer */
 
   function wavesurferJSModule() {
     'use strict';
 
-    return { 'default': WaveSurfer };
+    return {'default': WaveSurfer};
   }
 
   define('WaveSurfer', [], wavesurferJSModule);

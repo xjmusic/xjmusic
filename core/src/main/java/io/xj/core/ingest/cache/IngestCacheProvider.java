@@ -4,12 +4,12 @@ package io.xj.core.ingest.cache;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
 import io.xj.core.ingest.Ingest;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.model.chain.sub.ChainBinding;
 
 import java.util.Collection;
 
 /**
- [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
+ [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
  Ingest ingest = evaluationFactory.of(...any combination of libraries, instruments, and sequences...);
  */
 @FunctionalInterface
@@ -21,8 +21,8 @@ public interface IngestCacheProvider {
    Where N is configurable in system properties `ingest.cache.seconds`
 
    @param access control
-   @return entities to be evaluated
+   @return bindings to be ingested
    @throws CoreException on failure to of target entities
    */
-  Ingest evaluate(Access access, Collection<Entity> entities) throws CoreException;
+  Ingest ingest(Access access, Collection<ChainBinding> bindings) throws CoreException;
 }

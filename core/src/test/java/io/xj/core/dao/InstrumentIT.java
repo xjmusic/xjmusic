@@ -5,15 +5,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
+import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
-import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.instrument.InstrumentState;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.user.role.UserRoleType;
 import io.xj.core.work.WorkManager;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,50 +28,25 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertSame;
 
 // future test: permissions of different users to readMany vs. create vs. update or delete instruments
+
+// FUTURE: any test that
+
 @RunWith(MockitoJUnitRunner.class)
-public class InstrumentIT {
+public class InstrumentIT extends FixtureIT {
   @Spy
   final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
   @Rule
   public ExpectedException failure = ExpectedException.none();
-  private Injector injector;
   private InstrumentDAO testDAO;
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.reset();
+    reset();
 
     // inject mocks
-    createInjector();
-
-    // Account "bananas"
-    IntegrationTestEntity.insertAccount(1, "bananas");
-
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(2, UserRoleType.Admin);
-
-    // Jenny has a "user" role and belongs to account "bananas"
-    IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(3, UserRoleType.User);
-    IntegrationTestEntity.insertAccountUser(1, 3);
-
-    // Library "sandwich" has instrument "jams" and instrument "buns"
-    IntegrationTestEntity.insertLibrary(1, 1, "sandwich");
-    IntegrationTestEntity.insertInstrument(1, 1, 2, "jams", InstrumentType.Percussive, 0.6);
-    IntegrationTestEntity.insertInstrument(2, 1, 2, "buns", InstrumentType.Harmonic, 0.4);
-    IntegrationTestEntity.insertInstrumentMeme(1, "smooth");
-
-    // Instantiate the test subject
-    testDAO = injector.getInstance(InstrumentDAO.class);
-  }
-
-  private void createInjector() {
     injector = Guice.createInjector(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
@@ -79,6 +54,29 @@ public class InstrumentIT {
           bind(WorkManager.class).toInstance(workManager);
         }
       }));
+
+    // Account "bananas"
+    insert(newAccount(1, "bananas"));
+
+    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
+    insert(newUser(2, "john", "john@email.com", "http://pictures.com/john.gif"));
+    insert(newUserRole(2, UserRoleType.Admin));
+
+    // Jenny has a "user" role and belongs to account "bananas"
+    insert(newUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
+    insert(newUserRole(3, UserRoleType.User));
+    insert(newAccountUser(1, 3));
+
+    // Library "sandwich" has instrument "jams" and instrument "buns"
+    insert(newLibrary(1, 1, "sandwich", now()));
+    insert(newInstrument(2, 3, 1, InstrumentType.Harmonic, InstrumentState.Published, "buns", now()));
+    Instrument instrument1 = newInstrument(1, 3, 1, InstrumentType.Percussive, InstrumentState.Published, "jams", now());
+    instrument1.add(newInstrumentMeme("smooth"));
+    instrument1.add(newAudio("Test audio", "audio5.wav", 0, 2, 120, 300, 0.5));
+    insert(instrument1);
+
+    // Instantiate the test subject
+    testDAO = injector.getInstance(InstrumentDAO.class);
   }
 
   @Test
@@ -88,51 +86,19 @@ public class InstrumentIT {
       "roles", "User",
       "accounts", "1"
     ));
-    Instrument inputData = new Instrument()
-      .setDensity(0.42)
+    Instrument subject = instrumentFactory.newInstrument()
+      .setUserId(BigInteger.valueOf(3L))
       .setLibraryId(BigInteger.valueOf(1L))
-      .setDescription("bimmies")
-      .setType("Percussive")
-      .setUserId(BigInteger.valueOf(2L));
+      .setDescription("shimmy")
+      .setState("Published")
+      .setType("Percussive");
 
-    Instrument result = testDAO.create(access, inputData);
+    Instrument result = testDAO.create(access, subject);
 
     assertNotNull(result);
-    assertEquals(0.42, result.getDensity(), 0.01);
     assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
-    assertEquals("bimmies", result.getDescription());
+    assertEquals("shimmy", result.getDescription());
     assertEquals(InstrumentType.Percussive, result.getType());
-    assertEquals(BigInteger.valueOf(2L), result.getUserId());
-  }
-
-  @Test(expected = CoreException.class)
-  public void create_FailsWithoutLibraryID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User",
-      "accounts", "1"
-    ));
-    Instrument inputData = new Instrument()
-      .setDensity(0.42)
-      .setDescription("bimmies")
-      .setType("Percussive")
-      .setUserId(BigInteger.valueOf(2L));
-
-    testDAO.create(access, inputData);
-  }
-
-  @Test(expected = CoreException.class)
-  public void create_FailsWithoutUserID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User",
-      "accounts", "1"
-    ));
-    Instrument inputData = new Instrument()
-      .setDensity(0.42)
-      .setDescription("bimmies")
-      .setType("Percussive")
-      .setLibraryId(BigInteger.valueOf(2L));
-
-    testDAO.create(access, inputData);
   }
 
   @Test
@@ -142,22 +108,18 @@ public class InstrumentIT {
       "roles", "User",
       "accounts", "1"
     ));
-    Instrument inputData = new Instrument()
+    Instrument subject = instrumentFactory.newInstrument()
+      .setUserId(BigInteger.valueOf(3L))
       .setLibraryId(BigInteger.valueOf(1L))
       .setDescription("cannons fifty nine");
 
-    Instrument result = testDAO.clone(access, BigInteger.valueOf(1L), inputData);
+    Instrument result = testDAO.clone(access, BigInteger.valueOf(1L), subject);
 
     assertNotNull(result);
-    assertEquals(0.6, result.getDensity(), 0.01);
-    assertEquals(BigInteger.valueOf(2L), result.getUserId());
+    assertEquals(0.5, result.getDensity(), 0.01);
     assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
     assertEquals("cannons fifty nine", result.getDescription());
     assertEquals(InstrumentType.Percussive, result.getType());
-    assertEquals(BigInteger.valueOf(2L), result.getUserId());
-
-    // Verify enqueued audio clone jobs
-    verify(workManager).doInstrumentClone(eq(BigInteger.valueOf(1L)), any());
   }
 
   @Test
@@ -170,6 +132,8 @@ public class InstrumentIT {
     Instrument result = testDAO.readOne(access, BigInteger.valueOf(2L));
 
     assertNotNull(result);
+    assertEquals(InstrumentType.Harmonic, result.getType());
+    assertEquals(InstrumentState.Published, result.getState());
     assertEquals(BigInteger.valueOf(2L), result.getId());
     assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
     assertEquals("buns", result.getDescription());
@@ -196,7 +160,7 @@ public class InstrumentIT {
       "accounts", "1"
     ));
 
-    Collection<Instrument> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
+    Collection<Instrument> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertEquals(2L, result.size());
   }
@@ -208,54 +172,30 @@ public class InstrumentIT {
       "accounts", "345"
     ));
 
-    Collection<Instrument> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
+    Collection<Instrument> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertEquals(0L, result.size());
   }
 
-  @Test(expected = CoreException.class)
-  public void update_FailsWithoutLibraryID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User",
-      "accounts", "1"
-    ));
-    Instrument inputData = new Instrument()
-      .setDescription("bimmies");
-
-    testDAO.update(access, BigInteger.valueOf(3L), inputData);
-  }
-
-  @Test(expected = CoreException.class)
-  public void update_FailsWithoutName() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User",
-      "accounts", "1"
-    ));
-    Instrument inputData = new Instrument()
-      .setLibraryId(BigInteger.valueOf(3L));
-
-    testDAO.update(access, BigInteger.valueOf(3L), inputData);
-  }
-
-  @Test(expected = CoreException.class)
+  @Test
   public void update_FailsUpdatingToNonexistentLibrary() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
-    Instrument inputData = new Instrument()
-      .setDescription("bimmies")
+    Instrument subject = instrumentFactory.newInstrument()
+      .setDescription("shimmy")
       .setLibraryId(BigInteger.valueOf(387L));
 
     try {
-      testDAO.update(access, BigInteger.valueOf(2L), inputData);
+      testDAO.update(access, BigInteger.valueOf(2L), subject);
 
     } catch (Exception e) {
       Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
       assertNotNull(result);
       assertEquals("buns", result.getDescription());
       assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
-      throw e;
+      assertSame(CoreException.class, e.getClass());
     }
   }
 
@@ -266,44 +206,68 @@ public class InstrumentIT {
       "roles", "User",
       "accounts", "1"
     ));
-    Instrument inputData = new Instrument()
-      .setDensity(0.42)
+    Instrument subject = instrumentFactory.newInstrument()
+      .setUserId(BigInteger.valueOf(3L))
       .setLibraryId(BigInteger.valueOf(1L))
-      .setDescription("bimmies")
-      .setType("Percussive")
-      .setUserId(BigInteger.valueOf(2L));
+      .setDescription("shimmy")
+      .setState("Published")
+      .setType("Percussive");
 
-    testDAO.update(access, BigInteger.valueOf(2L), inputData);
+    testDAO.update(access, BigInteger.valueOf(2L), subject);
 
     Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
-    assertEquals("bimmies", result.getDescription());
+    assertEquals("shimmy", result.getDescription());
+    assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
+  }
+
+  @Test
+  public void update_addAudio() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "userId", "2",
+      "roles", "User",
+      "accounts", "1"
+    ));
+    Instrument subject = instrumentFactory.newInstrument(BigInteger.valueOf(2L))
+      .setUserId(BigInteger.valueOf(3L))
+      .setLibraryId(BigInteger.valueOf(1L))
+      .setDescription("shimmy")
+      .setState("Published")
+      .setType("Percussive");
+    subject.add(newAudio("Test audio", "audio5.wav", 0, 2, 120, 300, 0.42));
+
+    testDAO.update(access, BigInteger.valueOf(2L), subject);
+
+    Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
+    assertNotNull(result);
+    assertEquals(0.42, result.getDensity(), 0.1);
+    assertEquals("shimmy", result.getDescription());
     assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
   }
 
   /**
    [#156030760] Artist expects owner of Sequence or Instrument to always remain the same as when it was created, even after being updated by another user.
+   DEPRECATED for now, awaiting: [#166724453] Instruments and Programs have author history
    */
   @Test
   public void update_Name_PreservesOriginalOwner() throws Exception {
-    IntegrationTestEntity.insertInstrument(3, 1, 3, "jenny's jams", InstrumentType.Melodic, 0.6);
+    insert(newInstrument(3, 3, 1, InstrumentType.Melodic, InstrumentState.Published, "jenny's jams", now()));
     Access access = new Access(ImmutableMap.of(
       "userId", "2", // John will update an instrument belonging to Jenny
       "roles", "User",
       "accounts", "1"
     ));
-    Instrument inputData = new Instrument()
-      .setDensity(0.42)
+    Instrument subject = instrumentFactory.newInstrument()
+      .setUserId(BigInteger.valueOf(3L))
       .setLibraryId(BigInteger.valueOf(1L))
-      .setDescription("bimmies")
-      .setType("Percussive")
-      .setUserId(BigInteger.valueOf(2L));
+      .setDescription("shimmy")
+      .setState("Published")
+      .setType("Percussive");
 
-    testDAO.update(access, BigInteger.valueOf(3L), inputData);
+    testDAO.update(access, BigInteger.valueOf(3L), subject);
 
     Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(3L), result.getUserId());
   }
 
   @Test
@@ -311,31 +275,24 @@ public class InstrumentIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertInstrument(86, 1, 2, "jub", InstrumentType.Harmonic, 0.4);
+    insert(newInstrument(86, 3, 1, InstrumentType.Harmonic, InstrumentState.Published, "jub", now()));
 
     testDAO.destroy(access, BigInteger.valueOf(86L));
 
-    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(86L));
+    assertNotExist(testDAO, BigInteger.valueOf(86L));
   }
 
-  @Test(expected = CoreException.class)
-  public void delete_FailsIfInstrumentHasChilds() throws Exception {
+  @Test
+  public void delete_SucceedsIfInstrumentHasChildren() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertInstrument(86, 1, 2, "hamsicle", InstrumentType.Harmonic, 0.4);
-    IntegrationTestEntity.insertInstrumentMeme(86, "frozen");
-    IntegrationTestEntity.insertInstrumentMeme(86, "ham");
+    Instrument instrument = newInstrument(86, 3, 1, InstrumentType.Harmonic, InstrumentState.Published, "sandwich", now());
+    instrument.add(newInstrumentMeme("frozen"));
+    instrument.add(newInstrumentMeme("ham"));
+    insert(instrument);
 
-    try {
-      testDAO.destroy(access, BigInteger.valueOf(86L));
-
-    } catch (Exception e) {
-      Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(86L));
-      assertNotNull(result);
-      throw e;
-    }
-
+    testDAO.destroy(access, BigInteger.valueOf(86L));
   }
 
 }

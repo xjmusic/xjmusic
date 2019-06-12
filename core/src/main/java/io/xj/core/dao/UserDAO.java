@@ -4,11 +4,11 @@ package io.xj.core.dao;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.user.User;
-import io.xj.core.model.user_access_token.UserAccessToken;
-import io.xj.core.model.user_auth.UserAuth;
-import io.xj.core.model.user_auth.UserAuthType;
-import io.xj.core.model.user_role.UserRole;
-import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.user.access_token.UserAccessToken;
+import io.xj.core.model.user.auth.UserAuth;
+import io.xj.core.model.user.auth.UserAuthType;
+import io.xj.core.model.user.role.UserRole;
+import io.xj.core.model.user.role.UserRoleType;
 
 import java.math.BigInteger;
 

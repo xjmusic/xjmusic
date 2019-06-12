@@ -10,7 +10,7 @@
     <tr>
       <th width="1%">Offset</th>
       <th width="1%">State</th>
-      <th>End At</th>
+      <th>Begin At</th>
       <th>Total</th>
       <th>Density</th>
       <th>Key</th>
@@ -19,16 +19,16 @@
       <th>Choices</th>
       <th>Chords</th>
       <th>Messages</th>
-      <th width="1%">Play</th>
     </tr>
     </thead>
     <tbody>
     {{#each model.segments as |segment|}}
       <tr id="segment-{{segment.id}}"
-          class="item {{lowercase segment.state}}-state {{if (eq player.currentSegment.id segment.id) 'now-playing'}}" style="height: {{segment.rowHeight}}">
+          class="item {{lowercase segment.state}}-state {{if (eq player.currentSegment.id segment.id) 'now-playing'}}"
+          style="height: {{segment.rowHeight}}">
         <th>{{#link-to "accounts.one.chains.one.segments.one" segment}}{{segment.offset}}{{/link-to}}</th>
         <td>{{segment.state}}</td>
-        <td>{{segment.endAt}}</td>
+        <td>{{segment.beginAt}}</td>
         <td>{{segment.total}}</td>
         <td>{{segment.density}}</td>
         <td>{{segment.key}}</td>
@@ -37,11 +37,6 @@
         <td>{{segment-choices segment}}</td>
         <td>{{segment-chords segment}}</td>
         <td>{{message-badges segment}}</td>
-        <td>{{#if (eq segment.state "Dubbed")}}
-          <button type="button" aria-label="play segment offset {{segment.offset}}"
-                  class="btn segment-play" {{action 'play' model.chain segment}}><!--Play-->&#9658;
-          </button>
-        {{/if}}</td>
       </tr>
     {{/each}}
     </tbody>

@@ -233,7 +233,7 @@ public class Chord extends IntervalPitchGroup {
    @return ratio (0 to 1) of similarity.
    */
   private Double similarityAtSameIntervals(Chord other) {
-    Map<Interval, Double> pcDeltas = Maps.newConcurrentMap();
+    Map<Interval, Double> pcDeltas = Maps.newHashMap();
     getPitchClasses().forEach(((interval, pitchClass) -> {
       if (other.getPitchClasses().containsKey(interval))
         pcDeltas.put(interval, similarity(pitchClass, other.getPitchClasses().get(interval)));
@@ -250,7 +250,7 @@ public class Chord extends IntervalPitchGroup {
    @return ratio (0 to 1) of similarity.
    */
   private Double similarityAtAnyIntervals(Chord other) {
-    Map<PitchClass, Integer> pcDeltas = Maps.newConcurrentMap();
+    Map<PitchClass, Integer> pcDeltas = Maps.newHashMap();
     getPitchClasses().values().forEach((pitchClass -> {
       if (other.getPitchClasses().values().contains(pitchClass))
         pcDeltas.put(pitchClass, 1);

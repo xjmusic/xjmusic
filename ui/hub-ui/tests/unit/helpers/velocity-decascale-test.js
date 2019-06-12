@@ -1,8 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import {expect} from 'chai';
-import {describe, it} from 'mocha';
-import {setupTest} from 'ember-mocha';
+import { expect } from 'chai';
+import { describe, it } from 'mocha';
+import { setupTest } from 'ember-mocha';
 
 describe('VelocityDecascaleHelper', function () {
   setupTest();

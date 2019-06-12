@@ -1,124 +1,253 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.core.model.instrument;
 
-import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.impl.EntityImpl;
+import io.xj.core.model.entity.SubEntity;
+import io.xj.core.model.entity.SuperEntity;
+import io.xj.core.model.instrument.impl.InstrumentContent;
+import io.xj.core.model.instrument.sub.Audio;
+import io.xj.core.model.instrument.sub.AudioChord;
+import io.xj.core.model.instrument.sub.AudioEvent;
+import io.xj.core.model.instrument.sub.InstrumentMeme;
 
 import java.math.BigInteger;
-import java.util.Objects;
+import java.util.Collection;
 
-/**
- POJO for persisting data in memory while performing business logic,
- or decoding messages received by JAX-RS resources.
- a.k.a. JSON input will be stored into an instance of this object
- <p>
- Business logic ought to be performed beginning with an instance of this object,
- to implement common methods.
- <p>
- NOTE: There can only be ONE of any getter/setter (with the same # of input params)
- */
-public class Instrument extends EntityImpl {
-  public static final String KEY_ONE = "instrument";
-  public static final String KEY_MANY = "instruments";
+public interface Instrument extends SuperEntity {
 
-  private String description;
-  private String _type; // to hold value before validation
-  private InstrumentType type;
-  private BigInteger libraryId;
-  private BigInteger userId;
-  private Double density;
+  /**
+   Add an InstrumentMeme (assigning its ID)
+   + If there are any exceptions, store them in the SuperEntity errors
 
-  public Instrument() {}
+   @param meme to add
+   @return InstrumentMeme with newly assigned ID
+   */
+  InstrumentMeme add(InstrumentMeme meme);
 
-  public Instrument(int id) {
-    this.id = BigInteger.valueOf((long) id);
-  }
+  /**
+   Add an Audio (assigning its ID)
+   + If there are any exceptions, store them in the SuperEntity errors
 
-  public Instrument(BigInteger id) {
-    this.id = id;
-  }
+   @param audio to add
+   @return Audio with newly assigned ID
+   */
+  Audio add(Audio audio);
 
+  /**
+   Add an AudioChord (assigning its ID)
+   + If there are any exceptions, store them in the SuperEntity errors
 
-  public String getDescription() {
-    return description;
-  }
+   @param audioChord to add
+   @return AudioChord with newly assigned ID
+   */
+  AudioChord add(AudioChord audioChord);
 
-  public Instrument setDescription(String value) {
-    description = value;
-    return this;
-  }
+  /**
+   Add an AudioEvent (assigning its ID)
+   + If there are any exceptions, store them in the SuperEntity errors
 
-  public InstrumentType getType() {
-    return type;
-  }
-
-  public Instrument setType(String value) {
-    _type = value;
-    return this;
-  }
-
-  public void setTypeEnum(InstrumentType type) {
-    this.type = type;
-  }
-
-  public BigInteger getLibraryId() {
-    return libraryId;
-  }
-
-  public Instrument setLibraryId(BigInteger value) {
-    libraryId = value;
-    return this;
-  }
-
-  public BigInteger getUserId() {
-    return userId;
-  }
-
-  public Instrument setUserId(BigInteger value) {
-    userId = value;
-    return this;
-  }
-
-  public Double getDensity() {
-    return density;
-  }
-
-  public Instrument setDensity(Double value) {
-    density = value;
-    return this;
-  }
+   @param audioEvent to add
+   @return AudioEvent with newly assigned ID
+   */
+  AudioEvent add(AudioEvent audioEvent);
 
   @Override
-  public BigInteger getParentId() {
-    return libraryId;
-  }
+  Collection<SubEntity> getAllSubEntities();
 
-  @Override
-  public void validate() throws CoreException {
-    // throws its own CoreException on failure
-    if (Objects.isNull(type))
-      type = InstrumentType.validate(_type);
+  /**
+   get Audio Chords
 
-    if (Objects.isNull(libraryId))
-      throw new CoreException("Library ID is required.");
+   @return Audio Chords
+   */
+  Collection<AudioChord> getAudioChords();
 
-    if (Objects.isNull(userId))
-      throw new CoreException("User ID is required.");
+  /**
+   get Audio Events
 
-    if (Objects.isNull(type))
-      throw new CoreException("Type is required.");
+   @return Audio Events
+   */
+  Collection<AudioEvent> getAudioEvents();
 
-    if (Objects.isNull(description) || description.isEmpty())
-      throw new CoreException("Description is required.");
+  /**
+   get Audios
 
-    if (Objects.isNull(density))
-      throw new CoreException("Density is required.");
+   @return Audios
+   */
+  Collection<Audio> getAudios();
 
-  }
+  /**
+   Get Content
 
-  @Override
-  public String toString() {
-    return description + " " + "(" + type + ")";
-  }
+   @return Content
+   */
+  InstrumentContent getContent();
+
+  /**
+   get (computed) Density
+   Instrument doesn't actually have density property; it's computed by averaging the density of all its sub entities
+
+   @return Density
+   */
+  Double getDensity();
+
+  /**
+   get Description
+
+   @return Description
+   */
+  String getDescription();
+
+  /**
+   get Library Id
+
+   @return Library Id
+   */
+  BigInteger getLibraryId();
+
+  /**
+   get Memes
+
+   @return Memes
+   */
+  Collection<InstrumentMeme> getMemes();
+
+  /**
+   get State
+
+   @return State
+   */
+  InstrumentState getState();
+
+  /**
+   get Type
+
+   @return Type
+   */
+  InstrumentType getType();
+
+  /**
+   Get User
+   
+   @return User
+   */
+  BigInteger getUserId();
+
+  /**
+   Set all audio chords
+   + If there are any exceptions, store them in the SuperEntity errors
+
+   @param audioChords to set
+   @return this Instrument (for chaining methods)
+   */
+  Instrument setAudioChords(Collection<AudioChord> audioChords);
+
+  /**
+   Set all audio events
+   + If there are any exceptions, store them in the SuperEntity errors
+
+   @param audioEvents to set
+   @return this Instrument (for chaining methods)
+   */
+  Instrument setAudioEvents(Collection<AudioEvent> audioEvents);
+
+  /**
+   Set all audio
+   + If there are any exceptions, store them in the SuperEntity errors
+
+   @param audios to set
+   @return this Instrument (for chaining methods)
+   */
+  Instrument setAudios(Collection<Audio> audios);
+
+  /**
+   Set content
+   + If there are any exceptions, store them in the SuperEntity errors
+
+   @param json content to set
+   @return this Instrument (for chaining setters)
+   */
+  Instrument setContent(String json);
+
+  /**
+   Set all content of instrument, cloned from another source instrument, with all new UUID, preserving relationships.
+   + If there are any exceptions, store them in the SuperEntity errors
+
+   @param from instrument
+   @return this Instrument (for chaining setters)
+   */
+  Instrument setContentCloned(Instrument from);
+
+  /**
+   Set Description
+
+   @param description to set
+   @return this Instrument (for chaining Setters)
+   */
+  Instrument setDescription(String description);
+
+  /**
+   Set Density (this is a no-op to prevent problems with payload deserialization)
+
+   @param density to (not actually) set
+   @return this Instrument (for chaining Setters)
+   */
+  Instrument setDensity(Double density);
+
+  /**
+   Set LibraryId
+
+   @param libraryId to set
+   @return this Instrument (for chaining Setters)
+   */
+  Instrument setLibraryId(BigInteger libraryId);
+
+  /**
+   Set all memes
+   + If there are any exceptions, store them in the SuperEntity errors
+
+   @param memes to set
+   @return this Instrument (for chaining Setters)
+   */
+  Instrument setMemes(Collection<InstrumentMeme> memes);
+
+  /**
+   Set state
+
+   @param state to set
+   @return this Instrument (for chaining Setters)
+   */
+  Instrument setState(String state);
+
+  /**
+   Set state by enum
+
+   @param state to set
+   @return this Instrument (for chaining setters)
+   */
+  Instrument setStateEnum(InstrumentState state);
+
+  /**
+   Set Type
+
+   @param type to set
+   @return this Instrument (for chaining setters)
+   */
+  Instrument setType(String type);
+
+  /**
+   Set type enum
+
+   @param type to set
+   @return this Instrument (for chaining setters)
+   */
+  Instrument setTypeEnum(InstrumentType type);
+
+  /**
+   Set UserId
+
+   @param userId to set
+   @return this Instrument (for chaining Setters)
+   */
+  Instrument setUserId(BigInteger userId);
 
 }

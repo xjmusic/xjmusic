@@ -40,6 +40,13 @@
   <!-- deps -->
   <dependencies>
 
+    <!-- https://mvnrepository.com/artifact/org.reflections/reflections -->
+    <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
+      <version>0.9.11</version>
+    </dependency>
+
     <!-- https://mvnrepository.com/artifact/javax.cache/cache-api -->
     <dependency>
       <groupId>javax.cache</groupId>
@@ -118,6 +125,11 @@
     <dependency>
       <groupId>org.glassfish.jersey.inject</groupId>
       <artifactId>jersey-hk2</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+      <artifactId>jersey-test-framework-provider-simple</artifactId>
       <version>${jersey.version}</version>
     </dependency>
 
@@ -281,6 +293,9 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.22.2</version>
         <configuration>
+          <forkCount>3</forkCount>
+          <reuseForks>true</reuseForks>
+          <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
           <useSystemClassLoader>false</useSystemClassLoader>
         </configuration>
       </plugin>

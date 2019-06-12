@@ -3,9 +3,9 @@ package io.xj.core.access;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.account_user.AccountUser;
-import io.xj.core.model.user_auth.UserAuth;
-import io.xj.core.model.user_role.UserRole;
+import io.xj.core.model.account.AccountUser;
+import io.xj.core.model.user.auth.UserAuth;
+import io.xj.core.model.user.role.UserRole;
 
 import javax.ws.rs.core.NewCookie;
 import java.util.Collection;

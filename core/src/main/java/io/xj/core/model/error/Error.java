@@ -3,8 +3,6 @@
 package io.xj.core.model.error;
 
 public class Error {
-  public static final String KEY_ONE = "error";
-  public static final String KEY_MANY = "errors";
   private String detail;
 
   /**

@@ -27,7 +27,7 @@ public interface TremendouslyRandom {
    */
   static Double zeroToLimit(Double limit) {
     if ((double) 0 >= limit) return 0.0;
-    return ThreadLocalRandom.current().nextDouble((double) 0, limit);
+    return ThreadLocalRandom.current().nextDouble(0, limit);
   }
 
 }

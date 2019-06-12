@@ -2,8 +2,7 @@
 import Route from '@ember/routing/route';
 
 export default Route.extend({
-  renderTemplate: function() {
+  renderTemplate: function () {
     window.location.replace("/auth/no");
-  },
-  breadCrumb: null
+  }
 });

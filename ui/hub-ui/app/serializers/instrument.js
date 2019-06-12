@@ -1,9 +1,20 @@
-//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import DS from 'ember-data';
+import JSONAPISerializer from './application';
 
-export default DS.RESTSerializer.extend({
-  keyForRelationship: function(key /*, relationship, method*/) {
-    return key + 'Id';
+export default JSONAPISerializer.extend({
+  attrs: {
+    instrumentMemes: {
+      serialize: true
+    },
+    audios: {
+      serialize: true
+    },
+    audioChords: {
+      serialize: true
+    },
+    audioEvents: {
+      serialize: true
+    },
   }
 });

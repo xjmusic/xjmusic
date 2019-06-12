@@ -2,6 +2,8 @@
 package io.xj.core.transport.impl;
 
 import io.xj.core.cache.audio.AudioCacheProvider;
+import io.xj.core.model.payload.Payload;
+import io.xj.core.model.payload.PayloadObject;
 import io.xj.core.transport.StatsProvider;
 
 import com.google.inject.Inject;
@@ -12,7 +14,7 @@ import org.json.JSONObject;
 
 @Singleton
 public class StatsProviderImpl implements StatsProvider {
-  private AudioCacheProvider audioCacheProvider;
+  private final AudioCacheProvider audioCacheProvider;
 
   @Inject
   StatsProviderImpl(
@@ -22,28 +24,28 @@ public class StatsProviderImpl implements StatsProvider {
   }
 
   @Override
-  public JSONObject getJSON() {
-    JSONObject status = new JSONObject();
+  public PayloadObject toPayloadObject() {
+    PayloadObject status = new PayloadObject();
 
     // audio cache: estimated size
-    status.put("cache.audio.estimatedSize", audioCacheProvider.estimatedSize());
+    status.setAttribute("cache.audio.estimatedSize", audioCacheProvider.estimatedSize());
 
     // audio cache: all stats
     CacheStats cacheStats = audioCacheProvider.stats();
-    status.put("cache.audio.stats.averageLoadPenalty", cacheStats.averageLoadPenalty());
-    status.put("cache.audio.stats.evictionCount", cacheStats.evictionCount());
-    status.put("cache.audio.stats.evictionWeight", cacheStats.evictionWeight());
-    status.put("cache.audio.stats.hitCount", cacheStats.hitCount());
-    status.put("cache.audio.stats.hitRate", cacheStats.hitRate());
-    status.put("cache.audio.stats.loadCount", cacheStats.loadCount());
-    status.put("cache.audio.stats.loadFailureCount", cacheStats.loadFailureCount());
-    status.put("cache.audio.stats.loadFailureRate", cacheStats.loadFailureRate());
-    status.put("cache.audio.stats.loadSuccessCount", cacheStats.loadSuccessCount());
-    status.put("cache.audio.stats.averageLoadPenalty", cacheStats.averageLoadPenalty());
-    status.put("cache.audio.stats.missCount", cacheStats.missCount());
-    status.put("cache.audio.stats.missRate", cacheStats.missRate());
-    status.put("cache.audio.stats.requestCount", cacheStats.requestCount());
-    status.put("cache.audio.stats.totalLoadTime", cacheStats.totalLoadTime());
+    status.setAttribute("cache.audio.stats.averageLoadPenalty", cacheStats.averageLoadPenalty());
+    status.setAttribute("cache.audio.stats.evictionCount", cacheStats.evictionCount());
+    status.setAttribute("cache.audio.stats.evictionWeight", cacheStats.evictionWeight());
+    status.setAttribute("cache.audio.stats.hitCount", cacheStats.hitCount());
+    status.setAttribute("cache.audio.stats.hitRate", cacheStats.hitRate());
+    status.setAttribute("cache.audio.stats.loadCount", cacheStats.loadCount());
+    status.setAttribute("cache.audio.stats.loadFailureCount", cacheStats.loadFailureCount());
+    status.setAttribute("cache.audio.stats.loadFailureRate", cacheStats.loadFailureRate());
+    status.setAttribute("cache.audio.stats.loadSuccessCount", cacheStats.loadSuccessCount());
+    status.setAttribute("cache.audio.stats.averageLoadPenalty", cacheStats.averageLoadPenalty());
+    status.setAttribute("cache.audio.stats.missCount", cacheStats.missCount());
+    status.setAttribute("cache.audio.stats.missRate", cacheStats.missRate());
+    status.setAttribute("cache.audio.stats.requestCount", cacheStats.requestCount());
+    status.setAttribute("cache.audio.stats.totalLoadTime", cacheStats.totalLoadTime());
 
     return status;
   }

@@ -1,20 +1,17 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.api.client.util.Maps;
+import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.LibraryDAO;
-import io.xj.core.exception.CoreException;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.library.Library;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -22,8 +19,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.xj.core.Tables.CHAIN_LIBRARY;
 import static io.xj.core.Tables.LIBRARY;
+import static io.xj.core.Tables.PROGRAM;
 import static io.xj.core.Tables.SEQUENCE;
 import static io.xj.core.tables.Account.ACCOUNT;
 import static io.xj.core.tables.Instrument.INSTRUMENT;
@@ -123,30 +120,6 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   /**
-   Read all records bound to a chain by ChainLibrary
-
-   @param db      context
-   @param access  control
-   @param chainId for which to get records bound
-   @return array of records
-   */
-  private static Collection<Library> readAllBoundToChain(DSLContext db, Access access, ULong chainId) throws CoreException {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(LIBRARY.fields())
-        .from(LIBRARY)
-        .join(CHAIN_LIBRARY).on(CHAIN_LIBRARY.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
-        .fetch(), Library.class);
-    else
-      return modelsFrom(db.select(LIBRARY.fields())
-        .from(LIBRARY)
-        .join(CHAIN_LIBRARY).on(CHAIN_LIBRARY.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetch(), Library.class);
-  }
-
-  /**
    Update a record
 
    @param db     context
@@ -181,17 +154,17 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param db        context
    @param access    control
    @param libraryId to delete
-   @throws CoreException         if database failure
-   @throws CoreException   if not configured properly
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
    @throws CoreException if fails business rule
    */
   private static void delete(DSLContext db, Access access, ULong libraryId) throws CoreException {
     requireTopLevel(access);
 
-    requireNotExists("Sequence in Library", db.select(SEQUENCE.ID)
-      .from(SEQUENCE)
-      .where(SEQUENCE.LIBRARY_ID.eq(libraryId))
-      .fetch().into(SEQUENCE));
+    requireNotExists("Program in Library", db.select(PROGRAM.ID)
+      .from(PROGRAM)
+      .where(PROGRAM.LIBRARY_ID.eq(libraryId))
+      .fetch().into(PROGRAM));
 
     requireNotExists("Instrument in Library", db.select(INSTRUMENT.ID)
       .from(INSTRUMENT)
@@ -201,9 +174,9 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
     db.deleteFrom(LIBRARY)
       .where(LIBRARY.ID.eq(libraryId))
       .andNotExists(
-        db.select(SEQUENCE.ID)
-          .from(SEQUENCE)
-          .where(SEQUENCE.LIBRARY_ID.eq(libraryId))
+        db.select(PROGRAM.ID)
+          .from(PROGRAM)
+          .where(PROGRAM.LIBRARY_ID.eq(libraryId))
       )
       .andNotExists(
         db.select(INSTRUMENT.ID)
@@ -249,7 +222,7 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   @Override
-  public Collection<Library> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
+  public Collection<Library> readMany(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
@@ -257,17 +230,6 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
       } else {
         return tx.success(readAll(tx.getContext(), access));
       }
-
-    } catch (CoreException e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Library> readAllBoundToChain(Access access, BigInteger chainId) throws CoreException {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllBoundToChain(tx.getContext(), access, ULong.valueOf(chainId)));
 
     } catch (CoreException e) {
       throw tx.failure(e);
@@ -294,5 +256,10 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
     } catch (CoreException e) {
       throw tx.failure(e);
     }
+  }
+
+  @Override
+  public Library newInstance() {
+    return new Library();
   }
 }

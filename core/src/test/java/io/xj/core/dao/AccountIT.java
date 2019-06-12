@@ -2,12 +2,9 @@
 package io.xj.core.dao;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import io.xj.core.CoreModule;
+import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
-import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.account.Account;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
@@ -24,25 +21,24 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class AccountIT {
-  private final Injector injector = Guice.createInjector(new CoreModule());
+public class AccountIT extends FixtureIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private AccountDAO testDAO;
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.reset();
+    reset();
 
     // Account "bananas"
-    IntegrationTestEntity.insertAccount(1, "bananas");
+    insert(newAccount(1, "bananas"));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AccountDAO.class);
   }
 
   @Test
-  public void create() throws Exception {
+  public void create() {
     // future test: AccountDAOImpl create()
   }
 
@@ -67,7 +63,7 @@ public class AccountIT {
       "accounts", "1"
     ));
 
-    Collection<Account> results = testDAO.readAll(access, Lists.newArrayList());
+    Collection<Account> results = testDAO.readMany(access, Lists.newArrayList());
 
     assertNotNull(results);
     assertEquals(1L, results.size());
@@ -116,7 +112,7 @@ public class AccountIT {
 
     testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(1L));
+    assertNotExist(testDAO, BigInteger.valueOf(1L));
   }
 
   @Test
@@ -137,7 +133,7 @@ public class AccountIT {
       "roles", "Admin",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertChain(1, 1, "Test", ChainType.Preview, ChainState.Draft, Instant.parse("2009-08-12T12:17:02.527142Z"), Instant.parse("2009-08-12T12:17:02.527142Z"), null);
+    insert(newChain(1, 1, "Test", ChainType.Preview, ChainState.Draft, Instant.parse("2009-08-12T12:17:02.527142Z"), Instant.parse("2009-08-12T12:17:02.527142Z"), null, now()));
 
     failure.expect(CoreException.class);
     failure.expectMessage("Found Chain in Account");
@@ -151,7 +147,7 @@ public class AccountIT {
       "roles", "Admin",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertLibrary(1, 1, "Testing");
+    insert(newLibrary(1, 1, "Testing", now()));
 
     failure.expect(CoreException.class);
     failure.expectMessage("Found Library in Account");
@@ -165,8 +161,8 @@ public class AccountIT {
       "roles", "Admin",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertUser(1, "jim", "jim@jim.com", "http://www.jim.com/jim.png");
-    IntegrationTestEntity.insertAccountUser(1, 1);
+    insert(newUser(1, "jim", "jim@jim.com", "http://www.jim.com/jim.png"));
+    insert(newAccountUser(1, 1));
 
     failure.expect(CoreException.class);
     failure.expectMessage("Found User in Account");

@@ -32,7 +32,7 @@ FUTURE: use Jedis Pool and Client Pool
    @return host
    */
   private static String host() {
-    return Config.dbRedisHost();
+    return Config.getDbRedisHost();
   }
 
   /**
@@ -41,7 +41,7 @@ FUTURE: use Jedis Pool and Client Pool
    @return namespace
    */
   private static String namespace() {
-    return Config.dbRedisQueueNamespace();
+    return Config.getDbRedisQueueNamespace();
   }
 
   /**
@@ -50,7 +50,7 @@ FUTURE: use Jedis Pool and Client Pool
    @return port
    */
   private static int port() {
-    return Config.dbRedisPort();
+    return Config.getDbRedisPort();
   }
 
   /**
@@ -59,7 +59,7 @@ FUTURE: use Jedis Pool and Client Pool
    @return timeout
    */
   private static int timeout() {
-    return Config.dbRedisTimeout();
+    return Config.getDbRedisTimeout();
   }
 
   /**
@@ -88,7 +88,7 @@ FUTURE: use Jedis Pool and Client Pool
 
   @Override
   public Worker getQueueWorker(JobFactory jobFactory) {
-    return new WorkerImpl(getQueueConfig(), ImmutableList.of(Config.workQueueName()), jobFactory);
+    return new WorkerImpl(getQueueConfig(), ImmutableList.of(Config.getWorkQueueName()), jobFactory);
   }
 
 }

@@ -1,18 +1,17 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import DS from 'ember-data';
+import Model, {attr, belongsTo, hasMany} from '@ember-data/model';
 
-export default DS.Model.extend({
-  library: DS.belongsTo({}),
-  user: DS.belongsTo({}),
-  density: DS.attr('number'),
-  key: DS.attr('string'),
-  name: DS.attr('string'),
-  tempo: DS.attr('number'),
-  type: DS.attr('string'),
+export default Model.extend({
+  library: belongsTo({}),
+  program: belongsTo({}),
+  density: attr('number'),
+  key: attr('string'),
+  name: attr('string'),
+  tempo: attr('number'),
 
-  sequencePatterns: DS.hasMany('sequence-pattern'),
-  memes: DS.hasMany('sequence-meme'),
-  voices: DS.hasMany('voice'),
-  patterns: DS.hasMany('pattern'),
-  choices: DS.hasMany('choice'),
+  sequenceBindings: hasMany('sequence-binding'),
+  sequenceChords: hasMany('sequence-chord'),
+  voices: hasMany('voice'),
+  patterns: hasMany('pattern'),
+  choices: hasMany('choice'),
 });

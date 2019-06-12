@@ -9,7 +9,7 @@
   <div class="form-horizontal container-fluid">
     <div class="row">
       <div class="col-sm-12 text-right">
-        {{#link-to 'accounts.one.chains.new' model.account}}{{fa-icon "plus"}} Create New Chain{{/link-to}}
+        {{#link-to 'accounts.one.chains.new' model.account}}{{fa-icon "plus"}} New Chain{{/link-to}}
       </div>
     </div>
   </div>
@@ -27,7 +27,6 @@
         <th width="1%">State</th>
         <th width="1%"><!--Change State To --></th>
         <th width="1%">Start At</th>
-        <th width="1%">Stop At</th>
         <th><!-- Actions --></th>
         <th width="1%">Play</th>
       </tr>
@@ -35,8 +34,8 @@
       <tbody>
       {{#each model.chains as |chain|}}
         <tr class="item {{lowercase chain.state}}-state {{if (eq player.currentChain.id chain.id) 'now-playing'}}">
-          <td>{{#link-to "accounts.one.chains.one.segments" chain class="btn btn-icon-open"}}{{/link-to}}</td>
-          <td>{{#link-to "accounts.one.chains.one" chain}}{{chain.name}}{{/link-to}}</td>
+          <td>{{#link-to "accounts.one.chains.one.segments" chain.id class="btn btn-icon-open"}}{{/link-to}}</td>
+          <td>{{#link-to "accounts.one.chains.one" chain.id}}{{chain.name}}{{/link-to}}</td>
           <td>{{chain.type}}</td>
           <td>{{chain.state}}</td>
 
@@ -45,18 +44,14 @@
           </td>
 
           <td>{{chain.startAt}}</td>
-          <td>{{chain.stopAt}}</td>
           <td>
-            {{#link-to 'accounts.one.chains.one.segments' chain.account chain}}Segments{{/link-to}}
+            {{#link-to 'accounts.one.chains.one.segments' chain.account.id chain.id}}Segments{{/link-to}}
             <span>&nbsp;</span>
-            {{#link-to 'accounts.one.chains.one.configs' chain.account chain}}Configs{{/link-to}}<span>&nbsp;</span>
-            {{#link-to 'accounts.one.chains.one.libraries' chain.account chain}}Libraries{{/link-to}}
+            {{#link-to 'accounts.one.chains.one.configs' chain.account.id chain.id}}Configs{{/link-to}}
             <span>&nbsp;</span>
-            {{#link-to 'accounts.one.chains.one.instruments' chain.account chain}}Instruments{{/link-to}}
+            {{#link-to 'accounts.one.chains.one.bindings' chain.account.id chain.id}}Bindings{{/link-to}}
             <span>&nbsp;</span>
-            {{#link-to 'accounts.one.chains.one.sequences' chain.account chain}}Sequences{{/link-to}}
-            <span>&nbsp;</span>
-            {{entity-actions "accounts.one.chains.one" "edit|destroy" chain.account chain}}
+            {{entity-actions "accounts.one.chains.one" "edit|destroy" chain.account.id chain.id}}
           </td>
           <td>{{#if (or (eq chain.state "Fabricate") (eq chain.state "Complete"))}}
             <button type="button" aria-label="play chain {{chain.id}}"

@@ -59,7 +59,8 @@
         </div>
         <div class="col-xl-1 col-lg-2 col-sm-4">
           <button class="btn btn-dark margin-bottom {{if (not isDirty) 'disabled'}}" data-toggle="tooltip"
-                  title="Revert all grid events and revert to events from original pattern." {{action 'revert'pattern}}>Revert
+                  title="Revert all grid events and revert to events from original pattern." {{action 'revert'pattern}}>
+            Revert
           </button>
         </div>
         <div class="col-xl-1 col-lg-2 col-sm-4">
@@ -144,7 +145,9 @@
       <div class="col-xl-4 col-lg-6 col-sm-8 col-xs-12">
         {{#if isPrepping}}
           <div class="progress bg-dark margin-bottom ">
-            <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style={{preparednessStyleWidth}} aria-valuenow="{{preparednessPercentage}}" aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="progress-bar progress-bar-striped bg-success" role="progressbar"
+                 style={{preparednessStyleWidth}} aria-valuenow="{{preparednessPercentage}}" aria-valuemin="0"
+                 aria-valuemax="100"></div>
           </div>
         {{else}}
           <div class="margin-bottom {{if isPlaying 'disabled' }}">
@@ -153,7 +156,7 @@
               options=instruments
               selected=instrumentToPlay
               searchField='description'
-              onchange=(action "setInstrumentToPlay")
+              onChange=(action "setInstrumentToPlay")
             as |instrument| }}
               {{instrument.description}}
             {{/power-select}}

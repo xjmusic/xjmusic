@@ -1,13 +1,13 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import DS from 'ember-data';
+import Model, {attr, belongsTo, hasMany} from '@ember-data/model';
 
-export default DS.Model.extend({
-  segment: DS.belongsTo({}),
-  sequencePattern: DS.belongsTo({}),
-  transpose: DS.attr('number'),
-  type: DS.attr('string'),
-  sequence: DS.belongsTo({}),
-  arrangements: DS.hasMany('arrangement'),
+export default Model.extend({
+  segment: belongsTo({}),
+  sequenceBinding: belongsTo({}),
+  transpose: attr('number'),
+  type: attr('string'),
+  program: belongsTo({}),
+  arrangements: hasMany('arrangement'),
 });
 
 

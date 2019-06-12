@@ -2,7 +2,7 @@
 #
 baseurl = "https://docs.xj.io/"
 languageCode = "en-us"
-title = "XJ Music® User Guide"
+title = "XJ Music™ User Guide"
 # number of posts to show on home/category/tag pages (Default: 10)
 paginate = 25
 # optionally override the site's footer with custom copyright text
@@ -45,7 +45,7 @@ theme = "xj-docs-theme"
   locale = "en-US"
   email = "hello@xj.io"
   images = ["https://docs.xj.io/images/cover.jpg"]
-  description = "The XJ Music® platform is an entirely new AI powered medium, transforming the experience of music in shared spaces."
+  description = "The XJ Music™ platform is an entirely new AI powered medium, transforming the experience of music in shared spaces."
 
   # Analytics
   googleAnalytics = "UA-102762643-3"
@@ -94,7 +94,7 @@ theme = "xj-docs-theme"
 
   [params.sidebar]
     # Optional about block for sidebar (can be Markdown)
-    about = "Exclusive licensee of the <a href='https://xj.outright.io' target='_blank' aria-description='XJ Music® '>XJ Music®</a> for institutional, industrial and commercial purposes."
+    about = "Exclusive licensee of the <a href='https://xj.outright.io' target='_blank' aria-description='XJ Music™ '>XJ Music™</a> for institutional, industrial and commercial purposes."
 
     # How many posts to show on the sidebar (Default: 5)
     #num_recent_posts = 2

@@ -1,13 +1,29 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.transport;
 
-import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.Resource;
+import io.xj.core.model.payload.Payload;
 
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
-import java.util.Collection;
 
 public interface HttpResponseProvider {
+
+  /**
+   Return a simple response that a record was accepted
+
+   @return accepted response
+   */
+  Response noContent();
+
+  /**
+   Return a response having read successfully
+
+   @param payload of content that was read
+   @return response
+   */
+  Response create(Payload payload);
+
   /**
    Respond with a temporary redirect.
 
@@ -35,10 +51,19 @@ public interface HttpResponseProvider {
   /**
    Response with entity (named) not found
 
-   @param entityName not found
+   @param resourceType not found
+   @param resourceId   not found
    @return response
    */
-  Response notFound(String entityName);
+  Response notFound(String resourceType, String resourceId);
+
+  /**
+   Response with entity not found
+
+   @param resource that was not found, really just has id
+   @return response
+   */
+  Response notFound(Resource resource);
 
   /**
    Return a response from an exception
@@ -82,29 +107,18 @@ public interface HttpResponseProvider {
   Response notAcceptable(String message);
 
   /**
-   Return a response having read a POJO
+   Return a response having read successfully
 
-   @param obj any POJO (should be a wrapper that names all entities at the root)
+   @param payload of content that was read
    @return response
    */
-  Response readOne(String key, Object obj);
+  Response ok(Payload payload);
 
   /**
-   Return a response that many records have been read, else an error
+   Return a response having read successfully
 
-   @param keyMany key for many records
-   @param results of records that were read, or null if a 404 ought to be returned instead
+   @param content that was read
    @return response
    */
-  Response readMany(String keyMany, Collection results) throws Exception;
-
-  /**
-   Return a response that the request has been created, else an error
-
-   @param keyMany key for many records (within which the newly-created-entity-path, including id, will be calculated)
-   @param keyOne  key for one record
-   @param entity  the record that was created, or null if none was (and an error ought to be returned)
-   @return response
-   */
-  Response create(String keyMany, String keyOne, Entity entity);
+  Response ok(String content);
 }

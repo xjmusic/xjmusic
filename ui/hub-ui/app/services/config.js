@@ -1,67 +1,28 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import {get} from '@ember/object';
 import fetch from 'fetch';
 import Service, {inject as service} from '@ember/service';
 import RSVP from "rsvp";
 
 export default Service.extend({
 
-  /**
-   * Stores promises;
-   * Actual values will be set on the main config-service object
-   */
-  promises: {},
-
-  /**
-   * Sets configuration properties, each to its own Promise.
-   */
-  init() {
-
-    // main promise
-    this.promises.config = this.newMainPromise();
-
-    // subsequent promises
-    this.promises.apiBaseUrl = this.newSubPromise("apiBaseUrl");
-    this.promises.audioBaseUrl = this.newSubPromise("audioBaseUrl");
-    this.promises.baseUrl = this.newSubPromise("baseUrl");
-    this.promises.chainConfigTypes = this.newSubPromise("chainConfigTypes");
-    this.promises.chainStates = this.newSubPromise("chainStates");
-    this.promises.chainTypes = this.newSubPromise("chainTypes");
-    this.promises.choiceTypes = this.newSubPromise("choiceTypes");
-    this.promises.sequenceTypes = this.newSubPromise("sequenceTypes");
-    this.promises.patternTypes = this.newSubPromise("patternTypes");
-    this.promises.patternDetailTypes = this.newSubPromise("patternDetailTypes");
-    this.promises.instrumentTypes = this.newSubPromise("instrumentTypes");
-    this.promises.segmentStates = this.newSubPromise("segmentStates");
-    this.promises.segmentBaseUrl = this.newSubPromise("segmentBaseUrl");
-    this.promises.voiceTypes = this.newSubPromise("voiceTypes");
-  },
-
-  /**
-   * Returns a promise of the configuration value for a given key
-   * @param key
-   */
-  newSubPromise(key) {
-    let self = this;
-    return new RSVP.Promise(function (resolve, reject) {
-      self.promises.config.then(
-        (data) => {
-          if (data.hasOwnProperty(key)) {
-            // set the resulting value on this key of the main config-service object
-            self[key] = data[key];
-            // send the resulting value to the promise resolver
-            resolve(data[key]);
-          } else {
-            reject('Platform configuration is missing "' + key + '"');
-          }
-        },
-        (error) => {
-          reject('Failed to get "' + key + '" from platform configuration: ' + error);
-        }
-      );
-    });
-  },
+  // empty properties
+  apiBaseUrl: "/api/1/",
+  instrumentStates: [],
+  programStates: [],
+  segmentBaseUrl: "/",
+  choiceTypes: [],
+  baseUrl: "/",
+  chainConfigTypes: [],
+  instrumentTypes: [],
+  chainStates: [],
+  segmentStates: [],
+  audioBaseUrl: "/",
+  chainTypes: [],
+  patternDetailTypes: [],
+  voiceTypes: [],
+  patternTypes: [],
+  programTypes: [],
 
   /**
    * Get the platform configuration from the backend
@@ -70,7 +31,7 @@ export default Service.extend({
    * and their subsequent actions are blocked
    * until everything is ready
    */
-  newMainPromise() {
+  getConfig() {
     let self = this;
 
     return new RSVP.Promise(
@@ -83,9 +44,12 @@ export default Service.extend({
         }).then(function (response) {
           return response.json();
         }).then(
-          (data) => {
-            if (data.hasOwnProperty('config')) {
-              resolve(data['config']);
+          (payload) => {
+            if (payload.hasOwnProperty('data') && payload['data'].hasOwnProperty('attributes')) {
+              let configData = payload['data']['attributes'];
+              for (let key in configData) if (configData.hasOwnProperty(key)) self.set(key, configData[key]);
+              resolve();
+
             } else {
               self.sendRejection(reject, 'Platform configuration is invalid.');
             }
@@ -102,7 +66,7 @@ export default Service.extend({
    * @param message
    */
   sendRejection(reject, message) {
-    get(this, 'display').error(message);
+    this.display.error(message);
     reject(message);
   },
 

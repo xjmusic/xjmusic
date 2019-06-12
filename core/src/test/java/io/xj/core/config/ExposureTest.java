@@ -21,7 +21,7 @@ public class ExposureTest {
 
   @Test
   public void audioUrl() throws Exception {
-    assertEquals(("http://mush/bun.wav"), Exposure.audioUrl("bun.wav"));
+    assertEquals(("http://mush/bun.wav"), Config.getAudioUrl("bun.wav"));
   }
 
 }

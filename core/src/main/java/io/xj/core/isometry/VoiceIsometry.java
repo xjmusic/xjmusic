@@ -2,7 +2,7 @@
 package io.xj.core.isometry;
 
 import com.google.common.collect.Maps;
-import io.xj.core.model.voice.Voice;
+import io.xj.core.model.program.sub.Voice;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 
 import javax.annotation.Nullable;
@@ -20,7 +20,7 @@ public class VoiceIsometry extends Isometry {
    @param sourceVoices source group of voices
    */
   private VoiceIsometry(Iterable<? extends Voice> sourceVoices) {
-    stemmedSourceVoices = Maps.newConcurrentMap();
+    stemmedSourceVoices = Maps.newHashMap();
     sourceVoices.forEach(voice ->
       stemmedSourceVoices.put(stem(voice.getDescription()), voice));
   }

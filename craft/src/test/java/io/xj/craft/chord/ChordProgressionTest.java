@@ -2,17 +2,15 @@
 
 package io.xj.craft.chord;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import io.xj.craft.chord.ChordProgression;
-
 import com.google.common.collect.ImmutableSet;
-
+import io.xj.core.CoreTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class ChordProgressionTest {
+public class ChordProgressionTest extends CoreTest {
 
   @Test
   public void isRedundantSubsetOfDescriptor() {

@@ -189,7 +189,7 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
 
   @Override
   @Nullable
-  public Collection<Account> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
+  public Collection<Account> readMany(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access));
@@ -218,6 +218,11 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
     } catch (CoreException e) {
       throw tx.failure(e);
     }
+  }
+
+  @Override
+  public Account newInstance() {
+    return new Account();
   }
 
 }

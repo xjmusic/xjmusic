@@ -4,30 +4,28 @@
 
   <div class="name">{{name}}</div>
 
-  {{#each model.sequencesWithMeme as |sequence|}}
-    {{#if sequence.sequenceHasMeme}}
-      <div class="sequence">
-        {{#link-to "go.sequence" sequence.sequenceId}}
-          <small>{{sequence.sequenceType}}-Sequence #{{sequence.sequenceId}}</small>
-          {{#if sequence.sequenceName}}
-            &quot;{{sequence.sequenceName}}&quot;{{/if}}
+  {{#each model.programsWithMeme as |program|}}
+    {{#if program.programHasMeme}}
+      <div class="program">
+        {{#link-to "go.program" program.programId}}
+          <small>{{program.programType}}-Program #{{program.programId}}</small>
+          {{#if program.programName}}
+            &quot;{{program.programName}}&quot;{{/if}}
         {{/link-to}}
       </div>
     {{/if}}
-    {{#each sequence.patternsWithMeme as |pattern|}}
-      <div class="sequence-pattern">
-        {{#link-to "go.sequence" sequence.sequenceId}}
-          <small>{{sequence.sequenceType}}-Sequence #{{sequence.sequenceId}}</small>
-          {{#if sequence.sequenceName}}
-            &quot;{{sequence.sequenceName}}&quot;{{/if}}
+    {{#each program.sequencesWithMeme as |sequence|}}
+      <div class="program-sequence">
+        {{#link-to "go.program" program.programId}}
+          <small>{{program.programType}}-Program #{{program.programId}}</small>
+          {{#if program.programName}}
+            &quot;{{program.programName}}&quot;{{/if}}
         {{/link-to}}
-        {{#link-to "go.pattern" pattern.patternId}}
-          <small>{{pattern.patternType}}-Pattern #{{pattern.patternId}}</small>
-          {{#if pattern.patternName}}
-            &quot;{{pattern.patternName}}&quot;{{/if}}
-          {{#if pattern.sequencePatternOffset}}
-            @{{pattern.sequencePatternOffset}}{{/if}}
-        {{/link-to}}
+        <small>{{sequence.sequenceType}}-Sequence #{{sequence.sequenceId}}</small>
+        {{#if sequence.sequenceName}}
+          &quot;{{sequence.sequenceName}}&quot;{{/if}}
+        {{#if sequence.programBindingOffset}}
+          @{{sequence.programBindingOffset}}{{/if}}
       </div>
     {{/each}}
   {{/each}}

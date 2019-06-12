@@ -1,11 +1,12 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import DS from 'ember-data';
+import Model, {attr, belongsTo} from '@ember-data/model';
 import {computed} from '@ember/object';
 
-export default DS.Model.extend({
-  audio: DS.belongsTo({}),
-  name: DS.attr('string'),
-  position: DS.attr('number'),
+export default Model.extend({
+  instrument: belongsTo({}),
+  audio: belongsTo({}),
+  name: attr('string'),
+  position: attr('number'),
 
   title: computed('name', 'position', function () {
     return `${this.name}@${this.position}`;

@@ -15,20 +15,4 @@ public interface GsonProvider {
    */
   Gson gson();
 
-  /**
-   JsonObject wrapping an internal array add at a root node
-
-   @param rootName root node name
-   @param obj      to add in root node
-   @return JSON object
-   */
-  String wrap(String rootName, Object obj);
-
-  /**
-   JsonObject wrapping an error
-
-   @param message to wrap as error
-   @return JSON object
-   */
-  String wrapError(String message);
 }

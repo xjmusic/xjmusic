@@ -6,18 +6,11 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
-import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.ChainDAO;
-import io.xj.core.dao.PatternDAO;
 import io.xj.core.dao.PlatformMessageDAO;
-import io.xj.core.dao.SequenceDAO;
-import io.xj.core.model.audio.AudioState;
 import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.entity.Entity;
 import io.xj.core.model.message.MessageType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.platform_message.PlatformMessage;
-import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.message.platform.PlatformMessage;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkState;
 import io.xj.core.model.work.WorkType;
@@ -37,7 +30,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class WorkManagerImpl implements WorkManager {
   private static final Logger log = LoggerFactory.getLogger(WorkManagerImpl.class);
@@ -47,23 +39,14 @@ public class WorkManagerImpl implements WorkManager {
   private final PlatformMessageDAO platformMessageDAO;
   private final RedisDatabaseProvider redisDatabaseProvider;
   private final ChainDAO chainDAO;
-  private final AudioDAO audioDAO;
-  private final SequenceDAO sequenceDAO;
-  private final PatternDAO patternDAO;
 
   @Inject
   WorkManagerImpl(
-    AudioDAO audioDAO,
     ChainDAO chainDAO,
-    SequenceDAO sequenceDAO,
-    PatternDAO patternDAO,
     PlatformMessageDAO platformMessageDAO,
     RedisDatabaseProvider redisDatabaseProvider
   ) {
-    this.audioDAO = audioDAO;
     this.chainDAO = chainDAO;
-    this.sequenceDAO = sequenceDAO;
-    this.patternDAO = patternDAO;
     this.platformMessageDAO = platformMessageDAO;
     this.redisDatabaseProvider = redisDatabaseProvider;
   }
@@ -75,8 +58,8 @@ public class WorkManagerImpl implements WorkManager {
    */
   private static String computeRedisWorkQueueKey() {
     return String.format("%s:queue:%s",
-      Config.dbRedisQueueNamespace(),
-      Config.workQueueName());
+      Config.getDbRedisQueueNamespace(),
+      Config.getWorkQueueName());
   }
 
   /**
@@ -122,24 +105,9 @@ public class WorkManagerImpl implements WorkManager {
     return new Job(type.toString(), vars);
   }
 
-  /**
-   Build a job for enqueing
-
-   @param type     of job
-   @param sourceId for job
-   @param targetId for job
-   @return new job
-   */
-  private static Job buildJob(WorkType type, BigInteger sourceId, BigInteger targetId) {
-    Map<String, String> vars = Maps.newHashMap();
-    vars.put(Work.KEY_SOURCE_ID, sourceId.toString());
-    vars.put(Work.KEY_TARGET_ID, targetId.toString());
-    return new Job(type.toString(), vars);
-  }
-
   @Override
   public void startChainFabrication(BigInteger chainId) {
-    startRecurringJob(WorkType.ChainFabricate, Config.workChainDelaySeconds(), Config.workChainRecurSeconds(), chainId);
+    startRecurringJob(WorkType.ChainFabricate, Config.getWorkChainDelaySeconds(), Config.getWorkChainRecurSeconds(), chainId);
   }
 
   @Override
@@ -154,47 +122,12 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public void startChainErase(BigInteger chainId) {
-    startRecurringJob(WorkType.ChainErase, Config.workChainDelaySeconds(), Config.workChainEraseRecurSeconds(), chainId);
+    startRecurringJob(WorkType.ChainErase, Config.getWorkChainDelaySeconds(), Config.getWorkChainEraseRecurSeconds(), chainId);
   }
 
   @Override
   public void stopChainErase(BigInteger chainId) {
     removeRecurringWork(buildJob(WorkType.ChainErase, chainId));
-  }
-
-  @Override
-  public void doSequenceErase(BigInteger sequenceId) {
-    doJob(WorkType.SequenceErase, sequenceId);
-  }
-
-  @Override
-  public void doPatternErase(BigInteger patternId) {
-    doJob(WorkType.PatternErase, patternId);
-  }
-
-  @Override
-  public void doAudioErase(BigInteger audioId) {
-    doJob(WorkType.AudioErase, audioId);
-  }
-
-  @Override
-  public void doInstrumentClone(BigInteger sourceId, BigInteger targetId) {
-    doJob(WorkType.InstrumentClone, sourceId, targetId);
-  }
-
-  @Override
-  public void doAudioClone(BigInteger sourceId, BigInteger targetId) {
-    doJob(WorkType.AudioClone, sourceId, targetId);
-  }
-
-  @Override
-  public void doSequenceClone(BigInteger sourceId, BigInteger targetId) {
-    doJob(WorkType.SequenceClone, sourceId, targetId);
-  }
-
-  @Override
-  public void doPatternClone(BigInteger sourceId, BigInteger targetId) {
-    doJob(WorkType.PatternClone, sourceId, targetId);
   }
 
   @Override
@@ -204,13 +137,7 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public Collection<Work> readAllWork() throws Exception {
-    Map<BigInteger, Work> workMap = audioDAO.readAllInState(Access.internal(), AudioState.Erase).stream().map(record -> buildWork(WorkType.AudioErase, WorkState.Expected, record.getId())).collect(Collectors.toMap(Entity::getId, work -> work, (a, work1) -> work1));
-
-    // Add Expected Work: Sequence in 'Erase' state
-    sequenceDAO.readAllInState(Access.internal(), SequenceState.Erase).stream().map(record -> buildWork(WorkType.SequenceErase, WorkState.Expected, record.getId())).forEach(work -> workMap.put(work.getId(), work));
-
-    // Add Expected Work: Pattern in 'Erase' state
-    patternDAO.readAllInState(Access.internal(), PatternState.Erase).stream().map(record -> buildWork(WorkType.PatternErase, WorkState.Expected, record.getId())).forEach(work -> workMap.put(work.getId(), work));
+    Map<BigInteger, Work> workMap = Maps.newHashMap();
 
     // Add Expected Work: Chain in 'Erase' state
     chainDAO.readAllInState(Access.internal(), ChainState.Erase).stream().map(record -> buildWork(WorkType.ChainErase, WorkState.Expected, record.getId())).forEach(work -> workMap.put(work.getId(), work));
@@ -250,9 +177,6 @@ public class WorkManagerImpl implements WorkManager {
         switch (work.getType()) {
 
           case ChainErase:
-          case AudioErase:
-          case SequenceErase:
-          case PatternErase:
           case ChainFabricate:
           case SegmentFabricate:
             try {
@@ -262,10 +186,7 @@ public class WorkManagerImpl implements WorkManager {
             }
             break;
 
-          case AudioClone:
-          case InstrumentClone:
-          case SequenceClone:
-          case PatternClone:
+          default:
             // does not warrant job creation
             break;
         }
@@ -278,8 +199,8 @@ public class WorkManagerImpl implements WorkManager {
   @Override
   public Boolean isExistingWork(WorkState state, WorkType type, BigInteger targetId) throws Exception {
     for (Work work : readAllWork()) {
-      if (Objects.equals(work.getState(), state) &&
-        Objects.equals(work.getType(), type) &&
+      if (work.getState() == state &&
+        work.getType() == type &&
         Objects.equals(work.getTargetId(), targetId)) {
         return true;
       }
@@ -294,7 +215,7 @@ public class WorkManagerImpl implements WorkManager {
    @return reinstated work
    */
   private Work reinstate(Work work) throws Exception {
-    startRecurringJob(work.getType(), Config.workChainDelaySeconds(), Config.workChainEraseRecurSeconds(), work.getTargetId()
+    startRecurringJob(work.getType(), Config.getWorkChainDelaySeconds(), Config.getWorkChainEraseRecurSeconds(), work.getTargetId()
     );
     work.setState(WorkState.Queued);
     platformMessageDAO.create(Access.internal(),
@@ -359,54 +280,6 @@ public class WorkManagerImpl implements WorkManager {
     enqueueDelayedWork(buildJob(workType, entityId), delaySeconds);
   }
 
-  /*
-   Schedule a Job from one entity to another
-
-   @param workType     type of job
-   @param delaySeconds to wait # seconds
-   @param fromId       entity to source values and child entities from
-   @param toId         entity to clone entities onto
-   *
-  private void scheduleJob(WorkType workType, Integer delaySeconds, BigInteger fromId, BigInteger toId) {
-    log.info("Schedule targeted {} job, delaySeconds:{}, fromId:{}, toId:{}", workType, delaySeconds, fromId, toId);
-    enqueueDelayedWork(buildJob(workType, fromId, toId), delaySeconds);
-  }
-  */
-
-  /**
-   Do a Job from one entity to another
-
-   @param workType type of job
-   @param sourceId entity to source values and child entities from
-   @param targetId entity to clone entities onto
-   */
-  private void doJob(WorkType workType, BigInteger sourceId, BigInteger targetId) {
-    log.info("Do {} job, sourceId:{}, targetId:{}", workType, sourceId, targetId);
-    enqueueWork(buildJob(workType, sourceId, targetId));
-  }
-
-  /**
-   Do a Job
-
-   @param workType type of job
-   @param targetId of entity
-   */
-  private void doJob(WorkType workType, BigInteger targetId) {
-    log.info("Do {} job, targetId:{}", workType, targetId);
-    enqueueWork(buildJob(workType, targetId));
-  }
-
-  /**
-   Enqueue work (delayed until zero seconds from now)
-
-   @param job to enqueue
-   */
-  private void enqueueWork(Job job) {
-    Client client = getQueueClient();
-    client.delayedEnqueue(Config.workQueueName(), job, System.currentTimeMillis()+ Config.workEnqueueNowDelayMillis());
-    client.end();
-  }
-
   /**
    Delayed-Enqueue work
 
@@ -415,7 +288,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void enqueueDelayedWork(Job job, long delaySeconds) {
     Client client = getQueueClient();
-    client.delayedEnqueue(Config.workQueueName(), job, System.currentTimeMillis() + (delaySeconds * MILLIS_PER_SECOND));
+    client.delayedEnqueue(Config.getWorkQueueName(), job, System.currentTimeMillis() + (delaySeconds * MILLIS_PER_SECOND));
     client.end();
   }
 
@@ -428,7 +301,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void enqueueRecurringWork(Job job, long delaySeconds, long recurSeconds) {
     Client client = getQueueClient();
-    client.recurringEnqueue(Config.workQueueName(), job, System.currentTimeMillis() + (delaySeconds * MILLIS_PER_SECOND), recurSeconds * MILLIS_PER_SECOND);
+    client.recurringEnqueue(Config.getWorkQueueName(), job, System.currentTimeMillis() + (delaySeconds * MILLIS_PER_SECOND), recurSeconds * MILLIS_PER_SECOND);
     client.end();
   }
 
@@ -439,7 +312,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void removeRecurringWork(Job job) {
     Client client = getQueueClient();
-    client.removeRecurringEnqueue(Config.workQueueName(), job);
+    client.removeRecurringEnqueue(Config.getWorkQueueName(), job);
     client.end();
   }
 

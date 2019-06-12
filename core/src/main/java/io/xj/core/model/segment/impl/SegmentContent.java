@@ -5,13 +5,14 @@ package io.xj.core.model.segment.impl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.xj.core.fabricator.FabricatorType;
-import io.xj.core.model.arrangement.Arrangement;
-import io.xj.core.model.choice.Choice;
-import io.xj.core.model.pick.Pick;
+import io.xj.core.model.segment.sub.Arrangement;
+import io.xj.core.model.segment.sub.Choice;
+import io.xj.core.model.entity.SuperEntityContent;
+import io.xj.core.model.segment.sub.Pick;
 import io.xj.core.model.segment.Segment;
-import io.xj.core.model.segment_chord.SegmentChord;
-import io.xj.core.model.segment_meme.SegmentMeme;
-import io.xj.core.model.segment_message.SegmentMessage;
+import io.xj.core.model.segment.sub.SegmentChord;
+import io.xj.core.model.segment.sub.SegmentMeme;
+import io.xj.core.model.segment.sub.SegmentMessage;
 
 import java.util.Collection;
 import java.util.Map;
@@ -31,8 +32,8 @@ import java.util.Map;
  "report": {}
  }
  */
-public class SegmentContent {
-  private final Map<String, Object> report = Maps.newConcurrentMap();
+public class SegmentContent implements SuperEntityContent {
+  private final Map<String, Object> report = Maps.newHashMap();
   private final Collection<SegmentMeme> memes = Lists.newArrayList();
   private final Collection<SegmentMessage> messages = Lists.newArrayList();
   private final Collection<Choice> choices = Lists.newArrayList();

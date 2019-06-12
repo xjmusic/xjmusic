@@ -12,11 +12,12 @@ import io.xj.core.fabricator.FabricatorFactory;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.segment_message.SegmentMessage;
+import io.xj.core.model.segment.sub.SegmentMessage;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftFactory;
 import io.xj.craft.exception.CraftException;
 import io.xj.dub.DubFactory;
+import io.xj.dub.exception.DubException;
 import io.xj.worker.job.SegmentFabricateJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +106,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
     try {
       updateSegmentState(fabricator.getSegment().getState(), SegmentState.Planned);
       segmentDAO.revert(access, fabricator.getSegment().getId());
-      workManager.scheduleSegmentFabricate(Config.segmentRequeueSeconds(), fabricator.getSegment().getId());
+      workManager.scheduleSegmentFabricate(Config.getSegmentRequeueSeconds(), fabricator.getSegment().getId());
     } catch (CoreException e) {
       didFailWhile("reverting and re-queueing segment", e);
     }
@@ -138,7 +139,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
    @throws CoreException if mis-configured
    @throws CoreException on failure
    */
-  protected void doDubWork() throws CoreException, CraftException {
+  protected void doDubWork() throws CoreException, CraftException, DubException {
     updateSegmentState(SegmentState.Crafting, SegmentState.Dubbing);
     dubFactory.master(fabricator).doWork();
     dubFactory.ship(fabricator).doWork();
@@ -152,7 +153,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
    */
   private void didFailWhile(String message, Exception e) {
     createSegmentMessage(MessageType.Error, String.format("Failed while %s for Segment #%s:\n\n%s", message, entityId, e.getMessage()));
-    log.error("[segId={}] Failed while {}", entityId, message, e);
+    log.error("[segId={}] Failed while {} due to {}", entityId, message, e.getMessage());
   }
 
   /**

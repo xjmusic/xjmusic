@@ -1,7 +1,7 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 @import "palette";
 
-body.xj-music  {
+body.xj-music {
   background: $body-background-color;
   color: $body-color;
   font-family: OxygenMono, monospace;
@@ -33,10 +33,12 @@ hr {
 
 h1 {
   font-size: 1.6em;
+
   small {
     font-size: 0.6em;
     vertical-align: super;
   }
+
   small, div {
     display: inline-block;
   }
@@ -79,6 +81,7 @@ table {
   &.inner {
     th, td {
       padding: 0 0;
+
       &:not(:first-child) {
         padding-left: 5px;
       }

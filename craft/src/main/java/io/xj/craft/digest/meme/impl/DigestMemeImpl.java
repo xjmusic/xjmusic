@@ -4,14 +4,13 @@ package io.xj.craft.digest.meme.impl;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.core.exception.CoreException;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.instrument_meme.InstrumentMeme;
-import io.xj.core.model.sequence.Sequence;
-import io.xj.core.model.sequence_meme.SequenceMeme;
-import io.xj.core.model.sequence_pattern.SequencePattern;
-import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
+import io.xj.core.model.instrument.sub.InstrumentMeme;
+import io.xj.core.model.program.Program;
+import io.xj.core.model.program.sub.ProgramMeme;
+import io.xj.core.model.program.sub.SequenceBinding;
+import io.xj.core.model.program.sub.SequenceBindingMeme;
 import io.xj.craft.digest.DigestType;
 import io.xj.craft.digest.impl.DigestImpl;
 import io.xj.craft.digest.meme.DigestMeme;
@@ -27,8 +26,7 @@ import java.util.Map;
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  */
 public class DigestMemeImpl extends DigestImpl implements DigestMeme {
-  private final Map<String, DigestMemesItem> memes = Maps.newConcurrentMap();
-  private final Logger log = LoggerFactory.getLogger(DigestMemeImpl.class);
+  private final Map<String, DigestMemesItem> memes = Maps.newHashMap();
 
   /**
    Instantiate a new digest with a collection of target entities
@@ -43,6 +41,7 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
     try {
       digest();
     } catch (Exception e) {
+      Logger log = LoggerFactory.getLogger(DigestMemeImpl.class);
       log.error("Failed to digest memes of ingest {}", ingest, e);
     }
   }
@@ -51,26 +50,22 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
    Digest entities from ingest
    */
   private void digest() {
-    // for each sequence, stash collection of sequence memes and prepare map of sequence patterns
-    for (Sequence sequence : ingest.getAllSequences()) {
-      for (SequenceMeme sequenceMeme : ingest.getSequenceMemesOfSequence(sequence.getId())) {
-        digestMemesItem(sequenceMeme.getName()).addSequenceId(sequence.getId());
+    // for each program, stash collection of program memes and prepare map of program patterns
+    for (Program program : ingest.getAllPrograms()) {
+      for (ProgramMeme programMeme : program.getMemes()) {
+        digestMemesItem(programMeme.getName()).addProgramId(program.getId());
       }
-      // for each sequence pattern in sequence, stash collection of sequence pattern memes
-      try {
-        for (SequencePattern sequencePattern : ingest.getSequencePatternsOfSequence(sequence.getId())) {
-          for (SequencePatternMeme sequencePatternMeme : ingest.getSequencePatternMemesOfSequencePattern(sequencePattern.getId())) {
-            digestMemesItem(sequencePatternMeme.getName()).addSequencePattern(sequencePattern);
-          }
+      // for each program pattern in program, stash collection of program pattern memes
+      for (SequenceBinding sequenceBinding : program.getSequenceBindings()) {
+        for (SequenceBindingMeme sequenceBindingMeme : program.getMemes(sequenceBinding)) {
+          digestMemesItem(sequenceBindingMeme.getName()).addSequenceBinding(sequenceBinding);
         }
-      } catch (CoreException e) {
-        log.warn("Failed to get sequence patterns of sequenceId={}", sequence.getId());
       }
     }
 
     // for each instrument, stash collection of instrument memes
     for (Instrument instrument : ingest.getAllInstruments()) {
-      for (InstrumentMeme instrumentMeme : ingest.getMemesOfInstrument(instrument.getId())) {
+      for (InstrumentMeme instrumentMeme : instrument.getMemes()) {
         digestMemesItem(instrumentMeme.getName()).addInstrumentId(instrument.getId());
       }
     }
@@ -97,8 +92,13 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
     return memes.get(name);
   }
 
+  @Override
+  public DigestMeme validate() {
+    return this;
+  }
+
   /*
-  TODO: custom JSON serializer for DigestChordProgression
+  FUTURE: custom JSON serializer for DigestChordProgression
 
 
   public JSONObject toJSONObject() {
@@ -117,34 +117,34 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
       });
       memeObj.put(KEY_INSTRUMENTS, memeInstrumentsArr);
 
-      JSONArray memeSequencesArr = new JSONArray();
-      memeDigestItem.getSequenceIds().forEach(sequenceId -> {
-        JSONObject sequenceObj = new JSONObject();
-        JSONArray sequencePatternsArr = new JSONArray();
-        memeDigestItem.getPatternIds(sequenceId).forEach(patternId -> {
+      JSONArray memeProgramsArr = new JSONArray();
+      memeDigestItem.getProgramIds().forEach(programId -> {
+        JSONObject programObj = new JSONObject();
+        JSONArray sequenceBindingsArr = new JSONArray();
+        memeDigestItem.getPatternIds(programId).forEach(patternId -> {
           JSONObject patternObj = new JSONObject();
           patternObj.put(KEY_PATTERN_ID, patternId);
           patternObj.put(KEY_PATTERN_NAME, getPattern(patternId).getName());
           patternObj.put(KEY_PATTERN_TYPE, getPattern(patternId).getType());
-          sequencePatternsArr.put(patternObj);
+          sequenceBindingsArr.put(patternObj);
         });
-        sequenceObj.put(KEY_SEQUENCE_ID, sequenceId);
-        sequenceObj.put(KEY_SEQUENCE_TYPE, getSequence(sequenceId).getType());
-        sequenceObj.put(KEY_SEQUENCE_NAME, getSequence(sequenceId).getName());
-        sequenceObj.put(KEY_SEQUENCE_HAS_MEME, memeDigestItem.getSequenceIds().contains(sequenceId));
-        sequenceObj.put(KEY_PATTERNS_WITH_MEME, sequencePatternsArr);
-        memeSequencesArr.put(sequenceObj);
+        programObj.put(KEY_PROGRAM_ID, programId);
+        programObj.put(KEY_PROGRAM_TYPE, getProgram(programId).getType());
+        programObj.put(KEY_PROGRAM_NAME, getProgram(programId).getName());
+        programObj.put(KEY_PROGRAM_HAS_MEME, memeDigestItem.getProgramIds().contains(programId));
+        programObj.put(KEY_PATTERNS_WITH_MEME, sequenceBindingsArr);
+        memeProgramsArr.put(programObj);
       });
-      memeDigestItem.getSequenceIds().forEach(sequenceId -> {
-        if (memeDigestItem.getSequenceIds().contains(sequenceId)) return;
-        JSONObject sequenceObj = new JSONObject();
-        sequenceObj.put(KEY_SEQUENCE_ID, sequenceId);
-        sequenceObj.put(KEY_SEQUENCE_TYPE, getSequence(sequenceId).getType());
-        sequenceObj.put(KEY_SEQUENCE_NAME, getSequence(sequenceId).getName());
-        sequenceObj.put(KEY_SEQUENCE_HAS_MEME, true);
-        memeSequencesArr.put(sequenceObj);
+      memeDigestItem.getProgramIds().forEach(programId -> {
+        if (memeDigestItem.getProgramIds().contains(programId)) return;
+        JSONObject programObj = new JSONObject();
+        programObj.put(KEY_PROGRAM_ID, programId);
+        programObj.put(KEY_PROGRAM_TYPE, getProgram(programId).getType());
+        programObj.put(KEY_PROGRAM_NAME, getProgram(programId).getName());
+        programObj.put(KEY_PROGRAM_HAS_MEME, true);
+        memeProgramsArr.put(programObj);
       });
-      memeObj.put(KEY_SEQUENCES, memeSequencesArr);
+      memeObj.put(KEY_PROGRAMS, memeProgramsArr);
 
       memeUsage.put(memeName, memeObj);
     });

@@ -32,7 +32,7 @@ public class UserTest {
   @Test
   public void validate_failsWithoutRoles() throws Exception {
     failure.expect(CoreException.class);
-    failure.expectMessage("User roles required");
+    failure.expectMessage("User roles is required");
 
     new User()
       .validate();

@@ -1,15 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.external.amazon;
 
-import io.xj.core.CoreModule;
-import io.xj.core.exception.CoreException;
-import io.xj.core.access.token.TokenGenerator;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-
+import io.xj.core.CoreModule;
+import io.xj.core.CoreTest;
+import io.xj.core.access.token.TokenGenerator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,10 +19,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AmazonProviderImplTest {
+public class AmazonProviderImplTest extends CoreTest {
   @Mock
   private TokenGenerator tokenGenerator;
-  private Injector injector;
   private AmazonProvider amazonProvider;
 
   @Before
@@ -37,13 +33,18 @@ public class AmazonProviderImplTest {
     System.setProperty("audio.file.upload.expire.minutes", "60");
     System.setProperty("audio.file.bucket", "xj-dev-audio");
 
-    createInjector();
+    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+      new AbstractModule() {
+        @Override
+        public void configure() {
+          bind(TokenGenerator.class).toInstance(tokenGenerator);
+        }
+      }));
     amazonProvider = injector.getInstance(AmazonProvider.class);
   }
 
   @After
-  public void tearDown() throws Exception {
-    amazonProvider = null;
+  public void tearDown() {
     System.clearProperty("audio.url.upload");
     System.clearProperty("aws.accessKeyId");
     System.clearProperty("aws.secretKey");
@@ -60,7 +61,7 @@ public class AmazonProviderImplTest {
   }
 
   @Test
-  public void generateKey() throws Exception {
+  public void generateKey() {
     when(tokenGenerator.generateShort())
       .thenReturn("token123");
 
@@ -77,16 +78,6 @@ public class AmazonProviderImplTest {
     String url = amazonProvider.getUploadURL();
 
     assertEquals("https://s3.amazonaws.com/test-bucket/", url);
-  }
-
-  private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
-      new AbstractModule() {
-        @Override
-        public void configure() {
-          bind(TokenGenerator.class).toInstance(tokenGenerator);
-        }
-      }));
   }
 
 }

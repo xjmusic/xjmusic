@@ -10,7 +10,7 @@ import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.AccessTokenAuthFilter;
-import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.user.role.UserRoleType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

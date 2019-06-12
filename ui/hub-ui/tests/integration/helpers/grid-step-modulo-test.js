@@ -12,7 +12,7 @@ module('Integration | Helper | grid-step-modulo', function(hooks) {
 
     await render(hbs`{{grid-step-modulo inputValue}}`);
 
-    assert.equal(this.element.textContent.trim(), '1234');
+    assert.dom(this.element).hasText('1234');
   });
 
   test('it returns "measure" at the top of a measure', async function(assert) {
@@ -22,7 +22,7 @@ module('Integration | Helper | grid-step-modulo', function(hooks) {
 
     await render(hbs`{{grid-step-modulo valueA valueB valueC}}`);
 
-    assert.equal(this.element.textContent.trim(), 'measure');
+    assert.dom(this.element).hasText('measure');
   });
 
   test('it returns "beat" at the top of a beat', async function(assert) {
@@ -32,7 +32,7 @@ module('Integration | Helper | grid-step-modulo', function(hooks) {
 
     await render(hbs`{{grid-step-modulo valueA valueB valueC}}`);
 
-    assert.equal(this.element.textContent.trim(), 'beat');
+    assert.dom(this.element).hasText('beat');
   });
 
   test('it returns "step" at the top of a step', async function(assert) {
@@ -42,7 +42,7 @@ module('Integration | Helper | grid-step-modulo', function(hooks) {
 
     await render(hbs`{{grid-step-modulo valueA valueB valueC}}`);
 
-    assert.equal(this.element.textContent.trim(), 'step');
+    assert.dom(this.element).hasText('step');
   });
 
 });

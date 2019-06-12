@@ -10,14 +10,16 @@
     <div class="form-horizontal container-fluid">
       <div class="form-group row">
         <div class="col-sm-10">
-          <button type="submit" autofocus="autofocus" class="btn btn-danger" {{action 'destroy' model}}>Destroy {{model.name}}</button>
+          <button type="submit" autofocus="autofocus" class="btn btn-danger" {{action 'destroy' model}}>
+            Destroy {{model.name}}</button>
         </div>
       </div>
     </div>
   {{else}}
     <div class="container-fluid">
       <div class="col-12">
-        <p>Can only delete Chain in states <strong>Draft</strong>, <strong>Complete</strong>, or <strong>Failed</strong>.</p>
+        <p>Can only delete Chain in states <strong>Draft</strong>, <strong>Complete</strong>, or <strong>Failed</strong>.
+        </p>
       </div>
     </div>
   {{/if}}

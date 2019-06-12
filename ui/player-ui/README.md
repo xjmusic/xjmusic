@@ -1,4 +1,4 @@
-# XJ Music® Player UI
+# XJ Music™ Player UI
 
 https://hub.xj.io/player
 

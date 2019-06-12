@@ -132,7 +132,7 @@ function importDependencies(app, environment) {
       break;
   }
 
-  // Wavesurfer any environment
+  // Wavesurfer shim
   app.import('vendor/shims/wavesurfer.js', {
     exports: {
       'wavesurfer': ['default']

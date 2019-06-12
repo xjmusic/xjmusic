@@ -4,7 +4,7 @@
 import auth from '../services/auth';
 
 export function initialize(app) {
-  app.register('service:auth', auth, { instantiate: true, singleton: true });
+  app.register('service:auth', auth, {instantiate: true, singleton: true});
   app.inject('controller', 'auth', 'service:auth');
 }
 

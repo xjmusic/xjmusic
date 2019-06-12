@@ -1,36 +1,31 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
-import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChainDAO;
-import io.xj.core.dao.ChainInstrumentDAO;
-import io.xj.core.dao.ChainLibraryDAO;
-import io.xj.core.dao.ChainSequenceDAO;
-import io.xj.core.dao.DAO;
 import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainFactory;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.chain_binding.ChainBinding;
 import io.xj.core.model.message.MessageType;
-import io.xj.core.model.platform_message.PlatformMessage;
+import io.xj.core.model.message.platform.PlatformMessage;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentFactory;
 import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.user.role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.tables.records.SegmentRecord;
 import io.xj.core.transport.CSV;
+import io.xj.core.transport.GsonProvider;
 import io.xj.core.work.WorkManager;
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -38,10 +33,7 @@ import org.jooq.Record;
 import org.jooq.UpdateSetFirstStep;
 import org.jooq.impl.DSL;
 import org.jooq.types.ULong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -51,13 +43,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import static io.xj.core.Tables.ACCOUNT;
 import static io.xj.core.Tables.CHAIN;
-import static io.xj.core.Tables.CHAIN_CONFIG;
-import static io.xj.core.Tables.CHAIN_INSTRUMENT;
-import static io.xj.core.Tables.CHAIN_LIBRARY;
-import static io.xj.core.Tables.CHAIN_SEQUENCE;
 import static io.xj.core.Tables.SEGMENT;
 
 /**
@@ -72,111 +61,30 @@ import static io.xj.core.Tables.SEGMENT;
  of the logic around adding segments to chains and updating chain state to complete.
  */
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
-  private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
+  //  private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
   private final int previewLengthMax;
-  private final WorkManager workManager;
-  private final ChainConfigDAO chainConfigDAO;
-  private final ChainInstrumentDAO chainInstrumentDAO;
-  private final ChainLibraryDAO chainLibraryDAO;
-  private final ChainSequenceDAO chainSequenceDAO;
+  private final ChainFactory chainFactory;
+  private final GsonProvider gsonProvider;
   private final PlatformMessageDAO platformMessageDAO;
   private final SegmentFactory segmentFactory;
+  private final WorkManager workManager;
 
   @Inject
   public ChainDAOImpl(
-    SQLDatabaseProvider dbProvider,
-    WorkManager workManager,
-    ChainConfigDAO chainConfigDAO,
-    ChainInstrumentDAO chainInstrumentDAO,
-    ChainLibraryDAO chainLibraryDAO,
-    ChainSequenceDAO chainSequenceDAO,
+    ChainFactory chainFactory,
+    GsonProvider gsonProvider,
     PlatformMessageDAO platformMessageDAO,
-    SegmentFactory segmentFactory
+    SegmentFactory segmentFactory,
+    SQLDatabaseProvider dbProvider,
+    WorkManager workManager
   ) {
-    this.workManager = workManager;
-    this.chainConfigDAO = chainConfigDAO;
-    this.chainInstrumentDAO = chainInstrumentDAO;
-    this.chainLibraryDAO = chainLibraryDAO;
-    this.chainSequenceDAO = chainSequenceDAO;
+    this.chainFactory = chainFactory;
+    this.dbProvider = dbProvider;
+    this.gsonProvider = gsonProvider;
     this.platformMessageDAO = platformMessageDAO;
     this.segmentFactory = segmentFactory;
-    this.dbProvider = dbProvider;
-    previewLengthMax = Config.chainPreviewLengthMax();
-  }
-
-  /**
-   Read one record by id
-
-   @param db     context
-   @param access control
-   @param id     of record
-   @return record
-   */
-  private static Chain readOne(DSLContext db, Access access, ULong id) throws CoreException {
-    if (access.isTopLevel())
-      return modelFrom(db.selectFrom(CHAIN)
-        .where(CHAIN.ID.eq(id))
-        .fetchOne(), Chain.class);
-    else
-      return modelFrom(db.selectFrom(CHAIN)
-        .where(CHAIN.ID.eq(id))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne(), Chain.class);
-  }
-
-  /**
-   [#150279540] Unauthenticated or specifically-authenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
-
-   @param db       context
-   @param embedKey of record
-   @return record
-   */
-  private static Chain readOne(DSLContext db, String embedKey) throws CoreException {
-    return modelFrom(db.selectFrom(CHAIN)
-      .where(CHAIN.EMBED_KEY.eq(embedKey))
-      .fetchOne(), Chain.class);
-  }
-
-  /**
-   Read all records in parent by id
-
-   @param db         context
-   @param access     control
-   @param accountIds of parent
-   @return array of records
-   */
-  private static Collection<Chain> readAll(DSLContext db, Access access, Collection<ULong> accountIds) throws CoreException {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(CHAIN.fields())
-        .from(CHAIN)
-        .where(CHAIN.ACCOUNT_ID.in(accountIds))
-        .and(CHAIN.STATE.notEqual(ChainState.Erase.toString()))
-        .fetch(), Chain.class);
-    else
-      return modelsFrom(db.select(CHAIN.fields())
-        .from(CHAIN)
-        .where(CHAIN.ACCOUNT_ID.in(accountIds))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
-        .and(CHAIN.STATE.notEqual(ChainState.Erase.toString()))
-        .fetch(), Chain.class);
-  }
-
-  /**
-   Read all records in a given state
-
-   @param db     context
-   @param access control
-   @param state  to read chains in
-   @return array of records
-   */
-  private static Collection<Chain> readAllInState(DSLContext db, Access access, ChainState state) throws CoreException {
-    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
-
-    return modelsFrom(db.select(CHAIN.fields())
-      .from(CHAIN)
-      .where(CHAIN.STATE.eq(state.toString()))
-      .or(CHAIN.STATE.eq(state.toString().toLowerCase(Locale.ENGLISH)))
-      .fetch(), Chain.class);
+    this.workManager = workManager;
+    previewLengthMax = Config.getChainPreviewLengthMax();
   }
 
   /**
@@ -189,7 +97,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @throws CoreException if not configured properly
    @throws CoreException if fails business rule
    */
-  private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
+  private static void destroy(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       requireExists("Chain", db.selectCount().from(CHAIN)
         .where(CHAIN.ID.eq(id))
@@ -204,26 +112,6 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       .from(SEGMENT)
       .where(SEGMENT.CHAIN_ID.eq(id))
       .fetch());
-
-    // Chain-Sequence before Chain
-    db.deleteFrom(CHAIN_SEQUENCE)
-      .where(CHAIN_SEQUENCE.CHAIN_ID.eq(id))
-      .execute();
-
-    // Chain-Instrument before Chain
-    db.deleteFrom(CHAIN_INSTRUMENT)
-      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id))
-      .execute();
-
-    // Chain-Library before Chain
-    db.deleteFrom(CHAIN_LIBRARY)
-      .where(CHAIN_LIBRARY.CHAIN_ID.eq(id))
-      .execute();
-
-    // Chain-Config before Chain
-    db.deleteFrom(CHAIN_CONFIG)
-      .where(CHAIN_CONFIG.CHAIN_ID.eq(id))
-      .execute();
 
     db.deleteFrom(CHAIN)
       .where(CHAIN.ID.eq(id))
@@ -256,7 +144,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @param entity to source values from
    @return values mapped to record fields
    */
-  private static Map<Field, Object> fieldValueMap(Chain entity) {
+  private Map<Field, Object> fieldValueMap(Chain entity) {
     Map<Field, Object> fieldValues = com.google.api.client.util.Maps.newHashMap();
     fieldValues.put(CHAIN.ACCOUNT_ID, ULong.valueOf(entity.getAccountId()));
     fieldValues.put(CHAIN.NAME, entity.getName());
@@ -267,25 +155,83 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       Timestamp.from(entity.getStopAt().truncatedTo(ChronoUnit.MICROS)) : null;
     fieldValues.put(CHAIN.STOP_AT, stopTimestamp);
     fieldValues.put(CHAIN.EMBED_KEY, entity.getEmbedKey());
+    fieldValues.put(CHAIN.CONTENT, gsonProvider.gson().toJson(entity.getContent()));
     return fieldValues;
   }
 
   /**
-   Copy all of a specific class of ChainBinding from one chain to another
+   Read one record by id
 
-   @param dao         to implement
-   @param access      control
-   @param fromChainId to copy bindings from
-   @param toChainId   to copy bindings to
-   @param <B>         class of binding
-   @throws CoreException on failure
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
-  private static <B extends ChainBinding> void copyAllBindings(DAO<B> dao, Access access, BigInteger fromChainId, BigInteger toChainId) throws CoreException {
-    for (B chainBinding : dao.readAll(access, ImmutableList.of(fromChainId))) {
-      log.info("Copy binding {} from chain {} to chain {}", chainBinding, fromChainId, toChainId);
-      chainBinding.setChainId(toChainId);
-      dao.create(access, chainBinding);
-    }
+  private Chain readOne(DSLContext db, Access access, ULong id) throws CoreException {
+    if (access.isTopLevel())
+      return modelFrom(db.selectFrom(CHAIN)
+        .where(CHAIN.ID.eq(id))
+        .fetchOne(), chainFactory);
+    else
+      return modelFrom(db.selectFrom(CHAIN)
+        .where(CHAIN.ID.eq(id))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), chainFactory);
+  }
+
+  /**
+   [#150279540] Unauthenticated or specifically-authenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
+
+   @param db       context
+   @param embedKey of record
+   @return record
+   */
+  private Chain readOne(DSLContext db, String embedKey) throws CoreException {
+    return modelFrom(db.selectFrom(CHAIN)
+      .where(CHAIN.EMBED_KEY.eq(embedKey))
+      .fetchOne(), chainFactory);
+  }
+
+  /**
+   Read all records in parent by id
+
+   @param db         context
+   @param access     control
+   @param accountIds of parent
+   @return array of records
+   */
+  private Collection<Chain> readAll(DSLContext db, Access access, Collection<ULong> accountIds) throws CoreException {
+    if (access.isTopLevel())
+      return modelsFrom(db.select(CHAIN.fields())
+        .from(CHAIN)
+        .where(CHAIN.ACCOUNT_ID.in(accountIds))
+        .and(CHAIN.STATE.notEqual(ChainState.Erase.toString()))
+        .fetch(), chainFactory);
+    else
+      return modelsFrom(db.select(CHAIN.fields())
+        .from(CHAIN)
+        .where(CHAIN.ACCOUNT_ID.in(accountIds))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(CHAIN.STATE.notEqual(ChainState.Erase.toString()))
+        .fetch(), chainFactory);
+  }
+
+  /**
+   Read all records in a given state
+
+   @param db     context
+   @param access control
+   @param state  to read chains in
+   @return array of records
+   */
+  private Collection<Chain> readAllInState(DSLContext db, Access access, ChainState state) throws CoreException {
+    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
+
+    return modelsFrom(db.select(CHAIN.fields())
+      .from(CHAIN)
+      .where(CHAIN.STATE.eq(state.toString()))
+      .or(CHAIN.STATE.eq(state.toString().toLowerCase(Locale.ENGLISH)))
+      .fetch(), chainFactory);
   }
 
   @Override
@@ -299,7 +245,6 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  @Nullable
   public Chain readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -309,7 +254,6 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     }
   }
 
-  @Nullable
   @Override
   public Chain readOne(Access access, String embedKey) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
@@ -321,8 +265,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  @Nullable
-  public Collection<Chain> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
+  public Collection<Chain> readMany(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
@@ -364,7 +307,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public Segment buildNextSegmentOrComplete(Access access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteBefore) throws CoreException {
+  public Optional<Segment> buildNextSegmentOrComplete(Access access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteBefore) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(buildNextSegmentOrComplete(tx.getContext(), access, chain, segmentBeginBefore, chainStopCompleteBefore));
@@ -377,7 +320,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, ULong.valueOf(id));
+      destroy(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
     } catch (CoreException e) {
       throw tx.failure(e);
@@ -393,6 +336,11 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     } catch (CoreException e) {
       throw tx.failure(e);
     }
+  }
+
+  @Override
+  public Chain newInstance() {
+    return chainFactory.newChain();
   }
 
   @Override
@@ -468,7 +416,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         break;
     }
 
-    return modelFrom(executeCreate(db, CHAIN, fieldValues), Chain.class);
+    return modelFrom(executeCreate(db, CHAIN, fieldValues), chainFactory);
   }
 
   /**
@@ -526,24 +474,27 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   private void update(DSLContext db, Access access, ULong id, Map<Field, Object> toUpdate) throws CoreException {
     Map<Field, Object> fieldValues = Maps.newHashMap(toUpdate);
 
+    // fetch existing chain; further logic is based on its current type and state
+    Chain chain = readOne(db, access, id);
+
     // validate and cache to-state
+    ChainState fromState = chain.getState();
     ChainState toState = ChainState.validate(fieldValues.get(CHAIN.STATE).toString());
 
-    // fetch existing chain; further logic is based on its current type and state
-    ChainRecord chain = db.selectFrom(CHAIN).where(CHAIN.ID.eq(id)).fetchOne();
-    requireExists("Chain #" + id, chain);
-    ChainState fromState = ChainState.validate(chain.getState());
+    // Set existing chain to new state and validate (the state transition)
+    chain.setStateEnum(toState);
+    chain.validate();
 
     // If not top level access, validate access to account
     if (!access.isTopLevel())
       try {
-        requireAccount(access, chain.getAccountId());
+        requireAccount(access, ULong.valueOf(chain.getAccountId()));
       } catch (Exception e) {
         throw new CoreException("must have either top-level or account access", e);
       }
 
     // logic based on Chain Type
-    switch (ChainType.validate(chain.getType())) {
+    switch (chain.getType()) {
 
       case Production:
         requireRole("Engineer role", access, UserRoleType.Engineer);
@@ -568,13 +519,6 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
       case Draft:
         onlyAllowTransitions(toState, ChainState.Draft, ChainState.Ready, ChainState.Erase);
-        if (ChainState.Ready == toState) {
-          requireExistsAnyOf(String.format("Chain must be bound to %s", "at least one Library, Sequence, or Instrument"),
-            db.selectCount().from(CHAIN_LIBRARY).where(CHAIN_LIBRARY.CHAIN_ID.eq(id)).fetchOne(0, int.class),
-            db.selectCount().from(CHAIN_SEQUENCE).where(CHAIN_SEQUENCE.CHAIN_ID.eq(id)).fetchOne(0, int.class),
-            db.selectCount().from(CHAIN_INSTRUMENT).where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id)).fetchOne(0, int.class)
-          );
-        }
         break;
 
       case Ready:
@@ -618,11 +562,11 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     // [#116] cannot change chain startAt time after has segments
     Object updateStartAt = fieldValues.get(CHAIN.START_AT);
     if (Objects.nonNull(updateStartAt)
-      && !chain.getStartAt().toInstant().equals(Timestamp.valueOf(String.valueOf(updateStartAt)).toInstant()))
+      && !chain.getStartAt().equals(Timestamp.valueOf(String.valueOf(updateStartAt)).toInstant()))
       requireNotExists(
         "cannot change chain startAt time after it has segments",
         db.select(SEGMENT.ID).from(SEGMENT)
-          .where(SEGMENT.CHAIN_ID.eq(chain.getId()))
+          .where(SEGMENT.CHAIN_ID.eq(ULong.valueOf(chain.getId())))
           .fetch()
       );
 
@@ -633,7 +577,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     fieldValues.forEach(update::set);
     int rowsAffected = update.set(CHAIN.STATE, toState.toString())
       .where(CHAIN.ID.eq(id))
-      .and(CHAIN.STATE.eq(chain.getState()))
+      .and(CHAIN.STATE.eq(String.valueOf(fromState)))
       .execute();
 
     // If no records updated, failure
@@ -671,8 +615,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @param chainStopCompleteBefore time upper threshold
    @return Segment template
    */
-  @Nullable
-  private Segment buildNextSegmentOrComplete(DSLContext db, Access access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteBefore) throws CoreException {
+  private Optional<Segment> buildNextSegmentOrComplete(DSLContext db, Access access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteBefore) throws CoreException {
     requireTopLevel(access);
 
     Record lastRecordWithNoEndAtTime = db.select(SEGMENT.CHAIN_ID)
@@ -687,7 +630,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     // If there's already a no-endAt-time-having Segment
     // at the end of this Chain, get outta here
     if (Objects.nonNull(lastRecordWithNoEndAtTime))
-      return null;
+      return Optional.empty();
 
     // Get the last segment in the chain
     SegmentRecord lastSegmentInChain = db.selectFrom(SEGMENT)
@@ -704,18 +647,18 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       Segment pilotTemplate = segmentFactory.newSegment(BigInteger.valueOf(4));
       pilotTemplate.setChainId(chain.getId());
       pilotTemplate.setBeginAtInstant(chain.getStartAt());
-      pilotTemplate.setOffset(BigInteger.ZERO);
+      pilotTemplate.setOffset(0L);
       pilotTemplate.setState(SegmentState.Planned.toString());
-      return pilotTemplate;
+      return Optional.of(pilotTemplate);
     }
 
     // If the last segment begins after our boundary, we're here early; get outta here.
     if (lastSegmentInChain.getBeginAt().toInstant().isAfter(segmentBeginBefore)) {
-      return null;
+      return Optional.empty();
     }
 
     /*
-     [#204] Craftworker updates Chain to COMPLETE state when the final segment is in dubbed state.
+     [#204] Craft worker updates Chain to COMPLETE state when the final segment is in dubbed state.
      */
     if (Objects.nonNull(lastSegmentInChain.getEndAt())
       && Objects.nonNull(chain.getStopAt())
@@ -726,17 +669,17 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         && Objects.equals(lastSegmentInChain.getState(), SegmentState.Dubbed.toString())) {
         updateState(db, access, ULong.valueOf(chain.getId()), ChainState.Complete);
       }
-      return null;
+      return Optional.empty();
     }
 
     // Build the template of the segment that follows the last known one
     Segment pilotTemplate = segmentFactory.newSegment(BigInteger.valueOf(4));
-    ULong pilotOffset = ULong.valueOf(lastSegmentInChain.getOffset().toBigInteger().add(BigInteger.valueOf(1L)));
+    Long pilotOffset = lastSegmentInChain.getOffset().longValue() + 1;
     pilotTemplate.setChainId(chain.getId());
     pilotTemplate.setBeginAtInstant(lastSegmentInChain.getEndAt().toInstant());
-    pilotTemplate.setOffset(pilotOffset.toBigInteger());
+    pilotTemplate.setOffset(pilotOffset);
     pilotTemplate.setState(SegmentState.Planned.toString());
-    return pilotTemplate;
+    return Optional.of(pilotTemplate);
   }
 
   /**
@@ -757,23 +700,26 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     Chain priorChain = readOne(db, access, priorChainId);
     requireExists("prior Chain", priorChain);
 
-    // copy the prior chain to a revived chain before modifying original fields
-    Chain revivedChain = priorChain.revived();
+    if (ChainState.Fabricate != priorChain.getState())
+      throw new CoreException("Only a Fabricate-state Chain can be revived.");
+
+    if (ChainType.Production != priorChain.getType())
+      throw new CoreException("Only a Production-type Chain can be revived.");
+
+    // save the embed key to re-use on new chain
+    String embedKey = priorChain.getEmbedKey();
 
     // update the prior chain to failed state and null embed key
     priorChain.setStateEnum(ChainState.Failed);
     priorChain.setEmbedKey(null);
     update(db, access, priorChainId, fieldValueMap(priorChain));
 
-    // create new chain with original properties (but in draft state)
-    Chain createdChain = create(db, access, revivedChain);
+    // create new chain with original properties (implicitly created in draft state)
+    priorChain.setEmbedKey(embedKey);
+    Chain createdChain = create(db, access, priorChain);
 
     // copy all chain bindings from prior chain to created chain
     requireExists("created Chain", createdChain);
-    copyAllBindings(chainConfigDAO, access, priorChain.getId(), createdChain.getId());
-    copyAllBindings(chainInstrumentDAO, access, priorChain.getId(), createdChain.getId());
-    copyAllBindings(chainLibraryDAO, access, priorChain.getId(), createdChain.getId());
-    copyAllBindings(chainSequenceDAO, access, priorChain.getId(), createdChain.getId());
 
     // update new chain into ready state
     createdChain.setStateEnum(ChainState.Ready);
@@ -809,8 +755,8 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
     Collection<Chain> revivedChains = Lists.newArrayList();
     Collection<ULong> stalledChainIds = Lists.newArrayList();
-    Timestamp thresholdChainStartAt = Timestamp.from(Instant.now().minusSeconds(Config.chainReviveThresholdStartSeconds()));
-    Timestamp thresholdChainHeadAt = Timestamp.from(Instant.now().minusSeconds(Config.chainReviveThresholdHeadSeconds()));
+    Timestamp thresholdChainStartAt = Timestamp.from(Instant.now().minusSeconds(Config.getChainReviveThresholdStartSeconds()));
+    Timestamp thresholdChainHeadAt = Timestamp.from(Instant.now().minusSeconds(Config.getChainReviveThresholdHeadSeconds()));
 
     // recursive queries for stalled chains
     for (ChainRecord record : db.selectFrom(CHAIN)

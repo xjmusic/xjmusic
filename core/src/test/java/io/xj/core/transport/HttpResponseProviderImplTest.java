@@ -2,18 +2,9 @@
 
 package io.xj.core.transport;
 
-import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonObject;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import io.xj.core.CoreModule;
+import io.xj.core.CoreTest;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.library.LibraryWrapper;
-import io.xj.core.model.segment_meme.SegmentMeme;
-import io.xj.core.model.sequence_meme.SequenceMeme;
-import io.xj.core.model.sequence_meme.SequenceMemeWrapper;
-import io.xj.core.transport.GsonProvider;
-import io.xj.core.transport.HttpResponseProvider;
+import io.xj.core.model.account.Account;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,22 +13,13 @@ import javax.ws.rs.core.Response;
 import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-public class HttpResponseProviderImplTest {
-  Injector injector = Guice.createInjector(new CoreModule());
+public class HttpResponseProviderImplTest extends CoreTest {
   HttpResponseProvider subject;
-  private GsonProvider gsonProvider;
-
-  private static SequenceMeme meme(String name) {
-    return new SequenceMeme()
-      .setName(name)
-      .setSequenceId(BigInteger.valueOf(25))
-      .setId(BigInteger.valueOf(23));
-  }
 
   @Before
   public void setUp() throws Exception {
-    gsonProvider = injector.getInstance(GsonProvider.class);
     subject = injector.getInstance(HttpResponseProvider.class);
   }
 
@@ -66,7 +48,7 @@ public class HttpResponseProviderImplTest {
 
   @Test
   public void notFound() {
-    Response result = subject.notFound("Thing");
+    Response result = subject.notFound(new Account().setId(BigInteger.valueOf(27)));
 
     assertEquals(404, result.getStatus());
   }
@@ -89,7 +71,7 @@ public class HttpResponseProviderImplTest {
   public void failure_andCode_serverFailureUnknownException() {
     Response result = subject.failure(new Exception("Low Level"), 422);
 
-    assertEquals(500, result.getStatus());
+    assertEquals(422, result.getStatus());
   }
 
   @Test
@@ -114,39 +96,12 @@ public class HttpResponseProviderImplTest {
   }
 
   @Test
-  public void readOne() {
-    Response result = subject.readOne("sequenceMeme", meme("Red"));
+  public void noContent() {
+    Response result = subject.noContent();
 
-    assertEquals(202, result.getStatus());
-    SequenceMeme resultModel = gsonProvider.gson().fromJson(String.valueOf(result.getEntity()), SequenceMemeWrapper.class).getSequenceMeme();
-    assertEquals("Red", resultModel.getName());
+    assertEquals(204, result.getStatus());
+    assertFalse(result.hasEntity());
   }
 
-  @Test
-  public void readMany() {
-    Response result = subject.readOne("memes", ImmutableList.of(meme("Red"), meme("Green"), meme("Blue")));
 
-    assertEquals(202, result.getStatus());
-    assertEquals("{\"memes\":[{\"sequenceId\":25,\"name\":\"Red\",\"id\":23},{\"sequenceId\":25,\"name\":\"Green\",\"id\":23},{\"sequenceId\":25,\"name\":\"Blue\",\"id\":23}]}", result.getEntity());
-  }
-
-  @Test
-  public void readMany_emptyCollection() throws Exception {
-    Response result = subject.readMany("memes", ImmutableList.of());
-
-    assertEquals(202, result.getStatus());
-    assertEquals("{\"memes\":[]}", result.getEntity());
-  }
-
-  /**
-    FIX [#166383443] Ember-data should have the id of a newly created entity-- problem was, Response wrapper is returning JSON enclosed in a string
-   */
-  @Test
-  public void create() {
-    Response result = subject.create("sequenceMemes", "sequenceMeme", meme("Purple"));
-
-    assertEquals(201, result.getStatus());
-    SequenceMeme resultModel = gsonProvider.gson().fromJson(String.valueOf(result.getEntity()), SequenceMemeWrapper.class).getSequenceMeme();
-    assertEquals("Purple", resultModel.getName());
-  }
 }

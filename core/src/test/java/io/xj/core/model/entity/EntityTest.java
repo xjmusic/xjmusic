@@ -2,19 +2,22 @@
 
 package io.xj.core.model.entity;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import io.xj.core.util.Value;
+import com.google.common.collect.ImmutableMap;
+import io.xj.core.CoreTest;
+import io.xj.core.model.program.ProgramState;
+import io.xj.core.model.program.ProgramType;
+import io.xj.core.model.user.User;
+import io.xj.core.util.Text;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class EntityTest {
+public class EntityTest extends CoreTest {
 
-  /**
-   [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
-   */
   @Test
-  public void roundPosition() throws Exception {
-    assertEquals(5.35, Value.limitFloatingPointPlaces(5.35169988945), 0.0000001);
+  public void keyValueString() {
+    assertEquals("Test{one=1,two=2,three=3}",
+      Entity.keyValueString("Test", ImmutableMap.of("one", "1", "two", "2", "three", "3")));
   }
 
 }

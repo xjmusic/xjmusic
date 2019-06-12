@@ -6,8 +6,8 @@ import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.platform_message.PlatformMessage;
-import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.message.platform.PlatformMessage;
+import io.xj.core.model.user.role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import org.jooq.DSLContext;
@@ -142,7 +142,7 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
   }
 
   @Override
-  public Collection<PlatformMessage> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
+  public Collection<PlatformMessage> readMany(Access access, Collection<BigInteger> parentIds) throws CoreException {
     throw new CoreException("Not allowed to read all Platform Messages (must specify # previous days).");
 
   }
@@ -172,6 +172,11 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
     } catch (CoreException e) {
       throw tx.failure(e);
     }
+  }
+
+  @Override
+  public PlatformMessage newInstance() {
+    return new PlatformMessage();
   }
 
 

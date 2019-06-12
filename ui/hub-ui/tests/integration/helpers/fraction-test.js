@@ -1,6 +1,6 @@
-import {module, test} from 'qunit';
-import {setupRenderingTest} from 'ember-qunit';
-import {render} from '@ember/test-helpers';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
 module('Integration | Helper | fraction', function (hooks) {
@@ -12,7 +12,7 @@ module('Integration | Helper | fraction', function (hooks) {
 
     await render(hbs`{{fraction inputValue}}`);
 
-    assert.equal(this.element.textContent.trim(), '1234');
+    assert.dom(this.element).hasText('1234');
   });
 
   test('it renders 1/4', async function (assert) {

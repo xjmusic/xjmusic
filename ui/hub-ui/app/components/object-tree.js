@@ -8,7 +8,7 @@ import Component from '@ember/component';
 const JsonPrettyComponent = Component.extend({
   didReceiveAttrs() {
     this._super(...arguments);
-    const data = this.get('data');
+    const data = this.data;
     if (typeof data === 'string') {
       this.set('content', data);
     } else if (data) {

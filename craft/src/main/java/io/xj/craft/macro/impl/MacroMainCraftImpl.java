@@ -2,21 +2,23 @@
 package io.xj.craft.macro.impl;
 
 import com.google.common.collect.ConcurrentHashMultiset;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.core.exception.CoreException;
 import io.xj.core.fabricator.Fabricator;
-import io.xj.core.model.choice.Choice;
-import io.xj.core.model.entity.EntityRank;
-import io.xj.core.model.meme.Meme;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.segment_chord.SegmentChord;
-import io.xj.core.model.segment_meme.SegmentMeme;
-import io.xj.core.model.sequence.Sequence;
-import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.sequence_pattern.SequencePattern;
+import io.xj.core.fabricator.FabricatorType;
+import io.xj.core.isometry.SuperEntityRank;
+import io.xj.core.model.entity.Meme;
+import io.xj.core.model.program.Program;
+import io.xj.core.model.program.ProgramType;
+import io.xj.core.model.program.sub.Sequence;
+import io.xj.core.model.program.sub.SequenceBinding;
+import io.xj.core.model.segment.sub.Choice;
+import io.xj.core.model.segment.sub.SegmentChord;
+import io.xj.core.model.segment.sub.SegmentMeme;
 import io.xj.core.util.Chance;
 import io.xj.core.util.Value;
 import io.xj.craft.CraftImpl;
@@ -26,10 +28,10 @@ import io.xj.music.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -42,218 +44,175 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   private static final double SCORE_MAIN_ENTROPY = 0.5;
   private static final long NANOS_PER_SECOND = 1_000_000_000;
   private final Logger log = LoggerFactory.getLogger(MacroMainCraftImpl.class);
-  private Pattern macroPattern;
-  private Pattern mainPattern;
-  private Sequence macroSequence;
-  private Sequence mainSequence;
+  private final Collection<FabricatorType> typesContinueMacro = ImmutableList.of(FabricatorType.Continue, FabricatorType.NextMain);
 
   @Inject
   public MacroMainCraftImpl(
     @Assisted("basis") Fabricator fabricator
     /*-*/) {
-    setFabricator(fabricator);
+    this.fabricator = fabricator;
+  }
+
+  /**
+   compute Transpose Main-Program to the transposed key of the current macro pattern
+
+   @param macroProgram   from which to compute transpose of main program
+   @param macroTranspose from which to compute transpose of main program
+   @param mainProgram    from which to compute transpose
+   @param macroSequence  from which to compute transpose
+   @return mainTranspose
+   */
+  private static Integer computeMainTranspose(Program macroProgram, int macroTranspose, Program mainProgram, Sequence macroSequence) {
+    return Key.delta(mainProgram.getKey(),
+      Value.eitherOr(macroSequence.getKey(), macroProgram.getKey()),
+      macroTranspose);
+  }
+
+  /**
+   Compute the final key of the current segment
+   Segment Key is the transposed key of the current main pattern
+
+   @param mainSequence  from which to compute key
+   @param mainTranspose semitones
+   @return key
+   */
+  private static String computeSegmentKey(Sequence mainSequence, int mainTranspose) {
+    String mainKey = mainSequence.getKey();
+    if (null == mainKey || mainKey.isEmpty()) {
+      mainKey = mainSequence.getKey();
+    }
+    return Key.of(mainKey).transpose(mainTranspose).getFullDescription();
+  }
+
+  /**
+   Compute the final tempo of the current segment
+
+   @param macroSequence from which to compute segment tempo
+   @param mainSequence  from which to compute segment tempo
+   @return tempo
+   */
+  private static double computeSegmentTempo(Sequence macroSequence, Sequence mainSequence) {
+    return (Value.eitherOr(macroSequence.getTempo(), macroSequence.getTempo()) +
+      Value.eitherOr(mainSequence.getTempo(), mainSequence.getTempo())) / 2;
+  }
+
+  /**
+   Compute the final density of the current segment
+   future: Segment Density = average of macro and main-sequence patterns
+
+   @param macroSequence from which to compute segment tempo
+   @param mainSequence  from which to compute segment tempo
+   @return density
+   */
+  private static Double computeSegmentDensity(Sequence macroSequence, Sequence mainSequence) {
+    return (Value.eitherOr(macroSequence.getDensity(), macroSequence.getDensity()) +
+      Value.eitherOr(mainSequence.getDensity(), mainSequence.getDensity())) / 2;
   }
 
   @Override
   public void doWork() throws CraftException {
-    doMacroCraft();
-    doMainCraft();
-    doMemeCraft();
-    getFabricator().getSegment()
-      .setDensity(segmentDensity())
-      .setTempo(segmentTempo())
-      .setKey(segmentKey())
-      .setTotal(chooseMainPattern().getTotal())
-      .setEndAtInstant(segmentEndInstant());
     try {
-      getFabricator().updateSegment();
-    } catch (CoreException e) {
-      throw exception("Failed to update Segment before crafting chords", e);
-    }
-    doChordCraft();
-    report();
-    try {
-      getFabricator().updateSegment();
-    } catch (CoreException e) {
-      throw exception("Failed to update Segment upon completion", e);
-    }
-  }
-
-  /**
-   Report
-   */
-  private void report() {
-    // future: getFabricator().report() anything else interesting from the craft operation
-  }
-
-  /**
-   Make Macro-type Sequence Choice
-   add macro-sequence choice to segment
-
-   @throws CraftException on any failure
-   */
-  private void doMacroCraft() throws CraftException {
-    try {
-      SequencePattern sequencePattern = getFabricator().getRandomSequencePatternAtOffset(getMacroSequence().getId(), getMacroPatternOffset());
-      getFabricator().add(
+      // 1. Macro
+      Optional<Sequence> nextSequenceOfPreviousMacroProgram = chooseNextSequenceOfPreviousMacroProgram();
+      Program macroProgram = nextSequenceOfPreviousMacroProgram.isPresent()
+        ? chooseMacroProgram(nextSequenceOfPreviousMacroProgram.get())
+        : chooseMacroProgram();
+      Long macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
+      SequenceBinding macroSequenceBinding = macroProgram.randomlySelectSequenceBindingAtOffset(macroSequenceBindingOffset);
+      Sequence macroSequence = macroProgram.getSequence(macroSequenceBinding.getSequenceId());
+      int macroTranspose = nextSequenceOfPreviousMacroProgram.isPresent()
+        ? computeMacroTranspose(macroProgram, nextSequenceOfPreviousMacroProgram.get())
+        : 0;
+      fabricator.add(
         new Choice()
-          .setSegmentId(getFabricator().getSegment().getId())
-          .setType(SequenceType.Macro.toString())
-          .setTranspose(getMacroTranspose())
-          .setSequencePatternId(sequencePattern.getId()));
+          .setProgramId(macroProgram.getId())
+          .setType(ProgramType.Macro.toString())
+          .setTranspose(macroTranspose)
+          .setSequenceBindingId(macroSequenceBinding.getId()));
 
-    } catch (CoreException e) {
-      throw exception("Failed to do Macro craft", e);
-    }
-  }
-
-  /**
-   Make Main-type Sequence Choice
-   add macro-sequence choice to segment
-
-   @throws CraftException on any failure
-   */
-  private void doMainCraft() throws CraftException {
-    try {
-      SequencePattern sequencePattern = getFabricator().getRandomSequencePatternAtOffset(getMainSequence().getId(), getMainPatternOffset());
-      getFabricator().add(
+      // 2. Main
+      Program mainProgram = chooseMainProgram();
+      Long mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
+      SequenceBinding mainSequenceBinding = mainProgram.randomlySelectSequenceBindingAtOffset(mainSequenceBindingOffset);
+      Sequence mainSequence = mainProgram.getSequence(mainSequenceBinding.getSequenceId());
+      int mainTranspose = computeMainTranspose(macroProgram, macroTranspose, mainProgram, macroSequence);
+      fabricator.add(
         new Choice()
-          .setSegmentId(getFabricator().getSegment().getId())
-          .setType(SequenceType.Main.toString())
-          .setTranspose(getMainTranspose())
-          .setSequencePatternId(sequencePattern.getId()));
+          .setProgramId(mainProgram.getId())
+          .setType(ProgramType.Main.toString())
+          .setTranspose(mainTranspose)
+          .setSequenceBindingId(mainSequenceBinding.getId()));
+
+      // 3. Chords
+      mainProgram.getChordsOfSequence(mainSequence.getId()).forEach(sequenceChord -> {
+        // [#154090557] don't create chord past end of Segment
+        String name = "NaN";
+        if (sequenceChord.getPosition() < mainSequence.getTotal()) try {
+          // delta the chord name
+          name = sequenceChord.toMusical().transpose(mainTranspose).getFullDescription();
+          // create the transposed chord
+          fabricator.add(new SegmentChord()
+            .setName(name)
+            .setPosition(sequenceChord.getPosition()));
+
+        } catch (Exception e) {
+          log.warn("failed to create transposed segment chord {}@{}",
+            name, sequenceChord.getPosition(), e);
+        }
+      });
+
+      // 4. Memes
+      segmentMemes().forEach((segmentMeme) -> {
+        try {
+          fabricator.add(segmentMeme);
+
+        } catch (Exception e) {
+          log.warn("Could not create segment meme {}", segmentMeme.getName(), e);
+        }
+      });
+
+      // Finally, update the segment with fabricated content
+      fabricator.getSegment()
+        .setDensity(computeSegmentDensity(macroSequence, mainSequence))
+        .setTempo(computeSegmentTempo(macroSequence, mainSequence))
+        .setKey(computeSegmentKey(mainSequence, mainTranspose))
+        .setTotal(mainSequence.getTotal())
+        .setEndAtInstant(segmentEndInstant(mainSequence));
+      fabricator.updateSegment();
 
     } catch (CoreException e) {
-      throw exception("Failed to do Main craft", e);
+      throw exception("Failed to do Macro+Main Craft work!", e);
     }
   }
 
   /**
-   Make Memes
-   add all memes to segment
-   */
-  private void doMemeCraft() {
-    segmentMemes().forEach((segmentMeme) -> {
-      try {
-        getFabricator().add(segmentMeme);
+   compute the macroTranspose
 
-      } catch (Exception e) {
-        log.warn("Could not create segment meme {}", segmentMeme.getName(), e);
-      }
-    });
-  }
-
-  /**
-   Make Chords
-   Segment Chords = Main Sequence Pattern Chords, transposed according to to main sequence choice
-   [#154090557] don't create chord past end of Segment
-
-   @throws CraftException on any failure
-   */
-  private void doChordCraft() throws CraftException {
-    try {
-      getFabricator().getSourceMaterial().getChordsOfPattern(chooseMainPattern().getId())
-        .forEach(patternChord -> {
-
-          if (patternChord.getPosition() < getFabricator().getSegment().getTotal()) {
-            String name = "NaN";
-            try {
-              // delta the chord name
-              name = patternChord.toMusical().transpose(getMainTranspose()).getFullDescription();
-              // create the transposed chord
-              getFabricator().add(new SegmentChord()
-                .setSegmentId(getFabricator().getSegment().getId())
-                .setName(name)
-                .setPosition(patternChord.getPosition()));
-
-            } catch (Exception e) {
-              log.warn("failed to create transposed segment chord {}@{}",
-                name, patternChord.getPosition(), e);
-            }
-          }
-        });
-
-    } catch (CoreException e) {
-      throw exception("Failed to do Chord craft", e);
-    }
-  }
-
-  /**
-   compute (and cache) the chosen macro sequence
-
-   @return macro-type sequence
-   @throws CraftException on failure
-   */
-  private Sequence getMacroSequence() throws CraftException {
-    try {
-      switch (getFabricator().getType()) {
-
-        case Initial:
-        case NextMacro:
-          return chooseMacro();
-
-        case Continue:
-        case NextMain:
-          return getFabricator().getSequenceOfChoice(getFabricator().getPreviousMacroChoice());
-
-        default:
-          throw exception(String.format("Cannot get Macro-type sequence for unknown fabricator type=", getFabricator().getType()));
-      }
-
-    } catch (CoreException e) {
-      throw exception("Failed to get Macro Sequence", e);
-    }
-  }
-
-  /**
-   compute (and cache) the mainSequence
-
-   @return mainSequence
-   */
-  private Sequence getMainSequence() throws CraftException {
-    try {
-      switch (getFabricator().getType()) {
-
-        case Continue:
-          return getFabricator().getSequenceOfChoice(getFabricator().getPreviousMainChoice());
-
-        case Initial:
-        case NextMain:
-        case NextMacro:
-          return chooseMain();
-
-        default:
-          throw exception(String.format("Cannot get Main-type sequence for unknown fabricator type=", getFabricator().getType()));
-      }
-
-    } catch (CoreException e) {
-      throw exception("Failed to get Main Sequence", e);
-    }
-  }
-
-  /**
-   compute (and cache) the macroTranspose
-
+   @param macroProgram      to compute transpose of
+   @param macroNextSequence to base choice on (never actually used, because next macro first sequence overlaps it)
    @return macroTranspose
    */
-  private Integer getMacroTranspose() throws CraftException {
+  private Integer computeMacroTranspose(Program macroProgram, Sequence macroNextSequence) throws CraftException {
     try {
-      switch (getFabricator().getType()) {
+      switch (fabricator.getType()) {
 
         case Initial:
           return 0;
 
         case Continue:
         case NextMain:
-          return getFabricator().getPreviousMacroChoice().getTranspose();
+          return fabricator.getPreviousMacroChoice().getTranspose();
 
         case NextMacro:
-          return Key.delta(getMacroSequence().getKey(),
-            getFabricator().getPreviousMacroNextOffset().getKey(),
-            getFabricator().getPreviousMacroChoice().getTranspose());
+          if (Objects.nonNull(macroNextSequence))
+            return Key.delta(macroProgram.getKey(), macroNextSequence.getKey(),
+              fabricator.getPreviousMacroChoice().getTranspose());
+          else
+            return Key.delta(macroProgram.getKey(), fabricator.getProgram(fabricator.getPreviousMacroChoice()).getKey(),
+              fabricator.getPreviousMacroChoice().getTranspose());
 
         default:
-          throw exception(String.format("unable to determine macro-type sequence transposition for segment #%s!", getFabricator().getSegment().getId()));
+          throw exception("unable to determine macro-type program transposition!");
       }
 
     } catch (CoreException e) {
@@ -262,37 +221,26 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   compute (and cache) Transpose Main-Sequence to the transposed key of the current macro pattern
+   compute the macroSequenceBindingOffset
 
-   @return mainTranspose
+   @return macroSequenceBindingOffset
    */
-  private Integer getMainTranspose() throws CraftException {
-    return Key.delta(getMainSequence().getKey(),
-      Value.eitherOr(chooseMacroPattern().getKey(), getMacroSequence().getKey()),
-      getMacroTranspose());
-  }
-
-  /**
-   compute (and cache) the macroPatternOffset
-
-   @return macroPatternOffset
-   */
-  private BigInteger getMacroPatternOffset() throws CraftException {
+  private Long computeMacroProgramSequenceBindingOffset() throws CraftException {
     try {
-      switch (getFabricator().getType()) {
+      switch (fabricator.getType()) {
 
         case Initial:
         case NextMacro:
-          return BigInteger.valueOf(0);
+          return 0L;
 
         case Continue:
-          return getFabricator().getSequencePatternOffsetForChoice(getFabricator().getPreviousMacroChoice());
+          return fabricator.getSequenceBindingOffsetForChoice(fabricator.getPreviousMacroChoice());
 
         case NextMain:
-          return getFabricator().getNextSequencePatternOffset(getFabricator().getPreviousMacroChoice());
+          return fabricator.getNextSequenceBindingOffset(fabricator.getPreviousMacroChoice());
 
         default:
-          throw exception(String.format("Cannot get Macro-type sequence for known fabricator type=", getFabricator().getType()));
+          throw exception(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
       }
 
     } catch (CoreException e) {
@@ -301,24 +249,24 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   compute (and cache) the mainPatternOffset
+   compute the mainSequenceBindingOffset
 
-   @return mainPatternOffset
+   @return mainSequenceBindingOffset
    */
-  private BigInteger getMainPatternOffset() throws CraftException {
+  private Long computeMainProgramSequenceBindingOffset() throws CraftException {
     try {
-      switch (getFabricator().getType()) {
+      switch (fabricator.getType()) {
 
         case Initial:
         case NextMain:
         case NextMacro:
-          return BigInteger.valueOf(0);
+          return 0L;
 
         case Continue:
-          return getFabricator().getNextSequencePatternOffset(getFabricator().getPreviousMainChoice());
+          return fabricator.getNextSequenceBindingOffset(fabricator.getPreviousMainChoice());
 
         default:
-          throw exception(String.format("Cannot get Macro-type sequence for known fabricator type=", getFabricator().getType()));
+          throw exception(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
       }
 
     } catch (CoreException e) {
@@ -327,204 +275,199 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   Choose a pattern of macro-type sequence
-   <p>
-   ONLY CHOOSES ONCE, then returns that choice every time.**
+   Choose the next sequence for the previous segment's macro choice, which we use to base the current macro choice on
 
-   @return pattern
-   @throws CraftException on failure
+   @return next sequence in previous segment's macro choice, or null if none exists
    */
-  private Pattern chooseMacroPattern() throws CraftException {
-    if (Objects.isNull(macroPattern))
-      try {
-        macroPattern = getFabricator().getSourceMaterial().fetchOnePattern(
-          getFabricator().getRandomSequencePatternAtOffset(getMacroSequence().getId(), getMacroPatternOffset()).getPatternId());
-
-      } catch (CoreException e) {
-        throw exception("Failed to get Macro Pattern", e);
-      }
-
-    return macroPattern;
-  }
-
-  /**
-   Choose a pattern of main-type sequence
-   <p>
-   ONLY CHOOSES ONCE, then returns that choice every time.**
-
-   @return pattern
-   @throws CraftException on failure
-   */
-  private Pattern chooseMainPattern() throws CraftException {
-    if (Objects.isNull(mainPattern))
-      try {
-        mainPattern = getFabricator().getSourceMaterial().fetchOnePattern(
-          getFabricator().getRandomSequencePatternAtOffset(getMainSequence().getId(), getMainPatternOffset()).getPatternId());
-
-      } catch (CoreException e) {
-        throw exception("Failed to get Main Pattern", e);
-      }
-
-    return mainPattern;
-  }
-
-  /**
-   Choose macro sequence
-   <p>
-   ONLY CHOOSES ONCE, then returns that choice every time.**
-
-   @return macro-type sequence
-   @throws CraftException on failure
-   */
-  private Sequence chooseMacro() throws CraftException {
-    if (Objects.nonNull(macroSequence))
-      return macroSequence;
-
-    EntityRank<Sequence> entityRank = new EntityRank<>();
-
-    // (1) retrieve sequences bound to chain
-    Collection<Sequence> sourceSequences;
+  private Optional<Sequence> chooseNextSequenceOfPreviousMacroProgram() {
     try {
-      sourceSequences = getFabricator().getSourceMaterial().getSequencesOfType(SequenceType.Macro);
-    } catch (CoreException e) {
-      throw exception("Failed to get source material for choosing Macro", e);
+      Choice previousMacroChoice = fabricator.getPreviousMacroChoice();
+      Program previousMacroProgram = fabricator.getProgram(previousMacroChoice);
+      if (fabricator.hasOneMoreSequenceBindingOffset(previousMacroChoice))
+        return Optional.of(previousMacroProgram.getSequence(
+          previousMacroProgram.randomlySelectSequenceBindingAtOffset(
+            fabricator.getNextSequenceBindingOffset(previousMacroChoice)).getSequenceId()));
+    } catch (Exception ignored) {
     }
 
-    // (3) score each source sequence
-    sourceSequences.forEach((sequence -> {
+    return Optional.empty();
+  }
+
+  /**
+   Choose macro program
+
+   @param macroNextSequence to base choice on (never actually used, because next macro first sequence overlaps it)
+   @return macro-type program
+   @throws CraftException on failure
+   */
+  private Program chooseMacroProgram(Sequence macroNextSequence) throws CraftException {
+    // if continuing the macro program, use the same one
+    try {
+      if (typesContinueMacro.contains(fabricator.getType()))
+        return fabricator.getProgram(fabricator.getPreviousMacroChoice());
+    } catch (CoreException e) {
+      throw exception("Failed to get Macro Program", e);
+    }
+
+    // will rank all possibilities, and choose the next macro program
+    SuperEntityRank<Program> superEntityRank = new SuperEntityRank<>();
+
+    // (1) retrieve programs bound to chain
+    Collection<Program> sourcePrograms = fabricator.getSourceMaterial().getProgramsOfType(ProgramType.Macro);
+
+    // (3) score each source program
+    sourcePrograms.forEach((program -> {
       try {
-        entityRank.add(sequence, scoreMacro(sequence));
+        superEntityRank.add(program, scoreMacro(program, macroNextSequence));
       } catch (Exception e) {
-        log.warn("while scoring macro sequences", e);
+        log.warn("while scoring macro programs", e);
       }
     }));
 
-    // (3b) Avoid previous macro sequence
-    if (!getFabricator().isInitialSegment()) try {
-      entityRank.score(getFabricator().getSequenceOfChoice(getFabricator().getPreviousMacroChoice()).getId(), -SCORE_AVOID_PREVIOUS);
+    // (3b) Avoid previous macro program
+    if (!fabricator.isInitialSegment()) try {
+      superEntityRank.score(fabricator.getProgram(fabricator.getPreviousMacroChoice()).getId(), -SCORE_AVOID_PREVIOUS);
     } catch (CoreException e) {
-      throw exception("Failed to get sequence of previous Macro choice, in order to choose next Macro", e);
+      throw exception("Failed to get program of previous Macro choice, in order to choose next Macro", e);
     }
 
     // report
-    getFabricator().putReport("macroChoice", entityRank.report());
+    fabricator.putReport("macroChoice", superEntityRank.report());
 
     // (4) return the top choice
     try {
-      macroSequence = entityRank.getTop();
+      return superEntityRank.getTop();
     } catch (CoreException e) {
-      throw exception("Found no macro-type sequence bound to Chain!", e);
+      throw exception("Found no macro-type program bound to Chain!", e);
     }
-
-    return macroSequence;
   }
 
   /**
-   Choose main sequence
+   Choose first macro program, completely at random\
+
+   @return macro-type program
+   @throws CraftException on failure
+   */
+  private Program chooseMacroProgram() throws CraftException {
+    SuperEntityRank<Program> superEntityRank = new SuperEntityRank<>();
+
+    fabricator.getSourceMaterial().getProgramsOfType(ProgramType.Macro).forEach(program -> superEntityRank.add(program, Chance.normallyAround(0, SCORE_MACRO_ENTROPY)));
+
+    // (3b) Avoid previous macro program
+    if (!fabricator.isInitialSegment()) try {
+      superEntityRank.score(fabricator.getProgram(fabricator.getPreviousMacroChoice()).getId(), -SCORE_AVOID_PREVIOUS);
+    } catch (CoreException e) {
+      throw exception("Failed to get program of previous Macro choice, in order to choose next Macro", e);
+    }
+
+    try {
+      return superEntityRank.getTop();
+    } catch (CoreException e) {
+      throw exception("Found no macro-type program bound to Chain!", e);
+    }
+  }
+
+  /**
+   Choose main program
    <p>
    ONLY CHOOSES ONCE, then returns that choice every time.**
 
-   @return main-type Sequence
+   @return main-type Program
    @throws CraftException on failure
    <p>
-   future: don't we need to pass in the current pattern of the macro sequence?
+   future: don't we need to pass in the current pattern of the macro program?
    */
-  private Sequence chooseMain() throws CraftException {
-    if (Objects.nonNull(mainSequence))
-      return mainSequence;
-
-    EntityRank<Sequence> entityRank = new EntityRank<>();
-
-    // future: only choose major sequences for major keys, minor for minor! [#223] Key of first Pattern of chosen Main-Sequence must match the `minor` or `major` with the Key of the current Segment.
-
-    // (2) retrieve sequences bound to chain
-    Collection<Sequence> sourceSequences;
+  private Program chooseMainProgram() throws CraftException {
+    // if continuing the macro program, use the same one
     try {
-      sourceSequences = getFabricator().getSourceMaterial().getSequencesOfType(SequenceType.Main);
+      if (FabricatorType.Continue == fabricator.getType())
+        return fabricator.getProgram(fabricator.getPreviousMainChoice());
     } catch (CoreException e) {
-      throw exception("Failed to get source material for choosing Main", e);
+      throw exception("Failed to get Macro Program", e);
     }
 
-    // (3) score each source sequence based on meme isometry
-    sourceSequences.forEach((sequence -> {
+    // will rank all possibilities, and choose the next main program
+    // future: only choose major programs for major keys, minor for minor! [#223] Key of first Pattern of chosen Main-Program must match the `minor` or `major` with the Key of the current Segment.
+    SuperEntityRank<Program> superEntityRank = new SuperEntityRank<>();
+
+    // (2) retrieve programs bound to chain
+    Collection<Program> sourcePrograms = fabricator.getSourceMaterial().getProgramsOfType(ProgramType.Main);
+
+    // (3) score each source program based on meme isometry
+    sourcePrograms.forEach((program -> {
       try {
-        entityRank.add(sequence, scoreMain(sequence));
+        superEntityRank.add(program, scoreMainProgram(program));
       } catch (Exception e) {
-        log.warn("while scoring main sequences", e);
+        log.warn("while scoring main programs", e);
       }
     }));
 
     // report
-    getFabricator().putReport("mainChoice", entityRank.report());
+    fabricator.putReport("mainChoice", superEntityRank.report());
 
     // (4) return the top choice
     try {
-      mainSequence = entityRank.getTop();
+      return superEntityRank.getTop();
     } catch (CoreException e) {
-      throw exception("Found no main-type sequence bound to Chain!", e);
+      throw exception("Found no main-type program bound to Chain!", e);
     }
-
-    return mainSequence;
   }
 
   /**
-   Score a candidate for next macro sequence, given current fabricator
+   Score a candidate for next macro program, given current fabricator
 
-   @param sequence to score
+   @param program           to score
+   @param macroNextSequence to base choice on (never actually used, because next macro first sequence overlaps it)
    @return score, including +/- entropy
    @throws CraftException on failure
    */
-  private double scoreMacro(Sequence sequence) throws CraftException {
+  private double scoreMacro(Program program, Sequence macroNextSequence) throws CraftException {
     double score = Chance.normallyAround(0, SCORE_MACRO_ENTROPY);
 
-    if (getFabricator().isInitialSegment()) {
+    if (fabricator.isInitialSegment()) {
       return score;
     }
 
-    // Score includes matching memes to previous segment's macro-sequence's next pattern
+    // Score includes matching memes to previous segment's macro-program's next pattern
     try {
-      score += getFabricator().getMemeIsometryOfNextPatternInPreviousMacro()
-        .score(getFabricator().getSourceMaterial().getMemesAtBeginningOfSequence(sequence.getId())) * SCORE_MATCHED_MEMES;
+      score += fabricator.getMemeIsometryOfNextSequenceInPreviousMacro()
+        .score(program.getMemesAtBeginning()) * SCORE_MATCHED_MEMES;
     } catch (CoreException e) {
       throw exception("Failed to get source material for scoring Macro", e);
     }
 
-    // Score includes matching mode (major/minor) to previous segment's macro-sequence's next pattern
-    try {
-      if (Key.isSameMode(getFabricator().getPreviousMacroNextOffset().getKey(), sequence.getKey())) {
-        score += SCORE_MATCHED_KEY_MODE;
-      }
-    } catch (CoreException e) {
-      throw exception("Failed to get previous macro at the next offset in order to score next Macro", e);
+    // Score includes matching mode (major/minor) to previous segment's macro-program's next pattern
+    if (Objects.nonNull(macroNextSequence) && Key.isSameMode(macroNextSequence.getKey(), program.getKey())) {
+      score += SCORE_MATCHED_KEY_MODE;
     }
 
     return score;
   }
 
   /**
-   Score a candidate for next main sequence, given current fabricator
+   Score a candidate for next main program, given current fabricator
 
-   @param sequence to score
+   @param program to score
    @return score, including +/- entropy
    @throws CraftException on failure
    */
-  private double scoreMain(Sequence sequence) throws CraftException {
+  private double scoreMainProgram(Program program) throws CraftException {
     double score = Chance.normallyAround(0, SCORE_MAIN_ENTROPY);
 
-    if (!getFabricator().isInitialSegment()) {
+    if (!fabricator.isInitialSegment()) {
 
-      // Avoid previous main sequence
+      // Avoid previous main program
       try {
-        if (Objects.equals(sequence.getId(), getFabricator().getSequenceOfChoice(getFabricator().getPreviousMainChoice()).getId())) {
+        if (Objects.equals(program.getId(), fabricator.getProgram(fabricator.getPreviousMainChoice()).getId())) {
           score -= SCORE_AVOID_PREVIOUS;
         }
       } catch (CoreException e) {
         throw exception("Failed to get previous main choice, in order to score next Main choice", e);
       }
 
-      // Score includes matching mode, previous segment to macro sequence first pattern (major/minor)
+      // Score includes matching mode, previous segment to macro program first pattern (major/minor)
       try {
-        if (Key.isSameMode(getFabricator().getCurrentMacroOffset().getKey(), sequence.getKey())) {
+        if (Key.isSameMode(fabricator.getKeyForChoice(fabricator.getPreviousMainChoice()), program.getKey())) {
           score += SCORE_MATCHED_KEY_MODE;
         }
       } catch (CoreException e) {
@@ -532,12 +475,12 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       }
     }
 
-    // Score includes matching memes, previous segment to macro sequence first pattern
+    // Score includes matching memes, previous segment to macro program first pattern
     try {
-      score += getFabricator().getMemeIsometryOfCurrentMacro()
-        .score(getFabricator().getSourceMaterial().getMemesAtBeginningOfSequence(sequence.getId())) * SCORE_MATCHED_MEMES;
+      score += fabricator.getMemeIsometryOfCurrentMacro()
+        .score(program.getMemesAtBeginning()) * SCORE_MATCHED_MEMES;
     } catch (CoreException e) {
-      throw exception("Failed to get memes at beginning of sequence, in order to score next Main choice", e);
+      throw exception("Failed to get memes at beginning of program, in order to score next Main choice", e);
     }
 
     return score;
@@ -551,9 +494,9 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    */
   private Collection<SegmentMeme> segmentMemes() {
     Multiset<String> uniqueResults = ConcurrentHashMultiset.create();
-    for (Choice choice : getFabricator().getSegment().getChoices()) {
+    for (Choice choice : fabricator.getSegment().getChoices()) {
       try {
-        for (Meme meme : getFabricator().getMemesOfChoice(choice)) {
+        for (Meme meme : fabricator.getMemesOfChoice(choice)) {
           uniqueResults.add(meme.getName());
         }
       } catch (CoreException e) {
@@ -568,12 +511,13 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   /**
    Get Segment length, in nanoseconds
 
+   @param mainSequence the end of which marks the end of the segment
    @return segment length, in nanoseconds
    @throws CraftException on failure
    */
-  private long segmentLengthNanos() throws CraftException {
+  private long segmentLengthNanos(Sequence mainSequence) throws CraftException {
     try {
-      return (long) (getFabricator().computeSecondsAtPosition(chooseMainPattern().getTotal()) * NANOS_PER_SECOND);
+      return (long) (fabricator.computeSecondsAtPosition(mainSequence.getTotal()) * NANOS_PER_SECOND);
     } catch (CoreException e) {
       throw exception("Failed to compute seconds at position", e);
     }
@@ -583,49 +527,12 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    Get Segment End Timestamp
    Segment Length Time = Segment Tempo (time per Beat) * Segment Length (# Beats)
 
+   @param mainSequence from which to compute segment length
    @return end timestamp
    @throws CraftException on failure
    */
-  private Instant segmentEndInstant() throws CraftException {
-    return getFabricator().getSegment().getBeginAt().plusNanos(segmentLengthNanos());
-  }
-
-  /**
-   Compute the final key of the current segment
-   Segment Key is the transposed key of the current main pattern
-
-   @return key
-   @throws CraftException on failure
-   */
-  private String segmentKey() throws CraftException {
-    String mainKey = chooseMainPattern().getKey();
-    if (null == mainKey || mainKey.isEmpty()) {
-      mainKey = getMainSequence().getKey();
-    }
-    return Key.of(mainKey).transpose(getMainTranspose()).getFullDescription();
-  }
-
-  /**
-   Compute the final tempo of the current segment
-
-   @return tempo
-   @throws CraftException on failure
-   */
-  private double segmentTempo() throws CraftException {
-    return (Value.eitherOr(chooseMacroPattern().getTempo(), getMacroSequence().getTempo()) +
-      Value.eitherOr(chooseMainPattern().getTempo(), getMainSequence().getTempo())) / 2;
-  }
-
-  /**
-   Compute the final density of the current segment
-   future: Segment Density = average of macro and main-sequence patterns
-
-   @return density
-   @throws CraftException on failure
-   */
-  private Double segmentDensity() throws CraftException {
-    return (Value.eitherOr(chooseMacroPattern().getDensity(), getMacroSequence().getDensity()) +
-      Value.eitherOr(chooseMainPattern().getDensity(), getMainSequence().getDensity())) / 2;
+  private Instant segmentEndInstant(Sequence mainSequence) throws CraftException {
+    return fabricator.getSegment().getBeginAt().plusNanos(segmentLengthNanos(mainSequence));
   }
 
 }

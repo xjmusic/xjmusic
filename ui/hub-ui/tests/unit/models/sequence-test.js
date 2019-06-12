@@ -3,7 +3,7 @@ import { describe, it } from 'mocha';
 import { setupModelTest } from 'ember-mocha';
 
 describe('Unit | Model | sequence', function() {
-  setupModelTest('sequence', {
+  setupModelTest('program', {
     // Specify the other units that are required for this test.
     needs: []
   });

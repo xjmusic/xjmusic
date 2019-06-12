@@ -1,8 +1,7 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Route from '@ember/routing/route';
 
-import { get } from '@ember/object';
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 
 export default Route.extend({
 
@@ -12,7 +11,7 @@ export default Route.extend({
 
   activate() {
     let self = this;
-    get(this, 'auth').promise.then(
+    this.auth.promise.then(
       (auth) => {
         if (!(auth.get('isAdmin') || auth.get('isEngineer'))) {
           console.error('Not authorized to access platform route');
@@ -27,7 +26,5 @@ export default Route.extend({
         self.transitionTo('');
       }
     );
-  },
-
-  breadCrumb: null
+  }
 });

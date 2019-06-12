@@ -4,7 +4,7 @@ package io.xj.craft.generation;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.exception.CoreException;
 import io.xj.craft.generation.superpattern.LibrarySupersequenceGeneration;
-import io.xj.core.model.sequence.Sequence;
+import io.xj.core.model.program.sub.Sequence;
 
 import com.google.inject.assistedinject.Assisted;
 

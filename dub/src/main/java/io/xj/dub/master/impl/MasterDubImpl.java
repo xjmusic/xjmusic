@@ -6,15 +6,15 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.config.Config;
-import io.xj.core.exception.CoreException;
 import io.xj.core.fabricator.Fabricator;
-import io.xj.core.model.audio.Audio;
-import io.xj.core.model.chain_config.ChainConfigType;
+import io.xj.core.fabricator.FabricatorType;
+import io.xj.core.model.chain.ChainConfigType;
+import io.xj.core.model.instrument.sub.Audio;
 import io.xj.core.model.message.MessageType;
-import io.xj.core.model.pick.Pick;
-import io.xj.core.model.segment_message.SegmentMessage;
+import io.xj.core.model.segment.sub.SegmentMessage;
+import io.xj.core.model.segment.sub.Pick;
 import io.xj.core.util.Text;
-import io.xj.craft.exception.CraftException;
+import io.xj.dub.exception.DubException;
 import io.xj.dub.master.MasterDub;
 import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerConfig;
@@ -24,8 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,21 +52,31 @@ public class MasterDubImpl implements MasterDub {
     this.mixerFactory = mixerFactory;
   }
 
+  /**
+   Microseconds of seconds
+
+   @param seconds to convert
+   @return microseconds
+   */
+  private static Long toMicros(Double seconds) {
+    return (long) (seconds * MICROSECONDS_PER_SECOND);
+  }
+
   @Override
-  public void doWork() throws CoreException, CraftException {
+  public void doWork() throws DubException {
+    FabricatorType type = null;
     try {
+      type = fabricator.getType();
       doMixerSourceLoading();
       doMixerTargetSetting();
       doMix();
       reportWarnings();
       report();
 
-    } catch (CoreException e) {
-      throw e;
     } catch (Exception e) {
-      throw new CoreException(
+      throw new DubException(
         String.format("Failed to do %s-type MasterDub for segment #%s",
-          fabricator.getType(), fabricator.getSegment().getId().toString()), e);
+          type, fabricator.getSegment().getId().toString()), e);
     }
   }
 
@@ -76,13 +84,12 @@ public class MasterDubImpl implements MasterDub {
    @throws Exception if failed to stream data of item from cache
    */
   private void doMixerSourceLoading() throws Exception {
-    for (BigInteger audioId : fabricator.getAllSegmentAudioIds()) {
-      Audio audio = fabricator.getSegmentAudio(audioId);
+    for (Audio audio : fabricator.getPickedAudios()) {
       String key = audio.getWaveformKey();
 
-      try {
-        InputStream stream = audioCacheProvider.get(key).stream();
-        mixer().loadSource(audio.getId().toString(), new BufferedInputStream(stream));
+      if (!mixer().hasLoadedSource(audio.getId().toString())) try {
+        BufferedInputStream stream = audioCacheProvider.get(key).stream();
+        mixer().loadSource(audio.getId().toString(), stream);
         stream.close();
 
       } catch (Exception e) {
@@ -113,8 +120,8 @@ public class MasterDubImpl implements MasterDub {
    @param pick to set playback for
    */
   private void setupTarget(Pick pick) throws Exception {
-    double pitchRatio = fabricator.getSegmentAudio(pick.getAudioId()).getPitch() / pick.getPitch();
-    double offsetStart = fabricator.getSegmentAudio(pick.getAudioId()).getStart() / pitchRatio;
+    double pitchRatio = fabricator.getAudio(pick.getAudioId()).getPitch() / pick.getPitch();
+    double offsetStart = fabricator.getAudio(pick.getAudioId()).getStart() / pitchRatio;
 
     mixer().put(
       pick.getAudioId().toString(),
@@ -157,7 +164,6 @@ public class MasterDubImpl implements MasterDub {
     return _mixer;
   }
 
-
   /**
    Report
    */
@@ -188,21 +194,10 @@ public class MasterDubImpl implements MasterDub {
     try {
       fabricator.add(new SegmentMessage()
         .setType(type.toString())
-        .setSegmentId(fabricator.getSegment().getId())
         .setBody(body));
     } catch (Exception e1) {
       log.warn("Failed to create SegmentMessage", e1);
     }
-  }
-
-  /**
-   Microseconds of seconds
-
-   @param seconds to convert
-   @return microseconds
-   */
-  private Long toMicros(Double seconds) {
-    return (long) (seconds * MICROSECONDS_PER_SECOND);
   }
 
 }

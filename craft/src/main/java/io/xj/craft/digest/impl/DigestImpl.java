@@ -1,23 +1,19 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.impl;
 
+import com.google.common.collect.ImmutableList;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.ingest.IngestState;
-import io.xj.core.model.audio.Audio;
-import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.sequence.Sequence;
+import io.xj.core.model.entity.impl.ResourceImpl;
 import io.xj.craft.digest.Digest;
 import io.xj.craft.digest.DigestType;
 import io.xj.craft.exception.CraftException;
 
-import java.math.BigInteger;
-
 /**
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
- [#154350346] Architect wants a universal Ingest Provider, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
+ [#154350346] Architect wants a universal Ingest Provider, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
  */
-public abstract class DigestImpl implements Digest {
+public abstract class DigestImpl extends ResourceImpl implements Digest {
   protected final Ingest ingest;
   protected IngestState state;
   protected DigestType type;
@@ -30,12 +26,30 @@ public abstract class DigestImpl implements Digest {
     this.type = type;
   }
 
-  /**
+  @Override
+  public String getResourceId() {
+    return "Digest";
+  }
+
+  @Override
+  public String getResourceType() {
+    return RESOURCE_TYPE;
+  }
+
+  @Override
+  public ImmutableList<String> getResourceAttributeNames() {
+    return ImmutableList.of("state", "type");
+  }
+
+  /*
+
+     [#166746925] DEPRECATE SUPERSEQENCE/SUPERPATTERN FOR NOW
+
    Retrieved a cached audio
 
    @param id of audio
    @return audio
-   */
+   *
   public Audio getAudio(BigInteger id) {
     return ingest.getAudioMap().get(id);
   }
@@ -45,9 +59,9 @@ public abstract class DigestImpl implements Digest {
 
    @param id of sequence
    @return sequence
-   */
-  public Sequence getSequence(BigInteger id) {
-    return ingest.getSequenceMap().get(id);
+   *
+  public Sequence getProgram(BigInteger id) {
+    return ingest.getProgramMap().get(id);
   }
 
   /**
@@ -55,7 +69,7 @@ public abstract class DigestImpl implements Digest {
 
    @param id of pattern
    @return pattern
-   */
+   *
   public Pattern getPattern(BigInteger id) {
     return ingest.getPatternMap().get(id);
   }
@@ -65,10 +79,12 @@ public abstract class DigestImpl implements Digest {
 
    @param id of instrument
    @return instrument
-   */
+   *
   public Instrument getInstrument(BigInteger id) {
     return ingest.getInstrumentMap().get(id);
   }
+
+   */
 
 
   /**

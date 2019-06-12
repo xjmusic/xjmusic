@@ -1,7 +1,9 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import DS from 'ember-data';
+import Model, {attr, hasMany} from '@ember-data/model';
 
-export default DS.Model.extend({
-  name: DS.attr('string'),
-  accountUsers: DS.hasMany('account-user')
+export default Model.extend({
+  name: attr('string'),
+  accountUsers: hasMany('account-user'),
+  libraries: hasMany('library'),
+  chains: hasMany('chain'),
 });

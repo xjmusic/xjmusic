@@ -5,7 +5,7 @@ import { setupRenderingTest } from 'ember-qunit';
 import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
-module('SegmentChoicesComponent', function (hooks) {
+module('EditProgramAttributesComponent', function (hooks) {
   setupRenderingTest(hooks);
 
   test('it renders inline', async function (assert) {

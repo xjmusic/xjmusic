@@ -1,18 +1,15 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.xj.core.CoreModule;
 import io.xj.core.app.App;
 import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
-import io.xj.core.persistence.sql.migration.MigrationService;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.migration.Migration;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import net.greghaines.jesque.worker.JobFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +23,6 @@ public class Main {
   private static final Logger log = LoggerFactory.getLogger(Main.class);
   private static final Injector injector = Guice.createInjector(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule());
   private static final App app = injector.getInstance(App.class);
-  private static final SQLDatabaseProvider sqlDatabaseProvider = injector.getInstance(SQLDatabaseProvider.class);
   private static final JobFactory jobFactory = injector.getInstance(JobFactory.class);
 
   /**
@@ -44,7 +40,7 @@ public class Main {
 
     // Database migration validation check, to avoid operations on wrong database.
     try {
-      MigrationService.validate(sqlDatabaseProvider);
+      injector.getInstance(Migration.class).validate();
     } catch (CoreException e) {
       log.error("Migration validation failed! Worker App will not start.", e);
       System.exit(1);

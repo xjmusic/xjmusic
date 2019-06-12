@@ -2,8 +2,8 @@
 package io.xj.core.isometry;
 
 import com.google.common.collect.Lists;
-import io.xj.core.model.event.Event;
-import io.xj.core.model.pattern_event.PatternEvent;
+import io.xj.core.model.entity.Event;
+import io.xj.core.model.program.sub.PatternEvent;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.codec.language.DoubleMetaphone;
 

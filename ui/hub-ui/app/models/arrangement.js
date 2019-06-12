@@ -1,11 +1,11 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import DS from 'ember-data';
+import Model, {belongsTo} from '@ember-data/model';
 
-export default DS.Model.extend({
-  segment: DS.belongsTo({}),
-  choice: DS.belongsTo({}),
-  voice: DS.belongsTo({}),
-  instrument: DS.belongsTo({}),
+export default Model.extend({
+  segment: belongsTo({}),
+  choice: belongsTo({}),
+  voice: belongsTo({}),
+  instrument: belongsTo({}),
 });
 
 

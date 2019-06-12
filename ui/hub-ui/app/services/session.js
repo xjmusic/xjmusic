@@ -7,9 +7,9 @@ export default ESASession.extend({
    * Returns the the session-authenticated data
    * @returns {null}
    */
-  getData: function() {
-    if (this.get('isAuthenticated')) {
-      return this.get('data').authenticated;
+  getData: function () {
+    if (this.isAuthenticated) {
+      return this.data.authenticated;
     } else {
       return null;
     }

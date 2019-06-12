@@ -1,15 +1,15 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.cache;
 
+import io.xj.core.ingest.Ingest;
 import io.xj.craft.digest.chord_markov.DigestChordMarkov;
 import io.xj.craft.digest.chord_progression.DigestChordProgression;
 import io.xj.craft.digest.hash.DigestHash;
 import io.xj.craft.digest.meme.DigestMeme;
-import io.xj.craft.digest.pattern_style.DigestSequenceStyle;
-import io.xj.core.ingest.Ingest;
+import io.xj.craft.digest.program_style.DigestProgramStyle;
 
 /**
- [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
+ [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
  DigestChordProgression entities = digestFactory.chordProgression(ingest);
  DigestMeme memes = digestFactory.meme(ingest);
  */
@@ -58,6 +58,6 @@ public interface DigestCacheProvider {
    @param ingest to digest
    @return sequence style digest of ingest
    */
-  DigestSequenceStyle sequenceStyle(Ingest ingest);
+  DigestProgramStyle sequenceStyle(Ingest ingest);
 
 }

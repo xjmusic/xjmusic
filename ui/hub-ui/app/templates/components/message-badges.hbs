@@ -15,11 +15,11 @@
      aria-labelledby="messageBadgesModalTitle" aria-hidden="true" style="display: none;">
   <div class="modal-dialog modal-lg col-12" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="messageBadgesModalTitle"><!-- TITLE --></h5>
+      <div class="modal-header {{messageType}}">
+        <h5 class="modal-title" id="messageBadgesModalTitle">{{messageBadgesModalTitle}}</h5>
       </div>
       <div class="modal-body">
-        <pre id="messageBadgesModalBody"><!-- BODY --></pre>
+        <pre id="messageBadgesModalBody">{{messageBadgesModalBody}}</pre>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

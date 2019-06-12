@@ -47,5 +47,5 @@ public interface SQLDatabaseProvider {
    @return password
    @throws CoreException if the application is not configured correctly
    */
-  String getPass() throws CoreException;
+  String getPassword() throws CoreException;
 }

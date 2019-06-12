@@ -53,7 +53,7 @@
         options=model.users
         selected=model.userToAdd
         searchField='name'
-        onchange=(action "setUserToAdd")
+        onChange=(action "setUserToAdd")
       as |user| }}
         <img src="{{user.avatarUrl}}"/> {{user.name}} (#{{user.id}})
       {{/power-select}}

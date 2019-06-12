@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.common.math.StatsAccumulator;
+import io.xj.core.model.entity.Resource;
 import io.xj.core.util.TremendouslyRandom;
 import io.xj.core.util.Value;
 
@@ -13,45 +14,12 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
+ [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
  */
-public interface Digest {
-  String KEY_CHORD_ID = "chordId";
+public interface Digest extends Resource {
   String KEY_CHORD_NAME = "chordName";
   String KEY_CHORD_POSITION = "chordPosition";
-  String KEY_CHORD_PROGRESSIONS = "chordProgressions";
-  String KEY_CHORDS = "chords";
-  String KEY_DESCRIPTOR = "descriptor";
-  String KEY_HISTOGRAM = "histogram";
-  String KEY_INSTRUMENT_DESCRIPTION = "instrumentDescription";
-  String KEY_INSTRUMENT_ID = "instrumentId";
-  String KEY_INSTRUMENT_TYPE = "instrumentType";
-  String KEY_INSTRUMENTS = "instrumentsWithMeme";
-  String KEY_MAIN_PATTERN_TOTAL = "mainPatternTotal";
-  String KEY_MAIN_CHORD_SPACING_HISTOGRAM = "mainChordSpacingHistogram";
-  String KEY_MAIN_PATTERNS_PER_SEQUENCE = "mainPatternsPerSequence";
-  String KEY_MANY = "digests";
-  String KEY_MEME_USAGE = "memeUsage";
-  String KEY_OBSERVATIONS = "observations";
-  String KEY_OBSERVATIONS_FORWARD = "observationsForward";
-  String KEY_OBSERVATIONS_REVERSE = "observationsReverse";
-  String KEY_ONE = "digest";
-  String KEY_SEQUENCE_HAS_MEME = "sequenceHasMeme";
-  String KEY_SEQUENCE_ID = "sequenceId";
-  String KEY_SEQUENCE_NAME = "sequenceName";
-  String KEY_SEQUENCE_STYLE = "sequenceStyle";
-  String KEY_SEQUENCE_TYPE = "sequenceType";
-  String KEY_SEQUENCES = "sequencesWithMeme";
-  String KEY_PATTERN_ID = "patternId";
-  String KEY_PATTERN_NAME = "patternName";
-  String KEY_PATTERN_TYPE = "patternType";
-  String KEY_PATTERNS_WITH_MEME = "patternsWithMeme";
-  String KEY_PRECEDENT_STATE = "state";
-  String KEY_STAT_COUNT = "count";
-  String KEY_STAT_MAX = "max";
-  String KEY_STAT_MEAN = "mean";
-  String KEY_STAT_MIN = "min";
-  String KEY_STAT_VALUE = "value";
+  String RESOURCE_TYPE = "digests";
 
   /**
    Get the most popular entry in a histogram

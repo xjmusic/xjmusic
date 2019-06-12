@@ -1,8 +1,7 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Component from '@ember/component';
-import $ from 'jquery';
-import { get, set } from '@ember/object';
-import { inject as service } from '@ember/service';
+import {get, set} from '@ember/object';
+import {inject as service} from '@ember/service';
 
 /**
  * Displays the digest-performing and result-viewing U.I.
@@ -16,8 +15,8 @@ const DigestContainerComponent = Component.extend({
    Component will render
    */
   willRender() {
-    if (typeof get(this, "types") === "string") {
-      set(this, "types", get(this, "types").split("|"));
+    if (typeof this.types === "string") {
+      set(this, "types", this.types.split("|"));
     }
   },
 
@@ -26,42 +25,37 @@ const DigestContainerComponent = Component.extend({
     /**
      Action: Do Digest
      * @param type should be proper digestType like "DigestChordMarkov"
+     * @param name to digest
      */
     doDigest(type, name) {
       let self = this;
-      let div = self.$('.digest');
-      div.find('.active').removeClass('active');
-      div.find('.' + type).addClass('active');
-      div.addClass('loading');
-      div.removeClass('done failed');
+      // FUTURE find('.active').removeClass('active');
+      // FUTURE find('.' + type).addClass('active');
+      // FUTURE addClass('loading');
+      // FUTURE removeClass('done failed');
       set(self, 'result', {});
-      $.ajax({
-        url: '/api/1/digest',
-        type: 'get',
-        data: {
-          type: type,
-          libraryId: get(self, 'model').get('id') // Future: to digests for entities beyond only a single library
-        }
-      }).then(
-        (data) => {
-          if (data.hasOwnProperty('digest')) {
-            set(self, 'result', data['digest']);
-            get(self, 'display').success('Did ' + name + ' digest.');
-            div.addClass('done');
-            div.removeClass('loading');
+      // Future: to digests for entities beyond only a single library
+      fetch(`/api/1/digest?type=${type}&libraryId=${get(self, 'model').get('id')}`)
+        .then(
+          (data) => {
+            if (data.hasOwnProperty('digest')) {
+              set(self, 'result', data['digest']);
+              get(self, 'display').success('Did ' + name + ' digest.');
+              // FUTURE addClass('done');
+              // FUTURE removeClass('loading');
 
-          } else {
-            div.addClass('failed');
-            div.removeClass('loading');
-            get(self, 'display').error('Failed; ' + name + ' digest was empty.');
-          }
+            } else {
+              // FUTURE addClass('failed');
+              // FUTURE removeClass('loading');
+              get(self, 'display').error('Failed; ' + name + ' digest was empty.');
+            }
 
-        },
-        (error) => {
-          div.addClass('failed');
-          div.removeClass('loading');
-          get(self, 'display').error(JSON.parse(error.responseText));
-        });
+          },
+          (error) => {
+            // FUTURE addClass('failed');
+            // FUTURE removeClass('loading');
+            get(self, 'display').error(JSON.parse(error.responseText));
+          });
     }
 
 

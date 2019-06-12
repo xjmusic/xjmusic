@@ -1,21 +1,14 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.CoreModule;
+import com.google.common.collect.ImmutableMap;
+import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
-import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.message.MessageType;
-import io.xj.core.model.platform_message.PlatformMessage;
-import java.time.Instant;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
-import org.junit.After;
+import io.xj.core.model.message.platform.PlatformMessage;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,28 +20,26 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
-public class PlatformMessageIT {
+public class PlatformMessageIT extends FixtureIT {
+  private static final long secondsPerDay = 86400L;
   @Rule
   public ExpectedException failure = ExpectedException.none();
-  private final Injector injector = Guice.createInjector(new CoreModule());
   private PlatformMessageDAO testDAO;
-  private static final long secondsPerDay = 86400L;
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.reset();
+    reset();
 
     // Account "Testing" has chain "Test Print #1"
-    IntegrationTestEntity.insertAccount(1, "Testing");
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
+    insert(newAccount(1, "Testing"));
+    insert(newChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null, now()));
 
     // One platform already has a message
-    IntegrationTestEntity.insertPlatformMessage(12, MessageType.Info, "Consider yourself informed.", Instant.now().minusSeconds(10L * secondsPerDay));
-    IntegrationTestEntity.insertPlatformMessage(3, MessageType.Warning, "Consider yourself warned, too.", Instant.now().minusSeconds(10L * secondsPerDay));
-    IntegrationTestEntity.insertPlatformMessage(14, MessageType.Info, "Others were informed.", Instant.now().minusSeconds(10L * secondsPerDay));
-    IntegrationTestEntity.insertPlatformMessage(15, MessageType.Info, "Even further persons were warned twice.", Instant.now().minusSeconds(10L * secondsPerDay));
+    insert(newPlatformMessage(12, MessageType.Info, "Consider yourself informed.", Instant.now().minusSeconds(10L * secondsPerDay)));
+    insert(newPlatformMessage(3, MessageType.Warning, "Consider yourself warned, too.", Instant.now().minusSeconds(10L * secondsPerDay)));
+    insert(newPlatformMessage(14, MessageType.Info, "Others were informed.", Instant.now().minusSeconds(10L * secondsPerDay)));
+    insert(newPlatformMessage(15, MessageType.Info, "Even further persons were warned twice.", Instant.now().minusSeconds(10L * secondsPerDay)));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(PlatformMessageDAO.class);
@@ -118,14 +109,14 @@ public class PlatformMessageIT {
   public void readAllInPreviousDays() throws Exception {
     Collection<PlatformMessage> result = testDAO.readAllPreviousDays(Access.internal(), 20);
 
-    assertEquals(4L, (long) result.size());
+    assertEquals(4L, result.size());
   }
 
   @Test
   public void readAllInPreviousDays_emptyIfOutOfRange() throws Exception {
     Collection<PlatformMessage> result = testDAO.readAllPreviousDays(Access.internal(), 5);
 
-    assertEquals(0L, (long) result.size());
+    assertEquals(0L, result.size());
   }
 
   @Test
@@ -140,7 +131,7 @@ public class PlatformMessageIT {
   public void delete() throws Exception {
     testDAO.destroy(Access.internal(), BigInteger.valueOf(12L));
 
-    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(2L));
+    assertNotExist(testDAO, BigInteger.valueOf(2L));
   }
 
   @Test

@@ -2,6 +2,8 @@
 package io.xj.core.transport;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.util.Text;
 
@@ -69,5 +71,17 @@ public interface CSV {
       result.append(",").append(it.next().getId());
     }
     return result.toString();
+  }
+
+  /**
+   Get a CSV string of key=value properties
+
+   @param properties key=value
+   @return CSV string
+   */
+  static String from(ImmutableMap<String, String> properties) {
+    Collection<String> pieces = Lists.newArrayList();
+    properties.forEach((key, value) -> pieces.add(String.format("%s=%s", key, value)));
+    return join(pieces);
   }
 }

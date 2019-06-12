@@ -1,7 +1,7 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Component from '@ember/component';
 // import { get, set } from '@ember/object';
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 
 /**
  * Displays the digest-performing and result-viewing U.I.
@@ -27,7 +27,7 @@ const MemeUsageComponent = Component.extend({
  *   {{meme-usage name usage}}
  */
 MemeUsageComponent.reopenClass({
-  positionalParams: ['name','model']
+  positionalParams: ['name', 'model']
 });
 
 export default MemeUsageComponent;

@@ -51,7 +51,7 @@ public class ShipDubImpl implements ShipDub {
   private void shipFinalAudio() throws Exception {
     amazonProvider.putS3Object(
       fabricator.getOutputFilePath(),
-      Config.segmentFileBucket(),
+      Config.getSegmentFileBucket(),
       fabricator.getSegment().getWaveformKey());
   }
 

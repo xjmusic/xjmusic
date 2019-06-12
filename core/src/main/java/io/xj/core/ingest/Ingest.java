@@ -3,32 +3,18 @@ package io.xj.core.ingest;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.audio.Audio;
-import io.xj.core.model.audio_chord.AudioChord;
-import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.library.Library;
-import io.xj.core.model.meme.Meme;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern_chord.PatternChord;
-import io.xj.core.model.pattern_event.PatternEvent;
-import io.xj.core.model.sequence.Sequence;
-import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.sequence_meme.SequenceMeme;
-import io.xj.core.model.sequence_pattern.SequencePattern;
-import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
-import io.xj.core.model.voice.Voice;
-import io.xj.music.Key;
+import io.xj.core.model.program.Program;
+import io.xj.core.model.program.ProgramType;
 
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Map;
 
 /**
- [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
+ [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
  <p>
  # Component
  <p>
@@ -75,44 +61,20 @@ import java.util.Map;
  - **Theorize**
  */
 public interface Ingest {
-  String KEY_ONE = "ingest";
-  String KEY_MANY = "evaluations";
-
-  /**
-   Get a map of all ingested sequence entities, keyed by id
-
-   @return map of sequence id to sequence
-   */
-    Map<BigInteger, Sequence> getSequenceMap();
-
-
-  /**
-   Get a map of all ingested pattern entities, keyed by id
-
-   @return map of pattern id to pattern
-   */
-    Map<BigInteger, Pattern> getPatternMap();
-
-  /**
-   Get a map of all ingested instrument entities, keyed by id
-
-   @return map of instrument id to instrument
-   */
-    Map<BigInteger, Instrument> getInstrumentMap();
 
   /**
    Get a collection of all sequences for ingest
 
    @return collection of sequences
    */
-    Collection<Sequence> getAllSequences();
+  Collection<Program> getAllPrograms();
 
   /**
    Get a collection of all sequences of a particular type for ingest
 
    @return collection of sequences
    */
-    Collection<Sequence> getSequencesOfType(SequenceType type);
+  Collection<Program> getProgramsOfType(ProgramType type);
 
   /**
    Get the access with which this Ingest was instantiated.
@@ -127,241 +89,35 @@ public interface Ingest {
    @param id of sequence to read
    @return sequence
    */
-    Sequence getSequence(BigInteger id) throws CoreException;
-
-  /**
-   Get a collection of all sequence memes for ingest
-
-   @return collection of sequence memes
-   */
-    Collection<SequenceMeme> getAllSequenceMemes();
-
-  /**
-   Get all Sequence Memes for a Sequence
-   CACHE readAll()
-
-   @param sequenceId to get sequence memes for
-   @return sequence memes
-   */
-    Collection<SequenceMeme> getSequenceMemesOfSequence(BigInteger sequenceId);
-
-  /**
-   Fetch all memes for a given sequence and sequencePatternOffset
-   (caches results)
-
-   @param sequenceId to get memes for
-   @return collection of sequence memes
-   @throws CoreException on failure
-   */
-    Collection<Meme> getMemesAtBeginningOfSequence(BigInteger sequenceId) throws CoreException;
-
-  /**
-   Get a collection of all patterns for ingest
-
-   @return collection of patterns
-   */
-    Collection<Pattern> getAllPatterns();
-
-  /**
-   Get a collection of patterns for a sequence
-
-   @param sequenceId to get patterns for
-   @return collection of patterns
-   */
-    Collection<Pattern> getPatternsOfSequence(BigInteger sequenceId);
-
-  /**
-   Get a SequencePattern by id, ideally in the original entity map, and if not, from a cached read of the DAO
-
-   @param id of sequencePattern to read
-   @return sequencePattern
-   */
-    SequencePattern getSequencePattern(BigInteger id) throws CoreException;
-
-  /**
-   Get a collection of all sequence patterns
-
-   @return collection of sequence patterns
-   */
-    Collection<SequencePattern> getAllSequencePatterns();
-
-  /**
-   Get a collection of all sequence pattern memes for ingest
-
-   @return collection of sequence pattern memes
-   */
-    Collection<SequencePatternMeme> getAllSequencePatternMemes();
-
-  /**
-   Get all Sequence Pattern Memes for a Pattern
-   CACHE readAll()
-
-   @param sequencePatternId to get memes for
-   @return pattern memes
-   */
-    Collection<SequencePatternMeme> getSequencePatternMemesOfSequencePattern(BigInteger sequencePatternId);
-
-  /**
-   Selects all available sequence-patterns for a given sequence.
-   Caches the selection, so it will always return the same output for any given input.
-
-   @param sequenceId of sequence-patterns
-   @return collection of sequence-patterns
-   @throws CoreException on failure
-   */
-    Collection<SequencePattern> getSequencePatternsOfSequence(BigInteger sequenceId) throws CoreException;
-
-  /**
-   Fetch all sequence-patterns an at offset of a sequence
-   (caches results)
-
-   @param sequenceId            of pattern
-   @param sequencePatternOffset within sequence
-   @return pattern record
-   @throws CoreException on failure
-   */
-    Collection<SequencePattern> getSequencePatternsOfSequenceAtOffset(BigInteger sequenceId, BigInteger sequencePatternOffset) throws CoreException;
-
-  /**
-   Get all available sequence pattern offsets of a given sequence
-
-   @param sequenceId to get available sequence pattern offsets for
-   @return collection of available sequence pattern offsets
-   */
-    Collection<BigInteger> getAvailableSequencePatternOffsets(BigInteger sequenceId) throws CoreException;
+  Program getProgram(BigInteger id) throws CoreException;
 
   /**
    Get a collection of all instruments for ingest
 
    @return collection of instruments
    */
-    Collection<Instrument> getAllInstruments();
+  Collection<Instrument> getAllInstruments();
 
   /**
    Get a collection of all instruments of a particular type for ingest
 
    @return collection of instruments
    */
-    Collection<Instrument> getInstrumentsOfType(InstrumentType type);
-
-  /**
-   Get a collection of all instrument memes for ingest
-
-   @return collection of instrument memes
-   */
-    Collection<InstrumentMeme> getAllInstrumentMemes();
-
-  /**
-   Get all Instrument Memes for a Instrument
-
-   @param instrumentId to get instrument memes for
-   @return instrument memes
-   */
-    Collection<InstrumentMeme> getMemesOfInstrument(BigInteger instrumentId);
+  Collection<Instrument> getInstrumentsOfType(InstrumentType type);
 
   /**
    Get a collection of all Libraries for ingest
 
    @return collection of Libraries
    */
-    Collection<Library> getAllLibraries();
-
-  /**
-   Get a collection of all Audios for ingest
-
-   @return collection of Audios
-   */
-    Collection<Audio> getAllAudios();
-
-  /**
-   Get a collection of Audios for a Instrument
-
-   @param instrumentId to get audios for
-   @return audios
-   */
-    Collection<Audio> getAudiosOfInstrument(BigInteger instrumentId);
-
-  /**
-   Get a collection of all audio events for all audios of a specified instrument
-
-   @param instrumentId to get audio events of audios of
-   @return audio events
-   */
-    Collection<AudioEvent> getAudioEventsOfInstrument(BigInteger instrumentId);
-
-  /**
-   Get a collection of all AudioChords for ingest
-
-   @return collection of AudioChords
-   */
-    Collection<AudioChord> getAllAudioChords();
-
-  /**
-   Get a collection of all AudioEvents for ingest
-
-   @return collection of AudioEvents
-   */
-    Collection<AudioEvent> getAllAudioEvents();
-
-  /**
-   Get a collection of all PatternChords for ingest
-
-   @return collection of PatternChords
-   */
-    Collection<PatternChord> getAllPatternChords();
-
-  /**
-   Get a collection of PatternChord for a particular Pattern
-
-   @param patternId to get chord for
-   @return collection of PatternChord
-   */
-    Collection<PatternChord> getChordsOfPattern(BigInteger patternId);
-
-  /**
-   Get a collection of all Voices for ingest
-
-   @return collection of Voices
-   */
-    Collection<Voice> getAllVoices();
-
-  /**
-   Get a collection of Voices for a Sequence
-
-   @param sequenceId to get voices for
-   @return voices
-   */
-    Collection<Voice> getVoicesOfSequence(BigInteger sequenceId);
-
-  /**
-   Get a collection of all PatternEvents for ingest
-
-   @return collection of PatternEvents
-   */
-    Collection<PatternEvent> getAllPatternEvents();
-
-  /**
-   Get a collection of PatternEvents from a particular pattern and voice
-
-   @param patternId to get events of
-   @param voiceId   to get events of
-   @return collection of PatternEvents
-   */
-    Collection<PatternEvent> getEventsOfPatternByVoice(BigInteger patternId, BigInteger voiceId);
-
-  /**
-   Get the internal map of id to audio entities
-
-   @return map of audio id to audio
-   */
-    Map<BigInteger, Audio> getAudioMap();
+  Collection<Library> getAllLibraries();
 
   /**
    Get a collection of all entities
 
    @return collection of all entities
    */
-    Collection<Entity> getAllEntities();
+  Collection<Entity> getAllEntities();
 
   /**
    Get a Instrument by id, ideally in the original entity map, and if not, from a cached read of the DAO
@@ -369,44 +125,10 @@ public interface Ingest {
    @param id of instrument to read
    @return instrument
    */
-    Instrument getInstrument(BigInteger id) throws CoreException;
-
-  /**
-   Read all AudioEvent that are first in an audio, for all audio in an Instrument
-
-   @param instrumentId to get audio for
-   @return audio events
-   @throws CoreException on failure
-   */
-    Collection<AudioEvent> getFirstEventsOfAudiosOfInstrument(BigInteger instrumentId) throws CoreException;
-
-  /**
-   Get a Audio by id, ideally in the original entity map, and if not, from a cached read of the DAO
-
-   @param id of audio to read
-   @return audio
-   */
-    Audio getAudio(BigInteger id) throws CoreException;
-
-  /**
-   Get the key of any pattern-- if the pattern has no key, get the pattern of its sequence
-
-   @param id of pattern to get key of
-   @return key of pattern
-   */
-    Key getKeyOfPattern(BigInteger id) throws CoreException;
+  Instrument getInstrument(BigInteger id) throws CoreException;
 
   /**
    Get a string representation of the ingest
    */
-    String toString();
-
-  /**
-   Fetch one pattern
-
-   @param patternId to fetch
-   @return pattern
-   */
-    Pattern fetchOnePattern(BigInteger patternId) throws CoreException;
-
+  String toString();
 }

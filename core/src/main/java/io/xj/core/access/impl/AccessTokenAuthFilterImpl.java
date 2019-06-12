@@ -35,7 +35,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
   private final Logger log = LoggerFactory.getLogger(AccessTokenAuthFilterImpl.class);
   private AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
 
-  private final String accessTokenName = Config.accessTokenName();
+  private final String accessTokenName = Config.getAccessTokenName();
 
   /**
    This field is assigned internally by ContainerRequestFilter
@@ -125,7 +125,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     if (!access.isTopLevel() && Objects.isNull(aPermitAll) && !access.isAllowed(aRolesAllowed.value()))
       return "user has no accessible role";
 
-    // setContent AccessControl in context for use by resource
+    // setContentCloned AccessControl in context for use by resource
     access.toContext(context);
     return null; // authenticated
   }

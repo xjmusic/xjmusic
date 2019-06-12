@@ -2,13 +2,9 @@
 package io.xj.core.isometry;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import io.xj.core.model.meme.Meme;
-import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
+import io.xj.core.model.entity.Meme;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  Determine the isometry between a source and target group of Memes
@@ -27,23 +23,6 @@ public class MemeIsometry extends Isometry {
     sourceMemes.forEach(meme ->
       result.addStem(meme.getName()));
     return result;
-  }
-
-
-  /**
-   Instantiate a new MemeIsometry from a map of source Memes
-
-   @param stringMemeMap to compare from
-   @return MemeIsometry ready for comparison to target Memes
-   */
-  public static <N extends Meme> MemeIsometry ofMemes(Map<String, N> stringMemeMap) {
-    List<Meme> sourceMemes = Lists.newArrayList();
-
-    stringMemeMap.forEach((key, record) -> sourceMemes.add(
-      new SequencePatternMeme().setName(record.getName())
-    ));
-
-    return ofMemes(sourceMemes);
   }
 
   /**

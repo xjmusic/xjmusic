@@ -2,15 +2,54 @@
 
 package io.xj.core.model.entity;
 
-import io.xj.core.exception.CoreException;
+import com.google.common.collect.ConcurrentHashMultiset;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multiset;
+import io.xj.core.transport.CSV;
+import io.xj.core.util.Text;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
 
-public interface Entity {
-  String KEY_ONE = "entity";
-  String KEY_MANY = "entities";
+/**
+ Standard Entity
+ */
+public interface Entity extends Resource {
+
+  /**
+   Format a comma-separated list of entity counts from a collection of entities
+
+   @param entities for format a comma-separated list of the # occurrences of each class
+   @return comma-separated list in text
+   */
+  static <N extends Entity> String histogramString(Collection<N> entities) {
+    Multiset<String> entityHistogram = ConcurrentHashMultiset.create();
+    entities.forEach((N entity) -> entityHistogram.add(Text.getSimpleName(entity)));
+    List<String> descriptors = Lists.newArrayList();
+    entityHistogram.elementSet().forEach((String name) -> descriptors.add(String.format("%d %s", entityHistogram.count(name), name)));
+    return String.join(", ", descriptors);
+  }
+
+  /**
+   Get a string representation of an entity, comprising a key-value map of its properties
+
+   @param name       of entity
+   @param properties to map
+   @return string representation
+   */
+  static String keyValueString(String name, ImmutableMap<String, String> properties) {
+    return String.format("%s{%s}", name, CSV.from(properties));
+  }
+
+  /**
+   Get created-at instant
+
+   @return created-at instant
+   */
+  Instant getCreatedAt();
 
   /**
    Get entity id
@@ -20,14 +59,6 @@ public interface Entity {
   BigInteger getId();
 
   /**
-   Set entity id
-
-   @param id to set
-   @return entity
-   */
-  Entity setId(BigInteger id);
-
-  /**
    Get parent id
 
    @return parent id
@@ -35,12 +66,11 @@ public interface Entity {
   BigInteger getParentId();
 
   /**
-   Get created-at instant
+   Get updated-at time
 
-   @return created-at instant
+   @return updated-at time
    */
-  @Nullable
-  Instant getCreatedAt();
+  Instant getUpdatedAt();
 
   /**
    Set created at time
@@ -51,12 +81,20 @@ public interface Entity {
   Entity setCreatedAt(String createdAt);
 
   /**
-   Get updated-at time
+   Set created at time
 
-   @return updated-at time
+   @param createdAt time
+   @return entity
    */
-  @Nullable
-  Instant getUpdatedAt();
+  Entity setCreatedAtInstant(Instant createdAt);
+
+  /**
+   Set entity id
+
+   @param id to set
+   @return entity
+   */
+  Entity setId(BigInteger id);
 
   /**
    Set updated-at time
@@ -67,9 +105,11 @@ public interface Entity {
   Entity setUpdatedAt(String updatedAt);
 
   /**
-   Validate data.
+   Set updated-at time
 
-   @throws CoreException if invalid.
+   @param updatedAt time
+   @return entity
    */
-  void validate() throws CoreException;
+  Entity setUpdatedAtInstant(Instant updatedAt);
+
 }

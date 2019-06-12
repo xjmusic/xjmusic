@@ -1,12 +1,10 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker;
 
+import com.google.inject.Inject;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkType;
-
-import com.google.inject.Inject;
-
 import net.greghaines.jesque.Job;
 import net.greghaines.jesque.worker.JobFactory;
 
@@ -30,6 +28,21 @@ public class JobSourceFactory implements JobFactory {
   }
 
   /**
+   Get entity id value from argument
+
+   @param arg to parse
+   @return id value
+   @throws CoreException on failure
+   */
+  private static BigInteger entityId(Object arg) throws CoreException {
+    BigInteger entityId = new BigInteger(String.valueOf(arg));
+    if (0 == entityId.compareTo(BigInteger.valueOf(0))) {
+      throw new CoreException("Job requires non-zero entity id");
+    }
+    return entityId;
+  }
+
+  /**
    Materializes a job.
 
    @param job the job to materialize
@@ -50,18 +63,12 @@ public class JobSourceFactory implements JobFactory {
   /**
    target is switched on job type
 
-   @return job runnable
    @param workType type of job
    @param vars     target arguments (the first one needs to be a BigInteger target entity id)
+   @return job runnable
    */
   private Runnable makeTarget(WorkType workType, Map<String, Object> vars) throws CoreException {
     switch (workType) {
-
-      case AudioClone:
-        return jobTargetFactory.makeAudioCloneJob(entityId(vars.get(Work.KEY_SOURCE_ID)), entityId(vars.get(Work.KEY_TARGET_ID)));
-
-      case AudioErase:
-        return jobTargetFactory.makeAudioEraseJob(entityId(vars.get(Work.KEY_TARGET_ID)));
 
       case ChainErase:
         return jobTargetFactory.makeChainEraseJob(entityId(vars.get(Work.KEY_TARGET_ID)));
@@ -69,42 +76,12 @@ public class JobSourceFactory implements JobFactory {
       case ChainFabricate:
         return jobTargetFactory.makeChainFabricateJob(entityId(vars.get(Work.KEY_TARGET_ID)));
 
-      case InstrumentClone:
-        return jobTargetFactory.makeInstrumentCloneJob(entityId(vars.get(Work.KEY_SOURCE_ID)), entityId(vars.get(Work.KEY_TARGET_ID)));
-
       case SegmentFabricate:
         return jobTargetFactory.makeSegmentFabricateJob(entityId(vars.get(Work.KEY_TARGET_ID)));
-
-      case SequenceClone:
-        return jobTargetFactory.makeSequenceCloneJob(entityId(vars.get(Work.KEY_SOURCE_ID)), entityId(vars.get(Work.KEY_TARGET_ID)));
-
-      case SequenceErase:
-        return jobTargetFactory.makeSequenceEraseJob(entityId(vars.get(Work.KEY_TARGET_ID)));
-
-      case PatternClone:
-        return jobTargetFactory.makePatternCloneJob(entityId(vars.get(Work.KEY_SOURCE_ID)), entityId(vars.get(Work.KEY_TARGET_ID)));
-
-      case PatternErase:
-        return jobTargetFactory.makePatternEraseJob(entityId(vars.get(Work.KEY_TARGET_ID)));
 
       default:
         throw new CoreException("Invalid Job Type");
     }
-  }
-
-  /**
-   Get entity id value from argument
-
-   @param arg to parse
-   @return id value
-   @throws CoreException on failure
-   */
-  private static BigInteger entityId(Object arg) throws CoreException {
-    BigInteger entityId = new BigInteger(String.valueOf(arg));
-    if (0 == entityId.compareTo(BigInteger.valueOf(0))) {
-      throw new CoreException("Job requires non-zero entity id");
-    }
-    return entityId;
   }
 
 

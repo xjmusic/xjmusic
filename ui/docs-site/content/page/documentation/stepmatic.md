@@ -4,7 +4,7 @@ categories = ["core"]
 tags = ["tool"]
 slug = "stepmatic"
 title = "Stepmatic™"
-description = "Stepmatic™ is a step-based web-based sequencer for creating percussive sequences in XJ Music®"
+description = "Stepmatic™ is a step-based web-based sequencer for creating percussive sequences in XJ Music™"
 draft = false
 
 +++

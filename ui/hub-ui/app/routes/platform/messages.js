@@ -1,8 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Route from '@ember/routing/route';
-import { get } from '@ember/object';
-import { inject as service } from '@ember/service';
-import { Promise } from 'rsvp';
+import {get} from '@ember/object';
+import {inject as service} from '@ember/service';
+import {Promise} from 'rsvp';
 
 export default Route.extend({
 
@@ -19,7 +19,7 @@ export default Route.extend({
   model() {
     let self = this;
     return new Promise((resolve, reject) => {
-      this.get('auth').promise.then(
+      this.auth.promise.then(
         () => {
           resolve(self.store.query('platformMessage', {})
             .catch((error) => {
@@ -33,8 +33,6 @@ export default Route.extend({
         });
 
     });
-  },
-
-  breadCrumb: null,
+  }
 
 });

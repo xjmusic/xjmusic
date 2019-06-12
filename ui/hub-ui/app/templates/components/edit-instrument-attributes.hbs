@@ -1,0 +1,82 @@
+<a class="action" {{action 'show'}}>{{yield}}</a>
+
+<!-- Edit Section -->
+{{#if isEditModalVisible}}
+  {{#modal-dialog onClickOverlay='cancel'}}
+    <div class="form-horizontal container-fluid">
+
+      <!-- Owner (User) -->
+      <div class="form-group row">
+        <label class="col-sm-2 control-label">User</label>
+        <div class="col-sm-10">
+          <div class="readonly-field">{{model.user.name}}</div>
+        </div>
+      </div>
+
+      <!-- Parent (Library) -->
+      <div class="form-group row">
+        <label class="col-sm-2 control-label">Library</label>
+        <div class="col-sm-10">
+          <div class="readonly-field">{{model.library.name}}</div>
+        </div>
+      </div>
+
+      <!-- State -->
+      <div class="form-group row">
+        <label class="col-sm-2 control-label">State</label>
+        <div class="col-sm-10">
+          <select class="form-control" onchange={{action "setState" value="target.value"}} title="State">
+            {{#if config.instrumentStates}}
+              {{#each config.instrumentStates as |state|}}
+                <option value={{state}} selected={{eq model.state state}}>{{state}}</option>
+              {{/each}}
+            {{else}}
+              <option value={{model.state}} selected>{{model.state}}</option>
+            {{/if}}
+          </select>
+          <!--input state="text" value=model.state class="form-control" autofocus="autofocus"
+                  placeholder="The state of the Chain"}} -->
+        </div>
+      </div>
+
+      <!-- Type -->
+      <div class="form-group row">
+        <label class="col-sm-2 control-label">Type</label>
+        <div class="col-sm-10">
+          <select class="form-control" onchange={{action "setType" value="target.value"}} title="Type">
+            {{#if config.instrumentTypes}}
+              {{#each config.instrumentTypes as |type|}}
+                <option value={{type}} selected={{eq model.type type}}>{{type}}</option>
+              {{/each}}
+            {{else}}
+              <option value={{model.type}} selected>{{model.type}}</option>
+            {{/if}}
+          </select>
+          <!--input type="text" value=model.type class="form-control" autofocus="autofocus"
+                  placeholder="The type of the Chain"}} -->
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group row">
+        <label class="col-sm-2 control-label">Description</label>
+        <div class="col-sm-10">
+          {{input type="text" value=model.description class="form-control" autofocus="autofocus"
+                  placeholder="The description of the Instrument"}}
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="offset-sm-2 col-sm-10">
+          {{#if model.isNew}}
+            <button class="btn btn-secondary" {{action 'create'}}>Create</button>
+            <button class="btn btn-default" {{action 'cancel'}}>Cancel</button>
+          {{else}}
+            <button class="btn btn-secondary" {{action 'close'}}>OK</button>
+          {{/if}}
+        </div>
+      </div>
+
+    </div>
+  {{/modal-dialog}}
+{{/if}}

@@ -1,7 +1,7 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get, set } from '@ember/object';
+import {get} from '@ember/object';
 
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -16,21 +16,11 @@ export default Route.extend({
    */
   model(params) {
     let self = this;
-    return this.store.findRecord('segment', params.segment_id)
+    return this.store.findRecord('segment', params.segment_id, {reload: true})
       .catch((error) => {
         get(self, 'display').error(error);
         self.transitionTo('accounts.one.chains.one.segments');
       });
-  },
-
-  /**
-   * Route Breadcrumb
-   * @param model
-   */
-  afterModel(model) {
-    set(this, 'breadCrumb', {
-      title: model.get('title')
-    });
   }
 
 });

@@ -17,10 +17,8 @@ import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.SegmentRecord;
 import io.xj.core.transport.GsonProvider;
-import io.xj.core.util.Value;
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Record;
 import org.jooq.UpdateSetFirstStep;
 import org.jooq.types.ULong;
 
@@ -129,14 +127,14 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(SEGMENT)
         .where(SEGMENT.ID.eq(id))
-        .fetchOne());
+        .fetchOne(), segmentFactory);
     else
       return modelFrom(db.select(SEGMENT.fields())
         .from(SEGMENT)
         .join(CHAIN).on(CHAIN.ID.eq(SEGMENT.CHAIN_ID))
         .where(SEGMENT.ID.eq(id))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne());
+        .fetchOne(), segmentFactory);
   }
 
   /**
@@ -154,7 +152,7 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     return modelFrom(db.selectFrom(SEGMENT)
       .where(SEGMENT.OFFSET.eq(offset))
       .and(SEGMENT.CHAIN_ID.eq(chainId))
-      .fetchOne());
+      .fetchOne(), segmentFactory);
   }
 
   /**
@@ -177,7 +175,7 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
       .and(SEGMENT.BEGIN_AT.lessOrEqual(Timestamp.from(segmentBeginBefore)))
       .orderBy(SEGMENT.OFFSET.asc())
       .limit(1)
-      .fetchOne());
+      .fetchOne(), segmentFactory);
   }
 
   /**
@@ -196,8 +194,8 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
         .from(SEGMENT)
         .where(SEGMENT.CHAIN_ID.in(chainId))
         .orderBy(SEGMENT.OFFSET.desc())
-        .limit(Config.limitSegmentReadSize())
-        .fetch());
+        .limit(Config.getLimitSegmentReadSize())
+        .fetch(), segmentFactory);
     else
       return modelsFrom(db.select(SEGMENT.fields())
         .from(SEGMENT)
@@ -205,8 +203,8 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
         .where(SEGMENT.CHAIN_ID.in(chainId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(SEGMENT.OFFSET.desc())
-        .limit(Config.limitSegmentReadSize())
-        .fetch());
+        .limit(Config.getLimitSegmentReadSize())
+        .fetch(), segmentFactory);
   }
 
   /**
@@ -224,8 +222,8 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
       .join(CHAIN).on(CHAIN.ID.eq(SEGMENT.CHAIN_ID))
       .where(CHAIN.EMBED_KEY.eq(chainEmbedKey))
       .orderBy(SEGMENT.OFFSET.desc())
-      .limit(Config.limitSegmentReadSize())
-      .fetch());
+      .limit(Config.getLimitSegmentReadSize())
+      .fetch(), segmentFactory);
   }
 
   /**
@@ -240,11 +238,8 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
    @param fromOffset to read segments
    @return array of records
    */
-  private Collection<Segment> readAllFromOffset(DSLContext db, Access access, ULong chainId, ULong fromOffset) throws CoreException {
-    ULong maxOffset = ULong.valueOf(
-      fromOffset.toBigInteger().add(
-        BigInteger.valueOf(Config.limitSegmentReadSize())));
-    return readAllFromToOffset(db, access, chainId, fromOffset, maxOffset);
+  private Collection<Segment> readAllFromOffset(DSLContext db, Access access, ULong chainId, Long fromOffset) throws CoreException {
+    return readAllFromToOffset(db, access, chainId, fromOffset, fromOffset + Config.getLimitSegmentReadSize());
   }
 
   /**
@@ -254,29 +249,30 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
    @param access     control
    @param chainId    of parent
    @param fromOffset to read segments
+   @param toOffset   to read segments
    @return array of records
    */
-  private Collection<Segment> readAllFromToOffset(DSLContext db, Access access, ULong chainId, ULong fromOffset, ULong toOffset) throws CoreException {
+  private Collection<Segment> readAllFromToOffset(DSLContext db, Access access, ULong chainId, Long fromOffset, Long toOffset) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(SEGMENT.fields())
         .from(SEGMENT)
         .where(SEGMENT.CHAIN_ID.eq(chainId))
-        .and(SEGMENT.OFFSET.greaterOrEqual(fromOffset))
-        .and(SEGMENT.OFFSET.lessOrEqual(toOffset))
+        .and(SEGMENT.OFFSET.greaterOrEqual(ULong.valueOf(fromOffset)))
+        .and(SEGMENT.OFFSET.lessOrEqual(ULong.valueOf(toOffset)))
         .orderBy(SEGMENT.OFFSET.desc())
-        .limit(Config.limitSegmentReadSize())
-        .fetch());
+        .limit(Config.getLimitSegmentReadSize())
+        .fetch(), segmentFactory);
     else
       return modelsFrom(db.select(SEGMENT.fields())
         .from(SEGMENT)
         .join(CHAIN).on(CHAIN.ID.eq(SEGMENT.CHAIN_ID))
         .where(SEGMENT.CHAIN_ID.eq(chainId))
-        .and(SEGMENT.OFFSET.greaterOrEqual(fromOffset))
-        .and(SEGMENT.OFFSET.lessOrEqual(toOffset))
+        .and(SEGMENT.OFFSET.greaterOrEqual(ULong.valueOf(fromOffset)))
+        .and(SEGMENT.OFFSET.lessOrEqual(ULong.valueOf(toOffset)))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(SEGMENT.OFFSET.desc())
-        .limit(Config.limitSegmentReadSize())
-        .fetch());
+        .limit(Config.getLimitSegmentReadSize())
+        .fetch(), segmentFactory);
   }
 
   /**
@@ -296,8 +292,8 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
       .where(SEGMENT.CHAIN_ID.eq(chainId))
       .and(SEGMENT.STATE.eq(state.toString()))
       .orderBy(SEGMENT.OFFSET.desc())
-      .limit(Config.limitSegmentReadSize())
-      .fetch());
+      .limit(Config.getLimitSegmentReadSize())
+      .fetch(), segmentFactory);
   }
 
   /**
@@ -310,21 +306,19 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
    @param fromOffset    to read segments
    @return array of records
    */
-  private Collection<Segment> readAllFromOffset(DSLContext db, String chainEmbedKey, ULong fromOffset) throws CoreException {
+  private Collection<Segment> readAllFromOffset(DSLContext db, String chainEmbedKey, Long fromOffset) throws CoreException {
     // so "from offset zero" means from offset 0 to offset N
-    ULong maxOffset = ULong.valueOf(
-      fromOffset.toBigInteger().add(
-        BigInteger.valueOf(Config.limitSegmentReadSize())));
+    ULong maxOffset = ULong.valueOf(fromOffset + Config.getLimitSegmentReadSize());
 
     return modelsFrom(db.select(SEGMENT.fields())
       .from(SEGMENT)
       .join(CHAIN).on(CHAIN.ID.eq(SEGMENT.CHAIN_ID))
       .where(CHAIN.EMBED_KEY.eq(chainEmbedKey))
-      .and(SEGMENT.OFFSET.greaterOrEqual(fromOffset))
+      .and(SEGMENT.OFFSET.greaterOrEqual(ULong.valueOf(fromOffset)))
       .and(SEGMENT.OFFSET.lessOrEqual(maxOffset))
       .orderBy(SEGMENT.OFFSET.desc())
-      .limit(Config.limitSegmentReadSize())
-      .fetch());
+      .limit(Config.getLimitSegmentReadSize())
+      .fetch(), segmentFactory);
   }
 
   /**
@@ -341,8 +335,8 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
    */
   private Collection<Segment> readAllFromSecondsUTC(DSLContext db, Access access, ULong chainId, Long fromSecondsUTC) throws CoreException {
     Instant from = Instant.ofEpochSecond(fromSecondsUTC);
-    Instant maxBeginAt = from.plusSeconds(Config.playBufferAheadSeconds());
-    Instant minEndAt = from.minusSeconds(Config.playBufferDelaySeconds());
+    Instant maxBeginAt = from.plusSeconds(Config.getPlayBufferAheadSeconds());
+    Instant minEndAt = from.minusSeconds(Config.getPlayBufferDelaySeconds());
 
     if (access.isTopLevel())
       return modelsFrom(db.select(SEGMENT.fields())
@@ -351,8 +345,8 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
         .and(SEGMENT.BEGIN_AT.lessOrEqual(Timestamp.from(maxBeginAt)))
         .and(SEGMENT.END_AT.greaterOrEqual(Timestamp.from(minEndAt)))
         .orderBy(SEGMENT.OFFSET.desc())
-        .limit(Config.limitSegmentReadSize())
-        .fetch());
+        .limit(Config.getLimitSegmentReadSize())
+        .fetch(), segmentFactory);
     else
       return modelsFrom(db.select(SEGMENT.fields())
         .from(SEGMENT)
@@ -362,8 +356,8 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
         .and(SEGMENT.END_AT.greaterOrEqual(Timestamp.from(minEndAt)))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(SEGMENT.OFFSET.desc())
-        .limit(Config.limitSegmentReadSize())
-        .fetch());
+        .limit(Config.getLimitSegmentReadSize())
+        .fetch(), segmentFactory);
   }
 
   /**
@@ -379,8 +373,8 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
    */
   private Collection<Segment> readAllFromSecondsUTC(DSLContext db, String chainEmbedKey, Long fromSecondsUTC) throws CoreException {
     Instant from = Instant.ofEpochSecond(fromSecondsUTC);
-    Instant maxBeginAt = from.plusSeconds(Config.playBufferAheadSeconds());
-    Instant minEndAt = from.minusSeconds(Config.playBufferDelaySeconds());
+    Instant maxBeginAt = from.plusSeconds(Config.getPlayBufferAheadSeconds());
+    Instant minEndAt = from.minusSeconds(Config.getPlayBufferDelaySeconds());
 
     return modelsFrom(db.select(SEGMENT.fields())
       .from(SEGMENT)
@@ -389,37 +383,9 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
       .and(SEGMENT.BEGIN_AT.lessOrEqual(Timestamp.from(maxBeginAt)))
       .and(SEGMENT.END_AT.greaterOrEqual(Timestamp.from(minEndAt)))
       .orderBy(SEGMENT.OFFSET.desc())
-      .limit(Config.limitSegmentReadSize())
-      .fetch());
+      .limit(Config.getLimitSegmentReadSize())
+      .fetch(), segmentFactory);
   }
-
-  /**
-   Transmogrify a jOOQ Result set into a Collection of POJO entities
-
-   @param records to source values from
-   @return entity after transmogrification
-   @throws CoreException on failure to transmogrify
-   */
-  <R extends Record> Collection<Segment> modelsFrom(Iterable<R> records) throws CoreException {
-    Collection<Segment> models = Lists.newArrayList();
-    for (R record : records) {
-      models.add(modelFrom(record));
-    }
-    return models;
-  }
-
-  /**
-   Transmogrify the field-value pairs from a jOOQ record and set values on the corresponding POJO entity.
-
-   @param record to source field-values from
-   @return entity after transmogrification
-   */
-  <R extends Record> Segment modelFrom(R record) throws CoreException {
-    Segment model = segmentFactory.newSegment();
-    modelSetTransmogrified(record, model);
-    return model;
-  }
-
 
   /**
    Update a record using a model wrapper
@@ -502,7 +468,7 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
   }
 
   @Override
-  public Segment readOneAtChainOffset(Access access, BigInteger chainId, BigInteger offset) throws CoreException {
+  public Segment readOneAtChainOffset(Access access, BigInteger chainId, Long offset) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOneAtChainOffset(tx.getContext(), access, ULong.valueOf(chainId), ULong.valueOf(offset)));
@@ -532,7 +498,7 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
   }
 
   @Override
-  public Collection<Segment> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
+  public Collection<Segment> readMany(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
@@ -542,23 +508,23 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
   }
 
   @Override
-  public Collection<Segment> readAllFromOffset(Access access, BigInteger chainId, BigInteger fromOffset) throws CoreException {
+  public Collection<Segment> readAllFromOffset(Access access, BigInteger chainId, Long fromOffset) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllFromOffset(tx.getContext(), access, ULong.valueOf(chainId), ULong.valueOf(fromOffset)));
+      return tx.success(readAllFromOffset(tx.getContext(), access, ULong.valueOf(chainId), fromOffset));
     } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Segment> readAllFromToOffset(Access access, BigInteger chainId, BigInteger fromOffset, BigInteger toOffset) throws CoreException {
+  public Collection<Segment> readAllFromToOffset(Access access, BigInteger chainId, Long fromOffset, Long toOffset) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
-    if (Value.isNegative(toOffset)) {
+    if (0 > toOffset)
       return tx.success(Lists.newArrayList());
-    }
+
     try {
-      return tx.success(readAllFromToOffset(tx.getContext(), access, ULong.valueOf(chainId), Value.safeULong(fromOffset), ULong.valueOf(toOffset)));
+      return tx.success(readAllFromToOffset(tx.getContext(), access, ULong.valueOf(chainId), fromOffset, toOffset));
     } catch (CoreException e) {
       throw tx.failure(e);
     }
@@ -575,10 +541,10 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
   }
 
   @Override
-  public Collection<Segment> readAllFromOffset(String chainEmbedKey, BigInteger fromOffset) throws CoreException {
+  public Collection<Segment> readAllFromOffset(String chainEmbedKey, Long fromOffset) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllFromOffset(tx.getContext(), chainEmbedKey, ULong.valueOf(fromOffset)));
+      return tx.success(readAllFromOffset(tx.getContext(), chainEmbedKey, fromOffset));
     } catch (CoreException e) {
       throw tx.failure(e);
     }
@@ -648,6 +614,11 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     }
   }
 
+  @Override
+  public Segment newInstance() {
+    return segmentFactory.newSegment();
+  }
+
   /**
    Create a new record
 
@@ -667,7 +638,6 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     // [#126] Segments are always readMany in PLANNED state
     fieldValues.put(SEGMENT.STATE, SegmentState.Planned);
 
-
     // Chain ID and offset are read-only, set at creation
     requireNotExists("Segment at same offset in Chain", db.selectCount().from(SEGMENT)
       .where(SEGMENT.CHAIN_ID.eq(ULong.valueOf(entity.getChainId())))
@@ -676,7 +646,7 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     fieldValues.put(SEGMENT.CHAIN_ID, entity.getChainId());
     fieldValues.put(SEGMENT.OFFSET, entity.getOffset());
 
-    return modelFrom(executeCreate(db, SEGMENT, fieldValues));
+    return modelFrom(executeCreate(db, SEGMENT, fieldValues), segmentFactory);
   }
 
   /**
@@ -702,7 +672,7 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     String waveformKey = segment.get(SEGMENT.WAVEFORM_KEY);
     if (Objects.nonNull(waveformKey)) {
       amazonProvider.deleteS3Object(
-        Config.segmentFileBucket(),
+        Config.getSegmentFileBucket(),
         waveformKey);
     }
 

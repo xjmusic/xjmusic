@@ -3,18 +3,14 @@
 <div class="chord-progression-usages">
 
   <!-- Section Chord Progression -->
-    <div class="parent">
-      {{#link-to "go.sequence" model.sequenceId}}
-        <small>{{model.sequenceType}}-Sequence #{{model.sequenceId}}</small>
-        {{#if model.sequenceName}}
-          &quot;{{model.sequenceName}}&quot;{{/if}}
-      {{/link-to}}
-      {{#link-to "go.pattern" model.patternId}}
-        <small>{{model.patternType}}-Pattern #{{model.patternId}}</small>
-        {{#if model.patternName}}
-          &quot;{{model.patternName}}&quot;{{/if}}
-      {{/link-to}}
-    </div>
+  <div class="parent">
+    {{#link-to "go.program" model.programId}}
+      <small>{{model.programType}}-Program #{{model.programId}}</small>
+      {{#if model.programName}}&quot;{{model.programName}}&quot;{{/if}}
+    {{/link-to}}
+    <small>{{model.sequenceType}}-Sequence #{{model.sequenceId}}</small>
+    {{#if model.sequenceName}}&quot;{{model.sequenceName}}&quot;{{/if}}
+  </div>
 
   <!-- Chords -->
   <div class="chords">

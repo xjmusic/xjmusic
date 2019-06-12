@@ -2,8 +2,6 @@
 import EmberObject, {get, set} from '@ember/object';
 import {all, task} from 'ember-concurrency';
 import {Promise as EmberPromise} from 'rsvp';
-import $ from 'jquery';
-/* global ArrayBuffer */
 
 // Configurations
 const TASK_MAX_CONCURRENCY = 6;
@@ -403,53 +401,6 @@ function isNull(obj) {
 }
 
 /**
- * This will be added to jQuery when this class is loaded
- * use this transport for 'binary' data type
- */
-$['ajaxTransport']('+binary', function (options, originalOptions, jqXHR) {
-  // check for conditions and support for blob / arraybuffer response type
-  if (window.FormData && ((options.dataType && (options.dataType === 'binary')) || (options.data && ((window.ArrayBuffer && options.data instanceof ArrayBuffer) || (window.Blob && options.data instanceof Blob))))) {
-    return {
-      // create new XMLHttpRequest
-      send: function (headers, callback) {
-        // setup all variables
-        let xhr = new XMLHttpRequest(),
-          url = options.url,
-          type = options.type,
-          async = options.async || true,
-          // blob or arraybuffer. Default is blob
-          dataType = options.responseType || 'blob',
-          data = options.data || null,
-          username = options.username || null,
-          password = options.password || null;
-
-        xhr.addEventListener('load', function () {
-          let data = {};
-          data[options.dataType] = xhr.response;
-          // make callback and send data
-          callback(xhr.status, xhr.statusText, data, xhr.getAllResponseHeaders());
-        });
-
-        xhr.open(type, url, async, username, password);
-
-        // setup custom headers
-        for (let i in headers) {
-          if (headers.hasOwnProperty(i)) {
-            xhr.setRequestHeader(i, headers[i]);
-          }
-        }
-
-        xhr.responseType = dataType;
-        xhr.send(data);
-      },
-      abort: function () {
-        jqXHR.abort();
-      }
-    };
-  }
-});
-
-/**
  Send GET request for binary data from a URL
  * @param method for request
  * @param url for request
@@ -458,15 +409,32 @@ $['ajaxTransport']('+binary', function (options, originalOptions, jqXHR) {
  * @returns {*} promise to return binary data
  */
 function sendBinaryXHR(method, url, onSuccess, onError) {
-  $['ajax']({
-    url: url,
-    dataType: 'binary',
-    responseType: 'arraybuffer',
-    processData: false,
-    method: method,
-    success: onSuccess,
-    error: onError
-  });
+  let self = this;
+  self.source = self.audioContext.createBufferSource();
+  let request = new XMLHttpRequest();
+  request.open('GET', self.getWaveformUrl(), true);
+  request.responseType = 'arraybuffer';
+  request.onload = function () {
+    let audioData = request.response;
+    self.debug(`Fetched audio data from ${self.getWaveformUrl()}`);
+    try {
+      self.audioContext.decodeAudioData(audioData,
+        (buffer) => {
+          self.source.buffer = buffer;
+          self.source.connect(self.audioContext.destination);
+          self.debug('loaded buffer source');
+          onSuccess();
+        },
+        (e) => {
+          self.error("Problem decoding audio data", e);
+          onError();
+        }
+      );
+    } catch (e) {
+      self.error("Caught exception while decoding audio data", e);
+    }
+  };
+  request.send();
 }
 
 /**

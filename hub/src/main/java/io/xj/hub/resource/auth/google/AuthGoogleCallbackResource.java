@@ -5,7 +5,6 @@ import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
-import io.xj.core.transport.HttpResponseProvider;
 import io.xj.hub.HubResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +22,10 @@ import java.util.Objects;
  */
 @Path("auth/google/callback")
 public class AuthGoogleCallbackResource extends HubResource {
-  private static final String redirectPathUnauthorized = Config.appPathUnauthorized();
-  private static final String redirectPathSuccess = Config.appPathSuccess();
+  private static final String redirectPathUnauthorized = Config.getAppPathUnauthorized();
+  private static final String redirectPathSuccess = Config.getAppPathSuccess();
   private final Logger log = LoggerFactory.getLogger(AuthGoogleCallbackResource.class);
   private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
-  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   /**
    Begin user OAuth2 authentication via Google.

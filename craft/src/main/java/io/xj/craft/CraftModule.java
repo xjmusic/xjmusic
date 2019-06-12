@@ -3,10 +3,9 @@ package io.xj.craft;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-
+import io.xj.craft.digest.DigestFactory;
 import io.xj.craft.digest.cache.DigestCacheProvider;
 import io.xj.craft.digest.cache.impl.DigestCacheProviderImpl;
-import io.xj.craft.digest.DigestFactory;
 import io.xj.craft.digest.chord_markov.DigestChordMarkov;
 import io.xj.craft.digest.chord_markov.impl.DigestChordMarkovImpl;
 import io.xj.craft.digest.chord_progression.DigestChordProgression;
@@ -15,8 +14,8 @@ import io.xj.craft.digest.hash.DigestHash;
 import io.xj.craft.digest.hash.impl.DigestHashImpl;
 import io.xj.craft.digest.meme.DigestMeme;
 import io.xj.craft.digest.meme.impl.DigestMemeImpl;
-import io.xj.craft.digest.pattern_style.DigestSequenceStyle;
-import io.xj.craft.digest.pattern_style.impl.DigestSequenceStyleImpl;
+import io.xj.craft.digest.program_style.DigestProgramStyle;
+import io.xj.craft.digest.program_style.impl.DigestProgramStyleImpl;
 import io.xj.craft.generation.Generation;
 import io.xj.craft.generation.GenerationFactory;
 import io.xj.craft.generation.superpattern.LibrarySupersequenceGeneration;
@@ -52,7 +51,7 @@ public class CraftModule extends AbstractModule {
       .implement(DigestChordMarkov.class, DigestChordMarkovImpl.class)
       .implement(DigestHash.class, DigestHashImpl.class)
       .implement(DigestMeme.class, DigestMemeImpl.class)
-      .implement(DigestSequenceStyle.class, DigestSequenceStyleImpl.class)
+      .implement(DigestProgramStyle.class, DigestProgramStyleImpl.class)
       .build(DigestFactory.class));
   }
 

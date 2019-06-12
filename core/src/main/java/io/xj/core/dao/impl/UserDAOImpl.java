@@ -1,20 +1,19 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
-import com.google.api.client.util.Maps;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.UserDAO;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.account_user.AccountUser;
+import io.xj.core.model.account.AccountUser;
 import io.xj.core.model.user.User;
-import io.xj.core.model.user_access_token.UserAccessToken;
-import io.xj.core.model.user_auth.UserAuth;
-import io.xj.core.model.user_auth.UserAuthType;
-import io.xj.core.model.user_role.UserRole;
-import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.user.access_token.UserAccessToken;
+import io.xj.core.model.user.auth.UserAuth;
+import io.xj.core.model.user.auth.UserAuthType;
+import io.xj.core.model.user.role.UserRole;
+import io.xj.core.model.user.role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.UserAccessTokenRecord;
@@ -23,7 +22,6 @@ import io.xj.core.tables.records.UserRecord;
 import io.xj.core.tables.records.UserRoleRecord;
 import io.xj.core.transport.CSV;
 import org.jooq.DSLContext;
-import org.jooq.Field;
 import org.jooq.Result;
 import org.jooq.SelectSelectStep;
 import org.jooq.types.ULong;
@@ -33,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
 
 import static io.xj.core.Tables.ACCOUNT_USER;
@@ -77,8 +74,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
       USER.EMAIL,
       USER.CREATED_AT,
       USER.UPDATED_AT,
-      USER_ROLE.USER_ID,
-      groupConcat(USER_ROLE.TYPE, ",").as(User.KEY_ROLES)
+      groupConcat(USER_ROLE.TYPE, ",").as("roles")
     );
   }
 
@@ -186,7 +182,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   Select existing Account-User memberships by User id.
+   Select existing AccountUser memberships by User id.
 
    @param db     context of database access.
    @param userId of existing User.
@@ -393,21 +389,6 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
     }
   }
 
-  /**
-   Only certain (writable) fields are mapped back to jOOQ records--
-   Read-only fields are excluded from here.
-
-   @param entity to source values from
-   @return values mapped to record fields
-   */
-  public static Map<Field, Object> fieldValueMap(User entity) {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(USER.NAME, entity.getName());
-    fieldValues.put(USER.AVATAR_URL, entity.getAvatarUrl());
-    fieldValues.put(USER.EMAIL, entity.getEmail());
-    return fieldValues;
-  }
-
   @Override
   public String authenticate(UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws CoreException {
     SQLConnection tx = dbProvider.getConnection(true);
@@ -466,7 +447,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
 
   @Override
   @Nullable
-  public Collection<User> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
+  public Collection<User> readMany(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access));
@@ -483,6 +464,11 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   @Override
   public void destroy(Access access, BigInteger id) throws CoreException {
     throw new CoreException("Not allowed to destroy User record.");
+  }
+
+  @Override
+  public User newInstance() {
+    return new User();
   }
 
   @Override

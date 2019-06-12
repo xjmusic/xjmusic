@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.time.Instant;
-import java.util.Objects;
+import java.util.Optional;
 
 public class ChainFabricateJobImpl implements ChainFabricateJob {
   private static final Logger log = LoggerFactory.getLogger(ChainFabricateJobImpl.class);
@@ -71,16 +71,15 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
         chain.getId(), chain.getState()));
     }
 
-    int bufferSeconds = Config.workBufferSeconds();
-    Segment segmentToCreate = chainDAO.buildNextSegmentOrComplete(
+    int bufferSeconds = Config.getWorkBufferSeconds();
+    Optional<Segment> segmentToCreate = chainDAO.buildNextSegmentOrComplete(
       access,
       chain,
       Instant.now().plusSeconds(bufferSeconds),
       Instant.now().minusSeconds(bufferSeconds));
 
-    if (Objects.nonNull(segmentToCreate)) {
-      createSegmentAndJobs(segmentToCreate);
-    }
+    if (segmentToCreate.isPresent())
+      createSegmentAndJobs(segmentToCreate.get());
   }
 
   /**
@@ -94,7 +93,7 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
     Segment createdSegment = segmentDAO.create(access, segmentToCreate);
     log.info("Created segment, id:{}, chainId:{}, offset:{}", createdSegment.getId(), createdSegment.getChainId(), createdSegment.getOffset());
 
-    workManager.scheduleSegmentFabricate(Config.workBufferFabricateDelaySeconds(), createdSegment.getId());
+    workManager.scheduleSegmentFabricate(Config.getWorkBufferFabricateDelaySeconds(), createdSegment.getId());
   }
 
   /**

@@ -1,5 +1,4 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-
 @import "ember-modal-dialog/ember-modal-structure";
 @import "ember-modal-dialog/ember-modal-appearance";
 @import "palette";
@@ -17,6 +16,7 @@
     position: fixed;
     background-color: $dark-gray;
     color: #fff;
+    min-width: 50%;
     max-height: 100%;
     max-width: 100%;
     overflow: auto; //??
@@ -26,8 +26,10 @@
 
 .modal-content {
   width: 100%;
+
   .modal-body {
     width: 100%;
+
     pre {
       overflow: auto;
       word-wrap: normal;

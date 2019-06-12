@@ -27,52 +27,22 @@ import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.cache.audio.impl.AudioCacheProviderImpl;
 import io.xj.core.dao.AccountDAO;
 import io.xj.core.dao.AccountUserDAO;
-import io.xj.core.dao.AudioChordDAO;
-import io.xj.core.dao.AudioDAO;
-import io.xj.core.dao.AudioEventDAO;
-import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChainDAO;
-import io.xj.core.dao.ChainInstrumentDAO;
-import io.xj.core.dao.ChainLibraryDAO;
-import io.xj.core.dao.ChainSequenceDAO;
 import io.xj.core.dao.InstrumentDAO;
-import io.xj.core.dao.InstrumentMemeDAO;
 import io.xj.core.dao.LibraryDAO;
-import io.xj.core.dao.PatternChordDAO;
-import io.xj.core.dao.PatternDAO;
-import io.xj.core.dao.PatternEventDAO;
 import io.xj.core.dao.PlatformMessageDAO;
+import io.xj.core.dao.ProgramDAO;
 import io.xj.core.dao.SegmentDAO;
-import io.xj.core.dao.SequenceDAO;
-import io.xj.core.dao.SequenceMemeDAO;
-import io.xj.core.dao.SequencePatternDAO;
-import io.xj.core.dao.SequencePatternMemeDAO;
 import io.xj.core.dao.UserDAO;
-import io.xj.core.dao.VoiceDAO;
 import io.xj.core.dao.impl.AccountDAOImpl;
 import io.xj.core.dao.impl.AccountUserDAOImpl;
-import io.xj.core.dao.impl.AudioChordDAOImpl;
-import io.xj.core.dao.impl.AudioDAOImpl;
-import io.xj.core.dao.impl.AudioEventDAOImpl;
-import io.xj.core.dao.impl.ChainConfigDAOImpl;
 import io.xj.core.dao.impl.ChainDAOImpl;
-import io.xj.core.dao.impl.ChainInstrumentDAOImpl;
-import io.xj.core.dao.impl.ChainLibraryDAOImpl;
-import io.xj.core.dao.impl.ChainSequenceDAOImpl;
 import io.xj.core.dao.impl.InstrumentDAOImpl;
-import io.xj.core.dao.impl.InstrumentMemeDAOImpl;
 import io.xj.core.dao.impl.LibraryDAOImpl;
-import io.xj.core.dao.impl.PatternChordDAOImpl;
-import io.xj.core.dao.impl.PatternDAOImpl;
-import io.xj.core.dao.impl.PatternEventDAOImpl;
 import io.xj.core.dao.impl.PlatformMessageDAOImpl;
+import io.xj.core.dao.impl.ProgramDAOImpl;
 import io.xj.core.dao.impl.SegmentDAOImpl;
-import io.xj.core.dao.impl.SequenceDAOImpl;
-import io.xj.core.dao.impl.SequenceMemeDAOImpl;
-import io.xj.core.dao.impl.SequencePatternDAOImpl;
-import io.xj.core.dao.impl.SequencePatternMemeDAOImpl;
 import io.xj.core.dao.impl.UserDAOImpl;
-import io.xj.core.dao.impl.VoiceDAOImpl;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.external.amazon.AmazonProviderImpl;
 import io.xj.core.external.google.GoogleHttpProvider;
@@ -90,6 +60,15 @@ import io.xj.core.ingest.IngestFactory;
 import io.xj.core.ingest.cache.IngestCacheProvider;
 import io.xj.core.ingest.cache.impl.IngestCacheProviderImpl;
 import io.xj.core.ingest.impl.IngestImpl;
+import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainFactory;
+import io.xj.core.model.chain.impl.ChainImpl;
+import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.instrument.InstrumentFactory;
+import io.xj.core.model.instrument.impl.InstrumentImpl;
+import io.xj.core.model.program.Program;
+import io.xj.core.model.program.ProgramFactory;
+import io.xj.core.model.program.impl.ProgramImpl;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentFactory;
 import io.xj.core.model.segment.impl.SegmentImpl;
@@ -97,6 +76,12 @@ import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import io.xj.core.persistence.redis.impl.RedisDatabaseProviderImpl;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLDatabaseProviderImpl;
+import io.xj.core.persistence.sql.migration.LegacyMigration;
+import io.xj.core.persistence.sql.migration.Migration;
+import io.xj.core.persistence.sql.migration.impl.LegacyMigrationImpl;
+import io.xj.core.persistence.sql.migration.impl.MigrationImpl;
+import io.xj.core.testing.IntegrationTestProvider;
+import io.xj.core.testing.impl.IntegrationTestProviderImpl;
 import io.xj.core.transport.GsonProvider;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.transport.HttpServerProvider;
@@ -114,23 +99,25 @@ import io.xj.mixer.MixerModule;
 public class CoreModule extends AbstractModule {
   @Override
   protected void configure() {
-    bindApp();
+    bindAPI();
     bindDAO();
-    bindExternal();
-    bindSegmentFactory();
-    bindFabricatorFactory();
-    bindIngestFactory();
-    bindTimeComputerFactory();
+    bindEntityFactories();
+    bindFabrication();
+    bindTesting();
     install(new MixerModule());
   }
 
-  private void bindApp() {
+  private void bindAPI() {
     bind(AccessControlProvider.class).to(AccessControlProviderImpl.class);
     bind(AccessLogFilterProvider.class).to(AccessLogFilterProviderImpl.class);
     bind(AccessTokenAuthFilter.class).to(AccessTokenAuthFilterImpl.class);
+    bind(AmazonProvider.class).to(AmazonProviderImpl.class);
     bind(App.class).to(AppImpl.class);
     bind(AudioCacheProvider.class).to(AudioCacheProviderImpl.class);
     bind(DataStoreFactory.class).to(MemoryDataStoreFactory.class);
+    bind(GoogleHttpProvider.class).to(GoogleHttpProviderImpl.class);
+    bind(GoogleProvider.class).to(GoogleProviderImpl.class);
+    bind(GsonProvider.class).to(GsonProviderImpl.class);
     bind(Health.class).to(HealthImpl.class);
     bind(Heartbeat.class).to(HeartbeatImpl.class);
     bind(HttpResponseProvider.class).to(HttpResponseProviderImpl.class);
@@ -138,7 +125,8 @@ public class CoreModule extends AbstractModule {
     bind(HttpTransport.class).to(NetHttpTransport.class);
     bind(JsonFactory.class).to(JacksonFactory.class);
     bind(JsonFactory.class).to(JacksonFactory.class);
-    bind(GsonProvider.class).to(GsonProviderImpl.class);
+    bind(LegacyMigration.class).to(LegacyMigrationImpl.class);
+    bind(Migration.class).to(MigrationImpl.class);
     bind(RedisDatabaseProvider.class).to(RedisDatabaseProviderImpl.class);
     bind(ResourceConfigProvider.class).to(ResourceConfigProviderImpl.class);
     bind(SQLDatabaseProvider.class).to(SQLDatabaseProviderImpl.class);
@@ -148,63 +136,53 @@ public class CoreModule extends AbstractModule {
   }
 
   private void bindDAO() {
+    bind(UserDAO.class).to(UserDAOImpl.class);
     bind(AccountDAO.class).to(AccountDAOImpl.class);
     bind(AccountUserDAO.class).to(AccountUserDAOImpl.class);
-    bind(AudioChordDAO.class).to(AudioChordDAOImpl.class);
-    bind(AudioDAO.class).to(AudioDAOImpl.class);
-    bind(AudioEventDAO.class).to(AudioEventDAOImpl.class);
-    bind(ChainConfigDAO.class).to(ChainConfigDAOImpl.class);
-    bind(ChainDAO.class).to(ChainDAOImpl.class);
-    bind(ChainInstrumentDAO.class).to(ChainInstrumentDAOImpl.class);
-    bind(ChainLibraryDAO.class).to(ChainLibraryDAOImpl.class);
-    bind(ChainSequenceDAO.class).to(ChainSequenceDAOImpl.class);
-    bind(InstrumentDAO.class).to(InstrumentDAOImpl.class);
-    bind(InstrumentMemeDAO.class).to(InstrumentMemeDAOImpl.class);
     bind(LibraryDAO.class).to(LibraryDAOImpl.class);
-    bind(PatternChordDAO.class).to(PatternChordDAOImpl.class);
-    bind(PatternDAO.class).to(PatternDAOImpl.class);
-    bind(PatternEventDAO.class).to(PatternEventDAOImpl.class);
-    bind(SequencePatternMemeDAO.class).to(SequencePatternMemeDAOImpl.class);
-    bind(PlatformMessageDAO.class).to(PlatformMessageDAOImpl.class);
+    bind(ProgramDAO.class).to(ProgramDAOImpl.class);
+    bind(InstrumentDAO.class).to(InstrumentDAOImpl.class);
+    bind(ChainDAO.class).to(ChainDAOImpl.class);
     bind(SegmentDAO.class).to(SegmentDAOImpl.class);
-    bind(SequenceDAO.class).to(SequenceDAOImpl.class);
-    bind(SequenceMemeDAO.class).to(SequenceMemeDAOImpl.class);
-    bind(SequencePatternDAO.class).to(SequencePatternDAOImpl.class);
-    bind(UserDAO.class).to(UserDAOImpl.class);
-    bind(VoiceDAO.class).to(VoiceDAOImpl.class);
+    bind(PlatformMessageDAO.class).to(PlatformMessageDAOImpl.class);
   }
 
-  private void bindExternal() {
-    bind(AmazonProvider.class).to(AmazonProviderImpl.class);
-    bind(GoogleHttpProvider.class).to(GoogleHttpProviderImpl.class);
-    bind(GoogleProvider.class).to(GoogleProviderImpl.class);
-  }
-
-  private void bindFabricatorFactory() {
+  private void bindFabrication() {
     install(new FactoryModuleBuilder()
       .implement(Fabricator.class, FabricatorImpl.class)
       .build(FabricatorFactory.class));
-  }
-
-  private void bindTimeComputerFactory() {
     install(new FactoryModuleBuilder()
       .implement(TimeComputer.class, TimeComputerImpl.class)
       .build(TimeComputerFactory.class));
-  }
-
-  private void bindIngestFactory() {
     bind(IngestCacheProvider.class).to(IngestCacheProviderImpl.class);
     install(new FactoryModuleBuilder()
       .implement(Ingest.class, IngestImpl.class)
       .build(IngestFactory.class));
   }
-  
+
   /**
-   [#166317849] Segment is an interface provided by a SegmentFactory
+   [#166317849] Segment
+   [#166690830] Program
+   [#166708597] Instrument
+   [#166743281] Chain
    */
-  private void bindSegmentFactory() {
+  private void bindEntityFactories() {
     install(new FactoryModuleBuilder()
       .implement(Segment.class, SegmentImpl.class)
       .build(SegmentFactory.class));
+    install(new FactoryModuleBuilder()
+      .implement(Program.class, ProgramImpl.class)
+      .build(ProgramFactory.class));
+    install(new FactoryModuleBuilder()
+      .implement(Instrument.class, InstrumentImpl.class)
+      .build(InstrumentFactory.class));
+    install(new FactoryModuleBuilder()
+      .implement(Chain.class, ChainImpl.class)
+      .build(ChainFactory.class));
   }
+
+  private void bindTesting() {
+    bind(IntegrationTestProvider.class).to(IntegrationTestProviderImpl.class);
+  }
+
 }

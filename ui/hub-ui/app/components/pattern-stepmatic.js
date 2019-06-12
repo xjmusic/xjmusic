@@ -1,5 +1,4 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import $ from 'jquery';
 import Component from '@ember/component';
 import {all, task} from 'ember-concurrency';
 import {get, set} from '@ember/object';
@@ -130,10 +129,9 @@ const PatternStepmaticComponent = Component.extend(
      */
     init() {
       let self = this;
-      get(self, 'config').promises.config.then(
+      this.config.getConfig().then(
         (config) => {
           self.set('audioBaseUrl', config.audioBaseUrl);
-          self.initTooltips()
           self.initSequence();
         },
         (error) => {
@@ -190,24 +188,15 @@ const PatternStepmaticComponent = Component.extend(
     },
 
     /**
-     * Initialize tooltips (Bootstrap)
-     */
-    initTooltips: function () {
-      $(function () {
-        $('[data-toggle="tooltip"]').tooltip();
-      })
-    },
-
-    /**
      * Initialize the component sequence
      */
     initSequence() {
       let self = this;
       let pattern = get(self, 'pattern');
-      pattern.get('sequence').then(
+      pattern.get('program').then(
         (sequence) => {
           self.debug('did load sequence', sequence);
-          set(self, 'sequence', sequence);
+          set(self, 'program', sequence);
           self.initInstruments();
         }, (error) => {
           get(self, 'display').error(error);
@@ -220,7 +209,7 @@ const PatternStepmaticComponent = Component.extend(
      */
     initInstruments() {
       let self = this;
-      let sequence = get(self, 'sequence');
+      let sequence = get(self, 'program');
       get(self, 'store').query('instrument', {libraryId: sequence.get('library').get('id')})
         .catch((error) => {
           get(self, 'display').error(error);
@@ -246,7 +235,7 @@ const PatternStepmaticComponent = Component.extend(
      */
     initVoices() {
       let self = this;
-      let sequence = get(self, 'sequence');
+      let sequence = get(self, 'program');
       get(self, 'store').query('voice', {sequenceId: sequence.get('id')})
         .catch((error) => {
           get(self, 'display').error(error);
@@ -280,8 +269,8 @@ const PatternStepmaticComponent = Component.extend(
      * Compute the grid based on pattern events
      */
     createGridFromPatternEvents() {
-      let pattern = get(this, 'pattern');
-      let voices = get(this, 'voices');
+      let pattern = this.pattern;
+      let voices = this.voices;
       let total = pattern.get('total');
       let meterSuper = pattern.get('meterSuper');
       let meterSub = pattern.get('meterSub');
@@ -290,13 +279,13 @@ const PatternStepmaticComponent = Component.extend(
       // clear grid
       set(this, 'grid', {});
       set(this, 'eventsToDestroy', []);
-      set(get(this, 'meter'), 'super', meterSuper);
-      set(get(this, 'meter'), 'sub', meterSub);
-      let grid = get(this, 'grid');
+      set(this.meter, 'super', meterSuper);
+      set(this.meter, 'sub', meterSub);
+      let grid = this.grid;
 
       // clear gridMeter
       set(this, 'gridMeter', []);
-      let gridMeter = get(this, 'gridMeter');
+      let gridMeter = this.gridMeter;
       for (let step = 0; step < meterSub * total; step++) {
         gridMeter.push(Math.floor(step / meterSub));
       }
@@ -339,7 +328,7 @@ const PatternStepmaticComponent = Component.extend(
      * Re-compute the position and duration of all events
      */
     updateEventPositionDuration() {
-      let pattern = get(this, 'pattern');
+      let pattern = this.pattern;
       let meterSub = pattern.get('meterSub');
       let meterSwing = pattern.get('meterSwing');
 
@@ -377,7 +366,7 @@ const PatternStepmaticComponent = Component.extend(
      * @return {String}[]{String}[]{Number} array of [Group,Step] -> Duration
      */
     updateGroupStepDuration() {
-      let pattern = get(this, 'pattern');
+      let pattern = this.pattern;
       let meterSub = pattern.get('meterSub');
       let total = pattern.get('total');
 
@@ -385,7 +374,7 @@ const PatternStepmaticComponent = Component.extend(
       let duration = {};
 
       // for each group in grid
-      let grid = get(this, 'grid');
+      let grid = this.grid;
       for (let groupId in grid) {
         if (grid.hasOwnProperty(groupId)) {
           duration[groupId] = {};
@@ -434,12 +423,12 @@ const PatternStepmaticComponent = Component.extend(
      */
     prepareForPlay() {
       this.goToState(Prepping);
-      let sequence = get(this, 'sequence');
+      let sequence = this.program;
       let tempo = sequence.get('tempo');
-      let pattern = get(this, 'pattern');
+      let pattern = this.pattern;
       let meterSub = pattern.get('meterSub');
-      let instrument = get(this, 'instrumentToPlay');
-      let instrumentPlayer = InstrumentPlayer.create({audioBaseUrl: get(this, 'audioBaseUrl')});
+      let instrument = this.instrumentToPlay;
+      let instrumentPlayer = InstrumentPlayer.create({audioBaseUrl: this.audioBaseUrl});
       set(this, 'instrumentPlayer', instrumentPlayer);
       set(this, 'playStepSeconds', ((SECONDS_PER_MINUTE / tempo) / meterSub));
       set(this, 'playStepCompleted', -1);
@@ -470,9 +459,9 @@ const PatternStepmaticComponent = Component.extend(
      */
     beginPlay() {
       this.goToState(Playing);
-      let instrumentPlayer = get(this, 'instrumentPlayer');
-      let secondsPerStep = get(this, 'playStepSeconds');
-      let pattern = get(this, 'pattern');
+      let instrumentPlayer = this.instrumentPlayer;
+      let secondsPerStep = this.playStepSeconds;
+      let pattern = this.pattern;
       let meterSub = pattern.get('meterSub');
       let total = pattern.get('total');
       set(this, 'playBeginSeconds', this.nowSeconds() + PLAY_AHEAD_SECONDS);
@@ -489,10 +478,10 @@ const PatternStepmaticComponent = Component.extend(
      * @return {EmberPromise} promise resolved after playback has been halted
      */
     haltPlay() {
-      clearInterval(get(this, 'playCycleInterval'));
+      clearInterval(this.playCycleInterval);
       this.clearPlayBeat();
       return new EmberPromise((resolve, reject) => {
-        get(this, 'instrumentPlayer').stop().then(() => {
+        this.instrumentPlayer.stop().then(() => {
           this.goToState(Standby);
           resolve();
         }, reject);
@@ -504,7 +493,7 @@ const PatternStepmaticComponent = Component.extend(
      * @returns {Number}
      */
     playNowSeconds() {
-      return this.nowSeconds() - get(this, 'playBeginSeconds');
+      return this.nowSeconds() - this.playBeginSeconds;
     },
 
     /**
@@ -518,14 +507,14 @@ const PatternStepmaticComponent = Component.extend(
      * @param total beats
      */
     doPlayCycle(secondsPerStep, meterSub, total) {
-      let grid = get(this, 'grid');
-      let stepPrior = get(this, 'playStepCompleted');
+      let grid = this.grid;
+      let stepPrior = this.playStepCompleted;
       let nowSeconds = this.playNowSeconds();
-      let playerOffsetSeconds = get(this, 'playerOffsetSeconds');
+      let playerOffsetSeconds = this.playerOffsetSeconds;
       let stepsPerMeasure = total * meterSub;
       let secondsPerBeat = meterSub * secondsPerStep;
       let secondsPerMeasure = secondsPerBeat * total;
-      let instrumentPlayer = get(this, 'instrumentPlayer');
+      let instrumentPlayer = this.instrumentPlayer;
 
       this.doPlayBeatUpdate(Math.floor(nowSeconds / secondsPerStep), meterSub, total);
 
@@ -565,15 +554,15 @@ const PatternStepmaticComponent = Component.extend(
      * @param total beats
      */
     doPlayBeatUpdate(step, meterSub, total) {
-      let playBeatNow = get(this, 'playBeatNow');
+      let playBeatNow = this.playBeatNow;
       let beat = Math.floor(step / meterSub) % total;
       if (beat !== playBeatNow) {
         set(this, 'playBeatNow', beat);
         for (let i = 0; i < total; i++) {
           if (step >= 0 && beat === i) {
-            $('.beat-' + i)['addClass']('active');
+            // ('.beat-' + i)['addClass']('active'); FUTURE beat indicator
           } else {
-            $('.beat-' + i)['removeClass']('active');
+            // ('.beat-' + i)['removeClass']('active'); FUTURE beat indicator
           }
         }
       }
@@ -583,7 +572,7 @@ const PatternStepmaticComponent = Component.extend(
      * [#160273003] now-playing active beat no longer lit up after stop play
      */
     clearPlayBeat() {
-      $('.beat-step')['removeClass']('active');
+      // ('.beat-step')['removeClass']('active'); FUTURE beat indicator
     },
 
     /**
@@ -635,7 +624,7 @@ const PatternStepmaticComponent = Component.extend(
      * @param velocity to update/create event with
      */
     modEventVelocity(groupId, trackName, step, velocity) {
-      let groupContainer = get(get(this, 'grid'), groupId);
+      let groupContainer = get(this.grid, groupId);
       let tracks = get(groupContainer, 'tracks');
       let group = get(groupContainer, 'group');
       let track = get(tracks, trackName);
@@ -643,7 +632,7 @@ const PatternStepmaticComponent = Component.extend(
       if (event) {
         set(event, 'velocity', velocity);
         if (0 === velocity) {
-          get(this, 'eventsToDestroy').push(event);
+          this.eventsToDestroy.push(event);
           set(track, step, null);
         }
       } else {
@@ -661,8 +650,8 @@ const PatternStepmaticComponent = Component.extend(
      * @returns {*|DS.Model|EmberPromise}
      */
     newEvent(voice, inflection, velocity) {
-      let pattern = get(this, 'pattern');
-      return get(this, 'store').createRecord('pattern-event', {
+      let pattern = this.pattern;
+      return this.store.createRecord('pattern-event', {
         pattern: pattern,
         voice: voice,
         velocity: velocity,
@@ -679,16 +668,16 @@ const PatternStepmaticComponent = Component.extend(
      * @param trackName of new track
      */
     createTrack(groupId, trackName) {
-      let pattern = get(this, 'pattern');
+      let pattern = this.pattern;
       let total = pattern.get('total');
       let meterSub = pattern.get('meterSub');
-      let groupContainer = get(get(this, 'grid'), groupId);
+      let groupContainer = get(this.grid, groupId);
       let tracks = get(groupContainer, 'tracks');
       set(tracks, trackName, {});
       for (let step = 0; step < meterSub * total; step++) {
         set(get(tracks, trackName), step, null);
       }
-      get(this, 'display').success("Created track '" + trackName + "'");
+      this.display.success("Created track '" + trackName + "'");
     },
 
     /**
@@ -698,7 +687,7 @@ const PatternStepmaticComponent = Component.extend(
     applyAll() {
       let self = this;
       self.goToState(Working);
-      get(this, 'pattern').save().then(
+      this.pattern.save().then(
         () => {
           self.eventUpdateAllTask.perform().then(() => {
             self.goToState(Standby);
@@ -714,7 +703,7 @@ const PatternStepmaticComponent = Component.extend(
      * Revert all stepmatic changes to original pattern and pattern events
      */
     revertAll() {
-      get(this, 'pattern').rollbackAttributes();
+      this.pattern.rollbackAttributes();
       this.forEachGridStep((groupId, trackName, step, event) => {
         if (event) {
           event.rollbackAttributes();
@@ -722,7 +711,7 @@ const PatternStepmaticComponent = Component.extend(
       });
       this.createGridFromPatternEvents();
       this.gotClean();
-      get(this, 'display').success('Reverted all changes.');
+      this.display.success('Reverted all changes.');
     },
 
     /**
@@ -735,7 +724,7 @@ const PatternStepmaticComponent = Component.extend(
           self.modEventVelocity(groupId, trackName, step, 0);
         }
       });
-      get(this, 'display').success('Cleared all grid steps.');
+      this.display.success('Cleared all grid steps.');
     },
 
     /**
@@ -744,8 +733,8 @@ const PatternStepmaticComponent = Component.extend(
      */
     eventUpdateAllTask: task(function* () {
       let self = this;
-      let pattern = get(this, 'pattern');
-      let eventsToDestroy = get(this, 'eventsToDestroy');
+      let pattern = this.pattern;
+      let eventsToDestroy = this.eventsToDestroy;
       let tasks = [];
 
       // send all destroy tasks
@@ -785,12 +774,12 @@ const PatternStepmaticComponent = Component.extend(
      * @param callback to execute
      */
     forEachGridStep(callback) {
-      let pattern = get(this, 'pattern');
+      let pattern = this.pattern;
       let meterSub = pattern.get('meterSub');
       let total = pattern.get('total');
 
       // for each group in grid
-      let grid = get(this, 'grid');
+      let grid = this.grid;
       for (let groupId in grid) {
         if (grid.hasOwnProperty(groupId)) {
           let gridGroup = grid[groupId];
@@ -844,7 +833,7 @@ const PatternStepmaticComponent = Component.extend(
      */
     displayErrorAndGoToReadyState(error) {
       if ('undefined' !== typeof error && error) {
-        get(this, 'display').error(error);
+        this.display.error(error);
       }
       try {
         this.goToState(Standby);
@@ -956,7 +945,7 @@ const PatternStepmaticComponent = Component.extend(
        * Add a track to a group in the stepmatic
        */
       addTrack(groupId) {
-        let groupContainer = get(get(this, 'grid'), groupId);
+        let groupContainer = get(this.grid, groupId);
         let group = get(groupContainer, 'group');
         let groupName = group.get('description');
         let name = prompt('Add track to ' + groupName + ' group:', 'New track');

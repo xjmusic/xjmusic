@@ -2,6 +2,7 @@
 package io.xj.core.model.segment;
 
 import com.google.inject.assistedinject.Assisted;
+import io.xj.core.model.entity.EntityFactory;
 
 import java.math.BigInteger;
 
@@ -10,7 +11,7 @@ import java.math.BigInteger;
  or
  Segment segment = segmentFactory.newSegment(id);
  */
-public interface SegmentFactory {
+public interface SegmentFactory extends EntityFactory<Segment> {
 
   /**
    Create a new Segment model

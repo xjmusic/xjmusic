@@ -9,16 +9,9 @@ import java.util.List;
 import java.util.Objects;
 
 public enum WorkType {
-  AudioClone,
-  AudioErase,
   ChainErase,
   ChainFabricate,
-  InstrumentClone,
-  SegmentFabricate,
-  SequenceClone,
-  SequenceErase,
-  PatternClone,
-  PatternErase;
+  SegmentFabricate;
 
   /**
    String Values
@@ -26,7 +19,7 @@ public enum WorkType {
    @return ImmutableList of string values
    */
   public static List<String> stringValues() {
-    return Text.stringValues(values());
+    return Text.toStrings(values());
   }
 
   /**

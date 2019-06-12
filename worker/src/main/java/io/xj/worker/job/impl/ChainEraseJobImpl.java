@@ -60,7 +60,7 @@ public class ChainEraseJobImpl implements ChainEraseJob {
    @throws Exception on failure
    */
   private void doWork() throws Exception {
-    Collection<Segment> segments = segmentDAO.readAll(access, ImmutableList.of(entityId));
+    Collection<Segment> segments = segmentDAO.readMany(access, ImmutableList.of(entityId));
     if (segments.isEmpty())
       try {
         log.info("Found ZERO segments in chainId={}; attempting to delete...", entityId);

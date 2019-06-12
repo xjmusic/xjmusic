@@ -1,30 +1,37 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import { get } from '@ember/object';
-import Service, { inject as service } from '@ember/service';
+import {htmlSafe} from '@ember/string';
+import Service, {inject as service} from '@ember/service';
 
 export default Service.extend({
 
   flashMessages: service(),
 
-  error(error) {
-    if (error instanceof String) {
-      get(this, 'flashMessages').danger('Error: ' + error);
-    } else if ('errors' in error && error.errors.length >= 1) {
-      get(this, 'flashMessages').danger('Error: ' + error.errors[0].detail);
-    } else if ('message' in error) {
-      get(this, 'flashMessages').danger('Error: ' + error.message);
-    } else {
-      get(this, 'flashMessages').danger('Error: ' + error.toString());
-    }
+  error(errorData) {
+    this.flashMessages.danger(this.renderErrorData(errorData));
+  },
+
+  renderErrorData(errorData) {
+    if ('errors' in errorData && errorData.errors.length >= 1)
+      return this.renderError(errorData.errors[0]);
+
+    return `Error: ${errorData.toString()}`;
+  },
+
+  renderError(error) {
+    console.error("Error!", error);
+    if ('detail' in error && error.detail)
+      return htmlSafe(`<h6>${error.title}</h6><p>${error.detail}</p>`);
+    else
+      return error.title;
   },
 
   success(message) {
-    get(this, 'flashMessages').success(message);
+    this.flashMessages.success(message);
   },
 
   warning(message) {
-    get(this, 'flashMessages').warning(message);
+    this.flashMessages.warning(message);
   }
 
 });

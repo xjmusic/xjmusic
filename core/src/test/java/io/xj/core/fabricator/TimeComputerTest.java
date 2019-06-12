@@ -5,8 +5,6 @@ package io.xj.core.fabricator;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.xj.core.CoreModule;
-import io.xj.core.fabricator.TimeComputer;
-import io.xj.core.fabricator.TimeComputerFactory;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -39,7 +39,7 @@ public class AudioStreamLoader {
    @param inputStream to read audio data from
    @throws FormatException if unable to read the audio format
    */
-  public AudioStreamLoader(BufferedInputStream inputStream) throws FormatException, InterruptedException {
+  public AudioStreamLoader(BufferedInputStream inputStream) throws FormatException {
     try {
       audioInputStream = AudioSystem.getAudioInputStream(inputStream);
 

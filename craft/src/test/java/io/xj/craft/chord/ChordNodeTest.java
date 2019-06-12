@@ -2,14 +2,10 @@
 
 package io.xj.craft.chord;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import io.xj.core.model.chord.Chord;
-import io.xj.core.model.pattern_chord.PatternChord;
+import io.xj.core.CoreTest;
 import io.xj.core.util.Value;
 import io.xj.music.Key;
-
 import org.junit.Test;
-
-import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -17,14 +13,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class ChordNodeTest {
+public class ChordNodeTest extends CoreTest {
 
   /**
    [#158715321] Chord nodes able to parse No Chord notation
    */
   @Test
   public void instantiate_NoChord_fromKey() {
-    ChordNode noChord = new ChordNode(Key.of("C"), new PatternChord(BigInteger.valueOf(21), 2.0, "NC"));
+    ChordNode noChord = new ChordNode(Key.of("C"), newSequenceChord(2.0, "NC"));
     assertNotNull(noChord);
     assertEquals(Value.CHORD_MARKER_NON_CHORD, noChord.toString());
   }
@@ -34,7 +30,7 @@ public class ChordNodeTest {
    */
   @Test
   public void instantiate_NoChord_fromPrevious() {
-    ChordNode noChord = new ChordNode(new PatternChord(BigInteger.valueOf(12), 2.0, "G"), new PatternChord(BigInteger.valueOf(21), 2.0, "NC"));
+    ChordNode noChord = new ChordNode(newSequenceChord(2.0, "G"), newSequenceChord(2.0, "NC"));
     assertNotNull(noChord);
     assertEquals(Value.CHORD_MARKER_NON_CHORD, noChord.toString());
   }
@@ -48,11 +44,11 @@ public class ChordNodeTest {
       new ChordNode("7|Major").getForm());
 
     assertEquals("Major",
-      new ChordNode(new PatternChord(BigInteger.valueOf(21), 1.0, "C Minor"),
-        new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).getForm());
+      new ChordNode(newSequenceChord(1.0, "C Minor"),
+        newSequenceChord(2.0, "G Major")).getForm());
 
     assertEquals("Major",
-      new ChordNode(new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).getForm());
+      new ChordNode(newSequenceChord(2.0, "G Major")).getForm());
   }
 
   @Test
@@ -64,11 +60,11 @@ public class ChordNodeTest {
       new ChordNode("7|Major").getWeight());
 
     assertEquals(Long.valueOf(1),
-      new ChordNode(new PatternChord(BigInteger.valueOf(21), 1.0, "C Minor"),
-        new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).getWeight());
+      new ChordNode(newSequenceChord(1.0, "C Minor"),
+        newSequenceChord(2.0, "G Major")).getWeight());
 
     assertEquals(Long.valueOf(1),
-      new ChordNode(new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).getWeight());
+      new ChordNode(newSequenceChord(2.0, "G Major")).getWeight());
   }
 
   @Test
@@ -89,10 +85,10 @@ public class ChordNodeTest {
       new ChordNode("7|Major").getDelta());
 
     assertEquals(Integer.valueOf(7),
-      new ChordNode(new PatternChord(BigInteger.valueOf(21), 1.0, "C Minor"),
-        new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).getDelta());
+      new ChordNode(newSequenceChord(1.0, "C Minor"),
+        newSequenceChord(2.0, "G Major")).getDelta());
 
-    assertNull(new ChordNode(new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).getDelta());
+    assertNull(new ChordNode(newSequenceChord(2.0, "G Major")).getDelta());
   }
 
   @Test
@@ -104,11 +100,11 @@ public class ChordNodeTest {
       new ChordNode("7|Major").toString());
 
     assertEquals("7|Major",
-      new ChordNode(new PatternChord(BigInteger.valueOf(21), 1.0, "C Minor"),
-        new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).toString());
+      new ChordNode(newSequenceChord(1.0, "C Minor"),
+        newSequenceChord(2.0, "G Major")).toString());
 
     assertEquals("Major",
-      new ChordNode(new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).toString());
+      new ChordNode(newSequenceChord(2.0, "G Major")).toString());
   }
 
   @Test
@@ -119,9 +115,9 @@ public class ChordNodeTest {
     assertFalse(new ChordNode("Minor").isEquivalentTo(new ChordNode("9|Major")));
     assertTrue(new ChordNode("7|Major").isEquivalentTo(new ChordNode("7|Major")));
     assertFalse(new ChordNode("8|Major").isEquivalentTo(new ChordNode("7|Major")));
-    assertTrue(new ChordNode(new PatternChord(BigInteger.valueOf(21), 1.0, "C Minor"),
-      new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).isEquivalentTo(new ChordNode("7|Major")));
-    assertTrue(new ChordNode(new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).isEquivalentTo(new ChordNode("Major")));
+    assertTrue(new ChordNode(newSequenceChord(1.0, "C Minor"),
+      newSequenceChord(2.0, "G Major")).isEquivalentTo(new ChordNode("7|Major")));
+    assertTrue(new ChordNode(newSequenceChord(2.0, "G Major")).isEquivalentTo(new ChordNode("Major")));
   }
 
   @Test

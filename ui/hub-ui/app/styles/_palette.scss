@@ -9,6 +9,8 @@ $cyan: #3c9ddf;
 $green: #00c000;
 $gold: #ffc000;
 
+$dirty-entity: saturate(lighten($magenta, 25%), 25%);
+
 $body-background-color: #4b4b4b;
 $body-color: $gray;
 

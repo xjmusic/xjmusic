@@ -2,7 +2,7 @@
 package io.xj.core.isometry;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.model.segment_meme.SegmentMeme;
+import io.xj.core.model.segment.sub.SegmentMeme;
 import org.junit.Test;
 
 import java.math.BigInteger;

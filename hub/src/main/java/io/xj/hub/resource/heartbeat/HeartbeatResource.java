@@ -4,7 +4,6 @@ package io.xj.hub.resource.heartbeat;
 import io.xj.core.app.Heartbeat;
 import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
-import io.xj.core.transport.HttpResponseProvider;
 import io.xj.hub.HubResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,6 @@ import java.util.Objects;
 @Path("heartbeat")
 public class HeartbeatResource extends HubResource {
   private final Logger log = LoggerFactory.getLogger(HeartbeatResource.class);
-  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
   private final Heartbeat heartbeat = injector.getInstance(Heartbeat.class);
 
   @FormParam("key")
@@ -43,15 +41,13 @@ public class HeartbeatResource extends HubResource {
       return response.notAcceptable("authorization required");
     }
 
-    if (!Objects.equals(key, Config.platformHeartbeatKey())) {
-      log.warn("heartbeat with incorrect key, expect:{}, actual:{}", Config.platformHeartbeatKey(), key);
+    if (!Objects.equals(key, Config.getPlatformHeartbeatKey())) {
+      log.warn("heartbeat with incorrect key, expect:{}, actual:{}", Config.getPlatformHeartbeatKey(), key);
       return response.unauthorized();
     }
 
     try {
-      return response.readOne(
-        Heartbeat.KEY_ONE,
-        heartbeat.pulse());
+      return response.ok(heartbeat.pulse());
 
     } catch (Exception e) {
       return response.failure(e);

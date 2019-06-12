@@ -1,8 +1,6 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import RSVP from "rsvp";
-import Service, { inject as service } from '@ember/service';
-import { get } from '@ember/object';
-import $ from 'jquery';
+import Service, {inject as service} from '@ember/service';
 
 /**
  State constants
@@ -10,12 +8,6 @@ import $ from 'jquery';
  */
 const STANDBY = 'Standby';
 const PLAYING = 'Playing';
-
-/**
- * id of HTML entity to embed player inside
- * @type {string}
- */
-const PLAYER_EMBED_PARENT_ID = 'player-embed-container';
 
 /**
  Seconds between Main interval cycles
@@ -75,10 +67,11 @@ export default Service.extend({
    Load configuration
    */
   init() {
+    this._super(...arguments);
     let self = this;
-    get(self, 'config').promises.config.then(
-      (config) => {
-        self.set('segmentBaseUrl', config.segmentBaseUrl);
+    this.config.getConfig().then(
+      () => {
+        self.set('segmentBaseUrl', self.config.segmentBaseUrl);
         self.startCycle();
       },
       (error) => {
@@ -111,9 +104,6 @@ export default Service.extend({
         // now playing
         self.set('state', PLAYING);
 
-        // create the embedded player
-        self.createEmbeddedPlayer();
-
         // do the cycle now
         self.doCycle();
       },
@@ -129,8 +119,6 @@ export default Service.extend({
   stop() {
     let self = this;
     return new RSVP.Promise((resolve) => {
-      self.destroyEmbeddedPlayer();
-
       // set the chain+segment play request
       self.set('currentChain', null);
       self.set('currentSegment', null);
@@ -143,26 +131,10 @@ export default Service.extend({
   },
 
   /**
-   * Create the embedded player
-   */
-  createEmbeddedPlayer() {
-    let chainId = this.get('currentChain').get('id');
-    let startAtMillisUTC = this.get('playFromMillisUTC');
-    $('#' + PLAYER_EMBED_PARENT_ID).html('<iframe frameborder="0" height="25" width="25" scrolling="no" src="/player/#play=' + chainId + '&startAtMillisUTC=' + startAtMillisUTC + '"></iframe>');
-  },
-
-  /**
-   * Destroy the embedded player
-   */
-  destroyEmbeddedPlayer() {
-    $('#' + PLAYER_EMBED_PARENT_ID).html('');
-  },
-
-  /**
    Do Main Cycle every N seconds
    */
   doCycle() {
-    if (this.nonNull(this.get('currentChain'))) {
+    if (this.nonNull(this.currentChain)) {
       this.refreshDataThenUpdate();
     }
   },
@@ -171,7 +143,7 @@ export default Service.extend({
    Check if there is a current chain, and if so, refresh it
    */
   refreshDataThenUpdate() {
-    let currentChain = this.get('currentChain');
+    let currentChain = this.currentChain;
     if (this.nonNull(currentChain)) {
       this.update();
     }
@@ -182,7 +154,7 @@ export default Service.extend({
    */
   update() {
     let self = this;
-    let segments = this.get('currentChain').get('segments');
+    let segments = this.currentChain.get('segments');
     let nowAtMillisUTC = this.nowMillisUTC();
     segments.forEach((segment) => {
       if (Date.parse(segment.get('beginAt')) < nowAtMillisUTC && Date.parse(segment.get('endAt')) > nowAtMillisUTC) {
@@ -197,7 +169,7 @@ export default Service.extend({
    */
   setNowPlayingSegment: function (segment) {
     // return if no change
-    let previousSegment = this.get('currentSegment');
+    let previousSegment = this.currentSegment;
     if (previousSegment && previousSegment.get('id') === segment.get('id')) {
       return;
     }
@@ -207,12 +179,11 @@ export default Service.extend({
 
   /**
    Scroll to the now-playing segment
-   @param doAnimation boolean, default true
    */
-  scrollToNowPlayingSegment: function (doAnimation) {
-    let currentSegment = this.get('currentSegment');
+  scrollToNowPlayingSegment: function () {
+    let currentSegment = this.currentSegment;
     if (currentSegment) {
-      this.get('segmentScroll').scrollTo(currentSegment, doAnimation);
+      this.segmentScroll.scrollTo(currentSegment);
     }
   },
 
@@ -246,7 +217,7 @@ export default Service.extend({
    Seconds from UTC to now
    */
   nowMillisUTC() {
-    let nowAdjustedMillisUTC = this.get('playOffsetNowMillisUTC');
+    let nowAdjustedMillisUTC = this.playOffsetNowMillisUTC;
     if (nowAdjustedMillisUTC > 0 || nowAdjustedMillisUTC < 0) {
       return Date.now() - nowAdjustedMillisUTC;
     } else {
@@ -258,7 +229,7 @@ export default Service.extend({
    The player's current time, in seconds (float precision) since context start
    */
   currentTime() {
-    let fromMillisUTC = this.get('playFromMillisUTC');
+    let fromMillisUTC = this.playFromMillisUTC;
     if (fromMillisUTC > 0) {
       return (this.nowMillisUTC() - fromMillisUTC) / MILLIS_PER_SECOND;
     } else {

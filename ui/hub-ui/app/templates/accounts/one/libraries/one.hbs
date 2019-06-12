@@ -14,7 +14,7 @@
         {{model.name}}
 
         <small>
-          {{entity-actions "accounts.one.libraries.one" "edit|destroy" model.account model}}
+          {{entity-actions "accounts.one.libraries.one" "edit|destroy" model.account model.id}}
         </small>
       </h1>
 
@@ -27,17 +27,16 @@
   <div class="form-group row">
     <ul class="nav nav-tabs">
       <li class="nav-item">
-        {{#link-to 'accounts.one.libraries.one.index' model class='nav-link'}}Preview{{/link-to}}
-      </li>
-      <li class="nav-item">
-        {{#link-to 'accounts.one.libraries.one.sequences' model class='nav-link'}}Sequences{{/link-to}}
+        {{#link-to 'accounts.one.libraries.one.programs' model class='nav-link'}}Programs{{/link-to}}
       </li>
       <li class="nav-item">
         {{#link-to 'accounts.one.libraries.one.instruments' model class='nav-link'}}Instruments{{/link-to}}
       </li>
+      <!--
       <li class="nav-item">
         {{#link-to 'accounts.one.libraries.one.digest' model class='nav-link'}}Digest{{/link-to}}
       </li>
+      -->
     </ul>
   </div>
 </div>

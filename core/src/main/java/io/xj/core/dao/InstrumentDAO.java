@@ -39,15 +39,5 @@ public interface InstrumentDAO extends DAO<Instrument> {
    */
   Collection<Instrument> readAll(Access access) throws CoreException;
 
-  /**
-   Fetch many instrument bound to a particular chain
-
-   @param access  control
-   @param chainId to fetch instruments for.
-   @return collection of instruments.
-   @throws CoreException on failure
-   */
-  Collection<Instrument> readAllBoundToChain(Access access, BigInteger chainId) throws CoreException;
-
 
 }

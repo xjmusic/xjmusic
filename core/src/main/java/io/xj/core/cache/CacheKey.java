@@ -4,11 +4,13 @@ package io.xj.core.cache;
 import com.google.common.collect.Lists;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.Resource;
+import io.xj.core.util.Text;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -27,7 +29,7 @@ public interface CacheKey {
    @param entities to get signature of
    @return signature
    */
-  static String of(Access access, Collection<Entity> entities) {
+  static <N extends Resource> String of(Access access, Collection<N> entities) {
     return String.format("%s%s%s", of(access), SIGNATURE_DELIMITER_CHARLIE, of(entities));
   }
 
@@ -43,8 +45,9 @@ public interface CacheKey {
         SIGNATURE_DELIMITER_ALPHA, access.getUserId()));
     } catch (CoreException ignored) {
     }
-    pieces.add(String.format("UserAuth%s%s",
-      SIGNATURE_DELIMITER_ALPHA, access.getUserAuthId()));
+    if (Objects.nonNull(access.getUserAuthId()))
+      pieces.add(String.format("UserAuth%s%s",
+        SIGNATURE_DELIMITER_ALPHA, access.getUserAuthId()));
     access.getAccountIds().forEach(id -> pieces.add(String.format("Account%s%s",
       SIGNATURE_DELIMITER_ALPHA, id)));
     access.getRoleTypes().forEach(type -> pieces.add(String.format("Role%s%s",
@@ -59,9 +62,9 @@ public interface CacheKey {
    @param entities to get unique signature of
    @return signature
    */
-  static String of(Collection<Entity> entities) {
+  static <N extends Resource> String of(Collection<N> entities) {
     List<String> pieces = entities.stream().map(entity -> String.format("%s%s%s",
-      entity.getClass().getSimpleName(), SIGNATURE_DELIMITER_ALPHA, entity.getId())).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
+      Text.getSimpleName(entity), SIGNATURE_DELIMITER_ALPHA, entity.getResourceId())).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
     return String.join(SIGNATURE_DELIMITER_BRAVO, pieces);
   }
 

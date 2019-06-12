@@ -1,6 +1,6 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import { helper } from '@ember/component/helper';
+import {helper} from '@ember/component/helper';
 
 const CSS_CLASS_PREFIX = 'weight-';
 

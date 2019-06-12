@@ -5,22 +5,22 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.isometry.MemeIsometry;
-import io.xj.core.model.arrangement.Arrangement;
-import io.xj.core.model.audio.Audio;
-import io.xj.core.model.chain_config.ChainConfig;
-import io.xj.core.model.chain_config.ChainConfigType;
-import io.xj.core.model.choice.Choice;
-import io.xj.core.model.entity.Entity;
-import io.xj.core.model.meme.Meme;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.pick.Pick;
+import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.sub.ChainConfig;
+import io.xj.core.model.chain.ChainConfigType;
+import io.xj.core.model.entity.Meme;
+import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.instrument.sub.Audio;
+import io.xj.core.model.instrument.sub.AudioEvent;
+import io.xj.core.model.program.Program;
+import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.segment.Segment;
-import io.xj.core.model.segment_chord.SegmentChord;
-import io.xj.core.model.segment_meme.SegmentMeme;
-import io.xj.core.model.segment_message.SegmentMessage;
-import io.xj.core.model.sequence.Sequence;
-import io.xj.core.model.sequence_pattern.SequencePattern;
+import io.xj.core.model.segment.sub.Arrangement;
+import io.xj.core.model.segment.sub.Choice;
+import io.xj.core.model.segment.sub.SegmentChord;
+import io.xj.core.model.segment.sub.SegmentMeme;
+import io.xj.core.model.segment.sub.SegmentMessage;
+import io.xj.core.model.segment.sub.Pick;
 import io.xj.music.Chord;
 import io.xj.music.Note;
 
@@ -39,7 +39,7 @@ public interface Fabricator {
    @param arrangement to create
    @return arrangement with assigned next id (unique for this segment)
    */
-  Arrangement add(Arrangement arrangement) throws CoreException;
+  Arrangement add(Arrangement arrangement);
 
   /**
    Add a new Choice
@@ -47,7 +47,7 @@ public interface Fabricator {
    @param choice to create
    @return choice with assigned next id (unique for this segment)
    */
-  Choice add(Choice choice) throws CoreException;
+  Choice add(Choice choice);
 
   /**
    Add a new Pick
@@ -55,7 +55,7 @@ public interface Fabricator {
    @param pick to add
    @return pick with assigned next id (unique for this segment)
    */
-  Pick add(Pick pick) throws CoreException;
+  Pick add(Pick pick);
 
   /**
    Add a new SegmentChord
@@ -63,7 +63,7 @@ public interface Fabricator {
    @param segmentChord to create
    @return segmentChord with assigned next id (unique for this segment)
    */
-  SegmentChord add(SegmentChord segmentChord) throws CoreException;
+  SegmentChord add(SegmentChord segmentChord);
 
   /**
    Add a new SegmentMeme
@@ -71,7 +71,7 @@ public interface Fabricator {
    @param segmentMeme to create
    @return segmentMeme with assigned next id (unique for this segment)
    */
-  SegmentMeme add(SegmentMeme segmentMeme) throws CoreException;
+  SegmentMeme add(SegmentMeme segmentMeme);
 
   /**
    Add a new SegmentMessage
@@ -79,7 +79,7 @@ public interface Fabricator {
    @param segmentMessage to create
    @return segmentMessage with assigned next id (unique for this segment)
    */
-  SegmentMessage add(SegmentMessage segmentMessage) throws CoreException;
+  SegmentMessage add(SegmentMessage segmentMessage);
 
   /**
    Compute using an integral
@@ -103,20 +103,12 @@ public interface Fabricator {
   Access getAccess() throws CoreException;
 
   /**
-   Get all entities bound to chain
-
-   @return collection of entities
-   @throws CoreException on failure
-   */
-  Collection<Entity> getAllAvailableEntities() throws CoreException;
-
-  /**
    Chain configurations
    (Caches its DAO read)
 
    @return map of chain config type to value
    */
-  Map<ChainConfigType, ChainConfig> getAllChainConfigs();
+  Map<ChainConfigType, ChainConfig> getAllChainConfigs() throws CoreException;
 
   /**
    id of all audio picked for current segment
@@ -124,15 +116,32 @@ public interface Fabricator {
    @return list of audio ids
    @throws CoreException on failure
    */
-  Collection<BigInteger> getAllSegmentAudioIds() throws CoreException;
+  Collection<Audio> getPickedAudios() throws CoreException;
 
   /**
-   All Audio picked for current Segment
+   Get Audio by UUID
 
-   @return audios
-   @throws CoreException on failure
+   @param id of audio
+   @return audio
+   @throws CoreException on failure to get
    */
-  Map<BigInteger, Audio> getAllSegmentAudios() throws CoreException;
+  Audio getAudio(UUID id) throws CoreException;
+
+  /**
+   Get Audio for a given Pick
+
+   @param pick to get audio for
+   @return audio for the given pick
+   @throws CoreException on failure to locate the audio for the specified pick
+   */
+  Audio getAudio(Pick pick) throws CoreException;
+
+  /**
+   Get the Chain
+
+   @return Chain
+   */
+  Chain getChain() throws CoreException;
 
   /**
    Chain configuration, by type
@@ -168,12 +177,12 @@ public interface Fabricator {
   Choice getCurrentMacroChoice() throws CoreException;
 
   /**
-   macro-type sequence pattern in current segment
+   macro-type sequence binding in current segment
 
    @return pattern
    @throws CoreException on failure
    */
-  Pattern getCurrentMacroOffset() throws CoreException;
+  Sequence getCurrentMacroSequence() throws CoreException;
 
   /**
    fetch the main-type choice for the current segment in the chain
@@ -193,27 +202,35 @@ public interface Fabricator {
 
   /**
    @return Seconds elapsed since content was instantiated
-   <p>
    */
   Double getElapsedSeconds();
 
   /**
-   An Ingest collection of entities that this chain segment fabrication content will ingest.
-   Based on primary chain-bindings, e.g. ChainLibrary, ChainInstrument, and ChainSequence.
-   (CACHED)
+   Read all AudioEvent that are first in an audio, for all audio in an Instrument
 
-   @return Ingest
+   @param instrument to get audio for
+   @return audio events
+   @throws CoreException on failure
    */
-  Ingest getSourceMaterial() throws CoreException;
+  Collection<AudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) throws CoreException;
+
+  /**
+   Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
+
+   @param choice to get key for
+   @return key of specified sequence/program via choice
+   @throws CoreException if unable to determine key of choice
+   */
+  String getKeyForChoice(Choice choice) throws CoreException;
 
   /**
    Get max available sequence pattern offset for a given choice
 
    @param choice for which to check
    @return max available sequence pattern offset
-   @throws CoreException on attempt to get max available SequencePattern offset of choice with no SequencePattern
+   @throws CoreException on attempt to get max available SequenceBinding offset of choice with no SequenceBinding
    */
-  BigInteger getMaxAvailableSequencePatternOffset(Choice choice) throws CoreException;
+  Long getMaxAvailableSequenceBindingOffset(Choice choice) throws CoreException;
 
   /**
    Compute the pattern-meme constellations of any previous segments which selected the same main sequence
@@ -257,7 +274,7 @@ public interface Fabricator {
    @return MemeIsometry for previous macro-choice
    @throws CoreException on failure
    */
-  MemeIsometry getMemeIsometryOfNextPatternInPreviousMacro() throws CoreException;
+  MemeIsometry getMemeIsometryOfNextSequenceInPreviousMacro() throws CoreException;
 
   /**
    Get meme isometry for the current segment
@@ -278,15 +295,15 @@ public interface Fabricator {
   Collection<Meme> getMemesOfChoice(Choice choice) throws CoreException;
 
   /**
-   Given a Choice having a SequencePattern,
-   determine the next available SequencePattern offset of the chosen sequence,
-   or loop back to zero (if past the end of the available SequencePattern offsets)
+   Given a Choice having a SequenceBinding,
+   determine the next available SequenceBinding offset of the chosen sequence,
+   or loop back to zero (if past the end of the available SequenceBinding offsets)
 
-   @param choice having a SequencePattern
-   @return next available SequencePattern offset of the chosen sequence, or zero (if past the end of the available SequencePattern offsets)
-   @throws CoreException on attempt to get next SequencePattern offset of choice with no SequencePattern
+   @param choice having a SequenceBinding
+   @return next available SequenceBinding offset of the chosen sequence, or zero (if past the end of the available SequenceBinding offsets)
+   @throws CoreException on attempt to get next SequenceBinding offset of choice with no SequenceBinding
    */
-  BigInteger getNextSequencePatternOffset(Choice choice) throws CoreException;
+  Long getNextSequenceBindingOffset(Choice choice) throws CoreException;
 
   /**
    Note, for any pitch in Hz
@@ -320,8 +337,31 @@ public interface Fabricator {
   Double getPitch(Note note);
 
   /**
+   Get all previous segments with same main program
+
+   @return previous segments with ame main program
+   */
+  Collection<Segment> getPreviousSegmentsWithSameMainProgram();
+
+  /**
+   Get Program for any given choice
+
+   @param choice to get program for
+   @return Program for the specified choice
+   */
+  Program getProgram(Choice choice) throws CoreException;
+
+  /**
+   Get the program containing any given sequence
+
+   @param sequence to get program for
+   @return Program
+   */
+  Program getProgram(Sequence sequence) throws CoreException;
+
+  /**
    Get the preset choice arrangements, stored after scanning previous segments choosing same sequences
-   TODO ensure this is implemented with tests, in order to achieve craft that uses same arrangements as previous segment(s)
+   TODO ensure craft is correctly using same arrangements as previous segment(s), then delete this method and related, note other method in this class, setPreArrangementsForChoice(...)
 
    @return preset choice arrangements
    */
@@ -334,14 +374,6 @@ public interface Fabricator {
    @throws CoreException on failure
    */
   Choice getPreviousMacroChoice() throws CoreException;
-
-  /**
-   macro-type sequence pattern in previous segment
-
-   @return pattern, null if none exists
-   @throws CoreException on failure
-   */
-  Pattern getPreviousMacroNextOffset() throws CoreException;
 
   /**
    fetch the main-type choice for the previous segment in the chain
@@ -359,53 +391,11 @@ public interface Fabricator {
   Segment getPreviousSegment() throws CoreException;
 
   /**
-   Read all previous segments with the same main sequence as this one
-   (Caches its DAO read)
-
-   @return collection of segments
-   */
-  Collection<Segment> getPreviousSegmentsWithSameMainSequence();
-
-  /**
-   [#165954619]
-   Selects one (at random) from all available patterns of a given type within a sequence.
-   Caches the selection, so it will always return the same output for any given input.
-
-   @param sequenceId  of pattern
-   @param patternType to fetch
-   @return Pattern model
-   @throws CoreException on failure
-   */
-  Pattern getRandomPatternByType(BigInteger sequenceId, PatternType patternType) throws CoreException;
-
-  /**
-   [#165954619]
-   Selects one (at random) from all available sequence patterns an at offset of a sequence.
-   Caches the selection, so it will always return the same output for any given input.
-   NOTE:
-   It's necessary for accessors to use this cached sequence pattern (NOT a cached pattern) because sequence_pattern_memes cannot be determined by pattern alone!
-
-   @param sequenceId            of pattern
-   @param sequencePatternOffset to fetch
-   @return SequencePattern model
-   @throws CoreException on failure
-   */
-  SequencePattern getRandomSequencePatternAtOffset(BigInteger sequenceId, BigInteger sequencePatternOffset) throws CoreException;
-
-  /**
    The segment being fabricated
 
    @return Segment
    */
   Segment getSegment();
-
-  /**
-   Read an Audio by id, assumed to be in the set of audio found for all picks in the segment
-
-   @param audioId to fetch
-   @return Audio
-   */
-  Audio getSegmentAudio(BigInteger audioId) throws CoreException;
 
   /**
    Fetch a segment in a chain, by offset
@@ -415,7 +405,7 @@ public interface Fabricator {
    @return Segment
    @throws CoreException on failure
    */
-  Segment getSegmentByOffset(BigInteger chainId, BigInteger offset) throws CoreException;
+  Segment getSegmentByOffset(BigInteger chainId, Long offset) throws CoreException;
 
   /**
    Total length of segment from beginning to end
@@ -427,21 +417,31 @@ public interface Fabricator {
 
   /**
    [#165954619] Get the sequence for a Choice either directly (rhythm- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences)
+   <p>
+   [#166690830] Program model handles all of its own entities
+   Rhythm and Detail programs are allowed to have only one (default) sequence.
 
    @param choice to get sequence for
    @return Sequence for choice
    @throws CoreException on failure
    */
-  Sequence getSequenceOfChoice(Choice choice) throws CoreException;
+  Sequence getSequence(Choice choice) throws CoreException;
 
   /**
    Get the sequence pattern offset of a given Choice
 
-   @param choice having a SequencePattern
+   @param choice having a SequenceBinding
    @return sequence pattern offset
-   @throws CoreException on attempt to get next SequencePattern offset of choice with no SequencePattern
+   @throws CoreException on attempt to get next SequenceBinding offset of choice with no SequenceBinding
    */
-  BigInteger getSequencePatternOffsetForChoice(Choice choice) throws CoreException;
+  Long getSequenceBindingOffsetForChoice(Choice choice) throws CoreException;
+
+  /**
+   Get the ingested source material for fabrication
+
+   @return source material
+   */
+  Ingest getSourceMaterial();
 
   /**
    Determine type of content, e.g. initial segment in chain, or next macro-sequence
@@ -456,9 +456,9 @@ public interface Fabricator {
 
    @param choice for which to check
    @return true if it has at least one more sequence pattern offset
-   @throws CoreException on attempt to get next SequencePattern offset of choice with no SequencePattern
+   @throws CoreException on attempt to get next SequenceBinding offset of choice with no SequenceBinding
    */
-  boolean hasOneMoreSequencePatternOffset(Choice choice) throws CoreException;
+  boolean hasOneMoreSequenceBindingOffset(Choice choice) throws CoreException;
 
   /**
    Whether the current Segment Choice has two or more sequence pattern offsets
@@ -466,9 +466,9 @@ public interface Fabricator {
 
    @param choice for which to check
    @return true if it has at least two more sequence pattern offsets
-   @throws CoreException on attempt to get next SequencePattern offset of choice with no SequencePattern
+   @throws CoreException on attempt to get next SequenceBinding offset of choice with no SequenceBinding
    */
-  boolean hasTwoMoreSequencePatternOffsets(Choice choice) throws CoreException;
+  boolean hasTwoMoreSequenceBindingOffsets(Choice choice) throws CoreException;
 
   /**
    is initial segment?
@@ -487,8 +487,9 @@ public interface Fabricator {
   void putReport(String key, Object value);
 
   /**
-   Set the cached contents of the choice arrangements array@param choice     to set content for
+   Set the cached contents of the choice arrangements array
 
+   @param choice       to set content for
    @param arrangements to return for content choice arrangements
    */
   void setPreArrangementsForChoice(Choice choice, Collection<Arrangement> arrangements);

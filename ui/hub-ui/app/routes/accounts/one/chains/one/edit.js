@@ -1,5 +1,4 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import {get} from '@ember/object';
 
 import {hash, Promise as EmberPromise} from 'rsvp';
 import {inject as service} from '@ember/service';
@@ -20,7 +19,7 @@ export default Route.extend({
   model() {
     return new EmberPromise((resolve, reject) => {
       let self = this;
-      get(this, 'config').promises.config.then(
+      this.config.getConfig().then(
         () => {
           resolve(self.resolvedModel());
         },
@@ -53,11 +52,11 @@ export default Route.extend({
     saveChain(model) {
       model.save().then(
         () => {
-          get(this, 'display').success('Updated chain.');
+          this.display.success('Updated chain.');
           history.back();
         },
         (error) => {
-          get(this, 'display').error(error);
+          this.display.error(error);
         });
     },
 

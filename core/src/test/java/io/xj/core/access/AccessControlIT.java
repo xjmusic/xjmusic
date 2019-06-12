@@ -2,24 +2,20 @@
 package io.xj.core.access;
 
 import com.google.common.collect.Lists;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
+import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
 import io.xj.core.access.token.TokenGenerator;
 import io.xj.core.dao.UserDAO;
 import io.xj.core.external.google.GoogleProvider;
-import io.xj.core.integration.IntegrationTestEntity;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-
-import io.xj.core.model.account_user.AccountUser;
-import io.xj.core.model.user_auth.UserAuth;
-import io.xj.core.model.user_auth.UserAuthType;
-import io.xj.core.model.user_role.UserRole;
-import io.xj.core.model.user_role.UserRoleType;
-import org.junit.After;
+import io.xj.core.model.account.AccountUser;
+import io.xj.core.model.user.auth.UserAuth;
+import io.xj.core.model.user.auth.UserAuthType;
+import io.xj.core.model.user.role.UserRole;
+import io.xj.core.model.user.role.UserRoleType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,9 +31,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AccessControlIT {
+public class AccessControlIT extends FixtureIT {
   private static final int STRESS_TEST_ITERATIONS = 100;
-  private AccessControlProvider accessControlProvider;
   @Rule
   public ExpectedException failure = ExpectedException.none();
   @Mock
@@ -46,12 +41,12 @@ public class AccessControlIT {
   public GoogleProvider googleProvider;
   @Mock
   public UserDAO userDAO;
+  private AccessControlProvider accessControlProvider;
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.reset();
-
-    Injector injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+    reset();
+    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -62,10 +57,6 @@ public class AccessControlIT {
       }));
 
     accessControlProvider = injector.getInstance(AccessControlProvider.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
   }
 
   @Test

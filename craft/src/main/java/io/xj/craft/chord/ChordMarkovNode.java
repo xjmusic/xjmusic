@@ -1,7 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.chord;
 
-import io.xj.core.model.chord.Chord;
 import io.xj.core.util.TremendouslyRandom;
 
 import com.google.common.base.Joiner;
@@ -24,7 +23,7 @@ import java.util.Map;
 public class ChordMarkovNode {
   public static final Comparator<? super ChordMarkovNode> byPopularityDescending = (Comparator<? super ChordMarkovNode>) (o1, o2) -> Integer.compare(o2.getPopularity(), o1.getPopularity());
   private final List<ChordNode> precedentState;
-  private final Map<String, ChordNode> nodeMap = Maps.newConcurrentMap();
+  private final Map<String, ChordNode> nodeMap = Maps.newHashMap();
 
   /**
    Construct chord markov node from a list of entities, being the precedent state of all observations (possible outcomes a.k.a. chord change) to be added to this node.

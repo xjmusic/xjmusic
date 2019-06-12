@@ -26,7 +26,7 @@ const ChainStateChangeComponent = Component.extend({
        */
       revive(askConfirm) {
         let self = this;
-        let model = this.get('model');
+        let model = this.model;
         let reviveId = model.get('id');
 
         if (askConfirm && !confirm(this.msgConfirmRevive())) {
@@ -46,7 +46,7 @@ const ChainStateChangeComponent = Component.extend({
             self.submit();
           },
           (error) => {
-            get(this, 'display').error(error);
+            this.display.error(error);
           });
       },
 
@@ -58,7 +58,7 @@ const ChainStateChangeComponent = Component.extend({
        */
       changeState(toState, askConfirm) {
         let self = this;
-        let model = this.get('model');
+        let model = this.model;
 
         if (askConfirm && !confirm(this.msgConfirmChange(toState))) {
           get(self, 'display').warning('Cancelled.');
@@ -85,7 +85,7 @@ const ChainStateChangeComponent = Component.extend({
      * @returns {string}
      */
     msgSuccess() {
-      let model = this.get('model');
+      let model = this.model;
       return [
         model.get('name'),
         'is now in',
@@ -102,7 +102,7 @@ const ChainStateChangeComponent = Component.extend({
      * @returns {string}
      */
     msgConfirmChange(toState) {
-      let model = this.get('model');
+      let model = this.model;
       return [
         'Really change',
         model.get('name'),
@@ -119,7 +119,7 @@ const ChainStateChangeComponent = Component.extend({
      * @returns {string}
      */
     msgConfirmRevive() {
-      let model = this.get('model');
+      let model = this.model;
       return 'Really revive Chain #' + model.get('id') + '?';
     }
 

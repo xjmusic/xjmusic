@@ -13,4 +13,7 @@ public class CoreException extends Exception {
     super(String.format("%s %s\n%s", msg, e.toString(), Text.formatStackTrace(e)));
   }
 
+  public CoreException(Throwable targetException) {
+    super(String.format("%s\n%s", targetException.getMessage(), Text.formatStackTrace(targetException)));
+  }
 }

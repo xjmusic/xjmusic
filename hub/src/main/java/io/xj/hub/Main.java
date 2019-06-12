@@ -7,8 +7,8 @@ import io.xj.core.CoreModule;
 import io.xj.core.app.App;
 import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
-import io.xj.core.persistence.sql.migration.MigrationService;
+import io.xj.core.persistence.sql.migration.LegacyMigration;
+import io.xj.core.persistence.sql.migration.Migration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,8 @@ public enum Main {
 
     // Database migrations
     try {
-      MigrationService.migrate(injector.getInstance(SQLDatabaseProvider.class));
+      injector.getInstance(Migration.class).migrate();
+      injector.getInstance(LegacyMigration.class).migrate();
     } catch (CoreException e) {
       log.error("Migrations failed! App will not start.", e);
       System.exit(1);

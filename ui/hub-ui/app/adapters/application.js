@@ -1,19 +1,27 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import $ from 'jquery';
 
-import { get } from '@ember/object';
-import { dasherize } from '@ember/string';
-import { pluralize } from 'ember-inflector';
-import DS from "ember-data";
+import {get} from '@ember/object';
+import {dasherize} from '@ember/string';
+import {pluralize} from 'ember-inflector';
 
-/*
-import DataAdapterMixin from "ember-simple-auth/mixins/data-adapter-mixin";
-export default DS.JSONAPIAdapter.extend(DataAdapterMixin, {
-  authorizer: 'authorizer:some'
-});
-*/
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-export default DS.RESTAdapter.extend({
+const dontFetch = [
+  "audio",
+  "audio-chord",
+  "audio-event",
+  "instrument-meme",
+  "pattern",
+  "pattern-event",
+  "program-meme",
+  "sequence",
+  "sequence-binding",
+  "sequence-chord",
+  "sequence-meme",
+  "voice"
+];
+
+export default JSONAPIAdapter.extend({
 
   // root URL of API
   namespace: 'api/1',
@@ -48,10 +56,12 @@ export default DS.RESTAdapter.extend({
    * @returns {*}
    */
   urlForFindRecord(id, modelName, snapshot) {
+    if (dontFetch.includes(modelName)) console.warn("Front-end should not attempt to fetch", modelName);
+
     let url = this._super(...arguments);
     let query = get(snapshot, 'adapterOptions.query');
     if (query) {
-      url += '?' + $.param(query); // assumes no query params are present already
+      url += '?' + this.serializeParams(query); // assumes no query params are present already
     }
     return url;
   },
@@ -79,8 +89,17 @@ export default DS.RESTAdapter.extend({
     let url = this._super(...arguments);
     let query = get(snapshot, 'adapterOptions.query');
     if (query) {
-      url += '?' + $.param(query); // assumes no query params are present already
+      url += '?' + this.serializeParams(query); // assumes no query params are present already
     }
     return url;
+  },
+
+  /**
+   * Serialize parameters into query string
+   * @param query parameters to serialize
+   * @return {string} query parameter string
+   */
+  serializeParams(obj) {
+    return Object.entries(obj).map(([key, val]) => `${key}=${val}`).join('&');
   }
 });

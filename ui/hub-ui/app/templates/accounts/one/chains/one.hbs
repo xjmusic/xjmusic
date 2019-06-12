@@ -16,7 +16,7 @@
         {{model.name}}
         <!-- should only show following edit icon if user has privileges to edit this chain -->
         <small>
-          {{entity-actions "accounts.one.chains.one" "edit|destroy" model.account model}}
+          {{entity-actions "accounts.one.chains.one" "edit|destroy" model.account model.id}}
         </small>
         &lpar;{{model.state}}&rpar;
       </h1>
@@ -104,13 +104,7 @@
         {{#link-to 'accounts.one.chains.one.configs' model class='nav-link' class='nav-link'}}Configs{{/link-to}}
       </li>
       <li class="nav-item">
-        {{#link-to 'accounts.one.chains.one.libraries' model class='nav-link' class='nav-link'}}Libraries{{/link-to}}
-      </li>
-      <li class="nav-item">
-        {{#link-to 'accounts.one.chains.one.instruments' model class='nav-link' class='nav-link'}}Instruments{{/link-to}}
-      </li>
-      <li class="nav-item">
-        {{#link-to 'accounts.one.chains.one.sequences' model class='nav-link' class='nav-link'}}Sequences{{/link-to}}
+        {{#link-to 'accounts.one.chains.one.bindings' model class='nav-link' class='nav-link'}}Bindings{{/link-to}}
       </li>
     </ul>
   </div>

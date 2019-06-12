@@ -3,23 +3,24 @@ package io.xj.craft.digest.meme.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.xj.core.model.sequence_pattern.SequencePattern;
+import io.xj.core.model.program.sub.SequenceBinding;
 
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  In-memory cache of ingest of a meme usage in a library
  <p>
- [#154234716] Artist wants to run a library ingest in order to understand all of the existing contents within the sequences in a library.
+ [#154234716] Artist wants to run a library ingest in order to understand all of the existing contents within the programs in a library.
  */
 public class DigestMemesItem {
   private final String name;
   private final Collection<BigInteger> instrumentIds = Lists.newArrayList();
-  private final Collection<BigInteger> sequenceIds = Lists.newArrayList();
-  private final Map<BigInteger, Collection<BigInteger>> patternIds = Maps.newConcurrentMap(); // sequenceId: collection of patternIds mapped to it
+  private final Collection<BigInteger> programIds = Lists.newArrayList();
+  private final Map<BigInteger, Collection<UUID>> sequenceIds = Maps.newHashMap(); // programId: collection of sequenceIds mapped to it
 
   /**
    New instance
@@ -40,31 +41,31 @@ public class DigestMemesItem {
   }
 
   /**
-   Add a sequence id, if it isn't already in the list
+   Add a program id, if it isn't already in the list
 
-   @param id of sequence to add
+   @param id of program to add
    */
-  public void addSequenceId(BigInteger id) {
-    if (!sequenceIds.contains(id))
-      sequenceIds.add(id);
+  public void addProgramId(BigInteger id) {
+    if (!programIds.contains(id))
+      programIds.add(id);
   }
 
   /**
-   Add a sequence id, if it isn't already in the list
+   Add a program id, if it isn't already in the list
 
-   @param sequencePattern to add
+   @param sequenceBinding to add
    */
-  public void addSequencePattern(SequencePattern sequencePattern) {
-    addSequenceId(sequencePattern.getSequenceId());
+  public void addSequenceBinding(SequenceBinding sequenceBinding) {
+    addProgramId(sequenceBinding.getProgramId());
 
-    BigInteger sequenceId = sequencePattern.getSequenceId();
-    if (!patternIds.containsKey(sequenceId)) {
-      patternIds.put(sequenceId, Lists.newArrayList());
+    BigInteger programId = sequenceBinding.getProgramId();
+    if (!sequenceIds.containsKey(programId)) {
+      sequenceIds.put(programId, Lists.newArrayList());
     }
 
-    BigInteger patternId = sequencePattern.getPatternId();
-    if (!patternIds.get(sequenceId).contains(patternId)) {
-      patternIds.get(sequenceId).add(patternId);
+    UUID sequenceId = sequenceBinding.getSequenceId();
+    if (!sequenceIds.get(programId).contains(sequenceId)) {
+      sequenceIds.get(programId).add(sequenceId);
     }
   }
 
@@ -88,21 +89,21 @@ public class DigestMemesItem {
   }
 
   /**
-   Get the sequence ids in which this meme is used
+   Get the program ids in which this meme is used
 
-   @return collection of sequence id
+   @return collection of program id
    */
-  public Collection<BigInteger> getSequenceIds() {
-    return Collections.unmodifiableCollection(sequenceIds);
+  public Collection<BigInteger> getProgramIds() {
+    return Collections.unmodifiableCollection(programIds);
   }
 
   /**
-   Get the sequence ids for which this meme is used in patterns therein
+   Get the sequence ids is used in sequences in a particular program
 
-   @return collection of sequence id
+   @return collection of program id
    */
-  public Collection<BigInteger> getPatternIds(BigInteger sequenceId) {
-    return patternIds.getOrDefault(sequenceId, Lists.newArrayList());
+  public Collection<UUID> getSequenceIds(BigInteger programId) {
+    return sequenceIds.getOrDefault(programId, Lists.newArrayList());
   }
 
 }

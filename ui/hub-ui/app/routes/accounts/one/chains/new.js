@@ -1,5 +1,4 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import {get} from '@ember/object';
 
 import {hash, Promise as EmberPromise} from 'rsvp';
 import {inject as service} from '@ember/service';
@@ -15,36 +14,26 @@ export default Route.extend({
 
   /**
    * Model is a promise because it depends on promised configs
-   * @returns {Ember.RSVP.Promise}
+   * @returns {Promise}
    */
   model() {
     return new EmberPromise((resolve, reject) => {
       let self = this;
-      get(this, 'config').promises.config.then(
-        (config) => {
-          resolve(self.resolvedModel(config));
+      this.config.getConfig().then(
+        () => {
+          resolve(hash({
+            chain: self.store.createRecord('chain', {
+              account: self.modelFor('accounts.one'),
+              state: self.config.chainStates[0],
+              type: 'Production'
+            })
+          }, 'new chain'));
         },
         (error) => {
           reject('Could not instantiate new Chain', error);
         }
       );
     });
-  },
-
-  /**
-   * Resolved (with configs) model
-   * @param config
-   * @returns {*} hash
-   */
-  resolvedModel(config) {
-    let account = this.modelFor('accounts.one');
-    return hash({
-      chain: this.store.createRecord('chain', {
-        account: account,
-        state: config.chainStates[0],
-        type: config.chainTypes[0]
-      })
-    }, 'new chain');
   },
 
   /**
@@ -55,12 +44,11 @@ export default Route.extend({
     createChain(model) {
       model.save().then(
         (data) => {
-          console.error("data=", data, "data.get('id')=", data.get("id")); // TODO
-          get(this, 'display').success('Created chain ' + data.get('name') + '.');
+          this.display.success('Created chain ' + data.get('name') + '.');
           this.transitionTo('accounts.one.chains.one', data);
         },
         (error) => {
-          get(this, 'display').error(error);
+          this.display.error(error);
         });
     },
 

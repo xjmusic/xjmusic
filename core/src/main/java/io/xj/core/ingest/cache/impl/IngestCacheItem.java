@@ -33,7 +33,7 @@ public class IngestCacheItem {
    */
   Boolean isValid() {
     return Instant.now().getEpochSecond() <
-      createdAt.getEpochSecond() + Config.ingestCacheSeconds();
+      createdAt.getEpochSecond() + Config.getIngestCacheSeconds();
   }
 
   /**

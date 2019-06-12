@@ -6,7 +6,7 @@ import io.xj.core.fabricator.Fabricator;
 import io.xj.craft.exception.CraftException;
 
 public class CraftImpl {
-  private Fabricator fabricator;
+  protected Fabricator fabricator;
 
   /**
    Create a new CraftException prefixed with a segment id
@@ -36,26 +36,7 @@ public class CraftImpl {
    @return formatted message with segmentId as prefix
    */
   public String formatLog(String message) {
-    return String.format("[segId=%s] %s", getFabricator().getSegment().getId(), message);
+    return String.format("[segId=%s] %s", fabricator.getSegment().getId(), message);
   }
 
-
-  /**
-   Get the fabricator
-
-   @return Fabricator
-   */
-  public Fabricator getFabricator() {
-    return fabricator;
-  }
-
-  /**
-   YES i know this is a final method
-   in order to set the fabricator gia Guice injection during construction of things that extend CraftImpl
-
-   @param fabricator to set, once per instance
-   */
-  public final void setFabricator(Fabricator fabricator) {
-    this.fabricator = fabricator;
-  }
 }

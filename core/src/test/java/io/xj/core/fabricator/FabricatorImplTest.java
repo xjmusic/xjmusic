@@ -4,25 +4,20 @@ package io.xj.core.fabricator;// Copyright (c) 2018, XJ Music Inc. (https://xj.i
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
-import io.xj.core.dao.AudioDAO;
-import io.xj.core.dao.AudioEventDAO;
-import io.xj.core.dao.ChainConfigDAO;
-import io.xj.core.dao.InstrumentMemeDAO;
-import io.xj.core.dao.PatternDAO;
-import io.xj.core.dao.PatternEventDAO;
+import io.xj.core.CoreTest;
+import io.xj.core.dao.ChainDAO;
+import io.xj.core.dao.ProgramDAO;
 import io.xj.core.dao.SegmentDAO;
-import io.xj.core.dao.SequenceDAO;
-import io.xj.core.dao.SequenceMemeDAO;
-import io.xj.core.dao.SequencePatternMemeDAO;
-import io.xj.core.dao.VoiceDAO;
-import io.xj.core.model.arrangement.Arrangement;
-import io.xj.core.model.choice.Choice;
-import io.xj.core.model.pick.Pick;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.segment.SegmentFactory;
-import io.xj.core.model.sequence.SequenceType;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.segment.sub.Arrangement;
+import io.xj.core.model.segment.sub.Choice;
+import io.xj.core.model.segment.sub.Pick;
+import io.xj.core.model.program.ProgramType;
 import io.xj.music.Tuning;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,7 +28,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.Collection;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -43,7 +40,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FabricatorImplTest {
+public class FabricatorImplTest extends CoreTest {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   @Mock
@@ -51,52 +48,27 @@ public class FabricatorImplTest {
   @Mock
   public TimeComputer timeComputer;
   @Mock
-  public AudioDAO audioDAO;
+  public ProgramDAO programDAO;
   @Mock
-  public AudioEventDAO audioEventDAO;
-  @Mock
-  public ChainConfigDAO chainConfigDAO;
-  @Mock
-  public SequenceDAO sequenceDAO;
-  @Mock
-  public SequenceMemeDAO sequenceMemeDAO;
-  @Mock
-  public InstrumentMemeDAO instrumentMemeDAO;
+  public ChainDAO chainDAO;
   @Mock
   public SegmentDAO segmentDAO;
   @Mock
-  public PatternDAO patternDAO;
-  @Mock
-  public SequencePatternMemeDAO sequencePatternMemeDAO;
-  @Mock
   public Tuning tuning;
-  @Mock
-  public VoiceDAO voiceDAO;
-  @Mock
-  public PatternEventDAO patternEventDAO;
   //
   private Fabricator subject;
   private FabricatorFactory fabricatorFactory;
-  private SegmentFactory segmentFactory;
 
   @Before
   public void setUp() throws Exception {
-    Injector injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
-          bind(AudioDAO.class).toInstance(audioDAO);
-          bind(AudioEventDAO.class).toInstance(audioEventDAO);
-          bind(ChainConfigDAO.class).toInstance(chainConfigDAO);
-          bind(SequenceDAO.class).toInstance(sequenceDAO);
-          bind(SequenceMemeDAO.class).toInstance(sequenceMemeDAO);
-          bind(InstrumentMemeDAO.class).toInstance(instrumentMemeDAO);
+          bind(ProgramDAO.class).toInstance(programDAO);
           bind(SegmentDAO.class).toInstance(segmentDAO);
-          bind(PatternDAO.class).toInstance(patternDAO);
-          bind(SequencePatternMemeDAO.class).toInstance(sequencePatternMemeDAO);
+          bind(ChainDAO.class).toInstance(chainDAO);
           bind(Tuning.class).toInstance(tuning);
-          bind(VoiceDAO.class).toInstance(voiceDAO);
-          bind(PatternEventDAO.class).toInstance(patternEventDAO);
           bind(TimeComputerFactory.class).toInstance(timeComputerFactory);
         }
       }));
@@ -106,18 +78,12 @@ public class FabricatorImplTest {
 
   @Test
   public void timeComputer() throws Exception {
-    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(segmentFactory.newSegment(BigInteger.valueOf(4212))
-      .setOffset(BigInteger.valueOf(1))
-      .setDensity(0.6)
-      .setKey("F major")
-      .setState("Crafted")
-      .setTempo(120.0)
-      .setChainId(BigInteger.valueOf(977))
-      .setTotal(8)
-      .setBeginAt("2017-12-12T01:00:08.000000Z")
-      .setEndAt("2017-12-12T01:00:16.000000Z"));
+    when(chainDAO.readOne(any(), eq(BigInteger.valueOf(977))))
+      .thenReturn(newChain(977, 5, "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null, Instant.parse("2017-12-12T01:00:08.000000Z")));
+    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(Long.valueOf(1))))
+      .thenReturn(newSegment(4212, 977, 1, SegmentState.Crafted, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120, "seg123.ogg"));
     subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
-      .setOffset(BigInteger.valueOf(2))
+      .setOffset(2L)
       .setDensity(0.6)
       .setKey("G major")
       .setState("Crafting")
@@ -136,18 +102,12 @@ public class FabricatorImplTest {
 
   @Test
   public void timeComputer_variedSegmentTotals() throws Exception {
-    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(segmentFactory.newSegment(BigInteger.valueOf(4212))
-      .setOffset(BigInteger.valueOf(1))
-      .setDensity(0.6)
-      .setKey("F major")
-      .setState("Crafted")
-      .setTempo(120.0)
-      .setChainId(BigInteger.valueOf(977))
-      .setTotal(32)
-      .setBeginAt("2017-12-12T01:00:08.000000Z")
-      .setEndAt("2017-12-12T01:00:16.000000Z"));
+    when(chainDAO.readOne(any(), eq(BigInteger.valueOf(977))))
+      .thenReturn(newChain(977, 5, "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null, Instant.parse("2017-12-12T01:00:08.000000Z")));
+    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(Long.valueOf(1))))
+      .thenReturn(newSegment(4212, 977, 1, SegmentState.Crafted, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 32, 0.6, 120, "seg123.ogg"));
     subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
-      .setOffset(BigInteger.valueOf(2))
+      .setOffset(2L)
       .setDensity(0.6)
       .setKey("G major")
       .setState("Crafting")
@@ -166,18 +126,12 @@ public class FabricatorImplTest {
 
   @Test
   public void timeComputer_weirdSegmentTotalsAndTempos() throws Exception {
-    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(segmentFactory.newSegment(BigInteger.valueOf(4212))
-      .setOffset(BigInteger.valueOf(1))
-      .setDensity(0.6)
-      .setKey("F major")
-      .setState("Crafted")
-      .setTempo(67.0)
-      .setChainId(BigInteger.valueOf(977))
-      .setTotal(23)
-      .setBeginAt("2017-12-12T01:00:08.000000Z")
-      .setEndAt("2017-12-12T01:00:16.000000Z"));
+    when(chainDAO.readOne(any(), eq(BigInteger.valueOf(977))))
+      .thenReturn(newChain(977, 5, "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null, Instant.parse("2017-12-12T01:00:08.000000Z")));
+    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(Long.valueOf(1))))
+      .thenReturn(newSegment(4212, 977, 1, SegmentState.Crafted, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 23, 0.6, 67, "seg123.ogg"));
     subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
-      .setOffset(BigInteger.valueOf(2))
+      .setOffset(2L)
       .setDensity(0.6)
       .setKey("G major")
       .setState("Crafting")
@@ -196,18 +150,12 @@ public class FabricatorImplTest {
 
   @Test
   public void pick_returned_by_picks() throws Exception {
-    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(segmentFactory.newSegment(BigInteger.valueOf(4212))
-      .setOffset(BigInteger.valueOf(1))
-      .setDensity(0.6)
-      .setKey("F major")
-      .setState("Crafted")
-      .setTempo(120.0)
-      .setChainId(BigInteger.valueOf(977))
-      .setTotal(8)
-      .setBeginAt("2017-12-12T01:00:08.000000Z")
-      .setEndAt("2017-12-12T01:00:16.000000Z"));
+    when(chainDAO.readOne(any(), eq(BigInteger.valueOf(977))))
+      .thenReturn(newChain(977, 5, "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null, Instant.parse("2017-12-12T01:00:08.000000Z")));
+    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(Long.valueOf(1))))
+      .thenReturn(newSegment(4212, 977, 1, SegmentState.Crafted, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120, "seg123.ogg"));
     subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
-      .setOffset(BigInteger.valueOf(2))
+      .setOffset(2L)
       .setDensity(0.6)
       .setKey("G major")
       .setState("Crafting")
@@ -217,19 +165,20 @@ public class FabricatorImplTest {
       .setBeginAt("2017-12-12T01:00:16.000000Z")
       .setEndAt("2017-12-12T01:00:22.000000Z"));
     Choice choice = subject.add(new Choice()
-      .setSequenceId(BigInteger.valueOf(5))
-      .setTypeEnum(SequenceType.Rhythm)
+      .setProgramId(BigInteger.valueOf(5))
+      .setTypeEnum(ProgramType.Rhythm)
       .setTranspose(-5)
       .setSegmentId(BigInteger.valueOf(1)));
     Arrangement arrangement = subject.add(new Arrangement()
       .setInstrumentId(BigInteger.valueOf(1))
-      .setChoiceUuid(choice.getUuid())
-      .setVoiceId(BigInteger.valueOf(2)));
+      .setChoiceId(choice.getId())
+      .setVoiceId(UUID.randomUUID()));
+    UUID audioId = UUID.randomUUID();
     subject.add(new Pick()
-      .setArrangementUuid(arrangement.getUuid())
-      .setVoiceId(BigInteger.valueOf(782L))
-      .setAudioId(BigInteger.valueOf(78874))
-      .setPatternEventId(BigInteger.valueOf(73))
+      .setArrangementId(arrangement.getId())
+      .setVoiceId(UUID.randomUUID())
+      .setAudioId(audioId)
+      .setPatternEventId(UUID.randomUUID())
       .setStart(0.273)
       .setLength(1.571)
       .setAmplitude(0.8)
@@ -237,12 +186,32 @@ public class FabricatorImplTest {
 
     Collection<Pick> result = subject.getSegment().getPicks();
     Pick resultPick = result.iterator().next();
-    assertEquals(arrangement.getUuid(), resultPick.getArrangementUuid());
-    assertEquals(BigInteger.valueOf(78874), resultPick.getAudioId());
+    assertEquals(arrangement.getId(), resultPick.getArrangementId());
+    assertEquals(audioId, resultPick.getAudioId());
     assertEquals(0.273, resultPick.getStart(), 0.001);
     assertEquals(1.571, resultPick.getLength(), 0.001);
     assertEquals(0.8, resultPick.getAmplitude(), 0.1);
     assertEquals(432.0, resultPick.getPitch(), 0.1);
+  }
+
+  @Test
+  public void getOutputAudioFormat() throws Exception {
+    when(chainDAO.readOne(any(), eq(BigInteger.valueOf(977))))
+      .thenReturn(newChain(977, 5, "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null, Instant.parse("2017-12-12T01:00:08.000000Z")));
+    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(Long.valueOf(1))))
+      .thenReturn(newSegment(4212, 977, 1, SegmentState.Crafted, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120, "seg123.ogg"));
+    subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
+      .setOffset(2L)
+      .setDensity(0.6)
+      .setKey("G major")
+      .setState("Crafting")
+      .setTempo(240.0)
+      .setChainId(BigInteger.valueOf(977))
+      .setTotal(8)
+      .setBeginAt("2017-12-12T01:00:16.000000Z")
+      .setEndAt("2017-12-12T01:00:22.000000Z"));
+
+    assertEquals("PCM_SIGNED", subject.getOutputAudioFormat().getEncoding().toString()); // instantiates a time computer; see expectation above
   }
 
 

@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.chord;
 
-import io.xj.core.model.chord.Chord;
+import io.xj.core.model.entity.Chord;
 import io.xj.core.util.Value;
 import io.xj.music.Key;
 import io.xj.music.PitchClass;

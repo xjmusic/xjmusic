@@ -1,9 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.external.google;
 
-import io.xj.core.CoreModule;
-import io.xj.core.exception.CoreException;
-
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -15,7 +12,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-
+import io.xj.core.CoreModule;
+import io.xj.core.exception.CoreException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +28,6 @@ import static org.junit.Assert.assertEquals;
 public class GoogleProviderImplTest extends Mockito {
   @Mock
   private GoogleHttpProvider googleHttpProvider;
-  private Injector injector;
   private GoogleProvider googleProvider;
 
   @Before
@@ -40,7 +37,15 @@ public class GoogleProviderImplTest extends Mockito {
     System.setProperty("app.url.base", "http://shammy/");
     System.setProperty("app.url.api", "api/69/");
 
-    createInjector();
+    Injector injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+      new AbstractModule() {
+        @Override
+        public void configure() {
+          bind(GoogleProvider.class).to(GoogleProviderImpl.class);
+          bind(GoogleHttpProvider.class).toInstance(googleHttpProvider);
+          bind(JsonFactory.class).to(JacksonFactory.class);
+        }
+      }));
     googleProvider = injector.getInstance(GoogleProvider.class);
   }
 
@@ -195,18 +200,6 @@ public class GoogleProviderImplTest extends Mockito {
       .thenReturn(httpTransport);
 
     googleProvider.getMe("12345");
-  }
-
-  private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
-      new AbstractModule() {
-        @Override
-        public void configure() {
-          bind(GoogleProvider.class).to(GoogleProviderImpl.class);
-          bind(GoogleHttpProvider.class).toInstance(googleHttpProvider);
-          bind(JsonFactory.class).to(JacksonFactory.class);
-        }
-      }));
   }
 
 }

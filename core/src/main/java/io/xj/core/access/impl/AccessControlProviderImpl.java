@@ -6,12 +6,11 @@ import io.xj.core.access.token.TokenGenerator;
 import io.xj.core.config.Config;
 import io.xj.core.dao.UserDAO;
 import io.xj.core.exception.CoreException;
-import io.xj.core.exception.CoreException;
 import io.xj.core.external.google.GoogleProvider;
-import io.xj.core.model.account_user.AccountUser;
-import io.xj.core.model.user_auth.UserAuth;
-import io.xj.core.model.user_auth.UserAuthType;
-import io.xj.core.model.user_role.UserRole;
+import io.xj.core.model.account.AccountUser;
+import io.xj.core.model.user.auth.UserAuth;
+import io.xj.core.model.user.auth.UserAuthType;
+import io.xj.core.model.user.role.UserRole;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
@@ -33,10 +32,10 @@ public class AccessControlProviderImpl implements AccessControlProvider {
   private final GoogleProvider googleProvider;
   private final UserDAO userDAO;
 
-  private final String tokenName = Config.accessTokenName();
-  private final String tokenDomain = Config.accessTokenDomain();
-  private final String tokenPath = Config.accessTokenPath();
-  private final String tokenMaxAge = String.valueOf(Config.accessTokenMaxAge());
+  private final String tokenName = Config.getAccessTokenName();
+  private final String tokenDomain = Config.getAccessTokenDomain();
+  private final String tokenPath = Config.getAccessTokenPath();
+  private final String tokenMaxAge = String.valueOf(Config.getAccessTokenMaxAge());
 
   @Inject
   public AccessControlProviderImpl(

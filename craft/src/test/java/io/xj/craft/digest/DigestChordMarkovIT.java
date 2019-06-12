@@ -4,16 +4,12 @@ package io.xj.craft.digest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import io.xj.core.CoreModule;
+import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.library.Library;
-import io.xj.craft.BaseIT;
+import io.xj.core.ingest.IngestFactory;
 import io.xj.craft.CraftModule;
 import io.xj.craft.digest.chord_markov.DigestChordMarkov;
-import io.xj.core.ingest.IngestFactory;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,16 +18,16 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DigestChordMarkovIT extends BaseIT {
-  private final Injector injector = Guice.createInjector(new CoreModule(), new CraftModule());
+public class DigestChordMarkovIT extends FixtureIT {
   private IngestFactory ingestFactory;
   private DigestFactory digestFactory;
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.reset();
-    insertLibraryA();
+    reset();
+    insertFixtureA();
 
+    injector = Guice.createInjector(new CoreModule(), new CraftModule());
     ingestFactory = injector.getInstance(IngestFactory.class);
     digestFactory = injector.getInstance(DigestFactory.class);
   }
@@ -44,7 +40,7 @@ public class DigestChordMarkovIT extends BaseIT {
       "accounts", "1"
     ));
 
-    DigestChordMarkov result = digestFactory.chordMarkov(ingestFactory.evaluate(access, ImmutableList.of(new Library(10000001))));
+    DigestChordMarkov result = digestFactory.chordMarkov(ingestFactory.ingest(access, ImmutableList.of(newChainBinding("Library", 10000001))));
 
     assertNotNull(result);
   }

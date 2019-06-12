@@ -41,6 +41,7 @@ public interface Mixer {
    the Put only has a reference to the source--
    so the Mixer has to use that reference source id along with other variables from the Put,
    in order to arrive at the final source output value at any given microsecond@param sourceId      under which the audio is stored
+
    @param startAtMicros duration from beginning of mix
    @param stopAtMicros  duration from beginning of mix
    @param attackMicros
@@ -48,8 +49,6 @@ public interface Mixer {
    @param velocity      0 to 1
    @param pitchRatio    relative speed multiplier, e.g. original = 1.0
    @param pan           -1 (left) to +1 (right)
-
-
    */
   void put(String sourceId, long startAtMicros, long stopAtMicros, long attackMicros, long releaseMicros, double velocity, double pitchRatio, double pan) throws PutException;
 
@@ -66,9 +65,9 @@ public interface Mixer {
    <p>
    Mix out to a file
 
-   @throws MixerException if something goes wrong
    @param outputFilePath path
-   @param quality of output (if lossy encoding)
+   @param quality        of output (if lossy encoding)
+   @throws MixerException if something goes wrong
    */
   void mixToFile(OutputEncoder outputEncoder, String outputFilePath, Float quality) throws Exception;
 
@@ -129,6 +128,14 @@ public interface Mixer {
   AudioFormat getOutputFormat();
 
   /**
+   Whether the mixer has loaded a specified source
+
+   @param sourceId to check for
+   @return true if source has been loaded
+   */
+  boolean hasLoadedSource(String sourceId);
+
+  /**
    Set the duration between "mix cycles", wherein garbage collection is performed.
 
    @param micros the duration of a mix cycle, in microseconds
@@ -149,5 +156,4 @@ public interface Mixer {
    @param debugging true to activate debugging
    */
   void setDebugging(boolean debugging);
-
 }

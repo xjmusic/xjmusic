@@ -1,7 +1,6 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
 
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -26,11 +25,11 @@ export default Route.extend({
       let self = this;
       model.save().then(
         () => {
-          get(this, 'display').success('Created message ' + model.get('type') + ': "' + model.get('body') + '"');
+          this.display.success('Created message ' + model.get('type') + ': "' + model.get('body') + '"');
           self.transitionTo('platform.messages');
         },
         (error) => {
-          get(this, 'display').error(error);
+          this.display.error(error);
         });
     },
 

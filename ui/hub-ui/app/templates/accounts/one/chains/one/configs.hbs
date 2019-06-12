@@ -4,32 +4,30 @@
 {{outlet}}
 
 <!-- Only show list of records if non-empty -->
-{{#if model.chainConfigs.length}}
-  <div class="col-sm-12">
-    <div class="table-list">
-      <table class="table">
-        <thead>
+{{#if model.chain.chainConfigs.length}}
+  <div class="table-list">
+    <table class="table">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Type</th>
+        <th>Value</th>
+        <th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      {{#each model.chain.chainConfigs as |chainConfig|}}
         <tr>
-          <th>#</th>
-          <th>Type</th>
-          <th>Value</th>
-          <th>Action</th>
+          <th scope="row">{{chainConfig.id}}</th>
+          <td>{{chainConfig.type}}</td>
+          <td>{{chainConfig.value}}</td>
+          <td>
+            <button {{action "removeConfig" chainConfig}}>Remove</button>
+          </td>
         </tr>
-        </thead>
-        <tbody>
-        {{#each model.chainConfigs as |chainConfig|}}
-          <tr>
-            <th scope="row">{{chainConfig.id}}</th>
-            <td>{{chainConfig.type}}</td>
-            <td>{{chainConfig.value}}</td>
-            <td>
-              <button {{action "removeConfig" chainConfig}}>Remove</button>
-            </td>
-          </tr>
-        {{/each}}
-        </tbody>
-      </table>
-    </div>
+      {{/each}}
+      </tbody>
+    </table>
   </div>
 {{else}}
   <div class="form-horizontal container-fluid">
@@ -45,12 +43,12 @@
     <div class="col-sm-10">
       <select class="form-control" onchange={{action "selectChainConfigToAddType" value="target.value"}} title="Type">
         {{#if model.chainConfigTypes}}
-          <option value="" selected={{eq model.chainConfigToAdd.type ""}}>(select type)</option>
+          <option value="" selected={{eq model.configType ""}}>(select type)</option>
           {{#each model.chainConfigTypes as |type|}}
-            <option value={{type}} selected={{eq model.chainConfigToAdd.type type}}>{{type}}</option>
+            <option value={{type}} selected={{eq model.configType type}}>{{type}}</option>
           {{/each}}
         {{else}}
-          <option value={{model.chainConfigToAdd.type}} selected>{{model.chainConfigToAdd.type}}</option>
+          <option value={{model.configType}} selected>{{model.configType}}</option>
         {{/if}}
       </select>
     </div>
@@ -60,14 +58,14 @@
   <div class="form-group row">
     <label class="col-sm-2 control-label">Value</label>
     <div class="col-sm-10">
-      {{input type="text" value=model.chainConfigToAdd.value class="form-control" autofocus="autofocus"
+      {{input type="text" value=model.configValue class="form-control" autofocus="autofocus"
               placeholder="The configuration value"}}
     </div>
   </div>
 
   <div class="form-group row">
     <div class="offset-sm-2 col-sm-10">
-      <button type="submit" class="btn btn-default" {{action 'addConfig' model}}>Bind Config to
+      <button type="submit" class="btn btn-default" {{action 'addConfig' model.configType model.configValue}}>Bind Config to
         Chain
       </button>
     </div>

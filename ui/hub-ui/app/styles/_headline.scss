@@ -5,28 +5,58 @@
   background: $dark-gray;
   color: whitesmoke;
   line-height: 1.3em;
-  padding-top:7px;
-  h1 {
-    margin-bottom:0.6rem;
+  padding-top: 7px;
+
+  &.dirty {
+    h1, .entity {
+      color: $dirty-entity;
+    }
+
+    .action:not(.commit):not(.revert) {
+      color: $dirty-entity;
+
+      &:hover {
+        color: lighten($dirty-entity, 10%);
+      }
+    }
+
+    .action.revert {
+      color: lighten($dark-gray, 10%);
+
+      &:hover {
+        color: lighten($dark-gray, 20%);
+      }
+    }
   }
+
+  h1 {
+    margin-bottom: 0.6rem;
+  }
+
   .entity {
     text-transform: uppercase;
     font-size: 0.8em;
     color: darken($gray, 5%);
+
     strong {
       color: $gray;
     }
+
     &:last-child {
-      margin-bottom:1rem;
+      margin-bottom: 1rem;
     }
   }
+
   .detail {
     color: $low-gray;
+
     strong {
       color: $gray;
     }
+
     &.roles {
       margin-top: 4px;
+
       .role {
         background: #202020;
         border: 1px solid #404040;

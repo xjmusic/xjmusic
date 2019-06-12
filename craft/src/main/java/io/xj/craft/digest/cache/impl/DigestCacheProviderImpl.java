@@ -1,19 +1,18 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.cache.impl;
 
-import com.google.inject.Inject;
-
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import io.xj.craft.digest.cache.DigestCacheProvider;
+import com.google.inject.Inject;
 import io.xj.core.config.Config;
+import io.xj.core.ingest.Ingest;
 import io.xj.craft.digest.DigestFactory;
+import io.xj.craft.digest.cache.DigestCacheProvider;
 import io.xj.craft.digest.chord_markov.DigestChordMarkov;
 import io.xj.craft.digest.chord_progression.DigestChordProgression;
 import io.xj.craft.digest.hash.DigestHash;
 import io.xj.craft.digest.meme.DigestMeme;
-import io.xj.craft.digest.pattern_style.DigestSequenceStyle;
-import io.xj.core.ingest.Ingest;
+import io.xj.craft.digest.program_style.DigestProgramStyle;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +22,7 @@ public class DigestCacheProviderImpl implements DigestCacheProvider {
   private final LoadingCache<Ingest, DigestMeme> digestMeme;
   private final LoadingCache<Ingest, DigestChordMarkov> digestChordMarkov;
   private final LoadingCache<Ingest, DigestChordProgression> digestChordProgression;
-  private final LoadingCache<Ingest, DigestSequenceStyle> digestSequenceStyle;
+  private final LoadingCache<Ingest, DigestProgramStyle> digestSequenceStyle;
 
   @Inject
   DigestCacheProviderImpl(
@@ -31,7 +30,7 @@ public class DigestCacheProviderImpl implements DigestCacheProvider {
   ) {
     this.digestFactory = digestFactory;
     digestMeme = cacheBuilder().build(digestFactory::meme);
-    digestSequenceStyle = cacheBuilder().build(digestFactory::sequenceStyle);
+    digestSequenceStyle = cacheBuilder().build(digestFactory::programStyle);
     digestChordProgression = cacheBuilder().build(digestFactory::chordProgression);
     digestChordMarkov = cacheBuilder().build(digestFactory::chordMarkov);
   }
@@ -45,9 +44,9 @@ public class DigestCacheProviderImpl implements DigestCacheProvider {
    */
   private static Caffeine<Object, Object> cacheBuilder() {
     return Caffeine.newBuilder()
-      .maximumSize(Config.digestCacheSize())
-      .expireAfterWrite(Config.digestCacheExpireMinutes(), TimeUnit.MINUTES)
-      .refreshAfterWrite(Config.digestCacheRefreshMinutes(), TimeUnit.MINUTES);
+      .maximumSize(Config.getDigestCacheSize())
+      .expireAfterWrite(Config.getDigestCacheExpireMinutes(), TimeUnit.MINUTES)
+      .refreshAfterWrite(Config.getDigestCacheRefreshMinutes(), TimeUnit.MINUTES);
   }
 
   @Override
@@ -56,7 +55,7 @@ public class DigestCacheProviderImpl implements DigestCacheProvider {
   }
 
   @Override
-  public DigestSequenceStyle sequenceStyle(Ingest ingest) {
+  public DigestProgramStyle sequenceStyle(Ingest ingest) {
     return digestSequenceStyle.get(ingest);
   }
 

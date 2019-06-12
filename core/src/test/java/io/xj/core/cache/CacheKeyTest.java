@@ -4,17 +4,17 @@ package io.xj.core.cache;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) Al
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.xj.core.CoreTest;
 import io.xj.core.access.impl.Access;
-import io.xj.core.model.audio.Audio;
-import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.library.Library;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.sequence.Sequence;
+import io.xj.core.model.instrument.InstrumentState;
+import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.program.ProgramState;
+import io.xj.core.model.program.ProgramType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class CacheKeyTest {
+public class CacheKeyTest extends CoreTest {
 
   @Test
   public void ofAccess() {
@@ -38,17 +38,22 @@ public class CacheKeyTest {
   }
 
   @Test
+  public void ofAccess_okayWithoutUserAuth() {
+    Access access = new Access(ImmutableMap.of(
+      "userId", "1",
+      "accounts", "101"
+    ));
+    assertEquals("Account-101|User-1", CacheKey.of(access));
+  }
+
+  @Test
   public void ofEntities() {
-    assertEquals("Audio-35|Audio-77|Instrument-2|Library-15|Library-27|Pattern-122|Pattern-7874|Sequence-2120|Sequence-764", CacheKey.of(ImmutableList.of(
-      new Audio(35),
-      new Audio(77),
-      new Instrument(2),
-      new Library(15L),
-      new Library(27L),
-      new Sequence(2120),
-      new Sequence(764),
-      new Pattern(122),
-      new Pattern(7874)
+    assertEquals("Instrument-2|Library-15|Library-27|Program-2120|Program-764", CacheKey.of(ImmutableList.of(
+      newLibrary(15L, 12L, "Apples", now()),
+      newLibrary(27L, 10L, "Bananas", now()),
+      newInstrument(2L, 101, 15L, InstrumentType.Harmonic, InstrumentState.Published, "Mango", now()),
+      newProgram(2120, 101, 15L, ProgramType.Macro, ProgramState.Published, "Shims", "D", 120, now()),
+      newProgram(764, 101, 15L, ProgramType.Main, ProgramState.Published, "Mill", "G", 120, now())
     )));
   }
 
@@ -60,17 +65,13 @@ public class CacheKeyTest {
       "accounts", "101,109",
       "roles", "user,engineer"
     ));
-    assertEquals("Account-101|Account-109|Role-Engineer|Role-User|User-1|UserAuth-1[]Audio-35|Audio-77|Instrument-2|Library-15|Library-27|Pattern-122|Pattern-7874|Sequence-2120|Sequence-764", CacheKey.of(access, ImmutableList.of(
-      new Audio(35),
-      new Audio(77),
-      new Instrument(2),
-      new Library(15L),
-      new Library(27L),
-      new Sequence(2120),
-      new Sequence(764),
-      new Pattern(122),
-      new Pattern(7874)
-    )));
+    assertEquals("Account-101|Account-109|Role-Engineer|Role-User|User-1|UserAuth-1[]Instrument-2|Library-15|Library-27|Program-2120|Program-764", CacheKey.of(access, ImmutableList.of(
+      newLibrary(15L, 12L, "Apples", now()),
+      newLibrary(27L, 10L, "Bananas", now()),
+      newInstrument(2L, 101, 15L, InstrumentType.Harmonic, InstrumentState.Published, "Mango", now()),
+      newProgram(2120, 101, 15L, ProgramType.Macro, ProgramState.Published, "Shims", "D", 120, now()),
+      newProgram(764, 101, 15L, ProgramType.Main, ProgramState.Published, "Mill", "G", 120, now())
+      )));
   }
 
 }

@@ -1,6 +1,6 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import { hash } from 'rsvp';
+import {hash} from 'rsvp';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -15,7 +15,7 @@ export default Route.extend({
       account: account,
       users: this.store.findAll('user'),
       userToAdd: null,
-      accountUsers: this.store.query('account-user', { accountId: account.id }),
+      accountUsers: this.store.query('account-user', {accountId: account.id}),
     }, 'account, users, account users, user to add to account');
   },
 
@@ -24,7 +24,7 @@ export default Route.extend({
    */
   actions: {
 
-    sessionChanged: function() {
+    sessionChanged: function () {
       this.refresh();
     },
 

@@ -4,32 +4,29 @@ package io.xj.worker.job;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
+import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
 import io.xj.core.dao.ChainDAO;
-import io.xj.core.dao.PatternChordDAO;
-import io.xj.core.dao.PatternDAO;
+import io.xj.core.dao.ProgramDAO;
 import io.xj.core.dao.SegmentDAO;
-import io.xj.core.dao.SequencePatternMemeDAO;
 import io.xj.core.external.amazon.AmazonProvider;
-import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.message.MessageType;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.segment_message.SegmentMessage;
+import io.xj.core.model.segment.sub.SegmentMessage;
+import io.xj.core.model.program.ProgramState;
+import io.xj.core.model.program.ProgramType;
+import io.xj.core.model.message.MessageType;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkState;
 import io.xj.core.model.work.WorkType;
-import java.time.Instant;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
-import io.xj.worker.BaseIT;
 import io.xj.worker.WorkerModule;
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
@@ -42,6 +39,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
@@ -54,7 +52,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ChainFabricateJobIT extends BaseIT {
+public class ChainFabricateJobIT extends FixtureIT {
   private static final int MILLIS_PER_SECOND = 1000;
   private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
   private static final int ARBITRARY_SMALL_PAUSE_SECONDS = 3;
@@ -63,22 +61,25 @@ public class ChainFabricateJobIT extends BaseIT {
   long startTime = System.currentTimeMillis();
   @Mock
   AmazonProvider amazonProvider;
-  private Injector injector;
   private App app;
 
   @Before
   public void setUp() throws Exception {
-    createInjector();
+    injector = Guice.createInjector(Modules.override(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule()).with(
+      new AbstractModule() {
+        @Override
+        public void configure() {
+          bind(AmazonProvider.class).toInstance(amazonProvider);
+        }
+      }));
 
     // reset to shared fixtures
-    IntegrationTestEntity.reset();
-    insertLibraryA();
+    reset();
+    insertFixtureB1();
+    insertFixtureB_Instruments();
 
     // Chain "Test Print #1" is ready to begin
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(1000), null, null);
-
-    // Bind the library to the chain
-    IntegrationTestEntity.insertChainLibrary(1, 2);
+    insert(newChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(1000), null, null, now(), newChainBinding(library2)));
 
     // ExpectationOfWork recurs frequently to speed up test
     System.setProperty("work.buffer.seconds", "1000");
@@ -88,7 +89,7 @@ public class ChainFabricateJobIT extends BaseIT {
     System.setProperty("work.chain.delete.recur.seconds", "1");
     System.setProperty("work.chain.delay.seconds", "1");
 
-    // Don't sleep between processing work
+    // App port
     System.setProperty("app.port", "9043");
 
     // segment file config
@@ -122,20 +123,10 @@ public class ChainFabricateJobIT extends BaseIT {
     System.clearProperty("work.chain.delay.seconds");
   }
 
-  private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule()).with(
-      new AbstractModule() {
-        @Override
-        public void configure() {
-          bind(AmazonProvider.class).toInstance(amazonProvider);
-        }
-      }));
-  }
-
   @Test
   public void fabricatesSegments() throws Exception {
-    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
-      .thenReturn("chain-1-segment-12345.ogg");
+    when(amazonProvider.generateKey("chains-1-segments", "ogg"))
+      .thenReturn("chains-1-segments-12345.ogg");
     app.getWorkManager().startChainFabrication(BigInteger.valueOf(1));
     assertTrue(hasRemainingWork(WorkType.ChainFabricate));
 
@@ -149,8 +140,8 @@ public class ChainFabricateJobIT extends BaseIT {
     app.stop();
 
     // assertions
-    verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).putS3Object(eq("/tmp/chain-1-segment-12345.ogg"), eq("xj-segment-test"), any());
-    Collection<Segment> result = injector.getInstance(SegmentDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1)));
+    verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).putS3Object(eq("/tmp/chains-1-segments-12345.ogg"), eq("xj-segment-test"), any());
+    Collection<Segment> result = injector.getInstance(SegmentDAO.class).readMany(Access.internal(), ImmutableList.of(BigInteger.valueOf(1)));
     assertTrue(assertShippedSegmentsMinimum <= result.size());
   }
 
@@ -160,26 +151,11 @@ public class ChainFabricateJobIT extends BaseIT {
    */
   @Test
   public void fabricatesSegments_revertsAndRequeuesOnFailure() throws Exception {
-    injector.getInstance(PatternDAO.class).destroy(Access.internal(), BigInteger.valueOf(15));
-    injector.getInstance(SequencePatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(6));
-    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(12));
-    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(14));
-    injector.getInstance(PatternDAO.class).destroy(Access.internal(), BigInteger.valueOf(16));
-    injector.getInstance(SequencePatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(7));
-    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(16));
-    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(18));
-    injector.getInstance(SequencePatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(46));
-    injector.getInstance(SequencePatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(47));
-    injector.getInstance(SequencePatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(149));
-    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(412));
-    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(414));
-    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(416));
-    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(418));
-    injector.getInstance(PatternDAO.class).destroy(Access.internal(), BigInteger.valueOf(415));
-    injector.getInstance(PatternDAO.class).destroy(Access.internal(), BigInteger.valueOf(416));
+    // clear contents of program to invoke failure
+    injector.getInstance(ProgramDAO.class).update(internal, BigInteger.valueOf(4), newProgram(4, 3, 2, ProgramType.Macro, ProgramState.Published, "Tropical, Wild to Cozy", "C", 120.0, now()));
 
     // this segment is already in planned state-- it will end up reverted a.k.a. back in planned state
-    IntegrationTestEntity.insertSegment_Planned(101, 1, 0, Instant.now().minusSeconds(1000));
+    insert(newSegment(101, 1, 0, Instant.now().minusSeconds(1000)));
 
     // This ensures that the re-queued work does not get executed before the end of the test
     System.setProperty("segment.requeue.seconds", "666");

@@ -6,8 +6,7 @@ import Component from '@ember/component';
 /**
  * Displays the digest-performing and result-viewing U.I.
  */
-const ChordMarkovObservationsComponent = Component.extend({
-});
+const ChordMarkovObservationsComponent = Component.extend({});
 
 /**
  * Example Usage (e.g, in Handlebars):

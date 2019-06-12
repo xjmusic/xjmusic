@@ -1,5 +1,5 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import Service, { inject as service } from '@ember/service';
+import Service, {inject as service} from '@ember/service';
 import RSVP from "rsvp";
 
 /**
@@ -28,12 +28,12 @@ export default Service.extend({
    re-authenticate to ensure they still are.
 
    Other routes with a user auth prerequisite can implement:
-     this.get('auth').promise.then(...);
+   this.get('auth').promise.then(...);
 
    */
   init() {
     this._super(...arguments);
-    let session = this.get('session');
+    let session = this.session;
     let auth = this;
     auth.set('promise', new RSVP.Promise(
       function (resolve, reject) {
@@ -44,7 +44,7 @@ export default Service.extend({
           auth.accounts = session.getData().accounts;
           auth.roles = session.getData().roles;
           auth.get('messageBus').publish('auth-accounts', auth.accounts);
-          console.info("User Authenticated OK", auth);
+          console.info(`User{ id:${auth.userId}, roles:[${auth.roles}], accounts[${auth.accounts}] } Authenticated.`);
           resolve(auth);
 
         }, xhr => {
@@ -59,7 +59,7 @@ export default Service.extend({
    * Invalidate the current session.
    */
   invalidate() {
-    this.get('session').invalidate();
+    this.session.invalidate();
   },
 
   /**
