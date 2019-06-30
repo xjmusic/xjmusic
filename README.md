@@ -716,3 +716,37 @@ GitHub Open Issue: https://github.com/docker/for-mac/issues/155
 Architect wants minimal, open-source web browser based XJ Music® player, in order to embed XJ Music® on any website, and ensure that the experience is as widely accessible as possible.
 
 See [player-ui README](ui/player-ui/README.md)
+
+
+
+# VPN
+
+XJ Music web operations occur inside a Virtual Private Cloud (VPC) hosted by Amazon Web Services (AWS). In order to access these resources, developers must connect using an OpenVPN with RSA certificates and an OpenVPN configuration provided to them by dev ops.
+
+See: [Configuration for **net.xj.io** and **prd1.xj.io**](https://www.pivotaltracker.com/story/show/166998845) 
+
+## VPC
+id: vpc-442c7d21
+subnet-04a87525c06434da6 "xj-use1-az2-public" 10.0.48.0/20
+subnet-6099e639 "xj-use1-az6-private" 10.0.32.0/20
+subnet-7199e628 "xj-use1-az6-public" 10.0.16.0/20
+
+## Generating Certificates
+git clone https://github.com/OpenVPN/easy-rsa.git
+cd easy-rsa/easyrsa3
+./easyrsa init-pki
+./easyrsa build-ca nopass
+./easyrsa build-server-full server nopass
+./easyrsa build-client-full charney.net.xj.io nopass
+
+## Copying Certificates to working folder
+cp pki/ca.crt /home/charney/.vpn/xj/
+cp pki/issued/server.crt /home/charney/.vpn/xj/
+cp pki/private/server.key /home/charney/.vpn/xj/
+cp pki/issued/charney.net.xj.io.crt /home/charney/.vpn/xj
+cp pki/private/charney.net.xj.io.key /home/charney/.vpn/xj/
+
+## Import Certificates to AWS
+cp /home/charney/.vpn/xj						
+aws acm import-certificate --certificate file://server.crt --private-key file://server.key --certificate-chain file://ca.crt --region us-east-1
+aws acm import-certificate --certificate file://charney.net.xj.io.crt --private-key file://charney.net.xj.io.key --certificate-chain file://ca.crt --region us-east-1
