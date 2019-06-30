@@ -2,6 +2,7 @@
 
 import {Application} from "../application";
 
+jest.mock('dom');
 jest.mock('player');
 
 it('can decode option key-values from URL', () => {

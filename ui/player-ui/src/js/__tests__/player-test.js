@@ -1,8 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-jest.mock('segment-audio');
-
 import {Player} from "../player";
+
+jest.mock('segment-audio');
+jest.mock('dom');
 
 window.AudioContext = jest.fn().mockImplementation(() => jest.mock('audio-context'));
 
