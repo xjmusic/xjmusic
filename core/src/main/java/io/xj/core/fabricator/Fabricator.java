@@ -6,8 +6,8 @@ import io.xj.core.exception.CoreException;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.isometry.MemeIsometry;
 import io.xj.core.model.chain.Chain;
-import io.xj.core.model.chain.sub.ChainConfig;
 import io.xj.core.model.chain.ChainConfigType;
+import io.xj.core.model.chain.sub.ChainConfig;
 import io.xj.core.model.entity.Meme;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.sub.Audio;
@@ -17,10 +17,10 @@ import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.sub.Arrangement;
 import io.xj.core.model.segment.sub.Choice;
+import io.xj.core.model.segment.sub.Pick;
 import io.xj.core.model.segment.sub.SegmentChord;
 import io.xj.core.model.segment.sub.SegmentMeme;
 import io.xj.core.model.segment.sub.SegmentMessage;
-import io.xj.core.model.segment.sub.Pick;
 import io.xj.music.Chord;
 import io.xj.music.Note;
 
@@ -360,14 +360,6 @@ public interface Fabricator {
   Program getProgram(Sequence sequence) throws CoreException;
 
   /**
-   Get the preset choice arrangements, stored after scanning previous segments choosing same sequences
-   TODO ensure craft is correctly using same arrangements as previous segment(s), then delete this method and related, note other method in this class, setPreArrangementsForChoice(...)
-
-   @return preset choice arrangements
-   */
-  Map<UUID, Collection<Arrangement>> getPresetChoiceArrangements();
-
-  /**
    fetch the macro-type choice for the previous segment in the chain
 
    @return macro-type segment choice, null if none found
@@ -485,14 +477,6 @@ public interface Fabricator {
    @param value to put
    */
   void putReport(String key, Object value);
-
-  /**
-   Set the cached contents of the choice arrangements array
-
-   @param choice       to set content for
-   @param arrangements to return for content choice arrangements
-   */
-  void setPreArrangementsForChoice(Choice choice, Collection<Arrangement> arrangements);
 
   /**
    Update the original Segment submitted for craft,

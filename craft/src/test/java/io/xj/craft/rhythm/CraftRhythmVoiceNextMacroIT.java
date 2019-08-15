@@ -101,7 +101,7 @@ public class CraftRhythmVoiceNextMacroIT extends FixtureIT {
 
    @param excludeRhythmChoiceForSegment3 if desired for the purpose of this test
    */
-  private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws CoreException {
+  private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) {
     // Chain "Test Print #1" has this segment that was just crafted
     segment3 = segmentFactory.newSegment(BigInteger.valueOf(3))
       .setChainId(BigInteger.valueOf(1))
@@ -153,9 +153,7 @@ public class CraftRhythmVoiceNextMacroIT extends FixtureIT {
       .setSequenceBindingId(program15_binding0.getId())
       .setTypeEnum(ProgramType.Main)
       .setTranspose(-2));
-    ImmutableList.of("Hindsight", "Chunky", "Regret", "Tangy").forEach(memeName -> {
-      segment4.add(newSegmentMeme(memeName));
-    });
+    ImmutableList.of("Hindsight", "Chunky", "Regret", "Tangy").forEach(memeName -> segment4.add(newSegmentMeme(memeName)));
     segment4.add(newSegmentChord(0.0, "F minor"));
     segment4.add(newSegmentChord(8.0, "Gb minor"));
     insert(segment4);

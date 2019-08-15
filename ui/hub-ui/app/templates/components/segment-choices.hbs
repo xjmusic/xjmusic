@@ -11,7 +11,7 @@
           {{#link-to 'go.program' choice.program.id }}{{choice.sequenceBinding.sequence.name}}{{/link-to}}
           @{{choice.sequenceBinding.offset}}
         {{else}}
-          {{#link-to 'go.program' choice.program.id }}{{choice.sequence.name}}{{/link-to}}
+          {{#link-to 'go.program' choice.program.id }}{{choice.program.name}}{{/link-to}}
         {{/if}}
         T{{choice.transpose}}
         {{#each choice.arrangements as |arrangement|}}

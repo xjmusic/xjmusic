@@ -1,7 +1,6 @@
 //  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.rhythm.impl;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -12,22 +11,22 @@ import io.xj.core.isometry.EventIsometry;
 import io.xj.core.isometry.MemeIsometry;
 import io.xj.core.isometry.SubEntityRank;
 import io.xj.core.isometry.SuperEntityRank;
-import io.xj.core.model.segment.sub.Arrangement;
-import io.xj.core.model.segment.sub.Choice;
-import io.xj.core.model.segment.sub.Pick;
 import io.xj.core.model.entity.Event;
 import io.xj.core.model.entity.Meme;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.instrument.sub.Audio;
 import io.xj.core.model.instrument.sub.AudioEvent;
+import io.xj.core.model.program.PatternType;
 import io.xj.core.model.program.Program;
 import io.xj.core.model.program.ProgramType;
 import io.xj.core.model.program.sub.Pattern;
-import io.xj.core.model.program.PatternType;
 import io.xj.core.model.program.sub.PatternEvent;
 import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.Voice;
+import io.xj.core.model.segment.sub.Arrangement;
+import io.xj.core.model.segment.sub.Choice;
+import io.xj.core.model.segment.sub.Pick;
 import io.xj.core.util.Chance;
 import io.xj.core.util.Value;
 import io.xj.craft.CraftImpl;
@@ -100,7 +99,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
         .getPattern(patternEvent.getPatternId())
         .getVoiceId();
     } catch (CoreException e) {
-      throw new CraftException(String.format("Unable to get Voice UUID for patternEventId=%s", patternEvent.getId()), e);
+      throw new CraftException(String.format("Unable to get Voice ID for patternEventId=%s", patternEvent.getId()), e);
     }
   }
 
@@ -116,48 +115,13 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
         .setProgramId(rhythmProgram.getId())
         .setTranspose(computeRhythmTranspose(rhythmProgram)));
 
-      // voice arrangements
-      Collection<Arrangement> arrangements = Lists.newArrayList();
-      for (Voice voice : rhythmProgram.getVoices())
-        arrangements.add(craftArrangementForRhythmVoice(voice));
-      fabricator.setPreArrangementsForChoice(rhythmChoice, arrangements);
-
       // rhythm sequence is selected at random from the current program
       // FUTURE: [#166855956] Rhythm Program with multiple Sequences
       Sequence rhythmSequence = fabricator.getSequence(rhythmChoice);
 
-      // choose intro pattern (if available)
-      Optional<Pattern> introPattern = rhythmProgram.randomlySelectPatternOfSequenceByType(rhythmSequence, PatternType.Intro);
-
-      // choose outro pattern (if available)
-      Optional<Pattern> outroPattern = rhythmProgram.randomlySelectPatternOfSequenceByType(rhythmSequence, PatternType.Outro);
-
-      // compute in and out points, and length # beats for which loop patterns will be required
-      long loopOutPos = fabricator.getSegment().getTotal() - (outroPattern.isPresent() ? outroPattern.get().getTotal() : 0);
-
-      // begin at the beginning and fabricate events for the segment from beginning to end
-      double curPos = 0.0;
-
-      // if intro pattern, fabricate those voice event first
-      if (introPattern.isPresent())
-        curPos += craftRhythmPatternPatternEvents(previousInstrumentAudio, rhythmProgram, rhythmChoice, introPattern.get(), curPos, loopOutPos, 0);
-
-      // choose loop patterns until arrive at the out point or end of segment
-      while (curPos < loopOutPos) {
-        Optional<Pattern> loopPattern = rhythmProgram.randomlySelectPatternOfSequenceByType(rhythmSequence, PatternType.Loop);
-        if (loopPattern.isEmpty())
-          throw exception(String.format("Sequence id=%s has no Loop-type pattern", rhythmSequence.getId()));
-        curPos += craftRhythmPatternPatternEvents(previousInstrumentAudio, rhythmProgram, rhythmChoice, loopPattern.get(), curPos, loopOutPos, 0);
-      }
-
-      // "Go for it" more towards the end of a program (and only during the outro, when present)
-      double goForItRatio = fabricator.getSequenceBindingOffsetForChoice(fabricator.getCurrentMainChoice()).doubleValue() /
-        fabricator.getMaxAvailableSequenceBindingOffset(fabricator.getCurrentMainChoice()).doubleValue();
-
-      // if outro pattern, fabricate those voice event last
-      // [#161466708] compute how much to go for it in the outro
-      if (outroPattern.isPresent())
-        craftRhythmPatternPatternEvents(previousInstrumentAudio, rhythmProgram, rhythmChoice, outroPattern.get(), curPos, loopOutPos, goForItRatio);
+      // voice arrangements
+      for (Voice voice : rhythmProgram.getVoices())
+        craftArrangementForRhythmVoice(rhythmProgram, rhythmSequence, rhythmChoice, voice, previousInstrumentAudio);
 
       // Finally, update the segment with the crafted content
       fabricator.updateSegment();
@@ -215,7 +179,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
         return chooseFreshRhythm();
 
       default:
-        throw exception(String.format("Cannot get Rhythm-type program for unknown fabricator type=", type));
+        throw exception(String.format("Cannot get Rhythm-type program for unknown fabricator type=%s", type));
     }
   }
 
@@ -307,7 +271,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
     // (3) score each source program based on meme isometry
     for (Program program : sourcePrograms) {
       Optional<Double> score = getRhythmScoreOf(program);
-      if (score.isPresent()) superEntityRank.add(program, score.get());
+      score.ifPresent(aDouble -> superEntityRank.add(program, aDouble));
     }
 
     // report
@@ -351,19 +315,52 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    @param voice to craft events for
    @throws CraftException on failure
    */
-  private Arrangement craftArrangementForRhythmVoice(Voice voice) throws CraftException {
+  private void craftArrangementForRhythmVoice(Program program, Sequence sequence, Choice choice, Voice voice, Map<String, Audio> previousInstrumentAudio) throws CraftException {
     try {
       String constellation = MemeIsometry.ofMemes(fabricator.getSegment().getMemes()).getConstellation();
       Optional<BigInteger> instrumentId = getPreviousVoiceInstrumentId(constellation, voice.getId());
 
       // if no previous instrument found, choose a fresh one
-      return fabricator.add(new Arrangement()
-        .setChoiceId(fabricator.getCurrentRhythmChoice().getId())
+      Arrangement arrangement = fabricator.add(new Arrangement()
+        .setChoiceId(choice.getId())
         .setVoiceId(voice.getId())
         .setInstrumentId(instrumentId.isPresent() ? instrumentId.get() : chooseFreshPercussiveInstrument(voice).getId()));
 
+      // choose intro pattern (if available)
+      Optional<Pattern> introPattern = program.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, PatternType.Intro);
+
+      // choose outro pattern (if available)
+      Optional<Pattern> outroPattern = program.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, PatternType.Outro);
+
+      // compute in and out points, and length # beats for which loop patterns will be required
+      long loopOutPos = fabricator.getSegment().getTotal() - (outroPattern.isPresent() ? outroPattern.get().getTotal() : 0);
+
+      // begin at the beginning and fabricate events for the segment from beginning to end
+      double curPos = 0.0;
+
+      // if intro pattern, fabricate those voice event first
+      if (introPattern.isPresent())
+        curPos += craftRhythmPatternPatternEvents(previousInstrumentAudio, program, choice, arrangement, introPattern.get(), curPos, loopOutPos, 0);
+
+      // choose loop patterns until arrive at the out point or end of segment
+      while (curPos < loopOutPos) {
+        Optional<Pattern> loopPattern = program.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, PatternType.Loop);
+        if (loopPattern.isEmpty())
+          throw exception(String.format("Sequence id=%s has no Loop-type pattern", sequence.getId()));
+        curPos += craftRhythmPatternPatternEvents(previousInstrumentAudio, program, choice, arrangement, loopPattern.get(), curPos, loopOutPos, 0);
+      }
+
+      // "Go for it" more towards the end of a program (and only during the outro, when present)
+      double goForItRatio = fabricator.getSequenceBindingOffsetForChoice(fabricator.getCurrentMainChoice()).doubleValue() /
+        fabricator.getMaxAvailableSequenceBindingOffset(fabricator.getCurrentMainChoice()).doubleValue();
+
+      // if outro pattern, fabricate those voice event last
+      // [#161466708] compute how much to go for it in the outro
+      if (outroPattern.isPresent())
+        craftRhythmPatternPatternEvents(previousInstrumentAudio, program, choice, arrangement, outroPattern.get(), curPos, loopOutPos, goForItRatio);
+
     } catch (CoreException e) {
-      throw exception(String.format("Failed to craft arrangement for rhythm voiceId=", voice.getId()), e);
+      throw exception(String.format("Failed to craft arrangement for rhythm voiceId=%s", voice.getId()), e);
     }
   }
 
@@ -427,28 +424,26 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    Craft the voice events of a single rhythm pattern.
    [#161601279] Artist during rhythm craft audio selection wants randomness of outro audio selection to gently ramp from zero to N over the course of the outro.
 
+   @return deltaPos from start, after crafting this batch of rhythm pattern events
    @param previousInstrumentAudio map of previous instrument audio from which to potentially select
-   @param rhythmProgram           to craft pattern events from
-   @param rhythmChoice            to craft pattern events for
+   @param program           to craft pattern events from
+   @param choice            to craft pattern events for
+   @param arrangement             to craft pattern events for
    @param pattern                 to source events
    @param fromPos                 to write events to segment
    @param maxPos                  to write events to segment
    @param goForItRatio            entropy is increased during the progression of a main sequence [#161466708]
-   @return deltaPos from start, after crafting this batch of rhythm pattern events
    */
-  private double craftRhythmPatternPatternEvents(Map<String, Audio> previousInstrumentAudio, Program rhythmProgram, Choice rhythmChoice, Pattern pattern, double fromPos, double maxPos, double goForItRatio) throws CraftException {
+  private double craftRhythmPatternPatternEvents(Map<String, Audio> previousInstrumentAudio, Program program, Choice choice, Arrangement arrangement, Pattern pattern, double fromPos, double maxPos, double goForItRatio) throws CraftException {
     try {
       if (Objects.isNull(pattern)) throw exception("Cannot craft from null pattern");
       double totalPos = maxPos - fromPos;
-      Collection<Arrangement> arrangements = fabricator.getSegment().getArrangementsForChoice(rhythmChoice);
-      for (Arrangement arrangement : arrangements) {
-        Collection<PatternEvent> patternEvents = rhythmProgram.getEventsForPattern(pattern);
+        Collection<PatternEvent> patternEvents = program.getEventsForPattern(pattern);
         Instrument instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId());
         for (PatternEvent patternEvent : patternEvents) {
           double chanceOfRandomChoice = 0.0 == goForItRatio ? 0.0 : goForItRatio * Value.ratio(patternEvent.getPosition() - fromPos, totalPos);
-          pickInstrumentAudio(previousInstrumentAudio, instrument, arrangement, patternEvent, rhythmChoice.getTranspose(), fromPos, chanceOfRandomChoice);
+          pickInstrumentAudio(previousInstrumentAudio, instrument, arrangement, patternEvent, choice.getTranspose(), fromPos, chanceOfRandomChoice);
         }
-      }
       return Math.min(totalPos, pattern.getTotal());
 
     } catch (CoreException e) {

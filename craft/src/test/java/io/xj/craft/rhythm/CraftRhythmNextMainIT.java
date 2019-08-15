@@ -78,7 +78,7 @@ public class CraftRhythmNextMainIT extends FixtureIT {
 
    @param excludeRhythmChoiceForSegment3 if desired for the purpose of this test
    */
-  private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws CoreException {
+  private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) {
     // segment just crafted
     // Testing entities for reference
     segment3 = segmentFactory.newSegment(BigInteger.valueOf(3))
@@ -131,9 +131,7 @@ public class CraftRhythmNextMainIT extends FixtureIT {
       .setSequenceBindingId(program15_binding0.getId())
       .setTypeEnum(ProgramType.Main)
       .setTranspose(0));
-    ImmutableList.of("Regret", "Sky", "Hindsight", "Tropical").forEach(memeName -> {
-      segment4.add(newSegmentMeme(memeName));
-    });
+    ImmutableList.of("Regret", "Sky", "Hindsight", "Tropical").forEach(memeName -> segment4.add(newSegmentMeme(memeName)));
     segment4.add(newSegmentChord(0, "G minor"));
     segment4.add(newSegmentChord(8.0, "Ab minor"));
     insert(segment4);

@@ -69,9 +69,7 @@ public class CraftRhythmInitialIT extends FixtureIT {
       .setSequenceBindingId(program5_binding0.getId())
       .setTypeEnum(ProgramType.Main)
       .setTranspose(-6));
-    ImmutableList.of("Special", "Wild", "Pessimism", "Outlook").forEach(memeName -> {
-      segment6.add(newSegmentMeme(memeName));
-    });
+    ImmutableList.of("Special", "Wild", "Pessimism", "Outlook").forEach(memeName -> segment6.add(newSegmentMeme(memeName)));
     segment6.add(newSegmentChord(0.0,"C minor"));
     segment6.add(newSegmentChord(8.0,"Db minor"));
     insert(segment6);

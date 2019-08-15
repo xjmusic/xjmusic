@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import io.xj.core.CoreModule;
 import io.xj.core.FixtureIT;
-import io.xj.core.exception.CoreException;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorFactory;
 import io.xj.core.model.chain.ChainState;
@@ -15,7 +14,6 @@ import io.xj.core.model.segment.SegmentFactory;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.segment.sub.Choice;
 import io.xj.core.model.segment.sub.SegmentChord;
-import io.xj.core.model.segment.sub.SegmentMeme;
 import io.xj.craft.CraftFactory;
 import io.xj.craft.CraftModule;
 import org.junit.Before;
@@ -80,7 +78,7 @@ public class CraftRhythmNextMacroIT extends FixtureIT {
 
    @param excludeRhythmChoiceForSegment3 if desired for the purpose of this test
    */
-  private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws CoreException {
+  private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) {
     // Chain "Test Print #1" has this segment that was just crafted
     segment3 = segmentFactory.newSegment(BigInteger.valueOf(3))
       .setChainId(BigInteger.valueOf(1))
@@ -132,10 +130,7 @@ public class CraftRhythmNextMacroIT extends FixtureIT {
       .setSequenceBindingId(program15_binding0.getId())
       .setTypeEnum(ProgramType.Main)
       .setTranspose(-2));
-    ImmutableList.of("Hindsight", "Chunky", "Regret", "Tangy").forEach(memeName -> {
-      segment4.add(new SegmentMeme()
-        .setName(memeName));
-    });
+    ImmutableList.of("Hindsight", "Chunky", "Regret", "Tangy").forEach(memeName -> segment4.add(newSegmentMeme(memeName)));
     segment4.add(new SegmentChord()
       .setPosition(0.0)
       .setName("F minor"));

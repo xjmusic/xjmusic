@@ -8,7 +8,6 @@ import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ProgramDAO;
 import io.xj.core.dao.SegmentDAO;
-import io.xj.core.exception.CoreException;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorFactory;
 import io.xj.core.model.chain.ChainState;
@@ -96,7 +95,7 @@ public class CraftRhythmVoiceInitialIT extends FixtureIT {
   /**
    Insert fixture segment 6, including the rhythm choice only if specified
    */
-  private void insertSegments6() throws CoreException {
+  private void insertSegments6() {
     // segment crafting
     segment6 = segmentFactory.newSegment(BigInteger.valueOf(6))
       .setChainId(BigInteger.valueOf(2))
@@ -119,9 +118,7 @@ public class CraftRhythmVoiceInitialIT extends FixtureIT {
       .setSequenceBindingId(program5_binding0.getId())
       .setTypeEnum(ProgramType.Main)
       .setTranspose(-6));
-    ImmutableList.of("Special", "Wild", "Pessimism", "Outlook").forEach(memeName -> {
-      segment6.add(newSegmentMeme(memeName));
-    });
+    ImmutableList.of("Special", "Wild", "Pessimism", "Outlook").forEach(memeName -> segment6.add(newSegmentMeme(memeName)));
     segment6.add(newSegmentChord(0.0, "C minor"));
     segment6.add(newSegmentChord(8.0, "Db minor"));
     insert(segment6);

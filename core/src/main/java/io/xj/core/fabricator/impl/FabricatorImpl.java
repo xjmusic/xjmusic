@@ -20,8 +20,8 @@ import io.xj.core.ingest.cache.IngestCacheProvider;
 import io.xj.core.isometry.Isometry;
 import io.xj.core.isometry.MemeIsometry;
 import io.xj.core.model.chain.Chain;
-import io.xj.core.model.chain.sub.ChainConfig;
 import io.xj.core.model.chain.ChainConfigType;
+import io.xj.core.model.chain.sub.ChainConfig;
 import io.xj.core.model.entity.Meme;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.sub.Audio;
@@ -33,10 +33,10 @@ import io.xj.core.model.program.sub.SequenceBinding;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.sub.Arrangement;
 import io.xj.core.model.segment.sub.Choice;
+import io.xj.core.model.segment.sub.Pick;
 import io.xj.core.model.segment.sub.SegmentChord;
 import io.xj.core.model.segment.sub.SegmentMeme;
 import io.xj.core.model.segment.sub.SegmentMessage;
-import io.xj.core.model.segment.sub.Pick;
 import io.xj.core.transport.CSV;
 import io.xj.music.Chord;
 import io.xj.music.MusicalException;
@@ -72,7 +72,6 @@ public class FabricatorImpl implements Fabricator {
   private final long startTime;
   private final Map<String, Segment> segmentByOffset = Maps.newHashMap();
   private final Map<UUID, BigInteger> instrumentIdForAudioId;
-  private final Map<UUID, Collection<Arrangement>> presetChoiceArrangements = Maps.newHashMap();
   private final Map<Choice, Sequence> sequenceForChoice = Maps.newHashMap();
   private final Segment segment;
   private final SegmentDAO segmentDAO;
@@ -425,11 +424,6 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Map<UUID, Collection<Arrangement>> getPresetChoiceArrangements() {
-    return presetChoiceArrangements;
-  }
-
-  @Override
   public Choice getPreviousMacroChoice() throws CoreException {
     return getPreviousSegment().getChoiceOfType(ProgramType.Macro);
   }
@@ -522,11 +516,6 @@ public class FabricatorImpl implements Fabricator {
   @Override
   public void putReport(String key, Object value) {
     getSegment().getReport().put(key, value);
-  }
-
-  @Override
-  public void setPreArrangementsForChoice(Choice choice, Collection<Arrangement> arrangements) {
-    presetChoiceArrangements.put(choice.getId(), arrangements);
   }
 
   @Override

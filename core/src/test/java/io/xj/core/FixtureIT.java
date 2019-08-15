@@ -2,27 +2,26 @@
 
 package io.xj.core;
 
-import io.xj.core.exception.CoreException;
 import io.xj.core.model.account.Account;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.segment.Segment;
-import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.segment.sub.Choice;
-import io.xj.core.model.library.Library;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentState;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.instrument.sub.Audio;
+import io.xj.core.model.library.Library;
+import io.xj.core.model.program.PatternType;
 import io.xj.core.model.program.Program;
 import io.xj.core.model.program.ProgramState;
 import io.xj.core.model.program.ProgramType;
 import io.xj.core.model.program.sub.Pattern;
-import io.xj.core.model.program.PatternType;
 import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.SequenceBinding;
 import io.xj.core.model.program.sub.Voice;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.segment.sub.Choice;
 import io.xj.core.model.user.User;
 import io.xj.core.model.user.role.UserRoleType;
 import io.xj.core.util.Text;
@@ -45,6 +44,7 @@ public class FixtureIT extends CoreIT {
   protected Audio audio8toot;
   protected Audio audioKick;
   protected Audio audioSnare;
+  protected Audio audioHihat;
   protected Chain chain3;
   protected Instrument instrument201;
   protected Instrument instrument202;
@@ -92,10 +92,8 @@ public class FixtureIT extends CoreIT {
 
   /**
    Library of Content A (shared test fixture)
-
-   @throws CoreException on failure to insert
    */
-  protected void insertFixtureA() throws CoreException {
+  protected void insertFixtureA() {
     // account
     account1 = insert(newAccount(1, "testing"));
     user101 = insert(newUser(101, "john", "john@email.com", "http://pictures.com/john.gif"));
@@ -195,14 +193,8 @@ public class FixtureIT extends CoreIT {
 
   /**
    Library of Content B-1 (shared test fixture)
-
-   @throws CoreException on failure to insert
-   <p>
-   [#163158036] memes bound to sequence-pattern because sequence-pattern binding is not considered for rhythm sequences, rhythm sequence patterns do not have memes.
-   <p>
-   [#165954619] Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (rhythm- and detail-type sequences)
    */
-  protected void insertFixtureB1() throws CoreException {
+  protected void insertFixtureB1() {
     // Account "bananas"
     account1 = insert(newAccount(1, "bananas"));
 
@@ -286,7 +278,7 @@ public class FixtureIT extends CoreIT {
    <p>
    [#165954673] Integration tests use shared scenario fixtures as much as possible
    */
-  protected void insertFixtureB2() throws CoreException {
+  protected void insertFixtureB2() {
     // "Tangy, Chunky to Smooth" macro-program in house library
     program3 = newProgram(3, 3, 2, ProgramType.Macro, ProgramState.Published, "Tangy, Chunky to Smooth", "G minor", 120.0, now());
     program3.add(newProgramMeme("Tangy"));
@@ -335,7 +327,7 @@ public class FixtureIT extends CoreIT {
    <p>
    [#150279647] Artist wants to create multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
    */
-  protected void insertFixtureB3() throws CoreException {
+  protected void insertFixtureB3() {
     // A basic beat
     program9 = newProgram(99035, 3, 2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121, now());
     program9.add(newProgramMeme("Basic"));
@@ -368,7 +360,6 @@ public class FixtureIT extends CoreIT {
     //
     insert(program9);
 
-
     // Instrument "808"
     instrument8 = newInstrument(1, 3, 2, InstrumentType.Percussive, InstrumentState.Published, "808 Drums", now());
     instrument8.add(newInstrumentMeme("heavy"));
@@ -393,7 +384,7 @@ public class FixtureIT extends CoreIT {
    <p>
    [#165954673] Integration tests use shared scenario fixtures as much as possible
    */
-  protected void insertFixtureB_Instruments() throws CoreException {
+  protected void insertFixtureB_Instruments() {
     instrument201 = newInstrument(201, 3, 2, InstrumentType.Percussive, InstrumentState.Published, "808 Drums", now());
     instrument201.add(newInstrumentMeme("Ants"));
     instrument201.add(newInstrumentMeme("Mold"));
@@ -418,7 +409,7 @@ public class FixtureIT extends CoreIT {
   /**
    Shared fixtures for tests that require a library and some entities
    */
-  protected void insertFixtureC() throws CoreException {
+  protected void insertFixtureC() {
     // User "bill"
     user2 = insert(newUser(2, "bill", "bill@email.com", "http://pictures.com/bill.gif"));
 
@@ -466,7 +457,7 @@ public class FixtureIT extends CoreIT {
 
    @param N magnitude of library to generate
    */
-  protected void insertGeneratedFixture(int N) throws CoreException {
+  protected void insertGeneratedFixture(int N) {
     account1 = insert(newAccount(1L, "Generated"));
     user1 = insert(newUser(1L, "generated", "generated@email.com", "http://pictures.com/generated.gif"));
     insert(newUserRole(1L, UserRoleType.Admin));

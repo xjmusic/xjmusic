@@ -30,7 +30,8 @@ export class API {
         .then((resp) => resp.json())
         .then(function (payload) {
           if (payload.hasOwnProperty('data')) {
-            thenFunc(payload.data.attributes);
+            self._config = payload.data.attributes;
+            thenFunc(self._config);
           } else {
             console.error("Failed to load chain #" + identifier + " from API!", payload);
           }

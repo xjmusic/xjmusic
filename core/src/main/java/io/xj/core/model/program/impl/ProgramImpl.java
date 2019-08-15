@@ -427,10 +427,14 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
   }
 
   @Override
-  public Optional<Pattern> randomlySelectPatternOfSequenceByType(Sequence sequence, PatternType patternType) throws CoreException {
+  public Optional<Pattern> randomlySelectPatternOfSequenceByVoiceAndType(Sequence sequence, Voice voice, PatternType patternType) throws CoreException {
     SubEntityRank<Pattern> superEntityRank = new SubEntityRank<>();
-    getPatterns().stream().filter(pattern -> pattern.getType() == patternType).forEach(pattern ->
-      superEntityRank.add(pattern, Chance.normallyAround(0.0, 1.0)));
+    getPatterns().stream()
+      .filter(pattern -> pattern.getSequenceId().equals(sequence.getId()))
+      .filter(pattern -> pattern.getVoiceId().equals(voice.getId()))
+      .filter(pattern -> pattern.getType() == patternType)
+      .forEach(pattern ->
+        superEntityRank.add(pattern, Chance.normallyAround(0.0, 1.0)));
     if (Objects.equals(0, superEntityRank.size()))
       return Optional.empty();
     return Optional.of(superEntityRank.getTop());

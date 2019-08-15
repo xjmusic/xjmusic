@@ -2,10 +2,16 @@
   <dictionary name="charney">
     <words>
       <w>ambience</w>
+      <w>composited</w>
       <w>deserialized</w>
       <w>deserializing</w>
       <w>gson</w>
       <w>healthcheck</w>
+      <w>hihat</w>
+      <w>hihatclosed</w>
+      <w>hihatopen</w>
+      <w>isometry</w>
+      <w>nanos</w>
       <w>outro</w>
       <w>pojo</w>
       <w>prepending</w>

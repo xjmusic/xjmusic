@@ -5,6 +5,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import io.xj.core.CoreModule;
 import io.xj.core.FixtureIT;
+import io.xj.core.access.impl.Access;
+import io.xj.core.dao.ProgramDAO;
+import io.xj.core.dao.SegmentDAO;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorFactory;
 import io.xj.core.model.chain.ChainState;
@@ -12,7 +15,13 @@ import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentState;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.program.PatternType;
+import io.xj.core.model.program.ProgramState;
 import io.xj.core.model.program.ProgramType;
+import io.xj.core.model.program.sub.Pattern;
+import io.xj.core.model.program.sub.Sequence;
+import io.xj.core.model.program.sub.Voice;
+import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentFactory;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.segment.sub.Choice;
@@ -26,11 +35,12 @@ import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 import java.time.Instant;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class CraftRhythmVoiceNextMainIT extends FixtureIT {
+public class CraftRhythm_LayeredVoicesIT extends FixtureIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private CraftFactory craftFactory;
@@ -61,47 +71,36 @@ public class CraftRhythmVoiceNextMainIT extends FixtureIT {
     instrument1.add(newAudioEvent(audioKick, 0, 1, "KICK", "Eb", 1.0));
     //
     audioSnare = instrument1.add(newAudio("Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01, 1.5, 120.0, 1200, 0.6));
-    instrument1.add(newAudioEvent(audioSnare, 1, 1, "SNARE", "Ab", 1.0));
+    instrument1.add(newAudioEvent(audioSnare, 0, 1, "SNARE", "Ab", 1.0));
+    //
+    audioHihat = instrument1.add(newAudio("Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01, 1.5, 120.0, 1200, 0.6));
+    instrument1.add(newAudioEvent(audioHihat, 0, 1, "HIHAT", "Ab", 1.0));
     //
     insert(instrument1);
-  }
 
-  @Test
-  public void craftRhythmVoiceNextMain() throws Exception {
-    insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(segment4);
+    // Remove fixture rhythm program and build a new one that includes layered voices
+    injector.getInstance(ProgramDAO.class).destroy(internal, BigInteger.valueOf(35));
+    // A basic beat
+    program35 = newProgram(35, 3, 2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121, now());
+    program35.add(newProgramMeme("Basic"));
+    Voice locomotion = program35.add(newVoice(InstrumentType.Percussive, "Locomotion"));
+    Voice kickSnare = program35.add(newVoice(InstrumentType.Percussive, "BoomBap"));
+    Sequence sequence35a = program35.add(newSequence(16, "Base", 0.5, "C", 110.3));
+    //
+    Pattern pattern35a1 = program35.add(newPattern(sequence35a, locomotion, PatternType.Loop, 1, "Hi-hat"));
+    program35.add(newPatternEvent(pattern35a1, 0.0, 1.0, "HIHAT", "C2", 1.0));
+    program35.add(newPatternEvent(pattern35a1, 0.25, 1.0, "HIHAT", "G5", 0.4));
+    program35.add(newPatternEvent(pattern35a1, 0.5, 1.0, "HIHAT", "C2", 0.6));
+    program35.add(newPatternEvent(pattern35a1, 0.75, 1.0, "HIHAT", "C2", 0.3));
+    //
+    Pattern pattern35a2 = program35.add(newPattern(sequence35a, kickSnare, PatternType.Loop, 4, "Kick/Snare"));
+    program35.add(newPatternEvent(pattern35a2, 0.0, 1.0, "KICK", "B5", 0.9));
+    program35.add(newPatternEvent(pattern35a2, 1.0, 1.0, "SNARE", "D2", 1.0));
+    program35.add(newPatternEvent(pattern35a2, 2.5, 1.0, "KICK", "E4", 0.7));
+    program35.add(newPatternEvent(pattern35a2, 3.0, 1.0, "SNARE", "c3", 0.5));
+    //
+    insert(program35);
 
-    craftFactory.rhythm(fabricator).doWork();
-
-    assertNotNull(segment4.getArrangementsForChoice(segment4.getChoiceOfType(ProgramType.Rhythm)));
-
-    // test vector for [#154014731] persist Audio pick in memory
-    int pickedKick = 0;
-    int pickedSnare = 0;
-    for (Pick pick : segment4.getPicks()) {
-      if (pick.getAudioId().equals(audioKick.getId()))
-        pickedKick++;
-      if (pick.getAudioId().equals(audioSnare.getId()))
-        pickedSnare++;
-    }
-    assertEquals(8, pickedKick);
-    assertEquals(8, pickedSnare);
-  }
-
-  @Test
-  public void craftRhythmVoiceNextMain_okIfNoRhythmChoice() throws Exception {
-    insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(segment4);
-
-    craftFactory.rhythm(fabricator).doWork();
-  }
-
-  /**
-   Insert fixture segments 3 and 4, including the rhythm choice for segment 3 only if specified
-
-   @param excludeRhythmChoiceForSegment3 if desired for the purpose of this test
-   */
-  private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) {
     // segment just crafted
     // Testing entities for reference
     segment3 = segmentFactory.newSegment(BigInteger.valueOf(3))
@@ -121,15 +120,14 @@ public class CraftRhythmVoiceNextMainIT extends FixtureIT {
       .setTypeEnum(ProgramType.Macro)
       .setTranspose(3));
     segment3.add(new Choice()
-      .setProgramId(BigInteger.valueOf(15))
-      .setSequenceBindingId(program15_binding1.getId())
+      .setProgramId(BigInteger.valueOf(5))
+      .setSequenceBindingId(program5_binding0.getId())
       .setTypeEnum(ProgramType.Main)
-      .setTranspose(-4));
-    if (!excludeRhythmChoiceForSegment3)
-      segment3.add(new Choice()
-        .setProgramId(BigInteger.valueOf(35))
-        .setTypeEnum(ProgramType.Rhythm)
-        .setTranspose(-5));
+      .setTranspose(5));
+    segment3.add(new Choice()
+      .setProgramId(BigInteger.valueOf(35))
+      .setTypeEnum(ProgramType.Rhythm)
+      .setTranspose(5));
     insert(segment3);
 
     // segment crafting
@@ -139,25 +137,52 @@ public class CraftRhythmVoiceNextMainIT extends FixtureIT {
       .setStateEnum(SegmentState.Crafting)
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setEndAt("2017-02-14T12:03:15.836735Z")
-      .setKey("G minor")
+      .setKey("D Major")
       .setTotal(16)
       .setDensity(0.45)
       .setTempo(120.0)
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav");
     segment4.add(new Choice()
       .setProgramId(BigInteger.valueOf(4))
-      .setSequenceBindingId(program4_binding1.getId())
+      .setSequenceBindingId(program4_binding0.getId())
       .setTypeEnum(ProgramType.Macro)
       .setTranspose(3));
     segment4.add(new Choice()
-      .setProgramId(BigInteger.valueOf(15))
-      .setSequenceBindingId(program15_binding0.getId())
+      .setProgramId(BigInteger.valueOf(5))
+      .setSequenceBindingId(program5_binding1.getId())
       .setTypeEnum(ProgramType.Main)
-      .setTranspose(0));
-    ImmutableList.of("Regret", "Sky", "Hindsight", "Tropical").forEach(memeName -> segment4.add(newSegmentMeme(memeName)));
-    segment4.add(newSegmentChord(0.0, "G minor"));
-    segment4.add(newSegmentChord(8.0, "Ab minor"));
+      .setTranspose(-5));
+    ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy").forEach(memeName -> segment4.add(newSegmentMeme(memeName)));
+    segment4.add(newSegmentChord(0.0, "A minor"));
+    segment4.add(newSegmentChord(8.0, "D Major"));
     insert(segment4);
   }
+
+  @Test
+  public void craftRhythmVoiceContinue() throws Exception {
+    Fabricator fabricator = fabricatorFactory.fabricate(segment4);
+
+    craftFactory.rhythm(fabricator).doWork();
+
+    Segment result = injector.getInstance(SegmentDAO.class).readOne(Access.internal(), BigInteger.valueOf(4));
+    assertNotNull(result.getArrangementsForChoice(result.getChoiceOfType(ProgramType.Rhythm)));
+    // test vector for [#154014731] persist Audio pick in memory
+    int pickedKick = 0;
+    int pickedSnare = 0;
+    int pickedHihat = 0;
+    Collection<Pick> picks = result.getPicks();
+    for (Pick pick : picks) {
+      if (pick.getAudioId().equals(audioKick.getId()))
+        pickedKick++;
+      if (pick.getAudioId().equals(audioSnare.getId()))
+        pickedSnare++;
+      if (pick.getAudioId().equals(audioHihat.getId()))
+        pickedHihat++;
+    }
+    assertEquals(8, pickedKick);
+    assertEquals(8, pickedSnare);
+    assertEquals(64, pickedHihat);
+  }
+
 
 }

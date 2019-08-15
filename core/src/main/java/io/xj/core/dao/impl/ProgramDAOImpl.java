@@ -234,8 +234,7 @@ public class ProgramDAOImpl extends DAOImpl implements ProgramDAO {
     if (Objects.isNull(entity.getTempo())) entity.setTempo(from.getTempo());
 
     // Program must be created (have id) before adding content and updating
-    Program program = create(db, access, entity);
-    program.setContentCloned(from);
+    Program program = create(db, access, entity).setContentCloned(from);
     update(db, access, ULong.valueOf(program.getId()), program);
     return program;
   }

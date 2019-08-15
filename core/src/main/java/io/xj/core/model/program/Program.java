@@ -294,16 +294,20 @@ public interface Program extends SuperEntity {
   Collection<Voice> getVoices();
 
   /**
-   [#165954619]
-   Selects one (at random) from all available patterns of a given type within a sequence.
+   [#165954619] Selects one (at random) from all available patterns of a given type within a sequence.
+   <p>
    Caches the selection, so it will always return the same output for any given input.
+   <p>
+   [#166481918] Rhythm fabrication composited from layered Patterns
 
-   @param sequence    of pattern
-   @param patternType to fetch
+
    @return Pattern model, or null if no pattern of this type is found
    @throws CoreException on failure
+   @param sequence    from which to select
+   @param voice       from which to select
+   @param patternType to select
    */
-  Optional<Pattern> randomlySelectPatternOfSequenceByType(Sequence sequence, PatternType patternType) throws CoreException;
+  Optional<Pattern> randomlySelectPatternOfSequenceByVoiceAndType(Sequence sequence, Voice voice, PatternType patternType) throws CoreException;
 
   /**
    Randomly select any sequence

@@ -7,20 +7,19 @@ import io.xj.core.CoreModule;
 import io.xj.core.FixtureIT;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.SegmentDAO;
-import io.xj.core.exception.CoreException;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorFactory;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.instrument.InstrumentState;
+import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.program.ProgramType;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentFactory;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.segment.sub.Choice;
 import io.xj.core.model.segment.sub.Pick;
-import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.instrument.InstrumentState;
-import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.program.ProgramType;
 import io.xj.craft.CraftFactory;
 import io.xj.craft.CraftModule;
 import org.junit.Before;
@@ -107,7 +106,7 @@ public class CraftRhythmVoiceContinueIT extends FixtureIT {
 
    @param excludeRhythmChoiceForSegment3 if desired for the purpose of this test
    */
-  private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws CoreException {
+  private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) {
     // segment just crafted
     // Testing entities for reference
     segment3 = segmentFactory.newSegment(BigInteger.valueOf(3))
@@ -160,9 +159,7 @@ public class CraftRhythmVoiceContinueIT extends FixtureIT {
       .setSequenceBindingId(program5_binding1.getId())
       .setTypeEnum(ProgramType.Main)
       .setTranspose(-5));
-    ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy").forEach(memeName -> {
-      segment4.add(newSegmentMeme(memeName));
-    });
+    ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy").forEach(memeName -> segment4.add(newSegmentMeme(memeName)));
     segment4.add(newSegmentChord(0.0, "A minor"));
     segment4.add(newSegmentChord(8.0, "D Major"));
     insert(segment4);
