@@ -11,8 +11,8 @@ import io.xj.core.fabricator.FabricatorType;
 import io.xj.core.model.chain.ChainConfigType;
 import io.xj.core.model.instrument.sub.Audio;
 import io.xj.core.model.message.MessageType;
-import io.xj.core.model.segment.sub.SegmentMessage;
 import io.xj.core.model.segment.sub.Pick;
+import io.xj.core.model.segment.sub.SegmentMessage;
 import io.xj.core.util.Text;
 import io.xj.dub.exception.DubException;
 import io.xj.dub.master.MasterDub;
@@ -149,6 +149,7 @@ public class MasterDubImpl implements MasterDub {
   private Mixer mixer() throws Exception {
     if (Objects.isNull(_mixer)) {
       MixerConfig config = new MixerConfig(fabricator.getOutputAudioFormat(), fabricator.getSegmentTotalLength())
+        .setLogPrefix(String.format("[segId=%s] ", fabricator.getSegment().getId()))
         .setNormalizationMax(Config.getMixerNormalizationMax())
         .setDSPBufferSize(Config.getDSPBufferSize())
         .setCompressRatioMax(Config.getMixerCompressRatioMax())

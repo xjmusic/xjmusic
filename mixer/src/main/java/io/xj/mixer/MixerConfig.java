@@ -22,9 +22,9 @@ public class MixerConfig {
   private Double compressRatioMin = 0.5;
   private Double normalizationMax = 1.0;
   private Integer dspBufferSize = 1024; // DSP buffer size must be a power of 2
+  private String logPrefix = "";
   private double lowpassThresholdHz = 12000;
   private double highpassThresholdHz = 20.0;
-
   /**
    Instantiate a new mixer configuration with format and length (and default compression settings)
 
@@ -34,6 +34,26 @@ public class MixerConfig {
   public MixerConfig(AudioFormat outputFormat, Duration outputLength) {
     this.outputFormat = outputFormat;
     this.outputLength = outputLength;
+  }
+
+  /**
+   Get Log Prefix
+
+   @return log prefix
+   */
+  public String getLogPrefix() {
+    return logPrefix;
+  }
+
+  /**
+   Set log prefix
+
+   @param logPrefix to set
+   @return this Mixer Config (for chaining methods)
+   */
+  public MixerConfig setLogPrefix(String logPrefix) {
+    this.logPrefix = logPrefix;
+    return this;
   }
 
   /**

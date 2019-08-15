@@ -3,6 +3,7 @@
 import {inject as service} from '@ember/service';
 import Component from '@ember/component';
 import Moment from "moment";
+import Ember from 'ember';
 
 export default Component.extend({
   auth: service(),
@@ -13,7 +14,7 @@ export default Component.extend({
 
   didRender() {
     this.setupClock();
-    this.setupNavbarCollapse();
+    this.setupNavCollapse();
   },
 
   setupClock() {
@@ -42,24 +43,24 @@ export default Component.extend({
   /**
    [#150279494] On mobile, open menu and make selection, expect menu to close
    */
-  setupNavbarCollapse() {
-    /*
-      TODO [#150279494] On mobile, open menu and make selection, expect menu to close
-
-        let self = this;
-        (".navbar-nav li a").click(function (event) {
+  setupNavCollapse() {
+    this.element
+      .querySelectorAll(".navbar-nav li a")
+      .forEach(function (item) {
+        item.addEventListener('click', function (event) {
           // check if window is small enough so dropdown is created
-          let dropdown = (event.target).hasClass('dropdown-toggle');
+          let dropdown = Ember.$(event.target).hasClass('dropdown-toggle');
           if (dropdown) {
             // don't collapse on dropdown press
             return;
           }
-          let toggle = (".navbar-toggler").is(":visible");
+          let toggle = Ember.$(".navbar-toggler").is(":visible");
           if (toggle) {
-            (".navbar-collapse").collapse('hide');
+            Ember.$(".navbar-collapse").collapse('hide');
           }
         });
-    */
+      });
+    this.element.dispatchEvent(new Event('click'));
   }
 
 });

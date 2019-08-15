@@ -71,7 +71,7 @@ public class FabricatorImpl implements Fabricator {
   private final Logger log = LoggerFactory.getLogger(FabricatorImpl.class);
   private final long startTime;
   private final Map<String, Segment> segmentByOffset = Maps.newHashMap();
-  private final Map<UUID, BigInteger> instrumentIdForAudioUUID;
+  private final Map<UUID, BigInteger> instrumentIdForAudioId;
   private final Map<UUID, Collection<Arrangement>> presetChoiceArrangements = Maps.newHashMap();
   private final Map<Choice, Sequence> sequenceForChoice = Maps.newHashMap();
   private final Segment segment;
@@ -115,11 +115,11 @@ public class FabricatorImpl implements Fabricator {
     log.info("[segId={}] SourceMaterial {}", segment.getId(), sourceMaterial);
 
     // cache additional knowledge
-    instrumentIdForAudioUUID = buildInstrumentIdForAudioUUID();
-    log.info("[segId={}] InstrumentIdForAudioUUID {}", segment.getId(), instrumentIdForAudioUUID);
+    instrumentIdForAudioId = buildInstrumentIdForAudioId();
+    log.info("[segId={}] Cached Instrument ID for {} Audio IDs", segment.getId(), instrumentIdForAudioId.size());
 
     previousSegmentsWithSameMainProgram = buildPreviousSegmentsWithSameMainSequence();
-    log.info("[segId={}] PreviousSegmentsWithSameMainProgram {}", segment.getId(), previousSegmentsWithSameMainProgram);
+    log.info("[segId={}] {} previous segment have same main program", segment.getId(), previousSegmentsWithSameMainProgram.size());
 
     // final pre-flight check
     ensureWaveformKey();
@@ -183,7 +183,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Audio getAudio(UUID id) throws CoreException {
-    Optional<Audio> audio = sourceMaterial.getInstrument(instrumentIdForAudioUUID.get(id)).getAudios().stream()
+    Optional<Audio> audio = sourceMaterial.getInstrument(instrumentIdForAudioId.get(id)).getAudios().stream()
       .filter(search -> search.getId().equals(id)).findAny();
     if (audio.isEmpty())
       throw new CoreException(String.format("Cannot find audio id=%s", id));
@@ -649,7 +649,7 @@ public class FabricatorImpl implements Fabricator {
   /**
    @return Map of the parent Instrument ID for all ingest Audio UUIDs
    */
-  private Map<UUID, BigInteger> buildInstrumentIdForAudioUUID() {
+  private Map<UUID, BigInteger> buildInstrumentIdForAudioId() {
     Map<UUID, BigInteger> map = Maps.newHashMap();
     sourceMaterial.getAllInstruments().forEach(instrument ->
       instrument.getAudios().forEach(audio ->

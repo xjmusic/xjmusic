@@ -101,7 +101,8 @@ public class MixerImpl implements Mixer {
       totalBytes = totalFrames * outputFrameSize;
       buf = new double[totalFrames][outputChannels];
 
-      log.info("Did initialize mixer with " +
+      log.info(config.getLogPrefix() +
+          "Did initialize mixer with " +
           "outputChannels: {}, " +
           "outputFrameRate: {}, " +
           "outputFrameSize: {}, " +
@@ -118,7 +119,7 @@ public class MixerImpl implements Mixer {
         totalBytes);
 
     } catch (Exception e) {
-      throw new MixerException("unable to setup internal variables from output audio format", e);
+      throw new MixerException(config.getLogPrefix() +"unable to setup internal variables from output audio format", e);
     }
   }
 
@@ -130,7 +131,7 @@ public class MixerImpl implements Mixer {
   @Override
   public void loadSource(String sourceId, BufferedInputStream inputStream) throws SourceException, FormatException, IOException {
     if (sources.containsKey(sourceId)) {
-      throw new SourceException("Already loaded source id '" + sourceId + "'");
+      throw new SourceException(config.getLogPrefix() +"Already loaded source id '" + sourceId + "'");
     }
 
     Source source = factory.createSource(sourceId, inputStream);
@@ -141,14 +142,14 @@ public class MixerImpl implements Mixer {
   public void mixToFile(OutputEncoder outputEncoder, String outputFilePath, Float quality) throws Exception {
     mix();
     long startedAt = System.nanoTime();
-    log.info("Will write {} bytes of output audio", totalBytes);
+    log.info(config.getLogPrefix() + "Will write {} bytes of output audio", totalBytes);
     new AudioStreamWriter(buf, quality).writeToFile(outputFilePath, config.getOutputFormat(), outputEncoder, totalFrames);
-    log.info("Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
+    log.info(config.getLogPrefix() + "Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
   }
 
   @Override
   public String toString() {
-    return "{ " +
+    return config.getLogPrefix() + "{ " +
       "outputLength:" + config.getOutputLength() + ", " +
       "outputChannels:" + outputChannels + ", " +
       "outputFrameRate:" + outputFrameRate + ", " +
@@ -164,7 +165,7 @@ public class MixerImpl implements Mixer {
   @Override
   public void setCycleMicros(long micros) throws MixerException {
     if (0 == microsPerFrame) {
-      throw new MixerException("Must specify mixing frequency before setting cycle duration!");
+      throw new MixerException(config.getLogPrefix() + "Must specify mixing frequency before setting cycle duration!");
     }
     cycleDurFrames = (long) Math.floor(micros / microsPerFrame);
   }
@@ -232,12 +233,12 @@ public class MixerImpl implements Mixer {
    */
   private void mix() throws Exception {
     if (!Objects.equals(state, MixerState.Ready))
-      throw new MixerException("can't mix again; only one mix allowed per Mixer");
+      throw new MixerException(config.getLogPrefix() + "can't mix again; only one mix allowed per Mixer");
 
     // start the mixer
     state = MixerState.Mixing;
     long startedAt = System.nanoTime();
-    log.info("Will mix {} seconds of output audio at {} Hz frame rate", String.format("%.9f", totalSeconds), outputFrameRate);
+    log.info(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate", String.format("%.9f", totalSeconds), outputFrameRate);
 
     // Start with original sources summed up verbatim
     applySources();
@@ -258,7 +259,7 @@ public class MixerImpl implements Mixer {
 
     //
     state = MixerState.Done;
-    log.info("Did mix {} frames in {}s", totalFrames, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
+    log.info(config.getLogPrefix() + "Did mix {} frames in {}s", totalFrames, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
   }
 
   /**
@@ -411,7 +412,6 @@ public class MixerImpl implements Mixer {
       if (readyPut.getStartAtMicros() < offsetMicros + cycleDurFrames * microsPerFrame * 2) {
         readyPuts.remove(putId);
         livePuts.put(putId, readyPut);
-        log.debug("READY -> LIVE [{}] Put {}", putId, readyPut);
       }
     });
 
@@ -425,7 +425,6 @@ public class MixerImpl implements Mixer {
       if (!livePut.isAlive()) {
         livePuts.remove(putId);
         donePuts.put(putId, livePut);
-        log.debug("LIVE -> DONE [{}] Put {}", putId, livePut);
       }
 
     });
@@ -442,7 +441,7 @@ public class MixerImpl implements Mixer {
 
     // if debug mode
     if (debugging && 0 < getSourceCount()) {
-      log.debug("mix [{}ns] puts-ready:{} puts-live:{} sources:{}", offsetMicros, getPutReadyCount(), getPutLiveCount(), getSourceCount());
+      log.debug(config.getLogPrefix() + "mix [{}ns] puts-ready:{} puts-live:{} sources:{}", offsetMicros, getPutReadyCount(), getPutLiveCount(), getSourceCount());
     }
   }
 
