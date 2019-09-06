@@ -40,6 +40,10 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+/**
+
+ [#166481918] Rhythm fabrication composited from layered Patterns
+ */
 public class CraftRhythm_LayeredVoicesIT extends FixtureIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();

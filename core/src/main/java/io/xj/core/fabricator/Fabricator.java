@@ -239,7 +239,7 @@ public interface Fabricator {
 
    @return map of all previous segment meme constellations (as keys) to a collection of arrangements made
    */
-  Map<String, Collection<Arrangement>> getMemeConstellationArrangementsOfPreviousSegment() throws CoreException;
+  Map<String, Collection<Arrangement>> getMemeConstellationArrangementsOfPreviousSegments() throws CoreException;
 
   /**
    Compute the pattern-meme constellations of any previous segments which selected the same main sequence
@@ -248,7 +248,7 @@ public interface Fabricator {
 
    @return map of all previous segment meme constellations (as keys) to a collection of choices made
    */
-  Map<String, Collection<Choice>> getMemeConstellationChoicesOfPreviousSegment() throws CoreException;
+  Map<String, Collection<Choice>> getMemeConstellationChoicesOfPreviousSegments() throws CoreException;
 
   /**
    Get any sequence by id
@@ -258,7 +258,7 @@ public interface Fabricator {
 
    @return map of all previous segment meme constellations (as keys) to a collection of picks extracted from their content JSON
    */
-  Map<String, Collection<Pick>> getMemeConstellationPicksOfPreviousSegment() throws CoreException;
+  Map<String, Collection<Pick>> getMemeConstellationPicksOfPreviousSegments() throws CoreException;
 
   /**
    Get meme isometry for the current offset in this macro-choice

@@ -141,8 +141,8 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
     Map<String, Audio> previousInstrumentAudio = Maps.newHashMap();
     try {
       String con = fabricator.getMemeIsometryOfSegment().getConstellation();
-      if (fabricator.getMemeConstellationPicksOfPreviousSegment().containsKey(con)) {
-        Collection<Pick> picks = fabricator.getMemeConstellationPicksOfPreviousSegment().get(con);
+      if (fabricator.getMemeConstellationPicksOfPreviousSegments().containsKey(con)) {
+        Collection<Pick> picks = fabricator.getMemeConstellationPicksOfPreviousSegments().get(con);
         log.info("[segId={}] previous meme constellation picks {}", fabricator.getSegment().getId(), picks.size());
         for (Pick pick : picks) {
           String key = eventKey(pick);
@@ -199,8 +199,8 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
     try {
       Map<String, BigInteger> constellationProgramIds = Maps.newHashMap();
       String con = fabricator.getMemeIsometryOfSegment().getConstellation();
-      if (fabricator.getMemeConstellationChoicesOfPreviousSegment().containsKey(con)) {
-        for (Choice choice : fabricator.getMemeConstellationChoicesOfPreviousSegment().get(con)) {
+      if (fabricator.getMemeConstellationChoicesOfPreviousSegments().containsKey(con)) {
+        for (Choice choice : fabricator.getMemeConstellationChoicesOfPreviousSegments().get(con)) {
           if (ProgramType.Rhythm == choice.getType())
             constellationProgramIds.put(con, fabricator.getProgram(choice).getId());
         }
@@ -229,9 +229,9 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    */
   private Optional<BigInteger> getPreviousVoiceInstrumentId(String segmentMemeConstellation, UUID voiceId) {
     try {
-      for (String constellation : fabricator.getMemeConstellationArrangementsOfPreviousSegment().keySet()) {
+      for (String constellation : fabricator.getMemeConstellationArrangementsOfPreviousSegments().keySet()) {
         if (Objects.equals(segmentMemeConstellation, constellation))
-          for (Arrangement arrangement : fabricator.getMemeConstellationArrangementsOfPreviousSegment().get(constellation)) {
+          for (Arrangement arrangement : fabricator.getMemeConstellationArrangementsOfPreviousSegments().get(constellation)) {
             if (Objects.equals(voiceId, arrangement.getVoiceId()))
               return Optional.of(arrangement.getInstrumentId());
           }

@@ -18,4 +18,11 @@ jest || exit 1
 step_ok
 
 #
+step "Test Stepmatic UI UI"
+cd ${BASEPATH}/ui/stepmatic-ui || exit 1
+npm install || exit 1
+jest || exit 1
+step_ok
+
+#
 finished_ok

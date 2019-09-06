@@ -41,3 +41,15 @@
   }
 }
 
+.btn-launch {
+  display: inline-block;
+  color: $gray !important;
+
+  strong {
+    color: $bright !important;
+  }
+
+  &:hover {
+    text-decoration: none;
+  }
+}

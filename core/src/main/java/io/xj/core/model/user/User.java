@@ -72,7 +72,6 @@ public class User extends EntityImpl {
       .build();
   }
 
-
   /**
    get Roles
 

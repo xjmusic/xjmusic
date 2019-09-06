@@ -25,6 +25,7 @@ require_npm() {
 # Require NPM based dependencies
 require_npm "Gulp" "gulp -v"
 require_npm "Ember" "ember -v"
+require_npm "Vue CLI" "vue build --version"
 
 #
 step "XJ UI ${GREEN}OK${RESET}"
@@ -44,7 +45,14 @@ step "Build Player UI"
 cd ${BASEPATH}/ui/player-ui
 npm install || fail "Installing Player UI dependencies via NPM"
 gulp watch &
-PLAYER_GULP_PID=$!
+PLAYER_UI_PID=$!
+
+# Stepmatic UI (start)
+step "Build Stepmatic UI"
+cd ${BASEPATH}/ui/stepmatic-ui
+npm install || fail "Installing Stepmatic UI dependencies via NPM"
+npm run build-watch &
+STEPMATIC_UI_PID=$!
 
 # Loop til quit
 while :
@@ -56,7 +64,10 @@ done
 kill ${HUB_EMBER_PID}
 
 # Player UI (stop)
-kill ${PLAYER_GULP_PID}
+kill ${PLAYER_UI_PID}
+
+# Stepmatic UI (stop)
+kill ${STEPMATIC_UI_PID}
 
 #
 finished_ok

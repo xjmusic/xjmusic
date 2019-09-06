@@ -64,9 +64,6 @@ public class FabricatorImpl implements Fabricator {
   private final AmazonProvider amazonProvider;
   private final Chain chain;
   private final Collection<Segment> cachedPreviousSegmentsWithThisMainSequence = Lists.newArrayList();
-
-  private final Collection<Segment> previousSegmentsWithSameMainProgram;
-
   private final Ingest sourceMaterial;
   private final Logger log = LoggerFactory.getLogger(FabricatorImpl.class);
   private final long startTime;
@@ -77,6 +74,7 @@ public class FabricatorImpl implements Fabricator {
   private final SegmentDAO segmentDAO;
   private final TimeComputerFactory timeComputerFactory;
   private final Tuning tuning;
+  private Collection<Segment> previousSegmentsWithSameMainProgram;
   private FabricatorType type;
 
   @AssistedInject
@@ -116,9 +114,6 @@ public class FabricatorImpl implements Fabricator {
     // cache additional knowledge
     instrumentIdForAudioId = buildInstrumentIdForAudioId();
     log.info("[segId={}] Cached Instrument ID for {} Audio IDs", segment.getId(), instrumentIdForAudioId.size());
-
-    previousSegmentsWithSameMainProgram = buildPreviousSegmentsWithSameMainSequence();
-    log.info("[segId={}] {} previous segment have same main program", segment.getId(), previousSegmentsWithSameMainProgram.size());
 
     // final pre-flight check
     ensureWaveformKey();
@@ -301,33 +296,35 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Map<String, Collection<Arrangement>> getMemeConstellationArrangementsOfPreviousSegment() {
+  public Map<String, Collection<Arrangement>> getMemeConstellationArrangementsOfPreviousSegments() {
     Map<String, Collection<Arrangement>> out = Maps.newHashMap();
-    getMemeConstellationChoicesOfPreviousSegment().forEach((constellation, previousChoices) -> {
-      out.put(constellation, Lists.newArrayList());
-      previousChoices.forEach(choice -> getSegment().getArrangementsForChoice(choice).forEach(arrangement -> out.get(constellation).add(arrangement)));
+    getMemeConstellationChoicesOfPreviousSegments().forEach((con, previousChoices) -> {
+      if (!out.containsKey(con)) out.put(con, Lists.newArrayList());
+      previousChoices.forEach(choice -> getSegment().getArrangementsForChoice(choice).forEach(arrangement -> out.get(con).add(arrangement)));
     });
     return out;
   }
 
   @Override
-  public Map<String, Collection<Choice>> getMemeConstellationChoicesOfPreviousSegment() {
+  public Map<String, Collection<Choice>> getMemeConstellationChoicesOfPreviousSegments() {
     Map<String, Collection<Choice>> out = Maps.newHashMap();
-    for (Segment seg : previousSegmentsWithSameMainProgram) {
+    for (Segment seg : getPreviousSegmentsWithSameMainProgram()) {
       Isometry iso = MemeIsometry.ofMemes(seg.getMemes());
       String con = iso.getConstellation();
-      out.put(con, seg.getChoices());
+      if (!out.containsKey(con)) out.put(con, Lists.newArrayList());
+      out.get(con).addAll(seg.getChoices());
     }
     return out;
   }
 
   @Override
-  public Map<String, Collection<Pick>> getMemeConstellationPicksOfPreviousSegment() {
+  public Map<String, Collection<Pick>> getMemeConstellationPicksOfPreviousSegments() {
     Map<String, Collection<Pick>> out = Maps.newHashMap();
-    for (Segment seg : previousSegmentsWithSameMainProgram) {
+    for (Segment seg : getPreviousSegmentsWithSameMainProgram()) {
       Isometry iso = MemeIsometry.ofMemes(seg.getMemes());
       String con = iso.getConstellation();
-      out.put(con, seg.getPicks());
+      if (!out.containsKey(con)) out.put(con, Lists.newArrayList());
+      out.get(con).addAll(seg.getPicks());
     }
     return out;
   }
@@ -410,6 +407,9 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Collection<Segment> getPreviousSegmentsWithSameMainProgram() {
+    if (Objects.isNull(previousSegmentsWithSameMainProgram))
+      previousSegmentsWithSameMainProgram = buildPreviousSegmentsWithSameMainSequence();
+
     return previousSegmentsWithSameMainProgram;
   }
 
@@ -530,11 +530,9 @@ public class FabricatorImpl implements Fabricator {
     switch (getType()) {
       case Continue:
         // transitions only once, from empty to non-empty
-        cachedPreviousSegmentsWithThisMainSequence.clear();
-        cachedPreviousSegmentsWithThisMainSequence.addAll(previousSegmentsWithSameMainProgram);
         log.info("[segId={}] continues main sequence of previous segments: {}",
           segment.getId(),
-          CSV.fromIdsOf(cachedPreviousSegmentsWithThisMainSequence));
+          CSV.fromIdsOf(getPreviousSegmentsWithSameMainProgram()));
         break;
       case Initial:
       case NextMain:
