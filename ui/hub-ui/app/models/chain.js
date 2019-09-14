@@ -10,8 +10,8 @@ export default Model.extend({
   stopAt: attr('string', {defaultValue: ''}),
   embedKey: attr('string', {defaultValue: ''}),
 
-  segments: hasMany('segment'),
-  chainConfigs: hasMany('chain-config'),
-  chainBindings: hasMany('chain-binding'),
+  "segments": hasMany('segment'),
+  "chain-configs": hasMany('chain-config'),
+  "chain-bindings": hasMany('chain-binding'),
 });
 

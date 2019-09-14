@@ -25,7 +25,6 @@ import java.util.Objects;
 /**
  Programs
  */
-// TODO don't necessarily include all sub-entities--- only do so on request, and probably not at all for the index resources
 @Path("programs")
 public class ProgramIndexResource extends HubResource {
 

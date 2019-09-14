@@ -22,7 +22,6 @@ import javax.ws.rs.core.Response;
  Instrument record
  */
 @Path("instruments/{id}")
-// TODO don't necessarily include all sub-entities--- only do so on request, and probably not at all for the index resources
 public class InstrumentOneResource extends HubResource {
 
   @PathParam("id")

@@ -29,7 +29,6 @@ import java.util.Objects;
  Chain record
  */
 @Path("chains/{id}")
-// TODO don't necessarily include all sub-entities--- only do so on request, and probably not at all for the index resources
 public class ChainOneResource extends HubResource {
 
   @PathParam("id")

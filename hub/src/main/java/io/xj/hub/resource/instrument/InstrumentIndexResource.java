@@ -26,7 +26,6 @@ import java.util.Objects;
  Instruments
  */
 @Path("instruments")
-// TODO don't necessarily include all sub-entities--- only do so on request, and probably not at all for the index resources
 public class InstrumentIndexResource extends HubResource {
 
   @QueryParam("accountId")

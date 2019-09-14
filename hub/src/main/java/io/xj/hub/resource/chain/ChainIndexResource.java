@@ -26,7 +26,6 @@ import java.util.Objects;
  Chains
  */
 @Path("chains")
-// TODO don't necessarily include all sub-entities--- only do so on request, and probably not at all for the index resources
 public class ChainIndexResource extends HubResource {
 
   @QueryParam("accountId")

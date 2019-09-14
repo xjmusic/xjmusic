@@ -24,7 +24,6 @@ import java.math.BigInteger;
  Program record
  */
 @Path("programs/{id}")
-// TODO don't necessarily include all sub-entities--- only do so on request, and probably not at all for the index resources
 public class ProgramOneResource extends HubResource {
 
   @PathParam("id")

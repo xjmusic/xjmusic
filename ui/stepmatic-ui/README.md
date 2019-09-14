@@ -1,5 +1,9 @@
 # stepmatic-ui
 
+## JSON API Serializer/Deserializer
+
+[jsonapi-serializer](https://github.com/SeyZ/jsonapi-serializer)
+
 ## Project setup
 ```
 npm install
