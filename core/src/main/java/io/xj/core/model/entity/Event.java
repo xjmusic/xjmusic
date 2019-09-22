@@ -16,8 +16,8 @@ public interface Event extends SubEntity {
     if (null == event.getDuration())
       throw new CoreException("Duration is required.");
 
-    if (null == event.getInflection() || event.getInflection().isEmpty())
-      throw new CoreException("Inflection is required.");
+    if (null == event.getName() || event.getName().isEmpty())
+      throw new CoreException("Name is required.");
 
     if (null == event.getNote() || event.getNote().isEmpty())
       throw new CoreException("Note is required.");
@@ -37,11 +37,11 @@ public interface Event extends SubEntity {
   Double getDuration();
 
   /**
-   get Inflection
+   get Name
 
-   @return Inflection
+   @return Name
    */
-  String getInflection();
+  String getName();
 
   /**
    get Note
@@ -73,12 +73,12 @@ public interface Event extends SubEntity {
   Event setDuration(Double duration);
 
   /**
-   set Inflection of Event
+   set Name of Event
 
-   @param inflection to set
+   @param name to set
    @return this Event (for chaining methods)
    */
-  Event setInflection(String inflection);
+  Event setName(String name);
 
   /**
    set Note of Event

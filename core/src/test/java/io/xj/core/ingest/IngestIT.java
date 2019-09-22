@@ -126,7 +126,7 @@ public class IngestIT extends FixtureIT {
   public void getInstrument() throws Exception {
     Ingest ingest = ingestFactory.ingest(Access.internal(), ImmutableList.of(newChainBinding("Library", 10000001)));
 
-    assertEquals("808 Drums", ingest.getInstrument(BigInteger.valueOf(201)).getDescription());
+    assertEquals("808 Drums", ingest.getInstrument(BigInteger.valueOf(201)).getName());
   }
 
   @Test

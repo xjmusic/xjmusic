@@ -13,11 +13,11 @@ There are two types of **Events**, the **Sequence Pattern Voice-Event** and the 
 
 # Percussive-type Instruments
 
-It is important for percussive-type instruments to use the following standardized set of Event Inflections, which have far more influence on the outcome of percussive instrument-audio choice (than, for example, Event Notes).
+It is important for percussive-type instruments to use the following standardized set of Event Names, which have far more influence on the outcome of percussive instrument-audio choice (than, for example, Event Notes).
 
-Percussive-type Instrument Audio-Event Inflections are:
+Percussive-type Instrument Audio-Event Names are:
 
- Use This Code   | For This Inflection   
+ Use This Code   | For This Name   
 -----------------|-----------------------
  `AGOGOHIGH`     | Agogo High                   
  `AGOGOLOW`      | Agogo Low                      

@@ -31,7 +31,7 @@ public class Pick extends SegmentSubEntity {
   private Double length;
   private Double amplitude;
   private Double pitch;
-  private String inflection;
+  private String name;
   private UUID voiceId;
 
   /**
@@ -62,12 +62,12 @@ public class Pick extends SegmentSubEntity {
   }
 
   /**
-   get Inflection
+   get Name
 
-   @return getInflection
+   @return getName
    */
-  public String getInflection() {
-    return inflection;
+  public String getName() {
+    return name;
   }
 
   /**
@@ -101,7 +101,7 @@ public class Pick extends SegmentSubEntity {
       .add("length")
       .add("amplitude")
       .add("pitch")
-      .add("inflection")
+      .add("name")
       .build();
   }
 
@@ -176,13 +176,13 @@ public class Pick extends SegmentSubEntity {
   }
 
   /**
-   set Inflection
+   set Name
 
-   @param inflection to set
+   @param name to set
    @return this Pick (for chaining methods)
    */
-  public Pick setInflection(String inflection) {
-    this.inflection = inflection;
+  public Pick setName(String name) {
+    this.name = name;
     return this;
   }
 

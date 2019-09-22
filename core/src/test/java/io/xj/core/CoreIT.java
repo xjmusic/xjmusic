@@ -264,7 +264,7 @@ public class CoreIT extends CoreTest {
   protected Instrument insert(Instrument model) {
     InstrumentRecord record = db.newRecord(INSTRUMENT);
     record.setId(ULong.valueOf(model.getId()));
-    record.setDescription(model.getDescription());
+    record.setName(model.getName());
     record.setUserId(ULong.valueOf(model.getUserId()));
     record.setLibraryId(ULong.valueOf(model.getLibraryId()));
     record.setId(ULong.valueOf(model.getId()));

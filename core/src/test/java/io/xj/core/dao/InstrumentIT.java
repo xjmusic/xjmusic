@@ -89,7 +89,7 @@ public class InstrumentIT extends FixtureIT {
     Instrument subject = instrumentFactory.newInstrument()
       .setUserId(BigInteger.valueOf(3L))
       .setLibraryId(BigInteger.valueOf(1L))
-      .setDescription("shimmy")
+      .setName("shimmy")
       .setState("Published")
       .setType("Percussive");
 
@@ -97,7 +97,7 @@ public class InstrumentIT extends FixtureIT {
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
-    assertEquals("shimmy", result.getDescription());
+    assertEquals("shimmy", result.getName());
     assertEquals(InstrumentType.Percussive, result.getType());
   }
 
@@ -111,14 +111,14 @@ public class InstrumentIT extends FixtureIT {
     Instrument subject = instrumentFactory.newInstrument()
       .setUserId(BigInteger.valueOf(3L))
       .setLibraryId(BigInteger.valueOf(1L))
-      .setDescription("cannons fifty nine");
+      .setName("cannons fifty nine");
 
     Instrument result = testDAO.clone(access, BigInteger.valueOf(1L), subject);
 
     assertNotNull(result);
     assertEquals(0.5, result.getDensity(), 0.01);
     assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
-    assertEquals("cannons fifty nine", result.getDescription());
+    assertEquals("cannons fifty nine", result.getName());
     assertEquals(InstrumentType.Percussive, result.getType());
   }
 
@@ -136,7 +136,7 @@ public class InstrumentIT extends FixtureIT {
     assertEquals(InstrumentState.Published, result.getState());
     assertEquals(BigInteger.valueOf(2L), result.getId());
     assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
-    assertEquals("buns", result.getDescription());
+    assertEquals("buns", result.getName());
   }
 
   @Test
@@ -184,7 +184,7 @@ public class InstrumentIT extends FixtureIT {
       "accounts", "1"
     ));
     Instrument subject = instrumentFactory.newInstrument()
-      .setDescription("shimmy")
+      .setName("shimmy")
       .setLibraryId(BigInteger.valueOf(387L));
 
     try {
@@ -193,7 +193,7 @@ public class InstrumentIT extends FixtureIT {
     } catch (Exception e) {
       Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
       assertNotNull(result);
-      assertEquals("buns", result.getDescription());
+      assertEquals("buns", result.getName());
       assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
       assertSame(CoreException.class, e.getClass());
     }
@@ -209,7 +209,7 @@ public class InstrumentIT extends FixtureIT {
     Instrument subject = instrumentFactory.newInstrument()
       .setUserId(BigInteger.valueOf(3L))
       .setLibraryId(BigInteger.valueOf(1L))
-      .setDescription("shimmy")
+      .setName("shimmy")
       .setState("Published")
       .setType("Percussive");
 
@@ -217,7 +217,7 @@ public class InstrumentIT extends FixtureIT {
 
     Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
-    assertEquals("shimmy", result.getDescription());
+    assertEquals("shimmy", result.getName());
     assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
   }
 
@@ -231,7 +231,7 @@ public class InstrumentIT extends FixtureIT {
     Instrument subject = instrumentFactory.newInstrument(BigInteger.valueOf(2L))
       .setUserId(BigInteger.valueOf(3L))
       .setLibraryId(BigInteger.valueOf(1L))
-      .setDescription("shimmy")
+      .setName("shimmy")
       .setState("Published")
       .setType("Percussive");
     subject.add(newAudio("Test audio", "audio5.wav", 0, 2, 120, 300, 0.42));
@@ -241,7 +241,7 @@ public class InstrumentIT extends FixtureIT {
     Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
     assertEquals(0.42, result.getDensity(), 0.1);
-    assertEquals("shimmy", result.getDescription());
+    assertEquals("shimmy", result.getName());
     assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
   }
 
@@ -260,7 +260,7 @@ public class InstrumentIT extends FixtureIT {
     Instrument subject = instrumentFactory.newInstrument()
       .setUserId(BigInteger.valueOf(3L))
       .setLibraryId(BigInteger.valueOf(1L))
-      .setDescription("shimmy")
+      .setName("shimmy")
       .setState("Published")
       .setType("Percussive");
 

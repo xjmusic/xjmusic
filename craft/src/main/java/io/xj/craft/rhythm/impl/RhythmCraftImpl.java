@@ -54,7 +54,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
   private static final double SCORE_INSTRUMENT_ENTROPY = 0.5;
   private static final double SCORE_MATCHED_MEMES = 5;
   private static final double SCORE_RHYTHM_ENTROPY = 0.5;
-  private static final String KEY_VOICE_INFLECTION_TEMPLATE = "%s_%s";
+  private static final String KEY_VOICE_NAME_TEMPLATE = "%s_%s";
   private final Logger log = LoggerFactory.getLogger(RhythmCraftImpl.class);
   private final SecureRandom random = new SecureRandom();
 
@@ -66,23 +66,23 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
   }
 
   /**
-   Key for any pick designed to collide at same voice id + inflection
+   Key for any pick designed to collide at same voice id + name
 
    @param pick to get key of
    @return unique key for pattern event
    */
   private static String eventKey(Pick pick) {
-    return String.format(KEY_VOICE_INFLECTION_TEMPLATE, pick.getVoiceId(), pick.getInflection());
+    return String.format(KEY_VOICE_NAME_TEMPLATE, pick.getVoiceId(), pick.getName());
   }
 
   /**
-   Key for any pattern event designed to collide at same voice id + inflection
+   Key for any pattern event designed to collide at same voice id + name
 
    @param patternEvent to get key of
    @return unique key for pattern event
    */
   private String eventKey(PatternEvent patternEvent) throws CraftException {
-    return String.format(KEY_VOICE_INFLECTION_TEMPLATE, getVoiceId(patternEvent), patternEvent.getInflection());
+    return String.format(KEY_VOICE_NAME_TEMPLATE, getVoiceId(patternEvent), patternEvent.getName());
   }
 
   /**
@@ -345,9 +345,10 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
       // choose loop patterns until arrive at the out point or end of segment
       while (curPos < loopOutPos) {
         Optional<Pattern> loopPattern = program.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, PatternType.Loop);
-        if (loopPattern.isEmpty())
-          throw exception(String.format("Sequence id=%s has no Loop-type pattern", sequence.getId()));
-        curPos += craftRhythmPatternPatternEvents(previousInstrumentAudio, program, choice, arrangement, loopPattern.get(), curPos, loopOutPos, 0);
+        if (loopPattern.isPresent())
+          curPos += craftRhythmPatternPatternEvents(previousInstrumentAudio, program, choice, arrangement, loopPattern.get(), curPos, loopOutPos, 0);
+        else
+          curPos = loopOutPos;
       }
 
       // "Go for it" more towards the end of a program (and only during the outro, when present)
@@ -378,7 +379,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
     // (2) retrieve instruments bound to chain
     Collection<Instrument> sourceInstruments = fabricator.getSourceMaterial().getInstrumentsOfType(InstrumentType.Percussive);
 
-    // future: [#258] Instrument selection is based on Text Isometry between the voice description and the instrument description
+    // future: [#258] Instrument selection is based on Text Isometry between the voice name and the instrument name
     log.debug("[segId={}] not currently in use: {}", fabricator.getSegment().getId(), voice);
 
     // (3) score each source instrument based on meme isometry
@@ -424,26 +425,26 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    Craft the voice events of a single rhythm pattern.
    [#161601279] Artist during rhythm craft audio selection wants randomness of outro audio selection to gently ramp from zero to N over the course of the outro.
 
-   @return deltaPos from start, after crafting this batch of rhythm pattern events
    @param previousInstrumentAudio map of previous instrument audio from which to potentially select
-   @param program           to craft pattern events from
-   @param choice            to craft pattern events for
+   @param program                 to craft pattern events from
+   @param choice                  to craft pattern events for
    @param arrangement             to craft pattern events for
    @param pattern                 to source events
    @param fromPos                 to write events to segment
    @param maxPos                  to write events to segment
    @param goForItRatio            entropy is increased during the progression of a main sequence [#161466708]
+   @return deltaPos from start, after crafting this batch of rhythm pattern events
    */
   private double craftRhythmPatternPatternEvents(Map<String, Audio> previousInstrumentAudio, Program program, Choice choice, Arrangement arrangement, Pattern pattern, double fromPos, double maxPos, double goForItRatio) throws CraftException {
     try {
       if (Objects.isNull(pattern)) throw exception("Cannot craft from null pattern");
       double totalPos = maxPos - fromPos;
-        Collection<PatternEvent> patternEvents = program.getEventsForPattern(pattern);
-        Instrument instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId());
-        for (PatternEvent patternEvent : patternEvents) {
-          double chanceOfRandomChoice = 0.0 == goForItRatio ? 0.0 : goForItRatio * Value.ratio(patternEvent.getPosition() - fromPos, totalPos);
-          pickInstrumentAudio(previousInstrumentAudio, instrument, arrangement, patternEvent, choice.getTranspose(), fromPos, chanceOfRandomChoice);
-        }
+      Collection<PatternEvent> patternEvents = program.getEventsForPattern(pattern);
+      Instrument instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId());
+      for (PatternEvent patternEvent : patternEvents) {
+        double chanceOfRandomChoice = 0.0 == goForItRatio ? 0.0 : goForItRatio * Value.ratio(patternEvent.getPosition() - fromPos, totalPos);
+        pickInstrumentAudio(previousInstrumentAudio, instrument, arrangement, patternEvent, choice.getTranspose(), fromPos, chanceOfRandomChoice);
+      }
       return Math.min(totalPos, pattern.getTotal());
 
     } catch (CoreException e) {
@@ -485,7 +486,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
         .setAudioId(audio.getId())
         .setVoiceId(arrangement.getVoiceId())
         .setPatternEventId(patternEvent.getId())
-        .setInflection(patternEvent.getInflection())
+        .setName(patternEvent.getName())
         .setStart(startSeconds)
         .setLength(lengthSeconds)
         .setAmplitude(patternEvent.getVelocity())
@@ -517,7 +518,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
   }
 
   /**
-   Select the cached (already selected for this segment+drum inflection)
+   Select the cached (already selected for this segment+drum name)
    instrument audio based on a pattern event.
    <p>
    If never encountered, default to new selection and cache that.

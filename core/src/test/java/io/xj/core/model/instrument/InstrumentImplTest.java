@@ -24,7 +24,7 @@ public class InstrumentImplTest extends CoreTest {
       .setUserId(BigInteger.valueOf(27437L))
       .setLibraryId(BigInteger.valueOf(907834L))
       .setType("Percussive")
-      .setDescription("TR-808")
+      .setName("TR-808")
       .setState("Published")
       .validate();
   }
@@ -37,7 +37,7 @@ public class InstrumentImplTest extends CoreTest {
     instrumentFactory.newInstrument()
       .setUserId(BigInteger.valueOf(27437L))
       .setLibraryId(BigInteger.valueOf(907834L))
-      .setDescription("TR-808")
+      .setName("TR-808")
       .validate();
   }
 
@@ -50,7 +50,7 @@ public class InstrumentImplTest extends CoreTest {
       .setTypeEnum(InstrumentType.Percussive)
       .setUserId(BigInteger.valueOf(27437L))
       .setLibraryId(BigInteger.valueOf(907834L))
-      .setDescription("TR-808")
+      .setName("TR-808")
       .validate();
   }
 
@@ -62,7 +62,7 @@ public class InstrumentImplTest extends CoreTest {
     instrumentFactory.newInstrument()
       .setUserId(BigInteger.valueOf(27437L))
       .setType("Percussive")
-      .setDescription("TR-808")
+      .setName("TR-808")
       .validate();
   }
 
@@ -74,14 +74,14 @@ public class InstrumentImplTest extends CoreTest {
     instrumentFactory.newInstrument()
       .setLibraryId(BigInteger.valueOf(5))
       .setType("Percussive")
-      .setDescription("TR-808")
+      .setName("TR-808")
       .validate();
   }
 
   @Test
-  public void validate_failsWithoutDescription() throws Exception {
+  public void validate_failsWithoutName() throws Exception {
     failure.expect(CoreException.class);
-    failure.expectMessage("Description is required");
+    failure.expectMessage("Name is required");
 
     instrumentFactory.newInstrument()
       .setUserId(BigInteger.valueOf(27437L))
@@ -101,7 +101,7 @@ public class InstrumentImplTest extends CoreTest {
       .setLibraryId(BigInteger.valueOf(907834L))
       .setStateEnum(InstrumentState.Published)
       .setType("butt")
-      .setDescription("TR-808")
+      .setName("TR-808")
       .validate();
   }
 
@@ -115,7 +115,7 @@ public class InstrumentImplTest extends CoreTest {
       .setUserId(BigInteger.valueOf(27437L))
       .setLibraryId(BigInteger.valueOf(907834L))
       .setState("butt")
-      .setDescription("TR-808")
+      .setName("TR-808")
       .validate();
   }
 
@@ -123,7 +123,7 @@ public class InstrumentImplTest extends CoreTest {
   public void create_cannotAddAudioBeforeCreatingRecord() {
     Instrument subject = instrumentFactory.newInstrument()
       .setLibraryId(BigInteger.valueOf(1L))
-      .setDescription("shimmy")
+      .setName("shimmy")
       .setState("Published")
       .setType("Percussive");
 
@@ -136,7 +136,7 @@ public class InstrumentImplTest extends CoreTest {
 
   @Test
   public void getPayloadAttributeNames() {
-    assertSameItems(ImmutableList.of("createdAt", "updatedAt", "state", "description", "type", "density"), instrumentFactory.newInstrument().getResourceAttributeNames());
+    assertSameItems(ImmutableList.of("createdAt", "updatedAt", "state", "name", "type", "density"), instrumentFactory.newInstrument().getResourceAttributeNames());
   }
 
   /*

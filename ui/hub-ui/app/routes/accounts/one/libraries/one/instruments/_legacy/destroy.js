@@ -33,7 +33,7 @@ export default Route.extend({
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
-            get(self, 'display').success('Destroyed instrument ' + model.get('description') + '.');
+            get(self, 'display').success('Destroyed instrument ' + model.get('name') + '.');
             this.transitionTo('accounts.one.libraries.one.instruments', account, library);
           },
           (error) => {

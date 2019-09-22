@@ -41,7 +41,7 @@ public class InstrumentImpl extends SuperEntityImpl implements Instrument {
   private final Map<UUID, AudioEvent> audioEventMap = Maps.newHashMap();
   private final Map<UUID, AudioChord> audioChordMap = Maps.newHashMap();
   private InstrumentState state;
-  private String description;
+  private String name;
   private InstrumentType type;
   private BigInteger userId;
   private BigInteger libraryId;
@@ -157,8 +157,8 @@ public class InstrumentImpl extends SuperEntityImpl implements Instrument {
   }
 
   @Override
-  public String getDescription() {
-    return description;
+  public String getName() {
+    return name;
   }
 
   @Override
@@ -202,7 +202,7 @@ public class InstrumentImpl extends SuperEntityImpl implements Instrument {
       .addAll(super.getResourceAttributeNames())
       .add("state")
       .add("type")
-      .add("description")
+      .add("name")
       .add("density")
       .build();
   }
@@ -287,8 +287,8 @@ public class InstrumentImpl extends SuperEntityImpl implements Instrument {
   }
 
   @Override
-  public Instrument setDescription(String description) {
-    this.description = description;
+  public Instrument setName(String name) {
+    this.name = name;
     return this;
   }
 
@@ -353,14 +353,14 @@ public class InstrumentImpl extends SuperEntityImpl implements Instrument {
 
   @Override
   public String toString() {
-    return description + " " + "(" + type + ")";
+    return name + " " + "(" + type + ")";
   }
 
   @Override
   public Instrument validate() throws CoreException {
     require(userId, "User ID");
     require(libraryId, "Library ID");
-    require(description, "Description");
+    require(name, "Name");
 
     requireNo(typeException, "Type");
     require(type, "Type");

@@ -327,13 +327,13 @@ public class LegacyLibraryMigrationIT extends CoreIT {
   }
 
   /**
-   insert a Instrument to the database@param id               of Instrument@param libraryId        of Instrument@param description      of Instrument@param userId
+   insert a Instrument to the database@param id               of Instrument@param libraryId        of Instrument@param name      of Instrument@param userId
 
    @param type             of Instrument
    @param state            of Instrument
    @param createdUpdatedAt of Instrument
    */
-  private void insertInstrument(long id, long userId, long libraryId, String description, InstrumentType type, InstrumentState state, Instant createdUpdatedAt) {
+  private void insertInstrument(long id, long userId, long libraryId, String name, InstrumentType type, InstrumentState state, Instant createdUpdatedAt) {
     InstrumentRecord record = db.newRecord(INSTRUMENT);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
@@ -341,7 +341,7 @@ public class LegacyLibraryMigrationIT extends CoreIT {
     record.setType(type.toString());
     record.setState(state.toString());
     record.setContent("{}");
-    record.setDescription(description);
+    record.setName(name);
     record.setCreatedAt(Timestamp.from(createdUpdatedAt));
     record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
@@ -400,19 +400,19 @@ public class LegacyLibraryMigrationIT extends CoreIT {
    @param audioId          of AudioEvent
    @param position         of AudioEvent
    @param duration         of AudioEvent
-   @param inflection       of AudioEvent
+   @param name             of AudioEvent
    @param note             of AudioEvent
    @param tonality         of AudioEvent
    @param velocity         of AudioEvent
    @param createdUpdatedAt of AudioEvent
    */
-  private void insertAudioEvent(long audioId, double position, double duration, String inflection, String note, double tonality, double velocity, Instant createdUpdatedAt) {
+  private void insertAudioEvent(long audioId, double position, double duration, String name, String note, double tonality, double velocity, Instant createdUpdatedAt) {
     AudioEventRecord record = db.newRecord(AUDIO_EVENT);
     record.setId(ULong.valueOf(getNextUniqueId()));
     record.setAudioId(ULong.valueOf(audioId));
     record.setPosition(position);
     record.setDuration(duration);
-    record.setInflection(inflection);
+    record.setInflection(name);
     record.setNote(note);
     record.setTonality(tonality);
     record.setVelocity(velocity);
@@ -493,15 +493,15 @@ public class LegacyLibraryMigrationIT extends CoreIT {
    @param id               of Voice
    @param sequenceId       of Voice
    @param type             of Voice
-   @param description      of Voice
+   @param name             of Voice
    @param createdUpdatedAt of Voice
    */
-  private void insertVoice(int id, int sequenceId, InstrumentType type, String description, Instant createdUpdatedAt) {
+  private void insertVoice(int id, int sequenceId, InstrumentType type, String name, Instant createdUpdatedAt) {
     VoiceRecord record = db.newRecord(VOICE);
     record.setId(ULong.valueOf(id));
     record.setType(type.toString());
     record.setSequenceId(ULong.valueOf(sequenceId));
-    record.setDescription(description);
+    record.setDescription(name);
     record.setCreatedAt(Timestamp.from(createdUpdatedAt));
     record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
@@ -563,20 +563,20 @@ public class LegacyLibraryMigrationIT extends CoreIT {
    @param voiceId          of PatternEvent
    @param position         of PatternEvent
    @param duration         of PatternEvent
-   @param inflection       of PatternEvent
+   @param name             of PatternEvent
    @param note             of PatternEvent
    @param tonality         of PatternEvent
    @param velocity         of PatternEvent
    @param createdUpdatedAt of PatternEvent
    */
-  private void insertPatternEvent(long patternId, long voiceId, double position, double duration, String inflection, String note, double tonality, double velocity, Instant createdUpdatedAt) {
+  private void insertPatternEvent(long patternId, long voiceId, double position, double duration, String name, String note, double tonality, double velocity, Instant createdUpdatedAt) {
     PatternEventRecord record = db.newRecord(PATTERN_EVENT);
     record.setId(ULong.valueOf(getNextUniqueId()));
     record.setPatternId(ULong.valueOf(patternId));
     record.setVoiceId(ULong.valueOf(voiceId));
     record.setPosition(position);
     record.setDuration(duration);
-    record.setInflection(inflection);
+    record.setInflection(name);
     record.setNote(note);
     record.setTonality(tonality);
     record.setVelocity(velocity);

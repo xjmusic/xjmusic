@@ -977,7 +977,7 @@ public class PatternTest {
       .setVoiceId(BigInteger.valueOf(8))
       .setPosition(0.0)
       .setDuration(1.0)
-      .setInflection("KICK")
+      .setName("KICK")
       .setNote("C")
       .setTonality(0.8)
       .setVelocity(1.0));
@@ -985,7 +985,7 @@ public class PatternTest {
       .setVoiceId(BigInteger.valueOf(8))
       .setPosition(1.0)
       .setDuration(1.0)
-      .setInflection("KICK")
+      .setName("KICK")
       .setNote("C")
       .setTonality(0.8)
       .setVelocity(1.0));
@@ -1063,7 +1063,7 @@ public class PatternTest {
     ));
     PatternEvent inputData = new PatternEvent()
       .setDuration(1.4)
-      .setInflection("BOOM")
+      .setName("BOOM")
       .setNote("C")
       .setPosition(0.42)
       .setTonality(0.92)
@@ -1082,7 +1082,7 @@ public class PatternTest {
     ));
     PatternEvent inputData = new PatternEvent()
       .setDuration(1.0)
-      .setInflection("BOOM")
+      .setName("BOOM")
       .setNote("C")
       .setPosition(0.0)
       .setTonality(1.0)
@@ -1099,7 +1099,7 @@ public class PatternTest {
     ));
     PatternEvent inputData = new PatternEvent()
       .setDuration(1.0)
-      .setInflection("BOOM")
+      .setName("BOOM")
       .setPosition(0.0)
       .setTonality(1.0)
       .setVelocity(1.0)
@@ -1121,7 +1121,7 @@ public class PatternTest {
     assertEquals(BigInteger.valueOf(1L), result.getPatternId());
     assertEquals(BigInteger.valueOf(1L), result.getVoiceId());
     assertEquals(Double.valueOf(1.0), result.getDuration());
-    assertEquals("SMACK", result.getInflection());
+    assertEquals("SMACK", result.getName());
     assertEquals("G", result.getNote());
     assertEquals(Double.valueOf(1.0), result.getPosition());
     assertEquals(Double.valueOf(0.1), result.getTonality());
@@ -1151,10 +1151,10 @@ public class PatternTest {
 
     assertEquals(4L, result.size());
     Iterator<PatternEvent> resultIt = result.iterator();
-    assertEquals("BOOM", resultIt.next().getInflection());
-    assertEquals("SMACK", resultIt.next().getInflection());
-    assertEquals("BOOM", resultIt.next().getInflection());
-    assertEquals("SMACK", resultIt.next().getInflection());
+    assertEquals("BOOM", resultIt.next().getName());
+    assertEquals("SMACK", resultIt.next().getName());
+    assertEquals("BOOM", resultIt.next().getName());
+    assertEquals("SMACK", resultIt.next().getName());
   }
 
   @Test
@@ -1177,7 +1177,7 @@ public class PatternTest {
     ));
     PatternEvent inputData = new PatternEvent()
       .setDuration(1.0)
-      .setInflection("BOOM")
+      .setName("BOOM")
       .setNote("C")
       .setPosition(0.0)
       .setTonality(1.0)
@@ -1195,7 +1195,7 @@ public class PatternTest {
     ));
     PatternEvent inputData = new PatternEvent()
       .setDuration(1.0)
-      .setInflection("BOOM")
+      .setName("BOOM")
       .setNote("C")
       .setPosition(0.0)
       .setTonality(1.0)
@@ -1213,7 +1213,7 @@ public class PatternTest {
     ));
     PatternEvent inputData = new PatternEvent()
       .setDuration(1.0)
-      .setInflection("BOOM")
+      .setName("BOOM")
       .setPosition(0.0)
       .setTonality(1.0)
       .setVelocity(1.0)
@@ -1230,7 +1230,7 @@ public class PatternTest {
     ));
     PatternEvent inputData = new PatternEvent()
       .setDuration(1.0)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setNote("C")
       .setPosition(0.0)
       .setTonality(1.0)
@@ -1244,7 +1244,7 @@ public class PatternTest {
     } catch (Exception e) {
       PatternEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001002L));
       assertNotNull(result);
-      assertEquals("BOOM", result.getInflection());
+      assertEquals("BOOM", result.getName());
       assertEquals(BigInteger.valueOf(1L), result.getVoiceId());
       throw e;
     }
@@ -1258,7 +1258,7 @@ public class PatternTest {
     ));
     PatternEvent inputData = new PatternEvent()
       .setDuration(1.0)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setNote("C")
       .setPosition(0.0)
       .setTonality(1.0)
@@ -1272,7 +1272,7 @@ public class PatternTest {
     } catch (Exception e) {
       PatternEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001002L));
       assertNotNull(result);
-      assertEquals("BOOM", result.getInflection());
+      assertEquals("BOOM", result.getName());
       assertEquals(BigInteger.valueOf(1L), result.getPatternId());
       throw e;
     }
@@ -1286,7 +1286,7 @@ public class PatternTest {
     ));
     PatternEvent inputData = new PatternEvent()
       .setDuration(1.2)
-      .setInflection("POPPYCOCK")
+      .setName("POPPYCOCK")
       .setNote("C")
       .setPosition(0.42)
       .setTonality(0.92)
@@ -1298,7 +1298,7 @@ public class PatternTest {
 
     PatternEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001000L));
     assertNotNull(result);
-    assertEquals("POPPYCOCK", result.getInflection());
+    assertEquals("POPPYCOCK", result.getName());
     assertEquals((Double) 1.2, result.getDuration());
     assertEquals((Double) 0.42, result.getPosition());
     assertEquals(0.92, result.getTonality(), 0.01);

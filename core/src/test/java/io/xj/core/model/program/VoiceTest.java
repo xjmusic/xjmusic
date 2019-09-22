@@ -22,7 +22,7 @@ public class VoiceTest {
   public void validate() throws Exception {
     new Voice()
       .setType("Harmonic")
-      .setDescription("Mic Check One Two")
+      .setName("Mic Check One Two")
       .setProgramId(BigInteger.valueOf(251L))
       .validate();
   }
@@ -34,7 +34,7 @@ public class VoiceTest {
 
     new Voice()
       .setType("Harmonic")
-      .setDescription("Mic Check One Two")
+      .setName("Mic Check One Two")
       .validate();
   }
 
@@ -44,7 +44,7 @@ public class VoiceTest {
     failure.expectMessage("Type is required");
 
     new Voice()
-      .setDescription("Mic Check One Two")
+      .setName("Mic Check One Two")
       .setProgramId(BigInteger.valueOf(251L))
       .validate();
   }
@@ -56,15 +56,15 @@ public class VoiceTest {
 
     new Voice()
       .setType("chimney")
-      .setDescription("Mic Check One Two")
+      .setName("Mic Check One Two")
       .setProgramId(BigInteger.valueOf(251L))
       .validate();
   }
 
   @Test
-  public void validate_failsWithoutDescription() throws Exception {
+  public void validate_failsWithoutName() throws Exception {
     failure.expect(CoreException.class);
-    failure.expectMessage("Description is required");
+    failure.expectMessage("Name is required");
 
     new Voice()
       .setType("Harmonic")
@@ -74,7 +74,7 @@ public class VoiceTest {
 
   @Test
   public void getPayloadAttributeNames() {
-    assertSameItems(ImmutableList.of("type", "description"), new Voice().getResourceAttributeNames());
+    assertSameItems(ImmutableList.of("type", "name"), new Voice().getResourceAttributeNames());
   }
 
   /*
@@ -147,13 +147,13 @@ public class VoiceTest {
     Voice inputData = new Voice()
       .setSequenceId(BigInteger.valueOf(1L))
       .setType("Harmonic")
-      .setDescription("This is harmonious");
+      .setName("This is harmonious");
 
     Voice result = testDAO.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(InstrumentType.Harmonic, result.getType());
-    assertEquals("This is harmonious", result.getDescription());
+    assertEquals("This is harmonious", result.getName());
     assertEquals(BigInteger.valueOf(1L), result.getSequenceId());
   }
 
@@ -165,7 +165,7 @@ public class VoiceTest {
     ));
     Voice inputData = new Voice()
       .setType("Harmonic")
-      .setDescription("This is harmonious");
+      .setName("This is harmonious");
 
     testDAO.create(access, inputData);
   }
@@ -178,7 +178,7 @@ public class VoiceTest {
     ));
     Voice inputData = new Voice()
       .setSequenceId(BigInteger.valueOf(2L))
-      .setDescription("This is harmonious");
+      .setName("This is harmonious");
 
     testDAO.create(access, inputData);
   }
@@ -196,7 +196,7 @@ public class VoiceTest {
     assertEquals(BigInteger.valueOf(2L), result.getId());
     assertEquals(BigInteger.valueOf(1L), result.getSequenceId());
     assertEquals(InstrumentType.Melodic, result.getType());
-    assertEquals("This is melodious", result.getDescription());
+    assertEquals("This is melodious", result.getName());
   }
 
   @Test
@@ -223,10 +223,10 @@ public class VoiceTest {
     assertNotNull(result);
     assertEquals(4L, result.size());
     Iterator<Voice> resultIt = result.iterator();
-    assertEquals("This is a percussive voice", resultIt.next().getDescription());
-    assertEquals("This is melodious", resultIt.next().getDescription());
-    assertEquals("This is harmonious", resultIt.next().getDescription());
-    assertEquals("This is a vocal voice", resultIt.next().getDescription());
+    assertEquals("This is a percussive voice", resultIt.next().getName());
+    assertEquals("This is melodious", resultIt.next().getName());
+    assertEquals("This is harmonious", resultIt.next().getName());
+    assertEquals("This is a vocal voice", resultIt.next().getName());
   }
 
   @Test
@@ -249,7 +249,7 @@ public class VoiceTest {
     ));
     Voice inputData = new Voice()
       .setType("Harmonic")
-      .setDescription("This is harmonious");
+      .setName("This is harmonious");
 
     testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
@@ -262,7 +262,7 @@ public class VoiceTest {
     ));
     Voice inputData = new Voice()
       .setSequenceId(BigInteger.valueOf(2L))
-      .setDescription("This is harmonious");
+      .setName("This is harmonious");
 
     testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
@@ -276,7 +276,7 @@ public class VoiceTest {
     Voice inputData = new Voice()
       .setSequenceId(BigInteger.valueOf(7L))
       .setType("Melodic")
-      .setDescription("This is melodious");
+      .setName("This is melodious");
 
     try {
       testDAO.update(access, BigInteger.valueOf(3L), inputData);
@@ -285,7 +285,7 @@ public class VoiceTest {
       Voice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
       assertNotNull(result);
       assertEquals(InstrumentType.Harmonic, result.getType());
-      assertEquals("This is harmonious", result.getDescription());
+      assertEquals("This is harmonious", result.getName());
       assertEquals(BigInteger.valueOf(1L), result.getSequenceId());
       throw e;
     }
@@ -300,13 +300,13 @@ public class VoiceTest {
     Voice inputData = new Voice()
       .setSequenceId(BigInteger.valueOf(1L))
       .setType("Melodic")
-      .setDescription("This is melodious; Yoza!");
+      .setName("This is melodious; Yoza!");
 
     testDAO.update(access, BigInteger.valueOf(1L), inputData);
 
     Voice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNotNull(result);
-    assertEquals("This is melodious; Yoza!", result.getDescription());
+    assertEquals("This is melodious; Yoza!", result.getName());
     assertEquals(InstrumentType.Melodic, result.getType());
     assertEquals(BigInteger.valueOf(1L), result.getSequenceId());
   }

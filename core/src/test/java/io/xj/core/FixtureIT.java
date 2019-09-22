@@ -466,7 +466,7 @@ public class FixtureIT extends CoreIT {
     // Create a N-magnitude set of unique major memes
     String[] majorMemeNames = listOfUniqueRandom(N, LoremIpsum.COLORS);
     String[] minorMemeNames = listOfUniqueRandom((long) StrictMath.ceil(N / 2), LoremIpsum.VARIANTS);
-    String[] percussiveInflections = listOfUniqueRandom(N, LoremIpsum.PERCUSSIVE_INFLECTIONS);
+    String[] percussiveNames = listOfUniqueRandom(N, LoremIpsum.PERCUSSIVE_NAMES);
 
     // Generate a Percussive Instrument for each meme
     for (int i = 0; i < N; i++) {
@@ -479,8 +479,8 @@ public class FixtureIT extends CoreIT {
       instrument.add(newInstrumentMeme(minorMemeName));
       // audios of instrument
       for (int k = 0; k < N; k++) {
-        Audio audio = instrument.add(newAudio(Text.toProper(percussiveInflections[k]), String.format("%s.wav", Text.toLowerSlug(percussiveInflections[k])), random(0, 0.05), random(0.25, 2), random(80, 120), random(100, 4000), 0.62));
-        instrument.add(newAudioEvent(audio, 0.0, 1.0, percussiveInflections[k], "X", random(0.8, 1)));
+        Audio audio = instrument.add(newAudio(Text.toProper(percussiveNames[k]), String.format("%s.wav", Text.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), random(100, 4000), 0.62));
+        instrument.add(newAudioEvent(audio, 0.0, 1.0, percussiveNames[k], "X", random(0.8, 1)));
       }
       insert(instrument);
       //
@@ -563,7 +563,7 @@ public class FixtureIT extends CoreIT {
       program.add(newProgramMeme(majorMemeName));
       // voices of program
       for (int iV = 0; iV < N; iV++) {
-        voices[iV] = program.add(newVoice(InstrumentType.Percussive, String.format("%s %s", majorMemeName, percussiveInflections[iV])));
+        voices[iV] = program.add(newVoice(InstrumentType.Percussive, String.format("%s %s", majorMemeName, percussiveNames[iV])));
       }
       Sequence sequenceBase = program.add(newSequence(random(LoremIpsum.SEQUENCE_TOTALS), "Base", density, key, tempo));
       // patterns of program
@@ -577,7 +577,7 @@ public class FixtureIT extends CoreIT {
         for (int iPE = 0; iPE < N << 2; iPE++) {
           // always use first chord, then use more chords with more density
           if (0 == iPE || StrictMath.random() < density) {
-            program.add(newPatternEvent(pattern, StrictMath.floor(total * iPE / N << 2), random(0.25, 1.0), percussiveInflections[num], "X", random(0.4, 0.9)));
+            program.add(newPatternEvent(pattern, StrictMath.floor(total * iPE / N << 2), random(0.25, 1.0), percussiveNames[num], "X", random(0.4, 0.9)));
           }
         }
       }

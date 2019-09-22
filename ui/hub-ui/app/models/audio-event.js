@@ -6,13 +6,13 @@ export default Model.extend({
   instrument: belongsTo({}),
   audio: belongsTo({}),
   duration: attr('number'),
-  inflection: attr('string'),
+  name: attr('string'),
   note: attr('string'),
   position: attr('number'),
   velocity: attr('number'),
 
-  title: computed('note', 'inflection', 'position', function () {
-    return `${this.note}(${this.inflection})@${this.position}`;
+  title: computed('note', 'name', 'position', function () {
+    return `${this.note}(${this.name})@${this.position}`;
   }),
 
 });

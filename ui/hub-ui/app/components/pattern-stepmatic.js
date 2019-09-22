@@ -306,7 +306,7 @@ const PatternStepmaticComponent = Component.extend(
           let tracks = get(get(grid, groupId), 'tracks');
 
           // if drum not yet seen in group, create empty grid
-          let trackName = event.get('inflection');
+          let trackName = event.get('name');
           if (!has(tracks, trackName)) {
             set(tracks, trackName, {});
             for (let step = 0; step < meterSub * total; step++) {
@@ -441,7 +441,7 @@ const PatternStepmaticComponent = Component.extend(
               instrumentPlayer.setup(instrument, audios, audioEvents, (progress) => {
                 self.onPreppingProgress(progress);
               }).then(() => {
-                get(self, 'display').success('Loaded all audio for preview instrument ' + instrument.get('description') + '.');
+                get(self, 'display').success('Loaded all audio for preview instrument ' + instrument.get('name') + '.');
                 self.beginPlay();
               }, (error) => {
                 self.displayErrorAndGoToReadyState(error);
@@ -534,7 +534,7 @@ const PatternStepmaticComponent = Component.extend(
                   if (event) { // else skip (no event at step)
                     let playAudioAt = playerOffsetSeconds + PLAY_AHEAD_SECONDS + measure * secondsPerMeasure + event.get('position') * secondsPerBeat - numberOrZero(event.get('start'));
                     let playAudioDuration = event.get('duration') * secondsPerBeat;
-                    instrumentPlayer.scheduleAudio(event.get('inflection'), event.get('velocity'), playAudioAt, playAudioDuration);
+                    instrumentPlayer.scheduleAudio(event.get('name'), event.get('velocity'), playAudioAt, playAudioDuration);
                   }
                 }
               }
@@ -645,17 +645,17 @@ const PatternStepmaticComponent = Component.extend(
     /**
      * New pattern event in voice
      * @param voice to create event event in
-     * @param inflection of new event
+     * @param name of new event
      * @param velocity of new event
      * @returns {*|DS.Model|EmberPromise}
      */
-    newEvent(voice, inflection, velocity) {
+    newEvent(voice, name, velocity) {
       let pattern = this.pattern;
       return this.store.createRecord('pattern-event', {
         pattern: pattern,
         voice: voice,
         velocity: velocity,
-        inflection: inflection,
+        name: name,
         duration: 1,
         tonality: EVENT_DEFAULT_TONALITY,
         note: EVENT_DEFAULT_NOTE,
@@ -947,7 +947,7 @@ const PatternStepmaticComponent = Component.extend(
       addTrack(groupId) {
         let groupContainer = get(this.grid, groupId);
         let group = get(groupContainer, 'group');
-        let groupName = group.get('description');
+        let groupName = group.get('name');
         let name = prompt('Add track to ' + groupName + ' group:', 'New track');
         if (null !== name) {
           this.createTrack(groupId, name);

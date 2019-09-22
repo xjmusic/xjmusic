@@ -34,8 +34,8 @@
     <div class="instrument">
       {{#link-to "go.instrument" instrument.instrumentId}}
         <small>{{instrument.instrumentType}}-Instrument #{{instrument.instrumentId}}</small>
-        {{#if instrument.instrumentDescription}}
-          &quot;{{instrument.instrumentDescription}}&quot;{{/if}}
+        {{#if instrument.instrumentName}}
+          &quot;{{instrument.instrumentName}}&quot;{{/if}}
       {{/link-to}}
     </div>
   {{/each}}

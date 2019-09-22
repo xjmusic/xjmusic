@@ -5,7 +5,7 @@ import {Promise as EmberPromise} from 'rsvp';
 
 // Configurations
 const TASK_MAX_CONCURRENCY = 6;
-const MATCH_AUDIO_INFLECTION_THRESHOLD_MAX = 4;
+const MATCH_AUDIO_NAME_THRESHOLD_MAX = 4;
 
 // States
 const Initial = 'Standby';
@@ -29,11 +29,11 @@ const InstrumentPlayer = EmberObject.extend({
   // Buffer Sources, keyed by audioId
   audioBufferCache: {},
 
-  // Cache of audio matching particular inflection, array of audioId keyed by inflection
+  // Cache of audio matching particular name, array of audioId keyed by name
   matchAudioIdsCache: {},
 
-  // Cache of audioEvent inflections, array of audioId keyed by inflection
-  inflectionAudioIdsCache: {},
+  // Cache of audioEvent names, array of audioId keyed by name
+  nameAudioIdsCache: {},
 
   // Base URL of audio waveform files
   audioBaseUrl: '',
@@ -83,7 +83,7 @@ const InstrumentPlayer = EmberObject.extend({
     set(this, 'audios', audios);
     set(this, 'audioEvents', audioEvents);
     set(this, 'matchAudioIdsCache', {});
-    set(this, 'inflectionAudioIdsCache', {});
+    set(this, 'nameAudioIdsCache', {});
     set(this, 'audioBufferCache', {});
     this.goToState(Loading);
     this.createAudioContext();
@@ -152,7 +152,7 @@ const InstrumentPlayer = EmberObject.extend({
     let self = this;
     let audioContext = get(this, 'audioContext');
     yield new EmberPromise((resolve, reject) => {
-      self.addInflectionToAudioIdsCache(audio);
+      self.addNameToAudioIdsCache(audio);
       let waveformUrl = self.waveformUrl(audio);
       if (Loading === get(self, 'state')) {
         sendBinaryXHR('GET', waveformUrl, (audioData) => {
@@ -185,23 +185,23 @@ const InstrumentPlayer = EmberObject.extend({
   },
 
   /**
-   Add this audio to the cache of audioId for each inflection
+   Add this audio to the cache of audioId for each name
 
    @param {EmberObject} audio to add
    */
-  addInflectionToAudioIdsCache(audio) {
-    let cache = get(this, 'inflectionAudioIdsCache');
+  addNameToAudioIdsCache(audio) {
+    let cache = get(this, 'nameAudioIdsCache');
     let audioEvents = get(this, 'audioEvents');
-    let inflection = '';
+    let name = '';
     audioEvents.forEach((audioEvent) => {
       if (audio.get('id') === audioEvent.get('audio').get('id')) {
-        inflection += audioEvent.get('inflection');
+        name += audioEvent.get('name');
       }
     });
-    if (!(inflection in cache)) {
-      cache[inflection] = [];
+    if (!(name in cache)) {
+      cache[name] = [];
     }
-    cache[inflection].push(audio.get('id'));
+    cache[name].push(audio.get('id'));
   },
 
   /**
@@ -213,37 +213,37 @@ const InstrumentPlayer = EmberObject.extend({
   },
 
   /**
-   * Search for audios matching the provided inflection
-   * @param matchInflection to search for
-   * @returns {[EmberObject]} audios matching inflection
+   * Search for audios matching the provided name
+   * @param matchName to search for
+   * @returns {[EmberObject]} audios matching name
    */
-  matchAudioIds(matchInflection) {
+  matchAudioIds(matchName) {
     let matchAudioIdsCache = get(this, 'matchAudioIdsCache');
-    let inflectionAudioIdsCache = get(this, 'inflectionAudioIdsCache');
-    if (!(matchInflection in matchAudioIdsCache)) {
-      matchAudioIdsCache[matchInflection] = [];
-      for (let searchInflection in inflectionAudioIdsCache) {
-        if (inflectionAudioIdsCache.hasOwnProperty(searchInflection)) {
-          if (MATCH_AUDIO_INFLECTION_THRESHOLD_MAX >
-            similarity(matchInflection, searchInflection)) {
-            inflectionAudioIdsCache[searchInflection].forEach((audioId) => {
-              matchAudioIdsCache[matchInflection].push(audioId)
+    let nameAudioIdsCache = get(this, 'nameAudioIdsCache');
+    if (!(matchName in matchAudioIdsCache)) {
+      matchAudioIdsCache[matchName] = [];
+      for (let searchName in nameAudioIdsCache) {
+        if (nameAudioIdsCache.hasOwnProperty(searchName)) {
+          if (MATCH_AUDIO_NAME_THRESHOLD_MAX >
+            similarity(matchName, searchName)) {
+            nameAudioIdsCache[searchName].forEach((audioId) => {
+              matchAudioIdsCache[matchName].push(audioId)
             });
           }
         }
       }
     }
-    return matchAudioIdsCache[matchInflection];
+    return matchAudioIdsCache[matchName];
   },
 
   /**
    * Select audio buffer from all available audios
-   * by comparing inflection to available audio inflections
-   * @param inflection
+   * by comparing name to available audio names
+   * @param name
    * @param velocity
    */
-  createBufferSourceRandomlyForInflection(inflection, velocity) {
-    let options = this.matchAudioIds(inflection);
+  createBufferSourceRandomlyForName(name, velocity) {
+    let options = this.matchAudioIds(name);
     let audioBufferCache = get(this, 'audioBufferCache');
     let audioContext = get(this, 'audioContext');
     let audioId = options[Math.floor(Math.random() * options.length)];
@@ -260,14 +260,14 @@ const InstrumentPlayer = EmberObject.extend({
    * Schedule audio for playback
    * Duration should have been re-computed when the events in the stepmatic were updated
    *
-   * @param {String} inflection to search audio for candidate
+   * @param {String} name to search audio for candidate
    * @param {Number} velocity of event
    * @param {Number} playAudioAt for audio playback
    * @param {Number} playAudioDuration for audio playback
    */
-  scheduleAudio(inflection, velocity, playAudioAt, playAudioDuration) {
-    this.debug('scheduleAudio(inflection:' + inflection + ', velocity:' + velocity + ' playAudioAt:' + playAudioAt + ' playAudioDuration:' + playAudioDuration + '');
-    this.createBufferSourceRandomlyForInflection(inflection, velocity).start(playAudioAt, 0, playAudioDuration);
+  scheduleAudio(name, velocity, playAudioAt, playAudioDuration) {
+    this.debug('scheduleAudio(name:' + name + ', velocity:' + velocity + ' playAudioAt:' + playAudioAt + ' playAudioDuration:' + playAudioDuration + '');
+    this.createBufferSourceRandomlyForName(name, velocity).start(playAudioAt, 0, playAudioDuration);
   },
 
   /**

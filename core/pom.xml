@@ -97,7 +97,7 @@
       <version>1.3.0.581.1</version>
     </dependency>
 
-    <!-- Apache commons code for sounds-like event/note/inflection comparison: https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+    <!-- Apache commons code for sounds-like event/note/name comparison: https://mvnrepository.com/artifact/commons-codec/commons-codec -->
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>

@@ -50,7 +50,7 @@ export default Route.extend({
       let model = self.controller.get('model');
       model.save().then(
         () => {
-          self.display.success('Saved ' + model.get('description') + '.');
+          self.display.success('Saved ' + model.get('name') + '.');
           set(this, 'isEditModalVisible', false);
         },
         (error) => {
@@ -70,7 +70,7 @@ export default Route.extend({
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
-            get(self, 'display').success('Destroyed ' + model.get('description') + '.');
+            get(self, 'display').success('Destroyed ' + model.get('name') + '.');
             this.transitionTo('accounts.one.libraries.one.instruments', account, library);
           },
           (error) => {
@@ -86,7 +86,7 @@ export default Route.extend({
       let self = this;
       let model = self.controller.get('model');
       model.rollbackAttributes();
-      self.display.success('Reverted ' + model.get('description') + '.');
+      self.display.success('Reverted ' + model.get('name') + '.');
       set(this, 'isEditModalVisible', false);
     }
 

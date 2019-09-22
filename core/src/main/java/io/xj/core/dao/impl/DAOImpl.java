@@ -217,14 +217,14 @@ public class DAOImpl {
   /**
    Require that a condition is true, else error that it is required
 
-   @param description name of condition (for error message)
+   @param message condition (for error message)
    @param mustBeTrue  to require true
    @param condition   to append
    @throws CoreException if not true
    */
-  private static void require(String description, String condition, Boolean mustBeTrue) throws CoreException {
+  private static void require(String message, String condition, Boolean mustBeTrue) throws CoreException {
     if (!mustBeTrue) {
-      throw new CoreException(description + " " + condition);
+      throw new CoreException(message + " " + condition);
     }
   }
 

@@ -22,7 +22,7 @@ public class VoiceIsometry extends Isometry {
   private VoiceIsometry(Iterable<? extends Voice> sourceVoices) {
     stemmedSourceVoices = Maps.newHashMap();
     sourceVoices.forEach(voice ->
-      stemmedSourceVoices.put(stem(voice.getDescription()), voice));
+      stemmedSourceVoices.put(stem(voice.getName()), voice));
   }
 
   /**
@@ -48,7 +48,7 @@ public class VoiceIsometry extends Isometry {
     Voice result = null;
     double resultScore = 0;
 
-    String targetStem = stem(needle.getDescription());
+    String targetStem = stem(needle.getName());
     for (Map.Entry<String, Voice> stringVoiceEntry : stemmedSourceVoices.entrySet()) {
       double sourceScore = FuzzySearch.ratio(stringVoiceEntry.getKey(), targetStem);
       if (sourceScore > resultScore) {

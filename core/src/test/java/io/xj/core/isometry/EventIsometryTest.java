@@ -15,8 +15,8 @@ public class EventIsometryTest {
   @Test
   public void of_List() {
     EventIsometry result = EventIsometry.ofEvents(ImmutableList.of(
-      new PatternEvent().setPatternId(UUID.randomUUID()).setInflection("Kick"),
-      new PatternEvent().setPatternId(UUID.randomUUID()).setInflection("Snare")
+      new PatternEvent().setPatternId(UUID.randomUUID()).setName("Kick"),
+      new PatternEvent().setPatternId(UUID.randomUUID()).setName("Snare")
     ));
 
     assertArrayEquals(new String[]{"KK", "SNR"}, result.getSources().toArray());
@@ -25,9 +25,9 @@ public class EventIsometryTest {
   @Test
   public void add() {
     EventIsometry result = EventIsometry.ofEvents(ImmutableList.of(
-      new PatternEvent().setPatternId(UUID.randomUUID()).setInflection("Kick")
+      new PatternEvent().setPatternId(UUID.randomUUID()).setName("Kick")
     ));
-    result.add(new PatternEvent().setPatternId(UUID.randomUUID()).setInflection("Snare"));
+    result.add(new PatternEvent().setPatternId(UUID.randomUUID()).setName("Snare"));
 
     assertArrayEquals(new String[]{"KK", "SNR"}, result.getSources().toArray());
   }
@@ -35,9 +35,9 @@ public class EventIsometryTest {
   @Test
   public void getSourceStems() {
     List<String> result = EventIsometry.ofEvents(ImmutableList.of(
-      new PatternEvent().setPatternId(UUID.randomUUID()).setInflection("TomHigh"),
-      new PatternEvent().setPatternId(UUID.randomUUID()).setInflection("TomLow"),
-      new PatternEvent().setPatternId(UUID.randomUUID()).setInflection("Tom")
+      new PatternEvent().setPatternId(UUID.randomUUID()).setName("TomHigh"),
+      new PatternEvent().setPatternId(UUID.randomUUID()).setName("TomLow"),
+      new PatternEvent().setPatternId(UUID.randomUUID()).setName("Tom")
     )).getSources();
 
     assertArrayEquals(new String[]{"TMH", "TML", "TM"}, result.toArray());

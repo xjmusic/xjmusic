@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 public class PatternEvent extends ProgramSubEntity implements Event {
   protected Double duration;
-  protected String inflection;
+  protected String name;
   protected String note;
   protected Double position;
   protected Double velocity;
@@ -28,8 +28,8 @@ public class PatternEvent extends ProgramSubEntity implements Event {
   }
 
   @Override
-  public String getInflection() {
-    return inflection;
+  public String getName() {
+    return name;
   }
 
   @Override
@@ -51,7 +51,7 @@ public class PatternEvent extends ProgramSubEntity implements Event {
     return ImmutableList.<String>builder()
       .addAll(super.getResourceAttributeNames())
       .add("duration")
-      .add("inflection")
+      .add("name")
       .add("note")
       .add("position")
       .add("velocity")
@@ -83,8 +83,8 @@ public class PatternEvent extends ProgramSubEntity implements Event {
   }
 
   @Override
-  public PatternEvent setInflection(String inflection) {
-    this.inflection = Text.toUpperSlug(inflection);
+  public PatternEvent setName(String name) {
+    this.name = Text.toUpperSlug(name);
     return this;
   }
 

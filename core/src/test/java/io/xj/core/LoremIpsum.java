@@ -116,7 +116,7 @@ class LoremIpsum {
   /**
    List of variants
    */
-  static final String[] PERCUSSIVE_INFLECTIONS = {
+  static final String[] PERCUSSIVE_NAMES = {
     "AGOGOHIGH",
     "AGOGOLOW",
     "BELLRIDE",

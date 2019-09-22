@@ -26,7 +26,7 @@ public class PatternEventTest {
       .setPatternId(UUID.randomUUID())
       .setPosition(0.75)
       .setDuration(3.45)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setNote("D6")
       .setVelocity(0.9)
       .validate();
@@ -41,7 +41,7 @@ public class PatternEventTest {
       .setProgramId(BigInteger.valueOf(5))
       .setPatternId(UUID.randomUUID())
       .setPosition(0.75)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setNote("D6")
       .setVelocity(0.9)
       .validate();
@@ -56,7 +56,7 @@ public class PatternEventTest {
       .setProgramId(BigInteger.valueOf(5))
       .setPosition(0.75)
       .setDuration(3.45)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setNote("D6")
       .setVelocity(0.9)
       .validate();
@@ -71,16 +71,16 @@ public class PatternEventTest {
       .setProgramId(BigInteger.valueOf(5))
       .setPatternId(UUID.randomUUID())
       .setDuration(3.45)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setNote("D6")
       .setVelocity(0.9)
       .validate();
   }
 
   @Test
-  public void validate_failsWithoutInflection() throws Exception {
+  public void validate_failsWithoutName() throws Exception {
     failure.expect(CoreException.class);
-    failure.expectMessage("Inflection is required");
+    failure.expectMessage("Name is required");
 
     new PatternEvent()
       .setProgramId(BigInteger.valueOf(5))
@@ -102,7 +102,7 @@ public class PatternEventTest {
       .setPatternId(UUID.randomUUID())
       .setPosition(0.75)
       .setDuration(3.45)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setVelocity(0.9)
       .validate();
   }
@@ -117,7 +117,7 @@ public class PatternEventTest {
       .setPatternId(UUID.randomUUID())
       .setPosition(0.75)
       .setDuration(3.45)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setNote("D6")
       .validate();
   }
@@ -132,7 +132,7 @@ public class PatternEventTest {
 
   @Test
   public void getPayloadAttributeNames() {
-    assertSameItems(ImmutableList.of("duration", "inflection", "note", "position", "velocity"), new PatternEvent().getResourceAttributeNames());
+    assertSameItems(ImmutableList.of("duration", "name", "note", "position", "velocity"), new PatternEvent().getResourceAttributeNames());
   }
 
 }

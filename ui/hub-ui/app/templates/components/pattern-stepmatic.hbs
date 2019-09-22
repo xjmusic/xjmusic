@@ -103,8 +103,8 @@
             <div class="track">
               <div {{action 'addTrack' groupId}} class="group-name"
                                                  data-toggle="tooltip"
-                                                 title="create a track in {{groupContainer.group.description}}">
-                {{groupContainer.group.description}}
+                                                 title="create a track in {{groupContainer.group.name}}">
+                {{groupContainer.group.name}}
               </div>
               <div class="track-name">
                 {{track}}
@@ -124,8 +124,8 @@
             <div class="track">
               <div {{action 'addTrack' groupId}} class="group-name"
                                                  data-toggle="tooltip"
-                                                 title="create a track in {{groupContainer.group.description}}">
-                {{groupContainer.group.description}}
+                                                 title="create a track in {{groupContainer.group.name}}">
+                {{groupContainer.group.name}}
               </div>
             </div>
           {{/each-in}}
@@ -155,10 +155,10 @@
               placeholder="(select preview instrument)"
               options=instruments
               selected=instrumentToPlay
-              searchField='description'
+              searchField='name'
               onChange=(action "setInstrumentToPlay")
             as |instrument| }}
-              {{instrument.description}}
+              {{instrument.name}}
             {{/power-select}}
           </div>
         {{/if}}

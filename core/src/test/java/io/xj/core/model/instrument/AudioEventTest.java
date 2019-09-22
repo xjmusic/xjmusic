@@ -24,7 +24,7 @@ public class AudioEventTest {
       .setAudioId(UUID.randomUUID())
       .setPosition(0.75)
       .setDuration(3.45)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setNote("D6")
       .setVelocity(0.9)
       .validate();
@@ -38,7 +38,7 @@ public class AudioEventTest {
     new AudioEvent()
       .setAudioId(UUID.randomUUID())
       .setPosition(0.75)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setNote("D6")
       .setVelocity(0.9)
       .validate();
@@ -52,7 +52,7 @@ public class AudioEventTest {
     new AudioEvent()
       .setPosition(0.75)
       .setDuration(3.45)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setNote("D6")
       .setVelocity(0.9)
       .validate();
@@ -66,16 +66,16 @@ public class AudioEventTest {
     new AudioEvent()
       .setAudioId(UUID.randomUUID())
       .setDuration(3.45)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setNote("D6")
       .setVelocity(0.9)
       .validate();
   }
 
   @Test
-  public void validate_failsWithoutInflection() throws Exception {
+  public void validate_failsWithoutName() throws Exception {
     failure.expect(CoreException.class);
-    failure.expectMessage("Inflection is required");
+    failure.expectMessage("Name is required");
 
     new AudioEvent()
       .setAudioId(UUID.randomUUID())
@@ -95,7 +95,7 @@ public class AudioEventTest {
       .setAudioId(UUID.randomUUID())
       .setPosition(0.75)
       .setDuration(3.45)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setVelocity(0.9)
       .validate();
   }
@@ -109,7 +109,7 @@ public class AudioEventTest {
       .setAudioId(UUID.randomUUID())
       .setPosition(0.75)
       .setDuration(3.45)
-      .setInflection("SMACK")
+      .setName("SMACK")
       .setNote("D6")
       .validate();
   }
@@ -124,7 +124,7 @@ public class AudioEventTest {
 
   @Test
   public void getPayloadAttributeNames() {
-    assertSameItems(ImmutableList.of("duration", "inflection", "note", "position", "velocity"), new AudioEvent().getResourceAttributeNames());
+    assertSameItems(ImmutableList.of("duration", "name", "note", "position", "velocity"), new AudioEvent().getResourceAttributeNames());
   }
 
 }

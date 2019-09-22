@@ -19,7 +19,7 @@
       <th width="1%">By</th>
       <th width="1%">Type</th>
       <th width="1%">State</th>
-      <th>Description</th>
+      <th>Name</th>
       <th width="1%">Density</th>
       <th width="1%">#</th>
     </tr>
@@ -32,7 +32,7 @@
         <td>{{instrument.type}}</td>
         <td>{{instrument.state}}</td>
         <td>{{#link-to "accounts.one.libraries.one.instruments.editor" instrument.library.account instrument.library
-                       instrument.id}}{{instrument.description}}{{/link-to}}</td>
+                       instrument.id}}{{instrument.name}}{{/link-to}}</td>
         <td>{{instrument.density}}</td>
         <th scope="row">{{instrument.id}}</th>
       </tr>

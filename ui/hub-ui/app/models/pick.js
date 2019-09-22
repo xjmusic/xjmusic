@@ -11,7 +11,7 @@ export default Model.extend({
   length: attr('number'),
   amplitude: attr('number'),
   pitch: attr('number'),
-  inflection: attr('string'),
+  name: attr('string'),
 });
 
 

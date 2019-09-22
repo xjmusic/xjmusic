@@ -233,14 +233,14 @@ public class CoreTest {
    @param audio      to create event in
    @param position   of AudioEvent
    @param duration   of AudioEvent
-   @param inflection of AudioEvent
+   @param name of AudioEvent
    @param note       of AudioEvent
    @param velocity   of AudioEvent
    @return new AudioEvent
    */
-  protected static AudioEvent newAudioEvent(Audio audio, double position, double duration, String inflection, String note, double velocity) {
+  protected static AudioEvent newAudioEvent(Audio audio, double position, double duration, String name, String note, double velocity) {
     return new AudioEvent().setAudioId(audio.getId())
-      .setPosition(position).setDuration(duration).setInflection(inflection).setNote(note).setVelocity(velocity);
+      .setPosition(position).setDuration(duration).setName(name).setNote(note).setVelocity(velocity);
   }
 
   /**
@@ -388,14 +388,14 @@ public class CoreTest {
    @param pattern    to create event in
    @param position   of PatternEvent
    @param duration   of PatternEvent
-   @param inflection of PatternEvent
+   @param name of PatternEvent
    @param note       of PatternEvent
    @param velocity   of PatternEvent
    @return new PatternEvent
    */
-  protected static PatternEvent newPatternEvent(Pattern pattern, double position, double duration, String inflection, String note, double velocity) {
+  protected static PatternEvent newPatternEvent(Pattern pattern, double position, double duration, String name, String note, double velocity) {
     return new PatternEvent().setPatternId(pattern.getId())
-      .setPosition(position).setDuration(duration).setInflection(inflection).setNote(note).setVelocity(velocity);
+      .setPosition(position).setDuration(duration).setName(name).setNote(note).setVelocity(velocity);
   }
 
   /**
@@ -410,7 +410,7 @@ public class CoreTest {
       .setPatternEventId(UUID.randomUUID())
       .setAudioId(UUID.randomUUID())
       .setVoiceId(UUID.randomUUID())
-      .setInflection("CLANG")
+      .setName("CLANG")
       .setStart(0.92)
       .setLength(2.7)
       .setAmplitude(0.84)
@@ -621,11 +621,11 @@ public class CoreTest {
    Create a new voice
 
    @param type        of voice
-   @param description of voice
+   @param name of voice
    @return new Voice
    */
-  protected static Voice newVoice(InstrumentType type, String description) {
-    return new Voice().setTypeEnum(type).setDescription(description);
+  protected static Voice newVoice(InstrumentType type, String name) {
+    return new Voice().setTypeEnum(type).setName(name);
   }
 
   /**
@@ -633,11 +633,11 @@ public class CoreTest {
 
    @param id          of voice
    @param type        of voice
-   @param description of voice
+   @param name of voice
    @return new Voice
    */
-  protected static Voice newVoice(UUID id, InstrumentType type, String description) {
-    Voice voice = new Voice().setTypeEnum(type).setDescription(description);
+  protected static Voice newVoice(UUID id, InstrumentType type, String name) {
+    Voice voice = new Voice().setTypeEnum(type).setName(name);
     voice.setId(id);
     return voice;
   }
@@ -796,7 +796,7 @@ public class CoreTest {
       .setLibraryId(BigInteger.valueOf(libraryId))
       .setTypeEnum(type)
       .setStateEnum(state)
-      .setDescription(name);
+      .setName(name);
     instrument.setCreatedAtInstant(at).setUpdatedAtInstant(at);
     return instrument;
   }

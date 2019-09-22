@@ -40,7 +40,7 @@ export default Route.extend({
       let self = this;
       let instrument = this.modelFor('accounts.one.libraries.one.instruments.editor');
       let account = this.modelFor('accounts.one');
-      let name = 'Preview of "' + instrument.get('description') + '" Instrument';
+      let name = 'Preview of "' + instrument.get('name') + '" Instrument';
       let chain = this.store.createRecord('chain', {
         account: account,
         name: name,
@@ -71,7 +71,7 @@ export default Route.extend({
     });
     chainInstrument.save().then(
       () => {
-        get(self, 'display').success('Added ' + instrument.get('description') + ' to ' + chain.get('name') + '.');
+        get(self, 'display').success('Added ' + instrument.get('name') + ' to ' + chain.get('name') + '.');
         self.addLibrary(chain);
       },
       (error) => {

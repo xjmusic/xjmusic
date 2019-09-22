@@ -74,7 +74,7 @@ public class ChordNode {
 
 
   /**
-   Construct a chord description unit reverse-engineered from an output descriptor string
+   Construct a chord name unit reverse-engineered from an output descriptor string
    Expects input like "Major" or "7|Minor"
    NOTE: delta is null when this is the first unit of a sequence.
 

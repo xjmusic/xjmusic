@@ -129,7 +129,7 @@ public class LegacyMigrationImpl implements LegacyMigration {
   private void migrate(InstrumentRecord instrumentRecord) throws CoreException {
     Instrument instrument = instrumentFactory.newInstrument(instrumentRecord.getId().toBigInteger());
 
-    instrument.setDescription(instrumentRecord.getDescription());
+    instrument.setName(instrumentRecord.getName());
     instrument.setUserId(instrumentRecord.getUserId().toBigInteger());
     instrument.setLibraryId(instrumentRecord.getLibraryId().toBigInteger());
     instrument.setType(instrumentRecord.getType());
@@ -228,7 +228,7 @@ public class LegacyMigrationImpl implements LegacyMigration {
         instrument.add(new AudioEvent()
           .setAudio(audio)
           .setPosition(pcRecord.getPosition())
-          .setInflection(pcRecord.getInflection())
+          .setName(pcRecord.getInflection())
           .setDuration(pcRecord.getDuration())
           .setNote(pcRecord.getNote())
           .setVelocity(pcRecord.getVelocity()));
@@ -257,7 +257,7 @@ public class LegacyMigrationImpl implements LegacyMigration {
       .where(VOICE.SEQUENCE_ID.eq(ULong.valueOf(program.getId())))
       .fetch().forEach(voiceRecord -> {
       Voice voice = program.add(new Voice()
-        .setDescription(voiceRecord.getDescription())
+        .setName(voiceRecord.getDescription())
         .setType(voiceRecord.getType()));
       voiceMap.put(voiceRecord.getId().toBigInteger(), voice);
 
@@ -279,7 +279,7 @@ public class LegacyMigrationImpl implements LegacyMigration {
         .and(PATTERN_EVENT.VOICE_ID.eq(ULong.valueOf(voiceId)))
         .fetch().forEach(patternEventRecord -> {
         program.add(new PatternEvent()
-          .setInflection(patternEventRecord.getInflection())
+          .setName(patternEventRecord.getInflection())
           .setPattern(pattern)
           .setPosition(patternEventRecord.getPosition())
           .setDuration(patternEventRecord.getDuration())

@@ -32,11 +32,11 @@ public class VoiceIsometryTest extends CoreTest {
   public void find() {
     VoiceIsometry result = VoiceIsometry.ofVoices(testVoicesA);
 
-    Voice find1 = result.find(new Voice().setDescription("Sooper Kewl"));
+    Voice find1 = result.find(new Voice().setName("Sooper Kewl"));
     assertNotNull(find1);
     assertEquals(id1, find1.getId());
 
-    Voice find2 = result.find(new Voice().setDescription("Vury Anterestin"));
+    Voice find2 = result.find(new Voice().setName("Vury Anterestin"));
     assertNotNull(find2);
     assertEquals(id2, find2.getId());
   }

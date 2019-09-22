@@ -39,7 +39,7 @@ export default Route.extend({
     this.set('fromInstrumentId', fromInstrument.get('id'));
     let instrument = this.store.createRecord('instrument', {
       library: fromInstrument.get('library'),
-      description: fromInstrument.get('description')
+      name: fromInstrument.get('name')
     });
 
     return hash({
@@ -70,7 +70,7 @@ export default Route.extend({
         }
       }).then(
         () => {
-          this.display.success('Cloned instrument ' + model.get('description') + '.');
+          this.display.success('Cloned instrument ' + model.get('name') + '.');
           this.transitionTo('accounts.one.libraries.one.instruments.editor', account, library, model);
         },
         (error) => {

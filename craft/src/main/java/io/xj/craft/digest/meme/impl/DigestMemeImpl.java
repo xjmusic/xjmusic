@@ -112,7 +112,7 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
         JSONObject instrumentObj = new JSONObject();
         instrumentObj.put(KEY_INSTRUMENT_ID, instrumentId);
         instrumentObj.put(KEY_INSTRUMENT_TYPE, getInstrument(instrumentId).getType());
-        instrumentObj.put(KEY_INSTRUMENT_DESCRIPTION, getInstrument(instrumentId).getDescription());
+        instrumentObj.put(KEY_INSTRUMENT_NAME, getInstrument(instrumentId).getName());
         memeInstrumentsArr.put(instrumentObj);
       });
       memeObj.put(KEY_INSTRUMENTS, memeInstrumentsArr);

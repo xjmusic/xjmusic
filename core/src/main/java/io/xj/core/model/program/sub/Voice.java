@@ -21,16 +21,16 @@ import java.math.BigInteger;
  */
 public class Voice extends ProgramSubEntity {
   private InstrumentType type;
-  private String description;
+  private String name;
   private Exception typeException;
 
   /**
-   Get description
+   Get name
 
-   @return description
+   @return name
    */
-  public String getDescription() {
-    return description;
+  public String getName() {
+    return name;
   }
 
   @Override
@@ -38,7 +38,7 @@ public class Voice extends ProgramSubEntity {
     return ImmutableList.<String>builder()
       .addAll(super.getResourceAttributeNames())
       .add("type")
-      .add("description")
+      .add("name")
       .build();
   }
 
@@ -68,13 +68,13 @@ public class Voice extends ProgramSubEntity {
   }
 
   /**
-   Set description
+   Set name
 
-   @param description to set
+   @param name to set
    @return this Voice (for chaining methods)
    */
-  public Voice setDescription(String description) {
-    this.description = description;
+  public Voice setName(String name) {
+    this.name = name;
     return this;
   }
 
@@ -114,7 +114,7 @@ public class Voice extends ProgramSubEntity {
   @Override
   public Voice validate() throws CoreException {
     super.validate();
-    require(description, "Description");
+    require(name, "Name");
 
     requireNo(typeException, "Type");
     require(type, "Type");

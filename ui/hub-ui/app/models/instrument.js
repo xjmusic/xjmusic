@@ -5,7 +5,7 @@ export default Model.extend({
   user: belongsTo({}),
   library: belongsTo({}),
   density: attr('number'),
-  description: attr('string'),
+  name: attr('string'),
   type: attr('string'),
   state: attr('string'),
   instrumentMemes: hasMany('instrument-meme'),

@@ -16,7 +16,7 @@ import java.util.UUID;
 public class AudioEvent extends InstrumentSubEntity implements Event {
   private UUID audioId;
   private Double duration;
-  private String inflection;
+  private String name;
   private String note;
   private Double position;
   private Double velocity;
@@ -36,8 +36,8 @@ public class AudioEvent extends InstrumentSubEntity implements Event {
   }
 
   @Override
-  public String getInflection() {
-    return inflection;
+  public String getName() {
+    return name;
   }
 
   @Override
@@ -50,7 +50,7 @@ public class AudioEvent extends InstrumentSubEntity implements Event {
     return ImmutableList.<String>builder()
       .addAll(super.getResourceAttributeNames())
       .add("duration")
-      .add("inflection")
+      .add("name")
       .add("note")
       .add("position")
       .add("velocity")
@@ -103,8 +103,8 @@ public class AudioEvent extends InstrumentSubEntity implements Event {
   }
 
   @Override
-  public AudioEvent setInflection(String inflection) {
-    this.inflection = Text.toUpperSlug(inflection);
+  public AudioEvent setName(String name) {
+    this.name = Text.toUpperSlug(name);
     return this;
   }
 

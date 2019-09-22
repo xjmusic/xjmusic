@@ -764,7 +764,7 @@ FUTURE adapt these Audio unit tests (from legacy integration tests)
     ));
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.4)
-      .setInflection("KICK")
+      .setName("KICK")
       .setNote("C")
       .setPosition(0.42)
       .setTonality(0.92)
@@ -782,7 +782,7 @@ FUTURE adapt these Audio unit tests (from legacy integration tests)
     ));
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0)
-      .setInflection("KICK")
+      .setName("KICK")
       .setNote("C")
       .setPosition(0.0)
       .setTonality(1.0)
@@ -799,7 +799,7 @@ FUTURE adapt these Audio unit tests (from legacy integration tests)
     ));
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0)
-      .setInflection("KICK")
+      .setName("KICK")
       .setPosition(0.0)
       .setTonality(1.0)
       .setVelocity(1.0)
@@ -821,7 +821,7 @@ FUTURE adapt these Audio unit tests (from legacy integration tests)
     assertEquals(BigInteger.valueOf(1003L), result.getId());
     assertEquals(BigInteger.valueOf(1L), result.getAudioId());
     assertEquals(Double.valueOf(1.0), result.getDuration());
-    assertEquals("SNARE", result.getInflection());
+    assertEquals("SNARE", result.getName());
     assertEquals("G", result.getNote());
     assertEquals(Double.valueOf(1.0), result.getPosition());
     assertEquals(Double.valueOf(0.1), result.getTonality());
@@ -852,10 +852,10 @@ FUTURE adapt these Audio unit tests (from legacy integration tests)
     assertNotNull(result);
     assertEquals(4L, result.size());
     Iterator<AudioEvent> it = result.iterator();
-    assertEquals("KICK", it.next().getInflection());
-    assertEquals("SNARE", it.next().getInflection());
-    assertEquals("KICK", it.next().getInflection());
-    assertEquals("SNARE", it.next().getInflection());
+    assertEquals("KICK", it.next().getName());
+    assertEquals("SNARE", it.next().getName());
+    assertEquals("KICK", it.next().getName());
+    assertEquals("SNARE", it.next().getName());
   }
 
   @Test
@@ -889,14 +889,14 @@ FUTURE adapt these Audio unit tests (from legacy integration tests)
     assertNotNull(result);
     assertEquals(8L, result.size());
     Iterator<AudioEvent> it = result.iterator();
-    assertEquals("KICK", it.next().getInflection());
-    assertEquals("SNARE", it.next().getInflection());
-    assertEquals("KICK", it.next().getInflection());
-    assertEquals("SNARE", it.next().getInflection());
-    assertEquals("JAM", it.next().getInflection());
-    assertEquals("PUMP", it.next().getInflection());
-    assertEquals("JAM", it.next().getInflection());
-    assertEquals("DUNK", it.next().getInflection());
+    assertEquals("KICK", it.next().getName());
+    assertEquals("SNARE", it.next().getName());
+    assertEquals("KICK", it.next().getName());
+    assertEquals("SNARE", it.next().getName());
+    assertEquals("JAM", it.next().getName());
+    assertEquals("PUMP", it.next().getName());
+    assertEquals("JAM", it.next().getName());
+    assertEquals("DUNK", it.next().getName());
   }
 
   @Test
@@ -920,10 +920,10 @@ FUTURE adapt these Audio unit tests (from legacy integration tests)
     assertNotNull(result);
     assertEquals(4L, result.size());
     Iterator<AudioEvent> it = result.iterator();
-    assertEquals("KICK", it.next().getInflection());
-    assertEquals("SNARE", it.next().getInflection());
-    assertEquals("KICK", it.next().getInflection());
-    assertEquals("SNARE", it.next().getInflection());
+    assertEquals("KICK", it.next().getName());
+    assertEquals("SNARE", it.next().getName());
+    assertEquals("KICK", it.next().getName());
+    assertEquals("SNARE", it.next().getName());
   }
 
   @Test(expected = CoreException.class)
@@ -934,7 +934,7 @@ FUTURE adapt these Audio unit tests (from legacy integration tests)
     ));
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0)
-      .setInflection("KICK")
+      .setName("KICK")
       .setNote("C")
       .setPosition(0.0)
       .setTonality(1.0)
@@ -951,7 +951,7 @@ FUTURE adapt these Audio unit tests (from legacy integration tests)
     ));
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0)
-      .setInflection("KICK")
+      .setName("KICK")
       .setPosition(0.0)
       .setTonality(1.0)
       .setVelocity(1.0)
@@ -968,7 +968,7 @@ FUTURE adapt these Audio unit tests (from legacy integration tests)
     ));
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0)
-      .setInflection("SNARE")
+      .setName("SNARE")
       .setNote("C")
       .setPosition(0.0)
       .setTonality(1.0)
@@ -981,7 +981,7 @@ FUTURE adapt these Audio unit tests (from legacy integration tests)
     } catch (Exception e) {
       AudioEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1002L));
       assertNotNull(result);
-      assertEquals("KICK", result.getInflection());
+      assertEquals("KICK", result.getName());
       assertEquals(BigInteger.valueOf(1L), result.getAudioId());
       throw e;
     }
@@ -995,7 +995,7 @@ FUTURE adapt these Audio unit tests (from legacy integration tests)
     ));
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.2)
-      .setInflection("POPPYCOCK")
+      .setName("POPPYCOCK")
       .setNote("C")
       .setPosition(0.42)
       .setTonality(0.92)
@@ -1006,7 +1006,7 @@ FUTURE adapt these Audio unit tests (from legacy integration tests)
 
     AudioEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1000L));
     assertNotNull(result);
-    assertEquals("POPPYCOCK", result.getInflection());
+    assertEquals("POPPYCOCK", result.getName());
     assertEquals((Double) 1.2, result.getDuration());
     assertEquals((Double) 0.42, result.getPosition());
     assertEquals(0.92, result.getTonality(), 0.01);

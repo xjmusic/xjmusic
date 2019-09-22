@@ -71,7 +71,7 @@ public class DigestHashIT extends FixtureIT {
         .setKey("G")
         .setStateEnum(ProgramState.Published)
         .setTypeEnum(ProgramType.Rhythm)
-        .setName("new description")
+        .setName("new name")
         .setTempo(150.0));
 
     DigestHash result = digestFactory.hashOf(ingestFactory.ingest(access, entities));

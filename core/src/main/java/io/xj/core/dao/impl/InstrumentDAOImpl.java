@@ -85,7 +85,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
         .from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.eq(accountId))
-        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.DESCRIPTION)
+        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch(), instrumentFactory);
     else
       return modelsFrom(db.select(INSTRUMENT.fields())
@@ -93,7 +93,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.in(accountId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.DESCRIPTION)
+        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch(), instrumentFactory);
   }
 
@@ -110,7 +110,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
       return modelsFrom(db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .where(INSTRUMENT.LIBRARY_ID.in(libraryIds))
-        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.DESCRIPTION)
+        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch(), instrumentFactory);
     else
       return modelsFrom(db.select(INSTRUMENT.fields())
@@ -118,7 +118,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(INSTRUMENT.LIBRARY_ID.in(libraryIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.DESCRIPTION)
+        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch(), instrumentFactory);
   }
 
@@ -133,14 +133,14 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
     if (access.isTopLevel())
       return modelsFrom(db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
-        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.DESCRIPTION)
+        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch(), instrumentFactory);
     else
       return modelsFrom(db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.DESCRIPTION)
+        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch(), instrumentFactory);
   }
 
@@ -220,7 +220,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   private Map<Field, Object> fieldValueMap(Instrument entity) {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(INSTRUMENT.CONTENT, gsonProvider.gson().toJson(entity.getContent()));
-    fieldValues.put(INSTRUMENT.DESCRIPTION, entity.getDescription());
+    fieldValues.put(INSTRUMENT.NAME, entity.getName());
     fieldValues.put(INSTRUMENT.USER_ID, entity.getUserId());
     fieldValues.put(INSTRUMENT.LIBRARY_ID, entity.getLibraryId());
     fieldValues.put(INSTRUMENT.TYPE, entity.getType());

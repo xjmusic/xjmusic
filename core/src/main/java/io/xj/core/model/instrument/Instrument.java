@@ -91,11 +91,11 @@ public interface Instrument extends SuperEntity {
   Double getDensity();
 
   /**
-   get Description
+   get Name
 
-   @return Description
+   @return Name
    */
-  String getDescription();
+  String getName();
 
   /**
    get Library Id
@@ -178,12 +178,12 @@ public interface Instrument extends SuperEntity {
   Instrument setContentCloned(Instrument from);
 
   /**
-   Set Description
+   Set Name
 
-   @param description to set
+   @param name to set
    @return this Instrument (for chaining Setters)
    */
-  Instrument setDescription(String description);
+  Instrument setName(String name);
 
   /**
    Set Density (this is a no-op to prevent problems with payload deserialization)
