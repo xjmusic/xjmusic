@@ -8,26 +8,26 @@ import java.util.Objects;
 
 /**
  This represents common properties of all entities,
- although a Chord only actually exists as a Segment Chord, Pattern Chord, etc.
+ although a ChordEntity only actually exists as a Segment ChordEntity, Pattern ChordEntity, etc.
  */
-public interface Chord<N> {
+public interface ChordEntity<N> {
   /**
    Sort Chords by Position in Ascending order
    */
-  Comparator<? super Chord> byPositionAscending = Comparator.comparing(Chord::getPosition);
+  Comparator<? super ChordEntity> byPositionAscending = Comparator.comparing(ChordEntity::getPosition);
 
   /*
    Sort Chords by Position in Descending order
    */
-//Comparator<? super Chord> byPositionDescending = (Comparator<? super Chord>) (o1, o2) -> o2.getPosition().compareTo(o1.getPosition());
+//Comparator<? super ChordEntity> byPositionDescending = (Comparator<? super ChordEntity>) (o1, o2) -> o2.getPosition().compareTo(o1.getPosition());
 
   /**
-   validation of common Chord attributes
+   validation of common ChordEntity attributes
 
    @param chord to validate
    @throws CoreException on invalid
    */
-  static void validate(Chord chord) throws CoreException {
+  static void validate(ChordEntity chord) throws CoreException {
     if (Objects.isNull(chord.getName()) || chord.getName().isEmpty())
       throw new CoreException("Name is required.");
 
@@ -37,13 +37,13 @@ public interface Chord<N> {
 
   /**
    Whether this is a chord of any tonal kind
-   [#158715321] Chord nodes able to parse No Chord notation
+   [#158715321] ChordEntity nodes able to parse No ChordEntity notation
    */
   Boolean isChord();
 
   /**
-   Whether this is a No Chord instance
-   [#158715321] Chord nodes able to parse No Chord notation
+   Whether this is a No ChordEntity instance
+   [#158715321] ChordEntity nodes able to parse No ChordEntity notation
    */
   Boolean isNoChord();
 

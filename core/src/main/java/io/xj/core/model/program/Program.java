@@ -3,12 +3,12 @@
 package io.xj.core.model.program;
 
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Meme;
+import io.xj.core.model.entity.MemeEntity;
 import io.xj.core.model.entity.SubEntity;
 import io.xj.core.model.entity.SuperEntity;
 import io.xj.core.model.program.impl.ProgramContent;
+import io.xj.core.model.program.sub.Event;
 import io.xj.core.model.program.sub.Pattern;
-import io.xj.core.model.program.sub.PatternEvent;
 import io.xj.core.model.program.sub.ProgramMeme;
 import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.SequenceBinding;
@@ -33,13 +33,13 @@ public interface Program extends SuperEntity {
   Pattern add(Pattern pattern);
 
   /**
-   Add a PatternEvent to Program
+   Add a Event to Program
    + If there are any exceptions, store them in the SuperEntity errors
 
-   @param patternEvent to add
-   @return PatternEvent with newly added unique id
+   @param event to add
+   @return Event with newly added unique id
    */
-  PatternEvent add(PatternEvent patternEvent);
+  Event add(Event event);
 
   /**
    Add a ProgramMeme to Program
@@ -69,7 +69,7 @@ public interface Program extends SuperEntity {
   SequenceBinding add(SequenceBinding sequenceBinding);
 
   /**
-   Add a Sequence Binding Meme to Program
+   Add a Sequence Binding MemeEntity to Program
    + If there are any exceptions, store them in the SuperEntity errors
 
    @param sequenceBindingMeme to add
@@ -145,7 +145,7 @@ public interface Program extends SuperEntity {
    @param pattern to get events for
    @return events
    */
-  Collection<PatternEvent> getEventsForPattern(Pattern pattern);
+  Collection<Event> getEventsForPattern(Pattern pattern);
 
   /**
    Get key for the program
@@ -182,7 +182,7 @@ public interface Program extends SuperEntity {
    @return collection of sequence memes
    @throws CoreException on failure
    */
-  Collection<Meme> getMemesAtBeginning() throws CoreException;
+  Collection<MemeEntity> getMemesAtBeginning() throws CoreException;
 
   /**
    Get name for the program
@@ -205,7 +205,7 @@ public interface Program extends SuperEntity {
 
    @return PatternEvents
    */
-  Collection<PatternEvent> getPatternEvents();
+  Collection<Event> getPatternEvents();
 
   /**
    Get Patterns
@@ -403,10 +403,10 @@ public interface Program extends SuperEntity {
    Set PatternEvents
    + If there are any exceptions, store them in the SuperEntity errors
 
-   @param patternEvents to set
+   @param events to set
    @return this Program (for chaining methods)
    */
-  Program setPatternEvents(Collection<PatternEvent> patternEvents);
+  Program setPatternEvents(Collection<Event> events);
 
   /**
    Set Patterns

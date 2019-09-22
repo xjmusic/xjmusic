@@ -3,7 +3,7 @@ package io.xj.core.model.program.sub;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Meme;
+import io.xj.core.model.entity.MemeEntity;
 import io.xj.core.model.program.impl.ProgramSubEntity;
 import io.xj.core.util.Text;
 
@@ -17,7 +17,7 @@ import java.util.UUID;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class SequenceBindingMeme extends ProgramSubEntity implements Meme {
+public class SequenceBindingMeme extends ProgramSubEntity implements MemeEntity {
   private UUID sequenceBindingId;
   private String name;
 
@@ -67,7 +67,7 @@ public class SequenceBindingMeme extends ProgramSubEntity implements Meme {
    Set Sequence Binding UUID by providing the sequence binding itself
 
    @param sequenceBinding to set UUID of
-   @return this Sequence Binding Meme (for chaining methods)
+   @return this Sequence Binding MemeEntity (for chaining methods)
    */
   public SequenceBindingMeme setSequenceBinding(SequenceBinding sequenceBinding) {
     return setSequenceBindingId(sequenceBinding.getId());
@@ -77,7 +77,7 @@ public class SequenceBindingMeme extends ProgramSubEntity implements Meme {
    Set Sequence Binding UUID
 
    @param sequenceBindingId to set
-   @return this Sequence Binding Meme (for chaining methods)
+   @return this Sequence Binding MemeEntity (for chaining methods)
    */
   public SequenceBindingMeme setSequenceBindingId(UUID sequenceBindingId) {
     this.sequenceBindingId = sequenceBindingId;

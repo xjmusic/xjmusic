@@ -557,17 +557,17 @@ public class LegacyLibraryMigrationIT extends CoreIT {
   }
 
   /**
-   insert a PatternEvent to the database
+   insert a Event to the database
 
-   @param patternId        of PatternEvent
-   @param voiceId          of PatternEvent
-   @param position         of PatternEvent
-   @param duration         of PatternEvent
-   @param name             of PatternEvent
-   @param note             of PatternEvent
-   @param tonality         of PatternEvent
-   @param velocity         of PatternEvent
-   @param createdUpdatedAt of PatternEvent
+   @param patternId        of Event
+   @param voiceId          of Event
+   @param position         of Event
+   @param duration         of Event
+   @param name             of Event
+   @param note             of Event
+   @param tonality         of Event
+   @param velocity         of Event
+   @param createdUpdatedAt of Event
    */
   private void insertPatternEvent(long patternId, long voiceId, double position, double duration, String name, String note, double tonality, double velocity, Instant createdUpdatedAt) {
     PatternEventRecord record = db.newRecord(PATTERN_EVENT);

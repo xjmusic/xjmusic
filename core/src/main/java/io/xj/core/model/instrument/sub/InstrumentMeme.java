@@ -3,7 +3,7 @@ package io.xj.core.model.instrument.sub;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Meme;
+import io.xj.core.model.entity.MemeEntity;
 import io.xj.core.model.instrument.impl.InstrumentSubEntity;
 import io.xj.core.util.Text;
 
@@ -19,7 +19,7 @@ import java.util.Objects;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class InstrumentMeme extends InstrumentSubEntity implements Meme {
+public class InstrumentMeme extends InstrumentSubEntity implements MemeEntity {
   private String name;
 
   @Override

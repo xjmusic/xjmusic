@@ -176,7 +176,7 @@ public class FixtureIT extends CoreIT {
     library10000002 = insert(newLibrary(10000002, 1, "Garbage Library", at));
     //
     instrument251 = newInstrument(251, 101, 10000002, InstrumentType.Percussive, InstrumentState.Published, "Garbage Instrument", at);
-    instrument251.add(newInstrumentMeme("Garbage Meme"));
+    instrument251.add(newInstrumentMeme("Garbage MemeEntity"));
     insert(instrument251);
     //
     program751 = newProgram(751, 101, 10000002, ProgramType.Rhythm, ProgramState.Published, "coconuts", "F#", 110.3, at);
@@ -236,7 +236,7 @@ public class FixtureIT extends CoreIT {
     Sequence sequence5a = program5.add(newSequence(16, "Intro", 0.5, "G major", 135.0));
     program5.add(newSequenceChord(sequence5a, 0.0, "G major"));
     program5.add(newSequenceChord(sequence5a, 8.0, "Ab minor"));
-    program5.add(newSequenceChord(sequence5a, 75.0, "G-9")); // [#154090557] this Chord should be ignored, because it's past the end of the main-pattern total
+    program5.add(newSequenceChord(sequence5a, 75.0, "G-9")); // [#154090557] this ChordEntity should be ignored, because it's past the end of the main-pattern total
     program5_binding0 = program5.add(newSequenceBinding(sequence5a, 0));
     program5.add(newSequenceBindingMeme(program5_binding0, "Optimism"));
     //
@@ -487,7 +487,7 @@ public class FixtureIT extends CoreIT {
       log.info("Generated Percussive-type Instrument id={}, minorMeme={}, majorMeme={}", instrumentId, minorMemeName, majorMemeName);
     }
 
-    // Generate N*2 total Macro-type Sequences, each transitioning from one Meme to another
+    // Generate N*2 total Macro-type Sequences, each transitioning from one MemeEntity to another
     for (int i = 0; i < N << 1; i++) {
       long programId = getNextUniqueId();
       String[] twoMemeNames = listOfUniqueRandom(2, majorMemeNames);

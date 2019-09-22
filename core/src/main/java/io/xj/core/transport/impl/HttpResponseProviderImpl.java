@@ -4,7 +4,7 @@ package io.xj.core.transport.impl;
 import com.google.inject.Inject;
 import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Resource;
+import io.xj.core.model.entity.ResourceEntity;
 import io.xj.core.model.payload.Payload;
 import io.xj.core.model.payload.PayloadDataType;
 import io.xj.core.model.payload.PayloadError;
@@ -84,7 +84,7 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
   }
 
   @Override
-  public Response notFound(Resource resource) {
+  public Response notFound(ResourceEntity resource) {
     return notFound(resource.getResourceType(), resource.getResourceId());
   }
 

@@ -7,7 +7,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.core.config.Config;
 import io.xj.core.ingest.Ingest;
-import io.xj.core.model.entity.Chord;
+import io.xj.core.model.entity.ChordEntity;
 import io.xj.core.model.program.sub.SequenceChord;
 import io.xj.craft.chord.ChordProgression;
 import io.xj.craft.chord.SequenceChordProgression;
@@ -111,7 +111,7 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
     List<SequenceChordProgression> result = Lists.newArrayList();
 
     List<SequenceChord> allChords = Lists.newArrayList(chords);
-    allChords.sort(Chord.byPositionAscending);
+    allChords.sort(ChordEntity.byPositionAscending);
 
     int totalChords = allChords.size();
     for (int fromChord = 0; fromChord < totalChords; fromChord++) {

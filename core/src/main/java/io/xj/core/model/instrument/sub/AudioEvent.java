@@ -3,7 +3,7 @@ package io.xj.core.model.instrument.sub;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Event;
+import io.xj.core.model.entity.EventEntity;
 import io.xj.core.model.instrument.impl.InstrumentSubEntity;
 import io.xj.core.util.Text;
 import io.xj.core.util.Value;
@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  + [#166708597] Audio model handles all of its own entities
  */
-public class AudioEvent extends InstrumentSubEntity implements Event {
+public class AudioEvent extends InstrumentSubEntity implements EventEntity {
   private UUID audioId;
   private Double duration;
   private String name;
@@ -129,7 +129,7 @@ public class AudioEvent extends InstrumentSubEntity implements Event {
 
   @Override
   public AudioEvent validate() throws CoreException {
-    Event.validate(this);
+    EventEntity.validate(this);
     require(audioId, "Audio ID");
     return this;
   }

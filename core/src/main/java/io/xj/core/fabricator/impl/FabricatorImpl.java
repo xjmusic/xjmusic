@@ -22,7 +22,7 @@ import io.xj.core.isometry.MemeIsometry;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainConfigType;
 import io.xj.core.model.chain.sub.ChainConfig;
-import io.xj.core.model.entity.Meme;
+import io.xj.core.model.entity.MemeEntity;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.sub.Audio;
 import io.xj.core.model.instrument.sub.AudioEvent;
@@ -349,8 +349,8 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<Meme> getMemesOfChoice(Choice choice) throws CoreException {
-    Collection<Meme> result = Lists.newArrayList();
+  public Collection<MemeEntity> getMemesOfChoice(Choice choice) throws CoreException {
+    Collection<MemeEntity> result = Lists.newArrayList();
     result.addAll(getProgram(choice).getMemes());
     if (Objects.nonNull(choice.getSequenceBindingId()))
       result.addAll(getProgram(choice).getMemes(getSequenceBinding(choice)));

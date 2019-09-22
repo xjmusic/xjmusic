@@ -6,8 +6,8 @@ import com.google.common.collect.Lists;
 import io.xj.core.model.entity.SuperEntityContent;
 import io.xj.core.model.program.Program;
 import io.xj.core.model.program.ProgramType;
+import io.xj.core.model.program.sub.Event;
 import io.xj.core.model.program.sub.Pattern;
-import io.xj.core.model.program.sub.PatternEvent;
 import io.xj.core.model.program.sub.ProgramMeme;
 import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.SequenceBinding;
@@ -28,13 +28,13 @@ import java.util.Collection;
  "sequences": [],
  "patterns": [],
  "chords": [],
- "patternEvents": [],
+ "events": [],
  "report": {}
  }
  */
 public class ProgramContent implements SuperEntityContent {
   private final Collection<Pattern> patterns = Lists.newArrayList();
-  private final Collection<PatternEvent> patternEvents = Lists.newArrayList();
+  private final Collection<Event> events = Lists.newArrayList();
   private final Collection<ProgramMeme> memes = Lists.newArrayList();
   private final Collection<Sequence> sequences = Lists.newArrayList();
   private final Collection<SequenceBinding> sequenceBindings = Lists.newArrayList();
@@ -52,7 +52,7 @@ public class ProgramContent implements SuperEntityContent {
   public static ProgramContent of(Program program) {
     ProgramContent content = new ProgramContent();
     content.setPatterns(program.getPatterns());
-    content.setPatternEvents(program.getPatternEvents());
+    content.setEvents(program.getPatternEvents());
     content.setMemes(program.getMemes());
     content.setSequences(program.getSequences());
     content.setSequenceBindings(program.getSequenceBindings());
@@ -104,8 +104,8 @@ public class ProgramContent implements SuperEntityContent {
 
    @return PatternEvents
    */
-  public Collection<PatternEvent> getPatternEvents() {
-    return patternEvents;
+  public Collection<Event> getEvents() {
+    return events;
   }
 
   /**
@@ -181,11 +181,11 @@ public class ProgramContent implements SuperEntityContent {
   /**
    Set PatternEvents
 
-   @param patternEvents to set
+   @param events to set
    */
-  public void setPatternEvents(Collection<PatternEvent> patternEvents) {
-    this.patternEvents.clear();
-    this.patternEvents.addAll(patternEvents);
+  public void setEvents(Collection<Event> events) {
+    this.events.clear();
+    this.events.addAll(events);
   }
 
   /**

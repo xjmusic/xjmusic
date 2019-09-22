@@ -23,7 +23,7 @@ import java.util.UUID;
  + [#166690830] Pattern model handles all of its own entities
  + [#166708597] Audio model handles all of its own entities
  */
-public interface SubEntity<N extends SubEntity> extends Resource {
+public interface SubEntity<N extends SubEntity> extends ResourceEntity {
 
   /**
    Add an entity to its internal map

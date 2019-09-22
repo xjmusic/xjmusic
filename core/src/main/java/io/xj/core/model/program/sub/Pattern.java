@@ -56,7 +56,7 @@ public class Pattern extends ProgramSubEntity {
   public ImmutableList<Class> getResourceHasMany() {
     return ImmutableList.<Class>builder()
       .addAll(super.getResourceHasMany())
-      .add(PatternEvent.class)
+      .add(Event.class)
       .build();
   }
 

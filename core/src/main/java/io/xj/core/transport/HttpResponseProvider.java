@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.transport;
 
-import io.xj.core.model.entity.Resource;
+import io.xj.core.model.entity.ResourceEntity;
 import io.xj.core.model.payload.Payload;
 
 import javax.ws.rs.core.NewCookie;
@@ -63,7 +63,7 @@ public interface HttpResponseProvider {
    @param resource that was not found, really just has id
    @return response
    */
-  Response notFound(Resource resource);
+  Response notFound(ResourceEntity resource);
 
   /**
    Return a response from an exception

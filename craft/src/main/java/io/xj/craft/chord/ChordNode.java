@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.chord;
 
-import io.xj.core.model.entity.Chord;
+import io.xj.core.model.entity.ChordEntity;
 import io.xj.core.util.Value;
 import io.xj.music.Key;
 import io.xj.music.PitchClass;
@@ -40,7 +40,7 @@ public class ChordNode {
 
    @param chord to construct descriptor of
    */
-  ChordNode(Chord chord) {
+  ChordNode(ChordEntity chord) {
     form = chord.isChord() ? formOf(chord) : null;
     delta = null;
     weight = 1L;
@@ -53,7 +53,7 @@ public class ChordNode {
    @param prevChord previous chord
    @param chord     chord to construct descriptor of
    */
-  ChordNode(Chord prevChord, Chord chord) {
+  ChordNode(ChordEntity prevChord, ChordEntity chord) {
     form = chord.isChord() ? formOf(chord) : null;
     delta = chord.isChord() ? deltaSemitonesModulo(prevChord, chord) : null;
     weight = 1L;
@@ -66,7 +66,7 @@ public class ChordNode {
    @param key   relative to which each chord's root will be computed in semitones modulo
    @param chord chord to construct descriptor of
    */
-  public ChordNode(Key key, Chord chord) {
+  public ChordNode(Key key, ChordEntity chord) {
     form = chord.isChord() ? formOf(chord) : null;
     delta = chord.isChord() ? deltaSemitonesModulo(key, chord) : null;
     weight = 1L;
@@ -113,7 +113,7 @@ public class ChordNode {
    @param chord compute Δ to
    @return Δ semitones modulo n (where n = max # of semitones, probably 12)
    */
-  private static Integer deltaSemitonesModulo(Key key, Chord chord) {
+  private static Integer deltaSemitonesModulo(Key key, ChordEntity chord) {
     return deltaSemitonesModulo(key.getRootPitchClass(), chord.toMusical().getRootPitchClass());
   }
 
@@ -123,7 +123,7 @@ public class ChordNode {
    @param addChord compute Δ to
    @return Δ semitones modulo n (where n = max # of semitones, probably 12)
    */
-  private static int deltaSemitonesModulo(Chord prevChord, Chord addChord) {
+  private static int deltaSemitonesModulo(ChordEntity prevChord, ChordEntity addChord) {
     return deltaSemitonesModulo(prevChord.toMusical().getRootPitchClass(), addChord.toMusical().getRootPitchClass());
   }
 
@@ -154,7 +154,7 @@ public class ChordNode {
    @param chord to compute descriptor of
    @return descriptor
    */
-  private static String formOf(Chord chord) {
+  private static String formOf(ChordEntity chord) {
     return formOf(chord.toMusical().colloquialFormName());
   }
 

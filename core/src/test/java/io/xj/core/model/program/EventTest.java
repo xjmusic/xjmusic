@@ -3,7 +3,7 @@ package io.xj.core.model.program;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.program.sub.PatternEvent;
+import io.xj.core.model.program.sub.Event;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -14,14 +14,14 @@ import java.util.UUID;
 import static io.xj.core.testing.Assert.assertSameItems;
 import static org.junit.Assert.assertEquals;
 
-public class PatternEventTest {
+public class EventTest {
 
   @Rule
   public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {
-    new PatternEvent()
+    new Event()
       .setProgramId(BigInteger.valueOf(5))
       .setPatternId(UUID.randomUUID())
       .setPosition(0.75)
@@ -37,7 +37,7 @@ public class PatternEventTest {
     failure.expect(CoreException.class);
     failure.expectMessage("Duration is required");
 
-    new PatternEvent()
+    new Event()
       .setProgramId(BigInteger.valueOf(5))
       .setPatternId(UUID.randomUUID())
       .setPosition(0.75)
@@ -52,7 +52,7 @@ public class PatternEventTest {
     failure.expect(CoreException.class);
     failure.expectMessage("Pattern ID is required");
 
-    new PatternEvent()
+    new Event()
       .setProgramId(BigInteger.valueOf(5))
       .setPosition(0.75)
       .setDuration(3.45)
@@ -67,7 +67,7 @@ public class PatternEventTest {
     failure.expect(CoreException.class);
     failure.expectMessage("Position is required");
 
-    new PatternEvent()
+    new Event()
       .setProgramId(BigInteger.valueOf(5))
       .setPatternId(UUID.randomUUID())
       .setDuration(3.45)
@@ -82,7 +82,7 @@ public class PatternEventTest {
     failure.expect(CoreException.class);
     failure.expectMessage("Name is required");
 
-    new PatternEvent()
+    new Event()
       .setProgramId(BigInteger.valueOf(5))
       .setPatternId(UUID.randomUUID())
       .setPosition(0.75)
@@ -97,7 +97,7 @@ public class PatternEventTest {
     failure.expect(CoreException.class);
     failure.expectMessage("Note is required");
 
-    new PatternEvent()
+    new Event()
       .setProgramId(BigInteger.valueOf(5))
       .setPatternId(UUID.randomUUID())
       .setPosition(0.75)
@@ -112,7 +112,7 @@ public class PatternEventTest {
     failure.expect(CoreException.class);
     failure.expectMessage("Velocity is required");
 
-    new PatternEvent()
+    new Event()
       .setProgramId(BigInteger.valueOf(5))
       .setPatternId(UUID.randomUUID())
       .setPosition(0.75)
@@ -127,12 +127,12 @@ public class PatternEventTest {
    */
   @Test
   public void position_rounded() {
-    assertEquals(1.25, new PatternEvent().setPosition(1.25179957).getPosition(), 0.0000001);
+    assertEquals(1.25, new Event().setPosition(1.25179957).getPosition(), 0.0000001);
   }
 
   @Test
   public void getPayloadAttributeNames() {
-    assertSameItems(ImmutableList.of("duration", "name", "note", "position", "velocity"), new PatternEvent().getResourceAttributeNames());
+    assertSameItems(ImmutableList.of("duration", "name", "note", "position", "velocity"), new Event().getResourceAttributeNames());
   }
 
 }

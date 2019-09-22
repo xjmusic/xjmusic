@@ -36,7 +36,7 @@ public class SequenceChordProgression {
 
   /**
    Construct a pattern chord progression from a chord progression, a pattern id, and the initial chord root pitch class
-   NOTE: each Chord change delta is considered to be semitones from the root pitch class provided.
+   NOTE: each ChordEntity change delta is considered to be semitones from the root pitch class provided.
    <p>
    // FUTURE: use more colloquial name than descriptor when creating pattern chord name, e.g. "C7b9" not "C MajorSevenFlatNine"
 

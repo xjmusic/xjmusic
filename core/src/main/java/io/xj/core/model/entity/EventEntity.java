@@ -4,15 +4,15 @@ package io.xj.core.model.entity;
 
 import io.xj.core.exception.CoreException;
 
-public interface Event extends SubEntity {
+public interface EventEntity extends SubEntity {
 
   /**
-   Validate presence of required properties of any Event
+   Validate presence of required properties of any EventEntity
 
    @param event to validate
    @throws CoreException if invalid
    */
-  static void validate(Event event) throws CoreException {
+  static void validate(EventEntity event) throws CoreException {
     if (null == event.getDuration())
       throw new CoreException("Duration is required.");
 
@@ -65,43 +65,43 @@ public interface Event extends SubEntity {
   Double getVelocity();
 
   /**
-   set Duration of Event
+   set Duration of EventEntity
 
    @param duration to set
-   @return this Event (for chaining methods)
+   @return this EventEntity (for chaining methods)
    */
-  Event setDuration(Double duration);
+  EventEntity setDuration(Double duration);
 
   /**
-   set Name of Event
+   set Name of EventEntity
 
    @param name to set
-   @return this Event (for chaining methods)
+   @return this EventEntity (for chaining methods)
    */
-  Event setName(String name);
+  EventEntity setName(String name);
 
   /**
-   set Note of Event
+   set Note of EventEntity
 
    @param note to set
-   @return this Event (for chaining methods)
+   @return this EventEntity (for chaining methods)
    */
-  Event setNote(String note);
+  EventEntity setNote(String note);
 
   /**
-   set Position of Event
+   set Position of EventEntity
 
    @param position to set
-   @return this Event (for chaining methods)
+   @return this EventEntity (for chaining methods)
    */
-  Event setPosition(Double position);
+  EventEntity setPosition(Double position);
 
   /**
-   set Velocity of Event
+   set Velocity of EventEntity
 
    @param velocity to set
-   @return this Event (for chaining methods)
+   @return this EventEntity (for chaining methods)
    */
-  Event setVelocity(Double velocity);
+  EventEntity setVelocity(Double velocity);
 
 }

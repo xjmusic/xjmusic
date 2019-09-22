@@ -11,8 +11,8 @@ import io.xj.core.isometry.EventIsometry;
 import io.xj.core.isometry.MemeIsometry;
 import io.xj.core.isometry.SubEntityRank;
 import io.xj.core.isometry.SuperEntityRank;
-import io.xj.core.model.entity.Event;
-import io.xj.core.model.entity.Meme;
+import io.xj.core.model.entity.EventEntity;
+import io.xj.core.model.entity.MemeEntity;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.instrument.sub.Audio;
@@ -20,8 +20,8 @@ import io.xj.core.model.instrument.sub.AudioEvent;
 import io.xj.core.model.program.PatternType;
 import io.xj.core.model.program.Program;
 import io.xj.core.model.program.ProgramType;
+import io.xj.core.model.program.sub.Event;
 import io.xj.core.model.program.sub.Pattern;
-import io.xj.core.model.program.sub.PatternEvent;
 import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.Voice;
 import io.xj.core.model.segment.sub.Arrangement;
@@ -78,28 +78,28 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
   /**
    Key for any pattern event designed to collide at same voice id + name
 
-   @param patternEvent to get key of
+   @param event to get key of
    @return unique key for pattern event
    */
-  private String eventKey(PatternEvent patternEvent) throws CraftException {
-    return String.format(KEY_VOICE_NAME_TEMPLATE, getVoiceId(patternEvent), patternEvent.getName());
+  private String eventKey(Event event) throws CraftException {
+    return String.format(KEY_VOICE_NAME_TEMPLATE, getVoiceId(event), event.getName());
   }
 
   /**
    Get the Voice UUID of a given pattern event
 
-   @param patternEvent to get voice UUID of
+   @param event to get voice UUID of
    @return Voice UUID
    @throws CraftException on failure to get Voice UUID
    */
-  private UUID getVoiceId(PatternEvent patternEvent) throws CraftException {
+  private UUID getVoiceId(Event event) throws CraftException {
     try {
       return fabricator.getSourceMaterial()
-        .getProgram(patternEvent.getProgramId())
-        .getPattern(patternEvent.getPatternId())
+        .getProgram(event.getProgramId())
+        .getPattern(event.getPatternId())
         .getVoiceId();
     } catch (CoreException e) {
-      throw new CraftException(String.format("Unable to get Voice ID for patternEventId=%s", patternEvent.getId()), e);
+      throw new CraftException(String.format("Unable to get Voice ID for patternEventId=%s", event.getId()), e);
     }
   }
 
@@ -297,7 +297,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    */
   private Optional<Double> getRhythmScoreOf(Program program) {
     try {
-      Collection<Meme> memes = program.getMemesAtBeginning();
+      Collection<MemeEntity> memes = program.getMemesAtBeginning();
       if (!memes.isEmpty())
         return Optional.of(fabricator.getMemeIsometryOfSegment().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_RHYTHM_ENTROPY));
 
@@ -439,11 +439,11 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
     try {
       if (Objects.isNull(pattern)) throw exception("Cannot craft from null pattern");
       double totalPos = maxPos - fromPos;
-      Collection<PatternEvent> patternEvents = program.getEventsForPattern(pattern);
+      Collection<Event> events = program.getEventsForPattern(pattern);
       Instrument instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId());
-      for (PatternEvent patternEvent : patternEvents) {
-        double chanceOfRandomChoice = 0.0 == goForItRatio ? 0.0 : goForItRatio * Value.ratio(patternEvent.getPosition() - fromPos, totalPos);
-        pickInstrumentAudio(previousInstrumentAudio, instrument, arrangement, patternEvent, choice.getTranspose(), fromPos, chanceOfRandomChoice);
+      for (Event event : events) {
+        double chanceOfRandomChoice = 0.0 == goForItRatio ? 0.0 : goForItRatio * Value.ratio(event.getPosition() - fromPos, totalPos);
+        pickInstrumentAudio(previousInstrumentAudio, instrument, arrangement, event, choice.getTranspose(), fromPos, chanceOfRandomChoice);
       }
       return Math.min(totalPos, pattern.getTotal());
 
@@ -458,22 +458,22 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement@param arrangement   to create pick within@param previousInstrumentAudio
 
    @param previousInstrumentAudio map of previous instrument audio from which to potentially select
-   @param patternEvent            to pick audio for
+   @param event            to pick audio for
    @param shiftPosition           offset voice event zero within current segment
    @param chanceOfRandomChoice    entropy is increased during the progression of a main sequence [#161466708]
    */
-  private void pickInstrumentAudio(Map<String, Audio> previousInstrumentAudio, Instrument instrument, Arrangement arrangement, PatternEvent patternEvent, int transpose, Double shiftPosition, Double chanceOfRandomChoice) throws CraftException {
+  private void pickInstrumentAudio(Map<String, Audio> previousInstrumentAudio, Instrument instrument, Arrangement arrangement, Event event, int transpose, Double shiftPosition, Double chanceOfRandomChoice) throws CraftException {
     try {
-      Audio audio = selectInstrumentAudio(previousInstrumentAudio, instrument, patternEvent, chanceOfRandomChoice);
+      Audio audio = selectInstrumentAudio(previousInstrumentAudio, instrument, event, chanceOfRandomChoice);
 
       // Morph & Point attributes are expressed in beats
-      double position = patternEvent.getPosition() + shiftPosition;
-      double duration = patternEvent.getDuration();
+      double position = event.getPosition() + shiftPosition;
+      double duration = event.getDuration();
       Chord chord = fabricator.getChordAt((int) Math.floor(position));
 
       // The final note is transformed based on instrument type
       Note note = pickNote(
-        Note.of(patternEvent.getNote()).transpose(transpose),
+        Note.of(event.getNote()).transpose(transpose),
         chord, audio, instrument.getType());
 
       // Pick attributes are expressed "rendered" as actual seconds
@@ -485,16 +485,16 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
         .setArrangementId(arrangement.getId())
         .setAudioId(audio.getId())
         .setVoiceId(arrangement.getVoiceId())
-        .setPatternEventId(patternEvent.getId())
-        .setName(patternEvent.getName())
+        .setPatternEventId(event.getId())
+        .setName(event.getName())
         .setStart(startSeconds)
         .setLength(lengthSeconds)
-        .setAmplitude(patternEvent.getVelocity())
+        .setAmplitude(event.getVelocity())
         .setPitch(fabricator.getPitch(note)));
 
     } catch (CoreException e) {
       throw exception(String.format("Could not pick audio for instrumentId=%s, arrangementId=%s, patternEventId=%s, transpose=%d, shiftPosition=%f, chanceOfRandomChoice=%f",
-        instrument.getId(), arrangement.getId(), patternEvent.getId(), transpose, shiftPosition, chanceOfRandomChoice), e);
+        instrument.getId(), arrangement.getId(), event.getId(), transpose, shiftPosition, chanceOfRandomChoice), e);
     }
   }
 
@@ -504,16 +504,16 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
 
    @param previousInstrumentAudio map of previous instrument audio from which to potentially select
    @param instrument              from which to score available audios, and make a selection
-   @param patternEvent            to match
+   @param event            to match
    @param chanceOfRandomChoice    from 0 to 1, chance that a random audio will be selected (instead of the cached selection)
    @return matched new audio
    @throws CraftException on failure
    */
-  private Audio selectInstrumentAudio(Map<String, Audio> previousInstrumentAudio, Instrument instrument, PatternEvent patternEvent, Double chanceOfRandomChoice) throws CraftException {
+  private Audio selectInstrumentAudio(Map<String, Audio> previousInstrumentAudio, Instrument instrument, Event event, Double chanceOfRandomChoice) throws CraftException {
     if (0 < chanceOfRandomChoice && random.nextDouble() <= chanceOfRandomChoice) {
-      return selectNewInstrumentAudio(instrument, patternEvent);
+      return selectNewInstrumentAudio(instrument, event);
     } else {
-      return selectPreviousInstrumentAudio(previousInstrumentAudio, instrument, patternEvent);
+      return selectPreviousInstrumentAudio(previousInstrumentAudio, instrument, event);
     }
   }
 
@@ -525,14 +525,14 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
 
    @param previousInstrumentAudio map of previous instrument audio from which to potentially select
    @param instrument              from which to score available audios, and make a selection
-   @param patternEvent            to match
+   @param event            to match
    @return matched new audio
    @throws CraftException on failure
    */
-  private Audio selectPreviousInstrumentAudio(Map<String, Audio> previousInstrumentAudio, Instrument instrument, PatternEvent patternEvent) throws CraftException {
-    String key = eventKey(patternEvent);
+  private Audio selectPreviousInstrumentAudio(Map<String, Audio> previousInstrumentAudio, Instrument instrument, Event event) throws CraftException {
+    String key = eventKey(event);
     if (!previousInstrumentAudio.containsKey(key))
-      previousInstrumentAudio.put(key, selectNewInstrumentAudio(instrument, patternEvent));
+      previousInstrumentAudio.put(key, selectNewInstrumentAudio(instrument, event));
     return previousInstrumentAudio.get(key);
   }
 
@@ -544,7 +544,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    @return matched new audio
    @throws CraftException on failure
    */
-  private Audio selectNewInstrumentAudio(Instrument instrument, Event patternEvent) throws CraftException {
+  private Audio selectNewInstrumentAudio(Instrument instrument, EventEntity patternEvent) throws CraftException {
     try {
       SubEntityRank<Audio> audioSubEntityRank = new SubEntityRank<>();
 

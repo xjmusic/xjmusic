@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.common.math.StatsAccumulator;
-import io.xj.core.model.entity.Resource;
+import io.xj.core.model.entity.ResourceEntity;
 import io.xj.core.util.TremendouslyRandom;
 import io.xj.core.util.Value;
 
@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
  */
-public interface Digest extends Resource {
+public interface Digest extends ResourceEntity {
   String KEY_CHORD_NAME = "chordName";
   String KEY_CHORD_POSITION = "chordPosition";
   String RESOURCE_TYPE = "digests";

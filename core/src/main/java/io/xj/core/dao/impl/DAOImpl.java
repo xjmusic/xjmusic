@@ -7,7 +7,7 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.model.entity.EntityFactory;
-import io.xj.core.model.entity.Resource;
+import io.xj.core.model.entity.ResourceEntity;
 import io.xj.core.model.user.role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.util.Text;
@@ -337,7 +337,7 @@ public class DAOImpl {
    @param <E>    type of Entity
    @throws CoreException on failure to set transmogrified values
    */
-  static <R extends Record, E extends Resource> void modelSetTransmogrified(R record, E model) throws CoreException {
+  static <R extends Record, E extends ResourceEntity> void modelSetTransmogrified(R record, E model) throws CoreException {
     if (Objects.isNull(record))
       throw new CoreException("Cannot transmogrify; record does not exist");
 

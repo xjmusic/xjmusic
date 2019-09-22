@@ -3,7 +3,7 @@ package io.xj.core.model.program.sub;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Event;
+import io.xj.core.model.entity.EventEntity;
 import io.xj.core.model.program.impl.ProgramSubEntity;
 import io.xj.core.util.Text;
 import io.xj.core.util.Value;
@@ -14,7 +14,7 @@ import java.util.UUID;
 /**
  [#166690830] Pattern model handles all of its own entities
  */
-public class PatternEvent extends ProgramSubEntity implements Event {
+public class Event extends ProgramSubEntity implements EventEntity {
   protected Double duration;
   protected String name;
   protected String note;
@@ -77,19 +77,19 @@ public class PatternEvent extends ProgramSubEntity implements Event {
   }
 
   @Override
-  public PatternEvent setDuration(Double duration) {
+  public Event setDuration(Double duration) {
     this.duration = duration;
     return this;
   }
 
   @Override
-  public PatternEvent setName(String name) {
+  public Event setName(String name) {
     this.name = Text.toUpperSlug(name);
     return this;
   }
 
   @Override
-  public PatternEvent setNote(String note) {
+  public Event setNote(String note) {
     this.note = Text.toNote(note);
     return this;
   }
@@ -98,9 +98,9 @@ public class PatternEvent extends ProgramSubEntity implements Event {
    Set Pattern UUID by providing the parent Pattern
 
    @param pattern to set UUID of
-   @return this PatternEvent (for chaining methods)
+   @return this Event (for chaining methods)
    */
-  public PatternEvent setPattern(Pattern pattern) {
+  public Event setPattern(Pattern pattern) {
     setPatternId(pattern.getId());
     return this;
   }
@@ -109,41 +109,41 @@ public class PatternEvent extends ProgramSubEntity implements Event {
    Set Pattern UUID
 
    @param patternId to set
-   @return this PatternEvent (for chaining methods)
+   @return this Event (for chaining methods)
    */
-  public PatternEvent setPatternId(UUID patternId) {
+  public Event setPatternId(UUID patternId) {
     this.patternId = patternId;
     return this;
   }
 
   @Override
-  public PatternEvent setPosition(Double position) {
+  public Event setPosition(Double position) {
     this.position = Value.limitFloatingPointPlaces(position);
     return this;
   }
 
   @Override
-  public PatternEvent setId(UUID id) {
+  public Event setId(UUID id) {
     this.id = id;
     return this;
   }
 
   @Override
-  public PatternEvent setVelocity(Double velocity) {
+  public Event setVelocity(Double velocity) {
     this.velocity = velocity;
     return this;
   }
 
   @Override
-  public PatternEvent setProgramId(BigInteger programId) {
+  public Event setProgramId(BigInteger programId) {
     super.setProgramId(programId);
     return this;
   }
 
   @Override
-  public PatternEvent validate() throws CoreException {
+  public Event validate() throws CoreException {
     super.validate();
-    Event.validate(this);
+    EventEntity.validate(this);
     require(patternId, "Pattern ID");
     return this;
   }

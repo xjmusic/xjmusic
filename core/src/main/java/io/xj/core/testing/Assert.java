@@ -3,8 +3,8 @@
 package io.xj.core.testing;
 
 import com.google.common.collect.Maps;
-import io.xj.core.model.entity.Chord;
-import io.xj.core.model.entity.Meme;
+import io.xj.core.model.entity.ChordEntity;
+import io.xj.core.model.entity.MemeEntity;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
 
@@ -23,7 +23,7 @@ public enum Assert {
 
    @param actualMemes to find exactly
    */
-  public static <N extends Meme> void assertExactMemes(Collection<String> expectMemeNames, Collection<N> actualMemes) {
+  public static <N extends MemeEntity> void assertExactMemes(Collection<String> expectMemeNames, Collection<N> actualMemes) {
     assertEquals("Different number of memes than expected", expectMemeNames.size(), actualMemes.size());
 
     // prepare a map of expected segment meme, all marked false (not yet found)
@@ -46,7 +46,7 @@ public enum Assert {
 
    @param actualChords to find exactly
    */
-  public static <N extends Chord> void assertExactChords(Collection<String> expectChordNames, Collection<N> actualChords) {
+  public static <N extends ChordEntity> void assertExactChords(Collection<String> expectChordNames, Collection<N> actualChords) {
     assertEquals("Different number of chords than expected", expectChordNames.size(), actualChords.size());
 
     // prepare a map of expected segment chord, all marked false (not yet found)

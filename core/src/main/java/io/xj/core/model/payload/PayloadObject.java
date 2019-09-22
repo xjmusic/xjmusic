@@ -4,7 +4,7 @@ package io.xj.core.model.payload;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.xj.core.model.entity.Resource;
+import io.xj.core.model.entity.ResourceEntity;
 
 import java.util.Collection;
 import java.util.Map;
@@ -201,7 +201,7 @@ public class PayloadObject {
    @param <N>      type of resource
    @return true if match
    */
-  public <N extends Resource> boolean isSame(N resource) {
+  public <N extends ResourceEntity> boolean isSame(N resource) {
     return Objects.equals(getType(), resource.getResourceType()) &&
       Objects.equals(getId(), resource.getResourceId());
   }

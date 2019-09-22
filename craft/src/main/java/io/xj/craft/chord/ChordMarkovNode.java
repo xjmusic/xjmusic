@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  a ChordMarkovNode object is a collection of possible outcomes and their likelihoods. It's expected that ChordMarkovNode be stored in a map keyed by the preceding state descriptor.
- a ChordMarkovNode, once stored at a particular preceding state descriptor, may receive additional observations (Chords), such that when the entire digestion process is complete, many ChordMarkovNode will contain more-than-one possible outcome, hence the neural network that learns Chord progressions from the library it is provided.
+ a ChordMarkovNode, once stored at a particular preceding state descriptor, may receive additional observations (Chords), such that when the entire digestion process is complete, many ChordMarkovNode will contain more-than-one possible outcome, hence the neural network that learns ChordEntity progressions from the library it is provided.
  ChordMarkovNode toJSONObject provides a view of the N-order Markov map built from the library chord progressions.
  */
 public class ChordMarkovNode {

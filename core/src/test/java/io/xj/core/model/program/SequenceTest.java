@@ -622,7 +622,7 @@ public class SequenceTest {
     insertSequenceBinding(100110, 1, 1001, 0);
 
     failure.expect(CoreException.class);
-    failure.expectMessage("Meme in Sequence");
+    failure.expectMessage("MemeEntity in Sequence");
 
     testDAO.erase(access, BigInteger.valueOf(1L));
   }

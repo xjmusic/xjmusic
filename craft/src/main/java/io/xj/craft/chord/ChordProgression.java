@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.chord;
 
-import io.xj.core.model.entity.Chord;
+import io.xj.core.model.entity.ChordEntity;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -42,7 +42,7 @@ public class ChordProgression {
    @param <C>    type of chord
    @return chord progression
    */
-  public static <C extends Chord> ChordProgression of(List<C> chords) {
+  public static <C extends ChordEntity> ChordProgression of(List<C> chords) {
     List<ChordNode> chordNodes = Lists.newArrayList();
 
     // A. append form of chord 1
@@ -52,8 +52,8 @@ public class ChordProgression {
     // repeat steps B* for chord 2...n (if present)
     int size = chords.size();
     if (1 < size) for (int i = 1; i < size; i++) {
-      Chord addChord = chords.get(i);
-      Chord prevChord = chords.get(i - 1);
+      ChordEntity addChord = chords.get(i);
+      ChordEntity prevChord = chords.get(i - 1);
       chordNodes.add(new ChordNode(prevChord, addChord));
     }
 
@@ -210,7 +210,7 @@ public class ChordProgression {
   }
 
   /**
-   Add next Chord in progression
+   Add next ChordEntity in progression
 
    @param next chord to add
    */

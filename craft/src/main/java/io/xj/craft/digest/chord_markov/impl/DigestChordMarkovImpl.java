@@ -154,12 +154,12 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
 
     // Forward nodes (likelihood of following node based on observation of preceding nodes)
     List<SequenceChord> forwardNodes = Lists.newArrayList(chords);
-    forwardNodes.sort(Chord.byPositionAscending);
+    forwardNodes.sort(ChordEntity.byPositionAscending);
     computeNodes(forwardNodeMap, key, forwardNodes);
 
     // Reverse nodes (likelihood of preceding node based on observation of following nodes in reverse time)
     List<SequenceChord> reverseNodes = Lists.newArrayList(chords);
-    reverseNodes.sort(Chord.byPositionDescending);
+    reverseNodes.sort(ChordEntity.byPositionDescending);
     computeNodes(reverseNodeMap, key, reverseNodes);
 */
   }

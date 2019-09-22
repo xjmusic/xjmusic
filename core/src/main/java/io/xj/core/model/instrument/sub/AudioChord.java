@@ -3,7 +3,7 @@ package io.xj.core.model.instrument.sub;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Chord;
+import io.xj.core.model.entity.ChordEntity;
 import io.xj.core.model.instrument.impl.InstrumentSubEntity;
 import io.xj.core.util.Value;
 
@@ -12,7 +12,7 @@ import java.util.UUID;
 /**
  + [#166708597] Audio model handles all of its own entities
  */
-public class AudioChord extends InstrumentSubEntity implements Chord {
+public class AudioChord extends InstrumentSubEntity implements ChordEntity {
   private UUID audioId;
   private String name;
   private Double position;
@@ -118,7 +118,7 @@ public class AudioChord extends InstrumentSubEntity implements Chord {
 
   @Override
   public AudioChord validate() throws CoreException {
-    Chord.validate(this);
+    ChordEntity.validate(this);
 
     require(audioId, "Audio ID");
 

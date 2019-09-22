@@ -3,7 +3,7 @@ package io.xj.core.model.segment.sub;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Meme;
+import io.xj.core.model.entity.MemeEntity;
 import io.xj.core.model.segment.impl.SegmentSubEntity;
 
 import java.math.BigInteger;
@@ -12,7 +12,7 @@ import java.util.UUID;
 /**
  [#166132897] Segment model handles all of its own entities
  */
-public class SegmentMeme extends SegmentSubEntity implements Meme {
+public class SegmentMeme extends SegmentSubEntity implements MemeEntity {
   private String name;
 
   /**

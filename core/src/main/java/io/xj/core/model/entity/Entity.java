@@ -17,7 +17,7 @@ import java.util.List;
 /**
  Standard Entity
  */
-public interface Entity extends Resource {
+public interface Entity extends ResourceEntity {
 
   /**
    Format a comma-separated list of entity counts from a collection of entities

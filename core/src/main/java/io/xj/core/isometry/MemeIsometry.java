@@ -2,7 +2,7 @@
 package io.xj.core.isometry;
 
 import com.google.common.base.Objects;
-import io.xj.core.model.entity.Meme;
+import io.xj.core.model.entity.MemeEntity;
 
 import java.util.Collection;
 
@@ -18,7 +18,7 @@ public class MemeIsometry extends Isometry {
    @param sourceMemes to compare from
    @return MemeIsometry ready for comparison to target Memes
    */
-  public static <N extends Meme> MemeIsometry ofMemes(Collection<N> sourceMemes) {
+  public static <N extends MemeEntity> MemeIsometry ofMemes(Collection<N> sourceMemes) {
     MemeIsometry result = new MemeIsometry();
     sourceMemes.forEach(meme ->
       result.addStem(meme.getName()));
@@ -31,7 +31,7 @@ public class MemeIsometry extends Isometry {
    @param targetMemes comma-separated values to score against source meme names
    @return score is between 0 (no matches) and 1 (all memes match)
    */
-  public <M extends Meme> double score(Iterable<M> targetMemes) {
+  public <M extends MemeEntity> double score(Iterable<M> targetMemes) {
     double tally = 0;
 
     // tally each match of source & target stem
@@ -50,7 +50,7 @@ public class MemeIsometry extends Isometry {
   /**
    Add a meme for isometry comparison
    */
-  public <R extends Meme> void add(R meme) {
+  public <R extends MemeEntity> void add(R meme) {
     addStem(stem(meme.getName()));
   }
 }

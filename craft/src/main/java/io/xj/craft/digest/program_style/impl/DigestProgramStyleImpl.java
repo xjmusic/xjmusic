@@ -8,7 +8,7 @@ import com.google.common.math.StatsAccumulator;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.core.ingest.Ingest;
-import io.xj.core.model.entity.Chord;
+import io.xj.core.model.entity.ChordEntity;
 import io.xj.core.model.program.Program;
 import io.xj.core.model.program.ProgramType;
 import io.xj.core.model.program.sub.Sequence;
@@ -67,9 +67,9 @@ public class DigestProgramStyleImpl extends DigestImpl implements DigestProgramS
         mainSequenceTotalHistogram.add(total);
 
         List<SequenceChord> chords = Lists.newArrayList(program.getChords(sequence));
-        chords.sort(Chord.byPositionAscending);
+        chords.sort(ChordEntity.byPositionAscending);
         double cursor = 0;
-        for (Chord chord : chords)
+        for (ChordEntity chord : chords)
           if (chord.getPosition() > cursor) {
             mainChordSpacingHistogram.add(chord.getPosition() - cursor);
             cursor = chord.getPosition();

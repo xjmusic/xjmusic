@@ -3,12 +3,12 @@ package io.xj.core.model.entity;
 
 /**
  This represents common properties of all memes,
- although a Meme only actually exists as a Segment Meme, Sequence Meme, etc.
+ although a MemeEntity only actually exists as a Segment MemeEntity, Sequence MemeEntity, etc.
  */
-public interface Meme<N> {
+public interface MemeEntity<N> {
 
   /**
-   Get Meme name
+   Get MemeEntity name
 
    @return name
    */

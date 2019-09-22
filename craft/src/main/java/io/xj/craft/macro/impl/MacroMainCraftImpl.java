@@ -11,7 +11,7 @@ import io.xj.core.exception.CoreException;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorType;
 import io.xj.core.isometry.SuperEntityRank;
-import io.xj.core.model.entity.Meme;
+import io.xj.core.model.entity.MemeEntity;
 import io.xj.core.model.program.Program;
 import io.xj.core.model.program.ProgramType;
 import io.xj.core.model.program.sub.Sequence;
@@ -496,7 +496,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     Multiset<String> uniqueResults = ConcurrentHashMultiset.create();
     for (Choice choice : fabricator.getSegment().getChoices()) {
       try {
-        for (Meme meme : fabricator.getMemesOfChoice(choice)) {
+        for (MemeEntity meme : fabricator.getMemesOfChoice(choice)) {
           uniqueResults.add(meme.getName());
         }
       } catch (CoreException e) {

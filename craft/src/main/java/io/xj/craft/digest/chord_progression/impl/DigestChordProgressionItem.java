@@ -61,7 +61,7 @@ public class DigestChordProgressionItem {
   }
 
   /**
-   Add a Chord progression for this descriptor
+   Add a ChordEntity progression for this descriptor
 
    @param chordProgression to add
    */
@@ -70,7 +70,7 @@ public class DigestChordProgressionItem {
   }
 
   /**
-   Add a Chord progression for this descriptor, only if we don't already have one for that parent id
+   Add a ChordEntity progression for this descriptor, only if we don't already have one for that parent id
 
    @param candidate to maybe add
    */

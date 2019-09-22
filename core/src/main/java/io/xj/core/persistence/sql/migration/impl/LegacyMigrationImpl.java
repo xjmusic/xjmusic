@@ -19,7 +19,7 @@ import io.xj.core.model.program.Program;
 import io.xj.core.model.program.ProgramFactory;
 import io.xj.core.model.program.ProgramType;
 import io.xj.core.model.program.sub.Pattern;
-import io.xj.core.model.program.sub.PatternEvent;
+import io.xj.core.model.program.sub.Event;
 import io.xj.core.model.program.sub.ProgramMeme;
 import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.SequenceBinding;
@@ -278,7 +278,7 @@ public class LegacyMigrationImpl implements LegacyMigration {
         .where(PATTERN_EVENT.PATTERN_ID.eq(patternRecord.getId()))
         .and(PATTERN_EVENT.VOICE_ID.eq(ULong.valueOf(voiceId)))
         .fetch().forEach(patternEventRecord -> {
-        program.add(new PatternEvent()
+        program.add(new Event()
           .setName(patternEventRecord.getInflection())
           .setPattern(pattern)
           .setPosition(patternEventRecord.getPosition())

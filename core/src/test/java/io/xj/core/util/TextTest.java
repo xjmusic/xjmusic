@@ -11,7 +11,7 @@ import io.xj.core.model.instrument.sub.AudioChord;
 import io.xj.core.model.instrument.sub.AudioEvent;
 import io.xj.core.model.instrument.sub.InstrumentMeme;
 import io.xj.core.model.program.sub.ProgramMeme;
-import io.xj.core.model.program.sub.PatternEvent;
+import io.xj.core.model.program.sub.Event;
 import io.xj.core.model.program.sub.SequenceChord;
 import io.xj.core.model.segment.sub.SegmentChord;
 import io.xj.core.model.segment.sub.SegmentMeme;
@@ -45,7 +45,7 @@ public class TextTest extends CoreTest {
     assertEquals("AudioChord", Text.getSimpleName(AudioChord.class));
     assertEquals("AudioEvent", Text.getSimpleName(AudioEvent.class));
     assertEquals("InstrumentMeme", Text.getSimpleName(InstrumentMeme.class));
-    assertEquals("PatternEvent", Text.getSimpleName(PatternEvent.class));
+    assertEquals("Event", Text.getSimpleName(Event.class));
     assertEquals("ProgramMeme", Text.getSimpleName(ProgramMeme.class));
     assertEquals("SegmentChord", Text.getSimpleName(SegmentChord.class));
     assertEquals("SegmentMeme", Text.getSimpleName(SegmentMeme.class));

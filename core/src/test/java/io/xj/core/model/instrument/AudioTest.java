@@ -100,7 +100,7 @@ public class AudioTest {
 FUTURE adapt these Audio unit tests (from legacy integration tests)
 
   private static void setUpTwo() {
-    // Event and Chord on Audio 1
+    // EventEntity and ChordEntity on Audio 1
     insertAudioEvent(1, 2.5, 1.0, "KICK", "Eb", 0.8, 1.0);
     insertAudioChord(1, 4, "D major");
 

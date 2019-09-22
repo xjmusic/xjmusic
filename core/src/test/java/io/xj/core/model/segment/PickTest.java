@@ -56,7 +56,7 @@ public class PickTest {
   @Test
   public void validate_failsWithoutPatternEventID() throws Exception {
     failure.expect(CoreException.class);
-    failure.expectMessage("Pattern Event ID is required");
+    failure.expectMessage("Pattern EventEntity ID is required");
 
     new Pick()
       .setArrangementId(UUID.randomUUID())

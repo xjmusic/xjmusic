@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.api.client.util.Lists;
 import com.google.common.collect.Maps;
 import io.xj.core.config.Config;
-import io.xj.core.model.entity.Resource;
+import io.xj.core.model.entity.ResourceEntity;
 import io.xj.core.model.entity.SubEntity;
 import io.xj.core.model.payload.deserializer.PayloadDeserializer;
 
@@ -77,7 +77,7 @@ public class Payload {
    @param <N>    type of resource
    @return this payload (for chaining methods)
    */
-  public <N extends Resource> Payload addErrorsOf(N entity) {
+  public <N extends ResourceEntity> Payload addErrorsOf(N entity) {
     entity.getErrors().forEach(exception -> addError(PayloadError.of(exception)));
     return this;
   }
@@ -190,7 +190,7 @@ public class Payload {
    @param resources to be added
    @return this Payload (for chaining methods)
    */
-  <N extends Resource> Payload addIncluded(Collection<N> resources) {
+  <N extends ResourceEntity> Payload addIncluded(Collection<N> resources) {
     resources.stream().map(resource -> resource.toPayloadObject(resources)).forEach(this::addIncluded);
     return this;
   }
@@ -243,7 +243,7 @@ public class Payload {
    @param includeSubEntities if true, will include all sub-entities
    @return this Payload (for chaining methods)
    */
-  public <N extends Resource> Payload setDataEntities(Collection<N> entities, boolean includeSubEntities) {
+  public <N extends ResourceEntity> Payload setDataEntities(Collection<N> entities, boolean includeSubEntities) {
     clear();
     dataType = PayloadDataType.HasMany;
     entities.forEach(entity -> {
@@ -261,7 +261,7 @@ public class Payload {
    @param entity to set
    @return this Payload (for chaining methods)
    */
-  public <N extends Resource> Payload setDataEntity(N entity) {
+  public <N extends ResourceEntity> Payload setDataEntity(N entity) {
     clear();
     Collection<SubEntity> subEntities = entity.getAllSubEntities();
     setDataOne(entity.toPayloadObject(subEntities));
@@ -287,9 +287,9 @@ public class Payload {
    @param resources to reference
    @return this payload (for chaining methods)
    */
-  public <R extends Resource> Payload setDataReferences(Collection<R> resources) {
+  public <R extends ResourceEntity> Payload setDataReferences(Collection<R> resources) {
     setDataType(PayloadDataType.HasMany);
-    resources.stream().map(Resource::toPayloadReferenceObject).forEach(this::addData);
+    resources.stream().map(ResourceEntity::toPayloadReferenceObject).forEach(this::addData);
     return this;
   }
 

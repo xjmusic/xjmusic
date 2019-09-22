@@ -1,6 +1,6 @@
 package io.xj.core.testing;
 
-import io.xj.core.model.entity.Resource;
+import io.xj.core.model.entity.ResourceEntity;
 import io.xj.core.model.payload.PayloadObject;
 import io.xj.core.util.Text;
 
@@ -57,7 +57,7 @@ public class AssertPayloadObject {
    @param resource to assert belongs-to
    @return payloadObject assertion utility (for chaining methods)
    */
-  public <N extends Resource> AssertPayloadObject belongsTo(N resource) {
+  public <N extends ResourceEntity> AssertPayloadObject belongsTo(N resource) {
     String key = Text.toResourceBelongsTo(resource);
     assertTrue(String.format("Belongs to %s id=%s", resource.getResourceType(), resource.getResourceId()), payloadObject.getRelationships().containsKey(key));
     new AssertPayload(payloadObject.getRelationships().get(key))
@@ -72,11 +72,11 @@ public class AssertPayloadObject {
    @param resources to assert has-many of
    @return payloadObject assertion utility (for chaining methods)
    */
-  public <N extends Resource> AssertPayloadObject hasMany(Class type, Collection<N> resources) {
+  public <N extends ResourceEntity> AssertPayloadObject hasMany(Class type, Collection<N> resources) {
     String key = Text.toResourceHasMany(type);
     assertTrue(String.format("Has relationship %s", key), payloadObject.getRelationships().containsKey(key));
     new AssertPayload(payloadObject.getRelationships().get(key))
-      .hasDataMany(Text.toResourceType(type), resources.stream().map(Resource::getResourceId).collect(Collectors.toList()));
+      .hasDataMany(Text.toResourceType(type), resources.stream().map(ResourceEntity::getResourceId).collect(Collectors.toList()));
     return this;
   }
 

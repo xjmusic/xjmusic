@@ -8,7 +8,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import io.xj.core.exception.CoreException;
 import io.xj.core.isometry.SubEntityRank;
-import io.xj.core.model.entity.Meme;
+import io.xj.core.model.entity.MemeEntity;
 import io.xj.core.model.entity.SubEntity;
 import io.xj.core.model.entity.impl.SuperEntityImpl;
 import io.xj.core.model.library.Library;
@@ -17,8 +17,8 @@ import io.xj.core.model.program.PatternType;
 import io.xj.core.model.program.Program;
 import io.xj.core.model.program.ProgramState;
 import io.xj.core.model.program.ProgramType;
+import io.xj.core.model.program.sub.Event;
 import io.xj.core.model.program.sub.Pattern;
-import io.xj.core.model.program.sub.PatternEvent;
 import io.xj.core.model.program.sub.ProgramMeme;
 import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.SequenceBinding;
@@ -49,7 +49,7 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
   private final Map<UUID, SequenceBindingMeme> sequenceBindingMemeMap = Maps.newHashMap();
   private final Map<UUID, SequenceChord> sequenceChordMap = Maps.newHashMap();
   private final Map<UUID, Sequence> sequenceMap = Maps.newHashMap();
-  private final Map<UUID, PatternEvent> patternEventMap = Maps.newHashMap();
+  private final Map<UUID, Event> patternEventMap = Maps.newHashMap();
   private final Map<UUID, ProgramMeme> memeMap = Maps.newHashMap();
   private final Map<UUID, Voice> voiceMap = Maps.newHashMap();
   private BigInteger userId;
@@ -98,15 +98,15 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
   }
 
   @Override
-  public PatternEvent add(PatternEvent patternEvent) {
+  public Event add(Event event) {
     try {
-      requireId("before adding PatternEvent");
-      patternEvent.setProgramId(getId());
-      ensureRelations(patternEvent);
-      return SubEntity.add(patternEventMap, patternEvent);
+      requireId("before adding Event");
+      event.setProgramId(getId());
+      ensureRelations(event);
+      return SubEntity.add(patternEventMap, event);
     } catch (CoreException e) {
       add(e);
-      return patternEvent;
+      return event;
     }
   }
 
@@ -195,7 +195,7 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
     syncSubEntities(payload, sequenceBindingMap, SequenceBinding.class); // requires Sequence
     syncSubEntities(payload, sequenceBindingMemeMap, SequenceBindingMeme.class); // requires SequenceBinding
     syncSubEntities(payload, patternMap, Pattern.class); // requires Sequence, Voice
-    syncSubEntities(payload, patternEventMap, PatternEvent.class); // requires Pattern
+    syncSubEntities(payload, patternEventMap, Event.class); // requires Pattern
     return this;
   }
 
@@ -250,7 +250,7 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
   }
 
   @Override
-  public Collection<PatternEvent> getEventsForPattern(Pattern pattern) {
+  public Collection<Event> getEventsForPattern(Pattern pattern) {
     return getPatternEvents().stream()
       .filter(patternEvent -> pattern.getId().equals(patternEvent.getPatternId()))
       .collect(Collectors.toList());
@@ -279,8 +279,8 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
   }
 
   @Override
-  public Collection<Meme> getMemesAtBeginning() {
-    Map<String, Meme> memes = Maps.newHashMap();
+  public Collection<MemeEntity> getMemesAtBeginning() {
+    Map<String, MemeEntity> memes = Maps.newHashMap();
 
     // add sequence memes
     getMemes().forEach((meme ->
@@ -312,7 +312,7 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
   }
 
   @Override
-  public Collection<PatternEvent> getPatternEvents() {
+  public Collection<Event> getPatternEvents() {
     return patternEventMap.values();
   }
 
@@ -351,7 +351,7 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
       .add(Sequence.class)
       .add(SequenceChord.class)
       .add(Pattern.class)
-      .add(PatternEvent.class)
+      .add(Event.class)
       .add(SequenceBinding.class)
       .add(SequenceBindingMeme.class)
       .add(Voice.class)
@@ -457,7 +457,7 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
     setSequenceChords(content.getSequenceChords());
     setVoices(content.getVoices());
     setPatterns(content.getPatterns());
-    setPatternEvents(content.getPatternEvents());
+    setPatternEvents(content.getEvents());
     return this;
   }
 
@@ -520,10 +520,10 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
   }
 
   @Override
-  public Program setPatternEvents(Collection<PatternEvent> patternEvents) {
+  public Program setPatternEvents(Collection<Event> events) {
     patternEventMap.clear();
-    for (PatternEvent patternEvent : patternEvents) {
-      add(patternEvent);
+    for (Event event : events) {
+      add(event);
     }
     return this;
   }
@@ -659,7 +659,7 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
   public Program validateContent() throws CoreException {
     SubEntity.validate(this.getAllSubEntities());
     for (Pattern pattern : getPatterns()) ensureRelations(pattern);
-    for (PatternEvent patternEvent : getPatternEvents()) ensureRelations(patternEvent);
+    for (Event event : getPatternEvents()) ensureRelations(event);
     for (SequenceBinding sequenceBinding : getSequenceBindings()) ensureRelations(sequenceBinding);
     for (SequenceBindingMeme sequenceBindingMeme : getSequenceBindingMemes()) ensureRelations(sequenceBindingMeme);
     for (SequenceChord sequenceChord : getSequenceChords()) ensureRelations(sequenceChord);
@@ -729,16 +729,16 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
   }
 
   /**
-   Ensure that an PatternEvent relates to an existing Pattern and Voice stored in the Program
+   Ensure that an Event relates to an existing Pattern and Voice stored in the Program
 
-   @param patternEvent to ensure existing relations of
+   @param event to ensure existing relations of
    @throws CoreException if no such Pattern exists
    */
-  private void ensureRelations(PatternEvent patternEvent) throws CoreException {
-    if (Objects.isNull(patternEvent.getPatternId()))
-      throw new CoreException(String.format("PatternEvent id=%s has null patternId", patternEvent.getId()));
+  private void ensureRelations(Event event) throws CoreException {
+    if (Objects.isNull(event.getPatternId()))
+      throw new CoreException(String.format("Event id=%s has null patternId", event.getId()));
 
-    if (!patternMap.containsKey(patternEvent.getPatternId()))
-      throw new CoreException(String.format("PatternEvent id=%s has nonexistent patternId=%s", patternEvent.getId(), patternEvent.getPatternId()));
+    if (!patternMap.containsKey(event.getPatternId()))
+      throw new CoreException(String.format("Event id=%s has nonexistent patternId=%s", event.getId(), event.getPatternId()));
   }
 }

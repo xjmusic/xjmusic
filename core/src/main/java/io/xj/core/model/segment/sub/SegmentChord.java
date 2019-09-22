@@ -3,7 +3,7 @@ package io.xj.core.model.segment.sub;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Chord;
+import io.xj.core.model.entity.ChordEntity;
 import io.xj.core.model.segment.impl.SegmentSubEntity;
 import io.xj.core.util.Value;
 
@@ -13,12 +13,12 @@ import java.util.UUID;
 /**
  [#166132897] Segment model handles all of its own entities
  */
-public class SegmentChord extends SegmentSubEntity implements Chord<SegmentChord> {
+public class SegmentChord extends SegmentSubEntity implements ChordEntity<SegmentChord> {
   private String name;
   private Double position;
 
   /**
-   Get Segment Chord of a specified name
+   Get Segment ChordEntity of a specified name
 
    @param name of chord
    @return new chord
@@ -98,7 +98,7 @@ public class SegmentChord extends SegmentSubEntity implements Chord<SegmentChord
   @Override
   public SegmentChord validate() throws CoreException {
     super.validate();
-    Chord.validate(this);
+    ChordEntity.validate(this);
     return this;
   }
 

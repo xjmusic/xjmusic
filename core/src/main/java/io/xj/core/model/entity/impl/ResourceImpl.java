@@ -8,7 +8,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonNull;
 import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Resource;
+import io.xj.core.model.entity.ResourceEntity;
 import io.xj.core.model.entity.SubEntity;
 import io.xj.core.model.payload.Payload;
 import io.xj.core.model.payload.PayloadObject;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  [#167276586] JSON API facilitates complex transactions
  */
-public abstract class ResourceImpl implements Resource {
+public abstract class ResourceImpl implements ResourceEntity {
   private static final Logger log = LoggerFactory.getLogger(ResourceImpl.class);
   private Collection<CoreException> errors = com.google.common.collect.Lists.newArrayList();
 
@@ -106,7 +106,7 @@ public abstract class ResourceImpl implements Resource {
   }
 
   @Override
-  public boolean belongsTo(Resource resource) {
+  public boolean belongsTo(ResourceEntity resource) {
     try {
       Optional<Object> id = get(Text.toIdAttribute(resource));
       return id.isPresent() && id.get().equals(resource.getResourceId());
@@ -116,13 +116,13 @@ public abstract class ResourceImpl implements Resource {
   }
 
   @Override
-  public Resource consume(Payload payload) throws CoreException {
+  public ResourceEntity consume(Payload payload) throws CoreException {
     consume(extractPrimaryObject(payload, getResourceType()));
     return this;
   }
 
   @Override
-  public Resource consume(PayloadObject payloadObject) throws CoreException {
+  public ResourceEntity consume(PayloadObject payloadObject) throws CoreException {
     if (!Objects.equals(payloadObject.getType(), getResourceType()))
       throw new CoreException(String.format("Cannot set single %s-type entity from %s-type payload object!", getResourceType(), payloadObject.getType()));
 
@@ -373,7 +373,7 @@ public abstract class ResourceImpl implements Resource {
   }
 
   @Override
-  public <N extends Resource> PayloadObject toPayloadObject(Collection<N> childResources) {
+  public <N extends ResourceEntity> PayloadObject toPayloadObject(Collection<N> childResources) {
     PayloadObject obj = toPayloadReferenceObject();
     obj.setAttributes(getResourceAttributes());
 

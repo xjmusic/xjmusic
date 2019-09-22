@@ -36,7 +36,7 @@ import io.xj.core.model.program.ProgramFactory;
 import io.xj.core.model.program.ProgramState;
 import io.xj.core.model.program.ProgramType;
 import io.xj.core.model.program.sub.Pattern;
-import io.xj.core.model.program.sub.PatternEvent;
+import io.xj.core.model.program.sub.Event;
 import io.xj.core.model.program.sub.ProgramMeme;
 import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.SequenceBinding;
@@ -383,18 +383,18 @@ public class CoreTest {
   }
 
   /**
-   Create a new PatternEvent
+   Create a new Event
 
    @param pattern    to create event in
-   @param position   of PatternEvent
-   @param duration   of PatternEvent
-   @param name of PatternEvent
-   @param note       of PatternEvent
-   @param velocity   of PatternEvent
-   @return new PatternEvent
+   @param position   of Event
+   @param duration   of Event
+   @param name of Event
+   @param note       of Event
+   @param velocity   of Event
+   @return new Event
    */
-  protected static PatternEvent newPatternEvent(Pattern pattern, double position, double duration, String name, String note, double velocity) {
-    return new PatternEvent().setPatternId(pattern.getId())
+  protected static Event newPatternEvent(Pattern pattern, double position, double duration, String name, String note, double velocity) {
+    return new Event().setPatternId(pattern.getId())
       .setPosition(position).setDuration(duration).setName(name).setNote(note).setVelocity(velocity);
   }
 
@@ -447,11 +447,11 @@ public class CoreTest {
   }
 
   /**
-   New Segment Chord
+   New Segment ChordEntity
 
-   @param position of Chord
-   @param name     of Chord
-   @return new Segment Chord
+   @param position of ChordEntity
+   @param name     of ChordEntity
+   @return new Segment ChordEntity
    */
   protected static SegmentChord newSegmentChord(double position, String name) {
     return new SegmentChord()
@@ -460,10 +460,10 @@ public class CoreTest {
   }
 
   /**
-   New Segment Meme
+   New Segment MemeEntity
 
-   @param name of Meme
-   @return new Segment Meme
+   @param name of MemeEntity
+   @return new Segment MemeEntity
    */
   protected static SegmentMeme newSegmentMeme(String name) {
     return new SegmentMeme()

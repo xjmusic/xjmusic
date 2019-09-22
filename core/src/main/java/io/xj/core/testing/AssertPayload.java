@@ -2,7 +2,7 @@ package io.xj.core.testing;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import io.xj.core.model.entity.Resource;
+import io.xj.core.model.entity.ResourceEntity;
 import io.xj.core.model.payload.Payload;
 import io.xj.core.model.payload.PayloadDataType;
 import io.xj.core.model.payload.PayloadObject;
@@ -90,7 +90,7 @@ public class AssertPayload {
    @param resource to assert
    @return PayloadObject assertion utility, for further assertions on that payload object
    */
-  public <N extends Resource> AssertPayloadObject hasDataOne(N resource) {
+  public <N extends ResourceEntity> AssertPayloadObject hasDataOne(N resource) {
     assertEquals("payload data type", PayloadDataType.HasOne, payload.getDataType());
     Optional<PayloadObject> dataOne = payload.getDataOne();
     assertTrue("has one data", dataOne.isPresent());
@@ -125,7 +125,7 @@ public class AssertPayload {
    @param <N>      type of resource
    @return payload object assertion utility
    */
-  public <N extends Resource> AssertPayloadObject hasIncluded(N resource) {
+  public <N extends ResourceEntity> AssertPayloadObject hasIncluded(N resource) {
     Optional<PayloadObject> payloadObject = payload.getIncluded().stream().filter(obj -> obj.isSame(resource)).findFirst();
     assertTrue(String.format("has included %s id=%s", resource.getResourceType(), resource.getResourceId()), payloadObject.isPresent());
     return new AssertPayloadObject(payloadObject.get());
@@ -138,11 +138,11 @@ public class AssertPayload {
    @param resources    to assert
    @return this Payload assertion utility (for chaining methods)
    */
-  public <N extends Resource> AssertPayload hasIncluded(String resourceType, ImmutableList<N> resources) {
+  public <N extends ResourceEntity> AssertPayload hasIncluded(String resourceType, ImmutableList<N> resources) {
     Collection<PayloadObject> included = payload.getIncludedOfType(resourceType);
     assertEquals("same number of ids", resources.size(), included.size());
     Collection<String> foundIds = Lists.newArrayList();
-    Collection<String> resourceIds = resources.stream().map(Resource::getResourceId).collect(Collectors.toList());
+    Collection<String> resourceIds = resources.stream().map(ResourceEntity::getResourceId).collect(Collectors.toList());
     included.forEach(payloadObject -> {
       assertFalse("already found id", foundIds.contains(payloadObject.getId()));
       assertEquals(String.format("unexpected %s", payloadObject.getType()), resourceType, payloadObject.getType());

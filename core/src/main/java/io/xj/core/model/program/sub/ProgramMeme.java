@@ -3,7 +3,7 @@ package io.xj.core.model.program.sub;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Meme;
+import io.xj.core.model.entity.MemeEntity;
 import io.xj.core.model.program.impl.ProgramSubEntity;
 import io.xj.core.util.Text;
 
@@ -20,7 +20,7 @@ import java.util.UUID;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class ProgramMeme extends ProgramSubEntity implements Meme {
+public class ProgramMeme extends ProgramSubEntity implements MemeEntity {
   private String name;
 
   @Override

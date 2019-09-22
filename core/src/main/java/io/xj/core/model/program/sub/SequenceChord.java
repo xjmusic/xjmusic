@@ -3,7 +3,7 @@ package io.xj.core.model.program.sub;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Chord;
+import io.xj.core.model.entity.ChordEntity;
 import io.xj.core.model.program.impl.ProgramSubEntity;
 import io.xj.core.util.Value;
 
@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  [#166690830] Pattern model handles all of its own entities
  */
-public class SequenceChord extends ProgramSubEntity implements Chord<SequenceChord> {
+public class SequenceChord extends ProgramSubEntity implements ChordEntity<SequenceChord> {
   private UUID sequenceId;
   private String name;
   private Double position;
@@ -132,7 +132,7 @@ public class SequenceChord extends ProgramSubEntity implements Chord<SequenceCho
   @Override
   public SequenceChord validate() throws CoreException {
     super.validate();
-    Chord.validate(this);
+    ChordEntity.validate(this);
     require(sequenceId, "Sequence ID");
     return this;
   }

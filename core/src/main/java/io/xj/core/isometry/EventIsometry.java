@@ -2,8 +2,8 @@
 package io.xj.core.isometry;
 
 import com.google.common.collect.Lists;
-import io.xj.core.model.entity.Event;
-import io.xj.core.model.program.sub.PatternEvent;
+import io.xj.core.model.entity.EventEntity;
+import io.xj.core.model.program.sub.Event;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.codec.language.DoubleMetaphone;
 
@@ -22,7 +22,7 @@ public class EventIsometry extends Isometry {
    @param sourceEvents to compare from
    @return EventIsometry ready for comparison to target Events
    */
-  public static <V extends Event> EventIsometry ofEvents(Iterable<V> sourceEvents) {
+  public static <V extends EventEntity> EventIsometry ofEvents(Iterable<V> sourceEvents) {
     EventIsometry result = new EventIsometry();
     sourceEvents.forEach(event ->
       result.addPhonetic(event.getName()));
@@ -36,12 +36,12 @@ public class EventIsometry extends Isometry {
    @param stringEventMap to compare from
    @return EventIsometry ready for comparison to target Events
    */
-  public static EventIsometry ofEvents(Map<String, Event> stringEventMap) {
-    List<Event> sourceEvents = Lists.newArrayList();
+  public static EventIsometry ofEvents(Map<String, EventEntity> stringEventMap) {
+    List<EventEntity> sourceEvents = Lists.newArrayList();
 
-    // use Event as a generic event-- we could use any extender of Event
+    // use EventEntity as a generic event-- we could use any extender of EventEntity
     stringEventMap.forEach((key, record) -> sourceEvents.add(
-      new PatternEvent().setName(record.getName())
+      new Event().setName(record.getName())
     ));
 
     return ofEvents(sourceEvents);
@@ -54,7 +54,7 @@ public class EventIsometry extends Isometry {
    @param event2 to compare
    @return score
    */
-  public static double similarity(Event event1, Event event2) {
+  public static double similarity(EventEntity event1, EventEntity event2) {
     double score = 0;
     DoubleMetaphone dm = new DoubleMetaphone();
 
@@ -72,7 +72,7 @@ public class EventIsometry extends Isometry {
 
    @param source to add
    */
-  public <V extends Event> void add(V source) {
+  public <V extends EventEntity> void add(V source) {
     addPhonetic(source.getName());
   }
 }

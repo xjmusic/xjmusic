@@ -62,7 +62,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
       .where(AUDIO.INSTRUMENT_ID.eq(id))
       .fetchOne(0, int.class));
 
-    requireNotExists("Meme in Instrument", db.selectCount().from(INSTRUMENT_MEME)
+    requireNotExists("MemeEntity in Instrument", db.selectCount().from(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
       .fetchOne(0, int.class));
 

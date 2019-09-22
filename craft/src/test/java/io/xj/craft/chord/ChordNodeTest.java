@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 public class ChordNodeTest extends CoreTest {
 
   /**
-   [#158715321] Chord nodes able to parse No Chord notation
+   [#158715321] ChordEntity nodes able to parse No ChordEntity notation
    */
   @Test
   public void instantiate_NoChord_fromKey() {
@@ -26,7 +26,7 @@ public class ChordNodeTest extends CoreTest {
   }
 
   /**
-   [#158715321] Chord nodes able to parse No Chord notation
+   [#158715321] ChordEntity nodes able to parse No ChordEntity notation
    */
   @Test
   public void instantiate_NoChord_fromPrevious() {

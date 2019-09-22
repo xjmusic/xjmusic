@@ -295,14 +295,14 @@ public class ProgramImplTest extends CoreTest {
   public void getMemesAtBeginningOfProgram() throws Exception {
     Ingest ingest = ingestFactory.ingest(Access.internal(), ImmutableList.of(newChainBinding("Library", 10000001)));
 
-    Collection<Meme> results = ingest.getMemesAtBeginningOfProgram(BigInteger.valueOf(701));
+    Collection<MemeEntity> results = ingest.getMemesAtBeginningOfProgram(BigInteger.valueOf(701));
 
     assertEquals(2, results.size());
-    Iterator<Meme> resultsIterator = results.iterator();
-    Meme result0 = resultsIterator.next();
+    Iterator<MemeEntity> resultsIterator = results.iterator();
+    MemeEntity result0 = resultsIterator.next();
     assertSame(ProgramMeme.class, result0.getClass());
     assertEquals("Ants", result0.getName());
-    Meme result1 = resultsIterator.next();
+    MemeEntity result1 = resultsIterator.next();
     assertSame(ProgramBindingMeme.class, result1.getClass());
     assertEquals("Gravel", result1.getName());
   }

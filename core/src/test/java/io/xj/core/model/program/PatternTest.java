@@ -973,7 +973,7 @@ public class PatternTest {
       .setDensity(0.503)
       .setKey("D minor")
       .setTempo(120.0);
-    p3.add(new PatternEvent()
+    p3.add(new Event()
       .setVoiceId(BigInteger.valueOf(8))
       .setPosition(0.0)
       .setDuration(1.0)
@@ -981,7 +981,7 @@ public class PatternTest {
       .setNote("C")
       .setTonality(0.8)
       .setVelocity(1.0));
-    p3.add(new PatternEvent()
+    p3.add(new Event()
       .setVoiceId(BigInteger.valueOf(8))
       .setPosition(1.0)
       .setDuration(1.0)
@@ -1061,7 +1061,7 @@ public class PatternTest {
       "roles", "Artist",
       "accounts", "1"
     ));
-    PatternEvent inputData = new PatternEvent()
+    Event inputData = new Event()
       .setDuration(1.4)
       .setName("BOOM")
       .setNote("C")
@@ -1080,7 +1080,7 @@ public class PatternTest {
       "roles", "Artist",
       "accounts", "1"
     ));
-    PatternEvent inputData = new PatternEvent()
+    Event inputData = new Event()
       .setDuration(1.0)
       .setName("BOOM")
       .setNote("C")
@@ -1097,7 +1097,7 @@ public class PatternTest {
       "roles", "Artist",
       "accounts", "1"
     ));
-    PatternEvent inputData = new PatternEvent()
+    Event inputData = new Event()
       .setDuration(1.0)
       .setName("BOOM")
       .setPosition(0.0)
@@ -1115,7 +1115,7 @@ public class PatternTest {
       "accounts", "1"
     ));
 
-    PatternEvent result = testDAO.readOne(access, BigInteger.valueOf(1001001L));
+    Event result = testDAO.readOne(access, BigInteger.valueOf(1001001L));
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(1L), result.getPatternId());
@@ -1147,10 +1147,10 @@ public class PatternTest {
       "accounts", "1"
     ));
 
-    Collection<PatternEvent> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
+    Collection<Event> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertEquals(4L, result.size());
-    Iterator<PatternEvent> resultIt = result.iterator();
+    Iterator<Event> resultIt = result.iterator();
     assertEquals("BOOM", resultIt.next().getName());
     assertEquals("SMACK", resultIt.next().getName());
     assertEquals("BOOM", resultIt.next().getName());
@@ -1164,7 +1164,7 @@ public class PatternTest {
       "accounts", "345"
     ));
 
-    Collection<PatternEvent> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
+    Collection<Event> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertEquals(0L, result.size());
   }
@@ -1175,7 +1175,7 @@ public class PatternTest {
       "roles", "Artist",
       "accounts", "1"
     ));
-    PatternEvent inputData = new PatternEvent()
+    Event inputData = new Event()
       .setDuration(1.0)
       .setName("BOOM")
       .setNote("C")
@@ -1193,7 +1193,7 @@ public class PatternTest {
       "roles", "Artist",
       "accounts", "1"
     ));
-    PatternEvent inputData = new PatternEvent()
+    Event inputData = new Event()
       .setDuration(1.0)
       .setName("BOOM")
       .setNote("C")
@@ -1211,7 +1211,7 @@ public class PatternTest {
       "roles", "Artist",
       "accounts", "1"
     ));
-    PatternEvent inputData = new PatternEvent()
+    Event inputData = new Event()
       .setDuration(1.0)
       .setName("BOOM")
       .setPosition(0.0)
@@ -1228,7 +1228,7 @@ public class PatternTest {
       "roles", "Artist",
       "accounts", "1"
     ));
-    PatternEvent inputData = new PatternEvent()
+    Event inputData = new Event()
       .setDuration(1.0)
       .setName("SMACK")
       .setNote("C")
@@ -1242,7 +1242,7 @@ public class PatternTest {
       testDAO.update(access, BigInteger.valueOf(1001002L), inputData);
 
     } catch (Exception e) {
-      PatternEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001002L));
+      Event result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001002L));
       assertNotNull(result);
       assertEquals("BOOM", result.getName());
       assertEquals(BigInteger.valueOf(1L), result.getVoiceId());
@@ -1256,7 +1256,7 @@ public class PatternTest {
       "roles", "Artist",
       "accounts", "1"
     ));
-    PatternEvent inputData = new PatternEvent()
+    Event inputData = new Event()
       .setDuration(1.0)
       .setName("SMACK")
       .setNote("C")
@@ -1270,7 +1270,7 @@ public class PatternTest {
       testDAO.update(access, BigInteger.valueOf(1001002L), inputData);
 
     } catch (Exception e) {
-      PatternEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001002L));
+      Event result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001002L));
       assertNotNull(result);
       assertEquals("BOOM", result.getName());
       assertEquals(BigInteger.valueOf(1L), result.getPatternId());
@@ -1284,7 +1284,7 @@ public class PatternTest {
       "roles", "Artist",
       "accounts", "1"
     ));
-    PatternEvent inputData = new PatternEvent()
+    Event inputData = new Event()
       .setDuration(1.2)
       .setName("POPPYCOCK")
       .setNote("C")
@@ -1296,7 +1296,7 @@ public class PatternTest {
 
     testDAO.update(access, BigInteger.valueOf(1001000L), inputData);
 
-    PatternEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001000L));
+    Event result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001000L));
     assertNotNull(result);
     assertEquals("POPPYCOCK", result.getName());
     assertEquals((Double) 1.2, result.getDuration());

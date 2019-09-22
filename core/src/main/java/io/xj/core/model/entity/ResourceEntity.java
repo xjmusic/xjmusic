@@ -17,7 +17,7 @@ import java.util.Optional;
 /**
  [#167276586] JSON API facilitates complex transactions
  */
-public interface Resource {
+public interface ResourceEntity {
 
   /**
    Add an exception to the SuperEntity errors
@@ -32,7 +32,7 @@ public interface Resource {
    @param resource to test whether this belongs to
    @return true if this belongs to the specified resource
    */
-  boolean belongsTo(Resource resource);
+  boolean belongsTo(ResourceEntity resource);
 
   /**
    Consume all data from a payload:
@@ -41,10 +41,10 @@ public interface Resource {
    + Re-index relationships and prune orphaned entities
 
    @param payload to consume
-   @return this Resource (for chaining methods)
+   @return this ResourceEntity (for chaining methods)
    @throws CoreException on failure to consume payload
    */
-  <N extends Resource> N consume(Payload payload) throws CoreException;
+  <N extends ResourceEntity> N consume(Payload payload) throws CoreException;
 
   /**
    Set all attributes of entity from a payload object
@@ -62,10 +62,10 @@ public interface Resource {
    |
 
    @param payloadObject from which to get attributes
-   @return this Resource (for chaining methods)
+   @return this ResourceEntity (for chaining methods)
    @throws CoreException on failure to set
    */
-  <N extends Resource> N consume(PayloadObject payloadObject) throws CoreException;
+  <N extends ResourceEntity> N consume(PayloadObject payloadObject) throws CoreException;
 
   /**
    Get a value from a target object via attribute name
@@ -132,20 +132,20 @@ public interface Resource {
   ImmutableList<Class> getResourceHasMany();
 
   /**
-   get Resource ID
+   get ResourceEntity ID
    <p>
    For SuperEntity, that's a BigInteger
    <p>
    For SubEntity, that's a UUID
 
-   @return Resource Id
+   @return ResourceEntity Id
    */
   String getResourceId();
 
   /**
-   get Resource Type- always a plural noun, i.e. Users or Libraries
+   get ResourceEntity Type- always a plural noun, i.e. Users or Libraries
 
-   @return Resource Type
+   @return ResourceEntity Type
    */
   String getResourceType();
 
@@ -180,7 +180,7 @@ public interface Resource {
   PayloadObject toPayloadObject();
 
   /**
-   Build and return a Resource Object of this entity, probably for an API Payload
+   Build and return a ResourceEntity Object of this entity, probably for an API Payload
    <p>
    There's a default implementation in EntityImpl, which uses the attribute names to compute getter method names,
    and maps all attribute names to value objects. Simple entities need not override this method.
@@ -199,10 +199,10 @@ public interface Resource {
    @param childResources to search for possible children-- only add matched resources
    @return resource object
    */
-  <N extends Resource> PayloadObject toPayloadObject(Collection<N> childResources);
+  <N extends ResourceEntity> PayloadObject toPayloadObject(Collection<N> childResources);
 
   /**
-   Build and return a reference (type and id only) Resource Object of this entity, probably for an API Payload
+   Build and return a reference (type and id only) ResourceEntity Object of this entity, probably for an API Payload
    <p>
    There's a default implementation in EntityImpl, which uses the resource type and id
 
@@ -213,8 +213,8 @@ public interface Resource {
   /**
    Validate data.
 
-   @return this Resource (for chaining methods)
+   @return this ResourceEntity (for chaining methods)
    @throws CoreException if invalid.
    */
-  <N extends Resource> N validate() throws CoreException;
+  <N extends ResourceEntity> N validate() throws CoreException;
 }

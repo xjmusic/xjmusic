@@ -8,7 +8,7 @@ import io.xj.core.isometry.MemeIsometry;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainConfigType;
 import io.xj.core.model.chain.sub.ChainConfig;
-import io.xj.core.model.entity.Meme;
+import io.xj.core.model.entity.MemeEntity;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.sub.Audio;
 import io.xj.core.model.instrument.sub.AudioEvent;
@@ -160,11 +160,11 @@ public interface Fabricator {
   BigInteger getChainId();
 
   /**
-   Get current Chord for any position in Segment.
+   Get current ChordEntity for any position in Segment.
    Defaults to returning a chord based on the segment key, if nothing else is found
 
    @param position in segment
-   @return Chord
+   @return ChordEntity
    */
   Chord getChordAt(int position) throws CoreException;
 
@@ -292,7 +292,7 @@ public interface Fabricator {
    @return memes for choice
    @throws CoreException on failure
    */
-  Collection<Meme> getMemesOfChoice(Choice choice) throws CoreException;
+  Collection<MemeEntity> getMemesOfChoice(Choice choice) throws CoreException;
 
   /**
    Given a Choice having a SequenceBinding,

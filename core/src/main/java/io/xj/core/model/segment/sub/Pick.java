@@ -4,7 +4,7 @@ package io.xj.core.model.segment.sub;
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.instrument.sub.Audio;
-import io.xj.core.model.program.sub.PatternEvent;
+import io.xj.core.model.program.sub.Event;
 import io.xj.core.model.segment.impl.SegmentSubEntity;
 
 import java.math.BigInteger;
@@ -111,7 +111,7 @@ public class Pick extends SegmentSubEntity {
       .addAll(super.getResourceBelongsTo())
       .add(Arrangement.class)
       .add(Audio.class)
-      .add(PatternEvent.class)
+      .add(Event.class)
       .build();
   }
 
@@ -253,7 +253,7 @@ public class Pick extends SegmentSubEntity {
 
     require(arrangementId, "Arrangement ID");
 
-    require(patternEventId, "Pattern Event ID");
+    require(patternEventId, "Pattern EventEntity ID");
 
     require(audioId, "Audio ID");
 
