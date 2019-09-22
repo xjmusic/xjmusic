@@ -23,7 +23,7 @@ public class PickTest {
   public void validate() throws Exception {
     new Pick()
       .setArrangementId(UUID.randomUUID())
-      .setPatternEventId(UUID.randomUUID())
+      .setEventId(UUID.randomUUID())
       .setAudioId(UUID.randomUUID())
       .setVoiceId(UUID.randomUUID())
       .setName("CLANG")
@@ -41,7 +41,7 @@ public class PickTest {
     failure.expectMessage("Arrangement ID is required");
 
     new Pick()
-      .setPatternEventId(UUID.randomUUID())
+      .setEventId(UUID.randomUUID())
       .setAudioId(UUID.randomUUID())
       .setVoiceId(UUID.randomUUID())
       .setName("CLANG")
@@ -78,7 +78,7 @@ public class PickTest {
 
     new Pick()
       .setArrangementId(UUID.randomUUID())
-      .setPatternEventId(UUID.randomUUID())
+      .setEventId(UUID.randomUUID())
       .setVoiceId(UUID.randomUUID())
       .setName("CLANG")
       .setStart(0.92)
@@ -96,7 +96,7 @@ public class PickTest {
 
     new Pick()
       .setArrangementId(UUID.randomUUID())
-      .setPatternEventId(UUID.randomUUID())
+      .setEventId(UUID.randomUUID())
       .setAudioId(UUID.randomUUID())
       .setName("CLANG")
       .setStart(0.92)
@@ -114,7 +114,7 @@ public class PickTest {
 
     new Pick()
       .setArrangementId(UUID.randomUUID())
-      .setPatternEventId(UUID.randomUUID())
+      .setEventId(UUID.randomUUID())
       .setAudioId(UUID.randomUUID())
       .setVoiceId(UUID.randomUUID())
       .setName("CLANG")
@@ -132,7 +132,7 @@ public class PickTest {
 
     new Pick()
       .setArrangementId(UUID.randomUUID())
-      .setPatternEventId(UUID.randomUUID())
+      .setEventId(UUID.randomUUID())
       .setAudioId(UUID.randomUUID())
       .setVoiceId(UUID.randomUUID())
       .setName("CLANG")
@@ -150,7 +150,7 @@ public class PickTest {
 
     new Pick()
       .setArrangementId(UUID.randomUUID())
-      .setPatternEventId(UUID.randomUUID())
+      .setEventId(UUID.randomUUID())
       .setAudioId(UUID.randomUUID())
       .setVoiceId(UUID.randomUUID())
       .setName("CLANG")
@@ -168,7 +168,7 @@ public class PickTest {
 
     new Pick()
       .setArrangementId(UUID.randomUUID())
-      .setPatternEventId(UUID.randomUUID())
+      .setEventId(UUID.randomUUID())
       .setAudioId(UUID.randomUUID())
       .setVoiceId(UUID.randomUUID())
       .setName("CLANG")
@@ -183,7 +183,7 @@ public class PickTest {
   public void validate_exceptionOnLengthBelowMinimum() throws Exception {
     Pick pick = new Pick()
       .setArrangementId(UUID.randomUUID())
-      .setPatternEventId(UUID.randomUUID())
+      .setEventId(UUID.randomUUID())
       .setAudioId(UUID.randomUUID())
       .setVoiceId(UUID.randomUUID())
       .setName("CLANG")
@@ -203,7 +203,7 @@ public class PickTest {
   public void validate_exceptionOnAmplitudeBelowMinimum() throws Exception {
     Pick pick = new Pick()
       .setArrangementId(UUID.randomUUID())
-      .setPatternEventId(UUID.randomUUID())
+      .setEventId(UUID.randomUUID())
       .setAudioId(UUID.randomUUID())
       .setVoiceId(UUID.randomUUID())
       .setName("CLANG")
@@ -223,7 +223,7 @@ public class PickTest {
   public void validate_exceptionOnPitchBelowMinimum() throws Exception {
     Pick pick = new Pick()
       .setArrangementId(UUID.randomUUID())
-      .setPatternEventId(UUID.randomUUID())
+      .setEventId(UUID.randomUUID())
       .setAudioId(UUID.randomUUID())
       .setVoiceId(UUID.randomUUID())
       .setName("CLANG")

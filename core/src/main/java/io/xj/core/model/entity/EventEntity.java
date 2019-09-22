@@ -16,9 +16,6 @@ public interface EventEntity extends SubEntity {
     if (null == event.getDuration())
       throw new CoreException("Duration is required.");
 
-    if (null == event.getName() || event.getName().isEmpty())
-      throw new CoreException("Name is required.");
-
     if (null == event.getNote() || event.getNote().isEmpty())
       throw new CoreException("Note is required.");
 
@@ -35,13 +32,6 @@ public interface EventEntity extends SubEntity {
    @return Duration
    */
   Double getDuration();
-
-  /**
-   get Name
-
-   @return Name
-   */
-  String getName();
 
   /**
    get Note
@@ -71,14 +61,6 @@ public interface EventEntity extends SubEntity {
    @return this EventEntity (for chaining methods)
    */
   EventEntity setDuration(Double duration);
-
-  /**
-   set Name of EventEntity
-
-   @param name to set
-   @return this EventEntity (for chaining methods)
-   */
-  EventEntity setName(String name);
 
   /**
    set Note of EventEntity

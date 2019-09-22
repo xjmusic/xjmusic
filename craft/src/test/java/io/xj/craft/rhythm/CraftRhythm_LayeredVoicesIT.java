@@ -20,6 +20,7 @@ import io.xj.core.model.program.ProgramState;
 import io.xj.core.model.program.ProgramType;
 import io.xj.core.model.program.sub.Pattern;
 import io.xj.core.model.program.sub.Sequence;
+import io.xj.core.model.program.sub.Track;
 import io.xj.core.model.program.sub.Voice;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentFactory;
@@ -41,7 +42,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
-
  [#166481918] Rhythm fabrication composited from layered Patterns
  */
 public class CraftRhythm_LayeredVoicesIT extends FixtureIT {
@@ -92,16 +92,19 @@ public class CraftRhythm_LayeredVoicesIT extends FixtureIT {
     Sequence sequence35a = program35.add(newSequence(16, "Base", 0.5, "C", 110.3));
     //
     Pattern pattern35a1 = program35.add(newPattern(sequence35a, locomotion, PatternType.Loop, 1, "Hi-hat"));
-    program35.add(newPatternEvent(pattern35a1, 0.0, 1.0, "HIHAT", "C2", 1.0));
-    program35.add(newPatternEvent(pattern35a1, 0.25, 1.0, "HIHAT", "G5", 0.4));
-    program35.add(newPatternEvent(pattern35a1, 0.5, 1.0, "HIHAT", "C2", 0.6));
-    program35.add(newPatternEvent(pattern35a1, 0.75, 1.0, "HIHAT", "C2", 0.3));
+    Track trackHihat = program35.add(newTrack(locomotion, "HIHAT"));
+    program35.add(newEvent(pattern35a1, trackHihat, 0.0, 1.0, "C2", 1.0));
+    program35.add(newEvent(pattern35a1, trackHihat, 0.25, 1.0, "G5", 0.4));
+    program35.add(newEvent(pattern35a1, trackHihat, 0.5, 1.0, "C2", 0.6));
+    program35.add(newEvent(pattern35a1, trackHihat, 0.75, 1.0, "C2", 0.3));
     //
     Pattern pattern35a2 = program35.add(newPattern(sequence35a, kickSnare, PatternType.Loop, 4, "Kick/Snare"));
-    program35.add(newPatternEvent(pattern35a2, 0.0, 1.0, "KICK", "B5", 0.9));
-    program35.add(newPatternEvent(pattern35a2, 1.0, 1.0, "SNARE", "D2", 1.0));
-    program35.add(newPatternEvent(pattern35a2, 2.5, 1.0, "KICK", "E4", 0.7));
-    program35.add(newPatternEvent(pattern35a2, 3.0, 1.0, "SNARE", "c3", 0.5));
+    Track trackKick = program35.add(newTrack(kickSnare, "KICK"));
+    Track trackSnare = program35.add(newTrack(kickSnare, "SNARE"));
+    program35.add(newEvent(pattern35a2, trackKick, 0.0, 1.0, "B5", 0.9));
+    program35.add(newEvent(pattern35a2, trackSnare, 1.0, 1.0, "D2", 1.0));
+    program35.add(newEvent(pattern35a2, trackKick, 2.5, 1.0, "E4", 0.7));
+    program35.add(newEvent(pattern35a2, trackSnare, 3.0, 1.0, "c3", 0.5));
     //
     insert(program35);
 

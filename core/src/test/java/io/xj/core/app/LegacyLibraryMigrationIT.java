@@ -103,7 +103,7 @@ public class LegacyLibraryMigrationIT extends CoreIT {
     assertEquals(BigInteger.valueOf(3), program4.getUserId());
     assertEquals(1, program4.getMemes().size());
     assertEquals(0, program4.getPatterns().size());
-    assertEquals(0, program4.getPatternEvents().size());
+    assertEquals(0, program4.getEvents().size());
     assertEquals(3, program4.getSequences().size());
     assertEquals(4, program4.getSequenceBindingMemes().size());
     assertEquals(3, program4.getSequenceBindings().size());
@@ -114,7 +114,7 @@ public class LegacyLibraryMigrationIT extends CoreIT {
     assertEquals(BigInteger.valueOf(3), program5.getUserId());
     assertEquals(1, program5.getMemes().size());
     assertEquals(0, program5.getPatterns().size());
-    assertEquals(0, program5.getPatternEvents().size());
+    assertEquals(0, program5.getEvents().size());
     assertEquals(2, program5.getSequences().size());
     assertEquals(2, program5.getSequenceBindingMemes().size());
     assertEquals(2, program5.getSequenceBindings().size());
@@ -125,7 +125,7 @@ public class LegacyLibraryMigrationIT extends CoreIT {
     assertEquals(BigInteger.valueOf(3), program6.getUserId());
     assertEquals(0, program6.getMemes().size());
     assertEquals(0, program6.getPatterns().size());
-    assertEquals(0, program6.getPatternEvents().size());
+    assertEquals(0, program6.getEvents().size());
     assertEquals(1, program6.getSequences().size());
     assertEquals(0, program6.getSequenceBindingMemes().size());
     assertEquals(1, program6.getSequenceBindings().size());
@@ -136,7 +136,7 @@ public class LegacyLibraryMigrationIT extends CoreIT {
     assertEquals(BigInteger.valueOf(3), program7.getUserId());
     assertEquals(0, program7.getMemes().size());
     assertEquals(0, program7.getPatterns().size());
-    assertEquals(0, program7.getPatternEvents().size());
+    assertEquals(0, program7.getEvents().size());
     assertEquals(0, program7.getSequences().size());
     assertEquals(0, program7.getSequenceBindingMemes().size());
     assertEquals(0, program7.getSequenceBindings().size());
@@ -147,7 +147,7 @@ public class LegacyLibraryMigrationIT extends CoreIT {
     assertEquals(BigInteger.valueOf(3), program35.getUserId());
     assertEquals(1, program35.getMemes().size());
     assertEquals(2, program35.getPatterns().size());
-    assertEquals(8, program35.getPatternEvents().size());
+    assertEquals(8, program35.getEvents().size());
     assertEquals(1, program35.getSequences().size());
     assertEquals(0, program35.getSequenceBindingMemes().size());
     assertEquals(1, program35.getSequenceBindings().size());

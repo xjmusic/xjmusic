@@ -2,6 +2,7 @@
 
 package io.xj.core;
 
+import com.google.common.collect.Maps;
 import io.xj.core.model.account.Account;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
@@ -18,6 +19,7 @@ import io.xj.core.model.program.ProgramType;
 import io.xj.core.model.program.sub.Pattern;
 import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.SequenceBinding;
+import io.xj.core.model.program.sub.Track;
 import io.xj.core.model.program.sub.Voice;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
@@ -28,6 +30,7 @@ import io.xj.core.util.Text;
 
 import java.math.BigInteger;
 import java.time.Instant;
+import java.util.Map;
 
 /**
  [#165954673] Integration tests use shared scenario fixtures as much as possible
@@ -161,10 +164,12 @@ public class FixtureIT extends CoreIT {
     voiceDrums = program702.add(newVoice(InstrumentType.Percussive, "Drums"));
     Sequence sequence702a = program702.add(newSequence(16, "Base", 0.5, "C", 110.3));
     Pattern pattern901 = program702.add(newPattern(sequence702a, voiceDrums, PatternType.Loop, 16, "growth"));
-    program702.add(newPatternEvent(pattern901, 0.0, 1.0, "BOOM", "C", 1.0));
-    program702.add(newPatternEvent(pattern901, 1.0, 1.0, "SMACK", "G", 0.8));
-    program702.add(newPatternEvent(pattern901, 2.5, 1.0, "BOOM", "C", 0.6));
-    program702.add(newPatternEvent(pattern901, 3.0, 1.0, "SMACK", "G", 0.9));
+    Track trackBoom = program702.add(newTrack(voiceDrums, "BOOM"));
+    Track trackSmack = program702.add(newTrack(voiceDrums, "BOOM"));
+    program702.add(newEvent(pattern901, trackBoom, 0.0, 1.0, "C", 1.0));
+    program702.add(newEvent(pattern901, trackSmack, 1.0, 1.0, "G", 0.8));
+    program702.add(newEvent(pattern901, trackBoom, 2.5, 1.0, "C", 0.6));
+    program702.add(newEvent(pattern901, trackSmack, 3.0, 1.0, "G", 0.9));
     insert(program702);
 
     // Program 703
@@ -184,10 +189,12 @@ public class FixtureIT extends CoreIT {
     Voice voiceGarbage = program751.add(newVoice(InstrumentType.Percussive, "Garbage"));
     Sequence sequence751a = program751.add(newSequence(16, "Base", 0.5, "C", 110.3));
     Pattern pattern951 = program751.add(newPattern(sequence751a, voiceGarbage, PatternType.Loop, 16, "Garbage"));
-    program751.add(newPatternEvent(pattern951, 0.0, 1.0, "GR", "C", 1.0));
-    program751.add(newPatternEvent(pattern951, 1.0, 1.0, "BAG", "G", 0.8));
-    program751.add(newPatternEvent(pattern951, 2.5, 1.0, "GR", "C", 0.6));
-    program751.add(newPatternEvent(pattern951, 3.0, 1.0, "BAG", "G", 0.9));
+    Track trackGr = program751.add(newTrack(voiceGarbage, "GR"));
+    Track trackBag = program751.add(newTrack(voiceGarbage, "BAG"));
+    program751.add(newEvent(pattern951, trackGr, 0.0, 1.0, "C", 1.0));
+    program751.add(newEvent(pattern951, trackBag, 1.0, 1.0, "G", 0.8));
+    program751.add(newEvent(pattern951, trackGr, 2.5, 1.0, "C", 0.6));
+    program751.add(newEvent(pattern951, trackBag, 3.0, 1.0, "G", 0.9));
     insert(program751);
   }
 
@@ -255,16 +262,16 @@ public class FixtureIT extends CoreIT {
     Sequence sequence35a = program35.add(newSequence(16, "Base", 0.5, "C", 110.3));
     //
     Pattern pattern35a1 = program35.add(newPattern(sequence35a, voiceDrums, PatternType.Loop, 4, "Drop"));
-    program35.add(newPatternEvent(pattern35a1, 0.0, 1.0, "CLOCK", "C2", 1.0));
-    program35.add(newPatternEvent(pattern35a1, 1.0, 1.0, "SNORT", "G5", 0.8));
-    program35.add(newPatternEvent(pattern35a1, 2.5, 1.0, "KICK", "C2", 0.6));
-    program35.add(newPatternEvent(pattern35a1, 3.0, 1.0, "SNARL", "G5", 0.9));
+    program35.add(newEvent(pattern35a1, program35.add(newTrack(voiceDrums, "CLOCK")), 0.0, 1.0, "C2", 1.0));
+    program35.add(newEvent(pattern35a1, program35.add(newTrack(voiceDrums, "SNORT")), 1.0, 1.0, "G5", 0.8));
+    program35.add(newEvent(pattern35a1, program35.add(newTrack(voiceDrums, "KICK")), 2.5, 1.0, "C2", 0.6));
+    program35.add(newEvent(pattern35a1, program35.add(newTrack(voiceDrums, "SNARL")), 3.0, 1.0, "G5", 0.9));
     //
     Pattern pattern35a2 = program35.add(newPattern(sequence35a, voiceDrums, PatternType.Loop, 4, "Drop Alt"));
-    program35.add(newPatternEvent(pattern35a2, 0.0, 1.0, "CLACK", "B5", 0.9));
-    program35.add(newPatternEvent(pattern35a2, 1.0, 1.0, "SNARL", "D2", 1.0));
-    program35.add(newPatternEvent(pattern35a2, 2.5, 1.0, "CLICK", "E4", 0.7));
-    program35.add(newPatternEvent(pattern35a2, 3.0, 1.0, "SNAP", "c3", 0.5));
+    program35.add(newEvent(pattern35a2, program35.add(newTrack(voiceDrums, "CLACK")), 0.0, 1.0, "B5", 0.9));
+    program35.add(newEvent(pattern35a2, program35.add(newTrack(voiceDrums, "SNARn")), 1.0, 1.0, "D2", 1.0));
+    program35.add(newEvent(pattern35a2, program35.add(newTrack(voiceDrums, "CLICK")), 2.5, 1.0, "E4", 0.7));
+    program35.add(newEvent(pattern35a2, program35.add(newTrack(voiceDrums, "SNAP")), 3.0, 1.0, "c3", 0.5));
     //
     insert(program35);
 
@@ -335,28 +342,28 @@ public class FixtureIT extends CoreIT {
     Sequence sequence9a = program9.add(newSequence(16, "Base", 0.5, "C", 110.3));
     //
     Pattern pattern9a1 = program9.add(newPattern(sequence9a, voiceDrums, PatternType.Intro, 4, "Intro"));
-    program9.add(newPatternEvent(pattern9a1, 0, 1, "BLEEP", "C2", 1.0));
-    program9.add(newPatternEvent(pattern9a1, 1, 1, "BLEIP", "G5", 0.8));
-    program9.add(newPatternEvent(pattern9a1, 2.5, 1, "BLEAP", "C2", 0.6));
-    program9.add(newPatternEvent(pattern9a1, 3, 1, "BLEEEP", "G5", 0.9));
+    program9.add(newEvent(pattern9a1, program9.add(newTrack(voiceDrums, "BLEEP")), 0, 1, "C2", 1.0));
+    program9.add(newEvent(pattern9a1, program9.add(newTrack(voiceDrums, "BLEIP")), 1, 1, "G5", 0.8));
+    program9.add(newEvent(pattern9a1, program9.add(newTrack(voiceDrums, "BLEAP")), 2.5, 1, "C2", 0.6));
+    program9.add(newEvent(pattern9a1, program9.add(newTrack(voiceDrums, "BLEEEP")), 3, 1, "G5", 0.9));
     //
     Pattern pattern9a2 = program9.add(newPattern(sequence9a, voiceDrums, PatternType.Loop, 4, "Loop A"));
-    program9.add(newPatternEvent(pattern9a2, 0, 1, "CLOCK", "C2", 1.0));
-    program9.add(newPatternEvent(pattern9a2, 1, 1, "SNORT", "G5", 0.8));
-    program9.add(newPatternEvent(pattern9a2, 2.5, 1, "KICK", "C2", 0.6));
-    program9.add(newPatternEvent(pattern9a2, 3, 1, "SNARL", "G5", 0.9));
+    program9.add(newEvent(pattern9a2, program9.add(newTrack(voiceDrums, "CLOCK")), 0, 1, "C2", 1.0));
+    program9.add(newEvent(pattern9a2, program9.add(newTrack(voiceDrums, "SNORT")), 1, 1, "G5", 0.8));
+    program9.add(newEvent(pattern9a2, program9.add(newTrack(voiceDrums, "KICK")), 2.5, 1, "C2", 0.6));
+    program9.add(newEvent(pattern9a2, program9.add(newTrack(voiceDrums, "SNARL")), 3, 1, "G5", 0.9));
     //
     Pattern pattern9a3 = program9.add(newPattern(sequence9a, voiceDrums, PatternType.Loop, 4, "Loop B"));
-    program9.add(newPatternEvent(pattern9a3, 0, 1, "KIICK", "B5", 0.9));
-    program9.add(newPatternEvent(pattern9a3, 1, 1, "SNARR", "D2", 1.0));
-    program9.add(newPatternEvent(pattern9a3, 2.5, 1, "KEICK", "E4", 0.7));
-    program9.add(newPatternEvent(pattern9a3, 3, 1, "SNAER", "C3", 0.5));
+    program9.add(newEvent(pattern9a3, program9.add(newTrack(voiceDrums, "KIICK")), 0, 1, "B5", 0.9));
+    program9.add(newEvent(pattern9a3, program9.add(newTrack(voiceDrums, "SNARR")), 1, 1, "D2", 1.0));
+    program9.add(newEvent(pattern9a3, program9.add(newTrack(voiceDrums, "KEICK")), 2.5, 1, "E4", 0.7));
+    program9.add(newEvent(pattern9a3, program9.add(newTrack(voiceDrums, "SNAER")), 3, 1, "C3", 0.5));
     //
     Pattern pattern9a4 = program9.add(newPattern(sequence9a, voiceDrums, PatternType.Outro, 4, "Outro"));
-    program9.add(newPatternEvent(pattern9a4, 0, 1, "TOOT", "C2", 1.0));
-    program9.add(newPatternEvent(pattern9a4, 1, 1, "TOOOT", "G5", 0.8));
-    program9.add(newPatternEvent(pattern9a4, 2.5, 1, "TOOTE", "C2", 0.6));
-    program9.add(newPatternEvent(pattern9a4, 3, 1, "TOUT", "G5", 0.9));
+    program9.add(newEvent(pattern9a4, program9.add(newTrack(voiceDrums, "TOOT")), 0, 1, "C2", 1.0));
+    program9.add(newEvent(pattern9a4, program9.add(newTrack(voiceDrums, "TOOOT")), 1, 1, "G5", 0.8));
+    program9.add(newEvent(pattern9a4, program9.add(newTrack(voiceDrums, "TOOTE")), 2.5, 1, "C2", 0.6));
+    program9.add(newEvent(pattern9a4, program9.add(newTrack(voiceDrums, "TOUT")), 3, 1, "G5", 0.9));
     //
     insert(program9);
 
@@ -422,7 +429,7 @@ public class FixtureIT extends CoreIT {
     SequenceBinding binding1_0 = program1.add(newSequenceBinding(sequence1, 0));
     Voice voice1x = program1.add(newVoice(InstrumentType.Percussive, "This is a percussive newVoice"));
     Pattern pattern1a = program1.add(newPattern(sequence1, voice1x, PatternType.Loop, 16, "Ants"));
-    program1.add(newPatternEvent(pattern1a, 0.0, 1.0, "KICK", "C", 1.0));
+    program1.add(newEvent(pattern1a, program1.add(newTrack(voice1x, "KICK")), 0.0, 1.0, "C", 1.0));
     insert(program1);
 
     // Library has Instrument with Audio
@@ -552,6 +559,7 @@ public class FixtureIT extends CoreIT {
 
     // Generate N total Rhythm-type Sequences, each having N voices, and N*2 patterns comprised of N*8 events
     Voice[] voices = new Voice[N];
+    Map<String, Track> trackMap = Maps.newHashMap();
     for (int i = 0; i < N; i++) {
       long programId = getNextUniqueId();
       String majorMemeName = majorMemeNames[i];
@@ -560,6 +568,7 @@ public class FixtureIT extends CoreIT {
       double density = random(0.4, 0.9);
       //
       Program program = newProgram(programId, 1, 1, ProgramType.Rhythm, ProgramState.Published, String.format("%s Beat", majorMemeName), key, tempo, now());
+      trackMap.clear();
       program.add(newProgramMeme(majorMemeName));
       // voices of program
       for (int iV = 0; iV < N; iV++) {
@@ -577,7 +586,10 @@ public class FixtureIT extends CoreIT {
         for (int iPE = 0; iPE < N << 2; iPE++) {
           // always use first chord, then use more chords with more density
           if (0 == iPE || StrictMath.random() < density) {
-            program.add(newPatternEvent(pattern, StrictMath.floor(total * iPE / N << 2), random(0.25, 1.0), percussiveNames[num], "X", random(0.4, 0.9)));
+            String name = percussiveNames[num];
+            if (!trackMap.containsKey(name))
+              trackMap.put(name, program.add(newTrack(voices[num], name)));
+            program.add(newEvent(pattern, trackMap.get(name), StrictMath.floor(total * iPE / N << 2), random(0.25, 1.0), "X", random(0.4, 0.9)));
           }
         }
       }

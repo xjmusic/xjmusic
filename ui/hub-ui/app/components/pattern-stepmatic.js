@@ -253,7 +253,7 @@ const PatternStepmaticComponent = Component.extend(
     initPattern() {
       let self = this;
       let pattern = get(self, 'pattern');
-      get(self, 'store').query('pattern-event', {patternId: pattern.get('id')})
+      get(self, 'store').query('event.js', {patternId: pattern.get('id')})
         .catch((error) => {
           get(self, 'display').error(error);
         })
@@ -651,7 +651,7 @@ const PatternStepmaticComponent = Component.extend(
      */
     newEvent(voice, name, velocity) {
       let pattern = this.pattern;
-      return this.store.createRecord('pattern-event', {
+      return this.store.createRecord('event.js', {
         pattern: pattern,
         voice: voice,
         velocity: velocity,

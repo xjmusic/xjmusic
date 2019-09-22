@@ -18,6 +18,7 @@ let ProgramDeserializer = new JSONAPIDeserializer({
   "sequence-binding-memes": DeserializedRelationship,
   "voices": DeserializedRelationship,
   "patterns": DeserializedRelationship,
+  "tracks": DeserializedRelationship,
   "pattern-events": DeserializedRelationship,
 });
 

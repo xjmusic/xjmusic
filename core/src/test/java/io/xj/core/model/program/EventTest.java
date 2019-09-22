@@ -24,9 +24,9 @@ public class EventTest {
     new Event()
       .setProgramId(BigInteger.valueOf(5))
       .setPatternId(UUID.randomUUID())
+      .setTrackId(UUID.randomUUID())
       .setPosition(0.75)
       .setDuration(3.45)
-      .setName("SMACK")
       .setNote("D6")
       .setVelocity(0.9)
       .validate();
@@ -40,8 +40,8 @@ public class EventTest {
     new Event()
       .setProgramId(BigInteger.valueOf(5))
       .setPatternId(UUID.randomUUID())
+      .setTrackId(UUID.randomUUID())
       .setPosition(0.75)
-      .setName("SMACK")
       .setNote("D6")
       .setVelocity(0.9)
       .validate();
@@ -54,9 +54,24 @@ public class EventTest {
 
     new Event()
       .setProgramId(BigInteger.valueOf(5))
+      .setTrackId(UUID.randomUUID())
       .setPosition(0.75)
       .setDuration(3.45)
-      .setName("SMACK")
+      .setNote("D6")
+      .setVelocity(0.9)
+      .validate();
+  }
+
+  @Test
+  public void validate_failsWithoutTrackID() throws Exception {
+    failure.expect(CoreException.class);
+    failure.expectMessage("Track ID is required");
+
+    new Event()
+      .setProgramId(BigInteger.valueOf(5))
+      .setPatternId(UUID.randomUUID())
+      .setPosition(0.75)
+      .setDuration(3.45)
       .setNote("D6")
       .setVelocity(0.9)
       .validate();
@@ -70,22 +85,7 @@ public class EventTest {
     new Event()
       .setProgramId(BigInteger.valueOf(5))
       .setPatternId(UUID.randomUUID())
-      .setDuration(3.45)
-      .setName("SMACK")
-      .setNote("D6")
-      .setVelocity(0.9)
-      .validate();
-  }
-
-  @Test
-  public void validate_failsWithoutName() throws Exception {
-    failure.expect(CoreException.class);
-    failure.expectMessage("Name is required");
-
-    new Event()
-      .setProgramId(BigInteger.valueOf(5))
-      .setPatternId(UUID.randomUUID())
-      .setPosition(0.75)
+      .setTrackId(UUID.randomUUID())
       .setDuration(3.45)
       .setNote("D6")
       .setVelocity(0.9)
@@ -100,9 +100,9 @@ public class EventTest {
     new Event()
       .setProgramId(BigInteger.valueOf(5))
       .setPatternId(UUID.randomUUID())
+      .setTrackId(UUID.randomUUID())
       .setPosition(0.75)
       .setDuration(3.45)
-      .setName("SMACK")
       .setVelocity(0.9)
       .validate();
   }
@@ -115,9 +115,9 @@ public class EventTest {
     new Event()
       .setProgramId(BigInteger.valueOf(5))
       .setPatternId(UUID.randomUUID())
+      .setTrackId(UUID.randomUUID())
       .setPosition(0.75)
       .setDuration(3.45)
-      .setName("SMACK")
       .setNote("D6")
       .validate();
   }
@@ -132,7 +132,7 @@ public class EventTest {
 
   @Test
   public void getPayloadAttributeNames() {
-    assertSameItems(ImmutableList.of("duration", "name", "note", "position", "velocity"), new Event().getResourceAttributeNames());
+    assertSameItems(ImmutableList.of("duration", "note", "position", "velocity"), new Event().getResourceAttributeNames());
   }
 
 }

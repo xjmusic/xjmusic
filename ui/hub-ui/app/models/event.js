@@ -4,14 +4,14 @@ import {computed} from '@ember/object';
 
 export default Model.extend({
   pattern: belongsTo({}),
+  track: belongsTo({}),
   duration: attr('number'),
-  name: attr('string'),
   note: attr('string'),
   position: attr('number'),
   velocity: attr('number'),
 
-  title: computed('note', 'name', 'position', function () {
-    return `${this.note}(${this.name})@${this.position}`;
+  title: computed('note', 'position', function () {
+    return `${this.note}@${this.position}`;
   }),
 
 });

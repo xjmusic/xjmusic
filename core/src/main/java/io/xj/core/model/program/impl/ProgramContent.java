@@ -13,6 +13,7 @@ import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.SequenceBinding;
 import io.xj.core.model.program.sub.SequenceBindingMeme;
 import io.xj.core.model.program.sub.SequenceChord;
+import io.xj.core.model.program.sub.Track;
 import io.xj.core.model.program.sub.Voice;
 
 import java.util.Collection;
@@ -27,6 +28,7 @@ import java.util.Collection;
  "memes": [],
  "sequences": [],
  "patterns": [],
+ "tracks": [],
  "chords": [],
  "events": [],
  "report": {}
@@ -34,6 +36,7 @@ import java.util.Collection;
  */
 public class ProgramContent implements SuperEntityContent {
   private final Collection<Pattern> patterns = Lists.newArrayList();
+  private final Collection<Track> tracks = Lists.newArrayList();
   private final Collection<Event> events = Lists.newArrayList();
   private final Collection<ProgramMeme> memes = Lists.newArrayList();
   private final Collection<Sequence> sequences = Lists.newArrayList();
@@ -52,7 +55,8 @@ public class ProgramContent implements SuperEntityContent {
   public static ProgramContent of(Program program) {
     ProgramContent content = new ProgramContent();
     content.setPatterns(program.getPatterns());
-    content.setEvents(program.getPatternEvents());
+    content.setTracks(program.getTracks());
+    content.setEvents(program.getEvents());
     content.setMemes(program.getMemes());
     content.setSequences(program.getSequences());
     content.setSequenceBindings(program.getSequenceBindings());
@@ -69,6 +73,15 @@ public class ProgramContent implements SuperEntityContent {
    */
   public Collection<Pattern> getPatterns() {
     return patterns;
+  }
+
+  /**
+   Get Tracks
+
+   @return Tracks
+   */
+  public Collection<Track> getTracks() {
+    return tracks;
   }
 
   /**
@@ -125,6 +138,16 @@ public class ProgramContent implements SuperEntityContent {
   public void setPatterns(Collection<Pattern> patterns) {
     this.patterns.clear();
     this.patterns.addAll(patterns);
+  }
+
+  /**
+   Set Track
+
+   @param tracks to set
+   */
+  public void setTracks(Collection<Track> tracks) {
+    this.tracks.clear();
+    this.tracks.addAll(tracks);
   }
 
   /**

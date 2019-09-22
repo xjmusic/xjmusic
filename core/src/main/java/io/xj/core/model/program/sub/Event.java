@@ -16,22 +16,17 @@ import java.util.UUID;
  */
 public class Event extends ProgramSubEntity implements EventEntity {
   protected Double duration;
-  protected String name;
   protected String note;
   protected Double position;
   protected Double velocity;
   private UUID patternId;
+  private UUID trackId;
 
   @Override
   public Double getDuration() {
     return duration;
   }
-
-  @Override
-  public String getName() {
-    return name;
-  }
-
+  
   @Override
   public String getNote() {
     return note;
@@ -46,12 +41,20 @@ public class Event extends ProgramSubEntity implements EventEntity {
     return patternId;
   }
 
+  /**
+   Get Track UUID
+
+   @return Track UUID
+   */
+  public UUID getTrackId() {
+    return trackId;
+  }
+
   @Override
   public ImmutableList<String> getResourceAttributeNames() {
     return ImmutableList.<String>builder()
       .addAll(super.getResourceAttributeNames())
       .add("duration")
-      .add("name")
       .add("note")
       .add("position")
       .add("velocity")
@@ -63,6 +66,7 @@ public class Event extends ProgramSubEntity implements EventEntity {
     return ImmutableList.<Class>builder()
       .addAll(super.getResourceBelongsTo())
       .add(Pattern.class)
+      .add(Track.class)
       .build();
   }
 
@@ -79,12 +83,6 @@ public class Event extends ProgramSubEntity implements EventEntity {
   @Override
   public Event setDuration(Double duration) {
     this.duration = duration;
-    return this;
-  }
-
-  @Override
-  public Event setName(String name) {
-    this.name = Text.toUpperSlug(name);
     return this;
   }
 
@@ -113,6 +111,28 @@ public class Event extends ProgramSubEntity implements EventEntity {
    */
   public Event setPatternId(UUID patternId) {
     this.patternId = patternId;
+    return this;
+  }
+
+  /**
+   Set Track UUID by providing the parent Track
+
+   @param track to set UUID of
+   @return this Event (for chaining methods)
+   */
+  public Event setTrack(Track track) {
+    setTrackId(track.getId());
+    return this;
+  }
+
+  /**
+   Set Track UUID
+
+   @param trackId to set
+   @return this Event (for chaining methods)
+   */
+  public Event setTrackId(UUID trackId) {
+    this.trackId = trackId;
     return this;
   }
 
@@ -145,6 +165,8 @@ public class Event extends ProgramSubEntity implements EventEntity {
     super.validate();
     EventEntity.validate(this);
     require(patternId, "Pattern ID");
+    require(trackId, "Track ID");
+
     return this;
   }
 }

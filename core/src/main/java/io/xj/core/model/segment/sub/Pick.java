@@ -26,7 +26,7 @@ public class Pick extends SegmentSubEntity {
   public static final Double PITCH_MINIMUM = 1.0;
   private UUID arrangementId;
   private UUID audioId;
-  private UUID patternEventId;
+  private UUID eventId;
   private Double start;
   private Double length;
   private Double amplitude;
@@ -85,12 +85,12 @@ public class Pick extends SegmentSubEntity {
   }
 
   /**
-   get PatternEventId
+   get EventId
 
-   @return getPatternEventId
+   @return getEventId
    */
-  public UUID getPatternEventId() {
-    return patternEventId;
+  public UUID getEventId() {
+    return eventId;
   }
 
   @Override
@@ -198,13 +198,13 @@ public class Pick extends SegmentSubEntity {
   }
 
   /**
-   set PatternEventId
+   set EventId
 
-   @param patternEventId to set
+   @param eventId to set
    @return this Pick (for chaining methods)
    */
-  public Pick setPatternEventId(UUID patternEventId) {
-    this.patternEventId = patternEventId;
+  public Pick setEventId(UUID eventId) {
+    this.eventId = eventId;
     return this;
   }
 
@@ -253,7 +253,7 @@ public class Pick extends SegmentSubEntity {
 
     require(arrangementId, "Arrangement ID");
 
-    require(patternEventId, "Pattern EventEntity ID");
+    require(eventId, "Pattern EventEntity ID");
 
     require(audioId, "Audio ID");
 

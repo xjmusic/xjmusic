@@ -5,7 +5,7 @@ export default Model.extend({
   segment: belongsTo({}),
   arrangement: belongsTo('arrangement'),
   audio: belongsTo('audio'),
-  patternEvent: belongsTo('pattern-event'),
+  event: belongsTo('event'),
   voice: belongsTo('voice'),
   start: attr('number'),
   length: attr('number'),

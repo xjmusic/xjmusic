@@ -18,13 +18,14 @@ import io.xj.core.model.instrument.sub.InstrumentMeme;
 import io.xj.core.model.program.Program;
 import io.xj.core.model.program.ProgramFactory;
 import io.xj.core.model.program.ProgramType;
-import io.xj.core.model.program.sub.Pattern;
 import io.xj.core.model.program.sub.Event;
+import io.xj.core.model.program.sub.Pattern;
 import io.xj.core.model.program.sub.ProgramMeme;
 import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.SequenceBinding;
 import io.xj.core.model.program.sub.SequenceBindingMeme;
 import io.xj.core.model.program.sub.SequenceChord;
+import io.xj.core.model.program.sub.Track;
 import io.xj.core.model.program.sub.Voice;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.migration.LegacyMigration;
@@ -274,12 +275,18 @@ public class LegacyMigrationImpl implements LegacyMigration {
         .setName(patternRecord.getName())
         .setTotal(patternRecord.getTotal().intValue()));
 
+      Map<String, Track> trackMap = Maps.newHashMap();
       db.selectFrom(PATTERN_EVENT)
         .where(PATTERN_EVENT.PATTERN_ID.eq(patternRecord.getId()))
         .and(PATTERN_EVENT.VOICE_ID.eq(ULong.valueOf(voiceId)))
         .fetch().forEach(patternEventRecord -> {
+        String name = patternEventRecord.getInflection();
+        if (!trackMap.containsKey(name))
+          trackMap.put(name, program.add(new Track()
+            .setVoice(voice)
+            .setName(name)));
         program.add(new Event()
-          .setName(patternEventRecord.getInflection())
+          .setTrack(trackMap.get(name))
           .setPattern(pattern)
           .setPosition(patternEventRecord.getPosition())
           .setDuration(patternEventRecord.getDuration())

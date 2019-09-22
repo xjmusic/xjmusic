@@ -24,6 +24,7 @@ import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.SequenceBinding;
 import io.xj.core.model.program.sub.SequenceBindingMeme;
 import io.xj.core.model.program.sub.SequenceChord;
+import io.xj.core.model.program.sub.Track;
 import io.xj.core.model.program.sub.Voice;
 import io.xj.core.model.user.User;
 import io.xj.core.transport.GsonProvider;
@@ -45,11 +46,12 @@ import java.util.stream.Collectors;
 public class ProgramImpl extends SuperEntityImpl implements Program {
   private final GsonProvider gsonProvider;
   private final Map<UUID, Pattern> patternMap = Maps.newHashMap();
+  private final Map<UUID, Track> trackMap = Maps.newHashMap();
   private final Map<UUID, SequenceBinding> sequenceBindingMap = Maps.newHashMap();
   private final Map<UUID, SequenceBindingMeme> sequenceBindingMemeMap = Maps.newHashMap();
   private final Map<UUID, SequenceChord> sequenceChordMap = Maps.newHashMap();
   private final Map<UUID, Sequence> sequenceMap = Maps.newHashMap();
-  private final Map<UUID, Event> patternEventMap = Maps.newHashMap();
+  private final Map<UUID, Event> eventMap = Maps.newHashMap();
   private final Map<UUID, ProgramMeme> memeMap = Maps.newHashMap();
   private final Map<UUID, Voice> voiceMap = Maps.newHashMap();
   private BigInteger userId;
@@ -98,12 +100,25 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
   }
 
   @Override
+  public Track add(Track track) {
+    try {
+      requireId("before adding Track");
+      track.setProgramId(getId());
+      ensureRelations(track);
+      return SubEntity.add(trackMap, track);
+    } catch (CoreException e) {
+      add(e);
+      return track;
+    }
+  }
+
+  @Override
   public Event add(Event event) {
     try {
       requireId("before adding Event");
       event.setProgramId(getId());
       ensureRelations(event);
-      return SubEntity.add(patternEventMap, event);
+      return SubEntity.add(eventMap, event);
     } catch (CoreException e) {
       add(e);
       return event;
@@ -195,7 +210,8 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
     syncSubEntities(payload, sequenceBindingMap, SequenceBinding.class); // requires Sequence
     syncSubEntities(payload, sequenceBindingMemeMap, SequenceBindingMeme.class); // requires SequenceBinding
     syncSubEntities(payload, patternMap, Pattern.class); // requires Sequence, Voice
-    syncSubEntities(payload, patternEventMap, Event.class); // requires Pattern
+    syncSubEntities(payload, trackMap, Track.class); // requires Sequence, Voice
+    syncSubEntities(payload, eventMap, Event.class); // requires Pattern
     return this;
   }
 
@@ -203,8 +219,9 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
   public Collection<SubEntity> getAllSubEntities() {
     Collection<SubEntity> out = Lists.newArrayList();
     out.addAll(getMemes());
-    out.addAll(getPatternEvents());
+    out.addAll(getEvents());
     out.addAll(getPatterns());
+    out.addAll(getTracks());
     out.addAll(getSequenceBindingMemes());
     out.addAll(getSequenceBindings());
     out.addAll(getSequenceChords());
@@ -251,8 +268,8 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
 
   @Override
   public Collection<Event> getEventsForPattern(Pattern pattern) {
-    return getPatternEvents().stream()
-      .filter(patternEvent -> pattern.getId().equals(patternEvent.getPatternId()))
+    return getEvents().stream()
+      .filter(event -> pattern.getId().equals(event.getPatternId()))
       .collect(Collectors.toList());
   }
 
@@ -312,13 +329,25 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
   }
 
   @Override
-  public Collection<Event> getPatternEvents() {
-    return patternEventMap.values();
+  public Collection<Event> getEvents() {
+    return eventMap.values();
   }
 
   @Override
   public Collection<Pattern> getPatterns() {
     return patternMap.values();
+  }
+
+  @Override
+  public Track getTrack(UUID id) throws CoreException {
+    if (!trackMap.containsKey(id))
+      throw new CoreException(String.format("Found no Track id=%s", id));
+    return trackMap.get(id);
+  }
+
+  @Override
+  public Collection<Track> getTracks() {
+    return trackMap.values();
   }
 
   @Override
@@ -351,6 +380,7 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
       .add(Sequence.class)
       .add(SequenceChord.class)
       .add(Pattern.class)
+      .add(Track.class)
       .add(Event.class)
       .add(SequenceBinding.class)
       .add(SequenceBindingMeme.class)
@@ -457,6 +487,7 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
     setSequenceChords(content.getSequenceChords());
     setVoices(content.getVoices());
     setPatterns(content.getPatterns());
+    setTracks(content.getTracks());
     setPatternEvents(content.getEvents());
     return this;
   }
@@ -467,10 +498,11 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
     setVoices(from.getVoices());
     setSequences(from.getSequences());
     setPatterns(from.getPatterns()); // after sequences, voices
+    setTracks(from.getTracks()); // after sequences, voices
     setSequenceBindings(from.getSequenceBindings()); // after sequences
     setSequenceBindingMemes(from.getSequenceBindingMemes()); // after sequence bindings
     setSequenceChords(from.getSequenceChords()); // after sequences
-    setPatternEvents(from.getPatternEvents()); // after patterns
+    setPatternEvents(from.getEvents()); // after patterns
     return this;
   }
 
@@ -521,7 +553,7 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
 
   @Override
   public Program setPatternEvents(Collection<Event> events) {
-    patternEventMap.clear();
+    eventMap.clear();
     for (Event event : events) {
       add(event);
     }
@@ -533,6 +565,15 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
     patternMap.clear();
     for (Pattern pattern : patterns) {
       add(pattern);
+    }
+    return this;
+  }
+
+  @Override
+  public Program setTracks(Collection<Track> tracks) {
+    trackMap.clear();
+    for (Track track : tracks) {
+      add(track);
     }
     return this;
   }
@@ -659,7 +700,8 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
   public Program validateContent() throws CoreException {
     SubEntity.validate(this.getAllSubEntities());
     for (Pattern pattern : getPatterns()) ensureRelations(pattern);
-    for (Event event : getPatternEvents()) ensureRelations(event);
+    for (Track track : getTracks()) ensureRelations(track);
+    for (Event event : getEvents()) ensureRelations(event);
     for (SequenceBinding sequenceBinding : getSequenceBindings()) ensureRelations(sequenceBinding);
     for (SequenceBindingMeme sequenceBindingMeme : getSequenceBindingMemes()) ensureRelations(sequenceBindingMeme);
     for (SequenceChord sequenceChord : getSequenceChords()) ensureRelations(sequenceChord);
@@ -684,6 +726,20 @@ public class ProgramImpl extends SuperEntityImpl implements Program {
 
     if (!voiceMap.containsKey(pattern.getVoiceId()))
       throw new CoreException(String.format("Pattern id=%s has nonexistent voiceId=%s", pattern.getId(), pattern.getVoiceId()));
+  }
+
+  /**
+   Ensure that an Track relates to an existing Sequence stored in the Program
+
+   @param track to ensure existing relations of
+   @throws CoreException if no such Sequence exists
+   */
+  private void ensureRelations(Track track) throws CoreException {
+    if (Objects.isNull(track.getVoiceId()))
+      throw new CoreException(String.format("Track id=%s has null voiceId", track.getId()));
+
+    if (!voiceMap.containsKey(track.getVoiceId()))
+      throw new CoreException(String.format("Track id=%s has nonexistent voiceId=%s", track.getId(), track.getVoiceId()));
   }
 
   /**

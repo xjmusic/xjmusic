@@ -120,15 +120,15 @@ public class ProgramIndexResourceTest extends CoreTest {
     Voice voiceDrums = program35.add(newVoice(InstrumentType.Percussive, "Drums"));
     Sequence sequence35a = program35.add(newSequence(16, "Base", 0.5, "C", 110.3));
     Pattern pattern35a1 = program35.add(newPattern(sequence35a, voiceDrums, PatternType.Loop, 4, "Drop"));
-    program35.add(newPatternEvent(pattern35a1, 0.0, 1.0, "CLOCK", "C2", 1.0));
-    program35.add(newPatternEvent(pattern35a1, 1.0, 1.0, "SNORT", "G5", 0.8));
-    program35.add(newPatternEvent(pattern35a1, 2.5, 1.0, "KICK", "C2", 0.6));
-    program35.add(newPatternEvent(pattern35a1, 3.0, 1.0, "SNARL", "G5", 0.9));
+    program35.add(newEvent(pattern35a1, program35.add(newTrack(voiceDrums, "CLOCK")), 0.0, 1.0, "C2", 1.0));
+    program35.add(newEvent(pattern35a1, program35.add(newTrack(voiceDrums, "SNORT")), 1.0, 1.0, "G5", 0.8));
+    program35.add(newEvent(pattern35a1, program35.add(newTrack(voiceDrums, "KICK")), 2.5, 1.0, "C2", 0.6));
+    program35.add(newEvent(pattern35a1, program35.add(newTrack(voiceDrums, "SNARL")), 3.0, 1.0, "G5", 0.9));
     Pattern pattern35a2 = program35.add(newPattern(sequence35a, voiceDrums, PatternType.Loop, 4, "Drop Alt"));
-    program35.add(newPatternEvent(pattern35a2, 0.0, 1.0, "CLACK", "B5", 0.9));
-    program35.add(newPatternEvent(pattern35a2, 1.0, 1.0, "SNARL", "D2", 1.0));
-    program35.add(newPatternEvent(pattern35a2, 2.5, 1.0, "CLICK", "E4", 0.7));
-    program35.add(newPatternEvent(pattern35a2, 3.0, 1.0, "SNAP", "c3", 0.5));
+    program35.add(newEvent(pattern35a2, program35.add(newTrack(voiceDrums, "CLACK")), 0.0, 1.0, "B5", 0.9));
+    program35.add(newEvent(pattern35a2, program35.add(newTrack(voiceDrums, "SNARN")), 1.0, 1.0, "D2", 1.0));
+    program35.add(newEvent(pattern35a2, program35.add(newTrack(voiceDrums, "CLICK")), 2.5, 1.0, "E4", 0.7));
+    program35.add(newEvent(pattern35a2, program35.add(newTrack(voiceDrums, "SNAP")), 3.0, 1.0, "c3", 0.5));
     //
     Collection<Program> programs = ImmutableList.of(
       program701,

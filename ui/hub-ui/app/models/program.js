@@ -12,7 +12,7 @@ export default Model.extend({
   state: attr('string'),
 
   patterns: hasMany('pattern'),
-  patternEvents: hasMany('pattern-event'),
+  patternEvents: hasMany('event.js'),
   programMemes: hasMany('program-meme'),
   sequences: hasMany('sequence'),
   sequenceBindings: hasMany('sequence-binding'),

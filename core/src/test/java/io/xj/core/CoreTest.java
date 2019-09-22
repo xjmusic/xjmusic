@@ -35,13 +35,14 @@ import io.xj.core.model.program.Program;
 import io.xj.core.model.program.ProgramFactory;
 import io.xj.core.model.program.ProgramState;
 import io.xj.core.model.program.ProgramType;
-import io.xj.core.model.program.sub.Pattern;
 import io.xj.core.model.program.sub.Event;
+import io.xj.core.model.program.sub.Pattern;
 import io.xj.core.model.program.sub.ProgramMeme;
 import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.SequenceBinding;
 import io.xj.core.model.program.sub.SequenceBindingMeme;
 import io.xj.core.model.program.sub.SequenceChord;
+import io.xj.core.model.program.sub.Track;
 import io.xj.core.model.program.sub.Voice;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentFactory;
@@ -230,12 +231,12 @@ public class CoreTest {
   /**
    Create a new AudioEvent
 
-   @param audio      to create event in
-   @param position   of AudioEvent
-   @param duration   of AudioEvent
-   @param name of AudioEvent
-   @param note       of AudioEvent
-   @param velocity   of AudioEvent
+   @param audio    to create event in
+   @param position of AudioEvent
+   @param duration of AudioEvent
+   @param name     of AudioEvent
+   @param note     of AudioEvent
+   @param velocity of AudioEvent
    @return new AudioEvent
    */
   protected static AudioEvent newAudioEvent(Audio audio, double position, double duration, String name, String note, double velocity) {
@@ -383,19 +384,35 @@ public class CoreTest {
   }
 
   /**
+   Create a new Track
+
+   @param voice of track
+   @param name  of track
+   @return new track
+   */
+  protected static Track newTrack(Voice voice, String name) {
+    return new Track().setVoice(voice).setName(name);
+  }
+
+  /**
    Create a new Event
 
-   @param pattern    to create event in
-   @param position   of Event
-   @param duration   of Event
-   @param name of Event
-   @param note       of Event
-   @param velocity   of Event
+   @param pattern  to create event in
+   @param track    of Event
+   @param position of Event
+   @param duration of Event
+   @param note     of Event
+   @param velocity of Event
    @return new Event
    */
-  protected static Event newPatternEvent(Pattern pattern, double position, double duration, String name, String note, double velocity) {
-    return new Event().setPatternId(pattern.getId())
-      .setPosition(position).setDuration(duration).setName(name).setNote(note).setVelocity(velocity);
+  protected static Event newEvent(Pattern pattern, Track track, double position, double duration, String note, double velocity) {
+    return new Event()
+      .setPattern(pattern)
+      .setTrack(track)
+      .setPosition(position)
+      .setDuration(duration)
+      .setNote(note)
+      .setVelocity(velocity);
   }
 
   /**
@@ -407,7 +424,7 @@ public class CoreTest {
   protected static Pick newPick(Arrangement arrangement) {
     return new Pick()
       .setArrangementId(arrangement.getId())
-      .setPatternEventId(UUID.randomUUID())
+      .setEventId(UUID.randomUUID())
       .setAudioId(UUID.randomUUID())
       .setVoiceId(UUID.randomUUID())
       .setName("CLANG")
@@ -620,7 +637,7 @@ public class CoreTest {
   /**
    Create a new voice
 
-   @param type        of voice
+   @param type of voice
    @param name of voice
    @return new Voice
    */
@@ -631,8 +648,8 @@ public class CoreTest {
   /**
    Create a new voice
 
-   @param id          of voice
-   @param type        of voice
+   @param id   of voice
+   @param type of voice
    @param name of voice
    @return new Voice
    */

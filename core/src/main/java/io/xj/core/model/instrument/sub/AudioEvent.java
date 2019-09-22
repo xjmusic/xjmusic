@@ -35,7 +35,6 @@ public class AudioEvent extends InstrumentSubEntity implements EventEntity {
     return duration;
   }
 
-  @Override
   public String getName() {
     return name;
   }
@@ -102,7 +101,6 @@ public class AudioEvent extends InstrumentSubEntity implements EventEntity {
     return this;
   }
 
-  @Override
   public AudioEvent setName(String name) {
     this.name = Text.toUpperSlug(name);
     return this;
@@ -131,6 +129,8 @@ public class AudioEvent extends InstrumentSubEntity implements EventEntity {
   public AudioEvent validate() throws CoreException {
     EventEntity.validate(this);
     require(audioId, "Audio ID");
+    require(name, "Name");
+
     return this;
   }
 }

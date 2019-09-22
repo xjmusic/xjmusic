@@ -88,7 +88,7 @@ public class Pattern extends ProgramSubEntity {
   }
 
   /**
-   Get Voice UUID
+   Get Voice ID
 
    @return voice id
    */
@@ -178,7 +178,7 @@ public class Pattern extends ProgramSubEntity {
   }
 
   /**
-   Set Voice UUID
+   Set Voice ID
 
    @param voiceId to set
    @return this Pattern (for chaining setters)

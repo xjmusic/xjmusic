@@ -178,7 +178,7 @@ public class FabricatorImplTest extends CoreTest {
       .setArrangementId(arrangement.getId())
       .setVoiceId(UUID.randomUUID())
       .setAudioId(audioId)
-      .setPatternEventId(UUID.randomUUID())
+      .setEventId(UUID.randomUUID())
       .setStart(0.273)
       .setLength(1.571)
       .setAmplitude(0.8)

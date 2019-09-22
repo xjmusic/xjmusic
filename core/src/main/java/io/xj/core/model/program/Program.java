@@ -14,6 +14,7 @@ import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.SequenceBinding;
 import io.xj.core.model.program.sub.SequenceBindingMeme;
 import io.xj.core.model.program.sub.SequenceChord;
+import io.xj.core.model.program.sub.Track;
 import io.xj.core.model.program.sub.Voice;
 
 import java.math.BigInteger;
@@ -31,6 +32,15 @@ public interface Program extends SuperEntity {
    @return Pattern with newly added unique id
    */
   Pattern add(Pattern pattern);
+
+  /**
+   Add an Track to Program
+   + If there are any exceptions, store them in the SuperEntity errors
+
+   @param track to add
+   @return Track with newly added unique id
+   */
+  Track add(Track track);
 
   /**
    Add a Event to Program
@@ -192,6 +202,13 @@ public interface Program extends SuperEntity {
   String getName();
 
   /**
+   Get Events
+
+   @return Events
+   */
+  Collection<Event> getEvents();
+
+  /**
    Get a Pattern by its UUID
 
    @param id of pattern to get
@@ -201,18 +218,27 @@ public interface Program extends SuperEntity {
   Pattern getPattern(UUID id) throws CoreException;
 
   /**
-   Get PatternEvents
-
-   @return PatternEvents
-   */
-  Collection<Event> getPatternEvents();
-
-  /**
    Get Patterns
 
    @return Patterns
    */
   Collection<Pattern> getPatterns();
+
+  /**
+   Get a Track by its UUID
+
+   @param id of track to get
+   @return Track
+   @throws CoreException if no track is found with that id
+   */
+  Track getTrack(UUID id) throws CoreException;
+
+  /**
+   Get Tracks
+
+   @return Tracks
+   */
+  Collection<Track> getTracks();
 
   /**
    Get a sequence by its UUID
@@ -416,6 +442,15 @@ public interface Program extends SuperEntity {
    @return this Program (for chaining methods)
    */
   Program setPatterns(Collection<Pattern> patterns);
+
+  /**
+   Set Tracks
+   + If there are any exceptions, store them in the SuperEntity errors
+
+   @param tracks to set
+   @return this Program (for chaining methods)
+   */
+  Program setTracks(Collection<Track> tracks);
 
   /**
    Set all Sequence binding memes

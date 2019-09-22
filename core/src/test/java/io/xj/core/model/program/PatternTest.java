@@ -47,6 +47,7 @@ public class PatternTest {
     failure.expectMessage("Voice ID is required");
 
     new Pattern()
+      .setName("Test54")
       .setProgramId(BigInteger.valueOf(9812L))
       .setSequenceId(UUID.randomUUID())
       .setTypeEnum(PatternType.Loop)
