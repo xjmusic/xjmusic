@@ -3,7 +3,7 @@ import Model, {attr, hasMany} from '@ember-data/model';
 
 export default Model.extend({
   name: attr('string'),
-  "account-users": hasMany('account-user'),
-  "libraries": hasMany('library'),
-  "chains": hasMany('chain'),
+  accountUsers: hasMany('account-user'),
+  libraries: hasMany('library'),
+  chains: hasMany('chain'),
 });

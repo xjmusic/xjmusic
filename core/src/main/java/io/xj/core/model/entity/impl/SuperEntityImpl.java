@@ -101,6 +101,7 @@ public abstract class SuperEntityImpl extends EntityImpl implements SuperEntity 
   protected <Sub extends SubEntity> void syncSubEntities(Payload payload, Map<UUID, Sub> subMap, Class<Sub> subClass) throws CoreException {
     PayloadObject superObj = extractPrimaryObject(payload, getResourceType());
 
+    // consume all entities included in the payload
     for (PayloadObject subObj : payload.getIncludedOfType(SubEntity.newInstance(subClass).getResourceType())) {
       Sub sub = SubEntity.newInstance(subClass);
       sub.consume(subObj);
@@ -109,6 +110,7 @@ public abstract class SuperEntityImpl extends EntityImpl implements SuperEntity 
       }
     }
 
+    // remove included entities that are not also included in the has-many relationship from the main entity
     Collection<String> subIds = superObj.getRelationshipDataMany(Text.toResourceHasMany(subClass)).stream()
       .map(PayloadObject::getId)
       .collect(Collectors.toList());
