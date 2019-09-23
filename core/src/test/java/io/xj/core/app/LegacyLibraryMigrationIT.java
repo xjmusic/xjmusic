@@ -103,6 +103,7 @@ public class LegacyLibraryMigrationIT extends CoreIT {
     assertEquals(BigInteger.valueOf(3), program4.getUserId());
     assertEquals(1, program4.getMemes().size());
     assertEquals(0, program4.getPatterns().size());
+    assertEquals(0, program4.getTracks().size());
     assertEquals(0, program4.getEvents().size());
     assertEquals(3, program4.getSequences().size());
     assertEquals(4, program4.getSequenceBindingMemes().size());
@@ -114,6 +115,7 @@ public class LegacyLibraryMigrationIT extends CoreIT {
     assertEquals(BigInteger.valueOf(3), program5.getUserId());
     assertEquals(1, program5.getMemes().size());
     assertEquals(0, program5.getPatterns().size());
+    assertEquals(0, program5.getTracks().size());
     assertEquals(0, program5.getEvents().size());
     assertEquals(2, program5.getSequences().size());
     assertEquals(2, program5.getSequenceBindingMemes().size());
@@ -125,6 +127,7 @@ public class LegacyLibraryMigrationIT extends CoreIT {
     assertEquals(BigInteger.valueOf(3), program6.getUserId());
     assertEquals(0, program6.getMemes().size());
     assertEquals(0, program6.getPatterns().size());
+    assertEquals(0, program6.getTracks().size());
     assertEquals(0, program6.getEvents().size());
     assertEquals(1, program6.getSequences().size());
     assertEquals(0, program6.getSequenceBindingMemes().size());
@@ -136,6 +139,7 @@ public class LegacyLibraryMigrationIT extends CoreIT {
     assertEquals(BigInteger.valueOf(3), program7.getUserId());
     assertEquals(0, program7.getMemes().size());
     assertEquals(0, program7.getPatterns().size());
+    assertEquals(0, program7.getTracks().size());
     assertEquals(0, program7.getEvents().size());
     assertEquals(0, program7.getSequences().size());
     assertEquals(0, program7.getSequenceBindingMemes().size());
@@ -146,13 +150,14 @@ public class LegacyLibraryMigrationIT extends CoreIT {
     Program program35 = programDAO.readOne(internal, BigInteger.valueOf(35));
     assertEquals(BigInteger.valueOf(3), program35.getUserId());
     assertEquals(1, program35.getMemes().size());
-    assertEquals(2, program35.getPatterns().size());
-    assertEquals(8, program35.getEvents().size());
+    assertEquals(4, program35.getPatterns().size());
+    assertEquals(4, program35.getTracks().size());
+    assertEquals(16, program35.getEvents().size());
     assertEquals(1, program35.getSequences().size());
     assertEquals(0, program35.getSequenceBindingMemes().size());
     assertEquals(1, program35.getSequenceBindings().size());
     assertEquals(0, program35.getSequenceChords().size());
-    assertEquals(1, program35.getVoices().size());
+    assertEquals(2, program35.getVoices().size());
   }
 
   /**
@@ -267,21 +272,31 @@ public class LegacyLibraryMigrationIT extends CoreIT {
     // A basic beat
     insertSequence(35, 3, 2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", 0.2, "C", 121, now());
     insertSequenceMeme(35, "Basic", now());
-    insertVoice(1, 35, InstrumentType.Percussive, "drums", now());
+    insertVoice(1, 35, InstrumentType.Percussive, "locomotion", now());
+    insertVoice(2, 35, InstrumentType.Percussive, "kick+snare", now());
 
-    // Voice "Drums" are onomatopoeic to "KICK" and "SNARE" 2x each
+    // Intro-pattern with 8 events across 2 voices should aggregate into only 4 tracks
     insertPattern(315, 35, "Intro", "Published", 4, "Drop", 0.5, "C", 125.0, now());
-    insertPatternEvent(315, 1, 0, 1, "CLOCK", "C2", 0.8, 1.0, now());
-    insertPatternEvent(315, 1, 1, 1, "SNORT", "G5", 0.1, 0.8, now());
-    insertPatternEvent(315, 1, 2.5, 1, "KICK", "C2", 0.8, 0.6, now());
-    insertPatternEvent(315, 1, 3, 1, "SNARL", "G5", 0.1, 0.9, now());
+    insertPatternEvent(315, 1, 0, 1, "HIHATCLOSED", "C2", 0.8, 1.0, now());
+    insertPatternEvent(315, 1, 1, 1, "HIHATCLOSED", "G5", 0.1, 0.8, now());
+    insertPatternEvent(315, 1, 2, 1, "HIHATCLOSED", "C2", 0.8, 1.0, now());
+    insertPatternEvent(315, 1, 3, 1, "HIHATOPEN", "G5", 0.1, 0.9, now());
+    insertPatternEvent(315, 2, 0, 1, "KICK", "C2", 0.8, 1.0, now());
+    insertPatternEvent(315, 2, 1, 1, "SNARE", "G5", 0.1, 0.8, now());
+    insertPatternEvent(315, 2, 2, 1, "KICK", "C2", 0.8, 1.0, now());
+    insertPatternEvent(315, 2, 3, 1, "SNARE", "G5", 0.1, 0.8, now());
 
-    // this is an alternate pattern at the same offset
-    insertPattern(317, 35, "Loop", "Published", 4, "Drop Alt", 0.5, "C", 125.0, now());
-    insertPatternEvent(317, 1, 0, 1, "CLACK", "B5", 0.1, 0.9, now());
-    insertPatternEvent(317, 1, 1, 1, "SNARL", "D2", 0.5, 1.0, now());
-    insertPatternEvent(317, 1, 2.5, 1, "CLICK", "E4", 0.1, 0.7, now());
-    insertPatternEvent(317, 1, 3, 1, "SNAP", "C3", 0.5, 0.5, now());
+    // [#168688139] Legacy migration should create as few tracks as necessary per Program
+    // Loop-pattern with 8 events across 2 voices should create no more tracks-- aggregating into the same 4 tracks as above
+    insertPattern(316, 35, "Loop", "Published", 4, "Drop", 0.5, "C", 125.0, now());
+    insertPatternEvent(316, 1, 0, 1, "HIHATCLOSED", "C2", 0.8, 1.0, now());
+    insertPatternEvent(316, 1, 1, 1, "HIHATCLOSED", "G5", 0.1, 0.8, now());
+    insertPatternEvent(316, 1, 2, 1, "HIHATCLOSED", "C2", 0.8, 1.0, now());
+    insertPatternEvent(316, 1, 3, 1, "HIHATOPEN", "G5", 0.1, 0.9, now());
+    insertPatternEvent(316, 2, 0, 1, "KICK", "C2", 0.8, 1.0, now());
+    insertPatternEvent(316, 2, 1, 1, "SNARE", "G5", 0.1, 0.8, now());
+    insertPatternEvent(316, 2, 2, 1, "KICK", "C2", 0.8, 1.0, now());
+    insertPatternEvent(316, 2, 3, 1, "SNARE", "G5", 0.1, 0.8, now());
 
     // Detail Sequence
     insertSequence(6, 3, 2, ProgramType.Rhythm, ProgramState.Published, "Beat Jam", 0.6, "D#", 150, now());

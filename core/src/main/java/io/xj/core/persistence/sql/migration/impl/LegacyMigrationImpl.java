@@ -242,7 +242,7 @@ public class LegacyMigrationImpl implements LegacyMigration {
 
    @param program to which content will be added
    */
-  private void addRhythmContent(Program program) throws CoreException {
+  private void addRhythmContent(Program program) {
     Sequence sequence = program.add(new Sequence()
       .setName("Beat")
       .setDensity(program.getDensity())
@@ -254,6 +254,8 @@ public class LegacyMigrationImpl implements LegacyMigration {
       .setOffset(0L));
 
     Map<BigInteger, Voice> voiceMap = Maps.newHashMap();
+    Map<String, Track> trackMap = Maps.newHashMap();
+
     db.selectFrom(VOICE)
       .where(VOICE.SEQUENCE_ID.eq(ULong.valueOf(program.getId())))
       .fetch().forEach(voiceRecord -> {
@@ -261,7 +263,6 @@ public class LegacyMigrationImpl implements LegacyMigration {
         .setName(voiceRecord.getDescription())
         .setType(voiceRecord.getType()));
       voiceMap.put(voiceRecord.getId().toBigInteger(), voice);
-
     });
 
     db.selectFrom(PATTERN)
@@ -275,7 +276,6 @@ public class LegacyMigrationImpl implements LegacyMigration {
         .setName(patternRecord.getName())
         .setTotal(patternRecord.getTotal().intValue()));
 
-      Map<String, Track> trackMap = Maps.newHashMap();
       db.selectFrom(PATTERN_EVENT)
         .where(PATTERN_EVENT.PATTERN_ID.eq(patternRecord.getId()))
         .and(PATTERN_EVENT.VOICE_ID.eq(ULong.valueOf(voiceId)))
