@@ -105,7 +105,9 @@ public abstract class SuperEntityImpl extends EntityImpl implements SuperEntity 
     for (PayloadObject subObj : payload.getIncludedOfType(SubEntity.newInstance(subClass).getResourceType())) {
       Sub sub = SubEntity.newInstance(subClass);
       sub.consume(subObj);
-      if (!subMap.containsKey(sub.getId())) {
+      if (subMap.containsKey(sub.getId())) {
+        subMap.get(sub.getId()).setAllResourceAttributes(sub);
+      } else {
         add(sub);
       }
     }

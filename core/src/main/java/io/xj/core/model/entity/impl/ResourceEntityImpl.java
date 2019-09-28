@@ -25,6 +25,7 @@ import java.net.URI;
 import java.sql.Timestamp;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -35,8 +36,8 @@ import java.util.stream.Collectors;
 /**
  [#167276586] JSON API facilitates complex transactions
  */
-public abstract class ResourceImpl implements ResourceEntity {
-  private static final Logger log = LoggerFactory.getLogger(ResourceImpl.class);
+public abstract class ResourceEntityImpl implements ResourceEntity {
+  private static final Logger log = LoggerFactory.getLogger(ResourceEntityImpl.class);
   private Collection<CoreException> errors = com.google.common.collect.Lists.newArrayList();
 
   /**
@@ -206,13 +207,14 @@ public abstract class ResourceImpl implements ResourceEntity {
   @Override
   public Map<String, Object> getResourceAttributes() {
     Map<String, Object> attributes = Maps.newHashMap();
+    List<String> resourceAttributeNames = getResourceAttributeNames();
     ReflectionUtils.getAllMethods(getClass(),
       ReflectionUtils.withModifier(Modifier.PUBLIC),
       ReflectionUtils.withPrefix("get"),
       ReflectionUtils.withParametersCount(0)).forEach(method -> {
       try {
         String attributeName = computeAttributeName(method);
-        if (getResourceAttributeNames().contains(attributeName)) {
+        if (resourceAttributeNames.contains(attributeName)) {
           get(method).ifPresentOrElse(value -> attributes.put(attributeName, value),
             () -> attributes.put(attributeName, JsonNull.INSTANCE));
         }
@@ -300,6 +302,17 @@ public abstract class ResourceImpl implements ResourceEntity {
   protected <E extends Exception> void requireNo(E exception, String name) throws CoreException {
     if (Objects.nonNull(exception))
       throw new CoreException(String.format("%s is invalid because %s", name, exception.getMessage()));
+  }
+
+  @Override
+  public void setAllResourceAttributes(ResourceEntity from) {
+    from.getResourceAttributes().forEach((String name, Object attribute) -> {
+      try {
+        set(name, attribute);
+      } catch (CoreException e) {
+        log.error("Failed to set {}", attribute, e);
+      }
+    });
   }
 
   @Override

@@ -44,6 +44,12 @@ public class Pattern extends ProgramSubEntity {
   }
 
   @Override
+  public Pattern setId(UUID id) {
+    super.setId(id);
+    return this;
+  }
+
+  @Override
   public ImmutableList<Class> getResourceBelongsTo() {
     return ImmutableList.<Class>builder()
       .addAll(super.getResourceBelongsTo())

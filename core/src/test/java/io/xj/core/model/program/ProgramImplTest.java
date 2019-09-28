@@ -5,16 +5,20 @@ package io.xj.core.model.program;
 import com.google.common.collect.ImmutableList;
 import io.xj.core.CoreTest;
 import io.xj.core.exception.CoreException;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.payload.Payload;
+import io.xj.core.model.payload.PayloadObject;
 import io.xj.core.model.program.sub.Sequence;
 import io.xj.core.model.program.sub.SequenceBinding;
 import io.xj.core.model.program.sub.SequenceBindingMeme;
+import io.xj.core.model.program.sub.Voice;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.UUID;
 
 import static io.xj.core.testing.Assert.assertSameItems;
 import static io.xj.core.testing.AssertPayloadObject.assertPayloadObject;
@@ -74,16 +78,62 @@ public class ProgramImplTest extends CoreTest {
   }
 
   @Test
-  public void deserialize_updateComplexProgram() throws IOException, CoreException {
-    Payload updateComplexProgram = deserializePayload("{\"data\":{\"id\":\"12\",\"attributes\":{\"density\":null,\"key\":\"Ebm\",\"name\":\"Earth to Fire 69\",\"tempo\":121,\"type\":\"Macro\",\"state\":\"Published\"},\"relationships\":{\"library\":{\"data\":{\"type\":\"libraries\",\"id\":\"3\"}},\"patterns\":{\"data\":[]},\"patternEvents\":{\"data\":[]},\"programMemes\":{\"data\":[]},\"sequences\":{\"data\":[{\"type\":\"sequences\",\"id\":\"2c13022b-ebc7-4e3e-be56-737b57dde9c6\"},{\"type\":\"sequences\",\"id\":\"416d9986-2fa1-44e2-8e44-2cd0b6edd61c\"}]},\"sequenceBindings\":{\"data\":[{\"type\":\"sequence-bindings\",\"id\":\"00e16e13-9ebb-4d0d-8f62-d13b022fccd3\"},{\"type\":\"sequence-bindings\",\"id\":\"336b693a-988d-4e04-82ef-e4b26f9eb549\"},{\"type\":\"sequence-bindings\",\"id\":\"b8f7617a-10a3-4ffb-8abd-31efb262b743\"}]},\"sequenceBindingMemes\":{\"data\":[{\"type\":\"sequence-binding-memes\",\"id\":\"c5c20347-968e-4992-848a-66d28531c51c\"},{\"type\":\"sequence-binding-memes\",\"id\":\"34fd41a8-de9f-4278-ac5f-588eefddd953\"},{\"type\":\"sequence-binding-memes\",\"id\":\"a6a230c7-9501-4636-9ed2-25dbc3bbbe3e\"}]},\"sequenceChords\":{\"data\":[]},\"voices\":{\"data\":[]}},\"type\":\"programs\"},\"included\":[{\"attributes\":{\"density\":0.6,\"key\":\"Ebm\",\"name\":\"Passion Volcano\",\"tempo\":121},\"relationships\":{\"program\":{\"data\":{\"type\":\"programs\",\"id\":\"12\"}},\"sequenceBindings\":{\"data\":[{\"type\":\"sequence-bindings\",\"id\":\"336b693a-988d-4e04-82ef-e4b26f9eb549\"},{\"type\":\"sequence-bindings\",\"id\":\"b8f7617a-10a3-4ffb-8abd-31efb262b743\"}]},\"sequenceChords\":{\"data\":[]},\"patterns\":{\"data\":[]}},\"type\":\"sequences\",\"id\":\"2c13022b-ebc7-4e3e-be56-737b57dde9c6\"},{\"attributes\":{\"density\":0.6,\"key\":\"B\",\"name\":\"Exploding\",\"tempo\":121},\"relationships\":{\"program\":{\"data\":{\"type\":\"programs\",\"id\":\"12\"}},\"sequenceBindings\":{\"data\":[{\"type\":\"sequence-bindings\",\"id\":\"00e16e13-9ebb-4d0d-8f62-d13b022fccd3\"}]},\"sequenceChords\":{\"data\":[]},\"patterns\":{\"data\":[]}},\"type\":\"sequences\",\"id\":\"416d9986-2fa1-44e2-8e44-2cd0b6edd61c\"},{\"attributes\":{\"offset\":1},\"relationships\":{\"program\":{\"data\":{\"type\":\"programs\",\"id\":\"12\"}},\"sequence\":{\"data\":{\"type\":\"sequences\",\"id\":\"416d9986-2fa1-44e2-8e44-2cd0b6edd61c\"}}},\"type\":\"sequence-bindings\",\"id\":\"00e16e13-9ebb-4d0d-8f62-d13b022fccd3\"},{\"attributes\":{\"offset\":0},\"relationships\":{\"program\":{\"data\":{\"type\":\"programs\",\"id\":\"12\"}},\"sequence\":{\"data\":{\"type\":\"sequences\",\"id\":\"2c13022b-ebc7-4e3e-be56-737b57dde9c6\"}}},\"type\":\"sequence-bindings\",\"id\":\"336b693a-988d-4e04-82ef-e4b26f9eb549\"},{\"attributes\":{\"offset\":2},\"relationships\":{\"program\":{\"data\":{\"type\":\"programs\",\"id\":\"12\"}},\"sequence\":{\"data\":{\"type\":\"sequences\",\"id\":\"2c13022b-ebc7-4e3e-be56-737b57dde9c6\"}}},\"type\":\"sequence-bindings\",\"id\":\"b8f7617a-10a3-4ffb-8abd-31efb262b743\"},{\"attributes\":{\"name\":\"Fire\"},\"relationships\":{\"sequenceBinding\":{\"data\":{\"type\":\"sequence-bindings\",\"id\":\"b8f7617a-10a3-4ffb-8abd-31efb262b743\"}}},\"type\":\"sequence-binding-memes\",\"id\":\"c5c20347-968e-4992-848a-66d28531c51c\"},{\"attributes\":{\"name\":\"Fire\"},\"relationships\":{\"sequenceBinding\":{\"data\":{\"type\":\"sequence-bindings\",\"id\":\"00e16e13-9ebb-4d0d-8f62-d13b022fccd3\"}}},\"type\":\"sequence-binding-memes\",\"id\":\"34fd41a8-de9f-4278-ac5f-588eefddd953\"},{\"attributes\":{\"name\":\"Earth\"},\"relationships\":{\"sequenceBinding\":{\"data\":{\"type\":\"sequence-bindings\",\"id\":\"336b693a-988d-4e04-82ef-e4b26f9eb549\"}}},\"type\":\"sequence-binding-memes\",\"id\":\"a6a230c7-9501-4636-9ed2-25dbc3bbbe3e\"}]}");
-    Program program = newProgram(12, 101, 3, ProgramType.Main, ProgramState.Published, "Earth to Fire", "Ebm", 121.0, now());
+  public void consumePayload_updateProgramName() throws CoreException {
+    Program subject = newProgram(12, 101, 3, ProgramType.Main, ProgramState.Published, "Earth to Fire", "Ebm", 121.0, now());
+    // ↑ will be updated with the following payload ↓
+    Payload payload = new Payload();
+    payload.setDataOne(new PayloadObject()
+      .setType("programs")
+      .setId("12")
+      .setAttribute("name", "Earth to Fire 69"));
 
-    program.consume(updateComplexProgram);
+    subject.consume(payload);
 
-    assertEquals("Earth to Fire 69", program.getName());
-    assertEquals(2, program.getSequences().size());
-    assertEquals(3, program.getSequenceBindings().size());
-    assertEquals(3, program.getSequenceBindingMemes().size());
+    assertEquals("Earth to Fire 69", subject.getName());
+  }
+
+  @Test
+  public void consumePayload_addEntitiesToProgram() throws CoreException {
+    Program subject = newProgram(12, 101, 3, ProgramType.Main, ProgramState.Published, "Earth to Fire", "Ebm", 121.0, now());
+    // ↑ will be updated with the following payload ↓
+    Program updated = newProgram(12, 101, 3, ProgramType.Main, ProgramState.Published, "Earth to Fire", "Ebm", 121.0, now());
+    Sequence sequenceA = updated.add(newSequence(0, "Passion Volcano", 0.6, "Ebm", 121.0));
+    Sequence sequenceB = updated.add(newSequence(0, "Exploding", 0.6, "B", 121.0));
+    SequenceBinding sequenceBinding0 = updated.add(newSequenceBinding(sequenceA, 0));
+    SequenceBinding sequenceBinding1 = updated.add(newSequenceBinding(sequenceB, 1));
+    SequenceBinding sequenceBinding2 = updated.add(newSequenceBinding(sequenceA, 2));
+    updated.add(newSequenceBindingMeme(sequenceBinding0, "Earth"));
+    updated.add(newSequenceBindingMeme(sequenceBinding1, "Fire"));
+    updated.add(newSequenceBindingMeme(sequenceBinding2, "Fire"));
+    Payload payload = new Payload().setDataEntity(updated);
+
+    subject.consume(payload);
+
+    assertEquals(2, subject.getSequences().size());
+    assertEquals(3, subject.getSequenceBindings().size());
+    assertEquals(3, subject.getSequenceBindingMemes().size());
+  }
+
+  @Test
+  public void consumePayload_updatePatternName() throws CoreException {
+    UUID sequenceId = UUID.randomUUID();
+    UUID voiceId = UUID.randomUUID();
+    UUID patternId = UUID.randomUUID();
+    // ↑ will be used to create entities with same UUIDs↓
+    Program subject = newProgram(12, 101, 3, ProgramType.Main, ProgramState.Published, "Earth to Fire", "Ebm", 121.0, now());
+    Sequence subjectSequence = subject.add(newSequence(0, "Passion Volcano", 0.6, "Ebm", 121.0).setId(sequenceId));
+    Voice subjectVoice = subject.add(newVoice(InstrumentType.Percussive, "Drums").setId(voiceId));
+    subject.add(newPattern(subjectSequence, subjectVoice, PatternType.Loop, 4, "Apples").setId(patternId));
+    // ↑ will be updated with the following payload ↓
+    Program updated = newProgram(12, 101, 3, ProgramType.Main, ProgramState.Published, "Earth to Fire", "Ebm", 121.0, now());
+    Sequence updatedSequence = updated.add(newSequence(0, "Passion Volcano", 0.6, "Ebm", 121.0).setId(sequenceId));
+    Voice updatedVoice = updated.add(newVoice(InstrumentType.Percussive, "Drums").setId(voiceId));
+    updated.add(newPattern(updatedSequence, updatedVoice, PatternType.Loop, 4, "Bananas").setId(patternId)); // <-- new name
+    Payload payload = new Payload().setDataEntity(updated);
+
+    subject.consume(payload);
+
+    assertEquals("Bananas", subject.getPattern(patternId).getName());
   }
 
   @Test

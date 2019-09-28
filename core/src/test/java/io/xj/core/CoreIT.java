@@ -81,20 +81,6 @@ public class CoreIT extends CoreTest {
   }
 
   /**
-   get a file from java resources
-
-   @param filePath to get
-   @return File
-   */
-  protected static File resourceFile(String filePath) throws FileNotFoundException {
-    ClassLoader classLoader = CoreIT.class.getClassLoader();
-    URL resource = classLoader.getResource(filePath);
-    if (Objects.isNull(resource))
-      throw new FileNotFoundException(String.format("Failed to load resource: %s", filePath));
-    return new File(resource.getFile());
-  }
-
-  /**
    After test completion, shutdown the database connection
    */
   @After

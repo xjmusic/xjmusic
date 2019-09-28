@@ -157,6 +157,13 @@ public interface ResourceEntity {
   URI getURI();
 
   /**
+   Set all values available from a source ResourceEntity
+
+   @param from source ResourceEntity
+   */
+  void setAllResourceAttributes(ResourceEntity from);
+
+  /**
    Set a value using a setter method
 
    @param method setter to use

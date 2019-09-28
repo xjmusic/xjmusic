@@ -3,9 +3,11 @@ package io.xj.core.model.program.sub;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
+import io.xj.core.model.entity.SubEntity;
 import io.xj.core.model.program.impl.ProgramSubEntity;
 
 import java.math.BigInteger;
+import java.util.UUID;
 
 /**
  [#166690830] Program model handles all of its own entities
@@ -58,6 +60,12 @@ public class Sequence extends ProgramSubEntity {
       .add("total")
       .add("tempo")
       .build();
+  }
+
+  @Override
+  public Sequence setId(UUID id) {
+    super.setId(id);
+    return this;
   }
 
   @Override

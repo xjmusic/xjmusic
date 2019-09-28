@@ -18,6 +18,8 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.types.ULong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -30,6 +32,7 @@ import static io.xj.core.Tables.LIBRARY;
 import static io.xj.core.Tables.PROGRAM;
 
 public class ProgramDAOImpl extends DAOImpl implements ProgramDAO {
+  private final Logger log = LoggerFactory.getLogger(ProgramDAOImpl.class);
   private final ProgramFactory programFactory;
   private final GsonProvider gsonProvider;
 
@@ -283,6 +286,8 @@ public class ProgramDAOImpl extends DAOImpl implements ProgramDAO {
 
     if (0 == executeUpdate(db, PROGRAM, fieldValues))
       throw new CoreException("No records updated.");
+
+    log.info("Updated Program(id={}) by User(id={})", id, access.getUserId());
   }
 
   /**

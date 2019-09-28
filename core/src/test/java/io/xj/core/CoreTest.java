@@ -4,6 +4,7 @@ package io.xj.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.google.common.io.CharStreams;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.xj.core.access.impl.Access;
@@ -65,8 +66,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URL;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
@@ -81,6 +86,37 @@ public class CoreTest {
   protected SegmentFactory segmentFactory = injector.getInstance(SegmentFactory.class);
   protected InstrumentFactory instrumentFactory = injector.getInstance(InstrumentFactory.class);
   protected Access internal = Access.internal();
+
+  /**
+   Read a file as a string from java resources
+
+   @param filePath to get and read as string
+   @return contents of file
+   @throws FileNotFoundException if resource does not exist
+   */
+  protected static String readResourceFile(String filePath) throws IOException {
+    File file = resourceFile(filePath);
+    String text;
+    try (final FileReader reader = new FileReader(file)) {
+      text = CharStreams.toString(reader);
+    }
+    return text;
+  }
+
+  /**
+   get a file from java resources
+
+   @param filePath to get
+   @return File
+   @throws FileNotFoundException if resource does not exist
+   */
+  protected static File resourceFile(String filePath) throws FileNotFoundException {
+    ClassLoader classLoader = CoreTest.class.getClassLoader();
+    URL resource = classLoader.getResource(filePath);
+    if (Objects.isNull(resource))
+      throw new FileNotFoundException(String.format("Failed to load resource: %s", filePath));
+    return new File(resource.getFile());
+  }
 
   /**
    Parse some test JSON, deserializing it into a Payload

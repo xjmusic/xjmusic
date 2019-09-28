@@ -21,7 +21,7 @@ import java.util.Objects;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public abstract class EntityImpl extends ResourceImpl implements Entity {
+public abstract class EntityImpl extends ResourceEntityImpl implements Entity {
   private static final ImmutableList<String> RESOURCE_ATTRIBUTE_NAMES = ImmutableList.of("createdAt", "updatedAt");
   protected BigInteger id;
   protected Instant createdAt;

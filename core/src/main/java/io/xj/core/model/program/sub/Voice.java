@@ -3,11 +3,13 @@ package io.xj.core.model.program.sub;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
+import io.xj.core.model.entity.SubEntity;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.program.impl.ProgramSubEntity;
 
 import java.math.BigInteger;
+import java.util.UUID;
 
 /**
  POJO for persisting data in memory while performing business logic,
@@ -40,6 +42,12 @@ public class Voice extends ProgramSubEntity {
       .add("type")
       .add("name")
       .build();
+  }
+
+  @Override
+  public Voice setId(UUID id) {
+    super.setId(id);
+    return this;
   }
 
   @Override

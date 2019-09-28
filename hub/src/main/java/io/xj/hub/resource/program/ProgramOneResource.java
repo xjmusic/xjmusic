@@ -7,6 +7,9 @@ import io.xj.core.model.payload.MediaType;
 import io.xj.core.model.payload.Payload;
 import io.xj.core.model.user.role.UserRoleType;
 import io.xj.hub.HubResource;
+import io.xj.hub.resource.auth.google.AuthGoogleCallbackResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;

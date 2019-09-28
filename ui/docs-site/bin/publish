@@ -18,9 +18,5 @@ USAGE="
      bin/publish
 "
 
-# do it and exit if any step fails
-cd themes/xj-docs-theme && npm install && gulp || exit 1
-cd ${BASE}
-
 hugo || exit 1
 s3_website push || exit 1

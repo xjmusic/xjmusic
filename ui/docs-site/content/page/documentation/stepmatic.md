@@ -1,6 +1,6 @@
 +++
 date = "2018-10-11T06:44:26"
-categories = ["core"]
+categories = ["music"]
 tags = ["tool"]
 slug = "stepmatic"
 title = "Stepmatic™"

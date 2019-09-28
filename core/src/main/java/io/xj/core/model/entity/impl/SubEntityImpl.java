@@ -20,7 +20,7 @@ import java.util.UUID;
  + [#166690830] Pattern model handles all of its own entities
  + [#166708597] Audio model handles all of its own entities
  */
-public abstract class SubEntityImpl extends ResourceImpl implements SubEntity {
+public abstract class SubEntityImpl extends ResourceEntityImpl implements SubEntity {
   private static final ImmutableList<String> SUB_ENTITY_PAYLOAD_ATTRIBUTE_NAMES = ImmutableList.of();
   protected UUID id;
 

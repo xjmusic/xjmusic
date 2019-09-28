@@ -1,6 +1,6 @@
 +++
 date = "2017-06-19T18:49:24-04:00"
-categories = ["core"]
+categories = ["music"]
 tags = ["meme"]
 slug = "memes"
 title = "Memes"

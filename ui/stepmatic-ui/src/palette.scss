@@ -1,0 +1,156 @@
+$warning-color: #ff992b;
+$success-color: #2bff72;
+$action-color: #999;
+
+$app-background-color: #222;
+$app-font-color:#fff;
+
+$component-border: 2px solid #222;
+$header-background-color: #222;
+
+$input-background-color: #111;
+$input-color: $app-font-color;
+$label-color: #999;
+
+$modal-background-color: #444;
+$panel-background-color: #444;
+
+$success-background-color: darken($success-color, 40%);
+$action-background-color: darken($action-color, 40%);
+
+$track-editor-background: #808080;
+$track-events-background: #a0a0a0;
+$track-name-color: #404040;
+$event-background-color: #666;
+$event-border: 1px solid #555;
+
+@mixin dialog-button-color($base-color) {
+  background-color: lighten($base-color, 5%);
+  border-bottom-color: lighten($base-color, 15%);
+  border-left-color: darken($base-color, 5%);
+  border-right-color: darken($base-color, 5%);
+  border-top-color: lighten($base-color, 10%);
+
+  &:hover {
+    background-color: lighten($base-color, 10%);
+  }
+}
+
+@mixin inaction-button-style($base-color) {
+  background-color: darken($base-color, 20%);
+  color: lighten($base-color, 20%);
+  border-bottom-color: lighten($base-color, 15%);
+  border-left-color: darken($base-color, 5%);
+  border-right-color: darken($base-color, 5%);
+  border-top-color: lighten($base-color, 10%);
+  font-weight: bold;
+  text-transform: lowercase;
+  padding-left: 1rem;
+  padding-right: 1rem;
+
+  .content {
+    width: 64px; // based on width of saving animation
+    font-size: 24px;
+    text-align: center;
+    font-weight: bold;
+  }
+}
+
+@mixin action-button-style($base-color) {
+  cursor: pointer;
+  @include inaction-button-style($base-color);
+
+  &:hover {
+    background-color: darken($base-color, 15%);
+    color: lighten($base-color, 25%);
+  }
+
+  &:active {
+    background-color: darken($base-color, 10%);
+    color: lighten($base-color, 30%);
+  }
+}
+
+@mixin action-button($base-color) {
+  background-color: darken($base-color, 25%);
+  cursor: pointer;
+  text-transform: lowercase;
+  font-weight: bold;
+  font-size: 0.8em;
+  padding: 0.5em 1em;
+  color: lighten($base-color, 20%);
+
+  &:hover {
+    background-color: lighten($base-color, 20%);
+    color: darken($base-color, 25%);
+  }
+}
+
+@mixin edit-button($base-color) {
+  @include action-button($base-color);
+}
+
+@mixin delete-button($base-color) {
+  opacity: 0.38;
+  &:hover {
+    opacity: 1.0;
+  }
+  @include action-button($base-color);
+}
+
+@mixin saving-animation($background-color) {
+  .saving-animation {
+    display: inline-block;
+    position: relative;
+    //height: 64px;
+  }
+  .saving-animation div {
+    position: absolute;
+    top: -5px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: $background-color;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+  }
+  .saving-animation div:nth-child(1) {
+    left: 6px;
+    animation: saving-animation1 0.6s infinite;
+  }
+  .saving-animation div:nth-child(2) {
+    left: 6px;
+    animation: saving-animation2 0.6s infinite;
+  }
+  .saving-animation div:nth-child(3) {
+    left: 26px;
+    animation: saving-animation2 0.6s infinite;
+  }
+  .saving-animation div:nth-child(4) {
+    left: 45px;
+    animation: saving-animation3 0.6s infinite;
+  }
+  @keyframes saving-animation1 {
+    0% {
+      transform: scale(0);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes saving-animation3 {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(0);
+    }
+  }
+  @keyframes saving-animation2 {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(19px, 0);
+    }
+  }
+}

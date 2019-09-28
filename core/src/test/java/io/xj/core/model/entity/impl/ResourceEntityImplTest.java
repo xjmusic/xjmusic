@@ -17,7 +17,9 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
-public class ResourceImplTest extends CoreTest {
+public class ResourceEntityImplTest extends CoreTest {
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   Program program;
   Sequence sequenceA;
   Sequence sequenceB;
@@ -28,14 +30,11 @@ public class ResourceImplTest extends CoreTest {
   SequenceBindingMeme sequenceBindingMeme1;
   SequenceBindingMeme sequenceBindingMeme2;
 
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
-
   @Before
   public void setUp() {
     program = newProgram(12, 101, 3, ProgramType.Main, ProgramState.Published, "Earth to Fire", "Ebm", 121.0, now());
-    sequenceA = program.add(newSequence(0, "Passion Volcano", 0.6, "Ebm", 121.0));
-    sequenceB = program.add(newSequence(0, "Exploding", 0.6, "B", 121.0));
+    sequenceA = program.add(newSequence(8, "Passion Volcano", 0.6, "Ebm", 121.0));
+    sequenceB = program.add(newSequence(4, "Exploding", 0.5, "B", 123.0));
     sequenceBinding0 = program.add(newSequenceBinding(sequenceA, 0));
     sequenceBinding1 = program.add(newSequenceBinding(sequenceB, 1));
     sequenceBinding2 = program.add(newSequenceBinding(sequenceA, 2));
@@ -62,6 +61,18 @@ public class ResourceImplTest extends CoreTest {
 
     sequenceA.set("turnip", 4.2);
   }
+
+  @Test
+  public void setAllResourceAttributes() {
+    sequenceA.setAllResourceAttributes(sequenceB);
+
+    assertEquals("Exploding", sequenceA.getName());
+    assertEquals(4L, (long) sequenceA.getTotal());
+    assertEquals(0.5, sequenceA.getDensity(), 0.01);
+    assertEquals("B", sequenceA.getKey());
+    assertEquals(123.0, sequenceA.getTempo(), 0.01);
+  }
+
 
 /*
 
