@@ -1,8 +1,14 @@
 module.exports = {
   publicPath: '/stepmatic/',
   devServer: {
-    host: 'localhost'
+    host: 'localhost',
+
+    // [#168819062] Stepmatic Vue.js environment proxies /api/1 to docker-compose hub setup
+    proxy: {
+      "/api/1/*": {
+        target: "http://localhost/",
+        secure: false
+      }
+    }
   }
 };
-
-// TODO configure Vue to be able to serve itself in development, with its own favicon resources and also a proxy to the Hub API
