@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../common/functions
+
+# Connect as root
+MYSQL_USER="root"
+MYSQL_PORT=3300
+
+# Find MySQL executable
+MYSQL_COMMAND=mysql_upgrade
+if [ -f /usr/bin/mysql_upgrade ]; then
+    MYSQL_COMMAND=/usr/bin/mysql_upgrade
+elif [ -f /usr/local/mysql/bin/mysql_upgrade ]; then
+    MYSQL_COMMAND=/usr/local/mysql/bin/mysql_upgrade
+fi
+
+${MYSQL_COMMAND} --user=${MYSQL_USER} --host=127.0.0.1 --port=${MYSQL_PORT} "$@"
