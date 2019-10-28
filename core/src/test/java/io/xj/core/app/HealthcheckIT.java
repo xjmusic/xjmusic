@@ -26,10 +26,6 @@ public class HealthcheckIT {
     health = injector.getInstance(Health.class);
   }
 
-  @After
-  public void tearDown() throws Exception {
-  }
-
   @Test
   public void check() throws Exception {
     for (int i = 0; STRESS_TEST_ITERATIONS > i; i++) {

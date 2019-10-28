@@ -751,4 +751,12 @@ public interface Config {
   static Integer computeTimeResolutionHz() {
     return getIntOrDefault("compute.time.resolution.hz", DEFAULT_COMPUTE_TIME_RESOLUTION_HZ);
   }
+
+  /**
+   Get ratio of free disk space (relative to total disk space) below which alarm will be thrown by health check.
+   @return lower ratio of free disk space
+   */
+  static Double getAlarmDiskFreeRatioLower() {
+    return getDoubleOrDefault("alarm.disk.free.ratio.lower", 0.1);
+  }
 }
