@@ -1,17 +1,17 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.config;
 
 import com.google.common.collect.Maps;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.chain.ChainConfigType;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.instrument.InstrumentState;
-import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.program.PatternType;
-import io.xj.core.model.program.ProgramState;
-import io.xj.core.model.program.ProgramType;
-import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.ChainConfigType;
+import io.xj.core.model.ChainState;
+import io.xj.core.model.ChainType;
+import io.xj.core.model.InstrumentState;
+import io.xj.core.model.InstrumentType;
+import io.xj.core.model.ProgramPatternType;
+import io.xj.core.model.ProgramState;
+import io.xj.core.model.ProgramType;
+import io.xj.core.model.SegmentState;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,7 +97,7 @@ public interface Config {
   String W3C_PATH_SEPARATOR = "/"; // do not touch this! It's part of the W3C spec
 
   /**
-   Get a String value from a system property
+   Get a String value of a system property
 
    @param key of system property to get
    @return value
@@ -155,8 +155,8 @@ public interface Config {
     config.put("choiceTypes", ProgramType.stringValues());
     config.put("instrumentStates", InstrumentState.stringValues());
     config.put("instrumentTypes", InstrumentType.stringValues());
-    config.put("patternDetailTypes", PatternType.stringValuesForDetailSequence());
-    config.put("patternTypes", PatternType.stringValues());
+    config.put("patternDetailTypes", ProgramPatternType.stringValuesForDetailSequence());
+    config.put("patternTypes", ProgramPatternType.stringValues());
     config.put("programStates", ProgramState.stringValues());
     config.put("programTypes", ProgramType.stringValues());
     config.put("segmentBaseUrl", getSegmentBaseUrl());
@@ -419,38 +419,38 @@ public interface Config {
   }
 
   /**
-   @return Database MySQL database name
+   @return Database Postgres database name
    */
-  static String getDbMysqlDatabase() {
-    return getOrDefault("db.mysql.database", "xj");
+  static String getDbPostgresDatabase() {
+    return getOrDefault("db.postgres.database", "xj");
   }
 
   /**
-   @return Database MySQL database host
+   @return Database Postgres database host
    */
-  static String getDbMysqlHost() {
-    return getOrDefault("db.mysql.host", "localhost");
+  static String getDbPostgresHost() {
+    return getOrDefault("db.postgres.host", "localhost");
   }
 
   /**
-   @return Database MySQL database password
+   @return Database Postgres database password
    */
-  static String getDbMysqlPass() {
-    return getOrDefault("db.mysql.pass", "");
+  static String getDbPostgresPass() {
+    return getOrDefault("db.postgres.pass", "");
   }
 
   /**
-   @return Database MySQL database port
+   @return Database Postgres database port
    */
-  static String getDbMysqlPort() {
-    return getOrDefault("db.mysql.port", "3300");
+  static String getDbPostgresPort() {
+    return getOrDefault("db.postgres.port", "5400");
   }
 
   /**
-   @return Database MySQL database use
+   @return Database Postgres database use
    */
-  static String getDbMysqlUser() {
-    return getOrDefault("db.mysql.user", "root");
+  static String getDbPostgresUser() {
+    return getOrDefault("db.postgres.user", "root");
   }
 
   /**
@@ -503,7 +503,7 @@ public interface Config {
   }
 
   /**
-   Get a Double value from a system property
+   Get a Double value of a system property
 
    @param key of system property to get
    @return value
@@ -515,7 +515,7 @@ public interface Config {
   }
 
   /**
-   Get a Double value from a system property, else (if null) return default value
+   Get a Double value of a system property, else (if null) return default value
 
    @param key          of system property to get
    @param defaultValue to return if no system property is set
@@ -580,7 +580,7 @@ public interface Config {
   }
 
   /**
-   @return number of seconds to cache an ingest before re-reading it from the DAOs
+   @return number of seconds to cache an ingest before re-reading it of the DAOs
    */
   static int getIngestCacheSeconds() {
     return getIntOrDefault("ingest.cache.seconds", DEFAULT_INGEST_ACHE_SECONDS);
@@ -608,7 +608,7 @@ public interface Config {
   }
 
   /**
-   Get an Integer value from a system property
+   Get an Integer value of a system property
 
    @param key of system property to get
    @return value
@@ -620,7 +620,7 @@ public interface Config {
   }
 
   /**
-   Get an Integer value from a system property, else (if null) return default value
+   Get an Integer value of a system property, else (if null) return default value
 
    @param key          of system property to get
    @param defaultValue to return if no system property is set
@@ -656,7 +656,7 @@ public interface Config {
   }
 
   /**
-   Get a Long value from a system property
+   Get a Long value of a system property
 
    @param key of system property to get
    @return value
@@ -668,7 +668,7 @@ public interface Config {
   }
 
   /**
-   Get a Long value from a system property, else (if null) return default value
+   Get a Long value of a system property, else (if null) return default value
 
    @param key          of system property to get
    @param defaultValue to return if no system property is set
@@ -773,7 +773,7 @@ public interface Config {
   }
 
   /**
-   Get a String value from a system property, else (if null) return default value
+   Get a String value of a system property, else (if null) return default value
 
    @param key          of system property to get
    @param defaultValue to return if no system property is set
@@ -942,7 +942,7 @@ public interface Config {
   }
 
   /**
-   Get an Boolean value from a system property
+   Get an Boolean value of a system property
 
    @param key of system property to get
    @return value
@@ -954,7 +954,7 @@ public interface Config {
   }
 
   /**
-   Get an Boolean value from a system property, else (if null) return default value
+   Get an Boolean value of a system property, else (if null) return default value
 
    @param key          of system property to get
    @param defaultValue to return if no system property is set

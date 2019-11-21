@@ -1,5 +1,5 @@
 {{ if .Params.categories }}
-<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+<!-- Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
 
 <i class="fa fa-folder" aria-hidden="true"></i>&nbsp;{{ range $index, $category := .Params.categories }}{{ if gt $index 0 }}, {{ end }}<a href="{{ "/categories/" | relLangURL }}{{ . | urlize }}" rel="category tag">{{ . }}</a>{{ end }}
 {{ end }}

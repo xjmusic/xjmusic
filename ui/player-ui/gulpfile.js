@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 /* globals require */
 const gulp = require('gulp');
@@ -8,7 +8,7 @@ let cleanCSS = require('gulp-clean-css');
 const htmlmin = require('gulp-htmlmin');
 const uglify = require('gulp-uglify');
 const babel = require('gulp-babel');
-// const browserSync = require('browser-sync').create();
+// const browserSync = require('browser-sync').of();
 const imagemin = require('gulp-imagemin');
 const plumber = require('gulp-plumber');
 const pump = require('pump');

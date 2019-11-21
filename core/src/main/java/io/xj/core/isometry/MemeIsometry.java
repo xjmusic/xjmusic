@@ -1,8 +1,8 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.isometry;
 
 import com.google.common.base.Objects;
-import io.xj.core.model.entity.MemeEntity;
+import io.xj.core.entity.MemeEntity;
 
 import java.util.Collection;
 
@@ -12,10 +12,10 @@ import java.util.Collection;
 public class MemeIsometry extends Isometry {
 
   /**
-   Instantiate a new MemeIsometry from a group of source Memes,
+   Instantiate a new MemeIsometry of a group of source Memes,
    as expressed in a a Result of jOOQ records.
 
-   @param sourceMemes to compare from
+   @param sourceMemes to compare of
    @return MemeIsometry ready for comparison to target Memes
    */
   public static <N extends MemeEntity> MemeIsometry ofMemes(Collection<N> sourceMemes) {

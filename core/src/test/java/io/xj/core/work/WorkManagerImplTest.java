@@ -1,13 +1,12 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.core.work;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.core.work;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import com.google.api.client.util.Maps;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.CoreTest;
@@ -15,12 +14,14 @@ import io.xj.core.config.Config;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.dao.ProgramDAO;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.message.platform.PlatformMessage;
-import io.xj.core.model.work.Work;
-import io.xj.core.model.work.WorkState;
-import io.xj.core.model.work.WorkType;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainState;
+import io.xj.core.model.PlatformMessage;
+import io.xj.core.model.Program;
+import io.xj.core.model.ProgramSequencePattern;
+import io.xj.core.model.Work;
+import io.xj.core.model.WorkState;
+import io.xj.core.model.WorkType;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import net.greghaines.jesque.Job;
 import net.greghaines.jesque.client.Client;
@@ -35,11 +36,12 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import redis.clients.jedis.Jedis;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -69,6 +71,7 @@ public class WorkManagerImplTest extends CoreTest {
   private PlatformMessageDAO platformMessageDAO;
   @Mock
   private ProgramDAO programDAO;
+  private Chain chain1;
 
   @Before
   public void setUp() throws Exception {
@@ -85,6 +88,8 @@ public class WorkManagerImplTest extends CoreTest {
 
     System.setProperty("work.queue.name", "xj_test");
 
+    chain1 = Chain.create();
+
     subject = injector.getInstance(WorkManager.class);
   }
 
@@ -97,10 +102,10 @@ public class WorkManagerImplTest extends CoreTest {
   public void startChainFabrication() {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.startChainFabrication(BigInteger.valueOf(5977L));
+    subject.startChainFabrication(chain1.getId());
 
     Map<String, String> vars = Maps.newHashMap();
-    vars.put(Work.KEY_TARGET_ID, "5977");
+    vars.put(Work.KEY_TARGET_ID, chain1.getId().toString());
     verify(queueClient).recurringEnqueue(
       eq(Config.getWorkQueueName()),
       eq(new Job(WorkType.ChainFabricate.toString(), vars)),
@@ -112,10 +117,10 @@ public class WorkManagerImplTest extends CoreTest {
   public void stopChainFabrication() {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.stopChainFabrication(BigInteger.valueOf(5977L));
+    subject.stopChainFabrication(chain1.getId());
 
     Map<String, String> vars = Maps.newHashMap();
-    vars.put(Work.KEY_TARGET_ID, "5977");
+    vars.put(Work.KEY_TARGET_ID, chain1.getId().toString());
     verify(queueClient).removeRecurringEnqueue(Config.getWorkQueueName(),
       new Job(WorkType.ChainFabricate.toString(), vars));
     verify(queueClient).end();
@@ -125,10 +130,10 @@ public class WorkManagerImplTest extends CoreTest {
   public void scheduleSegmentFabricate() {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.scheduleSegmentFabricate(10, BigInteger.valueOf(5977L));
+    subject.scheduleSegmentFabricate(10, chain1.getId());
 
     Map<String, String> vars = Maps.newHashMap();
-    vars.put(Work.KEY_TARGET_ID, "5977");
+    vars.put(Work.KEY_TARGET_ID, chain1.getId().toString());
     verify(queueClient).delayedEnqueue(
       eq(Config.getWorkQueueName()),
       eq(new Job(WorkType.SegmentFabricate.toString(), vars)),
@@ -140,10 +145,10 @@ public class WorkManagerImplTest extends CoreTest {
   public void startChainErase() {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.startChainErase(BigInteger.valueOf(5977L));
+    subject.startChainErase(chain1.getId());
 
     Map<String, String> vars = Maps.newHashMap();
-    vars.put(Work.KEY_TARGET_ID, "5977");
+    vars.put(Work.KEY_TARGET_ID, chain1.getId().toString());
     verify(queueClient).recurringEnqueue(
       eq(Config.getWorkQueueName()),
       eq(new Job(WorkType.ChainErase.toString(), vars)),
@@ -155,10 +160,10 @@ public class WorkManagerImplTest extends CoreTest {
   public void stopChainErase() {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.stopChainErase(BigInteger.valueOf(5977L));
+    subject.stopChainErase(chain1.getId());
 
     Map<String, String> vars = Maps.newHashMap();
-    vars.put(Work.KEY_TARGET_ID, "5977");
+    vars.put(Work.KEY_TARGET_ID, chain1.getId().toString());
     verify(queueClient).removeRecurringEnqueue(Config.getWorkQueueName(),
       new Job(WorkType.ChainErase.toString(), vars));
     verify(queueClient).end();
@@ -177,75 +182,75 @@ public class WorkManagerImplTest extends CoreTest {
   public void readAllWork() throws Exception {
     // mock Chain records in Erase state
     Collection<Chain> testChainErase = Lists.newArrayList();
-    testChainErase.add(newChain(157, ChainState.Erase));
-    testChainErase.add(newChain(8907, ChainState.Erase));
+    Chain chain157 = Chain.create(ChainState.Erase);
+    testChainErase.add(chain157);
+    Chain chain8907 = Chain.create(ChainState.Erase);
+    testChainErase.add(chain8907);
     when(chainDAO.readAllInState(any(), eq(ChainState.Erase))).thenReturn(testChainErase);
     // mock Chain records in Fabricate state
     Collection<Chain> testChainFabricate = Lists.newArrayList();
-    testChainFabricate.add(newChain(24, ChainState.Fabricate));
-    testChainFabricate.add(newChain(3382, ChainState.Fabricate));
+    Chain chain24 = Chain.create(ChainState.Fabricate);
+    testChainFabricate.add(chain24);
+    Chain chain3382 = Chain.create(ChainState.Fabricate);
+    testChainFabricate.add(chain3382);
     when(chainDAO.readAllInState(any(), eq(ChainState.Fabricate))).thenReturn(testChainFabricate);
     // mock direct query of Redis Jesque jobs
     when(redisDatabaseProvider.getClient()).thenReturn(redisConnection);
     Set<String> testQueueData = Sets.newConcurrentHashSet();
-    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"24\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"3382\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ChainErase\",\"vars\":{\"targetId\":\"157\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain24.getId() + "\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain3382.getId() + "\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainErase\",\"vars\":{\"targetId\":\"" + chain157.getId() + "\"},\"args\":null}");
     when(redisConnection.zrange("xj:queue:xj_test", 0L, -1L)).thenReturn(testQueueData);
 
     Collection<Work> allResults = subject.readAllWork();
 
     verify(redisConnection).zrange("xj:queue:xj_test", 0L, -1L);
     // assert results
-    Iterator<Work> resultIterator = allResults.iterator();
     assertEquals(4L, allResults.size());
+    Map<UUID, Work> resultWorkForTargetId = Maps.newHashMap();
+    allResults.forEach(work -> resultWorkForTargetId.put(work.getTargetId(), work));
     // assert #1
-    Work next0 = resultIterator.next();
-    assertEquals(BigInteger.valueOf(10000157L), next0.getId());
-    assertEquals(BigInteger.valueOf(157L), next0.getTargetId());
-    assertEquals(WorkType.ChainErase, next0.getType());
-    assertEquals(WorkState.Queued, next0.getState());
+    assertEquals(WorkType.ChainErase, resultWorkForTargetId.get(chain157.getId()).getType());
+    assertEquals(WorkState.Queued, resultWorkForTargetId.get(chain157.getId()).getState());
     // assert #2
-    Work next1 = resultIterator.next();
-    assertEquals(BigInteger.valueOf(2000024L), next1.getId());
-    assertEquals(BigInteger.valueOf(24L), next1.getTargetId());
-    assertEquals(WorkType.ChainFabricate, next1.getType());
-    assertEquals(WorkState.Queued, next1.getState());
+    assertEquals(WorkType.ChainFabricate, resultWorkForTargetId.get(chain24.getId()).getType());
+    assertEquals(WorkState.Queued, resultWorkForTargetId.get(chain24.getId()).getState());
     // assert #3
-    Work next2 = resultIterator.next();
-    assertEquals(BigInteger.valueOf(100008907L), next2.getId());
-    assertEquals(BigInteger.valueOf(8907L), next2.getTargetId());
-    assertEquals(WorkType.ChainErase, next2.getType());
-    assertEquals(WorkState.Expected, next2.getState());
+    assertEquals(WorkType.ChainErase, resultWorkForTargetId.get(chain8907.getId()).getType());
+    assertEquals(WorkState.Expected, resultWorkForTargetId.get(chain8907.getId()).getState());
     // assert #0
-    Work next3 = resultIterator.next();
-    assertEquals(BigInteger.valueOf(200003382L), next3.getId());
-    assertEquals(BigInteger.valueOf(3382L), next3.getTargetId());
-    assertEquals(WorkType.ChainFabricate, next3.getType());
-    assertEquals(WorkState.Queued, next3.getState());
+    assertEquals(WorkType.ChainFabricate, resultWorkForTargetId.get(chain3382.getId()).getType());
+    assertEquals(WorkState.Queued, resultWorkForTargetId.get(chain3382.getId()).getState());
+
   }
 
   @Test
   public void reinstateAllWork() throws Exception {
+    Program program2965 = Program.create();
+    ProgramSequencePattern programPattern587 = ProgramSequencePattern.create();
     // mock Chain records in Erase state
     Collection<Chain> testChainErase = Lists.newArrayList();
-    testChainErase.add(newChain(157, ChainState.Erase));
-    testChainErase.add(newChain(8907, ChainState.Erase));
+    Chain chain157 = Chain.create(ChainState.Erase);
+    testChainErase.add(chain157);
+    Chain chain8907 = Chain.create(ChainState.Erase);
+    testChainErase.add(chain8907);
     when(chainDAO.readAllInState(any(), eq(ChainState.Erase))).thenReturn(testChainErase);
     // mock Chain records in Fabricate state
     Collection<Chain> testChainFabricate = Lists.newArrayList();
-    testChainFabricate.add(newChain(24, ChainState.Fabricate));
-    testChainFabricate.add(newChain(3382, ChainState.Fabricate));
+    Chain chain24 = Chain.create(ChainState.Fabricate);
+    testChainFabricate.add(chain24);
+    Chain chain3382 = Chain.create(ChainState.Fabricate);
+    testChainFabricate.add(chain3382);
     when(chainDAO.readAllInState(any(), eq(ChainState.Fabricate))).thenReturn(testChainFabricate);
     // mock direct query of Redis Jesque jobs
     when(redisDatabaseProvider.getClient()).thenReturn(redisConnection);
     Set<String> testQueueData = Sets.newConcurrentHashSet();
-    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"24\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"3382\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ChainErase\",\"vars\":{\"targetId\":\"157\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"AudioErase\",\"vars\":{\"targetId\":\"157\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ProgramErase\",\"vars\":{\"targetId\":\"2965\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"PatternErase\",\"vars\":{\"targetId\":\"587\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain24.getId() +"\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain3382.getId() +"\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainErase\",\"vars\":{\"targetId\":\"" + chain157.getId() +"\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"AudioErase\",\"vars\":{\"targetId\":\"" + chain157.getId() +"\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ProgramErase\",\"vars\":{\"targetId\":\"" + program2965.getId() +"\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"PatternErase\",\"vars\":{\"targetId\":\"" + programPattern587.getId() +"\"},\"args\":null}");
     when(redisConnection.zrange("xj:queue:xj_test", 0L, -1L)).thenReturn(testQueueData);
     // mock redis queue redisClient
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
@@ -254,12 +259,14 @@ public class WorkManagerImplTest extends CoreTest {
 
     verify(redisConnection).zrange("xj:queue:xj_test", 0L, -1L);
     // verify the platform message reporting that the job was reinstated
+    Optional<Work> chainEraseWork = result.stream().filter(work -> work.getType().equals(WorkType.ChainErase)).findFirst();
+    assertTrue(chainEraseWork.isPresent());
     ArgumentCaptor<PlatformMessage> resultMessage = ArgumentCaptor.forClass(PlatformMessage.class);
     verify(platformMessageDAO).create(any(), resultMessage.capture());
-    assertEquals("Reinstated Queued ChainErase #8907", resultMessage.getValue().getBody());
+    assertEquals(String.format("Reinstated Queued ChainErase #%s", chainEraseWork.get().getTargetId()), resultMessage.getValue().getBody());
     // verify the dropped chain erase job got reinstated
     Map<String, String> vars = Maps.newHashMap();
-    vars.put(Work.KEY_TARGET_ID, "8907");
+    vars.put(Work.KEY_TARGET_ID, chainEraseWork.get().getTargetId().toString());
     verify(queueClient).recurringEnqueue(
       eq(Config.getWorkQueueName()),
       eq(new Job(WorkType.ChainErase.toString(), vars)),
@@ -269,43 +276,48 @@ public class WorkManagerImplTest extends CoreTest {
     Iterator<Work> resultIterator = result.iterator();
     // assert #0
     Work result0 = resultIterator.next();
-    assertEquals(BigInteger.valueOf(100008907L), result0.getId());
-    assertEquals(BigInteger.valueOf(8907L), result0.getTargetId());
+    assertEquals(chain8907.getId(), result0.getTargetId());
     assertEquals(WorkType.ChainErase, result0.getType());
     assertEquals(WorkState.Queued, result0.getState());
   }
 
   @Test
   public void isExistingWork() throws Exception {
+    Program program2965 = Program.create();
+    ProgramSequencePattern programPattern587 = ProgramSequencePattern.create();
     // mock Chain records in Erase state
     Collection<Chain> testChainErase = Lists.newArrayList();
-    testChainErase.add(newChain(157, ChainState.Erase));
-    testChainErase.add(newChain(8907, ChainState.Erase));
+    Chain chain157 = Chain.create(ChainState.Erase);
+    testChainErase.add(chain157);
+    Chain chain8907 = Chain.create(ChainState.Erase);
+    testChainErase.add(chain8907);
     when(chainDAO.readAllInState(any(), eq(ChainState.Erase))).thenReturn(testChainErase);
     // mock Chain records in Fabricate state
     Collection<Chain> testChainFabricate = Lists.newArrayList();
-    testChainFabricate.add(newChain(24, ChainState.Fabricate));
-    testChainFabricate.add(newChain(3382, ChainState.Fabricate));
+    Chain chain24 = Chain.create(ChainState.Fabricate);
+    testChainFabricate.add(chain24);
+    Chain chain3382 = Chain.create(ChainState.Fabricate);
+    testChainFabricate.add(chain3382);
     when(chainDAO.readAllInState(any(), eq(ChainState.Fabricate))).thenReturn(testChainFabricate);
     // mock direct query of Redis Jesque jobs
     when(redisDatabaseProvider.getClient()).thenReturn(redisConnection);
     Set<String> testQueueData = Sets.newConcurrentHashSet();
-    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"24\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"3382\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ChainErase\",\"vars\":{\"targetId\":\"157\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"AudioErase\",\"vars\":{\"targetId\":\"157\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ProgramErase\",\"vars\":{\"targetId\":\"2965\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"PatternErase\",\"vars\":{\"targetId\":\"587\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain24.getId() +"\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain3382.getId() +"\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainErase\",\"vars\":{\"targetId\":\"" + chain157.getId() +"\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"AudioErase\",\"vars\":{\"targetId\":\"" + chain157.getId() +"\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ProgramErase\",\"vars\":{\"targetId\":\"" + program2965.getId() +"\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"PatternErase\",\"vars\":{\"targetId\":\"" + programPattern587.getId() +"\"},\"args\":null}");
     when(redisConnection.zrange("xj:queue:xj_test", 0L, -1L)).thenReturn(testQueueData);
 
     // proof is in the assertions
-    assertTrue(subject.isExistingWork(WorkState.Queued, WorkType.ChainFabricate, BigInteger.valueOf(3382L)));
-    assertTrue(subject.isExistingWork(WorkState.Queued, WorkType.ChainErase, BigInteger.valueOf(157L)));
-    assertTrue(subject.isExistingWork(WorkState.Queued, WorkType.ChainFabricate, BigInteger.valueOf(24L)));
-    assertTrue(subject.isExistingWork(WorkState.Expected, WorkType.ChainErase, BigInteger.valueOf(8907L)));
-    assertFalse(subject.isExistingWork(WorkState.Expected, WorkType.ChainFabricate, BigInteger.valueOf(3382L)));
-    assertFalse(subject.isExistingWork(WorkState.Queued, WorkType.ChainFabricate, BigInteger.valueOf(27L)));
-    assertFalse(subject.isExistingWork(WorkState.Queued, WorkType.ChainErase, BigInteger.valueOf(8907L)));
+    assertTrue(subject.isExistingWork(WorkState.Queued, WorkType.ChainFabricate, chain3382.getId()));
+    assertTrue(subject.isExistingWork(WorkState.Queued, WorkType.ChainErase, chain157.getId()));
+    assertTrue(subject.isExistingWork(WorkState.Queued, WorkType.ChainFabricate, chain24.getId()));
+    assertTrue(subject.isExistingWork(WorkState.Expected, WorkType.ChainErase, chain8907.getId()));
+    assertFalse(subject.isExistingWork(WorkState.Expected, WorkType.ChainFabricate, chain3382.getId()));
+    assertFalse(subject.isExistingWork(WorkState.Queued, WorkType.ChainFabricate, UUID.randomUUID()));
+    assertFalse(subject.isExistingWork(WorkState.Queued, WorkType.ChainErase, chain8907.getId()));
   }
 
 }

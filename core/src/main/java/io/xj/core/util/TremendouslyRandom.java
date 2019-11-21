@@ -1,10 +1,10 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- TremendouslyRandom class provides extremely high quality selection from small sets of possibilities.
+ TremendouslyRandom class provides extremely high quality selection of small sets of possibilities.
  */
 public interface TremendouslyRandom {
 

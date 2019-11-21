@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.chord;
 
 import io.xj.core.util.TremendouslyRandom;
@@ -17,8 +17,8 @@ import java.util.Map;
 
 /**
  a ChordMarkovNode object is a collection of possible outcomes and their likelihoods. It's expected that ChordMarkovNode be stored in a map keyed by the preceding state descriptor.
- a ChordMarkovNode, once stored at a particular preceding state descriptor, may receive additional observations (Chords), such that when the entire digestion process is complete, many ChordMarkovNode will contain more-than-one possible outcome, hence the neural network that learns ChordEntity progressions from the library it is provided.
- ChordMarkovNode toJSONObject provides a view of the N-order Markov map built from the library chord progressions.
+ a ChordMarkovNode, once stored at a particular preceding state descriptor, may receive additional observations (Chords), such that when the entire digestion process is complete, many ChordMarkovNode will contain more-than-one possible outcome, hence the neural network that learns ChordEntity progressions of the library it is provided.
+ ChordMarkovNode toJSONObject provides a view of the N-order Markov map built of the library chord progressions.
  */
 public class ChordMarkovNode {
   public static final Comparator<? super ChordMarkovNode> byPopularityDescending = (Comparator<? super ChordMarkovNode>) (o1, o2) -> Integer.compare(o2.getPopularity(), o1.getPopularity());
@@ -26,7 +26,7 @@ public class ChordMarkovNode {
   private final Map<String, ChordNode> nodeMap = Maps.newHashMap();
 
   /**
-   Construct chord markov node from a list of entities, being the precedent state of all observations (possible outcomes a.k.a. chord change) to be added to this node.
+   Construct chord markov node of a list of entities, being the precedent state of all observations (possible outcomes a.k.a. chord change) to be added to this node.
 
    @param precedentState chord progression preceding these observations
    */
@@ -61,9 +61,9 @@ public class ChordMarkovNode {
   }
 
   /**
-   Perform a weighted lottery drawing. Each node's key is added to the lottery N times, where N is its weight. A key is drawn from the lottery, and that node is returned.
+   Perform a weighted lottery drawing. Each node's key is added to the lottery N times, where N is its weight. A key is drawn of the lottery, and that node is returned.
 
-   @return one observation selected at random from all possible outcomes (a.k.a. chord changes) of this node.
+   @return one observation selected at random of all possible outcomes (a.k.a. chord changes) of this node.
    */
   ChordNode getRandomObservation() {
     List<String> lottery = Lists.newArrayList();

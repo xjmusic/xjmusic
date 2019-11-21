@@ -1,31 +1,33 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.xj.core.access.impl.Access;
+import io.xj.core.CoreTest;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.account.AccountUser;
-import io.xj.core.model.user.auth.UserAuth;
-import io.xj.core.model.user.role.UserRole;
-import io.xj.core.model.user.role.UserRoleType;
+import io.xj.core.model.Account;
+import io.xj.core.model.AccountUser;
+import io.xj.core.model.User;
+import io.xj.core.model.UserAuth;
+import io.xj.core.model.UserRole;
+import io.xj.core.model.UserRoleType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.container.ContainerRequestContext;
-import java.math.BigInteger;
 import java.util.Collection;
+import java.util.UUID;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AccessTest extends Mockito {
+public class AccessTest extends CoreTest {
   @Mock
   private ContainerRequestContext crc;
 
@@ -43,17 +45,18 @@ public class AccessTest extends Mockito {
 
   @Test
   public void getUserId() throws CoreException {
+    UUID id = UUID.randomUUID();
     Access access = new Access(ImmutableMap.of(
-      "userId", "2"
+      "userId", id.toString()
     ));
 
-    assertEquals(BigInteger.valueOf(2L), access.getUserId());
+    assertEquals(id, access.getUserId());
   }
 
   @Test
   public void fromContext() {
     Access expectAccess = new Access(ImmutableMap.of(
-      "userId", "2"
+      "userId", UUID.randomUUID().toString()
     ));
     when(crc.getProperty(Access.CONTEXT_KEY))
       .thenReturn(expectAccess);
@@ -65,22 +68,27 @@ public class AccessTest extends Mockito {
 
   @Test
   public void toJSON() {
+    UUID userId = UUID.randomUUID();
+    UUID accountId = UUID.randomUUID();
     Access access = new Access(ImmutableMap.of(
-      "userId", "2",
+      "userId", userId.toString(),
       "roles", "User,Artist",
-      "accounts", "1"
+      "accounts", accountId.toString()
     ));
 
-    assertEquals("{\"roles\":\"User,Artist\",\"accounts\":\"1\",\"userId\":\"2\"}", access.toJSON());
+    assertEquals(String.format("{\"roles\":\"User,Artist\",\"accounts\":\"%s\",\"userId\":\"%s\"}", accountId, userId), access.toJSON());
   }
 
   @Test
   public void getAccounts() {
+    UUID id1 = UUID.randomUUID();
+    UUID id2 = UUID.randomUUID();
+    UUID id3 = UUID.randomUUID();
     Access access = new Access(ImmutableMap.of(
-      "accounts", "1,3,7"
+      "accounts", String.format("%s,%s,%s", id1, id2, id3)
     ));
 
-    assertArrayEquals(new BigInteger[]{BigInteger.valueOf(1L), BigInteger.valueOf(3L), BigInteger.valueOf(7L)}, access.getAccountIds().toArray());
+    assertArrayEquals(new UUID[]{id1, id2, id3}, access.getAccountIds().toArray());
   }
 
   @Test
@@ -103,37 +111,32 @@ public class AccessTest extends Mockito {
 
   @Test
   public void intoMap() {
-    UserAuth userAuth = new UserAuth();
-    userAuth.setId(BigInteger.valueOf(1L));
-    userAuth.setUserId(BigInteger.valueOf(1L));
-    AccountUser accountUser = new AccountUser();
-    accountUser.setUserId(BigInteger.valueOf(1L));
-    accountUser.setAccountId(BigInteger.valueOf(101L));
+    User user = User.create();
+    Account account = Account.create();
+    UserAuth userAuth = UserAuth.create();
+    userAuth.setUserId(user.getId());
+    AccountUser accountUser = AccountUser.create(account, user);
     Collection<AccountUser> userAccountRoles = ImmutableList.of(accountUser);
-    UserRole userRole1 = new UserRole();
-    userRole1.setUserId(BigInteger.valueOf(1L));
-    userRole1.setTypeEnum(UserRoleType.User);
-    UserRole userRole2 = new UserRole();
-    userRole2.setUserId(BigInteger.valueOf(1L));
-    userRole2.setTypeEnum(UserRoleType.Artist);
+    UserRole userRole1 = UserRole.create(user, UserRoleType.User);
+    UserRole userRole2 = UserRole.create(user, UserRoleType.Artist);
     Collection<UserRole> userRoles = ImmutableList.of(userRole1, userRole2);
     Access access = new Access(userAuth, userAccountRoles, userRoles);
 
     assertEquals(ImmutableMap.of(
-      "userAuthId", "1",
-      "userId", "1",
+      "userAuthId", userAuth.getId().toString(),
+      "userId", user.getId().toString(),
       "roles", "User,Artist",
-      "accounts", "101"
+      "accounts", accountUser.getAccountId().toString()
     ), access.toMap());
   }
 
   @Test
   public void valid() {
     Access access = new Access(ImmutableMap.of(
-      "userAuthId", "1",
-      "userId", "1",
+      "userAuthId", UUID.randomUUID().toString(),
+      "userId", UUID.randomUUID().toString(),
       "roles", "User,Artist",
-      "accounts", "101"
+      "accounts", UUID.randomUUID().toString()
     ));
 
     assertTrue(access.isValid());
@@ -145,8 +148,8 @@ public class AccessTest extends Mockito {
   @Test
   public void valid_evenWithNoAccounts() {
     Access access = new Access(ImmutableMap.of(
-      "userAuthId", "1",
-      "userId", "1",
+      "userAuthId", UUID.randomUUID().toString(),
+      "userId", UUID.randomUUID().toString(),
       "roles", "User,Artist"
     ));
 
@@ -156,9 +159,9 @@ public class AccessTest extends Mockito {
   @Test
   public void valid_not() {
     Access access = new Access(ImmutableMap.of(
-      "userAuthId", "1",
-      "userId", "1",
-      "accounts", "101"
+      "userAuthId", UUID.randomUUID().toString(),
+      "userId", UUID.randomUUID().toString(),
+      "accounts", UUID.randomUUID().toString()
     ));
 
     assertFalse(access.isValid());

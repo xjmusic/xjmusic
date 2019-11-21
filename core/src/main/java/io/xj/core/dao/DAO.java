@@ -1,12 +1,12 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
+import io.xj.core.entity.Entity;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Entity;
 
-import java.math.BigInteger;
 import java.util.Collection;
+import java.util.UUID;
 
 public interface DAO<E extends Entity> {
 
@@ -20,15 +20,24 @@ public interface DAO<E extends Entity> {
   E create(Access access, E entity) throws CoreException;
 
   /**
-   Delete a specified Entity
+   Create many new records.
+   There's a default implementation of this, the slowest possible version, iterating over records and adding them.
+   Override that for classes that clearly benefit of batch writing. (*ahem* segment entities)@param access
 
-   @param access control
-   @param id     of specific Entity to delete.
+   @param entities to of many of
    */
-  void destroy(Access access, BigInteger id) throws CoreException;
+  void createMany(Access access, Collection<E> entities) throws CoreException;
+
+  /**
+   Delete a specified Entity@param access control
+
+   @param id of specific Entity to delete.
+   */
+  void destroy(Access access, UUID id) throws CoreException;
 
   /**
    Create a new instance of this type of Entity
+
    @return new entity instance
    */
   E newInstance();
@@ -41,7 +50,7 @@ public interface DAO<E extends Entity> {
    @return collection of retrieved records
    @throws CoreException on failure
    */
-  Collection<E> readMany(Access access, Collection<BigInteger> parentIds) throws CoreException;
+  Collection<E> readMany(Access access, Collection<UUID> parentIds) throws CoreException;
 
   /**
    Fetch one record  if accessible
@@ -51,14 +60,14 @@ public interface DAO<E extends Entity> {
    @return retrieved record
    @throws CoreException on failure
    */
-  E readOne(Access access, BigInteger id) throws CoreException;
+  E readOne(Access access, UUID id) throws CoreException;
 
   /**
-   Update a specified Entity
+   Update a specified Entity@param access control
 
-   @param access control
    @param id     of specific Entity to update.
    @param entity for the updated Entity.
    */
-  void update(Access access, BigInteger id, E entity) throws CoreException;
+  void update(Access access, UUID id, E entity) throws CoreException;
+
 }

@@ -1,17 +1,18 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.account;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.xj.core.CoreTest;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.payload.PayloadObject;
+import io.xj.core.model.Account;
+import io.xj.core.payload.PayloadObject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 import static io.xj.core.testing.Assert.assertSameItems;
 import static org.junit.Assert.assertEquals;
@@ -46,19 +47,20 @@ public class AccountTest extends CoreTest {
 
   @Test
   public void getPayloadAttributeNames() {
-    assertSameItems(ImmutableList.of("createdAt", "updatedAt", "name"), subject.getResourceAttributeNames());
+    assertSameItems(ImmutableList.of("name"), subject.getResourceAttributeNames());
   }
 
   @Test
   public void setAllFrom() throws CoreException {
+    UUID id = UUID.randomUUID();
     PayloadObject obj = new PayloadObject()
-      .setId("27")
+      .setId(id.toString())
       .setType("accounts")
       .setAttributes(ImmutableMap.of("name", "Test Account"));
 
     subject.consume(obj);
 
-    assertEquals(BigInteger.valueOf(27), subject.getId());
+    assertEquals(id, subject.getId());
     assertEquals("Test Account", subject.getName());
   }
 
@@ -79,11 +81,11 @@ public class AccountTest extends CoreTest {
     Account account = subject;
     account
       .setName("Test Account")
-      .setId(BigInteger.valueOf(72));
+      .setId(UUID.randomUUID());
 
     PayloadObject result = account.toPayloadObject();
 
-    assertEquals("72", result.getId());
+    assertEquals(account.getId().toString(), result.getId());
     assertEquals("accounts", result.getType());
     assertEquals("Test Account", result.getAttributes().get("name"));
   }

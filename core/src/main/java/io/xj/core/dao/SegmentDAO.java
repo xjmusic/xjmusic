@@ -1,14 +1,15 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
+import io.xj.core.entity.Entity;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.segment.Segment;
-import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.Segment;
+import io.xj.core.model.SegmentState;
 
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.UUID;
 
 public interface SegmentDAO extends DAO<Segment> {
 
@@ -20,7 +21,7 @@ public interface SegmentDAO extends DAO<Segment> {
    @param offset  to fetch segment at
    @return segment id
    */
-  Segment readOneAtChainOffset(Access access, BigInteger chainId, Long offset) throws CoreException;
+  Segment readOneAtChainOffset(Access access, UUID chainId, Long offset) throws CoreException;
 
   /**
    Fetch one Segment by chainId and state, if present
@@ -32,7 +33,7 @@ public interface SegmentDAO extends DAO<Segment> {
    @return Segment if found
    @throws CoreException on failure
    */
-  Segment readOneInState(Access access, BigInteger chainId, SegmentState segmentState, Instant segmentBeginBefore) throws CoreException;
+  Segment readOneInState(Access access, UUID chainId, SegmentState segmentState, Instant segmentBeginBefore) throws CoreException;
 
   /**
    Fetch many records for many parents by id, if accessible
@@ -44,28 +45,48 @@ public interface SegmentDAO extends DAO<Segment> {
   Collection<Segment> readAll(String chainIdentifier) throws CoreException;
 
   /**
+   Fetch all sub-entities records for many parent segments by id
+
+   @param access     control
+   @param segmentIds to fetch records for.
+   @return collection of all sub entities of these parent segments, different classes that extend Entity
+   @throws CoreException on failure
+   */
+  <N extends Entity> Collection<N> readAllSubEntities(Access access, Collection<UUID> segmentIds) throws CoreException;
+
+  /**
+   Create all sub-entities for a given segment
+   does not actually check if all; these entities belong to the same sub-entity,
+   this is a top-level access method only
+
+   @param access  control
+   @param entities to of
+   */
+  <N extends Entity> void createAllSubEntities(Access access, Collection<N> entities) throws CoreException;
+
+  /**
    Read all Segments that are accessible, by Chain Id, starting at a particular offset
    limit max # of segments readable at once in environment configuration
 
    @param access     control
-   @param chainId    to read all segments from
+   @param chainId    to read all segments of
    @param fromOffset to read segments form
    @return array of segments as JSON
    @throws CoreException on failure
    */
-  Collection<Segment> readAllFromOffset(Access access, BigInteger chainId, Long fromOffset) throws CoreException;
+  Collection<Segment> readAllFromOffset(Access access, UUID chainId, Long fromOffset) throws CoreException;
 
   /**
    Read all Segments that are accessible, by Chain Id, starting and ending at particular offsets
 
    @param access     control
-   @param chainId    to read all segments from
+   @param chainId    to read all segments of
    @param fromOffset to read segments form
    @param toOffset   to read segments to
    @return array of segments as JSON
    @throws CoreException on failure
    */
-  Collection<Segment> readAllFromToOffset(Access access, BigInteger chainId, Long fromOffset, Long toOffset) throws CoreException;
+  Collection<Segment> readAllFromToOffset(Access access, UUID chainId, Long fromOffset, Long toOffset) throws CoreException;
 
   /**
    Read all Segments in a specified state
@@ -75,17 +96,17 @@ public interface SegmentDAO extends DAO<Segment> {
    @param state   of segments to read
    @return segments
    */
-  Collection<Segment> readAllInState(Access access, BigInteger chainId, SegmentState state) throws CoreException;
+  Collection<Segment> readAllInState(Access access, UUID chainId, SegmentState state) throws CoreException;
 
   /**
    Read all Segments that are accessible, by Chain Embed Key, starting at a particular offset
    limit max # of segments readable at once in environment configuration
    [#150279540] Unauthenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
 
+   @param chainEmbedKey to read all segments of
+   @param fromOffset    to read segments form
    @return array of segments as JSON
    @throws CoreException on failure
-   @param chainEmbedKey to read all segments from
-   @param fromOffset    to read segments form
    */
   Collection<Segment> readAllFromOffset(String chainEmbedKey, Long fromOffset) throws CoreException;
 
@@ -96,12 +117,12 @@ public interface SegmentDAO extends DAO<Segment> {
    [#278] Chain Player lives in navbar, and handles all playback (audio waveform, segment waveform, continuous chain) so the user always has central control over listening.
 
    @param access         control
-   @param chainId        to read all segments from
-   @param fromSecondsUTC to read segments from
+   @param chainId        to read all segments of
+   @param fromSecondsUTC to read segments of
    @return array of segments as JSON
    @throws CoreException on failure
    */
-  Collection<Segment> readAllFromSecondsUTC(Access access, BigInteger chainId, Long fromSecondsUTC) throws CoreException;
+  Collection<Segment> readAllFromSecondsUTC(Access access, UUID chainId, Long fromSecondsUTC) throws CoreException;
 
   /**
    Read all Segments that are accessible, by Chain Embed Key, starting at a particular time in seconds UTC since epoch.
@@ -109,8 +130,8 @@ public interface SegmentDAO extends DAO<Segment> {
    <p>
    [#150279540] Unauthenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
 
-   @param chainEmbedKey  to read all segments from
-   @param fromSecondsUTC to read segments from
+   @param chainEmbedKey  to read all segments of
+   @param fromSecondsUTC to read segments of
    @return array of segments as JSON
    @throws CoreException on failure
    */
@@ -122,7 +143,7 @@ public interface SegmentDAO extends DAO<Segment> {
    @param id    of specific Segment to update.
    @param state for the updated Segment.
    */
-  void updateState(Access access, BigInteger id, SegmentState state) throws CoreException;
+  void updateState(Access access, UUID id, SegmentState state) throws CoreException;
 
   /**
    Reverts a segment in Planned state, by destroying all its child entities. Only the segment messages remain, for purposes of debugging.
@@ -132,6 +153,5 @@ public interface SegmentDAO extends DAO<Segment> {
    @param id     of segment to revert
    @throws CoreException on failure
    */
-  void revert(Access access, BigInteger id) throws CoreException;
-
+  void revert(Access access, UUID id) throws CoreException;
 }

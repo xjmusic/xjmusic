@@ -1,8 +1,9 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.fabricator;
 
+import io.xj.core.access.Access;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.segment.Segment;
+import io.xj.core.model.Segment;
 
 import com.google.inject.assistedinject.Assisted;
 
@@ -14,13 +15,15 @@ import com.google.inject.assistedinject.Assisted;
 @FunctionalInterface
 public interface FabricatorFactory {
   /**
-   Create a content for Macro & Main sequence craft (previous segment and other cached resources)
+   Create a fabricator to fabricate a segment
 
-   @param segment Segment to be worked on
-   @return ChainWorkMaster
+   @return Fabricator
    @throws CoreException on failure
+   @param access control
+   @param segment Segment to be worked on
    */
   Fabricator fabricate(
+    @Assisted("access") Access access,
     @Assisted("segment") Segment segment
   ) throws CoreException;
 }

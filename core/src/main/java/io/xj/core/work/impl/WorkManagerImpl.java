@@ -1,19 +1,19 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.work.impl;
 
 import com.google.api.client.util.Maps;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.config.Config;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.PlatformMessageDAO;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.message.MessageType;
-import io.xj.core.model.message.platform.PlatformMessage;
-import io.xj.core.model.work.Work;
-import io.xj.core.model.work.WorkState;
-import io.xj.core.model.work.WorkType;
+import io.xj.core.entity.MessageType;
+import io.xj.core.model.ChainState;
+import io.xj.core.model.PlatformMessage;
+import io.xj.core.model.Work;
+import io.xj.core.model.WorkState;
+import io.xj.core.model.WorkType;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import io.xj.core.work.WorkManager;
 import net.greghaines.jesque.Job;
@@ -25,11 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 public class WorkManagerImpl implements WorkManager {
   private static final Logger log = LoggerFactory.getLogger(WorkManagerImpl.class);
@@ -63,33 +63,19 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   /**
-   build a Work from properties
+   build a Work of properties
 
    @param type     of work
    @param state    of work
    @param targetId of work
    @return new work
    */
-  private static Work buildWork(WorkType type, WorkState state, BigInteger targetId) {
-    Work work = new Work()
+  private static Work buildWork(WorkType type, WorkState state, UUID targetId) {
+    return (Work) new Work()
       .setState(state)
       .setType(type)
-      .setTargetId(targetId);
-    work.setId(computeWorkId(type, targetId));
-    return work;
-  }
-
-  /**
-   Uses the work type ordinal as an integer prefix
-   to prevent collisions between types
-   otherwise determined by entity id
-
-   @param type of work
-   @param id   of target
-   @return type-unique work id
-   */
-  private static BigInteger computeWorkId(WorkType type, BigInteger id) {
-    return new BigInteger(String.format("%d0000%s", type.ordinal() + 1, id));
+      .setTargetId(targetId)
+      .setId(UUID.randomUUID());
   }
 
   /**
@@ -99,34 +85,34 @@ public class WorkManagerImpl implements WorkManager {
    @param targetId for job
    @return new job
    */
-  private static Job buildJob(WorkType type, BigInteger targetId) {
+  private static Job buildJob(WorkType type, UUID targetId) {
     Map<String, String> vars = Maps.newHashMap();
     vars.put(Work.KEY_TARGET_ID, targetId.toString());
     return new Job(type.toString(), vars);
   }
 
   @Override
-  public void startChainFabrication(BigInteger chainId) {
+  public void startChainFabrication(UUID chainId) {
     startRecurringJob(WorkType.ChainFabricate, Config.getWorkChainDelaySeconds(), Config.getWorkChainRecurSeconds(), chainId);
   }
 
   @Override
-  public void stopChainFabrication(BigInteger chainId) {
+  public void stopChainFabrication(UUID chainId) {
     removeRecurringJob(WorkType.ChainFabricate, chainId);
   }
 
   @Override
-  public void scheduleSegmentFabricate(Integer delaySeconds, BigInteger segmentId) {
+  public void scheduleSegmentFabricate(Integer delaySeconds, UUID segmentId) {
     scheduleJob(WorkType.SegmentFabricate, delaySeconds, segmentId);
   }
 
   @Override
-  public void startChainErase(BigInteger chainId) {
+  public void startChainErase(UUID chainId) {
     startRecurringJob(WorkType.ChainErase, Config.getWorkChainDelaySeconds(), Config.getWorkChainEraseRecurSeconds(), chainId);
   }
 
   @Override
-  public void stopChainErase(BigInteger chainId) {
+  public void stopChainErase(UUID chainId) {
     removeRecurringWork(buildJob(WorkType.ChainErase, chainId));
   }
 
@@ -137,13 +123,13 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public Collection<Work> readAllWork() throws Exception {
-    Map<BigInteger, Work> workMap = Maps.newHashMap();
+    Map<String, Work> workMap = Maps.newHashMap();
 
     // Add Expected Work: Chain in 'Erase' state
-    chainDAO.readAllInState(Access.internal(), ChainState.Erase).stream().map(record -> buildWork(WorkType.ChainErase, WorkState.Expected, record.getId())).forEach(work -> workMap.put(work.getId(), work));
+    chainDAO.readAllInState(Access.internal(), ChainState.Erase).stream().map(record -> buildWork(WorkType.ChainErase, WorkState.Expected, record.getId())).forEach(work -> workMap.put(work.getTargetKey(), work));
 
     // Add Expected Work: Chain in 'Fabricate' state
-    chainDAO.readAllInState(Access.internal(), ChainState.Fabricate).stream().map(record -> buildWork(WorkType.ChainFabricate, WorkState.Expected, record.getId())).forEach(work -> workMap.put(work.getId(), work));
+    chainDAO.readAllInState(Access.internal(), ChainState.Fabricate).stream().map(record -> buildWork(WorkType.ChainFabricate, WorkState.Expected, record.getId())).forEach(work -> workMap.put(work.getTargetKey(), work));
 
     // Overwrite and Add all Queued Work
     Jedis client = redisDatabaseProvider.getClient();
@@ -154,10 +140,10 @@ public class WorkManagerImpl implements WorkManager {
         Work work = buildWork(
           WorkType.valueOf(json.getString(KEY_JESQUE_CLASS)),
           WorkState.Queued,
-          json.getJSONObject(KEY_JESQUE_VARS).getBigInteger(Work.KEY_TARGET_ID));
-        workMap.put(work.getId(), work);
+          UUID.fromString(json.getJSONObject(KEY_JESQUE_VARS).getString(Work.KEY_TARGET_ID)));
+        workMap.put(work.getTargetKey(), work);
       } catch (Exception e) {
-        log.error("Failed to parse redis job from value {}", value, e);
+        log.error("Failed to parse redis job create value {}", value, e);
       }
     });
     client.close();
@@ -197,7 +183,7 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public Boolean isExistingWork(WorkState state, WorkType type, BigInteger targetId) throws Exception {
+  public Boolean isExistingWork(WorkState state, WorkType type, UUID targetId) throws Exception {
     for (Work work : readAllWork()) {
       if (work.getState() == state &&
         work.getType() == type &&
@@ -215,8 +201,7 @@ public class WorkManagerImpl implements WorkManager {
    @return reinstated work
    */
   private Work reinstate(Work work) throws Exception {
-    startRecurringJob(work.getType(), Config.getWorkChainDelaySeconds(), Config.getWorkChainEraseRecurSeconds(), work.getTargetId()
-    );
+    startRecurringJob(work.getType(), Config.getWorkChainDelaySeconds(), Config.getWorkChainEraseRecurSeconds(), work.getTargetId());
     work.setState(WorkState.Queued);
     platformMessageDAO.create(Access.internal(),
       new PlatformMessage()
@@ -252,7 +237,7 @@ public class WorkManagerImpl implements WorkManager {
    @param recurSeconds to repeat every # seconds
    @param entityId     of entity
    */
-  private void startRecurringJob(WorkType workType, Integer delaySeconds, Integer recurSeconds, BigInteger entityId) {
+  private void startRecurringJob(WorkType workType, Integer delaySeconds, Integer recurSeconds, UUID entityId) {
     log.info("Start recurring {} job, delaySeconds:{}, recurSeconds:{}, entityId:{}", workType, delaySeconds, recurSeconds, entityId);
     enqueueRecurringWork(buildJob(workType, entityId), delaySeconds, recurSeconds);
   }
@@ -263,7 +248,7 @@ public class WorkManagerImpl implements WorkManager {
    @param workType type of job
    @param entityId of entity
    */
-  private void removeRecurringJob(WorkType workType, BigInteger entityId) {
+  private void removeRecurringJob(WorkType workType, UUID entityId) {
     log.info("Remove recurring {} job, entityId:{}", workType, entityId);
     removeRecurringWork(buildJob(workType, entityId));
   }
@@ -275,7 +260,7 @@ public class WorkManagerImpl implements WorkManager {
    @param delaySeconds to wait # seconds
    @param entityId     of entity
    */
-  private void scheduleJob(WorkType workType, Integer delaySeconds, BigInteger entityId) {
+  private void scheduleJob(WorkType workType, Integer delaySeconds, UUID entityId) {
     log.info("Schedule {} job, delaySeconds:{}, entityId:{}", workType, delaySeconds, entityId);
     enqueueDelayedWork(buildJob(workType, entityId), delaySeconds);
   }
@@ -308,7 +293,7 @@ public class WorkManagerImpl implements WorkManager {
   /**
    Remove Recurring-queued work
 
-   @param job to remove from queue
+   @param job to remove of queue
    */
   private void removeRecurringWork(Job job) {
     Client client = getQueueClient();

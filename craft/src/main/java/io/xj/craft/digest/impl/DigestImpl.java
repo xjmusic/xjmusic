@@ -1,10 +1,11 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.impl;
 
 import com.google.common.collect.ImmutableList;
+import io.xj.core.entity.Entity;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.ingest.IngestState;
-import io.xj.core.model.entity.impl.ResourceEntityImpl;
+import io.xj.core.payload.PayloadObject;
 import io.xj.craft.digest.Digest;
 import io.xj.craft.digest.DigestType;
 import io.xj.craft.exception.CraftException;
@@ -13,7 +14,7 @@ import io.xj.craft.exception.CraftException;
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  [#154350346] Architect wants a universal Ingest Provider, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
  */
-public abstract class DigestImpl extends ResourceEntityImpl implements Digest {
+public abstract class DigestImpl extends Entity implements Digest {
   protected final Ingest ingest;
   protected IngestState state;
   protected DigestType type;
@@ -148,4 +149,9 @@ public abstract class DigestImpl extends ResourceEntityImpl implements Digest {
   }
 
 
+  @Override
+  public PayloadObject getPayloadObject() {
+    // TODO actually return a payload object of the digest
+    return new PayloadObject();
+  }
 }

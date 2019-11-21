@@ -19,9 +19,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install dnsutils
 # cURL
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install curl
 
-# MySQL Client Libraries
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install libmysqlclient-dev
-
 # FFI dev lib
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install libffi-dev
 
@@ -65,8 +62,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install redis-to
 # Network tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install net-tools
 
-# MySQL Client
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install mysql-client
+# Postgres Client
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install postgresql-client
 
 ###
 ### Nginx

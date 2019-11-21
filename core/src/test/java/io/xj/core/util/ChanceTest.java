@@ -1,4 +1,4 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class ChanceTest {
         ]++;
 
     for (int count = 0; 11 > count; count++)
-      log.info("# of values between {} and {}: {}" , count , count + 1 ,floorCounts[count]);
+      log.info("# create values between {} and {}: {}" , count , count + 1 ,floorCounts[count]);
 
     // Assert that no value has exceeded 10
     assertEquals(0L, floorCounts[10]);

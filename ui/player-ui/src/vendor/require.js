@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 // NOTE this is a custom version of RequireJS that uses a path prefix
 const pathPrefix = "js/";
@@ -131,7 +131,7 @@ const pathPrefix = "js/";
         try {
           root.PARSEJS.parse(text)
         } catch(e) {
-          console.error('Syntax error in file ' + path + ' at line:' + (e.line-2) + ', col:' + e.col + '. ' + e.message) //, e.stack) //, e)
+          console.error('Syntax error in file ' + path + ' at line:' + (e.line-2) + ', col:' + e.col + '. ' + e.platform_message) //, e.stack) //, e)
         }
       } else {
         console.error( "Syntax Error in file " + path + ": " + e.toString() )

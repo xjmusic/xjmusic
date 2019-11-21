@@ -1,8 +1,9 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.user;
 
 import io.xj.core.exception.CoreException;
 
+import io.xj.core.model.User;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

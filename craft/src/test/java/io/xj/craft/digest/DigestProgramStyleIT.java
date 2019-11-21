@@ -1,23 +1,23 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import io.xj.core.CoreModule;
 import io.xj.core.FixtureIT;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.dao.ProgramDAO;
 import io.xj.core.ingest.IngestFactory;
-import io.xj.core.model.program.sub.Sequence;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainBinding;
+import io.xj.core.model.ProgramSequence;
+import io.xj.core.model.ProgramSequenceBinding;
+import io.xj.core.model.ProgramSequenceChord;
 import io.xj.craft.CraftModule;
-import io.xj.craft.digest.program_style.DigestProgramStyle;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -35,6 +35,8 @@ public class DigestProgramStyleIT extends FixtureIT {
     insertFixtureB2();
     insertFixtureB3();
 
+    chain1 = Chain.create();
+
     injector = Guice.createInjector(new CoreModule(), new CraftModule());
     programDAO = injector.getInstance(ProgramDAO.class);
     ingestFactory = injector.getInstance(IngestFactory.class);
@@ -43,22 +45,19 @@ public class DigestProgramStyleIT extends FixtureIT {
 
   @Test
   public void digest() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+    Access access = Access.create(ImmutableList.of(account1), "User,Artist");
     // Add two sequences to Main program 15
-    program15 = programDAO.readOne(internal, BigInteger.valueOf(15));
-    Sequence sequence15c = program15.add(newSequence(32, "Encore", 0.5, "A major", 135.0));
-    program15.add(newSequenceChord(sequence15c, 0.0, "NC"));
-    program15.add(newSequenceBinding(sequence15c, 2));
-    Sequence sequence15d = program15.add(newSequence(32, "Encore", 0.5, "A major", 135.0));
-    program15.add(newSequenceChord(sequence15d, 0.0, "NC"));
-    program15.add(newSequenceBinding(sequence15d, 3));
-    programDAO.update(Access.internal(), BigInteger.valueOf(15), program15);
+    program15 = programDAO.readOne(internal, program15.getId());
+    ProgramSequence sequence15c = insert(ProgramSequence.create(program15, 32, "Encore", 0.5, "A major", 135.0));
+    insert(ProgramSequenceChord.create(sequence15c, 0.0, "NC"));
+    insert(ProgramSequenceBinding.create(sequence15c, 2));
+    ProgramSequence sequence15d = insert(ProgramSequence.create(program15, 32, "Encore", 0.5, "A major", 135.0));
+    insert(ProgramSequenceChord.create(sequence15d, 0.0, "NC"));
+    insert(ProgramSequenceBinding.create(sequence15d, 3));
+    programDAO.update(Access.internal(), program15.getId(), program15);
 
 
-    DigestProgramStyle result = digestFactory.programStyle(ingestFactory.ingest(access, ImmutableList.of(newChainBinding("Library", 2))));
+    DigestProgramStyle result = digestFactory.programStyle(ingestFactory.ingest(access, ImmutableList.of(ChainBinding.create(chain1, library2))));
 
     assertNotNull(result);
     assertEquals(2.0, result.getMainSequencesPerProgramStats().min(), 0.1);

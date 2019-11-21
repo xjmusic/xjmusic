@@ -1,4 +1,4 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.core.fabricator;
 
@@ -11,7 +11,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
- [#153542275] Segment wherein velocity changes expect perfectly smooth sound from previous segment through to following segment
+ [#153542275] Segment wherein velocity changes expect perfectly smooth sound of previous segment through to following segment
  */
 public class TimeComputerTest {
   TimeComputer subject;

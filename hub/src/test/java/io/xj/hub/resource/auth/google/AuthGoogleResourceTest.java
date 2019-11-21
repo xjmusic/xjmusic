@@ -1,7 +1,7 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.auth.google;
 
-import io.xj.core.common.ResourceEndpointTest;
+import io.xj.core.server.ResourceEndpointTest;
 
 import org.junit.After;
 import org.junit.Before;

@@ -1,101 +1,99 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.persistence.sql.impl;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.mysql.cj.jdbc.MysqlDataSource;
-import io.xj.core.Xj;
 import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.jooq.conf.MappedSchema;
-import org.jooq.conf.RenderMapping;
-import org.jooq.conf.Settings;
-import org.jooq.impl.DSL;
+import org.postgresql.ds.PGConnectionPoolDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.ConnectionPoolDataSource;
+import javax.sql.PooledConnection;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Objects;
 
 @Singleton
 public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
   private static final Logger log = LoggerFactory.getLogger(SQLDatabaseProviderImpl.class);
+  private PGConnectionPoolDataSource dataSource;
 
   /**
-   Get DSL context
-
-   @param conn SQL connection
-   @return DSL context
+   Constructor
    */
-  private static DSLContext getContext(Connection conn) {
-    return DSL.using(conn, SQLDialect.MYSQL, getSettings());
+  @Inject
+  public SQLDatabaseProviderImpl() {
   }
 
   /**
-   Get SQL Database jOOQ settings
+   New CoreException wrapping SQL exception
 
-   @return jOOQ Settings
+   @param e SQLException to wrap
+   @return CoreException
    */
-  private static Settings getSettings() {
-    return new Settings()
-      .withRenderMapping(new RenderMapping()
-        .withSchemata(
-          new MappedSchema().withInput(Xj.XJ.getName())
-            .withOutput(Config.getDbMysqlDatabase())
-        )
-      );
+  private static CoreException newException(SQLException e) {
+    log.error(e.getMessage(), e);
+    return new CoreException("SQL newException!", e);
   }
 
   @Override
-  public SQLConnection getConnection() throws CoreException {
-    return createConnection(false);
-  }
-
-  @Override
-  public SQLConnection getConnection(Boolean isTransaction) throws CoreException {
-    return createConnection(isTransaction);
-  }
-
-  /**
-   Get a SQL connection to a specified URL
-
-   @param isTransaction true if transaction
-   @return SQL connect
-   */
-  private SQLConnection createConnection(Boolean isTransaction) throws CoreException {
+  public Connection getConnection() throws CoreException {
     try {
-      MysqlDataSource mysqlDataSource = new MysqlDataSource();
-      mysqlDataSource.setURL(getUrl());
-      mysqlDataSource.setUser(getUser());
-      mysqlDataSource.setPassword(getPassword());
-      Connection connection = mysqlDataSource.getConnection();
-      DSLContext context = getContext(connection);
-      if (isTransaction) {
-        connection.setAutoCommit(false);
-      }
-      return new SQLConnection(connection, context, isTransaction);
+      Connection connection = getPooledConnection().getConnection();
+      if (Objects.isNull(connection)) throw new CoreException("Failed to make connection.");
+      return connection;
     } catch (SQLException e) {
       log.error(e.getMessage(), e);
-      throw new CoreException("SQL exception!", e);
+      throw new CoreException("SQL newException!", e);
     }
+  }
+
+  /**
+   Instantiates a pooled connection only once; after that, it returns that connection
+
+   @return pooled connection
+   @throws CoreException on failure
+   */
+  public PooledConnection getPooledConnection() throws CoreException {
+    try {
+      return getDataSource().getPooledConnection(getUser(), getPassword());
+    } catch (SQLException e) {
+      throw newException(e);
+    }
+  }
+
+  /**
+   Instantiates a pooled data source only once; after that, it returns that data source
+
+   @return connection pool data source
+   */
+  public ConnectionPoolDataSource getDataSource() {
+    if (Objects.isNull(dataSource)) {
+      dataSource = new PGConnectionPoolDataSource();
+      dataSource.setUrl(getUrl());
+      dataSource.setDatabaseName(Config.getDbPostgresDatabase());
+    }
+
+    return dataSource;
   }
 
   @Override
   public String getUrl() {
-    return String.format("jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=UTC&maxAllowedPacket=67108864",
-      Config.getDbMysqlHost(), Config.getDbMysqlPort(), Config.getDbMysqlDatabase());
+    return String.format("jdbc:postgresql://%s:%s/%s",
+      Config.getDbPostgresHost(), Config.getDbPostgresPort(), Config.getDbPostgresDatabase());
   }
 
   @Override
   public String getUser() {
-    return Config.getDbMysqlUser();
+    return Config.getDbPostgresUser();
   }
 
   @Override
   public String getPassword() {
-    return Config.getDbMysqlPass();
+    return Config.getDbPostgresPass();
   }
 
 }

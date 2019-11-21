@@ -19,7 +19,7 @@ sudo apt install maven
 # install Tomcat 8 server and manager
 sudo apt install tomcat8 tomcat8-admin
 
-# create Tomcat user for manager GUI
+# of Tomcat user for manager GUI
 sudo nano "${TOMCAT_ROOT}conf/tomcat-users.xml"
 
 # clone jesque-web

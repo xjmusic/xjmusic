@@ -1,15 +1,14 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.work;
 
-import io.xj.core.model.work.Work;
-import io.xj.core.model.work.WorkState;
-import io.xj.core.model.work.WorkType;
-
+import io.xj.core.model.Work;
+import io.xj.core.model.WorkState;
+import io.xj.core.model.WorkType;
 import net.greghaines.jesque.worker.JobFactory;
 import net.greghaines.jesque.worker.Worker;
 
-import java.math.BigInteger;
 import java.util.Collection;
+import java.util.UUID;
 
 /**
  [#286] True Chain-Segment work management
@@ -21,9 +20,9 @@ import java.util.Collection;
  Work module deprecates craftworker, dubworker, and eraseworker. These modules will likely be moved into sub-modules of the new worker module
  Hub enqueues a recurring ChainFabricateJob on creation of a Chain
  Hub enqueues a recurring ChainFabricateJob on retry of a Chain in a Failed state
- Hub stops any recurring ChainFabricateJob and creates a ChainStopJob on completion or deletion of a Chain
+ Hub stops any recurring ChainFabricateJob and ofs a ChainStopJob on completion or deletion of a Chain
  Work establishes a pool of threads to run Clients which will execute jobs of any type
- Work client executes a ChainFabricateJob, update Chain to Fabricate state, for any necessitated new Segment, do macro-choice and create new Segment in Planned state, for each Segment create scheduled SegmentCraftJob and SegmentDubJob
+ Work client executes a ChainFabricateJob, update Chain to Fabricate state, for any necessitated new Segment, do macro-choice and of new Segment in Planned state, for each Segment of scheduled SegmentCraftJob and SegmentDubJob
  Work client executes a SegmentCraftJob, update Segment to Crafting state, do main-choice and segment craft, update Segment to Crafted state.
  Work client executes a SegmentDubJob, if Segment is not in Crafted state, reject the job to be retried
  Work client executes a SegmentDubJob, update Segment to Dubbing state, do master dub, do ship dub, update Segment to Dubbed state, job complete
@@ -48,49 +47,40 @@ public interface WorkManager {
 
   /**
    Start fabrication of a Chain,
-   by creating a recurring `ChainFabricateJob`.
-
-   @param chainId to begin fabricate
+   by creating a recurring `ChainFabricateJob`.@param chainId to begin fabricate
    */
-  void startChainFabrication(BigInteger chainId);
+  void startChainFabrication(UUID chainId);
 
   /**
    Stop fabrication of a Chain,
-   by deleting the recurring `ChainFabricateJob`.
-
-   @param chainId to stop fabricate
+   by deleting the recurring `ChainFabricateJob`.@param chainId to stop fabricate
    */
-  void stopChainFabrication(BigInteger chainId);
+  void stopChainFabrication(UUID chainId);
 
   /**
    Schedule the crafting of a Segment,
-   by creating a scheduled `SegmentCraftJob`.
+   by creating a scheduled `SegmentCraftJob`.@param delaySeconds of now to schedule job at
 
-   @param delaySeconds from now to schedule job at
-   @param segmentId    for which to schedule Craft
+   @param segmentId for which to schedule Craft
    */
-  void scheduleSegmentFabricate(Integer delaySeconds, BigInteger segmentId);
+  void scheduleSegmentFabricate(Integer delaySeconds, UUID segmentId);
 
   /**
    Start erasing a Chain,
-   by creating a recurring `ChainEraseJob`.
-
-   @param chainId to begin erasing
+   by creating a recurring `ChainEraseJob`.@param chainId to begin erasing
    */
-  void startChainErase(BigInteger chainId);
+  void startChainErase(UUID chainId);
 
   /**
    Stop deletion of a Chain,
-   by ending the recurring `ChainEraseJob`.
-
-   @param chainId to stop erasing
+   by ending the recurring `ChainEraseJob`.@param chainId to stop erasing
    */
-  void stopChainErase(BigInteger chainId);
+  void stopChainErase(UUID chainId);
 
   /**
    Get a Worker
 
-   @param jobFactory to get job from
+   @param jobFactory to get job of
    @return worker
    */
   Worker getWorker(JobFactory jobFactory);
@@ -128,6 +118,6 @@ public interface WorkManager {
 
    @return true if match is found
    */
-  Boolean isExistingWork(WorkState state, WorkType type, BigInteger targetId) throws Exception;
+  Boolean isExistingWork(WorkState state, WorkType type, UUID targetId) throws Exception;
 
 }

@@ -1,12 +1,11 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.segment;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.dao.SegmentDAO;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.segment.Segment;
-import io.xj.core.util.Value;
+import io.xj.core.model.Segment;
+import io.xj.core.payload.Payload;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.PermitAll;
@@ -16,9 +15,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  Segments
@@ -47,11 +46,25 @@ public class SegmentIndexResource extends HubResource {
       return response.notAcceptable("Chain id is required");
 
     try {
-      Collection<Segment> segments = Value.isInteger(chainId) ?
-        readAllSegmentsByChainId(Access.fromContext(crc)) :
-        readAllSegmentsByChainEmbedKey();
 
-      return response.ok(new Payload().setDataEntities(segments, true));
+
+      // will only have value if this can parse a uuid from string
+      // otherwise, ignore the exception on attempt and store a null value for uuid
+      UUID uuidId;
+      try {
+        uuidId = UUID.fromString(chainId);
+      } catch (Exception ignored) {
+        uuidId = null;
+      }
+
+      // chain is either by uuid or embed key
+      Collection<Segment> segments;
+      if (Objects.nonNull(uuidId))
+        segments = readAllSegmentsByChainId(Access.fromContext(crc)); // uuid
+      else
+        segments = readAllSegmentsByChainEmbedKey(); // embed key
+
+      return response.ok(new Payload().setDataEntities(segments));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -59,7 +72,7 @@ public class SegmentIndexResource extends HubResource {
   }
 
   /**
-   Read all segments by Chain Id, optionally from offset or seconds UTC
+   Read all segments by Chain Id, optionally of offset or seconds UTC
 
    @param access control
    @return segments
@@ -68,16 +81,16 @@ public class SegmentIndexResource extends HubResource {
   private Collection<Segment> readAllSegmentsByChainId(Access access) throws Exception {
 
     if (Objects.nonNull(fromOffset))
-      return dao().readAllFromOffset(access, new BigInteger(chainId), fromOffset);
+      return dao().readAllFromOffset(access, UUID.fromString(chainId), fromOffset);
 
     if (Objects.nonNull(fromSecondsUTC))
-      return dao().readAllFromSecondsUTC(access, new BigInteger(chainId), fromSecondsUTC);
+      return dao().readAllFromSecondsUTC(access, UUID.fromString(chainId), fromSecondsUTC);
 
-    return dao().readMany(access, ImmutableList.of(new BigInteger(chainId)));
+    return dao().readMany(access, ImmutableList.of(UUID.fromString(chainId)));
   }
 
   /**
-   Read all segments by Chain Embed Key, optionally from offset or seconds UTC
+   Read all segments by Chain Embed Key, optionally of offset or seconds UTC
 
    @return segments
    @throws Exception on failure
@@ -94,7 +107,7 @@ public class SegmentIndexResource extends HubResource {
   }
 
   /**
-   Get DAO from injector
+   Get DAO of injector
 
    @return DAO
    */

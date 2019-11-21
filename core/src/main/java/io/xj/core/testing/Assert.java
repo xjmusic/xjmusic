@@ -1,10 +1,10 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.core.testing;
 
 import com.google.common.collect.Maps;
-import io.xj.core.model.entity.ChordEntity;
-import io.xj.core.model.entity.MemeEntity;
+import io.xj.core.entity.ChordEntity;
+import io.xj.core.entity.MemeEntity;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
 
@@ -24,7 +24,7 @@ public enum Assert {
    @param actualMemes to find exactly
    */
   public static <N extends MemeEntity> void assertExactMemes(Collection<String> expectMemeNames, Collection<N> actualMemes) {
-    assertEquals("Different number of memes than expected", expectMemeNames.size(), actualMemes.size());
+    assertEquals("Different number create memes than expected", expectMemeNames.size(), actualMemes.size());
 
     // prepare a map of expected segment meme, all marked false (not yet found)
     Map<String, Boolean> memesFound = Maps.newHashMap();
@@ -47,7 +47,7 @@ public enum Assert {
    @param actualChords to find exactly
    */
   public static <N extends ChordEntity> void assertExactChords(Collection<String> expectChordNames, Collection<N> actualChords) {
-    assertEquals("Different number of chords than expected", expectChordNames.size(), actualChords.size());
+    assertEquals("Different number create chords than expected", expectChordNames.size(), actualChords.size());
 
     // prepare a map of expected segment chord, all marked false (not yet found)
     Map<String, Boolean> chordsFound = Maps.newHashMap();
@@ -71,7 +71,7 @@ public enum Assert {
    @param actual items to assert same
    */
   public static void assertSameItems(Collection<String> expect, Collection<String> actual) {
-    assertEquals(String.format("Different number of items! expected=[%s] vs actual=[%s]", CSV.join(expect), CSV.join(actual)), expect.size(), actual.size());
+    assertEquals(String.format("Different number create items! expected=[%s] vs actual=[%s]", CSV.join(expect), CSV.join(actual)), expect.size(), actual.size());
 
     // prepare a map of expected segment chord, all marked false (not yet found)
     Map<String, Boolean> found = Maps.newHashMap();
@@ -92,7 +92,7 @@ public enum Assert {
    @param actual items to assert same
    */
   public static void assertSameItems(Map<String, ?> expect, Map<String, ?> actual) {
-    assertEquals(String.format("Different number of keys! expected=[%s] vs actual=[%s]", expect.toString(), actual.toString()), expect.size(), actual.size());
+    assertEquals(String.format("Different number create keys! expected=[%s] vs actual=[%s]", expect.toString(), actual.toString()), expect.size(), actual.size());
 
     // prepare a map of expected segment chord, all marked false (not yet found)
     Map<String, Boolean> found = Maps.newHashMap();

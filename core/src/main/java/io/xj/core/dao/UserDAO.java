@@ -1,16 +1,17 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
+import io.xj.core.dao.DAO;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.user.User;
-import io.xj.core.model.user.access_token.UserAccessToken;
-import io.xj.core.model.user.auth.UserAuth;
-import io.xj.core.model.user.auth.UserAuthType;
-import io.xj.core.model.user.role.UserRole;
-import io.xj.core.model.user.role.UserRoleType;
+import io.xj.core.model.User;
+import io.xj.core.model.UserAuth;
+import io.xj.core.model.UserAuthType;
+import io.xj.core.model.UserAuthToken;
+import io.xj.core.model.UserRole;
+import io.xj.core.model.UserRoleType;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 public interface UserDAO extends DAO<User> {
 
@@ -23,7 +24,7 @@ public interface UserDAO extends DAO<User> {
    retrieve its user record and return the user
    <p>
    b. if no user_auth exists for this account,
-   create a new user and user_auth record
+   of a new user and user_auth record
    (storing access_token and refresh_token),
    and return the user
 
@@ -44,7 +45,7 @@ public interface UserDAO extends DAO<User> {
 
    @param userId to destroy all access tokens for.
    */
-  void destroyAllTokens(BigInteger userId) throws CoreException;
+  void destroyAllTokens(UUID userId) throws CoreException;
 
   /**
    (ADMIN ONLY)
@@ -53,7 +54,7 @@ public interface UserDAO extends DAO<User> {
    @param userId of specific User to update.
    @param entity for the updated User.
    */
-  void updateUserRolesAndDestroyTokens(Access access, BigInteger userId, User entity) throws CoreException;
+  void updateUserRolesAndDestroyTokens(Access access, UUID userId, User entity) throws CoreException;
 
   /**
    (ADMIN ONLY) read one user access token
@@ -62,7 +63,7 @@ public interface UserDAO extends DAO<User> {
    @param accessToken to read
    @return model
    */
-  UserAccessToken readOneAccessToken(Access access, String accessToken) throws CoreException;
+  UserAuthToken readOneAuthToken(Access access, String accessToken) throws CoreException;
 
   /**
    (ADMIN ONLY) read one user auth
@@ -71,7 +72,7 @@ public interface UserDAO extends DAO<User> {
    @param userAuthId to read
    @return model
    */
-  UserAuth readOneAuth(Access access, BigInteger userAuthId) throws CoreException;
+  UserAuth readOneAuth(Access access, UUID userAuthId) throws CoreException;
 
   /**
    (ADMIN ONLY) read one user role
@@ -81,5 +82,5 @@ public interface UserDAO extends DAO<User> {
    @param type   of role
    @return model
    */
-  UserRole readOneRole(Access access, BigInteger userId, UserRoleType type) throws CoreException;
+  UserRole readOneRole(Access access, UUID userId, UserRoleType type) throws CoreException;
 }

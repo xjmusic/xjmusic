@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.chain;
 
 import com.google.common.collect.ImmutableList;
@@ -6,23 +6,23 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonNull;
 import io.xj.core.CoreTest;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.chain.sub.ChainBinding;
-import io.xj.core.model.chain.sub.ChainConfig;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.payload.PayloadObject;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainState;
+import io.xj.core.model.ChainType;
+import io.xj.core.payload.Payload;
+import io.xj.core.payload.PayloadObject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 
 import static io.xj.core.testing.Assert.assertSameItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -37,7 +37,7 @@ public class ChainTest extends CoreTest {
   @Before
   public void setUp() {
     now = Instant.now();
-    subject = chainFactory.newChain();
+    subject = Chain.create();
   }
 
   @Test
@@ -46,7 +46,7 @@ public class ChainTest extends CoreTest {
       .setName("Mic Check One Two")
       .setType("Production")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743L))
+      .setAccountId(UUID.randomUUID())
       .setStartAt("2014-08-12T12:17:02.527142Z")
       .setStopAt("2015-08-12T12:17:02.527142Z")
       .validate();
@@ -58,7 +58,7 @@ public class ChainTest extends CoreTest {
       .setName("Mic Check One Two")
       .setType("Production")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743L))
+      .setAccountId(UUID.randomUUID())
       .setStartAt("2014-08-12T12:17:02.527142Z")
       .validate();
   }
@@ -72,7 +72,7 @@ public class ChainTest extends CoreTest {
       .setName("Mic Check One Two")
       .setType("Preview")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743L))
+      .setAccountId(UUID.randomUUID())
       .setStartAt("2014-08-12T12:17:02.527142Z")
       .validate();
   }
@@ -96,7 +96,7 @@ public class ChainTest extends CoreTest {
     Chain chain = subject
       .setName("Mic Check One Two")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743L))
+      .setAccountId(UUID.randomUUID())
       .setStartAt("2014-08-12T12:17:02.527142Z")
       .setStopAt("2015-08-12T12:17:02.527142Z");
 
@@ -113,7 +113,7 @@ public class ChainTest extends CoreTest {
       .setName("Mic Check One Two")
       .setType("bungle")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743L))
+      .setAccountId(UUID.randomUUID())
       .setStartAt("2014-08-12T12:17:02.527142Z")
       .setStopAt("2015-08-12T12:17:02.527142Z")
       .validate();
@@ -124,7 +124,7 @@ public class ChainTest extends CoreTest {
     Chain chain = subject
       .setName("Mic Check One Two")
       .setType("Production")
-      .setAccountId(BigInteger.valueOf(9743L))
+      .setAccountId(UUID.randomUUID())
       .setStartAt("2014-08-12T12:17:02.527142Z")
       .setStopAt("2015-08-12T12:17:02.527142Z");
 
@@ -142,7 +142,7 @@ public class ChainTest extends CoreTest {
       .setName("Mic Check One Two")
       .setType("Production")
       .setState("dangling")
-      .setAccountId(BigInteger.valueOf(9743L))
+      .setAccountId(UUID.randomUUID())
       .setStartAt("2014-08-12T12:17:02.527142Z")
       .setStopAt("2015-08-12T12:17:02.527142Z")
       .validate();
@@ -156,7 +156,7 @@ public class ChainTest extends CoreTest {
     subject
       .setType("Production")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743L))
+      .setAccountId(UUID.randomUUID())
       .setStartAt("2014-08-12T12:17:02.527142Z")
       .setStopAt("2015-08-12T12:17:02.527142Z")
       .validate();
@@ -171,29 +171,29 @@ public class ChainTest extends CoreTest {
       .setName("Mic Check One Two")
       .setType("Production")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743L))
+      .setAccountId(UUID.randomUUID())
       .validate();
   }
 
   @Test
   public void validateProductionChain_failsWithInvalidStopTime() throws Exception {
     failure.expect(CoreException.class);
-    failure.expectMessage("Stop-at is invalid because Text 'totally illegitimate expression of time' could not be parsed at index 0");
+    failure.expectMessage("Stop-at is invalid because Text 'totally illegitimate expression create time' could not be parsed at index 0");
 
     subject
       .setName("Mic Check One Two")
       .setType("Production")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743L))
+      .setAccountId(UUID.randomUUID())
       .setStartAt("2014-08-12T12:17:02.527142Z")
-      .setStopAt("totally illegitimate expression of time")
+      .setStopAt("totally illegitimate expression create time")
       .validate();
   }
 
   @Test
   public void create_okToSetNullTimestamp() throws Exception {
     subject
-      .setAccountId(BigInteger.valueOf(1L))
+      .setAccountId(UUID.randomUUID())
       .setName("coconuts")
       .setState("Draft")
       .setEmbedKey("my $% favorite THINGS")
@@ -212,7 +212,7 @@ public class ChainTest extends CoreTest {
       .setName("Mic Check One Two")
       .setType("Production")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743L))
+      .setAccountId(UUID.randomUUID())
       .setStartAt("now");
     chain.validate();
     Instant actual = chain.getStartAt();
@@ -229,24 +229,26 @@ public class ChainTest extends CoreTest {
       .setName("Mic Check One Two")
       .setType("Production")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743L))
+      .setAccountId(UUID.randomUUID())
       .setStartAt("   NO!w!!    ");
     chain.validate();
     Instant actual = chain.getStartAt();
 
-    assertThat("value of string 'now' (stripped of non-alphanumeric characters; case insensitive)", MATCH_THRESHOLD_MILLIS > Duration.between(actual, now).toMillis());
+    assertThat("value create string 'now' (stripped create non-alphanumeric characters; case insensitive)", MATCH_THRESHOLD_MILLIS > Duration.between(actual, now).toMillis());
   }
 
   @Test
   public void getPayloadAttributeNames() {
-    assertSameItems(ImmutableList.of("createdAt", "updatedAt", "name", "state", "type", "startAt", "stopAt", "embedKey"), subject.getResourceAttributeNames());
+    assertSameItems(ImmutableList.of("name", "state", "type", "startAt", "stopAt", "embedKey"), subject.getResourceAttributeNames());
   }
 
   @Test
   public void setAllFrom() throws CoreException {
     PayloadObject payloadObject = new PayloadObject();
+    UUID id = UUID.randomUUID();
+    UUID accountId = UUID.randomUUID();
     payloadObject
-      .setId("72")
+      .setId(id.toString())
       .setType("chains")
       .setAttributes(ImmutableMap.<String, Object>builder()
         .put("name", "Cool Ambience")
@@ -256,12 +258,12 @@ public class ChainTest extends CoreTest {
         .put("stopAt", "")
         .put("embedKey", "coolambience")
         .build())
-      .add("account", Payload.referenceTo("accounts", "43"));
+      .add("account", Payload.referenceTo("accounts", accountId.toString()));
 
     subject.consume(payloadObject);
 
-    assertEquals(BigInteger.valueOf(72), subject.getId());
-    assertEquals(BigInteger.valueOf(43), subject.getAccountId());
+    assertEquals(id, subject.getId());
+    assertEquals(accountId, subject.getAccountId());
     assertEquals("Cool Ambience", subject.getName());
     assertEquals(ChainState.Draft, subject.getState());
     assertEquals(ChainType.Production, subject.getType());
@@ -272,9 +274,8 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void toPayloadObject() {
-    Chain chain = chainFactory.newChain(BigInteger.valueOf(72));
-    chain
-      .setAccountId(BigInteger.valueOf(43))
+    Chain chain = Chain.create()
+      .setAccountId(UUID.randomUUID())
       .setName("Cool Ambience")
       .setStateEnum(ChainState.Draft)
       .setTypeEnum(ChainType.Production)
@@ -283,33 +284,18 @@ public class ChainTest extends CoreTest {
 
     PayloadObject result = chain.toPayloadObject();
 
-    assertEquals("72", result.getId());
+    assertEquals(chain.getId().toString(), result.getId());
     assertEquals("chains", result.getType());
     assertEquals("Cool Ambience", result.getAttributes().get("name"));
-    assertEquals("Draft", result.getAttributes().get("state"));
-    assertEquals("Production", result.getAttributes().get("type"));
-    assertEquals("2014-08-12T12:17:02.527142Z", result.getAttributes().get("startAt"));
+    assertEquals(ChainState.Draft, result.getAttributes().get("state"));
+    assertEquals(ChainType.Production, result.getAttributes().get("type"));
+    assertEquals(Instant.parse("2014-08-12T12:17:02.527142Z"), result.getAttributes().get("startAt"));
     assertEquals(JsonNull.INSTANCE, result.getAttributes().get("stopAt"));
     assertEquals("coolambience", result.getAttributes().get("embedKey"));
     assertTrue(result.getRelationships().get("account").getDataOne().isPresent());
-    assertEquals("43", result.getRelationships().get("account").getDataOne().get().getId());
+    assertEquals(chain.getAccountId().toString(), result.getRelationships().get("account").getDataOne().get().getId());
   }
 
-  @Test
-  public void getConfig() throws CoreException {
-    Chain chain = chainFactory.newChain(BigInteger.valueOf(72));
-    ChainConfig config = chain.add(newChainConfig(ChainConfigType.OutputChannels, "4"));
-
-    assertNotNull(chain.getConfig(config.getId()));
-  }
-
-  @Test
-  public void getBinding() throws CoreException {
-    Chain chain = chainFactory.newChain(BigInteger.valueOf(72));
-    ChainBinding binding = chain.add(newChainBinding("Library", 7));
-
-    assertNotNull(chain.getBinding(binding.getId()));
-  }
 
   // FUTURE unit test: Add a ChainBinding
 
@@ -337,95 +323,90 @@ public class ChainTest extends CoreTest {
 
 
   /*
-  FUTURE adapt these Chain unit tests (from legacy integration tests)
+  FUTURE adapt these Chain unit tests (of legacy integration tests)
+
+  @Test
+  public void getConfig() throws CoreException {
+    Chain chain = of();
+    ChainConfig config = of(of(), ChainConfigType.OutputChannels, "4");
+
+    assertNotNull(chain.getConfig(config.getId()));
+  }
+
+  @Test
+  public void getBinding() throws CoreException {
+    Chain chain = chainFactory.of(BigInteger.valueOf(72));
+    ChainBinding binding = chain.add(of("Library", 7));
+
+    assertNotNull(chain.getBinding(binding.getId()));
+  }
 
     @Test
-  public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainConfig inputData = new ChainConfig()
-      .setChainId(BigInteger.valueOf(1L))
+      .setChainId(UUID.randomUUID())
       .setType("OutputFrameRate")
       .setValue("3,4,74");
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailIfAlreadyExists() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailIfAlreadyExists() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainConfig inputData = new ChainConfig()
-      .setChainId(BigInteger.valueOf(1L))
+      .setChainId(UUID.randomUUID())
       .setType("OutputSampleBits")
       .setValue("3");
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailIfUserNotInChainAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailIfUserNotInChainAccount() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainConfig inputData = new ChainConfig()
-      .setChainId(BigInteger.valueOf(3L))
+      .setChainId(UUID.randomUUID())
       .setType("OutputSampleBits")
       .setValue("3");
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailIfUserNotInLibraryAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailIfUserNotInLibraryAccount() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainConfig inputData = new ChainConfig()
-      .setChainId(BigInteger.valueOf(1L))
+      .setChainId(UUID.randomUUID())
       .setType("OutputSampleBits")
       .setValue("3");
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailsWithoutChainID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailsWithoutChainID() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainConfig inputData = new ChainConfig()
       .setType("OutputSampleBits")
       .setValue("3");
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailsWithoutLibraryId() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailsWithoutLibraryId() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainConfig inputData = new ChainConfig()
-      .setChainId(BigInteger.valueOf(1L));
+      .setChainId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+    Access access = of(ImmutableList.of(account1), "Artist");
 
     ChainConfig result = testDAO.readOne(access, BigInteger.valueOf(1000L));
 
@@ -437,10 +418,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void readOne_FailsWhenChainIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "326"
-    ));
+    Access access = of(ImmutableList.of(of()), "Artist");
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
@@ -449,10 +427,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void readMany() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+    Access access = of(ImmutableList.of(account1), "Artist");
 
     Collection<ChainConfig> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(2L)));
 
@@ -461,10 +436,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "345"
-    ));
+    Access access = of(ImmutableList.of(of()), "Artist");
 
     Collection<ChainConfig> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
@@ -473,10 +445,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+    Access access = of(ImmutableList.of(account1), "Artist");
 
     testDAO.destroy(access, BigInteger.valueOf(1000L));
 
@@ -494,87 +463,66 @@ public class ChainTest extends CoreTest {
   }
 
   @Test
-  public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainInstrument inputData = new ChainInstrument()
-      .setChainId(BigInteger.valueOf(1L))
-      .setInstrumentId(BigInteger.valueOf(2L));
+      .setChainId(UUID.randomUUID())
+      .setInstrumentId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailIfAlreadyExists() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailIfAlreadyExists() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainInstrument inputData = new ChainInstrument()
-      .setChainId(BigInteger.valueOf(1L))
-      .setInstrumentId(BigInteger.valueOf(3L));
+      .setChainId(UUID.randomUUID())
+      .setInstrumentId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailIfUserNotInChainAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailIfUserNotInChainAccount() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainInstrument inputData = new ChainInstrument()
-      .setChainId(BigInteger.valueOf(3L))
-      .setInstrumentId(BigInteger.valueOf(1L));
+      .setChainId(UUID.randomUUID())
+      .setInstrumentId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailIfUserNotInInstrumentAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailIfUserNotInInstrumentAccount() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainInstrument inputData = new ChainInstrument()
-      .setChainId(BigInteger.valueOf(1L))
-      .setInstrumentId(BigInteger.valueOf(3L));
+      .setChainId(UUID.randomUUID())
+      .setInstrumentId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailsWithoutChainID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailsWithoutChainID() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainInstrument inputData = new ChainInstrument()
-      .setInstrumentId(BigInteger.valueOf(2L));
+      .setInstrumentId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailsWithoutInstrumentId() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailsWithoutInstrumentId() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainInstrument inputData = new ChainInstrument()
-      .setChainId(BigInteger.valueOf(1L));
+      .setChainId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "2"
-    ));
+    Access access = of(ImmutableList.of(account2), "Artist");
 
     ChainInstrument result = testDAO.readOne(access, BigInteger.valueOf(1003000L));
 
@@ -585,10 +533,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void readOne_FailsWhenChainIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "326"
-    ));
+    Access access = of(ImmutableList.of(of()), "Artist");
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
@@ -597,10 +542,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void readMany() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+    Access access = of(ImmutableList.of(account1), "Artist");
 
     Collection<ChainInstrument> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(2L)));
 
@@ -609,10 +551,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "345"
-    ));
+    Access access = of(ImmutableList.of(of()), "Artist");
 
     Collection<ChainInstrument> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
@@ -621,10 +560,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "2"
-    ));
+    Access access = of(ImmutableList.of(account2), "Artist");
 
     testDAO.destroy(access, BigInteger.valueOf(1003000L));
 
@@ -642,87 +578,66 @@ public class ChainTest extends CoreTest {
   }
 
   @Test
-  public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainLibrary inputData = new ChainLibrary()
-      .setChainId(BigInteger.valueOf(1L))
-      .setLibraryId(BigInteger.valueOf(2L));
+      .setChainId(UUID.randomUUID())
+      .setLibraryId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailIfAlreadyExists() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailIfAlreadyExists() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainLibrary inputData = new ChainLibrary()
-      .setChainId(BigInteger.valueOf(1L))
-      .setLibraryId(BigInteger.valueOf(1L));
+      .setChainId(UUID.randomUUID())
+      .setLibraryId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailIfUserNotInChainAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailIfUserNotInChainAccount() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainLibrary inputData = new ChainLibrary()
-      .setChainId(BigInteger.valueOf(3L))
-      .setLibraryId(BigInteger.valueOf(1L));
+      .setChainId(UUID.randomUUID())
+      .setLibraryId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailIfUserNotInLibraryAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailIfUserNotInLibraryAccount() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainLibrary inputData = new ChainLibrary()
-      .setChainId(BigInteger.valueOf(1L))
-      .setLibraryId(BigInteger.valueOf(3L));
+      .setChainId(UUID.randomUUID())
+      .setLibraryId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailsWithoutChainID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailsWithoutChainID() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainLibrary inputData = new ChainLibrary()
-      .setLibraryId(BigInteger.valueOf(2L));
+      .setLibraryId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailsWithoutLibraryId() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailsWithoutLibraryId() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainLibrary inputData = new ChainLibrary()
-      .setChainId(BigInteger.valueOf(1L));
+      .setChainId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+    Access access = of(ImmutableList.of(account1), "Artist");
 
     ChainLibrary result = testDAO.readOne(access, BigInteger.valueOf(1001000L));
 
@@ -733,10 +648,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void readOne_FailsWhenChainIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "326"
-    ));
+    Access access = of(ImmutableList.of(of()), "Artist");
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
@@ -745,10 +657,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void readMany() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+    Access access = of(ImmutableList.of(account1), "Artist");
 
     Collection<ChainLibrary> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(2L)));
 
@@ -757,10 +666,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "345"
-    ));
+    Access access = of(ImmutableList.of(of()), "Artist");
 
     Collection<ChainLibrary> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
@@ -769,10 +675,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+    Access access = of(ImmutableList.of(account1), "Artist");
 
     testDAO.destroy(access, BigInteger.valueOf(1001000L));
 
@@ -790,101 +693,77 @@ public class ChainTest extends CoreTest {
   }
 
   @Test
-  public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainSequence inputData = new ChainSequence()
-      .setChainId(BigInteger.valueOf(1L))
-      .setSequenceId(BigInteger.valueOf(2L));
+      .setChainId(UUID.randomUUID())
+      .setProgramSequenceId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailIfAlreadyExists() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailIfAlreadyExists() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainSequence inputData = new ChainSequence()
-      .setChainId(BigInteger.valueOf(1L))
-      .setSequenceId(BigInteger.valueOf(3L));
+      .setChainId(UUID.randomUUID())
+      .setProgramSequenceId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailIfUserNotInChainAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailIfUserNotInChainAccount() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainSequence inputData = new ChainSequence()
-      .setChainId(BigInteger.valueOf(3L))
-      .setSequenceId(BigInteger.valueOf(1L));
+      .setChainId(UUID.randomUUID())
+      .setProgramSequenceId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailIfUserNotInSequenceAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailIfUserNotInSequenceAccount() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainSequence inputData = new ChainSequence()
-      .setChainId(BigInteger.valueOf(1L))
-      .setSequenceId(BigInteger.valueOf(3L));
+      .setChainId(UUID.randomUUID())
+      .setProgramSequenceId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailsWithoutChainID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailsWithoutChainID() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainSequence inputData = new ChainSequence()
-      .setSequenceId(BigInteger.valueOf(2L));
+      .setProgramSequenceId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test(expected = CoreException.class)
-  public void create_FailsWithoutSequenceId() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+  public void of_FailsWithoutSequenceId() throws Exception {
+    Access access = of(ImmutableList.of(account1), "Artist");
     ChainSequence inputData = new ChainSequence()
-      .setChainId(BigInteger.valueOf(1L));
+      .setChainId(UUID.randomUUID());
 
-    testDAO.create(access, inputData);
+    testDAO.of(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "2"
-    ));
+    Access access = of(ImmutableList.of(account2), "Artist");
 
     ChainSequence result = testDAO.readOne(access, BigInteger.valueOf(1003000L));
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(1L), result.getChainId());
-    assertEquals(BigInteger.valueOf(3L), result.getSequenceId());
+    assertEquals(BigInteger.valueOf(3L), result.getProgramSequenceId());
   }
 
   @Test
   public void readOne_FailsWhenChainIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "326"
-    ));
+    Access access = of(ImmutableList.of(of()), "Artist");
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
@@ -893,10 +772,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void readMany() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+    Access access = of(ImmutableList.of(account1), "Artist");
 
     Collection<ChainSequence> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(2L)));
 
@@ -905,10 +781,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "345"
-    ));
+    Access access = of(ImmutableList.of(of()), "Artist");
 
     Collection<ChainSequence> result = testDAO.readMany(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
@@ -917,10 +790,7 @@ public class ChainTest extends CoreTest {
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "2"
-    ));
+    Access access = of(ImmutableList.of(account2), "Artist");
 
     testDAO.destroy(access, BigInteger.valueOf(1003000L));
 

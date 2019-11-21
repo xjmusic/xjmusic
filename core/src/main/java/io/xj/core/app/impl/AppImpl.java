@@ -1,15 +1,15 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.app.impl;
 
 import io.xj.core.access.AccessLogFilterProvider;
 import io.xj.core.access.AccessTokenAuthFilter;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.app.App;
 import io.xj.core.config.Config;
 import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.message.MessageType;
-import io.xj.core.model.message.platform.PlatformMessage;
+import io.xj.core.entity.MessageType;
+import io.xj.core.model.PlatformMessage;
 import io.xj.core.transport.HttpServerProvider;
 import io.xj.core.transport.ResourceConfigProvider;
 import io.xj.core.work.WorkManager;
@@ -103,7 +103,7 @@ public class AppImpl implements App {
       workerPool = new RobustWorkerPool(() -> workManager.getWorker(jobFactory),
         Config.getWorkConcurrency(), Executors.defaultThreadFactory());
 
-      // Handle errors from the worker pool
+      // Handle errors of the worker pool
       workerPool.getWorkerEventEmitter().addListener(
         (event, worker, queue, errorJob, runner, result, t) -> log.error("Worker Pool: event: {}, worker: {}, queue: {}, errorJob: {}, runner: {}, result: {}, t: {}", event, worker, queue, errorJob, runner, result, t), WorkerEvent.WORKER_ERROR
       );

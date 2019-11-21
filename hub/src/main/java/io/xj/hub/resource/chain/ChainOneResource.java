@@ -1,14 +1,13 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.chain;
 
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.payload.MediaType;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.user.role.UserRoleType;
-import io.xj.core.util.Value;
+import io.xj.core.model.Chain;
+import io.xj.core.model.UserRoleType;
+import io.xj.core.payload.MediaType;
+import io.xj.core.payload.Payload;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.PermitAll;
@@ -22,8 +21,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.math.BigInteger;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  Chain record
@@ -48,16 +47,29 @@ public class ChainOneResource extends HubResource {
       return response.notAcceptable("Chain id is required");
 
     try {
-      Chain chain = Value.isInteger(id) ?
-        dao().readOne(access, new BigInteger(id)) :
-        dao().readOne(access, id);
+
+      // will only have value if this can parse a uuid from string
+      // otherwise, ignore the exception on attempt and store a null value for uuid
+      UUID uuidId;
+      try {
+        uuidId = UUID.fromString(id);
+      } catch (Exception ignored) {
+        uuidId = null;
+      }
+
+      // chain is either by uuid or embed key
+      Chain chain;
+      if (Objects.nonNull(uuidId))
+        chain = dao().readOne(access, uuidId); // uuid
+      else
+        chain = dao().readOne(access, id); // embed key
 
       Payload payload = new Payload();
       payload.setDataEntity(chain);
       return response.ok(payload);
 
     } catch (CoreException ignored) {
-      return response.notFound(dao().newInstance().setId(new BigInteger(id)));
+      return response.notFound("chains", id); // either embed key or uuid
 
     } catch (Exception e) {
       return response.failure(e);
@@ -90,7 +102,7 @@ public class ChainOneResource extends HubResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response erase(@Context ContainerRequestContext crc) {
     try {
-      dao().erase(Access.fromContext(crc), new BigInteger(id));
+      dao().erase(Access.fromContext(crc), UUID.fromString(id));
       return response.noContent();
 
     } catch (Exception e) {
@@ -99,7 +111,7 @@ public class ChainOneResource extends HubResource {
   }
 
   /**
-   Get DAO from injector
+   Get DAO of injector
 
    @return DAO
    */

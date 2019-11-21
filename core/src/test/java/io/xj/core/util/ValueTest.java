@@ -1,12 +1,8 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.core.util;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.core.util;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.jooq.types.ULong;
 import org.junit.Test;
-
-import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -37,14 +33,6 @@ public class ValueTest {
   public void ratio() {
     assertEquals(0.0, Value.ratio(0.0, 5.0), 0.01);
     assertEquals(0.6, Value.ratio(3.0, 5.0), 0.01);
-  }
-
-  /**
-   [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
-   */
-  @Test
-  public void roundPosition() {
-    assertEquals(5.35, Value.limitFloatingPointPlaces(5.35169988945), 0.0000001);
   }
 
   @Test

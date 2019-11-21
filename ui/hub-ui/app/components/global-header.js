@@ -1,4 +1,4 @@
-//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import {inject as service} from '@ember/service';
 import Component from '@ember/component';
@@ -48,7 +48,7 @@ export default Component.extend({
       .querySelectorAll(".navbar-nav li a")
       .forEach(function (item) {
         item.addEventListener('click', function (event) {
-          // check if window is small enough so dropdown is created
+          // check if window is small enough so dropdown is ofd
           let dropdown = Ember.$(event.target).hasClass('dropdown-toggle');
           if (dropdown) {
             // don't collapse on dropdown press

@@ -1,43 +1,53 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.fabricator.impl;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.config.Config;
+import io.xj.core.dao.ChainBindingDAO;
+import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChainDAO;
-import io.xj.core.dao.SegmentDAO;
+import io.xj.core.entity.MemeEntity;
 import io.xj.core.exception.CoreException;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorType;
+import io.xj.core.fabricator.SegmentRetrospective;
+import io.xj.core.fabricator.SegmentRetrospectiveFactory;
+import io.xj.core.fabricator.SegmentWorkbench;
+import io.xj.core.fabricator.SegmentWorkbenchFactory;
 import io.xj.core.fabricator.TimeComputer;
 import io.xj.core.fabricator.TimeComputerFactory;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.ingest.cache.IngestCacheProvider;
+import io.xj.core.isometry.EntityRank;
 import io.xj.core.isometry.Isometry;
 import io.xj.core.isometry.MemeIsometry;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.chain.ChainConfigType;
-import io.xj.core.model.chain.sub.ChainConfig;
-import io.xj.core.model.entity.MemeEntity;
-import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.instrument.sub.Audio;
-import io.xj.core.model.instrument.sub.AudioEvent;
-import io.xj.core.model.program.Program;
-import io.xj.core.model.program.ProgramType;
-import io.xj.core.model.program.sub.Sequence;
-import io.xj.core.model.program.sub.SequenceBinding;
-import io.xj.core.model.segment.Segment;
-import io.xj.core.model.segment.sub.Arrangement;
-import io.xj.core.model.segment.sub.Choice;
-import io.xj.core.model.segment.sub.Pick;
-import io.xj.core.model.segment.sub.SegmentChord;
-import io.xj.core.model.segment.sub.SegmentMeme;
-import io.xj.core.model.segment.sub.SegmentMessage;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainBinding;
+import io.xj.core.model.ChainConfig;
+import io.xj.core.model.ChainConfigType;
+import io.xj.core.model.InstrumentAudio;
+import io.xj.core.model.Program;
+import io.xj.core.model.ProgramSequencePattern;
+import io.xj.core.model.ProgramPatternType;
+import io.xj.core.model.ProgramSequence;
+import io.xj.core.model.ProgramSequenceBinding;
+import io.xj.core.model.ProgramType;
+import io.xj.core.model.ProgramVoice;
+import io.xj.core.model.Segment;
+import io.xj.core.model.SegmentChoiceArrangement;
+import io.xj.core.model.SegmentChoice;
+import io.xj.core.model.SegmentChoiceArrangementPick;
+import io.xj.core.model.SegmentChord;
+import io.xj.core.model.SegmentMeme;
+import io.xj.core.model.SegmentMessage;
 import io.xj.core.transport.CSV;
+import io.xj.core.util.Chance;
 import io.xj.music.Chord;
 import io.xj.music.MusicalException;
 import io.xj.music.Note;
@@ -46,7 +56,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
-import java.math.BigInteger;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Locale;
@@ -54,6 +63,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -63,37 +73,40 @@ public class FabricatorImpl implements Fabricator {
   private final Access access;
   private final AmazonProvider amazonProvider;
   private final Chain chain;
-  private final Collection<Segment> cachedPreviousSegmentsWithThisMainSequence = Lists.newArrayList();
+  private final Collection<ChainConfig> chainConfigs;
+  private final Collection<ChainBinding> chainBindings;
   private final Ingest sourceMaterial;
   private final Logger log = LoggerFactory.getLogger(FabricatorImpl.class);
   private final long startTime;
-  private final Map<String, Segment> segmentByOffset = Maps.newHashMap();
-  private final Map<UUID, BigInteger> instrumentIdForAudioId;
-  private final Map<Choice, Sequence> sequenceForChoice = Maps.newHashMap();
-  private final Segment segment;
-  private final SegmentDAO segmentDAO;
+  private final Map<SegmentChoice, ProgramSequence> sequenceForChoice = Maps.newHashMap();
+  private final SegmentWorkbench workbench;
+  private final SegmentRetrospective retrospective;
   private final TimeComputerFactory timeComputerFactory;
   private final Tuning tuning;
-  private Collection<Segment> previousSegmentsWithSameMainProgram;
   private FabricatorType type;
 
   @AssistedInject
   public FabricatorImpl(
+    @Assisted("access") Access access,
     @Assisted("segment") Segment segment,
-    IngestCacheProvider ingestProvider,
+    IngestCacheProvider ingestCacheProvider,
     ChainDAO chainDAO,
-    SegmentDAO segmentDAO,
+    ChainBindingDAO chainBindingDAO,
+    ChainConfigDAO chainConfigDAO,
     TimeComputerFactory timeComputerFactory,
-    AmazonProvider amazonProvider
+    SegmentWorkbenchFactory segmentWorkbenchFactory,
+    AmazonProvider amazonProvider,
+    SegmentRetrospectiveFactory retrospectiveFactory
   ) throws CoreException {
-    this.segment = segment;
+    // FUTURE: [#165815496] Chain fabrication access control
+    this.access = access;
+    log.info("[segId={}] Access {}", segment.getId(), access);
+
     this.amazonProvider = amazonProvider;
-    this.segmentDAO = segmentDAO;
     this.timeComputerFactory = timeComputerFactory;
 
-    // FUTURE: [#165815496] Chain fabrication access control
-    access = Access.internal();
-    log.info("[segId={}] Access {}", segment.getId(), access);
+    // get the current segment on the workbench
+    workbench = segmentWorkbenchFactory.workOn(access, segment);
 
     // tuning
     tuning = computeTuning();
@@ -103,50 +116,51 @@ public class FabricatorImpl implements Fabricator {
     startTime = System.nanoTime();
     log.info("[segId={}] StartTime {}ns since epoch zulu", segment.getId(), startTime);
 
-    // read the chain
+    // read the chain, bindings, and configs
     chain = chainDAO.readOne(access, segment.getChainId());
+    chainConfigs = chainConfigDAO.readMany(access, ImmutableList.of(chain.getId()));
+    chainBindings = chainBindingDAO.readMany(access, ImmutableList.of(chain.getId()));
     log.info("[segId={}] Chain {}", segment.getId(), chain);
 
     // read the source material
-    sourceMaterial = ingestProvider.ingest(access, chain.getBindings());
+    sourceMaterial = ingestCacheProvider.ingest(access, chainBindings);
     log.info("[segId={}] SourceMaterial {}", segment.getId(), sourceMaterial);
 
-    // cache additional knowledge
-    instrumentIdForAudioId = buildInstrumentIdForAudioId();
-    log.info("[segId={}] Cached Instrument ID for {} Audio IDs", segment.getId(), instrumentIdForAudioId.size());
+    // setup the segment retrospective
+    retrospective = retrospectiveFactory.workOn(access, segment, sourceMaterial);
 
     // final pre-flight check
     ensureWaveformKey();
   }
 
   @Override
-  public Arrangement add(Arrangement arrangement) {
-    return getSegment().add(arrangement);
+  public SegmentChoiceArrangement add(SegmentChoiceArrangement arrangement) {
+    return workbench.getSegmentArrangements().add(arrangement);
   }
 
   @Override
-  public Choice add(Choice choice) {
-    return getSegment().add(choice);
+  public SegmentChoice add(SegmentChoice choice) {
+    return workbench.getSegmentChoices().add(choice);
   }
 
   @Override
-  public Pick add(Pick pick) {
-    return getSegment().add(pick);
+  public SegmentChoiceArrangementPick add(SegmentChoiceArrangementPick pick) {
+    return workbench.getSegmentPicks().add(pick);
   }
 
   @Override
   public SegmentChord add(SegmentChord segmentChord) {
-    return getSegment().add(segmentChord);
+    return workbench.getSegmentChords().add(segmentChord);
   }
 
   @Override
   public SegmentMeme add(SegmentMeme segmentMeme) {
-    return getSegment().add(segmentMeme);
+    return workbench.getSegmentMemes().add(segmentMeme);
   }
 
   @Override
   public SegmentMessage add(SegmentMessage segmentMessage) {
-    return getSegment().add(segmentMessage);
+    return workbench.getSegmentMessages().add(segmentMessage);
   }
 
   @Override
@@ -160,33 +174,12 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Map<ChainConfigType, ChainConfig> getAllChainConfigs() {
-    Map<ChainConfigType, ChainConfig> out = Maps.newHashMap();
-    getChain().getConfigs().forEach(chainConfig -> out.put(chainConfig.getType(), chainConfig));
-    return out;
-  }
-
-  @Override
-  public Collection<Audio> getPickedAudios() throws CoreException {
-    Collection<Audio> audios = Lists.newArrayList();
-    for (Pick pick : getSegment().getPicks()) {
-      audios.add(getAudio(pick));
+  public Collection<InstrumentAudio> getPickedAudios() throws CoreException {
+    Collection<InstrumentAudio> audios = Lists.newArrayList();
+    for (SegmentChoiceArrangementPick pick : workbench.getSegmentPicks().getAll()) {
+      audios.add(sourceMaterial.getAudio(pick));
     }
     return audios;
-  }
-
-  @Override
-  public Audio getAudio(UUID id) throws CoreException {
-    Optional<Audio> audio = sourceMaterial.getInstrument(instrumentIdForAudioId.get(id)).getAudios().stream()
-      .filter(search -> search.getId().equals(id)).findAny();
-    if (audio.isEmpty())
-      throw new CoreException(String.format("Cannot find audio id=%s", id));
-    return audio.get();
-  }
-
-  @Override
-  public Audio getAudio(Pick pick) throws CoreException {
-    return getAudio(pick.getAudioId());
   }
 
   @Override
@@ -195,9 +188,20 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public Collection<ChainConfig> getChainConfigs() {
+    return chainConfigs;
+  }
+
+  @Override
+  public Collection<ChainBinding> getChainBindings() {
+    return chainBindings;
+  }
+
+  @Override
   public ChainConfig getChainConfig(ChainConfigType chainConfigType) throws CoreException {
-    if (getAllChainConfigs().containsKey(chainConfigType))
-      return getAllChainConfigs().get(chainConfigType);
+    Optional<ChainConfig> config = getChainConfigs().stream()
+      .filter(c -> c.getType().equals(chainConfigType)).findFirst();
+    if (config.isPresent()) return config.get();
 
     try {
       return new ChainConfig()
@@ -210,18 +214,18 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public BigInteger getChainId() {
+  public UUID getChainId() {
     return chain.getId();
   }
 
   @Override
   public Chord getChordAt(int position) {
     // default to returning a chord based on the segment key, if nothing else is found
-    String foundChordText = getSegment().getKey();
+    String foundChordText = workbench.getSegment().getKey();
     Double foundPosition = null;
 
     // we assume that these entities are in order of position ascending
-    for (SegmentChord segmentChord : getSegment().getChords()) {
+    for (SegmentChord segmentChord : workbench.getSegmentChords().getAll()) {
       // if it's a better match (or no match has yet been found) then use it
       if (Objects.isNull(foundPosition) ||
         segmentChord.getPosition() > foundPosition && segmentChord.getPosition() < position) {
@@ -234,23 +238,23 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Choice getCurrentMacroChoice() throws CoreException {
-    return getSegment().getChoiceOfType(ProgramType.Macro);
+  public SegmentChoice getCurrentMacroChoice() throws CoreException {
+    return workbench.getChoiceOfType(ProgramType.Macro);
   }
 
   @Override
-  public Sequence getCurrentMacroSequence() throws CoreException {
+  public ProgramSequence getCurrentMacroSequence() throws CoreException {
     return getSequence(getCurrentMacroChoice());
   }
 
   @Override
-  public Choice getCurrentMainChoice() throws CoreException {
-    return getSegment().getChoiceOfType(ProgramType.Main);
+  public SegmentChoice getCurrentMainChoice() throws CoreException {
+    return workbench.getChoiceOfType(ProgramType.Main);
   }
 
   @Override
-  public Choice getCurrentRhythmChoice() throws CoreException {
-    return getSegment().getChoiceOfType(ProgramType.Rhythm);
+  public SegmentChoice getCurrentRhythmChoice() throws CoreException {
+    return workbench.getChoiceOfType(ProgramType.Rhythm);
   }
 
   @Override
@@ -259,85 +263,69 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<AudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) {
-    Map<String, AudioEvent> result = Maps.newHashMap();
-    instrument.getAudios().forEach(audio ->
-      instrument.getAudioEvents().stream().filter(search -> search.getAudioId().equals(audio.getId())).forEach(audioEvent -> {
-        String key = audioEvent.getAudioId().toString();
-        if (result.containsKey(key)) {
-          if (audioEvent.getPosition() < result.get(key).getPosition()) {
-            result.put(key, audioEvent);
-          }
-        } else {
-          result.put(key, audioEvent);
-        }
-      }));
-    return result.values();
-  }
-
-  @Override
-  public String getKeyForChoice(Choice choice) throws CoreException {
+  public String getKeyForChoice(SegmentChoice choice) throws CoreException {
     Program program = getProgram(choice);
-    if (Objects.nonNull(choice.getSequenceBindingId())) {
+    if (Objects.nonNull(choice.getProgramSequenceBindingId())) {
       return getSequence(choice).getKey();
     }
     return program.getKey();
   }
 
   @Override
-  public Long getMaxAvailableSequenceBindingOffset(Choice choice) throws CoreException {
-    if (Objects.isNull(choice.getSequenceBindingId()))
+  public Long getMaxAvailableSequenceBindingOffset(SegmentChoice choice) throws CoreException {
+    if (Objects.isNull(choice.getProgramSequenceBindingId()))
       throw exception("Cannot determine whether choice with no SequenceBinding has two more available Sequence Pattern offsets");
-    SequenceBinding sequenceBinding = getSequenceBinding(choice);
+    ProgramSequenceBinding sequenceBinding = getSequenceBinding(choice);
 
-    Optional<Long> max = getProgram(choice).getAvailableOffsets(sequenceBinding).stream().max(Long::compareTo);
+    Optional<Long> max = sourceMaterial.getAvailableOffsets(sequenceBinding).stream().max(Long::compareTo);
     if (max.isEmpty()) throw exception("Cannot determine max available sequence binding offset");
     return max.get();
   }
 
   @Override
-  public Map<String, Collection<Arrangement>> getMemeConstellationArrangementsOfPreviousSegments() {
-    Map<String, Collection<Arrangement>> out = Maps.newHashMap();
+  public Map<String, Collection<SegmentChoiceArrangement>> getMemeConstellationArrangementsOfPreviousSegments() {
+    Map<String, Collection<SegmentChoiceArrangement>> out = Maps.newHashMap();
     getMemeConstellationChoicesOfPreviousSegments().forEach((con, previousChoices) -> {
       if (!out.containsKey(con)) out.put(con, Lists.newArrayList());
-      previousChoices.forEach(choice -> getSegment().getArrangementsForChoice(choice).forEach(arrangement -> out.get(con).add(arrangement)));
+
+      previousChoices.forEach(choice -> retrospective.getArrangements(choice).forEach(arrangement -> out.get(con).add(arrangement)));
     });
     return out;
   }
 
   @Override
-  public Map<String, Collection<Choice>> getMemeConstellationChoicesOfPreviousSegments() {
-    Map<String, Collection<Choice>> out = Maps.newHashMap();
+  public Map<String, Collection<SegmentChoice>> getMemeConstellationChoicesOfPreviousSegments() {
+    Map<String, Collection<SegmentChoice>> out = Maps.newHashMap();
     for (Segment seg : getPreviousSegmentsWithSameMainProgram()) {
-      Isometry iso = MemeIsometry.ofMemes(seg.getMemes());
+      Isometry iso = MemeIsometry.ofMemes(retrospective.getSegmentMemes(seg));
       String con = iso.getConstellation();
       if (!out.containsKey(con)) out.put(con, Lists.newArrayList());
-      out.get(con).addAll(seg.getChoices());
+      out.get(con).addAll(retrospective.getSegmentChoices(seg));
     }
     return out;
   }
 
   @Override
-  public Map<String, Collection<Pick>> getMemeConstellationPicksOfPreviousSegments() {
-    Map<String, Collection<Pick>> out = Maps.newHashMap();
+  public Map<String, Collection<SegmentChoiceArrangementPick>> getMemeConstellationPicksOfPreviousSegments() {
+    Map<String, Collection<SegmentChoiceArrangementPick>> out = Maps.newHashMap();
     for (Segment seg : getPreviousSegmentsWithSameMainProgram()) {
-      Isometry iso = MemeIsometry.ofMemes(seg.getMemes());
+      Isometry iso = MemeIsometry.ofMemes(retrospective.getSegmentMemes(seg));
       String con = iso.getConstellation();
       if (!out.containsKey(con)) out.put(con, Lists.newArrayList());
-      out.get(con).addAll(seg.getPicks());
+      out.get(con).addAll(retrospective.getSegmentPicks(seg));
     }
     return out;
   }
 
   @Override
   public MemeIsometry getMemeIsometryOfCurrentMacro() throws CoreException {
-    return MemeIsometry.ofMemes(getProgram(getCurrentMacroChoice()).getMemesAtBeginning());
+    return MemeIsometry.ofMemes(sourceMaterial.getMemesAtBeginning(getProgram(getCurrentMacroChoice())));
   }
 
   @Override
   public MemeIsometry getMemeIsometryOfNextSequenceInPreviousMacro() {
     try {
-      return MemeIsometry.ofMemes(getProgram(getPreviousMacroChoice()).getMemesAtBeginning());
+      return MemeIsometry.ofMemes(sourceMaterial.getMemesAtBeginning(getProgram(getPreviousMacroChoice())));
     } catch (Exception ignored) {
       return new MemeIsometry();
     }
@@ -345,27 +333,27 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public MemeIsometry getMemeIsometryOfSegment() {
-    return MemeIsometry.ofMemes(getSegment().getMemes());
+    return MemeIsometry.ofMemes(workbench.getSegmentMemes().getAll());
   }
 
   @Override
-  public Collection<MemeEntity> getMemesOfChoice(Choice choice) throws CoreException {
+  public Collection<MemeEntity> getMemesOfChoice(SegmentChoice choice) throws CoreException {
     Collection<MemeEntity> result = Lists.newArrayList();
-    result.addAll(getProgram(choice).getMemes());
-    if (Objects.nonNull(choice.getSequenceBindingId()))
-      result.addAll(getProgram(choice).getMemes(getSequenceBinding(choice)));
+    result.addAll(sourceMaterial.getMemes(getProgram(choice)));
+    if (Objects.nonNull(choice.getProgramSequenceBindingId()))
+      result.addAll(sourceMaterial.getMemes(getSequenceBinding(choice)));
     return result;
   }
 
   @Override
-  public Long getNextSequenceBindingOffset(Choice choice) throws CoreException {
-    if (Objects.isNull(choice.getSequenceBindingId()))
-      throw exception("Cannot determine next available SequenceBinding offset of choice with no SequenceBinding.");
+  public Long getNextSequenceBindingOffset(SegmentChoice choice) throws CoreException {
+    if (Objects.isNull(choice.getProgramSequenceBindingId()))
+      throw exception("Cannot determine next available SequenceBinding offset create choice with no SequenceBinding.");
 
-    SequenceBinding sequenceBinding = getSequenceBinding(choice);
+    ProgramSequenceBinding sequenceBinding = getSequenceBinding(choice);
     Long sequenceBindingOffset = getSequenceBindingOffsetForChoice(choice);
     Long offset = null;
-    for (Long availableOffset : getProgram(choice).getAvailableOffsets(sequenceBinding))
+    for (Long availableOffset : sourceMaterial.getAvailableOffsets(sequenceBinding))
       if (0 < availableOffset.compareTo(sequenceBindingOffset))
         if (Objects.isNull(offset) ||
           0 > availableOffset.compareTo(offset))
@@ -394,10 +382,10 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public String getOutputFilePath() throws CoreException {
-    if (Objects.isNull(getSegment().getWaveformKey()))
+    if (Objects.isNull(workbench.getSegment().getWaveformKey()))
       throw exception("Segment has no waveform key!");
 
-    return Config.getWorkTempFilePathPrefix() + getSegment().getWaveformKey();
+    return Config.getWorkTempFilePathPrefix() + workbench.getSegment().getWaveformKey();
   }
 
   @Override
@@ -407,82 +395,61 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Collection<Segment> getPreviousSegmentsWithSameMainProgram() {
-    if (Objects.isNull(previousSegmentsWithSameMainProgram))
-      previousSegmentsWithSameMainProgram = buildPreviousSegmentsWithSameMainSequence();
-
-    return previousSegmentsWithSameMainProgram;
+    return retrospective.getSegments();
   }
 
   @Override
-  public Program getProgram(Choice choice) throws CoreException {
+  public Program getProgram(SegmentChoice choice) throws CoreException {
     return sourceMaterial.getProgram(choice.getProgramId());
   }
 
   @Override
-  public Program getProgram(Sequence sequence) throws CoreException {
-    return sourceMaterial.getProgram(sequence.getProgramId());
+  public SegmentChoice getPreviousMacroChoice() throws CoreException {
+    return retrospective.getPreviousChoiceOfType(ProgramType.Macro);
   }
 
   @Override
-  public Choice getPreviousMacroChoice() throws CoreException {
-    return getPreviousSegment().getChoiceOfType(ProgramType.Macro);
-  }
-
-  @Override
-  public Choice getPreviousMainChoice() throws CoreException {
-    return getPreviousSegment().getChoiceOfType(ProgramType.Main);
+  public SegmentChoice getPreviousMainChoice() throws CoreException {
+    return retrospective.getPreviousChoiceOfType(ProgramType.Main);
   }
 
   @Override
   public Segment getPreviousSegment() throws CoreException {
-    if (isInitialSegment()) throw exception("Initial Segment has no previous Segment");
+    if (isInitialSegment() || retrospective.getPreviousSegment().isEmpty())
+      throw exception("Initial Segment has no previous Segment");
 
-    return getSegmentByOffset(getChainId(), getSegment().getOffset() - 1);
+    return retrospective.getPreviousSegment().get();
   }
 
   @Override
   public Segment getSegment() {
-    return segment;
-  }
-
-  @Override
-  public Segment getSegmentByOffset(BigInteger chainId, Long offset) throws CoreException {
-    String key = String.format("%s_%s", chainId, offset);
-    if (!segmentByOffset.containsKey(key)) {
-      try {
-        segmentByOffset.put(key, segmentDAO.readOneAtChainOffset(getAccess(), chainId, offset));
-      } catch (CoreException e) {
-        throw exception(String.format("Could not retrieve segment at chainId=%s, offset=%s", chainId, offset), e);
-      }
-    }
-
-    return segmentByOffset.get(key);
+    return workbench.getSegment();
   }
 
   @Override
   public Duration getSegmentTotalLength() throws CoreException {
-    if (Objects.isNull(getSegment().getEndAt()))
-      throw exception("Cannot compute total length of segment with no end!");
+    if (Objects.isNull(workbench.getSegment().getEndAt()))
+      throw exception("Cannot compute total length create segment with no end!");
 
-    return Duration.between(getSegment().getBeginAt(), getSegment().getEndAt());
+    return Duration.between(workbench.getSegment().getBeginAt(), workbench.getSegment().getEndAt());
   }
 
   @Override
-  public Sequence getSequence(Choice choice) throws CoreException {
+  public ProgramSequence getSequence(SegmentChoice choice) throws CoreException {
     Program program = getProgram(choice);
-    if (Objects.nonNull(choice.getSequenceBindingId()))
-      return program.getSequence(getSequenceBinding(choice).getSequenceId());
+    if (Objects.nonNull(choice.getProgramSequenceBindingId()))
+      return sourceMaterial.getProgramSequence(getSequenceBinding(choice).getProgramSequenceId());
 
     if (!sequenceForChoice.containsKey(choice))
-      sequenceForChoice.put(choice, program.randomlySelectSequence());
+      sequenceForChoice.put(choice, randomlySelectSequence(program));
 
     return sequenceForChoice.get(choice);
   }
 
   @Override
-  public Long getSequenceBindingOffsetForChoice(Choice choice) throws CoreException {
-    if (Objects.isNull(choice.getSequenceBindingId()))
-      throw exception("Cannot determine SequenceBinding offset of choice with no SequenceBinding.");
+  public Long getSequenceBindingOffsetForChoice(SegmentChoice choice) throws CoreException {
+    if (Objects.isNull(choice.getProgramSequenceBindingId()))
+      throw exception("Cannot determine SequenceBinding offset create choice with no SequenceBinding.");
     return getSequenceBinding(choice).getOffset();
   }
 
@@ -499,39 +466,38 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public boolean hasOneMoreSequenceBindingOffset(Choice choice) throws CoreException {
+  public boolean hasOneMoreSequenceBindingOffset(SegmentChoice choice) throws CoreException {
     return hasMoreSequenceBindingOffsets(choice, 1);
   }
 
   @Override
-  public boolean hasTwoMoreSequenceBindingOffsets(Choice choice) throws CoreException {
+  public boolean hasTwoMoreSequenceBindingOffsets(SegmentChoice choice) throws CoreException {
     return hasMoreSequenceBindingOffsets(choice, 2);
   }
 
   @Override
   public Boolean isInitialSegment() {
-    return getSegment().isInitial();
+    return workbench.getSegment().isInitial();
   }
 
   @Override
   public void putReport(String key, Object value) {
-    getSegment().getReport().put(key, value);
+    workbench.putReport(key, value);
   }
 
   @Override
-  public void updateSegment() throws CoreException {
-    Segment updatedSegment = getSegment();
-    updatedSegment.setTypeEnum(getType());
+  public void done() throws CoreException {
+    workbench.getSegment().setTypeEnum(getType());
     try {
-      segmentDAO.update(getAccess(), getSegment().getId(), updatedSegment);
+      workbench.done();
     } catch (CoreException e) {
-      throw exception("Could not update Segment", e);
+      throw exception("Could not complete Segment fabrication", e);
     }
     switch (getType()) {
       case Continue:
-        // transitions only once, from empty to non-empty
-        log.info("[segId={}] continues main sequence of previous segments: {}",
-          segment.getId(),
+        // transitions only once, of empty to non-empty
+        log.info("[segId={}] continues main sequence create previous segments: {}",
+          workbench.getSegment().getId(),
           CSV.fromIdsOf(getPreviousSegmentsWithSameMainProgram()));
         break;
       case Initial:
@@ -539,6 +505,63 @@ public class FabricatorImpl implements Fabricator {
       case NextMacro:
         break;
     }
+  }
+
+  @Override
+  public ProgramSequenceBinding randomlySelectSequenceBindingAtOffset(Program program, Long offset) throws CoreException {
+    EntityRank<ProgramSequenceBinding> entityRank = new EntityRank<>();
+    for (ProgramSequenceBinding sequenceBinding : sourceMaterial.getProgramSequenceBindingsAtOffset(program, offset)) {
+      entityRank.add(sequenceBinding, Chance.normallyAround(0.0, 1.0));
+    }
+    return entityRank.getTop();
+  }
+
+  @Override
+  public ProgramSequence randomlySelectSequence(Program program) throws CoreException {
+    EntityRank<ProgramSequence> entityRank = new EntityRank<>();
+    sourceMaterial.getAllProgramSequences().stream()
+      .filter(s -> s.getProgramId().equals(program.getId()))
+      .forEach(sequence -> entityRank.add(sequence, Chance.normallyAround(0.0, 1.0)));
+    return entityRank.getTop();
+  }
+
+  @Override
+  public Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(ProgramSequence sequence, ProgramVoice voice, ProgramPatternType patternType) throws CoreException {
+    EntityRank<ProgramSequencePattern> rank = new EntityRank<>();
+    sourceMaterial.getAllProgramPatterns().stream()
+      .filter(pattern -> pattern.getProgramSequenceId().equals(sequence.getId()))
+      .filter(pattern -> pattern.getProgramVoiceId().equals(voice.getId()))
+      .filter(pattern -> pattern.getType() == patternType)
+      .forEach(pattern ->
+        rank.add(pattern, Chance.normallyAround(0.0, 1.0)));
+    if (Objects.equals(0, rank.size()))
+      return Optional.empty();
+    return Optional.of(rank.getTop());
+  }
+
+  @Override
+  public Collection<SegmentChoiceArrangementPick> getSegmentPicks() {
+    return workbench.getSegmentPicks().getAll();
+  }
+
+  @Override
+  public Collection<SegmentMeme> getSegmentMemes() {
+    return workbench.getSegmentMemes().getAll();
+  }
+
+  @Override
+  public Collection<SegmentChoice> getSegmentChoices() {
+    return workbench.getSegmentChoices().getAll();
+  }
+
+  @Override
+  public Collection<SegmentChoiceArrangement> getSegmentArrangements() {
+    return workbench.getSegmentArrangements().getAll();
+  }
+
+  @Override
+  public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) {
+    return getSegmentArrangements().stream().filter(arrangement -> choice.getId().equals(arrangement.getSegmentChoiceId())).collect(Collectors.toList());
   }
 
   /**
@@ -549,12 +572,12 @@ public class FabricatorImpl implements Fabricator {
    @return true if N more sequence binding offsets are available
    @throws CoreException on failure
    */
-  private boolean hasMoreSequenceBindingOffsets(Choice choice, int N) throws CoreException {
-    if (Objects.isNull(choice.getSequenceBindingId()))
+  private boolean hasMoreSequenceBindingOffsets(SegmentChoice choice, int N) throws CoreException {
+    if (Objects.isNull(choice.getProgramSequenceBindingId()))
       throw exception("Cannot determine whether choice with no SequenceBinding has one more available Sequence Pattern offset");
-    SequenceBinding sequenceBinding = getSequenceBinding(choice);
+    ProgramSequenceBinding sequenceBinding = getSequenceBinding(choice);
 
-    Optional<Long> max = getProgram(choice).getAvailableOffsets(sequenceBinding).stream().max(Long::compareTo);
+    Optional<Long> max = sourceMaterial.getAvailableOffsets(sequenceBinding).stream().max(Long::compareTo);
     return max.filter(aLong -> 0 <= aLong.compareTo(sequenceBinding.getOffset() + N)).isPresent();
   }
 
@@ -569,7 +592,7 @@ public class FabricatorImpl implements Fabricator {
       return FabricatorType.Initial;
 
     // previous main choice having at least one more pattern?
-    Choice previousMainChoice;
+    SegmentChoice previousMainChoice;
     try {
       previousMainChoice = getPreviousMainChoice();
     } catch (CoreException e) {
@@ -580,7 +603,7 @@ public class FabricatorImpl implements Fabricator {
       return FabricatorType.Continue;
 
     // previous macro choice having at least two more patterns?
-    Choice previousMacroChoice;
+    SegmentChoice previousMacroChoice;
     try {
       previousMacroChoice = getPreviousMacroChoice();
     } catch (CoreException e) {
@@ -599,50 +622,10 @@ public class FabricatorImpl implements Fabricator {
    @param chainId to generate URL for
    @return URL as string
    */
-  private String generateWaveformKey(BigInteger chainId) throws CoreException {
+  private String generateWaveformKey(UUID chainId) throws CoreException {
     String prefix = String.format("chains-%s-segments", chainId);
     String extension = getChainConfig(ChainConfigType.OutputContainer).getValue().toLowerCase(Locale.ENGLISH);
     return amazonProvider.generateKey(prefix, extension);
-  }
-
-  /**
-   Read all previous segments with the same main sequence as this one
-
-   @return collection of segments
-   */
-  private Collection<Segment> buildPreviousSegmentsWithSameMainSequence() {
-    try {
-      // if there isn't a main choice yet, nothing to do
-      Choice mainChoice = getCurrentMainChoice();
-      if (Objects.isNull(mainChoice))
-        return Lists.newArrayList();
-
-      Long sequenceBindingOffset = getSequenceBindingOffsetForChoice(mainChoice);
-      if (0 < sequenceBindingOffset) {
-        Long oF = getSegment().getOffset() - sequenceBindingOffset;
-        Long oT = getSegment().getOffset() - 1;
-        if (0 > oF || 0 > oT)
-          return Lists.newArrayList();
-        else
-          return segmentDAO.readAllFromToOffset(getAccess(), getChainId(), oF, oT);
-
-      } else return Lists.newArrayList();
-
-    } catch (CoreException e) {
-      return Lists.newArrayList();
-    }
-  }
-
-  /**
-   @return Map of the parent Instrument ID for all ingest Audio UUIDs
-   */
-  private Map<UUID, BigInteger> buildInstrumentIdForAudioId() {
-    Map<UUID, BigInteger> map = Maps.newHashMap();
-    sourceMaterial.getAllInstruments().forEach(instrument ->
-      instrument.getAudios().forEach(audio ->
-        map.put(audio.getId(), instrument.getId())
-      ));
-    return map;
   }
 
   /**
@@ -652,16 +635,8 @@ public class FabricatorImpl implements Fabricator {
    @return Sequence Binding for the given Choice
    @throws CoreException on failure to locate the sequence binding for the specified choice
    */
-  private SequenceBinding getSequenceBinding(Choice choice) throws CoreException {
-    Optional<SequenceBinding> binding =
-      sourceMaterial
-        .getProgram(choice.getProgramId())
-        .getSequenceBindings().stream()
-        .filter(search -> search.getId().equals(choice.getSequenceBindingId()))
-        .findAny();
-    if (binding.isEmpty())
-      throw exception(String.format("Found no SequenceBinding id=%s for choice!", choice.getSequenceBindingId()));
-    return binding.get();
+  private ProgramSequenceBinding getSequenceBinding(SegmentChoice choice) throws CoreException {
+    return sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
   }
 
   /**
@@ -683,7 +658,7 @@ public class FabricatorImpl implements Fabricator {
    @param message to include in exception
    @return CoreException to throw
    */
-  public CoreException exception(String message) {
+  private CoreException exception(String message) {
     return new CoreException(formatLog(message));
   }
 
@@ -694,7 +669,7 @@ public class FabricatorImpl implements Fabricator {
    @param e       Exception to include in exception
    @return CoreException to throw
    */
-  public CoreException exception(String message, Exception e) {
+  private CoreException exception(String message, Exception e) {
     return new CoreException(formatLog(message), e);
   }
 
@@ -705,7 +680,7 @@ public class FabricatorImpl implements Fabricator {
    @return formatted message with segmentId as prefix
    */
   private String formatLog(String message) {
-    return String.format("[segId=%s] %s", getSegment().getId(), message);
+    return String.format("[segId=%s] %s", workbench.getSegment().getId(), message);
   }
 
   /**
@@ -715,7 +690,7 @@ public class FabricatorImpl implements Fabricator {
    @return Time Computer
    */
   private TimeComputer getTimeComputer() {
-    double toTempo = getSegment().getTempo(); // velocity at current segment tempo
+    double toTempo = workbench.getSegment().getTempo(); // velocity at current segment tempo
     double fromTempo;
     try {
       Segment previous = getPreviousSegment();
@@ -724,7 +699,7 @@ public class FabricatorImpl implements Fabricator {
     } catch (Exception ignored) {
       fromTempo = toTempo;
     }
-    double totalBeats = getSegment().getTotal().doubleValue();
+    double totalBeats = workbench.getSegment().getTotal().doubleValue();
     putReport("totalBeats", totalBeats);
     putReport("fromTempo", fromTempo);
     putReport("toTempo", toTempo);
@@ -773,9 +748,9 @@ public class FabricatorImpl implements Fabricator {
    @throws CoreException on failure to ensure generate waveform key
    */
   private void ensureWaveformKey() throws CoreException {
-    if (Objects.isNull(segment.getWaveformKey()) || segment.getWaveformKey().isEmpty()) {
-      segment.setWaveformKey(generateWaveformKey(segment.getChainId()));
-      log.info("[segId={}] Generated Waveform Key {}", segment.getId(), segment.getWaveformKey());
+    if (Objects.isNull(workbench.getSegment().getWaveformKey()) || workbench.getSegment().getWaveformKey().isEmpty()) {
+      workbench.getSegment().setWaveformKey(generateWaveformKey(workbench.getSegment().getChainId()));
+      log.info("[segId={}] Generated Waveform Key {}", workbench.getSegment().getId(), workbench.getSegment().getWaveformKey());
     }
   }
 

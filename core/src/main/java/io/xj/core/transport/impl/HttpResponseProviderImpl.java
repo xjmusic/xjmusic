@@ -1,13 +1,13 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.transport.impl;
 
 import com.google.inject.Inject;
 import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.ResourceEntity;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.payload.PayloadDataType;
-import io.xj.core.model.payload.PayloadError;
+import io.xj.core.entity.Entity;
+import io.xj.core.payload.Payload;
+import io.xj.core.payload.PayloadDataType;
+import io.xj.core.payload.PayloadError;
 import io.xj.core.transport.GsonProvider;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.util.Text;
@@ -84,7 +84,7 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
   }
 
   @Override
-  public Response notFound(ResourceEntity resource) {
+  public Response notFound(Entity resource) {
     return notFound(resource.getResourceType(), resource.getResourceId());
   }
 

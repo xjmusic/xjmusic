@@ -74,7 +74,7 @@ public class SQLConnection {
     try {
       connection.close();
 
-  } catch (SQLException e) {
+    } catch (SQLException e) {
       throw failureException("to close connection", e);
     }
   }

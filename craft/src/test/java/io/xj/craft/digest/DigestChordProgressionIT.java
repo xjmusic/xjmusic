@@ -1,16 +1,15 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import io.xj.core.CoreModule;
 import io.xj.core.FixtureIT;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.ingest.IngestFactory;
-import io.xj.core.model.chain.sub.ChainBinding;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainBinding;
 import io.xj.craft.CraftModule;
-import io.xj.craft.digest.chord_progression.DigestChordProgression;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +30,8 @@ public class DigestChordProgressionIT extends FixtureIT {
     reset();
     insertFixtureA();
 
+    chain1 = Chain.create();
+
     injector = Guice.createInjector(new CoreModule(), new CraftModule());
     ingestFactory = injector.getInstance(IngestFactory.class);
     digestFactory = injector.getInstance(DigestFactory.class);
@@ -38,23 +39,17 @@ public class DigestChordProgressionIT extends FixtureIT {
 
   @Test
   public void digestChordProgression() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+    Access access = Access.create(ImmutableList.of(account1), "User,Artist");
 
-    DigestChordProgression result = digestFactory.chordProgression(ingestFactory.ingest(access, ImmutableList.of(newChainBinding("Library", 10000001))));
+    DigestChordProgression result = digestFactory.chordProgression(ingestFactory.ingest(access, ImmutableList.of(ChainBinding.create(chain1, library10000001))));
 
     assertNotNull(result);
   }
 
   @Test
   public void digestChordProgression_ofLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User,Artist",
-      "accounts", "1"
-    ));
-    Collection<ChainBinding> entities = ImmutableList.of(newChainBinding("Library", 10000001));
+    Access access = Access.create(ImmutableList.of(account1), "User,Artist");
+    Collection<ChainBinding> entities = ImmutableList.of(ChainBinding.create(chain1, library10000001));
 
     DigestChordProgression result = digestFactory.chordProgression(ingestFactory.ingest(access, entities));
 

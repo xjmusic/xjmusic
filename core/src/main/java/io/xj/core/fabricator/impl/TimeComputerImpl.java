@@ -1,4 +1,4 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.core.fabricator.impl;
 
@@ -16,12 +16,12 @@ import java.util.Map;
  <p>
  An instance of a TimeComputer is configured for one segment:
  Total # of beats int the segment
- Tempo (from) at the beginning of the segment
+ Tempo (of) at the beginning of the segment
  Tempo (to) at the end of the segment
  <p>
  Computations are done internally using Velocity, which is seconds-per-beat (NOT beats per minute)
  <p>
- [#153542275] Segment wherein velocity changes expect perfectly smooth sound from previous segment through to following segment
+ [#153542275] Segment wherein velocity changes expect perfectly smooth sound of previous segment through to following segment
  <p>
  FUTURE: instead of computing a fine grain map ahead of time, compute a coarser map and interpolate to requested position.
  */
@@ -54,7 +54,7 @@ public class TimeComputerImpl implements TimeComputer {
     velocityDelta = toVelocity - fromVelocity;
     timeAtPosition.put(0, 0.0);
 
-    // computed by integral, smoothly fading from previous segment velocity to current
+    // computed by integral, smoothly fading of previous segment velocity to current
     double time = 0.0d;
     double position = 0.0d;
     while (position <= totalBeats) {

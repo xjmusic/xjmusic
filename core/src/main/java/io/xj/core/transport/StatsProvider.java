@@ -1,7 +1,7 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.transport;
 
-import io.xj.core.model.payload.PayloadObject;
+import io.xj.core.payload.PayloadObject;
 
 @FunctionalInterface
 public interface StatsProvider {

@@ -1,15 +1,17 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.chain;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.CoreTest;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.chain.sub.ChainConfig;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainConfig;
+import io.xj.core.model.ChainConfigType;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 import static io.xj.core.testing.Assert.assertSameItems;
 import static org.junit.Assert.assertEquals;
@@ -22,7 +24,7 @@ public class ChainConfigTest extends CoreTest {
   @Test
   public void validate() throws Exception {
     new ChainConfig()
-      .setChainId(BigInteger.valueOf(974L))
+      .setChainId(UUID.randomUUID())
       .setType("OutputChannels")
       .setValue(String.valueOf(4))
       .validate();
@@ -45,7 +47,7 @@ public class ChainConfigTest extends CoreTest {
     failure.expectMessage("Type is required");
 
     new ChainConfig()
-      .setChainId(BigInteger.valueOf(974L))
+      .setChainId(UUID.randomUUID())
       .setValue(String.valueOf(4))
       .validate();
   }
@@ -56,7 +58,7 @@ public class ChainConfigTest extends CoreTest {
     failure.expectMessage("'jello' is not a valid type");
 
     new ChainConfig()
-      .setChainId(BigInteger.valueOf(974L))
+      .setChainId(UUID.randomUUID())
       .setType("jello")
       .setValue(String.valueOf(4))
       .validate();
@@ -68,7 +70,7 @@ public class ChainConfigTest extends CoreTest {
     failure.expectMessage("Chain OutputChannels requires numeric value!");
 
     new ChainConfig()
-      .setChainId(BigInteger.valueOf(974L))
+      .setChainId(UUID.randomUUID())
       .setTypeEnum(ChainConfigType.OutputChannels)
       .setValue("Not a numeric value")
       .validate();
@@ -80,7 +82,7 @@ public class ChainConfigTest extends CoreTest {
     failure.expectMessage("Chain OutputContainer requires text value!");
 
     new ChainConfig()
-      .setChainId(BigInteger.valueOf(974L))
+      .setChainId(UUID.randomUUID())
       .setTypeEnum(ChainConfigType.OutputContainer)
       .setValue("75") // not a text value
       .validate();
@@ -92,19 +94,38 @@ public class ChainConfigTest extends CoreTest {
     failure.expectMessage("Value is required");
 
     new ChainConfig()
-      .setChainId(BigInteger.valueOf(974L))
+      .setChainId(UUID.randomUUID())
       .setType("OutputChannels")
       .validate();
   }
 
   @Test
   public void validation_sanitizesTypeValue() throws CoreException {
-    assertEquals("24", newChainConfig(ChainConfigType.OutputSampleBits, "jangles24").setChainId(BigInteger.valueOf(7)).validate().getValue());
-    assertEquals("48000", newChainConfig(ChainConfigType.OutputFrameRate, "48b000d").setChainId(BigInteger.valueOf(7)).validate().getValue());
-    assertEquals("2", newChainConfig(ChainConfigType.OutputChannels, "2!!!!").setChainId(BigInteger.valueOf(7)).validate().getValue());
-    assertEquals("PCM_SIGNED", newChainConfig(ChainConfigType.OutputEncoding, "    PCM_SIGNED!!!!").setChainId(BigInteger.valueOf(7)).validate().getValue());
-    assertEquals("0.785", newChainConfig(ChainConfigType.OutputEncodingQuality, "0D.X785V  ").setChainId(BigInteger.valueOf(7)).validate().getValue());
-    assertEquals("WAV", newChainConfig(ChainConfigType.OutputContainer, "wav???").setChainId(BigInteger.valueOf(7)).validate().getValue());
+    ChainConfig config;
+
+    config = ChainConfig.create(Chain.create(), ChainConfigType.OutputSampleBits, "jangles24").setChainId(UUID.randomUUID());
+    config.validate();
+    assertEquals("24", config.getValue());
+
+    config = ChainConfig.create(Chain.create(), ChainConfigType.OutputFrameRate, "48b000d").setChainId(UUID.randomUUID());
+    config.validate();
+    assertEquals("48000", config.getValue());
+
+    config = ChainConfig.create(Chain.create(), ChainConfigType.OutputChannels, "2!!!!").setChainId(UUID.randomUUID());
+    config.validate();
+    assertEquals("2", config.getValue());
+
+    config = ChainConfig.create(Chain.create(), ChainConfigType.OutputEncoding, "    PCM_SIGNED!!!!").setChainId(UUID.randomUUID());
+    config.validate();
+    assertEquals("PCM_SIGNED", config.getValue());
+
+    config = ChainConfig.create(Chain.create(), ChainConfigType.OutputEncodingQuality, "0D.X785V  ").setChainId(UUID.randomUUID());
+    config.validate();
+    assertEquals("0.785", config.getValue());
+
+    config = ChainConfig.create(Chain.create(), ChainConfigType.OutputContainer, "wav???").setChainId(UUID.randomUUID());
+    config.validate();
+    assertEquals("WAV", config.getValue());
   }
 
   @Test

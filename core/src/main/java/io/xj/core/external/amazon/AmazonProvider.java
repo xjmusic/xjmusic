@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.external.amazon;
 
 import io.xj.core.exception.CoreException;
@@ -72,16 +72,16 @@ public interface AmazonProvider {
   String getAudioUploadACL() throws CoreException;
 
   /**
-   Stream an object from S3
+   Stream an object of S3
 
-   @param bucketName to stream from
+   @param bucketName to stream of
    @param key        of object to stream
    @return stream of object data
    */
   InputStream streamS3Object(String bucketName, String key) throws CoreException;
 
   /**
-   Put an object to S3 (from a file)
+   Put an object to S3 (of a file)
    [#361] Segment & Audio S3 object key schema ought to have random UUID at the beginning of the key, in order to be optimized for S3 partitioning.
 
    @param filePath path to file for upload
@@ -91,7 +91,7 @@ public interface AmazonProvider {
   void putS3Object(String filePath, String bucket, String key) throws CoreException;
 
   /**
-   Delete an object from S3
+   Delete an object of S3
    If attempting to delete an object that does not exist,
    Amazon S3 returns a success message instead of an error message.
 

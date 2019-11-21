@@ -1,11 +1,11 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.user;
 
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.dao.DAO;
 import io.xj.core.dao.UserDAO;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.user.role.UserRoleType;
+import io.xj.core.model.UserRoleType;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
@@ -14,7 +14,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.math.BigInteger;
+import java.util.UUID;
 
 /**
  Current user
@@ -31,7 +31,7 @@ public class MeResource extends HubResource {
   @GET
   @RolesAllowed({UserRoleType.USER})
   public Response getCurrentlyAuthenticatedUser(@Context ContainerRequestContext crc) {
-    BigInteger userId;
+    UUID userId;
     try {
       userId = Access.fromContext(crc).getUserId();
     } catch (CoreException e) {
@@ -42,11 +42,11 @@ public class MeResource extends HubResource {
   }
 
   /**
-   Get DAO from injector
+   Get DAO of injector
 
    @return DAO
    */
   private DAO dao() {
-    return injector.getInstance(UserDAO.class);
+    return userDAO;
   }
 }

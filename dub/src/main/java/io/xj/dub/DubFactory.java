@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.dub;
 
 import io.xj.core.exception.CoreException;
@@ -20,7 +20,7 @@ public interface DubFactory {
 
   /**
    Create Master Dub instance for a particular segment
-   [#141] Dubworker Segment mix final output from instrument-audio-arrangements
+   [#141] Dubworker Segment mix final output of instrument-audio-arrangements
 
    @param fabricator of dub
    @return MasterDub

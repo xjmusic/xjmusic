@@ -1,15 +1,16 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import io.xj.core.CoreModule;
 import io.xj.core.FixtureIT;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.ingest.IngestFactory;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainBinding;
+import io.xj.core.model.Library;
 import io.xj.craft.CraftModule;
-import io.xj.craft.digest.chord_markov.DigestChordMarkov;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +28,8 @@ public class DigestChordMarkovIT extends FixtureIT {
     reset();
     insertFixtureA();
 
+    chain1 = Chain.create();
+
     injector = Guice.createInjector(new CoreModule(), new CraftModule());
     ingestFactory = injector.getInstance(IngestFactory.class);
     digestFactory = injector.getInstance(DigestFactory.class);
@@ -35,12 +38,9 @@ public class DigestChordMarkovIT extends FixtureIT {
 
   @Test
   public void digest() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
+    Access access = Access.create(ImmutableList.of(account1), "User,Artist");
 
-    DigestChordMarkov result = digestFactory.chordMarkov(ingestFactory.ingest(access, ImmutableList.of(newChainBinding("Library", 10000001))));
+    DigestChordMarkov result = digestFactory.chordMarkov(ingestFactory.ingest(access, ImmutableList.of(ChainBinding.create(chain1, library10000001))));
 
     assertNotNull(result);
   }

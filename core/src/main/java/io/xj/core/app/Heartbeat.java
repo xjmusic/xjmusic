@@ -1,7 +1,7 @@
-//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.app;
 
-import io.xj.core.model.payload.Payload;
+import io.xj.core.payload.Payload;
 
 /**
  App heartbeat pulse

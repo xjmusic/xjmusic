@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.heartbeat;
 
 import io.xj.core.app.Heartbeat;
@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 import java.util.Objects;
 
 /**
- Platform heartbeat is called from outside the platform, exactly once per X.
+ Platform heartbeat is called of outside the platform, exactly once per X.
  */
 @Path("heartbeat")
 public class HeartbeatResource extends HubResource {

@@ -1,11 +1,14 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.xj.core.config.Config;
+import io.xj.core.transport.CSV;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -117,7 +120,7 @@ public interface Text {
   }
 
   /**
-   To a thingId style attribute from an object
+   To a thingId style attribute of an object
 
    @param obj to add Id to
    @return id attribute of key
@@ -127,7 +130,7 @@ public interface Text {
   }
 
   /**
-   To a thingId style attribute from an object's class
+   To a thingId style attribute of an object's class
 
    @param key to add Id to
    @return id attribute of key
@@ -257,6 +260,33 @@ public interface Text {
   }
 
   /**
+   Make plural
+
+   @param noun to make plural
+   @return plural noun
+   */
+  static String toSingular(String noun) {
+    // too short to singularize
+    if (2 > noun.length())
+      return noun;
+
+    // cache last letters
+    String lastThree = noun.substring(noun.length() - 3).toLowerCase();
+    String lastOne = noun.substring(noun.length() - 1).toLowerCase();
+
+    // ends in "ies" -- change to y
+    if ("ies".equals(lastThree))
+      return String.format("%sy", noun.substring(0, noun.length() - 3));
+
+    // ends in "s" -- remove s
+    if ("s".equals(lastOne))
+      return noun.substring(0, noun.length() - 1);
+
+    // no op
+    return noun;
+  }
+
+  /**
    Conform to Proper (e.g. "Jam")
 
    @param raw input
@@ -334,6 +364,20 @@ public interface Text {
   }
 
   /**
+   get belongs-to relationship name, to use when this key is the target of a belongs-to relationship
+   FROM a resource type
+   + "chains" -> "chain"
+   + "account-users" -> "accountUser"
+   + "libraries" -> "library"
+
+   @param type to conform
+   @return conformed resource hasMany
+   */
+  static String toResourceBelongsToFromType(String type) {
+    return CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, toSingular(type));
+  }
+
+  /**
    get has-many relationship name of class, the key to use when this class is the target of a has-many relationship
    + Chain.class -> "chains"
    + AccountUser.class -> "accountUsers"
@@ -370,6 +414,20 @@ public interface Text {
    */
   static String toResourceHasMany(String hasMany) {
     return toPlural(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, hasMany));
+  }
+
+  /**
+   get has-many relationship name, to use when this key is the target of a has-many relationship
+   FROM a resource type
+   + "chains" -> "chains"
+   + "account-users" -> "accountUsers"
+   + "libraries" -> "libraries"
+
+   @param type to conform
+   @return conformed resource hasMany
+   */
+  static String toResourceHasManyFromType(String type) {
+    return CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, type);
   }
 
   /**
@@ -468,7 +526,7 @@ public interface Text {
   }
 
   /**
-   Format an immutable list of string values from an array of enum
+   Format an immutable list of string values of an array of enum
 
    @param values to include
    @return array of string values
@@ -535,5 +593,61 @@ public interface Text {
       return defaultValue.toUpperCase(Locale.ENGLISH);
 
     return out;
+  }
+
+  /**
+   Compute an attribute name based on the name of the getter method,
+   by removing the first three letters "get", then lower-casing the new first letter.
+   <p>
+   e.g., input of "getNewsPaper" results in "newsPaper"
+
+   @param method for which to compute name of attribute
+   @return attribute name
+   */
+  static String toAttributeName(Method method) {
+    return String.format("%s%s",
+      method.getName().substring(3, 4).toLowerCase(Locale.ENGLISH),
+      method.getName().substring(4));
+  }
+
+  /**
+   Compute a getter method name based on the name of the attribute,
+   capitalize the first letter, then prepend "get"
+   <p>
+   e.g., input of "newsPaper" results in "getNewsPaper"
+
+   @param attributeName for which to get name of getter method
+   @return attribute name
+   */
+  static String toGetterName(String attributeName) {
+    return String.format("%s%s%s", "get",
+      attributeName.substring(0, 1).toUpperCase(Locale.ENGLISH),
+      attributeName.substring(1));
+  }
+
+  /**
+   Compute a setter method name based on the name of the attribute,
+   capitalize the first letter, then prepend "set"
+   <p>
+   e.g., input of "newsPaper" results in "setNewsPaper"
+
+   @param attributeName for which to get name of setter method
+   @return attribute name
+   */
+  static String toSetterName(String attributeName) {
+    return String.format("%s%s%s", "set",
+      attributeName.substring(0, 1).toUpperCase(Locale.ENGLISH),
+      attributeName.substring(1));
+  }
+
+  /**
+   Get a string representation of an entity, comprising a key-value map of its properties
+
+   @param name       of entity
+   @param properties to map
+   @return string representation
+   */
+  static String toKeyValueString(String name, ImmutableMap<String, String> properties) {
+    return String.format("%s{%s}", name, CSV.from(properties));
   }
 }

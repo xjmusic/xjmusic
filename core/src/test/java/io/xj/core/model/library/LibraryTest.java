@@ -1,16 +1,17 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.library;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.payload.PayloadObject;
+import io.xj.core.model.Library;
+import io.xj.core.payload.Payload;
+import io.xj.core.payload.PayloadObject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 import static io.xj.core.testing.Assert.assertSameItems;
 import static org.junit.Assert.assertEquals;
@@ -30,7 +31,7 @@ public class LibraryTest {
   @Test
   public void validate() throws Exception {
     subject
-      .setAccountId(BigInteger.valueOf(562L))
+      .setAccountId(UUID.randomUUID())
       .setName("Mic Check One Two")
       .validate();
   }
@@ -51,27 +52,29 @@ public class LibraryTest {
     failure.expectMessage("Name is required");
 
     subject
-      .setAccountId(BigInteger.valueOf(562L))
+      .setAccountId(UUID.randomUUID())
       .validate();
   }
 
   @Test
   public void getPayloadAttributeNames() {
-    assertSameItems(ImmutableList.of("createdAt", "updatedAt", "name"), subject.getResourceAttributeNames());
+    assertSameItems(ImmutableList.of("name"), subject.getResourceAttributeNames());
   }
 
   @Test
   public void setAllFrom() throws CoreException {
     PayloadObject payloadObject = new PayloadObject();
+    UUID libraryId = UUID.randomUUID();
+    UUID accountId = UUID.randomUUID();
     payloadObject
-      .setId("72")
+      .setId(libraryId.toString())
       .setType("libraries")
-      .add("account", Payload.referenceTo("accounts", "43"));
+      .add("account", Payload.referenceTo("accounts", accountId.toString()));
 
     subject.consume(payloadObject);
 
-    assertEquals(BigInteger.valueOf(72), subject.getId());
-    assertEquals(BigInteger.valueOf(43), subject.getAccountId());
+    assertEquals(libraryId, subject.getId());
+    assertEquals(accountId, subject.getAccountId());
   }
 
   @Test
@@ -84,7 +87,7 @@ public class LibraryTest {
       .add("user", Payload.referenceTo("account-users", "27"));
 
     failure.expect(CoreException.class);
-    failure.expectMessage("Cannot set single libraries-type entity from account-user-type payload object!");
+    failure.expectMessage("Cannot set single libraries-type entity create account-user-type payload object!");
 
     subject.consume(payloadObject);
   }
@@ -93,16 +96,16 @@ public class LibraryTest {
   public void toPayloadObject() {
     subject
       .setName("Test Library")
-      .setAccountId(BigInteger.valueOf(43))
-      .setId(BigInteger.valueOf(72));
+      .setAccountId(UUID.randomUUID())
+      .setId(UUID.randomUUID());
 
     PayloadObject result = subject.toPayloadObject();
 
-    assertEquals("72", result.getId());
+    assertEquals(subject.getId().toString(), result.getId());
     assertEquals("libraries", result.getType());
     assertEquals("Test Library", result.getAttributes().get("name"));
     assertTrue(result.getRelationships().get("account").getDataOne().isPresent());
-    assertEquals("43", result.getRelationships().get("account").getDataOne().get().getId());
+    assertEquals(subject.getAccountId().toString(), result.getRelationships().get("account").getDataOne().get().getId());
   }
 
 }

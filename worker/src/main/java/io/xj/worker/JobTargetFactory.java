@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker;
 
 import com.google.inject.assistedinject.Assisted;
@@ -6,7 +6,7 @@ import io.xj.worker.job.ChainEraseJob;
 import io.xj.worker.job.ChainFabricateJob;
 import io.xj.worker.job.SegmentFabricateJob;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 /**
  Job Factory
@@ -20,7 +20,7 @@ public interface JobTargetFactory {
    @return job instance
    */
   ChainEraseJob makeChainEraseJob(
-    @Assisted("entityId") BigInteger entityId
+    @Assisted("entityId") UUID entityId
   );
 
   /**
@@ -30,7 +30,7 @@ public interface JobTargetFactory {
    @return job instance
    */
   ChainFabricateJob makeChainFabricateJob(
-    @Assisted("entityId") BigInteger entityId
+    @Assisted("entityId") UUID entityId
   );
 
   /**
@@ -40,7 +40,7 @@ public interface JobTargetFactory {
    @return job instance
    */
   SegmentFabricateJob makeSegmentFabricateJob(
-    @Assisted("entityId") BigInteger entityId
+    @Assisted("entityId") UUID entityId
   );
 
 }

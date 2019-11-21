@@ -1,13 +1,13 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.program;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.dao.ProgramDAO;
-import io.xj.core.model.payload.MediaType;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.program.Program;
-import io.xj.core.model.user.role.UserRoleType;
+import io.xj.core.model.Program;
+import io.xj.core.model.UserRoleType;
+import io.xj.core.payload.MediaType;
+import io.xj.core.payload.Payload;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
@@ -19,8 +19,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.math.BigInteger;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  Programs
@@ -54,7 +54,7 @@ public class ProgramIndexResource extends HubResource {
           new Payload().setDataEntities(
             dao().readMany(
               access,
-              ImmutableList.of(new BigInteger(libraryId))), false));
+              ImmutableList.of(UUID.fromString(libraryId)))));
 
       } else if (Objects.nonNull(accountId) && !accountId.isEmpty()) {
         // read all in account
@@ -62,14 +62,14 @@ public class ProgramIndexResource extends HubResource {
           new Payload().setDataEntities(
             dao().readAllInAccount(
               access,
-              new BigInteger(accountId)), false));
+              UUID.fromString(accountId))));
 
       } else {
         // read all we have access to
         return response.ok(
           new Payload().setDataEntities(
             dao().readAll(
-              access), false));
+              access)));
       }
 
     } catch (Exception e) {
@@ -93,7 +93,7 @@ public class ProgramIndexResource extends HubResource {
       Program program = dao().newInstance().consume(payload);
       Program created;
       if (Objects.nonNull(cloneId))
-        created = dao().clone(access, new BigInteger(cloneId), program);
+        created = dao().clone(access, UUID.fromString(cloneId), program);
       else
         created = dao().create(access, program);
 
@@ -105,7 +105,7 @@ public class ProgramIndexResource extends HubResource {
   }
 
   /**
-   Get DAO from injector
+   Get DAO of injector
 
    @return DAO
    */

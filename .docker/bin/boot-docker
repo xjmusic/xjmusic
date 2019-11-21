@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
 
 #
-mysql_ok () {
+postgres_ok () {
   HOST="${1}"
   PORT="${2}"
-  if mysql \
+  if pg_isready \
     -h "${HOST}" \
-    -P "${PORT}" \
-    -uroot \
-    --connect-timeout=1 \
-    -e 'show status;' \
+    -p "${PORT}"
     &> /dev/null; then
     return 0
   else
@@ -44,7 +41,7 @@ wait_until () {
 printf "\n[xj:docker]\n"
 
 #
-wait_until "mysql_ok mysql01xj1 3306"
+wait_until "postgres_ok postgres01xj1 5400"
 wait_until "redis_ok redis01xj1 6379"
 
 # serve static frontend with nginx

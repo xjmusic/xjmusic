@@ -1,245 +1,118 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
-import com.google.api.client.util.Maps;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
+import io.xj.core.dao.DAORecord;
 import io.xj.core.dao.InstrumentDAO;
+import io.xj.core.entity.Entity;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.instrument.InstrumentFactory;
+import io.xj.core.model.Instrument;
+import io.xj.core.model.InstrumentAudio;
+import io.xj.core.model.InstrumentAudioChord;
+import io.xj.core.model.InstrumentAudioEvent;
+import io.xj.core.model.InstrumentMeme;
+import io.xj.core.model.InstrumentState;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.transport.GsonProvider;
 import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
-import java.math.BigInteger;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
-import static io.xj.core.Tables.AUDIO;
 import static io.xj.core.Tables.INSTRUMENT;
+import static io.xj.core.Tables.INSTRUMENT_AUDIO;
+import static io.xj.core.Tables.INSTRUMENT_AUDIO_CHORD;
+import static io.xj.core.Tables.INSTRUMENT_AUDIO_EVENT;
 import static io.xj.core.Tables.INSTRUMENT_MEME;
 import static io.xj.core.Tables.LIBRARY;
 
-public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
-  private final GsonProvider gsonProvider;
-  private final InstrumentFactory instrumentFactory;
+public class InstrumentDAOImpl extends DAOImpl<Instrument> implements InstrumentDAO {
 
   @Inject
   public InstrumentDAOImpl(
-    SQLDatabaseProvider dbProvider,
-    GsonProvider gsonProvider,
-    InstrumentFactory instrumentFactory
+    SQLDatabaseProvider dbProvider
   ) {
-    this.instrumentFactory = instrumentFactory;
-    this.gsonProvider = gsonProvider;
     this.dbProvider = dbProvider;
-  }
-
-  /**
-   Delete an Instrument
-
-   @param db context
-   @param id to delete
-   @throws CoreException if database failure
-   @throws CoreException if not configured properly
-   @throws CoreException if fails business rule
-   */
-  private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
-    if (!access.isTopLevel())
-      requireExists("Instrument belonging to you", db.selectCount().from(INSTRUMENT)
-        .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(INSTRUMENT.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(idCollection(access.getAccountIds())))
-        .fetchOne(0, int.class));
-
-    requireNotExists("Audio in Instrument", db.selectCount().from(AUDIO)
-      .where(AUDIO.INSTRUMENT_ID.eq(id))
-      .fetchOne(0, int.class));
-
-    requireNotExists("MemeEntity in Instrument", db.selectCount().from(INSTRUMENT_MEME)
-      .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
-      .fetchOne(0, int.class));
-
-    db.deleteFrom(INSTRUMENT)
-      .where(INSTRUMENT.ID.eq(id))
-      .execute();
-  }
-
-  /**
-   Read all records in parent record by id
-
-   @param db        context
-   @param access    control
-   @param accountId of parent
-   @return array of records
-   */
-  private Collection<Instrument> readAllInAccount(DSLContext db, Access access, ULong accountId) throws CoreException {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(INSTRUMENT.fields())
-        .from(INSTRUMENT)
-        .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(LIBRARY.ACCOUNT_ID.eq(accountId))
-        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
-        .fetch(), instrumentFactory);
-    else
-      return modelsFrom(db.select(INSTRUMENT.fields())
-        .from(INSTRUMENT)
-        .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(LIBRARY.ACCOUNT_ID.in(accountId))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
-        .fetch(), instrumentFactory);
-  }
-
-  /**
-   Read all records in parent record by id
-
-   @param db         context
-   @param access     control
-   @param libraryIds of parent
-   @return array of records
-   */
-  private Collection<Instrument> readAllInLibraries(DSLContext db, Access access, Collection<ULong> libraryIds) throws CoreException {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(INSTRUMENT.fields())
-        .from(INSTRUMENT)
-        .where(INSTRUMENT.LIBRARY_ID.in(libraryIds))
-        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
-        .fetch(), instrumentFactory);
-    else
-      return modelsFrom(db.select(INSTRUMENT.fields())
-        .from(INSTRUMENT)
-        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(INSTRUMENT.LIBRARY_ID.in(libraryIds))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
-        .fetch(), instrumentFactory);
-  }
-
-  /**
-   Read all records visible to given access
-
-   @param db     context
-   @param access control
-   @return array of records
-   */
-  private Collection<Instrument> readAll(DSLContext db, Access access) throws CoreException {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(INSTRUMENT.fields())
-        .from(INSTRUMENT)
-        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
-        .fetch(), instrumentFactory);
-    else
-      return modelsFrom(db.select(INSTRUMENT.fields())
-        .from(INSTRUMENT)
-        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
-        .fetch(), instrumentFactory);
   }
 
   /**
    Read one record
 
-   @param db     context
-   @param access control
-   @param id     of record
+   @param connection context
+   @param access     control
+   @param id         of record
    @return record
    */
   @Nullable
-  private Instrument readOne(DSLContext db, Access access, ULong id) throws CoreException {
+  private Instrument readOne(Connection connection, Access access, UUID id) throws CoreException {
     if (access.isTopLevel())
-      return modelFrom(db.selectFrom(INSTRUMENT)
+      return DAORecord.modelFrom(Instrument.class, DAORecord.DSL(connection).selectFrom(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(id))
-        .fetchOne(), instrumentFactory);
+        .fetchOne());
     else
-      return modelFrom(db.select(INSTRUMENT.fields())
+      return DAORecord.modelFrom(Instrument.class, DAORecord.DSL(connection).select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(INSTRUMENT.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne(), instrumentFactory);
+        .fetchOne());
   }
 
   /**
    Create a record
 
-   @param db     context
-   @param access control
-   @param entity for new record
+   @param connection context
+   @param access     control
+   @param entity     for new record
    @return newly readMany record
    @throws CoreException on failure
    */
-  private Instrument create(DSLContext db, Access access, Instrument entity) throws CoreException {
+  private Instrument create(Connection connection, Access access, Instrument entity) throws CoreException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     // This entity's parent is a Library
-    requireLibraryAccess(db, access, entity);
+    requireLibrary(access);
 
-    return modelFrom(executeCreate(db, INSTRUMENT, fieldValues), instrumentFactory);
+    return DAORecord.modelFrom(Instrument.class, executeCreate(connection, INSTRUMENT, entity));
   }
 
   /**
    Update a record
 
-   @param db     context
-   @param access control
-   @param id     of record
-   @param entity to update with
+   @param connection to SQL database
+   @param access     control
+   @param id         of record
+   @param entity     to update with
    @throws CoreException if a Business Rule is violated
    @throws CoreException on database failure
    */
-  private void update(DSLContext db, Access access, ULong id, Instrument entity) throws CoreException {
+  private void update(Connection connection, Access access, UUID id, Instrument entity) throws CoreException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = fieldValueMap(entity);
-    fieldValues.put(INSTRUMENT.ID, id);
+    entity.setId(id); // prevent changing id
+    requireLibrary(access);
 
-    // This entity's parent is a Library
-    requireLibraryAccess(db, access, entity);
-
-    if (0 == executeUpdate(db, INSTRUMENT, fieldValues))
-      throw new CoreException("No records updated.");
-  }
-
-  /**
-   Only certain (writable) fields are mapped back to jOOQ records--
-   Read-only fields are excluded from here.
-
-   @param entity to source values from
-   @return values mapped to record fields
-   */
-  private Map<Field, Object> fieldValueMap(Instrument entity) {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(INSTRUMENT.CONTENT, gsonProvider.gson().toJson(entity.getContent()));
-    fieldValues.put(INSTRUMENT.NAME, entity.getName());
-    fieldValues.put(INSTRUMENT.USER_ID, entity.getUserId());
-    fieldValues.put(INSTRUMENT.LIBRARY_ID, entity.getLibraryId());
-    fieldValues.put(INSTRUMENT.TYPE, entity.getType());
-    fieldValues.put(INSTRUMENT.STATE, entity.getState());
-    return fieldValues;
+    executeUpdate(connection, INSTRUMENT, id, entity);
   }
 
   /**
    Clone a Instrument into a new Instrument
 
-   @param db      context
-   @param access  control
-   @param cloneId of instrument to clone
-   @param entity  for the new Account User.
+   @param connection context
+   @param access     control
+   @param cloneId    of instrument to clone
+   @param entity     for the new Account User.
    @return newly readMany record
    @throws CoreException on failure
    */
-  private Instrument clone(DSLContext db, Access access, BigInteger cloneId, Instrument entity) throws CoreException {
-    Instrument from = readOne(db, access, ULong.valueOf(cloneId));
+  private Instrument clone(Connection connection, Access access, UUID cloneId, Instrument entity) throws CoreException {
+    Instrument from = readOne(connection, access, cloneId);
     if (Objects.isNull(from))
       throw new CoreException("Can't clone nonexistent Instrument");
 
@@ -247,98 +120,185 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
     if (Objects.isNull(entity.getType())) entity.setTypeEnum(from.getType());
     if (Objects.isNull(entity.getState())) entity.setStateEnum(from.getState());
 
-    // Instrument must be created (have id) before adding content and updating
-    Instrument instrument = create(db, access, entity);
-    instrument.setContentCloned(from);
-    update(db, access, ULong.valueOf(instrument.getId()), instrument);
+    // Instrument must be created(have id) before adding content and updating
+    Instrument instrument = create(connection, access, entity);
+    // TODO clone all child entities of instrument into new set of entities
+    update(connection, access, instrument.getId(), instrument);
     return instrument;
   }
 
   @Override
   public Instrument create(Access access, Instrument entity) throws CoreException {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (CoreException e) {
-      throw tx.failure(e);
+    try (Connection connection = dbProvider.getConnection()) {
+      return create(connection, access, entity);
+    } catch (SQLException e) {
+      throw new CoreException("SQL Exception", e);
     }
   }
 
   @Override
-  public Instrument clone(Access access, BigInteger cloneId, Instrument entity) throws CoreException {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(clone(tx.getContext(), access, cloneId, entity));
-    } catch (CoreException e) {
-      throw tx.failure(e);
+  public Instrument clone(Access access, UUID cloneId, Instrument entity) throws CoreException {
+    try (Connection connection = dbProvider.getConnection()) {
+      return clone(connection, access, cloneId, entity);
+    } catch (SQLException e) {
+      throw new CoreException("SQL Exception", e);
     }
   }
 
   @Override
   @Nullable
-  public Instrument readOne(Access access, BigInteger id) throws CoreException {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (CoreException e) {
-      throw tx.failure(e);
+  public Instrument readOne(Access access, UUID id) throws CoreException {
+    try (Connection connection = dbProvider.getConnection()) {
+      return readOne(connection, access, id);
+    } catch (SQLException e) {
+      throw new CoreException("SQL Exception", e);
     }
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws CoreException {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(tx.getContext(), access, ULong.valueOf(id));
-      tx.success();
-    } catch (CoreException e) {
-      throw tx.failure(e);
+  public void destroy(Access access, UUID id) throws CoreException {
+    try (Connection connection = dbProvider.getConnection()) {
+      DSLContext db = DAORecord.DSL(connection);
+
+      if (!access.isTopLevel())
+        requireExists("Instrument belonging to you", db.selectCount().from(INSTRUMENT)
+          .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
+          .where(INSTRUMENT.ID.eq(id))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .fetchOne(0, int.class));
+
+      requireNotExists("Audio in Instrument", db.selectCount().from(INSTRUMENT_AUDIO)
+        .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(id))
+        .fetchOne(0, int.class));
+
+      requireNotExists("MemeEntity in Instrument", db.selectCount().from(INSTRUMENT_MEME)
+        .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
+        .fetchOne(0, int.class));
+
+      db.deleteFrom(INSTRUMENT)
+        .where(INSTRUMENT.ID.eq(id))
+        .execute();
+    } catch (SQLException e) {
+      throw new CoreException("SQL Exception", e);
     }
   }
 
   @Override
   public Instrument newInstance() {
-    return instrumentFactory.newInstrument();
+    return new Instrument();
   }
 
   @Override
-  public Collection<Instrument> readAllInAccount(Access access, BigInteger accountId) throws CoreException {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllInAccount(tx.getContext(), access, ULong.valueOf(accountId)));
-    } catch (CoreException e) {
-      throw tx.failure(e);
+  public Collection<Instrument> readAllInAccount(Access access, UUID accountId) throws CoreException {
+    try (Connection connection = dbProvider.getConnection()) {
+      if (access.isTopLevel())
+        return DAORecord.modelsFrom(Instrument.class, DAORecord.DSL(connection).select(INSTRUMENT.fields())
+          .from(INSTRUMENT)
+          .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
+          .where(LIBRARY.ACCOUNT_ID.eq(accountId))
+          .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
+          .fetch());
+      else
+        return DAORecord.modelsFrom(Instrument.class, DAORecord.DSL(connection).select(INSTRUMENT.fields())
+          .from(INSTRUMENT)
+          .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
+          .where(LIBRARY.ACCOUNT_ID.in(accountId))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
+          .fetch());
+    } catch (SQLException e) {
+      throw new CoreException("SQL Exception", e);
     }
   }
 
   @Override
-  public Collection<Instrument> readMany(Access access, Collection<BigInteger> parentIds) throws CoreException {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllInLibraries(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (CoreException e) {
-      throw tx.failure(e);
+  public Collection<Instrument> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
+    try (Connection connection = dbProvider.getConnection()) {
+      if (access.isTopLevel())
+        return DAORecord.modelsFrom(Instrument.class, DAORecord.DSL(connection).select(INSTRUMENT.fields())
+          .from(INSTRUMENT)
+          .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
+          .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
+          .fetch());
+      else
+        return DAORecord.modelsFrom(Instrument.class, DAORecord.DSL(connection).select(INSTRUMENT.fields())
+          .from(INSTRUMENT)
+          .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+          .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
+          .fetch());
+    } catch (SQLException e) {
+      throw new CoreException("SQL Exception", e);
+    }
+  }
+
+  @Override
+  public Collection<Entity> readManyWithChildEntities(Access access, Collection<UUID> instrumentIds) throws CoreException {
+    try (Connection connection = dbProvider.getConnection()) {
+      DSLContext db = DAORecord.DSL(connection);
+
+      if (!access.isTopLevel())
+        for (UUID instrumentId : instrumentIds)
+          requireExists("access via account", db.selectCount().from(INSTRUMENT)
+            .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+            .where(INSTRUMENT.ID.eq(instrumentId))
+            .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+            .fetchOne(0, int.class));
+
+      Collection<Entity> entities = Lists.newArrayList();
+      entities.addAll(DAORecord.modelsFrom(Instrument.class, db.selectFrom(INSTRUMENT).where(INSTRUMENT.ID.in(instrumentIds)).fetch()));
+      entities.addAll(DAORecord.modelsFrom(InstrumentMeme.class, db.selectFrom(INSTRUMENT_MEME).where(INSTRUMENT_MEME.INSTRUMENT_ID.in(instrumentIds))));
+      entities.addAll(DAORecord.modelsFrom(InstrumentAudioChord.class, db.selectFrom(INSTRUMENT_AUDIO_CHORD).where(INSTRUMENT_AUDIO_CHORD.INSTRUMENT_ID.in(instrumentIds))));
+      entities.addAll(DAORecord.modelsFrom(InstrumentAudioEvent.class, db.selectFrom(INSTRUMENT_AUDIO_EVENT).where(INSTRUMENT_AUDIO_EVENT.INSTRUMENT_ID.in(instrumentIds))));
+      entities.addAll(DAORecord.modelsFrom(InstrumentAudio.class, db.selectFrom(INSTRUMENT_AUDIO).where(INSTRUMENT_AUDIO.INSTRUMENT_ID.in(instrumentIds))));
+      return entities;
+
+    } catch (SQLException e) {
+      throw new CoreException("SQL Exception", e);
     }
   }
 
   @Override
   public Collection<Instrument> readAll(Access access) throws CoreException {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access));
-    } catch (CoreException e) {
-      throw tx.failure(e);
+    try (Connection connection = dbProvider.getConnection()) {
+      if (access.isTopLevel())
+        return DAORecord.modelsFrom(Instrument.class, DAORecord.DSL(connection).select(INSTRUMENT.fields())
+          .from(INSTRUMENT)
+          .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
+          .fetch());
+      else
+        return DAORecord.modelsFrom(Instrument.class, DAORecord.DSL(connection).select(INSTRUMENT.fields())
+          .from(INSTRUMENT)
+          .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+          .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
+          .fetch());
+    } catch (SQLException e) {
+      throw new CoreException("SQL Exception", e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, Instrument entity) throws CoreException {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      update(tx.getContext(), access, ULong.valueOf(id), entity);
-      tx.success();
-    } catch (CoreException e) {
-      throw tx.failure(e);
+  public Collection<UUID> readIdsInLibraries(Access access, Collection<UUID> parentIds) throws CoreException {
+    try (Connection connection = dbProvider.getConnection()) {
+      requireLibrary(access);
+      return DAORecord.idsFrom(DAORecord.DSL(connection).select(INSTRUMENT.ID)
+        .from(INSTRUMENT)
+        .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
+        .and(INSTRUMENT.STATE.equal(InstrumentState.Published.toString()))
+        .fetch());
+    } catch (SQLException e) {
+      throw new CoreException("SQL Exception", e);
+    }
+  }
+
+  @Override
+  public void update(Access access, UUID id, Instrument entity) throws CoreException {
+    try (Connection connection = dbProvider.getConnection()) {
+      update(connection, access, id, entity);
+    } catch (SQLException e) {
+      throw new CoreException("SQL Exception", e);
     }
   }
 

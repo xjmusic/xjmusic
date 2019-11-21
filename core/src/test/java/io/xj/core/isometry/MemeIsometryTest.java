@@ -1,23 +1,22 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.isometry;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.model.segment.sub.SegmentMeme;
+import io.xj.core.model.SegmentMeme;
 import org.junit.Test;
 
-import java.math.BigInteger;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 public class MemeIsometryTest {
 
   @Test
   public void of_List() {
     MemeIsometry result = MemeIsometry.ofMemes(ImmutableList.of(
-      new SegmentMeme().setSegmentId(BigInteger.valueOf(12)).setName("Smooth"),
-      new SegmentMeme().setSegmentId(BigInteger.valueOf(14)).setName("Catlike")
+      new SegmentMeme().setSegmentId(UUID.randomUUID()).setName("Smooth"),
+      new SegmentMeme().setSegmentId(UUID.randomUUID()).setName("Catlike")
     ));
 
     assertArrayEquals(new String[]{"smooth", "catlik"}, result.getSources().toArray());
@@ -26,9 +25,9 @@ public class MemeIsometryTest {
   @Test
   public void add() {
     MemeIsometry result = MemeIsometry.ofMemes(ImmutableList.of(
-      new SegmentMeme().setSegmentId(BigInteger.valueOf(12)).setName("Smooth")
+      new SegmentMeme().setSegmentId(UUID.randomUUID()).setName("Smooth")
     ));
-    result.add(new SegmentMeme().setSegmentId(BigInteger.valueOf(14)).setName("Catlike"));
+    result.add(new SegmentMeme().setSegmentId(UUID.randomUUID()).setName("Catlike"));
 
     assertArrayEquals(new String[]{"smooth", "catlik"}, result.getSources().toArray());
   }
@@ -36,9 +35,9 @@ public class MemeIsometryTest {
   @Test
   public void getSourceStems() {
     List<String> result = MemeIsometry.ofMemes(ImmutableList.of(
-      new SegmentMeme().setSegmentId(BigInteger.valueOf(6)).setName("Intensity"),
-      new SegmentMeme().setSegmentId(BigInteger.valueOf(7)).setName("Cool"),
-      new SegmentMeme().setSegmentId(BigInteger.valueOf(8)).setName("Dark")
+      new SegmentMeme().setSegmentId(UUID.randomUUID()).setName("Intensity"),
+      new SegmentMeme().setSegmentId(UUID.randomUUID()).setName("Cool"),
+      new SegmentMeme().setSegmentId(UUID.randomUUID()).setName("Dark")
     )).getSources();
 
     assertArrayEquals(new String[]{"intens", "cool", "dark"}, result.toArray());

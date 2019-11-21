@@ -1,16 +1,14 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.transport.impl;
 
 import io.xj.core.cache.audio.AudioCacheProvider;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.payload.PayloadObject;
+import io.xj.core.payload.PayloadObject;
 import io.xj.core.transport.StatsProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
-import org.json.JSONObject;
 
 @Singleton
 public class StatsProviderImpl implements StatsProvider {

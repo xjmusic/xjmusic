@@ -1,10 +1,10 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.account_user;
 
 import io.xj.core.dao.AccountUserDAO;
-import io.xj.core.model.payload.MediaType;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.user.role.UserRoleType;
+import io.xj.core.payload.MediaType;
+import io.xj.core.payload.Payload;
+import io.xj.core.model.UserRoleType;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
@@ -40,7 +40,7 @@ public class AccountUserIndexResource extends HubResource {
   /**
    Create new account user
 
-   @param payload with which to create Account User
+   @param payload with which to of Account User
    @return Response
    */
   @POST
@@ -51,7 +51,7 @@ public class AccountUserIndexResource extends HubResource {
   }
 
   /**
-   Get DAO from injector
+   Get DAO of injector
 
    @return DAO
    */

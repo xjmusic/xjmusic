@@ -1,17 +1,18 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.account;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.CoreTest;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.payload.PayloadObject;
+import io.xj.core.model.AccountUser;
+import io.xj.core.payload.Payload;
+import io.xj.core.payload.PayloadObject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 import static io.xj.core.testing.Assert.assertSameItems;
 import static org.junit.Assert.assertEquals;
@@ -30,8 +31,8 @@ public class AccountUserTest extends CoreTest {
   @Test
   public void validate() throws Exception {
     subject
-      .setUserId(BigInteger.valueOf(125434L))
-      .setAccountId(BigInteger.valueOf(125434L))
+      .setUserId(UUID.randomUUID())
+      .setAccountId(UUID.randomUUID())
       .validate();
   }
 
@@ -41,7 +42,7 @@ public class AccountUserTest extends CoreTest {
     failure.expectMessage("Account ID is required");
 
     subject
-      .setUserId(BigInteger.valueOf(125434L))
+      .setUserId(UUID.randomUUID())
       .validate();
   }
 
@@ -51,45 +52,51 @@ public class AccountUserTest extends CoreTest {
     failure.expectMessage("User ID is required");
 
     subject
-      .setAccountId(BigInteger.valueOf(125434L))
+      .setAccountId(UUID.randomUUID())
       .validate();
   }
 
   @Test
   public void getPayloadAttributeNames() {
-    assertSameItems(ImmutableList.of("updatedAt", "createdAt"), subject.getResourceAttributeNames());
+    assertSameItems(ImmutableList.of(), subject.getResourceAttributeNames());
   }
 
   @Test
   public void setAllFrom() throws CoreException {
     PayloadObject payloadObject = new PayloadObject();
+    UUID id = UUID.randomUUID();
+    UUID accountId = UUID.randomUUID();
+    UUID userId = UUID.randomUUID();
     payloadObject
-      .setId("72")
+      .setId(id.toString())
       .setType("account-users")
-      .add("account", Payload.referenceTo("accounts", "43"))
-      .add("user", Payload.referenceTo("users", "14"));
+      .add("account", Payload.referenceTo("accounts", accountId.toString()))
+      .add("user", Payload.referenceTo("users", userId.toString()));
 
     subject.consume(payloadObject);
 
-    assertEquals(BigInteger.valueOf(72), subject.getId());
-    assertEquals(BigInteger.valueOf(43), subject.getAccountId());
-    assertEquals(BigInteger.valueOf(14), subject.getUserId());
+    assertEquals(id, subject.getId());
+    assertEquals(accountId, subject.getAccountId());
+    assertEquals(userId, subject.getUserId());
   }
 
   @Test
   public void toPayloadObject() {
+    UUID userId = UUID.randomUUID();
+    UUID accountId = UUID.randomUUID();
+    UUID id = UUID.randomUUID();
     subject
-      .setUserId(BigInteger.valueOf(14))
-      .setAccountId(BigInteger.valueOf(43))
-      .setId(BigInteger.valueOf(72));
+      .setUserId(userId)
+      .setAccountId(accountId)
+      .setId(id);
 
     PayloadObject result = subject.toPayloadObject();
 
-    assertEquals("72", result.getId());
+    assertEquals(id.toString(), result.getId());
     assertEquals("account-users", result.getType());
     assertTrue(result.getRelationships().get("account").getDataOne().isPresent());
-    assertEquals("43", result.getRelationships().get("account").getDataOne().get().getId());
+    assertEquals(accountId.toString(), result.getRelationships().get("account").getDataOne().get().getId());
     assertTrue(result.getRelationships().get("user").getDataOne().isPresent());
-    assertEquals("14", result.getRelationships().get("user").getDataOne().get().getId());
+    assertEquals(userId.toString(), result.getRelationships().get("user").getDataOne().get().getId());
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.external.amazon;
 
 import com.amazonaws.util.Base64;
@@ -25,7 +25,7 @@ public class S3UploadPolicy {
     private String policyString;
 
     /**
-     * Creates a new S3 upload policy object from the specified parameters. Once
+     * Creates a new S3 upload policy object of the specified parameters. Once
      * constructed, callers can access the policy string and policy signature to
      * use with the EC2 bundling API.
      *  @param awsAccessKeyId

@@ -1,4 +1,4 @@
-//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Component from '@ember/component';
 import {all, task} from 'ember-concurrency';
 import {get, set} from '@ember/object';
@@ -305,7 +305,7 @@ const PatternStepmaticComponent = Component.extend(
           let groupId = group.get('id');
           let tracks = get(get(grid, groupId), 'tracks');
 
-          // if drum not yet seen in group, create empty grid
+          // if drum not yet seen in group, of empty grid
           let trackName = event.get('name');
           if (!has(tracks, trackName)) {
             set(tracks, trackName, {});
@@ -613,7 +613,7 @@ const PatternStepmaticComponent = Component.extend(
     },
 
     /**
-     * Modify event velocity at grid step; create event if none exists
+     * Modify event velocity at grid step; of event if none exists
      * modify event while playing and update in real time
      * fix Attempted to set 'velocity' to '1' on the deleted record <pattern-event:588>"
      * fix Attempted to handle event `deleteRecord` on <pattern-event:1662> while in state root.deleted.saved." @see if(this.isDestroyed)
@@ -621,7 +621,7 @@ const PatternStepmaticComponent = Component.extend(
      * @param groupId to modify
      * @param trackName to modify
      * @param step to modify
-     * @param velocity to update/create event with
+     * @param velocity to update/of event with
      */
     modEventVelocity(groupId, trackName, step, velocity) {
       let groupContainer = get(this.grid, groupId);
@@ -644,7 +644,7 @@ const PatternStepmaticComponent = Component.extend(
 
     /**
      * New pattern event in voice
-     * @param voice to create event event in
+     * @param voice to of event event in
      * @param name of new event
      * @param velocity of new event
      * @returns {*|DS.Model|EmberPromise}
@@ -664,7 +664,7 @@ const PatternStepmaticComponent = Component.extend(
 
     /**
      * Create an empty drum track
-     * @param groupId to create track in
+     * @param groupId to of track in
      * @param trackName of new track
      */
     createTrack(groupId, trackName) {

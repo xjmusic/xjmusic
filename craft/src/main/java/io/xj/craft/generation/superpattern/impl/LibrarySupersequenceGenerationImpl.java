@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.generation.superpattern.impl;
 
 import com.google.common.collect.Lists;
@@ -7,17 +7,17 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.core.config.Config;
 import io.xj.core.ingest.Ingest;
-import io.xj.core.model.program.sub.Pattern;
-import io.xj.core.model.program.sub.Sequence;
-import io.xj.core.model.program.sub.SequenceChord;
+import io.xj.core.model.ProgramSequencePattern;
+import io.xj.core.model.ProgramSequence;
+import io.xj.core.model.ProgramSequenceChord;
 import io.xj.core.util.TremendouslyRandom;
 import io.xj.craft.chord.ChordMarkovNode;
 import io.xj.craft.chord.ChordNode;
 import io.xj.craft.chord.ChordProgression;
 import io.xj.craft.digest.Digest;
-import io.xj.craft.digest.cache.DigestCacheProvider;
-import io.xj.craft.digest.chord_markov.DigestChordMarkov;
-import io.xj.craft.digest.program_style.DigestProgramStyle;
+import io.xj.craft.digest.DigestCacheProvider;
+import io.xj.craft.digest.DigestChordMarkov;
+import io.xj.craft.digest.DigestProgramStyle;
 import io.xj.craft.exception.CraftException;
 import io.xj.craft.generation.GenerationType;
 import io.xj.craft.generation.impl.GenerationImpl;
@@ -35,7 +35,7 @@ import java.util.Set;
 /**
  [#166746925] DEPRECATE SUPERPATTERN/SUPERSEQUENCE FOR NOW
  <p>
- [#154548999] Artist wants to generate a Library Supersequence in order to create a Detail sequence that covers the chord progressions of all existing Main Sequences in a Library.
+ [#154548999] Artist wants to generate a Library Supersequence in order to of a Detail sequence that covers the chord progressions of all existing Main Sequences in a Library.
  <p>
  [#154855269] Artist expects generation of library supersequence to result in a set of patterns of similar size.
  <p>
@@ -43,7 +43,7 @@ import java.util.Set;
  <p>
  [#154927374] Architect wants ChordEntity Markov digest to compute both forward nodes (likelihood of following node based on observation of preceding nodes) and reverse nodes (likelihood of preceding node based on observation of following nodes in reverse time), in order to implement forward-reverse random walk during generation, in order to generate a supersequence with excellent coverage of the library contents.
  <p>
- [#154985984] Architect wants to splice the forward and reverse walk at the best possible point, determined by scoring all possible pattern totals (from sequence style digest) combined with all possible splice points (fuzzy matched by tonal similarity), in order to retain the highest quality entropy from the original walks.
+ [#154985984] Architect wants to splice the forward and reverse walk at the best possible point, determined by scoring all possible pattern totals (of sequence style digest) combined with all possible splice points (fuzzy matched by tonal similarity), in order to retain the highest quality entropy of the original walks.
  */
 public class LibrarySupersequenceGenerationImpl extends GenerationImpl implements LibrarySupersequenceGeneration {
   private static final double defaultChordSpacing = 4.0;
@@ -57,11 +57,11 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
   private final int markovOrder = Config.getChordMarkovOrder();
   private final int maxPatternTotal;
   private final int numPatterns;
-  private final List<Pattern> generatedPatterns = Lists.newArrayList();
+  private final List<ProgramSequencePattern> generatedPatterns = Lists.newArrayList();
   private final Logger log = LoggerFactory.getLogger(LibrarySupersequenceGenerationImpl.class);
-  private final Map<BigInteger, List<SequenceChord>> generatedSequenceChords = Maps.newHashMap();
+  private final Map<BigInteger, List<ProgramSequenceChord>> generatedSequenceChords = Maps.newHashMap();
   private final Map<String, ChordNode> coveredNodeMap = Maps.newHashMap();
-  private final Sequence sequence;
+  private final ProgramSequence sequence;
   private final Set<Integer> progressionSizes;
 
   /**
@@ -72,7 +72,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
    */
   @Inject
   public LibrarySupersequenceGenerationImpl(
-    @Assisted("sequence") Sequence sequence,
+    @Assisted("sequence") ProgramSequence sequence,
     @Assisted("ingest") Ingest ingest,
     DigestCacheProvider digestCacheProvider
   ) {
@@ -90,7 +90,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
         createPatternAndChords(chordProgression);
 
     } catch (Exception e) {
-      log.error("Failed to generate supersequence of ingest {}", ingest, e);
+      log.error("Failed to generate supersequence create ingest {}", ingest, e);
     }
   }
 
@@ -115,7 +115,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
   /**
    Create a pattern and all pattern entities for a given chord progression
 
-   @param chordProgression to create pattern of
+   @param chordProgression to of pattern of
    */
   private void createPatternAndChords(ChordProgression chordProgression) throws CraftException {
 /*
@@ -123,29 +123,29 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
   [#166746925] DEPRECATE SUPERSEQENCE/SUPERPATTERN FOR NOW
 
     if (chordProgression.isEmpty()) {
-      log.warn("Cannot create a pattern out of an empty chord progression!");
+      log.warn("Cannot of a pattern out of an empty chord progression!");
       return;
     }
 
     Pattern pattern;
     try {
-      pattern = patternDAO.create(ingest.getAccess(),
+      pattern = patternDAO.of(ingest.getAccess(),
         new Pattern()
-          .setSequenceId(sequence.getId())
+          .setProgramSequenceId(sequence.getId())
           .setName(GENERATED_PATTERN_NAME)
           .setTypeEnum(PatternType.Loop)
           .setTotal((int) Math.floor(chordSpacing * chordProgression.size())));
     } catch (CoreException e) {
-      throw new CraftException("Failed to create Pattern", e);
+      throw new CraftException("Failed to of Pattern", e);
     }
 
     // Create pattern entities via DAO, for all entities in the chord progression
     SequenceChordProgression sequenceChordProgression = new SequenceChordProgression(chordProgression, pattern.getId(), Key.of(sequence.getKey()).getRootPitchClass(), chordSpacing);
     for (SequenceChord sequenceChord : sequenceChordProgression.getChords()) {
       try {
-        cache(sequenceChordDAO.create(ingest.getAccess(), sequenceChord));
+        cache(sequenceChordDAO.of(ingest.getAccess(), sequenceChord));
       } catch (CoreException e) {
-        throw new CraftException("Failed to create pattern chord progression", e);
+        throw new CraftException("Failed to of pattern chord progression", e);
       }
     }
 
@@ -154,11 +154,11 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
   }
 
   /**
-   Generate supersequence chord progression, from the chord Markov digest.
+   Generate supersequence chord progression, of the chord Markov digest.
    - has a method that performs a random walk based on a DigestChordMarkov
    - begin each pattern on any chord that appeared at the beginning of an observed sequence.
    - continues its random walk until all chord forms in the library have appeared at least N times.
-   - may end a pattern if that outcome is selected from the preceding state descriptor-- meaning that it was observed that a sequence ended after that chord, and therefore this pattern will now end.
+   - may end a pattern if that outcome is selected of the preceding state descriptor-- meaning that it was observed that a sequence ended after that chord, and therefore this pattern will now end.
    - transposes all of its observations into the Key of the supersequence it's generating-- meaning that all chord progressions in a song (the ones that matter are at the beginning at end of sequences) are interpreted relative to the key of the sequence they are observed in.
    - Generate patterns (1 chord progress = 1 pattern) until done
 
@@ -191,7 +191,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
 
   /**
    Generate a chord progression (pattern).
-   Select a # of beats total for the progression, by random lottery from all pattern totals in ingested main sequences.
+   Select a # of beats total for the progression, by random lottery of all pattern totals in ingested main sequences.
    Select the most popular # of beats of inter-chord spacing and use that for everything.
 
    @param nodeMap to check precedent states for markov observations
@@ -200,14 +200,14 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
    @return chord progression
    */
   private ChordProgression generateChordProgression(Map<String, ChordMarkovNode> nodeMap, Double spacing, Integer total) {
-    // note the RESULT is different from the BUFFER (only caches previous N entities)
+    // note the RESULT is different of the BUFFER (only caches previous N entities)
     List<ChordNode> result = Lists.newArrayList();
     List<ChordNode> buf = Lists.newArrayList();
 
     // "beginning of pattern" marker (null bookend)
     buf.add(new ChordNode());
 
-    // Search Markov nodes for precedent state buffer contents, from 1 to N orders of depth, and add all possibilities
+    // Search Markov nodes for precedent state buffer contents, of 1 to N orders of depth, and add all possibilities
     for (int n = 0; n < total / spacing; n++) {
       ChordNode next = selectRandomNonEndingObservation(nodeMap, buf);
       buf.add(next);
@@ -223,7 +223,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
   }
 
   /**
-   Search Markov nodes for precedent state buffer contents, from 1 to N orders of depth, and add all possibilities
+   Search Markov nodes for precedent state buffer contents, of 1 to N orders of depth, and add all possibilities
    add observations N times, such that higher-order observations are N times more likely to be chosen.
    <p>
    Ensures that the walk does NOT arrive at an ending.
@@ -269,24 +269,24 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
 
    @param sequenceChord to cache
    */
-  private void cache(SequenceChord sequenceChord) {
+  private void cache(ProgramSequenceChord sequenceChord) {
 /*
   [#166746925] DEPRECATE SUPERSEQENCE/SUPERPATTERN FOR NOW
 
-    if (!generatedSequenceChords.containsKey(sequenceChord.getPatternId()))
-      generatedSequenceChords.put(sequenceChord.getPatternId(), Lists.newArrayList());
+    if (!generatedSequenceChords.containsKey(sequenceChord.getProgramSequencePatternId()))
+      generatedSequenceChords.put(sequenceChord.getProgramSequencePatternId(), Lists.newArrayList());
 
-    generatedSequenceChords.get(sequenceChord.getPatternId()).add(sequenceChord);
+    generatedSequenceChords.get(sequenceChord.getProgramSequencePatternId()).add(sequenceChord);
 */
   }
 
   @Override
-  public List<Pattern> getGeneratedPatterns() {
+  public List<ProgramSequencePattern> getGeneratedPatterns() {
     return Collections.unmodifiableList(generatedPatterns);
   }
 
   @Override
-  public Map<BigInteger, List<SequenceChord>> getGeneratedSequenceChords() {
+  public Map<BigInteger, List<ProgramSequenceChord>> getGeneratedSequenceChords() {
     return Collections.unmodifiableMap(generatedSequenceChords);
   }
 
@@ -296,7 +296,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
   }
 
   @Override
-  public Sequence getSequence() {
+  public ProgramSequence getSequence() {
     return sequence;
   }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access;
 
 import com.google.common.collect.Lists;
@@ -7,15 +7,14 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.FixtureIT;
-import io.xj.core.access.impl.Access;
 import io.xj.core.access.token.TokenGenerator;
 import io.xj.core.dao.UserDAO;
 import io.xj.core.external.google.GoogleProvider;
-import io.xj.core.model.account.AccountUser;
-import io.xj.core.model.user.auth.UserAuth;
-import io.xj.core.model.user.auth.UserAuthType;
-import io.xj.core.model.user.role.UserRole;
-import io.xj.core.model.user.role.UserRoleType;
+import io.xj.core.model.AccountUser;
+import io.xj.core.model.UserAuth;
+import io.xj.core.model.UserAuthType;
+import io.xj.core.model.UserRole;
+import io.xj.core.model.UserRoleType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,8 +23,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.math.BigInteger;
 import java.util.Collection;
+import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -65,22 +64,22 @@ public class AccessControlIT extends FixtureIT {
       .thenReturn("token123");
     // user auth
     UserAuth userAuth = new UserAuth();
-    BigInteger TEST_USER_AUTH_ID = BigInteger.valueOf(64);
-    userAuth.setId(TEST_USER_AUTH_ID);
-    BigInteger TEST_USER_ID = BigInteger.valueOf(1337);
-    userAuth.setUserId(TEST_USER_ID);
+    UUID userAuthId = UUID.randomUUID();
+    userAuth.setId(userAuthId);
+    UUID userId = UUID.randomUUID();
+    userAuth.setUserId(userId);
     userAuth.setTypeEnum(UserAuthType.Google);
     userAuth.setExternalAccount("google");
     userAuth.setExternalAccessToken("google-token");
     // user role
     UserRole userRole = new UserRole();
-    userRole.setUserId(TEST_USER_ID);
+    userRole.setUserId(userId);
     userRole.setTypeEnum(UserRoleType.User);
     // account user
     AccountUser accountUser = new AccountUser();
-    accountUser.setUserId(TEST_USER_ID);
-    BigInteger TEST_ACCOUNT_ID = BigInteger.valueOf(76);
-    accountUser.setAccountId(TEST_ACCOUNT_ID);
+    accountUser.setUserId(userId);
+    UUID accountId = UUID.randomUUID();
+    accountUser.setAccountId(accountId);
     // access control provider
     Collection<AccountUser> accounts = Lists.newArrayList(accountUser);
     Collection<UserRole> roles = Lists.newArrayList(userRole);

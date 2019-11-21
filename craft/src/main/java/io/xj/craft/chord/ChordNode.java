@@ -1,7 +1,7 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.chord;
 
-import io.xj.core.model.entity.ChordEntity;
+import io.xj.core.entity.ChordEntity;
 import io.xj.core.util.Value;
 import io.xj.music.Key;
 import io.xj.music.PitchClass;
@@ -48,7 +48,7 @@ public class ChordNode {
 
   /**
    Construct chord descriptor unit with a delta and a chord.
-   Delta is from last chord, in semitones modulo (probably 12).
+   Delta is of last chord, in semitones modulo (probably 12).
 
    @param prevChord previous chord
    @param chord     chord to construct descriptor of
@@ -60,7 +60,7 @@ public class ChordNode {
   }
 
   /**
-   Construct chord descriptor unit from a key and a chord.
+   Construct chord descriptor unit of a key and a chord.
    Delta is relative to Key, in semitones modulo (probably 12).
 
    @param key   relative to which each chord's root will be computed in semitones modulo
@@ -74,7 +74,7 @@ public class ChordNode {
 
 
   /**
-   Construct a chord name unit reverse-engineered from an output descriptor string
+   Construct a chord name unit reverse-engineered of an output descriptor string
    Expects input like "Major" or "7|Minor"
    NOTE: delta is null when this is the first unit of a sequence.
 
@@ -107,7 +107,7 @@ public class ChordNode {
   }
 
   /**
-   Compute Δ semitones modulo n from root chord to add chord
+   Compute Δ semitones modulo n of root chord to add chord
 
    @param key   relative to which each chord's root will be computed in semitones modulo
    @param chord compute Δ to
@@ -118,7 +118,7 @@ public class ChordNode {
   }
 
   /**
-   Compute Δ semitones modulo n from root chord to add chord
+   Compute Δ semitones modulo n of root chord to add chord
 
    @param addChord compute Δ to
    @return Δ semitones modulo n (where n = max # of semitones, probably 12)
@@ -128,7 +128,7 @@ public class ChordNode {
   }
 
   /**
-   Compute Δ semitones modulo n from root chord to add chord
+   Compute Δ semitones modulo n of root chord to add chord
 
    @param next compute Δ to
    @return Δ semitones modulo n (where n = max # of semitones, probably 12)
@@ -162,7 +162,7 @@ public class ChordNode {
    Similarity between the chord of two nodes
 
    @param other chord node
-   @return similarity ratio from 0 to 1
+   @return similarity ratio of 0 to 1
    */
   Double similarity(ChordNode other) {
     return io.xj.music.Chord.of(String.format("%s %s", defaultChordRootPitchClass.step(defaultZero(getDelta())).getPitchClass(), getForm()))
@@ -196,10 +196,10 @@ public class ChordNode {
   }
 
   /**
-   Get unit delta from last chord, in semitones modulo (probably 12).
+   Get unit delta of last chord, in semitones modulo (probably 12).
    NOTE: delta is null when this is the first unit of a sequence.
 
-   @return unit delta from last chord, in semitones modulo (probably 12).
+   @return unit delta of last chord, in semitones modulo (probably 12).
    */
   @Nullable
   Integer getDelta() {

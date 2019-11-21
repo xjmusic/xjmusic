@@ -1,16 +1,17 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
+import io.xj.core.dao.DAO;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.segment.Segment;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainState;
+import io.xj.core.model.Segment;
 
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ChainDAO extends DAO<Chain> {
 
@@ -41,14 +42,14 @@ public interface ChainDAO extends DAO<Chain> {
    @param id    of specific Chain to update.
    @param state for the updated Chain.
    */
-  void updateState(Access access, BigInteger id, ChainState state) throws CoreException;
+  void updateState(Access access, UUID id, ChainState state) throws CoreException;
 
   /**
    [INTERNAL USE ONLY]
    Build a template for the next segment in this Chain,
    or set the Chain state to COMPLETE we are past the end time
    @param chain                   to build segment for
-   @param segmentBeginBefore      ahead to create Segment before end of previous Segment  @return array of chain Ids
+   @param segmentBeginBefore      ahead to of Segment before end of previous Segment  @return array of chain Ids
    @param chainStopCompleteBefore behind to consider a chain complete
 
 
@@ -60,22 +61,22 @@ public interface ChainDAO extends DAO<Chain> {
 
    @param chainId of specific Chain to erase.
    */
-  void erase(Access access, BigInteger chainId) throws CoreException;
+  void erase(Access access, UUID chainId) throws CoreException;
 
   /**
    [#160299309] Engineer wants a *revived* action for a live production chain, in case the chain has become stuck, in order to ensure the Chain remains in an operable state.
 
    @param access      control
    @param priorChainId to revived
-   @return newly created revived chain
+   @return newly createdrevived chain
    */
-  Chain revive(Access access, BigInteger priorChainId) throws CoreException;
+  Chain revive(Access access, UUID priorChainId) throws CoreException;
 
   /**
 
    [#158897383] Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
    and if found, *revive* it in order to ensure the Chain remains in an operable state.
-   @return collection of chains (if any) which were revived from stale chains.
+   @return collection of chains (if any) which were revived of stale chains.
    @param access  control
    */
   Collection<Chain> checkAndReviveAll(Access access) throws CoreException;

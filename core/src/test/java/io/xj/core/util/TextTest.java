@@ -1,20 +1,21 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
+import com.google.common.collect.ImmutableMap;
 import io.xj.core.CoreTest;
-import io.xj.core.model.account.Account;
-import io.xj.core.model.account.AccountUser;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.sub.ChainConfig;
-import io.xj.core.model.instrument.sub.AudioChord;
-import io.xj.core.model.instrument.sub.AudioEvent;
-import io.xj.core.model.instrument.sub.InstrumentMeme;
-import io.xj.core.model.program.sub.ProgramMeme;
-import io.xj.core.model.program.sub.Event;
-import io.xj.core.model.program.sub.SequenceChord;
-import io.xj.core.model.segment.sub.SegmentChord;
-import io.xj.core.model.segment.sub.SegmentMeme;
+import io.xj.core.model.Account;
+import io.xj.core.model.AccountUser;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainState;
+import io.xj.core.model.ChainConfig;
+import io.xj.core.model.InstrumentAudioChord;
+import io.xj.core.model.InstrumentAudioEvent;
+import io.xj.core.model.InstrumentMeme;
+import io.xj.core.model.ProgramSequencePatternEvent;
+import io.xj.core.model.ProgramMeme;
+import io.xj.core.model.ProgramSequenceChord;
+import io.xj.core.model.SegmentChord;
+import io.xj.core.model.SegmentMeme;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -40,16 +41,16 @@ public class TextTest extends CoreTest {
     assertEquals("ChainConfig", Text.getSimpleName(new ChainConfig()));
     assertEquals("ChainConfig", Text.getSimpleName(ChainConfig.class));
     assertEquals("Account", Text.getSimpleName(Account.class));
-    assertEquals("Chain", Text.getSimpleName(newChain(17, ChainState.Fabricate)));
+    assertEquals("Chain", Text.getSimpleName(Chain.create(ChainState.Fabricate)));
     assertEquals("Chain", Text.getSimpleName(Chain.class));
-    assertEquals("AudioChord", Text.getSimpleName(AudioChord.class));
-    assertEquals("AudioEvent", Text.getSimpleName(AudioEvent.class));
+    assertEquals("InstrumentAudioChord", Text.getSimpleName(InstrumentAudioChord.class));
+    assertEquals("InstrumentAudioEvent", Text.getSimpleName(InstrumentAudioEvent.class));
     assertEquals("InstrumentMeme", Text.getSimpleName(InstrumentMeme.class));
-    assertEquals("Event", Text.getSimpleName(Event.class));
+    assertEquals("ProgramSequencePatternEvent", Text.getSimpleName(ProgramSequencePatternEvent.class));
     assertEquals("ProgramMeme", Text.getSimpleName(ProgramMeme.class));
     assertEquals("SegmentChord", Text.getSimpleName(SegmentChord.class));
     assertEquals("SegmentMeme", Text.getSimpleName(SegmentMeme.class));
-    assertEquals("SequenceChord", Text.getSimpleName(SequenceChord.class));
+    assertEquals("ProgramSequenceChord", Text.getSimpleName(ProgramSequenceChord.class));
   }
 
   @Test
@@ -129,6 +130,18 @@ public class TextTest extends CoreTest {
   }
 
   @Test
+  public void toSingular() {
+    assertEquals("i", Text.toSingular("i"));
+    assertEquals("base", Text.toSingular("bases"));
+    assertEquals("flask", Text.toSingular("flasks"));
+    assertEquals("kitty", Text.toSingular("kitties"));
+    assertEquals("cat", Text.toSingular("cats"));
+    assertEquals("library", Text.toSingular("libraries"));
+    assertEquals("account-user", Text.toSingular("account-users"));
+    assertEquals("account", Text.toSingular("accounts"));
+  }
+
+  @Test
   public void toProper() {
     assertEquals("Jammy biscuit", Text.toProper("jaMMy bISCUIT"));
     assertEquals("Jammy", Text.toProper("jaMMy"));
@@ -152,7 +165,7 @@ public class TextTest extends CoreTest {
     assertEquals("accountUser", Text.toResourceBelongsTo("AccountUser"));
     assertEquals("accountUser", Text.toResourceBelongsTo("accountUser"));
     assertEquals("accountUser", Text.toResourceBelongsTo("accountUser"));
-    assertEquals("chain", Text.toResourceBelongsTo(newChain(17, ChainState.Fabricate)));
+    assertEquals("chain", Text.toResourceBelongsTo(Chain.create(ChainState.Fabricate)));
     assertEquals("chain", Text.toResourceBelongsTo(Chain.class));
     assertEquals("accountUser", Text.toResourceBelongsTo(new AccountUser()));
     assertEquals("accountUser", Text.toResourceBelongsTo(AccountUser.class));
@@ -164,11 +177,20 @@ public class TextTest extends CoreTest {
     assertEquals("libraries", Text.toResourceHasMany("Library"));
     assertEquals("accountUsers", Text.toResourceHasMany("AccountUser"));
     assertEquals("accountUsers", Text.toResourceHasMany("accountUser"));
-    assertEquals("chains", Text.toResourceHasMany(newChain(17, ChainState.Fabricate)));
+    assertEquals("chains", Text.toResourceHasMany(Chain.create(ChainState.Fabricate)));
     assertEquals("chains", Text.toResourceHasMany(Chain.class));
     assertEquals("accountUsers", Text.toResourceHasMany(new AccountUser()));
     assertEquals("accountUsers", Text.toResourceHasMany(AccountUser.class));
     assertEquals("accounts", Text.toResourceHasMany("Account"));
+  }
+
+  @Test
+  public void toResourceHasManyFromType() {
+    assertEquals("libraries", Text.toResourceHasManyFromType("libraries"));
+    assertEquals("accountUsers", Text.toResourceHasManyFromType("account-users"));
+    assertEquals("programSequenceBindingMemes", Text.toResourceHasManyFromType("program-sequence-binding-memes"));
+    assertEquals("accountUsers", Text.toResourceHasManyFromType("account-users"));
+    assertEquals("accounts", Text.toResourceHasManyFromType("accounts"));
   }
 
   @Test
@@ -177,7 +199,7 @@ public class TextTest extends CoreTest {
     assertEquals("account-users", Text.toResourceType("AccountUser"));
     assertEquals("account-users", Text.toResourceType("accountUser"));
     assertEquals("account-users", Text.toResourceType("accountUser"));
-    assertEquals("chains", Text.toResourceType(newChain(17, ChainState.Fabricate)));
+    assertEquals("chains", Text.toResourceType(Chain.create(ChainState.Fabricate)));
     assertEquals("chains", Text.toResourceType(Chain.class));
     assertEquals("account-users", Text.toResourceType(new AccountUser()));
     assertEquals("account-users", Text.toResourceType(AccountUser.class));
@@ -244,8 +266,14 @@ public class TextTest extends CoreTest {
     assertEquals("bilgeWaterId", Text.toIdAttribute("BilgeWater"));
     assertEquals("accountId", Text.toIdAttribute(new Account()));
     assertEquals("accountId", Text.toIdAttribute(Account.class));
-    assertEquals("chainId", Text.toIdAttribute(newChain(17, ChainState.Fabricate)));
+    assertEquals("chainId", Text.toIdAttribute(Chain.create(ChainState.Fabricate)));
     assertEquals("chainId", Text.toIdAttribute(Chain.class));
+  }
+
+  @Test
+  public void keyValueString() {
+    assertEquals("Test{one=1,two=2,three=3}",
+      Text.toKeyValueString("Test", ImmutableMap.of("one", "1", "two", "2", "three", "3")));
   }
 
 }

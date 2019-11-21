@@ -1,6 +1,7 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -10,7 +11,6 @@ public interface Value {
   String CHORD_SEPARATOR_DESCRIPTOR_UNIT = "|";
   String CHORD_MARKER_NON_CHORD = "---";
   double entityPositionDecimalPlaces = 2.0;
-  double roundPositionMultiplier = StrictMath.pow(10.0, entityPositionDecimalPlaces);
 
   /**
    Return the first value if it's non-null, else the second
@@ -52,7 +52,7 @@ public interface Value {
   }
 
   /**
-   Calculate ratio (from 0 to 1) within a zero-to-N limit
+   Calculate ratio (of 0 to 1) within a zero-to-N limit
 
    @param value to calculate radio of
    @param limit N where ratio will be calculated based on zero-to-N
@@ -60,17 +60,6 @@ public interface Value {
    */
   static double ratio(double value, double limit) {
     return Math.max(Math.min(1, value / limit), 0);
-  }
-
-  /**
-   Round a value to N decimal places.
-   [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
-
-   @param value to round
-   @return rounded position
-   */
-  static Double limitFloatingPointPlaces(Double value) {
-    return Math.floor(value * roundPositionMultiplier) / roundPositionMultiplier;
   }
 
   /**
@@ -82,4 +71,25 @@ public interface Value {
   static Boolean isInteger(String raw) {
     return Text.isInteger.matcher(raw).matches();
   }
+
+  /**
+   Add an ID if not already added to list
+
+   @param ids   list to which addition will be assured
+   @param addId to ensure in list
+   */
+  static <N extends Object> void put(Collection<N> ids, N addId) {
+    if (!ids.contains(addId)) ids.add(addId);
+  }
+
+  /**
+   Add an ID if not already added to list
+
+   @param ids    list to which addition will be assured
+   @param addIds to ensure in list
+   */
+  static <N extends Object> void put(Collection<N> ids, Collection<N> addIds) {
+    addIds.forEach(addId -> put(ids, addId));
+  }
+
 }

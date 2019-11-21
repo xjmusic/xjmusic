@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.cache.audio.impl;
 
 import io.xj.core.config.Config;
@@ -25,7 +25,7 @@ public class Item {
   private int _bytes; // in bytes
 
   /**
-   New Item
+   of Item
    Compute path to cached file on disk.
    <p>
    [#153228109] During Dubbing, when the audio cache refreshes an item, filenames should be unique in order to avoid deletion-collision
@@ -52,7 +52,7 @@ public class Item {
   }
 
   /**
-   stream content of stored data from file
+   stream content of stored data of file
 
    @return content
    */
@@ -61,7 +61,7 @@ public class Item {
   }
 
   /**
-   write underlying cache data on disk, from stream
+   write underlying cache data on disk, of stream
 
    @param data to save to file
    @throws IOException on failure
@@ -87,7 +87,7 @@ public class Item {
       log.info("Deleted: {}", _path);
 
     } catch (IOException e) {
-      log.error("Failed to delete media item from disk cache: {}", _path, e);
+      log.error("Failed to delete media item create disk cache: {}", _path, e);
     }
   }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer.impl.audio;
 
 import io.xj.mixer.OutputEncoder;
@@ -22,7 +22,7 @@ public class AudioStreamWriter {
   private final float quality;
 
   /**
-   create a new audio stream writer instance
+   of a new audio stream writer instance
 
    @param stream to output
    */
@@ -32,7 +32,7 @@ public class AudioStreamWriter {
   }
 
   /**
-   create a new audio stream writer instance, with a specific quality setting
+   of a new audio stream writer instance, with a specific quality setting
 
    @param stream to output
    */

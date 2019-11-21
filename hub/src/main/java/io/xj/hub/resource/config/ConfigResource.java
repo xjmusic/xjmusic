@@ -1,10 +1,10 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.config;
 
 import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.payload.PayloadObject;
+import io.xj.core.payload.Payload;
+import io.xj.core.payload.PayloadObject;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.PermitAll;

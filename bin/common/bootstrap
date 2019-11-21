@@ -70,11 +70,11 @@ java \
   -Daws.secretKey=${AWS_SECRET} \
   -Dcache.file.allocate.bytes=${CACHE_FILE_ALLOCATE_BYTES} \
   -Dcache.file.path.prefix=/var/cache/${APP}/ \
-  -Ddb.mysql.database=${MYSQL_DATABASE} \
-  -Ddb.mysql.host=${MYSQL_HOST} \
-  -Ddb.mysql.pass=${MYSQL_PASS} \
-  -Ddb.mysql.port=${MYSQL_PORT} \
-  -Ddb.mysql.user=${MYSQL_USER} \
+  -Ddb.postgresql.database=${SQL_DATABASE} \
+  -Ddb.postgresql.host=${SQL_HOST} \
+  -Ddb.postgresql.pass=${SQL_PASS} \
+  -Ddb.postgresql.port=${SQL_PORT} \
+  -Ddb.postgresql.user=${SQL_USER} \
   -Ddb.redis.host=${REDIS_HOST} \
   -Ddb.redis.port=${REDIS_PORT} \
   -Dlog.access.entities.all=true \

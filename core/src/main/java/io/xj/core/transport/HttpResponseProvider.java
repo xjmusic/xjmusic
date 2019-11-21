@@ -1,8 +1,8 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.transport;
 
-import io.xj.core.model.entity.ResourceEntity;
-import io.xj.core.model.payload.Payload;
+import io.xj.core.entity.Entity;
+import io.xj.core.payload.Payload;
 
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
@@ -63,10 +63,10 @@ public interface HttpResponseProvider {
    @param resource that was not found, really just has id
    @return response
    */
-  Response notFound(ResourceEntity resource);
+  Response notFound(Entity resource);
 
   /**
-   Return a response from an exception
+   Return a response of an exception
 
    @param e Exception
    @return Response
@@ -74,7 +74,7 @@ public interface HttpResponseProvider {
   Response failure(Exception e);
 
   /**
-   Return a response from an exception
+   Return a response of an exception
 
    @param e    Exception
    @param code HTTP Status Code
@@ -83,7 +83,7 @@ public interface HttpResponseProvider {
   Response failure(Exception e, int code);
 
   /**
-   Return a response from an exception during a Create operation
+   Return a response of an exception during a Create operation
 
    @param e Exception
    @return Response
@@ -91,7 +91,7 @@ public interface HttpResponseProvider {
   Response failureToCreate(Exception e);
 
   /**
-   Return a response from an exception during an Update operation
+   Return a response of an exception during an Update operation
 
    @param e Exception
    @return Response

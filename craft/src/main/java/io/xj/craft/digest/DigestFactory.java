@@ -1,13 +1,8 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest;
 
 import com.google.inject.assistedinject.Assisted;
 import io.xj.core.ingest.Ingest;
-import io.xj.craft.digest.chord_markov.DigestChordMarkov;
-import io.xj.craft.digest.chord_progression.DigestChordProgression;
-import io.xj.craft.digest.hash.DigestHash;
-import io.xj.craft.digest.meme.DigestMeme;
-import io.xj.craft.digest.program_style.DigestProgramStyle;
 
 /**
  [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.

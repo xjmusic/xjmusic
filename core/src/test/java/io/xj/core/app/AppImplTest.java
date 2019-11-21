@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.app;
 
 import io.xj.core.CoreModule;
@@ -85,7 +85,7 @@ public class AppImplTest extends Mockito {
   public void Start_IOFailure() throws IOException, CoreException {
     when(httpServerProvider.get())
       .thenReturn(httpServer);
-    doThrow(new IOException("this is a test of application start failed"))
+    doThrow(new IOException("this is a test create application start failed"))
       .when(httpServer).start();
     when(resourceConfigProvider.get("io.xj.core.common"))
       .thenReturn(resourceConfig);

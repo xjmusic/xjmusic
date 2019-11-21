@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.app.impl;
 
 import com.google.inject.Inject;
@@ -53,7 +53,7 @@ public class HealthImpl implements Health {
    @throws CoreException if SQL database cannot complete a transaction
    */
   private void throwExceptionIfSQLDatabaseCannotCompleteTransaction() throws CoreException {
-    sqlDatabaseProvider.getConnection().success();
+    sqlDatabaseProvider.getConnection();
   }
 
   /**

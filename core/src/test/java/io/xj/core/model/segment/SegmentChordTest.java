@@ -1,14 +1,14 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.segment;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.segment.sub.SegmentChord;
+import io.xj.core.model.SegmentChord;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 import static io.xj.core.testing.Assert.assertSameItems;
 import static org.junit.Assert.assertEquals;
@@ -22,7 +22,7 @@ public class SegmentChordTest {
   public void validate() throws Exception {
     new SegmentChord()
       .setName("C# minor")
-      .setSegmentId(BigInteger.valueOf(1235L))
+      .setSegmentId(UUID.randomUUID())
       .setPosition(7.0)
       .validate();
   }
@@ -33,7 +33,7 @@ public class SegmentChordTest {
     failure.expectMessage("Name is required");
 
     new SegmentChord()
-      .setSegmentId(BigInteger.valueOf(1235L))
+      .setSegmentId(UUID.randomUUID())
       .setPosition(7.0)
       .validate();
   }
@@ -56,7 +56,7 @@ public class SegmentChordTest {
 
     new SegmentChord()
       .setName("C# minor")
-      .setSegmentId(BigInteger.valueOf(1235L))
+      .setSegmentId(UUID.randomUUID())
       .validate();
   }
 

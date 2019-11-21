@@ -1,29 +1,27 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job.impl;
-
-import io.xj.core.access.impl.Access;
-import io.xj.core.dao.ChainDAO;
-import io.xj.core.dao.SegmentDAO;
-import io.xj.core.model.segment.Segment;
-import io.xj.core.transport.CSV;
-import io.xj.core.work.WorkManager;
-import io.xj.worker.job.ChainEraseJob;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
+import io.xj.core.access.Access;
+import io.xj.core.dao.ChainDAO;
+import io.xj.core.dao.SegmentDAO;
+import io.xj.core.model.Segment;
+import io.xj.core.transport.CSV;
+import io.xj.core.work.WorkManager;
+import io.xj.worker.job.ChainEraseJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 public class ChainEraseJobImpl implements ChainEraseJob {
   private static final Logger log = LoggerFactory.getLogger(ChainEraseJobImpl.class);
-  private final BigInteger entityId;
+  private final UUID entityId;
   private final ChainDAO chainDAO;
   private final SegmentDAO segmentDAO;
   private final WorkManager workManager;
@@ -31,7 +29,7 @@ public class ChainEraseJobImpl implements ChainEraseJob {
 
   @Inject
   public ChainEraseJobImpl(
-    @Assisted("entityId") BigInteger entityId,
+    @Assisted("entityId") UUID entityId,
     ChainDAO chainDAO,
     SegmentDAO segmentDAO,
     WorkManager workManager

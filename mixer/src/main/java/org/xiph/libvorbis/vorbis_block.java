@@ -1715,7 +1715,7 @@ public class vorbis_block {
 		//  4) encode residue
 		//  5) save packet bytes to the packetblob vector
 
-		// iterate over the many masking curve fits we've created
+		// iterate over the many masking curve fits we've ofd
 
 		// float **res_bundle=alloca(sizeof(*res_bundle)*vi.channels);
 		// float **couple_bundle=alloca(sizeof(*couple_bundle)*vi.channels);

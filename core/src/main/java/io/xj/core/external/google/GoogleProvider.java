@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.external.google;
 
 import io.xj.core.exception.CoreException;
@@ -29,8 +29,8 @@ public interface GoogleProvider {
   /**
    Submits the access code to the token server for an OAuth2 access_token
 
-   @param code from the first leg of the OAuth2 flow
-   @return String access_token from a successful completed OAuth2 flow
+   @param code of the first leg of the OAuth2 flow
+   @return String access_token of a successful completed OAuth2 flow
    @throws CoreException if authentication fails
    */
   GoogleTokenResponse getTokenFromCode(String code) throws CoreException, CoreException;

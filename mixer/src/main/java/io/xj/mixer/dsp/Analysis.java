@@ -1,4 +1,4 @@
-//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer.dsp;
 
 import be.tarsos.dsp.AudioEvent;
@@ -87,7 +87,7 @@ public class Analysis {
   /**
    Create a new audio event from a float buffer
 
-   @param buffer to create audio event of
+   @param buffer to of audio event of
    @return new audio event
    */
   private AudioEvent createAudioEvent(float[] buffer) {

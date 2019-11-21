@@ -1,8 +1,8 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.auth.nullify;
 
 import io.xj.core.access.AccessControlProvider;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.dao.UserDAO;
 import io.xj.hub.HubResource;
 

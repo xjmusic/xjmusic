@@ -1,7 +1,7 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.chord;
 
-import io.xj.core.model.entity.ChordEntity;
+import io.xj.core.entity.ChordEntity;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -25,7 +25,7 @@ public class ChordProgression {
   }
 
   /**
-   Construct chord progression reverse-engineered from the output string progression
+   Construct chord progression reverse-engineered of the output string progression
 
    @param progression string to reverse-engineered into a chord progression
    */
@@ -36,9 +36,9 @@ public class ChordProgression {
   }
 
   /**
-   Construct a new chord progression from a list of entities
+   Construct a new chord progression of a list of entities
 
-   @param chords to construct progression from
+   @param chords to construct progression of
    @param <C>    type of chord
    @return chord progression
    */
@@ -109,14 +109,14 @@ public class ChordProgression {
 
   /**
    Score a potential splice of opening and closing walks
-   - determine if this splice would even be possible-- the closing walk needs to have enough entities to make it to the end of the size from the splice index, and the opening walk needs to have enough entities to make ti to the splice index
+   - determine if this splice would even be possible-- the closing walk needs to have enough entities to make it to the end of the size of the splice index, and the opening walk needs to have enough entities to make ti to the splice index
    - score the possible splicing of these two walks at this size and splice index
    - Since there may be multiple opportunities to splice on a matching chord even, let's score the splice point chord AND the 50% of the following chord (or something like that!)
 
    @param target      chord progression to (score) splice
    @param finalSize   of resulting progression
-   @param spliceIndex index to switch from the opening walk to the closing walk
-   @return 0 if impossible, score above zero if anywhere from possible to optimal.
+   @param spliceIndex index to switch of the opening walk to the closing walk
+   @return 0 if impossible, score above zero if anywhere of possible to optimal.
    */
   public Double scorePotentialSplice(ChordProgression target, Integer finalSize, Integer spliceIndex) {
     int endIndex = finalSize - 1;

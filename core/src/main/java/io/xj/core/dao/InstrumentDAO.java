@@ -1,12 +1,14 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
+import io.xj.core.dao.DAO;
+import io.xj.core.entity.Entity;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.Instrument;
 
-import java.math.BigInteger;
 import java.util.Collection;
+import java.util.UUID;
 
 public interface InstrumentDAO extends DAO<Instrument> {
 
@@ -18,7 +20,7 @@ public interface InstrumentDAO extends DAO<Instrument> {
    @param entity  for the new Instrument
    @return newly readMany record
    */
-  Instrument clone(Access access, BigInteger cloneId, Instrument entity) throws CoreException;
+  Instrument clone(Access access, UUID cloneId, Instrument entity) throws CoreException;
 
   /**
    Fetch many instrument for one Account by id, if accessible
@@ -28,7 +30,7 @@ public interface InstrumentDAO extends DAO<Instrument> {
    @return Collection of instruments.
    @throws CoreException on failure
    */
-  Collection<Instrument> readAllInAccount(Access access, BigInteger accountId) throws CoreException;
+  Collection<Instrument> readAllInAccount(Access access, UUID accountId) throws CoreException;
 
   /**
    Fetch all instrument visible to given access
@@ -39,5 +41,21 @@ public interface InstrumentDAO extends DAO<Instrument> {
    */
   Collection<Instrument> readAll(Access access) throws CoreException;
 
+  /**
+   Read all ids of Instruments in the specified Library ids
 
+   @param access     control
+   @param libraryIds of which to get all instrument ids
+   @return instrument ids in the specified library ids
+   */
+  Collection<UUID> readIdsInLibraries(Access access, Collection<UUID> libraryIds) throws CoreException;
+
+  /**
+   Read many instruments including all child entities
+
+   @param access     control
+   @param instrumentIds to read
+   @return collection of entities
+   */
+  Collection<Entity> readManyWithChildEntities(Access access, Collection<UUID> instrumentIds) throws CoreException;
 }

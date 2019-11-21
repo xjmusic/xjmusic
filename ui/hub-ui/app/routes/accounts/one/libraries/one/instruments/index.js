@@ -1,4 +1,4 @@
-//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import {hash, Promise as EmberPromise} from 'rsvp';
 import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
@@ -30,7 +30,7 @@ export default Route.extend({
 
     return new EmberPromise((resolve, reject) => {
       self.config.getConfig().then(function () {
-        self.store.findRecord('user', self.auth.userId).then(function (user) {
+        self.store.findRecord('user', self.user_auth.userId).then(function (user) {
             // resolves the user *after* closure
             let newInstrument = self.store.createRecord('instrument', {
               user: user,

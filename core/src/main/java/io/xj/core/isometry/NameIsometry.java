@@ -1,4 +1,4 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.isometry;
 
 import me.xdrop.fuzzywuzzy.FuzzySearch;
@@ -11,9 +11,9 @@ public class NameIsometry extends Isometry {
   private static final double SIMILARITY_SCORE_MATCHING_NAME = 3;
 
   /**
-   Instantiate a new NameIsometry from a group of source Events
+   Instantiate a new NameIsometry of a group of source Events
 
-   @param sourceNames to compare from
+   @param sourceNames to compare of
    @return NameIsometry ready for comparison to target Events
    */
   public static NameIsometry ofEvents(Iterable<String> sourceNames) {

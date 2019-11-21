@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.dub.master.impl;
 
 import com.google.common.collect.Lists;
@@ -6,13 +6,13 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.config.Config;
+import io.xj.core.entity.MessageType;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorType;
-import io.xj.core.model.chain.ChainConfigType;
-import io.xj.core.model.instrument.sub.Audio;
-import io.xj.core.model.message.MessageType;
-import io.xj.core.model.segment.sub.Pick;
-import io.xj.core.model.segment.sub.SegmentMessage;
+import io.xj.core.model.ChainConfigType;
+import io.xj.core.model.InstrumentAudio;
+import io.xj.core.model.SegmentMessage;
+import io.xj.core.model.SegmentChoiceArrangementPick;
 import io.xj.core.util.Text;
 import io.xj.dub.exception.DubException;
 import io.xj.dub.master.MasterDub;
@@ -81,10 +81,10 @@ public class MasterDubImpl implements MasterDub {
   }
 
   /**
-   @throws Exception if failed to stream data of item from cache
+   @throws Exception if failed to stream data of item of cache
    */
   private void doMixerSourceLoading() throws Exception {
-    for (Audio audio : fabricator.getPickedAudios()) {
+    for (InstrumentAudio audio : fabricator.getPickedAudios()) {
       String key = audio.getWaveformKey();
 
       if (!mixer().hasLoadedSource(audio.getId().toString())) try {
@@ -103,7 +103,7 @@ public class MasterDubImpl implements MasterDub {
    Implements Mixer module to set playback for Picks in current Segment
    */
   private void doMixerTargetSetting() {
-    for (Pick pick : fabricator.getSegment().getPicks())
+    for (SegmentChoiceArrangementPick pick : fabricator.getSegmentPicks())
       try {
         setupTarget(pick);
       } catch (Exception e) {
@@ -119,12 +119,12 @@ public class MasterDubImpl implements MasterDub {
 
    @param pick to set playback for
    */
-  private void setupTarget(Pick pick) throws Exception {
-    double pitchRatio = fabricator.getAudio(pick.getAudioId()).getPitch() / pick.getPitch();
-    double offsetStart = fabricator.getAudio(pick.getAudioId()).getStart() / pitchRatio;
+  private void setupTarget(SegmentChoiceArrangementPick pick) throws Exception {
+    double pitchRatio = fabricator.getSourceMaterial().getAudio(pick).getPitch() / pick.getPitch();
+    double offsetStart = fabricator.getSourceMaterial().getAudio(pick).getStart() / pitchRatio;
 
     mixer().put(
-      pick.getAudioId().toString(),
+      pick.getInstrumentAudioId().toString(),
       toMicros(pick.getStart() - offsetStart),
       toMicros(pick.getStart() + pick.getLength()),
       audioAttackMicros,
@@ -169,7 +169,7 @@ public class MasterDubImpl implements MasterDub {
    Report
    */
   private void report() {
-    // fabricator.report() anything else interesting from the dub operation
+    // fabricator.report() anything else interesting of the dub operation
   }
 
   /**
@@ -193,9 +193,7 @@ public class MasterDubImpl implements MasterDub {
    */
   private void createSegmentMessage(MessageType type, String body) {
     try {
-      fabricator.add(new SegmentMessage()
-        .setType(type.toString())
-        .setBody(body));
+      fabricator.add(SegmentMessage.create(fabricator.getSegment(), type, body));
     } catch (Exception e1) {
       log.warn("Failed to create SegmentMessage", e1);
     }

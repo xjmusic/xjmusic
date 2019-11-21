@@ -1,17 +1,23 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.dub.master;
 
 import com.google.inject.Guice;
 import io.xj.core.CoreModule;
 import io.xj.core.FixtureIT;
+import io.xj.core.access.Access;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorFactory;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.segment.SegmentFactory;
-import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.segment.sub.Choice;
-import io.xj.core.model.program.ProgramType;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainBinding;
+import io.xj.core.model.ChainState;
+import io.xj.core.model.ChainType;
+import io.xj.core.model.ProgramType;
+import io.xj.core.model.Segment;
+import io.xj.core.model.SegmentChoiceArrangement;
+import io.xj.core.model.SegmentChoice;
+import io.xj.core.model.SegmentChord;
+import io.xj.core.model.SegmentMeme;
+import io.xj.core.model.SegmentState;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubFactory;
 import io.xj.dub.DubModule;
@@ -31,7 +37,6 @@ public class DubMasterNextMainIT extends FixtureIT {
   @Before
   public void setUp() throws Exception {
     injector = Guice.createInjector(new CoreModule(), new CraftModule(), new DubModule());
-    segmentFactory = injector.getInstance(SegmentFactory.class);
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     dubFactory = injector.getInstance(DubFactory.class);
 
@@ -42,29 +47,28 @@ public class DubMasterNextMainIT extends FixtureIT {
     insertFixtureB_Instruments();
 
     // Chain "Test Print #1" has 5 total segments
-    insert(newChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null, now(), newChainBinding(library2)));
-    insert(newSegment(1, 1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120, "chains-1-segments-9f7s89d8a7892.wav"));
-    insert(newSegment(2, 1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120, "chains-1-segments-9f7s89d8a7892.wav"));
+    chain1 = insert(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    insert(ChainBinding.create(chain1, library2));
+    segment1 = insert(Segment.create(chain1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120, "chains-1-segments-9f7s89d8a7892.wav"));
+    segment2 = insert(Segment.create(chain1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120, "chains-1-segments-9f7s89d8a7892.wav"));
 
     // Chain "Test Print #1" has this segment that was just dubbed
-    segment3 = newSegment(3, 1, 2, SegmentState.Dubbed, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "F Major", 64, 0.30, 120.0, "chains-1-segments-9f7s89d8a7892.wav");
-    segment3.add(newChoice(ProgramType.Macro, 4, program4_binding0.getId(), 3));
-    segment3.add(newChoice(ProgramType.Main, 5, program5_binding1.getId(), -4));
-    insert(segment3);
+    segment3 = insert(Segment.create(chain1, 2, SegmentState.Dubbed, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "F Major", 64, 0.30, 120.0, "chains-1-segments-9f7s89d8a7892.wav"));
+    insert(SegmentChoice.create(segment3, ProgramType.Macro, program4_binding0, 3));
+    insert(SegmentChoice.create(segment3, ProgramType.Main, program5_binding1, -4));
 
     // Chain "Test Print #1" has this segment dubbing - Structure is complete
-    segment4 = newSegment(4, 1, 3, SegmentState.Dubbing, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:03:15.836735Z"), "G minor", 16, 0.45, 120.0, "chains-1-segments-9f7s89d8a7892.wav");
-    segment4.add(newChoice(ProgramType.Macro, 4, program4_binding1.getId(), 3));
-    segment4.add(newChoice(ProgramType.Main, 5, program15_binding0.getId(), -5));
-    Choice choice1 = segment4.add(newChoice(ProgramType.Rhythm, 35, null, -5));
-    segment4.add(newSegmentMeme("Regret"));
-    segment4.add(newSegmentMeme("Sky"));
-    segment4.add(newSegmentMeme("Hindsight"));
-    segment4.add(newSegmentMeme("Tropical"));
-    segment4.add(newSegmentChord(0.0, "G minor"));
-    segment4.add(newSegmentChord(8.0, "Ab minor"));
-    segment4.add(newArrangement(choice1, voiceDrums, instrument201));
-    insert(segment4);
+    segment4 = insert(Segment.create(chain1, 3, SegmentState.Dubbing, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:03:15.836735Z"), "G minor", 16, 0.45, 120.0, "chains-1-segments-9f7s89d8a7892.wav"));
+    insert(SegmentChoice.create(segment4, ProgramType.Macro, program4_binding1, 3));
+    insert(SegmentChoice.create(segment4, ProgramType.Main, program15_binding0, -5));
+    SegmentChoice choice1 = insert(SegmentChoice.create(segment4, ProgramType.Rhythm, program35, -5));
+    insert(SegmentMeme.create(segment4, "Regret"));
+    insert(SegmentMeme.create(segment4, "Sky"));
+    insert(SegmentMeme.create(segment4, "Hindsight"));
+    insert(SegmentMeme.create(segment4, "Tropical"));
+    insert(SegmentChord.create(segment4, 0.0, "G minor"));
+    insert(SegmentChord.create(segment4, 8.0, "Ab minor"));
+    insert(SegmentChoiceArrangement.create(choice1, voiceDrums, instrument201));
 
     // future: insert arrangement of choice
     // future: insert 8 picks of audio 1
@@ -73,7 +77,7 @@ public class DubMasterNextMainIT extends FixtureIT {
 
   @Test
   public void dubMasterNextMain() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segment4);
 
     dubFactory.master(fabricator).doWork();
 

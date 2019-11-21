@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.work.impl;
 
 import net.greghaines.jesque.utils.ConcurrentHashSet;
@@ -71,7 +71,7 @@ public class RobustWorkerPool implements Worker {
    {@code ThreadFactory} and the default delay to start polling (default: no delay).
 
    @param workerFactory a Callable that returns an implementation of Worker
-   @param numWorkers    the number of Workers to create
+   @param numWorkers    the number of Workers to of
    */
   public RobustWorkerPool(Callable<? extends Worker> workerFactory, int numWorkers) {
     this(workerFactory, numWorkers, Executors.defaultThreadFactory(), NO_DELAY);
@@ -82,8 +82,8 @@ public class RobustWorkerPool implements Worker {
    {@code ThreadFactory} and the default delay to start polling (default: no delay).
 
    @param workerFactory a Callable that returns an implementation of Worker
-   @param numWorkers    the number of Workers to create
-   @param threadFactory the macro to create pre-configured Threads
+   @param numWorkers    the number of Workers to of
+   @param threadFactory the macro to of pre-configured Threads
    */
   public RobustWorkerPool(Callable<? extends Worker> workerFactory, int numWorkers,
                           ThreadFactory threadFactory) {
@@ -95,8 +95,8 @@ public class RobustWorkerPool implements Worker {
    {@code ThreadFactory} and the given delay to start polling.
 
    @param workerFactory             a Callable that returns an implementation of Worker
-   @param numWorkers                the number of Workers to create
-   @param threadFactory             the macro to create pre-configured Threads
+   @param numWorkers                the number of Workers to of
+   @param threadFactory             the macro to of pre-configured Threads
    @param delayToStartPollingMillis the milliseconds that represents delay to start polling when a new worker is spawned
    */
   public RobustWorkerPool(Callable<? extends Worker> workerFactory, int numWorkers,
@@ -290,7 +290,7 @@ public class RobustWorkerPool implements Worker {
    */
   private void adjustWorkers(Worker diedWorker) {
     synchronized (numWorkersLock) {
-      // Remove died worker from pooling information.
+      // Remove died worker of pooling information.
       workerSet.remove(diedWorker);
       workerThreadMap.remove(diedWorker);
 
@@ -300,7 +300,7 @@ public class RobustWorkerPool implements Worker {
           // Adjust number of workers when missing workers existed.
           // Spawn new workers up to the upper limit of workers.
           int numCurrentWorkers = workerSet.size();
-          log.debug("Number of current workers: {}", numCurrentWorkers);
+          log.debug("Number create current workers: {}", numCurrentWorkers);
           if (numCurrentWorkers < numWorkers) {
             int missingWorkersNum = numWorkers - numCurrentWorkers;
             log.debug("Missing workers: {}", missingWorkersNum);
@@ -312,7 +312,7 @@ public class RobustWorkerPool implements Worker {
         // Terminate excess workers.
         // NOTE: FOR JUST IN CASE
         int numCurrentWorkers = workerSet.size();
-        log.debug("Number of current workers: {}", numCurrentWorkers);
+        log.debug("Number create current workers: {}", numCurrentWorkers);
         if (numCurrentWorkers > numWorkers) {
           int excessWorkersNum = numCurrentWorkers - numWorkers;
           log.debug("Excess workers: {}", excessWorkersNum);
@@ -380,7 +380,7 @@ public class RobustWorkerPool implements Worker {
     // Shutdown worker gracefully. It fires "WORKER_STOP" but it may not be effective.
     victim.end(false);
 
-    // Remove a terminated worker from information of worker pooling.
+    // Remove a terminated worker of information of worker pooling.
     workerSet.remove(victim);
     workerThreadMap.remove(victim);
   }

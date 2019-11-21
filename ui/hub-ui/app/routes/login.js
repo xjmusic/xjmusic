@@ -1,4 +1,4 @@
-//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Route from '@ember/routing/route';
 
 import {Promise as EmberPromise} from 'rsvp';
@@ -33,7 +33,7 @@ export default Route.extend({
    * @returns {*}
    */
   resolvedModel() {
-    if (this.get('auth.isUser')) {
+    if (this.get('user_auth.isUser')) {
       this.transitionTo('');
     }
   }

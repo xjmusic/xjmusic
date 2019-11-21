@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.persistence.redis.impl;
 
 import com.google.common.collect.ImmutableList;
@@ -27,7 +27,7 @@ FUTURE: use Jedis Pool and Client Pool
   }
 
   /**
-   Redis server host, from config
+   Redis server host, of config
 
    @return host
    */
@@ -36,7 +36,7 @@ FUTURE: use Jedis Pool and Client Pool
   }
 
   /**
-   Redis namespace, from config
+   Redis namespace, of config
 
    @return namespace
    */
@@ -45,7 +45,7 @@ FUTURE: use Jedis Pool and Client Pool
   }
 
   /**
-   Redis server port, from config
+   Redis server port, of config
 
    @return port
    */
@@ -54,7 +54,7 @@ FUTURE: use Jedis Pool and Client Pool
   }
 
   /**
-   Redis server timeout, from config
+   Redis server timeout, of config
 
    @return timeout
    */

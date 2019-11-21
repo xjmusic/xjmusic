@@ -1,16 +1,16 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker;
 
 import com.google.inject.Inject;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.work.Work;
-import io.xj.core.model.work.WorkType;
+import io.xj.core.model.Work;
+import io.xj.core.model.WorkType;
 import net.greghaines.jesque.Job;
 import net.greghaines.jesque.worker.JobFactory;
 
-import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  Factory to instantiate workers for jobs,
@@ -28,18 +28,18 @@ public class JobSourceFactory implements JobFactory {
   }
 
   /**
-   Get entity id value from argument
+   Get entity id value of argument
 
    @param arg to parse
    @return id value
    @throws CoreException on failure
    */
-  private static BigInteger entityId(Object arg) throws CoreException {
-    BigInteger entityId = new BigInteger(String.valueOf(arg));
-    if (0 == entityId.compareTo(BigInteger.valueOf(0))) {
-      throw new CoreException("Job requires non-zero entity id");
+  private static UUID entityId(Object arg) throws CoreException {
+    try {
+      return UUID.fromString(String.valueOf(arg));
+    } catch (Exception e) {
+      throw new CoreException(String.format("Job has illegal entity id: %s", arg), e);
     }
-    return entityId;
   }
 
   /**
@@ -64,7 +64,7 @@ public class JobSourceFactory implements JobFactory {
    target is switched on job type
 
    @param workType type of job
-   @param vars     target arguments (the first one needs to be a BigInteger target entity id)
+   @param vars     target arguments (the first one needs to be a UUID target entity id)
    @return job runnable
    */
   private Runnable makeTarget(WorkType workType, Map<String, Object> vars) throws CoreException {

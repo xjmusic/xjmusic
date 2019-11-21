@@ -1,10 +1,10 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.transport;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.entity.Entity;
 import io.xj.core.util.Text;
 
 import java.util.Arrays;

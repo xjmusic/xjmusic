@@ -1,16 +1,21 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.chain;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.CoreTest;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.chain.sub.ChainBinding;
-import io.xj.core.model.library.Library;
+import io.xj.core.model.Account;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainBinding;
+import io.xj.core.model.ChainBindingType;
+import io.xj.core.model.Library;
+import io.xj.core.model.Program;
+import io.xj.core.model.ProgramMeme;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 import static io.xj.core.testing.Assert.assertSameItems;
 import static org.junit.Assert.assertEquals;
@@ -22,9 +27,9 @@ public class ChainBindingTest extends CoreTest {
   @Test
   public void validate() throws Exception {
     new ChainBinding()
-      .setChainId(BigInteger.valueOf(125434L))
-      .setTargetClass("Library")
-      .setTargetId(BigInteger.valueOf(2))
+      .setChainId(UUID.randomUUID())
+      .setTypeEnum(ChainBindingType.Library)
+      .setTargetId(UUID.randomUUID())
       .validate();
   }
 
@@ -34,19 +39,29 @@ public class ChainBindingTest extends CoreTest {
     failure.expectMessage("Chain ID is required");
 
     new ChainBinding()
-      .setTargetClass("Library")
-      .setTargetId(BigInteger.valueOf(2))
+      .setTypeEnum(ChainBindingType.Library)
+      .setTargetId(UUID.randomUUID())
       .validate();
+  }
+
+  @Test
+  public void validate_failsWithInvalidTargetClass() throws Exception {
+    failure.expect(CoreException.class);
+    failure.expectMessage("not a valid entity");
+
+    ProgramMeme target = ProgramMeme.create(Program.create(), "blue");
+
+    ChainBinding.create(Chain.create(), target);
   }
 
   @Test
   public void validate_failsWithoutTargetClass() throws Exception {
     failure.expect(CoreException.class);
-    failure.expectMessage("Chain-bound target class is required");
+    failure.expectMessage("Type is required");
 
     new ChainBinding()
-      .setChainId(BigInteger.valueOf(125434L))
-      .setTargetId(BigInteger.valueOf(2))
+      .setChainId(UUID.randomUUID())
+      .setTargetId(UUID.randomUUID())
       .validate();
   }
 
@@ -56,34 +71,34 @@ public class ChainBindingTest extends CoreTest {
     failure.expectMessage("Chain-bound target ID is required");
 
     new ChainBinding()
-      .setChainId(BigInteger.valueOf(125434L))
-      .setTargetClass("Library")
+      .setChainId(UUID.randomUUID())
+      .setTypeEnum(ChainBindingType.Library)
       .validate();
   }
 
   @Test
   public void setTarget() throws CoreException {
-    Library target = newLibrary(5, 12, "Bananas", now());
+    Library target = Library.create(Account.create(), "Bananas", now());
 
     ChainBinding subject = new ChainBinding().setTarget(target);
 
-    assertEquals("Library", subject.getTargetClass());
-    assertEquals(BigInteger.valueOf(5), subject.getTargetId());
+    assertEquals(ChainBindingType.Library, subject.getType());
+    assertEquals(target.getId(), subject.getTargetId());
   }
 
   @Test
   public void fromEntity() throws CoreException {
-    Library target = newLibrary(5, 12, "Bananas", now());
+    Library target = Library.create(Account.create(), "Bananas", now());
 
-    ChainBinding subject = ChainBinding.from(target);
+    ChainBinding subject = ChainBinding.create(Chain.create(), target);
 
-    assertEquals("Library", subject.getTargetClass());
-    assertEquals(BigInteger.valueOf(5), subject.getTargetId());
+    assertEquals(ChainBindingType.Library, subject.getType());
+    assertEquals(target.getId(), subject.getTargetId());
   }
 
   @Test
   public void getPayloadAttributeNames() {
-    assertSameItems(ImmutableList.of("targetClass", "targetId"), new ChainBinding().getResourceAttributeNames());
+    assertSameItems(ImmutableList.of("type", "targetId"), new ChainBinding().getResourceAttributeNames());
   }
 
 }

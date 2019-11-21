@@ -1,4 +1,4 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.isometry;
 
 import com.google.common.collect.Lists;
@@ -29,9 +29,9 @@ public class Isometry {
   }
 
   /**
-   Instantiate a new Isometry from a group of source strings which will be stemmed
+   Instantiate a new Isometry of a group of source strings which will be stemmed
 
-   @param sources to compare from
+   @param sources to compare of
    @return Isometry ready for comparison to targets
    */
   public static Isometry ofStemmed(Iterable<String> sources) {
@@ -41,9 +41,9 @@ public class Isometry {
   }
 
   /**
-   Instantiate a new Isometry from a group of source strings which will be phentically reduced
+   Instantiate a new Isometry of a group of source strings which will be phentically reduced
 
-   @param sources to compare from
+   @param sources to compare of
    @return Isometry ready for comparison to targets
    */
   public static Isometry ofPhonetic(Iterable<String> sources) {

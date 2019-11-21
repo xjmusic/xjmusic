@@ -1,17 +1,17 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.ingest.cache.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.cache.CacheKey;
 import io.xj.core.exception.CoreException;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.ingest.IngestFactory;
 import io.xj.core.ingest.cache.IngestCacheProvider;
-import io.xj.core.model.chain.sub.ChainBinding;
+import io.xj.core.model.ChainBinding;
 
 import java.util.Collection;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class IngestCacheProviderImpl implements IngestCacheProvider {
   }
 
   /**
-   Prune expired entries from cache
+   Prune expired entries of cache
    */
   private void prune() {
     Collection<String> keysToRemove = Lists.newArrayList();

@@ -1,24 +1,24 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.app;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.xj.core.CoreModule;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.dao.DAO;
+import io.xj.core.entity.Entity;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Entity;
-import io.xj.core.model.payload.Payload;
+import io.xj.core.payload.Payload;
 import io.xj.core.transport.GsonProvider;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.work.WorkManager;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class ApiResource {
@@ -60,15 +60,15 @@ public class ApiResource {
    Create one Entity via a DAO given a JSON:API payload request
 
    @param crc     request context
-   @param dao     via which to create Entity
-   @param payload of data to create Entity
+   @param dao     via which to of Entity
+   @param payload of data to of Entity
    @param <N>     type of Entity
    @return HTTP response comprising JSON:API payload
    */
   public <N extends Entity> Response create(ContainerRequestContext crc, DAO<N> dao, Payload payload) {
     try {
       Access access = Access.fromContext(crc);
-      N createdEntity = dao.create(access, dao.newInstance().consume(payload));
+      N createdEntity = dao.create(access, (N) dao.newInstance().consume(payload));
 
       Payload responseData = new Payload();
       responseData.setDataOne(createdEntity.toPayloadObject());
@@ -80,23 +80,23 @@ public class ApiResource {
   }
 
   /**
-   Read one Entity from a DAO and return the JSON:API payload response
+   Read one Entity of a DAO and return the JSON:API payload response
 
    @param crc request context
-   @param dao from which to read one Entity
+   @param dao of which to read one Entity
    @param id  of Entity to read
    @param <N> type of Entity
    @return HTTP response comprising JSON:API payload
    */
   public <N extends Entity> Response readOne(ContainerRequestContext crc, DAO<N> dao, String id) {
     try {
-      Entity entity = dao.readOne(Access.fromContext(crc), new BigInteger(id));
+      Entity entity = dao.readOne(Access.fromContext(crc), UUID.fromString(id));
       Payload payload = new Payload();
       payload.setDataEntity(entity);
       return response.ok(payload);
 
     } catch (CoreException ignored) {
-      return response.notFound(dao.newInstance().setId(new BigInteger(id)));
+      return response.notFound(dao.newInstance().setId(UUID.fromString(id)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -104,19 +104,19 @@ public class ApiResource {
   }
 
   /**
-   Read many Entity from a DAO and return the JSON:API payload response
+   Read many Entity of a DAO and return the JSON:API payload response
 
    @param crc       request context
-   @param dao       from which to read many Entity
+   @param dao       of which to read many Entity
    @param parentIds of Entity to read
    @param <N>       type of Entity
    @return HTTP response comprising JSON:API payload
    */
   public <N extends Entity> Response readMany(ContainerRequestContext crc, DAO<N> dao, Collection<String> parentIds) {
     try {
-      Collection<N> entities = dao.readMany(Access.fromContext(crc), parentIds.stream().map(BigInteger::new).collect(Collectors.toList()));
+      Collection<N> entities = dao.readMany(Access.fromContext(crc), parentIds.stream().map(UUID::fromString).collect(Collectors.toList()));
       Payload payload = new Payload();
-      payload.setDataEntities(entities, false);
+      payload.setDataEntities(entities);
       return response.ok(payload);
 
     } catch (Exception e) {
@@ -125,10 +125,10 @@ public class ApiResource {
   }
 
   /**
-   Read many Entity from a DAO and return the JSON:API payload response
+   Read many Entity of a DAO and return the JSON:API payload response
 
    @param crc      request context
-   @param dao      from which to read many Entity
+   @param dao      of which to read many Entity
    @param parentId of Entity to read
    @param <N>      type of Entity
    @return HTTP response comprising JSON:API payload
@@ -153,9 +153,9 @@ public class ApiResource {
   public <N extends Entity> Response update(ContainerRequestContext crc, DAO<N> dao, String id, Payload payload) {
     try {
       Access access = Access.fromContext(crc);
-      N current = dao.readOne(access, new BigInteger(id));
+      N current = dao.readOne(access, UUID.fromString(id));
       current.consume(payload);
-      dao.update(access, new BigInteger(id), current);
+      dao.update(access, UUID.fromString(id), current);
       return response.ok(new Payload().setDataEntity(current));
 
     } catch (Exception e) {
@@ -174,7 +174,7 @@ public class ApiResource {
    */
   public <N extends Entity> Response delete(ContainerRequestContext crc, DAO<N> dao, String id) {
     try {
-      dao.destroy(Access.fromContext(crc), new BigInteger(id));
+      dao.destroy(Access.fromContext(crc), UUID.fromString(id));
       return response.noContent();
 
     } catch (Exception e) {

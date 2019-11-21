@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../common/functions
+
+# Connect as root
+SQL_USER="root"
+SQL_PORT=5400
+
+# User ID is first parameter
+USER_ID="${1}"
+if [[ -z "${USER_ID}" ]]; then
+  USER_ID=1;
+fi
+
+# Update user auth
+SQL_EXECUTE="update xj.user_auth set user_id=${USER_ID};"
+
+# Database
+SQL_DB="xj"
+
+# TODO get this working with Postgres
+
+# connect to ${HOST}
+step "Will update all user_auth records to user_id=${USER_ID}"
+psql -u ${SQL_USER} -h 127.0.0.1 -p ${SQL_PORT} -e "${SQL_EXECUTE}"
+step_ok
+
+#
+finished_ok

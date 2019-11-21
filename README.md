@@ -1,6 +1,6 @@
 # XJ Music™
 
-Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 **Composite Music Fabrication Platform**
 
@@ -61,7 +61,7 @@ Setup workflow, build and package Java server-side application and build Web fro
 
 The preceding command will also create a blank environment variables file called **.env** which is never checked in to version control or released with the distribution. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables. Because the application only has **one single common bootstrap** (located at bin/common/bootstrap) the use of environment variables is federated across development and production deployments, while all actual configurations are kept outside the scope of the code.
 
-We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development with uncanny parity to production. Once your **.env** file is configured, it's time to bring up the `hub01xj1` server and its supporting resources such as `mysql01xj1` and `redis01xj1`:
+We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development with uncanny parity to production. Once your **.env** file is configured, it's time to bring up the `hub01xj1` server and its supporting resources such as `postgres01xj1` and `redis01xj1`:
 
     docker-compose up -d
 
@@ -92,7 +92,7 @@ For a complete rebuild, including configurations and front-end, we could run:
 
     docker compose up -d --build
 
-The data on `mysql01xj1` and `redis01xj1` persists until those containers are explicitly destroyed.
+The data on `postgres01xj1` and `redis01xj1` persists until those containers are explicitly destroyed.
 
 Tail the docker container logs for the `hub` app while it's running (/var/log in the container is mounted from local volume ./log):
 
@@ -102,47 +102,49 @@ Or tail container logs for the `worker` app:
 
     tail -f log/worker/*
 
-After logging in via Google, there will be a user created for you. It will have an `id`, for example 21. To grant the `admin` user role, you'll connect directly to the database on `mysql01xj1` using the port forwarding from local port 3300 (to Docker Mysql container port 3306):
+You'll need to install the Postgresql client `psql` version 12, e.g. `postgresql-client-12` (ubuntu linux)
 
-    mysql -uroot -P 3300 xj
+After logging in via Google, there will be a user created for you. It will have an `id`, for example 21. To grant the `admin` user role, you'll connect directly to the database on `postgres01xj1` using the port forwarding from local port 5400 (to Docker Postgres container port 5432):
 
-Even better than ^^^, there's a convenience script to easily connect to the MySQL database in the Docker container.
+    psql -h localhost -p 5400 -u root
 
-    bin/mysql/connect
+Even better than ^^^, there's a convenience script to easily connect to the Postgres database in the Docker container.
 
-And inside mysql shell, for example to impersonate user #1 (after being auto-logged-in as new user #21):
+    bin/sql/connect
+
+And inside psql shell, for example to impersonate user #1 (after being auto-logged-in as new user #21):
 
     use xj;
     update user_auth set user_id=1 where user_id=21;
     
 There's a convenience script to instantly perform the above operation:
 
-    bin/mysql/user_auth
+    bin/sql/user_auth
 
 Only between major platform configuration changes (e.g. to **.nginx/locations.conf**), it may be necessary to force Docker to rebuild the container using `--build`:
 
     docker-compose up -d --build    
 
-There is a MySQL dump of a complete example database, for quickly bootstrapping a dev environment. These files are located in `/.mysql/dump/*`:
+There is a Postgresql dump of a complete example database, for quickly bootstrapping a dev environment. These files are located in `/.sqldump/*`:
 
-Load the example database into `mysql01xj1` using the port forwarding from local port 3300 (to Docker Mysql container port 3306). There's a convenience script to do this:
+Load the example database into `postgres01xj1` using the port forwarding from local port 5400 (to Docker Postgres container port 5432). There's a convenience script to do this:
 
-    bin/mysql/reset/all_local
+    bin/sql/reset/all_local
 
-The `/.mysql/dump/*` files can be quickly updated from the current dev database with this script:
+The `/.sqldump/*` files can be quickly updated from the current dev database with this script:
 
-    bin/mysql/dump/all_local
+    bin/sql/dump/all_local
 
-It is NOT necessary to have any local MySQL server running. The build process will use your Docker `mysql01xj1`, or more specifically (for cross-platform compatibility) it will use port 3300 which Docker maps to `mysql01xj1` port 3306, for Maven to use during the build process.
+It is NOT necessary to have any local Postgres server running. The build process will use your Docker `postgres01xj1`, or more specifically (for cross-platform compatibility) it will use port 5400 which Docker maps to `postgres01xj1` port 5432, for Maven to use during the build process.
 
-Connect to the Docker `mysql01xj1` server:
+Connect to the Docker `postgres01xj1` server:
 
-    bin/mysql/connect
+    bin/sql/connect
 
-You will need to create two databases in your local MySQL server, `xj` and `xj_test`:
+You will need to create two databases in your local Postgres server, `xj_dev` and `xj_test`:
 
-    create database xj;
-    create database xj_test;
+    of database xj_dev;
+    of database xj_test;
 
 *note that the latest codebase may run migrations on top of that ^^^, and of course it had better pass checksum ;)*
 
@@ -178,7 +180,7 @@ To list all Java system properties:
 
     bin/properties
 
-The default java properties are in the file **/.config/.env.default** which is copied to a new file **/.env** on project setup. Developers modify their local .env file with private keys and configuration. The .env file is never committed to the repository. The **.config/.env.default** file is kept up-to-date with all environment variables expected by **bin/common/bootstrap**.
+The default java properties are in the file **.config/.env.default** which is copied to a new file **/.env** on project setup. Developers modify their local .env file with private keys and configuration. The .env file is never committed to the repository. The **.config/.env.default** file is kept up-to-date with all environment variables expected by **bin/common/bootstrap**.
 
 Also note, ***by design 100% of platform Java system properties are read via Config`***
 
@@ -249,11 +251,11 @@ Compile & Package the Java server-side application, e.g. as JAR files:
 
 
 
-## MySQL database
+## Postgres database
 
-By default, you'll need to create two MySQL databases:
+By default, you'll need to create two Postgres databases:
 
-  * `xj` (for running services)
+  * `xj_dev` (for running services)
   * `xj_test` (for build processes, and running integration tests)
 
 
@@ -276,7 +278,7 @@ We use `maven-failsafe` to kick off integration tests. There's a helper script:
 
 Also, the integration test suite is run by default during a `bin/package` or `bin/release` and will block the build if integration tests fail.
 
-Integration uses the Docker `mysql01xj1` and `redis01xj1` databases.
+Integration uses the Docker `postgres01xj1` and `redis01xj1` databases.
 
 
 
@@ -387,7 +389,7 @@ It is helpful to be able to compile and run Java components against the Docker c
     -Dapp.url.api=
     -Dauth.google.id=<dev google oauth client id>
     -Dauth.google.secret=<dev google oauth client secret>
-    -Ddb.mysql.host=mysql01xj1
+    -Ddb.postgresql.host=postgres01xj1
     -Ddb.redis.host=redis01xj1
 
 Also remember, it is necessary to send an authentication cookie in the header of API requests:
@@ -412,7 +414,7 @@ Here are the public-facing Amazon CloudFront-backed URLs for audio files, and th
 
 # Amazon S3
 
-The `/.mysql/dump/*` files are generated from data in the production environment, and refer to audio files located in the dev S3 bucket (synced from the production S3 bucket), xj-dev-audio.
+The `/.sqldump/*` files are generated from data in the production environment, and refer to audio files located in the dev S3 bucket (synced from the production S3 bucket), xj-dev-audio.
 
 Therefore, it is helpful to be able to sync the audio files from production into the dev environment.
 
@@ -631,7 +633,7 @@ Ops engineers may prefer to use the [The Elastic Beanstalk Command Line Interfac
 
 # Musical debugging
 
-This MySQL query confirms that all segments begin where the preceding one ended:
+This sql query confirms that all segments begin where the preceding one ended:
 
 ```
 SELECT
@@ -642,7 +644,7 @@ SELECT
   JOIN segment B ON B.offset = A.offset+1; 
 ```
 
-This MySQL query will reveal if any of the segment lengths are wildly off, given their relative lengths and totals:
+This sql query will reveal if any of the segment lengths are wildly off, given their relative lengths and totals:
 
 ```
 SELECT
@@ -669,22 +671,6 @@ Here's the official XJ Music Inc copyright Velocity template:
 
 
 
-## GNU/Linux
-
-
-
-### MySQL run as non-root user
-
-It's necessary to recreate the MySQL root user with access to localhost.
-
-Get a MySQL shell with `sudo mysql -u root` and then run all of the following:
-
-    DROP USER 'root'@'localhost';
-    CREATE USER 'root'@'%' IDENTIFIED BY '';
-    GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';
-
-
-
 ### Docker run as non-root user
 
  - Add the docker group if it doesn't already exist:
@@ -704,7 +690,7 @@ Get a MySQL shell with `sudo mysql -u root` and then run all of the following:
 On OSX, because we are unable to connect to the container from the host, we are using the following workarounds, which are built in to the cross-platform workflow:
 
   * Local port 80 (e.g. http://localhost) is mapped to Docker container `hub01xj1` port 80
-  * Local port 3300 is mapped to MySQL container `mysql01xj1` port 3306
+  * Local port 5400 is mapped to Postgres container `postgres01xj1` port 5432
 
 Docker documentation: https://docs.docker.com/docker-for-mac/networking/#per-container-ip-addressing-is-not-possible
 GitHub Open Issue: https://github.com/docker/for-mac/issues/155

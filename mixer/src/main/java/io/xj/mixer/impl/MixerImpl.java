@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer.impl;
 
 import com.google.common.collect.Maps;
@@ -70,7 +70,7 @@ public class MixerImpl implements Mixer {
    Instantiate a single Mix instance
 
    @param mixerConfig  configuration of mixer
-   @param mixerFactory factory to create new mixer
+   @param mixerFactory factory to of new mixer
    @throws MixerException on failure
    */
   @Inject

@@ -1,14 +1,14 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.segment;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.segment.sub.SegmentMessage;
+import io.xj.core.model.SegmentMessage;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 import static io.xj.core.testing.Assert.assertSameItems;
 import static org.junit.Assert.assertEquals;
@@ -22,7 +22,7 @@ public class SegmentMessageTest {
   public void validate() throws Exception {
     new SegmentMessage()
       .setType("Warning")
-      .setSegmentId(BigInteger.valueOf(2L))
+      .setSegmentId(UUID.randomUUID())
       .setBody("This is a warning")
       .validate();
   }
@@ -44,7 +44,7 @@ public class SegmentMessageTest {
     failure.expectMessage("Type is required");
 
     new SegmentMessage()
-      .setSegmentId(BigInteger.valueOf(2L))
+      .setSegmentId(UUID.randomUUID())
       .setBody("This is a warning")
       .validate();
   }
@@ -56,7 +56,7 @@ public class SegmentMessageTest {
 
     new SegmentMessage()
       .setType("sneeze")
-      .setSegmentId(BigInteger.valueOf(2L))
+      .setSegmentId(UUID.randomUUID())
       .setBody("This is a warning")
       .validate();
   }
@@ -68,7 +68,7 @@ public class SegmentMessageTest {
 
     new SegmentMessage()
       .setType("Warning")
-      .setSegmentId(BigInteger.valueOf(2L))
+      .setSegmentId(UUID.randomUUID())
       .validate();
   }
 

@@ -1,29 +1,29 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job.impl;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.config.Config;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.segment.Segment;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainState;
+import io.xj.core.model.Segment;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.exception.CraftException;
 import io.xj.worker.job.ChainFabricateJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 public class ChainFabricateJobImpl implements ChainFabricateJob {
   private static final Logger log = LoggerFactory.getLogger(ChainFabricateJobImpl.class);
-  private final BigInteger entityId;
+  private final UUID entityId;
   private final ChainDAO chainDAO;
   private final SegmentDAO segmentDAO;
   private final WorkManager workManager;
@@ -31,7 +31,7 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
 
   @Inject
   public ChainFabricateJobImpl(
-    @Assisted("entityId") BigInteger entityId,
+    @Assisted("entityId") UUID entityId,
     ChainDAO chainDAO,
     SegmentDAO segmentDAO,
     WorkManager workManager
@@ -85,7 +85,7 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
   /**
    Create Segment, and jobs to craft & dub it
 
-   @param segmentToCreate to create
+   @param segmentToCreate to of
    @throws CoreException on failure
    */
   private void createSegmentAndJobs(Segment segmentToCreate) throws Exception {
@@ -101,7 +101,7 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
    */
   private void cancelFabrication() {
     workManager.stopChainFabrication(entityId);
-    log.info("Canceled fabrication of Chain #{}", entityId);
+    log.info("Canceled fabrication create Chain #{}", entityId);
   }
 
 }

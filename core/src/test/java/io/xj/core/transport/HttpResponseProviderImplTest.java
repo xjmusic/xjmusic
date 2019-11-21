@@ -1,16 +1,16 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.core.transport;
 
 import io.xj.core.CoreTest;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.account.Account;
+import io.xj.core.model.Account;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
-import java.math.BigInteger;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -48,7 +48,7 @@ public class HttpResponseProviderImplTest extends CoreTest {
 
   @Test
   public void notFound() {
-    Response result = subject.notFound(new Account().setId(BigInteger.valueOf(27)));
+    Response result = subject.notFound(new Account().setId(UUID.randomUUID()));
 
     assertEquals(404, result.getStatus());
   }

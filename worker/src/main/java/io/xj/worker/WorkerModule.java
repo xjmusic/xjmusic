@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker;
 
 import com.google.inject.AbstractModule;
@@ -13,20 +13,11 @@ import net.greghaines.jesque.worker.JobFactory;
 
 public class WorkerModule extends AbstractModule {
   protected void configure() {
-    bindWorker();
-    installJobTargetFactory();
-  }
-
-  private void bindWorker() {
     bind(JobFactory.class).to(JobSourceFactory.class);
-  }
-
-  private void installJobTargetFactory() {
     install(new FactoryModuleBuilder()
       .implement(ChainEraseJob.class, ChainEraseJobImpl.class)
       .implement(ChainFabricateJob.class, ChainFabricateJobImpl.class)
       .implement(SegmentFabricateJob.class, SegmentFabricateJobImpl.class)
       .build(JobTargetFactory.class));
   }
-
 }

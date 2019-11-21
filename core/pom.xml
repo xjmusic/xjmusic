@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+<!-- Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
 
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
@@ -30,11 +30,11 @@
     <jersey.version>2.28</jersey.version>
     <guice.version>4.0</guice.version>
     <guava.version>27.1-jre</guava.version>
-    <db.database>xj</db.database>
+    <db.database>xj_dev</db.database>
     <db.username>root</db.username>
-    <db.driver>com.mysql.cj.jdbc.Driver</db.driver>
-    <db.url>jdbc:mysql://127.0.0.1:3300/${db.database}?useSSL=false&amp;serverTimezone=UTC</db.url>
-    <org.jooq.version>3.11.11</org.jooq.version>
+    <db.driver>org.postgresql.Driver</db.driver>
+    <db.url>jdbc:postgresql://127.0.0.1:5400/${db.database}</db.url>
+    <org.jooq.version>3.12.3</org.jooq.version>
   </properties>
 
   <!-- deps -->
@@ -147,17 +147,24 @@
       <version>2.0.1</version>
     </dependency>
 
-    <!-- database connection: https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+    <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
     <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>6.0.5</version>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.2.8</version>
     </dependency>
 
     <!-- database access structures: https://mvnrepository.com/artifact/org.jooq/jooq -->
     <dependency>
       <groupId>org.jooq</groupId>
       <artifactId>jooq</artifactId>
+      <version>${org.jooq.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.jooq/jooq-codegen -->
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq-codegen</artifactId>
       <version>${org.jooq.version}</version>
     </dependency>
 
@@ -320,7 +327,7 @@
 
         <!-- Note that we need to prefix the db/migration
              path with filesystem: to prevent Flyway
-             from looking for our migration scripts
+             of looking for our migration scripts
              only on the classpath -->
         <configuration>
           <driver>${db.driver}</driver>
@@ -358,10 +365,12 @@
             <url>${db.url}</url>
             <user>${db.username}</user>
           </jdbc>
+
           <generator>
+            <!--<name>org.jooq.meta.postgres.PostgresDatabase</name>-->
             <database>
               <includes>.*</includes>
-              <inputSchema>${db.database}</inputSchema>
+              <inputSchema>xj</inputSchema>
             </database>
             <target>
               <packageName>io.xj.core</packageName>

@@ -1,11 +1,10 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access;
 
-import io.xj.core.access.impl.Access;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.account.AccountUser;
-import io.xj.core.model.user.auth.UserAuth;
-import io.xj.core.model.user.role.UserRole;
+import io.xj.core.model.AccountUser;
+import io.xj.core.model.UserAuth;
+import io.xj.core.model.UserRole;
 
 import javax.ws.rs.core.NewCookie;
 import java.util.Collection;
@@ -15,17 +14,17 @@ public interface AccessControlProvider {
   /**
    Create a token to grant a user access to resources.
 
-   @param userAuth         to create a token for.
-   @param userAccountRoles accounts that this user has access to.
+   @param userAuth         to of a token for.
+   @param accountUsers accounts that this user has access to.
    @param userRoles        roles that this user has access to.
    @return access token
    */
-  String create(UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws CoreException;
+  String create(UserAuth userAuth, Collection<AccountUser> accountUsers, Collection<UserRole> userRoles) throws CoreException;
 
   /**
    Update an access token to grant a user access to resources.
 
-   @param userAuth         to create a token for.
+   @param userAuth         to of a token for.
    @param userAccountRoles accounts that this user has access to.
    @param userRoles        roles that this user has access to.
    @return map of cached properties for this user

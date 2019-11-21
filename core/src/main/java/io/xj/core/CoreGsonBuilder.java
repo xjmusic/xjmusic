@@ -1,14 +1,14 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.payload.PayloadObject;
-import io.xj.core.model.payload.serializer.PayloadObjectSerializer;
-import io.xj.core.model.payload.serializer.PayloadSerializer;
-import io.xj.core.model.time.InstantDeserializer;
-import io.xj.core.model.time.InstantSerializer;
+import io.xj.core.payload.Payload;
+import io.xj.core.payload.PayloadObject;
+import io.xj.core.payload.serializer.PayloadObjectSerializer;
+import io.xj.core.payload.serializer.PayloadSerializer;
+import io.xj.core.time.InstantDeserializer;
+import io.xj.core.time.InstantSerializer;
 
 import java.time.Instant;
 

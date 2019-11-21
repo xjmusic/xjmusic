@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.cache.audio.impl;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -80,7 +80,7 @@ public class AudioCacheProviderImpl implements AudioCacheProvider {
   }
 
   /**
-   item has been evicted from cache
+   item has been evicted of cache
 
    @param key   of item to remove
    @param item  to remove

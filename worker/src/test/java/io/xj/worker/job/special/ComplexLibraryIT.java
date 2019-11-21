@@ -1,4 +1,4 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job.special;
 
 import com.google.common.collect.ImmutableList;
@@ -7,40 +7,35 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.FixtureIT;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.app.App;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.external.amazon.AmazonProvider;
-import io.xj.core.fabricator.impl.FabricatorImpl;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.segment.Segment;
-import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.work.Work;
-import io.xj.core.model.work.WorkType;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainBinding;
+import io.xj.core.model.ChainState;
+import io.xj.core.model.ChainType;
+import io.xj.core.model.Segment;
+import io.xj.core.model.SegmentState;
+import io.xj.core.model.Work;
+import io.xj.core.model.WorkType;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
-import io.xj.worker.job.impl.SegmentFabricateJobImpl;
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -54,8 +49,7 @@ public class ComplexLibraryIT extends FixtureIT {
   private static final int MILLIS_PER_SECOND = 1000;
   private static final int MARATHON_NUMBER_OF_SEGMENTS = 7;
   private static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+
   long startTime = System.currentTimeMillis();
   @Mock
   AmazonProvider amazonProvider;
@@ -76,7 +70,8 @@ public class ComplexLibraryIT extends FixtureIT {
     insertGeneratedFixture(3);
 
     // Chain "Test Print #1" is ready to begin
-    insert(newChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(1000), null, null, now(), newChainBinding(library1)));
+    chain1 = insert(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(1000), null, null));
+    insert(ChainBinding.create(chain1, library1));
 
     // Config
     System.setProperty("app.port", "9043");
@@ -103,27 +98,27 @@ public class ComplexLibraryIT extends FixtureIT {
 
   @Test
   public void fabricatesManySegments() throws Exception {
-    when(amazonProvider.generateKey("chains-1-segments", "ogg"))
+    when(amazonProvider.generateKey(String.format("chains-%s-segments", chain1.getId()), "ogg"))
       .thenReturn("chains-1-segments-12345.ogg");
     when(amazonProvider.streamS3Object(any(), any()))
       .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(resourceFile("source_audio/kick1.wav")));
-    app.getWorkManager().startChainFabrication(BigInteger.valueOf(1));
+    app.getWorkManager().startChainFabrication(chain1.getId());
     assertTrue(hasRemainingWork(WorkType.ChainFabricate));
 
     // Start app, wait for work, stop app
     app.start();
     int assertShippedSegmentsMinimum = MARATHON_NUMBER_OF_SEGMENTS;
-    while (!hasChainAtLeastSegments(BigInteger.valueOf(1), assertShippedSegmentsMinimum) && isWithinTimeLimit()) {
+    while (!hasChainAtLeastSegments(chain1.getId(), assertShippedSegmentsMinimum) && isWithinTimeLimit()) {
       Thread.sleep(MILLIS_PER_SECOND);
     }
-    app.getWorkManager().stopChainFabrication(BigInteger.valueOf(1));
+    app.getWorkManager().stopChainFabrication(chain1.getId());
     app.stop();
 
     // assertions
     verify(amazonProvider, atLeast(assertShippedSegmentsMinimum))
       .putS3Object(eq("/tmp/chains-1-segments-12345.ogg"), eq("xj-segment-test"), any());
     Collection<Segment> result = injector.getInstance(SegmentDAO.class)
-      .readMany(Access.internal(), ImmutableList.of(BigInteger.valueOf(1)));
+      .readMany(Access.internal(), ImmutableList.of(chain1.getId()));
     assertTrue(assertShippedSegmentsMinimum <= result.size());
   }
 
@@ -156,7 +151,7 @@ public class ComplexLibraryIT extends FixtureIT {
    @return true if has at least N segments
    @throws Exception on failure
    */
-  private boolean hasChainAtLeastSegments(BigInteger chainId, int threshold) throws Exception {
+  private boolean hasChainAtLeastSegments(UUID chainId, int threshold) throws Exception {
     Collection<Segment> result = injector.getInstance(SegmentDAO.class).readAllInState(Access.internal(), chainId, SegmentState.Dubbed);
     return result.size() >= threshold;
   }

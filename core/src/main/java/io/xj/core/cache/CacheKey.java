@@ -1,10 +1,10 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.cache;
 
 import com.google.common.collect.Lists;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.ResourceEntity;
+import io.xj.core.entity.Entity;
 import io.xj.core.util.Text;
 
 import java.util.Collection;
@@ -29,7 +29,7 @@ public interface CacheKey {
    @param entities to get signature of
    @return signature
    */
-  static <N extends ResourceEntity> String of(Access access, Collection<N> entities) {
+  static <N extends Entity> String of(Access access, Collection<N> entities) {
     return String.format("%s%s%s", of(access), SIGNATURE_DELIMITER_CHARLIE, of(entities));
   }
 
@@ -62,7 +62,7 @@ public interface CacheKey {
    @param entities to get unique signature of
    @return signature
    */
-  static <N extends ResourceEntity> String of(Collection<N> entities) {
+  static <N extends Entity> String of(Collection<N> entities) {
     List<String> pieces = entities.stream().map(entity -> String.format("%s%s%s",
       Text.getSimpleName(entity), SIGNATURE_DELIMITER_ALPHA, entity.getResourceId())).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
     return String.join(SIGNATURE_DELIMITER_BRAVO, pieces);

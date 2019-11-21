@@ -1,29 +1,19 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.persistence.sql;
 
 import io.xj.core.exception.CoreException;
-import io.xj.core.exception.CoreException;
-import io.xj.core.persistence.sql.impl.SQLConnection;
+
+import javax.sql.ConnectionPoolDataSource;
+import java.sql.Connection;
 
 public interface SQLDatabaseProvider {
   /**
-   Get a SQL Database connection, in a transaction.
-   IMPORTANT NOTE: When finished, be sure to call success() or failure()
+   Get a SQL Database connection
 
    @return Connection to SQL Database
    @throws CoreException if the application is not configured correctly
    */
-  SQLConnection getConnection() throws CoreException;
-
-  /**
-   Get a SQL Database connection, potentially in a transaction.
-   IMPORTANT NOTE: When finished, be sure to call success() or failure()
-
-   @param isTransaction if it's a transaction
-   @return Connection to SQL Database
-   @throws CoreException if the application is not configured correctly
-   */
-  SQLConnection getConnection(Boolean isTransaction) throws CoreException;
+  Connection getConnection() throws CoreException;
 
   /**
    Get the SQL Database URL

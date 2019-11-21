@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import {SegmentAudio} from "segment-audio";
 import {API} from "api";
 import {DOM} from 'dom';
@@ -210,7 +210,7 @@ export class Player {
       return;
     }
 
-    // create empty buffer and play it
+    // of empty buffer and play it
     let buffer = self.audioContext.createBuffer(1, 1, 22050);
     let source = self.audioContext.createBufferSource();
     source.buffer = buffer;

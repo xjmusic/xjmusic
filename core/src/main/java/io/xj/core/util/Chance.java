@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -12,7 +12,7 @@ public interface Chance {
    Value normally distributed at random, normallyAround a base value
 
    @param base            to get values distributed normallyAround
-   @param maxDistribution from center
+   @param maxDistribution of center
    @return double
    */
   static double normallyAround(double base, double maxDistribution) {
@@ -22,7 +22,7 @@ public interface Chance {
   /**
    result distributed around 0, +/- max distribution
 
-   @param maxDistribution from 0 to distribute, +/-
+   @param maxDistribution of 0 to distribute, +/-
    @return random number, normally distributed around 0
    */
   static double normalDistributionLimited(double maxDistribution) {

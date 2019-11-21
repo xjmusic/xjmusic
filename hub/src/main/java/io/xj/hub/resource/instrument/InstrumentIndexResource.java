@@ -1,13 +1,13 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.instrument;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.dao.InstrumentDAO;
-import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.payload.MediaType;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.user.role.UserRoleType;
+import io.xj.core.model.Instrument;
+import io.xj.core.model.UserRoleType;
+import io.xj.core.payload.MediaType;
+import io.xj.core.payload.Payload;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
@@ -19,8 +19,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.math.BigInteger;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  Instruments
@@ -58,7 +58,7 @@ public class InstrumentIndexResource extends HubResource {
     try {
       return response.ok(
         new Payload().setDataEntities(
-          dao().readAllInAccount(access, new BigInteger(accountId)), false));
+          dao().readAllInAccount(access, UUID.fromString(accountId))));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -69,7 +69,7 @@ public class InstrumentIndexResource extends HubResource {
     try {
       return response.ok(
         new Payload().setDataEntities(
-          dao().readMany(access, ImmutableList.of(new BigInteger(libraryId))), false));
+          dao().readMany(access, ImmutableList.of(UUID.fromString(libraryId)))));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -80,7 +80,7 @@ public class InstrumentIndexResource extends HubResource {
     try {
       return response.ok(
         new Payload().setDataEntities(
-          dao().readAll(access), false));
+          dao().readAll(access)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -104,7 +104,7 @@ public class InstrumentIndexResource extends HubResource {
       if (Objects.nonNull(cloneId))
         created = dao().clone(
           Access.fromContext(crc),
-          new BigInteger(cloneId),
+          UUID.fromString(cloneId),
           instrument);
       else
         created = dao().create(
@@ -119,7 +119,7 @@ public class InstrumentIndexResource extends HubResource {
   }
 
   /**
-   Get DAO from injector
+   Get DAO of injector
 
    @return DAO
    */

@@ -1,50 +1,38 @@
-//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.hub.resource.chain;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.CoreTest;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.account.Account;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.chain.ChainConfigType;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.chain.sub.ChainBinding;
-import io.xj.core.model.chain.sub.ChainConfig;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.payload.PayloadObject;
+import io.xj.core.model.Account;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainState;
+import io.xj.core.model.ChainType;
 import io.xj.craft.CraftModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.time.Instant;
-import java.util.UUID;
 
-import static io.xj.core.access.impl.Access.CONTEXT_KEY;
+import static io.xj.core.access.Access.CONTEXT_KEY;
 import static io.xj.core.testing.AssertPayload.assertPayload;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -76,10 +64,33 @@ public class ChainOneResourceTest extends CoreTest {
   @Test
   public void readOne() throws CoreException, IOException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
-    Chain chain17 = newChain(17, 25, "Test Print #1", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print", Instant.parse("2014-08-12T12:17:02.527142Z"));
-    ChainConfig config1 = chain17.add(newChainConfig(ChainConfigType.OutputContainer, "AAC"));
-    ChainConfig config2 = chain17.add(newChainConfig(ChainConfigType.OutputChannels, "4"));
-    ChainBinding binding1 = chain17.add(newChainBinding("Library", 5));
+    Account account25 = Account.create();
+    Chain chain17 = Chain.create(account25, "Test Print #1", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print");
+    when(chainDAO.readOne(same(access), eq(chain17.getId()))).thenReturn(chain17);
+    subject.id = chain17.getId().toString();
+
+    Response result = subject.readOne(crc);
+
+    assertEquals(200, result.getStatus());
+    assertTrue(result.hasEntity());
+    assertPayload(deserializePayload(result.getEntity()))
+      .hasDataOne("chains", chain17.getId().toString());
+  }
+
+
+  /*
+
+  FUTURE: implement these tests with ?include=entity,entity type parameter
+
+
+
+  @Test
+  public void readOne() throws CoreException, IOException {
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+    Chain chain17 = Chain.create(25, "Test Print #1", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print");
+    ChainConfig config1 = chain17.add(ChainConfig.create(Chain.create(), ChainConfigType.OutputContainer, "AAC"));
+    ChainConfig config2 = chain17.add(ChainConfig.create(Chain.create(), ChainConfigType.OutputChannels, "4"));
+    ChainBinding binding1 = chain17.add(ChainBinding.create("Library", 5));
     when(chainDAO.readOne(same(access), eq(BigInteger.valueOf(17)))).thenReturn(chain17);
     subject.id = "17";
 
@@ -97,8 +108,8 @@ public class ChainOneResourceTest extends CoreTest {
   public void update() throws CoreException, IOException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     when(chainDAO.readOne(same(access), eq(BigInteger.valueOf(17))))
-      .thenReturn(newChain(17, 25, "Test Print #1", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print", Instant.parse("2014-08-12T12:17:02.527142Z")));
-    Chain updated = newChain(17, 25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print", Instant.parse("2014-08-12T12:17:02.527142Z"));
+      .thenReturn(Chain.create(25, "Test Print #1", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print"));
+    Chain updated = Chain.create(25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print");
     Payload payload = new Payload().setDataEntity(updated);
     subject.id = "17";
 
@@ -118,9 +129,9 @@ public class ChainOneResourceTest extends CoreTest {
   public void update_embeddedEntityPreservesIdFromPayload() throws CoreException, IOException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     when(chainDAO.readOne(same(access), eq(BigInteger.valueOf(17))))
-      .thenReturn(newChain(17, 25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print", Instant.parse("2014-08-12T12:17:02.527142Z")));
-    ChainConfig config1 = newChainConfig(ChainConfigType.OutputContainer, "AAC");
-    Chain updated = newChain(17, 25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print", Instant.parse("2014-08-12T12:17:02.527142Z"));
+      .thenReturn(Chain.create(25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print"));
+    ChainConfig config1 = ChainConfig.create(Chain.create(), ChainConfigType.OutputContainer, "AAC");
+    Chain updated = Chain.create(25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print");
     updated.add(config1);
     Payload payload = new Payload().setDataEntity(updated);
     subject.id = "17";
@@ -144,9 +155,9 @@ public class ChainOneResourceTest extends CoreTest {
   public void update_addFirstEmbeddedEntity() throws CoreException, IOException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     when(chainDAO.readOne(same(access), eq(BigInteger.valueOf(17))))
-      .thenReturn(newChain(17, 25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print", Instant.parse("2014-08-12T12:17:02.527142Z")));
-    Chain updated = newChain(17, 25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print", Instant.parse("2014-08-12T12:17:02.527142Z"));
-    ChainConfig config1 = updated.add(newChainConfig(ChainConfigType.OutputContainer, "aac"));
+      .thenReturn(Chain.create(25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print"));
+    Chain updated = Chain.create(25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print");
+    ChainConfig config1 = updated.add(ChainConfig.create(Chain.create(), ChainConfigType.OutputContainer, "aac"));
     Payload payload = new Payload().setDataEntity(updated);
     subject.id = "17";
 
@@ -173,13 +184,13 @@ public class ChainOneResourceTest extends CoreTest {
   @Test
   public void update_addSecondEmbeddedEntity() throws CoreException, IOException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
-    Chain chainBefore = newChain(17, 25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print", Instant.parse("2014-08-12T12:17:02.527142Z"));
-    ChainConfig config1 = chainBefore.add(newChainConfig(ChainConfigType.OutputContainer, "AAC"));
+    Chain chainBefore = Chain.create(25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print");
+    ChainConfig config1 = chainBefore.add(ChainConfig.create(Chain.create(), ChainConfigType.OutputContainer, "AAC"));
     when(chainDAO.readOne(same(access), eq(BigInteger.valueOf(17))))
       .thenReturn(chainBefore);
-    Chain chainAfter = newChain(17, 25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print", Instant.parse("2014-08-12T12:17:02.527142Z"));
+    Chain chainAfter = Chain.create(25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print");
     chainAfter.add(config1);
-    ChainConfig config2 = chainAfter.add(newChainConfig(ChainConfigType.OutputChannels, "4"));
+    ChainConfig config2 = chainAfter.add(ChainConfig.create(Chain.create(), ChainConfigType.OutputChannels, "4"));
     Payload payload = new Payload().setDataEntity(chainAfter);
     subject.id = "17";
 
@@ -205,12 +216,12 @@ public class ChainOneResourceTest extends CoreTest {
   @Test
   public void update_removeSecondEmbeddedEntity() throws CoreException, IOException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
-    Chain chainBefore = newChain(17, 25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print", Instant.parse("2014-08-12T12:17:02.527142Z"));
-    ChainConfig config1 = chainBefore.add(newChainConfig(ChainConfigType.OutputContainer, "AAC"));
-    chainBefore.add(newChainConfig(ChainConfigType.OutputChannels, "4"));
+    Chain chainBefore = Chain.create(25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print");
+    ChainConfig config1 = chainBefore.add(ChainConfig.create(Chain.create(), ChainConfigType.OutputContainer, "AAC"));
+    chainBefore.add(ChainConfig.create(Chain.create(), ChainConfigType.OutputChannels, "4"));
     when(chainDAO.readOne(same(access), eq(BigInteger.valueOf(17))))
       .thenReturn(chainBefore);
-    Chain chainAfter = newChain(17, 25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print", Instant.parse("2014-08-12T12:17:02.527142Z"));
+    Chain chainAfter = Chain.create(25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print");
     chainAfter.add(config1);
     Payload payload = new Payload().setDataEntity(chainAfter);
     subject.id = "17";
@@ -238,10 +249,10 @@ public class ChainOneResourceTest extends CoreTest {
   public void update_addFirstEmbeddedEntity_invalidEntity() throws CoreException, IOException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     when(chainDAO.readOne(same(access), eq(BigInteger.valueOf(17))))
-      .thenReturn(newChain(17, 25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print", Instant.parse("2014-08-12T12:17:02.527142Z")));
-    PayloadObject updated = newChain(17, 25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print", Instant.parse("2014-08-12T12:17:02.527142Z")).toPayloadObject();
+      .thenReturn(Chain.create(25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print"));
+    PayloadObject updated = Chain.create(25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print").toPayloadObject();
     ChainConfig badConfig = new ChainConfig()
-      .setChainId(BigInteger.valueOf(17))
+      .setChainId(chain1.getId())
       .setTypeEnum(ChainConfigType.OutputChannels)
       .setValue("Not a (required) Numeric Value");
     badConfig.setId(UUID.randomUUID());
@@ -263,4 +274,5 @@ public class ChainOneResourceTest extends CoreTest {
       .belongsTo(Account.class, "25");
   }
 
+   */
 }

@@ -1,4 +1,4 @@
-//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 /* jshint node: true */
 
@@ -30,7 +30,7 @@ module.exports = function (environment) {
 
     APP: {
       // Here you can pass flags/options to your application instance
-      // when it is created
+      // when it is ofd
     },
   };
 

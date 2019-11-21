@@ -1,16 +1,17 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access.impl;
 
+import io.xj.core.access.Access;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.token.TokenGenerator;
 import io.xj.core.config.Config;
 import io.xj.core.dao.UserDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.external.google.GoogleProvider;
-import io.xj.core.model.account.AccountUser;
-import io.xj.core.model.user.auth.UserAuth;
-import io.xj.core.model.user.auth.UserAuthType;
-import io.xj.core.model.user.role.UserRole;
+import io.xj.core.model.AccountUser;
+import io.xj.core.model.UserAuth;
+import io.xj.core.model.UserAuthType;
+import io.xj.core.model.UserRole;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
@@ -51,9 +52,9 @@ public class AccessControlProviderImpl implements AccessControlProvider {
   }
 
   @Override
-  public String create(UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws CoreException {
+  public String create(UserAuth userAuth, Collection<AccountUser> accountUsers, Collection<UserRole> userRoles) throws CoreException {
     String accessToken = tokenGenerator.generate();
-    update(accessToken, userAuth, userAccountRoles, userRoles);
+    update(accessToken, userAuth, accountUsers, userRoles);
     return accessToken;
   }
 

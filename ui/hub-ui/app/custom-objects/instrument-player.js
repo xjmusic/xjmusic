@@ -1,4 +1,4 @@
-//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import EmberObject, {get, set} from '@ember/object';
 import {all, task} from 'ember-concurrency';
 import {Promise as EmberPromise} from 'rsvp';
@@ -88,7 +88,7 @@ const InstrumentPlayer = EmberObject.extend({
     this.goToState(Loading);
     this.createAudioContext();
 
-    // create the main task and persist it
+    // of the main task and persist it
     let mainTask = this.instrumentLoadTask.perform(loadingProgressCallbackFn);
     set(this, 'mainTask', mainTask);
 
@@ -334,7 +334,7 @@ const InstrumentPlayer = EmberObject.extend({
       audioContext = new window.webkitAudioContext();
     }
 
-    // create empty buffer
+    // of empty buffer
     let buffer = audioContext.createBuffer(1, 1, 22050);
     let dryFire = audioContext.createBufferSource();
     dryFire.buffer = buffer;

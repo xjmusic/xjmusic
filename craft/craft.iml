@@ -10,6 +10,18 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: org.postgresql:postgresql:42.2.8" level="project" />
+    <orderEntry type="library" name="Maven: org.jooq:jooq:3.12.3" level="project" />
+    <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: javax.xml.bind:jaxb-api:2.3.0" level="project" />
+    <orderEntry type="library" name="Maven: org.jooq:jooq-codegen:3.12.3" level="project" />
+    <orderEntry type="library" name="Maven: org.jooq:jooq-meta:3.12.3" level="project" />
+    <orderEntry type="library" name="Maven: org.postgresql:postgresql:42.2.8" level="project" />
+    <orderEntry type="library" name="Maven: org.jooq:jooq:3.12.3" level="project" />
+    <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: javax.xml.bind:jaxb-api:2.3.0" level="project" />
+    <orderEntry type="library" name="Maven: org.jooq:jooq-codegen:3.12.3" level="project" />
+    <orderEntry type="library" name="Maven: org.jooq:jooq-meta:3.12.3" level="project" />
     <orderEntry type="module" module-name="core" />
     <orderEntry type="library" name="Maven: org.reflections:reflections:0.9.11" level="project" />
     <orderEntry type="library" name="Maven: org.javassist:javassist:3.21.0-GA" level="project" />
@@ -56,8 +68,12 @@
     <orderEntry type="library" name="Maven: org.glassfish.jersey.core:jersey-client:2.28" level="project" />
     <orderEntry type="library" name="Maven: com.github.ben-manes.caffeine:caffeine:2.6.0" level="project" />
     <orderEntry type="library" name="Maven: javax.ws.rs:javax.ws.rs-api:2.0.1" level="project" />
-    <orderEntry type="library" name="Maven: org.jooq:jooq:3.11.11" level="project" />
-    <orderEntry type="library" name="Maven: javax.xml.bind:jaxb-api:2.2.12" level="project" />
+    <orderEntry type="library" name="Maven: org.postgresql:postgresql:42.2.8" level="project" />
+    <orderEntry type="library" name="Maven: org.jooq:jooq:3.12.3" level="project" />
+    <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: javax.xml.bind:jaxb-api:2.3.0" level="project" />
+    <orderEntry type="library" name="Maven: org.jooq:jooq-codegen:3.12.3" level="project" />
+    <orderEntry type="library" name="Maven: org.jooq:jooq-meta:3.12.3" level="project" />
     <orderEntry type="library" name="Maven: redis.clients:jedis:2.9.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.api-client:google-api-client:1.22.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.oauth-client:google-oauth-client:1.22.0" level="project" />
@@ -191,9 +207,9 @@
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.8.1" level="project" />
     <orderEntry type="module" module-name="music" />
     <orderEntry type="module" module-name="music" scope="TEST" production-on-test="" />
-    <orderEntry type="library" name="Maven: mysql:mysql-connector-java:6.0.5" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.5" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.2.3" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.2.3" level="project" />
+    <orderEntry type="library" name="Maven: org.mozilla:rhino:1.7.11" level="project" />
   </component>
 </module>

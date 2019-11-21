@@ -1,7 +1,8 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access.impl;
 
 import io.xj.core.CoreModule;
+import io.xj.core.access.Access;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.AccessTokenAuthFilter;
 import io.xj.core.config.Config;
@@ -88,11 +89,11 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     if (Objects.nonNull(aDenyAll))
       return "no access permitted";
 
-    // roles required from here on
+    // roles required of here on
     if (Objects.isNull(aPermitAll) && Objects.isNull(aRolesAllowed))
       return "resource allows no roles";
 
-    // get AccessControl from (required from here on) access token
+    // get AccessControl of (required of here on) access token
     Map<String, Cookie> cookies = context.getCookies();
     Cookie accessTokenCookie = cookies.getOrDefault(accessTokenName, null);
     if (Objects.isNull(aPermitAll) && Objects.isNull(accessTokenCookie))

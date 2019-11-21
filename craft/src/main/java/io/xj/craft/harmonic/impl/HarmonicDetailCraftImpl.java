@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.harmonic.impl;
 
 import com.google.inject.Inject;
@@ -75,7 +75,7 @@ public class HarmonicDetailCraftImpl implements HarmonicDetailCraft {
    Report
    */
   private void report() {
-    // future: fabricator.report() anything else interesting from the craft operation
+    // future: fabricator.report() anything else interesting of the craft operation
   }
 
 }

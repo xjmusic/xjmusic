@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access;
 
 import com.google.api.client.json.JsonFactory;
@@ -9,12 +9,15 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
+import io.xj.core.CoreTest;
 import io.xj.core.access.impl.AccessControlProviderImpl;
 import io.xj.core.access.token.TokenGenerator;
-import io.xj.core.model.account.AccountUser;
-import io.xj.core.model.user.auth.UserAuth;
-import io.xj.core.model.user.role.UserRole;
-import io.xj.core.model.user.role.UserRoleType;
+import io.xj.core.model.Account;
+import io.xj.core.model.AccountUser;
+import io.xj.core.model.User;
+import io.xj.core.model.UserAuth;
+import io.xj.core.model.UserRole;
+import io.xj.core.model.UserRoleType;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import org.junit.After;
 import org.junit.Before;
@@ -25,28 +28,30 @@ import org.mockito.runners.MockitoJUnitRunner;
 import redis.clients.jedis.Jedis;
 
 import javax.ws.rs.core.Cookie;
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RedisAccessTokenTest {
+public class RedisAccessTokenTest extends CoreTest {
   @Mock
   TokenGenerator tokenGenerator;
   @Mock
   RedisDatabaseProvider redisDatabaseProvider;
+  Account account1;
+  Account account2;
   @Mock
   private Jedis redisClient;
-  private Injector injector;
   private AccessControlProvider accessControlProvider;
   private UserAuth userAuth;
-  private Collection<AccountUser> accounts;
+  private Collection<AccountUser> accountUsers;
   private Collection<UserRole> roles;
+  private User user;
 
   @Before
   public void setUp() throws Exception {
@@ -54,7 +59,7 @@ public class RedisAccessTokenTest {
     System.setProperty("access.token.path", "/deez");
     System.setProperty("access.token.max.age", "60");
     System.setProperty("access.token.name", "access_token_jammy");
-    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+    Injector injector = Guice.createInjector(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -66,17 +71,22 @@ public class RedisAccessTokenTest {
       }));
     accessControlProvider = injector.getInstance(AccessControlProvider.class);
 
-    userAuth = new UserAuth();
-    userAuth.setUserId(BigInteger.valueOf(5609877L));
-    userAuth.setId(BigInteger.valueOf(12363L));
+    user = User.create();
 
-    accounts = new LinkedList<>();
-    AccountUser accountRole1 = new AccountUser();
-    accountRole1.setAccountId(BigInteger.valueOf(790809874L));
-    AccountUser accountRole2 = new AccountUser();
-    accountRole2.setAccountId(BigInteger.valueOf(90888932L));
-    accounts.add(accountRole1);
-    accounts.add(accountRole2);
+    userAuth = new UserAuth();
+    userAuth.setUserId(user.getId());
+    userAuth.setId(UUID.randomUUID());
+
+    account1 = Account.create();
+    account2 = Account.create();
+
+    accountUsers = new LinkedList<>();
+    AccountUser accountUser1 = new AccountUser();
+    accountUser1.setAccountId(account1.getId());
+    AccountUser accountUser2 = new AccountUser();
+    accountUser2.setAccountId(account2.getId());
+    accountUsers.add(accountUser1);
+    accountUsers.add(accountUser2);
 
     roles = new LinkedList<>();
     UserRole role1 = new UserRole();
@@ -102,14 +112,25 @@ public class RedisAccessTokenTest {
     when(tokenGenerator.generate())
       .thenReturn("token123");
 
-    accessControlProvider.create(userAuth, accounts, roles);
+    accessControlProvider.create(userAuth, accountUsers, roles);
 
     Map<String, String> expectUserAccess = Maps.newHashMap();
-    expectUserAccess.put("userId", "5609877");
-    expectUserAccess.put("userAuthId", "12363");
+    expectUserAccess.put("userId", user.getId().toString());
+    expectUserAccess.put("userAuthId", userAuth.getId().toString());
     expectUserAccess.put("roles", "User,Artist");
-    expectUserAccess.put("accounts", "790809874,90888932");
+    expectUserAccess.put("accounts", account1.getId().toString() + "," + account2.getId().toString());
     verify(redisClient).hmset("token123", expectUserAccess);
+    /*
+        userAuth.setUserId(BigInteger.valueOf(5609877L));
+    userAuth.setId(BigInteger.valueOf(12363L));
+
+    accounts = new LinkedList<>();
+    AccountUser accountRole1 = new AccountUser();
+    accountRole1.setAccountId(BigInteger.valueOf(790809874L));
+    AccountUser accountRole2 = new AccountUser();
+    accountRole2.setAccountId(BigInteger.valueOf(90888932L));
+
+     */
   }
 
   @Test

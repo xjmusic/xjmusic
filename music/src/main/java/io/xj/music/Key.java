@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.music;
 
 import io.xj.music.schema.IntervalPitchGroup;
@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  Key is a model of a musical key signature
  <p>
- The key of a piece is a group of pitches, or scale upon which a music composition is created in classical, Western art, and Western pop music.
+ The key of a piece is a group of pitches, or scale upon which a music composition is createdin classical, Western art, and Western pop music.
  <p>
  https://en.wikipedia.org/wiki/Key_(music)
  */

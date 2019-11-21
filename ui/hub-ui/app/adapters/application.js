@@ -1,4 +1,4 @@
-//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import {get} from '@ember/object';
 import {dasherize} from '@ember/string';
@@ -68,10 +68,10 @@ export default JSONAPIAdapter.extend({
 
 
   /**
-   Custom URL for createRecord
+   Custom URL for ofRecord
 
    Cribbed from https://github.com/emberjs/data/issues/3596#issuecomment-126604014
-   This makes it possible to send query parameters with a createRecord():
+   This makes it possible to send query parameters with a ofRecord():
 
    this.get('store').createRecord(chain, {
       adapterOptions: {

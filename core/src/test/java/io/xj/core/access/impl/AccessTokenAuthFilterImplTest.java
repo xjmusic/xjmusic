@@ -1,6 +1,6 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.core.access.impl;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.core.access.impl;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -8,9 +8,10 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
+import io.xj.core.access.Access;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.AccessTokenAuthFilter;
-import io.xj.core.model.user.role.UserRoleType;
+import io.xj.core.model.UserRoleType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +36,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AccessTokenAuthFilterImplTest {
-  private Injector injector;
   private AccessTokenAuthFilter subject;
   @Mock
   private AccessControlProvider accessControlProvider;
@@ -57,13 +57,13 @@ public class AccessTokenAuthFilterImplTest {
   public void setUp() throws Exception {
     System.setProperty("auth.google.id", "my-google-id");
     System.setProperty("auth.google.secret", "my-google-secret");
-    injector = createInjector();
+    Injector injector = createInjector();
     subject = injector.getInstance(AccessTokenAuthFilter.class);
     subject.setTestResources(resourceInfo, accessControlProvider);
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     System.clearProperty("auth.google.secret");
     System.clearProperty("auth.google.id");
   }
@@ -90,8 +90,8 @@ public class AccessTokenAuthFilterImplTest {
       "access_token", new Cookie("access_token", "abc-def-0123456789")
     ));
     when(accessControlProvider.get("abc-def-0123456789")).thenReturn(new Access(ImmutableMap.of(
-      "userId", "4", // Bill is in no accounts
-      "userAuthId", "12",
+      "userId", "61562554-0fd8-11ea-ab87-6f844ba10e4f", // Bill is in no accounts
+      "userAuthId", "7c8d0740-0fdb-11ea-b5c9-8f1250fb0100",
       "roles", "User"
     )));
 
@@ -122,8 +122,8 @@ public class AccessTokenAuthFilterImplTest {
       "access_token", new Cookie("access_token", "abc-def-0123456789")
     ));
     when(accessControlProvider.get("abc-def-0123456789")).thenReturn(new Access(ImmutableMap.of(
-      "userId", "4", // Bill is in no accounts
-      "userAuthId", "12",
+      "userId", "61562554-0fd8-11ea-ab87-6f844ba10e4f", // Bill is in no accounts
+      "userAuthId", "7c8d0740-0fdb-11ea-b5c9-8f1250fb0100",
       "roles", "User"
     )));
 

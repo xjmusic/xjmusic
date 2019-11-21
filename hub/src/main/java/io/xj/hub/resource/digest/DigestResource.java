@@ -1,18 +1,19 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.digest;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.access.impl.Access;
+import io.xj.core.access.Access;
 import io.xj.core.exception.CoreException;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.ingest.cache.IngestCacheProvider;
-import io.xj.core.model.chain.sub.ChainBinding;
-import io.xj.core.model.library.Library;
-import io.xj.core.model.payload.Payload;
-import io.xj.core.model.user.role.UserRoleType;
+import io.xj.core.model.Chain;
+import io.xj.core.model.ChainBinding;
+import io.xj.core.model.Library;
+import io.xj.core.model.UserRoleType;
+import io.xj.core.payload.Payload;
 import io.xj.craft.digest.Digest;
+import io.xj.craft.digest.DigestCacheProvider;
 import io.xj.craft.digest.DigestType;
-import io.xj.craft.digest.cache.DigestCacheProvider;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
@@ -22,8 +23,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.math.BigInteger;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  Digest
@@ -51,11 +52,11 @@ public class DigestResource extends HubResource {
   public Response digest(@Context ContainerRequestContext crc) {
 
     if (Objects.isNull(libraryIdString) || libraryIdString.isEmpty()) {
-      return response.notAcceptable("Must specify `libraryId` of digest.");
+      return response.notAcceptable("Must specify `libraryId` create digest.");
     }
 
     if (Objects.isNull(typeString) || typeString.isEmpty()) {
-      return response.notAcceptable("Must specify `type` of digest.");
+      return response.notAcceptable("Must specify `type` create digest.");
     }
 
     DigestType digestType;
@@ -65,17 +66,13 @@ public class DigestResource extends HubResource {
       return response.failure(e);
     }
 
-    BigInteger libraryId = new BigInteger(libraryIdString);
-    if (!Objects.equals(1, libraryId.compareTo(BigInteger.ZERO))) {
-      return response.notAcceptable("`libraryId` must be greater than zero");
-    }
-
     try {
+      UUID libraryId = UUID.fromString(libraryIdString);
       Payload payload = new Payload();
-      payload.setDataEntity(evaluate(
+      payload.setDataOne(evaluate(
         Access.fromContext(crc),
         digestType, libraryId
-      ));
+      ).getPayloadObject());
       return response.ok(payload);
 
     } catch (Exception e) {
@@ -91,8 +88,8 @@ public class DigestResource extends HubResource {
    @param targetId of entity
    @return ingest
    */
-  private Digest evaluate(Access access, DigestType type, BigInteger targetId) throws Exception {
-    Ingest ingest = ingestProvider.ingest(access, ImmutableList.of(ChainBinding.from(new Library().setId(targetId))));
+  private Digest evaluate(Access access, DigestType type, UUID targetId) throws Exception {
+    Ingest ingest = ingestProvider.ingest(access, ImmutableList.of(ChainBinding.create(Chain.create(), new Library().setId(targetId))));
     switch (type) {
 
       case DigestHash:

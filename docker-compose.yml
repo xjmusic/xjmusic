@@ -12,7 +12,7 @@ services:
       file: docker-compose.common.yml
       service: base
     depends_on:
-      - mysql
+      - postgres
       - redis
     restart: always
 
@@ -25,23 +25,22 @@ services:
       service: base
     depends_on:
       - web
-      - mysql
+      - postgres
       - redis
     restart: always
 
-  mysql:
-    container_name: mysql01xj1
-    image: mysql:5.7
+  postgres:
+    container_name: postgres01xj1
+    image: postgres:12.1
     volumes:
-      - /var/lib/mysql
-      - ./log/mysql:/var/log/mysql
-      - ./.mysql/conf.d:/etc/mysql/conf.d
-    entrypoint: ""
-    command: bash -c "chown -R mysql:mysql /var/log/mysql && exec /entrypoint.sh mysqld"
+      - /var/lib/postgresql/data
+      - ./log/postgres:/var/log/postgres
+      - ./.docker/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
     ports:
-      - "3300:3306"
+      - "5400:5432"
     environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=
     restart: always
 
   redis:
