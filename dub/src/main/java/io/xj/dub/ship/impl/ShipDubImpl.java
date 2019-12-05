@@ -3,7 +3,7 @@ package io.xj.dub.ship.impl;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.core.config.Config;
+import com.typesafe.config.Config;
 import io.xj.core.exception.CoreException;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.fabricator.Fabricator;
@@ -17,14 +17,18 @@ public class ShipDubImpl implements ShipDub {
   //  private final Logger log = LoggerFactory.getLogger(ShipDubImpl.class);
   private final Fabricator fabricator;
   private final AmazonProvider amazonProvider;
+  private final String segmentFileBucket;
 
   @Inject
   public ShipDubImpl(
     @Assisted("basis") Fabricator fabricator,
-    AmazonProvider amazonProvider
+    AmazonProvider amazonProvider,
+    Config config
     /*-*/) {
     this.fabricator = fabricator;
     this.amazonProvider = amazonProvider;
+
+    segmentFileBucket = config.getString("segment.fileBucket");
   }
 
   @Override
@@ -51,7 +55,7 @@ public class ShipDubImpl implements ShipDub {
   private void shipFinalAudio() throws Exception {
     amazonProvider.putS3Object(
       fabricator.getOutputFilePath(),
-      Config.getSegmentFileBucket(),
+      segmentFileBucket,
       fabricator.getSegment().getWaveformKey());
   }
 

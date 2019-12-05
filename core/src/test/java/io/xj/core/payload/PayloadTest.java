@@ -4,43 +4,43 @@ package io.xj.core.payload;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.xj.core.CoreTest;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Account;
 import io.xj.core.model.Chain;
-import io.xj.core.model.ChainState;
-import io.xj.core.model.ChainType;
 import io.xj.core.model.ChainBinding;
 import io.xj.core.model.ChainConfig;
 import io.xj.core.model.ChainConfigType;
+import io.xj.core.model.ChainState;
+import io.xj.core.model.ChainType;
 import io.xj.core.model.Instrument;
-import io.xj.core.model.InstrumentState;
-import io.xj.core.model.InstrumentType;
 import io.xj.core.model.InstrumentAudio;
 import io.xj.core.model.InstrumentAudioChord;
 import io.xj.core.model.InstrumentAudioEvent;
 import io.xj.core.model.InstrumentMeme;
+import io.xj.core.model.InstrumentState;
+import io.xj.core.model.InstrumentType;
 import io.xj.core.model.Library;
 import io.xj.core.model.Program;
-import io.xj.core.model.ProgramState;
-import io.xj.core.model.ProgramType;
 import io.xj.core.model.ProgramMeme;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramSequenceBinding;
 import io.xj.core.model.ProgramSequenceBindingMeme;
 import io.xj.core.model.ProgramSequenceChord;
+import io.xj.core.model.ProgramState;
+import io.xj.core.model.ProgramType;
 import io.xj.core.model.User;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class PayloadTest extends CoreTest {
+public class PayloadTest  {
   private Payload subject;
 
   @Before
@@ -261,7 +261,7 @@ public class PayloadTest extends CoreTest {
   public void getSelfURI() {
     subject.getLinks().put("self", "https://hub.xj.io/api/1/things");
 
-    assertEquals(URI.create("https://hub.xj.io/api/1/things"), subject.getSelfURI());
+    assertEquals(Optional.of(URI.create("https://hub.xj.io/api/1/things")), subject.getSelfURI());
   }
 
   @Test

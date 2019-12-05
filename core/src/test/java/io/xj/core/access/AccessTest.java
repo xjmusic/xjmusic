@@ -1,9 +1,13 @@
 // Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access;
 
+import com.google.api.client.json.JsonFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.xj.core.CoreTest;
+import com.google.inject.Injector;
+import com.typesafe.config.Config;
+import io.xj.core.CoreModule;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Account;
 import io.xj.core.model.AccountUser;
@@ -11,6 +15,7 @@ import io.xj.core.model.User;
 import io.xj.core.model.UserAuth;
 import io.xj.core.model.UserRole;
 import io.xj.core.model.UserRoleType;
+import io.xj.core.testing.AppTestConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -27,7 +32,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AccessTest extends CoreTest {
+public class AccessTest {
   @Mock
   private ContainerRequestContext crc;
 
@@ -68,6 +73,10 @@ public class AccessTest extends CoreTest {
 
   @Test
   public void toJSON() {
+    Config config = AppTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule()));
+    JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
+
     UUID userId = UUID.randomUUID();
     UUID accountId = UUID.randomUUID();
     Access access = new Access(ImmutableMap.of(
@@ -76,7 +85,7 @@ public class AccessTest extends CoreTest {
       "accounts", accountId.toString()
     ));
 
-    assertEquals(String.format("{\"roles\":\"User,Artist\",\"accounts\":\"%s\",\"userId\":\"%s\"}", accountId, userId), access.toJSON());
+    assertEquals(String.format("{\"roles\":\"User,Artist\",\"accounts\":\"%s\",\"userId\":\"%s\"}", accountId, userId), access.toJSON(jsonFactory));
   }
 
   @Test

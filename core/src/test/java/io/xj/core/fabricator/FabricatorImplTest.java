@@ -4,11 +4,12 @@ package io.xj.core.fabricator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.util.Modules;
+import com.typesafe.config.Config;
 import io.xj.core.CoreModule;
-import io.xj.core.CoreTest;
 import io.xj.core.access.Access;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.dao.ChainBindingDAO;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChainDAO;
@@ -19,15 +20,15 @@ import io.xj.core.dao.InstrumentDAO;
 import io.xj.core.dao.InstrumentMemeDAO;
 import io.xj.core.dao.LibraryDAO;
 import io.xj.core.dao.ProgramDAO;
-import io.xj.core.dao.ProgramSequencePatternEventDAO;
 import io.xj.core.dao.ProgramMemeDAO;
-import io.xj.core.dao.ProgramSequencePatternDAO;
 import io.xj.core.dao.ProgramSequenceBindingDAO;
 import io.xj.core.dao.ProgramSequenceBindingMemeDAO;
 import io.xj.core.dao.ProgramSequenceChordDAO;
 import io.xj.core.dao.ProgramSequenceDAO;
-import io.xj.core.dao.ProgramVoiceTrackDAO;
+import io.xj.core.dao.ProgramSequencePatternDAO;
+import io.xj.core.dao.ProgramSequencePatternEventDAO;
 import io.xj.core.dao.ProgramVoiceDAO;
+import io.xj.core.dao.ProgramVoiceTrackDAO;
 import io.xj.core.dao.SegmentChoiceDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.model.Account;
@@ -41,18 +42,19 @@ import io.xj.core.model.Instrument;
 import io.xj.core.model.InstrumentAudio;
 import io.xj.core.model.Library;
 import io.xj.core.model.Program;
-import io.xj.core.model.ProgramSequencePatternEvent;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramSequenceBinding;
+import io.xj.core.model.ProgramSequencePatternEvent;
 import io.xj.core.model.ProgramState;
 import io.xj.core.model.ProgramType;
 import io.xj.core.model.ProgramVoice;
 import io.xj.core.model.Segment;
-import io.xj.core.model.SegmentChoiceArrangement;
 import io.xj.core.model.SegmentChoice;
+import io.xj.core.model.SegmentChoiceArrangement;
 import io.xj.core.model.SegmentChoiceArrangementPick;
 import io.xj.core.model.SegmentState;
 import io.xj.core.model.User;
+import io.xj.core.testing.AppTestConfiguration;
 import io.xj.music.Tuning;
 import org.junit.Before;
 import org.junit.Rule;
@@ -76,7 +78,7 @@ import static org.mockito.Mockito.when;
  FUTURE: [#170035559] Split the FabricatorImplTest into separate tests of the FabricatorImpl, SegmentWorkbenchImpl, SegmentRetrospectiveImpl, and IngestImpl
  */
 @RunWith(MockitoJUnitRunner.class)
-public class FabricatorImplTest extends CoreTest {
+public class FabricatorImplTest {
 
   @Rule
   public ExpectedException failure = ExpectedException.none();
@@ -134,7 +136,8 @@ public class FabricatorImplTest extends CoreTest {
 
   @Before
   public void setUp() throws Exception {
-    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+    Config config = AppTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -162,7 +165,7 @@ public class FabricatorImplTest extends CoreTest {
           bind(Tuning.class).toInstance(tuning);
           bind(TimeComputerFactory.class).toInstance(timeComputerFactory);
         }
-      }));
+      })));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
   }
 

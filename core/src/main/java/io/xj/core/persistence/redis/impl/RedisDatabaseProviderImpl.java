@@ -1,8 +1,9 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.persistence.redis.impl;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.config.Config;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import net.greghaines.jesque.ConfigBuilder;
 import net.greghaines.jesque.client.Client;
@@ -13,17 +14,21 @@ import net.greghaines.jesque.worker.WorkerImpl;
 import redis.clients.jedis.Jedis;
 
 public class RedisDatabaseProviderImpl implements RedisDatabaseProvider {
-/*
-  private final JedisPool jedisPool;
-  private final Client queueClient;
-*/
+  private static String dbRedisHost;
+  private static String dbRedisQueueNamespace;
+  private static int dbRedisPort;
+  private static int dbRedisTimeout;
+  private String workQueueName;
 
-  public RedisDatabaseProviderImpl() {
-/*
-FUTURE: use Jedis Pool and Client Pool
-    jedisPool = new JedisPool(host(), port());
-    queueClient = new ClientPoolImpl(getQueueConfig(), jedisPool);
-*/
+  @Inject
+  public RedisDatabaseProviderImpl(
+    Config config
+  ) {
+    dbRedisHost = config.getString("redis.host");
+    dbRedisQueueNamespace = config.getString("redis.queueNamespace");
+    dbRedisPort = config.getInt("redis.port");
+    dbRedisTimeout = config.getInt("redis.timeoutSeconds");
+    workQueueName = config.getString("work.queueName");
   }
 
   /**
@@ -32,7 +37,7 @@ FUTURE: use Jedis Pool and Client Pool
    @return host
    */
   private static String host() {
-    return Config.getDbRedisHost();
+    return dbRedisHost;
   }
 
   /**
@@ -41,7 +46,7 @@ FUTURE: use Jedis Pool and Client Pool
    @return namespace
    */
   private static String namespace() {
-    return Config.getDbRedisQueueNamespace();
+    return dbRedisQueueNamespace;
   }
 
   /**
@@ -50,7 +55,7 @@ FUTURE: use Jedis Pool and Client Pool
    @return port
    */
   private static int port() {
-    return Config.getDbRedisPort();
+    return dbRedisPort;
   }
 
   /**
@@ -59,7 +64,7 @@ FUTURE: use Jedis Pool and Client Pool
    @return timeout
    */
   private static int timeout() {
-    return Config.getDbRedisTimeout();
+    return dbRedisTimeout;
   }
 
   /**
@@ -88,7 +93,7 @@ FUTURE: use Jedis Pool and Client Pool
 
   @Override
   public Worker getQueueWorker(JobFactory jobFactory) {
-    return new WorkerImpl(getQueueConfig(), ImmutableList.of(Config.getWorkQueueName()), jobFactory);
+    return new WorkerImpl(getQueueConfig(), ImmutableList.of(workQueueName), jobFactory);
   }
 
 }

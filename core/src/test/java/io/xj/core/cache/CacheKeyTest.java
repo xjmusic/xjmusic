@@ -3,7 +3,6 @@
 package io.xj.core.cache;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.CoreTest;
 import io.xj.core.access.Access;
 import io.xj.core.model.Account;
 import io.xj.core.model.Instrument;
@@ -16,13 +15,13 @@ import io.xj.core.model.ProgramType;
 import io.xj.core.model.User;
 import io.xj.core.model.UserAuth;
 import io.xj.core.model.UserAuthType;
+import io.xj.core.testing.InternalResources;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class CacheKeyTest extends CoreTest {
+public class CacheKeyTest {
   private Account account1;
   private User user;
   private Library library1;
@@ -37,8 +36,8 @@ public class CacheKeyTest extends CoreTest {
     account1 = Account.create();
     user = User.create();
     userAuth = UserAuth.create(user, UserAuthType.Google);
-    library1 = Library.create(account1, "Apples", now());
-    library2 = Library.create(account1, "Bananas", now());
+    library1 = Library.create(account1, "Apples", InternalResources.now());
+    library2 = Library.create(account1, "Bananas", InternalResources.now());
     instrument1a = Instrument.create(user, library1, InstrumentType.Harmonic, InstrumentState.Published, "Mango");
     program1a = Program.create(user, library1, ProgramType.Macro, ProgramState.Published, "Shims", "D", 120, 0.6);
     program1b = Program.create(user, library1, ProgramType.Main, ProgramState.Published, "Mill", "G", 120, 0.6);

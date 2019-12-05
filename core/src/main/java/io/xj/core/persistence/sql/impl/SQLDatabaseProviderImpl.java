@@ -1,9 +1,9 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.persistence.sql.impl;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.xj.core.config.Config;
+import com.typesafe.config.Config;
 import io.xj.core.exception.CoreException;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import org.postgresql.ds.PGConnectionPoolDataSource;
@@ -19,13 +19,25 @@ import java.util.Objects;
 @Singleton
 public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
   private static final Logger log = LoggerFactory.getLogger(SQLDatabaseProviderImpl.class);
+  private final String database;
+  private final String host;
+  private final int port;
+  private final String user;
+  private final String pass;
   private PGConnectionPoolDataSource dataSource;
 
   /**
    Constructor
    */
   @Inject
-  public SQLDatabaseProviderImpl() {
+  public SQLDatabaseProviderImpl(
+    Config config
+  ) {
+    database = config.getString("postgres.database");
+    host = config.getString("postgres.host");
+    port = config.getInt("postgres.port");
+    user = config.getString("postgres.user");
+    pass = config.getString("postgres.pass");
   }
 
   /**
@@ -74,7 +86,7 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
     if (Objects.isNull(dataSource)) {
       dataSource = new PGConnectionPoolDataSource();
       dataSource.setUrl(getUrl());
-      dataSource.setDatabaseName(Config.getDbPostgresDatabase());
+      dataSource.setDatabaseName(database);
     }
 
     return dataSource;
@@ -83,17 +95,17 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
   @Override
   public String getUrl() {
     return String.format("jdbc:postgresql://%s:%s/%s",
-      Config.getDbPostgresHost(), Config.getDbPostgresPort(), Config.getDbPostgresDatabase());
+      host, port, database);
   }
 
   @Override
   public String getUser() {
-    return Config.getDbPostgresUser();
+    return user;
   }
 
   @Override
   public String getPassword() {
-    return Config.getDbPostgresPass();
+    return pass;
   }
 
 }

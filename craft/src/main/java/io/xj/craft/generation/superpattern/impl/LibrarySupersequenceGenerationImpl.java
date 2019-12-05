@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.core.config.Config;
+import com.typesafe.config.Config;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.model.ProgramSequencePattern;
 import io.xj.core.model.ProgramSequence;
@@ -51,10 +51,11 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
   private static final int defaultNumPatterns = 1;
   private static final int defaultPatternTotal = 16;
   private static final String GENERATED_PATTERN_NAME = "Library Superpattern";
-  private final int spliceSafetyMargin = Config.getGenerationSpliceSafetyMargin();
+  private final int generationSpliceSafetyMargin;
+  private final int generationSequenceBindingsMultiplier;
+  private final int generationChordMarkovOrder;
   private final DigestChordMarkov digestChordMarkov;
   private final double chordSpacing;
-  private final int markovOrder = Config.getChordMarkovOrder();
   private final int maxPatternTotal;
   private final int numPatterns;
   private final List<ProgramSequencePattern> generatedPatterns = Lists.newArrayList();
@@ -74,16 +75,21 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
   public LibrarySupersequenceGenerationImpl(
     @Assisted("sequence") ProgramSequence sequence,
     @Assisted("ingest") Ingest ingest,
-    DigestCacheProvider digestCacheProvider
+    DigestCacheProvider digestCacheProvider,
+    Config config
   ) {
     super(ingest, GenerationType.LibrarySupersequence);
+
+    generationSpliceSafetyMargin = config.getInt("generation.spliceSafetyMargin");
+    generationSequenceBindingsMultiplier = config.getInt("generation.sequenceBindingsMultiplier");
+    generationChordMarkovOrder = config.getInt("generation.chordMarkovOrder");
+
     this.sequence = sequence;
     DigestProgramStyle digestSequenceStyle = digestCacheProvider.sequenceStyle(ingest);
     digestChordMarkov = digestCacheProvider.chordMarkov(ingest);
     chordSpacing = Digest.mostPopular(digestSequenceStyle.getMainChordSpacingHistogram(), defaultChordSpacing);
     progressionSizes = Digest.elementsDividedBy(digestSequenceStyle.getMainSequenceTotalHistogram(), chordSpacing, defaultPatternTotal);
-    int sequenceBindingsMultiplier = Config.getGenerationSequenceBindingsMultiplier();
-    numPatterns = Digest.lottery(digestSequenceStyle.getMainSequencesPerProgramHistogram(), defaultNumPatterns) * sequenceBindingsMultiplier;
+    numPatterns = Digest.lottery(digestSequenceStyle.getMainSequencesPerProgramHistogram(), defaultNumPatterns) * generationSequenceBindingsMultiplier;
     maxPatternTotal = (int) Digest.max(digestSequenceStyle.getMainSequenceTotalStats(), defaultMaxPatternTotal);
     try {
       for (ChordProgression chordProgression : generateChordProgressions())
@@ -186,7 +192,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
       generateChordProgression(digestChordMarkov.getForwardNodeMap(), spacing, total)
         .spliceAtCollision(
           generateChordProgression(digestChordMarkov.getReverseNodeMap(), spacing, total).reversed(),
-          progressionSizes, spliceSafetyMargin);
+          progressionSizes, generationSpliceSafetyMargin);
   }
 
   /**
@@ -212,7 +218,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
       ChordNode next = selectRandomNonEndingObservation(nodeMap, buf);
       buf.add(next);
       result.add(next);
-      if (buf.size() > markovOrder) buf.remove(0);
+      if (buf.size() > generationChordMarkovOrder) buf.remove(0);
     }
 
     // mark these entities as used

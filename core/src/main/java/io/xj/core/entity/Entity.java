@@ -1,4 +1,4 @@
-//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.core.entity;
 
@@ -9,7 +9,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Ordering;
 import com.google.gson.JsonNull;
-import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
 import io.xj.core.payload.Payload;
 import io.xj.core.payload.PayloadObject;
@@ -22,7 +21,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigInteger;
-import java.net.URI;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -484,15 +482,6 @@ public abstract class Entity {
    */
   public String getResourceType() {
     return Text.toResourceType(this);
-  }
-
-  /**
-   Get the URI of any entity
-
-   @return Entity URI
-   */
-  public URI getURI() {
-    return Config.getApiURI(String.format("%s/%s", getResourceType(), getResourceId()));
   }
 
   /**

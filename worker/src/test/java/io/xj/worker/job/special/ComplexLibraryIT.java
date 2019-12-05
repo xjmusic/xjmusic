@@ -3,12 +3,15 @@ package io.xj.worker.job.special;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.util.Modules;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigValueFactory;
 import io.xj.core.CoreModule;
-import io.xj.core.FixtureIT;
+import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
 import io.xj.core.app.App;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.model.Chain;
@@ -19,10 +22,12 @@ import io.xj.core.model.Segment;
 import io.xj.core.model.SegmentState;
 import io.xj.core.model.Work;
 import io.xj.core.model.WorkType;
+import io.xj.core.testing.AppTestConfiguration;
+import io.xj.core.testing.IntegrationTestProvider;
+import io.xj.core.testing.InternalResources;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
-import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,80 +50,71 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ComplexLibraryIT extends FixtureIT {
+public class ComplexLibraryIT {
   private static final int MILLIS_PER_SECOND = 1000;
   private static final int MARATHON_NUMBER_OF_SEGMENTS = 7;
   private static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
-
   long startTime = System.currentTimeMillis();
   @Mock
   AmazonProvider amazonProvider;
   private App app;
 
+  private IntegrationTestingFixtures fake;
+  private Injector injector;
+
   @Before
   public void setUp() throws Exception {
-    injector = Guice.createInjector(Modules.override(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule()).with(
+    Config config = AppTestConfiguration.getDefault()
+      .withValue("app.port", ConfigValueFactory.fromAnyRef(9043));
+    injector = AppConfiguration.inject(config, ImmutableList.of(Modules.override(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
           bind(AmazonProvider.class).toInstance(amazonProvider);
         }
-      }));
+      })));
+    IntegrationTestProvider test = injector.getInstance(IntegrationTestProvider.class);
+    fake = new IntegrationTestingFixtures(test);
+
 
     // reset to shared fixtures
-    reset();
-    insertGeneratedFixture(3);
+    test.reset();
+    fake.insertGeneratedFixture(3);
 
     // Chain "Test Print #1" is ready to begin
-    chain1 = insert(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(1000), null, null));
-    insert(ChainBinding.create(chain1, library1));
+    fake.chain1 = test.insert(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(1000), null, null));
+    test.insert(ChainBinding.create(fake.chain1, fake.library1));
 
-    // Config
-    System.setProperty("app.port", "9043");
-    System.setProperty("audio.file.bucket", "xj-segment-test");
-    System.setProperty("segment.file.bucket", "xj-segment-test");
-    System.setProperty("work.concurrency", "1");
-
-    // Server App
-    app = injector.getInstance(App.class);
-    app.configureServer("io.xj.worker");
-
-    // Attach Job Factory to App
-    JobFactory jobFactory = injector.getInstance(JobFactory.class);
-    app.setJobFactory(jobFactory);
+    app = new App(ImmutableList.of("io.xj.worker"), injector);
   }
 
   @After
   public void tearDown() {
-    System.clearProperty("app.port");
-    System.clearProperty("audio.file.bucket");
-    System.clearProperty("segment.file.bucket");
-    System.clearProperty("work.concurrency");
   }
 
   @Test
   public void fabricatesManySegments() throws Exception {
-    when(amazonProvider.generateKey(String.format("chains-%s-segments", chain1.getId()), "ogg"))
+    when(amazonProvider.generateKey(String.format("chains-%s-segments", fake.chain1.getId()), "ogg"))
       .thenReturn("chains-1-segments-12345.ogg");
     when(amazonProvider.streamS3Object(any(), any()))
-      .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(resourceFile("source_audio/kick1.wav")));
-    app.getWorkManager().startChainFabrication(chain1.getId());
+      .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(InternalResources.resourceFile("source_audio/kick1.wav")));
+    app.getWorkManager().startChainFabrication(fake.chain1.getId());
     assertTrue(hasRemainingWork(WorkType.ChainFabricate));
 
     // Start app, wait for work, stop app
     app.start();
     int assertShippedSegmentsMinimum = MARATHON_NUMBER_OF_SEGMENTS;
-    while (!hasChainAtLeastSegments(chain1.getId(), assertShippedSegmentsMinimum) && isWithinTimeLimit()) {
+    while (!hasChainAtLeastSegments(fake.chain1.getId(), assertShippedSegmentsMinimum) && isWithinTimeLimit()) {
       Thread.sleep(MILLIS_PER_SECOND);
     }
-    app.getWorkManager().stopChainFabrication(chain1.getId());
+    app.getWorkManager().stopChainFabrication(fake.chain1.getId());
     app.stop();
 
     // assertions
     verify(amazonProvider, atLeast(assertShippedSegmentsMinimum))
       .putS3Object(eq("/tmp/chains-1-segments-12345.ogg"), eq("xj-segment-test"), any());
     Collection<Segment> result = injector.getInstance(SegmentDAO.class)
-      .readMany(Access.internal(), ImmutableList.of(chain1.getId()));
+      .readMany(Access.internal(), ImmutableList.of(fake.chain1.getId()));
     assertTrue(assertShippedSegmentsMinimum <= result.size());
   }
 

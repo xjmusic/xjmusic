@@ -2,9 +2,14 @@
 
 package io.xj.core.transport;
 
-import io.xj.core.CoreTest;
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Injector;
+import com.typesafe.config.Config;
+import io.xj.core.CoreModule;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Account;
+import io.xj.core.testing.AppTestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,11 +20,13 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-public class HttpResponseProviderImplTest extends CoreTest {
+public class HttpResponseProviderImplTest  {
   HttpResponseProvider subject;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
+    Config config = AppTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule()));
     subject = injector.getInstance(HttpResponseProvider.class);
   }
 

@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.core.config.Config;
+import com.typesafe.config.Config;
 import io.xj.core.entity.ChordEntity;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.model.ProgramSequence;
@@ -35,6 +35,9 @@ import java.util.UUID;
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  */
 public class DigestChordProgressionImpl extends DigestImpl implements DigestChordProgression {
+  private static int ingestChordProgressionLengthMax;
+  private int ingestChordProgressionRedundancyThreshold;
+  private int ingestChordProgressionPreserveLengthMin;
   private Map<String, DigestChordProgressionItem> evaluatedSequenceMap = Maps.newHashMap();
 
   /**
@@ -44,9 +47,15 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
    */
   @Inject
   public DigestChordProgressionImpl(
-    @Assisted("ingest") Ingest ingest
+    @Assisted("ingest") Ingest ingest,
+    Config config
   ) {
     super(ingest, DigestType.DigestChordProgression);
+
+    ingestChordProgressionLengthMax = config.getInt("ingest.chordProgressionLengthMax");
+    ingestChordProgressionRedundancyThreshold = config.getInt("ingest.chordProgressionRedundancy");
+    ingestChordProgressionPreserveLengthMin = config.getInt("ingest.chordProgressionLengthMin");
+
     try {
       digest();
       prune();
@@ -115,7 +124,7 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
 
     int totalChords = allChords.size();
     for (int fromChord = 0; fromChord < totalChords; fromChord++) {
-      int maxToChord = Math.min(totalChords, fromChord + Config.getIngestChordProgressionLengthMax());
+      int maxToChord = Math.min(totalChords, fromChord + ingestChordProgressionLengthMax);
       for (int toChord = fromChord; toChord < maxToChord; toChord++) {
         List<ProgramSequenceChord> subset = Lists.newArrayList();
         for (int i = fromChord; i <= toChord; i++) {
@@ -266,15 +275,15 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
       //
       DigestChordProgressionItem evaluatedNeedle = prunedSequenceMap.get(needle);
       DigestChordProgressionItem evaluatedHaystack = prunedSequenceMap.get(haystack);
-      if (new ChordProgression(haystack).isRedundantSubset(new ChordProgression(needle), Config.getIngestChordProgressionRedundancyThreshold())) {
+      if (new ChordProgression(haystack).isRedundantSubset(new ChordProgression(needle), ingestChordProgressionRedundancyThreshold)) {
         redundantDescriptors.add(needle);
         //
         // preserve if length greater than or equal to threshold
         // BUT don't preserve if we already have one with this parent
         // AND don't preserve if we have already preserved these entities (by id)
-        if (evaluatedNeedle.getDescriptorLength() >= Config.getIngestChordProgressionPreserveLengthMin())
+        if (evaluatedNeedle.getDescriptorLength() >= ingestChordProgressionPreserveLengthMin)
           evaluatedNeedle.getUsages().forEach((SequenceChordProgression candidate) -> {
-            if (candidate.getChords().size() >= evaluatedHaystack.getDescriptorLength() - Config.getIngestChordProgressionRedundancyThreshold())
+            if (candidate.getChords().size() >= evaluatedHaystack.getDescriptorLength() - ingestChordProgressionRedundancyThreshold)
               evaluatedHaystack.addIfUniqueParent(candidate);
           });
       }
@@ -285,4 +294,3 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
   }
 
 }
-

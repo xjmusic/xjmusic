@@ -2,9 +2,12 @@
 
 package io.xj.core.fabricator;
 
-import com.google.inject.Guice;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
+import com.typesafe.config.Config;
 import io.xj.core.CoreModule;
+import io.xj.core.app.AppConfiguration;
+import io.xj.core.testing.AppTestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +22,8 @@ public class TimeComputerTest {
 
   @Before
   public void setUp() {
-    Injector injector = Guice.createInjector(new CoreModule());
+    Config config = AppTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule()));
     timeComputerFactory = injector.getInstance(TimeComputerFactory.class);
   }
 

@@ -2,8 +2,12 @@
 package io.xj.core.dao.library;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.FixtureIT;
+import com.google.inject.Injector;
+import com.typesafe.config.Config;
+import io.xj.core.CoreModule;
+import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.dao.LibraryDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Account;
@@ -15,7 +19,12 @@ import io.xj.core.model.Program;
 import io.xj.core.model.ProgramState;
 import io.xj.core.model.ProgramType;
 import io.xj.core.model.User;
+import io.xj.core.testing.AppTestConfiguration;
+import io.xj.core.testing.Assert;
+import io.xj.core.testing.IntegrationTestProvider;
+import io.xj.core.testing.InternalResources;
 import org.assertj.core.util.Lists;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,32 +37,39 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
-public class LibraryIT extends FixtureIT {
+public class LibraryIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private LibraryDAO testDAO;
-  private Library library1a;
-  private Account account2;
-  private Library library2a;
-  private Library library2b;
-  private Library library1b;
+  private IntegrationTestProvider test;
+  private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    reset();
+    Config config = AppTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule()));
+test = injector.getInstance(IntegrationTestProvider.class);
+    fake = new IntegrationTestingFixtures(test);
+
+    test.reset();
 
     // Account "palm tree" has library "leaves" and library "coconuts"
-    account1 = insert(Account.create("palm tree"));
-    library1a = insert(Library.create(account1, "leaves", now()));
-    library1b = insert(Library.create(account1, "coconuts", now()));
+    fake.account1 = test.insert(Account.create("palm tree"));
+    fake.library1a = test.insert(Library.create(fake.account1, "leaves", InternalResources.now()));
+    fake.library1b = test.insert(Library.create(fake.account1, "coconuts", InternalResources.now()));
 
     // Account "boat" has library "helm" and library "sail"
-    account2 = insert(Account.create("boat"));
-    library2a = insert(Library.create(account2, "helm", now()));
-    library2b = insert(Library.create(account2, "sail", now()));
+    fake.account2 = test.insert(Account.create("boat"));
+    fake.library2a = test.insert(Library.create(fake.account2, "helm", InternalResources.now()));
+    fake.library2b = test.insert(Library.create(fake.account2, "sail", InternalResources.now()));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(LibraryDAO.class);
+  }
+
+  @After
+  public void tearDown() {
+    test.shutdown();
   }
 
   @Test
@@ -61,12 +77,12 @@ public class LibraryIT extends FixtureIT {
     Access access = Access.create("Admin");
     Library inputData = new Library()
       .setName("coconuts")
-      .setAccountId(account1.getId());
+      .setAccountId(fake.account1.getId());
 
     Library result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(account1.getId(), result.getAccountId());
+    assertEquals(fake.account1.getId(), result.getAccountId());
     assertEquals("coconuts", result.getName());
   }
 
@@ -75,15 +91,15 @@ public class LibraryIT extends FixtureIT {
    */
   @Test
   public void create_asEngineer() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Engineer");
+    Access access = Access.create(ImmutableList.of(fake.account1), "Engineer");
     Library inputData = new Library()
       .setName("coconuts")
-      .setAccountId(account1.getId());
+      .setAccountId(fake.account1.getId());
 
     Library result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(account1.getId(), result.getAccountId());
+    assertEquals(fake.account1.getId(), result.getAccountId());
     assertEquals("coconuts", result.getName());
   }
 
@@ -95,7 +111,7 @@ public class LibraryIT extends FixtureIT {
     Access access = Access.create(ImmutableList.of(Account.create()), "Engineer");
     Library inputData = new Library()
       .setName("coconuts")
-      .setAccountId(account1.getId());
+      .setAccountId(fake.account1.getId());
 
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
@@ -117,13 +133,13 @@ public class LibraryIT extends FixtureIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
 
-    Library result = testDAO.readOne(access, library1b.getId());
+    Library result = testDAO.readOne(access, fake.library1b.getId());
 
     assertNotNull(result);
-    assertEquals(library1b.getId(), result.getId());
-    assertEquals(account1.getId(), result.getAccountId());
+    assertEquals(fake.library1b.getId(), result.getId());
+    assertEquals(fake.account1.getId(), result.getAccountId());
     assertEquals("coconuts", result.getName());
   }
 
@@ -133,14 +149,14 @@ public class LibraryIT extends FixtureIT {
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.readOne(access, account1.getId());
+    testDAO.readOne(access, fake.account1.getId());
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<Library> result = testDAO.readMany(access, ImmutableList.of(account1.getId()));
+    Collection<Library> result = testDAO.readMany(access, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
     Iterator<Library> resultIt = result.iterator();
@@ -150,7 +166,7 @@ public class LibraryIT extends FixtureIT {
 
   @Test
   public void readAll_fromAllAccounts() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1, account2), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1, fake.account2), "User");
 
     Collection<Library> result = testDAO.readMany(access, Lists.newArrayList());
 
@@ -166,7 +182,7 @@ public class LibraryIT extends FixtureIT {
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
     Access access = Access.create(ImmutableList.of(Account.create()), "User");
 
-    Collection<Library> result = testDAO.readMany(access, ImmutableList.of(account1.getId()));
+    Collection<Library> result = testDAO.readMany(access, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -180,19 +196,19 @@ public class LibraryIT extends FixtureIT {
     failure.expect(CoreException.class);
     failure.expectMessage("Account ID is required");
 
-    testDAO.update(access, library1a.getId(), inputData);
+    testDAO.update(access, fake.library1a.getId(), inputData);
   }
 
   @Test
   public void update_FailsWithoutName() throws Exception {
     Access access = Access.create("Admin");
     Library inputData = new Library()
-      .setAccountId(account1.getId());
+      .setAccountId(fake.account1.getId());
 
     failure.expect(CoreException.class);
     failure.expectMessage("Name is required");
 
-    testDAO.update(access, library1a.getId(), inputData);
+    testDAO.update(access, fake.library1a.getId(), inputData);
   }
 
   @Test
@@ -200,14 +216,14 @@ public class LibraryIT extends FixtureIT {
     Access access = Access.create("Admin");
     Library inputData = new Library()
       .setName("cannons")
-      .setAccountId(account1.getId());
+      .setAccountId(fake.account1.getId());
 
-    testDAO.update(access, library1a.getId(), inputData);
+    testDAO.update(access, fake.library1a.getId(), inputData);
 
-    Library result = testDAO.readOne(Access.internal(), library1a.getId());
+    Library result = testDAO.readOne(Access.internal(), fake.library1a.getId());
     assertNotNull(result);
     assertEquals("cannons", result.getName());
-    assertEquals(account1.getId(), result.getAccountId());
+    assertEquals(fake.account1.getId(), result.getAccountId());
   }
 
   /**
@@ -215,17 +231,17 @@ public class LibraryIT extends FixtureIT {
    */
   @Test
   public void update_asEngineer() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Engineer");
+    Access access = Access.create(ImmutableList.of(fake.account1), "Engineer");
     Library inputData = new Library()
       .setName("cannons")
-      .setAccountId(account1.getId());
+      .setAccountId(fake.account1.getId());
 
-    testDAO.update(access, library1a.getId(), inputData);
+    testDAO.update(access, fake.library1a.getId(), inputData);
 
-    Library result = testDAO.readOne(Access.internal(), library1a.getId());
+    Library result = testDAO.readOne(Access.internal(), fake.library1a.getId());
     assertNotNull(result);
     assertEquals("cannons", result.getName());
-    assertEquals(account1.getId(), result.getAccountId());
+    assertEquals(fake.account1.getId(), result.getAccountId());
   }
 
   /**
@@ -236,12 +252,12 @@ public class LibraryIT extends FixtureIT {
     Access access = Access.create(ImmutableList.of(Account.create()), "Engineer");
     Library inputData = new Library()
       .setName("cannons")
-      .setAccountId(account1.getId());
+      .setAccountId(fake.account1.getId());
 
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.update(access, library1a.getId(), inputData);
+    testDAO.update(access, fake.library1a.getId(), inputData);
   }
 
   @Test
@@ -249,16 +265,16 @@ public class LibraryIT extends FixtureIT {
     Access access = Access.create("Admin");
     Library inputData = new Library()
       .setName("cannons")
-      .setAccountId(account1.getId());
+      .setAccountId(fake.account1.getId());
 
     try {
-      testDAO.update(access, library1a.getId(), inputData);
+      testDAO.update(access, fake.library1a.getId(), inputData);
 
     } catch (Exception e) {
-      Library result = testDAO.readOne(Access.internal(), library1a.getId());
+      Library result = testDAO.readOne(Access.internal(), fake.library1a.getId());
       assertNotNull(result);
       assertEquals("helm", result.getName());
-      assertEquals(library1a.getId(), result.getAccountId());
+      assertEquals(fake.library1a.getId(), result.getAccountId());
       assertSame(CoreException.class, e.getClass());
     }
   }
@@ -268,14 +284,14 @@ public class LibraryIT extends FixtureIT {
     Access access = Access.create("Admin");
     Library inputData = new Library()
       .setName("cannons")
-      .setAccountId(account2.getId());
+      .setAccountId(fake.account2.getId());
 
-    testDAO.update(access, library2a.getId(), inputData);
+    testDAO.update(access, fake.library2a.getId(), inputData);
 
-    Library result = testDAO.readOne(Access.internal(), library2a.getId());
+    Library result = testDAO.readOne(Access.internal(), fake.library2a.getId());
     assertNotNull(result);
     assertEquals("cannons", result.getName());
-    assertEquals(account2.getId(), result.getAccountId());
+    assertEquals(fake.account2.getId(), result.getAccountId());
   }
 
   @Test
@@ -283,35 +299,35 @@ public class LibraryIT extends FixtureIT {
     Access access = Access.create("Admin");
     Library inputData = new Library()
       .setName("trunk")
-      .setAccountId(account1.getId());
+      .setAccountId(fake.account1.getId());
 
-    testDAO.update(access, library1a.getId(), inputData);
+    testDAO.update(access, fake.library1a.getId(), inputData);
 
-    Library result = testDAO.readOne(Access.internal(), library1a.getId());
+    Library result = testDAO.readOne(Access.internal(), fake.library1a.getId());
     assertNotNull(result);
     assertEquals("trunk", result.getName());
-    assertEquals(account1.getId(), result.getAccountId());
+    assertEquals(fake.account1.getId(), result.getAccountId());
   }
 
   @Test
   public void delete() throws Exception {
     Access access = Access.create("Admin");
 
-    testDAO.destroy(access, library1a.getId());
+    testDAO.destroy(access, fake.library1a.getId());
 
-    assertNotExist(testDAO, library1a.getId());
+    Assert.assertNotExist(testDAO, fake.library1a.getId());
   }
 
   @Test
   public void delete_FailsIfLibraryHasProgram() throws Exception {
     Access access = Access.create("Admin");
-    user101 = insert(User.create("bill", "bill@email.com", "http://pictures.com/bill.gif"));
-    insert(Program.create(user101, library2b, ProgramType.Main, ProgramState.Published, "brilliant", "C#", 120.0, 0.6));
+    fake.user101 = test.insert(User.create("bill", "bill@email.com", "http://pictures.com/bill.gif"));
+    test.insert(Program.create(fake.user101, fake.library2b, ProgramType.Main, ProgramState.Published, "brilliant", "C#", 120.0, 0.6));
 
     try {
-      testDAO.destroy(access, library2b.getId());
+      testDAO.destroy(access, fake.library2b.getId());
     } catch (Exception e) {
-      Library result = testDAO.readOne(Access.internal(), library2b.getId());
+      Library result = testDAO.readOne(Access.internal(), fake.library2b.getId());
       assertNotNull(result);
       assertSame(CoreException.class, e.getClass());
       assertEquals("Found Program in Library", e.getMessage());
@@ -321,13 +337,13 @@ public class LibraryIT extends FixtureIT {
   @Test
   public void delete_FailsIfLibraryHasInstrument() throws Exception {
     Access access = Access.create("Admin");
-    user101 = insert(User.create("bill", "bill@email.com", "http://pictures.com/bill.gif"));
-    insert(Instrument.create(user101, library2b, InstrumentType.Percussive, InstrumentState.Published, "brilliant"));
+    fake.user101 = test.insert(User.create("bill", "bill@email.com", "http://pictures.com/bill.gif"));
+    test.insert(Instrument.create(fake.user101, fake.library2b, InstrumentType.Percussive, InstrumentState.Published, "brilliant"));
 
     try {
-      testDAO.destroy(access, library2b.getId());
+      testDAO.destroy(access, fake.library2b.getId());
     } catch (Exception e) {
-      Library result = testDAO.readOne(Access.internal(), library2b.getId());
+      Library result = testDAO.readOne(Access.internal(), fake.library2b.getId());
       assertNotNull(result);
       assertSame(CoreException.class, e.getClass());
       assertEquals("Found Instrument in Library", e.getMessage());

@@ -1,20 +1,21 @@
 // Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.util.Modules;
+import com.google.inject.Injector;
+import com.typesafe.config.Config;
 import io.xj.core.CoreModule;
-import io.xj.core.FixtureIT;
 import io.xj.core.access.token.TokenGenerator;
-import io.xj.core.dao.UserDAO;
-import io.xj.core.external.google.GoogleProvider;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.model.AccountUser;
 import io.xj.core.model.UserAuth;
 import io.xj.core.model.UserAuthType;
 import io.xj.core.model.UserRole;
 import io.xj.core.model.UserRoleType;
+import io.xj.core.testing.AppTestConfiguration;
+import io.xj.core.testing.IntegrationTestProvider;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,32 +31,31 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AccessControlIT extends FixtureIT {
+public class AccessControlIT {
+
   private static final int STRESS_TEST_ITERATIONS = 100;
   @Rule
   public ExpectedException failure = ExpectedException.none();
   @Mock
   public TokenGenerator tokenGenerator;
-  @Mock
-  public GoogleProvider googleProvider;
-  @Mock
-  public UserDAO userDAO;
-  private AccessControlProvider accessControlProvider;
+  AccessControlProvider accessControlProvider;
+  private IntegrationTestProvider test;
 
   @Before
   public void setUp() throws Exception {
-    reset();
-    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
-      new AbstractModule() {
-        @Override
-        public void configure() {
-          bind(TokenGenerator.class).toInstance(tokenGenerator);
-          bind(GoogleProvider.class).toInstance(googleProvider);
-          bind(UserDAO.class).toInstance(userDAO);
-        }
-      }));
+    Config config = AppTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule()));
+
+    test = injector.getInstance(IntegrationTestProvider.class);
+
+    test.reset();
 
     accessControlProvider = injector.getInstance(AccessControlProvider.class);
+  }
+
+  @After
+  public void tearDown() {
+    test.shutdown();
   }
 
   @Test

@@ -4,7 +4,7 @@ package io.xj.pulse;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
-import io.xj.pulse.config.Config;
+import io.xj.pulse.config.LambdaExecutionConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -36,7 +36,7 @@ public class PulseTest {
   @Mock
   public StatusLine statusLine;
   @Mock
-  public Config config;
+  public LambdaExecutionConfiguration config;
   private Pulse subject;
 
   @Before

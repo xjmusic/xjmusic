@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.core.config.Config;
+import com.typesafe.config.Config;
 import io.xj.core.exception.CoreException;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.model.ProgramSequenceChord;
@@ -35,7 +35,7 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
   private final Map<String, ChordMarkovNode> forwardNodeMap = Maps.newHashMap();
   private final Map<String, ChordMarkovNode> reverseNodeMap = Maps.newHashMap();
   private final Logger log = LoggerFactory.getLogger(DigestChordMarkovImpl.class);
-  private final Integer markovOrder = Config.getChordMarkovOrder();
+  private final int markovOrder;
 
   /**
    Instantiate a new digest with a collection of target entities
@@ -44,9 +44,13 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
    */
   @Inject
   public DigestChordMarkovImpl(
-    @Assisted("ingest") Ingest ingest
+    @Assisted("ingest") Ingest ingest,
+    Config config
   ) {
     super(ingest, DigestType.DigestChordMarkov);
+
+    markovOrder = config.getInt("digest.chordMarkovOrder");
+
     log.info("will digest {}", ingest);
     try {
       digest();

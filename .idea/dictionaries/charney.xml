@@ -1,22 +1,28 @@
 <component name="ProjectDictionaryState">
   <dictionary name="charney">
     <words>
+      <w>abcdef</w>
       <w>ambience</w>
       <w>composited</w>
       <w>deserialized</w>
       <w>deserializing</w>
       <w>gson</w>
+      <w>guice</w>
       <w>healthcheck</w>
+      <w>highpass</w>
       <w>hihat</w>
       <w>hihatclosed</w>
       <w>hihatopen</w>
       <w>isometry</w>
+      <w>lowpass</w>
       <w>nanos</w>
       <w>outro</w>
       <w>pojo</w>
       <w>prepending</w>
       <w>requeues</w>
       <w>sies</w>
+      <w>statsalicious</w>
+      <w>statslicious</w>
       <w>stepmatic</w>
       <w>transmogrifier</w>
     </words>

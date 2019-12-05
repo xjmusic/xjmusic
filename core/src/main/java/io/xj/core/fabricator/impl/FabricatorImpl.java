@@ -1,4 +1,4 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.fabricator.impl;
 
 import com.google.common.collect.ImmutableList;
@@ -6,8 +6,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
+import com.typesafe.config.Config;
 import io.xj.core.access.Access;
-import io.xj.core.config.Config;
 import io.xj.core.dao.ChainBindingDAO;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChainDAO;
@@ -33,20 +33,20 @@ import io.xj.core.model.ChainConfig;
 import io.xj.core.model.ChainConfigType;
 import io.xj.core.model.InstrumentAudio;
 import io.xj.core.model.Program;
-import io.xj.core.model.ProgramSequencePattern;
 import io.xj.core.model.ProgramPatternType;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramSequenceBinding;
+import io.xj.core.model.ProgramSequencePattern;
 import io.xj.core.model.ProgramType;
 import io.xj.core.model.ProgramVoice;
 import io.xj.core.model.Segment;
-import io.xj.core.model.SegmentChoiceArrangement;
 import io.xj.core.model.SegmentChoice;
+import io.xj.core.model.SegmentChoiceArrangement;
 import io.xj.core.model.SegmentChoiceArrangementPick;
 import io.xj.core.model.SegmentChord;
 import io.xj.core.model.SegmentMeme;
 import io.xj.core.model.SegmentMessage;
-import io.xj.core.transport.CSV;
+import io.xj.core.util.CSV;
 import io.xj.core.util.Chance;
 import io.xj.music.Chord;
 import io.xj.music.MusicalException;
@@ -83,7 +83,10 @@ public class FabricatorImpl implements Fabricator {
   private final SegmentRetrospective retrospective;
   private final TimeComputerFactory timeComputerFactory;
   private final Tuning tuning;
+  private final double tuningRootPitch;
+  private final String tuningRootNote;
   private FabricatorType type;
+  private String workTempFilePathPrefix;
 
   @AssistedInject
   public FabricatorImpl(
@@ -96,7 +99,8 @@ public class FabricatorImpl implements Fabricator {
     TimeComputerFactory timeComputerFactory,
     SegmentWorkbenchFactory segmentWorkbenchFactory,
     AmazonProvider amazonProvider,
-    SegmentRetrospectiveFactory retrospectiveFactory
+    SegmentRetrospectiveFactory retrospectiveFactory,
+    Config config
   ) throws CoreException {
     // FUTURE: [#165815496] Chain fabrication access control
     this.access = access;
@@ -104,6 +108,10 @@ public class FabricatorImpl implements Fabricator {
 
     this.amazonProvider = amazonProvider;
     this.timeComputerFactory = timeComputerFactory;
+
+    tuningRootPitch = config.getDouble("tuning.rootPitchHz");
+    tuningRootNote = config.getString("tuning.rootNote");
+    workTempFilePathPrefix = config.getString("work.tempFilePathPrefix");
 
     // get the current segment on the workbench
     workbench = segmentWorkbenchFactory.workOn(access, segment);
@@ -385,7 +393,7 @@ public class FabricatorImpl implements Fabricator {
     if (Objects.isNull(workbench.getSegment().getWaveformKey()))
       throw exception("Segment has no waveform key!");
 
-    return Config.getWorkTempFilePathPrefix() + workbench.getSegment().getWaveformKey();
+    return String.format("%s%s", workTempFilePathPrefix, workbench.getSegment().getWaveformKey());
   }
 
   @Override
@@ -645,8 +653,8 @@ public class FabricatorImpl implements Fabricator {
   private Tuning computeTuning() throws CoreException {
     try {
       return Tuning.at(
-        Note.of(Config.getTuningRootNote()),
-        Config.getTuningRootPitch());
+        Note.of(tuningRootNote),
+        tuningRootPitch);
     } catch (MusicalException e) {
       throw exception("Could not tune XJ!", e);
     }

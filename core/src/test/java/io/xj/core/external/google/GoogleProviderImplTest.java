@@ -8,13 +8,16 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.testing.http.MockHttpTransport;
 import com.google.api.client.testing.http.MockLowLevelHttpResponse;
 import com.google.api.services.plus.model.Person;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigValueFactory;
 import io.xj.core.CoreModule;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.exception.CoreException;
-import org.junit.After;
+import io.xj.core.testing.AppTestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,12 +35,12 @@ public class GoogleProviderImplTest extends Mockito {
 
   @Before
   public void setUp() throws Exception {
-    System.setProperty("auth.google.id", "12345");
-    System.setProperty("auth.google.secret", "abcdefg");
-    System.setProperty("app.url.base", "http://shammy/");
-    System.setProperty("app.url.api", "api/69/");
-
-    Injector injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+    Config config = AppTestConfiguration.getDefault()
+      .withValue("google.clientId", ConfigValueFactory.fromAnyRef("12345"))
+      .withValue("google.clientSecret", ConfigValueFactory.fromAnyRef("abcdef"))
+      .withValue("app.baseURL", ConfigValueFactory.fromAnyRef("http://shammy/"))
+      .withValue("app.apiURL", ConfigValueFactory.fromAnyRef("api/69/"));
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -45,28 +48,19 @@ public class GoogleProviderImplTest extends Mockito {
           bind(GoogleHttpProvider.class).toInstance(googleHttpProvider);
           bind(JsonFactory.class).to(JacksonFactory.class);
         }
-      }));
+      })));
     googleProvider = injector.getInstance(GoogleProvider.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    googleProvider = null;
-    System.clearProperty("auth.google.id");
-    System.clearProperty("auth.google.secret");
-    System.clearProperty("app.url.base");
-    System.clearProperty("app.url.api");
   }
 
   @Test
   public void getAuthCodeRequestUrl() throws Exception {
     String url = googleProvider.getAuthCodeRequestUrl();
-    assertEquals(url, "https://accounts.google.com/o/oauth2/auth" +
+    assertEquals("https://accounts.google.com/o/oauth2/auth" +
       "?client_id=12345" +
       "&redirect_uri=http://shammy/api/69/auth/google/callback" +
       "&response_type=code" +
       "&scope=profile%20email" +
-      "&state=xj-music");
+      "&state=xj-music", url);
   }
 
   @Test

@@ -8,8 +8,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigValueFactory;
 import io.xj.core.CoreModule;
-import io.xj.core.CoreTest;
 import io.xj.core.access.impl.AccessControlProviderImpl;
 import io.xj.core.access.token.TokenGenerator;
 import io.xj.core.model.Account;
@@ -19,6 +20,7 @@ import io.xj.core.model.UserAuth;
 import io.xj.core.model.UserRole;
 import io.xj.core.model.UserRoleType;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
+import io.xj.core.testing.AppTestConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +40,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RedisAccessTokenTest extends CoreTest {
+public class RedisAccessTokenTest {
   @Mock
   TokenGenerator tokenGenerator;
   @Mock
@@ -55,14 +57,16 @@ public class RedisAccessTokenTest extends CoreTest {
 
   @Before
   public void setUp() throws Exception {
-    System.setProperty("access.token.domain", "com.coconuts");
-    System.setProperty("access.token.path", "/deez");
-    System.setProperty("access.token.max.age", "60");
-    System.setProperty("access.token.name", "access_token_jammy");
+    Config config = AppTestConfiguration.getDefault()
+      .withValue("access.tokenDomain", ConfigValueFactory.fromAnyRef("com.coconuts"))
+      .withValue("access.tokenMaxAgeSeconds", ConfigValueFactory.fromAnyRef(60))
+      .withValue("access.tokenName", ConfigValueFactory.fromAnyRef("access_token_jammy"))
+      .withValue("access.tokenPath", ConfigValueFactory.fromAnyRef("/deez"));
     Injector injector = Guice.createInjector(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
+          bind(Config.class).toInstance(config);
           bind(TokenGenerator.class).toInstance(tokenGenerator);
           bind(RedisDatabaseProvider.class).toInstance(redisDatabaseProvider);
           bind(AccessControlProvider.class).to(AccessControlProviderImpl.class);

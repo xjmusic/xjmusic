@@ -3,8 +3,8 @@ package io.xj.worker.job.impl;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.typesafe.config.Config;
 import io.xj.core.access.Access;
-import io.xj.core.config.Config;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.exception.CoreException;
@@ -28,18 +28,24 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
   private final SegmentDAO segmentDAO;
   private final WorkManager workManager;
   private final Access access = Access.internal();
+  private final int workBufferSeconds;
+  private final int workBufferFabricateDelaySeconds;
 
   @Inject
   public ChainFabricateJobImpl(
     @Assisted("entityId") UUID entityId,
     ChainDAO chainDAO,
     SegmentDAO segmentDAO,
-    WorkManager workManager
+    WorkManager workManager,
+    Config config
   ) {
     this.entityId = entityId;
     this.chainDAO = chainDAO;
     this.segmentDAO = segmentDAO;
     this.workManager = workManager;
+
+    workBufferSeconds = config.getInt("work.bufferSeconds");
+    workBufferFabricateDelaySeconds = config.getInt("work.bufferFabricateDelaySeconds");
   }
 
   @Override
@@ -71,12 +77,11 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
         chain.getId(), chain.getState()));
     }
 
-    int bufferSeconds = Config.getWorkBufferSeconds();
     Optional<Segment> segmentToCreate = chainDAO.buildNextSegmentOrComplete(
       access,
       chain,
-      Instant.now().plusSeconds(bufferSeconds),
-      Instant.now().minusSeconds(bufferSeconds));
+      Instant.now().plusSeconds(workBufferSeconds),
+      Instant.now().minusSeconds(workBufferSeconds));
 
     if (segmentToCreate.isPresent())
       createSegmentAndJobs(segmentToCreate.get());
@@ -93,7 +98,7 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
     Segment createdSegment = segmentDAO.create(access, segmentToCreate);
     log.info("Created segment, id:{}, chainId:{}, offset:{}", createdSegment.getId(), createdSegment.getChainId(), createdSegment.getOffset());
 
-    workManager.scheduleSegmentFabricate(Config.getWorkBufferFabricateDelaySeconds(), createdSegment.getId());
+    workManager.scheduleSegmentFabricate(workBufferFabricateDelaySeconds, createdSegment.getId());
   }
 
   /**

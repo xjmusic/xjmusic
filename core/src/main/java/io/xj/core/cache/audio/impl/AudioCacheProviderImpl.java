@@ -1,4 +1,4 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.cache.audio.impl;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -7,10 +7,11 @@ import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.typesafe.config.Config;
 import io.xj.core.cache.audio.AudioCacheProvider;
-import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
 import io.xj.core.external.amazon.AmazonProvider;
+import io.xj.core.util.TempFile;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,13 +24,23 @@ import java.util.Objects;
 @Singleton
 public class AudioCacheProviderImpl implements AudioCacheProvider {
   final Logger log = LoggerFactory.getLogger(AudioCacheProviderImpl.class);
-  final String pathPrefix = Config.getCacheFilePathPrefix();
+  final String pathPrefix;
   private final AmazonProvider amazonProvider;
   private final LoadingCache<String, Item> items;
+  private String audioFileBucket;
 
   @Inject
-  AudioCacheProviderImpl(AmazonProvider amazonProvider) {
+  AudioCacheProviderImpl(
+    AmazonProvider amazonProvider,
+    Config config
+  ) {
     this.amazonProvider = amazonProvider;
+    audioFileBucket = config.getString("audio.fileBucket");
+    long allocateBytes = config.getLong("audio.cacheAllocateBytes");
+    pathPrefix = config.hasPath("audio.cacheFilePrefix") ?
+      config.getString("audio.cacheFilePrefix") :
+      String.format("%scache%s", TempFile.getTempFilePathPrefix(), File.separator);
+
     try {
       // make directory for cache files
       File dir = new File(pathPrefix);
@@ -43,7 +54,6 @@ public class AudioCacheProviderImpl implements AudioCacheProvider {
     }
 
     LoadingCache<String, Item> loadItems = null;
-    long allocateBytes = Config.getCacheFileAllocateBytes();
     try {
       loadItems = Caffeine.newBuilder()
         .maximumWeight(allocateBytes)
@@ -98,8 +108,15 @@ public class AudioCacheProviderImpl implements AudioCacheProvider {
    @return computed item
    */
   private Item fetchAndWrite(String key) throws CoreException, IOException {
-    Item item = new Item(key);
-    InputStream stream = amazonProvider.streamS3Object(Config.getAudioFileBucket(), key);
+    String path = String.format("%s%s%s%d-%s.data",
+      pathPrefix,
+      audioFileBucket,
+      File.separator,
+      ItemNumber.next(), // atomic integer is always unique
+      key);
+
+    Item item = new Item(key, path);
+    InputStream stream = amazonProvider.streamS3Object(audioFileBucket, key);
     item.writeFrom(stream);
     if (Objects.nonNull(stream)) stream.close(); // FUTURE when does this ever happen?
     return item;

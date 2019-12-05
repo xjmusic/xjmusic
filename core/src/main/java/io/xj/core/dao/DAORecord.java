@@ -1,10 +1,10 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import io.xj.core.dao.impl.DAOImpl;
 import io.xj.core.entity.Entity;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Account;

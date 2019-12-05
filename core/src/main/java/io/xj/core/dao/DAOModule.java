@@ -1,38 +1,7 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import com.google.inject.AbstractModule;
-import io.xj.core.dao.impl.AccountDAOImpl;
-import io.xj.core.dao.impl.AccountUserDAOImpl;
-import io.xj.core.dao.impl.ChainDAOImpl;
-import io.xj.core.dao.impl.ChainBindingDAOImpl;
-import io.xj.core.dao.impl.ChainConfigDAOImpl;
-import io.xj.core.dao.impl.InstrumentDAOImpl;
-import io.xj.core.dao.impl.InstrumentAudioDAOImpl;
-import io.xj.core.dao.impl.InstrumentAudioChordDAOImpl;
-import io.xj.core.dao.impl.InstrumentAudioEventDAOImpl;
-import io.xj.core.dao.impl.InstrumentMemeDAOImpl;
-import io.xj.core.dao.impl.LibraryDAOImpl;
-import io.xj.core.dao.impl.PlatformMessageDAOImpl;
-import io.xj.core.dao.impl.ProgramDAOImpl;
-import io.xj.core.dao.impl.ProgramSequencePatternEventDAOImpl;
-import io.xj.core.dao.impl.ProgramMemeDAOImpl;
-import io.xj.core.dao.impl.ProgramSequencePatternDAOImpl;
-import io.xj.core.dao.impl.ProgramSequenceDAOImpl;
-import io.xj.core.dao.impl.ProgramSequenceBindingDAOImpl;
-import io.xj.core.dao.impl.ProgramSequenceBindingMemeDAOImpl;
-import io.xj.core.dao.impl.ProgramSequenceChordDAOImpl;
-import io.xj.core.dao.impl.ProgramVoiceTrackDAOImpl;
-import io.xj.core.dao.impl.ProgramVoiceDAOImpl;
-import io.xj.core.dao.impl.SegmentDAOImpl;
-import io.xj.core.dao.impl.SegmentChoiceArrangementDAOImpl;
-import io.xj.core.dao.impl.SegmentChoiceDAOImpl;
-import io.xj.core.dao.impl.SegmentChordDAOImpl;
-import io.xj.core.dao.impl.SegmentMemeDAOImpl;
-import io.xj.core.dao.impl.SegmentMessageDAOImpl;
-import io.xj.core.dao.impl.SegmentChoiceArrangementPickDAOImpl;
-import io.xj.core.dao.impl.UserDAOImpl;
-import io.xj.core.dao.impl.WorkDAOImpl;
 
 public class DAOModule extends AbstractModule {
   @Override

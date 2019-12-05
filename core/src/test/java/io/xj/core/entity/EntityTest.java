@@ -2,15 +2,14 @@
 
 package io.xj.core.entity;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import io.xj.core.CoreTest;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Library;
 import io.xj.core.model.Program;
-import io.xj.core.model.ProgramState;
-import io.xj.core.model.ProgramType;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramSequenceBinding;
 import io.xj.core.model.ProgramSequenceBindingMeme;
+import io.xj.core.model.ProgramState;
+import io.xj.core.model.ProgramType;
 import io.xj.core.model.Segment;
 import io.xj.core.model.SegmentChord;
 import io.xj.core.model.User;
@@ -23,7 +22,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
-public class EntityTest extends CoreTest {
+public class EntityTest {
 
   @Rule
   public ExpectedException failure = ExpectedException.none();

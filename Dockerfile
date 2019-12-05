@@ -75,11 +75,11 @@ EXPOSE 80
 
 # Nginx configs and log folder (parity with AWS Elastic Beanstalk deployment)
 ADD \
-  .docker/nginx/nginx.conf \
+  ops/docker/nginx/nginx.conf \
   /etc/nginx/nginx.conf
 RUN mkdir -p /etc/nginx/conf.d/locations
 ADD \
-  .nginx/locations.conf \
+  ops/nginx/locations.conf \
   /etc/nginx/conf.d/locations/00_application.conf
 
 ###
@@ -97,7 +97,7 @@ RUN mkdir -p /var/cache/worker && chmod a+w /var/cache/worker
 
 # App run script
 ADD \
-  .docker/bin/boot-docker \
+  ops/docker/bin/boot-docker \
   /data/bin/boot-docker
 
 # App bootstrap

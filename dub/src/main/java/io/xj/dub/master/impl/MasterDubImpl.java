@@ -4,15 +4,15 @@ package io.xj.dub.master.impl;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.typesafe.config.Config;
 import io.xj.core.cache.audio.AudioCacheProvider;
-import io.xj.core.config.Config;
 import io.xj.core.entity.MessageType;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorType;
 import io.xj.core.model.ChainConfigType;
 import io.xj.core.model.InstrumentAudio;
-import io.xj.core.model.SegmentMessage;
 import io.xj.core.model.SegmentChoiceArrangementPick;
+import io.xj.core.model.SegmentMessage;
 import io.xj.core.util.Text;
 import io.xj.dub.exception.DubException;
 import io.xj.dub.master.MasterDub;
@@ -37,19 +37,41 @@ public class MasterDubImpl implements MasterDub {
   private final MixerFactory mixerFactory;
   private final List<String> warnings = Lists.newArrayList();
   private final AudioCacheProvider audioCacheProvider;
-  private final long audioAttackMicros = Config.getMixerSampleAttackMicros();
-  private final long audioReleaseMicros = Config.getMixerSampleReleaseMicros();
+  private final long audioAttackMicros;
+  private final long audioReleaseMicros;
   private Mixer _mixer;
+  private double normalizationMax;
+  private int dspBufferSize;
+  private double compressRatioMax;
+  private double compressRatioMin;
+  private double highpassThresholdHz;
+  private double lowpassThresholdHz;
+  private double compressToAmplitude;
+  private double compressAheadSeconds;
+  private double compressDecaySeconds;
 
   @Inject
   public MasterDubImpl(
     @Assisted("basis") Fabricator fabricator,
     AudioCacheProvider audioCacheProvider,
-    MixerFactory mixerFactory
+    MixerFactory mixerFactory,
+    Config config
     /*-*/) {
     this.audioCacheProvider = audioCacheProvider;
     this.fabricator = fabricator;
     this.mixerFactory = mixerFactory;
+
+    audioAttackMicros = config.getInt("mixer.sampleAttackMicros");
+    audioReleaseMicros = config.getInt("mixer.sampleReleaseMicros");
+    normalizationMax = config.getDouble("mixer.normalizationMax");
+    dspBufferSize = config.getInt("mixer.dspBufferSize");
+    compressRatioMax = config.getDouble("mixer.compressRatioMax");
+    compressRatioMin = config.getDouble("mixer.compressRatioMin");
+    highpassThresholdHz = config.getDouble("mixer.highpassThresholdHz");
+    lowpassThresholdHz = config.getDouble("mixer.lowpassThresholdHz");
+    compressToAmplitude = config.getDouble("mixer.compressToAmplitude");
+    compressAheadSeconds = config.getDouble("mixer.compressAheadSeconds");
+    compressDecaySeconds = config.getDouble("mixer.compressDecaySeconds");
   }
 
   /**
@@ -150,15 +172,17 @@ public class MasterDubImpl implements MasterDub {
     if (Objects.isNull(_mixer)) {
       MixerConfig config = new MixerConfig(fabricator.getOutputAudioFormat(), fabricator.getSegmentTotalLength())
         .setLogPrefix(String.format("[segId=%s] ", fabricator.getSegment().getId()))
-        .setNormalizationMax(Config.getMixerNormalizationMax())
-        .setDSPBufferSize(Config.getDSPBufferSize())
-        .setCompressRatioMax(Config.getMixerCompressRatioMax())
-        .setCompressRatioMin(Config.getMixerCompressRatioMin())
-        .setHighpassThresholdHz(Config.getMixerHighpassThresholdHz())
-        .setLowpassThresholdHz(Config.getMixerLowpassThresholdHz())
-        .setCompressToAmplitude(Config.getMixerCompressToAmplitude())
-        .setCompressAheadSeconds(Config.getMixerCompressAheadSeconds())
-        .setCompressDecaySeconds(Config.getMixerCompressDecaySeconds());
+        .setNormalizationMax(normalizationMax)
+        .setDSPBufferSize(dspBufferSize)
+        .setCompressRatioMax(compressRatioMax)
+        .setCompressRatioMin(compressRatioMin)
+        .setHighpassThresholdHz(highpassThresholdHz)
+        .setLowpassThresholdHz(lowpassThresholdHz)
+        .setCompressToAmplitude(compressToAmplitude)
+        .setCompressAheadSeconds(compressAheadSeconds)
+        .setCompressDecaySeconds(compressDecaySeconds);
+
+
       _mixer = mixerFactory.createMixer(config);
     }
 

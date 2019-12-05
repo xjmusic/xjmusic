@@ -9,7 +9,7 @@ import io.xj.core.access.Access;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.model.Segment;
-import io.xj.core.transport.CSV;
+import io.xj.core.util.CSV;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.ChainEraseJob;
 import org.slf4j.Logger;

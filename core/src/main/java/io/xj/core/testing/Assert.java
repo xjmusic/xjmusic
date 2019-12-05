@@ -1,19 +1,24 @@
-//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.core.testing;
 
 import com.google.common.collect.Maps;
+import io.xj.core.access.Access;
+import io.xj.core.dao.DAO;
 import io.xj.core.entity.ChordEntity;
 import io.xj.core.entity.MemeEntity;
-import io.xj.core.transport.CSV;
+import io.xj.core.exception.CoreException;
+import io.xj.core.util.CSV;
 import io.xj.core.util.Text;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public enum Assert {
   ;
@@ -117,4 +122,21 @@ public enum Assert {
     assertTrue(String.format("'%s' contains '%s'", actual, expectContains), actual.equals(expectContains) || actual.contains(expectContains));
   }
 
+  /**
+   [#165951041] DAO methods throw exception when record is not found (instead of returning null)
+   <p>
+   Assert an entity does not exist, by making a DAO.readOne() request and asserting the exception
+
+   @param testDAO to use for attempting to retrieve entity
+   @param id      of entity
+   @param <N>     DAO class
+   */
+  public static <N extends DAO> void assertNotExist(N testDAO, UUID id) {
+    try {
+      testDAO.readOne(Access.internal(), id);
+      fail();
+    } catch (CoreException e) {
+      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+    }
+  }
 }

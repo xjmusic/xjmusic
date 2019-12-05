@@ -1,15 +1,11 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access.impl;
 
-import io.xj.core.CoreModule;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.xj.core.access.Access;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.AccessTokenAuthFilter;
-import io.xj.core.config.Config;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import io.xj.core.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,17 +28,30 @@ import java.util.Objects;
 
 @Priority(Priorities.AUTHENTICATION)
 public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
   private final Logger log = LoggerFactory.getLogger(AccessTokenAuthFilterImpl.class);
-  private AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
-
-  private final String accessTokenName = Config.getAccessTokenName();
+  private final String accessTokenName;
+  private final AccessControlProvider accessControlProvider;
 
   /**
    This field is assigned internally by ContainerRequestFilter
    */
   @Context
   private ResourceInfo resourceInfo; // NOTE This field is assigned internally by ContainerRequestFilter
+
+  @Override
+  public void setResourceInfo(ResourceInfo resourceInfo) {
+    this.resourceInfo = resourceInfo;
+  }
+
+  @Inject
+  public AccessTokenAuthFilterImpl(
+    AccessControlProvider accessControlProvider,
+    Config config
+  ) {
+    this.accessControlProvider = accessControlProvider;
+
+    accessTokenName = config.getString("access.tokenName");
+  }
 
   @Override
   public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -54,17 +63,6 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     } catch (Exception e) {
       fail(requestContext, e);
     }
-  }
-
-  /**
-   Override resource info-- FOR TESTING PURPOSES ONLY, in order to mock a resource
-
-   @param resourceInfo to set
-   */
-  @Override
-  public void setTestResources(ResourceInfo resourceInfo, AccessControlProvider accessControlProvider) {
-    this.resourceInfo = resourceInfo;
-    this.accessControlProvider = accessControlProvider;
   }
 
   /**
@@ -133,8 +131,8 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
 
   /**
    Access denial implements this central method for logging.
-   * @param e pertaining to denial.
 
+   @param e pertaining to denial.
    */
   private void deny(ContainerRequestContext context, Exception e) {
     log.debug("Denied {} /{} ({})", context.getRequest().getMethod(), context.getUriInfo().getPath(), e);

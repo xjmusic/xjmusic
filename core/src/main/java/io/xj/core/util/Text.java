@@ -1,11 +1,9 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.xj.core.config.Config;
-import io.xj.core.transport.CSV;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
@@ -54,7 +52,7 @@ public interface Text {
     if (Objects.isNull(e)) return "";
     StackTraceElement[] stack = e.getStackTrace();
     String[] stackLines = Arrays.stream(stack).map(StackTraceElement::toString).toArray(String[]::new);
-    return String.join(Config.getLineSeparator(), stackLines);
+    return String.join(System.getProperty("line.separator"), stackLines);
   }
 
   /**

@@ -1,7 +1,6 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.ingest.cache.impl;
 
-import io.xj.core.config.Config;
 import io.xj.core.ingest.Ingest;
 
 import java.time.Instant;
@@ -14,14 +13,16 @@ import java.time.Instant;
 public class IngestCacheItem {
   private final Instant createdAt;
   private final Ingest ingest;
+  private int cacheSeconds;
 
   /**
-   Create a new cached ingest.
+   Create a new cached ingest.@param ingest to cache
 
-   @param ingest to cache
+   @param cacheSeconds to cache item for
    */
-  IngestCacheItem(Ingest ingest) {
+  IngestCacheItem(Ingest ingest, int cacheSeconds) {
     this.ingest = ingest;
+    this.cacheSeconds = cacheSeconds;
     createdAt = Instant.now();
   }
 
@@ -33,7 +34,7 @@ public class IngestCacheItem {
    */
   Boolean isValid() {
     return Instant.now().getEpochSecond() <
-      createdAt.getEpochSecond() + Config.getIngestCacheSeconds();
+      createdAt.getEpochSecond() + cacheSeconds;
   }
 
   /**

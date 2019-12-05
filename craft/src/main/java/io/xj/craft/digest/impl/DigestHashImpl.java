@@ -8,7 +8,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.entity.Entity;
-import io.xj.core.transport.CSV;
+import io.xj.core.util.CSV;
 import io.xj.core.util.Text;
 import io.xj.craft.digest.DigestType;
 import io.xj.craft.digest.DigestHash;

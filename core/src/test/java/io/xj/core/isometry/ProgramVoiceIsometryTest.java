@@ -2,7 +2,6 @@
 package io.xj.core.isometry;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.CoreTest;
 import io.xj.core.model.InstrumentType;
 import io.xj.core.model.Program;
 import io.xj.core.model.ProgramVoice;
@@ -12,7 +11,7 @@ import org.junit.Test;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class ProgramVoiceIsometryTest extends CoreTest {
+public class ProgramVoiceIsometryTest {
   private ProgramVoice programVoice1a;
   private ProgramVoice programVoice1b;
 

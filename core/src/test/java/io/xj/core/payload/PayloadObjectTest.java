@@ -2,7 +2,6 @@ package io.xj.core.payload;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import io.xj.core.CoreTest;
 import io.xj.core.model.Account;
 import io.xj.core.model.User;
 import org.junit.Before;
@@ -16,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class PayloadObjectTest extends CoreTest {
+public class PayloadObjectTest  {
   PayloadObject subject;
 
   @Before

@@ -1205,14 +1205,14 @@ blockquote, blockquote p {
   @media (min-width: 992px) {
     .splash h1 {
       font-size: 3rem;
-      line-height: 3.15rem; }
+      line-height: 3.75rem; }
     .splash p {
       font-size: 1.875rem;
       line-height: 2.625rem; } }
   @media (max-width: 991px) {
     .splash h1 {
       font-size: 2.25rem;
-      line-height: 2.3625rem; }
+      line-height: 2.5875rem; }
     .splash p {
       font-size: 1.5rem;
       line-height: 2.1rem; } }

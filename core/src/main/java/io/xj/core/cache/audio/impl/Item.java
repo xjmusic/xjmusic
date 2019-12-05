@@ -1,8 +1,6 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.cache.audio.impl;
 
-import io.xj.core.config.Config;
-import io.xj.core.exception.CoreException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -16,12 +14,9 @@ import java.io.OutputStream;
 import java.util.Objects;
 
 public class Item {
-  private static final String DASH = "-";
   final Logger log = LoggerFactory.getLogger(Item.class);
-  final String pathPrefix = Config.getCacheFilePathPrefix();
-  final String pathSuffix = Config.getCacheFilePathSuffix();
-  private final String _key;
-  private final String _path;
+  private final String key;
+  private final String path;
   private int _bytes; // in bytes
 
   /**
@@ -31,24 +26,19 @@ public class Item {
    [#153228109] During Dubbing, when the audio cache refreshes an item, filenames should be unique in order to avoid deletion-collision
 
    @param key of item to cache
-   @throws CoreException when missing required configurations
    */
-  public Item(String key) throws CoreException {
-    _key = key;
-    String bucket = Config.getAudioFileBucket();
-    _path = pathPrefix +
-      bucket + File.separator +
-      ItemNumber.next() + DASH + // atomic integer is always unique
-      _key + pathSuffix;
+  public Item(String key, String path) {
+    this.key = key;
+    this.path = path;
   }
 
   /**
-   _key of stored data
+   key of stored data
 
-   @return _key
+   @return key
    */
   public String key() {
-    return _key;
+    return key;
   }
 
   /**
@@ -57,7 +47,7 @@ public class Item {
    @return content
    */
   public BufferedInputStream stream() throws IOException {
-    return new BufferedInputStream(FileUtils.openInputStream(new File(_path)));
+    return new BufferedInputStream(FileUtils.openInputStream(new File(path)));
   }
 
   /**
@@ -68,12 +58,12 @@ public class Item {
    */
   public void writeFrom(InputStream data) throws IOException {
     if (Objects.nonNull(data)) {
-      OutputStream toFile = FileUtils.openOutputStream(new File(_path));
+      OutputStream toFile = FileUtils.openOutputStream(new File(path));
       _bytes = IOUtils.copy(data, toFile);
       toFile.close();
-      log.info("Did write media item to disk cache: {} ({} bytes)", _path, _bytes);
+      log.info("Did write media item to disk cache: {} ({} bytes)", path, _bytes);
     } else {
-      log.warn("Will not write 0 bytes to disk cache: {}", _path);
+      log.warn("Will not write 0 bytes to disk cache: {}", path);
     }
   }
 
@@ -81,23 +71,23 @@ public class Item {
    this item has been removed
    */
   public void remove() {
-    File file = new File(_path);
+    File file = new File(path);
     if (file.exists()) try {
       FileUtils.forceDelete(file);
-      log.info("Deleted: {}", _path);
+      log.info("Deleted: {}", path);
 
     } catch (IOException e) {
-      log.error("Failed to delete media item create disk cache: {}", _path, e);
+      log.error("Failed to delete media item create disk cache: {}", path, e);
     }
   }
 
   /**
-   _path to stored data file
+   path to stored data file
 
-   @return _path
+   @return path
    */
   public String path() {
-    return _path;
+    return path;
   }
 
   /**

@@ -2,7 +2,7 @@
 package io.xj.craft.digest;
 
 import io.xj.core.exception.CoreException;
-import io.xj.core.transport.CSV;
+import io.xj.core.util.CSV;
 import io.xj.core.util.Text;
 
 import java.util.List;

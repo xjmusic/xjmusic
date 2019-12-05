@@ -3,11 +3,13 @@ package io.xj.core.dao.segment;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.util.Modules;
+import com.typesafe.config.Config;
 import io.xj.core.CoreModule;
-import io.xj.core.FixtureIT;
+import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.external.amazon.AmazonProvider;
@@ -17,7 +19,9 @@ import io.xj.core.model.ChainState;
 import io.xj.core.model.ChainType;
 import io.xj.core.model.Segment;
 import io.xj.core.model.SegmentState;
-import org.jooq.impl.DSL;
+import io.xj.core.testing.AppTestConfiguration;
+import io.xj.core.testing.Assert;
+import io.xj.core.testing.IntegrationTestProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,33 +36,37 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import static io.xj.core.Tables.CHAIN;
-import static io.xj.core.tables.Segment.SEGMENT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SegmentIT extends FixtureIT {
+public class SegmentIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   @Mock
   AmazonProvider amazonProvider;
   private SegmentDAO testDAO;
 
+  private IntegrationTestProvider test;
+  private IntegrationTestingFixtures fake;
+
   @Before
   public void setUp() throws Exception {
-    reset();
-
-    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+    Config config = AppTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
           bind(AmazonProvider.class).toInstance(amazonProvider);
         }
-      }));
+      })));
+    test = injector.getInstance(IntegrationTestProvider.class);
+    fake = new IntegrationTestingFixtures(test);
+
+    test.reset();
 
     // test subject
     testDAO = injector.getInstance(SegmentDAO.class);
@@ -67,12 +75,12 @@ public class SegmentIT extends FixtureIT {
     System.setProperty("segment.file.bucket", "xj-segment-test");
 
     // Account "Testing" has chain "Test Print #1"
-    account1 = insert(Account.create("Testing"));
-    chain3 = insert(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    fake.account1 = test.insert(Account.create("Testing"));
+    fake.chain3 = test.insert(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
 
     // Chain "Test Print #1" has 5 sequential segments
-    segment1 = insert(Segment.create()
-      .setChainId(chain3.getId())
+    fake.segment1 = test.insert(Segment.create()
+      .setChainId(fake.chain3.getId())
       .setOffset(0L)
       .setStateEnum(SegmentState.Dubbed)
       .setKey("D major")
@@ -82,8 +90,8 @@ public class SegmentIT extends FixtureIT {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setEndAt("2017-02-14T12:01:32.000001Z"));
-    segment2 = insert(Segment.create()
-      .setChainId(chain3.getId())
+    fake.segment2 = test.insert(Segment.create()
+      .setChainId(fake.chain3.getId())
       .setOffset(1L)
       .setStateEnum(SegmentState.Dubbing)
       .setKey("Db minor")
@@ -93,8 +101,8 @@ public class SegmentIT extends FixtureIT {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setEndAt("2017-02-14T12:02:04.000001Z"));
-    segment3 = insert(Segment.create()
-      .setChainId(chain3.getId())
+    fake.segment3 = test.insert(Segment.create()
+      .setChainId(fake.chain3.getId())
       .setOffset(2L)
       .setStateEnum(SegmentState.Crafted)
       .setKey("F major")
@@ -104,8 +112,8 @@ public class SegmentIT extends FixtureIT {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setEndAt("2017-02-14T12:02:36.000001Z"));
-    segment4 = insert(Segment.create()
-      .setChainId(chain3.getId())
+    fake.segment4 = test.insert(Segment.create()
+      .setChainId(fake.chain3.getId())
       .setOffset(3L)
       .setStateEnum(SegmentState.Crafting)
       .setKey("E minor")
@@ -115,8 +123,8 @@ public class SegmentIT extends FixtureIT {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:36.000001Z")
       .setEndAt("2017-02-14T12:03:08.000001Z"));
-    segment5 = insert(Segment.create()
-      .setChainId(chain3.getId())
+    fake.segment5 = test.insert(Segment.create()
+      .setChainId(fake.chain3.getId())
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setOffset(4L)
       .setStateEnum(SegmentState.Planned)
@@ -129,7 +137,7 @@ public class SegmentIT extends FixtureIT {
 
   @After
   public void tearDown() {
-    System.clearProperty("segment.file.bucket");
+    test.shutdown();
   }
 
   /**
@@ -139,7 +147,7 @@ public class SegmentIT extends FixtureIT {
   public void create() throws Exception {
     Access access = Access.create("Admin");
     Segment inputData = Segment.create()
-      .setChainId(chain3.getId())
+      .setChainId(fake.chain3.getId())
       .setOffset(5L)
       .setState("Planned")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
@@ -156,7 +164,7 @@ public class SegmentIT extends FixtureIT {
     Segment result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(chain3.getId(), result.getChainId());
+    assertEquals(fake.chain3.getId(), result.getChainId());
     assertEquals(Long.valueOf(5L), result.getOffset());
     assertEquals(SegmentState.Planned, result.getState());
     assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt().toString());
@@ -176,7 +184,7 @@ public class SegmentIT extends FixtureIT {
   public void create_alwaysInPlannedState() throws Exception {
     Access access = Access.create("Admin");
     Segment inputData = Segment.create()
-      .setChainId(chain3.getId())
+      .setChainId(fake.chain3.getId())
       .setOffset(5L)
       .setState("Crafting")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
@@ -193,7 +201,7 @@ public class SegmentIT extends FixtureIT {
     Segment result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(chain3.getId(), result.getChainId());
+    assertEquals(fake.chain3.getId(), result.getChainId());
     assertEquals(Long.valueOf(5L), result.getOffset());
     assertEquals(SegmentState.Planned, result.getState());
     assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt().toString());
@@ -209,7 +217,7 @@ public class SegmentIT extends FixtureIT {
   public void create_FailsIfNotUniqueChainOffset() throws Exception {
     Access access = Access.create("Admin");
     Segment inputData = Segment.create()
-      .setChainId(chain3.getId())
+      .setChainId(fake.chain3.getId())
       .setOffset(4L)
       .setState("Crafting")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
@@ -232,7 +240,7 @@ public class SegmentIT extends FixtureIT {
   public void create_FailsWithoutTopLevelAccess() throws Exception {
     Access access = Access.create("User");
     Segment inputData = Segment.create()
-      .setChainId(chain3.getId())
+      .setChainId(fake.chain3.getId())
       .setOffset(4L)
       .setState("Crafting")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
@@ -275,13 +283,13 @@ public class SegmentIT extends FixtureIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
 
-    Segment result = testDAO.readOne(access, segment2.getId());
+    Segment result = testDAO.readOne(access, fake.segment2.getId());
 
     assertNotNull(result);
-    assertEquals(segment2.getId(), result.getId());
-    assertEquals(chain3.getId(), result.getChainId());
+    assertEquals(fake.segment2.getId(), result.getId());
+    assertEquals(fake.chain3.getId(), result.getChainId());
     assertEquals(Long.valueOf(1L), result.getOffset());
     assertEquals(SegmentState.Dubbing, result.getState());
     assertEquals("2017-02-14T12:01:32.000001Z", result.getBeginAt().toString());
@@ -298,14 +306,14 @@ public class SegmentIT extends FixtureIT {
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.readOne(access, segment1.getId());
+    testDAO.readOne(access, fake.segment1.getId());
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(chain3.getId()));
+    Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(fake.chain3.getId()));
 
     assertNotNull(result);
     assertEquals(5L, result.size());
@@ -329,9 +337,9 @@ public class SegmentIT extends FixtureIT {
 
   @Test
   public void readAll_byChainEmbedKey() throws Exception {
-    Chain chain5 = insert(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich"));
-    insert(Segment.create()
-      .setChainId(chain5.getId())
+    fake.chain5 = test.insert(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich"));
+    test.insert(Segment.create()
+      .setChainId(fake.chain5.getId())
       .setOffset(0L)
       .setStateEnum(SegmentState.Dubbed)
       .setKey("D major")
@@ -342,8 +350,8 @@ public class SegmentIT extends FixtureIT {
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setCreatedAt("2017-02-14T12:01:00.000001Z")
       .setUpdatedAt("2017-02-14T12:01:32.000001Z"));
-    insert(Segment.create()
-      .setChainId(chain5.getId())
+    test.insert(Segment.create()
+      .setChainId(fake.chain5.getId())
       .setOffset(1L)
       .setStateEnum(SegmentState.Dubbing)
       .setKey("Db minor")
@@ -354,8 +362,8 @@ public class SegmentIT extends FixtureIT {
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setCreatedAt("2017-02-14T12:01:32.000001Z")
       .setUpdatedAt("2017-02-14T12:02:04.000001Z"));
-    insert(Segment.create()
-      .setChainId(chain5.getId())
+    test.insert(Segment.create()
+      .setChainId(fake.chain5.getId())
       .setOffset(2L)
       .setStateEnum(SegmentState.Crafted)
       .setKey("F major")
@@ -366,8 +374,8 @@ public class SegmentIT extends FixtureIT {
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setCreatedAt("2017-02-14T12:02:04.000001Z")
       .setUpdatedAt("2017-02-14T12:02:36.000001Z"));
-    insert(Segment.create()
-      .setChainId(chain5.getId())
+    test.insert(Segment.create()
+      .setChainId(fake.chain5.getId())
       .setOffset(3L)
       .setStateEnum(SegmentState.Crafting)
       .setKey("E minor")
@@ -378,8 +386,8 @@ public class SegmentIT extends FixtureIT {
       .setBeginAt("2017-02-14T12:02:36.000001Z")
       .setCreatedAt("2017-02-14T12:02:36.000001Z")
       .setUpdatedAt("2017-02-14T12:03:08.000001Z"));
-    insert(Segment.create()
-      .setChainId(chain5.getId())
+    test.insert(Segment.create()
+      .setChainId(fake.chain5.getId())
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setOffset(4L)
       .setStateEnum(SegmentState.Planned)
@@ -407,9 +415,9 @@ public class SegmentIT extends FixtureIT {
 
   @Test
   public void readAllFromOffset() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<Segment> result = testDAO.readAllFromOffset(access, chain3.getId(), 2L);
+    Collection<Segment> result = testDAO.readAllFromOffset(access, fake.chain3.getId(), 2L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -423,9 +431,9 @@ public class SegmentIT extends FixtureIT {
 
   @Test
   public void readAllFromToOffset() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<Segment> result = testDAO.readAllFromToOffset(access, chain3.getId(), 2L, 3L);
+    Collection<Segment> result = testDAO.readAllFromToOffset(access, fake.chain3.getId(), 2L, 3L);
 
     assertEquals(2L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -437,18 +445,18 @@ public class SegmentIT extends FixtureIT {
 
   @Test
   public void readAllFromToOffset_acceptsNegativeOffsets_returnsEmptyCollection() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<Segment> result = testDAO.readAllFromToOffset(access, chain3.getId(), -1L, -1L);
+    Collection<Segment> result = testDAO.readAllFromToOffset(access, fake.chain3.getId(), -1L, -1L);
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void readAllFromOffset_byChainEmbedKey() throws Exception {
-    Chain chain5 = insert(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich"));
-    insert(Segment.create()
-      .setChainId(chain5.getId())
+    fake.chain5 = test.insert(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich"));
+    test.insert(Segment.create()
+      .setChainId(fake.chain5.getId())
       .setOffset(0L)
       .setStateEnum(SegmentState.Dubbed)
       .setKey("D major")
@@ -459,8 +467,8 @@ public class SegmentIT extends FixtureIT {
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setCreatedAt("2017-02-14T12:01:00.000001Z")
       .setUpdatedAt("2017-02-14T12:01:32.000001Z"));
-    insert(Segment.create()
-      .setChainId(chain5.getId())
+    test.insert(Segment.create()
+      .setChainId(fake.chain5.getId())
       .setOffset(1L)
       .setStateEnum(SegmentState.Dubbing)
       .setKey("Db minor")
@@ -471,8 +479,8 @@ public class SegmentIT extends FixtureIT {
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setCreatedAt("2017-02-14T12:01:32.000001Z")
       .setUpdatedAt("2017-02-14T12:02:04.000001Z"));
-    insert(Segment.create()
-      .setChainId(chain5.getId())
+    test.insert(Segment.create()
+      .setChainId(fake.chain5.getId())
       .setOffset(2L)
       .setStateEnum(SegmentState.Crafted)
       .setKey("F major")
@@ -483,8 +491,8 @@ public class SegmentIT extends FixtureIT {
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setCreatedAt("2017-02-14T12:02:04.000001Z")
       .setUpdatedAt("2017-02-14T12:02:36.000001Z"));
-    insert(Segment.create()
-      .setChainId(chain5.getId())
+    test.insert(Segment.create()
+      .setChainId(fake.chain5.getId())
       .setOffset(3L)
       .setStateEnum(SegmentState.Crafting)
       .setKey("E minor")
@@ -495,8 +503,8 @@ public class SegmentIT extends FixtureIT {
       .setBeginAt("2017-02-14T12:02:36.000001Z")
       .setCreatedAt("2017-02-14T12:02:36.000001Z")
       .setUpdatedAt("2017-02-14T12:03:08.000001Z"));
-    insert(Segment.create()
-      .setChainId(chain5.getId())
+    test.insert(Segment.create()
+      .setChainId(fake.chain5.getId())
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setOffset(4L)
       .setStateEnum(SegmentState.Planned)
@@ -521,9 +529,9 @@ public class SegmentIT extends FixtureIT {
 
   @Test
   public void readAllFromSecondsUTC() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<Segment> result = testDAO.readAllFromSecondsUTC(access, chain3.getId(), 1487073724L);
+    Collection<Segment> result = testDAO.readAllFromSecondsUTC(access, fake.chain3.getId(), 1487073724L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -537,8 +545,8 @@ public class SegmentIT extends FixtureIT {
 
   @Test
   public void readAllFromSecondsUTC_byChainEmbedKey() throws Exception {
-    Chain chain5 = insert(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich"));
-    insert(Segment.create().setChainId(chain5.getId())
+    fake.chain5 = test.insert(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich"));
+    test.insert(Segment.create().setChainId(fake.chain5.getId())
       .setOffset(0L)
       .setStateEnum(SegmentState.Dubbed)
       .setKey("D major")
@@ -548,7 +556,7 @@ public class SegmentIT extends FixtureIT {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setEndAt("2017-02-14T12:01:32.000001Z"));
-    insert(Segment.create().setChainId(chain5.getId())
+    test.insert(Segment.create().setChainId(fake.chain5.getId())
       .setOffset(1L)
       .setStateEnum(SegmentState.Dubbing)
       .setKey("Db minor")
@@ -558,7 +566,7 @@ public class SegmentIT extends FixtureIT {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setEndAt("2017-02-14T12:02:04.000001Z"));
-    insert(Segment.create().setChainId(chain5.getId())
+    test.insert(Segment.create().setChainId(fake.chain5.getId())
       .setOffset(2L)
       .setStateEnum(SegmentState.Crafted)
       .setKey("F major")
@@ -568,7 +576,7 @@ public class SegmentIT extends FixtureIT {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setEndAt("2017-02-14T12:02:36.000001Z"));
-    insert(Segment.create().setChainId(chain5.getId())
+    test.insert(Segment.create().setChainId(fake.chain5.getId())
       .setOffset(3L)
       .setStateEnum(SegmentState.Crafting)
       .setKey("E minor")
@@ -578,8 +586,8 @@ public class SegmentIT extends FixtureIT {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:36.000001Z")
       .setEndAt("2017-02-14T12:03:08.000001Z"));
-    insert(Segment.create()
-      .setChainId(chain5.getId())
+    test.insert(Segment.create()
+      .setChainId(fake.chain5.getId())
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setOffset(4L)
       .setStateEnum(SegmentState.Planned)
@@ -605,10 +613,10 @@ public class SegmentIT extends FixtureIT {
   public void readOneInState() throws Exception {
     Access access = Access.create("Internal");
 
-    Segment result = testDAO.readOneInState(access, chain3.getId(), SegmentState.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"));
+    Segment result = testDAO.readOneInState(access, fake.chain3.getId(), SegmentState.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"));
 
-    assertEquals(segment5.getId(), result.getId());
-    assertEquals(chain3.getId(), result.getChainId());
+    assertEquals(fake.segment5.getId(), result.getId());
+    assertEquals(fake.chain3.getId(), result.getChainId());
     assertEquals(Long.valueOf(4L), result.getOffset());
     assertEquals(SegmentState.Planned, result.getState());
     assertEquals("2017-02-14T12:03:08.000001Z", result.getBeginAt().toString());
@@ -618,18 +626,18 @@ public class SegmentIT extends FixtureIT {
   @Test
   public void readOneInState_failIfNoneInChain() throws Exception {
     Access access = Access.create("Internal");
-    insert(Chain.create(account1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    test.insert(Chain.create(fake.account1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.readOneInState(access, segment2.getId(), SegmentState.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"));
+    testDAO.readOneInState(access, fake.segment2.getId(), SegmentState.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfChain() throws Exception {
     Access access = Access.create(ImmutableList.of(Account.create()), "User");
 
-    Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(segment1.getId()));
+    Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(fake.segment1.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -638,7 +646,7 @@ public class SegmentIT extends FixtureIT {
   public void update() throws Exception {
     Access access = Access.create("Admin");
     Segment inputData = Segment.create()
-      .setChainId(chain3.getId())
+      .setChainId(fake.chain3.getId())
       .setOffset(5L)
       .setState("Dubbed")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
@@ -649,12 +657,12 @@ public class SegmentIT extends FixtureIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    testDAO.update(access, segment2.getId(), inputData);
+    testDAO.update(access, fake.segment2.getId(), inputData);
 
-    Segment result = testDAO.readOne(Access.internal(), segment2.getId());
+    Segment result = testDAO.readOne(Access.internal(), fake.segment2.getId());
     assertNotNull(result);
     assertEquals("C# minor 7 b9", result.getKey());
-    assertEquals(chain3.getId(), result.getChainId());
+    assertEquals(fake.chain3.getId(), result.getChainId());
     assertEquals(SegmentState.Dubbed, result.getState());
     assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt().toString());
     assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt().toString());
@@ -666,8 +674,8 @@ public class SegmentIT extends FixtureIT {
   @Test
   public void persistPriorSegmentContent() throws Exception {
     Access access = Access.create("Admin");
-    segment4 = Segment.create()
-      .setChainId(chain3.getId())
+    fake.segment4 = Segment.create()
+      .setChainId(fake.chain3.getId())
       .setOffset(5L)
       .setState("Dubbed")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
@@ -678,9 +686,9 @@ public class SegmentIT extends FixtureIT {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setTempo(120.0);
 
-    testDAO.update(access, segment2.getId(), segment4);
+    testDAO.update(access, fake.segment2.getId(), fake.segment4);
 
-    Segment result = testDAO.readOne(Access.internal(), segment2.getId());
+    Segment result = testDAO.readOne(Access.internal(), fake.segment2.getId());
     assertNotNull(result);
   }
 
@@ -691,7 +699,7 @@ public class SegmentIT extends FixtureIT {
     failure.expect(CoreException.class);
     failure.expectMessage("transition to Crafting not in allowed");
 
-    testDAO.updateState(access, segment2.getId(), SegmentState.Crafting);
+    testDAO.updateState(access, fake.segment2.getId(), SegmentState.Crafting);
   }
 
   @Test
@@ -710,14 +718,14 @@ public class SegmentIT extends FixtureIT {
     failure.expect(CoreException.class);
     failure.expectMessage("Chain ID is required");
 
-    testDAO.update(access, segment2.getId(), inputData);
+    testDAO.update(access, fake.segment2.getId(), inputData);
   }
 
   @Test
   public void update_FailsToChangeChain() throws Exception {
     Access access = Access.create("Admin");
     Segment inputData = Segment.create()
-      .setChainId(chain3.getId())
+      .setChainId(fake.chain3.getId())
       .setOffset(4L)
       .setState("Crafting")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
@@ -731,38 +739,38 @@ public class SegmentIT extends FixtureIT {
     failure.expectMessage("transition to Crafting not in allowed");
 
     try {
-      testDAO.update(access, segment2.getId(), inputData);
+      testDAO.update(access, fake.segment2.getId(), inputData);
 
     } catch (Exception e) {
-      Segment result = testDAO.readOne(Access.internal(), segment2.getId());
+      Segment result = testDAO.readOne(Access.internal(), fake.segment2.getId());
       assertNotNull(result);
       assertEquals("Db minor", result.getKey());
-      assertEquals(chain3.getId(), result.getChainId());
+      assertEquals(fake.chain3.getId(), result.getChainId());
       throw e;
     }
   }
 
   @Test
   public void destroy() throws Exception {
-    db.update(CHAIN)
+    test.getDb().update(CHAIN)
       .set(CHAIN.STATE, "Erase")
       .execute();
 
-    testDAO.destroy(Access.internal(), segment1.getId());
+    testDAO.destroy(Access.internal(), fake.segment1.getId());
 
-    assertNotExist(testDAO, segment1.getId());
+    Assert.assertNotExist(testDAO, fake.segment1.getId());
   }
 
   @Test
   public void destroy_okRegardlessOfChainState() throws Exception {
     Access access = Access.create("Admin");
 
-    testDAO.destroy(access, segment1.getId());
+    testDAO.destroy(access, fake.segment1.getId());
   }
 
   @Test
   public void destroy_allChildEntities() throws Exception {
-    insertFixtureC();
+    fake.insertFixtureC();
 
     // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
 
@@ -770,7 +778,7 @@ public class SegmentIT extends FixtureIT {
 
     //
     // Go!
-    testDAO.destroy(access, segment1.getId());
+    testDAO.destroy(access, fake.segment1.getId());
     //
     //
 
@@ -778,7 +786,7 @@ public class SegmentIT extends FixtureIT {
     verify(amazonProvider).deleteS3Object("xj-segment-test", "chains-1-segments-9f7s89d8a7892.wav");
 
     // Assert annihilation
-    assertNotExist(testDAO, segment1.getId());
+    Assert.assertNotExist(testDAO, fake.segment1.getId());
   }
 
   // TODO test revert deletes all related entities

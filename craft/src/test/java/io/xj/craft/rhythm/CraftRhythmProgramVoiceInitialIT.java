@@ -2,14 +2,16 @@
 package io.xj.craft.rhythm;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.typesafe.config.Config;
 import io.xj.core.CoreModule;
-import io.xj.core.FixtureIT;
+import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.dao.ProgramDAO;
 import io.xj.core.dao.SegmentChoiceArrangementDAO;
-import io.xj.core.dao.SegmentDAO;
 import io.xj.core.dao.SegmentChoiceArrangementPickDAO;
+import io.xj.core.dao.SegmentDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorFactory;
@@ -24,8 +26,11 @@ import io.xj.core.model.SegmentChoiceArrangementPick;
 import io.xj.core.model.SegmentChord;
 import io.xj.core.model.SegmentMeme;
 import io.xj.core.model.SegmentState;
+import io.xj.core.testing.AppTestConfiguration;
+import io.xj.core.testing.IntegrationTestProvider;
 import io.xj.craft.CraftFactory;
 import io.xj.craft.CraftModule;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,39 +42,51 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class CraftRhythmProgramVoiceInitialIT extends FixtureIT {
+public class CraftRhythmProgramVoiceInitialIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
 
+  private IntegrationTestingFixtures fake;
+  private Injector injector;
+  private IntegrationTestProvider test;
+
   @Before
   public void setUp() throws Exception {
-    injector = Guice.createInjector(new CoreModule(), new CraftModule());
+    Config config = AppTestConfiguration.getDefault();
+    injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule(), new CraftModule()));
+    test = injector.getInstance(IntegrationTestProvider.class);
+    fake = new IntegrationTestingFixtures(test);
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     craftFactory = injector.getInstance(CraftFactory.class);
 
     // Fixtures
-    reset();
-    insertFixtureB1();
-    insertFixtureB3();
+    test.reset();
+    fake.insertFixtureB1();
+    fake.insertFixtureB3();
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
-    chain2 = insert(Chain.create(account1, "Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    insert(ChainBinding.create(chain2, library2));
+    fake.chain2 = test.insert(Chain.create(fake.account1, "Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    test.insert(ChainBinding.create(fake.chain2, fake.library2));
+  }
+
+  @After
+  public void tearDown() {
+    test.shutdown();
   }
 
   @Test
   public void craftRhythmVoiceInitial() throws Exception {
     insertSegments6();
     // force known rhythm selection by destroying program 35
-    injector.getInstance(ProgramDAO.class).destroyChildEntities(Access.internal(), ImmutableList.of(program35.getId()));
-    injector.getInstance(ProgramDAO.class).destroy(Access.internal(), program35.getId());
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segment6);
+    injector.getInstance(ProgramDAO.class).destroyChildEntities(Access.internal(), ImmutableList.of(fake.program35.getId()));
+    injector.getInstance(ProgramDAO.class).destroy(Access.internal(), fake.program35.getId());
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), fake.segment6);
 
     craftFactory.rhythm(fabricator).doWork();
 
-    Segment result = injector.getInstance(SegmentDAO.class).readOne(Access.internal(), segment6.getId());
+    Segment result = injector.getInstance(SegmentDAO.class).readOne(Access.internal(), fake.segment6.getId());
     assertTrue(0 < injector.getInstance(SegmentChoiceArrangementDAO.class).readMany(Access.internal(), ImmutableList.of(result.getId())).size());
     // test vector for [#154014731] persist Audio pick in memory
     int pickedKick = 0;
@@ -78,13 +95,13 @@ public class CraftRhythmProgramVoiceInitialIT extends FixtureIT {
     int pickedToot = 0;
     Collection<SegmentChoiceArrangementPick> picks = injector.getInstance(SegmentChoiceArrangementPickDAO.class).readMany(Access.internal(), ImmutableList.of(result.getId()));
     for (SegmentChoiceArrangementPick pick : picks) {
-      if (pick.getInstrumentAudioId().equals(audio8kick.getId()))
+      if (pick.getInstrumentAudioId().equals(fake.audio8kick.getId()))
         pickedKick++;
-      if (pick.getInstrumentAudioId().equals(audio8snare.getId()))
+      if (pick.getInstrumentAudioId().equals(fake.audio8snare.getId()))
         pickedSnare++;
-      if (pick.getInstrumentAudioId().equals(audio8bleep.getId()))
+      if (pick.getInstrumentAudioId().equals(fake.audio8bleep.getId()))
         pickedBleep++;
-      if (pick.getInstrumentAudioId().equals(audio8toot.getId()))
+      if (pick.getInstrumentAudioId().equals(fake.audio8toot.getId()))
         pickedToot++;
     }
     assertEquals(12, pickedKick);
@@ -96,7 +113,7 @@ public class CraftRhythmProgramVoiceInitialIT extends FixtureIT {
   @Test
   public void craftRhythmVoiceInitial_okWhenNoRhythmChoice() throws Exception {
     insertSegments6();
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), fake.segment6);
 
     craftFactory.rhythm(fabricator).doWork();
   }
@@ -106,8 +123,8 @@ public class CraftRhythmProgramVoiceInitialIT extends FixtureIT {
    */
   private void insertSegments6() throws CoreException {
     // segment crafting
-    segment6 = insert(Segment.create()
-      .setChainId(chain2.getId())
+    fake.segment6 = test.insert(Segment.create()
+      .setChainId(fake.chain2.getId())
       .setOffset(3L)
       .setStateEnum(SegmentState.Crafting)
       .setBeginAt("2017-02-14T12:01:00.000001Z")
@@ -117,21 +134,21 @@ public class CraftRhythmProgramVoiceInitialIT extends FixtureIT {
       .setDensity(0.55)
       .setTempo(130.0)
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
-    insert(SegmentChoice.create().setSegmentId(segment6.getId())
-      .setProgramId(program4.getId())
-      .setProgramSequenceBindingId(program4_binding0.getId())
+    test.insert(SegmentChoice.create().setSegmentId(fake.segment6.getId())
+      .setProgramId(fake.program4.getId())
+      .setProgramSequenceBindingId(fake.program4_binding0.getId())
       .setTypeEnum(ProgramType.Macro)
       .setTranspose(0));
-    insert(SegmentChoice.create().setSegmentId(segment6.getId())
-      .setProgramId(program5.getId())
-      .setProgramSequenceBindingId(program5_binding0.getId())
+    test.insert(SegmentChoice.create().setSegmentId(fake.segment6.getId())
+      .setProgramId(fake.program5.getId())
+      .setProgramSequenceBindingId(fake.program5_binding0.getId())
       .setTypeEnum(ProgramType.Main)
       .setTranspose(-6));
     for (String memeName : ImmutableList.of("Special", "Wild", "Pessimism", "Outlook")) {
-      insert(SegmentMeme.create(segment6, memeName));
+      test.insert(SegmentMeme.create(fake.segment6, memeName));
     }
-    insert(SegmentChord.create(segment6, 0.0, "C minor"));
-    insert(SegmentChord.create(segment6, 8.0, "Db minor"));
+    test.insert(SegmentChord.create(fake.segment6, 0.0, "C minor"));
+    test.insert(SegmentChord.create(fake.segment6, 8.0, "Db minor"));
   }
 
 }

@@ -2,10 +2,12 @@
 package io.xj.craft.digest;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.typesafe.config.Config;
 import io.xj.core.CoreModule;
-import io.xj.core.FixtureIT;
+import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.dao.ProgramDAO;
 import io.xj.core.ingest.IngestFactory;
 import io.xj.core.model.Chain;
@@ -13,7 +15,10 @@ import io.xj.core.model.ChainBinding;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramSequenceBinding;
 import io.xj.core.model.ProgramSequenceChord;
+import io.xj.core.testing.AppTestConfiguration;
+import io.xj.core.testing.IntegrationTestProvider;
 import io.xj.craft.CraftModule;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,41 +28,53 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DigestProgramStyleIT extends FixtureIT {
+public class DigestProgramStyleIT {
   private IngestFactory ingestFactory;
   private DigestFactory digestFactory;
   private ProgramDAO programDAO;
 
+  private IntegrationTestProvider test;
+  private IntegrationTestingFixtures fake;
+
   @Before
   public void setUp() throws Exception {
-    reset();
-    insertFixtureB1();
-    insertFixtureB2();
-    insertFixtureB3();
+    Config config = AppTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule(), new CraftModule()));
+    test = injector.getInstance(IntegrationTestProvider.class);
+    fake = new IntegrationTestingFixtures(test);
 
-    chain1 = Chain.create();
+    test.reset();
+    fake.insertFixtureB1();
+    fake.insertFixtureB2();
+    fake.insertFixtureB3();
 
-    injector = Guice.createInjector(new CoreModule(), new CraftModule());
+    fake.chain1 = Chain.create();
+
     programDAO = injector.getInstance(ProgramDAO.class);
     ingestFactory = injector.getInstance(IngestFactory.class);
     digestFactory = injector.getInstance(DigestFactory.class);
   }
 
+  @After
+  public void tearDown() {
+    test.shutdown();
+  }
+
   @Test
   public void digest() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "User,Artist");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User,Artist");
     // Add two sequences to Main program 15
-    program15 = programDAO.readOne(internal, program15.getId());
-    ProgramSequence sequence15c = insert(ProgramSequence.create(program15, 32, "Encore", 0.5, "A major", 135.0));
-    insert(ProgramSequenceChord.create(sequence15c, 0.0, "NC"));
-    insert(ProgramSequenceBinding.create(sequence15c, 2));
-    ProgramSequence sequence15d = insert(ProgramSequence.create(program15, 32, "Encore", 0.5, "A major", 135.0));
-    insert(ProgramSequenceChord.create(sequence15d, 0.0, "NC"));
-    insert(ProgramSequenceBinding.create(sequence15d, 3));
-    programDAO.update(Access.internal(), program15.getId(), program15);
+    fake.program15 = programDAO.readOne(Access.internal(), fake.program15.getId());
+    ProgramSequence sequence15c = test.insert(ProgramSequence.create(fake.program15, 32, "Encore", 0.5, "A major", 135.0));
+    test.insert(ProgramSequenceChord.create(sequence15c, 0.0, "NC"));
+    test.insert(ProgramSequenceBinding.create(sequence15c, 2));
+    ProgramSequence sequence15d = test.insert(ProgramSequence.create(fake.program15, 32, "Encore", 0.5, "A major", 135.0));
+    test.insert(ProgramSequenceChord.create(sequence15d, 0.0, "NC"));
+    test.insert(ProgramSequenceBinding.create(sequence15d, 3));
+    programDAO.update(Access.internal(), fake.program15.getId(), fake.program15);
 
 
-    DigestProgramStyle result = digestFactory.programStyle(ingestFactory.ingest(access, ImmutableList.of(ChainBinding.create(chain1, library2))));
+    DigestProgramStyle result = digestFactory.programStyle(ingestFactory.ingest(access, ImmutableList.of(ChainBinding.create(fake.chain1, fake.library2))));
 
     assertNotNull(result);
     assertEquals(2.0, result.getMainSequencesPerProgramStats().min(), 0.1);

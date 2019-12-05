@@ -2,13 +2,21 @@
 package io.xj.core.dao.account_user;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.FixtureIT;
+import com.google.inject.Injector;
+import com.typesafe.config.Config;
+import io.xj.core.CoreModule;
+import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.dao.AccountUserDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Account;
 import io.xj.core.model.AccountUser;
 import io.xj.core.model.User;
+import io.xj.core.testing.AppTestConfiguration;
+import io.xj.core.testing.Assert;
+import io.xj.core.testing.IntegrationTestProvider;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,52 +28,64 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 // future test: permissions of different users to readMany vs. of vs. update or delete account users
-public class AccountUserIT extends FixtureIT {
+public class AccountUserIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private AccountUserDAO testDAO;
   private AccountUser accountUser_1_2;
+  private IntegrationTestProvider test;
+  private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    reset();
+    Config config = AppTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule()));
+    test = injector.getInstance(IntegrationTestProvider.class);
+    fake = new IntegrationTestingFixtures(test);
+
+    test.reset();
 
     // Account "bananas"
-    account1 = insert(Account.create("bananas"));
+    fake.account1 = test.insert(Account.create("bananas"));
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    user2 = insert(User.create("john", "john@email.com", "http://pictures.com/john.gif"));
-    accountUser_1_2 = insert(AccountUser.create(account1, user2));
+    fake.user2 = test.insert(User.create("john", "john@email.com", "http://pictures.com/john.gif"));
+    accountUser_1_2 = test.insert(AccountUser.create(fake.account1, fake.user2));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    user3 = insert(User.create("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
-    insert(AccountUser.create(account1, user3));
+    fake.user3 = test.insert(User.create("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
+    test.insert(AccountUser.create(fake.account1, fake.user3));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AccountUserDAO.class);
   }
 
+  @After
+  public void tearDown() {
+    test.shutdown();
+  }
+
   @Test
   public void create() throws Exception {
     Access access = Access.create("Admin");
-    User user5 = insert(User.create("Jim", "jim@email.com", "http://pictures.com/jim.gif"));
+    fake.user5 = test.insert(User.create("Jim", "jim@email.com", "http://pictures.com/jim.gif"));
     AccountUser inputData = new AccountUser()
-      .setAccountId(account1.getId())
-      .setUserId(user5.getId());
+      .setAccountId(fake.account1.getId())
+      .setUserId(fake.user5.getId());
 
     AccountUser result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(account1.getId(), result.getAccountId());
-    assertEquals(user5.getId(), result.getUserId());
+    assertEquals(fake.account1.getId(), result.getAccountId());
+    assertEquals(fake.user5.getId(), result.getUserId());
   }
 
   @Test
   public void create_FailIfAlreadyExists() throws Exception {
     Access access = Access.create("Admin");
     AccountUser inputData = new AccountUser()
-      .setAccountId(account1.getId())
-      .setUserId(user2.getId());
+      .setAccountId(fake.account1.getId())
+      .setUserId(fake.user2.getId());
 
     failure.expect(CoreException.class);
     failure.expectMessage("Account User already exists!");
@@ -77,8 +97,8 @@ public class AccountUserIT extends FixtureIT {
   public void create_FailIfNotAdmin() throws Exception {
     Access access = Access.create("User");
     AccountUser inputData = new AccountUser()
-      .setAccountId(account1.getId())
-      .setUserId(user2.getId());
+      .setAccountId(fake.account1.getId())
+      .setUserId(fake.user2.getId());
 
     failure.expect(CoreException.class);
     failure.expectMessage("top-level access is required");
@@ -90,7 +110,7 @@ public class AccountUserIT extends FixtureIT {
   public void create_FailsWithoutAccountID() throws Exception {
     Access access = Access.create("Admin");
     AccountUser inputData = new AccountUser()
-      .setUserId(user2.getId());
+      .setUserId(fake.user2.getId());
 
     failure.expect(CoreException.class);
     failure.expectMessage("Account ID is required");
@@ -102,7 +122,7 @@ public class AccountUserIT extends FixtureIT {
   public void create_FailsWithoutUserId() throws Exception {
     Access access = Access.create("Admin");
     AccountUser inputData = new AccountUser()
-      .setAccountId(account1.getId());
+      .setAccountId(fake.account1.getId());
 
     failure.expect(CoreException.class);
     failure.expectMessage("User ID is required");
@@ -112,13 +132,13 @@ public class AccountUserIT extends FixtureIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Artist");
+    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
 
     AccountUser result = testDAO.readOne(access, accountUser_1_2.getId());
 
     assertNotNull(result);
-    assertEquals(account1.getId(), result.getAccountId());
-    assertEquals(user2.getId(), result.getUserId());
+    assertEquals(fake.account1.getId(), result.getAccountId());
+    assertEquals(fake.user2.getId(), result.getUserId());
   }
 
   @Test
@@ -134,16 +154,16 @@ public class AccountUserIT extends FixtureIT {
   public void readAll_Admin() throws Exception {
     Access access = Access.create("Admin");
 
-    Collection<AccountUser> result = testDAO.readMany(access, ImmutableList.of(account1.getId()));
+    Collection<AccountUser> result = testDAO.readMany(access, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readAll_UserCanSeeInsideOwnAccount() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<AccountUser> result = testDAO.readMany(access, ImmutableList.of(account1.getId()));
+    Collection<AccountUser> result = testDAO.readMany(access, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
   }
@@ -152,7 +172,7 @@ public class AccountUserIT extends FixtureIT {
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
     Access access = Access.create(ImmutableList.of(Account.create()), "Artist");
 
-    Collection<AccountUser> result = testDAO.readMany(access, ImmutableList.of(account1.getId()));
+    Collection<AccountUser> result = testDAO.readMany(access, ImmutableList.of(fake.account1.getId()));
 
     assertNotNull(result);
     assertEquals(0L, result.size());
@@ -164,7 +184,7 @@ public class AccountUserIT extends FixtureIT {
 
     testDAO.destroy(access, accountUser_1_2.getId());
 
-    assertNotExist(testDAO, accountUser_1_2.getId());
+    Assert.assertNotExist(testDAO, accountUser_1_2.getId());
   }
 
   @Test

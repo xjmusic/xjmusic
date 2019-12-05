@@ -1,4 +1,4 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.external.amazon;
 
 import com.amazonaws.services.s3.AmazonS3;
@@ -6,8 +6,8 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.xj.core.access.token.TokenGenerator;
-import io.xj.core.config.Config;
 import io.xj.core.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +20,34 @@ public class AmazonProviderImpl implements AmazonProvider {
   private static final float microsInASecond = 1000000.0F;
   private static final float nanosInASecond = 1000.0F * microsInASecond;
   private final TokenGenerator tokenGenerator;
+  private String awsDefaultRegion;
+  private String nameSeparator;
+  private String extensionSeparator;
+  private String audioUploadUrl;
+  private String awsAccessKeyId;
+  private String awsSecretKey;
+  private String audioFileBucket;
+  private int audioFileUploadExpireMinutes;
+  private String fileUploadACL;
+  private int awsS3RetryLimit;
 
   @Inject
   public AmazonProviderImpl(
-    TokenGenerator tokenGenerator
+    TokenGenerator tokenGenerator,
+    Config config
   ) {
     this.tokenGenerator = tokenGenerator;
+
+    awsDefaultRegion = config.getString("aws.defaultRegion");
+    nameSeparator = config.getString("audio.fileNameSeparator");
+    extensionSeparator = config.getString("audio.fileExtensionSeparator");
+    audioUploadUrl = config.getString("audio.uploadURL");
+    awsAccessKeyId = config.getString("aws.accessKeyID");
+    awsSecretKey = config.getString("aws.secretKey");
+    audioFileBucket = config.getString("audio.fileBucket");
+    audioFileUploadExpireMinutes = config.getInt("audio.uploadExpireMinutes");
+    fileUploadACL = config.getString("aws.fileUploadACL");
+    awsS3RetryLimit = config.getInt("aws.s3retryLimit");
   }
 
   /**
@@ -33,9 +55,9 @@ public class AmazonProviderImpl implements AmazonProvider {
 
    @return S3 client
    */
-  private static AmazonS3 s3Client() {
+  private AmazonS3 s3Client() {
     return AmazonS3ClientBuilder.standard()
-      .withRegion(Config.getAwsDefaultRegion())
+      .withRegion(awsDefaultRegion)
       .build();
   }
 
@@ -46,37 +68,37 @@ public class AmazonProviderImpl implements AmazonProvider {
 
   @Override
   public String generateKey(String filename, String extension) {
-    return String.format("%s%s%s%s%s", tokenGenerator.generateShort(), Config.getNameSeparator(), filename, Config.getExtensionSeparator(), extension);
+    return String.format("%s%s%s%s%s", tokenGenerator.generateShort(), nameSeparator, filename, extensionSeparator, extension);
   }
 
   @Override
   public String getUploadURL() throws CoreException {
-    return Config.getAudioUploadUrl();
+    return audioUploadUrl;
   }
 
   @Override
   public String getCredentialId() throws CoreException {
-    return Config.getAwsAccessKeyId();
+    return awsAccessKeyId;
   }
 
   @Override
   public String getCredentialSecret() throws CoreException {
-    return Config.getAwsSecretKey();
+    return awsSecretKey;
   }
 
   @Override
   public String getAudioBucketName() throws CoreException {
-    return Config.getAudioFileBucket();
+    return audioFileBucket;
   }
 
   @Override
   public int getAudioUploadExpireInMinutes() {
-    return Config.getAudioFileUploadExpireMinutes();
+    return audioFileUploadExpireMinutes;
   }
 
   @Override
   public String getAudioUploadACL() {
-    return Config.getAudioFileUploadACL();
+    return fileUploadACL;
   }
 
   @Override
@@ -84,7 +106,7 @@ public class AmazonProviderImpl implements AmazonProvider {
     AmazonS3 client = s3Client();
     GetObjectRequest request = new GetObjectRequest(bucketName, key);
     int count = 0;
-    int maxTries = Config.getAwsS3RetryLimit();
+    int maxTries = awsS3RetryLimit;
     while (true) {
       try {
         return client.getObject(request).getObjectContent();

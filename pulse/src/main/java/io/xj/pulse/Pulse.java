@@ -3,7 +3,7 @@ package io.xj.pulse;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import io.xj.pulse.config.Config;
+import io.xj.pulse.config.LambdaExecutionConfiguration;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -23,7 +23,7 @@ import java.util.List;
 public class Pulse implements RequestHandler<JSONObject, JSONObject> {
   public static final int CODE_SUCCESS = HttpStatus.SC_ACCEPTED;
   HttpClient httpClient;
-  Config config;
+  LambdaExecutionConfiguration config;
   String heartbeatKey;
   String requestURL;
   Integer timeoutMillis;
@@ -34,14 +34,14 @@ public class Pulse implements RequestHandler<JSONObject, JSONObject> {
    @throws Exception if environment parameter is not set
    */
   public Pulse() throws Exception {
-    config = new Config();
+    config = new LambdaExecutionConfiguration();
     httpClient = HttpClients.createMinimal();
   }
 
   /**
    Instantiate a new Pulse app with specified internal components
    */
-  public Pulse(Config config, HttpClient httpClient) {
+  public Pulse(LambdaExecutionConfiguration config, HttpClient httpClient) {
     this.config = config;
     this.httpClient = httpClient;
   }
@@ -82,7 +82,7 @@ public class Pulse implements RequestHandler<JSONObject, JSONObject> {
       requestURL = config.getHeartbeatURL();
       timeoutMillis = config.getTimeoutMillis();
     } catch (Exception e) {
-      return resultJSON(String.format("Config failure: %s", e));
+      return resultJSON(String.format("LambdaExecutionConfiguration failure: %s", e));
     }
 
     HttpPost httpRequest = new HttpPost(requestURL);

@@ -1,3 +1,4 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.fabricator;
 
 import io.xj.core.cache.entity.EntityCache;

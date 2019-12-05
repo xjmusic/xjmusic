@@ -2,8 +2,12 @@
 package io.xj.core.dao.account;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.FixtureIT;
+import com.google.inject.Injector;
+import com.typesafe.config.Config;
+import io.xj.core.CoreModule;
+import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.dao.AccountDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Account;
@@ -13,7 +17,12 @@ import io.xj.core.model.ChainState;
 import io.xj.core.model.ChainType;
 import io.xj.core.model.Library;
 import io.xj.core.model.User;
+import io.xj.core.testing.AppTestConfiguration;
+import io.xj.core.testing.Assert;
+import io.xj.core.testing.IntegrationTestProvider;
+import io.xj.core.testing.InternalResources;
 import org.assertj.core.util.Lists;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,20 +34,32 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class AccountIT extends FixtureIT {
+public class AccountIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private AccountDAO testDAO;
+  private IntegrationTestProvider test;
+  private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    reset();
+    Config config = AppTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule()));
+    test = injector.getInstance(IntegrationTestProvider.class);
+    fake = new IntegrationTestingFixtures(test);
+
+    test.reset();
 
     // Account "bananas"
-    account1 = insert(Account.create("bananas"));
+    fake.account1 = test.insert(Account.create("bananas"));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AccountDAO.class);
+  }
+
+  @After
+  public void tearDown() {
+    test.shutdown();
   }
 
   @Test
@@ -48,18 +69,18 @@ public class AccountIT extends FixtureIT {
 
   @Test
   public void readOne_asSetToModel() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
 
-    Account result = testDAO.readOne(access, account1.getId());
+    Account result = testDAO.readOne(access, fake.account1.getId());
 
     assertNotNull(result);
-    assertEquals(account1.getId(), result.getId());
+    assertEquals(fake.account1.getId(), result.getId());
     assertEquals("bananas", result.getName());
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
 
     Collection<Account> results = testDAO.readMany(access, Lists.newArrayList());
 
@@ -72,77 +93,77 @@ public class AccountIT extends FixtureIT {
 
   @Test
   public void update() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Admin");
+    Access access = Access.create(ImmutableList.of(fake.account1), "Admin");
     Account entity = Account.create().setName("jammers");
 
-    testDAO.update(access, account1.getId(), entity);
+    testDAO.update(access, fake.account1.getId(), entity);
 
-    Account result = testDAO.readOne(Access.internal(), account1.getId());
+    Account result = testDAO.readOne(Access.internal(), fake.account1.getId());
     assertNotNull(result);
     assertEquals("jammers", result.getName());
   }
 
   @Test
   public void update_failsIfNotAdmin() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
     Account entity = Account.create().setName("jammers");
 
     failure.expect(CoreException.class);
     failure.expectMessage("top-level access is required");
 
-    testDAO.update(access, account1.getId(), entity);
+    testDAO.update(access, fake.account1.getId(), entity);
   }
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Admin");
+    Access access = Access.create(ImmutableList.of(fake.account1), "Admin");
 
-    testDAO.destroy(access, account1.getId());
+    testDAO.destroy(access, fake.account1.getId());
 
-    assertNotExist(testDAO, account1.getId());
+    Assert.assertNotExist(testDAO, fake.account1.getId());
   }
 
   @Test
   public void delete_failsIfNotAdmin() throws Exception {
     failure.expect(CoreException.class);
     failure.expectMessage("top-level access is required");
-    Access access = Access.create(ImmutableList.of(account1), "User");
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
 
-    testDAO.destroy(access, account1.getId());
+    testDAO.destroy(access, fake.account1.getId());
   }
 
   @Test
   public void delete_failsIfHasChain() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Admin");
-    insert(Chain.create(account1, "Test", ChainType.Preview, ChainState.Draft, Instant.parse("2009-08-12T12:17:02.527142Z"), Instant.parse("2009-08-12T12:17:02.527142Z"), null));
+    Access access = Access.create(ImmutableList.of(fake.account1), "Admin");
+    test.insert(Chain.create(fake.account1, "Test", ChainType.Preview, ChainState.Draft, Instant.parse("2009-08-12T12:17:02.527142Z"), Instant.parse("2009-08-12T12:17:02.527142Z"), null));
 
     failure.expect(CoreException.class);
     failure.expectMessage("Found Chain in Account");
 
-    testDAO.destroy(access, account1.getId());
+    testDAO.destroy(access, fake.account1.getId());
   }
 
   @Test
   public void delete_failsIfHasLibrary() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Admin");
-    insert(Library.create(account1, "Testing", now()));
+    Access access = Access.create(ImmutableList.of(fake.account1), "Admin");
+    test.insert(Library.create(fake.account1, "Testing", InternalResources.now()));
 
     failure.expect(CoreException.class);
     failure.expectMessage("Found Library in Account");
 
-    testDAO.destroy(access, account1.getId());
+    testDAO.destroy(access, fake.account1.getId());
   }
 
   @Test
   public void delete_failsIfHasAccountUser() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Admin");
-    user1 = insert(User.create("jim", "jim@jim.com", "http://www.jim.com/jim.png"));
-    insert(AccountUser.create(account1, user1));
+    Access access = Access.create(ImmutableList.of(fake.account1), "Admin");
+    fake.user1 = test.insert(User.create("jim", "jim@jim.com", "http://www.jim.com/jim.png"));
+    test.insert(AccountUser.create(fake.account1, fake.user1));
 
     failure.expect(CoreException.class);
     failure.expectMessage("Found User in Account");
 
-    testDAO.destroy(access, account1.getId());
+    testDAO.destroy(access, fake.account1.getId());
   }
 
 }

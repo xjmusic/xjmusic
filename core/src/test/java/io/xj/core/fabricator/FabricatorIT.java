@@ -1,10 +1,14 @@
- //  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.fabricator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import io.xj.core.FixtureIT;
+import com.google.inject.Injector;
+import com.typesafe.config.Config;
+import io.xj.core.CoreModule;
+import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Chain;
@@ -19,6 +23,9 @@ import io.xj.core.model.ProgramType;
 import io.xj.core.model.Segment;
 import io.xj.core.model.SegmentChoice;
 import io.xj.core.model.SegmentState;
+import io.xj.core.testing.AppTestConfiguration;
+import io.xj.core.testing.IntegrationTestProvider;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,25 +44,33 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FabricatorIT extends FixtureIT {
+public class FabricatorIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private FabricatorFactory fabricatorFactory;
   private SegmentDAO segmentDAO;
   private SegmentChoice segmentChoice4_main;
+  private IntegrationTestProvider test;
+  private IntegrationTestingFixtures fake;
+  private Injector injector;
 
   @Before
   public void setUp() throws CoreException {
-    reset();
-    insertFixtureB1();
-    insertFixtureB2();
+    Config config = AppTestConfiguration.getDefault();
+    injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule()));
+    test = injector.getInstance(IntegrationTestProvider.class);
+    fake = new IntegrationTestingFixtures(test);
+
+    test.reset();
+    fake.insertFixtureB1();
+    fake.insertFixtureB2();
 
     // Chain "Test Print #1" has 5 total segments
-    chain3 = insert(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    insert(ChainBinding.create(chain3, library2));
+    fake.chain3 = test.insert(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    test.insert(ChainBinding.create(fake.chain3, fake.library2));
 
-    segment1 = insert(new Segment().setId(UUID.randomUUID())
-      .setChainId(chain3.getId())
+    fake.segment1 = test.insert(new Segment().setId(UUID.randomUUID())
+      .setChainId(fake.chain3.getId())
       .setOffset(0L)
       .setStateEnum(SegmentState.Dubbed)
       .setKey("D major")
@@ -65,8 +80,8 @@ public class FabricatorIT extends FixtureIT {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setEndAt("2017-02-14T12:01:32.000001Z"));
-    segment2 = insert(new Segment().setId(UUID.randomUUID())
-      .setChainId(chain3.getId())
+    fake.segment2 = test.insert(new Segment().setId(UUID.randomUUID())
+      .setChainId(fake.chain3.getId())
       .setOffset(1L)
       .setStateEnum(SegmentState.Dubbing)
       .setKey("Db minor")
@@ -77,8 +92,8 @@ public class FabricatorIT extends FixtureIT {
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setEndAt("2017-02-14T12:02:04.000001Z"));
 
-    segment3 = insert(new Segment().setId(UUID.randomUUID())
-      .setChainId(chain3.getId())
+    fake.segment3 = test.insert(new Segment().setId(UUID.randomUUID())
+      .setChainId(fake.chain3.getId())
       .setOffset(2L)
       .setStateEnum(SegmentState.Crafted)
       .setKey("Ab minor")
@@ -89,8 +104,8 @@ public class FabricatorIT extends FixtureIT {
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setEndAt("2017-02-14T12:02:36.000001Z"));
 
-    segment4 = insert(new Segment().setId(UUID.randomUUID())
-      .setChainId(chain3.getId())
+    fake.segment4 = test.insert(new Segment().setId(UUID.randomUUID())
+      .setChainId(fake.chain3.getId())
       .setOffset(3L)
       .setStateEnum(SegmentState.Crafting)
       .setKey("F minor")
@@ -101,10 +116,15 @@ public class FabricatorIT extends FixtureIT {
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setEndAt("2017-02-14T12:03:15.836735Z"));
 
-    segmentChoice4_main = insert(SegmentChoice.create(segment4, ProgramType.Main, program5_binding0, 0));
+    segmentChoice4_main = test.insert(SegmentChoice.create(fake.segment4, ProgramType.Main, fake.program5_binding0, 0));
 
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     segmentDAO = injector.getInstance(SegmentDAO.class);
+  }
+
+  @After
+  public void tearDown() {
+    test.shutdown();
   }
 
   /**
@@ -112,12 +132,12 @@ public class FabricatorIT extends FixtureIT {
    */
   @Test
   public void getSequenceOfChoice_bySequence() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Artist");
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, segment4.getId()));
+    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, fake.segment4.getId()));
 
     ProgramSequence result = fabricator.getSequence(new SegmentChoice()
       .setTypeEnum(ProgramType.Rhythm)
-      .setProgramId(program5.getId()));
+      .setProgramId(fake.program5.getId()));
 
     assertNotNull(result);
   }
@@ -127,8 +147,8 @@ public class FabricatorIT extends FixtureIT {
    */
   @Test
   public void getSequenceOfChoice_bySequenceBinding() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Artist");
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, segment4.getId()));
+    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, fake.segment4.getId()));
 
     ProgramSequence result = fabricator.getSequence(new SegmentChoice()
       .setProgramId(segmentChoice4_main.getProgramId())
@@ -139,24 +159,24 @@ public class FabricatorIT extends FixtureIT {
 
   @Test
   public void getMemesOfChoice() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Artist");
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, segment4.getId()));
+    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, fake.segment4.getId()));
     Segment segment = Segment.create();
 
-    assertExactMemes(Lists.newArrayList("Basic"), fabricator.getMemesOfChoice(SegmentChoice.create(segment, ProgramType.Rhythm, program35, 0)));
-    assertExactMemes(Lists.newArrayList("Wild", "Tropical"), fabricator.getMemesOfChoice(SegmentChoice.create(segment, ProgramType.Macro, program4_binding0, 0)));
-    assertExactMemes(Lists.newArrayList("Pessimism", "Outlook"), fabricator.getMemesOfChoice(SegmentChoice.create(segment, ProgramType.Main, program5_binding1, 0)));
-    assertExactMemes(Lists.newArrayList("Chunky", "Tangy"), fabricator.getMemesOfChoice(SegmentChoice.create(segment, ProgramType.Main, program3_binding0, 0)));
-    assertExactMemes(Lists.newArrayList("Regret", "Hindsight"), fabricator.getMemesOfChoice(SegmentChoice.create(segment, ProgramType.Main, program15_binding0, 0)));
-    assertExactMemes(Lists.newArrayList("Pride", "Shame", "Hindsight"), fabricator.getMemesOfChoice(SegmentChoice.create(segment, ProgramType.Main, program15_binding1, 0)));
+    assertExactMemes(Lists.newArrayList("Basic"), fabricator.getMemesOfChoice(SegmentChoice.create(segment, ProgramType.Rhythm, fake.program35, 0)));
+    assertExactMemes(Lists.newArrayList("Wild", "Tropical"), fabricator.getMemesOfChoice(SegmentChoice.create(segment, ProgramType.Macro, fake.program4_binding0, 0)));
+    assertExactMemes(Lists.newArrayList("Pessimism", "Outlook"), fabricator.getMemesOfChoice(SegmentChoice.create(segment, ProgramType.Main, fake.program5_binding1, 0)));
+    assertExactMemes(Lists.newArrayList("Chunky", "Tangy"), fabricator.getMemesOfChoice(SegmentChoice.create(segment, ProgramType.Main, fake.program3_binding0, 0)));
+    assertExactMemes(Lists.newArrayList("Regret", "Hindsight"), fabricator.getMemesOfChoice(SegmentChoice.create(segment, ProgramType.Main, fake.program15_binding0, 0)));
+    assertExactMemes(Lists.newArrayList("Pride", "Shame", "Hindsight"), fabricator.getMemesOfChoice(SegmentChoice.create(segment, ProgramType.Main, fake.program15_binding1, 0)));
   }
 
   @Test
   public void getPreviousSegmentsWithSameMainProgram() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Artist");
-    segment5 = insert(new Segment()
+    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    fake.segment5 = test.insert(new Segment()
       .setId(UUID.randomUUID())
-      .setChainId(chain3.getId())
+      .setChainId(fake.chain3.getId())
       .setOffset(4L)
       .setStateEnum(SegmentState.Crafting)
       .setBeginAt("2017-02-14T12:03:08.000001Z")
@@ -166,8 +186,8 @@ public class FabricatorIT extends FixtureIT {
       .setDensity(0.45)
       .setTempo(125.0)
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
-    insert(SegmentChoice.create(segment5, ProgramType.Main, program5_binding0, 0)); // choose the same main program as segment4
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, segment5.getId()));
+    test.insert(SegmentChoice.create(fake.segment5, ProgramType.Main, fake.program5_binding0, 0)); // choose the same main program as fake.segment4
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, fake.segment5.getId()));
 
     Collection<Segment> result = fabricator.getPreviousSegmentsWithSameMainProgram();
 
@@ -176,13 +196,13 @@ public class FabricatorIT extends FixtureIT {
 
   @Test
   public void getMaxAvailableSequenceBindingOffset() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Artist");
-    Program program25 = insert(Program.create(user3, library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
-    ProgramSequence sequence25a = insert(ProgramSequence.create(program25, 0, "Chunk", 0.4, "G minor", 115.0));
-    insert(ProgramSequenceBinding.create(sequence25a, 0));
-    UUID sequenceBindingId = insert(ProgramSequenceBinding.create(sequence25a, 1)).getId();
-    insert(ProgramSequenceBinding.create(sequence25a, 2));
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, segment4.getId()));
+    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    fake.program25 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
+    ProgramSequence sequence25a = test.insert(ProgramSequence.create(fake.program25, 0, "Chunk", 0.4, "G minor", 115.0));
+    test.insert(ProgramSequenceBinding.create(sequence25a, 0));
+    UUID sequenceBindingId = test.insert(ProgramSequenceBinding.create(sequence25a, 1)).getId();
+    test.insert(ProgramSequenceBinding.create(sequence25a, 2));
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, fake.segment4.getId()));
 
     assertEquals(Long.valueOf(2L), fabricator.getMaxAvailableSequenceBindingOffset(new SegmentChoice()
       .setProgramId(UUID.randomUUID())
@@ -192,13 +212,13 @@ public class FabricatorIT extends FixtureIT {
 
   @Test
   public void getNextSequenceBindingOffset() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Artist");
-    Program program25 = insert(Program.create(user3, library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
-    ProgramSequence sequence25a = insert(ProgramSequence.create(program25, 0, "Chunk", 0.4, "G minor", 115.0));
-    UUID sequenceBindingId = insert(ProgramSequenceBinding.create(sequence25a, 0)).getId();
-    insert(ProgramSequenceBinding.create(sequence25a, 1));
-    insert(ProgramSequenceBinding.create(sequence25a, 2));
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, segment4.getId()));
+    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    fake.program25 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
+    ProgramSequence sequence25a = test.insert(ProgramSequence.create(fake.program25, 0, "Chunk", 0.4, "G minor", 115.0));
+    UUID sequenceBindingId = test.insert(ProgramSequenceBinding.create(sequence25a, 0)).getId();
+    test.insert(ProgramSequenceBinding.create(sequence25a, 1));
+    test.insert(ProgramSequenceBinding.create(sequence25a, 2));
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, fake.segment4.getId()));
 
     assertEquals(Long.valueOf(1L), fabricator.getNextSequenceBindingOffset(new SegmentChoice()
       .setProgramId(UUID.randomUUID())
@@ -208,13 +228,13 @@ public class FabricatorIT extends FixtureIT {
 
   @Test
   public void getNextSequenceBindingOffset_endLoopsBackToZero() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Artist");
-    Program program25 = insert(Program.create(user3, library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
-    ProgramSequence sequence25a = insert(ProgramSequence.create(program25, 0, "Chunk", 0.4, "G minor", 115.0));
-    insert(ProgramSequenceBinding.create(sequence25a, 0));
-    insert(ProgramSequenceBinding.create(sequence25a, 1));
-    UUID sequenceBindingId = insert(ProgramSequenceBinding.create(sequence25a, 2)).getId();
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, segment4.getId()));
+    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    fake.program25 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
+    ProgramSequence sequence25a = test.insert(ProgramSequence.create(fake.program25, 0, "Chunk", 0.4, "G minor", 115.0));
+    test.insert(ProgramSequenceBinding.create(sequence25a, 0));
+    test.insert(ProgramSequenceBinding.create(sequence25a, 1));
+    UUID sequenceBindingId = test.insert(ProgramSequenceBinding.create(sequence25a, 2)).getId();
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, fake.segment4.getId()));
 
     assertEquals(Long.valueOf(0L), fabricator.getNextSequenceBindingOffset(new SegmentChoice()
       .setProgramId(UUID.randomUUID())
@@ -224,13 +244,13 @@ public class FabricatorIT extends FixtureIT {
 
   @Test
   public void hasOneMoreSequenceBindingOffset_true() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Artist");
-    Program program25 = insert(Program.create(user3, library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
-    ProgramSequence sequence25a = insert(ProgramSequence.create(program25, 0, "Chunk", 0.4, "G minor", 115.0));
-    insert(ProgramSequenceBinding.create(sequence25a, 0));
-    UUID sequenceBindingId = insert(ProgramSequenceBinding.create(sequence25a, 1)).getId();
-    insert(ProgramSequenceBinding.create(sequence25a, 2));
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, segment4.getId()));
+    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    fake.program25 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
+    ProgramSequence sequence25a = test.insert(ProgramSequence.create(fake.program25, 0, "Chunk", 0.4, "G minor", 115.0));
+    test.insert(ProgramSequenceBinding.create(sequence25a, 0));
+    UUID sequenceBindingId = test.insert(ProgramSequenceBinding.create(sequence25a, 1)).getId();
+    test.insert(ProgramSequenceBinding.create(sequence25a, 2));
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, fake.segment4.getId()));
 
     assertTrue(fabricator.hasOneMoreSequenceBindingOffset(new SegmentChoice()
       .setProgramId(UUID.randomUUID())
@@ -240,12 +260,12 @@ public class FabricatorIT extends FixtureIT {
 
   @Test
   public void hasOneMoreSequenceBindingOffset_false() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Artist");
-    Program program25 = insert(Program.create(user3, library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
-    ProgramSequence sequence25a = insert(ProgramSequence.create(program25, 0, "Chunk", 0.4, "G minor", 115.0));
-    insert(ProgramSequenceBinding.create(sequence25a, 0));
-    UUID sequenceBindingId = insert(ProgramSequenceBinding.create(sequence25a, 1)).getId();
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, segment4.getId()));
+    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    fake.program25 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
+    ProgramSequence sequence25a = test.insert(ProgramSequence.create(fake.program25, 0, "Chunk", 0.4, "G minor", 115.0));
+    test.insert(ProgramSequenceBinding.create(sequence25a, 0));
+    UUID sequenceBindingId = test.insert(ProgramSequenceBinding.create(sequence25a, 1)).getId();
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, fake.segment4.getId()));
 
     assertFalse(fabricator.hasOneMoreSequenceBindingOffset(new SegmentChoice()
       .setProgramId(UUID.randomUUID())
@@ -255,14 +275,14 @@ public class FabricatorIT extends FixtureIT {
 
   @Test
   public void hasTwoMoreSequenceBindingOffsets_true() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Artist");
-    Program program25 = insert(Program.create(user3, library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
-    ProgramSequence sequence25a = insert(ProgramSequence.create(program25, 0, "Chunk", 0.4, "G minor", 115.0));
-    insert(ProgramSequenceBinding.create(sequence25a, 0));
-    UUID sequenceBindingId = insert(ProgramSequenceBinding.create(sequence25a, 1)).getId();
-    insert(ProgramSequenceBinding.create(sequence25a, 2));
-    insert(ProgramSequenceBinding.create(sequence25a, 3));
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, segment4.getId()));
+    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    fake.program25 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
+    ProgramSequence sequence25a = test.insert(ProgramSequence.create(fake.program25, 0, "Chunk", 0.4, "G minor", 115.0));
+    test.insert(ProgramSequenceBinding.create(sequence25a, 0));
+    UUID sequenceBindingId = test.insert(ProgramSequenceBinding.create(sequence25a, 1)).getId();
+    test.insert(ProgramSequenceBinding.create(sequence25a, 2));
+    test.insert(ProgramSequenceBinding.create(sequence25a, 3));
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, fake.segment4.getId()));
 
     assertTrue(fabricator.hasTwoMoreSequenceBindingOffsets(new SegmentChoice()
       .setProgramId(UUID.randomUUID())
@@ -276,13 +296,13 @@ public class FabricatorIT extends FixtureIT {
    */
   @Test
   public void hasTwoMoreSequenceBindingOffsets_false() throws Exception {
-    Access access = Access.create(ImmutableList.of(account1), "Artist");
-    Program program25 = insert(Program.create(user3, library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
-    ProgramSequence sequence25a = insert(ProgramSequence.create(program25, 0, "Chunk", 0.4, "G minor", 115.0));
-    insert(ProgramSequenceBinding.create(sequence25a, 0));
-    UUID sequenceBindingId = insert(ProgramSequenceBinding.create(sequence25a, 1)).getId();
-    insert(ProgramSequenceBinding.create(sequence25a, 2));
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, segment4.getId()));
+    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    fake.program25 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Macro, ProgramState.Published, "Chunky Peanut Butter", "G minor", 120.0, 0.6));
+    ProgramSequence sequence25a = test.insert(ProgramSequence.create(fake.program25, 0, "Chunk", 0.4, "G minor", 115.0));
+    test.insert(ProgramSequenceBinding.create(sequence25a, 0));
+    UUID sequenceBindingId = test.insert(ProgramSequenceBinding.create(sequence25a, 1)).getId();
+    test.insert(ProgramSequenceBinding.create(sequence25a, 2));
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), segmentDAO.readOne(access, fake.segment4.getId()));
 
     assertFalse(fabricator.hasTwoMoreSequenceBindingOffsets(new SegmentChoice()
       .setProgramId(UUID.randomUUID())

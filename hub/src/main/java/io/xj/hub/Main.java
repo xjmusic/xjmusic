@@ -1,61 +1,43 @@
 // Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Module;
+import com.typesafe.config.Config;
 import io.xj.core.CoreModule;
 import io.xj.core.app.App;
-import io.xj.core.config.Config;
-import io.xj.core.exception.CoreException;
-import io.xj.core.persistence.sql.migration.Migration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
+import io.xj.core.app.AppConfiguration;
+import io.xj.core.app.AppException;
+import io.xj.craft.CraftModule;
 
 /**
- Main class.
+ Hub service
  */
-public enum Main {
-  ;
-  private static final Injector injector = Guice.createInjector(new CoreModule());
-  private static final App app = injector.getInstance(App.class);
-  private static final Logger log = LoggerFactory.getLogger(Main.class);
+public class Main {
+  private static final Iterable<Module> injectorModules = ImmutableList.of(new CoreModule(), new CraftModule());
+  private static final Iterable<String> resourcePackages = ImmutableList.of("io.xj.hub");
 
   /**
    Main method.
 
-   @param args arguments
-   @throws IOException if execution fails
+   @param args arguments-- the first argument must be the path to the configuration file
    */
-  public static void main(String[] args) throws IOException, CoreException {
-    // Default port
-    Config.setDefault("app.port", "8042");
+  public static void main(String[] args) throws AppException {
 
-    // Default # seconds ahead of time to perform work
-    Config.setDefault("work.buffer.seconds", "300");
+    // Read configuration from arguments to program, with default fallbacks
+    Config config = AppConfiguration.parseArgs(args);
 
-    // App
-    app.configureServer("io.xj.hub");
-
-    // Database migrations
-    try {
-      injector.getInstance(Migration.class).migrate();
-    } catch (CoreException e) {
-      log.error("Migrations failed! App will not start.", e);
-      System.exit(1);
-    }
+    // Instantiate app
+    App app = new App(resourcePackages, AppConfiguration.inject(config, injectorModules));
 
     // Shutdown Hook
-    Runtime.getRuntime().addShutdownHook(new Thread(Main::shutdown));
+    Runtime.getRuntime().addShutdownHook(new Thread(app::stop));
+
+    // run database migrations
+    // TODO create a separate service (top level, besides hub) only for migration
+    app.migrate();
 
     // start
     app.start();
   }
-
-  private static void shutdown() {
-    app.stop();
-  }
-
 }
-

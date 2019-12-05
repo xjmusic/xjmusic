@@ -1,11 +1,11 @@
-//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.core.fabricator.impl;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.core.config.Config;
+import com.typesafe.config.Config;
 import io.xj.core.fabricator.TimeComputer;
 import io.xj.music.BPM;
 
@@ -31,9 +31,9 @@ public class TimeComputerImpl implements TimeComputer {
   double fromVelocity;
   double velocityDelta;
   Map<Integer, Double> timeAtPosition = Maps.newHashMap();
-  double div = Config.getComputeTimeFramesPerBeat();
-  double sub = Config.getComputeTimeResolutionHz();
-  double inc = 1 / div;
+  double div;
+  double sub;
+  double inc;
 
   /**
    Configure a TimeComputer instance for a segment
@@ -46,8 +46,13 @@ public class TimeComputerImpl implements TimeComputer {
   public TimeComputerImpl(
     @Assisted("totalBeats") double totalBeats,
     @Assisted("fromTempo") double fromTempo,
-    @Assisted("toTempo") double toTempo
+    @Assisted("toTempo") double toTempo,
+    Config config
   ) {
+    div = config.getDouble("segment.computeTimeFramesPerBeat");
+    sub = config.getDouble("segment.computeTimeResolutionHz");
+    inc = 1 / div;
+
     this.totalBeats = totalBeats;
     fromVelocity = BPM.velocity(fromTempo);
     toVelocity = BPM.velocity(toTempo);
@@ -55,8 +60,8 @@ public class TimeComputerImpl implements TimeComputer {
     timeAtPosition.put(0, 0.0);
 
     // computed by integral, smoothly fading of previous segment velocity to current
-    double time = 0.0d;
-    double position = 0.0d;
+    double time = 0;
+    double position = 0;
     while (position <= totalBeats) {
       time += inc * velocityAtPosition(position);
       position += inc;

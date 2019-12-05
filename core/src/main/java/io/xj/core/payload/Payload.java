@@ -1,11 +1,10 @@
-//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.core.payload;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.api.client.util.Lists;
 import com.google.common.collect.Maps;
-import io.xj.core.config.Config;
 import io.xj.core.entity.Entity;
 import io.xj.core.payload.deserializer.PayloadDeserializer;
 
@@ -175,10 +174,10 @@ public class Payload {
 
    @return URI of self
    */
-  public URI getSelfURI() {
-    if (links.containsKey(KEY_SELF))
-      return URI.create(links.get(KEY_SELF));
-    return Config.getApiURI("");
+  public Optional<URI> getSelfURI() {
+    return links.containsKey(KEY_SELF) ?
+      Optional.of(URI.create(links.get(KEY_SELF))) :
+      Optional.empty();
   }
 
   /**
@@ -331,9 +330,10 @@ public class Payload {
   }
 
   /**
-   * Add a payload object to the data many
-   * @param payloadObject  to add
-   * @return this Payload (for chaining methods)
+   Add a payload object to the data many
+
+   @param payloadObject to add
+   @return this Payload (for chaining methods)
    */
   public Payload addToDataMany(PayloadObject payloadObject) {
     setDataType(PayloadDataType.HasMany);

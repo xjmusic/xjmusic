@@ -4,12 +4,12 @@ package io.xj.craft.digest.impl;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.inject.Inject;
-import io.xj.core.config.Config;
+import com.typesafe.config.Config;
 import io.xj.core.ingest.Ingest;
-import io.xj.craft.digest.DigestFactory;
 import io.xj.craft.digest.DigestCacheProvider;
 import io.xj.craft.digest.DigestChordMarkov;
 import io.xj.craft.digest.DigestChordProgression;
+import io.xj.craft.digest.DigestFactory;
 import io.xj.craft.digest.DigestHash;
 import io.xj.craft.digest.DigestMeme;
 import io.xj.craft.digest.DigestProgramStyle;
@@ -23,11 +23,19 @@ public class DigestCacheProviderImpl implements DigestCacheProvider {
   private final LoadingCache<Ingest, DigestChordMarkov> digestChordMarkov;
   private final LoadingCache<Ingest, DigestChordProgression> digestChordProgression;
   private final LoadingCache<Ingest, DigestProgramStyle> digestSequenceStyle;
+  private final int digestCacheSize;
+  private final int digestCacheExpireMinutes;
+  private final int digestCacheRefreshMinutes;
 
   @Inject
   DigestCacheProviderImpl(
-    DigestFactory digestFactory
+    DigestFactory digestFactory,
+    Config config
   ) {
+    digestCacheSize = config.getInt("digest.cacheSize");
+    digestCacheExpireMinutes = config.getInt("digest.cacheExpireMinutes");
+    digestCacheRefreshMinutes = config.getInt("digest.cacheRefreshMinutes");
+
     this.digestFactory = digestFactory;
     digestMeme = cacheBuilder().build(digestFactory::meme);
     digestSequenceStyle = cacheBuilder().build(digestFactory::programStyle);
@@ -42,11 +50,11 @@ public class DigestCacheProviderImpl implements DigestCacheProvider {
 
    @return cache builder
    */
-  private static Caffeine<Object, Object> cacheBuilder() {
+  private Caffeine<Object, Object> cacheBuilder() {
     return Caffeine.newBuilder()
-      .maximumSize(Config.getDigestCacheSize())
-      .expireAfterWrite(Config.getDigestCacheExpireMinutes(), TimeUnit.MINUTES)
-      .refreshAfterWrite(Config.getDigestCacheRefreshMinutes(), TimeUnit.MINUTES);
+      .maximumSize(digestCacheSize)
+      .expireAfterWrite(digestCacheExpireMinutes, TimeUnit.MINUTES)
+      .refreshAfterWrite(digestCacheRefreshMinutes, TimeUnit.MINUTES);
   }
 
   @Override

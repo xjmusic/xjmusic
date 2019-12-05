@@ -49,7 +49,7 @@
   @media (min-width: 992px) {
    h1 {
      font-size: $font-size-mega;
-     line-height: $font-size-mega * 1.05;
+     line-height: $font-size-mega * 1.25;
    }
     p {
       font-size: $font-size-xxl;
@@ -61,7 +61,7 @@
   @media (max-width: 991px) {
     h1 {
       font-size: $font-size-super;
-      line-height: $font-size-super * 1.05;
+      line-height: $font-size-super * 1.15;
     }
     p {
       font-size: $font-size-xl;

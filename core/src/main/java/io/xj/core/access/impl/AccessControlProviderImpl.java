@@ -1,10 +1,13 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access.impl;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.services.plus.model.Person;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.xj.core.access.Access;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.token.TokenGenerator;
-import io.xj.core.config.Config;
 import io.xj.core.dao.UserDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.external.google.GoogleProvider;
@@ -13,11 +16,6 @@ import io.xj.core.model.UserAuth;
 import io.xj.core.model.UserAuthType;
 import io.xj.core.model.UserRole;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
-
-import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
-import com.google.api.services.plus.model.Person;
-import com.google.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
@@ -33,22 +31,28 @@ public class AccessControlProviderImpl implements AccessControlProvider {
   private final GoogleProvider googleProvider;
   private final UserDAO userDAO;
 
-  private final String tokenName = Config.getAccessTokenName();
-  private final String tokenDomain = Config.getAccessTokenDomain();
-  private final String tokenPath = Config.getAccessTokenPath();
-  private final String tokenMaxAge = String.valueOf(Config.getAccessTokenMaxAge());
+  private final String tokenName;
+  private final String tokenDomain;
+  private final String tokenPath;
+  private final int tokenMaxAge;
 
   @Inject
   public AccessControlProviderImpl(
     RedisDatabaseProvider redisDatabaseProvider,
     TokenGenerator tokenGenerator,
     GoogleProvider googleProvider,
-    UserDAO userDAO
+    UserDAO userDAO,
+    Config config
   ) {
     this.redisDatabaseProvider = redisDatabaseProvider;
     this.tokenGenerator = tokenGenerator;
     this.googleProvider = googleProvider;
     this.userDAO = userDAO;
+
+    tokenName = config.getString("access.tokenName");
+    tokenDomain = config.getString("access.tokenDomain");
+    tokenPath = config.getString("access.tokenPath");
+    tokenMaxAge = config.getInt("access.tokenMaxAgeSeconds");
   }
 
   @Override

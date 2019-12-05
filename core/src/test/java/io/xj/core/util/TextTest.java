@@ -2,18 +2,17 @@
 package io.xj.core.util;
 
 import com.google.common.collect.ImmutableMap;
-import io.xj.core.CoreTest;
 import io.xj.core.model.Account;
 import io.xj.core.model.AccountUser;
 import io.xj.core.model.Chain;
-import io.xj.core.model.ChainState;
 import io.xj.core.model.ChainConfig;
+import io.xj.core.model.ChainState;
 import io.xj.core.model.InstrumentAudioChord;
 import io.xj.core.model.InstrumentAudioEvent;
 import io.xj.core.model.InstrumentMeme;
-import io.xj.core.model.ProgramSequencePatternEvent;
 import io.xj.core.model.ProgramMeme;
 import io.xj.core.model.ProgramSequenceChord;
+import io.xj.core.model.ProgramSequencePatternEvent;
 import io.xj.core.model.SegmentChord;
 import io.xj.core.model.SegmentMeme;
 import org.junit.Test;
@@ -23,7 +22,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TextTest extends CoreTest {
+public class TextTest  {
 
 
   @Test

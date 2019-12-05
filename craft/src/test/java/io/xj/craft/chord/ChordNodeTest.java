@@ -2,7 +2,6 @@
 
 package io.xj.craft.chord;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import io.xj.core.CoreTest;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramSequenceChord;
 import io.xj.core.util.Value;
@@ -16,7 +15,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class ChordNodeTest extends CoreTest {
+public class ChordNodeTest  {
   private ProgramSequence programSequence1;
 
   @Before

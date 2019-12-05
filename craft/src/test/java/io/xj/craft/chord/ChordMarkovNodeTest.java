@@ -3,14 +3,13 @@
 package io.xj.craft.chord;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.CoreTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class ChordMarkovNodeTest extends CoreTest {
+public class ChordMarkovNodeTest  {
 
   @Test
   public void getPrecedentState() {

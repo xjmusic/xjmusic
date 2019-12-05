@@ -1,8 +1,5 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.external.google;
-
-import io.xj.core.config.Config;
-import io.xj.core.exception.CoreException;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.TokenResponseException;
@@ -19,7 +16,9 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.services.plus.model.Person;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-
+import com.typesafe.config.Config;
+import io.xj.core.exception.CoreException;
+import io.xj.core.transport.ApiUrlProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +32,7 @@ public class GoogleProviderImpl implements GoogleProvider {
   private static final Logger log = LoggerFactory.getLogger(GoogleProviderImpl.class);
   private final GoogleHttpProvider googleHttpProvider;
   private final JsonFactory jsonFactory;
+  private final ApiUrlProvider apiUrlProvider;
 
   private String clientId;
   private String clientSecret;
@@ -40,16 +40,29 @@ public class GoogleProviderImpl implements GoogleProvider {
   @Inject
   public GoogleProviderImpl(
     GoogleHttpProvider googleHttpProvider,
-    JsonFactory jsonFactory
+    JsonFactory jsonFactory,
+    ApiUrlProvider apiUrlProvider,
+    Config config
   ) {
     this.googleHttpProvider = googleHttpProvider;
     this.jsonFactory = jsonFactory;
+    this.apiUrlProvider = apiUrlProvider;
     try {
-      clientId = Config.getAuthGoogleId();
-      clientSecret = Config.getAuthGoogleSecret();
-    } catch (CoreException e) {
+      clientId = config.getString("google.clientId");
+      clientSecret = config.getString("google.clientSecret");
+    } catch (Exception e) {
       log.error("Failed to initialize Google Provider: {}", e.getMessage());
     }
+  }
+
+  private static String detailsOfTokenException(TokenResponseException e) {
+    return
+      (null != e.getMessage() ? e.getMessage() : "") +
+        (null != e.getDetails() ? (
+          (null != e.getDetails().getError() ? e.getDetails().getError() : "") +
+            (null != e.getDetails().getErrorDescription() ? e.getDetails().getErrorDescription() : "") +
+            (null != e.getDetails().getErrorUri() ? e.getDetails().getErrorUri() : "")
+        ) : "");
   }
 
   @Override
@@ -64,7 +77,7 @@ public class GoogleProviderImpl implements GoogleProvider {
 
   @Override
   public String getCallbackUrl() {
-    return Config.getApiUrlString(CALLBACK_PATH);
+    return apiUrlProvider.getApiUrlString(CALLBACK_PATH);
   }
 
   @Override
@@ -85,16 +98,6 @@ public class GoogleProviderImpl implements GoogleProvider {
     }
 
     return response;
-  }
-
-  private static String detailsOfTokenException(TokenResponseException e) {
-    return
-      (null != e.getMessage() ? e.getMessage() : "") +
-        (null != e.getDetails() ? (
-          (null != e.getDetails().getError() ? e.getDetails().getError() : "") +
-            (null != e.getDetails().getErrorDescription() ? e.getDetails().getErrorDescription() : "") +
-            (null != e.getDetails().getErrorUri() ? e.getDetails().getErrorUri() : "")
-        ) : "");
   }
 
   @Override

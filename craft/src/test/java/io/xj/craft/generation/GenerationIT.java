@@ -4,32 +4,48 @@ package io.xj.craft.generation;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.typesafe.config.Config;
 import io.xj.core.CoreModule;
-import io.xj.core.FixtureIT;
+import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.ingest.IngestFactory;
 import io.xj.core.model.Chain;
 import io.xj.core.model.ChainBinding;
 import io.xj.core.model.ProgramSequence;
+import io.xj.core.testing.AppTestConfiguration;
+import io.xj.core.testing.IntegrationTestProvider;
 import io.xj.craft.CraftModule;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GenerationIT extends FixtureIT {
-  private final Injector injector = Guice.createInjector(new CoreModule(), new CraftModule());
+public class GenerationIT {
   private IngestFactory ingestFactory;
   private GenerationFactory generationFactory;
+  private IntegrationTestingFixtures fake;
+  private IntegrationTestProvider test;
 
   @Before
   public void setUp() throws Exception {
-    reset();
-    insertFixtureA();
-    chain1 = Chain.create();
+    Config config = AppTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule(), new CraftModule()));
+    test = injector.getInstance(IntegrationTestProvider.class);
+    fake = new IntegrationTestingFixtures(test);
+
+    test.reset();
+    fake.insertFixtureA();
+    fake.chain1 = Chain.create();
     ingestFactory = injector.getInstance(IngestFactory.class);
     generationFactory = injector.getInstance(GenerationFactory.class);
+  }
+
+  @After
+  public void tearDown() {
+    test.shutdown();
   }
 
   /**
@@ -40,7 +56,7 @@ public class GenerationIT extends FixtureIT {
   public void generation() throws Exception {
     ProgramSequence target = new ProgramSequence().setTotal(16).setName("SUPERSEQUENCE").setDensity(0.618).setKey("C").setTempo(120.4);
 
-    generationFactory.librarySupersequence(target, ingestFactory.ingest(Access.internal(), ImmutableList.of(ChainBinding.create(chain1, library10000001))));
+    generationFactory.librarySupersequence(target, ingestFactory.ingest(Access.internal(), ImmutableList.of(ChainBinding.create(fake.chain1, fake.library10000001))));
   }
 
 }

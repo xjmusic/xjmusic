@@ -1,7 +1,10 @@
 package io.xj.core.payload;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.CoreTest;
+import com.google.inject.Injector;
+import com.typesafe.config.Config;
+import io.xj.core.CoreModule;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Account;
 import io.xj.core.model.AccountUser;
@@ -13,6 +16,10 @@ import io.xj.core.model.ChainState;
 import io.xj.core.model.ChainType;
 import io.xj.core.model.Library;
 import io.xj.core.model.User;
+import io.xj.core.testing.AppTestConfiguration;
+import io.xj.core.testing.InternalResources;
+import io.xj.core.transport.GsonProvider;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -20,7 +27,15 @@ import java.time.Instant;
 
 import static io.xj.core.testing.AssertPayload.assertPayload;
 
-public class PayloadSerializerTest extends CoreTest {
+public class PayloadSerializerTest {
+  private GsonProvider gsonProvider;
+
+  @Before
+  public void setUp() {
+    Config config = AppTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule()));
+    gsonProvider = injector.getInstance(GsonProvider.class);
+  }
 
   @Test
   public void serialize() throws IOException {
@@ -29,7 +44,7 @@ public class PayloadSerializerTest extends CoreTest {
 
     String result = gsonProvider.gson().toJson(payload);
 
-    assertPayload(deserializePayload(result))
+    assertPayload(InternalResources.deserializePayload(result))
       .hasDataOne("chains", chain.getId().toString());
   }
 
@@ -45,7 +60,7 @@ public class PayloadSerializerTest extends CoreTest {
 
     String result = gsonProvider.gson().toJson(payload);
 
-    assertPayload(deserializePayload(result))
+    assertPayload(InternalResources.deserializePayload(result))
       .hasDataOne("accounts", account.getId().toString());
   }
 
@@ -63,7 +78,7 @@ public class PayloadSerializerTest extends CoreTest {
 
     String result = gsonProvider.gson().toJson(payload);
 
-    assertPayload(deserializePayload(result))
+    assertPayload(InternalResources.deserializePayload(result))
       .hasDataOne("account-users", accountUser.getId().toString())
       .belongsTo(User.class, user.getId().toString())
       .belongsTo(Account.class, account.getId().toString());
@@ -84,7 +99,7 @@ public class PayloadSerializerTest extends CoreTest {
 
     String result = gsonProvider.gson().toJson(payload);
 
-    assertPayload(deserializePayload(result))
+    assertPayload(InternalResources.deserializePayload(result))
       .hasIncluded("chain-configs", ImmutableList.of(chainConfig1, chainConfig2))
       .hasDataOne("chains", chain.getId().toString())
       .hasMany(ChainConfig.class, ImmutableList.of(chainConfig1, chainConfig2))
@@ -102,7 +117,7 @@ public class PayloadSerializerTest extends CoreTest {
 
     String result = gsonProvider.gson().toJson(payload);
 
-    assertPayload(deserializePayload(result))
+    assertPayload(InternalResources.deserializePayload(result))
       .hasDataMany("accounts", ImmutableList.of(
         accountA.getId().toString(),
         accountB.getId().toString(),

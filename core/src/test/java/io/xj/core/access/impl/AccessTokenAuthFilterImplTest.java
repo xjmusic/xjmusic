@@ -2,17 +2,21 @@
 
 package io.xj.core.access.impl;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
+import com.google.api.client.json.JsonFactory;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigValueFactory;
 import io.xj.core.CoreModule;
 import io.xj.core.access.Access;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.AccessTokenAuthFilter;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.model.UserRoleType;
-import org.junit.After;
+import io.xj.core.testing.AppTestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,34 +42,27 @@ import static org.mockito.Mockito.when;
 public class AccessTokenAuthFilterImplTest {
   private AccessTokenAuthFilter subject;
   @Mock
-  private AccessControlProvider accessControlProvider;
+  private AccessControlProvider accessControlProvider; // TODO inject
   @Mock
   private ContainerRequestContext requestContext;
   @Mock
-  private ResourceInfo resourceInfo;
-
-  private static Injector createInjector() {
-    return Guice.createInjector(Modules.override(new CoreModule()).with(
-      new AbstractModule() {
-        @Override
-        public void configure() {
-        }
-      }));
-  }
+  private ResourceInfo resourceInfo; // TODO inject
+  private JsonFactory jsonFactory;
 
   @Before
   public void setUp() throws Exception {
-    System.setProperty("auth.google.id", "my-google-id");
-    System.setProperty("auth.google.secret", "my-google-secret");
-    Injector injector = createInjector();
+    Config config = AppTestConfiguration.getDefault()
+      .withValue("google.clientId", ConfigValueFactory.fromAnyRef("my-google-id"))
+      .withValue("google.clientSecret", ConfigValueFactory.fromAnyRef("my-google-secret"));
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(Modules.override(new CoreModule()).with(new AbstractModule() {
+      @Override
+      protected void configure() {
+        bind(AccessControlProvider.class).toInstance(accessControlProvider);
+      }
+    })));
+    jsonFactory = injector.getInstance(JsonFactory.class);
     subject = injector.getInstance(AccessTokenAuthFilter.class);
-    subject.setTestResources(resourceInfo, accessControlProvider);
-  }
-
-  @After
-  public void tearDown() {
-    System.clearProperty("auth.google.secret");
-    System.clearProperty("auth.google.id");
+    subject.setResourceInfo(resourceInfo);
   }
 
   /**
@@ -79,7 +76,7 @@ public class AccessTokenAuthFilterImplTest {
       public Response get(@Context ContainerRequestContext crc) {
         Access access = Access.fromContext(crc);
         return Response
-          .accepted(access.toJSON())
+          .accepted(access.toJSON(jsonFactory))
           .type(MediaType.APPLICATION_JSON)
           .build();
       }
@@ -111,7 +108,7 @@ public class AccessTokenAuthFilterImplTest {
       public Response get(@Context ContainerRequestContext crc) {
         Access access = Access.fromContext(crc);
         return Response
-          .accepted(access.toJSON())
+          .accepted(access.toJSON(jsonFactory))
           .type(MediaType.APPLICATION_JSON)
           .build();
       }

@@ -1,11 +1,11 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.work.impl;
 
 import com.google.api.client.util.Maps;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.xj.core.access.Access;
-import io.xj.core.config.Config;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.entity.MessageType;
@@ -36,19 +36,31 @@ public class WorkManagerImpl implements WorkManager {
   private static final Integer MILLIS_PER_SECOND = 1000;
   private static final String KEY_JESQUE_CLASS = "class";
   private static final String KEY_JESQUE_VARS = "vars";
+  private static String dbRedisQueueNamespace;
+  private static String workQueueName;
   private final PlatformMessageDAO platformMessageDAO;
   private final RedisDatabaseProvider redisDatabaseProvider;
   private final ChainDAO chainDAO;
+  private int workChainDelayRecurSeconds;
+  private int workChainEraseRecurSeconds;
+  private int workChainRecurSeconds;
 
   @Inject
   WorkManagerImpl(
     ChainDAO chainDAO,
     PlatformMessageDAO platformMessageDAO,
-    RedisDatabaseProvider redisDatabaseProvider
+    RedisDatabaseProvider redisDatabaseProvider,
+    Config config
   ) {
     this.chainDAO = chainDAO;
     this.platformMessageDAO = platformMessageDAO;
     this.redisDatabaseProvider = redisDatabaseProvider;
+
+    dbRedisQueueNamespace = config.getString("redis.queueNamespace");
+    workQueueName = config.getString("work.queueName");
+    workChainDelayRecurSeconds = config.getInt("work.chainDelayRecurSeconds");
+    workChainEraseRecurSeconds = config.getInt("work.chainEraseRecurSeconds");
+    workChainRecurSeconds = config.getInt("work.chainRecurSeconds");
   }
 
   /**
@@ -57,9 +69,7 @@ public class WorkManagerImpl implements WorkManager {
    @return computed key
    */
   private static String computeRedisWorkQueueKey() {
-    return String.format("%s:queue:%s",
-      Config.getDbRedisQueueNamespace(),
-      Config.getWorkQueueName());
+    return String.format("%s:queue:%s", dbRedisQueueNamespace, workQueueName);
   }
 
   /**
@@ -93,7 +103,7 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public void startChainFabrication(UUID chainId) {
-    startRecurringJob(WorkType.ChainFabricate, Config.getWorkChainDelaySeconds(), Config.getWorkChainRecurSeconds(), chainId);
+    startRecurringJob(WorkType.ChainFabricate, workChainDelayRecurSeconds, workChainRecurSeconds, chainId);
   }
 
   @Override
@@ -108,7 +118,7 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public void startChainErase(UUID chainId) {
-    startRecurringJob(WorkType.ChainErase, Config.getWorkChainDelaySeconds(), Config.getWorkChainEraseRecurSeconds(), chainId);
+    startRecurringJob(WorkType.ChainErase, workChainDelayRecurSeconds, workChainEraseRecurSeconds, chainId);
   }
 
   @Override
@@ -201,7 +211,7 @@ public class WorkManagerImpl implements WorkManager {
    @return reinstated work
    */
   private Work reinstate(Work work) throws Exception {
-    startRecurringJob(work.getType(), Config.getWorkChainDelaySeconds(), Config.getWorkChainEraseRecurSeconds(), work.getTargetId());
+    startRecurringJob(work.getType(), workChainDelayRecurSeconds, workChainEraseRecurSeconds, work.getTargetId());
     work.setState(WorkState.Queued);
     platformMessageDAO.create(Access.internal(),
       new PlatformMessage()
@@ -273,7 +283,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void enqueueDelayedWork(Job job, long delaySeconds) {
     Client client = getQueueClient();
-    client.delayedEnqueue(Config.getWorkQueueName(), job, System.currentTimeMillis() + (delaySeconds * MILLIS_PER_SECOND));
+    client.delayedEnqueue(workQueueName, job, System.currentTimeMillis() + (delaySeconds * MILLIS_PER_SECOND));
     client.end();
   }
 
@@ -286,7 +296,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void enqueueRecurringWork(Job job, long delaySeconds, long recurSeconds) {
     Client client = getQueueClient();
-    client.recurringEnqueue(Config.getWorkQueueName(), job, System.currentTimeMillis() + (delaySeconds * MILLIS_PER_SECOND), recurSeconds * MILLIS_PER_SECOND);
+    client.recurringEnqueue(workQueueName, job, System.currentTimeMillis() + (delaySeconds * MILLIS_PER_SECOND), recurSeconds * MILLIS_PER_SECOND);
     client.end();
   }
 
@@ -297,7 +307,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void removeRecurringWork(Job job) {
     Client client = getQueueClient();
-    client.removeRecurringEnqueue(Config.getWorkQueueName(), job);
+    client.removeRecurringEnqueue(workQueueName, job);
     client.end();
   }
 

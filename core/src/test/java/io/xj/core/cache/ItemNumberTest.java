@@ -3,7 +3,6 @@
 package io.xj.core.cache;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import io.xj.core.cache.audio.impl.ItemNumber;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

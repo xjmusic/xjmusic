@@ -1,10 +1,10 @@
 package io.xj.core.payload;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.CoreTest;
 import io.xj.core.model.Account;
 import io.xj.core.model.ChainConfig;
 import io.xj.core.model.User;
+import io.xj.core.testing.InternalResources;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -12,11 +12,11 @@ import java.util.UUID;
 
 import static io.xj.core.testing.AssertPayload.assertPayload;
 
-public class PayloadDeserializerTest extends CoreTest {
+public class PayloadDeserializerTest  {
 
   @Test
   public void deserializeOneIncludingEmbeddedEntities() throws IOException {
-    Payload result = deserializePayload(readResourceFile("model/payload/deserializeOneIncludingEmbeddedEntities.json"));
+    Payload result = InternalResources.deserializePayload(InternalResources.readResourceFile("model/payload/deserializeOneIncludingEmbeddedEntities.json"));
 
     assertPayload(result)
       .hasDataOne("chains", "12")
@@ -26,7 +26,7 @@ public class PayloadDeserializerTest extends CoreTest {
 
   @Test
   public void deserializeOneWithRelationship() throws IOException {
-    Payload result = deserializePayload(readResourceFile("model/payload/deserializeOneWithRelationship.json"));
+    Payload result = InternalResources.deserializePayload(InternalResources.readResourceFile("model/payload/deserializeOneWithRelationship.json"));
 
     assertPayload(result)
       .hasDataOne("account-users", "14")
@@ -36,7 +36,7 @@ public class PayloadDeserializerTest extends CoreTest {
 
   @Test
   public void deserializeOne() throws IOException {
-    Payload result = deserializePayload(readResourceFile("model/payload/deserializeOne.json"));
+    Payload result = InternalResources.deserializePayload(InternalResources.readResourceFile("model/payload/deserializeOne.json"));
 
     assertPayload(result)
       .hasDataOne("accounts", "67");
@@ -44,7 +44,7 @@ public class PayloadDeserializerTest extends CoreTest {
 
   @Test
   public void deserializeErrors() throws IOException {
-    Payload result = deserializePayload(readResourceFile("model/payload/deserializeErrors.json"));
+    Payload result = InternalResources.deserializePayload(InternalResources.readResourceFile("model/payload/deserializeErrors.json"));
 
     assertPayload(result)
       .hasErrorCount(1);
@@ -52,7 +52,7 @@ public class PayloadDeserializerTest extends CoreTest {
 
   @Test
   public void deserializeOneWithNullAttributeValue() throws IOException {
-    Payload result = deserializePayload(readResourceFile("model/payload/deserializeOneWithNullAttributeValue.json"));
+    Payload result = InternalResources.deserializePayload(InternalResources.readResourceFile("model/payload/deserializeOneWithNullAttributeValue.json"));
 
     assertPayload(result)
       .hasDataOne("chains", "17");
@@ -60,7 +60,7 @@ public class PayloadDeserializerTest extends CoreTest {
 
   @Test
   public void deserializeMany() throws IOException {
-    Payload result = deserializePayload(readResourceFile("model/payload/deserializeMany.json"));
+    Payload result = InternalResources.deserializePayload(InternalResources.readResourceFile("model/payload/deserializeMany.json"));
 
     assertPayload(result)
       .hasDataMany("accounts", ImmutableList.of("5"));
@@ -70,7 +70,7 @@ public class PayloadDeserializerTest extends CoreTest {
   public void deserializeMany_emptyTypeHasMany() throws IOException {
     String json = "{\"data\":[]}";
 
-    Payload result = deserializePayload(json);
+    Payload result = InternalResources.deserializePayload(json);
 
     assertPayload(result)
       .hasDataManyEmpty();
@@ -80,7 +80,7 @@ public class PayloadDeserializerTest extends CoreTest {
   public void deserializeOne_nullDataSetsTypeToHasOne() throws IOException {
     String json = "{\"data\":null}";
 
-    Payload result = deserializePayload(json);
+    Payload result = InternalResources.deserializePayload(json);
 
     assertPayload(result)
       .hasDataOneEmpty();

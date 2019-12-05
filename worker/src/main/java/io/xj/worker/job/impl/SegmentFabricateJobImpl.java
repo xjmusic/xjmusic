@@ -3,8 +3,8 @@ package io.xj.worker.job.impl;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.typesafe.config.Config;
 import io.xj.core.access.Access;
-import io.xj.core.config.Config;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.dao.SegmentMessageDAO;
 import io.xj.core.entity.MessageType;
@@ -38,6 +38,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
   private Fabricator fabricator;
   private Segment segment;
   private SegmentMessageDAO segmentMessageDAO;
+  private int segmentRequeueSeconds;
 
   @Inject
   public SegmentFabricateJobImpl(
@@ -47,7 +48,8 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
     SegmentDAO segmentDAO,
     DubFactory dubFactory,
     WorkManager workManager,
-    SegmentMessageDAO segmentMessageDAO
+    SegmentMessageDAO segmentMessageDAO,
+    Config config
   ) {
     this.entityId = entityId;
     this.craftFactory = craftFactory;
@@ -56,6 +58,8 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
     this.dubFactory = dubFactory;
     this.workManager = workManager;
     this.segmentMessageDAO = segmentMessageDAO;
+
+    segmentRequeueSeconds = config.getInt("segment.requeueSeconds");
   }
 
   /**
@@ -110,7 +114,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
     try {
       updateSegmentState(fabricator.getSegment().getState(), SegmentState.Planned);
       segmentDAO.revert(access, fabricator.getSegment().getId());
-      workManager.scheduleSegmentFabricate(Config.getSegmentRequeueSeconds(), fabricator.getSegment().getId());
+      workManager.scheduleSegmentFabricate(segmentRequeueSeconds, fabricator.getSegment().getId());
     } catch (CoreException e) {
       didFailWhile("reverting and re-queueing segment", e);
     }

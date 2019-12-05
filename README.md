@@ -121,17 +121,17 @@ There's a convenience script to instantly perform the above operation:
 
     bin/sql/user_auth
 
-Only between major platform configuration changes (e.g. to **.nginx/locations.conf**), it may be necessary to force Docker to rebuild the container using `--build`:
+Only between major platform configuration changes (e.g. to **ops/nginx/locations.conf**), it may be necessary to force Docker to rebuild the container using `--build`:
 
     docker-compose up -d --build    
 
-There is a Postgresql dump of a complete example database, for quickly bootstrapping a dev environment. These files are located in `/.sqldump/*`:
+There is a Postgresql dump of a complete example database, for quickly bootstrapping a dev environment. These files are located in `ops/sql/dump/*`:
 
 Load the example database into `postgres01xj1` using the port forwarding from local port 5400 (to Docker Postgres container port 5432). There's a convenience script to do this:
 
     bin/sql/reset/all_local
 
-The `/.sqldump/*` files can be quickly updated from the current dev database with this script:
+The `/ops/sql/dump/*` files can be quickly updated from the current dev database with this script:
 
     bin/sql/dump/all_local
 
@@ -180,7 +180,7 @@ To list all Java system properties:
 
     bin/properties
 
-The default java properties are in the file **.config/.env.default** which is copied to a new file **/.env** on project setup. Developers modify their local .env file with private keys and configuration. The .env file is never committed to the repository. The **.config/.env.default** file is kept up-to-date with all environment variables expected by **bin/common/bootstrap**.
+The default java properties are in the file **ops/config/.env.default** which is copied to a new file **/.env** on project setup. Developers modify their local .env file with private keys and configuration. The .env file is never committed to the repository. The **ops/config/.env.default** file is kept up-to-date with all environment variables expected by **bin/common/bootstrap**.
 
 Also note, ***by design 100% of platform Java system properties are read via Config`***
 
@@ -226,7 +226,7 @@ The configuration uses volumes such that the latest build artifacts are availabl
 
 There is only one Nginx server locations configuration, shared by the local Docker configuration and the production AWS Elastic Beanstalk configuration:
 
-    /.nginx/locations.conf
+    ops/nginx/locations.conf
 
 The front-end user interface (ui/hub-ui) is served via Nginx from the local ui/dist/ folder. While developing (and the docker-compose containers are up), run the Ember build in watch-mode to keep the front-end ui rebuilt as your local code changes automatically:
 
@@ -266,7 +266,7 @@ The docker container `redis01xj1` exposes a Redis server on local port 6300.  Th
 
     bin/redis_cli
 
-For more information on Redis and production, see [the README in the .redis/ folder](.redis/README.md).
+For more information on Redis and production, see [the README in the ops/redis/ folder](ops/redis/README.md).
 
 
 
@@ -414,7 +414,7 @@ Here are the public-facing Amazon CloudFront-backed URLs for audio files, and th
 
 # Amazon S3
 
-The `/.sqldump/*` files are generated from data in the production environment, and refer to audio files located in the dev S3 bucket (synced from the production S3 bucket), xj-dev-audio.
+The `/ops/sql/dump/*` files are generated from data in the production environment, and refer to audio files located in the dev S3 bucket (synced from the production S3 bucket), xj-dev-audio.
 
 Therefore, it is helpful to be able to sync the audio files from production into the dev environment.
 
@@ -621,7 +621,7 @@ The `.ebextensions` and `.ebsettings` folder contain configurations proprietary 
 
 Ops engineers may prefer to use the [The Elastic Beanstalk Command Line Interface](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3.html) for administration of the AWS production deployment.
 
-***Look out for `eb` trying to modify and/or change git version control for the `.config` folder when you do a `eb init`-- revert anything it tries to change!***
+***Look out for `eb` trying to modify and/or change git version control for the `ops/config` folder when you do a `eb init`-- revert anything it tries to change!***
 
 
 

@@ -3,14 +3,15 @@
 package io.xj.core.work;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import com.google.api.client.util.Maps;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.util.Modules;
+import com.typesafe.config.Config;
 import io.xj.core.CoreModule;
-import io.xj.core.CoreTest;
-import io.xj.core.config.Config;
+import io.xj.core.app.AppConfiguration;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.dao.ProgramDAO;
@@ -23,11 +24,11 @@ import io.xj.core.model.Work;
 import io.xj.core.model.WorkState;
 import io.xj.core.model.WorkType;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
+import io.xj.core.testing.AppTestConfiguration;
 import net.greghaines.jesque.Job;
 import net.greghaines.jesque.client.Client;
 import net.greghaines.jesque.worker.JobFactory;
 import net.greghaines.jesque.worker.Worker;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,49 +54,53 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WorkManagerImplTest extends CoreTest {
+public class WorkManagerImplTest {
+  private Chain chain1;
   private WorkManager subject;
+
   @Mock
   private ChainDAO chainDAO;
+
   @Mock
   private RedisDatabaseProvider redisDatabaseProvider;
+
   @Mock
   private Client queueClient;
+
   @Mock
   private JobFactory jobFactory;
+
   @Mock
   private Worker worker;
+
   @Mock
   private Jedis redisConnection;
+
   @Mock
   private PlatformMessageDAO platformMessageDAO;
+
   @Mock
   private ProgramDAO programDAO;
-  private Chain chain1;
 
   @Before
-  public void setUp() throws Exception {
-    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+  public void setUp() {
+    Config config = AppTestConfiguration.getDefault();
+
+    Injector injector = AppConfiguration.inject(config, ImmutableList.of(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
+          bind(Config.class).toInstance(config);
           bind(ChainDAO.class).toInstance(chainDAO);
           bind(ProgramDAO.class).toInstance(programDAO);
           bind(PlatformMessageDAO.class).toInstance(platformMessageDAO);
           bind(RedisDatabaseProvider.class).toInstance(redisDatabaseProvider);
         }
-      }));
-
-    System.setProperty("work.queue.name", "xj_test");
+      })));
 
     chain1 = Chain.create();
 
     subject = injector.getInstance(WorkManager.class);
-  }
-
-  @After
-  public void tearDown() {
-    System.clearProperty("work.queue.name");
   }
 
   @Test
@@ -107,7 +112,7 @@ public class WorkManagerImplTest extends CoreTest {
     Map<String, String> vars = Maps.newHashMap();
     vars.put(Work.KEY_TARGET_ID, chain1.getId().toString());
     verify(queueClient).recurringEnqueue(
-      eq(Config.getWorkQueueName()),
+      eq("xj_test"),
       eq(new Job(WorkType.ChainFabricate.toString(), vars)),
       anyInt(), anyInt());
     verify(queueClient).end();
@@ -121,7 +126,7 @@ public class WorkManagerImplTest extends CoreTest {
 
     Map<String, String> vars = Maps.newHashMap();
     vars.put(Work.KEY_TARGET_ID, chain1.getId().toString());
-    verify(queueClient).removeRecurringEnqueue(Config.getWorkQueueName(),
+    verify(queueClient).removeRecurringEnqueue("xj_test",
       new Job(WorkType.ChainFabricate.toString(), vars));
     verify(queueClient).end();
   }
@@ -135,7 +140,7 @@ public class WorkManagerImplTest extends CoreTest {
     Map<String, String> vars = Maps.newHashMap();
     vars.put(Work.KEY_TARGET_ID, chain1.getId().toString());
     verify(queueClient).delayedEnqueue(
-      eq(Config.getWorkQueueName()),
+      eq("xj_test"),
       eq(new Job(WorkType.SegmentFabricate.toString(), vars)),
       anyInt());
     verify(queueClient).end();
@@ -150,7 +155,7 @@ public class WorkManagerImplTest extends CoreTest {
     Map<String, String> vars = Maps.newHashMap();
     vars.put(Work.KEY_TARGET_ID, chain1.getId().toString());
     verify(queueClient).recurringEnqueue(
-      eq(Config.getWorkQueueName()),
+      eq("xj_test"),
       eq(new Job(WorkType.ChainErase.toString(), vars)),
       anyInt(), anyInt());
     verify(queueClient).end();
@@ -164,7 +169,7 @@ public class WorkManagerImplTest extends CoreTest {
 
     Map<String, String> vars = Maps.newHashMap();
     vars.put(Work.KEY_TARGET_ID, chain1.getId().toString());
-    verify(queueClient).removeRecurringEnqueue(Config.getWorkQueueName(),
+    verify(queueClient).removeRecurringEnqueue("xj_test",
       new Job(WorkType.ChainErase.toString(), vars));
     verify(queueClient).end();
   }
@@ -245,12 +250,12 @@ public class WorkManagerImplTest extends CoreTest {
     // mock direct query of Redis Jesque jobs
     when(redisDatabaseProvider.getClient()).thenReturn(redisConnection);
     Set<String> testQueueData = Sets.newConcurrentHashSet();
-    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain24.getId() +"\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain3382.getId() +"\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ChainErase\",\"vars\":{\"targetId\":\"" + chain157.getId() +"\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"AudioErase\",\"vars\":{\"targetId\":\"" + chain157.getId() +"\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ProgramErase\",\"vars\":{\"targetId\":\"" + program2965.getId() +"\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"PatternErase\",\"vars\":{\"targetId\":\"" + programPattern587.getId() +"\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain24.getId() + "\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain3382.getId() + "\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainErase\",\"vars\":{\"targetId\":\"" + chain157.getId() + "\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"AudioErase\",\"vars\":{\"targetId\":\"" + chain157.getId() + "\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ProgramErase\",\"vars\":{\"targetId\":\"" + program2965.getId() + "\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"PatternErase\",\"vars\":{\"targetId\":\"" + programPattern587.getId() + "\"},\"args\":null}");
     when(redisConnection.zrange("xj:queue:xj_test", 0L, -1L)).thenReturn(testQueueData);
     // mock redis queue redisClient
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
@@ -268,7 +273,7 @@ public class WorkManagerImplTest extends CoreTest {
     Map<String, String> vars = Maps.newHashMap();
     vars.put(Work.KEY_TARGET_ID, chainEraseWork.get().getTargetId().toString());
     verify(queueClient).recurringEnqueue(
-      eq(Config.getWorkQueueName()),
+      eq("xj_test"),
       eq(new Job(WorkType.ChainErase.toString(), vars)),
       anyInt(), anyInt());
     verify(queueClient).end();
@@ -302,12 +307,12 @@ public class WorkManagerImplTest extends CoreTest {
     // mock direct query of Redis Jesque jobs
     when(redisDatabaseProvider.getClient()).thenReturn(redisConnection);
     Set<String> testQueueData = Sets.newConcurrentHashSet();
-    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain24.getId() +"\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain3382.getId() +"\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ChainErase\",\"vars\":{\"targetId\":\"" + chain157.getId() +"\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"AudioErase\",\"vars\":{\"targetId\":\"" + chain157.getId() +"\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ProgramErase\",\"vars\":{\"targetId\":\"" + program2965.getId() +"\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"PatternErase\",\"vars\":{\"targetId\":\"" + programPattern587.getId() +"\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain24.getId() + "\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain3382.getId() + "\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ChainErase\",\"vars\":{\"targetId\":\"" + chain157.getId() + "\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"AudioErase\",\"vars\":{\"targetId\":\"" + chain157.getId() + "\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"ProgramErase\",\"vars\":{\"targetId\":\"" + program2965.getId() + "\"},\"args\":null}");
+    testQueueData.add("{\"class\":\"PatternErase\",\"vars\":{\"targetId\":\"" + programPattern587.getId() + "\"},\"args\":null}");
     when(redisConnection.zrange("xj:queue:xj_test", 0L, -1L)).thenReturn(testQueueData);
 
     // proof is in the assertions

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access;
 
 import com.google.api.client.json.JsonFactory;
@@ -6,9 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import io.xj.core.CoreModule;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Account;
 import io.xj.core.model.AccountUser;
@@ -16,14 +13,13 @@ import io.xj.core.model.User;
 import io.xj.core.model.UserAuth;
 import io.xj.core.model.UserRole;
 import io.xj.core.model.UserRoleType;
-import io.xj.core.transport.CSV;
+import io.xj.core.util.CSV;
 import io.xj.core.util.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.container.ContainerRequestContext;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,17 +31,17 @@ import java.util.stream.Collectors;
 public class Access {
   public static final String CONTEXT_KEY = "userAccess";
   private static final Logger log = LoggerFactory.getLogger(Access.class);
-  private static final Injector injector = Guice.createInjector(new CoreModule());
   private static final String KEY_USER_ID = "userId";
   private static final String KEY_USER_AUTH_ID = "userAuthId";
   private static final String KEY_ACCOUNT_IDS = "accounts";
   private static final String KEY_ROLE_TYPES = "roles";
   private static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
-  private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
   private final Collection<UserRoleType> roleTypes;
   private final Collection<UUID> accountIds;
+
   @Nullable
   private final UUID userId;
+
   @Nullable
   private final UUID userAuthId;
 
@@ -322,8 +318,8 @@ public class Access {
    @param matchRoles of the resource to match.
    @return whether user access roles match resource access roles.
    */
-  public <T> boolean isAllowed(T... matchRoles) {
-    // YES there may be heap pollution. FUTURE: better Java programmer figure out better solution :)
+  @SafeVarargs
+  public final <T> boolean isAllowed(T... matchRoles) {
     return Arrays.stream(matchRoles).anyMatch(matchRole -> roleTypes.stream().anyMatch(userRoleType -> userRoleType == UserRoleType.valueOf(matchRole.toString())));
   }
 
@@ -402,10 +398,10 @@ public class Access {
 
    @return JSON
    */
-  public String toJSON() {
+  public String toJSON(JsonFactory jsonFactory) {
     try {
       return jsonFactory.toString(toMap());
-    } catch (IOException e) {
+    } catch (Exception e) {
       log.error("failed JSON serialization", e);
       return "{}";
     }

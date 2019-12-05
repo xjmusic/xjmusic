@@ -42,7 +42,7 @@ theme = "xj-theme"
   author = "XJ Music™"
   email = "hello@xj.io"
   images = ["https://xj.io/images/cover.jpg"]
-  description = "XJ Music™ is an AI-powered instrument for collaborative ambient music production."
+  description = "XJ Music™ is the collaborative instrument for ambient music production."
 
   # Analytics
   googleAnalytics = "UA-102762643-3"
