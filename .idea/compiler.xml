@@ -6,14 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="craft" />
-        <module name="music" />
-        <module name="pulse" />
-        <module name="worker" />
-        <module name="core" />
-        <module name="hub" />
-        <module name="dub" />
-        <module name="mixer" />
+        <module name="platform" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -23,6 +16,7 @@
       <module name="hub" target="11" />
       <module name="mixer" target="11" />
       <module name="music" target="11" />
+      <module name="platform" target="11" />
       <module name="pulse" target="11" />
       <module name="worker" target="11" />
       <module name="xj" target="1.5" />
