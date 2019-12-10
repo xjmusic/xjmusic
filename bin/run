@@ -26,24 +26,26 @@ shift
 APP_ARGS=$@
 
 # Expected JAR files
-APP_JAR=${PWD}/${APP}/target/${APP}-1.0-SNAPSHOT.jar
+APP_JAR=${PWD}/target/${APP}-1.0-SNAPSHOT-jar-with-dependencies.jar
+CONFIG_PATH="env.conf"
 CLASSPATH=${APP_JAR}
-MAIN=io.xj.${APP}.Main
 
 # ensure platform is packaged
-ensure_file ${APP_JAR} "io.xj.${APP} is packaged"
+ensure_file ${APP_JAR} "${APP} is packaged"
 
 # start up a ${APP}
 if ["$@" == ""]; then
   CMD="
   /usr/bin/java
     -jar ${APP_JAR}
+    ${CONFIG_PATH}
   "
 else
   CMD="
   /usr/bin/java
     $@
     -jar ${APP_JAR}
+    ${CONFIG_PATH}
   "
 fi
 

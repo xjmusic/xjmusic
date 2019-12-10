@@ -55,13 +55,9 @@ NOTE: Hub UI still has Ember tests. See: [#158271368](https://www.pivotaltracker
 
 ## Getting Started
 
-Setup workflow, build and package Java server-side application and build Web front-end user interface:
+There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables, in a new file called **env.conf** which is never checked in to version control or released with the distribution. Because the application only has **one single common bootstrap** (located at bin/common/bootstrap) the use of environment variables is federated across development and production deployments, while all actual configurations are kept outside the scope of the code.
 
-    make
-
-The preceding command will also create a blank environment variables file called **.env** which is never checked in to version control or released with the distribution. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables. Because the application only has **one single common bootstrap** (located at bin/common/bootstrap) the use of environment variables is federated across development and production deployments, while all actual configurations are kept outside the scope of the code.
-
-We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development with uncanny parity to production. Once your **.env** file is configured, it's time to bring up the `hub01xj1` server and its supporting resources such as `postgres01xj1` and `redis01xj1`:
+We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development with uncanny parity to production. Once your **env.conf** file is configured, it's time to bring up the `hub01xj1` server and its supporting resources such as `postgres01xj1` and `redis01xj1`:
 
     docker-compose up -d
 
@@ -180,11 +176,7 @@ To list all Java system properties:
 
     bin/properties
 
-The default java properties are in the file **ops/config/.env.default** which is copied to a new file **/.env** on project setup. Developers modify their local .env file with private keys and configuration. The .env file is never committed to the repository. The **ops/config/.env.default** file is kept up-to-date with all environment variables expected by **bin/common/bootstrap**.
-
-Also note, ***by design 100% of platform Java system properties are read via Config`***
-
-
+There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables, in a new file called **env.conf** which is never checked in to version control or released with the distribution.  Developers modify their local **env.conf** file with private keys and configuration. The **env.conf** file is never committed to the repository, because it contains secrets. The **env.example.conf** file is kept up-to-date with all environment variables required for the developer to configure.
 
 ## Run local platform in Docker containers
 
@@ -424,24 +416,6 @@ Therefore, it is helpful to be able to sync the audio files from production into
 
 Note that in order to use that command, the source bucket (xj-prod-audio) must grant `s3:ListBucket` and `s3:GetObject` permission, and the target bucket (xj-dev-audio) must grant `s3:ListBucket` and `s3:PutObject` to the IAM user your AWS CLI is authenticated as.
 
-
-
-## Environment Variables
-
-Note that two environment variables are actually [built-in to the AWS SDK for Java](http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html), `aws.accessKeyId` and `aws.secretKey`:
-
-    -Daws.accessKeyId=AKIAKJHFG789JKKS8F73
-    -Daws.secretKey=07sh86hsubkuy6ykus/sd06h7fsjkdyfuk897934
-
-Certain environment variables must be set in order for the correct Upload Policy to be generated for a file upload to Amazon S3:
-
-    -Daudio.file.upload.acl=bucket-owner-full-control
-    -Daudio.file.upload.expire.minutes=60
-    -Daudio.file.bucket=xj-audio-ENVIRONMENT      
-    -Daudio.url.base=https://audio.ENVIRONMENT.xj.io/
-    -Daudio.url.upload=https://xj-audio-ENVIRONMENT.s3.amazonaws.com/
-
-The file upload ACL `bucket-owner-full-control` affords the administration of uploaded objects by the bucket owner.
 
 
 

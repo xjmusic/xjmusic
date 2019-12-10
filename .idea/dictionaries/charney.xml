@@ -6,6 +6,7 @@
       <w>composited</w>
       <w>deserialized</w>
       <w>deserializing</w>
+      <w>fallbacks</w>
       <w>gson</w>
       <w>guice</w>
       <w>healthcheck</w>

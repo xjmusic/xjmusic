@@ -441,16 +441,55 @@
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.0.2</version>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
         <executions>
+
+          <!-- Service: Hub -->
           <execution>
+            <id>assemble-hub</id>
+            <configuration>
+              <archive>
+                <manifest>
+                  <mainClass>io.xj.service.hub.Main</mainClass>
+                </manifest>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <finalName>hub-${project.version}</finalName>
+            </configuration>
             <phase>package</phase>
             <goals>
-              <goal>test-jar</goal>
+              <goal>single</goal>
             </goals>
           </execution>
+
+          <!-- Service: Worker -->
+          <execution>
+            <id>assemble-worker</id>
+            <configuration>
+              <archive>
+                <manifest>
+                  <mainClass>io.xj.service.worker.Main</mainClass>
+                </manifest>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <finalName>worker-${project.version}</finalName>
+            </configuration>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+
         </executions>
       </plugin>
 

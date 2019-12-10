@@ -13,7 +13,6 @@ import com.typesafe.config.ConfigFactory;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.Reader;
 
 /**
  Utility for parsing command-line arguments passed in to a main application.
@@ -27,10 +26,11 @@ import java.io.Reader;
  */
 public class AppConfiguration {
   /**
-   @param args array of arguments passed to program
+   @param args     array of arguments passed to program
+   @param defaults to fallback on
    @return buffered file reader comprising the ingest config file
    */
-  public static Config parseArgs(String[] args) throws AppException {
+  public static Config parseArgs(String[] args, Config defaults) throws AppException {
     if (1 > args.length)
       throw new AppException("Requires path to configuration file as first argument.");
 
@@ -41,26 +41,17 @@ public class AppConfiguration {
       throw new AppException("Cannot find configuration file");
     }
 
-    return loadConfig(buf);
-  }
-
-  /**
-   Load a configuration from file
-
-   @param confFile comprising configuration file
-   @return configuration
-   */
-  private static Config loadConfig(Reader confFile) throws AppException {
     try {
-      Preconditions.checkArgument(confFile.ready(), "Unable to read configuration file at given path");
+      Preconditions.checkArgument(buf.ready(), "Unable to read configuration file at given path");
     } catch (Exception e) {
       throw new AppException("Unable to parse configuration", e);
     }
 
-    return ConfigFactory.parseReader(confFile)
-      .withFallback(getDefault())
+    return ConfigFactory.parseReader(buf)
+      .withFallback(defaults)
       .resolve();
   }
+
 
   /**
    Create a Guice injector from the given modules, but first binding the given instance to Config.class

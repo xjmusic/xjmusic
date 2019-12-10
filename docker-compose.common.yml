@@ -10,5 +10,3 @@ services:
     volumes:
       - .:/var/app/current
       - ./log:/var/log
-    env_file:
-      - .env
