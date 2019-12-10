@@ -1,9 +1,8 @@
-//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Route from '@ember/routing/route';
 import {get} from '@ember/object';
 import {hash, Promise as EmberPromise} from 'rsvp';
 import {inject as service} from '@ember/service';
-import {v4 as uuid} from "ember-uuid";
 
 export default Route.extend({
 
@@ -19,15 +18,25 @@ export default Route.extend({
    */
   model() {
     return new EmberPromise((resolve, reject) => {
-      let self = this;
       this.config.getConfig().then(
         () => {
-          let account = self.modelFor('accounts.one');
+          let account = this.modelFor('accounts.one');
+          let chain = this.modelFor('accounts.one.chains.one');
+
+          let chainBindings = this.store.query('chain-binding', {chainId: chain.get('id')})
+            .catch((error) => {
+              get(this, 'display').error(error);
+              this.transitionTo('');
+            });
+
           resolve(hash({
-            account: account,
-            chain: self.modelFor('accounts.one.chains.one'),
+            chain: chain,
+            chainBindings: chainBindings,
             libraries: this.store.query('library', {accountId: account.get('id')}),
-          }, 'chain, all libraries in account'));
+            bindingType: '',
+            bindingTargetId: '',
+            chainBindingTypes: this.config.chainBindingTypes,
+          }, 'chain, chain bindings, chain binding types, config to add to chain'));
 
         },
         (error) => {
@@ -46,63 +55,44 @@ export default Route.extend({
       this.refresh();
     },
 
-    /**
-     * Remove a chainBinding record
-     * @param chainBinding record to remove
-     */
-    removeBinding(chainBinding) {
-      let self = this;
-      let chain = this.modelFor('accounts.one.chains.one');
-      this.store.deleteRecord(chainBinding);
-      chain.save().then(
+    removeBinding(model) {
+      model.destroyRecord({}).then(
         () => {
-          self.display.success('Removed Binding from Chain.');
-          self.send("sessionChanged");
+          this.display.success('Removed Config from Chain.');
+          this.send("sessionChanged");
         },
         (error) => {
-          get(self, 'display').error(error);
+          console.error(error);
+          get(this, 'display').error(error);
         });
     },
 
-    /**
-     * Add a new Binding
-     * @param targetClass of new binding
-     * @param targetId of new binding
-     */
-    addBinding(targetClass, targetId) {
-      let self = this;
-      let chain = this.modelFor('accounts.one.chains.one');
-      let addedBinding = this.store.push({
-        data: {
-          id: uuid(),
-          type: 'chain-binding',
-          attributes: {
-            targetClass: targetClass,
-            targetId: targetId
-          },
-          relationships: {
-            chain: {
-              data: {
-                id: chain.get('id'),
-                type: 'chain'
-              }
-            }
-          }
-        }
+    addBinding(model) {
+      let chainBinding = this.store.createRecord('chain-binding', {
+        chain: model.chain,
+        type: model.bindingType,
+        targetId: model.bindingTargetId
       });
-      chain.save().then(
+
+      console.log("hello", chainBinding);
+
+      chainBinding.save().then(
         () => {
-          get(self, 'display').success(`Bound ${addedBinding.get('targetClass')} #${addedBinding.get('targetId')}`);
+          let library;
+          model.libraries.forEach(search => {
+            if (search.get("id") === model.bindingTargetId)
+              library = search;
+          });
+          get(this, 'display').success(`Added Library: ${library.get("name")}`);
+          // this.transitionToRoute('chains.one.configs',model.chain);
+          this.send("sessionChanged");
         },
         (error) => {
-          chain.rollbackAttributes();
-          chain.reload().then(() => {
-            get(self, 'display').error(error);
-          });
+          console.error(error);
+          get(this, 'display').error(error);
         });
     },
 
   },
-
 
 });

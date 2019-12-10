@@ -1,4 +1,4 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 let gulp = require('gulp'),
   imageResize = require('gulp-image-resize'),

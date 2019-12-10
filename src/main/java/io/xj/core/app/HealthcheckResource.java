@@ -3,8 +3,8 @@ package io.xj.core.app;
 
 import com.google.inject.Injector;
 import io.xj.core.exception.CoreException;
-import io.xj.core.persistence.redis.RedisDatabaseProvider;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.RedisDatabaseProvider;
+import io.xj.core.persistence.SQLDatabaseProvider;
 import redis.clients.jedis.Jedis;
 
 import javax.annotation.security.PermitAll;
@@ -14,6 +14,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
@@ -88,7 +90,11 @@ public class HealthcheckResource extends AppResource {
    @throws CoreException if SQL database cannot complete a transaction
    */
   private void throwExceptionIfSQLDatabaseCannotCompleteTransaction() throws CoreException {
-    sqlDatabaseProvider.getConnection();
+    try (Connection connection = sqlDatabaseProvider.getDataSource().getConnection()) {
+      connection.getClientInfo();
+    } catch (SQLException e) {
+      throw new CoreException("Failed to connect to SQL database", e);
+    }
   }
 
   /**

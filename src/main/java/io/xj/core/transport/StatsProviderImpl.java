@@ -1,9 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.transport;
 
-import io.xj.core.cache.audio.AudioCacheProvider;
+import io.xj.core.cache.AudioCacheProvider;
 import io.xj.core.payload.PayloadObject;
-import io.xj.core.transport.StatsProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

@@ -13,7 +13,7 @@ import io.xj.core.model.UserAuthToken;
 import io.xj.core.model.UserAuthType;
 import io.xj.core.model.UserRole;
 import io.xj.core.model.UserRoleType;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.SQLDatabaseProvider;
 import io.xj.core.tables.records.UserAuthRecord;
 import io.xj.core.tables.records.UserAuthTokenRecord;
 import io.xj.core.tables.records.UserRecord;
@@ -26,8 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
@@ -37,7 +35,7 @@ import static io.xj.core.Tables.USER;
 import static io.xj.core.Tables.USER_AUTH;
 import static io.xj.core.Tables.USER_AUTH_TOKEN;
 import static io.xj.core.Tables.USER_ROLE;
-import static org.jooq.impl.DSL.groupConcat;
+import static org.jooq.impl.DSL.groupConcatDistinct;
 
 /**
  NOTE: THIS IS AN IRREGULAR D.A.O.
@@ -46,7 +44,6 @@ import static org.jooq.impl.DSL.groupConcat;
  */
 public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   private static final Logger log = LoggerFactory.getLogger(UserDAOImpl.class);
-
   private final AccessControlProvider accessControlProvider;
 
   @Inject
@@ -73,7 +70,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
       USER.EMAIL,
       USER.CREATED_AT,
       USER.UPDATED_AT,
-      groupConcat(USER_ROLE.TYPE, ",").as("roles")
+      groupConcatDistinct(USER_ROLE.TYPE).separator(",").as("roles")
     );
   }
 
@@ -141,7 +138,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
    @return collection of AccountUserRecord.
    */
   private static Collection<AccountUser> fetchAccounts(DSLContext db, UUID userId) throws CoreException {
-    return DAORecord.modelsFrom(AccountUser.class, db.selectFrom(ACCOUNT_USER)
+    return DAO.modelsFrom(AccountUser.class, db.selectFrom(ACCOUNT_USER)
       .where(ACCOUNT_USER.USER_ID.equal(userId))
       .fetch());
   }
@@ -154,7 +151,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
    @return collection of UserRoleRecord.
    */
   private static Collection<UserRole> fetchRoles(DSLContext db, UUID userId) throws CoreException {
-    return DAORecord.modelsFrom(UserRole.class, db.selectFrom(USER_ROLE)
+    return DAO.modelsFrom(UserRole.class, db.selectFrom(USER_ROLE)
       .where(USER_ROLE.USER_ID.equal(userId))
       .fetch());
   }
@@ -170,7 +167,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
    @return UserAuth, or null
    */
   private static UserAuth readOneAuth(DSLContext db, UserAuthType authType, String externalAccount) throws CoreException {
-    return DAORecord.modelFrom(UserAuth.class, db.selectFrom(USER_AUTH)
+    return DAO.modelFrom(UserAuth.class, db.selectFrom(USER_AUTH)
       .where(USER_AUTH.TYPE.equal(authType.toString()))
       .and(USER_AUTH.EXTERNAL_ACCOUNT.equal(externalAccount))
       .fetchOne());
@@ -194,7 +191,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
 
     log.info("Created new UserRole, id:{}, userId:{}, type:{}", userRole1.getId(), userRole1.getUserId(), userRole1.getType());
     Collection<UserRole> roles = Lists.newArrayList();
-    roles.add(DAORecord.modelFrom(UserRole.class, userRole1));
+    roles.add(DAO.modelFrom(UserRole.class, userRole1));
     return roles;
   }
 
@@ -220,42 +217,38 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
     }
 
     log.info("Created new UserAuth, id:{}, userId:{}, type:{}, account:{}", userAuth.getId(), userAuth.getUserId(), userAuth.getType(), userAuth.getExternalAccount());
-    return DAORecord.modelFrom(UserAuth.class, userAuth);
+    return DAO.modelFrom(UserAuth.class, userAuth);
   }
 
   @Override
   public String authenticate(UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      DSLContext db = DAORecord.DSL(connection);
-      Collection<AccountUser> accounts;
-      Collection<UserRole> roles;
-      UserAuth userAuth;
+    DSLContext db = dbProvider.getDSL();
+    Collection<AccountUser> accounts;
+    Collection<UserRole> roles;
+    UserAuth userAuth;
+    try {
+      userAuth = readOneAuth(db, authType, account);
+      accounts = fetchAccounts(db, userAuth.getUserId());
+      roles = fetchRoles(db, userAuth.getUserId());
+    } catch (CoreException ignored) {
       try {
-        userAuth = readOneAuth(db, authType, account);
-        accounts = fetchAccounts(db, userAuth.getUserId());
-        roles = fetchRoles(db, userAuth.getUserId());
-      } catch (CoreException ignored) {
-        try {
-          UserRecord user = newUser(db, name, avatarUrl, email);
-          accounts = Lists.newArrayList();
-          roles = newRoles(db, user.getId());
-          userAuth = newUserAuth(db, user.getId(), authType, account, externalAccessToken, externalRefreshToken);
-        } catch (Exception e) {
-          throw new CoreException("SQL Exception", e);
-        }
+        UserRecord user = newUser(db, name, avatarUrl, email);
+        accounts = Lists.newArrayList();
+        roles = newRoles(db, user.getId());
+        userAuth = newUserAuth(db, user.getId(), authType, account, externalAccessToken, externalRefreshToken);
+      } catch (Exception e) {
+        throw new CoreException("SQL Exception", e);
       }
-
-      String accessToken = accessControlProvider.create(userAuth, accounts, roles);
-      newUserAuthTokenRecord(db,
-        userAuth.getUserId(),
-        userAuth.getId(),
-        accessToken
-      );
-      return accessToken;
-
-    } catch (Exception e) {
-      throw new CoreException("SQL Exception", e);
     }
+
+    String accessToken = accessControlProvider.create(userAuth, accounts, roles);
+    newUserAuthTokenRecord(db,
+      userAuth.getUserId(),
+      userAuth.getId(),
+      accessToken
+    );
+
+    return accessToken;
   }
 
   @Override
@@ -266,66 +259,60 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
 
   @Override
   public User readOne(Access access, UUID id) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      if (access.isTopLevel()) {
-        return DAORecord.modelFrom(User.class, select(DAORecord.DSL(connection))
-          .from(USER_ROLE)
-          .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-          .where(USER_ROLE.USER_ID.equal(id))
-          .groupBy(USER_ROLE.USER_ID, USER.ID)
-          .fetchOne());
-      } else if (!access.getAccountIds().isEmpty()) {
-        return DAORecord.modelFrom(User.class, select(DAORecord.DSL(connection))
-          .from(USER_ROLE)
-          .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-          .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(USER_ROLE.USER_ID))
-          .where(USER_ROLE.USER_ID.equal(id))
-          .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
-          .groupBy(USER_ROLE.USER_ID, USER.ID)
-          .fetchOne());
-      } else if (Objects.equals(access.getUserId(), id)) {
-        return DAORecord.modelFrom(User.class, select(DAORecord.DSL(connection))
-          .from(USER_ROLE)
-          .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-          .where(USER_ROLE.USER_ID.equal(id))
-          .groupBy(USER_ROLE.USER_ID, USER.ID)
-          .fetchOne());
-      } else {
-        throw new CoreException("Not found");
-      }
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
+    DSLContext db = dbProvider.getDSL();
+    if (access.isTopLevel()) {
+      return DAO.modelFrom(User.class, select(db)
+        .from(USER_ROLE)
+        .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+        .where(USER_ROLE.USER_ID.equal(id))
+        .groupBy(USER_ROLE.USER_ID, USER.ID)
+        .fetchOne());
+    } else if (!access.getAccountIds().isEmpty()) {
+      return DAO.modelFrom(User.class, select(db)
+        .from(USER_ROLE)
+        .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+        .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(USER_ROLE.USER_ID))
+        .where(USER_ROLE.USER_ID.equal(id))
+        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
+        .groupBy(USER_ROLE.USER_ID, USER.ID)
+        .fetchOne());
+    } else if (Objects.equals(access.getUserId(), id)) {
+      return DAO.modelFrom(User.class, select(db)
+        .from(USER_ROLE)
+        .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+        .where(USER_ROLE.USER_ID.equal(id))
+        .groupBy(USER_ROLE.USER_ID, USER.ID)
+        .fetchOne());
+    } else {
+      throw new CoreException("Not found");
     }
   }
 
   @Override
   @Nullable
   public Collection<User> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      if (access.isTopLevel()) {
-        return DAORecord.modelsFrom(User.class, select(DAORecord.DSL(connection))
-          .from(USER_ROLE)
-          .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-          .groupBy(USER_ROLE.USER_ID, USER.ID)
-          .fetch());
-      } else if (!access.getAccountIds().isEmpty()) {
-        return DAORecord.modelsFrom(User.class, select(DAORecord.DSL(connection))
-          .from(USER_ROLE)
-          .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-          .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(USER_ROLE.USER_ID))
-          .where(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
-          .groupBy(USER.ID)
-          .fetch());
-      } else {
-        return DAORecord.modelsFrom(User.class, select(DAORecord.DSL(connection))
-          .from(USER_ROLE)
-          .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-          .where(USER_ROLE.USER_ID.eq(access.getUserId()))
-          .groupBy(USER.ID)
-          .fetch());
-      }
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
+    DSLContext db = dbProvider.getDSL();
+    if (access.isTopLevel()) {
+      return DAO.modelsFrom(User.class, select(db)
+        .from(USER_ROLE)
+        .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+        .groupBy(USER_ROLE.USER_ID, USER.ID)
+        .fetch());
+    } else if (!access.getAccountIds().isEmpty()) {
+      return DAO.modelsFrom(User.class, select(db)
+        .from(USER_ROLE)
+        .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+        .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(USER_ROLE.USER_ID))
+        .where(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
+        .groupBy(USER.ID)
+        .fetch());
+    } else {
+      return DAO.modelsFrom(User.class, select(db)
+        .from(USER_ROLE)
+        .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+        .where(USER_ROLE.USER_ID.eq(access.getUserId()))
+        .groupBy(USER.ID)
+        .fetch());
     }
   }
 
@@ -346,101 +333,81 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
 
   @Override
   public UserAuthToken readOneAuthToken(Access access, String accessToken) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireTopLevel(access);
+    requireTopLevel(access);
 
-      return DAORecord.modelFrom(UserAuthToken.class, DAORecord.DSL(connection).select(USER_AUTH_TOKEN.fields())
-        .from(USER_AUTH_TOKEN)
-        .where(USER_AUTH_TOKEN.ACCESS_TOKEN.equal(accessToken))
-        .fetchOne());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    return DAO.modelFrom(UserAuthToken.class, dbProvider.getDSL().select(USER_AUTH_TOKEN.fields())
+      .from(USER_AUTH_TOKEN)
+      .where(USER_AUTH_TOKEN.ACCESS_TOKEN.equal(accessToken))
+      .fetchOne());
   }
 
   @Override
   public UserAuth readOneAuth(Access access, UUID userAuthId) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireTopLevel(access);
+    requireTopLevel(access);
 
-      return DAORecord.modelFrom(UserAuth.class, DAORecord.DSL(connection).select(USER_AUTH.fields())
-        .from(USER_AUTH)
-        .where(USER_AUTH.ID.equal(userAuthId))
-        .fetchOne());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    return DAO.modelFrom(UserAuth.class, dbProvider.getDSL().select(USER_AUTH.fields())
+      .from(USER_AUTH)
+      .where(USER_AUTH.ID.equal(userAuthId))
+      .fetchOne());
   }
 
   @Override
   public UserRole readOneRole(Access access, UUID userId, UserRoleType type) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireTopLevel(access);
+    requireTopLevel(access);
 
-      return DAORecord.modelFrom(UserRole.class, DAORecord.DSL(connection).select(USER_ROLE.fields())
-        .from(USER_ROLE)
-        .where(USER_ROLE.USER_ID.eq(userId))
-        .and(USER_ROLE.TYPE.eq(type.toString()))
-        .fetchOne());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    return DAO.modelFrom(UserRole.class, dbProvider.getDSL().select(USER_ROLE.fields())
+      .from(USER_ROLE)
+      .where(USER_ROLE.USER_ID.eq(userId))
+      .and(USER_ROLE.TYPE.eq(type.toString()))
+      .fetchOne());
   }
 
   @Override
   public void destroyAllTokens(UUID userId) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      destroyAllTokens(DAORecord.DSL(connection), userId);
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    destroyAllTokens(dbProvider.getDSL(), userId);
   }
 
   @Override
   public void updateUserRolesAndDestroyTokens(Access access, UUID userId, User entity) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      connection.setAutoCommit(false);
-      requireTopLevel(access);
-      entity.validate();
+    // TODO figure out how to make this all a rollback-able transaction in the new getDataSource() context: dataSource.setAutoCommit(false);
+    requireTopLevel(access);
+    entity.validate();
 
-      // Prepare key entity
-      Collection<String> newRoles = CSV.splitProperSlug(entity.getRoles());
+    // Prepare key entity
+    Collection<String> newRoles = CSV.splitProperSlug(entity.getRoles());
 
-      // First check all provided roles for validity.
-      boolean foundValidRole = false;
-      for (String checkRole : newRoles) {
-        UserRoleType.validate(checkRole);
-        foundValidRole = true;
-      }
-      require("Valid Role", foundValidRole);
-
-      DSLContext db = DAORecord.DSL(connection);
-
-      // Iterate through all possible role types; either delete that role or ensure that it exists, depending on whether its included in the list of updated roles
-      for (UserRoleType type : UserRoleType.values()) {
-        if (newRoles.contains(type.toString())) {
-          if ( 0 >= db.selectCount()
-            .from(USER_ROLE)
-            .where(USER_ROLE.USER_ID.eq(userId))
-            .and(USER_ROLE.TYPE.eq(type.toString()))
-            .fetchOne(0, int.class)) {
-            UserRoleRecord record = db.newRecord(USER_ROLE);
-            record.setType(type.toString());
-            record.setUserId(userId);
-            record.store();
-          }
-        } else {
-          db.deleteFrom(USER_ROLE)
-            .where(USER_ROLE.USER_ID.eq(userId))
-            .and(USER_ROLE.TYPE.eq(type.toString()))
-            .execute();
-        }
-      }
-      destroyAllTokens(db, userId);
-      connection.commit();
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
+    // First check all provided roles for validity.
+    boolean foundValidRole = false;
+    for (String checkRole : newRoles) {
+      UserRoleType.validate(checkRole);
+      foundValidRole = true;
     }
+    require("Valid Role", foundValidRole);
+
+    DSLContext db = dbProvider.getDSL();
+
+    // Iterate through all possible role types; either delete that role or ensure that it exists, depending on whether its included in the list of updated roles
+    for (UserRoleType type : UserRoleType.values()) {
+      if (newRoles.contains(type.toString())) {
+        if (0 >= db.selectCount()
+          .from(USER_ROLE)
+          .where(USER_ROLE.USER_ID.eq(userId))
+          .and(USER_ROLE.TYPE.eq(type.toString()))
+          .fetchOne(0, int.class)) {
+          UserRoleRecord record = db.newRecord(USER_ROLE);
+          record.setType(type.toString());
+          record.setUserId(userId);
+          record.store();
+        }
+      } else {
+        db.deleteFrom(USER_ROLE)
+          .where(USER_ROLE.USER_ID.eq(userId))
+          .and(USER_ROLE.TYPE.eq(type.toString()))
+          .execute();
+      }
+    }
+    destroyAllTokens(db, userId);
+    // TODO figure out how to make this all a rollback-able transaction in the new getDataSource() context: dataSource.commit();
   }
 
   /**

@@ -2,8 +2,6 @@
 package io.xj.core.cache;
 
 import com.google.inject.AbstractModule;
-import io.xj.core.cache.audio.AudioCacheProvider;
-import io.xj.core.cache.audio.impl.AudioCacheProviderImpl;
 
 public class CacheModule extends AbstractModule {
   @Override

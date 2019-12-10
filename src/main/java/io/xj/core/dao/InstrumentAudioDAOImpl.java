@@ -5,11 +5,9 @@ import com.google.inject.Inject;
 import io.xj.core.access.Access;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.InstrumentAudio;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.SQLDatabaseProvider;
 
 import javax.annotation.Nullable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -26,66 +24,46 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
 
   @Override
   public InstrumentAudio create(Access access, InstrumentAudio entity) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      entity.validate();
-      requireTopLevel(access);
-      return DAORecord.modelFrom(InstrumentAudio.class,
-        executeCreate(connection, INSTRUMENT_AUDIO, entity));
+    entity.validate();
+    requireTopLevel(access);
+    return DAO.modelFrom(InstrumentAudio.class,
+      executeCreate(INSTRUMENT_AUDIO, entity));
 
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
   }
 
   @Override
   @Nullable
   public InstrumentAudio readOne(Access access, UUID id) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireUser(access);
-      return DAORecord.modelFrom(InstrumentAudio.class,
-        DAORecord.DSL(connection).selectFrom(INSTRUMENT_AUDIO)
-          .where(INSTRUMENT_AUDIO.ID.eq(id))
-          .fetchOne());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireUser(access);
+    return DAO.modelFrom(InstrumentAudio.class,
+      dbProvider.getDSL().selectFrom(INSTRUMENT_AUDIO)
+        .where(INSTRUMENT_AUDIO.ID.eq(id))
+        .fetchOne());
   }
 
   @Override
   @Nullable
   public Collection<InstrumentAudio> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireUser(access);
-      return DAORecord.modelsFrom(InstrumentAudio.class,
-        DAORecord.DSL(connection).selectFrom(INSTRUMENT_AUDIO)
-          .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.in(parentIds))
-          .fetch());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireUser(access);
+    return DAO.modelsFrom(InstrumentAudio.class,
+      dbProvider.getDSL().selectFrom(INSTRUMENT_AUDIO)
+        .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.in(parentIds))
+        .fetch());
   }
 
   @Override
   public void update(Access access, UUID id, InstrumentAudio entity) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      entity.validate();
-      requireTopLevel(access);
-      executeUpdate(connection, INSTRUMENT_AUDIO, id, entity);
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    entity.validate();
+    requireTopLevel(access);
+    executeUpdate(INSTRUMENT_AUDIO, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireLibrary(access);
-      DAORecord.DSL(connection).deleteFrom(INSTRUMENT_AUDIO)
-        .where(INSTRUMENT_AUDIO.ID.eq(id))
-        .execute();
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireLibrary(access);
+    dbProvider.getDSL().deleteFrom(INSTRUMENT_AUDIO)
+      .where(INSTRUMENT_AUDIO.ID.eq(id))
+      .execute();
   }
 
   @Override

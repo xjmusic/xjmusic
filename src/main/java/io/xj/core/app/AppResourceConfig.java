@@ -7,8 +7,6 @@ import io.xj.core.access.AccessTokenAuthFilter;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJsonProvider;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.spi.Container;
-import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 
 import java.util.Collection;
 
@@ -24,24 +22,15 @@ public class AppResourceConfig extends ResourceConfig {
    @param packages for JAX-RS resources
    */
   AppResourceConfig(Injector injector, Collection<String> packages) {
+
+    // Register all resource packages
     packages(toStringArray(packages.toArray()));
 
-    register(new ContainerLifecycleListener() {
-      public void onStartup(Container container) {
-        container.getApplicationHandler().getInjectionManager().register(new AbstractBinder() {
-          @Override
-          protected void configure() {
-            bind(injector).to(Injector.class);
-          }
-        });
-      }
-
-      public void onReload(Container container) {
-        // noop
-      }
-
-      public void onShutdown(Container container) {
-        // noop
+    // register Guice injector for injection via HK2
+    register(new AbstractBinder() {
+      @Override
+      protected void configure() {
+        bind(injector).to(Injector.class);
       }
     });
 

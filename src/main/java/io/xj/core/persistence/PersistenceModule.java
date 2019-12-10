@@ -4,12 +4,6 @@ package io.xj.core.persistence;
 import com.google.api.client.util.store.DataStoreFactory;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.inject.AbstractModule;
-import io.xj.core.persistence.redis.RedisDatabaseProvider;
-import io.xj.core.persistence.redis.impl.RedisDatabaseProviderImpl;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
-import io.xj.core.persistence.sql.impl.SQLDatabaseProviderImpl;
-import io.xj.core.persistence.sql.migration.Migration;
-import io.xj.core.persistence.sql.migration.impl.MigrationImpl;
 
 public class PersistenceModule extends AbstractModule {
   @Override

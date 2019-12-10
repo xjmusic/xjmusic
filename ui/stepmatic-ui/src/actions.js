@@ -1,3 +1,4 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Vue from 'vue/dist/vue.js';
 import api from './api';
 

@@ -7,11 +7,9 @@ import io.xj.core.exception.CoreException;
 import io.xj.core.model.ProgramType;
 import io.xj.core.model.Segment;
 import io.xj.core.model.SegmentChoice;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.SQLDatabaseProvider;
 
 import javax.annotation.Nullable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -28,15 +26,11 @@ public class SegmentChoiceDAOImpl extends DAOImpl<SegmentChoice> implements Segm
 
   @Override
   public SegmentChoice create(Access access, SegmentChoice entity) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      entity.validate();
-      requireTopLevel(access);
-      return DAORecord.modelFrom(SegmentChoice.class,
-        executeCreate(connection, SEGMENT_CHOICE, entity));
+    entity.validate();
+    requireTopLevel(access);
+    return DAO.modelFrom(SegmentChoice.class,
+      executeCreate(SEGMENT_CHOICE, entity));
 
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
   }
 
   @Override
@@ -44,77 +38,53 @@ public class SegmentChoiceDAOImpl extends DAOImpl<SegmentChoice> implements Segm
     for (SegmentChoice entity : entities) entity.validate();
     requireTopLevel(access);
 
-    try (Connection connection = dbProvider.getConnection()) {
-      executeCreateMany(connection, SEGMENT_CHOICE, entities);
+    executeCreateMany(SEGMENT_CHOICE, entities);
 
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
   }
 
   @Override
   @Nullable
   public SegmentChoice readOne(Access access, UUID id) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireUser(access);
-      return DAORecord.modelFrom(SegmentChoice.class,
-        DAORecord.DSL(connection).selectFrom(SEGMENT_CHOICE)
-          .where(SEGMENT_CHOICE.ID.eq(id))
-          .fetchOne());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireUser(access);
+    return DAO.modelFrom(SegmentChoice.class,
+      dbProvider.getDSL().selectFrom(SEGMENT_CHOICE)
+        .where(SEGMENT_CHOICE.ID.eq(id))
+        .fetchOne());
   }
 
   @Override
   public SegmentChoice readOneOfTypeForSegment(Access access, Segment segment, ProgramType type) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireUser(access);
-      return DAORecord.modelFrom(SegmentChoice.class,
-        DAORecord.DSL(connection).selectFrom(SEGMENT_CHOICE)
-          .where(SEGMENT_CHOICE.SEGMENT_ID.eq(segment.getId()))
-          .and(SEGMENT_CHOICE.TYPE.eq(type.toString()))
-          .fetchOne());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireUser(access);
+    return DAO.modelFrom(SegmentChoice.class,
+      dbProvider.getDSL().selectFrom(SEGMENT_CHOICE)
+        .where(SEGMENT_CHOICE.SEGMENT_ID.eq(segment.getId()))
+        .and(SEGMENT_CHOICE.TYPE.eq(type.toString()))
+        .fetchOne());
   }
 
   @Override
   @Nullable
   public Collection<SegmentChoice> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireUser(access);
-      return DAORecord.modelsFrom(SegmentChoice.class,
-        DAORecord.DSL(connection).selectFrom(SEGMENT_CHOICE)
-          .where(SEGMENT_CHOICE.SEGMENT_ID.in(parentIds))
-          .fetch());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireUser(access);
+    return DAO.modelsFrom(SegmentChoice.class,
+      dbProvider.getDSL().selectFrom(SEGMENT_CHOICE)
+        .where(SEGMENT_CHOICE.SEGMENT_ID.in(parentIds))
+        .fetch());
   }
 
   @Override
   public void update(Access access, UUID id, SegmentChoice entity) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      entity.validate();
-      requireTopLevel(access);
-      executeUpdate(connection, SEGMENT_CHOICE, id, entity);
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    entity.validate();
+    requireTopLevel(access);
+    executeUpdate(SEGMENT_CHOICE, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireLibrary(access);
-      DAORecord.DSL(connection).deleteFrom(SEGMENT_CHOICE)
-        .where(SEGMENT_CHOICE.ID.eq(id))
-        .execute();
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireLibrary(access);
+    dbProvider.getDSL().deleteFrom(SEGMENT_CHOICE)
+      .where(SEGMENT_CHOICE.ID.eq(id))
+      .execute();
   }
 
   @Override

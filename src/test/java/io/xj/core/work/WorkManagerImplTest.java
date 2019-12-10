@@ -1,4 +1,4 @@
-//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.core.work;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
@@ -23,7 +23,7 @@ import io.xj.core.model.ProgramSequencePattern;
 import io.xj.core.model.Work;
 import io.xj.core.model.WorkState;
 import io.xj.core.model.WorkType;
-import io.xj.core.persistence.redis.RedisDatabaseProvider;
+import io.xj.core.persistence.RedisDatabaseProvider;
 import io.xj.core.testing.AppTestConfiguration;
 import net.greghaines.jesque.Job;
 import net.greghaines.jesque.client.Client;

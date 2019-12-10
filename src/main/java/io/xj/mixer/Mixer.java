@@ -1,10 +1,5 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer;
-
-import io.xj.mixer.impl.exception.FormatException;
-import io.xj.mixer.impl.exception.MixerException;
-import io.xj.mixer.impl.exception.PutException;
-import io.xj.mixer.impl.exception.SourceException;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.BufferedInputStream;

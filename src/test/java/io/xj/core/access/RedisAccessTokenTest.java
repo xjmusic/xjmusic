@@ -1,4 +1,4 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access;
 
 import com.google.api.client.json.JsonFactory;
@@ -11,15 +11,13 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.core.CoreModule;
-import io.xj.core.access.impl.AccessControlProviderImpl;
-import io.xj.core.access.token.TokenGenerator;
 import io.xj.core.model.Account;
 import io.xj.core.model.AccountUser;
 import io.xj.core.model.User;
 import io.xj.core.model.UserAuth;
 import io.xj.core.model.UserRole;
 import io.xj.core.model.UserRoleType;
-import io.xj.core.persistence.redis.RedisDatabaseProvider;
+import io.xj.core.persistence.RedisDatabaseProvider;
 import io.xj.core.testing.AppTestConfiguration;
 import org.junit.After;
 import org.junit.Before;

@@ -5,11 +5,9 @@ import com.google.inject.Inject;
 import io.xj.core.access.Access;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.InstrumentMeme;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.SQLDatabaseProvider;
 
 import javax.annotation.Nullable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -26,66 +24,46 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
 
   @Override
   public InstrumentMeme create(Access access, InstrumentMeme entity) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      entity.validate();
-      requireTopLevel(access);
-      return DAORecord.modelFrom(InstrumentMeme.class,
-        executeCreate(connection, INSTRUMENT_MEME, entity));
+    entity.validate();
+    requireTopLevel(access);
+    return DAO.modelFrom(InstrumentMeme.class,
+      executeCreate(INSTRUMENT_MEME, entity));
 
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
   }
 
   @Override
   @Nullable
   public InstrumentMeme readOne(Access access, UUID id) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireUser(access);
-      return DAORecord.modelFrom(InstrumentMeme.class,
-        DAORecord.DSL(connection).selectFrom(INSTRUMENT_MEME)
-          .where(INSTRUMENT_MEME.ID.eq(id))
-          .fetchOne());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireUser(access);
+    return DAO.modelFrom(InstrumentMeme.class,
+      dbProvider.getDSL().selectFrom(INSTRUMENT_MEME)
+        .where(INSTRUMENT_MEME.ID.eq(id))
+        .fetchOne());
   }
 
   @Override
   @Nullable
   public Collection<InstrumentMeme> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireUser(access);
-      return DAORecord.modelsFrom(InstrumentMeme.class,
-        DAORecord.DSL(connection).selectFrom(INSTRUMENT_MEME)
-          .where(INSTRUMENT_MEME.INSTRUMENT_ID.in(parentIds))
-          .fetch());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireUser(access);
+    return DAO.modelsFrom(InstrumentMeme.class,
+      dbProvider.getDSL().selectFrom(INSTRUMENT_MEME)
+        .where(INSTRUMENT_MEME.INSTRUMENT_ID.in(parentIds))
+        .fetch());
   }
 
   @Override
   public void update(Access access, UUID id, InstrumentMeme entity) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      entity.validate();
-      requireTopLevel(access);
-      executeUpdate(connection, INSTRUMENT_MEME, id, entity);
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    entity.validate();
+    requireTopLevel(access);
+    executeUpdate(INSTRUMENT_MEME, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireLibrary(access);
-      DAORecord.DSL(connection).deleteFrom(INSTRUMENT_MEME)
-        .where(INSTRUMENT_MEME.ID.eq(id))
-        .execute();
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireLibrary(access);
+    dbProvider.getDSL().deleteFrom(INSTRUMENT_MEME)
+      .where(INSTRUMENT_MEME.ID.eq(id))
+      .execute();
   }
 
   @Override

@@ -1,4 +1,4 @@
-//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import EmberRouter from '@ember/routing/router';
 import config from "./config/environment";

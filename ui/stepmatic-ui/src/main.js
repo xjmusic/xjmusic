@@ -1,3 +1,4 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 import store from './store';
 import api from './api';
 //

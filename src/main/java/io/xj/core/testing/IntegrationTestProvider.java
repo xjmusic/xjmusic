@@ -61,5 +61,5 @@ public interface IntegrationTestProvider {
 
    @return DSL Context
    */
-  DSLContext getDb();
+  DSLContext getDSL();
 }

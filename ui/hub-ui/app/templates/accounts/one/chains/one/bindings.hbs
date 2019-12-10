@@ -9,16 +9,16 @@
     <table class="table">
       <thead>
       <tr>
-        <th>#</th>
         <th>Library ID</th>
         <th>Action</th>
       </tr>
       </thead>
       <tbody>
-      {{#each model.chain.chainBindings as |chainBinding|}}
+      {{#each model.chainBindings as |chainBinding|}}
         <tr>
-          <th scope="row">{{chainBinding.id}}</th>
-          <td>{{link-to-library model.libraries chainBinding.targetId}}</td>
+          <td>
+            {{link-to-library model.libraries chainBinding.targetId}}
+          </td>
           <td>
             <button {{action "removeBinding" chainBinding}}>Remove</button>
           </td>
@@ -55,7 +55,7 @@
   </div>
   <div class="form-group row">
     <div class="offset-sm-2 col-sm-10">
-      <button type="submit" class="btn btn-default" {{action 'addBinding' 'Library' model.libraryToAdd.id}}>Bind Binding to
+      <button type="submit" class="btn btn-default" {{action 'addBinding' model}}>Bind Binding to
         Chain
       </button>
     </div>

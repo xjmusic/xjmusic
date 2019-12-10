@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 /**
  * JSON API Serializer
  * See: https://github.com/SeyZ/jsonapi-serializer

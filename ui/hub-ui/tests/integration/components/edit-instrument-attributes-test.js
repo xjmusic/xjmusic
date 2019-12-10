@@ -1,3 +1,4 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render } from '@ember/test-helpers';

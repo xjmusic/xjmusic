@@ -2,11 +2,6 @@
 package io.xj.core.access;
 
 import com.google.inject.AbstractModule;
-import io.xj.core.access.impl.AccessControlProviderImpl;
-import io.xj.core.access.impl.AccessLogFilterProviderImpl;
-import io.xj.core.access.impl.AccessTokenAuthFilterImpl;
-import io.xj.core.access.token.TokenGenerator;
-import io.xj.core.access.token.TokenGeneratorImpl;
 
 public class AccessControlModule extends AbstractModule {
   @Override

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 // NOTE this is a custom version of RequireJS that uses a path prefix
 const pathPrefix = "js/";

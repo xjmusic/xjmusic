@@ -2,7 +2,6 @@
 package io.xj.core.heartbeat;
 
 import com.google.inject.AbstractModule;
-import io.xj.core.heartbeat.impl.HeartbeatImpl;
 
 public class HeartbeatModule extends AbstractModule {
   @Override

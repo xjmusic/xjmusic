@@ -1,4 +1,4 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub;
 
 import com.google.common.collect.ImmutableList;
@@ -14,17 +14,17 @@ import io.xj.craft.CraftModule;
 /**
  Hub service
  */
-public class Main {
-  private static final Iterable<Module> injectorModules = ImmutableList.of(new CoreModule(), new CraftModule());
-  private static final Iterable<String> resourcePackages = ImmutableList.of("io.xj.service.hub");
-  private static final int defaultPort = 8042;
+public interface Main {
+  Iterable<Module> injectorModules = ImmutableList.of(new CoreModule(), new CraftModule());
+  Iterable<String> resourcePackages = ImmutableList.of("io.xj.service.hub");
+  int defaultPort = 8042;
 
   /**
    Main method.
 
    @param args arguments-- the first argument must be the path to the configuration file
    */
-  public static void main(String[] args) throws AppException {
+  static void main(String[] args) throws AppException {
 
     // Get default configuration
     Config defaults = AppConfiguration.getDefault()

@@ -1,14 +1,14 @@
-//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.service.pulse;
 
-public class Main {
+public interface Main {
   /**
-   * Pulse method.
-   *
-   * @param args arguments
+   Pulse method.
+
+   @param args arguments
    */
-  public static void main(String[] args) throws Exception {
+  static void main(String[] args) throws Exception {
     Pulse pulse = new Pulse();
     pulse.send();
   }

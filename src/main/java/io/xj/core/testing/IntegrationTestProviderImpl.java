@@ -6,12 +6,12 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
-import io.xj.core.dao.DAORecord;
+import io.xj.core.dao.DAO;
 import io.xj.core.entity.Entity;
 import io.xj.core.exception.CoreException;
-import io.xj.core.persistence.redis.RedisDatabaseProvider;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
-import io.xj.core.persistence.sql.migration.Migration;
+import io.xj.core.persistence.RedisDatabaseProvider;
+import io.xj.core.persistence.SQLDatabaseProvider;
+import io.xj.core.persistence.Migration;
 import org.jooq.DSLContext;
 import org.jooq.Table;
 import org.jooq.TableRecord;
@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 
-import java.sql.Connection;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -28,8 +27,7 @@ import java.util.Objects;
 public class IntegrationTestProviderImpl implements IntegrationTestProvider {
   final Logger log = LoggerFactory.getLogger(IntegrationTestProviderImpl.class);
   final Jedis redisConnection;
-  Connection sqlConnection;
-  DSLContext db;
+  private final SQLDatabaseProvider sqlDatabaseProvider;
 
   /**
    Since this class is a singleton, the process here in its constructor
@@ -42,6 +40,7 @@ public class IntegrationTestProviderImpl implements IntegrationTestProvider {
     Migration migration,
     Config config
   ) {
+    this.sqlDatabaseProvider = sqlDatabaseProvider;
 
     // Requires that a configuration has been bound
     config.getString("app.name");
@@ -57,14 +56,7 @@ public class IntegrationTestProviderImpl implements IntegrationTestProvider {
       System.exit(1);
     }
 
-    // One database connection remains open until main program exit
-    try {
-      sqlConnection = sqlDatabaseProvider.getConnection();
-      db = DAORecord.DSL(sqlConnection);
-    } catch (CoreException e) {
-      log.error("Failed to get SQL connection", e);
-      System.exit(1);
-    }
+    // jOOQ handles DataSource
 
     // One Redis connection remains open until main program exit
     redisConnection = redisDatabaseProvider.getClient();
@@ -80,7 +72,7 @@ public class IntegrationTestProviderImpl implements IntegrationTestProvider {
   @Override
   public void reset() throws CoreException {
     try {
-      for (Table table : Lists.reverse(ImmutableList.copyOf(DAORecord.tablesInSchemaConstructionOrder.values())))
+      for (Table table : Lists.reverse(ImmutableList.copyOf(DAO.tablesInSchemaConstructionOrder.values())))
         reset(table);
 
       // Finally, all queues
@@ -95,22 +87,24 @@ public class IntegrationTestProviderImpl implements IntegrationTestProvider {
 
   @Override
   public void reset(Table table) {
+    DSLContext db = sqlDatabaseProvider.getDSL();
     if (0 < db.selectCount().from(table).fetchOne(0, int.class))
       db.deleteFrom(table).execute();
   }
 
   @Override
   public <N extends Entity> N insert(N entity) throws CoreException {
-    return DAORecord.insert(db, entity);
+    return DAO.insert(sqlDatabaseProvider.getDSL(), entity);
   }
 
   @Override
   public <N extends Entity> void batchInsert(Collection<N> entities) throws CoreException {
+    DSLContext db = sqlDatabaseProvider.getDSL();
     Collection<? extends TableRecord<?>> records = Lists.newArrayList();
-    for (Map.Entry<Class, Table> entry : DAORecord.tablesInSchemaConstructionOrder.entrySet()) {
+    for (Map.Entry<Class, Table> entry : DAO.tablesInSchemaConstructionOrder.entrySet()) {
       Class cls = entry.getKey();
       Table table = entry.getValue();
-      records.addAll(DAORecord.recordsFrom(db, table, Entity.filter(entities, cls)));
+      records.addAll(DAO.recordsFrom(db, table, Entity.filter(entities, cls)));
     }
     int[] rows = db.batchInsert(records).execute();
     if (!Objects.equals(rows.length, entities.size()))
@@ -121,7 +115,7 @@ public class IntegrationTestProviderImpl implements IntegrationTestProvider {
   @Override
   public void shutdown() {
     try {
-      sqlConnection.close();
+      sqlDatabaseProvider.shutdown();
     } catch (Exception e) {
       log.error("Failed to shutdown SQL connection", e);
     }
@@ -138,7 +132,8 @@ public class IntegrationTestProviderImpl implements IntegrationTestProvider {
   }
 
   @Override
-  public DSLContext getDb() {
-    return db;
+  public DSLContext getDSL() {
+    return sqlDatabaseProvider.getDSL();
   }
+
 }

@@ -1,3 +1,4 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupTest } from 'ember-mocha';

@@ -52,8 +52,6 @@ chmod +w ${ACCESS_LOG}
 
 #
 printf "[$(date)]\n"
-printf "Environment:\n"
-printenv
 printf "Starting java: ${JAR}\n"
 printf "   stdout log: ${STDOUT_LOG}\n"
 printf "   stderr log: ${STDERR_LOG}\n"

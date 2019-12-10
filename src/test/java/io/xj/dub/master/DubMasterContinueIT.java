@@ -1,4 +1,4 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.dub.master;
 
 import com.google.common.collect.ImmutableList;
@@ -10,7 +10,7 @@ import io.xj.core.CoreModule;
 import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
 import io.xj.core.app.AppConfiguration;
-import io.xj.core.external.amazon.AmazonProvider;
+import io.xj.core.external.AmazonProvider;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorFactory;
 import io.xj.core.model.Chain;
@@ -29,7 +29,7 @@ import io.xj.core.testing.IntegrationTestProvider;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubFactory;
 import io.xj.dub.DubModule;
-import io.xj.mixer.util.InternalResource;
+import io.xj.mixer.InternalResource;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -55,6 +55,7 @@ public class DubMasterContinueIT {
   private DubFactory dubFactory;
   private FabricatorFactory fabricatorFactory;
   private IntegrationTestingFixtures fake;
+  private IntegrationTestProvider test;
 
   @Before
   public void setUp() throws Exception {
@@ -66,7 +67,7 @@ public class DubMasterContinueIT {
           bind(AmazonProvider.class).toInstance(amazonProvider);
         }
       })));
-    IntegrationTestProvider test = injector.getInstance(IntegrationTestProvider.class);
+    test = injector.getInstance(IntegrationTestProvider.class);
     fake = new IntegrationTestingFixtures(test);
 
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
@@ -103,15 +104,11 @@ public class DubMasterContinueIT {
     test.insert(fake.segment4);
 
     // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
-
-    // System properties
-    System.setProperty("audio.file.bucket", "my-test-bucket");
   }
-
 
   @After
   public void tearDown() {
-    System.clearProperty("audio.file.bucket");
+    test.shutdown();
   }
 
   @Test

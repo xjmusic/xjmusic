@@ -1,9 +1,5 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.music;
-
-import io.xj.music.schema.ChordForm;
-import io.xj.music.schema.ChordForms;
-import io.xj.music.schema.IntervalPitchGroup;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

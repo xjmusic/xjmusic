@@ -4,10 +4,6 @@ package io.xj.core.ingest;
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 
-import io.xj.core.ingest.cache.IngestCacheProvider;
-import io.xj.core.ingest.cache.impl.IngestCacheProviderImpl;
-import io.xj.core.ingest.impl.IngestImpl;
-
 public class IngestModule extends AbstractModule {
   @Override
   protected void configure() {

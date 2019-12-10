@@ -13,6 +13,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: com.zaxxer:HikariCP:3.4.1" level="project" />
     <orderEntry type="library" name="Maven: com.github.axet:TarsosDSP:2.4-1" level="project" />
     <orderEntry type="library" name="Maven: org.sheinbergon:jna-aac-encoder:0.1.4" level="project" />
     <orderEntry type="library" name="Maven: net.java.dev.jna:jna:5.1.0" level="project" />

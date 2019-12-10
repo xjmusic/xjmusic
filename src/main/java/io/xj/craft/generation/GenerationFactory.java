@@ -1,9 +1,8 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.generation;
 
 import io.xj.core.ingest.Ingest;
 import io.xj.core.exception.CoreException;
-import io.xj.craft.generation.superpattern.LibrarySupersequenceGeneration;
 import io.xj.core.model.ProgramSequence;
 
 import com.google.inject.assistedinject.Assisted;

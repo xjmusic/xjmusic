@@ -3,10 +3,6 @@ package io.xj.core.fabricator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import io.xj.core.fabricator.impl.FabricatorImpl;
-import io.xj.core.fabricator.impl.SegmentRetrospectiveImpl;
-import io.xj.core.fabricator.impl.SegmentWorkbenchImpl;
-import io.xj.core.fabricator.impl.TimeComputerImpl;
 
 public class FabricatorModule extends AbstractModule {
   @Override

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.api.client.util.Lists;
 import com.google.common.collect.Maps;
 import io.xj.core.entity.Entity;
-import io.xj.core.payload.deserializer.PayloadDeserializer;
 
 import javax.annotation.Nullable;
 import java.net.URI;

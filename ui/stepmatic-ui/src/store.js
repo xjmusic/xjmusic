@@ -1,3 +1,4 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 import actions from './actions';
 import getters from './getters';
 import mutations from './mutations';

@@ -7,18 +7,16 @@ import io.xj.core.access.Access;
 import io.xj.core.entity.Entity;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.UserRoleType;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.SQLDatabaseProvider;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.TableField;
 import org.jooq.TableRecord;
 import org.jooq.UpdatableRecord;
-import org.jooq.conf.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -39,29 +37,20 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
       !Objects.equals("null", String.valueOf(obj));
   }
 
-  /**
-   Get SQL Database jOOQ settings
-
-   @return jOOQ Settings
-   */
-  public static Settings getSettings() {
-    return new Settings();
-  }
 
 
   /**
    Execute a database CREATE operation
 
-   @param connection to SQL database
-   @param table      to of entity in
-   @param entity     to of
-   @param <R>        record type dynamic
+   @param <R>    record type dynamic
+   @param table  to of entity in
+   @param entity to of
    @return record
    */
-  public <R extends UpdatableRecord<R>> R executeCreate(Connection connection, Table<R> table, E entity) throws CoreException {
-    DSLContext db = DAORecord.DSL(connection);
+  public <R extends UpdatableRecord<R>> R executeCreate(Table<R> table, E entity) throws CoreException {
+    DSLContext db = dbProvider.getDSL();
     R record = db.newRecord(table);
-    DAORecord.setAll(record, entity);
+    DAO.setAll(record, entity);
 
     try {
       record.store();
@@ -74,17 +63,15 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
   }
 
   /**
-   Execute a database UPDATE operation@param <R>        record type dynamic
+   Execute a database UPDATE operation@param <R>        record type dynamic@param table      to update
 
-   @param connection to SQL database
-   @param table      to update
-   @param id         of record to update
+   @param id of record to update
    */
-  public <R extends UpdatableRecord<R>> void executeUpdate(Connection connection, Table<R> table, UUID id, E entity) throws CoreException {
-    DSLContext db = DAORecord.DSL(connection);
+  public <R extends UpdatableRecord<R>> void executeUpdate(Table<R> table, UUID id, E entity) throws CoreException {
+    DSLContext db = dbProvider.getDSL();
     R record = db.newRecord(table);
-    DAORecord.setAll(record, entity);
-    DAORecord.set(record, "id", id);
+    DAO.setAll(record, entity);
+    DAO.set(record, "id", id);
 
     if (0 == db.executeUpdate(record))
       throw new CoreException("No records updated.");
@@ -232,23 +219,21 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
   }
 
   /**
-   Execute a database CREATE operation
+   Execute a database CREATE operation@param <R>        record type dynamic
 
-   @param connection to SQL database
-   @param table      to of
-   @param entities   to batch insert
-   @param <R>        record type dynamic
+   @param table    to of
+   @param entities to batch insert
    */
-  protected <R extends UpdatableRecord<R>> void executeCreateMany(Connection connection, Table<R> table, Collection<E> entities) throws CoreException {
-    DSLContext db = DAORecord.DSL(connection);
+  protected <R extends UpdatableRecord<R>> void executeCreateMany(Table<R> table, Collection<E> entities) throws CoreException {
+    DSLContext db = dbProvider.getDSL();
 
     Collection<R> records = Lists.newArrayList();
     for (E entity : entities) {
       R record = db.newRecord(table);
-      DAORecord.setAll(record, entity);
+      DAO.setAll(record, entity);
       // also set id if provided, creating a new record with that id
       if (Objects.nonNull(entity.getId()))
-        DAORecord.set(record, "id", entity.getId());
+        DAO.set(record, "id", entity.getId());
       records.add(record);
     }
 
@@ -272,16 +257,12 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    of each successive cloning.
    */
   public class Cloner {
-    private final DSLContext db;
     Map<UUID, UUID> clonedIds = Maps.newConcurrentMap();
 
     /**
-     Instantiate a cloner with a new database connection
-
-     @param connection to use
+     Instantiate a cloner with a new database dataSource
      */
-    public Cloner(Connection connection) {
-      db = DAORecord.DSL(connection);
+    public Cloner() {
     }
 
     /**
@@ -305,7 +286,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
       UUID toParentId
     ) throws CoreException {
       Collection<R> toInsert = Lists.newArrayList();
-
+      DSLContext db = dbProvider.getDSL();
       db.selectFrom(table)
         .where(parentIdField.eq(fromParentId))
         .fetch()

@@ -1,8 +1,8 @@
-//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Model, {attr, belongsTo} from '@ember-data/model';
 
 export default Model.extend({
   chain: belongsTo({}),
-  targetClass: attr('string'),
-  targetId: attr('number')
+  type: attr('string'),
+  targetId: attr('string')
 });

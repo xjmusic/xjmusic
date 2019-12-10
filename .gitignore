@@ -11,9 +11,9 @@ classes/
 log/
 */log/
 
-# IDE
-.idea/workspace.xml
-.idea/libraries
+# IntelliJ
+*.iml
+.idea/
 
 # Node.js
 /node_modules/

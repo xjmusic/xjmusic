@@ -1,4 +1,4 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer.demo;
 
 import com.google.common.io.Files;
@@ -8,8 +8,8 @@ import io.xj.mixer.MixerConfig;
 import io.xj.mixer.MixerFactory;
 import io.xj.mixer.MixerModule;
 import io.xj.mixer.OutputEncoder;
-import io.xj.mixer.impl.exception.FormatException;
-import io.xj.mixer.util.InternalResource;
+import io.xj.mixer.FormatException;
+import io.xj.mixer.InternalResource;
 import org.junit.Test;
 
 import javax.sound.sampled.AudioFormat;

@@ -5,8 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.xj.core.payload.Payload;
 import io.xj.core.payload.PayloadObject;
-import io.xj.core.payload.serializer.PayloadObjectSerializer;
-import io.xj.core.payload.serializer.PayloadSerializer;
+import io.xj.core.payload.PayloadObjectSerializer;
+import io.xj.core.payload.PayloadSerializer;
 import io.xj.core.time.InstantDeserializer;
 import io.xj.core.time.InstantSerializer;
 

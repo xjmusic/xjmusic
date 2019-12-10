@@ -1,7 +1,5 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest;
-
-import io.xj.craft.digest.impl.DigestMemeImpl;
 
 import java.util.Map;
 

@@ -5,11 +5,9 @@ import com.google.inject.Inject;
 import io.xj.core.access.Access;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.SegmentChoiceArrangement;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.SQLDatabaseProvider;
 
 import javax.annotation.Nullable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -25,15 +23,11 @@ public class SegmentChoiceArrangementDAOImpl extends DAOImpl<SegmentChoiceArrang
 
   @Override
   public SegmentChoiceArrangement create(Access access, SegmentChoiceArrangement entity) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      entity.validate();
-      requireTopLevel(access);
-      return DAORecord.modelFrom(SegmentChoiceArrangement.class,
-        executeCreate(connection, SEGMENT_CHOICE_ARRANGEMENT, entity));
+    entity.validate();
+    requireTopLevel(access);
+    return DAO.modelFrom(SegmentChoiceArrangement.class,
+      executeCreate(SEGMENT_CHOICE_ARRANGEMENT, entity));
 
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
   }
 
   @Override
@@ -41,63 +35,42 @@ public class SegmentChoiceArrangementDAOImpl extends DAOImpl<SegmentChoiceArrang
     for (SegmentChoiceArrangement entity : entities) entity.validate();
     requireTopLevel(access);
 
-    try (Connection connection = dbProvider.getConnection()) {
-      executeCreateMany(connection, SEGMENT_CHOICE_ARRANGEMENT, entities);
-
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    executeCreateMany(SEGMENT_CHOICE_ARRANGEMENT, entities);
   }
 
   @Override
   @Nullable
   public SegmentChoiceArrangement readOne(Access access, UUID id) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireUser(access);
-      return DAORecord.modelFrom(SegmentChoiceArrangement.class,
-        DAORecord.DSL(connection).selectFrom(SEGMENT_CHOICE_ARRANGEMENT)
-          .where(SEGMENT_CHOICE_ARRANGEMENT.ID.eq(id))
-          .fetchOne());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireUser(access);
+    return DAO.modelFrom(SegmentChoiceArrangement.class,
+      dbProvider.getDSL().selectFrom(SEGMENT_CHOICE_ARRANGEMENT)
+        .where(SEGMENT_CHOICE_ARRANGEMENT.ID.eq(id))
+        .fetchOne());
   }
 
   @Override
   @Nullable
   public Collection<SegmentChoiceArrangement> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireUser(access);
-      return DAORecord.modelsFrom(SegmentChoiceArrangement.class,
-        DAORecord.DSL(connection).selectFrom(SEGMENT_CHOICE_ARRANGEMENT)
-          .where(SEGMENT_CHOICE_ARRANGEMENT.SEGMENT_ID.in(parentIds))
-          .fetch());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireUser(access);
+    return DAO.modelsFrom(SegmentChoiceArrangement.class,
+      dbProvider.getDSL().selectFrom(SEGMENT_CHOICE_ARRANGEMENT)
+        .where(SEGMENT_CHOICE_ARRANGEMENT.SEGMENT_ID.in(parentIds))
+        .fetch());
   }
 
   @Override
   public void update(Access access, UUID id, SegmentChoiceArrangement entity) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      entity.validate();
-      requireTopLevel(access);
-      executeUpdate(connection, SEGMENT_CHOICE_ARRANGEMENT, id, entity);
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    entity.validate();
+    requireTopLevel(access);
+    executeUpdate(SEGMENT_CHOICE_ARRANGEMENT, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireLibrary(access);
-      DAORecord.DSL(connection).deleteFrom(SEGMENT_CHOICE_ARRANGEMENT)
-        .where(SEGMENT_CHOICE_ARRANGEMENT.ID.eq(id))
-        .execute();
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireLibrary(access);
+    dbProvider.getDSL().deleteFrom(SEGMENT_CHOICE_ARRANGEMENT)
+      .where(SEGMENT_CHOICE_ARRANGEMENT.ID.eq(id))
+      .execute();
   }
 
   @Override

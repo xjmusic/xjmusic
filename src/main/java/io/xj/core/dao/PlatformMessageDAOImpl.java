@@ -6,12 +6,10 @@ import io.xj.core.access.Access;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.PlatformMessage;
 import io.xj.core.model.UserRoleType;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.SQLDatabaseProvider;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
@@ -31,28 +29,20 @@ public class PlatformMessageDAOImpl extends DAOImpl<PlatformMessage> implements 
 
   @Override
   public PlatformMessage create(Access access, PlatformMessage entity) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
+    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
 
-      entity.validate();
+    entity.validate();
 
-      return DAORecord.modelFrom(PlatformMessage.class, executeCreate(connection, PLATFORM_MESSAGE, entity));
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    return DAO.modelFrom(PlatformMessage.class, executeCreate(PLATFORM_MESSAGE, entity));
   }
 
   @Override
   public PlatformMessage readOne(Access access, UUID id) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
+    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
 
-      return DAORecord.modelFrom(PlatformMessage.class, DAORecord.DSL(connection).selectFrom(PLATFORM_MESSAGE)
-        .where(PLATFORM_MESSAGE.ID.eq(id))
-        .fetchOne());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    return DAO.modelFrom(PlatformMessage.class, dbProvider.getDSL().selectFrom(PLATFORM_MESSAGE)
+      .where(PLATFORM_MESSAGE.ID.eq(id))
+      .fetchOne());
   }
 
   @Override
@@ -69,35 +59,27 @@ public class PlatformMessageDAOImpl extends DAOImpl<PlatformMessage> implements 
   @Override
   @Nullable
   public Collection<PlatformMessage> readAllPreviousDays(Access access, Integer previousDays) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
+    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
 
-      return DAORecord.modelsFrom(PlatformMessage.class, DAORecord.DSL(connection).select(PLATFORM_MESSAGE.fields())
-        .from(PLATFORM_MESSAGE)
-        .where(PLATFORM_MESSAGE.CREATED_AT.ge(Timestamp.from(Instant.now().minusSeconds(previousDays * secondsPerDay))))
-        .orderBy(PLATFORM_MESSAGE.CREATED_AT.desc())
-        .fetch());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    return DAO.modelsFrom(PlatformMessage.class, dbProvider.getDSL().select(PLATFORM_MESSAGE.fields())
+      .from(PLATFORM_MESSAGE)
+      .where(PLATFORM_MESSAGE.CREATED_AT.ge(Timestamp.from(Instant.now().minusSeconds(previousDays * secondsPerDay))))
+      .orderBy(PLATFORM_MESSAGE.CREATED_AT.desc())
+      .fetch());
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      DSLContext db = DAORecord.DSL(connection);
-      requireTopLevel(access);
+    DSLContext db = dbProvider.getDSL();
+    requireTopLevel(access);
 
-      requireExists("PlatformMessage", db.selectCount().from(PLATFORM_MESSAGE)
-        .where(PLATFORM_MESSAGE.ID.eq(id))
-        .fetchOne(0, int.class));
+    requireExists("PlatformMessage", db.selectCount().from(PLATFORM_MESSAGE)
+      .where(PLATFORM_MESSAGE.ID.eq(id))
+      .fetchOne(0, int.class));
 
-      db.deleteFrom(PLATFORM_MESSAGE)
-        .where(PLATFORM_MESSAGE.ID.eq(id))
-        .execute();
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    db.deleteFrom(PLATFORM_MESSAGE)
+      .where(PLATFORM_MESSAGE.ID.eq(id))
+      .execute();
   }
 
   @Override

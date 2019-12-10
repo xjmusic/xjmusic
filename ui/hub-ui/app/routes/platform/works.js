@@ -1,4 +1,4 @@
-//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Route from '@ember/routing/route';
 import {get} from '@ember/object';
 import {inject as service} from '@ember/service';

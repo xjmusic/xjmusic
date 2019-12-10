@@ -1,3 +1,4 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 import {helper} from '@ember/component/helper';
 import {htmlSafe} from '@ember/string';
 

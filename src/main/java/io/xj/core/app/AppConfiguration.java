@@ -11,8 +11,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.Reader;
 
 /**
  Utility for parsing command-line arguments passed in to a main application.
@@ -31,25 +31,19 @@ public class AppConfiguration {
    @return buffered file reader comprising the ingest config file
    */
   public static Config parseArgs(String[] args, Config defaults) throws AppException {
-    if (1 > args.length)
-      throw new AppException("Requires path to configuration file as first argument.");
+    if (0 == args.length) return defaults;
 
     BufferedReader buf;
-    try {
-      buf = new BufferedReader(new FileReader(args[0]));
-    } catch (FileNotFoundException e) {
+    try (Reader fileReader = new FileReader(args[0])) {
+      buf = new BufferedReader(fileReader);
+      Preconditions.checkArgument(buf.ready(), "Unable to read configuration file at given path");
+      return ConfigFactory.parseReader(buf)
+        .withFallback(defaults)
+        .resolve();
+
+    } catch (Exception e) {
       throw new AppException("Cannot find configuration file");
     }
-
-    try {
-      Preconditions.checkArgument(buf.ready(), "Unable to read configuration file at given path");
-    } catch (Exception e) {
-      throw new AppException("Unable to parse configuration", e);
-    }
-
-    return ConfigFactory.parseReader(buf)
-      .withFallback(defaults)
-      .resolve();
   }
 
 

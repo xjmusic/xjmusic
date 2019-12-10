@@ -11,10 +11,11 @@ import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.entity.MessageType;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.PlatformMessage;
-import io.xj.core.persistence.sql.migration.Migration;
+import io.xj.core.persistence.SQLDatabaseProvider;
+import io.xj.core.persistence.Migration;
 import io.xj.core.util.Text;
 import io.xj.core.work.WorkManager;
-import io.xj.core.work.impl.RobustWorkerPool;
+import io.xj.core.work.RobustWorkerPool;
 import net.greghaines.jesque.worker.JobFactory;
 import net.greghaines.jesque.worker.WorkerEvent;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -64,6 +65,7 @@ public class App {
   private final String platformRelease;
   private final ResourceConfig resourceConfig;
   private final Injector injector;
+  private final SQLDatabaseProvider sqlDatabaseProvider;
   private JobFactory jobFactory;
   private RobustWorkerPool workerPool;
   private HttpServer resourceServer;
@@ -97,6 +99,7 @@ public class App {
     // 5. core delegates
     workManager = injector.getInstance(WorkManager.class);
     platformMessageDAO = injector.getInstance(PlatformMessageDAO.class);
+    sqlDatabaseProvider = injector.getInstance(SQLDatabaseProvider.class);
 
     // 4. resources configuration for jetty/server server
     resourceConfig = initJerseyResources(resourcePackages, injector);
@@ -230,26 +233,30 @@ public class App {
   public void stop() {
     log.info("{} will stop", name);
 
+    // shutdown resource server
     try {
       log.info("{} resource server will shutdown now", name);
       resourceServer.shutdownNow();
+      log.info("Server did shutdown OK");
     } catch (Exception e) {
       log.error("{} failed to stop resource server", name, e);
     }
 
-
+    // shutdown worker pool if present
     if (Objects.nonNull(workerPool)) {
       workerPool.end(false);
+      log.info("Worker pool did shutdown OK");
     }
 
+    // shutdown SQL database connection pool
+    sqlDatabaseProvider.shutdown();
+    log.info("SQL database connection pool did shutdown OK");
 
-    log.info("Server did shutdown OK");
-
+    // send messages about successful shutdown
     sendPlatformMessage(MessageType.Debug, String.format(
       "%s (%s) did exit OK at %s",
       name, platformRelease, getBaseURI()
     ));
-
     log.info("{} did stop", name);
   }
 

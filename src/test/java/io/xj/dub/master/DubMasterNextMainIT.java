@@ -1,4 +1,4 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.dub.master;
 
 import com.google.common.collect.ImmutableList;
@@ -26,6 +26,7 @@ import io.xj.core.testing.IntegrationTestProvider;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubFactory;
 import io.xj.dub.DubModule;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,12 +41,13 @@ public class DubMasterNextMainIT {
   private FabricatorFactory fabricatorFactory;
 
   private IntegrationTestingFixtures fake;
+  private IntegrationTestProvider test;
 
   @Before
   public void setUp() throws Exception {
     Config config = AppTestConfiguration.getDefault();
     Injector injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule(), new CraftModule(), new DubModule()));
-    IntegrationTestProvider test = injector.getInstance(IntegrationTestProvider.class);
+    test = injector.getInstance(IntegrationTestProvider.class);
     fake = new IntegrationTestingFixtures(test);
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     dubFactory = injector.getInstance(DubFactory.class);
@@ -84,6 +86,12 @@ public class DubMasterNextMainIT {
     // future: insert 8 picks of audio 1
     // future: insert 8 picks of audio 2
   }
+
+  @After
+  public void tearDown() {
+    test.shutdown();
+  }
+
 
   @Test
   public void dubMasterNextMain() throws Exception {

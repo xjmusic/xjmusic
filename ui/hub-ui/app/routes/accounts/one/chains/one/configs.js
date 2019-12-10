@@ -1,9 +1,8 @@
-//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Route from '@ember/routing/route';
 import {get} from '@ember/object';
 import {hash, Promise as EmberPromise} from 'rsvp';
 import {inject as service} from '@ember/service';
-import {v4 as uuid} from "ember-uuid";
 
 export default Route.extend({
 
@@ -19,14 +18,22 @@ export default Route.extend({
    */
   model() {
     return new EmberPromise((resolve, reject) => {
-      let self = this;
       this.config.getConfig().then(
         () => {
+          let chain = this.modelFor('accounts.one.chains.one');
+
+          let chainConfigs = this.store.query('chain-config', {chainId: chain.get('id')})
+            .catch((error) => {
+              get(this, 'display').error(error);
+              this.transitionTo('');
+            });
+
           resolve(hash({
-            chain: self.modelFor('accounts.one.chains.one'),
+            chain: chain,
+            chainConfigs: chainConfigs,
             configType: '',
             configValue: '',
-            chainConfigTypes: self.config.chainConfigTypes,
+            chainConfigTypes: this.config.chainConfigTypes,
           }, 'chain, chain configs, chain config types, config to add to chain'));
 
         },
@@ -46,59 +53,32 @@ export default Route.extend({
       this.refresh();
     },
 
-    /**
-     * Remove a chainConfig record
-     * @param chainConfig record to remove
-     */
-    removeConfig(chainConfig) {
-      let self = this;
-      let chain = this.modelFor('accounts.one.chains.one');
-      this.store.deleteRecord(chainConfig);
-      chain.save().then(
+    removeConfig(model) {
+      model.destroyRecord({}).then(
         () => {
-          self.display.success('Removed Config from Chain.');
-          self.send("sessionChanged");
+          this.display.success('Removed Config from Chain.');
+          this.send("sessionChanged");
         },
         (error) => {
-          get(self, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
 
-    /**
-     * Add a new Config
-     * @param type of new config
-     * @param value of new config
-     */
-    addConfig(type, value) {
-      let self = this;
-      let chain = this.modelFor('accounts.one.chains.one');
-      let addedConfig = this.store.push({
-        data: {
-          id: uuid(),
-          type: 'chain-config',
-          attributes: {
-            type: type,
-            value: value
-          },
-          relationships: {
-            chain: {
-              data: {
-                id: chain.get('id'),
-                type: 'chain'
-              }
-            }
-          }
-        }
+    addConfig(model) {
+      let chainConfig = this.store.createRecord('chain-config', {
+        chain: model.chain,
+        type: model.configType,
+        value: model.configValue
       });
-      chain.save().then(
-        () => {
-          get(self, 'display').success(`Added ${addedConfig.get('type')}="${addedConfig.get('value')}"`);
+
+      chainConfig.save().then(
+        (saved) => {
+          get(this, 'display').success('Added ' + saved.get('type') + '=' + saved.get('value'));
+          // this.transitionToRoute('chains.one.configs',model.chain);
+          this.send("sessionChanged");
         },
         (error) => {
-          chain.rollbackAttributes();
-          chain.reload().then(() => {
-            get(self, 'display').error(error);
-          });
+          get(this, 'display').error(error);
         });
     },
 

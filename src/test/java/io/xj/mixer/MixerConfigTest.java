@@ -1,8 +1,7 @@
-//  Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.mixer;
 
-import io.xj.mixer.impl.exception.MixerException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

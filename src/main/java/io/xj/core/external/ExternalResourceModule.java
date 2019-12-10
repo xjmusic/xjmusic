@@ -2,12 +2,6 @@
 package io.xj.core.external;
 
 import com.google.inject.AbstractModule;
-import io.xj.core.external.amazon.AmazonProvider;
-import io.xj.core.external.amazon.AmazonProviderImpl;
-import io.xj.core.external.google.GoogleHttpProvider;
-import io.xj.core.external.google.GoogleHttpProviderImpl;
-import io.xj.core.external.google.GoogleProvider;
-import io.xj.core.external.google.GoogleProviderImpl;
 
 public class ExternalResourceModule extends AbstractModule {
   @Override

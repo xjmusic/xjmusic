@@ -1,8 +1,7 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.core.CoreModule;
@@ -15,7 +14,6 @@ import io.xj.core.model.ChainBinding;
 import io.xj.core.testing.AppTestConfiguration;
 import io.xj.core.testing.IntegrationTestProvider;
 import io.xj.craft.CraftModule;
-import io.xj.craft.digest.impl.DigestMemeImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,3 +1,4 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.payload;
 
 import com.google.common.collect.ImmutableList;

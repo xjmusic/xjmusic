@@ -2,7 +2,6 @@
 package io.xj.core.work;
 
 import com.google.inject.AbstractModule;
-import io.xj.core.work.impl.WorkManagerImpl;
 
 public class WorkModule extends AbstractModule {
   @Override

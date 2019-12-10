@@ -1,4 +1,4 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access;
 
 import com.google.common.collect.ImmutableList;
@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.core.CoreModule;
-import io.xj.core.access.token.TokenGenerator;
 import io.xj.core.app.AppConfiguration;
 import io.xj.core.model.AccountUser;
 import io.xj.core.model.UserAuth;

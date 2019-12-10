@@ -1,8 +1,8 @@
-// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.dub;
 
-import io.xj.dub.master.impl.MasterDubImpl;
-import io.xj.dub.ship.impl.ShipDubImpl;
+import io.xj.dub.master.MasterDubImpl;
+import io.xj.dub.ship.ShipDubImpl;
 import io.xj.dub.master.MasterDub;
 import io.xj.dub.ship.ShipDub;
 

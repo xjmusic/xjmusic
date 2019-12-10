@@ -5,10 +5,8 @@ import com.google.inject.Inject;
 import io.xj.core.access.Access;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.AccountUser;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.SQLDatabaseProvider;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -25,55 +23,43 @@ public class AccountUserDAOImpl extends DAOImpl<AccountUser> implements AccountU
 
   @Override
   public AccountUser create(Access access, AccountUser entity) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      entity.validate();
+    entity.validate();
 
-      requireTopLevel(access);
+    requireTopLevel(access);
 
-      if (null != DAORecord.DSL(connection).selectFrom(ACCOUNT_USER)
-        .where(ACCOUNT_USER.ACCOUNT_ID.eq(entity.getAccountId()))
-        .and(ACCOUNT_USER.USER_ID.eq(entity.getUserId()))
-        .fetchOne())
-        throw new CoreException("Account User already exists!");
+    if (null != dbProvider.getDSL().selectFrom(ACCOUNT_USER)
+      .where(ACCOUNT_USER.ACCOUNT_ID.eq(entity.getAccountId()))
+      .and(ACCOUNT_USER.USER_ID.eq(entity.getUserId()))
+      .fetchOne())
+      throw new CoreException("Account User already exists!");
 
-      return DAORecord.modelFrom(AccountUser.class, executeCreate(connection, ACCOUNT_USER, entity));
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    return DAO.modelFrom(AccountUser.class, executeCreate(ACCOUNT_USER, entity));
   }
 
   @Override
   public AccountUser readOne(Access access, UUID id) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      if (access.isTopLevel())
-        return DAORecord.modelFrom(AccountUser.class, DAORecord.DSL(connection).selectFrom(ACCOUNT_USER)
-          .where(ACCOUNT_USER.ID.eq(id))
-          .fetchOne());
-      else
-        return DAORecord.modelFrom(AccountUser.class, DAORecord.DSL(connection).selectFrom(ACCOUNT_USER)
-          .where(ACCOUNT_USER.ID.eq(id))
-          .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
-          .fetchOne());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    if (access.isTopLevel())
+      return DAO.modelFrom(AccountUser.class, dbProvider.getDSL().selectFrom(ACCOUNT_USER)
+        .where(ACCOUNT_USER.ID.eq(id))
+        .fetchOne());
+    else
+      return DAO.modelFrom(AccountUser.class, dbProvider.getDSL().selectFrom(ACCOUNT_USER)
+        .where(ACCOUNT_USER.ID.eq(id))
+        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne());
   }
 
   @Override
   public Collection<AccountUser> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      if (access.isTopLevel())
-        return DAORecord.modelsFrom(AccountUser.class, DAORecord.DSL(connection).selectFrom(ACCOUNT_USER)
-          .where(ACCOUNT_USER.ACCOUNT_ID.in(parentIds))
-          .fetch());
-      else
-        return DAORecord.modelsFrom(AccountUser.class, DAORecord.DSL(connection).selectFrom(ACCOUNT_USER)
-          .where(ACCOUNT_USER.ACCOUNT_ID.in(parentIds))
-          .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
-          .fetch());
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    if (access.isTopLevel())
+      return DAO.modelsFrom(AccountUser.class, dbProvider.getDSL().selectFrom(ACCOUNT_USER)
+        .where(ACCOUNT_USER.ACCOUNT_ID.in(parentIds))
+        .fetch());
+    else
+      return DAO.modelsFrom(AccountUser.class, dbProvider.getDSL().selectFrom(ACCOUNT_USER)
+        .where(ACCOUNT_USER.ACCOUNT_ID.in(parentIds))
+        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetch());
   }
 
   @Override
@@ -83,14 +69,10 @@ public class AccountUserDAOImpl extends DAOImpl<AccountUser> implements AccountU
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    try (Connection connection = dbProvider.getConnection()) {
-      requireTopLevel(access);
-      DAORecord.DSL(connection).deleteFrom(ACCOUNT_USER)
-        .where(ACCOUNT_USER.ID.eq(id))
-        .execute();
-    } catch (SQLException e) {
-      throw new CoreException("SQL Exception", e);
-    }
+    requireTopLevel(access);
+    dbProvider.getDSL().deleteFrom(ACCOUNT_USER)
+      .where(ACCOUNT_USER.ID.eq(id))
+      .execute();
   }
 
   @Override
