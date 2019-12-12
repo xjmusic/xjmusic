@@ -25,7 +25,7 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
   @Override
   public ProgramVoice create(Access access, ProgramVoice entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     return DAO.modelFrom(ProgramVoice.class,
       executeCreate(PROGRAM_VOICE, entity));
   }
@@ -33,7 +33,7 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
   @Override
   @Nullable
   public ProgramVoice readOne(Access access, UUID id) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelFrom(ProgramVoice.class,
       dbProvider.getDSL().selectFrom(PROGRAM_VOICE)
         .where(PROGRAM_VOICE.ID.eq(id))
@@ -43,7 +43,7 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
   @Override
   @Nullable
   public Collection<ProgramVoice> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelsFrom(ProgramVoice.class,
       dbProvider.getDSL().selectFrom(PROGRAM_VOICE)
         .where(PROGRAM_VOICE.PROGRAM_ID.in(parentIds))
@@ -53,13 +53,13 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
   @Override
   public void update(Access access, UUID id, ProgramVoice entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     executeUpdate(PROGRAM_VOICE, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(PROGRAM_VOICE)
       .where(PROGRAM_VOICE.ID.eq(id))
       .execute();

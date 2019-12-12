@@ -782,7 +782,7 @@ public class SegmentIT {
     //
 
     // [#263] expect request to delete segment waveform of Amazon S3
-    verify(amazonProvider).deleteS3Object("/tmp/xj-segment-test", "chains-1-segments-9f7s89d8a7892.wav");
+    verify(amazonProvider).deleteS3Object("xj-segment-test", "chains-1-segments-9f7s89d8a7892.wav");
 
     // Assert annihilation
     Assert.assertNotExist(testDAO, fake.segment1.getId());

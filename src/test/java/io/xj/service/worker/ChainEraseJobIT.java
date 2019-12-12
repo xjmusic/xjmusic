@@ -126,10 +126,10 @@ public class ChainEraseJobIT {
     assertEquals(0, injector.getInstance(SegmentDAO.class).readMany(Access.internal(), ImmutableList.of(fake.chain1.getId())).size());
     assertEquals(0, injector.getInstance(SegmentDAO.class).readMany(Access.internal(), ImmutableList.of(fake.chain2.getId())).size());
 
-    verify(amazonProvider).deleteS3Object("/tmp/xj-segment-test", "chains-1-segments-9f7s89d8a7892-ONE.wav");
-    verify(amazonProvider).deleteS3Object("/tmp/xj-segment-test", "chains-1-segments-2807f2d5g2h32-TWO.wav");
-    verify(amazonProvider).deleteS3Object("/tmp/xj-segment-test", "chains-1-segments-198745hj78dfs-THREE.wav");
-    verify(amazonProvider).deleteS3Object("/tmp/xj-segment-test", "chains-1-segments-897h4d4f1h2j4-FOUR.wav");
+    verify(amazonProvider).deleteS3Object("xj-segment-test", "chains-1-segments-9f7s89d8a7892-ONE.wav");
+    verify(amazonProvider).deleteS3Object("xj-segment-test", "chains-1-segments-2807f2d5g2h32-TWO.wav");
+    verify(amazonProvider).deleteS3Object("xj-segment-test", "chains-1-segments-198745hj78dfs-THREE.wav");
+    verify(amazonProvider).deleteS3Object("xj-segment-test", "chains-1-segments-897h4d4f1h2j4-FOUR.wav");
   }
 
   /**

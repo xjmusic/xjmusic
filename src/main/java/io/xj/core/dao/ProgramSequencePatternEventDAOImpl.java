@@ -25,7 +25,7 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
   @Override
   public ProgramSequencePatternEvent create(Access access, ProgramSequencePatternEvent entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     return DAO.modelFrom(ProgramSequencePatternEvent.class,
       executeCreate(PROGRAM_SEQUENCE_PATTERN_EVENT, entity));
 
@@ -34,7 +34,7 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
   @Override
   @Nullable
   public ProgramSequencePatternEvent readOne(Access access, UUID id) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelFrom(ProgramSequencePatternEvent.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
         .where(PROGRAM_SEQUENCE_PATTERN_EVENT.ID.eq(id))
@@ -44,7 +44,7 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
   @Override
   @Nullable
   public Collection<ProgramSequencePatternEvent> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelsFrom(ProgramSequencePatternEvent.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
         .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.in(parentIds))
@@ -54,13 +54,13 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
   @Override
   public void update(Access access, UUID id, ProgramSequencePatternEvent entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     executeUpdate(PROGRAM_SEQUENCE_PATTERN_EVENT, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .where(PROGRAM_SEQUENCE_PATTERN_EVENT.ID.eq(id))
       .execute();

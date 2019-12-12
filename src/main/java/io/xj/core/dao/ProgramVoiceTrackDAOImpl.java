@@ -25,7 +25,7 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   @Override
   public ProgramVoiceTrack create(Access access, ProgramVoiceTrack entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     return DAO.modelFrom(ProgramVoiceTrack.class,
       executeCreate(PROGRAM_VOICE_TRACK, entity));
   }
@@ -33,7 +33,7 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   @Override
   @Nullable
   public ProgramVoiceTrack readOne(Access access, UUID id) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelFrom(ProgramVoiceTrack.class,
       dbProvider.getDSL().selectFrom(PROGRAM_VOICE_TRACK)
         .where(PROGRAM_VOICE_TRACK.ID.eq(id))
@@ -43,7 +43,7 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   @Override
   @Nullable
   public Collection<ProgramVoiceTrack> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelsFrom(ProgramVoiceTrack.class,
       dbProvider.getDSL().selectFrom(PROGRAM_VOICE_TRACK)
         .where(PROGRAM_VOICE_TRACK.PROGRAM_ID.in(parentIds))
@@ -53,13 +53,13 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   @Override
   public void update(Access access, UUID id, ProgramVoiceTrack entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     executeUpdate(PROGRAM_VOICE_TRACK, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(PROGRAM_VOICE_TRACK)
       .where(PROGRAM_VOICE_TRACK.ID.eq(id))
       .execute();

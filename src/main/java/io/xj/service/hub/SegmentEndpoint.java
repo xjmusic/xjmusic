@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import io.xj.core.access.Access;
 import io.xj.core.app.AppResource;
+import io.xj.core.dao.DAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.model.Segment;
 import io.xj.core.model.UserRoleType;
@@ -60,8 +61,6 @@ public class SegmentEndpoint extends AppResource {
       return response.notAcceptable("Chain id is required");
 
     try {
-
-
       // will only have value if this can parse a uuid from string
       // otherwise, ignore the exception on attempt and store a null value for uuid
       UUID uuidId;
@@ -71,6 +70,9 @@ public class SegmentEndpoint extends AppResource {
         uuidId = null;
       }
 
+      // Prepare payload
+      Payload payload = new Payload();
+
       // chain is either by uuid or embed key
       Collection<Segment> segments;
       if (Objects.nonNull(uuidId))
@@ -78,7 +80,17 @@ public class SegmentEndpoint extends AppResource {
       else
         segments = readAllSegmentsByChainEmbedKey(chainId, fromOffset, fromSecondsUTC); // embed key
 
-      return response.ok(new Payload().setDataEntities(segments));
+      // add segments as plural data in payload
+      payload.setDataEntities(segments);
+
+      // seek and add sub-entities to payload --
+      // use internal access because we already cleared these segment ids from access control,
+      // and there is no access object when reading chain by embed key
+      dao().readAllSubEntities(Access.internal(), DAO.idsFrom(segments))
+        .forEach(entity -> payload.addIncluded(entity.toPayloadObject()));
+
+      // done
+      return response.ok(payload);
 
     } catch (Exception e) {
       return response.failure(e);

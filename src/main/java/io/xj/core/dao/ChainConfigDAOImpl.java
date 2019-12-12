@@ -25,7 +25,7 @@ public class ChainConfigDAOImpl extends DAOImpl<ChainConfig> implements ChainCon
   @Override
   public ChainConfig create(Access access, ChainConfig entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireEngineer(access);
     return DAO.modelFrom(ChainConfig.class,
       executeCreate(CHAIN_CONFIG, entity));
 
@@ -34,7 +34,7 @@ public class ChainConfigDAOImpl extends DAOImpl<ChainConfig> implements ChainCon
   @Override
   @Nullable
   public ChainConfig readOne(Access access, UUID id) throws CoreException {
-    requireUser(access);
+    requireEngineer(access);
     return DAO.modelFrom(ChainConfig.class,
       dbProvider.getDSL().selectFrom(CHAIN_CONFIG)
         .where(CHAIN_CONFIG.ID.eq(id))
@@ -44,7 +44,7 @@ public class ChainConfigDAOImpl extends DAOImpl<ChainConfig> implements ChainCon
   @Override
   @Nullable
   public Collection<ChainConfig> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    requireUser(access);
+    requireEngineer(access);
     return DAO.modelsFrom(ChainConfig.class,
       dbProvider.getDSL().selectFrom(CHAIN_CONFIG)
         .where(CHAIN_CONFIG.CHAIN_ID.in(parentIds))
@@ -54,13 +54,13 @@ public class ChainConfigDAOImpl extends DAOImpl<ChainConfig> implements ChainCon
   @Override
   public void update(Access access, UUID id, ChainConfig entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireEngineer(access);
     executeUpdate(CHAIN_CONFIG, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireEngineer(access);
     dbProvider.getDSL().deleteFrom(CHAIN_CONFIG)
       .where(CHAIN_CONFIG.ID.eq(id))
       .execute();

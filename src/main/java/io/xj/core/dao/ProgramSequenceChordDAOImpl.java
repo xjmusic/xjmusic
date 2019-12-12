@@ -25,7 +25,7 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   @Override
   public ProgramSequenceChord create(Access access, ProgramSequenceChord entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     return DAO.modelFrom(ProgramSequenceChord.class,
       executeCreate(PROGRAM_SEQUENCE_CHORD, entity));
 
@@ -34,7 +34,7 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   @Override
   @Nullable
   public ProgramSequenceChord readOne(Access access, UUID id) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelFrom(ProgramSequenceChord.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD)
         .where(PROGRAM_SEQUENCE_CHORD.ID.eq(id))
@@ -44,7 +44,7 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   @Override
   @Nullable
   public Collection<ProgramSequenceChord> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelsFrom(ProgramSequenceChord.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD)
         .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.in(parentIds))
@@ -54,13 +54,13 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   @Override
   public void update(Access access, UUID id, ProgramSequenceChord entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     executeUpdate(PROGRAM_SEQUENCE_CHORD, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(PROGRAM_SEQUENCE_CHORD)
       .where(PROGRAM_SEQUENCE_CHORD.ID.eq(id))
       .execute();

@@ -68,7 +68,7 @@ public class SegmentMessageDAOImpl extends DAOImpl<SegmentMessage> implements Se
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(SEGMENT_MESSAGE)
       .where(SEGMENT_MESSAGE.ID.eq(id))
       .execute();

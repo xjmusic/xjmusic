@@ -69,7 +69,7 @@ public class SegmentChoiceArrangementPickDAOImpl extends DAOImpl<SegmentChoiceAr
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(SEGMENT_CHOICE_ARRANGEMENT_PICK)
       .where(SEGMENT_CHOICE_ARRANGEMENT_PICK.ID.eq(id))
       .execute();

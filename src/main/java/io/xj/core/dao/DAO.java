@@ -65,6 +65,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static io.xj.core.Tables.ACCOUNT;
 import static io.xj.core.Tables.ACCOUNT_USER;
@@ -394,11 +395,11 @@ public interface DAO<E extends Entity> {
   /**
    ids of a result set
 
-   @param result set
+   @param records set
    @return ids
    */
-  static Collection<UUID> idsFrom(Result<Record1<UUID>> result) {
-    return result.map(Record1::value1);
+  static Collection<UUID> idsFrom(Result<Record1<UUID>> records) {
+    return records.map(Record1::value1);
   }
 
   /**
@@ -409,6 +410,18 @@ public interface DAO<E extends Entity> {
    */
   static DSLContext DSL(DataSource dataSource) {
     return DSL.using(dataSource, SQLDialect.POSTGRES, new Settings());
+  }
+
+  /**
+   ids of an entity set
+
+   @param entities to get ids of
+   @return ids
+   */
+  static <N extends Entity> Collection<UUID> idsFrom(Collection<N> entities) {
+    return entities.stream()
+      .map(Entity::getId)
+      .collect(Collectors.toList());
   }
 
   /**

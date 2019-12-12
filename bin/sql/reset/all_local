@@ -13,8 +13,6 @@ SQL_USER="root"
 SQL_PORT=5400
 SQL_HOST="127.0.0.1"
 
-# TODO get this working with Postgres
-
 # Database
 SQL_DB_MAIN="xj_dev"
 SQL_DB_TEST="xj_test"
@@ -30,8 +28,8 @@ CFG="--user=${SQL_USER} --host=${SQL_HOST} --port=${SQL_PORT}"
 
 #
 step "Destroy and re-create databases"
-dropdb ${CFG} ${SQL_DB_MAIN} || error
-dropdb ${CFG} ${SQL_DB_TEST} || error
+dropdb --if-exists ${CFG} ${SQL_DB_MAIN} || error
+dropdb --if-exists ${CFG} ${SQL_DB_TEST} || error
 createdb ${CFG} ${SQL_DB_MAIN} || error
 createdb ${CFG} ${SQL_DB_TEST} || error
 step_ok

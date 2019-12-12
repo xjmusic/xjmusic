@@ -52,13 +52,13 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   @Override
   public Program create(Access access, Program entity) throws CoreException {
     entity.validate();
-    requireLibrary(access);
+    requireArtist(access);
     return DAO.modelFrom(Program.class, executeCreate(PROGRAM, entity));
   }
 
   @Override
   public Program clone(Access access, UUID cloneId, Program entity) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
 // TODO figure out how to make this all a rollback-able transaction in the new getDataSource() context:  dataSource.setAutoCommit(false);
     Program from = readOne(access, cloneId);
     if (Objects.isNull(from))
@@ -158,7 +158,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   @Override
   public void update(Access access, UUID id, Program entity) throws CoreException {
     entity.validate();
-    requireLibrary(access);
+    requireArtist(access);
     executeUpdate(PROGRAM, id, entity);
 
   }
@@ -236,7 +236,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
 
   @Override
   public Collection<UUID> readIdsInLibraries(Access access, Collection<UUID> parentIds) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     return DAO.idsFrom(dbProvider.getDSL().select(PROGRAM.ID)
       .from(PROGRAM)
       .where(PROGRAM.LIBRARY_ID.in(parentIds))

@@ -25,7 +25,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   @Override
   public ChainBinding create(Access access, ChainBinding entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireEngineer(access);
     return DAO.modelFrom(ChainBinding.class,
       executeCreate(CHAIN_BINDING, entity));
 
@@ -34,7 +34,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   @Override
   @Nullable
   public ChainBinding readOne(Access access, UUID id) throws CoreException {
-    requireUser(access);
+    requireEngineer(access);
     return DAO.modelFrom(ChainBinding.class,
       dbProvider.getDSL().selectFrom(CHAIN_BINDING)
         .where(CHAIN_BINDING.ID.eq(id))
@@ -44,7 +44,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   @Override
   @Nullable
   public Collection<ChainBinding> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    requireUser(access);
+    requireEngineer(access);
     return DAO.modelsFrom(ChainBinding.class,
       dbProvider.getDSL().selectFrom(CHAIN_BINDING)
         .where(CHAIN_BINDING.CHAIN_ID.in(parentIds))
@@ -54,13 +54,13 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   @Override
   public void update(Access access, UUID id, ChainBinding entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireEngineer(access);
     executeUpdate(CHAIN_BINDING, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireEngineer(access);
     dbProvider.getDSL().deleteFrom(CHAIN_BINDING)
       .where(CHAIN_BINDING.ID.eq(id))
       .execute();

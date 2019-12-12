@@ -69,7 +69,7 @@ public class SegmentChordDAOImpl extends DAOImpl<SegmentChord> implements Segmen
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(SEGMENT_CHORD)
       .where(SEGMENT_CHORD.ID.eq(id))
       .execute();

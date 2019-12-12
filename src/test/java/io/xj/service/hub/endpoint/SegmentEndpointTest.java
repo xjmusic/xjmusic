@@ -15,6 +15,7 @@ import io.xj.core.exception.CoreException;
 import io.xj.core.model.Account;
 import io.xj.core.model.Chain;
 import io.xj.core.model.Segment;
+import io.xj.core.model.SegmentMeme;
 import io.xj.core.model.SegmentState;
 import io.xj.core.model.User;
 import io.xj.core.payload.Payload;
@@ -32,12 +33,12 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Collection;
 
 import static io.xj.core.access.Access.CONTEXT_KEY;
 import static io.xj.core.testing.AssertPayload.assertPayload;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.when;
@@ -73,10 +74,16 @@ public class SegmentEndpointTest {
   @Test
   public void readAll() throws CoreException, IOException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+    // segments
     Segment segment5 = Segment.create(chain25, 4, SegmentState.Crafted, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:09:08.000001Z"), "C", 8, 0.6, 120, "chain-1-waveform.wav");
     Segment segment6 = Segment.create(chain25, 5, SegmentState.Planned, Instant.parse("2017-02-14T12:09:08.000001Z"), null, "C", 8, 0.6, 120, "chain-1-waveform.wav");
-    Collection<Segment> segments = ImmutableList.of(segment5, segment6);
-    when(segmentDAO.readMany(same(access), eq(ImmutableList.of(chain25.getId())))).thenReturn(segments);
+    when(segmentDAO.readMany(same(access), eq(ImmutableList.of(chain25.getId()))))
+      .thenReturn(ImmutableList.of(segment5, segment6));
+    // segments memes
+    SegmentMeme segment5meme = SegmentMeme.create(segment5, "apple");
+    SegmentMeme segment6meme = SegmentMeme.create(segment6, "banana");
+    when(segmentDAO.readAllSubEntities(any(), eq(ImmutableList.of(segment5.getId(), segment6.getId()))))
+      .thenReturn(ImmutableList.of(segment5meme, segment6meme));
 
     Response result = subject.readAll(crc, chain25.getId().toString(), null, null);
 
@@ -85,6 +92,8 @@ public class SegmentEndpointTest {
     Payload payloadResult = InternalResources.deserializePayload(result.getEntity());
     assertPayload(payloadResult)
       .hasDataMany("segments", ImmutableList.of(segment5.getId().toString(), segment6.getId().toString()));
+    assertPayload(payloadResult)
+      .hasIncluded("segment-memes", ImmutableList.of(segment5meme, segment6meme));
   }
 
   @Test

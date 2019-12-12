@@ -1,6 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.external;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -56,8 +58,10 @@ class AmazonProviderImpl implements AmazonProvider {
    @return S3 client
    */
   private AmazonS3 s3Client() {
+    BasicAWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretKey);
     return AmazonS3ClientBuilder.standard()
       .withRegion(awsDefaultRegion)
+      .withCredentials(new AWSStaticCredentialsProvider(credentials))
       .build();
   }
 

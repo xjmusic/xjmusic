@@ -41,7 +41,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
     entity.validate();
 
     // This entity's parent is a Library
-    requireLibrary(access);
+    requireArtist(access);
 
     return DAO.modelFrom(Instrument.class, executeCreate(INSTRUMENT, entity));
   }
@@ -185,7 +185,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
 
   @Override
   public Collection<UUID> readIdsInLibraries(Access access, Collection<UUID> parentIds) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     return DAO.idsFrom(dbProvider.getDSL().select(INSTRUMENT.ID)
       .from(INSTRUMENT)
       .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
@@ -198,7 +198,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
     entity.validate();
 
     entity.setId(id); // prevent changing id
-    requireLibrary(access);
+    requireArtist(access);
 
     executeUpdate(INSTRUMENT, id, entity);
   }

@@ -81,7 +81,7 @@ public class SegmentChoiceDAOImpl extends DAOImpl<SegmentChoice> implements Segm
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(SEGMENT_CHOICE)
       .where(SEGMENT_CHOICE.ID.eq(id))
       .execute();

@@ -25,7 +25,7 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
   @Override
   public ProgramMeme create(Access access, ProgramMeme entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     return DAO.modelFrom(ProgramMeme.class,
       executeCreate(PROGRAM_MEME, entity));
 
@@ -34,7 +34,7 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
   @Override
   @Nullable
   public ProgramMeme readOne(Access access, UUID id) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelFrom(ProgramMeme.class,
       dbProvider.getDSL().selectFrom(PROGRAM_MEME)
         .where(PROGRAM_MEME.ID.eq(id))
@@ -44,7 +44,7 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
   @Override
   @Nullable
   public Collection<ProgramMeme> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelsFrom(ProgramMeme.class,
       dbProvider.getDSL().selectFrom(PROGRAM_MEME)
         .where(PROGRAM_MEME.PROGRAM_ID.in(parentIds))
@@ -54,13 +54,13 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
   @Override
   public void update(Access access, UUID id, ProgramMeme entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     executeUpdate(PROGRAM_MEME, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(PROGRAM_MEME)
       .where(PROGRAM_MEME.ID.eq(id))
       .execute();

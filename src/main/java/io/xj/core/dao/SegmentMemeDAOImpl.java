@@ -68,7 +68,7 @@ public class SegmentMemeDAOImpl extends DAOImpl<SegmentMeme> implements SegmentM
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(SEGMENT_MEME)
       .where(SEGMENT_MEME.ID.eq(id))
       .execute();

@@ -25,7 +25,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   @Override
   public InstrumentMeme create(Access access, InstrumentMeme entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     return DAO.modelFrom(InstrumentMeme.class,
       executeCreate(INSTRUMENT_MEME, entity));
 
@@ -34,7 +34,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   @Override
   @Nullable
   public InstrumentMeme readOne(Access access, UUID id) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelFrom(InstrumentMeme.class,
       dbProvider.getDSL().selectFrom(INSTRUMENT_MEME)
         .where(INSTRUMENT_MEME.ID.eq(id))
@@ -44,7 +44,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   @Override
   @Nullable
   public Collection<InstrumentMeme> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelsFrom(InstrumentMeme.class,
       dbProvider.getDSL().selectFrom(INSTRUMENT_MEME)
         .where(INSTRUMENT_MEME.INSTRUMENT_ID.in(parentIds))
@@ -54,13 +54,13 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   @Override
   public void update(Access access, UUID id, InstrumentMeme entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     executeUpdate(INSTRUMENT_MEME, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.ID.eq(id))
       .execute();

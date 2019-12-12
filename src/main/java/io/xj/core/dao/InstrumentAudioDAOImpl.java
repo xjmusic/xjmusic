@@ -25,7 +25,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   @Override
   public InstrumentAudio create(Access access, InstrumentAudio entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     return DAO.modelFrom(InstrumentAudio.class,
       executeCreate(INSTRUMENT_AUDIO, entity));
 
@@ -34,7 +34,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   @Override
   @Nullable
   public InstrumentAudio readOne(Access access, UUID id) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelFrom(InstrumentAudio.class,
       dbProvider.getDSL().selectFrom(INSTRUMENT_AUDIO)
         .where(INSTRUMENT_AUDIO.ID.eq(id))
@@ -44,7 +44,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   @Override
   @Nullable
   public Collection<InstrumentAudio> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelsFrom(InstrumentAudio.class,
       dbProvider.getDSL().selectFrom(INSTRUMENT_AUDIO)
         .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.in(parentIds))
@@ -54,13 +54,13 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   @Override
   public void update(Access access, UUID id, InstrumentAudio entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     executeUpdate(INSTRUMENT_AUDIO, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(INSTRUMENT_AUDIO)
       .where(INSTRUMENT_AUDIO.ID.eq(id))
       .execute();

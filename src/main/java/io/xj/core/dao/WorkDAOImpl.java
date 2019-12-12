@@ -59,7 +59,7 @@ public class WorkDAOImpl extends DAOImpl<Work> implements WorkDAO {
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(WORK)
       .where(WORK.ID.eq(id))
       .execute();

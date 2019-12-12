@@ -171,13 +171,24 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
   }
 
   /**
+   Require has engineer-level access
+
+   @param access control
+   @throws CoreException if not engineer
+   */
+  public void requireEngineer(Access access) throws CoreException {
+    if (!access.isTopLevel() && !access.isAllowed(UserRoleType.ENGINEER))
+      throw new CoreException("No engineer access");
+  }
+
+  /**
    ASSUMED an entity.parentId() is a libraryId for this class of entity
    Require library-level access to an entity
 
    @param access control
    @throws CoreException if does not have access
    */
-  public void requireLibrary(Access access) throws CoreException {
+  public void requireArtist(Access access) throws CoreException {
     // TODO require a specific set of library ids, and check for access to all those libraries
     if (!access.isTopLevel() && !access.isAllowed(UserRoleType.ARTIST))
       throw new CoreException("No library access");

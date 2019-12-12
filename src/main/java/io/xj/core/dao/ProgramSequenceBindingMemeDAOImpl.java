@@ -25,7 +25,7 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   @Override
   public ProgramSequenceBindingMeme create(Access access, ProgramSequenceBindingMeme entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     return DAO.modelFrom(ProgramSequenceBindingMeme.class,
       executeCreate(PROGRAM_SEQUENCE_BINDING_MEME, entity));
 
@@ -34,7 +34,7 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   @Override
   @Nullable
   public ProgramSequenceBindingMeme readOne(Access access, UUID id) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelFrom(ProgramSequenceBindingMeme.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
         .where(PROGRAM_SEQUENCE_BINDING_MEME.ID.eq(id))
@@ -44,7 +44,7 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   @Override
   @Nullable
   public Collection<ProgramSequenceBindingMeme> readMany(Access access, Collection<UUID> parentIds) throws CoreException {
-    requireUser(access);
+    requireArtist(access);
     return DAO.modelsFrom(ProgramSequenceBindingMeme.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
         .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(parentIds))
@@ -54,13 +54,13 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   @Override
   public void update(Access access, UUID id, ProgramSequenceBindingMeme entity) throws CoreException {
     entity.validate();
-    requireTopLevel(access);
+    requireArtist(access);
     executeUpdate(PROGRAM_SEQUENCE_BINDING_MEME, id, entity);
   }
 
   @Override
   public void destroy(Access access, UUID id) throws CoreException {
-    requireLibrary(access);
+    requireArtist(access);
     dbProvider.getDSL().deleteFrom(PROGRAM_SEQUENCE_BINDING_MEME)
       .where(PROGRAM_SEQUENCE_BINDING_MEME.ID.eq(id))
       .execute();
