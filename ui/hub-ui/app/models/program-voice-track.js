@@ -6,7 +6,7 @@ export default Model.extend({
   name: attr('string'),
   events: hasMany('event'),
   program: belongsTo('program'),
-  voice: belongsTo('program-voice'),
+  programVoice: belongsTo('program-voice'),
 
   title: computed('name', function () {
     return this.name;

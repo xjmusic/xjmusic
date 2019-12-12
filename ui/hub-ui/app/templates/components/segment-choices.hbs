@@ -3,7 +3,7 @@
 {{yield}}
 
 <div class="segment-choices">
-  {{#each model.choices as |choice|}}
+  {{#each orderedChoices as |choice|}}
     {{#if choice.program.type}}
       <div class="choice">
         ({{choice.type}})
@@ -14,14 +14,14 @@
           {{#link-to 'go.program' choice.program.id }}{{choice.program.name}}{{/link-to}}
         {{/if}}
         T{{choice.transpose}}
-        {{#each choice.arrangements as |arrangement|}}
+        {{#each choice.segmentChoiceArrangements as |arrangement|}}
           <div class="arrangement">
             {{#if arrangement.instrument.type}}
               {{#link-to 'go.program' choice.program.id }}{{arrangement.programVoice.name}}{{/link-to}}
               &rarr;
               {{#link-to 'go.instrument' arrangement.instrument.id }}{{arrangement.instrument.name}}{{/link-to}}
-            {{/if}}
-          </div>
+            </div>
+          {{/if}}
         {{/each}}
       </div>
     {{/if}}

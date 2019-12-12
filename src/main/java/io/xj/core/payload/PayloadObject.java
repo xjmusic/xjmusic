@@ -235,8 +235,19 @@ public class PayloadObject {
       if (search.isPresent()
         && search.get().getType().equals(getType())
         && search.get().getId().equals(getId())) {
-        add(hasMany, rel);
+        add(hasMany, rel.toMinimal());
       }
     }
+  }
+
+  /**
+   Strip this payload object down to only the type and id
+
+   @return minimal payload object
+   */
+  public PayloadObject toMinimal() {
+    return new PayloadObject()
+      .setType(type)
+      .setId(id);
   }
 }

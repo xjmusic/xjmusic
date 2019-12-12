@@ -5,7 +5,7 @@ export default Model.extend({
   type: attr('string'),
   name: attr('string'),
   segmentChoiceArrangements: hasMany('segment-choice-arrangement'),
-  sequencePatterns: hasMany('program-sequence-pattern'),
+  programSequencePatterns: hasMany('program-sequence-pattern'),
   program: belongsTo('program'),
-  tracks: hasMany('program-voice-track'),
+  programVoiceTracks: hasMany('program-voice-track'),
 });

@@ -6,7 +6,7 @@ export default Model.extend({
   name: attr('string'),
   position: attr('number'),
   instrument: belongsTo('instrument'),
-  audio: belongsTo('instrument-audio'),
+  instrumentAudio: belongsTo('instrument-audio'),
 
   title: computed('name', 'position', function () {
     return `${this.name}@${this.position}`;

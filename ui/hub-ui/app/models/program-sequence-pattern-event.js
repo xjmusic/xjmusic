@@ -7,8 +7,8 @@ export default Model.extend({
   note: attr('string'),
   position: attr('number'),
   velocity: attr('number'),
-  pattern: belongsTo('program-sequence-pattern'),
-  track: belongsTo('program-voice-track'),
+  programSequencePattern: belongsTo('program-sequence-pattern'),
+  programVoiceTrack: belongsTo('program-voice-track'),
 
   title: computed('note', 'position', function () {
     return `${this.note}@${this.position}`;

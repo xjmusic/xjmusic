@@ -9,6 +9,6 @@ export default Model.extend({
   tempo: attr('number'),
   pitch: attr('number'),
   instrument: belongsTo('instrument'),
-  events: hasMany('instrument-audio-event'),
-  chords: hasMany('instrument-audio-chord'),
+  instrumentAudioEvents: hasMany('instrument-audio-event'),
+  instrumentAudioChords: hasMany('instrument-audio-chord'),
 });

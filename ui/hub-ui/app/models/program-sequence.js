@@ -9,9 +9,9 @@ export default Model.extend({
 
   library: belongsTo('library'),
   program: belongsTo('program'),
-  sequenceBindings: hasMany('program-sequence-binding'),
-  sequenceChords: hasMany('program-sequence-chord'),
-  voices: hasMany('program-voice'),
-  patterns: hasMany('program-sequence-pattern'),
-  choices: hasMany('segment-choice'),
+  programSequenceBindings: hasMany('program-sequence-binding'),
+  programSequenceChords: hasMany('program-sequence-chord'),
+  programVoices: hasMany('program-voice'),
+  programSequencePatterns: hasMany('program-sequence-pattern'),
+  segmentChoices: hasMany('segment-choice'),
 });

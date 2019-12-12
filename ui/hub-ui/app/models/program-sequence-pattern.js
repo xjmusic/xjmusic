@@ -7,10 +7,10 @@ export default Model.extend({
   type: attr('string'),
   name: attr('string'),
   total: attr('number'),
-  events: hasMany('event'),
-  voice: belongsTo('program-voice'),
+  programSequencePatternEvents: hasMany('program-sequence-pattern-event'),
   program: belongsTo('program'),
-  sequence: belongsTo('program-sequence'),
+  programSequence: belongsTo('program-sequence'),
+  programVoice: belongsTo('program-voice'),
 
   title: computed('name', 'offset', function () {
     let name = this.name;

@@ -5,7 +5,7 @@ import {computed} from '@ember/object';
 export default Model.extend({
   name: attr('string'),
   position: attr('number'),
-  sequence: belongsTo('program-sequence'),
+  programSequence: belongsTo('program-sequence'),
 
   title: computed('name', 'position', function () {
     return `${this.name}@${this.position}`;

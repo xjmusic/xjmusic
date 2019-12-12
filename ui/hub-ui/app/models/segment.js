@@ -16,10 +16,11 @@ export default Model.extend({
   waveformKey: attr('string'),
 
   chain: belongsTo('chain'),
-  messages: hasMany('segment-message'),
-  memes: hasMany('segment-meme'),
-  choices: hasMany('segment-choice'),
-  chords: hasMany('segment-chord'),
+  segmentMessages: hasMany('segment-message'),
+  segmentMemes: hasMany('segment-meme'),
+  segmentChoices: hasMany('segment-choice'),
+  segmentChoiceArrangements: hasMany('segment-choice-arrangement'),
+  segmentChords: hasMany('segment-chord'),
 
   title: computed('offset', function () {
     return `Segment@${this.offset}`;

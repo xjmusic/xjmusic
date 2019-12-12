@@ -9,8 +9,8 @@ export default Model.extend({
   user: belongsTo('user'),
   library: belongsTo('library'),
   instrumentMemes: hasMany('instrument-meme'),
-  audios: hasMany('instrument-audio'),
-  audioChords: hasMany('instrument-audio-chord'),
-  audioEvents: hasMany('instrument-audio-event'),
+  instrumentAudios: hasMany('instrument-audio'),
+  instrumentAudioChords: hasMany('instrument-audio-chord'),
+  instrumentAudioEvents: hasMany('instrument-audio-event'),
   segmentChoiceArrangements: hasMany('segment-arrangement'),
 });

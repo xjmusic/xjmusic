@@ -9,7 +9,7 @@ export default Model.extend({
   position: attr('number'),
   velocity: attr('number'),
   instrument: belongsTo('instrument'),
-  audio: belongsTo('instrument-audio'),
+  instrumentAudio: belongsTo('instrument-audio'),
 
   title: computed('note', 'name', 'position', function () {
     return `${this.note}(${this.name})@${this.position}`;

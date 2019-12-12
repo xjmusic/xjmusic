@@ -7,7 +7,7 @@ export default Model.extend({
   amplitude: attr('number'),
   pitch: attr('number'),
   name: attr('string'),
-  arrangement: belongsTo('segment-choice-arrangement'),
+  segmentChoiceArrangement: belongsTo('segment-choice-arrangement'),
   instrumentAudio: belongsTo('instrument-audio'),
   programSequencePatternEvent: belongsTo('program-sequence-pattern-event'),
   segment: belongsTo('segment'),

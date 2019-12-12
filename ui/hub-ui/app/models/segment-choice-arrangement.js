@@ -2,10 +2,10 @@
 import Model, {belongsTo} from '@ember-data/model';
 
 export default Model.extend({
-  choice: belongsTo('segment-choice'),
+  segmentChoice: belongsTo('segment-choice'),
   instrument: belongsTo('instrument'),
   segment: belongsTo('segment'),
-  voice: belongsTo('program-voice'),
+  programVoice: belongsTo('program-voice'),
 });
 
 

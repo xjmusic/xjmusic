@@ -62,6 +62,18 @@ public class PayloadObjectTest {
   }
 
   @Test
+  public void toMinimal() {
+    Account account1 = Account.create("Test Account");
+    subject = account1.toPayloadObject();
+
+    PayloadObject result = subject.toMinimal();
+
+    assertEquals(subject.getType(), result.getType());
+    assertEquals(subject.getId(), result.getId());
+    assertFalse(result.getAttributes().containsKey("name"));
+  }
+
+  @Test
   public void getAttributes_setAttributes() {
     Map<String, Object> attr = ImmutableMap.of(
       "kittens", "cute",

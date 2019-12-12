@@ -84,10 +84,10 @@ export default Route.extend({
       let programMap = {};
       let instrumentMap = {};
       segments.forEach(segment => {
-        segment.get('choices').forEach(choice => {
+        segment.get('segmentChoices').forEach(choice => {
           let program = choice.get("program");
           programMap[program.get('id"')] = program;
-          choice.get('arrangements').forEach(arrangement => {
+          choice.get('segmentChoiceArrangements').forEach(arrangement => {
             let instrument = arrangement.get("instrument");
             instrumentMap[instrument.get('id"')] = instrument;
           })
