@@ -9,7 +9,6 @@ import io.xj.core.dao.SegmentChoiceDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.entity.Entity;
 import io.xj.core.exception.CoreException;
-import io.xj.core.fabricator.SegmentRetrospective;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.model.ProgramType;
 import io.xj.core.model.Segment;
@@ -82,7 +81,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     }
 
     // fetch all sub entities of all segments and store the results in the corresponding entity cache
-    segmentDAO.readAllSubEntities(access, segments.getAll().stream().map(Entity::getId).collect(Collectors.toList()))
+    segmentDAO.readAllSubEntities(access, segments.getAll().stream().map(Entity::getId).collect(Collectors.toList()), true)
       .forEach(entity -> {
         switch (entity.getClass().getSimpleName()) {
           case "SegmentChoiceArrangementPick":

@@ -2,6 +2,7 @@
 
 package io.xj.core.payload;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.xj.core.entity.Entity;
@@ -47,9 +48,9 @@ public class PayloadObject {
    @return this PayloadObject (for chaining methods)
    */
   public PayloadObject add(String relationshipName, PayloadObject payloadObject) {
-    if (relationships.containsKey(relationshipName)) {
-      relationships.get(relationshipName).addToDataMany(payloadObject);
-    }
+    if (!relationships.containsKey(relationshipName))
+      relationships.put(relationshipName, new Payload().setDataReferences(ImmutableList.of()));
+    relationships.get(relationshipName).addToDataMany(payloadObject);
     return this;
   }
 
@@ -229,8 +230,7 @@ public class PayloadObject {
   public void addIfRelated(PayloadObject rel) {
     String hasMany = Text.toResourceHasManyFromType(rel.getType());
     String belongsTo = Text.toResourceBelongsToFromType(getType());
-    if (relationships.containsKey(hasMany)
-      && rel.getRelationships().containsKey(belongsTo)) {
+    if (rel.getRelationships().containsKey(belongsTo)) {
       Optional<PayloadObject> search = rel.getRelationships().get(belongsTo).getDataOne();
       if (search.isPresent()
         && search.get().getType().equals(getType())

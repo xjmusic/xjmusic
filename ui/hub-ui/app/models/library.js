@@ -2,9 +2,8 @@
 import Model, {attr, belongsTo, hasMany} from '@ember-data/model';
 
 export default Model.extend({
-  account: belongsTo({}),
   name: attr('string'),
-
+  account: belongsTo('account'),
   programs: hasMany('program'),
   instruments: hasMany('instrument'),
 });

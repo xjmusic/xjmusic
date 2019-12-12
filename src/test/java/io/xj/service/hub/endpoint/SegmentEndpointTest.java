@@ -82,7 +82,7 @@ public class SegmentEndpointTest {
     // segments memes
     SegmentMeme segment5meme = SegmentMeme.create(segment5, "apple");
     SegmentMeme segment6meme = SegmentMeme.create(segment6, "banana");
-    when(segmentDAO.readAllSubEntities(any(), eq(ImmutableList.of(segment5.getId(), segment6.getId()))))
+    when(segmentDAO.readAllSubEntities(any(), eq(ImmutableList.of(segment5.getId(), segment6.getId())), eq(false)))
       .thenReturn(ImmutableList.of(segment5meme, segment6meme));
 
     Response result = subject.readAll(crc, chain25.getId().toString(), null, null);

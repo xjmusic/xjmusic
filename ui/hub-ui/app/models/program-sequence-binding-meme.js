@@ -2,6 +2,6 @@
 import Model, {attr, belongsTo} from '@ember-data/model';
 
 export default Model.extend({
-  sequenceBinding: belongsTo({}),
   name: attr('string'),
+  sequenceBinding: belongsTo('program-sequence-binding'),
 });

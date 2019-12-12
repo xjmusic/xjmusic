@@ -248,16 +248,15 @@ public class App {
       log.info("Worker pool did shutdown OK");
     }
 
-    // shutdown SQL database connection pool
-    sqlDatabaseProvider.shutdown();
-    log.info("SQL database connection pool did shutdown OK");
-
     // send messages about successful shutdown
     sendPlatformMessage(MessageType.Debug, String.format(
       "%s (%s) did exit OK at %s",
       name, platformRelease, getBaseURI()
     ));
-    log.info("{} did stop", name);
+
+    // shutdown SQL database connection pool
+    sqlDatabaseProvider.shutdown();
+    log.info("SQL database connection pool did shutdown OK");
   }
 
   /**

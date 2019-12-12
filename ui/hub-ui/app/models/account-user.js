@@ -2,6 +2,6 @@
 import Model, {belongsTo} from '@ember-data/model';
 
 export default Model.extend({
-  account: belongsTo({}),
-  user: belongsTo({})
+  account: belongsTo('account'),
+  user: belongsTo('user')
 });

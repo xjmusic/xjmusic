@@ -127,15 +127,16 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public <N extends Entity> Collection<N> readAllSubEntities(Access access, Collection<UUID> segmentIds) throws CoreException {
+  public <N extends Entity> Collection<N> readAllSubEntities(Access access, Collection<UUID> segmentIds, boolean includePicks) throws CoreException {
     requireTopLevel(access);
     DSLContext db = dbProvider.getDSL();
     Collection<N> entities = Lists.newArrayList();
 
-    DAO.modelsFrom(SegmentChoiceArrangementPick.class, db.select(SEGMENT_CHOICE_ARRANGEMENT_PICK.fields())
-      .from(SEGMENT_CHOICE_ARRANGEMENT_PICK)
-      .where(SEGMENT_CHOICE_ARRANGEMENT_PICK.SEGMENT_ID.in(segmentIds))
-      .fetch()).forEach(e -> entities.add((N) e));
+    if (includePicks)
+      DAO.modelsFrom(SegmentChoiceArrangementPick.class, db.select(SEGMENT_CHOICE_ARRANGEMENT_PICK.fields())
+        .from(SEGMENT_CHOICE_ARRANGEMENT_PICK)
+        .where(SEGMENT_CHOICE_ARRANGEMENT_PICK.SEGMENT_ID.in(segmentIds))
+        .fetch()).forEach(e -> entities.add((N) e));
 
     DAO.modelsFrom(SegmentChoiceArrangement.class, db.select(SEGMENT_CHOICE_ARRANGEMENT.fields())
       .from(SEGMENT_CHOICE_ARRANGEMENT)

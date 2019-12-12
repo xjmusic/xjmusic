@@ -2,7 +2,7 @@
 import Model, {attr, belongsTo} from '@ember-data/model';
 
 export default Model.extend({
-  chain: belongsTo({}),
   type: attr('string'),
-  targetId: attr('string')
+  targetId: attr('string'),
+  chain: belongsTo('chain')
 });

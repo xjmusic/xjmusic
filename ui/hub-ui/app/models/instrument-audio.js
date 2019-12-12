@@ -2,13 +2,13 @@
 import Model, {attr, belongsTo, hasMany} from '@ember-data/model';
 
 export default Model.extend({
-  instrument: belongsTo({}),
   name: attr('string'),
   waveformKey: attr('string'),
   start: attr('number'),
   length: attr('number'),
   tempo: attr('number'),
   pitch: attr('number'),
-  audioEvents: hasMany('audio-event'),
-  audioChords: hasMany('audio-chord'),
+  instrument: belongsTo('instrument'),
+  events: hasMany('instrument-audio-event'),
+  chords: hasMany('instrument-audio-chord'),
 });

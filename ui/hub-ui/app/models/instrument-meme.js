@@ -2,6 +2,6 @@
 import Model, {attr, belongsTo} from '@ember-data/model';
 
 export default Model.extend({
-  instrument: belongsTo({}),
   name: attr('string'),
+  instrument: belongsTo('instrument'),
 });

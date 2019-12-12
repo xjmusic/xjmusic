@@ -552,10 +552,11 @@ public abstract class Entity {
     });
     getResourceHasMany().forEach(key -> {
       String type = Text.toResourceType(key);
-      obj.add(Text.toResourceHasMany(key),
-        new Payload().setDataReferences(hasMany.containsKey(type) ?
-          hasMany.get(type).stream().filter(r -> r.belongsTo(this)).collect(Collectors.toList()) :
-          ImmutableList.of()));
+      if (hasMany.containsKey(type) && 0 < hasMany.get(type).size())
+        obj.add(Text.toResourceHasMany(key),
+          new Payload().setDataReferences(hasMany.containsKey(type) ?
+            hasMany.get(type).stream().filter(r -> r.belongsTo(this)).collect(Collectors.toList()) :
+            ImmutableList.of()));
     });
 
     return obj;

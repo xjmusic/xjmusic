@@ -1,22 +1,27 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.payload;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import io.xj.core.model.Account;
+import io.xj.core.model.AccountUser;
 import io.xj.core.model.User;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 
 import static io.xj.core.testing.Assert.assertSameItems;
+import static io.xj.core.testing.AssertPayload.assertPayload;
+import static io.xj.core.testing.AssertPayloadObject.assertPayloadObject;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class PayloadObjectTest  {
+public class PayloadObjectTest {
   PayloadObject subject;
 
   @Before
@@ -26,11 +31,24 @@ public class PayloadObjectTest  {
 
   @Test
   public void add() {
-    Account account1= Account.create("Test Account");
+    Account account1 = Account.create("Test Account");
     subject.add("account", new Payload().setDataEntity(account1));
 
     assertTrue(subject.getRelationships().get("account").getDataOne().isPresent());
     assertEquals(account1.getId().toString(), subject.getRelationships().get("account").getDataOne().get().getId());
+  }
+
+  @Test
+  public void addIfRelated() throws IOException {
+    Account account1 = Account.create("Test Account");
+    User user1 = User.create("test", "test@test.com", "test.jpg");
+    AccountUser accountUser1 = AccountUser.create(account1, user1);
+    subject = account1.toPayloadObject();
+
+    subject.addIfRelated(accountUser1.toPayloadObject());
+
+    assertPayloadObject(subject)
+      .hasMany(AccountUser.class, ImmutableList.of(accountUser1));
   }
 
   @Test

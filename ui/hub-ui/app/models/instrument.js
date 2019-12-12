@@ -2,15 +2,15 @@
 import Model, {attr, belongsTo, hasMany} from '@ember-data/model';
 
 export default Model.extend({
-  user: belongsTo({}),
-  library: belongsTo({}),
   density: attr('number'),
   name: attr('string'),
   type: attr('string'),
   state: attr('string'),
+  user: belongsTo('user'),
+  library: belongsTo('library'),
   instrumentMemes: hasMany('instrument-meme'),
-  audios: hasMany('audio'),
-  audioChords: hasMany('audio-chord'),
-  audioEvents: hasMany('audio-event'),
-  arrangements: hasMany('arrangement'),
+  audios: hasMany('instrument-audio'),
+  audioChords: hasMany('instrument-audio-chord'),
+  audioEvents: hasMany('instrument-audio-event'),
+  segmentChoiceArrangements: hasMany('segment-arrangement'),
 });

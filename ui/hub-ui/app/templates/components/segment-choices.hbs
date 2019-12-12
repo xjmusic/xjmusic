@@ -8,8 +8,8 @@
       <div class="choice">
         ({{choice.type}})
         {{#if (or (eq "Macro" choice.type) (eq "Main" choice.type))}}
-          {{#link-to 'go.program' choice.program.id }}{{choice.sequenceBinding.sequence.name}}{{/link-to}}
-          @{{choice.sequenceBinding.offset}}
+          {{#link-to 'go.program' choice.program.id }}{{choice.program.name}}{{/link-to}}
+          @ {{choice.programSequenceBinding.offset}} ({{choice.programSequenceBinding.programSequence.name}})
         {{else}}
           {{#link-to 'go.program' choice.program.id }}{{choice.program.name}}{{/link-to}}
         {{/if}}
@@ -17,7 +17,7 @@
         {{#each choice.arrangements as |arrangement|}}
           <div class="arrangement">
             {{#if arrangement.instrument.type}}
-              {{#link-to 'go.program' choice.program.id }}{{arrangement.voice.name}}{{/link-to}}
+              {{#link-to 'go.program' choice.program.id }}{{arrangement.programVoice.name}}{{/link-to}}
               &rarr;
               {{#link-to 'go.instrument' arrangement.instrument.id }}{{arrangement.instrument.name}}{{/link-to}}
             {{/if}}

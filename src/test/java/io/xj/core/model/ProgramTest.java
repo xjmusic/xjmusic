@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
 import io.xj.core.payload.Payload;
 import io.xj.core.payload.PayloadObject;
+import io.xj.core.payload.PayloadObjectTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 import static io.xj.core.testing.Assert.assertSameItems;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class ProgramTest  {
 
@@ -82,6 +84,24 @@ public class ProgramTest  {
 
     assertEquals("Earth to Fire 69", subject.getName());
   }
+
+  @Test
+  public void toPayloadObject_noEmptyHasMany() {
+    Program subject = Program.create(User.create(), Library.create(), ProgramType.Main, ProgramState.Published, "Earth to Fire", "Ebm", 121.0, 0.6);
+
+    PayloadObject result = subject.toPayloadObject();
+
+    assertFalse(result.getRelationships().containsKey("programMemes" ));
+    assertFalse(result.getRelationships().containsKey("programSequenceChords" ));
+    assertFalse(result.getRelationships().containsKey("programVoices" ));
+    assertFalse(result.getRelationships().containsKey("programSequenceBindings" ));
+    assertFalse(result.getRelationships().containsKey("programSequenceBindingMemes" ));
+    assertFalse(result.getRelationships().containsKey("programSequencePatterns" ));
+    assertFalse(result.getRelationships().containsKey("programSequencePatternEvents" ));
+    assertFalse(result.getRelationships().containsKey("programVoiceTracks" ));
+    assertFalse(result.getRelationships().containsKey("programSequences" ));
+  }
+
 
   /*
 

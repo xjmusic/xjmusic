@@ -206,7 +206,7 @@ public class FabricatorImplTest {
       .thenReturn(ImmutableList.of(mainProgramSequence));
     when(programSequenceBindingDAO.readMany(any(), eq(ImmutableList.of(mainProgram.getId()))))
       .thenReturn(ImmutableList.of(mainProgramSequenceBinding));
-    when(segmentDAO.readAllSubEntities(any(), any()))
+    when(segmentDAO.readAllSubEntities(any(), any(), eq(true)))
       .thenReturn(ImmutableList.of());
     when(segmentDAO.readOneAtChainOffset(any(), eq(chain.getId()), eq(Long.valueOf(1))))
       .thenReturn(previousSegment);
@@ -275,7 +275,7 @@ public class FabricatorImplTest {
       .thenReturn(ImmutableList.of(mainProgramSequence));
     when(programSequenceBindingDAO.readMany(any(), eq(ImmutableList.of(mainProgram.getId()))))
       .thenReturn(ImmutableList.of(mainProgramSequenceBinding));
-    when(segmentDAO.readAllSubEntities(any(), any()))
+    when(segmentDAO.readAllSubEntities(any(), any(), eq(true)))
       .thenReturn(ImmutableList.of(mainChoice, rhythmChoice, rhythmArrangement, rhythmPick));
     when(segmentDAO.readOneAtChainOffset(any(), eq(chain.getId()), eq(Long.valueOf(1))))
       .thenReturn(previousSegment);

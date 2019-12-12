@@ -87,20 +87,22 @@ public class PayloadSerializerTest {
 
   @Test
   public void serializeOne_withHasMany() throws CoreException, IOException {
-    Payload payload = new Payload();
     Instant at = Instant.parse("2019-07-18T21:28:07Z");
     Chain chain = Chain.create(Account.create(), "Test Print #1", ChainType.Production, ChainState.Ready, at, null, "test_print");
     ChainConfig chainConfig1 = ChainConfig.create(chain, ChainConfigType.OutputContainer, "AAC");
     ChainConfig chainConfig2 = ChainConfig.create(chain, ChainConfigType.OutputChannels, "4");
     ChainBinding chainBinding1 = ChainBinding.create(chain, Library.create());
-    payload.setDataEntity(chain);
-    payload.addIncluded(chainConfig1.toPayloadObject());
-    payload.addIncluded(chainConfig2.toPayloadObject());
-    payload.addIncluded(chainBinding1.toPayloadObject());
+    Payload payload =
+      new Payload()
+        .setDataOne(chain.toPayloadObject())
+        .addIncluded(chainBinding1.toPayloadObject())
+        .addIncluded(chainConfig1.toPayloadObject())
+        .addIncluded(chainConfig2.toPayloadObject());
 
     String result = gsonProvider.gson().toJson(payload);
 
-    assertPayload(InternalResources.deserializePayload(result))
+    Payload resultPayload = InternalResources.deserializePayload(result);
+    assertPayload(resultPayload)
       .hasIncluded("chain-configs", ImmutableList.of(chainConfig1, chainConfig2))
       .hasDataOne("chains", chain.getId().toString())
       .hasMany(ChainConfig.class, ImmutableList.of(chainConfig1, chainConfig2))

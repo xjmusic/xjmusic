@@ -84,7 +84,8 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
         .where(PROGRAM.ID.eq(id))
         .fetchOne());
     else {
-      Record programRecord = dbProvider.getDSL().select(PROGRAM.fields())
+      Record programRecord = dbProvider.getDSL()
+        .select(PROGRAM.fields())
         .from(PROGRAM)
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(PROGRAM.ID.eq(id))

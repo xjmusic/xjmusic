@@ -2,6 +2,6 @@
 import Model, {attr, belongsTo} from '@ember-data/model';
 
 export default Model.extend({
-  segment: belongsTo({}),
   name: attr('string'),
+  segment: belongsTo('segment'),
 });

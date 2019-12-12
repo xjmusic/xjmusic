@@ -2,12 +2,12 @@
 import Model, {attr, belongsTo, hasMany} from '@ember-data/model';
 
 export default Model.extend({
-  segment: belongsTo({}),
-  sequenceBinding: belongsTo({}),
   transpose: attr('number'),
   type: attr('string'),
-  program: belongsTo({}),
-  arrangements: hasMany('arrangement'),
+  arrangements: hasMany('segment-choice-arrangement'),
+  program: belongsTo('program'),
+  programSequenceBinding: belongsTo('program-sequence-binding'),
+  segment: belongsTo('segment'),
 });
 
 

@@ -47,12 +47,13 @@ public interface SegmentDAO extends DAO<Segment> {
   /**
    Fetch all sub-entities records for many parent segments by id
 
-   @param access     control
-   @param segmentIds to fetch records for.
    @return collection of all sub entities of these parent segments, different classes that extend Entity
    @throws CoreException on failure
+   @param access     control
+   @param segmentIds to fetch records for.
+   @param includePicks whether to include the segment choice arrangement picks
    */
-  <N extends Entity> Collection<N> readAllSubEntities(Access access, Collection<UUID> segmentIds) throws CoreException;
+  <N extends Entity> Collection<N> readAllSubEntities(Access access, Collection<UUID> segmentIds, boolean includePicks) throws CoreException;
 
   /**
    Create all sub-entities for a given segment

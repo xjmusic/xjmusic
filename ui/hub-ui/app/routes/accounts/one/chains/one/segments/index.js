@@ -42,7 +42,6 @@ export default Route.extend({
    * @returns {*} hash
    */
   model: function () {
-    let self = this;
     let chain = this.modelFor('accounts.one.chains.one');
     let account = this.modelFor('accounts.one');
     return new EmberPromise((resolve, reject) => {
@@ -51,15 +50,18 @@ export default Route.extend({
           chainId: chain.get('id')
         })
         .catch((error) => {
-          get(self, 'display').error(error);
+          console.error(error);
+          get(this, 'display').error(error);
           reject(error);
-          self.transitionTo('accounts.one.chains.one', chain.get('id'));
+          this.transitionTo('accounts.one.chains.one', chain.get('id'));
         })
         .then(segments => {
-          self.findAllProgramsAndInstruments(segments)
+          this.findAllProgramsAndInstruments(segments)
             .catch((error) => {
+              console.error(error);
+              get(this, 'display').error(error);
               reject(error);
-              self.transitionTo('accounts.one.chains.one', chain.get('id'));
+              this.transitionTo('accounts.one.chains.one', chain.get('id'));
             })
             .then(() => {
               resolve(hash({

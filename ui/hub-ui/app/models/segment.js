@@ -5,7 +5,6 @@ import {computed} from '@ember/object';
 const ROW_HEIGHT_PIXELS_PER_BEAT = 9;
 
 export default Model.extend({
-  chain: belongsTo({}),
   offset: attr('number'),
   state: attr('string'),
   beginAt: attr('string'),
@@ -16,9 +15,10 @@ export default Model.extend({
   tempo: attr('number'),
   waveformKey: attr('string'),
 
+  chain: belongsTo('chain'),
   messages: hasMany('segment-message'),
   memes: hasMany('segment-meme'),
-  choices: hasMany('choice'),
+  choices: hasMany('segment-choice'),
   chords: hasMany('segment-chord'),
 
   title: computed('offset', function () {

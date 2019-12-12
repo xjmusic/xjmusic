@@ -86,7 +86,7 @@ public class SegmentEndpoint extends AppResource {
       // seek and add sub-entities to payload --
       // use internal access because we already cleared these segment ids from access control,
       // and there is no access object when reading chain by embed key
-      dao().readAllSubEntities(Access.internal(), DAO.idsFrom(segments))
+      dao().readAllSubEntities(Access.internal(), DAO.idsFrom(segments), false)
         .forEach(entity -> payload.addIncluded(entity.toPayloadObject()));
 
       // done

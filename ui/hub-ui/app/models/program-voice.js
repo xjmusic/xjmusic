@@ -2,9 +2,10 @@
 import Model, {attr, belongsTo, hasMany} from '@ember-data/model';
 
 export default Model.extend({
-  program: belongsTo({}),
   type: attr('string'),
   name: attr('string'),
-  arrangements: hasMany('arrangement'),
-  patterns: hasMany('pattern')
+  segmentChoiceArrangements: hasMany('segment-choice-arrangement'),
+  sequencePatterns: hasMany('program-sequence-pattern'),
+  program: belongsTo('program'),
+  tracks: hasMany('program-voice-track'),
 });

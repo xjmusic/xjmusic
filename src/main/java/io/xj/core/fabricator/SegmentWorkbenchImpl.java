@@ -11,7 +11,6 @@ import io.xj.core.dao.SegmentDAO;
 import io.xj.core.entity.Entity;
 import io.xj.core.entity.MessageType;
 import io.xj.core.exception.CoreException;
-import io.xj.core.fabricator.SegmentWorkbench;
 import io.xj.core.model.ProgramType;
 import io.xj.core.model.Segment;
 import io.xj.core.model.SegmentChoiceArrangement;
@@ -68,7 +67,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     segmentPicks = new EntityCache<>();
 
     // fetch all sub entities of all segments and store the results in the corresponding entity cache
-    segmentDAO.readAllSubEntities(access, ImmutableList.of(segment.getId()))
+    segmentDAO.readAllSubEntities(access, ImmutableList.of(segment.getId()), true)
       .forEach(entity -> {
         switch (entity.getClass().getSimpleName()) {
           case "SegmentChoiceArrangementPick":

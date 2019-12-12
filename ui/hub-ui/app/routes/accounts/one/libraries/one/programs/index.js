@@ -30,7 +30,7 @@ export default Route.extend({
 
     return new EmberPromise((resolve, reject) => {
       self.config.getConfig().then(function () {
-        self.store.findRecord('user', self.user_auth.userId).then(function (user) {
+        self.store.findRecord('user', self.auth.userId).then(function (user) {
             // resolves the user *after* closure
             let newProgram = self.store.createRecord('program', {
               user: user,

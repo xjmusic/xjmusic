@@ -5,12 +5,12 @@ import {computed} from '@ember/object';
 export default Model.extend({
   density: attr('number'),
   type: attr('string'),
-  program: belongsTo({}),
-  sequence: belongsTo({}),
-  voice: belongsTo({}),
   name: attr('string'),
   total: attr('number'),
   events: hasMany('event'),
+  voice: belongsTo('program-voice'),
+  program: belongsTo('program'),
+  sequence: belongsTo('program-sequence'),
 
   title: computed('name', 'offset', function () {
     let name = this.name;

@@ -2,6 +2,6 @@
 import Model, {attr, belongsTo} from '@ember-data/model';
 
 export default Model.extend({
-  program: belongsTo({}),
   name: attr('string'),
+  program: belongsTo('program'),
 });
