@@ -27,7 +27,7 @@ public class SegmentChordDAOImpl extends DAOImpl<SegmentChord> implements Segmen
     entity.validate();
     requireTopLevel(access);
     return DAO.modelFrom(SegmentChord.class,
-      executeCreate(SEGMENT_CHORD, entity));
+      executeCreate(dbProvider.getDSL(), SEGMENT_CHORD, entity));
 
   }
 
@@ -36,7 +36,7 @@ public class SegmentChordDAOImpl extends DAOImpl<SegmentChord> implements Segmen
     for (SegmentChord entity : entities) entity.validate();
     requireTopLevel(access);
 
-    executeCreateMany(SEGMENT_CHORD, entities);
+    executeCreateMany(dbProvider.getDSL(), SEGMENT_CHORD, entities);
 
   }
 
@@ -64,7 +64,7 @@ public class SegmentChordDAOImpl extends DAOImpl<SegmentChord> implements Segmen
   public void update(Access access, UUID id, SegmentChord entity) throws CoreException {
     entity.validate();
     requireTopLevel(access);
-    executeUpdate(SEGMENT_CHORD, id, entity);
+    executeUpdate(dbProvider.getDSL(), SEGMENT_CHORD, id, entity);
   }
 
   @Override

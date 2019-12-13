@@ -21,7 +21,7 @@ export default Route.extend({
    */
   model: function () {
     let library = this.modelFor('accounts.one.libraries.one');
-    let instrument = this.modelFor('accounts.one.libraries.one.instruments.editor');
+    let instrument = this.modelFor('accounts.one.libraries.one.instruments.one');
     return hash({
       library: library,
       instrument: instrument,
@@ -38,7 +38,7 @@ export default Route.extend({
      */
     quickPreview() {
       let self = this;
-      let instrument = this.modelFor('accounts.one.libraries.one.instruments.editor');
+      let instrument = this.modelFor('accounts.one.libraries.one.instruments.one');
       let account = this.modelFor('accounts.one');
       let name = 'Preview of "' + instrument.get('name') + '" Instrument';
       let chain = this.store.createRecord('chain', {
@@ -64,7 +64,7 @@ export default Route.extend({
    */
   addInstrument: function (chain) {
     let self = this;
-    let instrument = this.modelFor('accounts.one.libraries.one.instruments.editor');
+    let instrument = this.modelFor('accounts.one.libraries.one.instruments.one');
     let chainInstrument = this.store.createRecord('chain-instrument', {
       chain: chain,
       instrument: instrument,

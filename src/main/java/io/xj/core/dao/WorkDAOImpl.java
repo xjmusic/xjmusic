@@ -27,7 +27,7 @@ public class WorkDAOImpl extends DAOImpl<Work> implements WorkDAO {
     entity.validate();
     requireTopLevel(access);
     return DAO.modelFrom(Work.class,
-      executeCreate(WORK, entity));
+      executeCreate(dbProvider.getDSL(), WORK, entity));
 
   }
 
@@ -54,7 +54,7 @@ public class WorkDAOImpl extends DAOImpl<Work> implements WorkDAO {
   public void update(Access access, UUID id, Work entity) throws CoreException {
     entity.validate();
     requireTopLevel(access);
-    executeUpdate(WORK, id, entity);
+    executeUpdate(dbProvider.getDSL(), WORK, id, entity);
   }
 
   @Override

@@ -14,8 +14,8 @@ const AudioWaveformComponent = Component.extend({
   didRender() {
     let self = this;
     this.config.getConfig().then(
-      (config) => {
-        self.set('audioBaseUrl', config.audioBaseUrl);
+      () => {
+        self.set('audioBaseUrl', self.config.audioBaseUrl);
         //Create and initialize instance of wavesurfer
         self.set('wavesurfer', WaveSurfer.create(
           {

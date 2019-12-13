@@ -1,0 +1,47 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Upper Container -->
+{{#modal-dialog onClickOverlay='goBack'}}
+  <div class="form-horizontal container-fluid">
+
+    <!-- Owner (User) -->
+    <div class="form-group row">
+      <h3>Clone</h3>
+    </div>
+
+    <!-- Library (Parent) -->
+    <div class="form-group row">
+      <label class="col-sm-2 control-label">Library</label>
+      <div class="col-sm-10">
+        {{#power-select
+          placeholder="Select Library"
+          options=model.libraries
+          selected=model.instrument.library
+          searchField='name'
+          onChange=(action "setInstrumentLibrary")
+        as |library| }}
+          {{library.name}} (#{{library.id}})
+        {{/power-select}}
+      </div>
+    </div>
+
+    <!-- Name -->
+    <div class="form-group row">
+      <label class="col-sm-2 control-label">Name</label>
+      <div class="col-sm-10">
+        {{input type="text" value=model.instrument.name class="form-control" autofocus="autofocus"
+                placeholder="The name of the Instrument"}}
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <div class="offset-sm-2 col-sm-10">
+        <button type="submit" class="btn btn-primary" {{action 'cloneInstrument' model.instrument}}>Clone</button>
+      </div>
+    </div>
+  </div>
+
+{{/modal-dialog}}

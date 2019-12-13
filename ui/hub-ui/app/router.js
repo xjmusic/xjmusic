@@ -32,7 +32,36 @@ Router.map(function () {
           });
 
           this.route('instruments', function () {
-            this.route('editor', {path: '/:instrument_id'});
+            this.route('new');
+            this.route('one', {path: '/:instrument_id'}, function () {
+              this.route('edit');
+              this.route('clone');
+              this.route('destroy');
+              this.route('memes');
+              this.route('audios', function () {
+                this.route('new');
+                this.route('one', {path: '/:audio_id'}, function () {
+                  this.route('edit');
+                  this.route('clone');
+                  this.route('move');
+                  this.route('destroy');
+                  this.route('events', function () {
+                    this.route('new');
+                    this.route('one', {path: '/:event_id'}, function () {
+                      this.route('edit');
+                      this.route('destroy');
+                    });
+                  });
+                  this.route('chords', function () {
+                    this.route('new');
+                    this.route('one', {path: '/:chord_id'}, function () {
+                      this.route('edit');
+                      this.route('destroy');
+                    });
+                  });
+                });
+              });
+            });
           });
 
           this.route('digest');
@@ -74,5 +103,6 @@ Router.map(function () {
     }
   );
 });
+
 
 export default Router;

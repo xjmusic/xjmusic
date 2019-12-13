@@ -26,7 +26,7 @@ public class SegmentChoiceArrangementDAOImpl extends DAOImpl<SegmentChoiceArrang
     entity.validate();
     requireTopLevel(access);
     return DAO.modelFrom(SegmentChoiceArrangement.class,
-      executeCreate(SEGMENT_CHOICE_ARRANGEMENT, entity));
+      executeCreate(dbProvider.getDSL(), SEGMENT_CHOICE_ARRANGEMENT, entity));
 
   }
 
@@ -35,7 +35,7 @@ public class SegmentChoiceArrangementDAOImpl extends DAOImpl<SegmentChoiceArrang
     for (SegmentChoiceArrangement entity : entities) entity.validate();
     requireTopLevel(access);
 
-    executeCreateMany(SEGMENT_CHOICE_ARRANGEMENT, entities);
+    executeCreateMany(dbProvider.getDSL(), SEGMENT_CHOICE_ARRANGEMENT, entities);
   }
 
   @Override
@@ -54,7 +54,7 @@ public class SegmentChoiceArrangementDAOImpl extends DAOImpl<SegmentChoiceArrang
     requireUser(access);
     return DAO.modelsFrom(SegmentChoiceArrangement.class,
       dbProvider.getDSL().selectFrom(SEGMENT_CHOICE_ARRANGEMENT)
-        .where(SEGMENT_CHOICE_ARRANGEMENT.SEGMENT_ID.in(parentIds))
+        .where(SEGMENT_CHOICE_ARRANGEMENT.SEGMENT_CHOICE_ID.in(parentIds))
         .fetch());
   }
 
@@ -62,7 +62,7 @@ public class SegmentChoiceArrangementDAOImpl extends DAOImpl<SegmentChoiceArrang
   public void update(Access access, UUID id, SegmentChoiceArrangement entity) throws CoreException {
     entity.validate();
     requireTopLevel(access);
-    executeUpdate(SEGMENT_CHOICE_ARRANGEMENT, id, entity);
+    executeUpdate(dbProvider.getDSL(), SEGMENT_CHOICE_ARRANGEMENT, id, entity);
   }
 
   @Override

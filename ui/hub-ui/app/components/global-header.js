@@ -3,7 +3,7 @@
 import {inject as service} from '@ember/service';
 import Component from '@ember/component';
 import Moment from "moment";
-import Ember from 'ember';
+import $ from 'jquery';
 
 export default Component.extend({
   auth: service(),
@@ -49,14 +49,14 @@ export default Component.extend({
       .forEach(function (item) {
         item.addEventListener('click', function (event) {
           // check if window is small enough so dropdown is ofd
-          let dropdown = Ember.$(event.target).hasClass('dropdown-toggle');
+          let dropdown = $(event.target).hasClass('dropdown-toggle');
           if (dropdown) {
             // don't collapse on dropdown press
             return;
           }
-          let toggle = Ember.$(".navbar-toggler").is(":visible");
+          let toggle = $(".navbar-toggler").is(":visible");
           if (toggle) {
-            Ember.$(".navbar-collapse").collapse('hide');
+            $(".navbar-collapse").collapse('hide');
           }
         });
       });

@@ -27,7 +27,7 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
     entity.validate();
     requireArtist(access);
     return DAO.modelFrom(ProgramVoiceTrack.class,
-      executeCreate(PROGRAM_VOICE_TRACK, entity));
+      executeCreate(dbProvider.getDSL(), PROGRAM_VOICE_TRACK, entity));
   }
 
   @Override
@@ -46,7 +46,7 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
     requireArtist(access);
     return DAO.modelsFrom(ProgramVoiceTrack.class,
       dbProvider.getDSL().selectFrom(PROGRAM_VOICE_TRACK)
-        .where(PROGRAM_VOICE_TRACK.PROGRAM_ID.in(parentIds))
+        .where(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID.in(parentIds))
         .fetch());
   }
 
@@ -54,7 +54,7 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   public void update(Access access, UUID id, ProgramVoiceTrack entity) throws CoreException {
     entity.validate();
     requireArtist(access);
-    executeUpdate(PROGRAM_VOICE_TRACK, id, entity);
+    executeUpdate(dbProvider.getDSL(), PROGRAM_VOICE_TRACK, id, entity);
   }
 
   @Override

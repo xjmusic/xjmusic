@@ -29,7 +29,7 @@ public class SegmentChoiceDAOImpl extends DAOImpl<SegmentChoice> implements Segm
     entity.validate();
     requireTopLevel(access);
     return DAO.modelFrom(SegmentChoice.class,
-      executeCreate(SEGMENT_CHOICE, entity));
+      executeCreate(dbProvider.getDSL(), SEGMENT_CHOICE, entity));
 
   }
 
@@ -38,7 +38,7 @@ public class SegmentChoiceDAOImpl extends DAOImpl<SegmentChoice> implements Segm
     for (SegmentChoice entity : entities) entity.validate();
     requireTopLevel(access);
 
-    executeCreateMany(SEGMENT_CHOICE, entities);
+    executeCreateMany(dbProvider.getDSL(), SEGMENT_CHOICE, entities);
 
   }
 
@@ -76,7 +76,7 @@ public class SegmentChoiceDAOImpl extends DAOImpl<SegmentChoice> implements Segm
   public void update(Access access, UUID id, SegmentChoice entity) throws CoreException {
     entity.validate();
     requireTopLevel(access);
-    executeUpdate(SEGMENT_CHOICE, id, entity);
+    executeUpdate(dbProvider.getDSL(), SEGMENT_CHOICE, id, entity);
   }
 
   @Override

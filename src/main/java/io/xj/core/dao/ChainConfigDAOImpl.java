@@ -27,7 +27,7 @@ public class ChainConfigDAOImpl extends DAOImpl<ChainConfig> implements ChainCon
     entity.validate();
     requireEngineer(access);
     return DAO.modelFrom(ChainConfig.class,
-      executeCreate(CHAIN_CONFIG, entity));
+      executeCreate(dbProvider.getDSL(), CHAIN_CONFIG, entity));
 
   }
 
@@ -55,7 +55,7 @@ public class ChainConfigDAOImpl extends DAOImpl<ChainConfig> implements ChainCon
   public void update(Access access, UUID id, ChainConfig entity) throws CoreException {
     entity.validate();
     requireEngineer(access);
-    executeUpdate(CHAIN_CONFIG, id, entity);
+    executeUpdate(dbProvider.getDSL(), CHAIN_CONFIG, id, entity);
   }
 
   @Override

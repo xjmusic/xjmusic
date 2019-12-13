@@ -27,7 +27,7 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
     entity.validate();
     requireArtist(access);
     return DAO.modelFrom(ProgramSequenceBindingMeme.class,
-      executeCreate(PROGRAM_SEQUENCE_BINDING_MEME, entity));
+      executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE_BINDING_MEME, entity));
 
   }
 
@@ -47,7 +47,7 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
     requireArtist(access);
     return DAO.modelsFrom(ProgramSequenceBindingMeme.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
-        .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(parentIds))
+        .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID.in(parentIds))
         .fetch());
   }
 
@@ -55,7 +55,7 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   public void update(Access access, UUID id, ProgramSequenceBindingMeme entity) throws CoreException {
     entity.validate();
     requireArtist(access);
-    executeUpdate(PROGRAM_SEQUENCE_BINDING_MEME, id, entity);
+    executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE_BINDING_MEME, id, entity);
   }
 
   @Override

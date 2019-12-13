@@ -33,7 +33,7 @@ public class AccountUserDAOImpl extends DAOImpl<AccountUser> implements AccountU
       .fetchOne())
       throw new CoreException("Account User already exists!");
 
-    return DAO.modelFrom(AccountUser.class, executeCreate(ACCOUNT_USER, entity));
+    return DAO.modelFrom(AccountUser.class, executeCreate(dbProvider.getDSL(), ACCOUNT_USER, entity));
   }
 
   @Override

@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -41,17 +42,6 @@ public class ProgramVoiceTrackEndpoint extends AppResource {
   }
 
   /**
-   Get Bindings in one programVoiceTrack.
-
-   @return application/json response.
-   */
-  @GET
-  @RolesAllowed({UserRoleType.ENGINEER})
-  public Response readAll(@Context ContainerRequestContext crc, @QueryParam("programVoiceTrackId") String programVoiceTrackId) {
-    return readMany(crc, dao(), programVoiceTrackId);
-  }
-
-  /**
    Create new programVoiceTrack binding
 
    @param payload with which to of ProgramVoiceTrack Binding
@@ -59,7 +49,7 @@ public class ProgramVoiceTrackEndpoint extends AppResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON_API)
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST})
   public Response create(Payload payload, @Context ContainerRequestContext crc) {
     return create(crc, dao(), payload);
   }
@@ -71,9 +61,34 @@ public class ProgramVoiceTrackEndpoint extends AppResource {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST})
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
+  }
+
+  /**
+   Get Bindings in one programVoiceTrack.
+
+   @return application/json response.
+   */
+  @GET
+  @RolesAllowed({UserRoleType.ARTIST})
+  public Response readAll(@Context ContainerRequestContext crc, @QueryParam("programVoiceId") String programVoiceId) {
+    return readMany(crc, dao(), programVoiceId);
+  }
+
+  /**
+   Update one ProgramVoiceTrack
+
+   @param payload with which to update record.
+   @return Response
+   */
+  @PATCH
+  @Path("{id}")
+  @Consumes(MediaType.APPLICATION_JSON_API)
+  @RolesAllowed(UserRoleType.ARTIST)
+  public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+    return update(crc, dao(), id, payload);
   }
 
   /**
@@ -83,7 +98,7 @@ public class ProgramVoiceTrackEndpoint extends AppResource {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST})
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

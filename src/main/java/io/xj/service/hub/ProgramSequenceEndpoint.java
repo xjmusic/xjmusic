@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -41,17 +42,6 @@ public class ProgramSequenceEndpoint extends AppResource {
   }
 
   /**
-   Get Bindings in one programSequence.
-
-   @return application/json response.
-   */
-  @GET
-  @RolesAllowed({UserRoleType.ENGINEER})
-  public Response readAll(@Context ContainerRequestContext crc, @QueryParam("programSequenceId") String programSequenceId) {
-    return readMany(crc, dao(), programSequenceId);
-  }
-
-  /**
    Create new programSequence binding
 
    @param payload with which to of ProgramSequence Binding
@@ -59,7 +49,7 @@ public class ProgramSequenceEndpoint extends AppResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON_API)
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST})
   public Response create(Payload payload, @Context ContainerRequestContext crc) {
     return create(crc, dao(), payload);
   }
@@ -71,9 +61,34 @@ public class ProgramSequenceEndpoint extends AppResource {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST})
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
+  }
+
+  /**
+   Get Bindings in one programSequence.
+
+   @return application/json response.
+   */
+  @GET
+  @RolesAllowed({UserRoleType.ARTIST})
+  public Response readAll(@Context ContainerRequestContext crc, @QueryParam("programId") String programId) {
+    return readMany(crc, dao(), programId);
+  }
+
+  /**
+   Update one ProgramSequence
+
+   @param payload with which to update record.
+   @return Response
+   */
+  @PATCH
+  @Path("{id}")
+  @Consumes(MediaType.APPLICATION_JSON_API)
+  @RolesAllowed(UserRoleType.ARTIST)
+  public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+    return update(crc, dao(), id, payload);
   }
 
   /**
@@ -83,7 +98,7 @@ public class ProgramSequenceEndpoint extends AppResource {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST})
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

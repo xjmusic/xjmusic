@@ -14,7 +14,7 @@ export default Route.extend({
 
   /**
    * Model is a promise because it depends on promised configs
-   * @returns {Ember.RSVP.Promise}
+   * @returns {Promise}
    */
   model() {
     let self = this;

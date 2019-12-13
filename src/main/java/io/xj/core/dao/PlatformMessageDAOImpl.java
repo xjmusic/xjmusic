@@ -33,7 +33,7 @@ public class PlatformMessageDAOImpl extends DAOImpl<PlatformMessage> implements 
 
     entity.validate();
 
-    return DAO.modelFrom(PlatformMessage.class, executeCreate(PLATFORM_MESSAGE, entity));
+    return DAO.modelFrom(PlatformMessage.class, executeCreate(dbProvider.getDSL(), PLATFORM_MESSAGE, entity));
   }
 
   @Override

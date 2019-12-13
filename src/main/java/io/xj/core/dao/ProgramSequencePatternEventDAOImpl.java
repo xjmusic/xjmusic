@@ -27,7 +27,7 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
     entity.validate();
     requireArtist(access);
     return DAO.modelFrom(ProgramSequencePatternEvent.class,
-      executeCreate(PROGRAM_SEQUENCE_PATTERN_EVENT, entity));
+      executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, entity));
 
   }
 
@@ -47,7 +47,7 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
     requireArtist(access);
     return DAO.modelsFrom(ProgramSequencePatternEvent.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
-        .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.in(parentIds))
+        .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID.in(parentIds))
         .fetch());
   }
 
@@ -55,7 +55,7 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
   public void update(Access access, UUID id, ProgramSequencePatternEvent entity) throws CoreException {
     entity.validate();
     requireArtist(access);
-    executeUpdate(PROGRAM_SEQUENCE_PATTERN_EVENT, id, entity);
+    executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, id, entity);
   }
 
   @Override

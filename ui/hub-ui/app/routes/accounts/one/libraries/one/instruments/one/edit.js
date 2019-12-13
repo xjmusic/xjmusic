@@ -1,4 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+import {get} from '@ember/object';
 
 import {Promise as EmberPromise} from 'rsvp';
 import {inject as service} from '@ember/service';
@@ -21,10 +22,18 @@ export default Route.extend({
    */
   model() {
     return new EmberPromise((resolve, reject) => {
-      let self = this;
       this.config.getConfig().then(
         () => {
-          resolve(self.resolvedModel());
+          let auth = this.get('auth');
+          if (auth.isArtist || auth.isAdmin) {
+            let library = this.modelFor('accounts.one.libraries.one');
+            let instrument = this.modelFor('accounts.one.libraries.one.instruments.one');
+            instrument.set('library', library);
+            resolve(instrument);
+
+          } else {
+            this.transitionTo('accounts.one.libraries.one.instruments');
+          }
         },
         (error) => {
           reject('Could not instantiate Instrument model', error);
@@ -33,21 +42,6 @@ export default Route.extend({
     });
   },
 
-  /**
-   * Resolved (with configs) model
-   * @returns {*}
-   */
-  resolvedModel() {
-    let auth = this.auth;
-    if (auth.isArtist || auth.isAdmin) {
-      let library = this.modelFor('accounts.one.libraries.one');
-      let instrument = this.modelFor('accounts.one.libraries.one.instruments.editor');
-      instrument.set('library', library);
-      return instrument;
-    } else {
-      this.transitionTo('accounts.one.libraries.one.instruments');
-    }
-  },
 
   /**
    * Route actions
@@ -57,11 +51,11 @@ export default Route.extend({
     saveInstrument(model) {
       model.save().then(
         () => {
-          this.display.success('Updated instrument.');
+          get(this, 'display').success('Updated instrument.');
           history.back();
         },
         (error) => {
-          this.display.error(error);
+          get(this, 'display').error(error);
         });
     },
 

@@ -27,7 +27,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
     entity.validate();
     requireArtist(access);
     return DAO.modelFrom(InstrumentMeme.class,
-      executeCreate(INSTRUMENT_MEME, entity));
+      executeCreate(dbProvider.getDSL(), INSTRUMENT_MEME, entity));
 
   }
 
@@ -55,7 +55,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   public void update(Access access, UUID id, InstrumentMeme entity) throws CoreException {
     entity.validate();
     requireArtist(access);
-    executeUpdate(INSTRUMENT_MEME, id, entity);
+    executeUpdate(dbProvider.getDSL(), INSTRUMENT_MEME, id, entity);
   }
 
   @Override

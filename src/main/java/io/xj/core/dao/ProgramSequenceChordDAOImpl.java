@@ -27,7 +27,7 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
     entity.validate();
     requireArtist(access);
     return DAO.modelFrom(ProgramSequenceChord.class,
-      executeCreate(PROGRAM_SEQUENCE_CHORD, entity));
+      executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE_CHORD, entity));
 
   }
 
@@ -47,7 +47,7 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
     requireArtist(access);
     return DAO.modelsFrom(ProgramSequenceChord.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD)
-        .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.in(parentIds))
+        .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID.in(parentIds))
         .fetch());
   }
 
@@ -55,7 +55,7 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   public void update(Access access, UUID id, ProgramSequenceChord entity) throws CoreException {
     entity.validate();
     requireArtist(access);
-    executeUpdate(PROGRAM_SEQUENCE_CHORD, id, entity);
+    executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE_CHORD, id, entity);
   }
 
   @Override

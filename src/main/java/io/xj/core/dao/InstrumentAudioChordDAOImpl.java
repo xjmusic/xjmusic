@@ -27,7 +27,7 @@ public class InstrumentAudioChordDAOImpl extends DAOImpl<InstrumentAudioChord> i
     entity.validate();
     requireArtist(access);
     return DAO.modelFrom(InstrumentAudioChord.class,
-      executeCreate(INSTRUMENT_AUDIO_CHORD, entity));
+      executeCreate(dbProvider.getDSL(), INSTRUMENT_AUDIO_CHORD, entity));
 
   }
 
@@ -47,7 +47,7 @@ public class InstrumentAudioChordDAOImpl extends DAOImpl<InstrumentAudioChord> i
     requireArtist(access);
     return DAO.modelsFrom(InstrumentAudioChord.class,
       dbProvider.getDSL().selectFrom(INSTRUMENT_AUDIO_CHORD)
-        .where(INSTRUMENT_AUDIO_CHORD.INSTRUMENT_ID.in(parentIds))
+        .where(INSTRUMENT_AUDIO_CHORD.INSTRUMENT_AUDIO_ID.in(parentIds))
         .fetch());
   }
 
@@ -55,7 +55,7 @@ public class InstrumentAudioChordDAOImpl extends DAOImpl<InstrumentAudioChord> i
   public void update(Access access, UUID id, InstrumentAudioChord entity) throws CoreException {
     entity.validate();
     requireArtist(access);
-    executeUpdate(INSTRUMENT_AUDIO_CHORD, id, entity);
+    executeUpdate(dbProvider.getDSL(), INSTRUMENT_AUDIO_CHORD, id, entity);
   }
 
   @Override

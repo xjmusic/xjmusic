@@ -8,8 +8,7 @@ import io.xj.core.CoreModule;
 import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
 import io.xj.core.app.AppConfiguration;
-import io.xj.core.dao.SegmentChoiceArrangementDAO;
-import io.xj.core.dao.SegmentChoiceArrangementPickDAO;
+import io.xj.core.dao.DAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.fabricator.Fabricator;
@@ -44,6 +43,8 @@ import org.junit.rules.ExpectedException;
 import java.time.Instant;
 import java.util.Collection;
 
+import static io.xj.core.Tables.SEGMENT_CHOICE_ARRANGEMENT;
+import static io.xj.core.Tables.SEGMENT_CHOICE_ARRANGEMENT_PICK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -101,11 +102,20 @@ public class CraftRhythmProgramVoiceContinueIT {
     craftFactory.rhythm(fabricator).doWork();
 
     Segment result = injector.getInstance(SegmentDAO.class).readOne(Access.internal(), fake.segment4.getId());
-    assertTrue(0 < injector.getInstance(SegmentChoiceArrangementDAO.class).readMany(Access.internal(), ImmutableList.of(result.getId())).size());
+    assertTrue(0 < test.getDSL()
+      .selectCount().from(SEGMENT_CHOICE_ARRANGEMENT)
+      .where(SEGMENT_CHOICE_ARRANGEMENT.SEGMENT_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
     // test vector for [#154014731] persist Audio pick in memory
     int pickedKick = 0;
     int pickedSnare = 0;
-    Collection<SegmentChoiceArrangementPick> picks = injector.getInstance(SegmentChoiceArrangementPickDAO.class).readMany(Access.internal(), ImmutableList.of(result.getId()));
+    Collection<SegmentChoiceArrangementPick> picks = DAO.modelsFrom(
+      SegmentChoiceArrangementPick.class,
+      test.getDSL()
+        .selectFrom(SEGMENT_CHOICE_ARRANGEMENT_PICK)
+        .where(SEGMENT_CHOICE_ARRANGEMENT_PICK.SEGMENT_ID.eq(result.getId()))
+        .fetch());
+
     for (SegmentChoiceArrangementPick pick : picks) {
       if (pick.getInstrumentAudioId().equals(fake.audioKick.getId()))
         pickedKick++;

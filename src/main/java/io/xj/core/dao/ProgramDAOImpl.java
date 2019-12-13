@@ -53,7 +53,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   public Program create(Access access, Program entity) throws CoreException {
     entity.validate();
     requireArtist(access);
-    return DAO.modelFrom(Program.class, executeCreate(PROGRAM, entity));
+    return DAO.modelFrom(Program.class, executeCreate(dbProvider.getDSL(), PROGRAM, entity));
   }
 
   @Override
@@ -160,7 +160,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   public void update(Access access, UUID id, Program entity) throws CoreException {
     entity.validate();
     requireArtist(access);
-    executeUpdate(PROGRAM, id, entity);
+    executeUpdate(dbProvider.getDSL(), PROGRAM, id, entity);
 
   }
 
@@ -232,7 +232,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     Program program = readOne(access, id);
     program.setStateEnum(ProgramState.Erase);
 
-    executeUpdate(PROGRAM, id, program);
+    executeUpdate(dbProvider.getDSL(), PROGRAM, id, program);
   }
 
   @Override

@@ -43,7 +43,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
     // This entity's parent is a Library
     requireArtist(access);
 
-    return DAO.modelFrom(Instrument.class, executeCreate(INSTRUMENT, entity));
+    return DAO.modelFrom(Instrument.class, executeCreate(dbProvider.getDSL(), INSTRUMENT, entity));
   }
 
   @Override
@@ -200,7 +200,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
     entity.setId(id); // prevent changing id
     requireArtist(access);
 
-    executeUpdate(INSTRUMENT, id, entity);
+    executeUpdate(dbProvider.getDSL(), INSTRUMENT, id, entity);
   }
 
 

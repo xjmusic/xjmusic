@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class DAOImpl<E extends Entity> implements DAO<E> {
+abstract class DAOImpl<E extends Entity> implements DAO<E> {
   private static final Logger log = LoggerFactory.getLogger(DAOImpl.class);
   protected SQLDatabaseProvider dbProvider;
 
@@ -32,23 +32,22 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param obj to ingest for non-nullness
    @return true if non-null
    */
-  public static boolean isNonNull(Object obj) {
+  protected static boolean isNonNull(Object obj) {
     return Objects.nonNull(obj) &&
       !Objects.equals("null", String.valueOf(obj));
   }
-
 
 
   /**
    Execute a database CREATE operation
 
    @param <R>    record type dynamic
+   @param db     DSL context
    @param table  to of entity in
    @param entity to of
    @return record
    */
-  public <R extends UpdatableRecord<R>> R executeCreate(Table<R> table, E entity) throws CoreException {
-    DSLContext db = dbProvider.getDSL();
+  protected <R extends UpdatableRecord<R>> R executeCreate(DSLContext db, Table<R> table, E entity) throws CoreException {
     R record = db.newRecord(table);
     DAO.setAll(record, entity);
 
@@ -63,12 +62,11 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
   }
 
   /**
-   Execute a database UPDATE operation@param <R>        record type dynamic@param table      to update
+   Execute a database UPDATE operation@param <R>        record type dynamic@param table      to update@param db
 
    @param id of record to update
    */
-  public <R extends UpdatableRecord<R>> void executeUpdate(Table<R> table, UUID id, E entity) throws CoreException {
-    DSLContext db = dbProvider.getDSL();
+  protected <R extends UpdatableRecord<R>> void executeUpdate(DSLContext db, Table<R> table, UUID id, E entity) throws CoreException {
     R record = db.newRecord(table);
     DAO.setAll(record, entity);
     DAO.set(record, "id", id);
@@ -85,7 +83,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @throws CoreException if result set is not empty.
    @throws CoreException if something goes wrong.
    */
-  public <R extends Record> void requireNotExists(String name, Collection<R> result) throws CoreException {
+  protected <R extends Record> void requireNotExists(String name, Collection<R> result) throws CoreException {
     if (isNonNull(result) && !result.isEmpty()) {
       throw new CoreException("Found" + " " + name);
     }
@@ -99,7 +97,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @throws CoreException if result set is not empty.
    @throws CoreException if something goes wrong.
    */
-  public void requireNotExists(String name, int count) throws CoreException {
+  protected void requireNotExists(String name, int count) throws CoreException {
     if (0 < count) {
       throw new CoreException("Found" + " " + name);
     }
@@ -112,7 +110,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param record to require existence of
    @throws CoreException if not isNonNull
    */
-  public <R extends Record> void requireExists(String name, R record) throws CoreException {
+  protected <R extends Record> void requireExists(String name, R record) throws CoreException {
     require(name, "does not exist", isNonNull(record));
   }
 
@@ -123,7 +121,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param entity to require existence of
    @throws CoreException if not isNonNull
    */
-  public void requireExists(String name, E entity) throws CoreException {
+  protected void requireExists(String name, E entity) throws CoreException {
     require(name, "does not exist", isNonNull(entity));
   }
 
@@ -134,7 +132,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param count to require existence of
    @throws CoreException if not isNonNull
    */
-  public void requireExists(String name, int count) throws CoreException {
+  protected void requireExists(String name, int count) throws CoreException {
     require(name, "does not exist", 0 < count);
   }
 
@@ -145,7 +143,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param accountId to check for access to
    @throws CoreException if not admin
    */
-  public void requireAccount(Access access, UUID accountId) throws CoreException {
+  protected void requireAccount(Access access, UUID accountId) throws CoreException {
     require("access to account #" + accountId, access.hasAccount(accountId));
   }
 
@@ -155,7 +153,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param access control
    @throws CoreException if not admin
    */
-  public void requireTopLevel(Access access) throws CoreException {
+  protected void requireTopLevel(Access access) throws CoreException {
     require("top-level access", access.isTopLevel());
   }
 
@@ -165,7 +163,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param access control
    @throws CoreException if not user
    */
-  public void requireUser(Access access) throws CoreException {
+  protected void requireUser(Access access) throws CoreException {
     if (!access.isTopLevel() && !access.isAllowed(UserRoleType.USER))
       throw new CoreException("No user access");
   }
@@ -176,7 +174,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param access control
    @throws CoreException if not engineer
    */
-  public void requireEngineer(Access access) throws CoreException {
+  protected void requireEngineer(Access access) throws CoreException {
     if (!access.isTopLevel() && !access.isAllowed(UserRoleType.ENGINEER))
       throw new CoreException("No engineer access");
   }
@@ -188,10 +186,10 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param access control
    @throws CoreException if does not have access
    */
-  public void requireArtist(Access access) throws CoreException {
+  protected void requireArtist(Access access) throws CoreException {
     // TODO require a specific set of library ids, and check for access to all those libraries
     if (!access.isTopLevel() && !access.isAllowed(UserRoleType.ARTIST))
-      throw new CoreException("No library access");
+      throw new CoreException("No artist access");
   }
 
   /**
@@ -200,7 +198,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param access control
    @throws CoreException if not admin
    */
-  public void requireRole(String message, Access access, UserRoleType... roles) throws CoreException {
+  protected void requireRole(String message, Access access, UserRoleType... roles) throws CoreException {
     require(message, access.isTopLevel() || access.isAllowed(roles));
   }
 
@@ -211,7 +209,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param mustBeTrue to require true
    @throws CoreException if not true
    */
-  public void require(String name, Boolean mustBeTrue) throws CoreException {
+  protected void require(String name, Boolean mustBeTrue) throws CoreException {
     require(name, "is required", mustBeTrue);
   }
 
@@ -223,21 +221,19 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param condition  to append
    @throws CoreException if not true
    */
-  public void require(String message, String condition, Boolean mustBeTrue) throws CoreException {
+  protected void require(String message, String condition, Boolean mustBeTrue) throws CoreException {
     if (!mustBeTrue) {
       throw new CoreException(message + " " + condition);
     }
   }
 
   /**
-   Execute a database CREATE operation@param <R>        record type dynamic
+   Execute a database CREATE operation@param <R>        record type dynamic@param db
 
    @param table    to of
    @param entities to batch insert
    */
-  protected <R extends UpdatableRecord<R>> void executeCreateMany(Table<R> table, Collection<E> entities) throws CoreException {
-    DSLContext db = dbProvider.getDSL();
-
+  protected <R extends UpdatableRecord<R>> void executeCreateMany(DSLContext db, Table<R> table, Collection<E> entities) throws CoreException {
     Collection<R> records = Lists.newArrayList();
     for (E entity : entities) {
       R record = db.newRecord(table);
@@ -279,17 +275,17 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
     /**
      Clone all records with a specified parent id to a new parent id,
      for each of the belongs-to relationships, if it belongs to a cloned id, replace the value with the cloned belongs-to id
-     and return a UUID -> UUID map of each original record to the newly cloned id record
+     and return a UUID -> UUID map of each original record to the newly cloned id record@param <R>           type of record
 
+     @param db            DSL context
      @param table         in which to clone records (rows)
      @param idField       id column
      @param parentIdField parent id column
      @param fromParentId  to match records with
      @param toParentId    to of new records
-     @param <R>           type of record
      */
     public <R extends TableRecord<?>> void clone(
-      Table<R> table,
+      DSLContext db, Table<R> table,
       TableField<R, UUID> idField,
       Collection<TableField<R, UUID>> belongsToIdFields,
       TableField<R, UUID> parentIdField,
@@ -297,7 +293,6 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
       UUID toParentId
     ) throws CoreException {
       Collection<R> toInsert = Lists.newArrayList();
-      DSLContext db = dbProvider.getDSL();
       db.selectFrom(table)
         .where(parentIdField.eq(fromParentId))
         .fetch()

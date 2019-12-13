@@ -76,7 +76,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       .and(SEGMENT.OFFSET.eq(entity.getOffset()))
       .fetchOne(0, int.class));
 
-    return DAO.modelFrom(Segment.class, executeCreate(SEGMENT, entity));
+    return DAO.modelFrom(Segment.class, executeCreate(dbProvider.getDSL(), SEGMENT, entity));
   }
 
   @Override

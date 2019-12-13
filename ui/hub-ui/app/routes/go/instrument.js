@@ -18,7 +18,7 @@ export default Route.extend({
         instrument.get('library').then((library) => {
           library.get('account').then((account) => {
             later(() => {
-              self.transitionTo('accounts.one.libraries.one.instruments.editor', account, library, instrument);
+              self.transitionTo('accounts.one.libraries.one.instruments.one', account, library, instrument);
             }, 200); // just enough time to hit back twice if you need to actually go backwards through this flow
           });
         });

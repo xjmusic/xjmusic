@@ -31,7 +31,7 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
     requireTopLevel(access);
 
     return DAO.modelFrom(Account.class,
-      executeCreate(ACCOUNT, entity));
+      executeCreate(dbProvider.getDSL(), ACCOUNT, entity));
   }
 
   @Override
@@ -68,7 +68,7 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
     requireTopLevel(access);
     entity.validate();
 
-    executeUpdate(ACCOUNT, id, entity);
+    executeUpdate(dbProvider.getDSL(), ACCOUNT, id, entity);
   }
 
   @Override

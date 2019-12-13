@@ -27,7 +27,7 @@ public class SegmentMemeDAOImpl extends DAOImpl<SegmentMeme> implements SegmentM
     entity.validate();
     requireTopLevel(access);
     return DAO.modelFrom(SegmentMeme.class,
-      executeCreate(SEGMENT_MEME, entity));
+      executeCreate(dbProvider.getDSL(), SEGMENT_MEME, entity));
 
   }
 
@@ -36,7 +36,7 @@ public class SegmentMemeDAOImpl extends DAOImpl<SegmentMeme> implements SegmentM
     for (SegmentMeme entity : entities) entity.validate();
     requireTopLevel(access);
 
-    executeCreateMany(SEGMENT_MEME, entities);
+    executeCreateMany(dbProvider.getDSL(), SEGMENT_MEME, entities);
   }
 
   @Override
@@ -63,7 +63,7 @@ public class SegmentMemeDAOImpl extends DAOImpl<SegmentMeme> implements SegmentM
   public void update(Access access, UUID id, SegmentMeme entity) throws CoreException {
     entity.validate();
     requireTopLevel(access);
-    executeUpdate(SEGMENT_MEME, id, entity);
+    executeUpdate(dbProvider.getDSL(), SEGMENT_MEME, id, entity);
   }
 
   @Override

@@ -8,6 +8,7 @@ import io.xj.core.CoreModule;
 import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
 import io.xj.core.app.AppConfiguration;
+import io.xj.core.dao.DAO;
 import io.xj.core.dao.SegmentChoiceArrangementPickDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.fabricator.Fabricator;
@@ -42,6 +43,7 @@ import org.junit.rules.ExpectedException;
 import java.time.Instant;
 import java.util.Collection;
 
+import static io.xj.core.Tables.SEGMENT_CHOICE_ARRANGEMENT_PICK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -103,7 +105,12 @@ public class CraftRhythmProgramVoiceNextMainIT {
     // test vector for [#154014731] persist Audio pick in memory
     int pickedKick = 0;
     int pickedSnare = 0;
-    Collection<SegmentChoiceArrangementPick> picks = injector.getInstance(SegmentChoiceArrangementPickDAO.class).readMany(Access.internal(), ImmutableList.of(fake.segment4.getId()));
+    Collection<SegmentChoiceArrangementPick> picks = DAO.modelsFrom(
+      SegmentChoiceArrangementPick.class,
+      test.getDSL()
+        .selectFrom(SEGMENT_CHOICE_ARRANGEMENT_PICK)
+        .where(SEGMENT_CHOICE_ARRANGEMENT_PICK.SEGMENT_ID.eq(fake.segment4.getId()))
+        .fetch());
     for (SegmentChoiceArrangementPick pick : picks) {
       if (pick.getInstrumentAudioId().equals(fake.audioKick.getId()))
         pickedKick++;

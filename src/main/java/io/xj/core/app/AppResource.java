@@ -22,7 +22,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * A JAX-RS resource
+ A JAX-RS resource
  */
 public class AppResource {
   protected final Config config;
@@ -76,15 +76,15 @@ public class AppResource {
    @param <N> type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends Entity> Response readOne(ContainerRequestContext crc, DAO<N> dao, String id) {
+  public <N extends Entity> Response readOne(ContainerRequestContext crc, DAO<N> dao, Object id) {
     try {
-      Entity entity = dao.readOne(Access.fromContext(crc), UUID.fromString(id));
+      Entity entity = dao.readOne(Access.fromContext(crc), UUID.fromString(String.valueOf(id)));
       Payload payload = new Payload();
       payload.setDataEntity(entity);
       return response.ok(payload);
 
     } catch (CoreException ignored) {
-      return response.notFound(dao.newInstance().setId(UUID.fromString(id)));
+      return response.notFound(dao.newInstance().setId(UUID.fromString(String.valueOf(id))));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -100,9 +100,9 @@ public class AppResource {
    @param <N>       type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends Entity> Response readMany(ContainerRequestContext crc, DAO<N> dao, Collection<String> parentIds) {
+  public <N extends Entity, O> Response readMany(ContainerRequestContext crc, DAO<N> dao, Collection<O> parentIds) {
     try {
-      Collection<N> entities = dao.readMany(Access.fromContext(crc), parentIds.stream().map(UUID::fromString).collect(Collectors.toList()));
+      Collection<N> entities = dao.readMany(Access.fromContext(crc), parentIds.stream().map((Object name) -> UUID.fromString(String.valueOf(name))).collect(Collectors.toList()));
       Payload payload = new Payload();
       payload.setDataEntities(entities);
       return response.ok(payload);

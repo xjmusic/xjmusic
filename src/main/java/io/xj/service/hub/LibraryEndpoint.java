@@ -2,6 +2,7 @@
 package io.xj.service.hub;
 
 import com.google.inject.Injector;
+import io.xj.core.access.Access;
 import io.xj.core.app.AppResource;
 import io.xj.core.dao.LibraryDAO;
 import io.xj.core.model.UserRoleType;
@@ -21,15 +22,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.Objects;
 
 /**
  Libraries
  */
 @Path("libraries")
 public class LibraryEndpoint extends AppResource {
-
-  @QueryParam("accountId")
-  String accountId;
 
   private LibraryDAO dao;
 
@@ -52,8 +51,11 @@ public class LibraryEndpoint extends AppResource {
    */
   @GET
   @RolesAllowed(UserRoleType.USER)
-  public Response readAll(@Context ContainerRequestContext crc) {
-    return readMany(crc, dao(), accountId);
+  public Response readAll(@Context ContainerRequestContext crc, @QueryParam("accountId") String accountId) {
+    if (Objects.nonNull(accountId))
+      return readMany(crc, dao(), accountId);
+    else
+      return readMany(crc, dao(), Access.fromContext(crc).getAccountIds());
   }
 
   /**

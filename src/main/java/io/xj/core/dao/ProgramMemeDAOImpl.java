@@ -27,7 +27,7 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
     entity.validate();
     requireArtist(access);
     return DAO.modelFrom(ProgramMeme.class,
-      executeCreate(PROGRAM_MEME, entity));
+      executeCreate(dbProvider.getDSL(), PROGRAM_MEME, entity));
 
   }
 
@@ -55,7 +55,7 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
   public void update(Access access, UUID id, ProgramMeme entity) throws CoreException {
     entity.validate();
     requireArtist(access);
-    executeUpdate(PROGRAM_MEME, id, entity);
+    executeUpdate(dbProvider.getDSL(), PROGRAM_MEME, id, entity);
   }
 
   @Override

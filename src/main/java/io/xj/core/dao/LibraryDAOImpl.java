@@ -37,7 +37,7 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
           .where(ACCOUNT.ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
 
-    return DAO.modelFrom(Library.class, executeCreate(LIBRARY, entity));
+    return DAO.modelFrom(Library.class, executeCreate(dbProvider.getDSL(), LIBRARY, entity));
   }
 
   @Override
@@ -101,7 +101,7 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
           .fetchOne(0, int.class));
     }
 
-    executeUpdate(LIBRARY, id, entity);
+    executeUpdate(dbProvider.getDSL(), LIBRARY, id, entity);
   }
 
   @Override

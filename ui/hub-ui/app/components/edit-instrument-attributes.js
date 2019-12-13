@@ -51,7 +51,7 @@ const EditInstrumentAttributesComponent = Component.extend({
       let account = library.get("account");
       instrument.save().then(
         () => {
-          self.router.transitionTo("accounts.one.libraries.one.instruments.editor", account, library, instrument);
+          self.router.transitionTo("accounts.one.libraries.one.instruments.one", account, library, instrument);
           self.display.success('Saved ' + instrument.get('name') + '.');
           set(this, 'isEditModalVisible', false);
         },

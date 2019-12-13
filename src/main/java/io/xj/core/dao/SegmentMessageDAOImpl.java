@@ -27,7 +27,7 @@ public class SegmentMessageDAOImpl extends DAOImpl<SegmentMessage> implements Se
     entity.validate();
     requireTopLevel(access);
     return DAO.modelFrom(SegmentMessage.class,
-      executeCreate(SEGMENT_MESSAGE, entity));
+      executeCreate(dbProvider.getDSL(), SEGMENT_MESSAGE, entity));
 
   }
 
@@ -36,7 +36,7 @@ public class SegmentMessageDAOImpl extends DAOImpl<SegmentMessage> implements Se
     for (SegmentMessage entity : entities) entity.validate();
     requireTopLevel(access);
 
-    executeCreateMany(SEGMENT_MESSAGE, entities);
+    executeCreateMany(dbProvider.getDSL(), SEGMENT_MESSAGE, entities);
   }
 
   @Override
@@ -63,7 +63,7 @@ public class SegmentMessageDAOImpl extends DAOImpl<SegmentMessage> implements Se
   public void update(Access access, UUID id, SegmentMessage entity) throws CoreException {
     entity.validate();
     requireTopLevel(access);
-    executeUpdate(SEGMENT_MESSAGE, id, entity);
+    executeUpdate(dbProvider.getDSL(), SEGMENT_MESSAGE, id, entity);
   }
 
   @Override

@@ -8,7 +8,7 @@ import io.xj.core.CoreModule;
 import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
 import io.xj.core.app.AppConfiguration;
-import io.xj.core.dao.SegmentChoiceArrangementDAO;
+import io.xj.core.dao.DAO;
 import io.xj.core.dao.SegmentChoiceArrangementPickDAO;
 import io.xj.core.dao.SegmentChoiceDAO;
 import io.xj.core.exception.CoreException;
@@ -44,6 +44,8 @@ import org.junit.rules.ExpectedException;
 import java.time.Instant;
 import java.util.Collection;
 
+import static io.xj.core.Tables.SEGMENT_CHOICE_ARRANGEMENT;
+import static io.xj.core.Tables.SEGMENT_CHOICE_ARRANGEMENT_PICK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -103,12 +105,21 @@ public class CraftRhythmProgramVoiceNextMacroIT {
     // assert rhythm choice
     SegmentChoice rhythmChoice = SegmentChoice.findFirstOfType(injector.getInstance(SegmentChoiceDAO.class)
       .readMany(Access.internal(), ImmutableList.of(fake.segment4.getId())), ProgramType.Rhythm);
-    assertTrue(injector.getInstance(SegmentChoiceArrangementDAO.class).readMany(Access.internal(), ImmutableList.of(fake.segment4.getId()))
-      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(rhythmChoice.getId())));
+    assertTrue(
+      test.getDSL()
+        .selectFrom(SEGMENT_CHOICE_ARRANGEMENT)
+        .where(SEGMENT_CHOICE_ARRANGEMENT.SEGMENT_ID.eq(fake.segment4.getId()))
+        .fetch()
+        .stream().anyMatch(a -> a.getSegmentChoiceId().equals(rhythmChoice.getId())));
     // test vector for [#154014731] persist Audio pick in memory
     int pickedKick = 0;
     int pickedSnare = 0;
-    Collection<SegmentChoiceArrangementPick> picks = injector.getInstance(SegmentChoiceArrangementPickDAO.class).readMany(Access.internal(), ImmutableList.of(fake.segment4.getId()));
+    Collection<SegmentChoiceArrangementPick> picks = DAO.modelsFrom(
+      SegmentChoiceArrangementPick.class,
+      test.getDSL()
+        .selectFrom(SEGMENT_CHOICE_ARRANGEMENT_PICK)
+        .where(SEGMENT_CHOICE_ARRANGEMENT_PICK.SEGMENT_ID.eq(fake.segment4.getId()))
+        .fetch());
     for (SegmentChoiceArrangementPick pick : picks) {
       if (pick.getInstrumentAudioId().equals(fake.audioKick.getId()))
         pickedKick++;

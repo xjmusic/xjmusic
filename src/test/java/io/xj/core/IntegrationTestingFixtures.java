@@ -67,12 +67,16 @@ public class IntegrationTestingFixtures {
   public Chain chain2;
   public Chain chain3;
   public Chain chain5;
+  public FileInputStream audioStreamOne;
+  public FileInputStream audioStreamTwo;
   public Instrument instrument1;
   public Instrument instrument201;
   public Instrument instrument202;
   public Instrument instrument251;
   public Instrument instrument8;
   public Instrument instrument9;
+  public InstrumentAudio audio1;
+  public InstrumentAudio audio2;
   public InstrumentAudio audio8bleep;
   public InstrumentAudio audio8kick;
   public InstrumentAudio audio8snare;
@@ -80,6 +84,9 @@ public class IntegrationTestingFixtures {
   public InstrumentAudio audioHihat;
   public InstrumentAudio audioKick;
   public InstrumentAudio audioSnare;
+  public InstrumentAudioChord audioChord1;
+  public InstrumentAudioEvent audioEvent1;
+  public InstrumentAudioEvent audioEvent2;
   public Library library10000001;
   public Library library10000002;
   public Library library1;
@@ -129,8 +136,6 @@ public class IntegrationTestingFixtures {
   public User user4;
   public User user53;
   public User user5;
-  public FileInputStream audioStreamOne;
-  public FileInputStream audioStreamTwo;
 
   /**
    Create a new Integration Testing Fixtures instance by providing the integration test provider

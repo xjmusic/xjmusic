@@ -12,5 +12,5 @@ export default Model.extend({
   instrumentAudios: hasMany('instrument-audio'),
   instrumentAudioChords: hasMany('instrument-audio-chord'),
   instrumentAudioEvents: hasMany('instrument-audio-event'),
-  segmentChoiceArrangements: hasMany('segment-arrangement'),
+  segmentChoiceArrangements: hasMany('segment-choice-arrangement'),
 });

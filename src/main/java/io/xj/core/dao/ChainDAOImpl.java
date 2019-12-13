@@ -136,7 +136,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         break;
     }
 
-    return DAO.modelFrom(Chain.class, executeCreate(CHAIN, entity));
+    return DAO.modelFrom(Chain.class, executeCreate(dbProvider.getDSL(), CHAIN, entity));
   }
 
   @Override
@@ -477,8 +477,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     // clone all chain configs and bindings from prior chain to createdchain
     Cloner cloner = new Cloner();
-    cloner.clone(CHAIN_CONFIG, CHAIN_CONFIG.ID, ImmutableList.of(), CHAIN_CONFIG.CHAIN_ID, priorChainId, createdChain.getId());
-    cloner.clone(CHAIN_BINDING, CHAIN_BINDING.ID, ImmutableList.of(), CHAIN_BINDING.CHAIN_ID, priorChainId, createdChain.getId());
+    cloner.clone(dbProvider.getDSL(), CHAIN_CONFIG, CHAIN_CONFIG.ID, ImmutableList.of(), CHAIN_CONFIG.CHAIN_ID, priorChainId, createdChain.getId());
+    cloner.clone(dbProvider.getDSL(), CHAIN_BINDING, CHAIN_BINDING.ID, ImmutableList.of(), CHAIN_BINDING.CHAIN_ID, priorChainId, createdChain.getId());
 
     // update new chain into ready
     updateState(access, createdChain.getId(), ChainState.Ready);

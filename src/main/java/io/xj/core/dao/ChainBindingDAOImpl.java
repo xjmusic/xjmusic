@@ -27,7 +27,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
     entity.validate();
     requireEngineer(access);
     return DAO.modelFrom(ChainBinding.class,
-      executeCreate(CHAIN_BINDING, entity));
+      executeCreate(dbProvider.getDSL(), CHAIN_BINDING, entity));
 
   }
 
@@ -55,7 +55,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   public void update(Access access, UUID id, ChainBinding entity) throws CoreException {
     entity.validate();
     requireEngineer(access);
-    executeUpdate(CHAIN_BINDING, id, entity);
+    executeUpdate(dbProvider.getDSL(), CHAIN_BINDING, id, entity);
   }
 
   @Override

@@ -6,21 +6,6 @@ import {pluralize} from 'ember-inflector';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-const dontFetch = [
-  "audio",
-  "audio-chord",
-  "audio-event",
-  "instrument-meme",
-  "pattern",
-  "pattern-event",
-  "program-meme",
-  "sequence",
-  "sequence-binding",
-  "sequence-chord",
-  "sequence-meme",
-  "voice"
-];
-
 export default JSONAPIAdapter.extend({
 
   // root URL of API
@@ -56,7 +41,6 @@ export default JSONAPIAdapter.extend({
    * @returns {*}
    */
   urlForFindRecord(id, modelName, snapshot) {
-    if (dontFetch.includes(modelName)) console.warn("Front-end should not attempt to fetch", modelName);
 
     let url = this._super(...arguments);
     let query = get(snapshot, 'adapterOptions.query');

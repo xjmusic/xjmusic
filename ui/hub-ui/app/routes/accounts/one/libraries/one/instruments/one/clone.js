@@ -1,4 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+import {get} from '@ember/object';
 
 import {hash, Promise as EmberPromise} from 'rsvp';
 import {inject as service} from '@ember/service';
@@ -14,14 +15,24 @@ export default Route.extend({
 
   /**
    * Model is a promise because it depends on promised configs
-   * @returns {Ember.RSVP.Promise}
+   * @returns {Promise}
    */
   model() {
     return new EmberPromise((resolve, reject) => {
-      let self = this;
       this.config.getConfig().then(
         () => {
-          resolve(self.resolvedModel());
+          let fromInstrument = this.modelFor('accounts.one.libraries.one.instruments.one');
+          this.set('fromInstrumentId', fromInstrument.get('id'));
+          let instrument = this.store.createRecord('instrument', {
+            library: fromInstrument.get('library'),
+            name: fromInstrument.get('name')
+          });
+
+          resolve(hash({
+            libraries: this.store.query('library', {}),
+            instrument: instrument
+          }, 'libraries, instrument'));
+
         },
         (error) => {
           reject('Could not instantiate new Instrument', error);
@@ -30,23 +41,6 @@ export default Route.extend({
     });
   },
 
-  /**
-   * Resolved (with configs) model
-   * @returns {*} hash
-   */
-  resolvedModel() {
-    let fromInstrument = this.modelFor('accounts.one.libraries.one.instruments.editor');
-    this.set('fromInstrumentId', fromInstrument.get('id'));
-    let instrument = this.store.createRecord('instrument', {
-      library: fromInstrument.get('library'),
-      name: fromInstrument.get('name')
-    });
-
-    return hash({
-      libraries: this.store.query('library', {accountId: this.modelFor('accounts.one').get('id')}),
-      instrument: instrument
-    }, 'libraries, instrument');
-  },
 
   /**
    * Route Actions
@@ -60,7 +54,7 @@ export default Route.extend({
     cloneInstrument(model) {
       let library = model.get('library');
       let account = library.get('account');
-      let cloneInstrumentId = this.fromInstrumentId;
+      let cloneInstrumentId = this.get('fromInstrumentId');
 
       model.save({
         adapterOptions: {
@@ -70,11 +64,11 @@ export default Route.extend({
         }
       }).then(
         () => {
-          this.display.success('Cloned instrument ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments.editor', account, library, model);
+          get(this, 'display').success('Cloned instrument ' + model.get('name') + '.');
+          this.transitionTo('accounts.one.libraries.one.instruments.one', account, library, model);
         },
         (error) => {
-          this.display.error(error);
+          get(this, 'display').error(error);
         });
     },
 

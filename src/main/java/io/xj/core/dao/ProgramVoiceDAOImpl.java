@@ -27,7 +27,7 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
     entity.validate();
     requireArtist(access);
     return DAO.modelFrom(ProgramVoice.class,
-      executeCreate(PROGRAM_VOICE, entity));
+      executeCreate(dbProvider.getDSL(), PROGRAM_VOICE, entity));
   }
 
   @Override
@@ -54,7 +54,7 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
   public void update(Access access, UUID id, ProgramVoice entity) throws CoreException {
     entity.validate();
     requireArtist(access);
-    executeUpdate(PROGRAM_VOICE, id, entity);
+    executeUpdate(dbProvider.getDSL(), PROGRAM_VOICE, id, entity);
   }
 
   @Override

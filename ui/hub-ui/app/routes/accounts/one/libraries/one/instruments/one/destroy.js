@@ -17,7 +17,7 @@ export default Route.extend({
    * @returns {*|DS.Model}
    */
   model() {
-    return this.modelFor('accounts.one.libraries.one.instruments.editor');
+    return this.modelFor('accounts.one.libraries.one.instruments.one');
   },
 
   /**

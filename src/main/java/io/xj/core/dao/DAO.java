@@ -64,6 +64,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -418,10 +419,10 @@ public interface DAO<E extends Entity> {
    @param entities to get ids of
    @return ids
    */
-  static <N extends Entity> Collection<UUID> idsFrom(Collection<N> entities) {
+  static <N extends Entity> Set<UUID> idsFrom(Collection<N> entities) {
     return entities.stream()
       .map(Entity::getId)
-      .collect(Collectors.toList());
+      .collect(Collectors.toSet());
   }
 
   /**

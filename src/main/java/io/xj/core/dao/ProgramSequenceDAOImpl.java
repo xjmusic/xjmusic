@@ -27,7 +27,7 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
     entity.validate();
     requireArtist(access);
     return DAO.modelFrom(ProgramSequence.class,
-      executeCreate(PROGRAM_SEQUENCE, entity));
+      executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE, entity));
 
   }
 
@@ -55,7 +55,7 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
   public void update(Access access, UUID id, ProgramSequence entity) throws CoreException {
     entity.validate();
     requireArtist(access);
-    executeUpdate(PROGRAM_SEQUENCE, id, entity);
+    executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE, id, entity);
   }
 
   @Override
