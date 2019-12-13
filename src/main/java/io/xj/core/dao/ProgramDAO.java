@@ -54,7 +54,6 @@ public interface ProgramDAO extends DAO<Program> {
 
   /**
    Erase a specified Program if accessible.
-   [#154887174] ProgramErase job erase a Program and all its Patterns in the background, in order to keep the UI functioning at a reasonable speed.
 
    @param access control
    @param id     of specific program to erase.

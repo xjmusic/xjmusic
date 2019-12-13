@@ -253,9 +253,6 @@ public class WorkManagerImplTest {
     testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain24.getId() + "\"},\"args\":null}");
     testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain3382.getId() + "\"},\"args\":null}");
     testQueueData.add("{\"class\":\"ChainErase\",\"vars\":{\"targetId\":\"" + chain157.getId() + "\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"AudioErase\",\"vars\":{\"targetId\":\"" + chain157.getId() + "\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ProgramErase\",\"vars\":{\"targetId\":\"" + program2965.getId() + "\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"PatternErase\",\"vars\":{\"targetId\":\"" + programPattern587.getId() + "\"},\"args\":null}");
     when(redisConnection.zrange("xj:queue:xj_test", 0L, -1L)).thenReturn(testQueueData);
     // mock redis queue redisClient
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
@@ -310,9 +307,6 @@ public class WorkManagerImplTest {
     testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain24.getId() + "\"},\"args\":null}");
     testQueueData.add("{\"class\":\"ChainFabricate\",\"vars\":{\"targetId\":\"" + chain3382.getId() + "\"},\"args\":null}");
     testQueueData.add("{\"class\":\"ChainErase\",\"vars\":{\"targetId\":\"" + chain157.getId() + "\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"AudioErase\",\"vars\":{\"targetId\":\"" + chain157.getId() + "\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"ProgramErase\",\"vars\":{\"targetId\":\"" + program2965.getId() + "\"},\"args\":null}");
-    testQueueData.add("{\"class\":\"PatternErase\",\"vars\":{\"targetId\":\"" + programPattern587.getId() + "\"},\"args\":null}");
     when(redisConnection.zrange("xj:queue:xj_test", 0L, -1L)).thenReturn(testQueueData);
 
     // proof is in the assertions

@@ -48,14 +48,12 @@ public class InstrumentAudioEndpoint extends AppResource {
    */
   @Inject
   public InstrumentAudioEndpoint(
-    Injector injector,
-    InstrumentAudioEventDAO instrumentAudioEventDAO,
-    InstrumentAudioChordDAO instrumentAudioChordDAO
+    Injector injector
   ) {
     super(injector);
     dao = injector.getInstance(InstrumentAudioDAO.class);
-    this.instrumentAudioEventDAO = instrumentAudioEventDAO;
-    this.instrumentAudioChordDAO = instrumentAudioChordDAO;
+    this.instrumentAudioEventDAO = injector.getInstance(InstrumentAudioEventDAO.class);
+    this.instrumentAudioChordDAO = injector.getInstance(InstrumentAudioChordDAO.class);
   }
 
   /**

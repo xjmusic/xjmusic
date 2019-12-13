@@ -50,7 +50,7 @@
           {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events'
                      audioModel.instrument.library.account audioModel.instrument.library audioModel.instrument
                      audioModel}}Events{{/link-to}}
-          {{#each audioModel.events as |audioEvent|}}
+          {{#each audioModel.instrumentAudioEvents as |audioEvent|}}
             <p>{{audioEvent.title}}</p>
           {{/each}}
         </td>
@@ -58,7 +58,7 @@
           {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords'
                      audioModel.instrument.library.account audioModel.instrument.library audioModel.instrument
                      audioModel}}Chords{{/link-to}}
-          {{#each audioModel.chords as |audioChord|}}
+          {{#each audioModel.instrumentAudioChords as |audioChord|}}
             <p>{{audioChord.title}}</p>
           {{/each}}
         </td>
