@@ -6,10 +6,6 @@ export default Controller.extend({
   // Depends on application
   needs: ['application'],
 
-  actions: {
-    goBack: function () {
-      history.back();
-    }
-  }
+  actions: {}
 
 });

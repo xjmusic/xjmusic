@@ -4,7 +4,7 @@
 {{outlet}}
 
 <!-- Upper Container -->
-{{#modal-dialog onClickOverlay='goBack'}}
+{{#modal-dialog}}
   <div class="form-horizontal container-fluid">
 
     <!-- Owner (User) -->
@@ -43,5 +43,6 @@
       </div>
     </div>
   </div>
+  <button type="button" class="btn btn-default" {{action 'cancel' model}}>Cancel</button>
 
 {{/modal-dialog}}

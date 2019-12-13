@@ -40,6 +40,9 @@ export default Route.extend({
       }
     },
 
+    cancel() {
+      history.back();
+    },
   }
 
 });

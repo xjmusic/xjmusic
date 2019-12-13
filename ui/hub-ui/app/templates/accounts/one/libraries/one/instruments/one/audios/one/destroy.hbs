@@ -4,12 +4,13 @@
 {{outlet}}
 
 <!-- Upper Container -->
-{{#modal-dialog onClickOverlay='goBack'}}
+{{#modal-dialog}}
   <div class="form-horizontal container-fluid">
 
     <div class="form-group row">
       <div class="col-sm-10">
         <button type="submit" autofocus="autofocus" class="btn btn-danger" {{action 'destroy' model}}>Destroy {{model.name}}</button>
+        <button type="button" class="btn btn-default" {{action 'cancel' model}}>Cancel</button>
       </div>
     </div>
 

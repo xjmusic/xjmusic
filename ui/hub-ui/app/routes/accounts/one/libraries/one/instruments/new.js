@@ -80,7 +80,7 @@ export default Route.extend({
       }
     },
 
-    cancelCreateInstrument() {
+    cancel() {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");

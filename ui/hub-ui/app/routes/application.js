@@ -18,8 +18,5 @@ export default Route.extend({
     sessionChanged: function () {
       this.refresh();
     },
-    goBack: function () {
-      history.back();
-    }
   }
 });

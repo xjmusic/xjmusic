@@ -69,8 +69,11 @@ export default Route.extend({
           transition.abort();
         }
       }
-    }
+    },
 
+    cancel() {
+      history.back();
+    },
   }
 
 });
