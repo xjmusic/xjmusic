@@ -2,7 +2,6 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.Access;
-import io.xj.core.dao.DAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Chain;
 import io.xj.core.model.ChainState;
@@ -48,11 +47,10 @@ public interface ChainDAO extends DAO<Chain> {
    [INTERNAL USE ONLY]
    Build a template for the next segment in this Chain,
    or set the Chain state to COMPLETE we are past the end time
+
    @param chain                   to build segment for
    @param segmentBeginBefore      ahead to of Segment before end of previous Segment  @return array of chain Ids
    @param chainStopCompleteBefore behind to consider a chain complete
-
-
    */
   Optional<Segment> buildNextSegmentOrComplete(Access access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteBefore) throws CoreException;
 
@@ -65,19 +63,20 @@ public interface ChainDAO extends DAO<Chain> {
 
   /**
    [#160299309] Engineer wants a *revived* action for a live production chain, in case the chain has become stuck, in order to ensure the Chain remains in an operable state.
+   [#170273871] Revived chain should always start now
 
-   @param access      control
+   @param access       control
    @param priorChainId to revived
    @return newly createdrevived chain
    */
   Chain revive(Access access, UUID priorChainId) throws CoreException;
 
   /**
-
    [#158897383] Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
    and if found, *revive* it in order to ensure the Chain remains in an operable state.
+
+   @param access control
    @return collection of chains (if any) which were revived of stale chains.
-   @param access  control
    */
   Collection<Chain> checkAndReviveAll(Access access) throws CoreException;
 }

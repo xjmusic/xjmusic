@@ -807,6 +807,7 @@ public class ChainIT {
 
   /**
    [#160299309] Engineer wants a *revived* action for a live production chain, in case the chain has become stuck, in order to ensure the Chain remains in an operable state.
+   [#170273871] Revived chain should always start now
    */
   @Test
   public void revive() throws Exception {
@@ -819,6 +820,7 @@ public class ChainIT {
     Chain result = testDAO.revive(access, chain.getId());
 
     assertNotNull(result);
+    assertTrue(1000 > Instant.now().toEpochMilli() - result.getStartAt().toEpochMilli()); // [#170273871] Revived chain should always start now
     assertEquals("school", result.getName());
     assertEquals("jabberwocky", result.getEmbedKey());
     assertEquals(fake.account1.getId(), result.getAccountId());

@@ -472,6 +472,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     // of new chain with original properties (implicitly createdin draft state)
     priorChain.setId(UUID.randomUUID()); // new id
     priorChain.setEmbedKey(embedKey);
+    priorChain.setStartAtInstant(Instant.now()); // [#170273871] Revived chain should always start now
     Chain createdChain = create(access, priorChain);
 
     // clone all chain configs and bindings from prior chain to createdchain
