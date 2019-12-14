@@ -10,12 +10,13 @@ import io.xj.core.CoreModule;
 import io.xj.core.IntegrationTestingFixtures;
 import io.xj.core.access.Access;
 import io.xj.core.app.AppConfiguration;
-import io.xj.core.dao.InstrumentDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Account;
 import io.xj.core.model.AccountUser;
 import io.xj.core.model.Instrument;
 import io.xj.core.model.InstrumentAudio;
+import io.xj.core.model.InstrumentAudioChord;
+import io.xj.core.model.InstrumentAudioEvent;
 import io.xj.core.model.InstrumentMeme;
 import io.xj.core.model.InstrumentState;
 import io.xj.core.model.InstrumentType;
@@ -34,12 +35,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collection;
 import java.util.UUID;
 
+import static io.xj.core.Tables.INSTRUMENT_AUDIO;
+import static io.xj.core.Tables.INSTRUMENT_AUDIO_CHORD;
+import static io.xj.core.Tables.INSTRUMENT_AUDIO_EVENT;
+import static io.xj.core.Tables.INSTRUMENT_MEME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -91,7 +95,7 @@ public class InstrumentIT {
     fake.instrument201 = test.insert(Instrument.create(fake.user3, fake.library1, InstrumentType.Harmonic, InstrumentState.Published, "buns"));
     fake.instrument202 = test.insert(Instrument.create(fake.user3, fake.library1, InstrumentType.Percussive, InstrumentState.Published, "jams"));
     test.insert(InstrumentMeme.create(fake.instrument202, "smooth"));
-    test.insert(InstrumentAudio.create(fake.instrument202, "Test audio", "fake.audio5.wav", 0, 2, 120, 300, 0.5));
+    fake.audio1 = test.insert(InstrumentAudio.create(fake.instrument202, "Test audio", "fake.audio5.wav", 0, 2, 120, 300, 0.5));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(InstrumentDAO.class);
@@ -120,6 +124,9 @@ public class InstrumentIT {
     assertEquals(InstrumentType.Percussive, result.getType());
   }
 
+  /**
+   [#170290553] Clone sub-entities of instruments
+   */
   @Test
   public void clone_fromOriginal() throws Exception {
     Access access = Access.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
@@ -127,15 +134,31 @@ public class InstrumentIT {
       .setUserId(fake.user3.getId())
       .setLibraryId(fake.library1.getId())
       .setName("cannons fifty nine");
+    test.insert(InstrumentAudioEvent.create(fake.audio1, 0, 1, "bing", "C", 1));
+    test.insert(InstrumentAudioChord.create(fake.audio1, 0, "G minor"));
 
     Instrument result = testDAO.clone(access, fake.instrument202.getId(), subject);
-
-    // TODO assert that cloning includes all audio, event, and meme
 
     assertNotNull(result);
     assertEquals(fake.library1.getId(), result.getLibraryId());
     assertEquals("cannons fifty nine", result.getName());
     assertEquals(InstrumentType.Percussive, result.getType());
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(INSTRUMENT_MEME)
+      .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(INSTRUMENT_AUDIO)
+      .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(INSTRUMENT_AUDIO_EVENT)
+      .where(INSTRUMENT_AUDIO_EVENT.INSTRUMENT_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(INSTRUMENT_AUDIO_CHORD)
+      .where(INSTRUMENT_AUDIO_CHORD.INSTRUMENT_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
   }
 
   @Test

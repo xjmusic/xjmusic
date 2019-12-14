@@ -14,6 +14,7 @@ public interface ProgramDAO extends DAO<Program> {
 
   /**
    Provide an entity containing some new properties, but otherwise clone everything of a source program, of new record, and return it.
+   [#170290553] Clone sub-entities of program
 
    @param access  control
    @param cloneId of program to clone

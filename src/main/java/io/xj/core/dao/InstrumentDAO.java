@@ -14,6 +14,7 @@ public interface InstrumentDAO extends DAO<Instrument> {
 
   /**
    Clone a Instrument into a new Instrument
+   [#170290553] Clone sub-entities of instruments
 
    @param access  control
    @param cloneId of instrument to clone

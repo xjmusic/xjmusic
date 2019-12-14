@@ -111,6 +111,8 @@ public class IntegrationTestingFixtures {
   public Program program7;
   public Program program9;
   public ProgramMeme program701_meme0;
+  public ProgramSequence programSequence1;
+  public ProgramSequence programSequence3;
   public ProgramSequenceBinding program15_binding0;
   public ProgramSequenceBinding program15_binding1;
   public ProgramSequenceBinding program3_binding0;

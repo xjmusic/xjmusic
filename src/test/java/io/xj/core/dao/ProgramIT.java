@@ -16,13 +16,21 @@ import io.xj.core.model.AccountUser;
 import io.xj.core.model.Chain;
 import io.xj.core.model.ChainState;
 import io.xj.core.model.ChainType;
+import io.xj.core.model.InstrumentType;
 import io.xj.core.model.Library;
 import io.xj.core.model.Program;
+import io.xj.core.model.ProgramMeme;
+import io.xj.core.model.ProgramPatternType;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramSequenceBinding;
 import io.xj.core.model.ProgramSequenceBindingMeme;
+import io.xj.core.model.ProgramSequenceChord;
+import io.xj.core.model.ProgramSequencePattern;
+import io.xj.core.model.ProgramSequencePatternEvent;
 import io.xj.core.model.ProgramState;
 import io.xj.core.model.ProgramType;
+import io.xj.core.model.ProgramVoice;
+import io.xj.core.model.ProgramVoiceTrack;
 import io.xj.core.model.Segment;
 import io.xj.core.model.SegmentChoice;
 import io.xj.core.model.SegmentState;
@@ -47,6 +55,15 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
+import static io.xj.core.Tables.PROGRAM_MEME;
+import static io.xj.core.Tables.PROGRAM_SEQUENCE;
+import static io.xj.core.Tables.PROGRAM_SEQUENCE_BINDING;
+import static io.xj.core.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
+import static io.xj.core.Tables.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.core.Tables.PROGRAM_SEQUENCE_PATTERN;
+import static io.xj.core.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.core.Tables.PROGRAM_VOICE;
+import static io.xj.core.Tables.PROGRAM_VOICE_TRACK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -95,8 +112,8 @@ public class ProgramIT {
     // Library "palm tree" has program "fonds" and program "nuts"
     fixture.library1 = test.insert(Library.create(fixture.account1, "palm tree", InternalResources.now()));
     fixture.program1 = test.insert(Program.create(fixture.user3, fixture.library1, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6));
-    ProgramSequence sequence1a = test.insert(ProgramSequence.create(fixture.program1, 4, "Ants", 0.583, "D minor", 120.0));
-    sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.create(sequence1a, 0));
+    fixture.programSequence1 = test.insert(ProgramSequence.create(fixture.program1, 4, "Ants", 0.583, "D minor", 120.0));
+    sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.create(fixture.programSequence1, 0));
     test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "leafy"));
     test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "smooth"));
     fixture.program2 = test.insert(Program.create(fixture.user3, fixture.library1, ProgramType.Rhythm, ProgramState.Published, "nuts", "C#", 120.0, 0.6));
@@ -104,8 +121,8 @@ public class ProgramIT {
     // Library "boat" has program "helm" and program "sail"
     fixture.library2 = test.insert(Library.create(fixture.account1, "boat", InternalResources.now()));
     fixture.program3 = test.insert(Program.create(fixture.user3, fixture.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0, 0.6));
-    ProgramSequence sequence3a = test.insert(ProgramSequence.create(fixture.program3, 16, "Ants", 0.583, "D minor", 120.0));
-    test.insert(ProgramSequenceBinding.create(sequence3a, 0));
+    fixture.programSequence3 = test.insert(ProgramSequence.create(fixture.program3, 16, "Ants", 0.583, "D minor", 120.0));
+    test.insert(ProgramSequenceBinding.create(fixture.programSequence3, 0));
     fixture.program4 = test.insert(Program.create(fixture.user3, fixture.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0, 0.6));
 
     // Instantiate the test subject
@@ -167,6 +184,9 @@ public class ProgramIT {
     assertEquals(ProgramType.Main, result.getType());
   }
 
+  /**
+   [#170290553] Clone sub-entities of program
+   */
   @Test
   public void clone_fromOriginal() throws Exception {
     Access access = Access.create(fixture.user2, ImmutableList.of(fixture.account1), "Artist");
@@ -175,9 +195,13 @@ public class ProgramIT {
       .setLibraryId(fixture.library2.getId())
       .setDensity(0.583)
       .setName("cannons fifty nine");
-
+    test.insert(ProgramMeme.create(fixture.program1, "cinnamon"));
+    ProgramVoice voice = test.insert(ProgramVoice.create(fixture.program1, InstrumentType.Percussive, "drums"));
+    ProgramVoiceTrack track = test.insert(ProgramVoiceTrack.create(voice, "Kick"));
+    test.insert(ProgramSequenceChord.create(fixture.programSequence1, 0, "D"));
+    ProgramSequencePattern pattern = test.insert(ProgramSequencePattern.create(fixture.programSequence1, voice, ProgramPatternType.Loop, 8, "jam"));
+    test.insert(ProgramSequencePatternEvent.create(pattern, track, 0, 1, "C", 1));
     Program result = testDAO.clone(access, fixture.program1.getId(), inputData);
-    // TODO test clones sub-entities of program
 
     assertNotNull(result);
     assertEquals(0.583, result.getDensity(), 0.01);
@@ -186,6 +210,51 @@ public class ProgramIT {
     assertEquals("cannons fifty nine", result.getName());
     assertEquals(120, result.getTempo(), 0.1);
     assertEquals(ProgramType.Main, result.getType());
+    // Cloned ProgramMeme
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(PROGRAM_MEME)
+      .where(PROGRAM_MEME.PROGRAM_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
+    // Cloned ProgramVoice
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(PROGRAM_VOICE)
+      .where(PROGRAM_VOICE.PROGRAM_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
+    // Cloned ProgramVoiceTrack belongs to ProgramVoice
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(PROGRAM_VOICE_TRACK)
+      .where(PROGRAM_VOICE_TRACK.PROGRAM_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
+    // Cloned ProgramSequence
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(PROGRAM_SEQUENCE)
+      .where(PROGRAM_SEQUENCE.PROGRAM_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
+    // Cloned ProgramSequenceChord belongs to ProgramSequence
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(PROGRAM_SEQUENCE_CHORD)
+      .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
+    // Cloned ProgramSequenceBinding belongs to ProgramSequence
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(PROGRAM_SEQUENCE_BINDING)
+      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
+    // Cloned ProgramSequenceBindingMeme belongs to ProgramSequenceBinding
+    assertEquals(Integer.valueOf(2), test.getDSL()
+      .selectCount().from(PROGRAM_SEQUENCE_BINDING_MEME)
+      .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
+    // Cloned ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(PROGRAM_SEQUENCE_PATTERN)
+      .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
+    // Cloned ProgramSequencePatternEvent belongs to ProgramSequencePattern and ProgramVoiceTrack
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(PROGRAM_SEQUENCE_PATTERN_EVENT)
+      .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
   }
 
   @Test

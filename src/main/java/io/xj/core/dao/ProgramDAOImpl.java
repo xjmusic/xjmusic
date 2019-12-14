@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.core.access.Access;
@@ -21,12 +22,13 @@ import io.xj.core.model.UserRoleType;
 import io.xj.core.persistence.SQLDatabaseProvider;
 import io.xj.core.tables.Library;
 import org.jooq.DSLContext;
-import org.jooq.Record;
+import org.jooq.impl.DSL;
 
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.core.Tables.LIBRARY;
 import static io.xj.core.Tables.PROGRAM;
@@ -59,40 +61,77 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   @Override
   public Program clone(Access access, UUID cloneId, Program entity) throws CoreException {
     requireArtist(access);
-// TODO figure out how to make this all a rollback-able transaction in the new getDataSource() context:  dataSource.setAutoCommit(false);
-    Program from = readOne(access, cloneId);
-    if (Objects.isNull(from))
-      throw new CoreException("Can't clone nonexistent Program");
+    AtomicReference<Program> result = new AtomicReference<>();
+    dbProvider.getDSL().transaction(ctx -> {
+      DSLContext db = DSL.using(ctx);
 
-    // When null, inherits, type, state, key, and tempo
-    if (Objects.isNull(entity.getType())) entity.setTypeEnum(from.getType());
-    if (Objects.isNull(entity.getState())) entity.setStateEnum(from.getState());
-    if (Objects.isNull(entity.getKey())) entity.setKey(from.getKey());
-    if (Objects.isNull(entity.getTempo())) entity.setTempo(from.getTempo());
-    entity.validate();
+      Program from = readOne(db, access, cloneId);
+      if (Objects.isNull(from))
+        throw new CoreException("Can't clone nonexistent Program");
 
-    // TODO clone all sub-entities of program into whole new set of entities:
+      // Inherits state, type if none specified
+      if (Objects.isNull(entity.getState())) entity.setStateEnum(from.getState());
+      if (Objects.isNull(entity.getDensity())) entity.setDensity(from.getDensity());
+      if (Objects.isNull(entity.getName())) entity.setName(from.getName());
+      if (Objects.isNull(entity.getType())) entity.setTypeEnum(from.getType());
+      if (Objects.isNull(entity.getTempo())) entity.setTempo(from.getTempo());
+      if (Objects.isNull(entity.getDensity())) entity.setDensity(from.getDensity());
+      if (Objects.isNull(entity.getKey())) entity.setKey(from.getKey());
+      entity.setUserId(from.getUserId());
+      entity.validate();
+      requireParentExists(db, access, entity);
 
-// TODO figure out how to make this all a rollback-able transaction in the new getDataSource() context:     dataSource.commit();
-    return create(access, entity);
+      // Create main entity
+      result.set(DAO.modelFrom(Program.class, executeCreate(db, PROGRAM, entity)));
+
+      // Prepare to clone sub-entities
+      Cloner cloner = new Cloner();
+
+      // Clone ProgramMeme
+      cloner.clone(db, PROGRAM_MEME, PROGRAM_MEME.ID, ImmutableSet.of(), PROGRAM_MEME.PROGRAM_ID, cloneId, result.get().getId());
+
+      // Clone ProgramVoice
+      cloner.clone(db, PROGRAM_VOICE, PROGRAM_VOICE.ID, ImmutableSet.of(), PROGRAM_VOICE.PROGRAM_ID, cloneId, result.get().getId());
+
+      // Clone ProgramVoiceTrack belongs to ProgramVoice
+      cloner.clone(db, PROGRAM_VOICE_TRACK, PROGRAM_VOICE_TRACK.ID,
+        ImmutableSet.of(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID),
+        PROGRAM_VOICE_TRACK.PROGRAM_ID, cloneId, result.get().getId());
+
+      // Clone ProgramSequence
+      cloner.clone(db, PROGRAM_SEQUENCE, PROGRAM_SEQUENCE.ID, ImmutableSet.of(), PROGRAM_SEQUENCE.PROGRAM_ID, cloneId, result.get().getId());
+
+      // Clone ProgramSequenceChord belongs to ProgramSequence
+      cloner.clone(db, PROGRAM_SEQUENCE_CHORD, PROGRAM_SEQUENCE_CHORD.ID,
+        ImmutableSet.of(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID),
+        PROGRAM_SEQUENCE_CHORD.PROGRAM_ID, cloneId, result.get().getId());
+
+      // Clone ProgramSequenceBinding belongs to ProgramSequence
+      cloner.clone(db, PROGRAM_SEQUENCE_BINDING, PROGRAM_SEQUENCE_BINDING.ID,
+        ImmutableSet.of(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID),
+        PROGRAM_SEQUENCE_BINDING.PROGRAM_ID, cloneId, result.get().getId());
+
+      // Clone ProgramSequenceBindingMeme belongs to ProgramSequenceBinding
+      cloner.clone(db, PROGRAM_SEQUENCE_BINDING_MEME, PROGRAM_SEQUENCE_BINDING_MEME.ID,
+        ImmutableSet.of(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID),
+        PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID, cloneId, result.get().getId());
+
+      // Clone ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
+      cloner.clone(db, PROGRAM_SEQUENCE_PATTERN, PROGRAM_SEQUENCE_PATTERN.ID,
+        ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID, PROGRAM_SEQUENCE_PATTERN.PROGRAM_VOICE_ID),
+        PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID, cloneId, result.get().getId());
+
+      // Clone ProgramSequencePatternEvent belongs to ProgramSequencePattern and ProgramVoiceTrack
+      cloner.clone(db, PROGRAM_SEQUENCE_PATTERN_EVENT, PROGRAM_SEQUENCE_PATTERN_EVENT.ID,
+        ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID, PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID),
+        PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID, cloneId, result.get().getId());
+    });
+    return result.get();
   }
 
   @Override
   public Program readOne(Access access, UUID id) throws CoreException {
-    if (access.isTopLevel())
-      return DAO.modelFrom(Program.class, dbProvider.getDSL().selectFrom(PROGRAM)
-        .where(PROGRAM.ID.eq(id))
-        .fetchOne());
-    else {
-      Record programRecord = dbProvider.getDSL()
-        .select(PROGRAM.fields())
-        .from(PROGRAM)
-        .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-        .where(PROGRAM.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne();
-      return DAO.modelFrom(Program.class, programRecord);
-    }
+    return readOne(dbProvider.getDSL(), access, id);
   }
 
   @Override
@@ -260,6 +299,50 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     db.deleteFrom(PROGRAM_MEME).where(PROGRAM_MEME.PROGRAM_ID.in(programIds)).execute();
   }
 
+  /**
+   Read one record
+
+   @param db     DSL context
+   @param access control
+   @param id     to read
+   @return record
+   @throws CoreException on failure
+   */
+  private Program readOne(DSLContext db, Access access, UUID id) throws CoreException {
+    if (access.isTopLevel())
+      return DAO.modelFrom(Program.class,
+        db.selectFrom(PROGRAM)
+          .where(PROGRAM.ID.eq(id))
+          .fetchOne());
+    else
+      return DAO.modelFrom(Program.class,
+        db.select(PROGRAM.fields())
+          .from(PROGRAM)
+          .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
+          .where(PROGRAM.ID.eq(id))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .fetchOne());
+  }
+
+  /**
+   Require parent program exists of a given possible entity in a DSL context
+
+   @param db     DSL context
+   @param access control
+   @param entity to validate
+   @throws CoreException if parent does not exist
+   */
+  private void requireParentExists(DSLContext db, Access access, Program entity) throws CoreException {
+    if (access.isTopLevel())
+      requireExists("Library", db.selectCount().from(LIBRARY)
+        .where(LIBRARY.ID.eq(entity.getLibraryId()))
+        .fetchOne(0, int.class));
+    else
+      requireExists("Library", db.selectCount().from(LIBRARY)
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(LIBRARY.ID.eq(entity.getLibraryId()))
+        .fetchOne(0, int.class));
+  }
 
 }
 

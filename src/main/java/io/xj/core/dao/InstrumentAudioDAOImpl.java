@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -12,12 +13,14 @@ import io.xj.core.model.InstrumentAudio;
 import io.xj.core.persistence.SQLDatabaseProvider;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.impl.DSL;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static io.xj.core.Tables.INSTRUMENT;
 import static io.xj.core.Tables.INSTRUMENT_AUDIO;
@@ -48,66 +51,6 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
 
     // TODO [#170288602] Create instrument audio, provide waveform file extension as query parameter (checked by front-end after selecting the upload file)
     waveformFileExtension = config.getString("audio.fileExtension");
-  }
-
-  /**
-   General an Audio URL
-
-   @param instrumentId to generate URL for
-   @return URL as string
-   */
-  private String generateKey(UUID instrumentId) {
-    String prefix = String.format("instrument-%s-audio", instrumentId);
-    return amazonProvider.generateKey(prefix, waveformFileExtension);
-  }
-
-  /**
-   Require parent instrument exists of a given possible entity in a DSL context
-
-   @param db     DSL context
-   @param access control
-   @param entity to validate
-   @throws CoreException if parent does not exist
-   */
-  private void requireParentExists(DSLContext db, Access access, InstrumentAudio entity) throws CoreException {
-    if (access.isTopLevel())
-      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
-        .fetchOne(0, int.class));
-    else
-      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
-        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .and(INSTRUMENT.ID.eq(entity.getInstrumentId()))
-        .fetchOne(0, int.class));
-  }
-
-  /**
-   Read one record with the given DSL context,
-   ensuring audio in instrument in library in access control account ids
-
-   @param db     DSL context
-   @param access control
-   @param id     of record to read
-   @return entity
-   */
-  private InstrumentAudio readOne(DSLContext db, Access access, UUID id) throws CoreException {
-    requireArtist(access);
-    Record record;
-    if (access.isTopLevel())
-      record = db.selectFrom(INSTRUMENT_AUDIO)
-        .where(INSTRUMENT_AUDIO.ID.eq(id))
-        .fetchOne();
-    else
-      record = db.select(INSTRUMENT_AUDIO.fields())
-        .from(INSTRUMENT_AUDIO)
-        .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_AUDIO.INSTRUMENT_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(INSTRUMENT_AUDIO.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne();
-    requireExists("InstrumentAudio", record);
-    return DAO.modelFrom(InstrumentAudio.class, record);
   }
 
   @Override
@@ -209,26 +152,92 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   @Override
   public InstrumentAudio clone(Access access, UUID cloneId, InstrumentAudio entity) throws CoreException {
     requireArtist(access);
-// TODO figure out how to make this all a rollback-able transaction in the new getDataSource() context:  dataSource.setAutoCommit(false);
-    DSLContext db = dbProvider.getDSL();
+    AtomicReference<InstrumentAudio> result = new AtomicReference<>();
+    dbProvider.getDSL().transaction(ctx -> {
+      DSLContext db = DSL.using(ctx);
 
-    InstrumentAudio from = readOne(access, cloneId);
-    if (Objects.isNull(from))
-      throw new CoreException("Can't clone nonexistent InstrumentAudio");
+      InstrumentAudio from = readOne(db, access, cloneId);
+      if (Objects.isNull(from))
+        throw new CoreException("Can't clone nonexistent InstrumentAudio");
 
-    // When null, inherits, type, state, key, and tempo
-    if (Objects.isNull(entity.getPitch())) entity.setPitch(from.getPitch());
-    if (Objects.isNull(entity.getStart())) entity.setStart(from.getStart());
-    if (Objects.isNull(entity.getWaveformKey())) entity.setWaveformKey(from.getWaveformKey());
-    if (Objects.isNull(entity.getTempo())) entity.setTempo(from.getTempo());
-    if (Objects.isNull(entity.getDensity())) entity.setDensity(from.getDensity());
-    if (Objects.isNull(entity.getLength())) entity.setLength(from.getLength());
-    if (Objects.isNull(entity.getName())) entity.setName(from.getName());
-    entity.validate();
+      // When null, inherits, type, state, key, and tempo
+      if (Objects.isNull(entity.getPitch())) entity.setPitch(from.getPitch());
+      if (Objects.isNull(entity.getStart())) entity.setStart(from.getStart());
+      if (Objects.isNull(entity.getWaveformKey())) entity.setWaveformKey(from.getWaveformKey());
+      if (Objects.isNull(entity.getTempo())) entity.setTempo(from.getTempo());
+      if (Objects.isNull(entity.getDensity())) entity.setDensity(from.getDensity());
+      if (Objects.isNull(entity.getLength())) entity.setLength(from.getLength());
+      if (Objects.isNull(entity.getName())) entity.setName(from.getName());
+      entity.validate();
+      requireParentExists(db, access, entity);
 
-    // TODO clone all sub-entities of instrumentAudio into whole new set of entities:
+      result.set(DAO.modelFrom(InstrumentAudio.class, executeCreate(db, INSTRUMENT_AUDIO, entity)));
 
-// TODO figure out how to make this all a rollback-able transaction in the new getDataSource() context:     dataSource.commit();
-    return create(access, entity);
+      Cloner cloner = new Cloner();
+      cloner.clone(db, INSTRUMENT_AUDIO_EVENT, INSTRUMENT_AUDIO_EVENT.ID, ImmutableSet.of(), INSTRUMENT_AUDIO_EVENT.INSTRUMENT_AUDIO_ID, cloneId, result.get().getId());
+      cloner.clone(db, INSTRUMENT_AUDIO_CHORD, INSTRUMENT_AUDIO_CHORD.ID, ImmutableSet.of(), INSTRUMENT_AUDIO_CHORD.INSTRUMENT_AUDIO_ID, cloneId, result.get().getId());
+    });
+    return result.get();
   }
+
+  /**
+   General an Audio URL
+
+   @param instrumentId to generate URL for
+   @return URL as string
+   */
+  private String generateKey(UUID instrumentId) {
+    String prefix = String.format("instrument-%s-audio", instrumentId);
+    return amazonProvider.generateKey(prefix, waveformFileExtension);
+  }
+
+  /**
+   Require parent instrument exists of a given possible entity in a DSL context
+
+   @param db     DSL context
+   @param access control
+   @param entity to validate
+   @throws CoreException if parent does not exist
+   */
+  private void requireParentExists(DSLContext db, Access access, InstrumentAudio entity) throws CoreException {
+    if (access.isTopLevel())
+      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
+        .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
+        .fetchOne(0, int.class));
+    else
+      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
+        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(INSTRUMENT.ID.eq(entity.getInstrumentId()))
+        .fetchOne(0, int.class));
+  }
+
+  /**
+   Read one record with the given DSL context,
+   ensuring audio in instrument in library in access control account ids
+
+   @param db     DSL context
+   @param access control
+   @param id     of record to read
+   @return entity
+   */
+  private InstrumentAudio readOne(DSLContext db, Access access, UUID id) throws CoreException {
+    requireArtist(access);
+    Record record;
+    if (access.isTopLevel())
+      record = db.selectFrom(INSTRUMENT_AUDIO)
+        .where(INSTRUMENT_AUDIO.ID.eq(id))
+        .fetchOne();
+    else
+      record = db.select(INSTRUMENT_AUDIO.fields())
+        .from(INSTRUMENT_AUDIO)
+        .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_AUDIO.INSTRUMENT_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+        .where(INSTRUMENT_AUDIO.ID.eq(id))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne();
+    requireExists("InstrumentAudio", record);
+    return DAO.modelFrom(InstrumentAudio.class, record);
+  }
+
 }

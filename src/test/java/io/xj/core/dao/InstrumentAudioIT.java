@@ -46,7 +46,6 @@ import java.util.UUID;
 
 import static io.xj.core.Tables.INSTRUMENT_AUDIO_CHORD;
 import static io.xj.core.Tables.INSTRUMENT_AUDIO_EVENT;
-import static io.xj.core.Tables.SEGMENT_CHOICE_ARRANGEMENT;
 import static io.xj.core.testing.Assert.assertNotExist;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -216,6 +215,9 @@ TODO this setup?
     assertEquals("instrument-2-audio-h2a34j5s34fd987gaw3.wav", result.getWaveformKey());
   }
 
+  /**
+   [#170290553] Clone sub-entities of instrument audios
+   */
   @Test
   public void clone_fromOriginal() throws Exception {
     Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
@@ -223,17 +225,24 @@ TODO this setup?
       .setInstrumentId(fake.instrument202.getId())
       .setName("cannons fifty nine");
     fake.audioChord1 = test.insert(InstrumentAudioChord.create(fake.audio1, 0, "D minor"));
-    when(amazonProvider.generateKey(any(), any())).thenReturn("superAwesomeKey123");
 
     InstrumentAudio result = testDAO.clone(access, fake.audio1.getId(), inputData);
 
     assertEquals("cannons fifty nine", result.getName());
     assertEquals(fake.instrument202.getId(), result.getInstrumentId());
-    assertEquals("superAwesomeKey123", result.getWaveformKey());
+    assertEquals("fake.audio5.wav", result.getWaveformKey());
     assertEquals(0.01, result.getStart(), 0.01);
     assertEquals(2.0, result.getLength(), 0.01);
     assertEquals(120.0, result.getTempo(), 0.01);
     assertEquals(300.0, result.getPitch(), 0.01);
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(INSTRUMENT_AUDIO_EVENT)
+      .where(INSTRUMENT_AUDIO_EVENT.INSTRUMENT_AUDIO_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(INSTRUMENT_AUDIO_CHORD)
+      .where(INSTRUMENT_AUDIO_CHORD.INSTRUMENT_AUDIO_ID.eq(result.getId()))
+      .fetchOne(0, int.class));
   }
 
   @Test
