@@ -1,4 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+import {get} from '@ember/object';
 
 import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
@@ -13,10 +14,10 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*}
+   * @returns {*|DS.Model}
    */
   model() {
-    return this.modelFor('accounts.one.libraries.one.programs.editor');
+    return this.modelFor('accounts.one.libraries.one.programs.one');
   },
 
   /**
@@ -25,21 +26,25 @@ export default Route.extend({
   actions: {
 
     destroy(model) {
-      let confirmation = confirm("Are you sure?");
+      let self = this;
+      let confirmation = confirm("Are you sure? If there are Programs or Programs belonging to this Program, destruction will fail anyway.");
       let library = model.get('library');
       let account = library.get('account');
-
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
-            this.display.success('Destroyed sequence ' + model.get('name') + '.');
+            get(self, 'display').success('Destroyed program ' + model.get('name') + '.');
             this.transitionTo('accounts.one.libraries.one.programs', account, library);
           },
           (error) => {
-            this.display.error(error);
+            get(self, 'display').error(error);
             model.rollbackAttributes();
           });
       }
+    },
+
+    cancel() {
+      history.back();
     },
 
   }

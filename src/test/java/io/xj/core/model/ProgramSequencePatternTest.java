@@ -895,17 +895,6 @@ public class ProgramSequencePatternTest {
 
   // future test: PatternDAO cannot destroy record unless user has account access
 
-  @Test
-  public void erase_SucceedsEvenWithChildren() throws Exception {
-    Access access = of(user2, ImmutableList.of(account1), "Artist");
-    testDAO.erase(access, BigInteger.valueOf(1L));
-
-    Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
-    assertNotNull(result);
-    assertEquals(PatternState.Erase, result.getState());
-  }
-
-
     @Before
   public void setUp() throws Exception {
     reset();

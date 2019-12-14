@@ -155,9 +155,9 @@ public class ProgramEndpoint extends AppResource {
   @DELETE
   @Path("{id}")
   @RolesAllowed(UserRoleType.ADMIN)
-  public Response erase(@Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response destroy(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     try {
-      dao().erase(Access.fromContext(crc), UUID.fromString(id));
+      dao().destroy(Access.fromContext(crc), UUID.fromString(id));
       return response.noContent();
 
     } catch (Exception e) {

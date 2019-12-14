@@ -28,7 +28,12 @@ Router.map(function () {
           this.route('destroy');
 
           this.route('programs', function () {
-            this.route('editor', {path: '/:program_id'});
+            this.route('new');
+            this.route('one', {path: '/:program_id'}, function () {
+              this.route('edit');
+              this.route('clone');
+              this.route('destroy');
+            });
           });
 
           this.route('instruments', function () {

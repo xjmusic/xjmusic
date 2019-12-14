@@ -21,7 +21,7 @@ export default Route.extend({
    */
   model: function () {
     let library = this.modelFor('accounts.one.libraries.one');
-    let program = this.modelFor('accounts.one.libraries.one.programs.editor');
+    let program = this.modelFor('accounts.one.libraries.one.programs.one');
     return hash({
       library: library,
       program: program,
@@ -38,7 +38,7 @@ export default Route.extend({
      */
     quickPreview() {
       let self = this;
-      let program = this.modelFor('accounts.one.libraries.one.programs.editor');
+      let program = this.modelFor('accounts.one.libraries.one.programs.one');
       let account = this.modelFor('accounts.one');
       let name = 'Preview of "' + program.get('name') + '" Program';
       let chain = this.store.createRecord('chain', {
@@ -56,9 +56,7 @@ export default Route.extend({
           get(self, 'display').error(error);
         });
     }
-
   },
-  // end of route actions
 
   /**
    * Add Program to Chain (quick-preview, step 2)
@@ -66,13 +64,12 @@ export default Route.extend({
    */
   addProgram: function (chain) {
     let self = this;
-    let program = this.modelFor('accounts.one.libraries.one.programs.editor');
-    let chainBinding = this.store.createRecord('chain-binding', {
+    let program = this.modelFor('accounts.one.libraries.one.programs.one');
+    let chainProgram = this.store.createRecord('chain-program', {
       chain: chain,
-      targetClass: 'Program',
-      targetId: program.get('id')
+      program: program,
     });
-    chainBinding.save().then(
+    chainProgram.save().then(
       () => {
         get(self, 'display').success('Added ' + program.get('name') + ' to ' + chain.get('name') + '.');
         self.addLibrary(chain);
@@ -89,12 +86,11 @@ export default Route.extend({
   addLibrary: function (chain) {
     let self = this;
     let library = this.modelFor('accounts.one.libraries.one');
-    let chainBinding = this.store.createRecord('chain-binding', {
+    let chainLibrary = this.store.createRecord('chain-library', {
       chain: chain,
-      targetClass: 'Library',
-      targetId: library.get('id')
+      library: library,
     });
-    chainBinding.save().then(
+    chainLibrary.save().then(
       () => {
         get(self, 'display').success('Added ' + library.get('name') + ' to ' + chain.get('name') + '.');
         self.updateToReady(chain);

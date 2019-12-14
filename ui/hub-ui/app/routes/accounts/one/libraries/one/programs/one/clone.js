@@ -1,12 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+import {get} from '@ember/object';
 
 import {hash, Promise as EmberPromise} from 'rsvp';
 import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
-
-  fromProgramId: null,
 
   // Inject: configuration service
   config: service(),
@@ -20,19 +19,17 @@ export default Route.extend({
    */
   model() {
     return new EmberPromise((resolve, reject) => {
-      let self = this;
       this.config.getConfig().then(
         () => {
-          let fromProgram = self.modelFor('accounts.one.libraries.one.programs.editor');
-          self.set('fromProgramId', fromProgram.get('id'));
-          let program = self.store.createRecord('program', {
-            user: fromProgram.get('user'),
-            type: fromProgram.get('type'),
+          let fromProgram = this.modelFor('accounts.one.libraries.one.programs.one');
+          this.set('fromProgramId', fromProgram.get('id'));
+          let program = this.store.createRecord('program', {
             library: fromProgram.get('library'),
             name: fromProgram.get('name')
           });
+
           resolve(hash({
-            libraries: self.store.query('library', {accountId: self.modelFor('accounts.one').get('id')}),
+            libraries: this.store.query('library', {}),
             program: program
           }, 'libraries, program'));
 
@@ -44,6 +41,7 @@ export default Route.extend({
     });
   },
 
+
   /**
    * Route Actions
    */
@@ -54,7 +52,9 @@ export default Route.extend({
     },
 
     cloneProgram(model) {
-      let cloneProgramId = this.fromProgramId;
+      let library = model.get('library');
+      let account = library.get('account');
+      let cloneProgramId = this.get('fromProgramId');
 
       model.save({
         adapterOptions: {
@@ -64,12 +64,16 @@ export default Route.extend({
         }
       }).then(
         () => {
-          this.display.success('Cloned program ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one.programs.editor', model.library.account, model.library, model);
+          get(this, 'display').success('Cloned program ' + model.get('name') + '.');
+          this.transitionTo('accounts.one.libraries.one.programs.one', account, library, model);
         },
         (error) => {
-          this.display.error(error);
+          get(this, 'display').error(error);
         });
+    },
+
+    cancel() {
+      history.back();
     },
 
   },

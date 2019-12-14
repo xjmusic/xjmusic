@@ -10,8 +10,6 @@ import io.xj.core.access.Access;
 import io.xj.core.app.AppConfiguration;
 import io.xj.core.dao.DAO;
 import io.xj.core.dao.ProgramDAO;
-import io.xj.core.dao.SegmentChoiceArrangementDAO;
-import io.xj.core.dao.SegmentChoiceArrangementPickDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorFactory;
@@ -68,7 +66,7 @@ public class CraftRhythm_LayeredVoicesIT {
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
 
-  private IntegrationTestingFixtures fake;
+  private IntegrationTestingFixtures fixture;
   private Injector injector;
   private IntegrationTestProvider test;
 
@@ -77,42 +75,42 @@ public class CraftRhythm_LayeredVoicesIT {
     Config config = AppTestConfiguration.getDefault();
     injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule(), new CraftModule()));
     test = injector.getInstance(IntegrationTestProvider.class);
-    fake = new IntegrationTestingFixtures(test);
+    fixture = new IntegrationTestingFixtures(test);
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     craftFactory = injector.getInstance(CraftFactory.class);
 
     // Fixtures
     test.reset();
-    fake.insertFixtureB1();
-    fake.insertFixtureB2();
+    fixture.insertFixtureB1();
+    fixture.insertFixtureB2();
 
     // Chain "Test Print #1" has 5 total segments
-    fake.chain1 = test.insert(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    test.insert(ChainBinding.create(fake.chain1, fake.library2));
-    fake.segment1 = test.insert(Segment.create(fake.chain1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120, "chains-1-segments-9f7s89d8a7892.wav"));
-    fake.segment2 = test.insert(Segment.create(fake.chain1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120, "chains-1-segments-9f7s89d8a7892.wav"));
+    fixture.chain1 = test.insert(Chain.create(fixture.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    test.insert(ChainBinding.create(fixture.chain1, fixture.library2));
+    fixture.segment1 = test.insert(Segment.create(fixture.chain1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120, "chains-1-segments-9f7s89d8a7892.wav"));
+    fixture.segment2 = test.insert(Segment.create(fixture.chain1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120, "chains-1-segments-9f7s89d8a7892.wav"));
 
     // Instrument "808"
-    fake.instrument1 = test.insert(Instrument.create(fake.user3, fake.library2, InstrumentType.Percussive, InstrumentState.Published, "808 Drums"));
-    test.insert(InstrumentMeme.create(fake.instrument1, "heavy"));
+    fixture.instrument1 = test.insert(Instrument.create(fixture.user3, fixture.library2, InstrumentType.Percussive, InstrumentState.Published, "808 Drums"));
+    test.insert(InstrumentMeme.create(fixture.instrument1, "heavy"));
     //
-    fake.audioKick = test.insert(InstrumentAudio.create(fake.instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440, 0.6));
-    test.insert(InstrumentAudioEvent.create(fake.audioKick, 0, 1, "KICK", "Eb", 1.0));
+    fixture.audioKick = test.insert(InstrumentAudio.create(fixture.instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440, 0.6));
+    test.insert(InstrumentAudioEvent.create(fixture.audioKick, 0, 1, "KICK", "Eb", 1.0));
     //
-    fake.audioSnare = test.insert(InstrumentAudio.create(fake.instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01, 1.5, 120.0, 1200, 0.6));
-    test.insert(InstrumentAudioEvent.create(fake.audioSnare, 0, 1, "SNARE", "Ab", 1.0));
+    fixture.audioSnare = test.insert(InstrumentAudio.create(fixture.instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01, 1.5, 120.0, 1200, 0.6));
+    test.insert(InstrumentAudioEvent.create(fixture.audioSnare, 0, 1, "SNARE", "Ab", 1.0));
     //
-    fake.audioHihat = test.insert(InstrumentAudio.create(fake.instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01, 1.5, 120.0, 1200, 0.6));
-    test.insert(InstrumentAudioEvent.create(fake.audioHihat, 0, 1, "HIHAT", "Ab", 1.0));
+    fixture.audioHihat = test.insert(InstrumentAudio.create(fixture.instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01, 1.5, 120.0, 1200, 0.6));
+    test.insert(InstrumentAudioEvent.create(fixture.audioHihat, 0, 1, "HIHAT", "Ab", 1.0));
     // Remove fixture rhythm program and build a new one that includes layered voices
-    injector.getInstance(ProgramDAO.class).destroyChildEntities(Access.internal(), ImmutableList.of(fake.program35.getId()));
-    injector.getInstance(ProgramDAO.class).destroy(Access.internal(), fake.program35.getId());
+    fixture.destroyInnerEntities(fixture.program35);
+    injector.getInstance(ProgramDAO.class).destroy(Access.internal(), fixture.program35.getId());
     // A basic beat
-    fake.program35 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121, 0.6));
-    test.insert(ProgramMeme.create(fake.program35, "Basic"));
-    ProgramVoice locomotion = test.insert(ProgramVoice.create(fake.program35, InstrumentType.Percussive, "Locomotion"));
-    ProgramVoice kickSnare = test.insert(ProgramVoice.create(fake.program35, InstrumentType.Percussive, "BoomBap"));
-    ProgramSequence sequence35a = test.insert(ProgramSequence.create(fake.program35, 16, "Base", 0.5, "C", 110.3));
+    fixture.program35 = test.insert(Program.create(fixture.user3, fixture.library2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121, 0.6));
+    test.insert(ProgramMeme.create(fixture.program35, "Basic"));
+    ProgramVoice locomotion = test.insert(ProgramVoice.create(fixture.program35, InstrumentType.Percussive, "Locomotion"));
+    ProgramVoice kickSnare = test.insert(ProgramVoice.create(fixture.program35, InstrumentType.Percussive, "BoomBap"));
+    ProgramSequence sequence35a = test.insert(ProgramSequence.create(fixture.program35, 16, "Base", 0.5, "C", 110.3));
     //
     ProgramSequencePattern pattern35a1 = test.insert(ProgramSequencePattern.create(sequence35a, locomotion, ProgramPatternType.Loop, 1, "Hi-hat"));
     ProgramVoiceTrack trackHihat = test.insert(ProgramVoiceTrack.create(locomotion, "HIHAT"));
@@ -131,8 +129,8 @@ public class CraftRhythm_LayeredVoicesIT {
 
     // segment just crafted
     // Testing entities for reference
-    fake.segment3 = test.insert(Segment.create()
-      .setChainId(fake.chain1.getId())
+    fixture.segment3 = test.insert(Segment.create()
+      .setChainId(fixture.chain1.getId())
       .setOffset(2L)
       .setStateEnum(SegmentState.Crafted)
       .setBeginAt("2017-02-14T12:02:04.000001Z")
@@ -142,13 +140,13 @@ public class CraftRhythm_LayeredVoicesIT {
       .setDensity(0.30)
       .setTempo(120.0)
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
-    test.insert(SegmentChoice.create(fake.segment3, ProgramType.Macro, fake.program4_binding0, 3));
-    test.insert(SegmentChoice.create(fake.segment3, ProgramType.Main, fake.program5_binding0, 5));
-    test.insert(SegmentChoice.create(fake.segment3, ProgramType.Rhythm, fake.program35, 5));
+    test.insert(SegmentChoice.create(fixture.segment3, ProgramType.Macro, fixture.program4_binding0, 3));
+    test.insert(SegmentChoice.create(fixture.segment3, ProgramType.Main, fixture.program5_binding0, 5));
+    test.insert(SegmentChoice.create(fixture.segment3, ProgramType.Rhythm, fixture.program35, 5));
 
     // segment crafting
-    fake.segment4 = test.insert(Segment.create()
-      .setChainId(fake.chain1.getId())
+    fixture.segment4 = test.insert(Segment.create()
+      .setChainId(fixture.chain1.getId())
       .setOffset(3L)
       .setStateEnum(SegmentState.Crafting)
       .setBeginAt("2017-02-14T12:03:08.000001Z")
@@ -158,14 +156,14 @@ public class CraftRhythm_LayeredVoicesIT {
       .setDensity(0.45)
       .setTempo(120.0)
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
-    test.insert(SegmentChoice.create(fake.segment4, ProgramType.Macro, fake.program4_binding0, 3));
-    test.insert(SegmentChoice.create(fake.segment4, ProgramType.Main, fake.program5_binding1, -5));
+    test.insert(SegmentChoice.create(fixture.segment4, ProgramType.Macro, fixture.program4_binding0, 3));
+    test.insert(SegmentChoice.create(fixture.segment4, ProgramType.Main, fixture.program5_binding1, -5));
 
     for (String memeName : ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy"))
-      test.insert(SegmentMeme.create(fake.segment4, memeName));
+      test.insert(SegmentMeme.create(fixture.segment4, memeName));
 
-    test.insert(SegmentChord.create(fake.segment4, 0.0, "A minor"));
-    test.insert(SegmentChord.create(fake.segment4, 8.0, "D Major"));
+    test.insert(SegmentChord.create(fixture.segment4, 0.0, "A minor"));
+    test.insert(SegmentChord.create(fixture.segment4, 8.0, "D Major"));
   }
 
   @After
@@ -175,11 +173,11 @@ public class CraftRhythm_LayeredVoicesIT {
 
   @Test
   public void craftRhythmVoiceContinue() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), fake.segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), fixture.segment4);
 
     craftFactory.rhythm(fabricator).doWork();
 
-    Segment result = injector.getInstance(SegmentDAO.class).readOne(Access.internal(), fake.segment4.getId());
+    Segment result = injector.getInstance(SegmentDAO.class).readOne(Access.internal(), fixture.segment4.getId());
     assertTrue(0 < test.getDSL()
       .selectCount().from(SEGMENT_CHOICE_ARRANGEMENT)
       .where(SEGMENT_CHOICE_ARRANGEMENT.SEGMENT_ID.eq(result.getId()))
@@ -195,11 +193,11 @@ public class CraftRhythm_LayeredVoicesIT {
         .where(SEGMENT_CHOICE_ARRANGEMENT_PICK.SEGMENT_ID.eq(result.getId()))
         .fetch());
     for (SegmentChoiceArrangementPick pick : picks) {
-      if (pick.getInstrumentAudioId().equals(fake.audioKick.getId()))
+      if (pick.getInstrumentAudioId().equals(fixture.audioKick.getId()))
         pickedKick++;
-      if (pick.getInstrumentAudioId().equals(fake.audioSnare.getId()))
+      if (pick.getInstrumentAudioId().equals(fixture.audioSnare.getId()))
         pickedSnare++;
-      if (pick.getInstrumentAudioId().equals(fake.audioHihat.getId()))
+      if (pick.getInstrumentAudioId().equals(fixture.audioHihat.getId()))
         pickedHihat++;
     }
     assertEquals(8, pickedKick);

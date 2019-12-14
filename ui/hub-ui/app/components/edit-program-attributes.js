@@ -51,7 +51,7 @@ const EditProgramAttributesComponent = Component.extend({
       let account = library.get("account");
       program.save().then(
         () => {
-          self.router.transitionTo("accounts.one.libraries.one.programs.editor", account, library, program);
+          self.router.transitionTo("accounts.one.libraries.one.programs.one", account, library, program);
           self.display.success('Saved ' + program.get('name') + '.');
           set(this, 'isEditModalVisible', false);
         },

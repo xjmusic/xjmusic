@@ -10,8 +10,6 @@ import io.xj.core.access.Access;
 import io.xj.core.app.AppConfiguration;
 import io.xj.core.dao.DAO;
 import io.xj.core.dao.ProgramDAO;
-import io.xj.core.dao.SegmentChoiceArrangementDAO;
-import io.xj.core.dao.SegmentChoiceArrangementPickDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.fabricator.Fabricator;
@@ -51,7 +49,7 @@ public class CraftRhythmProgramVoiceInitialIT {
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
 
-  private IntegrationTestingFixtures fake;
+  private IntegrationTestingFixtures fixture;
   private Injector injector;
   private IntegrationTestProvider test;
 
@@ -60,18 +58,18 @@ public class CraftRhythmProgramVoiceInitialIT {
     Config config = AppTestConfiguration.getDefault();
     injector = AppConfiguration.inject(config, ImmutableList.of(new CoreModule(), new CraftModule()));
     test = injector.getInstance(IntegrationTestProvider.class);
-    fake = new IntegrationTestingFixtures(test);
+    fixture = new IntegrationTestingFixtures(test);
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     craftFactory = injector.getInstance(CraftFactory.class);
 
     // Fixtures
     test.reset();
-    fake.insertFixtureB1();
-    fake.insertFixtureB3();
+    fixture.insertFixtureB1();
+    fixture.insertFixtureB3();
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
-    fake.chain2 = test.insert(Chain.create(fake.account1, "Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    test.insert(ChainBinding.create(fake.chain2, fake.library2));
+    fixture.chain2 = test.insert(Chain.create(fixture.account1, "Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    test.insert(ChainBinding.create(fixture.chain2, fixture.library2));
   }
 
   @After
@@ -83,13 +81,13 @@ public class CraftRhythmProgramVoiceInitialIT {
   public void craftRhythmVoiceInitial() throws Exception {
     insertSegments6();
     // force known rhythm selection by destroying program 35
-    injector.getInstance(ProgramDAO.class).destroyChildEntities(Access.internal(), ImmutableList.of(fake.program35.getId()));
-    injector.getInstance(ProgramDAO.class).destroy(Access.internal(), fake.program35.getId());
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), fake.segment6);
+    fixture.destroyInnerEntities(fixture.program35);
+    injector.getInstance(ProgramDAO.class).destroy(Access.internal(), fixture.program35.getId());
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), fixture.segment6);
 
     craftFactory.rhythm(fabricator).doWork();
 
-    Segment result = injector.getInstance(SegmentDAO.class).readOne(Access.internal(), fake.segment6.getId());
+    Segment result = injector.getInstance(SegmentDAO.class).readOne(Access.internal(), fixture.segment6.getId());
     assertTrue(0 < test.getDSL()
       .selectCount().from(SEGMENT_CHOICE_ARRANGEMENT)
       .where(SEGMENT_CHOICE_ARRANGEMENT.SEGMENT_ID.eq(result.getId()))
@@ -106,13 +104,13 @@ public class CraftRhythmProgramVoiceInitialIT {
         .where(SEGMENT_CHOICE_ARRANGEMENT_PICK.SEGMENT_ID.eq(result.getId()))
         .fetch());
     for (SegmentChoiceArrangementPick pick : picks) {
-      if (pick.getInstrumentAudioId().equals(fake.audio8kick.getId()))
+      if (pick.getInstrumentAudioId().equals(fixture.audio8kick.getId()))
         pickedKick++;
-      if (pick.getInstrumentAudioId().equals(fake.audio8snare.getId()))
+      if (pick.getInstrumentAudioId().equals(fixture.audio8snare.getId()))
         pickedSnare++;
-      if (pick.getInstrumentAudioId().equals(fake.audio8bleep.getId()))
+      if (pick.getInstrumentAudioId().equals(fixture.audio8bleep.getId()))
         pickedBleep++;
-      if (pick.getInstrumentAudioId().equals(fake.audio8toot.getId()))
+      if (pick.getInstrumentAudioId().equals(fixture.audio8toot.getId()))
         pickedToot++;
     }
     assertEquals(12, pickedKick);
@@ -124,7 +122,7 @@ public class CraftRhythmProgramVoiceInitialIT {
   @Test
   public void craftRhythmVoiceInitial_okWhenNoRhythmChoice() throws Exception {
     insertSegments6();
-    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), fake.segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(Access.internal(), fixture.segment6);
 
     craftFactory.rhythm(fabricator).doWork();
   }
@@ -134,8 +132,8 @@ public class CraftRhythmProgramVoiceInitialIT {
    */
   private void insertSegments6() throws CoreException {
     // segment crafting
-    fake.segment6 = test.insert(Segment.create()
-      .setChainId(fake.chain2.getId())
+    fixture.segment6 = test.insert(Segment.create()
+      .setChainId(fixture.chain2.getId())
       .setOffset(3L)
       .setStateEnum(SegmentState.Crafting)
       .setBeginAt("2017-02-14T12:01:00.000001Z")
@@ -145,21 +143,21 @@ public class CraftRhythmProgramVoiceInitialIT {
       .setDensity(0.55)
       .setTempo(130.0)
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
-    test.insert(SegmentChoice.create().setSegmentId(fake.segment6.getId())
-      .setProgramId(fake.program4.getId())
-      .setProgramSequenceBindingId(fake.program4_binding0.getId())
+    test.insert(SegmentChoice.create().setSegmentId(fixture.segment6.getId())
+      .setProgramId(fixture.program4.getId())
+      .setProgramSequenceBindingId(fixture.program4_binding0.getId())
       .setTypeEnum(ProgramType.Macro)
       .setTranspose(0));
-    test.insert(SegmentChoice.create().setSegmentId(fake.segment6.getId())
-      .setProgramId(fake.program5.getId())
-      .setProgramSequenceBindingId(fake.program5_binding0.getId())
+    test.insert(SegmentChoice.create().setSegmentId(fixture.segment6.getId())
+      .setProgramId(fixture.program5.getId())
+      .setProgramSequenceBindingId(fixture.program5_binding0.getId())
       .setTypeEnum(ProgramType.Main)
       .setTranspose(-6));
     for (String memeName : ImmutableList.of("Special", "Wild", "Pessimism", "Outlook")) {
-      test.insert(SegmentMeme.create(fake.segment6, memeName));
+      test.insert(SegmentMeme.create(fixture.segment6, memeName));
     }
-    test.insert(SegmentChord.create(fake.segment6, 0.0, "C minor"));
-    test.insert(SegmentChord.create(fake.segment6, 8.0, "Db minor"));
+    test.insert(SegmentChord.create(fixture.segment6, 0.0, "C minor"));
+    test.insert(SegmentChord.create(fixture.segment6, 8.0, "Db minor"));
   }
 
 }

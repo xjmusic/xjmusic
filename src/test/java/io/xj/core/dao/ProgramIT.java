@@ -55,6 +55,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
+import static io.xj.core.Tables.PROGRAM;
 import static io.xj.core.Tables.PROGRAM_MEME;
 import static io.xj.core.Tables.PROGRAM_SEQUENCE;
 import static io.xj.core.Tables.PROGRAM_SEQUENCE_BINDING;
@@ -295,19 +296,6 @@ public class ProgramIT {
   }
 
   @Test
-  public void readAll_excludesProgramsInEraseState() throws Exception {
-    test.insert(Program.create(fixture.user3, fixture.library2, ProgramType.Main, ProgramState.Erase, "fonds", "C#", 120.0, 0.6));
-    Access access = Access.create(ImmutableList.of(fixture.account1), "User");
-
-    Collection<Program> result = testDAO.readMany(access, ImmutableList.of(fixture.library1.getId()));
-
-    assertEquals(2L, result.size());
-    Iterator<Program> resultIt = result.iterator();
-    assertEquals("fonds", resultIt.next().getName());
-    assertEquals("nuts", resultIt.next().getName());
-  }
-
-  @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
     Access access = Access.create(ImmutableList.of(Account.create()), "User");
 
@@ -410,40 +398,66 @@ public class ProgramIT {
 
 
   @Test
-  public void erase() throws Exception {
+  public void destroy_asArtist() throws Exception {
     Access access = Access.create(ImmutableList.of(fixture.account1), "Artist");
     fixture.program35 = test.insert(Program.create(fixture.user3, fixture.library2, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6));
 
-    testDAO.erase(access, fixture.program35.getId());
+    testDAO.destroy(access, fixture.program35.getId());
 
-    Program result = testDAO.readOne(Access.internal(), fixture.program35.getId());
-    assertNotNull(result);
-    assertEquals(ProgramState.Erase, result.getState());
+    assertEquals(Integer.valueOf(0), test.getDSL()
+      .selectCount().from(PROGRAM)
+      .where(PROGRAM.ID.eq(fixture.program35.getId()))
+      .fetchOne(0, int.class));
   }
 
   @Test
-  public void erase_failsIfNotInAccount() throws Exception {
+  public void destroy_failsIfNotInAccount() throws Exception {
     fixture.account2 = Account.create();
     Access access = Access.create(ImmutableList.of(fixture.account2), "Artist");
 
     failure.expect(CoreException.class);
-    failure.expectMessage("Program does not exist");
+    failure.expectMessage("Program belonging to you does not exist");
 
-    testDAO.erase(access, fixture.program1.getId());
+    testDAO.destroy(access, fixture.program1.getId());
   }
 
+  /**
+   [#170299297] Cannot delete Programs that have a Meme
+   */
   @Test
-  public void erase_SucceedsEvenWithChildren() throws Exception {
+  public void destroy_failsIfHasMemes() throws Exception {
+    Access access = Access.create("Admin");
+    Program program = test.insert(Program.create(fixture.user3, fixture.library2, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6));
+    test.insert(ProgramMeme.create(program, "frozen"));
+    test.insert(ProgramMeme.create(program, "ham"));
+
+    failure.expect(CoreException.class);
+    failure.expectMessage("Found Program Meme");
+
+    testDAO.destroy(access, program.getId());
+  }
+
+  /**
+   [#170299297] As long as program has no meme, destroy all other inner entities
+   */
+  @Test
+  public void destroy_succeedsWithInnerEntitiesButNoMemes() throws Exception {
     Access access = Access.create(fixture.user2, ImmutableList.of(fixture.account1), "Artist");
-    fixture.program35 = test.insert(Program.create(fixture.user3, fixture.library2, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6));
-    ProgramSequence sequence1001a = test.insert(ProgramSequence.create(fixture.program35, 16, "Intro", 0.6, "C", 120.0));
-    test.insert(ProgramSequenceBinding.create(sequence1001a, 0));
+    Program program = test.insert(Program.create(fixture.user3, fixture.library1, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6));
+    ProgramSequence programSequence = test.insert(ProgramSequence.create(program, 4, "Ants", 0.583, "D minor", 120.0));
+    test.insert(ProgramSequenceBinding.create(programSequence, 0));
+    ProgramVoice voice = test.insert(ProgramVoice.create(program, InstrumentType.Percussive, "drums"));
+    ProgramVoiceTrack track = test.insert(ProgramVoiceTrack.create(voice, "Kick"));
+    test.insert(ProgramSequenceChord.create(programSequence, 0, "D"));
+    ProgramSequencePattern pattern = test.insert(ProgramSequencePattern.create(programSequence, voice, ProgramPatternType.Loop, 8, "jam"));
+    test.insert(ProgramSequencePatternEvent.create(pattern, track, 0, 1, "C", 1));
 
-    testDAO.erase(access, fixture.program35.getId());
+    testDAO.destroy(access, program.getId());
 
-    Program result = testDAO.readOne(Access.internal(), fixture.program35.getId());
-    assertNotNull(result);
-    assertEquals(ProgramState.Erase, result.getState());
+    assertEquals(Integer.valueOf(0), test.getDSL()
+      .selectCount().from(PROGRAM)
+      .where(PROGRAM.ID.eq(program.getId()))
+      .fetchOne(0, int.class));
   }
 }
 

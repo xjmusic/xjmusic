@@ -30,6 +30,11 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static io.xj.core.Tables.INSTRUMENT;
+import static io.xj.core.Tables.INSTRUMENT_AUDIO;
+import static io.xj.core.Tables.INSTRUMENT_AUDIO_CHORD;
+import static io.xj.core.Tables.INSTRUMENT_AUDIO_EVENT;
+import static io.xj.core.Tables.INSTRUMENT_MEME;
 import static io.xj.core.Tables.LIBRARY;
 import static io.xj.core.Tables.PROGRAM;
 import static io.xj.core.Tables.PROGRAM_MEME;
@@ -139,14 +144,12 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     if (access.isTopLevel())
       return DAO.modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .where(PROGRAM.LIBRARY_ID.in(parentIds))
-        .and(PROGRAM.STATE.notEqual(String.valueOf(ProgramState.Erase)))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
     else
       return DAO.modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(PROGRAM.LIBRARY_ID.in(parentIds))
-        .and(PROGRAM.STATE.notEqual(String.valueOf(ProgramState.Erase)))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
@@ -183,14 +186,12 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   public Collection<Program> readAll(Access access) throws CoreException {
     if (access.isTopLevel())
       return DAO.modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
-        .where(PROGRAM.STATE.notEqual(String.valueOf(ProgramState.Erase)))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
     else
       return DAO.modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .and(PROGRAM.STATE.notEqual(String.valueOf(ProgramState.Erase)))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
   }
@@ -214,6 +215,47 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
+    //
+    // [#170299297] Cannot delete Programs that have a Meme-- otherwise, destroy all inner entities
+    //
+
+    requireNotExists("Program Memes", db.selectCount().from(PROGRAM_MEME)
+      .where(PROGRAM_MEME.PROGRAM_ID.eq(id))
+      .fetchOne(0, int.class));
+
+
+    db.deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
+      .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(PROGRAM_SEQUENCE_PATTERN)
+      .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(PROGRAM_SEQUENCE_BINDING_MEME)
+      .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(PROGRAM_SEQUENCE_BINDING)
+      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(PROGRAM_SEQUENCE_CHORD)
+      .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(PROGRAM_SEQUENCE)
+      .where(PROGRAM_SEQUENCE.PROGRAM_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(PROGRAM_VOICE_TRACK)
+      .where(PROGRAM_VOICE_TRACK.PROGRAM_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(PROGRAM_VOICE)
+      .where(PROGRAM_VOICE.PROGRAM_ID.eq(id))
+      .execute();
+
     db.deleteFrom(PROGRAM)
       .where(PROGRAM.ID.eq(id))
       .execute();
@@ -230,14 +272,12 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
       return DAO.modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.eq(accountId))
-        .and(PROGRAM.STATE.notEqual(String.valueOf(ProgramState.Erase)))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
     else
       return DAO.modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.in(accountId))
-        .and(PROGRAM.STATE.notEqual(String.valueOf(ProgramState.Erase)))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
@@ -256,25 +296,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  public void erase(Access access, UUID id) throws CoreException {
-    if (access.isTopLevel())
-      requireExists("Program", dbProvider.getDSL().selectCount().from(PROGRAM)
-        .where(PROGRAM.ID.eq(id))
-        .fetchOne(0, int.class));
-    else requireExists("Program", dbProvider.getDSL().selectCount().from(PROGRAM)
-      .join(Library.LIBRARY).on(Library.LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-      .where(PROGRAM.ID.eq(id))
-      .and(Library.LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-      .fetchOne(0, int.class));
-
-    // Update program state to Erase
-    Program program = readOne(access, id);
-    program.setStateEnum(ProgramState.Erase);
-
-    executeUpdate(dbProvider.getDSL(), PROGRAM, id, program);
-  }
-
-  @Override
   public Collection<UUID> readIdsInLibraries(Access access, Collection<UUID> parentIds) throws CoreException {
     requireArtist(access);
     return DAO.idsFrom(dbProvider.getDSL().select(PROGRAM.ID)
@@ -282,21 +303,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
       .where(PROGRAM.LIBRARY_ID.in(parentIds))
       .and(PROGRAM.STATE.equal(ProgramState.Published.toString()))
       .fetch());
-  }
-
-  @Override
-  public void destroyChildEntities(Access access, Collection<UUID> programIds) throws CoreException {
-    requireTopLevel(access);
-    DSLContext db = dbProvider.getDSL();
-    db.deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT).where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.in(programIds)).execute();
-    db.deleteFrom(PROGRAM_SEQUENCE_PATTERN).where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID.in(programIds)).execute();
-    db.deleteFrom(PROGRAM_SEQUENCE_BINDING_MEME).where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(programIds)).execute();
-    db.deleteFrom(PROGRAM_SEQUENCE_BINDING).where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.in(programIds)).execute();
-    db.deleteFrom(PROGRAM_SEQUENCE_CHORD).where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.in(programIds)).execute();
-    db.deleteFrom(PROGRAM_SEQUENCE).where(PROGRAM_SEQUENCE.PROGRAM_ID.in(programIds)).execute();
-    db.deleteFrom(PROGRAM_VOICE_TRACK).where(PROGRAM_VOICE_TRACK.PROGRAM_ID.in(programIds)).execute();
-    db.deleteFrom(PROGRAM_VOICE).where(PROGRAM_VOICE.PROGRAM_ID.in(programIds)).execute();
-    db.deleteFrom(PROGRAM_MEME).where(PROGRAM_MEME.PROGRAM_ID.in(programIds)).execute();
   }
 
   /**

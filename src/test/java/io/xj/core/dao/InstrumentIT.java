@@ -294,15 +294,32 @@ public class InstrumentIT {
     Assert.assertNotExist(testDAO, fake.instrument251.getId());
   }
 
+  /**
+   [#170299297] Cannot delete Instruments that have a Meme
+   */
   @Test
-  public void destroy_FailsIfInstrumentHasMemes() throws Exception {
+  public void destroy_failsIfHasMemes() throws Exception {
     Access access = Access.create("Admin");
     Instrument instrument = test.insert(Instrument.create(fake.user3, fake.library1, InstrumentType.Harmonic, InstrumentState.Published, "sandwich"));
     test.insert(InstrumentMeme.create(instrument, "frozen"));
     test.insert(InstrumentMeme.create(instrument, "ham"));
 
     failure.expect(CoreException.class);
-    failure.expectMessage("Found MemeEntity");
+    failure.expectMessage("Found Instrument Meme");
+
+    testDAO.destroy(access, instrument.getId());
+  }
+
+  /**
+   [#170299297] As long as instrument has no meme, destroy all other inner entities
+   */
+  @Test
+  public void destroy_succeedsWithInnerEntitiesButNoMemes() throws Exception {
+    Access access = Access.create("Admin");
+    Instrument instrument = test.insert(Instrument.create(fake.user3, fake.library1, InstrumentType.Harmonic, InstrumentState.Published, "sandwich"));
+    InstrumentAudio audio= test.insert(InstrumentAudio.create(instrument,"drums","drums.wav",0,1,120,300,0.6));
+    test.insert(InstrumentAudioChord.create(audio, 0, "D minor"));
+    test.insert(InstrumentAudioEvent.create(audio, 0, 0.5, "bing", "D", 1));
 
     testDAO.destroy(access, instrument.getId());
   }

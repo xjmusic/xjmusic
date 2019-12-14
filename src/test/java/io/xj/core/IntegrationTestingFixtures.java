@@ -41,6 +41,7 @@ import io.xj.core.model.UserRoleType;
 import io.xj.core.testing.IntegrationTestProvider;
 import io.xj.core.testing.InternalResources;
 import io.xj.core.util.Text;
+import org.jooq.DSLContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +49,17 @@ import java.io.FileInputStream;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
+
+import static io.xj.core.Tables.PROGRAM_MEME;
+import static io.xj.core.Tables.PROGRAM_SEQUENCE;
+import static io.xj.core.Tables.PROGRAM_SEQUENCE_BINDING;
+import static io.xj.core.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
+import static io.xj.core.Tables.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.core.Tables.PROGRAM_SEQUENCE_PATTERN;
+import static io.xj.core.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.core.Tables.PROGRAM_VOICE;
+import static io.xj.core.Tables.PROGRAM_VOICE_TRACK;
 
 /**
  [#165954673] Integration tests use shared scenario fixtures as much as possible
@@ -717,4 +729,22 @@ public class IntegrationTestingFixtures {
     return entity;
   }
 
+  /**
+   Destroy inner entities of program
+
+   @param program to destroy inner entities of
+   */
+  public void destroyInnerEntities(Program program) {
+    UUID id = program.getId();
+    DSLContext db = test.getDSL();
+    db.deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT).where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.eq(id)).execute();
+    db.deleteFrom(PROGRAM_SEQUENCE_PATTERN).where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID.eq(id)).execute();
+    db.deleteFrom(PROGRAM_SEQUENCE_BINDING_MEME).where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.eq(id)).execute();
+    db.deleteFrom(PROGRAM_SEQUENCE_BINDING).where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.eq(id)).execute();
+    db.deleteFrom(PROGRAM_SEQUENCE_CHORD).where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.eq(id)).execute();
+    db.deleteFrom(PROGRAM_SEQUENCE).where(PROGRAM_SEQUENCE.PROGRAM_ID.eq(id)).execute();
+    db.deleteFrom(PROGRAM_VOICE_TRACK).where(PROGRAM_VOICE_TRACK.PROGRAM_ID.eq(id)).execute();
+    db.deleteFrom(PROGRAM_VOICE).where(PROGRAM_VOICE.PROGRAM_ID.eq(id)).execute();
+    db.deleteFrom(PROGRAM_MEME).where(PROGRAM_MEME.PROGRAM_ID.eq(id)).execute();
+  }
 }

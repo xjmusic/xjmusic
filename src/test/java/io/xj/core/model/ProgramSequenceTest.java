@@ -524,54 +524,5 @@ public class ProgramSequenceTest {
     assertNotExist(testDAO, BigInteger.valueOf(2L));
   }
 
-
-  @Test
-  public void erase() throws Exception {
-    Access access = of(ImmutableList.of(account1), "Artist");
-    insertSequence(1001, 2, 1, ProgramType.Main, ProgramState.Published, "fonds", 0.342, "C#", 0.286);
-
-    testDAO.erase(access, BigInteger.valueOf(1001L));
-
-    Sequence result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001L));
-    assertNotNull(result);
-    assertEquals(ProgramState.Erase, result.getState());
-  }
-
-  @Test
-  public void erase_failsIfNotInAccount() throws Exception {
-    Access access = of(ImmutableList.of(account2), "Artist");
-
-    failure.expect(CoreException.class);
-    failure.expectMessage("Sequence does not exist");
-
-    testDAO.erase(access, BigInteger.valueOf(1L));
-  }
-
-  @Test
-  public void erase_FailsIfSequenceHasMeme() throws Exception {
-    Access access = of(user2, ImmutableList.of(account1), "Artist");
-    insertPattern(1001, 1, PatternType.Main, PatternState.Published, 16, "Intro", 0.6, "C", 120.0);
-    insertSequenceBinding(100110, 1, 1001, 0);
-
-    failure.expect(CoreException.class);
-    failure.expectMessage("MemeEntity in Sequence");
-
-    testDAO.erase(access, BigInteger.valueOf(1L));
-  }
-
-  @Test
-  public void erase_SucceedsEvenWithChildren() throws Exception {
-    Access access = of(user2, ImmutableList.of(account1), "Artist");
-    insertSequence(1001, 2, 1, ProgramType.Main, ProgramState.Published, "fonds", 0.342, "C#", 0.286);
-    insertPattern(1002, 1001, PatternType.Main, PatternState.Published, 16, "Intro", 0.6, "C", 120.0);
-    insertSequenceBinding(100210010, 1001, 1002, 0);
-
-    testDAO.erase(access, BigInteger.valueOf(1001L));
-
-    Sequence result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001L));
-    assertNotNull(result);
-    assertEquals(ProgramState.Erase, result.getState());
-  }
-
    */
 }

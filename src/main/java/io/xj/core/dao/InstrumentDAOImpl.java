@@ -98,13 +98,25 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
-    requireNotExists("Audio in Instrument", db.selectCount().from(INSTRUMENT_AUDIO)
-      .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(id))
-      .fetchOne(0, int.class));
+    //
+    // [#170299297] Cannot delete Instruments that have a Meme-- otherwise, destroy all inner entities
+    //
 
-    requireNotExists("MemeEntity in Instrument", db.selectCount().from(INSTRUMENT_MEME)
+    requireNotExists("Instrument Memes", db.selectCount().from(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
       .fetchOne(0, int.class));
+
+    db.deleteFrom(INSTRUMENT_AUDIO_CHORD)
+      .where(INSTRUMENT_AUDIO_CHORD.INSTRUMENT_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(INSTRUMENT_AUDIO_EVENT)
+      .where(INSTRUMENT_AUDIO_EVENT.INSTRUMENT_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(INSTRUMENT_AUDIO)
+      .where(INSTRUMENT_AUDIO.INSTRUMENT_ID.eq(id))
+      .execute();
 
     db.deleteFrom(INSTRUMENT)
       .where(INSTRUMENT.ID.eq(id))

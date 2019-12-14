@@ -10,8 +10,7 @@ import java.util.Objects;
 
 public enum ProgramState {
   Draft,
-  Published,
-  Erase;
+  Published;
 
   /**
    String Values

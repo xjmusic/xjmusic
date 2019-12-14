@@ -13,7 +13,6 @@ import io.xj.core.access.Access;
 import io.xj.core.app.App;
 import io.xj.core.app.AppConfiguration;
 import io.xj.core.dao.ChainDAO;
-import io.xj.core.dao.ProgramDAO;
 import io.xj.core.dao.SegmentChoiceDAO;
 import io.xj.core.dao.SegmentChordDAO;
 import io.xj.core.dao.SegmentDAO;
@@ -65,7 +64,7 @@ public class ChainFabricateJobIT {
   AmazonProvider amazonProvider;
   private App app;
 
-  private IntegrationTestingFixtures fix;
+  private IntegrationTestingFixtures fixture;
   private Injector injector;
   private IntegrationTestProvider test;
 
@@ -87,17 +86,17 @@ public class ChainFabricateJobIT {
         }
       })));
     test = injector.getInstance(IntegrationTestProvider.class);
-    fix = new IntegrationTestingFixtures(test);
+    fixture = new IntegrationTestingFixtures(test);
 
 
     // reset to shared fixtures
     test.reset();
-    fix.insertFixtureB1();
-    fix.insertFixtureB_Instruments();
+    fixture.insertFixtureB1();
+    fixture.insertFixtureB_Instruments();
 
     // Chain "Test Print #1" is ready to begin
-    fix.chain1 = test.insert(Chain.create(fix.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(1000), null, null));
-    test.insert(ChainBinding.create(fix.chain1, fix.library2));
+    fixture.chain1 = test.insert(Chain.create(fixture.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(1000), null, null));
+    test.insert(ChainBinding.create(fixture.chain1, fixture.library2));
 
     // Server App
     app = new App(ImmutableList.of("io.xj.worker"), injector);
@@ -112,23 +111,23 @@ public class ChainFabricateJobIT {
 
   @Test
   public void fabricatesSegments() throws Exception {
-    when(amazonProvider.generateKey(String.format("chains-%s-segments", fix.chain1.getId()), "ogg"))
+    when(amazonProvider.generateKey(String.format("chains-%s-segments", fixture.chain1.getId()), "ogg"))
       .thenReturn("chains-1-segments-12345.ogg");
-    app.getWorkManager().startChainFabrication(fix.chain1.getId());
+    app.getWorkManager().startChainFabrication(fixture.chain1.getId());
     assertTrue(hasRemainingWork(WorkType.ChainFabricate));
 
     // Start app, wait for work, stop app
     app.start();
     int assertShippedSegmentsMinimum = 3;
-    while (!hasChainAtLeastSegments(fix.chain1.getId(), assertShippedSegmentsMinimum) && isWithinTimeLimit()) {
+    while (!hasChainAtLeastSegments(fixture.chain1.getId(), assertShippedSegmentsMinimum) && isWithinTimeLimit()) {
       Thread.sleep(MILLIS_PER_SECOND);
     }
-    app.getWorkManager().stopChainFabrication(fix.chain1.getId());
+    app.getWorkManager().stopChainFabrication(fixture.chain1.getId());
 
     // assertions
-    verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).generateKey(eq(String.format("chains-%s-segments", fix.chain1.getId())), eq("ogg"));
+    verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).generateKey(eq(String.format("chains-%s-segments", fixture.chain1.getId())), eq("ogg"));
     verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).putS3Object(eq("/tmp/chains-1-segments-12345.ogg"), eq("xj-segment-test"), any());
-    Collection<Segment> result = injector.getInstance(SegmentDAO.class).readMany(Access.internal(), ImmutableList.of(fix.chain1.getId()));
+    Collection<Segment> result = injector.getInstance(SegmentDAO.class).readMany(Access.internal(), ImmutableList.of(fixture.chain1.getId()));
     assertTrue(assertShippedSegmentsMinimum <= result.size());
   }
 
@@ -138,39 +137,39 @@ public class ChainFabricateJobIT {
    */
   @Test
   public void fabricatesSegments_revertsAndRequeuesOnFailure() throws Exception {
-    when(amazonProvider.generateKey(String.format("chains-%s-segments", fix.chain1.getId()), "ogg"))
+    when(amazonProvider.generateKey(String.format("chains-%s-segments", fixture.chain1.getId()), "ogg"))
       .thenReturn("chains-1-segments-12345.ogg");
 
     // destroy contents of program to invoke failure
-    injector.getInstance(ProgramDAO.class).destroyChildEntities(Access.internal(), ImmutableList.of(fix.program4.getId()));
+    fixture.destroyInnerEntities(fixture.program4);
 
     // this segment is already in planned state-- it will end up reverted a.k.a. back in planned state
-    fix.segment1 = test.insert(Segment.create(fix.chain1, 0, Instant.now().minusSeconds(1000)));
+    fixture.segment1 = test.insert(Segment.create(fixture.chain1, 0, Instant.now().minusSeconds(1000)));
 
     // This ensures that the re-queued work does not get executed before the end of the test
     System.setProperty("segment.requeue.seconds", "666");
 
     // Send individual chain segment fabrication message to queue
-    app.getWorkManager().scheduleSegmentFabricate(1, fix.segment1.getId());
+    app.getWorkManager().scheduleSegmentFabricate(1, fixture.segment1.getId());
     assertTrue(hasRemainingWork(WorkType.SegmentFabricate));
 
     // Start app, wait arbitrary # of seconds (it should fail immediately, which is what we are testing for), stop app
     app.start();
     Thread.sleep(ARBITRARY_SMALL_PAUSE_SECONDS * MILLIS_PER_SECOND);
-    app.getWorkManager().stopChainFabrication(fix.chain1.getId());
+    app.getWorkManager().stopChainFabrication(fixture.chain1.getId());
 
     // verify that the chain is still in fabricate state
-    Chain resultChain = injector.getInstance(ChainDAO.class).readOne(Access.internal(), fix.chain1.getId());
+    Chain resultChain = injector.getInstance(ChainDAO.class).readOne(Access.internal(), fixture.chain1.getId());
     assertNotNull(resultChain);
     assertEquals(ChainState.Fabricate, resultChain.getState());
 
     // verify that the segment is in planned state
-    Segment resultSegment = injector.getInstance(SegmentDAO.class).readOne(Access.internal(), fix.segment1.getId());
+    Segment resultSegment = injector.getInstance(SegmentDAO.class).readOne(Access.internal(), fixture.segment1.getId());
     assertNotNull(resultSegment);
     assertEquals(SegmentState.Planned, resultSegment.getState());
 
     // verify that a follow-up segment fabricate job has been queued
-    assertTrue(app.getWorkManager().isExistingWork(WorkState.Queued, WorkType.SegmentFabricate, fix.segment1.getId()));
+    assertTrue(app.getWorkManager().isExistingWork(WorkState.Queued, WorkType.SegmentFabricate, fixture.segment1.getId()));
 
     // verify that an error message has been created and attached to this segment, informing engineers of the problem
     Collection<SegmentMessage> resultSegmentMessages = injector.getInstance(SegmentMessageDAO.class).readMany(Access.internal(), ImmutableList.of(resultSegment.getId()));
@@ -180,9 +179,9 @@ public class ChainFabricateJobIT {
     assertTrue(resultErrorBody.contains("Failed while doing Craft work"));
 
     // verify that the segment has no other child entities (besides messages)
-    assertTrue(injector.getInstance(SegmentMemeDAO.class).readMany(Access.internal(), ImmutableList.of(fix.segment1.getId())).isEmpty());
-    assertTrue(injector.getInstance(SegmentChordDAO.class).readMany(Access.internal(), ImmutableList.of(fix.segment1.getId())).isEmpty());
-    assertTrue(injector.getInstance(SegmentChoiceDAO.class).readMany(Access.internal(), ImmutableList.of(fix.segment1.getId())).isEmpty());
+    assertTrue(injector.getInstance(SegmentMemeDAO.class).readMany(Access.internal(), ImmutableList.of(fixture.segment1.getId())).isEmpty());
+    assertTrue(injector.getInstance(SegmentChordDAO.class).readMany(Access.internal(), ImmutableList.of(fixture.segment1.getId())).isEmpty());
+    assertTrue(injector.getInstance(SegmentChoiceDAO.class).readMany(Access.internal(), ImmutableList.of(fixture.segment1.getId())).isEmpty());
   }
 
   /**

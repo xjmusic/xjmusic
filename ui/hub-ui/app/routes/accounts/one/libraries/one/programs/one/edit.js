@@ -1,4 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+import {get} from '@ember/object';
 
 import {Promise as EmberPromise} from 'rsvp';
 import {inject as service} from '@ember/service';
@@ -9,49 +10,52 @@ export default Route.extend({
   // Inject: authentication service
   auth: service(),
 
-  // Inject: configuration service
-  config: service(),
-
   // Inject: flash message service
   display: service(),
+
+  // Inject: configuration service
+  config: service(),
 
   /**
    * Model is a promise because it depends on promised configs
    * @returns {Promise}
    */
   model() {
-    if (!(this.auth.isArtist || this.auth.isAdmin))
-      return this.transitionTo('accounts.one.libraries.one.programs');
-
     return new EmberPromise((resolve, reject) => {
       this.config.getConfig().then(
         () => {
-          let library = this.modelFor('accounts.one.libraries.one');
-          let program = this.modelFor('accounts.one.libraries.one.programs.editor');
-          program.set('library', library);
-          resolve(program);
+          let auth = this.get('auth');
+          if (auth.isArtist || auth.isAdmin) {
+            let library = this.modelFor('accounts.one.libraries.one');
+            let program = this.modelFor('accounts.one.libraries.one.programs.one');
+            program.set('library', library);
+            resolve(program);
 
+          } else {
+            this.transitionTo('accounts.one.libraries.one.programs');
+          }
         },
         (error) => {
-          reject('Could not instantiate Sequence model', error);
+          reject('Could not instantiate Program model', error);
         }
       );
     });
   },
 
+
   /**
-   * Route Actions
+   * Route actions
    */
   actions: {
 
-    saveSequence(model) {
+    saveProgram(model) {
       model.save().then(
         () => {
-          this.display.success('Updated sequence ' + model.get('name') + '.');
+          get(this, 'display').success('Updated program.');
           history.back();
         },
         (error) => {
-          this.display.error(error);
+          get(this, 'display').error(error);
         });
     },
 
@@ -65,8 +69,11 @@ export default Route.extend({
           transition.abort();
         }
       }
-    }
+    },
 
+    cancel() {
+      history.back();
+    },
   }
 
 });

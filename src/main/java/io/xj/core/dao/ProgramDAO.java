@@ -54,14 +54,6 @@ public interface ProgramDAO extends DAO<Program> {
   Collection<Program> readAllInState(Access access, ProgramState state) throws CoreException;
 
   /**
-   Erase a specified Program if accessible.
-
-   @param access control
-   @param id     of specific program to erase.
-   */
-  void erase(Access access, UUID id) throws CoreException;
-
-  /**
    Read all ids of Programs in the specified Library ids
 
    @param libraryIds of which to get all program ids
@@ -69,13 +61,6 @@ public interface ProgramDAO extends DAO<Program> {
    @return program ids in the specified library ids
    */
   Collection<UUID> readIdsInLibraries(Access access, Collection<UUID> libraryIds) throws CoreException;
-
-  /**
-   Destroy all child entities of a given program  @param access control
-
-   @param programIds to destroy child entities of
-   */
-  void destroyChildEntities(Access access, Collection<UUID> programIds) throws CoreException;
 
   /**
    Read many programs including all child entities
