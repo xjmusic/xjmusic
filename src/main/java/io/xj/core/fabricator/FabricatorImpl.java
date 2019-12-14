@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
 class FabricatorImpl implements Fabricator {
   private static final double NANOS_PER_SECOND = 1000000000.0;
   private final Access access;
+  private final Config config;
   private final AmazonProvider amazonProvider;
   private final Chain chain;
   private final Collection<ChainConfig> chainConfigs;
@@ -96,6 +97,7 @@ class FabricatorImpl implements Fabricator {
   ) throws CoreException {
     // FUTURE: [#165815496] Chain fabrication access control
     this.access = access;
+    this.config = config;
     log.info("[segId={}] Access {}", segment.getId(), access);
 
     this.amazonProvider = amazonProvider;
@@ -207,7 +209,7 @@ class FabricatorImpl implements Fabricator {
       return new ChainConfig()
         .setChainId(getChainId())
         .setTypeEnum(chainConfigType)
-        .setValue(chainConfigType.defaultValue());
+        .setValue(getDefaultValue(chainConfigType));
     } catch (CoreException e) {
       throw exception(String.format("No default value for chainConfigType=%s", chainConfigType), e);
     }
@@ -579,6 +581,20 @@ class FabricatorImpl implements Fabricator {
 
     Optional<Long> max = sourceMaterial.getAvailableOffsets(sequenceBinding).stream().max(Long::compareTo);
     return max.filter(aLong -> 0 <= aLong.compareTo(sequenceBinding.getOffset() + N)).isPresent();
+  }
+
+  /**
+   Get default value for a given configuration type
+
+   @param chainConfigType to get default value for
+   @return default value for configuration type
+   */
+  private String getDefaultValue(ChainConfigType chainConfigType) throws CoreException {
+    try {
+      return config.getString(String.format("chainConfig.default%s", chainConfigType.getClass().getSimpleName()));
+    } catch (Exception ignored) {
+      throw new CoreException(String.format("No default value for type %s", this));
+    }
   }
 
   /**

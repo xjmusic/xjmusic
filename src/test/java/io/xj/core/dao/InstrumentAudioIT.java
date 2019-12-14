@@ -49,7 +49,6 @@ import static io.xj.core.Tables.INSTRUMENT_AUDIO_EVENT;
 import static io.xj.core.testing.Assert.assertNotExist;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -116,45 +115,6 @@ public class InstrumentAudioIT {
   public void tearDown() {
     test.shutdown();
   }
-
-/*
-
-TODO this setup?
-
-    @Before
-  public void setUp() throws Exception {
-    reset();
-
-    // Account "bananas"
-    insert(of(1, "bananas");
-
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    insert(of(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    insert(of(2, UserRoleType.Admin);
-
-    // Library "palm tree" has sequence "leaves" and sequence "coconuts"
-    insert(of(1, 1, "palm tree",now()));
-
-    // Sequence "leaves" has instruments "808" and "909"
-    insertInstrument(1, 1, 2, "Harmonic Performance", InstrumentType.Percussive, 0.9);
-
-    // Instrument "808" has InstrumentAudio "Chords Cm to D"
-    insertAudio(1, 1, "Published", "Chords Cm to D", "instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440.0);
-
-    // InstrumentAudio "Drums" has events "C minor" and "D major" 2x each
-    insertAudioChord(1, 4, "D major");
-    insertAudioChord(1, 0, "C minor");
-
-    // Instantiate the test subject
-    testDAO = injector.getInstance(AudioChordDAO.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    testDAO = null;
-  }
-*/
-
 
   @Test
   public void create() throws Exception {

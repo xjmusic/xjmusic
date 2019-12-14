@@ -67,9 +67,9 @@ Note that `localhost` simply points to the local loopback. Docker-compose maps m
 
 Assuming the docker containers are up and the hosts configured, you'll be able to open the main UI in a browser at [http://localhost/](http://localhost/)
 
-The front-end UI is served by the Nginx server on `hub01xj1` via the local `ui/hub-ui/dist` volume. During development, use the [Ember CLI](https://ember-cli.com/) to keep the front-end continuously re-built in real time:
+The front-end UI is served by the Nginx server on `hub01xj1` via the local `ui/hub-mk1-ui/dist` volume. During development, use the [Ember CLI](https://ember-cli.com/) to keep the front-end continuously re-built in real time:
 
-    cd ui/hub-ui
+    cd ui/hub-mk1-ui
     ember build --watch
 
 Preferably, use the script from the project root, to build and watch the UI during dev:
@@ -220,9 +220,9 @@ There is only one Nginx server locations configuration, shared by the local Dock
 
     ops/nginx/locations.conf
 
-The front-end user interface (ui/hub-ui) is served via Nginx from the local ui/dist/ folder. While developing (and the docker-compose containers are up), run the Ember build in watch-mode to keep the front-end ui rebuilt as your local code changes automatically:
+The front-end user interface (ui/hub-mk1-ui) is served via Nginx from the local ui/dist/ folder. While developing (and the docker-compose containers are up), run the Ember build in watch-mode to keep the front-end ui rebuilt as your local code changes automatically:
 
-    cd ui/hub-ui
+    cd ui/hub-mk1-ui
     ember build --watch
 
 
@@ -423,7 +423,7 @@ Note that in order to use that command, the source bucket (xj-prod-audio) must g
 
 
 
-## ui/hub-ui
+## ui/hub-mk1-ui
 
 Hub user interface web application. Built with Javascript, Ember, Node.
 

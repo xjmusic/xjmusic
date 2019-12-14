@@ -96,6 +96,7 @@ public class IntegrationTestingFixtures {
   public InstrumentAudio audioHihat;
   public InstrumentAudio audioKick;
   public InstrumentAudio audioSnare;
+  public InstrumentAudio instrument201_audio402;
   public InstrumentAudioChord audioChord1;
   public InstrumentAudioEvent audioEvent1;
   public InstrumentAudioEvent audioEvent2;
@@ -134,6 +135,7 @@ public class IntegrationTestingFixtures {
   public ProgramSequenceBinding program4_binding2;
   public ProgramSequenceBinding program5_binding0;
   public ProgramSequenceBinding program5_binding1;
+  public ProgramSequencePatternEvent program702_pattern901_boomEvent;
   public ProgramVoice voiceDrums;
   public Segment segment0;
   public Segment segment17;
@@ -245,7 +247,7 @@ public class IntegrationTestingFixtures {
     user101 = test.insert(User.create("john", "john@email.com", "http://pictures.com/john.gif"));
     test.insert(UserRole.create(user101, UserRoleType.Admin));
 
-    // Library content all createdat this known time
+    // Library content all created at this known time
     Instant at = Instant.parse("2014-08-12T12:17:02.527142Z");
     library10000001 = test.insert(Library.create(account1, "leaves", at));
 
@@ -254,13 +256,13 @@ public class IntegrationTestingFixtures {
     test.insert(InstrumentMeme.create(instrument201, "Ants"));
     test.insert(InstrumentMeme.create(instrument201, "Mold"));
     //
-    InstrumentAudio audio402 = test.insert(InstrumentAudio.create(instrument201, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01, 2.123, 120.0, 440.0, 0.62));
-    test.insert(InstrumentAudioChord.create(audio402, 0.0, "E minor"));
-    test.insert(InstrumentAudioChord.create(audio402, 4.0, "A major"));
-    test.insert(InstrumentAudioChord.create(audio402, 8.0, "B minor"));
-    test.insert(InstrumentAudioChord.create(audio402, 12.0, "F# major"));
-    test.insert(InstrumentAudioChord.create(audio402, 16.0, "Ab7"));
-    test.insert(InstrumentAudioChord.create(audio402, 20.0, "Bb7"));
+    instrument201_audio402 = test.insert(InstrumentAudio.create(instrument201, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01, 2.123, 120.0, 440.0, 0.62));
+    test.insert(InstrumentAudioChord.create(instrument201_audio402, 0.0, "E minor"));
+    test.insert(InstrumentAudioChord.create(instrument201_audio402, 4.0, "A major"));
+    test.insert(InstrumentAudioChord.create(instrument201_audio402, 8.0, "B minor"));
+    test.insert(InstrumentAudioChord.create(instrument201_audio402, 12.0, "F# major"));
+    test.insert(InstrumentAudioChord.create(instrument201_audio402, 16.0, "Ab7"));
+    test.insert(InstrumentAudioChord.create(instrument201_audio402, 20.0, "Bb7"));
     //
     InstrumentAudio audio401 = test.insert(InstrumentAudio.create(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440.0, 0.62));
     test.insert(InstrumentAudioEvent.create(audio401, 0.0, 1.0, "KICK", "Eb", 1.0));
@@ -305,7 +307,7 @@ public class IntegrationTestingFixtures {
     ProgramSequencePattern pattern901 = test.insert(ProgramSequencePattern.create(sequence702a, voiceDrums, ProgramPatternType.Loop, 16, "growth"));
     ProgramVoiceTrack trackBoom = test.insert(ProgramVoiceTrack.create(voiceDrums, "BOOM"));
     ProgramVoiceTrack trackSmack = test.insert(ProgramVoiceTrack.create(voiceDrums, "BOOM"));
-    test.insert(ProgramSequencePatternEvent.create(pattern901, trackBoom, 0.0, 1.0, "C", 1.0));
+    program702_pattern901_boomEvent = test.insert(ProgramSequencePatternEvent.create(pattern901, trackBoom, 0.0, 1.0, "C", 1.0));
     test.insert(ProgramSequencePatternEvent.create(pattern901, trackSmack, 1.0, 1.0, "G", 0.8));
     test.insert(ProgramSequencePatternEvent.create(pattern901, trackBoom, 2.5, 1.0, "C", 0.6));
     test.insert(ProgramSequencePatternEvent.create(pattern901, trackSmack, 3.0, 1.0, "G", 0.9));

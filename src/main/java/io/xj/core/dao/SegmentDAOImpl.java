@@ -354,7 +354,9 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     requireTopLevel(access);
 
     Segment segment = readOne(access, id);
-    // TODO delete all child entities of segment
+
+    // Destroy child entities of segment
+    destroyChildEntities(dbProvider.getDSL(), access, id);
 
     update(access, id, segment);
   }
@@ -378,6 +380,9 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
         waveformKey);
     }
 
+    // Destroy child entities of segment
+    destroyChildEntities(db, access, id);
+
     // Delete Segment
     db.deleteFrom(SEGMENT)
       .where(SEGMENT.ID.eq(id))
@@ -389,4 +394,38 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     return new Segment();
   }
 
+  /**
+   Destroy all child entities of segment
+
+   @param db     DSL content
+   @param access control
+   @param id     segment to destroy child entities of
+   */
+  private void destroyChildEntities(DSLContext db, Access access, UUID id) throws CoreException {
+    requireTopLevel(access);
+
+    db.deleteFrom(SEGMENT_CHOICE_ARRANGEMENT_PICK)
+      .where(SEGMENT_CHOICE_ARRANGEMENT_PICK.SEGMENT_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(SEGMENT_CHOICE_ARRANGEMENT)
+      .where(SEGMENT_CHOICE_ARRANGEMENT.SEGMENT_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(SEGMENT_CHOICE)
+      .where(SEGMENT_CHOICE.SEGMENT_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(SEGMENT_MEME)
+      .where(SEGMENT_MEME.SEGMENT_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(SEGMENT_CHORD)
+      .where(SEGMENT_CHORD.SEGMENT_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(SEGMENT_MESSAGE)
+      .where(SEGMENT_MESSAGE.SEGMENT_ID.eq(id))
+      .execute();
+  }
 }

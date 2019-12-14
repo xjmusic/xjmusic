@@ -1,14 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model;
 
-import com.google.common.collect.ImmutableMap;
 import io.xj.core.exception.CoreException;
 import io.xj.core.util.CSV;
 import io.xj.core.util.Text;
 
-import javax.sound.sampled.AudioFormat;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -21,15 +18,6 @@ public enum ChainConfigType {
   OutputEncoding,
   OutputEncodingQuality,
   OutputContainer;
-
-  private static final Map<ChainConfigType, String> DEFAULT_VALUES = ImmutableMap.<ChainConfigType, String>builder()
-    .put(OutputSampleBits, "16")
-    .put(OutputFrameRate, "48000")
-    .put(OutputChannels, "2")
-    .put(OutputEncoding, String.valueOf(AudioFormat.Encoding.PCM_SIGNED))
-    .put(OutputEncodingQuality, "0.618")
-    .put(OutputContainer, "OGG")
-    .build();
 
   /**
    cast string to chain config type enum
@@ -56,19 +44,6 @@ public enum ChainConfigType {
    */
   public static List<String> stringValues() {
     return Text.toStrings(values());
-  }
-
-  /**
-   Get default value for a chain configuration type
-
-   @return default value
-   @throws CoreException if no default value exists
-   */
-  public String defaultValue() throws CoreException {
-    if (!DEFAULT_VALUES.containsKey(this))
-      throw new CoreException(String.format("No default value for type %s", this));
-
-    return DEFAULT_VALUES.get(this);
   }
 
 }

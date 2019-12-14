@@ -33,12 +33,19 @@ indent "Will build & watch all UI."
 indent "Send quit signal to teardown all processes."
 step_ok
 
-# Hub UI (start)
-step "Build Hub UI"
-cd ${BASEPATH}/ui/hub-ui
-npm install || fail "Installing Hub UI dependencies via NPM"
+# Hub Mk1 UI (start)
+step "Build Hub Mk1 UI (Ember)"
+cd ${BASEPATH}/ui/hub-mk1-ui
+npm install || fail "Installing Hub Mk1 UI dependencies via NPM"
 ember build --watch &
 HUB_EMBER_PID=$!
+
+# Hub Mk2 UI (start)
+step "Build Hub Mk2 UI (Vue)"
+cd ${BASEPATH}/ui/hub-mk2-ui
+npm install || fail "Installing Hub Mk2 UI dependencies via NPM"
+npm run build-watch &
+STEPMATIC_UI_PID=$!
 
 # Player UI (start)
 step "Build Player UI"
@@ -46,13 +53,6 @@ cd ${BASEPATH}/ui/player-ui
 npm install || fail "Installing Player UI dependencies via NPM"
 gulp watch &
 PLAYER_UI_PID=$!
-
-# Stepmatic UI (start)
-step "Build Stepmatic UI"
-cd ${BASEPATH}/ui/stepmatic-ui
-npm install || fail "Installing Stepmatic UI dependencies via NPM"
-npm run build-watch &
-STEPMATIC_UI_PID=$!
 
 # Loop til quit
 while :

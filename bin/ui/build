@@ -4,8 +4,8 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../common/functions
 
 #
-step "Build Hub UI"
-cd ${BASEPATH}/ui/hub-ui || exit 1
+step "Build Hub Mk1 UI"
+cd ${BASEPATH}/ui/hub-mk1-ui || exit 1
 npm install || exit 1
 # FUTURE: [#167003452] UI build enhancements
 # ember test || exit 1
@@ -14,19 +14,19 @@ chmod 755 -R dist/assets
 step_ok
 
 #
+step "Build Hub Mk2 UI"
+cd ${BASEPATH}/ui/hub-mk2-ui || exit 1
+npm install || exit 1
+npm run build || exit 1
+chmod 755 -R dist/
+step_ok
+
+#
 step "Build Player UI"
 cd ${BASEPATH}/ui/player-ui || exit 1
 npm install || exit 1
 jest || exit 1
 gulp || exit 1
-chmod 755 -R dist/
-step_ok
-
-#
-step "Build Stepmatic UI"
-cd ${BASEPATH}/ui/stepmatic-ui || exit 1
-npm install || exit 1
-npm run build || exit 1
 chmod 755 -R dist/
 step_ok
 

@@ -66,6 +66,33 @@ public class SegmentChoiceArrangementPick extends Entity {
       .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId());
   }
 
+  /**
+   Create pick from segment arrange
+
+   @param segmentChoiceArrangement to of pick from
+   @return segment pick
+   */
+  public static SegmentChoiceArrangementPick create(
+    SegmentChoiceArrangement segmentChoiceArrangement,
+    ProgramSequencePatternEvent programSequencePatternEvent,
+    InstrumentAudio instrumentAudio,
+    Double start,
+    Double length,
+    Double amplitude,
+    Double pitch,
+    String name) {
+    return create()
+      .setSegmentId(segmentChoiceArrangement.getSegmentId())
+      .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId())
+      .setProgramSequencePatternEventId(programSequencePatternEvent.getId())
+      .setInstrumentAudioId(instrumentAudio.getId())
+      .setStart(start)
+      .setLength(length)
+      .setAmplitude(amplitude)
+      .setPitch(pitch)
+      .setName(name);
+  }
+
   @Override
   public UUID getParentId() {
     return segmentId;

@@ -35,7 +35,7 @@ services:
     volumes:
       - /var/lib/postgresql/data
       - ./log/postgres:/var/log/postgres
-      - ./ops/docker/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./ops/postgres/postgresql.conf:/etc/postgresql/postgresql.conf
     ports:
       - "5400:5432"
     environment:

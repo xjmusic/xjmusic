@@ -5,7 +5,7 @@
 
 #
 step "Clean everything but the distribution"
-destroy ui/hub-ui/node_modules
+destroy ui/hub-mk1-ui/node_modules
 finished_ok
 
 # Plus basic cleanup

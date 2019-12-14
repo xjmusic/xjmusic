@@ -73,15 +73,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install postgres
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install nginx
 EXPOSE 80
 
-# Nginx configs and log folder (parity with AWS Elastic Beanstalk deployment)
-ADD \
-  ops/docker/nginx/nginx.conf \
-  /etc/nginx/nginx.conf
-RUN mkdir -p /etc/nginx/conf.d/locations
-ADD \
-  ops/nginx/locations.conf \
-  /etc/nginx/conf.d/locations/00_application.conf
-
 ###
 ### App-specific content follows
 ###

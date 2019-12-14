@@ -10,3 +10,5 @@ services:
     volumes:
       - .:/var/app/current
       - ./log:/var/log
+      - ./ops/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./ops/nginx/locations:/etc/nginx/conf.d/locations

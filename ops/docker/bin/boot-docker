@@ -45,7 +45,7 @@ wait_until "postgres_ok postgres01xj1 5400"
 wait_until "redis_ok redis01xj1 6379"
 
 # serve static frontend with nginx
-FRONTEND_PATH=/var/app/current/ui/hub-ui/dist/
+FRONTEND_PATH=/var/app/current/ui/hub-mk1-ui/dist/
 if [ ! -e "${FRONTEND_PATH}/index.html" ]; then
   printf "Cannot find ${FRONTEND_PATH}/index.html"
   exit 1
