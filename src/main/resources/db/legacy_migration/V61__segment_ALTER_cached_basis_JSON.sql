@@ -1,2 +1,0 @@
-ALTER TABLE segment
-  ADD COLUMN `basis` JSON NOT NULL;
