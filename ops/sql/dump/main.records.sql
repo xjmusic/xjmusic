@@ -123,6 +123,7 @@ COPY xj."user" (id, name, email, avatar_url, created_at, updated_at) FROM stdin;
 14dca4f4-16eb-11ea-8a37-9b49bdcb2e7d	David Cole	davecolemusic@gmail.com	https://lh6.googleusercontent.com/-4KwLE88wOfw/AAAAAAAAAAI/AAAAAAAADa0/wfqGtqAR8wo/s50/photo.jpg	2019-04-03 19:20:04	2019-12-04 15:09:11.135057
 14deee62-16eb-11ea-8a37-53d507873c72	Mark Stewart	mark.si.stewart@gmail.com	https://lh3.googleusercontent.com/-PtMRcK_-Bkg/AAAAAAAAAAI/AAAAAAAAASs/YlN0XjZSvdg/s50/photo.jpg	2019-04-05 22:16:16	2019-12-04 15:09:11.150042
 14e0e8c0-16eb-11ea-8a37-336eae21d833	Jay Whitaker	jaywhitaker93@gmail.com	https://lh6.googleusercontent.com/-TX6cFyyy4Lk/AAAAAAAAAAI/AAAAAAAAAAA/ACHi3rfOS7bcB1zZrLSP24erZqNVpql1Ow/s50-mo/photo.jpg	2019-06-10 19:23:39	2019-12-04 15:09:11.163006
+922b474c-2039-11ea-ba1c-2f04008a9cfd	Jay Dack	jay@descript.com  https://lh5.googleusercontent.com/-BQi3wWpexXA/AAAAAAAAAAI/AAAAAAAAAAA/ACHi3retQ-AohR01BNnhMfwajs2gwwXBjQ/s50/photo.jpg	2019-12-13 23:15:15	2019-12-13 23:15:15.163006
 \.
 
 
@@ -4322,6 +4323,7 @@ f721c4bc-16ea-11ea-a745-9b21ab64d5fa	Admin	488ada38-16ea-11ea-88e3-573050fbaae5	
 14e1d690-16eb-11ea-8a37-b32918bed6ff	Artist	14e0e8c0-16eb-11ea-8a37-336eae21d833	2019-12-04 15:09:11.169106	2019-12-04 15:09:11.169106
 14e2c73a-16eb-11ea-8a37-972296ed3800	User	14e0e8c0-16eb-11ea-8a37-336eae21d833	2019-12-04 15:09:11.175276	2019-12-04 15:09:11.175276
 14e37518-16eb-11ea-8a37-c39de06f28dc	Engineer	14e0e8c0-16eb-11ea-8a37-336eae21d833	2019-12-04 15:09:11.179709	2019-12-04 15:09:11.179709
+ca780fa4-2039-11ea-b727-5f82db0bdeda	User	922b474c-2039-11ea-ba1c-2f04008a9cfd	2019-12-14 15:09:11.175276	2019-12-14 15:09:11.175276
 \.
 
 
