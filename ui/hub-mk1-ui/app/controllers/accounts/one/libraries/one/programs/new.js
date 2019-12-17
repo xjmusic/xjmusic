@@ -13,6 +13,10 @@ export default Controller.extend({
       get(this, 'model').set('type', type);
     },
 
+    selectProgramState(state) {
+      get(this, 'model').set('state', state);
+    },
+
   }
 
 });

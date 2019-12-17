@@ -2,9 +2,10 @@
 package io.xj.core.model;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.core.exception.CoreException;
 import io.xj.core.entity.Entity;
+import io.xj.core.exception.CoreException;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -225,6 +226,7 @@ public class ProgramSequence extends Entity {
     require(name, "Name");
     require(key, "Key");
     require(density, "Density");
+    if (Objects.isNull(total)) total = 0;
     require(tempo, "Tempo");
   }
 

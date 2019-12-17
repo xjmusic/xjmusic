@@ -78,7 +78,7 @@ public class ChainEraseJobIT {
     test.insert(ChainBinding.create(fake.chain1, fake.library10000001));
     fake.segment1 = test.insert(Segment.create(fake.chain1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120, "chains-1-segments-9f7s89d8a7892-ONE.wav"));
     SegmentChoice choice = test.insert(SegmentChoice.create(fake.segment1, ProgramType.Rhythm, fake.program702, 0));
-    SegmentChoiceArrangement arrangement = test.insert(SegmentChoiceArrangement.create(choice, fake.voiceDrums, fake.instrument201));
+    SegmentChoiceArrangement arrangement = test.insert(SegmentChoiceArrangement.create(choice, fake.programVoice3, fake.instrument201));
     test.insert(SegmentChoiceArrangementPick.create(arrangement, fake.program702_pattern901_boomEvent, fake.instrument201_audio402,0.0,1.0,1.0,400.0,"boom"));
 
     fake.segment2 = test.insert(Segment.create(fake.chain1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120, "chains-1-segments-2807f2d5g2h32-TWO.wav"));

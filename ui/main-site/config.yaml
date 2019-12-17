@@ -1,0 +1,26 @@
+baseurl: 'https://xj.io/'
+languageCode: en-us
+title: XJ Music™
+paginate: 25
+copyright: XJ Music Inc
+theme: xj-theme
+taxonomies:
+  tags: tags
+permalinks:
+  resources: '/resources/:year/:slug/'
+  page: '/:slug/'
+params:
+  author: XJ Music™
+  email: hi@xj.io
+  images:
+    - 'https://xj.io/images/cover.jpg'
+  googleAnalytics: "UA-102762643-3"
+  date_format: 'Mon Jan 02, 2006'
+  truncate: true
+  sidebar: {}
+  social: {}
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true

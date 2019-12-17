@@ -5,11 +5,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import io.xj.core.access.Access;
 import io.xj.core.app.AppResource;
+import io.xj.core.dao.DAOCloner;
 import io.xj.core.dao.ProgramDAO;
+import io.xj.core.entity.Entity;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.Program;
 import io.xj.core.model.UserRoleType;
 import io.xj.core.payload.MediaType;
 import io.xj.core.payload.Payload;
+import io.xj.core.util.CSV;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -26,6 +30,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  Programs
@@ -108,13 +113,18 @@ public class ProgramEndpoint extends AppResource {
     try {
       Access access = Access.fromContext(crc);
       Program program = dao().newInstance().consume(payload);
-      Program created;
-      if (Objects.nonNull(cloneId))
-        created = dao().clone(access, UUID.fromString(cloneId), program);
-      else
-        created = dao().create(access, program);
+      Payload responsePayload = new Payload();
+      if (Objects.nonNull(cloneId)) {
+        DAOCloner<Program> cloner = dao().clone(access, UUID.fromString(cloneId), program);
+        responsePayload.setDataEntity(cloner.getClone());
+        responsePayload.setIncluded(cloner.getChildClones()
+          .stream().map(Entity::toPayloadObject)
+          .collect(Collectors.toList()));
+      } else {
+        responsePayload.setDataEntity(dao().create(access, program));
+      }
 
-      return response.create(new Payload().setDataEntity(created));
+      return response.create(responsePayload);
 
     } catch (Exception e) {
       return response.failureToCreate(e);
@@ -122,15 +132,33 @@ public class ProgramEndpoint extends AppResource {
   }
 
   /**
-   Get one program.
+   Get one program with included child entities
 
    @return application/json response.
    */
   @GET
   @Path("{id}")
   @RolesAllowed(UserRoleType.USER)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return readOne(crc, dao(), id);
+  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id, @QueryParam("include") String include) {
+    try {
+      Access access = Access.fromContext(crc);
+      UUID uuid = UUID.fromString(String.valueOf(id));
+
+      Payload payload = new Payload().setDataEntity(dao().readOne(access, uuid));
+
+      // optionally specify a CSV of included types to read
+      if (Objects.nonNull(include)) payload.setIncluded(
+        dao().readChildEntities(access, ImmutableList.of(uuid), CSV.split(include))
+          .stream().map(Entity::toPayloadObject).collect(Collectors.toList()));
+
+      return response.ok(payload);
+
+    } catch (CoreException ignored) {
+      return response.notFound(dao.newInstance().setId(UUID.fromString(String.valueOf(id))));
+
+    } catch (Exception e) {
+      return response.failure(e);
+    }
   }
 
   /**

@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 import store from './store';
-import api from './api';
-//
+import router from './router';
 import Vue from 'vue/dist/vue.js';
 import App from './App';
 import VueResource from 'vue-resource';
@@ -10,6 +9,7 @@ import vSelect from 'vue-select';
 import VueJSModal from "vue-js-modal";
 import VueLodash from "vue-lodash";
 import VueFlashMessage from 'vue-flash-message';
+import VueRouter from "vue-router";
 
 /**
  * XSS attack protection
@@ -45,6 +45,22 @@ Vue.http.interceptors.push((request, next) => {
   next()
 });
 
+// Router
+Vue.use(VueRouter);
+
+/* eslint-disable no-new */
+window.mainVue = new Vue({
+  el: '#app',
+  router: new VueRouter(router),
+  store: new Vuex.Store(store),
+  components: {App},
+  template: '<App/>'
+}).$mount('#app');
+
+/*
+
+TODO remove legacy params based bootstrap
+
 let params = getParams();
 let id = params.id;
 if (id)
@@ -52,16 +68,18 @@ if (id)
     .then(response => response.json())
     .then(data => api.deserializer.deserialize(data))
     .then(program => {
-      /* eslint-disable no-new */
+      /!* eslint-disable no-new *!/
       window.mainVue = new Vue({
         el: '#app',
+        router: new VueRouter({routes}),
         store: new Vuex.Store(store(program)),
         components: {App},
         template: '<App/>'
-      });
+      }).$mount('#app');
     })
     .catch(error => {
       alert(`${error.statusText}! (Code ${error.status})`);
     });
 else
   alert("Can't start Stepmatic with Program to load!");
+*/

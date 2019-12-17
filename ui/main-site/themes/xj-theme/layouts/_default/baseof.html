@@ -1,39 +1,34 @@
-<!-- Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved. -->
 <!DOCTYPE html>
-
-<html lang="{{ .Lang }}">
-
+<html lang='{{ .Site.LanguageCode | default "en" }}'>
 <head>
-  {{ partial "meta-head" . }}
 
-  {{ block "schema-dot-org" . }}
-  <!-- schema.org metadata differs for Nodes and Pages -->
-  {{ end }}
+  <title>{{ if .Title }}{{ .Title }} | {{ end }}{{ .Site.Title }}</title>
+  <meta charset="utf-8">
+  {{ hugo.Generator }}
+  <meta name="description" content='{{ .Description | default (i18n "description") }}'>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <link rel="canonical" href="{{ .Permalink }}">
-
-  <title>{{ block "title" . }}{{ .Site.Title }}{{ end }}</title>
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="manifest" href="/site.webmanifest">
-  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-  <meta name="msapplication-TileColor" content="#000000">
-  <meta name="theme-color" content="#000000">
+  <link rel="alternate" type="application/rss+xml"
+        href='{{ with .OutputFormats.Get "RSS" }}{{ .RelPermalink }}{{ end }}'
+        title="{{ .Site.Title }}">
 
   <link rel="stylesheet" href="/css/vendor/bootstrap.min.css">
   <link rel="stylesheet" href="/css/vendor/tether.min.css">
 
-  <link rel="stylesheet" href="/css/main.css">
+  {{ $style := resources.Get "style/main.scss" | toCSS | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $style.Permalink }}">
 
-  {{ if .RSSLink }}
-  <link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}"/>
-  {{ end }}
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="theme-color" content="#ffffff">
 
 </head>
 
-<body onload="afterBodyLoad();">
+<body>
 
 {{ partial "analytics" . }}
 

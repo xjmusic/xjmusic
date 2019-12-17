@@ -72,7 +72,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
 
       result.set(DAO.modelFrom(Instrument.class, executeCreate(db, INSTRUMENT, entity)));
 
-      Cloner cloner = new Cloner();
+      DAOCloner<Entity> cloner = new DAOCloner<Entity>(result.get());
       cloner.clone(db, INSTRUMENT_MEME, INSTRUMENT_MEME.ID, ImmutableSet.of(), INSTRUMENT_MEME.INSTRUMENT_ID, cloneId, result.get().getId());
       cloner.clone(db, INSTRUMENT_AUDIO, INSTRUMENT_AUDIO.ID, ImmutableSet.of(), INSTRUMENT_AUDIO.INSTRUMENT_ID, cloneId, result.get().getId());
       cloner.clone(db, INSTRUMENT_AUDIO_EVENT, INSTRUMENT_AUDIO_EVENT.ID, ImmutableSet.of(INSTRUMENT_AUDIO_EVENT.INSTRUMENT_AUDIO_ID), INSTRUMENT_AUDIO_EVENT.INSTRUMENT_ID, cloneId, result.get().getId());

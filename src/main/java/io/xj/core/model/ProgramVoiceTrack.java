@@ -4,6 +4,7 @@ package io.xj.core.model;
 import com.google.common.collect.ImmutableList;
 import io.xj.core.entity.Entity;
 import io.xj.core.exception.CoreException;
+import io.xj.core.util.Text;
 
 import java.util.UUID;
 
@@ -150,6 +151,7 @@ public class ProgramVoiceTrack extends Entity {
     require(programId, "Program ID");
     require(programVoiceId, "Voice ID");
     require(name, "Name");
+    name = Text.toUpperSlug(name);
   }
 
   /**

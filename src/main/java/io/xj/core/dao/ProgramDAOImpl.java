@@ -16,11 +16,12 @@ import io.xj.core.model.ProgramSequenceChord;
 import io.xj.core.model.ProgramSequencePattern;
 import io.xj.core.model.ProgramSequencePatternEvent;
 import io.xj.core.model.ProgramState;
+import io.xj.core.model.ProgramType;
 import io.xj.core.model.ProgramVoice;
 import io.xj.core.model.ProgramVoiceTrack;
 import io.xj.core.model.UserRoleType;
 import io.xj.core.persistence.SQLDatabaseProvider;
-import io.xj.core.tables.Library;
+import io.xj.core.util.Text;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
@@ -30,11 +31,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.core.Tables.INSTRUMENT;
-import static io.xj.core.Tables.INSTRUMENT_AUDIO;
-import static io.xj.core.Tables.INSTRUMENT_AUDIO_CHORD;
-import static io.xj.core.Tables.INSTRUMENT_AUDIO_EVENT;
-import static io.xj.core.Tables.INSTRUMENT_MEME;
 import static io.xj.core.Tables.LIBRARY;
 import static io.xj.core.Tables.PROGRAM;
 import static io.xj.core.Tables.PROGRAM_MEME;
@@ -64,9 +60,10 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  public Program clone(Access access, UUID cloneId, Program entity) throws CoreException {
+  public DAOCloner<Program> clone(Access access, UUID cloneId, Program entity) throws CoreException {
     requireArtist(access);
     AtomicReference<Program> result = new AtomicReference<>();
+    AtomicReference<DAOCloner<Program>> cloner = new AtomicReference<>();
     dbProvider.getDSL().transaction(ctx -> {
       DSLContext db = DSL.using(ctx);
 
@@ -80,7 +77,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
       if (Objects.isNull(entity.getName())) entity.setName(from.getName());
       if (Objects.isNull(entity.getType())) entity.setTypeEnum(from.getType());
       if (Objects.isNull(entity.getTempo())) entity.setTempo(from.getTempo());
-      if (Objects.isNull(entity.getDensity())) entity.setDensity(from.getDensity());
       if (Objects.isNull(entity.getKey())) entity.setKey(from.getKey());
       entity.setUserId(from.getUserId());
       entity.validate();
@@ -90,48 +86,48 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
       result.set(DAO.modelFrom(Program.class, executeCreate(db, PROGRAM, entity)));
 
       // Prepare to clone sub-entities
-      Cloner cloner = new Cloner();
+      cloner.set(new DAOCloner<>(result.get()));
 
       // Clone ProgramMeme
-      cloner.clone(db, PROGRAM_MEME, PROGRAM_MEME.ID, ImmutableSet.of(), PROGRAM_MEME.PROGRAM_ID, cloneId, result.get().getId());
+      cloner.get().clone(db, PROGRAM_MEME, PROGRAM_MEME.ID, ImmutableSet.of(), PROGRAM_MEME.PROGRAM_ID, cloneId, result.get().getId());
 
       // Clone ProgramVoice
-      cloner.clone(db, PROGRAM_VOICE, PROGRAM_VOICE.ID, ImmutableSet.of(), PROGRAM_VOICE.PROGRAM_ID, cloneId, result.get().getId());
+      cloner.get().clone(db, PROGRAM_VOICE, PROGRAM_VOICE.ID, ImmutableSet.of(), PROGRAM_VOICE.PROGRAM_ID, cloneId, result.get().getId());
 
       // Clone ProgramVoiceTrack belongs to ProgramVoice
-      cloner.clone(db, PROGRAM_VOICE_TRACK, PROGRAM_VOICE_TRACK.ID,
+      cloner.get().clone(db, PROGRAM_VOICE_TRACK, PROGRAM_VOICE_TRACK.ID,
         ImmutableSet.of(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID),
         PROGRAM_VOICE_TRACK.PROGRAM_ID, cloneId, result.get().getId());
 
       // Clone ProgramSequence
-      cloner.clone(db, PROGRAM_SEQUENCE, PROGRAM_SEQUENCE.ID, ImmutableSet.of(), PROGRAM_SEQUENCE.PROGRAM_ID, cloneId, result.get().getId());
+      cloner.get().clone(db, PROGRAM_SEQUENCE, PROGRAM_SEQUENCE.ID, ImmutableSet.of(), PROGRAM_SEQUENCE.PROGRAM_ID, cloneId, result.get().getId());
 
       // Clone ProgramSequenceChord belongs to ProgramSequence
-      cloner.clone(db, PROGRAM_SEQUENCE_CHORD, PROGRAM_SEQUENCE_CHORD.ID,
+      cloner.get().clone(db, PROGRAM_SEQUENCE_CHORD, PROGRAM_SEQUENCE_CHORD.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID),
         PROGRAM_SEQUENCE_CHORD.PROGRAM_ID, cloneId, result.get().getId());
 
       // Clone ProgramSequenceBinding belongs to ProgramSequence
-      cloner.clone(db, PROGRAM_SEQUENCE_BINDING, PROGRAM_SEQUENCE_BINDING.ID,
+      cloner.get().clone(db, PROGRAM_SEQUENCE_BINDING, PROGRAM_SEQUENCE_BINDING.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID),
         PROGRAM_SEQUENCE_BINDING.PROGRAM_ID, cloneId, result.get().getId());
 
       // Clone ProgramSequenceBindingMeme belongs to ProgramSequenceBinding
-      cloner.clone(db, PROGRAM_SEQUENCE_BINDING_MEME, PROGRAM_SEQUENCE_BINDING_MEME.ID,
+      cloner.get().clone(db, PROGRAM_SEQUENCE_BINDING_MEME, PROGRAM_SEQUENCE_BINDING_MEME.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID),
         PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID, cloneId, result.get().getId());
 
       // Clone ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
-      cloner.clone(db, PROGRAM_SEQUENCE_PATTERN, PROGRAM_SEQUENCE_PATTERN.ID,
+      cloner.get().clone(db, PROGRAM_SEQUENCE_PATTERN, PROGRAM_SEQUENCE_PATTERN.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID, PROGRAM_SEQUENCE_PATTERN.PROGRAM_VOICE_ID),
         PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID, cloneId, result.get().getId());
 
       // Clone ProgramSequencePatternEvent belongs to ProgramSequencePattern and ProgramVoiceTrack
-      cloner.clone(db, PROGRAM_SEQUENCE_PATTERN_EVENT, PROGRAM_SEQUENCE_PATTERN_EVENT.ID,
+      cloner.get().clone(db, PROGRAM_SEQUENCE_PATTERN_EVENT, PROGRAM_SEQUENCE_PATTERN_EVENT.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID, PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID),
         PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID, cloneId, result.get().getId());
     });
-    return result.get();
+    return cloner.get();
   }
 
   @Override
@@ -159,13 +155,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   public Collection<Entity> readManyWithChildEntities(Access access, Collection<UUID> programIds) throws CoreException {
     DSLContext db = dbProvider.getDSL();
 
-    if (!access.isTopLevel())
-      for (UUID programId : programIds)
-        requireExists("access via account", db.selectCount().from(PROGRAM)
-          .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-          .where(PROGRAM.ID.eq(programId))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-          .fetchOne(0, int.class));
+    requireRead(db, access, programIds);
 
     Collection<Entity> entities = Lists.newArrayList();
     entities.addAll(DAO.modelsFrom(Program.class, db.selectFrom(PROGRAM).where(PROGRAM.ID.in(programIds)).fetch()));
@@ -180,6 +170,62 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     entities.addAll(DAO.modelsFrom(ProgramVoice.class, db.selectFrom(PROGRAM_VOICE).where(PROGRAM_VOICE.PROGRAM_ID.in(programIds))));
     return entities;
 
+  }
+
+  @Override
+  public Collection<Entity> readChildEntities(Access access, Collection<UUID> programIds, Collection<String> types) throws CoreException {
+    DSLContext db = dbProvider.getDSL();
+
+    requireRead(db, access, programIds);
+
+    Collection<Entity> entities = Lists.newArrayList();
+
+    // ProgramSequencePatternEvent
+    if (types.contains(Text.toResourceType(ProgramSequencePatternEvent.class)))
+      entities.addAll(DAO.modelsFrom(ProgramSequencePatternEvent.class,
+        db.selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT).where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.in(programIds))));
+
+    // ProgramMeme
+    if (types.contains(Text.toResourceType(ProgramMeme.class)))
+      entities.addAll(DAO.modelsFrom(ProgramMeme.class,
+        db.selectFrom(PROGRAM_MEME).where(PROGRAM_MEME.PROGRAM_ID.in(programIds))));
+
+    // ProgramSequencePattern
+    if (types.contains(Text.toResourceType(ProgramSequencePattern.class)))
+      entities.addAll(DAO.modelsFrom(ProgramSequencePattern.class,
+        db.selectFrom(PROGRAM_SEQUENCE_PATTERN).where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID.in(programIds))));
+
+    // ProgramSequenceBinding
+    if (types.contains(Text.toResourceType(ProgramSequenceBinding.class)))
+      entities.addAll(DAO.modelsFrom(ProgramSequenceBinding.class,
+        db.selectFrom(PROGRAM_SEQUENCE_BINDING).where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.in(programIds))));
+
+    // ProgramSequenceBindingMeme
+    if (types.contains(Text.toResourceType(ProgramSequenceBindingMeme.class)))
+      entities.addAll(DAO.modelsFrom(ProgramSequenceBindingMeme.class,
+        db.selectFrom(PROGRAM_SEQUENCE_BINDING_MEME).where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(programIds))));
+
+    // ProgramSequenceChord
+    if (types.contains(Text.toResourceType(ProgramSequenceChord.class)))
+      entities.addAll(DAO.modelsFrom(ProgramSequenceChord.class,
+        db.selectFrom(PROGRAM_SEQUENCE_CHORD).where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.in(programIds))));
+
+    // ProgramSequence
+    if (types.contains(Text.toResourceType(ProgramSequence.class)))
+      entities.addAll(DAO.modelsFrom(ProgramSequence.class,
+        db.selectFrom(PROGRAM_SEQUENCE).where(PROGRAM_SEQUENCE.PROGRAM_ID.in(programIds))));
+
+    // ProgramVoiceTrack
+    if (types.contains(Text.toResourceType(ProgramVoiceTrack.class)))
+      entities.addAll(DAO.modelsFrom(ProgramVoiceTrack.class,
+        db.selectFrom(PROGRAM_VOICE_TRACK).where(PROGRAM_VOICE_TRACK.PROGRAM_ID.in(programIds))));
+
+    // ProgramVoice
+    if (types.contains(Text.toResourceType(ProgramVoice.class)))
+      entities.addAll(DAO.modelsFrom(ProgramVoice.class,
+        db.selectFrom(PROGRAM_VOICE).where(PROGRAM_VOICE.PROGRAM_ID.in(programIds))));
+
+    return entities;
   }
 
   @Override
@@ -200,8 +246,16 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   public void update(Access access, UUID id, Program entity) throws CoreException {
     entity.validate();
     requireArtist(access);
-    executeUpdate(dbProvider.getDSL(), PROGRAM, id, entity);
+    DSLContext db = dbProvider.getDSL();
+    Program existing = readOne(db, access, id);
 
+    // [#170390872] prevent user from changing program type of a Rhythm program, when it has any Tracks and/or Voices.
+    if (ProgramType.Rhythm.equals(existing.getType()) && !ProgramType.Rhythm.equals(entity.getType()))
+      requireNotExists("Voice in Program; Can't change type away from Rhythm", db.selectCount().from(PROGRAM_VOICE)
+        .where(PROGRAM_VOICE.PROGRAM_ID.eq(id))
+        .fetchOne(0, int.class));
+
+    executeUpdate(db, PROGRAM, id, entity);
   }
 
   @Override
@@ -303,6 +357,23 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
       .where(PROGRAM.LIBRARY_ID.in(parentIds))
       .and(PROGRAM.STATE.equal(ProgramState.Published.toString()))
       .fetch());
+  }
+
+  /**
+   Require read access
+
+   @param db         database context
+   @param access     control
+   @param programIds to require access to
+   */
+  private void requireRead(DSLContext db, Access access, Collection<UUID> programIds) throws CoreException {
+    if (!access.isTopLevel())
+      for (UUID programId : programIds)
+        requireExists("access via account", db.selectCount().from(PROGRAM)
+          .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
+          .where(PROGRAM.ID.eq(programId))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .fetchOne(0, int.class));
   }
 
   /**

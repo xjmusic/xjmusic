@@ -96,8 +96,8 @@ public class ComplexLibraryIT {
 
   @Test
   public void fabricatesManySegments() throws Exception {
-    when(amazonProvider.generateKey(String.format("chains-%s-segments", fake.chain1.getId()), "ogg"))
-      .thenReturn("chains-1-segments-12345.ogg");
+    when(amazonProvider.generateKey(String.format("chains-%s-segments", fake.chain1.getId()), "aac"))
+      .thenReturn("chains-1-segments-12345.aac");
     when(amazonProvider.streamS3Object(any(), any()))
       .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(InternalResources.resourceFile("source_audio/kick1.wav")));
     app.getWorkManager().startChainFabrication(fake.chain1.getId());
@@ -113,7 +113,7 @@ public class ComplexLibraryIT {
 
     // assertions
     verify(amazonProvider, atLeast(assertShippedSegmentsMinimum))
-      .putS3Object(eq("/tmp/chains-1-segments-12345.ogg"), eq("xj-segment-test"), any());
+      .putS3Object(eq("/tmp/chains-1-segments-12345.aac"), eq("xj-segment-test"), any());
     Collection<Segment> result = injector.getInstance(SegmentDAO.class)
       .readMany(Access.internal(), ImmutableList.of(fake.chain1.getId()));
     assertTrue(assertShippedSegmentsMinimum <= result.size());

@@ -51,11 +51,14 @@
     </div>
 
     <SequenceEditor></SequenceEditor>
+    <PatternEditModal></PatternEditModal><!-- TODO Consider using dynamic modals -->
   </div>
 </template>
 
 <script>
   import SequenceEditor from "./SequenceEditor";
+  import PatternEditModal from "./modal/PatternEditModal";
+
   export default {
     name: 'ProgramEditor',
     props: {},
@@ -76,7 +79,10 @@
         this.$store.commit('setActiveTimelineGrid', grid);
       },
     },
-    components: {SequenceEditor}
+    components: {
+      SequenceEditor,
+      PatternEditModal,
+    }
   }
 </script>
 
@@ -94,7 +100,7 @@
       flex-direction: row;
 
       .main {
-        flex-grow: 100;
+        flex-grow: 1;
         .name {
           font-size: 24px;
           font-weight: bold;

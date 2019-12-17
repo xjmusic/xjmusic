@@ -1,0 +1,37 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+@import "../../theme";
+
+.action-button {
+  white-space: nowrap;
+  display: flex;
+  flex-direction: row;
+  font-weight: 700;
+
+  button {
+    background: $button-background-color;
+    margin-left: 5%;
+    width: 90%;
+    padding: $attribute-padding !important;
+    display: inline-block;
+    border: 0 none;
+
+    &:disabled {
+      opacity: 0.3;
+    }
+
+    &:not(:disabled) {
+      color: #999;
+      cursor: pointer;
+
+      &:hover {
+        color: #eee;
+        background: rgba(180, 180, 180, 0.5);
+      }
+
+      &:active {
+        color: #fff;
+        background: $input-selection-background-color;
+      }
+    }
+  }
+}

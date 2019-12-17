@@ -21,7 +21,17 @@ public interface ProgramDAO extends DAO<Program> {
    @param entity  for the new Program
    @return newly readMany record
    */
-  Program clone(Access access, UUID cloneId, Program entity) throws CoreException;
+  DAOCloner<Program> clone(Access access, UUID cloneId, Program entity) throws CoreException;
+
+  /**
+   Read child entities of many programs
+
+   @param access     control
+   @param programIds to read
+   @param types of entities to include
+   @return collection of entities
+   */
+  Collection<Entity> readChildEntities(Access access, Collection<UUID> programIds, Collection<String> types) throws CoreException;
 
   /**
    Fetch all program visible to given access

@@ -100,7 +100,7 @@ public class DubMasterContinueIT {
     test.insert(SegmentMeme.create(fake.segment4, "Rosy"));
     test.insert(SegmentChord.create(fake.segment4, 0.0, "A minor"));
     test.insert(SegmentChord.create(fake.segment4, 8.0, "D major"));
-    test.insert(SegmentChoiceArrangement.create(choice1, fake.voiceDrums, fake.instrument201));
+    test.insert(SegmentChoiceArrangement.create(choice1, fake.programVoice3, fake.instrument201));
     test.insert(fake.segment4);
 
     // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory

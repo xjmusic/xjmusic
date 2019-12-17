@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.core.access.Access;
+import io.xj.core.entity.Entity;
 import io.xj.core.exception.CoreException;
 import io.xj.core.external.AmazonProvider;
 import io.xj.core.external.S3UploadPolicy;
@@ -173,7 +174,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
 
       result.set(DAO.modelFrom(InstrumentAudio.class, executeCreate(db, INSTRUMENT_AUDIO, entity)));
 
-      Cloner cloner = new Cloner();
+      DAOCloner<Entity> cloner = new DAOCloner<Entity>(result.get());
       cloner.clone(db, INSTRUMENT_AUDIO_EVENT, INSTRUMENT_AUDIO_EVENT.ID, ImmutableSet.of(), INSTRUMENT_AUDIO_EVENT.INSTRUMENT_AUDIO_ID, cloneId, result.get().getId());
       cloner.clone(db, INSTRUMENT_AUDIO_CHORD, INSTRUMENT_AUDIO_CHORD.ID, ImmutableSet.of(), INSTRUMENT_AUDIO_CHORD.INSTRUMENT_AUDIO_ID, cloneId, result.get().getId());
     });

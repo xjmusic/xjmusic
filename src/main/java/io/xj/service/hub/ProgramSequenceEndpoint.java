@@ -2,8 +2,12 @@
 package io.xj.service.hub;
 
 import com.google.inject.Injector;
+import io.xj.core.access.Access;
 import io.xj.core.app.AppResource;
+import io.xj.core.dao.DAOCloner;
 import io.xj.core.dao.ProgramSequenceDAO;
+import io.xj.core.entity.Entity;
+import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.UserRoleType;
 import io.xj.core.payload.MediaType;
 import io.xj.core.payload.Payload;
@@ -21,6 +25,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  ProgramSequence endpoint
@@ -50,8 +57,31 @@ public class ProgramSequenceEndpoint extends AppResource {
   @POST
   @Consumes(MediaType.APPLICATION_JSON_API)
   @RolesAllowed({UserRoleType.ARTIST})
-  public Response create(Payload payload, @Context ContainerRequestContext crc) {
-    return create(crc, dao(), payload);
+  public Response create(
+    Payload payload,
+    @Context ContainerRequestContext crc,
+    @QueryParam("cloneId") String cloneId
+  ) {
+
+    try {
+      Access access = Access.fromContext(crc);
+      ProgramSequence programSequence = dao().newInstance().consume(payload);
+      Payload responsePayload = new Payload();
+      if (Objects.nonNull(cloneId)) {
+        DAOCloner<ProgramSequence> cloner = dao().clone(access, UUID.fromString(cloneId), programSequence);
+        responsePayload.setDataEntity(cloner.getClone());
+        responsePayload.setIncluded(cloner.getChildClones()
+          .stream().map(Entity::toPayloadObject)
+          .collect(Collectors.toList()));
+      } else {
+        responsePayload.setDataEntity(dao().create(access, programSequence));
+      }
+
+      return response.create(responsePayload);
+
+    } catch (Exception e) {
+      return response.failureToCreate(e);
+    }
   }
 
   /**

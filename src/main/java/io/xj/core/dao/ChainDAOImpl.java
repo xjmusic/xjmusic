@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.core.access.Access;
+import io.xj.core.entity.Entity;
 import io.xj.core.entity.MessageType;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.Chain;
@@ -476,7 +477,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     Chain createdChain = create(access, priorChain);
 
     // clone all chain configs and bindings from prior chain to createdchain
-    Cloner cloner = new Cloner();
+    DAOCloner<Entity> cloner = new DAOCloner<Entity>(createdChain);
     cloner.clone(dbProvider.getDSL(), CHAIN_CONFIG, CHAIN_CONFIG.ID, ImmutableList.of(), CHAIN_CONFIG.CHAIN_ID, priorChainId, createdChain.getId());
     cloner.clone(dbProvider.getDSL(), CHAIN_BINDING, CHAIN_BINDING.ID, ImmutableList.of(), CHAIN_BINDING.CHAIN_ID, priorChainId, createdChain.getId());
 

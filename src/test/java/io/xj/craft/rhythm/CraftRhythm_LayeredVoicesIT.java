@@ -25,7 +25,7 @@ import io.xj.core.model.InstrumentState;
 import io.xj.core.model.InstrumentType;
 import io.xj.core.model.Program;
 import io.xj.core.model.ProgramMeme;
-import io.xj.core.model.ProgramPatternType;
+import io.xj.core.model.ProgramSequencePatternType;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramSequencePattern;
 import io.xj.core.model.ProgramSequencePatternEvent;
@@ -112,14 +112,14 @@ public class CraftRhythm_LayeredVoicesIT {
     ProgramVoice kickSnare = test.insert(ProgramVoice.create(fixture.program35, InstrumentType.Percussive, "BoomBap"));
     ProgramSequence sequence35a = test.insert(ProgramSequence.create(fixture.program35, 16, "Base", 0.5, "C", 110.3));
     //
-    ProgramSequencePattern pattern35a1 = test.insert(ProgramSequencePattern.create(sequence35a, locomotion, ProgramPatternType.Loop, 1, "Hi-hat"));
+    ProgramSequencePattern pattern35a1 = test.insert(ProgramSequencePattern.create(sequence35a, locomotion, ProgramSequencePatternType.Loop, 1, "Hi-hat"));
     ProgramVoiceTrack trackHihat = test.insert(ProgramVoiceTrack.create(locomotion, "HIHAT"));
     test.insert(ProgramSequencePatternEvent.create(pattern35a1, trackHihat, 0.0, 1.0, "C2", 1.0));
     test.insert(ProgramSequencePatternEvent.create(pattern35a1, trackHihat, 0.25, 1.0, "G5", 0.4));
     test.insert(ProgramSequencePatternEvent.create(pattern35a1, trackHihat, 0.5, 1.0, "C2", 0.6));
     test.insert(ProgramSequencePatternEvent.create(pattern35a1, trackHihat, 0.75, 1.0, "C2", 0.3));
     //
-    ProgramSequencePattern pattern35a2 = test.insert(ProgramSequencePattern.create(sequence35a, kickSnare, ProgramPatternType.Loop, 4, "Kick/Snare"));
+    ProgramSequencePattern pattern35a2 = test.insert(ProgramSequencePattern.create(sequence35a, kickSnare, ProgramSequencePatternType.Loop, 4, "Kick/Snare"));
     ProgramVoiceTrack trackKick = test.insert(ProgramVoiceTrack.create(kickSnare, "KICK"));
     ProgramVoiceTrack trackSnare = test.insert(ProgramVoiceTrack.create(kickSnare, "SNARE"));
     test.insert(ProgramSequencePatternEvent.create(pattern35a2, trackKick, 0.0, 1.0, "B5", 0.9));

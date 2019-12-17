@@ -101,7 +101,6 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
             break;
         }
       });
-
   }
 
 

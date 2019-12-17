@@ -1,0 +1,11 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+@import "../../theme";
+
+.sub-panel {
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 4px 4px;
+
+  &.disabled {
+    pointer-events: none;
+  }
+}

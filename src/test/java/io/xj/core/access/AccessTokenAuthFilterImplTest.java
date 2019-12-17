@@ -42,11 +42,11 @@ import static org.mockito.Mockito.when;
 public class AccessTokenAuthFilterImplTest {
   private AccessTokenAuthFilter subject;
   @Mock
-  private AccessControlProvider accessControlProvider; // TODO inject
+  private AccessControlProvider accessControlProvider;
   @Mock
   private ContainerRequestContext requestContext;
   @Mock
-  private ResourceInfo resourceInfo; // TODO inject
+  private ResourceInfo resourceInfo;
   private JsonFactory jsonFactory;
 
   @Before

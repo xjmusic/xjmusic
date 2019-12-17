@@ -1,0 +1,14 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+@import "../../theme";
+
+$panel-inner-shadow-color: rgba(0, 0, 0, 0.25);
+
+.program-sequence-track-editor {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: row;
+  background-color: #161616;
+  background-position: center left;
+  background-repeat: repeat-x;
+  position: relative;
+}

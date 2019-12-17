@@ -25,7 +25,7 @@ import io.xj.core.model.ChainConfig;
 import io.xj.core.model.ChainConfigType;
 import io.xj.core.model.InstrumentAudio;
 import io.xj.core.model.Program;
-import io.xj.core.model.ProgramPatternType;
+import io.xj.core.model.ProgramSequencePatternType;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramSequenceBinding;
 import io.xj.core.model.ProgramSequencePattern;
@@ -528,7 +528,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(ProgramSequence sequence, ProgramVoice voice, ProgramPatternType patternType) throws CoreException {
+  public Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(ProgramSequence sequence, ProgramVoice voice, ProgramSequencePatternType patternType) throws CoreException {
     EntityRank<ProgramSequencePattern> rank = new EntityRank<>();
     sourceMaterial.getAllProgramPatterns().stream()
       .filter(pattern -> pattern.getProgramSequenceId().equals(sequence.getId()))
@@ -591,7 +591,7 @@ class FabricatorImpl implements Fabricator {
    */
   private String getDefaultValue(ChainConfigType chainConfigType) throws CoreException {
     try {
-      return config.getString(String.format("chainConfig.default%s", chainConfigType.getClass().getSimpleName()));
+      return config.getString(String.format("chainConfig.default%s", chainConfigType));
     } catch (Exception ignored) {
       throw new CoreException(String.format("No default value for type %s", this));
     }

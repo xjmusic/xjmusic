@@ -5,7 +5,7 @@ description = "Marble Machine is a music box that uses marbles to play instrumen
 draft = false
 aliases = []
 title = "Marble Machine"
-authors = ["Martin Molin","Hannes Knutsson","Angelique Nagtegaal","Marcus Dimbodius"]
+authors = ["Martin Molin"]
 external_url = "https://www.youtube.com/watch?v=IvUU8joBb1Q"
 publication = "Wintergatan"
 +++

@@ -10,10 +10,11 @@ import org.junit.rules.ExpectedException;
 import java.util.UUID;
 
 import static io.xj.core.testing.Assert.assertSameItems;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class ProgramSequenceBindingMemeTest  {
+public class ProgramSequenceBindingMemeTest {
 
   @Rule
   public ExpectedException failure = ExpectedException.none();
@@ -25,6 +26,16 @@ public class ProgramSequenceBindingMemeTest  {
       .setProgramSequenceBindingId(UUID.randomUUID())
       .setName("MicrophoneCheckOneTwoOneTwo")
       .validate();
+  }
+
+  @Test
+  public void validate_modifiesNameToUpperSlug() throws CoreException {
+    ProgramSequenceBindingMeme subject = new ProgramSequenceBindingMeme()
+      .setProgramId(UUID.randomUUID())
+      .setProgramSequenceBindingId(UUID.randomUUID());
+
+    subject.setName("Microphone Check! One Two One   Two").validate();
+    assertEquals("MICROPHONECHECKONETWOONETWO", subject.getName());
   }
 
   @Test

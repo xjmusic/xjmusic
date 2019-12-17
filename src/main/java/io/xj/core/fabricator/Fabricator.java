@@ -13,7 +13,7 @@ import io.xj.core.model.ChainConfigType;
 import io.xj.core.model.InstrumentAudio;
 import io.xj.core.model.Program;
 import io.xj.core.model.ProgramSequencePattern;
-import io.xj.core.model.ProgramPatternType;
+import io.xj.core.model.ProgramSequencePatternType;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramSequenceBinding;
 import io.xj.core.model.ProgramVoice;
@@ -516,5 +516,5 @@ public interface Fabricator {
    @return Pattern model, or null if no pattern of this type is found
    @throws CoreException on failure
    */
-  Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(ProgramSequence sequence, ProgramVoice voice, ProgramPatternType patternType) throws CoreException;
+  Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(ProgramSequence sequence, ProgramVoice voice, ProgramSequencePatternType patternType) throws CoreException;
 }

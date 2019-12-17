@@ -1,0 +1,81 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+@import "../../theme";
+
+.program-sequence-pattern-event {
+  position: absolute;
+  height: 100%;
+  background-color: #555;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  padding: 0 0;
+
+  .entity-attribute.field {
+    padding: 0 0 !important;
+    margin: 0 0 !important;
+    color: #e0e0e0;
+
+    input {
+      display: inline-block;
+      padding: 0 !important;
+      margin: -9px 0 0 0 !important;
+      max-width: 90% !important;
+      width: auto !important;
+      height: auto !important;
+    }
+  }
+
+  .destroy {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    border-radius: 6px;
+    -webkit-border-radius: 6px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 10px 10px;
+    display: inline-block;
+    cursor: pointer;
+    padding: 2px 6px;
+    opacity: 1.0;
+    background-color: #666;
+    color: #a0a0a0;
+
+    &:hover {
+      opacity: 1.0;
+      background-color: $input-selection-background-color;
+      color: #fff;
+    }
+  }
+
+  .position, .duration, .velocity, .note {
+    position: absolute;
+    display:inline-block;
+    left: 5px;
+    width: 100%;
+    height: 20px;
+    font-size: 14px;
+    line-height: 0;
+    margin: 0 5px 0 0;
+    padding: 0 0;
+    color: #999;
+    font-weight: 600;
+  }
+
+  .position {
+    top: 20px;
+  }
+
+  .duration {
+    top: 40px;
+  }
+
+  .note {
+    top: 60px;
+  }
+
+  .velocity {
+    top: 80px;
+  }
+
+
+}

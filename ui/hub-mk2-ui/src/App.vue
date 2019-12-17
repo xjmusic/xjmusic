@@ -1,15 +1,17 @@
 <template>
   <div id="app">
     <flash-message class="flash_messages_container"></flash-message>
-    <ProgramEditor></ProgramEditor>
-    <PatternEditModal></PatternEditModal>
+
+    <!-- route outlet -->
+    <!-- component matched by the route will render here -->
+    <router-view></router-view>
+
   </div>
 </template>
 
 <script>
   import {mapState} from 'vuex'
-  import PatternEditModal from "./components/modal/PatternEditModal";
-  import ProgramEditor from "./components/ProgramEditor";
+  import VueRouter from "vue-router";
 
   export default {
     name: 'app',
@@ -19,8 +21,7 @@
       ])
     },
     components: {
-      ProgramEditor,
-      PatternEditModal,
+      VueRouter,
     }
   }
 
@@ -70,7 +71,7 @@
 
       .vue-dialog-button {
         @include dialog-button-color($modal-background-color);
-        flex-grow: 100;
+        flex-grow: 1;
 
         &.success {
           @include dialog-button-color($success-background-color);
@@ -99,7 +100,7 @@
         }
 
         .field {
-          flex-grow: 100;
+          flex-grow: 1;
         }
 
         input.field {

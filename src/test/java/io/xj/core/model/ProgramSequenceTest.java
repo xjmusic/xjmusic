@@ -92,6 +92,19 @@ public class ProgramSequenceTest {
   }
 
   @Test
+  public void validate_totalDefaultsToZero() throws Exception {
+    subject
+      .setProgramId(UUID.randomUUID())
+      .setDensity(0.75)
+      .setTempo(100.0)
+      .setKey("D# major 7")
+      .setName("Mic Check One Two")
+      .validate();
+
+    assertEquals(Integer.valueOf(0), subject.getTotal());
+  }
+
+  @Test
   public void validate_failsWithoutTempo() throws Exception {
     failure.expect(CoreException.class);
     failure.expectMessage("Tempo is required");

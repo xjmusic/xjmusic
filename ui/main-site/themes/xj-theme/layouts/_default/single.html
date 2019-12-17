@@ -1,79 +1,11 @@
-{{ define "title" }}{{ .Title | markdownify }} | {{ .Site.Title }}{{ end }}
-
-{{ define "schema-dot-org" }}
-<!-- Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved. -->
-
-<script type="application/ld+json">
-{
-  "@context": "http://schema.org",
-  "@type": "BlogPosting",
-  {{- /* Google recommends the headline be no more than 110 characters */}}
-  "headline": "{{ substr .Title 0 110 }}",
-  {{- with .Params.images -}}{{ range first 1 . }}
-  "image": {
-    "@type": "ImageObject",
-    "url": "{{ . | absURL }}"
-    {{- /* Don't try to get imageConfig if image param is not local */ -}}
-    {{- if not (or (hasPrefix . "http://") (hasPrefix . "https://")) -}}
-    {{- with (imageConfig (printf "/static/%s" .)) -}}
-    ,
-    "height": "{{ .Height }}",
-    "width": "{{ .Width }}"
-    {{- end -}}
-    {{ end }}
-  },
-  {{- end -}}{{ end }}
-  "url": "{{ printf "%s" .Permalink }}",
-  "wordCount": "{{ .WordCount }}",
-  {{- $ISO8601 := "2006-01-02T15:04:05-07:00" }}
-  {{- if not .PublishDate.IsZero }}
-  "datePublished": "{{ .PublishDate.Format $ISO8601 }}",
-  {{- else }}
-  "datePublished": "{{ .Date.Format $ISO8601 }}",
-  {{- end }}
-  {{- if not .Lastmod.IsZero }}
-  "dateModified": "{{ .Lastmod.Format $ISO8601 }}",
-  {{- end }}
-  {{- with .Site.Social.GooglePlus }}
-  "publisher": "{{ printf "%s" . }}",
-  {{- end }}
-  "author": {
-    "@type": "Person",
-    "name": "{{ .Params.author | default .Site.Params.author }}"
-  }
-  {{- if (.Params.tags) -}}
-  ,
-  "keywords": "{{ with .Params.tags }}{{ range $i, $e := . }}{{ if $i }},{{ end }}{{ $e }}{{ end }}{{ end }}"
-  {{- end }}
-
-  {{- with .Params.description -}}
-  ,
-  "description": "{{ . }}"
-  {{- end }}
-}
-
-
-
-
-</script>
-
-{{ end }}
-
 {{ define "main" }}
-{{ $dateFormat := default "Mon Jan 2, 2006" (index .Site.Params "date_format") }}
 
-<div class="container single">
-    <div class="row">
-        <div class="col-sm-8">
-
-            {{ .Render "content" }}
-
-        </div>
-
-        <aside class="col-sm-4">
-        </aside>
-
-    </div>
-</div>
+<article>
+  <div>
+    <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
+    {{ if .Date }}<p class="meta"><time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "January 02, 2006" }}</time></p>{{ end }}
+  </div>
+  {{ .Content }}
+</article>
 
 {{ end }}

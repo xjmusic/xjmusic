@@ -32,7 +32,7 @@ public class ProgramSequencePattern extends Entity {
   private UUID programId;
   private UUID programSequenceId;
   private UUID programVoiceId;
-  private ProgramPatternType type;
+  private ProgramSequencePatternType type;
   private Integer total;
   private String name;
   private Exception typeException;
@@ -56,7 +56,7 @@ public class ProgramSequencePattern extends Entity {
    @param name     of pattern
    @return new pattern
    */
-  public static ProgramSequencePattern create(ProgramSequence sequence, ProgramVoice voice, ProgramPatternType type, int total, String name) {
+  public static ProgramSequencePattern create(ProgramSequence sequence, ProgramVoice voice, ProgramSequencePatternType type, int total, String name) {
     return create()
       .setProgramId(sequence.getProgramId())
       .setSequence(sequence)
@@ -77,7 +77,7 @@ public class ProgramSequencePattern extends Entity {
    @return new pattern
    */
   public static ProgramSequencePattern create(ProgramSequence sequence, ProgramVoice voice, String type, int total, String name) {
-    return create(sequence, voice, ProgramPatternType.valueOf(type), total, name);
+    return create(sequence, voice, ProgramSequencePatternType.valueOf(type), total, name);
   }
 
   @Override
@@ -158,7 +158,7 @@ public class ProgramSequencePattern extends Entity {
 
    @return type
    */
-  public ProgramPatternType getType() {
+  public ProgramSequencePatternType getType() {
     return type;
   }
 
@@ -223,7 +223,7 @@ public class ProgramSequencePattern extends Entity {
    */
   public ProgramSequencePattern setType(String type) {
     try {
-      this.type = ProgramPatternType.validate(type);
+      this.type = ProgramSequencePatternType.validate(type);
     } catch (CoreException e) {
       typeException = e;
     }
@@ -236,7 +236,7 @@ public class ProgramSequencePattern extends Entity {
    @param type to set
    @return this Pattern (for chaining setters)
    */
-  public ProgramSequencePattern setTypeEnum(ProgramPatternType type) {
+  public ProgramSequencePattern setTypeEnum(ProgramSequencePatternType type) {
     this.type = type;
     return this;
   }

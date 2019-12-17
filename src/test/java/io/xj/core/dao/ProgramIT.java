@@ -20,13 +20,13 @@ import io.xj.core.model.InstrumentType;
 import io.xj.core.model.Library;
 import io.xj.core.model.Program;
 import io.xj.core.model.ProgramMeme;
-import io.xj.core.model.ProgramPatternType;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramSequenceBinding;
 import io.xj.core.model.ProgramSequenceBindingMeme;
 import io.xj.core.model.ProgramSequenceChord;
 import io.xj.core.model.ProgramSequencePattern;
 import io.xj.core.model.ProgramSequencePatternEvent;
+import io.xj.core.model.ProgramSequencePatternType;
 import io.xj.core.model.ProgramState;
 import io.xj.core.model.ProgramType;
 import io.xj.core.model.ProgramVoice;
@@ -200,10 +200,12 @@ public class ProgramIT {
     ProgramVoice voice = test.insert(ProgramVoice.create(fixture.program1, InstrumentType.Percussive, "drums"));
     ProgramVoiceTrack track = test.insert(ProgramVoiceTrack.create(voice, "Kick"));
     test.insert(ProgramSequenceChord.create(fixture.programSequence1, 0, "D"));
-    ProgramSequencePattern pattern = test.insert(ProgramSequencePattern.create(fixture.programSequence1, voice, ProgramPatternType.Loop, 8, "jam"));
+    ProgramSequencePattern pattern = test.insert(ProgramSequencePattern.create(fixture.programSequence1, voice, ProgramSequencePatternType.Loop, 8, "jam"));
     test.insert(ProgramSequencePatternEvent.create(pattern, track, 0, 1, "C", 1));
-    Program result = testDAO.clone(access, fixture.program1.getId(), inputData);
 
+    DAOCloner<Program> resultCloner = testDAO.clone(access, fixture.program1.getId(), inputData);
+
+    Program result = resultCloner.getClone();
     assertNotNull(result);
     assertEquals(0.583, result.getDensity(), 0.01);
     assertEquals("C#", result.getKey());
@@ -212,46 +214,64 @@ public class ProgramIT {
     assertEquals(120, result.getTempo(), 0.1);
     assertEquals(ProgramType.Main, result.getType());
     // Cloned ProgramMeme
+    assertEquals(1, resultCloner.getChildClones().stream()
+      .filter(e -> ProgramMeme.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_MEME)
       .where(PROGRAM_MEME.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramVoice
+    assertEquals(1, resultCloner.getChildClones().stream()
+      .filter(e -> ProgramVoice.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_VOICE)
       .where(PROGRAM_VOICE.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramVoiceTrack belongs to ProgramVoice
+    assertEquals(1, resultCloner.getChildClones().stream()
+      .filter(e -> ProgramVoiceTrack.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_VOICE_TRACK)
       .where(PROGRAM_VOICE_TRACK.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequence
+    assertEquals(1, resultCloner.getChildClones().stream()
+      .filter(e -> ProgramSequence.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE)
       .where(PROGRAM_SEQUENCE.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequenceChord belongs to ProgramSequence
+    assertEquals(1, resultCloner.getChildClones().stream()
+      .filter(e -> ProgramSequenceChord.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_CHORD)
       .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequenceBinding belongs to ProgramSequence
+    assertEquals(1, resultCloner.getChildClones().stream()
+      .filter(e -> ProgramSequenceBinding.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_BINDING)
       .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequenceBindingMeme belongs to ProgramSequenceBinding
+    assertEquals(2, resultCloner.getChildClones().stream()
+      .filter(e -> ProgramSequenceBindingMeme.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(2), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_BINDING_MEME)
       .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
+    assertEquals(1, resultCloner.getChildClones().stream()
+      .filter(e -> ProgramSequencePattern.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_PATTERN)
       .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID.eq(result.getId()))
       .fetchOne(0, int.class));
     // Cloned ProgramSequencePatternEvent belongs to ProgramSequencePattern and ProgramVoiceTrack
+    assertEquals(1, resultCloner.getChildClones().stream()
+      .filter(e -> ProgramSequencePatternEvent.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.eq(result.getId()))
@@ -343,6 +363,30 @@ public class ProgramIT {
     assertNotNull(result);
     assertEquals("cannons", result.getName());
     assertEquals(fixture.library2.getId(), result.getLibraryId());
+  }
+
+  /**
+   [#170390872] prevent user from changing program type of a Rhythm program, when it has any Tracks and/or Voices.
+   */
+  @Test
+  public void update_failsToChangeTypeOfRhythmProgramWithVoice() throws Exception {
+    Access access = Access.create(fixture.user2, ImmutableList.of(fixture.account1), "Artist");
+    test.insert(ProgramVoice.create(fixture.program2, InstrumentType.Percussive, "Drums"));
+    Program subject = new Program()
+      .setId(fixture.program2.getId())
+      .setDensity(1.0)
+      .setKey("G minor 7")
+      .setUserId(fixture.user3.getId())
+      .setLibraryId(fixture.library1.getId())
+      .setName("cannons")
+      .setTempo(129.4)
+      .setState("Published")
+      .setType("Main");
+
+    failure.expect(CoreException.class);
+    failure.expectMessage("Found Voice in Program; Can't change type away from Rhythm");
+
+    testDAO.update(access, fixture.program2.getId(), subject);
   }
 
   /**
@@ -449,7 +493,7 @@ public class ProgramIT {
     ProgramVoice voice = test.insert(ProgramVoice.create(program, InstrumentType.Percussive, "drums"));
     ProgramVoiceTrack track = test.insert(ProgramVoiceTrack.create(voice, "Kick"));
     test.insert(ProgramSequenceChord.create(programSequence, 0, "D"));
-    ProgramSequencePattern pattern = test.insert(ProgramSequencePattern.create(programSequence, voice, ProgramPatternType.Loop, 8, "jam"));
+    ProgramSequencePattern pattern = test.insert(ProgramSequencePattern.create(programSequence, voice, ProgramSequencePatternType.Loop, 8, "jam"));
     test.insert(ProgramSequencePatternEvent.create(pattern, track, 0, 1, "C", 1));
 
     testDAO.destroy(access, program.getId());

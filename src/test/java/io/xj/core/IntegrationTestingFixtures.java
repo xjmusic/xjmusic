@@ -21,7 +21,7 @@ import io.xj.core.model.InstrumentType;
 import io.xj.core.model.Library;
 import io.xj.core.model.Program;
 import io.xj.core.model.ProgramMeme;
-import io.xj.core.model.ProgramPatternType;
+import io.xj.core.model.ProgramSequencePatternType;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramSequenceBinding;
 import io.xj.core.model.ProgramSequenceBindingMeme;
@@ -124,7 +124,11 @@ public class IntegrationTestingFixtures {
   public Program program7;
   public Program program9;
   public ProgramMeme program701_meme0;
+  public ProgramMeme programMeme1;
+  public ProgramMeme programMeme35;
+  public ProgramMeme programMeme3;
   public ProgramSequence programSequence1;
+  public ProgramSequence programSequence35;
   public ProgramSequence programSequence3;
   public ProgramSequenceBinding program15_binding0;
   public ProgramSequenceBinding program15_binding1;
@@ -135,8 +139,9 @@ public class IntegrationTestingFixtures {
   public ProgramSequenceBinding program4_binding2;
   public ProgramSequenceBinding program5_binding0;
   public ProgramSequenceBinding program5_binding1;
+  public ProgramSequencePattern programSequencePattern1;
   public ProgramSequencePatternEvent program702_pattern901_boomEvent;
-  public ProgramVoice voiceDrums;
+  public ProgramVoice programVoice3;
   public Segment segment0;
   public Segment segment17;
   public Segment segment1;
@@ -165,11 +170,11 @@ public class IntegrationTestingFixtures {
 
    @return randomly selected rhythm pattern type
    */
-  protected static ProgramPatternType randomRhythmPatternType() {
-    return new ProgramPatternType[]{
-      ProgramPatternType.Intro,
-      ProgramPatternType.Loop,
-      ProgramPatternType.Outro
+  protected static ProgramSequencePatternType randomRhythmPatternType() {
+    return new ProgramSequencePatternType[]{
+      ProgramSequencePatternType.Intro,
+      ProgramSequencePatternType.Loop,
+      ProgramSequencePatternType.Outro
     }[(int) StrictMath.floor(StrictMath.random() * 3)];
   }
 
@@ -302,11 +307,11 @@ public class IntegrationTestingFixtures {
     // Program 702, rhythm-type, has unbound sequence with pattern with events
     program702 = test.insert(Program.create(user101, library10000001, ProgramType.Rhythm, ProgramState.Published, "coconuts", "F#", 110.3, 0.6));
     test.insert(ProgramMeme.create(program702, "Ants"));
-    voiceDrums = test.insert(ProgramVoice.create(program702, InstrumentType.Percussive, "Drums"));
+    programVoice3 = test.insert(ProgramVoice.create(program702, InstrumentType.Percussive, "Drums"));
     ProgramSequence sequence702a = test.insert(ProgramSequence.create(program702, 16, "Base", 0.5, "C", 110.3));
-    ProgramSequencePattern pattern901 = test.insert(ProgramSequencePattern.create(sequence702a, voiceDrums, ProgramPatternType.Loop, 16, "growth"));
-    ProgramVoiceTrack trackBoom = test.insert(ProgramVoiceTrack.create(voiceDrums, "BOOM"));
-    ProgramVoiceTrack trackSmack = test.insert(ProgramVoiceTrack.create(voiceDrums, "BOOM"));
+    ProgramSequencePattern pattern901 = test.insert(ProgramSequencePattern.create(sequence702a, programVoice3, ProgramSequencePatternType.Loop, 16, "growth"));
+    ProgramVoiceTrack trackBoom = test.insert(ProgramVoiceTrack.create(programVoice3, "BOOM"));
+    ProgramVoiceTrack trackSmack = test.insert(ProgramVoiceTrack.create(programVoice3, "BOOM"));
     program702_pattern901_boomEvent = test.insert(ProgramSequencePatternEvent.create(pattern901, trackBoom, 0.0, 1.0, "C", 1.0));
     test.insert(ProgramSequencePatternEvent.create(pattern901, trackSmack, 1.0, 1.0, "G", 0.8));
     test.insert(ProgramSequencePatternEvent.create(pattern901, trackBoom, 2.5, 1.0, "C", 0.6));
@@ -326,7 +331,7 @@ public class IntegrationTestingFixtures {
     test.insert(ProgramMeme.create(program751, "Ants"));
     ProgramVoice voiceGarbage = test.insert(ProgramVoice.create(program751, InstrumentType.Percussive, "Garbage"));
     ProgramSequence sequence751a = test.insert(ProgramSequence.create(program751, 16, "Base", 0.5, "C", 110.3));
-    ProgramSequencePattern pattern951 = test.insert(ProgramSequencePattern.create(sequence751a, voiceGarbage, ProgramPatternType.Loop, 16, "Garbage"));
+    ProgramSequencePattern pattern951 = test.insert(ProgramSequencePattern.create(sequence751a, voiceGarbage, ProgramSequencePatternType.Loop, 16, "Garbage"));
     ProgramVoiceTrack trackGr = test.insert(ProgramVoiceTrack.create(voiceGarbage, "GR"));
     ProgramVoiceTrack trackBag = test.insert(ProgramVoiceTrack.create(voiceGarbage, "BAG"));
     test.insert(ProgramSequencePatternEvent.create(pattern951, trackGr, 0.0, 1.0, "C", 1.0));
@@ -391,20 +396,20 @@ public class IntegrationTestingFixtures {
     // A basic beat
     program35 = test.insert(Program.create(user3, library2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121, 0.6));
     test.insert(ProgramMeme.create(program35, "Basic"));
-    voiceDrums = test.insert(ProgramVoice.create(program35, InstrumentType.Percussive, "Drums"));
+    programVoice3 = test.insert(ProgramVoice.create(program35, InstrumentType.Percussive, "Drums"));
     ProgramSequence sequence35a = test.insert(ProgramSequence.create(program35, 16, "Base", 0.5, "C", 110.3));
     //
-    ProgramSequencePattern pattern35a1 = test.insert(ProgramSequencePattern.create(sequence35a, voiceDrums, ProgramPatternType.Loop, 4, "Drop"));
-    test.insert(ProgramSequencePatternEvent.create(pattern35a1, test.insert(ProgramVoiceTrack.create(voiceDrums, "CLOCK")), 0.0, 1.0, "C2", 1.0));
-    test.insert(ProgramSequencePatternEvent.create(pattern35a1, test.insert(ProgramVoiceTrack.create(voiceDrums, "SNORT")), 1.0, 1.0, "G5", 0.8));
-    test.insert(ProgramSequencePatternEvent.create(pattern35a1, test.insert(ProgramVoiceTrack.create(voiceDrums, "KICK")), 2.5, 1.0, "C2", 0.6));
-    test.insert(ProgramSequencePatternEvent.create(pattern35a1, test.insert(ProgramVoiceTrack.create(voiceDrums, "SNARL")), 3.0, 1.0, "G5", 0.9));
+    ProgramSequencePattern pattern35a1 = test.insert(ProgramSequencePattern.create(sequence35a, programVoice3, ProgramSequencePatternType.Loop, 4, "Drop"));
+    test.insert(ProgramSequencePatternEvent.create(pattern35a1, test.insert(ProgramVoiceTrack.create(programVoice3, "CLOCK")), 0.0, 1.0, "C2", 1.0));
+    test.insert(ProgramSequencePatternEvent.create(pattern35a1, test.insert(ProgramVoiceTrack.create(programVoice3, "SNORT")), 1.0, 1.0, "G5", 0.8));
+    test.insert(ProgramSequencePatternEvent.create(pattern35a1, test.insert(ProgramVoiceTrack.create(programVoice3, "KICK")), 2.5, 1.0, "C2", 0.6));
+    test.insert(ProgramSequencePatternEvent.create(pattern35a1, test.insert(ProgramVoiceTrack.create(programVoice3, "SNARL")), 3.0, 1.0, "G5", 0.9));
     //
-    ProgramSequencePattern pattern35a2 = test.insert(ProgramSequencePattern.create(sequence35a, voiceDrums, ProgramPatternType.Loop, 4, "Drop Alt"));
-    test.insert(ProgramSequencePatternEvent.create(pattern35a2, test.insert(ProgramVoiceTrack.create(voiceDrums, "CLACK")), 0.0, 1.0, "B5", 0.9));
-    test.insert(ProgramSequencePatternEvent.create(pattern35a2, test.insert(ProgramVoiceTrack.create(voiceDrums, "SNARn")), 1.0, 1.0, "D2", 1.0));
-    test.insert(ProgramSequencePatternEvent.create(pattern35a2, test.insert(ProgramVoiceTrack.create(voiceDrums, "CLICK")), 2.5, 1.0, "E4", 0.7));
-    test.insert(ProgramSequencePatternEvent.create(pattern35a2, test.insert(ProgramVoiceTrack.create(voiceDrums, "SNAP")), 3.0, 1.0, "c3", 0.5));
+    ProgramSequencePattern pattern35a2 = test.insert(ProgramSequencePattern.create(sequence35a, programVoice3, ProgramSequencePatternType.Loop, 4, "Drop Alt"));
+    test.insert(ProgramSequencePatternEvent.create(pattern35a2, test.insert(ProgramVoiceTrack.create(programVoice3, "CLACK")), 0.0, 1.0, "B5", 0.9));
+    test.insert(ProgramSequencePatternEvent.create(pattern35a2, test.insert(ProgramVoiceTrack.create(programVoice3, "SNARn")), 1.0, 1.0, "D2", 1.0));
+    test.insert(ProgramSequencePatternEvent.create(pattern35a2, test.insert(ProgramVoiceTrack.create(programVoice3, "CLICK")), 2.5, 1.0, "E4", 0.7));
+    test.insert(ProgramSequencePatternEvent.create(pattern35a2, test.insert(ProgramVoiceTrack.create(programVoice3, "SNAP")), 3.0, 1.0, "c3", 0.5));
 
     // Detail Sequence
     program6 = test.insert(Program.create(user3, library2, ProgramType.Detail, ProgramState.Published, "Beat Jam", "D#", 150, 0.6));
@@ -465,32 +470,32 @@ public class IntegrationTestingFixtures {
     // A basic beat
     program9 = test.insert(Program.create(user3, library2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121, 0.6));
     test.insert(ProgramMeme.create(program9, "Basic"));
-    voiceDrums = test.insert(ProgramVoice.create(program9, InstrumentType.Percussive, "Drums"));
+    programVoice3 = test.insert(ProgramVoice.create(program9, InstrumentType.Percussive, "Drums"));
     ProgramSequence sequence9a = test.insert(ProgramSequence.create(program9, 16, "Base", 0.5, "C", 110.3));
     //
-    ProgramSequencePattern pattern9a1 = test.insert(ProgramSequencePattern.create(sequence9a, voiceDrums, ProgramPatternType.Intro, 4, "Intro"));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a1, test.insert(ProgramVoiceTrack.create(voiceDrums, "BLEEP")), 0, 1, "C2", 1.0));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a1, test.insert(ProgramVoiceTrack.create(voiceDrums, "BLEIP")), 1, 1, "G5", 0.8));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a1, test.insert(ProgramVoiceTrack.create(voiceDrums, "BLEAP")), 2.5, 1, "C2", 0.6));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a1, test.insert(ProgramVoiceTrack.create(voiceDrums, "BLEEEP")), 3, 1, "G5", 0.9));
+    ProgramSequencePattern pattern9a1 = test.insert(ProgramSequencePattern.create(sequence9a, programVoice3, ProgramSequencePatternType.Intro, 4, "Intro"));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a1, test.insert(ProgramVoiceTrack.create(programVoice3, "BLEEP")), 0, 1, "C2", 1.0));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a1, test.insert(ProgramVoiceTrack.create(programVoice3, "BLEIP")), 1, 1, "G5", 0.8));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a1, test.insert(ProgramVoiceTrack.create(programVoice3, "BLEAP")), 2.5, 1, "C2", 0.6));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a1, test.insert(ProgramVoiceTrack.create(programVoice3, "BLEEEP")), 3, 1, "G5", 0.9));
     //
-    ProgramSequencePattern pattern9a2 = test.insert(ProgramSequencePattern.create(sequence9a, voiceDrums, ProgramPatternType.Loop, 4, "Loop A"));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a2, test.insert(ProgramVoiceTrack.create(voiceDrums, "CLOCK")), 0, 1, "C2", 1.0));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a2, test.insert(ProgramVoiceTrack.create(voiceDrums, "SNORT")), 1, 1, "G5", 0.8));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a2, test.insert(ProgramVoiceTrack.create(voiceDrums, "KICK")), 2.5, 1, "C2", 0.6));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a2, test.insert(ProgramVoiceTrack.create(voiceDrums, "SNARL")), 3, 1, "G5", 0.9));
+    ProgramSequencePattern pattern9a2 = test.insert(ProgramSequencePattern.create(sequence9a, programVoice3, ProgramSequencePatternType.Loop, 4, "Loop A"));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a2, test.insert(ProgramVoiceTrack.create(programVoice3, "CLOCK")), 0, 1, "C2", 1.0));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a2, test.insert(ProgramVoiceTrack.create(programVoice3, "SNORT")), 1, 1, "G5", 0.8));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a2, test.insert(ProgramVoiceTrack.create(programVoice3, "KICK")), 2.5, 1, "C2", 0.6));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a2, test.insert(ProgramVoiceTrack.create(programVoice3, "SNARL")), 3, 1, "G5", 0.9));
     //
-    ProgramSequencePattern pattern9a3 = test.insert(ProgramSequencePattern.create(sequence9a, voiceDrums, ProgramPatternType.Loop, 4, "Loop B"));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a3, test.insert(ProgramVoiceTrack.create(voiceDrums, "KIICK")), 0, 1, "B5", 0.9));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a3, test.insert(ProgramVoiceTrack.create(voiceDrums, "SNARR")), 1, 1, "D2", 1.0));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a3, test.insert(ProgramVoiceTrack.create(voiceDrums, "KEICK")), 2.5, 1, "E4", 0.7));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a3, test.insert(ProgramVoiceTrack.create(voiceDrums, "SNAER")), 3, 1, "C3", 0.5));
+    ProgramSequencePattern pattern9a3 = test.insert(ProgramSequencePattern.create(sequence9a, programVoice3, ProgramSequencePatternType.Loop, 4, "Loop B"));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a3, test.insert(ProgramVoiceTrack.create(programVoice3, "KIICK")), 0, 1, "B5", 0.9));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a3, test.insert(ProgramVoiceTrack.create(programVoice3, "SNARR")), 1, 1, "D2", 1.0));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a3, test.insert(ProgramVoiceTrack.create(programVoice3, "KEICK")), 2.5, 1, "E4", 0.7));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a3, test.insert(ProgramVoiceTrack.create(programVoice3, "SNAER")), 3, 1, "C3", 0.5));
     //
-    ProgramSequencePattern pattern9a4 = test.insert(ProgramSequencePattern.create(sequence9a, voiceDrums, ProgramPatternType.Outro, 4, "Outro"));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a4, test.insert(ProgramVoiceTrack.create(voiceDrums, "TOOT")), 0, 1, "C2", 1.0));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a4, test.insert(ProgramVoiceTrack.create(voiceDrums, "TOOOT")), 1, 1, "G5", 0.8));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a4, test.insert(ProgramVoiceTrack.create(voiceDrums, "TOOTE")), 2.5, 1, "C2", 0.6));
-    test.insert(ProgramSequencePatternEvent.create(pattern9a4, test.insert(ProgramVoiceTrack.create(voiceDrums, "TOUT")), 3, 1, "G5", 0.9));
+    ProgramSequencePattern pattern9a4 = test.insert(ProgramSequencePattern.create(sequence9a, programVoice3, ProgramSequencePatternType.Outro, 4, "Outro"));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a4, test.insert(ProgramVoiceTrack.create(programVoice3, "TOOT")), 0, 1, "C2", 1.0));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a4, test.insert(ProgramVoiceTrack.create(programVoice3, "TOOOT")), 1, 1, "G5", 0.8));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a4, test.insert(ProgramVoiceTrack.create(programVoice3, "TOOTE")), 2.5, 1, "C2", 0.6));
+    test.insert(ProgramSequencePatternEvent.create(pattern9a4, test.insert(ProgramVoiceTrack.create(programVoice3, "TOUT")), 3, 1, "G5", 0.9));
 
     // Instrument "808"
     instrument8 = test.insert(Instrument.create(user3, library2, InstrumentType.Percussive, InstrumentState.Published, "808 Drums"));
@@ -549,7 +554,7 @@ public class IntegrationTestingFixtures {
     ProgramSequence sequence1 = test.insert(ProgramSequence.create(program1, 16, "epic beat part 1", 0.342, "C#", 0.286));
     ProgramSequenceBinding binding1_0 = test.insert(ProgramSequenceBinding.create(sequence1, 0));
     ProgramVoice voice1x = test.insert(ProgramVoice.create(program1, InstrumentType.Percussive, "This is a percussive create"));
-    ProgramSequencePattern pattern1a = test.insert(ProgramSequencePattern.create(sequence1, voice1x, ProgramPatternType.Loop, 16, "Ants"));
+    ProgramSequencePattern pattern1a = test.insert(ProgramSequencePattern.create(sequence1, voice1x, ProgramSequencePatternType.Loop, 16, "Ants"));
     test.insert(ProgramSequencePatternEvent.create(pattern1a, test.insert(ProgramVoiceTrack.create(voice1x, "KICK")), 0.0, 1.0, "C", 1.0));
 
     // Library has Instrument with Audio
@@ -695,7 +700,7 @@ public class IntegrationTestingFixtures {
         int num = (int) StrictMath.floor(StrictMath.random() * N);
 
         // first pattern is always a Loop (because that's required) then the rest at random
-        ProgramPatternType type = 0 == iP ? ProgramPatternType.Loop : randomRhythmPatternType();
+        ProgramSequencePatternType type = 0 == iP ? ProgramSequencePatternType.Loop : randomRhythmPatternType();
         ProgramSequencePattern pattern = add(inserts, ProgramSequencePattern.create(sequenceBase, voices[num], type, total, String.format("%s %s %s", majorMemeName, type.toString(), random(LoremIpsum.ELEMENTS))));
         for (int iPE = 0; iPE < N << 2; iPE++) {
           // always use first chord, then use more chords with more density

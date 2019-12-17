@@ -58,7 +58,7 @@ public class AppTest {
 
 /*
 
-TODO app tests
+FUTURE app tests
 
   @Test
   public void ConfigureAndStart() throws IOException, CoreException {

@@ -60,7 +60,7 @@
     }
 
     .events {
-      flex-grow: 100;
+      flex-grow: 1;
       background-color: $track-events-background;
       background-image: url(./../assets/track-events-background.png);
       background-repeat: repeat-x;

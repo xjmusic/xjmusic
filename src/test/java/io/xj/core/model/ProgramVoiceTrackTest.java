@@ -10,6 +10,7 @@ import org.junit.rules.ExpectedException;
 import java.util.UUID;
 
 import static io.xj.core.testing.Assert.assertSameItems;
+import static org.junit.Assert.assertEquals;
 
 public class ProgramVoiceTrackTest {
   @Rule
@@ -17,11 +18,13 @@ public class ProgramVoiceTrackTest {
 
   @Test
   public void validate() throws Exception {
-    new ProgramVoiceTrack()
+    ProgramVoiceTrack subject = new ProgramVoiceTrack()
       .setProgramId(UUID.randomUUID())
       .setProgramVoiceId(UUID.randomUUID())
-      .setName("Mic Check One Two")
-      .validate();
+      .setName("Mic Check One Two");
+    subject.validate();
+
+    assertEquals("MICCHECKONETWO", subject.getName());
   }
 
   @Test

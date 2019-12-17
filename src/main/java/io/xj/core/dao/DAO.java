@@ -41,6 +41,39 @@ import io.xj.core.model.User;
 import io.xj.core.model.UserAuth;
 import io.xj.core.model.UserAuthToken;
 import io.xj.core.model.UserRole;
+import io.xj.core.tables.records.AccountRecord;
+import io.xj.core.tables.records.AccountUserRecord;
+import io.xj.core.tables.records.ChainBindingRecord;
+import io.xj.core.tables.records.ChainConfigRecord;
+import io.xj.core.tables.records.ChainRecord;
+import io.xj.core.tables.records.InstrumentAudioChordRecord;
+import io.xj.core.tables.records.InstrumentAudioEventRecord;
+import io.xj.core.tables.records.InstrumentAudioRecord;
+import io.xj.core.tables.records.InstrumentMemeRecord;
+import io.xj.core.tables.records.InstrumentRecord;
+import io.xj.core.tables.records.LibraryRecord;
+import io.xj.core.tables.records.PlatformMessageRecord;
+import io.xj.core.tables.records.ProgramMemeRecord;
+import io.xj.core.tables.records.ProgramRecord;
+import io.xj.core.tables.records.ProgramSequenceBindingMemeRecord;
+import io.xj.core.tables.records.ProgramSequenceBindingRecord;
+import io.xj.core.tables.records.ProgramSequenceChordRecord;
+import io.xj.core.tables.records.ProgramSequencePatternEventRecord;
+import io.xj.core.tables.records.ProgramSequencePatternRecord;
+import io.xj.core.tables.records.ProgramSequenceRecord;
+import io.xj.core.tables.records.ProgramVoiceRecord;
+import io.xj.core.tables.records.ProgramVoiceTrackRecord;
+import io.xj.core.tables.records.SegmentChoiceArrangementPickRecord;
+import io.xj.core.tables.records.SegmentChoiceArrangementRecord;
+import io.xj.core.tables.records.SegmentChoiceRecord;
+import io.xj.core.tables.records.SegmentChordRecord;
+import io.xj.core.tables.records.SegmentMemeRecord;
+import io.xj.core.tables.records.SegmentMessageRecord;
+import io.xj.core.tables.records.SegmentRecord;
+import io.xj.core.tables.records.UserAuthRecord;
+import io.xj.core.tables.records.UserAuthTokenRecord;
+import io.xj.core.tables.records.UserRecord;
+import io.xj.core.tables.records.UserRoleRecord;
 import io.xj.core.util.Text;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -138,6 +171,41 @@ public interface DAO<E extends Entity> {
     .put(SegmentChoiceArrangement.class, SEGMENT_CHOICE_ARRANGEMENT) // after segment choice
     .put(SegmentChoiceArrangementPick.class, SEGMENT_CHOICE_ARRANGEMENT_PICK) // after segment arrangement
     .put(PlatformMessage.class, PLATFORM_MESSAGE)
+    .build();
+  Map<Class<? extends Record>, Class<? extends Entity>> modelsForRecords = ImmutableMap.<Class<? extends Record>, Class<? extends Entity>>builder()
+    .put(UserRecord.class, User.class)
+    .put(UserRoleRecord.class, UserRole.class)
+    .put(UserAuthRecord.class, UserAuth.class)
+    .put(UserAuthTokenRecord.class, UserAuthToken.class)
+    .put(AccountRecord.class, Account.class)
+    .put(AccountUserRecord.class, AccountUser.class)
+    .put(LibraryRecord.class, Library.class)
+    .put(ProgramRecord.class, Program.class)
+    .put(ProgramMemeRecord.class, ProgramMeme.class)
+    .put(ProgramVoiceRecord.class, ProgramVoice.class)
+    .put(ProgramVoiceTrackRecord.class, ProgramVoiceTrack.class)
+    .put(ProgramSequenceRecord.class, ProgramSequence.class)
+    .put(ProgramSequenceBindingRecord.class, ProgramSequenceBinding.class)
+    .put(ProgramSequenceBindingMemeRecord.class, ProgramSequenceBindingMeme.class)
+    .put(ProgramSequenceChordRecord.class, ProgramSequenceChord.class)
+    .put(ProgramSequencePatternRecord.class, ProgramSequencePattern.class)
+    .put(ProgramSequencePatternEventRecord.class, ProgramSequencePatternEvent.class)
+    .put(InstrumentRecord.class, Instrument.class)
+    .put(InstrumentAudioRecord.class, InstrumentAudio.class)
+    .put(InstrumentAudioChordRecord.class, InstrumentAudioChord.class)
+    .put(InstrumentAudioEventRecord.class, InstrumentAudioEvent.class)
+    .put(InstrumentMemeRecord.class, InstrumentMeme.class)
+    .put(ChainRecord.class, Chain.class)
+    .put(ChainBindingRecord.class, ChainBinding.class)
+    .put(ChainConfigRecord.class, ChainConfig.class)
+    .put(SegmentRecord.class, Segment.class)
+    .put(SegmentChordRecord.class, SegmentChord.class)
+    .put(SegmentMemeRecord.class, SegmentMeme.class)
+    .put(SegmentMessageRecord.class, SegmentMessage.class)
+    .put(SegmentChoiceRecord.class, SegmentChoice.class)
+    .put(SegmentChoiceArrangementRecord.class, SegmentChoiceArrangement.class)
+    .put(SegmentChoiceArrangementPickRecord.class, SegmentChoiceArrangementPick.class)
+    .put(PlatformMessageRecord.class, PlatformMessage.class)
     .build();
   Logger log = LoggerFactory.getLogger(DAO.class);
   Collection<String> nullValueClasses = ImmutableList.of("Null", "JsonNull");
@@ -283,6 +351,7 @@ public interface DAO<E extends Entity> {
   static <R extends TableRecord<?>, N extends Entity> Collection<R> recordsFrom(DSLContext db, Table table, Collection<N> entities) throws CoreException {
     Collection<R> records = Lists.newArrayList();
     for (N e : entities) {
+      //noinspection unchecked
       R record = (R) db.newRecord(table);
       if (Objects.nonNull(e.getId()))
         set(record, "id", e.getId());
@@ -304,6 +373,21 @@ public interface DAO<E extends Entity> {
     Collection<N> models = Lists.newArrayList();
     for (R record : records) models.add(modelFrom(modelClass, record));
     return models;
+  }
+
+  /**
+   Transmogrify the field-value pairs of a jOOQ record and set values on the corresponding POJO entity.
+
+   @param record to source field-values of
+   @return entity after transmogrification
+   @throws CoreException on failure to transmogrify
+   */
+  static <N extends Entity, R extends Record> N modelFrom(R record) throws CoreException {
+    if (!modelsForRecords.containsKey(record.getClass()))
+      throw new CoreException(String.format("Unrecognized class of entity record: %s", record.getClass().getName()));
+
+    //noinspection unchecked
+    return (N) modelFrom(modelsForRecords.get(record.getClass()), record);
   }
 
   /**
@@ -341,7 +425,7 @@ public interface DAO<E extends Entity> {
    */
   static <N extends Entity, R extends Record> void modelSetTransmogrified(R record, N model) throws CoreException {
     if (Objects.isNull(record))
-      throw new CoreException("Cannot transmogrify; record does not exist");
+      throw new CoreException("Record does not exist");
 
     Map<String, Object> fieldValues = record.intoMap();
     for (Map.Entry<String, Object> field : fieldValues.entrySet())
@@ -365,6 +449,7 @@ public interface DAO<E extends Entity> {
    */
   static <N extends Entity> UpdatableRecord recordFor(DSLContext db, N entity) throws CoreException {
     Table table = tablesInSchemaConstructionOrder.get(entity.getClass());
+    //noinspection unchecked
     UpdatableRecord record = (UpdatableRecord) db.newRecord(table);
 
     if (Objects.nonNull(entity.getCreatedAt()))

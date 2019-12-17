@@ -20,12 +20,10 @@ export default Route.extend({
    * @returns {*} hash
    */
   model: function () {
-    let library = this.modelFor('accounts.one.libraries.one');
     let program = this.modelFor('accounts.one.libraries.one.programs.one');
     return hash({
-      library: library,
-      program: program,
-    }, 'library, program');
+      mk3StepmaticURL: `/mk3/programs/${program.get('id')}`,
+    }, 'program');
   },
 
   /**

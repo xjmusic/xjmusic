@@ -22,6 +22,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import static io.xj.core.Tables.LIBRARY;
+import static io.xj.core.Tables.PROGRAM;
+
 abstract class DAOImpl<E extends Entity> implements DAO<E> {
   private static final Logger log = LoggerFactory.getLogger(DAOImpl.class);
   protected SQLDatabaseProvider dbProvider;
@@ -32,7 +35,7 @@ abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param obj to ingest for non-nullness
    @return true if non-null
    */
-  protected static boolean isNonNull(Object obj) {
+  static boolean isNonNull(Object obj) {
     return Objects.nonNull(obj) &&
       !Objects.equals("null", String.valueOf(obj));
   }
@@ -83,7 +86,7 @@ abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @throws CoreException if result set is not empty.
    @throws CoreException if something goes wrong.
    */
-  protected <R extends Record> void requireNotExists(String name, Collection<R> result) throws CoreException {
+  <R extends Record> void requireNotExists(String name, Collection<R> result) throws CoreException {
     if (isNonNull(result) && !result.isEmpty()) {
       throw new CoreException("Found" + " " + name);
     }
@@ -97,7 +100,7 @@ abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @throws CoreException if result set is not empty.
    @throws CoreException if something goes wrong.
    */
-  protected void requireNotExists(String name, int count) throws CoreException {
+  void requireNotExists(String name, int count) throws CoreException {
     if (0 < count) {
       throw new CoreException("Found" + " " + name);
     }
@@ -143,7 +146,7 @@ abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param accountId to check for access to
    @throws CoreException if not admin
    */
-  protected void requireAccount(Access access, UUID accountId) throws CoreException {
+  void requireAccount(Access access, UUID accountId) throws CoreException {
     require("access to account #" + accountId, access.hasAccount(accountId));
   }
 
@@ -163,7 +166,7 @@ abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param access control
    @throws CoreException if not user
    */
-  protected void requireUser(Access access) throws CoreException {
+  void requireUser(Access access) throws CoreException {
     if (!access.isTopLevel() && !access.isAllowed(UserRoleType.USER))
       throw new CoreException("No user access");
   }
@@ -174,7 +177,7 @@ abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param access control
    @throws CoreException if not engineer
    */
-  protected void requireEngineer(Access access) throws CoreException {
+  void requireEngineer(Access access) throws CoreException {
     if (!access.isTopLevel() && !access.isAllowed(UserRoleType.ENGINEER))
       throw new CoreException("No engineer access");
   }
@@ -198,7 +201,7 @@ abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param access control
    @throws CoreException if not admin
    */
-  protected void requireRole(String message, Access access, UserRoleType... roles) throws CoreException {
+  void requireRole(String message, Access access, UserRoleType... roles) throws CoreException {
     require(message, access.isTopLevel() || access.isAllowed(roles));
   }
 
@@ -233,7 +236,7 @@ abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param table    to of
    @param entities to batch insert
    */
-  protected <R extends UpdatableRecord<R>> void executeCreateMany(DSLContext db, Table<R> table, Collection<E> entities) throws CoreException {
+  <R extends UpdatableRecord<R>> void executeCreateMany(DSLContext db, Table<R> table, Collection<E> entities) throws CoreException {
     Collection<R> records = Lists.newArrayList();
     for (E entity : entities) {
       R record = db.newRecord(table);
@@ -258,68 +261,27 @@ abstract class DAOImpl<E extends Entity> implements DAO<E> {
   }
 
   /**
-   Utility to do a bunch of cloning,
-   that keeps an inner UUID -> UUID map of all original ids to cloned ids
-   and then swaps out all parent ids for the cloned parent ids
-   of each successive cloning.
+   Require permission to modify the specified program
+
+   @param db     context
+   @param access control
+   @param id     of entity to require modification access to
+   @throws CoreException on invalid permissions
    */
-  public class Cloner {
-    Map<UUID, UUID> clonedIds = Maps.newConcurrentMap();
+  void requireProgramModification(DSLContext db, Access access, UUID id) throws CoreException {
+    requireArtist(access);
 
-    /**
-     Instantiate a cloner with a new database dataSource
-     */
-    public Cloner() {
-    }
-
-    /**
-     Clone all records with a specified parent id to a new parent id,
-     for each of the belongs-to relationships, if it belongs to a cloned id, replace the value with the cloned belongs-to id
-     and return a UUID -> UUID map of each original record to the newly cloned id record@param <R>           type of record
-     <p>
-     SO successive calls to clone() can rely upon the replacement of relationship ids
-     of all entities previously generated by a call to clone() on this Cloner instance
-
-     @param db            DSL context
-     @param table         in which to clone records (rows)
-     @param idField       id column
-     @param parentIdField parent id column
-     @param fromParentId  to match records with
-     @param toParentId    to of new records
-     */
-    public <R extends TableRecord<?>> void clone(
-      DSLContext db, Table<R> table,
-      TableField<R, UUID> idField,
-      Collection<TableField<R, UUID>> belongsToIdFields,
-      TableField<R, UUID> parentIdField,
-      UUID fromParentId,
-      UUID toParentId
-    ) throws CoreException {
-      Collection<R> toInsert = Lists.newArrayList();
-      db.selectFrom(table)
-        .where(parentIdField.eq(fromParentId))
-        .fetch()
-        .forEach(record -> {
-          UUID originalId = record.get(idField);
-          UUID clonedId = UUID.randomUUID();
-          clonedIds.put(originalId, clonedId);
-
-          // for each of the belongs-to relationships, if it belongs to a cloned id, replace the value with the cloned belongs-to id
-          belongsToIdFields.forEach(belongsToIdField -> {
-            if (Objects.nonNull(record.get(belongsToIdField))
-              && clonedIds.containsKey(record.get(belongsToIdField)))
-              record.set(belongsToIdField, clonedIds.get(record.get(belongsToIdField)));
-          });
-          record.set(idField, clonedId);
-          record.set(parentIdField, toParentId);
-          toInsert.add(record);
-        });
-
-      int[] rows = db.batchInsert(toInsert).execute();
-      if (rows.length != toInsert.size())
-        throw new CoreException(String.format("Only created %d out create %d intended %s records", rows.length, toInsert.size(), table.getName()));
-    }
-
+    if (access.isTopLevel())
+      requireExists("Program", db.selectCount().from(PROGRAM)
+        .where(PROGRAM.ID.eq(id))
+        .fetchOne(0, int.class));
+    else
+      requireExists("Program in Account you have access to", db.selectCount().from(PROGRAM)
+        .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
+        .where(PROGRAM.ID.eq(id))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(0, int.class));
   }
+
 
 }

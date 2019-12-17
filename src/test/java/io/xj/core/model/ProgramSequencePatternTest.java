@@ -22,7 +22,7 @@ public class ProgramSequencePatternTest {
       .setProgramSequenceId(UUID.randomUUID())
       .setProgramVoiceId(UUID.randomUUID())
       .setName("Mic Check One Two")
-      .setTypeEnum(ProgramPatternType.Loop)
+      .setTypeEnum(ProgramSequencePatternType.Loop)
       .setTotal(64)
       .validate();
   }
@@ -33,7 +33,7 @@ public class ProgramSequencePatternTest {
       .setProgramId(UUID.randomUUID())
       .setProgramSequenceId(UUID.randomUUID())
       .setProgramVoiceId(UUID.randomUUID())
-      .setTypeEnum(ProgramPatternType.Loop)
+      .setTypeEnum(ProgramSequencePatternType.Loop)
       .setName("Mic Check One Two")
       .validate();
   }
@@ -47,7 +47,7 @@ public class ProgramSequencePatternTest {
       .setName("Test54")
       .setProgramId(UUID.randomUUID())
       .setProgramSequenceId(UUID.randomUUID())
-      .setTypeEnum(ProgramPatternType.Loop)
+      .setTypeEnum(ProgramSequencePatternType.Loop)
       .validate();
   }
 
@@ -60,7 +60,7 @@ public class ProgramSequencePatternTest {
       .setProgramId(UUID.randomUUID())
       .setProgramVoiceId(UUID.randomUUID())
       .setName("Mic Check One Two")
-      .setTypeEnum(ProgramPatternType.Loop)
+      .setTypeEnum(ProgramSequencePatternType.Loop)
       .validate();
   }
 
@@ -86,7 +86,7 @@ public class ProgramSequencePatternTest {
       .setProgramSequenceId(UUID.randomUUID())
       .setProgramId(UUID.randomUUID())
       .setProgramVoiceId(UUID.randomUUID())
-      .setTypeEnum(ProgramPatternType.Loop)
+      .setTypeEnum(ProgramSequencePatternType.Loop)
       .validate();
   }
 
@@ -99,7 +99,7 @@ public class ProgramSequencePatternTest {
       .setProgramSequenceId(UUID.randomUUID())
       .setProgramVoiceId(UUID.randomUUID())
       .setName("Mic Check One Two")
-      .setTypeEnum(ProgramPatternType.Loop)
+      .setTypeEnum(ProgramSequencePatternType.Loop)
       .setTotal(64)
       .validate();
   }

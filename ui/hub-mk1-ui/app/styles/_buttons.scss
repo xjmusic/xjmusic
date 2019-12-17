@@ -6,6 +6,28 @@
     color: $gray !important;
   }
 
+  &.btn-icon-launch {
+    border: 1px solid #555;
+    opacity: 0.6;
+    background: url("/mk1/assets/icons/open.png") no-repeat center center
+    rgba(128, 128, 128, 0.6);
+    background-position-x: center;
+    background-position-y: center;
+    background-size: 20px 20px;
+    white-space: nowrap;
+    color: #fff;
+    font-size: 18px;
+    background-position: 15px center;
+    padding-left: 50px;
+    font-weight: 900;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    &:hover {
+      opacity: 1.0;
+    }
+  }
+
   &.btn-icon-open {
     width: 3em;
     height: 3em;

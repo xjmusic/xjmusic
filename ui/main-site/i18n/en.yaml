@@ -53,7 +53,7 @@
   translation: "Listen"
 
 - id: listenBlurb
-  translation: "Get an unofficial sneak peak at the sound of XJ Music Alpha v0.3&mdash; <strong>Cool&nbsp;Ambience<sup>&trade;</sup></strong> is streaming&nbsp;live 24/7&nbsp;for&nbsp;free!"
+  translation: "Get an unofficial sneak peek at the sound of XJ Music Alpha v0.3&mdash; <strong>Cool&nbsp;Ambience<sup>&trade;</sup></strong> is streaming&nbsp;live 24/7&nbsp;for&nbsp;free!"
 
 - id: loginBlurb
   translation: "Our cloud-based software platform is now undergoing private Beta testing."
@@ -77,5 +77,5 @@
   translation: "Solutions"
 
 - id: contactSolutionsBody
-  translation: "Research, design, and implementation exclusively by [Aircraft](https://ambience.co/)<sup>&trade;</sup>"
+  translation: "Research, design, and implementation exclusively by [AIRCRAFT](https://ambience.co/)<sup>&trade;</sup>"
 

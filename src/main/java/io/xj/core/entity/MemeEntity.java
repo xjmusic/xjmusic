@@ -3,6 +3,7 @@ package io.xj.core.entity;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.CoreException;
+import io.xj.core.util.Text;
 
 /**
  This represents common properties of all memes,
@@ -38,6 +39,7 @@ public abstract class MemeEntity extends Entity {
 
   public static void validate(MemeEntity meme) throws CoreException {
     require(meme.name, "Name");
+    meme.name = Text.toUpperSlug(meme.name);
   }
 
 }

@@ -1,16 +1,14 @@
-<!-- Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved. -->
-
 <!--
 
 <div class="blog-masthead">
     <div class="container">
         <nav class="nav blog-nav">
             <a class="nav-link {{ if .IsHome }}active{{ end }}" href="/#">{{ i18n "home" }}</a>
-            {{- $currentURL := .URL | absLangURL -}}
+            {{- $currentURL := .Permalink -}}
             {{ if .Site.Params.custom_navbar }}
             {{ range .Site.Menus.navbar }}
-            {{ $menuURL := .URL | absLangURL }}
-            <a class="nav-link{{ if eq $menuURL $currentURL }} active{{ end }}" href="{{.URL | absURL }}">{{ .Name }}</a>
+            {{ $menuURL := .Permalink }}
+            <a class="nav-link{{ if eq $menuURL $currentURL }} active{{ end }}" href="{{ .Permalink }}">{{ .Name }}</a>
             {{ end }}
             {{ else }}
             {{ range where .Site.RegularPages "Type" "!=" "case" }}
@@ -61,7 +59,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class='nav-link {{ if eq "/company/" .URL }}active{{ end }}' href="/company/">Company</a>
+                        <a class='nav-link {{ if eq "/company/" .RelPermalink }}active{{ end }}' href="/company/">Company</a>
                     </li>
 
                 </ul>

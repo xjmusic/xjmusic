@@ -80,7 +80,7 @@ public class DubMasterNextMacroIT {
     test.insert(SegmentMeme.create(fake.segment4, "Tangy"));
     test.insert(SegmentChord.create(fake.segment4, 0.0, "F minor"));
     test.insert(SegmentChord.create(fake.segment4, 8.0, "Gb minor"));
-    test.insert(SegmentChoiceArrangement.create(choice1, fake.voiceDrums, fake.instrument201));
+    test.insert(SegmentChoiceArrangement.create(choice1, fake.programVoice3, fake.instrument201));
 
     // future: insert arrangement of choice
     // future: insert 8 picks of audio 1

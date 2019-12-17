@@ -96,7 +96,7 @@ public class ProgramEndpointTest {
     Program program1 = Program.create(user101, library1, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6);
     when(programDAO.readOne(same(access), eq(program1.getId()))).thenReturn(program1);
 
-    Response result = subject.readOne(crc, program1.getId().toString());
+    Response result = subject.readOne(crc, program1.getId().toString(), "");
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
@@ -143,18 +143,18 @@ public class ProgramEndpointTest {
     //
     Program program35 = Program.create(101, 25, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121, 0.6);
     insert(ProgramMeme.create("Basic"));
-    ProgramVoice voiceDrums = insert(ProgramVoice.create(InstrumentType.Percussive, "Drums"));
+    ProgramVoice programVoice3 = insert(ProgramVoice.create(InstrumentType.Percussive, "Drums"));
     ProgramSequence sequence35a = insert(ProgramSequence.create(16, "Base", 0.5, "C", 110.3));
-    ProgramSequencePattern pattern35a1 = insert(ProgramSequencePattern.create(sequence35a, voiceDrums, ProgramPatternType.Loop, 4, "Drop"));
-    insert(ProgramSequencePatternEvent.create(pattern35a1, insert(ProgramVoiceTrack.create(voiceDrums, "CLOCK")), 0.0, 1.0, "C2", 1.0));
-    insert(ProgramSequencePatternEvent.create(pattern35a1, insert(ProgramVoiceTrack.create(voiceDrums, "SNORT")), 1.0, 1.0, "G5", 0.8));
-    insert(ProgramSequencePatternEvent.create(pattern35a1, insert(ProgramVoiceTrack.create(voiceDrums, "KICK")), 2.5, 1.0, "C2", 0.6));
-    insert(ProgramSequencePatternEvent.create(pattern35a1, insert(ProgramVoiceTrack.create(voiceDrums, "SNARL")), 3.0, 1.0, "G5", 0.9));
-    ProgramSequencePattern pattern35a2 = insert(ProgramSequencePattern.create(sequence35a, voiceDrums, ProgramPatternType.Loop, 4, "Drop Alt"));
-    insert(ProgramSequencePatternEvent.create(pattern35a2, insert(ProgramVoiceTrack.create(voiceDrums, "CLACK")), 0.0, 1.0, "B5", 0.9));
-    insert(ProgramSequencePatternEvent.create(pattern35a2, insert(ProgramVoiceTrack.create(voiceDrums, "SNARN")), 1.0, 1.0, "D2", 1.0));
-    insert(ProgramSequencePatternEvent.create(pattern35a2, insert(ProgramVoiceTrack.create(voiceDrums, "CLICK")), 2.5, 1.0, "E4", 0.7));
-    insert(ProgramSequencePatternEvent.create(pattern35a2, insert(ProgramVoiceTrack.create(voiceDrums, "SNAP")), 3.0, 1.0, "c3", 0.5));
+    ProgramSequencePattern pattern35a1 = insert(ProgramSequencePattern.create(sequence35a, programVoice3, ProgramPatternType.Loop, 4, "Drop"));
+    insert(ProgramSequencePatternEvent.create(pattern35a1, insert(ProgramVoiceTrack.create(programVoice3, "CLOCK")), 0.0, 1.0, "C2", 1.0));
+    insert(ProgramSequencePatternEvent.create(pattern35a1, insert(ProgramVoiceTrack.create(programVoice3, "SNORT")), 1.0, 1.0, "G5", 0.8));
+    insert(ProgramSequencePatternEvent.create(pattern35a1, insert(ProgramVoiceTrack.create(programVoice3, "KICK")), 2.5, 1.0, "C2", 0.6));
+    insert(ProgramSequencePatternEvent.create(pattern35a1, insert(ProgramVoiceTrack.create(programVoice3, "SNARL")), 3.0, 1.0, "G5", 0.9));
+    ProgramSequencePattern pattern35a2 = insert(ProgramSequencePattern.create(sequence35a, programVoice3, ProgramPatternType.Loop, 4, "Drop Alt"));
+    insert(ProgramSequencePatternEvent.create(pattern35a2, insert(ProgramVoiceTrack.create(programVoice3, "CLACK")), 0.0, 1.0, "B5", 0.9));
+    insert(ProgramSequencePatternEvent.create(pattern35a2, insert(ProgramVoiceTrack.create(programVoice3, "SNARN")), 1.0, 1.0, "D2", 1.0));
+    insert(ProgramSequencePatternEvent.create(pattern35a2, insert(ProgramVoiceTrack.create(programVoice3, "CLICK")), 2.5, 1.0, "E4", 0.7));
+    insert(ProgramSequencePatternEvent.create(pattern35a2, insert(ProgramVoiceTrack.create(programVoice3, "SNAP")), 3.0, 1.0, "c3", 0.5));
     //
     Collection<Program> programs = ImmutableList.of(
       program701,

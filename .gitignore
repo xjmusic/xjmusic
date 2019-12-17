@@ -1,6 +1,6 @@
 # Environment Variables
-.env
-env.conf
+/.env
+/nv.conf
 
 # Build artifacts
 target/

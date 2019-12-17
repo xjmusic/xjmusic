@@ -2,6 +2,33 @@
 import actions from './actions';
 import getters from './getters';
 import mutations from './mutations';
+import VueRestAPI from "vuex-rest-api"
+
+// Programs
+const api = new VueRestAPI({
+  baseURL: "https://jsonplaceholder.typicode.com",
+  state: {
+    posts: []
+  }
+})
+// Step 3
+  .get({
+    action: "getPost",
+    property: "post",
+    path: ({ id }) => `/posts/${id}`
+  })
+  .get({
+    action: "listPosts",
+    property: "posts",
+    path: "/posts"
+  })
+  .post({
+    action: "updatePost",
+    property: "post",
+    path: ({ id }) => `/posts/${id}`
+  })
+  // Step 4
+  .getStore();
 
 let timelineGrids = [
   {
@@ -22,29 +49,27 @@ let timelineGrids = [
   },
 ];
 
-export default function (program) {
-  return {
-    state: {
-      program: program,
-      dirty: false,
-      saving: false,
+export default {
+  state: {
+    program: {},
+    dirty: false,
+    saving: false,
 
-      // timeline grid options
-      timelineGrids: timelineGrids,
+    // timeline grid options
+    timelineGrids: timelineGrids,
 
-      // UI current state
-      activeSequence: null,
-      activePattern: {},
-      activeTimelineGrid: timelineGrids[0],
+    // UI current state
+    activeSequence: null,
+    activePattern: {},
+    activeTimelineGrid: timelineGrids[0],
 
-      // geometry
-      trackHeight: 200,
-      primaryWidth: 200,
-      secondaryWidth: 120,
-      beatWidth: 100,
-    },
-    actions,
-    getters,
-    mutations,
-  };
+    // geometry
+    trackHeight: 200,
+    primaryWidth: 200,
+    secondaryWidth: 120,
+    beatWidth: 100,
+  },
+  actions,
+  getters,
+  mutations,
 }

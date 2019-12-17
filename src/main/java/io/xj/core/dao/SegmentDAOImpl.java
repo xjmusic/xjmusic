@@ -355,8 +355,8 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
 
     Segment segment = readOne(access, id);
 
-    // Destroy child entities of segment
-    destroyChildEntities(dbProvider.getDSL(), access, id);
+    // Destroy child entities of segment-- but not the messages
+    destroyChildEntities(dbProvider.getDSL(), access, id, false);
 
     update(access, id, segment);
   }
@@ -380,8 +380,8 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
         waveformKey);
     }
 
-    // Destroy child entities of segment
-    destroyChildEntities(db, access, id);
+    // Destroy ALL child entities of segment
+    destroyChildEntities(db, access, id, true);
 
     // Delete Segment
     db.deleteFrom(SEGMENT)
@@ -397,11 +397,12 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   /**
    Destroy all child entities of segment
 
-   @param db     DSL content
-   @param access control
-   @param id     segment to destroy child entities of
+   @param db              DSL content
+   @param access          control
+   @param id              segment to destroy child entities of
+   @param destroyMessages true if we also want to include the segment messages (false to preserve the messages)
    */
-  private void destroyChildEntities(DSLContext db, Access access, UUID id) throws CoreException {
+  private void destroyChildEntities(DSLContext db, Access access, UUID id, Boolean destroyMessages) throws CoreException {
     requireTopLevel(access);
 
     db.deleteFrom(SEGMENT_CHOICE_ARRANGEMENT_PICK)
@@ -424,8 +425,9 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       .where(SEGMENT_CHORD.SEGMENT_ID.eq(id))
       .execute();
 
-    db.deleteFrom(SEGMENT_MESSAGE)
-      .where(SEGMENT_MESSAGE.SEGMENT_ID.eq(id))
-      .execute();
+    if (destroyMessages)
+      db.deleteFrom(SEGMENT_MESSAGE)
+        .where(SEGMENT_MESSAGE.SEGMENT_ID.eq(id))
+        .execute();
   }
 }

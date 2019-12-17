@@ -10,7 +10,7 @@ import io.xj.core.model.ChainState;
 import io.xj.core.model.ChainType;
 import io.xj.core.model.InstrumentState;
 import io.xj.core.model.InstrumentType;
-import io.xj.core.model.ProgramPatternType;
+import io.xj.core.model.ProgramSequencePatternType;
 import io.xj.core.model.ProgramState;
 import io.xj.core.model.ProgramType;
 import io.xj.core.model.SegmentState;
@@ -68,8 +68,8 @@ public class ConfigEndpoint extends AppResource {
           .put("choiceTypes", ProgramType.stringValues())
           .put("instrumentStates", InstrumentState.stringValues())
           .put("instrumentTypes", InstrumentType.stringValues())
-          .put("patternDetailTypes", ProgramPatternType.stringValuesForDetailSequence())
-          .put("patternTypes", ProgramPatternType.stringValues())
+          .put("patternDetailTypes", ProgramSequencePatternType.stringValuesForDetailSequence())
+          .put("patternTypes", ProgramSequencePatternType.stringValues())
           .put("programStates", ProgramState.stringValues())
           .put("programTypes", ProgramType.stringValues())
           .put("segmentBaseUrl", apiUrlProvider.getSegmentBaseUrl())

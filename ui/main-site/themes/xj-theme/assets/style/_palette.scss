@@ -1,0 +1,80 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+/* default colors */
+$body-bg-color: #191919;
+$header-bg-color: #303030;
+$header-dark-bg-color: #1b1b1b;
+$font-color-super-bright: #f0f0f0;
+$font-color-bright: #d9d9d9;
+$font-color: #b0b0b0;
+$font-color-subdued: #a0a0a0;
+$font-color-inverted: #36394d;
+$font-color-link: #808eff;
+$font-color-code: #8090ff;
+
+$magma-alpha: #fd5e03;
+$magma-bravo: #98020d;
+$magma-delta: #63080d;
+$magma-tango: #7e163b;
+$stone-alpha: #7e849c;
+$stone-bravo: #7c5b70;
+$stone-delta: #56495d;
+$stone-tango: #3b3c50;
+
+@mixin linear-gradient-4step($c1, $c2, $c3, $c4) {
+  $p1: 0%;
+  $p2: 8%;
+  $p3: 24%;
+  $p4: 99%;
+  background: $c1;
+  background: -moz-linear-gradient(top, $c1 $p1, $c2 $p2, $c3 $p3, $c4 $p4);
+  background: -webkit-gradient(linear, top, bottom, color-stop($p1, $c1), color-stop($p2, $c2), color-stop($p3, $c3), color-stop($p4, $c4));
+  background: -webkit-linear-gradient(top, $c1 $p1, $c2 $p2, $c3 $p3, $c4 $p4);
+  background: -o-linear-gradient(top, $c1 $p1, $c2 $p2, $c3 $p3, $c4 $p4);
+  background: linear-gradient(to bottom, $c1 $p1, $c2 $p2, $c3 $p3, $c4 $p4);
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#{$c1}, endColorstr=#{$c4})
+}
+
+@mixin magma-bg {
+  background-image:url(/images/lava.jpg);
+  background-size:cover;
+  /*
+  @include linear-gradient-4step($magma-alpha, $magma-bravo, $magma-delta, $magma-tango);
+  */
+  /*
+  background: #1f233d;
+  -webkit-box-shadow: inset 0 100px 200px -50px rgba(128, 142, 255, 0.2);
+  box-shadow: inset 0 100px 200px -50px rgba(128, 142, 255, 0.2);
+  */
+}
+
+@mixin stone-bg {
+  background-image:url(/images/lava.jpg);
+  background-size:cover;
+  /*
+  @include linear-gradient-4step($stone-alpha, $stone-bravo, $stone-delta, $stone-tango);
+  */
+}
+
+@mixin blue-gray {
+  background: $header-dark-bg-color;
+}
+
+@mixin blue-highlight-gray {
+  @include blue-gray;
+  -webkit-box-shadow: inset 0 -35px 90px -45px rgba(128, 142, 255, 1);
+  box-shadow: inset 0 -35px 90px -45px rgba(128, 142, 255, 1);
+  border-bottom: 3px solid #bfc8ff;
+}
+
+@mixin mini-secondary-bg {
+  background: lighten($body-bg-color, 3);
+  -webkit-box-shadow: inset 0 100px 200px -50px rgba(47, 47, 47, 0.2);
+  box-shadow: inset 0 100px 200px -50px rgba(47, 47, 47, 0.2);
+}
+
+@mixin mini-primary-bg {
+  background: #454545;
+  -webkit-box-shadow: inset 0 100px 200px -50px rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 100px 200px -50px rgba(255, 255, 255, 0.2);
+}

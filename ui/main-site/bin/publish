@@ -1,21 +1,5 @@
 #!/usr/bin/env bash
 
-#
-message_prefix="[ui/xj-site]"
-
-# color output
-RED=`tput setaf 1`
-GREEN=`tput setaf 2`
-RESET=`tput sgr0`
-
-# Title & Usage
-TITLE="build & push latest version of site to S3 distribution"
-USAGE="
-   Usage:
-     bin/publish
-"
-
 # do it and exit if any step fails
-gulp || exit 1
 hugo || exit 1
 s3_website push || exit 1

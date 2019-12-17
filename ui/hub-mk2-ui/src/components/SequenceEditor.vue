@@ -27,7 +27,7 @@
   .sequence-editor {
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
+    flex-grow: 100;;
     background-color: $panel-background-color;
   }
 </style>

@@ -18,7 +18,7 @@ import io.xj.core.model.InstrumentType;
 import io.xj.core.model.Program;
 import io.xj.core.model.ProgramSequencePatternEvent;
 import io.xj.core.model.ProgramSequencePattern;
-import io.xj.core.model.ProgramPatternType;
+import io.xj.core.model.ProgramSequencePatternType;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramType;
 import io.xj.core.model.ProgramVoice;
@@ -324,10 +324,10 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
         .setInstrumentId(instrumentId.isPresent() ? instrumentId.get() : chooseFreshPercussiveInstrument(voice).getId()));
 
       // choose intro pattern (if available)
-      Optional<ProgramSequencePattern> introPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramPatternType.Intro);
+      Optional<ProgramSequencePattern> introPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePatternType.Intro);
 
       // choose outro pattern (if available)
-      Optional<ProgramSequencePattern> outroPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramPatternType.Outro);
+      Optional<ProgramSequencePattern> outroPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePatternType.Outro);
 
       // compute in and out points, and length # beats for which loop patterns will be required
       long loopOutPos = fabricator.getSegment().getTotal() - (outroPattern.isPresent() ? outroPattern.get().getTotal() : 0);
@@ -341,7 +341,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
 
       // choose loop patterns until arrive at the out point or end of segment
       while (curPos < loopOutPos) {
-        Optional<ProgramSequencePattern> loopPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramPatternType.Loop);
+        Optional<ProgramSequencePattern> loopPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePatternType.Loop);
         if (loopPattern.isPresent())
           curPos += craftRhythmPatternPatternEvents(previousInstrumentAudio, choice, arrangement, loopPattern.get(), curPos, loopOutPos, 0);
         else

@@ -111,8 +111,8 @@ public class ChainFabricateJobIT {
 
   @Test
   public void fabricatesSegments() throws Exception {
-    when(amazonProvider.generateKey(String.format("chains-%s-segments", fixture.chain1.getId()), "ogg"))
-      .thenReturn("chains-1-segments-12345.ogg");
+    when(amazonProvider.generateKey(String.format("chains-%s-segments", fixture.chain1.getId()), "aac"))
+      .thenReturn("chains-1-segments-12345.aac");
     app.getWorkManager().startChainFabrication(fixture.chain1.getId());
     assertTrue(hasRemainingWork(WorkType.ChainFabricate));
 
@@ -125,8 +125,8 @@ public class ChainFabricateJobIT {
     app.getWorkManager().stopChainFabrication(fixture.chain1.getId());
 
     // assertions
-    verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).generateKey(eq(String.format("chains-%s-segments", fixture.chain1.getId())), eq("ogg"));
-    verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).putS3Object(eq("/tmp/chains-1-segments-12345.ogg"), eq("xj-segment-test"), any());
+    verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).generateKey(eq(String.format("chains-%s-segments", fixture.chain1.getId())), eq("aac"));
+    verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).putS3Object(eq("/tmp/chains-1-segments-12345.aac"), eq("xj-segment-test"), any());
     Collection<Segment> result = injector.getInstance(SegmentDAO.class).readMany(Access.internal(), ImmutableList.of(fixture.chain1.getId()));
     assertTrue(assertShippedSegmentsMinimum <= result.size());
   }
@@ -137,8 +137,8 @@ public class ChainFabricateJobIT {
    */
   @Test
   public void fabricatesSegments_revertsAndRequeuesOnFailure() throws Exception {
-    when(amazonProvider.generateKey(String.format("chains-%s-segments", fixture.chain1.getId()), "ogg"))
-      .thenReturn("chains-1-segments-12345.ogg");
+    when(amazonProvider.generateKey(String.format("chains-%s-segments", fixture.chain1.getId()), "aac"))
+      .thenReturn("chains-1-segments-12345.aac");
 
     // destroy contents of program to invoke failure
     fixture.destroyInnerEntities(fixture.program4);

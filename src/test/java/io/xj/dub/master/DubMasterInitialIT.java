@@ -71,7 +71,7 @@ public class DubMasterInitialIT {
     test.insert(SegmentMeme.create(fake.segment6, "Outlook"));
     test.insert(SegmentChord.create(fake.segment6, 0.0, "A minor"));
     test.insert(SegmentChord.create(fake.segment6, 8.0, "D major"));
-    test.insert(SegmentChoiceArrangement.create(choice1, fake.voiceDrums, fake.instrument201));
+    test.insert(SegmentChoiceArrangement.create(choice1, fake.programVoice3, fake.instrument201));
 
     // future: insert arrangement of choice1
     // future: insert 8 picks of audio 1
