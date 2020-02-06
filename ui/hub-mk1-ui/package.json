@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "ember build",
+    "build": "ember build --environment production",
     "lint:js": "eslint .",
     "start": "ember serve",
     "test": "ember test"
