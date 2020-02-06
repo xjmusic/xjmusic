@@ -44,9 +44,9 @@ public class AppTest {
     HttpClient httpClient = HttpClients.createMinimal();
     HttpGet httpRequest = new HttpGet("http://localhost:9873/o2");
     httpRequest.setConfig(RequestConfig.custom()
-      .setConnectionRequestTimeout(1000)
-      .setConnectTimeout(1000)
-      .setSocketTimeout(1000)
+      .setConnectionRequestTimeout(5000)
+      .setConnectTimeout(5000)
+      .setSocketTimeout(5000)
       .build());
     httpRequest.setHeader("Connection", "close");
 
