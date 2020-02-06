@@ -58,8 +58,8 @@ const AudioWaveformComponent = Component.extend({
       Wave.zoom(pxPerSec);
     };
 
-    // Play button
-    var button = document.querySelector('[data-action="play"]');
+    // Follow button
+    var button = document.querySelector('[data-action="follow"]');
     button.addEventListener('click', Wave.playPause.bind(Wave));
   }
 });

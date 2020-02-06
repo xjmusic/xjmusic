@@ -21,13 +21,13 @@ import io.xj.core.model.InstrumentType;
 import io.xj.core.model.Library;
 import io.xj.core.model.Program;
 import io.xj.core.model.ProgramMeme;
-import io.xj.core.model.ProgramSequencePatternType;
 import io.xj.core.model.ProgramSequence;
 import io.xj.core.model.ProgramSequenceBinding;
 import io.xj.core.model.ProgramSequenceBindingMeme;
 import io.xj.core.model.ProgramSequenceChord;
 import io.xj.core.model.ProgramSequencePattern;
 import io.xj.core.model.ProgramSequencePatternEvent;
+import io.xj.core.model.ProgramSequencePatternType;
 import io.xj.core.model.ProgramState;
 import io.xj.core.model.ProgramType;
 import io.xj.core.model.ProgramVoice;
@@ -89,6 +89,7 @@ public class IntegrationTestingFixtures {
   public Instrument instrument9;
   public InstrumentAudio audio1;
   public InstrumentAudio audio2;
+  public InstrumentAudio audio401;
   public InstrumentAudio audio8bleep;
   public InstrumentAudio audio8kick;
   public InstrumentAudio audio8snare;
@@ -100,6 +101,7 @@ public class IntegrationTestingFixtures {
   public InstrumentAudioChord audioChord1;
   public InstrumentAudioEvent audioEvent1;
   public InstrumentAudioEvent audioEvent2;
+  public InstrumentAudioEvent audioEvent401a;
   public Library library10000001;
   public Library library10000002;
   public Library library1;
@@ -129,6 +131,7 @@ public class IntegrationTestingFixtures {
   public ProgramMeme programMeme3;
   public ProgramSequence programSequence1;
   public ProgramSequence programSequence35;
+  public ProgramSequence programSequence35a;
   public ProgramSequence programSequence3;
   public ProgramSequenceBinding program15_binding0;
   public ProgramSequenceBinding program15_binding1;
@@ -140,7 +143,9 @@ public class IntegrationTestingFixtures {
   public ProgramSequenceBinding program5_binding0;
   public ProgramSequenceBinding program5_binding1;
   public ProgramSequencePattern programSequencePattern1;
+  public ProgramSequencePattern programSequencePattern35a1;
   public ProgramSequencePatternEvent program702_pattern901_boomEvent;
+  public ProgramSequencePatternEvent programSequencePatternEvent35a1_1;
   public ProgramVoice programVoice3;
   public Segment segment0;
   public Segment segment17;
@@ -397,15 +402,15 @@ public class IntegrationTestingFixtures {
     program35 = test.insert(Program.create(user3, library2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121, 0.6));
     test.insert(ProgramMeme.create(program35, "Basic"));
     programVoice3 = test.insert(ProgramVoice.create(program35, InstrumentType.Percussive, "Drums"));
-    ProgramSequence sequence35a = test.insert(ProgramSequence.create(program35, 16, "Base", 0.5, "C", 110.3));
+    programSequence35a = test.insert(ProgramSequence.create(program35, 16, "Base", 0.5, "C", 110.3));
     //
-    ProgramSequencePattern pattern35a1 = test.insert(ProgramSequencePattern.create(sequence35a, programVoice3, ProgramSequencePatternType.Loop, 4, "Drop"));
-    test.insert(ProgramSequencePatternEvent.create(pattern35a1, test.insert(ProgramVoiceTrack.create(programVoice3, "CLOCK")), 0.0, 1.0, "C2", 1.0));
-    test.insert(ProgramSequencePatternEvent.create(pattern35a1, test.insert(ProgramVoiceTrack.create(programVoice3, "SNORT")), 1.0, 1.0, "G5", 0.8));
-    test.insert(ProgramSequencePatternEvent.create(pattern35a1, test.insert(ProgramVoiceTrack.create(programVoice3, "KICK")), 2.5, 1.0, "C2", 0.6));
-    test.insert(ProgramSequencePatternEvent.create(pattern35a1, test.insert(ProgramVoiceTrack.create(programVoice3, "SNARL")), 3.0, 1.0, "G5", 0.9));
+    programSequencePattern35a1 = test.insert(ProgramSequencePattern.create(programSequence35a, programVoice3, ProgramSequencePatternType.Loop, 4, "Drop"));
+    programSequencePatternEvent35a1_1 = test.insert(ProgramSequencePatternEvent.create(programSequencePattern35a1, test.insert(ProgramVoiceTrack.create(programVoice3, "CLOCK")), 0.0, 1.0, "C2", 1.0));
+    test.insert(ProgramSequencePatternEvent.create(programSequencePattern35a1, test.insert(ProgramVoiceTrack.create(programVoice3, "SNORT")), 1.0, 1.0, "G5", 0.8));
+    test.insert(ProgramSequencePatternEvent.create(programSequencePattern35a1, test.insert(ProgramVoiceTrack.create(programVoice3, "KICK")), 2.5, 1.0, "C2", 0.6));
+    test.insert(ProgramSequencePatternEvent.create(programSequencePattern35a1, test.insert(ProgramVoiceTrack.create(programVoice3, "SNARL")), 3.0, 1.0, "G5", 0.9));
     //
-    ProgramSequencePattern pattern35a2 = test.insert(ProgramSequencePattern.create(sequence35a, programVoice3, ProgramSequencePatternType.Loop, 4, "Drop Alt"));
+    ProgramSequencePattern pattern35a2 = test.insert(ProgramSequencePattern.create(programSequence35a, programVoice3, ProgramSequencePatternType.Loop, 4, "Drop Alt"));
     test.insert(ProgramSequencePatternEvent.create(pattern35a2, test.insert(ProgramVoiceTrack.create(programVoice3, "CLACK")), 0.0, 1.0, "B5", 0.9));
     test.insert(ProgramSequencePatternEvent.create(pattern35a2, test.insert(ProgramVoiceTrack.create(programVoice3, "SNARn")), 1.0, 1.0, "D2", 1.0));
     test.insert(ProgramSequencePatternEvent.create(pattern35a2, test.insert(ProgramVoiceTrack.create(programVoice3, "CLICK")), 2.5, 1.0, "E4", 0.7));
@@ -524,8 +529,8 @@ public class IntegrationTestingFixtures {
     test.insert(InstrumentMeme.create(instrument201, "Ants"));
     test.insert(InstrumentMeme.create(instrument201, "Mold"));
     //
-    InstrumentAudio audio401 = test.insert(InstrumentAudio.create(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440.0, 0.62));
-    test.insert(InstrumentAudioEvent.create(audio401, 0.0, 1.0, "KICK", "Eb", 1.0));
+    audio401 = test.insert(InstrumentAudio.create(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440.0, 0.62));
+    audioEvent401a = test.insert(InstrumentAudioEvent.create(audio401, 0.0, 1.0, "KICK", "Eb", 1.0));
     test.insert(InstrumentAudioEvent.create(audio401, 1.0, 1.0, "SNARE", "Ab", 0.8));
     test.insert(InstrumentAudioEvent.create(audio401, 2.5, 1.0, "KICK", "C", 1.0));
     test.insert(InstrumentAudioEvent.create(audio401, 3.0, 1.0, "SNARE", "B", 0.8));

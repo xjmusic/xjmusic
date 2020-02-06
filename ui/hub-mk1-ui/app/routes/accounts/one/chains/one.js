@@ -16,8 +16,8 @@ export default Route.extend({
    Route Actions
    */
   actions: {
-    play(chain) {
-      this.player.play(chain, null);
+    follow(chain) {
+      this.player.follow(chain, null);
     },
     stop() {
       this.player.stop();

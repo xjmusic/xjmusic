@@ -28,12 +28,12 @@
         <th width="1%"><!--Change State To --></th>
         <th width="1%">Start At</th>
         <th><!-- Actions --></th>
-        <th width="1%">Play</th>
+        <th width="1%">Follow</th>
       </tr>
       </thead>
       <tbody>
       {{#each model.chains as |chain|}}
-        <tr class="item {{lowercase chain.state}}-state {{if (eq player.currentChain.id chain.id) 'now-playing'}}">
+        <tr class="item {{lowercase chain.state}}-state {{if (eq player.currentChain.id chain.id) 'now-following'}}">
           <td>{{#link-to "accounts.one.chains.one.segments" chain.id class="btn btn-icon-open"}}{{/link-to}}</td>
           <td>{{#link-to "accounts.one.chains.one" chain.id}}{{chain.name}}{{/link-to}}</td>
           <td>{{chain.type}}</td>
@@ -54,8 +54,8 @@
             {{entity-actions "accounts.one.chains.one" "edit|destroy" chain.account.id chain.id}}
           </td>
           <td>{{#if (or (eq chain.state "Fabricate") (eq chain.state "Complete"))}}
-            <button type="button" aria-label="play chain {{chain.id}}"
-                    class="btn segment-play" {{action 'play' chain}}><!--Play-->&#9658;
+            <button type="button" aria-label="follow chain {{chain.id}}"
+                    class="btn segment-follow" {{action 'follow' chain}}><!--Follow-->&#9658;
             </button>
           {{/if}}</td>
         </tr>

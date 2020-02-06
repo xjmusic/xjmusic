@@ -46,7 +46,7 @@ export class SegmentAudio {
   segmentBaseUrl = '';
 
   /**
-   * @type {object|{beginAt,endAt,waveformKey,offset}}
+   * @type {object|{beginAt,endAt,waveformKey,waveformPreroll,offset}}
    */
   segment = null;
 
@@ -88,9 +88,9 @@ export class SegmentAudio {
     let self = this;
 
     // compute time-related properties
-    self.beginAtTime = (Date.parse(self.segment.beginAt) - audioContextStartMillisUTC) / MILLIS_PER_SECOND;
-    self.endAtTime = (Date.parse(self.segment.endAt) - audioContextStartMillisUTC) / MILLIS_PER_SECOND;
-    self.debug(`Parsed from startMillisUTC=${audioContextStartMillisUTC}, begin(${self.segment.beginAt})=${self.beginAtTime}, end(${self.segment.endAt})=${self.endAtTime}`)
+    self.beginAtTime = (Date.parse(self.segment.beginAt) - audioContextStartMillisUTC) / MILLIS_PER_SECOND - self.segment.waveformPreroll;
+    self.endAtTime = (Date.parse(self.segment.endAt) - audioContextStartMillisUTC) / MILLIS_PER_SECOND - self.segment.waveformPreroll;
+    self.debug(`Parsed from startMillisUTC=${audioContextStartMillisUTC}, begin(${self.segment.beginAt})=${self.beginAtTime}, end(${self.segment.endAt})=${self.endAtTime}`);
 
     if (!self.hasValidWaveformUrl()) {
       self.error(`Invalid waveform URL: ${self.getWaveformUrl()}`);

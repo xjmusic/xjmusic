@@ -11,6 +11,7 @@
       <th width="1%">Offset</th>
       <th width="1%">State</th>
       <th>Begin At</th>
+      <th>Preroll</th>
       <th>Total</th>
       <th>Density</th>
       <th>Key</th>
@@ -24,11 +25,12 @@
     <tbody>
     {{#each model.segments as |segment|}}
       <tr id="segment-{{segment.id}}"
-          class="item {{lowercase segment.state}}-state {{if (eq player.currentSegment.id segment.id) 'now-playing'}}"
+          class="item {{lowercase segment.state}}-state {{if (eq player.currentSegment.id segment.id) 'now-following'}}"
           style="height: {{segment.rowHeight}}">
         <th>{{#link-to "accounts.one.chains.one.segments.one" segment}}{{segment.offset}}{{/link-to}}</th>
         <td>{{segment.state}}</td>
         <td>{{segment.beginAt}}</td>
+        <td>{{segment.waveformPreroll}}</td>
         <td>{{segment.total}}</td>
         <td>{{segment.density}}</td>
         <td>{{segment.key}}</td>

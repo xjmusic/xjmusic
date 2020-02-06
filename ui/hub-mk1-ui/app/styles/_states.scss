@@ -2,7 +2,7 @@
 
 .table-list tr,
 div.chain-state-container,
-div.play-chain,
+div.follow-chain,
 .modal-header,
 .badge {
 
@@ -72,7 +72,7 @@ div.play-chain,
     }
   }
 
-  &.now-playing {
+  &.now-following {
     background: darken(darkgreen, 12%);
     border-color: darken(lightgreen, 15%);
     color: darken(lightgreen, 10%);

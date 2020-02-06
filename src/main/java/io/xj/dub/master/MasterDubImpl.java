@@ -2,11 +2,13 @@
 package io.xj.dub.master;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.typesafe.config.Config;
 import io.xj.core.cache.AudioCacheProvider;
 import io.xj.core.entity.MessageType;
+import io.xj.core.exception.CoreException;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorType;
 import io.xj.core.model.ChainConfigType;
@@ -24,7 +26,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -35,6 +39,8 @@ public class MasterDubImpl implements MasterDub {
   private final Fabricator fabricator;
   private final MixerFactory mixerFactory;
   private final List<String> warnings = Lists.newArrayList();
+  private final Map<UUID, Double> pickOffsetStart = Maps.newHashMap();
+  private final Map<UUID, Double> pickPitchRatio = Maps.newHashMap();
   private final AudioCacheProvider audioCacheProvider;
   private final long audioAttackMicros;
   private final long audioReleaseMicros;
@@ -89,10 +95,15 @@ public class MasterDubImpl implements MasterDub {
     try {
       type = fabricator.getType();
       doMixerSourceLoading();
-      doMixerTargetSetting();
+      Double preroll = computePreroll();
+      doMixerTargetSetting(preroll);
       doMix();
       reportWarnings();
       report();
+
+      // write updated segment with waveform preroll
+      fabricator.getSegment().setWaveformPreroll(preroll);
+      fabricator.done();
 
     } catch (Exception e) {
       throw new DubException(
@@ -121,12 +132,36 @@ public class MasterDubImpl implements MasterDub {
   }
 
   /**
-   Implements Mixer module to set playback for Picks in current Segment
+   Iterate through every picked audio and, based on its transient and position in the segment, determine the preroll required, and keep the maximum preroll required out of all the audios.
+   <p>
+   [#165799913] Dubbed audio can begin before segment start
+   - During dub work, the waveform preroll required for the current segment is determined by finding the earliest positioned audio sample. **This process must factor in the transient of each audio sample.**
+
+   @return computed preroll (in seconds)
    */
-  private void doMixerTargetSetting() {
+  private double computePreroll() {
+    double maxPreroll = 0.0;
     for (SegmentChoiceArrangementPick pick : fabricator.getSegmentPicks())
       try {
-        setupTarget(pick);
+        maxPreroll = Math.max(maxPreroll, computeOffsetStart(pick) - pick.getStart());
+      } catch (Exception e) {
+        warnings.add(e.getMessage() + " " + Text.formatStackTrace(e));
+      }
+    return maxPreroll;
+  }
+
+  /**
+   Implements Mixer module to set playback for Picks in current Segment
+   <p>
+   [#165799913] Dubbed audio can begin before segment start
+   - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment
+
+   @param preroll (seconds)
+   */
+  private void doMixerTargetSetting(Double preroll) {
+    for (SegmentChoiceArrangementPick pick : fabricator.getSegmentPicks())
+      try {
+        setupTarget(preroll, pick);
       } catch (Exception e) {
         warnings.add(e.getMessage() + " " + Text.formatStackTrace(e));
       }
@@ -136,25 +171,51 @@ public class MasterDubImpl implements MasterDub {
    Set playback for a pick
    <p>
    [#283] Pitch ratio should result in lower audio playback for lower note
-   [#341] Dubworker takes into account the start offset of each audio, in order to ensure that it is mixed such that the hit is exactly on the meter
+   [#341] Dub worker takes into account the start offset of each audio, in order to ensure that it is mixed such that the hit is exactly on the meter
+   [#165799913] Dubbed audio can begin before segment start
+   - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment
 
-   @param pick to set playback for
+   @param preroll (seconds)
+   @param pick    to set playback for
    */
-  private void setupTarget(SegmentChoiceArrangementPick pick) throws Exception {
-    double pitchRatio = fabricator.getSourceMaterial().getAudio(pick).getPitch() / pick.getPitch();
-    double offsetStart = fabricator.getSourceMaterial().getAudio(pick).getStart() / pitchRatio;
-
+  private void setupTarget(Double preroll, SegmentChoiceArrangementPick pick) throws Exception {
     mixer().put(
       pick.getInstrumentAudioId().toString(),
-      toMicros(pick.getStart() - offsetStart),
+      toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
       toMicros(pick.getStart() + pick.getLength()),
       audioAttackMicros,
       audioReleaseMicros,
-      pick.getAmplitude(), pitchRatio, 0);
+      pick.getAmplitude(), computePitchRatio(pick), 0);
   }
 
   /**
-   MasterDub implements Mixer module to mix final output to waveform streamed directly to Amazon S3
+   Compute the pitch ratio for a pick, and cache results
+
+   @param pick to get pitch ratio for
+   @return pitch ratio, or cached result
+   @throws CoreException on failure
+   */
+  private Double computePitchRatio(SegmentChoiceArrangementPick pick) throws CoreException {
+    if (!pickPitchRatio.containsKey(pick.getId()))
+      pickPitchRatio.put(pick.getId(), fabricator.getSourceMaterial().getAudio(pick).getPitch() / pick.getPitch());
+    return pickPitchRatio.get(pick.getId());
+  }
+
+  /**
+   Compute the offset start for a pick, and cache results
+
+   @param pick to get offset start for
+   @return offset start, or cached result
+   @throws CoreException on failure
+   */
+  private Double computeOffsetStart(SegmentChoiceArrangementPick pick) throws CoreException {
+    if (!pickOffsetStart.containsKey(pick.getId()))
+      pickOffsetStart.put(pick.getId(), fabricator.getSourceMaterial().getAudio(pick).getStart() / computePitchRatio(pick));
+    return pickOffsetStart.get(pick.getId());
+  }
+
+  /**
+   MasterDub implements Mixer module to mix final output to waveform streamed directly to Amazon S3@param preroll
    */
   private void doMix() throws Exception {
     float quality = Float.valueOf(fabricator.getChainConfig(ChainConfigType.OutputEncodingQuality).getValue());

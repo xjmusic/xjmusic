@@ -10,7 +10,7 @@ const MATCH_AUDIO_NAME_THRESHOLD_MAX = 4;
 // States
 const Initial = 'Standby';
 const Loading = 'Loading';
-const Playing = 'Playing';
+const Following = 'Following';
 const Failed = 'Failed';
 
 /**
@@ -59,7 +59,7 @@ const InstrumentPlayer = EmberObject.extend({
       case Loading:
         // nothing special
         break;
-      case Playing:
+      case Following:
         // nothing special
         break;
       case Failed:
@@ -76,7 +76,7 @@ const InstrumentPlayer = EmberObject.extend({
    @param {[EmberObject]} audios array of audios to setup for playback
    @param {[EmberObject]} audioEvents array of audio events to setup for playback
    @param {Function} loadingProgressCallbackFn to callback with progress ratio from 0 to 1
-   @return {EmberPromise} promise resolved when playing has begun
+   @return {EmberPromise} promise resolved when following has begun
    */
   setup(instrument, audios, audioEvents, loadingProgressCallbackFn) {
     set(this, 'instrument', instrument);
@@ -97,7 +97,7 @@ const InstrumentPlayer = EmberObject.extend({
     return new EmberPromise((resolve, reject) => {
       mainTask.then(
         () => {
-          self.goToState(Playing);
+          self.goToState(Following);
           resolve();
         },
         () => {
@@ -108,7 +108,7 @@ const InstrumentPlayer = EmberObject.extend({
   },
 
   /**
-   * stop playing
+   * stop following
    @return {EmberPromise} promise resolved when stopping has completed
    */
   stop() {
@@ -342,7 +342,7 @@ const InstrumentPlayer = EmberObject.extend({
     // connect to output (your speakers)
     dryFire.connect(audioContext.destination);
 
-    // play the file
+    // follow the file
     dryFire.start(0);
 
     // persist the audio context

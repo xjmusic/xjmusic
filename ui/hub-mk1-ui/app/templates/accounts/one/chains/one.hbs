@@ -51,11 +51,11 @@
       </div>
     </div>
 
-    <!-- Play Chain -->
+    <!-- Follow Chain -->
     {{#if (or (eq model.state "Fabricate") (eq model.state "Complete"))}}
       <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
         <div class="{{if (eq player.currentChain.id model.id)
-                         'now-playing'}} play-chain container-fluid">
+                         'now-following'}} follow-chain container-fluid">
           <table>
             <tbody>
             <tr class="row">
@@ -64,18 +64,18 @@
                   {{player.state}}
                 </th>
                 <td>
-                  {{#if (eq player.state "Playing")}}
+                  {{#if (eq player.state "Following")}}
                     <button class="stop" {{action "stop"}}><!--Stop-->&#9640;</button>
                   {{/if}}
                 </td>
               {{else}}
                 <th class="align-middle">
-                  Play
+                  Follow
                 </th>
                 <td>
-                  <button type="button" aria-label="play chain #{{model.id}}"
-                          class="btn btn-success link-play" {{action 'play' model}}>
-                    <!--Play-->&#9658;
+                  <button type="button" aria-label="follow chain #{{model.id}}"
+                          class="btn btn-success link-follow" {{action 'follow' model}}>
+                    <!--Follow-->&#9658;
                   </button>
                 </td>
               {{/if}}

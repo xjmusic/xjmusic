@@ -32,8 +32,8 @@ export default Route.extend({
    Route Actions
    */
   actions: {
-    play(chain, segment) {
-      this.player.play(chain, segment);
+    follow(chain, segment) {
+      this.player.follow(chain, segment);
     }
   },
 

@@ -99,6 +99,7 @@ public class SegmentIT {
       .setTempo(120.0)
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:32.000001Z")
+      .setWaveformPreroll(1.523)
       .setEndAt("2017-02-14T12:02:04.000001Z"));
     fake.segment3 = test.insert(Segment.create()
       .setChainId(fake.chain3.getId())
@@ -153,6 +154,7 @@ public class SegmentIT {
       .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
+      .setWaveformPreroll(2.898)
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
@@ -172,6 +174,7 @@ public class SegmentIT {
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(120.0, result.getTempo(), 0.01);
+    assertEquals(Double.valueOf(2.898), result.getWaveformPreroll());
     assertNotNull(result.getWaveformKey());
   }
 
@@ -297,6 +300,7 @@ public class SegmentIT {
     assertEquals(Double.valueOf(0.85), result.getDensity());
     assertEquals("Db minor", result.getKey());
     assertEquals(Double.valueOf(120.0), result.getTempo());
+    assertEquals(Double.valueOf(1.523), result.getWaveformPreroll());
   }
 
   @Test
@@ -653,6 +657,7 @@ public class SegmentIT {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setTotal(64)
       .setDensity(0.74)
+      .setWaveformPreroll(0.0123)
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
@@ -663,6 +668,7 @@ public class SegmentIT {
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(fake.chain3.getId(), result.getChainId());
     assertEquals(SegmentState.Dubbed, result.getState());
+    assertEquals(Double.valueOf(0.0123), result.getWaveformPreroll());
     assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt().toString());
     assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt().toString());
   }

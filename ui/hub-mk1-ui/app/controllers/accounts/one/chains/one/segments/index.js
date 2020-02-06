@@ -7,7 +7,7 @@ export default Controller.extend({
 
   /**
    Inject: chain-segment player service, implemented directly by the template in order to
-   [#279] Now-playing Chain or Segment appears highlighted
+   [#279] Now-following Chain or Segment appears highlighted
    */
   player: service(),
 

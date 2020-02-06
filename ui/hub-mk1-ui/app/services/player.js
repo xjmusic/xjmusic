@@ -7,7 +7,7 @@ import Service, {inject as service} from '@ember/service';
  * @type {string}
  */
 const STANDBY = 'Standby';
-const PLAYING = 'Playing';
+const FOLLOWING = 'Following';
 
 /**
  Seconds between Main interval cycles
@@ -38,22 +38,22 @@ export default Service.extend({
   // Base URL of segment waveforms
   segmentBaseUrl: '',
 
-  // now-playing chain
+  // now-following chain
   currentChain: null,
 
-  // now-playing segment
+  // now-following segment
   currentSegment: null,
 
   // all active segments
   activeSegments: [],
 
-  // # millis UTC, from which to play
+  // # millis UTC, from which to follow
   playFromMillisUTC: 0,
 
   // # millis to offset now during playback
   playOffsetNowMillisUTC: 0,
 
-  // time (in the WebAudio context), from which to play
+  // time (in the WebAudio context), from which to follow
   playFromContextTime: 0,
 
   // interval to store Main cycle
@@ -81,28 +81,28 @@ export default Service.extend({
   },
 
   /**
-   play a chain beginning at a certain segment
+   follow a chain beginning at a certain segment
    start the interval cycles
 
-   @param chain to play
-   @param segment to play chain from
+   @param chain to follow
+   @param segment to follow chain from
    */
-  play(chain, segment) {
+  follow(chain, segment) {
     let self = this;
 
     // stop playback (which also incurs a delay)
     self.stop().then(() => {
 
-        // set the new play-from data
+        // set the new follow-from data
         self.set('playFromMillisUTC', self.computePlayFromMillisUTC(chain, segment));
         self.set('playOffsetNowMillisUTC', Date.now() - self.get('playFromMillisUTC'));
 
-        // set the chain+segment play request
+        // set the chain+segment follow request
         self.set('currentChain', chain);
         self.set('currentSegment', segment);
 
-        // now playing
-        self.set('state', PLAYING);
+        // now following
+        self.set('state', FOLLOWING);
 
         // do the cycle now
         self.doCycle();
@@ -119,11 +119,11 @@ export default Service.extend({
   stop() {
     let self = this;
     return new RSVP.Promise((resolve) => {
-      // set the chain+segment play request
+      // set the chain+segment follow request
       self.set('currentChain', null);
       self.set('currentSegment', null);
 
-      // now playing
+      // now following
       self.set('state', STANDBY);
 
       resolve();
@@ -178,7 +178,7 @@ export default Service.extend({
   },
 
   /**
-   Scroll to the now-playing segment
+   Scroll to the now-following segment
    */
   scrollToNowPlayingSegment: function () {
     let currentSegment = this.currentSegment;
@@ -256,7 +256,7 @@ export default Service.extend({
   },
 
   /**
-   Compute play-from-seconds UTC depending on the request to play
+   Compute follow-from-seconds UTC depending on the request to follow
    */
   computePlayFromMillisUTC(chain, segment) {
     if (this.isNull(chain)) {
@@ -265,7 +265,7 @@ export default Service.extend({
     }
 
     if (this.nonNull(segment)) {
-      console.debug("player will play from segment", segment.get('offset'));
+      console.debug("player will follow from segment", segment.get('offset'));
       return this.millisUTC(segment.get('beginAt'));
     }
 
@@ -278,22 +278,22 @@ export default Service.extend({
       case 'production':
 
         if (isNaN(chainStopAtMillisUTC)) {
-          console.debug("player will play production chain from now", "millis UTC", nowAtMillisUTC);
+          console.debug("player will follow production chain from now", "millis UTC", nowAtMillisUTC);
           return nowAtMillisUTC;
         }
 
         console.debug("player received chain with stop-at", "millis UTC", chainStopAtMillisUTC);
 
         if (chainStopAtMillisUTC > nowAtMillisUTC) {
-          console.debug("player will play production chain from now", "millis UTC", nowAtMillisUTC);
+          console.debug("player will follow production chain from now", "millis UTC", nowAtMillisUTC);
           return nowAtMillisUTC;
         }
 
-        console.debug("player will play production chain from beginning", "millis UTC", chainStartAtMillisUTC);
+        console.debug("player will follow production chain from beginning", "millis UTC", chainStartAtMillisUTC);
         return chainStartAtMillisUTC;
 
       case 'preview':
-        console.debug("player will play preview chain", "millis UTC", chainStartAtMillisUTC);
+        console.debug("player will follow preview chain", "millis UTC", chainStartAtMillisUTC);
         return chainStartAtMillisUTC;
 
       default:

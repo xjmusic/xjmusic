@@ -42,6 +42,8 @@ public class SegmentTest  {
       .setTempo(121.0)
       .setState("Crafted")
       .validate();
+
+    assertEquals(Double.valueOf(0.0), segment.getWaveformPreroll());
   }
 
   @Test
@@ -208,7 +210,7 @@ public class SegmentTest  {
 
   @Test
   public void getPayloadAttributeNames() {
-    assertSameItems(ImmutableList.of("state", "beginAt", "endAt", "key", "total", "offset", "density", "tempo", "waveformKey", "type"), segment.getResourceAttributeNames());
+    assertSameItems(ImmutableList.of("state", "beginAt", "endAt", "key", "total", "offset", "density", "tempo", "waveformKey", "waveformPreroll", "type"), segment.getResourceAttributeNames());
   }
 
 }

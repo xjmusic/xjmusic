@@ -14,7 +14,7 @@ export default Model.extend({
   key: attr('string'),
   tempo: attr('number'),
   waveformKey: attr('string'),
-
+  waveformPreroll: attr("number"),
   chain: belongsTo('chain'),
   segmentMessages: hasMany('segment-message'),
   segmentMemes: hasMany('segment-meme'),
