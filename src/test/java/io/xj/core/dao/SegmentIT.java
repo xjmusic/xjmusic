@@ -539,11 +539,40 @@ public class SegmentIT {
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
     Segment actualResult0 = it.next();
-    assertEquals(SegmentState.Crafting, actualResult0.getState());
+    assertEquals(SegmentState.Dubbing, actualResult0.getState());
     Segment result1 = it.next();
     assertEquals(SegmentState.Crafted, result1.getState());
     Segment result2 = it.next();
-    assertEquals(SegmentState.Dubbing, result2.getState());
+    assertEquals(SegmentState.Crafting, result2.getState());
+  }
+
+  /**
+   [#170299748] Player should always load what it needs next--
+   currently possible to load too far into the future, causing playback delay
+   */
+  @Test
+  public void readAllFromSecondsUTC_limitedFromNow_notLatestSegment() throws Exception {
+    long fromSecondsUTC = 1487073724L;
+    Instant beginAt = Instant.ofEpochSecond(fromSecondsUTC);
+    int numSegmentsToGenerate = 50;
+    int total = 16;
+    int tempo = 120;
+    fake.chain5 = test.insert(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, beginAt, null, "JamSandwich"));
+    for (int offset = 0; offset < numSegmentsToGenerate; offset++) {
+      Instant endAt = beginAt.plusMillis(1000 * total * 60 / tempo);
+      test.insert(Segment.create(fake.chain5, offset, SegmentState.Dubbed,
+        beginAt, endAt, "D major", total, 0.73, tempo,
+        "chains-1-segments-9f7s89d8a7892.wav"));
+      beginAt = endAt;
+    }
+    Access access = Access.create(ImmutableList.of(fake.account1), "User");
+
+    Collection<Segment> result = testDAO.readAllFromSecondsUTC(access, fake.chain5.getId(), fromSecondsUTC + 1);
+
+    assertEquals(8L, result.size());
+    Iterator<Segment> it = result.iterator();
+    Segment firstReturnedSegment = it.next();
+    assertEquals(Instant.ofEpochSecond(fromSecondsUTC), firstReturnedSegment.getBeginAt());
   }
 
   @Test

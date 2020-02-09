@@ -272,7 +272,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
         .where(SEGMENT.CHAIN_ID.eq(chainId))
         .and(SEGMENT.BEGIN_AT.lessOrEqual(Timestamp.from(maxBeginAt)))
         .and(SEGMENT.END_AT.greaterOrEqual(Timestamp.from(minEndAt)))
-        .orderBy(SEGMENT.OFFSET.desc())
+        .orderBy(SEGMENT.OFFSET.asc())
         .limit(limitSegmentReadSize)
         .fetch());
     else
@@ -283,7 +283,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
         .and(SEGMENT.BEGIN_AT.lessOrEqual(Timestamp.from(maxBeginAt)))
         .and(SEGMENT.END_AT.greaterOrEqual(Timestamp.from(minEndAt)))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
-        .orderBy(SEGMENT.OFFSET.desc())
+        .orderBy(SEGMENT.OFFSET.asc())
         .limit(limitSegmentReadSize)
         .fetch());
   }
