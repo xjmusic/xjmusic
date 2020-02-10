@@ -7,6 +7,4 @@
 SQL_USER="root"
 SQL_PORT=5400
 
-# TODO get this working with Postgres
-
 psql --user=${SQL_USER} --host=127.0.0.1 --port=${SQL_PORT} "$@"

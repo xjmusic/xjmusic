@@ -23,14 +23,12 @@ OUTPUT_MAIN_SCHEMA_SQL="${OUTPUT_PREFIX}main.schema.sql"
 OUTPUT_MAIN_RECORDS_SQL="${OUTPUT_PREFIX}main.records.sql"
 OUTPUT_TEST_SCHEMA_SQL="${OUTPUT_PREFIX}test.schema.sql"
 
-# TODO get this working with Postgres
-
 #
 step "Dump main database schema"
 ${CMD_DUMP_SCHEMA} "${SQL_USER}" "${SQL_PASS}" "${DB_MAIN}" "${SQL_HOST}" "${SQL_PORT}" "${OUTPUT_MAIN_SCHEMA_SQL}"
 step_ok
 
-#
+
 step "Dump main database records"
 ${CMD_DUMP_RECORDS} "${SQL_USER}" "${SQL_PASS}" "${DB_MAIN}" "${SQL_HOST}" "${SQL_PORT}" "${OUTPUT_MAIN_RECORDS_SQL}"
 step_ok

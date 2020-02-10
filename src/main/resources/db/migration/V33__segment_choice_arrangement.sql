@@ -4,8 +4,8 @@ CREATE TABLE xj.segment_choice_arrangement
   id                UUID PRIMARY KEY DEFAULT uuid_generate_v1mc(),
   segment_id        UUID      NOT NULL REFERENCES xj.segment (id),
   segment_choice_id UUID      NOT NULL REFERENCES xj.segment_choice (id),
-  program_voice_id  UUID      NOT NULL REFERENCES xj.program_voice (id),
-  instrument_id     UUID      NOT NULL REFERENCES xj.instrument (id),
+  program_voice_id  UUID      NOT NULL,
+  instrument_id     UUID      NOT NULL,
   created_at        timestamp NULL   DEFAULT CURRENT_TIMESTAMP,
   updated_at        timestamp NULL   DEFAULT CURRENT_TIMESTAMP
 );

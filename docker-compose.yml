@@ -31,7 +31,7 @@ services:
 
   postgres:
     container_name: postgres01xj1
-    image: postgres:12.1
+    image: postgres:11.6
     volumes:
       - /var/lib/postgresql/data
       - ./log/postgres:/var/log/postgres
