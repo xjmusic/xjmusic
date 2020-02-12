@@ -5,6 +5,8 @@ import {hash, Promise as EmberPromise} from 'rsvp';
 import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
+const LOAD_SECONDS_BEFORE_NOW = 30;
+
 export default Route.extend({
 
   // Inject: authentication service
@@ -45,10 +47,13 @@ export default Route.extend({
     let chain = this.modelFor('accounts.one.chains.one');
     let account = this.modelFor('accounts.one');
     return new EmberPromise((resolve, reject) => {
+      let queryParams = {
+        chainId: chain.get('id')
+      };
+      if (this.player.isFollowing())
+        queryParams["fromSecondsUTC"] = Math.floor(this.player.nowMillisUTC() / 1000) - LOAD_SECONDS_BEFORE_NOW;
       this.store.query(
-        'segment', {
-          chainId: chain.get('id')
-        })
+        'segment', queryParams)
         .catch((error) => {
           console.error(error);
           get(this, 'display').error(error);

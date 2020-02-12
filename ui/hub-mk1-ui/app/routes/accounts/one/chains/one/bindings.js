@@ -74,8 +74,6 @@ export default Route.extend({
         targetId: model.bindingTargetId
       });
 
-      console.log("hello", chainBinding);
-
       chainBinding.save().then(
         () => {
           let library;

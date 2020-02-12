@@ -256,6 +256,14 @@ export default Service.extend({
   },
 
   /**
+   * Whether the player is following
+   * @returns {boolean} true is following
+   */
+  isFollowing: function() {
+    return FOLLOWING === this.state;
+  },
+
+  /**
    Compute follow-from-seconds UTC depending on the request to follow
    */
   computePlayFromMillisUTC(chain, segment) {
@@ -277,7 +285,7 @@ export default Service.extend({
 
       case 'production':
 
-        if (isNaN(chainStopAtMillisUTC)) {
+        if (!chainStopAtMillisUTC) {
           console.debug("player will follow production chain from now", "millis UTC", nowAtMillisUTC);
           return nowAtMillisUTC;
         }
