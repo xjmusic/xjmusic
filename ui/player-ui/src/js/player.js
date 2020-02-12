@@ -44,7 +44,7 @@ const CYCLE_INTERVAL_SECONDS = 1;
  Adjusted in attempt to fix [#161303628] Listener expects to be able to listen to chain without listening itself causing problems for XJ
  @type {number}
  */
-const CYCLE_RATIO_SUB_TO_MAIN = 60;
+const CYCLE_RATIO_SUB_TO_MAIN = 30;
 
 /**
  * Self-evident

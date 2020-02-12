@@ -10,12 +10,14 @@ const API_BASE_URL = '/api/1/';
  */
 export class API {
   name = 'XJ Music™ API';
+  LOAD_SECONDS_BEFORE_NOW = 5;
 
   /**
    * @type {Object} to cache configuration in
    * @private
    */
   _config = null;
+
 
   /**
    * Get configuration and execute function with resulting (cached) data
@@ -64,7 +66,8 @@ export class API {
    * @param {Function} thenFunc to execute with configuration data
    */
   segments(identifier, thenFunc) {
-    fetch(API_BASE_URL + 'segments?chainId=' + identifier)
+    const fromSecondsUTC = Math.floor(Date.now() / 1000) - this.LOAD_SECONDS_BEFORE_NOW;
+    fetch(`${API_BASE_URL}segments?chainId=${identifier}&fromSecondsUTC=${fromSecondsUTC}`)
       .then((resp) => resp.json())
       .then(function (payload) {
         if (payload.hasOwnProperty('data') && 0 < payload.data.length && payload.data[0].hasOwnProperty('type') && 'segments' === payload.data[0].type) {
