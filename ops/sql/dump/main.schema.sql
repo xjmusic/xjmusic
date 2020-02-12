@@ -4,8 +4,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.6 (Debian 11.6-1.pgdg90+1)
--- Dumped by pg_dump version 11.5 (Ubuntu 11.5-0ubuntu0.19.04.1)
+-- Dumped from database version 12.1 (Debian 12.1-1.pgdg100+1)
+-- Dumped by pg_dump version 12.1 (Ubuntu 12.1-1.pgdg18.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -50,7 +50,7 @@ CREATE SCHEMA xj;
 ALTER SCHEMA xj OWNER TO root;
 
 --
--- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: 
+-- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
 --
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
@@ -81,7 +81,7 @@ ALTER FUNCTION xj.updated_at_now() OWNER TO root;
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
+SET default_table_access_method = heap;
 
 --
 -- Name: schema_version; Type: TABLE; Schema: public; Owner: root
@@ -981,238 +981,238 @@ CREATE INDEX schema_version_s_idx ON public.schema_version USING btree (success)
 -- Name: account account___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER account___updated BEFORE UPDATE ON xj.account FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER account___updated BEFORE UPDATE ON xj.account FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: account_user account_user___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER account_user___updated BEFORE UPDATE ON xj.account_user FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER account_user___updated BEFORE UPDATE ON xj.account_user FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: chain chain___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER chain___updated BEFORE UPDATE ON xj.chain FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER chain___updated BEFORE UPDATE ON xj.chain FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: chain_binding chain_binding___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER chain_binding___updated BEFORE UPDATE ON xj.chain_binding FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER chain_binding___updated BEFORE UPDATE ON xj.chain_binding FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: chain_config chain_config___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER chain_config___updated BEFORE UPDATE ON xj.chain_config FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER chain_config___updated BEFORE UPDATE ON xj.chain_config FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: instrument instrument___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER instrument___updated BEFORE UPDATE ON xj.instrument FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER instrument___updated BEFORE UPDATE ON xj.instrument FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: instrument_audio instrument_audio___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER instrument_audio___updated BEFORE UPDATE ON xj.instrument_audio FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER instrument_audio___updated BEFORE UPDATE ON xj.instrument_audio FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: instrument_audio_chord instrument_audio_chord___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER instrument_audio_chord___updated BEFORE UPDATE ON xj.instrument_audio_chord FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER instrument_audio_chord___updated BEFORE UPDATE ON xj.instrument_audio_chord FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: instrument_audio_event instrument_audio_event___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER instrument_audio_event___updated BEFORE UPDATE ON xj.instrument_audio_event FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER instrument_audio_event___updated BEFORE UPDATE ON xj.instrument_audio_event FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: instrument_meme instrument_meme___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER instrument_meme___updated BEFORE UPDATE ON xj.instrument_meme FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER instrument_meme___updated BEFORE UPDATE ON xj.instrument_meme FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: library library___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER library___updated BEFORE UPDATE ON xj.library FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER library___updated BEFORE UPDATE ON xj.library FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: platform_message platform_message___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER platform_message___updated BEFORE UPDATE ON xj.platform_message FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER platform_message___updated BEFORE UPDATE ON xj.platform_message FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: program program___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER program___updated BEFORE UPDATE ON xj.program FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER program___updated BEFORE UPDATE ON xj.program FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: program_meme program_meme___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER program_meme___updated BEFORE UPDATE ON xj.program_meme FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER program_meme___updated BEFORE UPDATE ON xj.program_meme FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: program_sequence program_sequence___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER program_sequence___updated BEFORE UPDATE ON xj.program_sequence FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER program_sequence___updated BEFORE UPDATE ON xj.program_sequence FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: program_sequence_binding program_sequence_binding___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER program_sequence_binding___updated BEFORE UPDATE ON xj.program_sequence_binding FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER program_sequence_binding___updated BEFORE UPDATE ON xj.program_sequence_binding FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: program_sequence_binding_meme program_sequence_binding_meme___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER program_sequence_binding_meme___updated BEFORE UPDATE ON xj.program_sequence_binding_meme FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER program_sequence_binding_meme___updated BEFORE UPDATE ON xj.program_sequence_binding_meme FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: program_sequence_chord program_sequence_chord___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER program_sequence_chord___updated BEFORE UPDATE ON xj.program_sequence_chord FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER program_sequence_chord___updated BEFORE UPDATE ON xj.program_sequence_chord FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: program_sequence_pattern program_sequence_pattern___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER program_sequence_pattern___updated BEFORE UPDATE ON xj.program_sequence_pattern FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER program_sequence_pattern___updated BEFORE UPDATE ON xj.program_sequence_pattern FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: program_sequence_pattern_event program_sequence_pattern_event___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER program_sequence_pattern_event___updated BEFORE UPDATE ON xj.program_sequence_pattern_event FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER program_sequence_pattern_event___updated BEFORE UPDATE ON xj.program_sequence_pattern_event FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: program_voice program_voice___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER program_voice___updated BEFORE UPDATE ON xj.program_voice FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER program_voice___updated BEFORE UPDATE ON xj.program_voice FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: program_voice_track program_voice_track___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER program_voice_track___updated BEFORE UPDATE ON xj.program_voice_track FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER program_voice_track___updated BEFORE UPDATE ON xj.program_voice_track FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: segment segment___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER segment___updated BEFORE UPDATE ON xj.segment FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER segment___updated BEFORE UPDATE ON xj.segment FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: segment_choice segment_choice___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER segment_choice___updated BEFORE UPDATE ON xj.segment_choice FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER segment_choice___updated BEFORE UPDATE ON xj.segment_choice FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: segment_choice_arrangement segment_choice_arrangement___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER segment_choice_arrangement___updated BEFORE UPDATE ON xj.segment_choice_arrangement FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER segment_choice_arrangement___updated BEFORE UPDATE ON xj.segment_choice_arrangement FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: segment_choice_arrangement_pick segment_choice_arrangement_pick___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER segment_choice_arrangement_pick___updated BEFORE UPDATE ON xj.segment_choice_arrangement_pick FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER segment_choice_arrangement_pick___updated BEFORE UPDATE ON xj.segment_choice_arrangement_pick FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: segment_chord segment_chord___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER segment_chord___updated BEFORE UPDATE ON xj.segment_chord FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER segment_chord___updated BEFORE UPDATE ON xj.segment_chord FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: segment_meme segment_meme___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER segment_meme___updated BEFORE UPDATE ON xj.segment_meme FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER segment_meme___updated BEFORE UPDATE ON xj.segment_meme FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: segment_message segment_message___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER segment_message___updated BEFORE UPDATE ON xj.segment_message FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER segment_message___updated BEFORE UPDATE ON xj.segment_message FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: user user___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER user___updated BEFORE UPDATE ON xj."user" FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER user___updated BEFORE UPDATE ON xj."user" FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: user_auth user_auth____updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER user_auth____updated BEFORE UPDATE ON xj.user_auth FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER user_auth____updated BEFORE UPDATE ON xj.user_auth FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: user_auth_token user_auth_token___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER user_auth_token___updated BEFORE UPDATE ON xj.user_auth_token FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER user_auth_token___updated BEFORE UPDATE ON xj.user_auth_token FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: user_role user_role___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER user_role___updated BEFORE UPDATE ON xj.user_role FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER user_role___updated BEFORE UPDATE ON xj.user_role FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
 -- Name: work work___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
-CREATE TRIGGER work___updated BEFORE UPDATE ON xj.work FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+CREATE TRIGGER work___updated BEFORE UPDATE ON xj.work FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
 
 
 --
@@ -1591,8 +1591,8 @@ ALTER TABLE ONLY xj.user_role
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.6 (Debian 11.6-1.pgdg90+1)
--- Dumped by pg_dump version 11.5 (Ubuntu 11.5-0ubuntu0.19.04.1)
+-- Dumped from database version 12.1 (Debian 12.1-1.pgdg100+1)
+-- Dumped by pg_dump version 12.1 (Ubuntu 12.1-1.pgdg18.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1610,44 +1610,44 @@ SET row_security = off;
 --
 
 COPY public.schema_version (installed_rank, version, description, type, script, checksum, installed_by, installed_on, execution_time, success) FROM stdin;
-1	1	xj schema	SQL	V1__xj_schema.sql	797233822	root	2020-02-09 16:44:52.205238	11	t
-2	2	create extension uuid ossp	SQL	V2__create_extension_uuid_ossp.sql	2034728600	root	2020-02-09 16:44:52.286162	15	t
-3	3	create updated at now	SQL	V3__create_updated_at_now.sql	-981124898	root	2020-02-09 16:44:52.326171	13	t
-4	4	user	SQL	V4__user.sql	913045606	root	2020-02-09 16:44:52.368504	37	t
-5	5	user auth	SQL	V5__user_auth.sql	-448926434	root	2020-02-09 16:44:52.422207	26	t
-6	6	user auth token	SQL	V6__user_auth_token.sql	-1426970887	root	2020-02-09 16:44:52.464905	20	t
-7	7	user role	SQL	V7__user_role.sql	520858385	root	2020-02-09 16:44:52.508217	12	t
-8	8	account	SQL	V8__account.sql	-1413282908	root	2020-02-09 16:44:52.539462	16	t
-9	9	account user	SQL	V9__account_user.sql	1415864885	root	2020-02-09 16:44:52.571919	22	t
-10	10	library	SQL	V10__library.sql	1259098220	root	2020-02-09 16:44:52.610046	16	t
-11	11	instrument	SQL	V11__instrument.sql	-1433436616	root	2020-02-09 16:44:52.641617	41	t
-12	12	instrument meme	SQL	V12__instrument_meme.sql	-1027003655	root	2020-02-09 16:44:52.70189	15	t
-13	13	instrument audio	SQL	V13__instrument_audio.sql	-1261244184	root	2020-02-09 16:44:52.734693	36	t
-14	14	instrument audio chord	SQL	V14__instrument_audio_chord.sql	1803612396	root	2020-02-09 16:44:52.788654	13	t
-15	15	instrument audio event	SQL	V15__instrument_audio_event.sql	1426476358	root	2020-02-09 16:44:52.813968	23	t
-16	16	program	SQL	V16__program.sql	-941829822	root	2020-02-09 16:44:52.861004	23	t
-17	17	program meme	SQL	V17__program_meme.sql	1450167054	root	2020-02-09 16:44:52.897762	17	t
-18	18	program voice	SQL	V18__program_voice.sql	-276352046	root	2020-02-09 16:44:52.934809	30	t
-19	19	program voice track	SQL	V19__program_voice_track.sql	1664915003	root	2020-02-09 16:44:52.979828	13	t
-20	20	program sequence	SQL	V20__program_sequence.sql	-1827766662	root	2020-02-09 16:44:53.007186	37	t
-21	21	program sequence chord	SQL	V21__program_sequence_chord.sql	-261844648	root	2020-02-09 16:44:53.063132	17	t
-22	22	program sequence binding	SQL	V22__program_sequence_binding.sql	42064776	root	2020-02-09 16:44:53.102226	24	t
-23	23	program sequence binding meme	SQL	V23__program_sequence_binding_meme.sql	-1024515531	root	2020-02-09 16:44:53.144524	19	t
-24	24	program sequence pattern	SQL	V24__program_sequence_pattern.sql	-2133019060	root	2020-02-09 16:44:53.183337	23	t
-25	25	program sequence pattern event	SQL	V25__program_sequence_pattern_event.sql	1863665119	root	2020-02-09 16:44:53.221762	18	t
-26	26	chain	SQL	V26__chain.sql	-817753471	root	2020-02-09 16:44:53.259332	22	t
-27	27	chain config	SQL	V27__chain_config.sql	-1978914320	root	2020-02-09 16:44:53.3011	27	t
-28	28	chain binding	SQL	V28__chain_binding.sql	1711464431	root	2020-02-09 16:44:53.348241	22	t
-29	29	segment	SQL	V29__segment.sql	839872793	root	2020-02-09 16:44:53.387073	18	t
-30	30	segment meme	SQL	V30__segment_meme.sql	1945287463	root	2020-02-09 16:44:53.422863	11	t
-31	31	segment chord	SQL	V31__segment_chord.sql	-23710397	root	2020-02-09 16:44:53.44494	23	t
-32	32	segment choice	SQL	V32__segment_choice.sql	1686427245	root	2020-02-09 16:44:53.487007	19	t
-33	33	segment choice arrangement	SQL	V33__segment_choice_arrangement.sql	826509835	root	2020-02-09 16:44:53.519849	22	t
-34	34	segment choice arrangement pick	SQL	V34__segment_choice_arrangement_pick.sql	1654315292	root	2020-02-09 16:44:53.556692	23	t
-35	35	segment message	SQL	V35__segment_message.sql	-895760763	root	2020-02-09 16:44:53.593995	22	t
-36	36	platform message	SQL	V36__platform_message.sql	-1549213473	root	2020-02-09 16:44:53.63157	27	t
-37	37	work	SQL	V37__work.sql	-1737567323	root	2020-02-09 16:44:53.669003	9	t
-38	38	segment waveform preroll	SQL	V38__segment_waveform_preroll.sql	-1820712501	root	2020-02-09 16:44:53.690133	4	t
+1	1	xj schema	SQL	V1__xj_schema.sql	797233822	root	2020-02-11 17:22:04.074347	8	t
+2	2	create extension uuid ossp	SQL	V2__create_extension_uuid_ossp.sql	2034728600	root	2020-02-11 17:22:04.128552	12	t
+3	3	create updated at now	SQL	V3__create_updated_at_now.sql	-981124898	root	2020-02-11 17:22:04.154692	7	t
+4	4	user	SQL	V4__user.sql	913045606	root	2020-02-11 17:22:04.173357	23	t
+5	5	user auth	SQL	V5__user_auth.sql	-448926434	root	2020-02-11 17:22:04.208186	25	t
+6	6	user auth token	SQL	V6__user_auth_token.sql	-1426970887	root	2020-02-11 17:22:04.248247	33	t
+7	7	user role	SQL	V7__user_role.sql	520858385	root	2020-02-11 17:22:04.297067	25	t
+8	8	account	SQL	V8__account.sql	-1413282908	root	2020-02-11 17:22:04.354891	21	t
+9	9	account user	SQL	V9__account_user.sql	1415864885	root	2020-02-11 17:22:04.413743	31	t
+10	10	library	SQL	V10__library.sql	1259098220	root	2020-02-11 17:22:04.481432	21	t
+11	11	instrument	SQL	V11__instrument.sql	-1433436616	root	2020-02-11 17:22:04.525865	22	t
+12	12	instrument meme	SQL	V12__instrument_meme.sql	-1027003655	root	2020-02-11 17:22:04.561425	21	t
+13	13	instrument audio	SQL	V13__instrument_audio.sql	-1261244184	root	2020-02-11 17:22:04.600193	28	t
+14	14	instrument audio chord	SQL	V14__instrument_audio_chord.sql	1803612396	root	2020-02-11 17:22:04.641563	13	t
+15	15	instrument audio event	SQL	V15__instrument_audio_event.sql	1426476358	root	2020-02-11 17:22:04.668712	30	t
+16	16	program	SQL	V16__program.sql	-941829822	root	2020-02-11 17:22:04.714653	26	t
+17	17	program meme	SQL	V17__program_meme.sql	1450167054	root	2020-02-11 17:22:04.750745	12	t
+18	18	program voice	SQL	V18__program_voice.sql	-276352046	root	2020-02-11 17:22:04.772087	26	t
+19	19	program voice track	SQL	V19__program_voice_track.sql	1664915003	root	2020-02-11 17:22:04.811555	17	t
+20	20	program sequence	SQL	V20__program_sequence.sql	-1827766662	root	2020-02-11 17:22:04.840564	20	t
+21	21	program sequence chord	SQL	V21__program_sequence_chord.sql	-261844648	root	2020-02-11 17:22:04.871617	14	t
+22	22	program sequence binding	SQL	V22__program_sequence_binding.sql	42064776	root	2020-02-11 17:22:04.900075	20	t
+23	23	program sequence binding meme	SQL	V23__program_sequence_binding_meme.sql	-1024515531	root	2020-02-11 17:22:04.93463	17	t
+24	24	program sequence pattern	SQL	V24__program_sequence_pattern.sql	-2133019060	root	2020-02-11 17:22:04.963412	20	t
+25	25	program sequence pattern event	SQL	V25__program_sequence_pattern_event.sql	1863665119	root	2020-02-11 17:22:04.994883	21	t
+26	26	chain	SQL	V26__chain.sql	-817753471	root	2020-02-11 17:22:05.028479	26	t
+27	27	chain config	SQL	V27__chain_config.sql	-1978914320	root	2020-02-11 17:22:05.065277	19	t
+28	28	chain binding	SQL	V28__chain_binding.sql	1711464431	root	2020-02-11 17:22:05.097411	22	t
+29	29	segment	SQL	V29__segment.sql	839872793	root	2020-02-11 17:22:05.13261	27	t
+30	30	segment meme	SQL	V30__segment_meme.sql	1945287463	root	2020-02-11 17:22:05.171301	13	t
+31	31	segment chord	SQL	V31__segment_chord.sql	-23710397	root	2020-02-11 17:22:05.196457	16	t
+32	32	segment choice	SQL	V32__segment_choice.sql	1686427245	root	2020-02-11 17:22:05.226449	19	t
+33	33	segment choice arrangement	SQL	V33__segment_choice_arrangement.sql	826509835	root	2020-02-11 17:22:05.25715	15	t
+34	34	segment choice arrangement pick	SQL	V34__segment_choice_arrangement_pick.sql	1654315292	root	2020-02-11 17:22:05.281304	12	t
+35	35	segment message	SQL	V35__segment_message.sql	-895760763	root	2020-02-11 17:22:05.301788	28	t
+36	36	platform message	SQL	V36__platform_message.sql	-1549213473	root	2020-02-11 17:22:05.343188	29	t
+37	37	work	SQL	V37__work.sql	-1737567323	root	2020-02-11 17:22:05.385679	13	t
+38	38	segment waveform preroll	SQL	V38__segment_waveform_preroll.sql	-1820712501	root	2020-02-11 17:22:05.411144	5	t
 \.
 
 
