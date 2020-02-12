@@ -270,6 +270,7 @@ public class ProgramSequencePattern extends Entity {
     require(programVoiceId, "Voice ID");
     require(programSequenceId, "Sequence ID");
     require(name, "Name");
+    require(total, "Total");
 
     requireNo(typeException, "Type");
     require(type, "Type");

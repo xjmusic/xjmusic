@@ -33,6 +33,7 @@ public class ProgramSequencePatternTest {
       .setProgramId(UUID.randomUUID())
       .setProgramSequenceId(UUID.randomUUID())
       .setProgramVoiceId(UUID.randomUUID())
+      .setTotal(64)
       .setTypeEnum(ProgramSequencePatternType.Loop)
       .setName("Mic Check One Two")
       .validate();
@@ -48,6 +49,7 @@ public class ProgramSequencePatternTest {
       .setProgramId(UUID.randomUUID())
       .setProgramSequenceId(UUID.randomUUID())
       .setTypeEnum(ProgramSequencePatternType.Loop)
+      .setTotal(64)
       .validate();
   }
 
@@ -60,6 +62,7 @@ public class ProgramSequencePatternTest {
       .setProgramId(UUID.randomUUID())
       .setProgramVoiceId(UUID.randomUUID())
       .setName("Mic Check One Two")
+      .setTotal(64)
       .setTypeEnum(ProgramSequencePatternType.Loop)
       .validate();
   }
@@ -74,6 +77,21 @@ public class ProgramSequencePatternTest {
       .setProgramSequenceId(UUID.randomUUID())
       .setName("Mic Check One Two")
       .setProgramVoiceId(UUID.randomUUID())
+      .setTotal(64)
+      .validate();
+  }
+
+  @Test
+  public void validate_failsWithoutTotal() throws Exception {
+    failure.expect(CoreException.class);
+    failure.expectMessage("Total is required");
+
+    new ProgramSequencePattern()
+      .setProgramId(UUID.randomUUID())
+      .setProgramSequenceId(UUID.randomUUID())
+      .setName("Mic Check One Two")
+      .setProgramVoiceId(UUID.randomUUID())
+      .setTypeEnum(ProgramSequencePatternType.Loop)
       .validate();
   }
 
@@ -87,6 +105,7 @@ public class ProgramSequencePatternTest {
       .setProgramId(UUID.randomUUID())
       .setProgramVoiceId(UUID.randomUUID())
       .setTypeEnum(ProgramSequencePatternType.Loop)
+      .setTotal(64)
       .validate();
   }
 
