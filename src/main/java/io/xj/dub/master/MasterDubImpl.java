@@ -174,6 +174,7 @@ public class MasterDubImpl implements MasterDub {
    [#341] Dub worker takes into account the start offset of each audio, in order to ensure that it is mixed such that the hit is exactly on the meter
    [#165799913] Dubbed audio can begin before segment start
    - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment
+   [#171224848] Duration of events should include segment preroll
 
    @param preroll (seconds)
    @param pick    to set playback for
@@ -182,7 +183,7 @@ public class MasterDubImpl implements MasterDub {
     mixer().put(
       pick.getInstrumentAudioId().toString(),
       toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
-      toMicros(pick.getStart() + pick.getLength()),
+      toMicros(preroll + pick.getStart() + pick.getLength()),
       audioAttackMicros,
       audioReleaseMicros,
       pick.getAmplitude(), computePitchRatio(pick), 0);
