@@ -1,0 +1,14 @@
+/*
+ * Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+ */
+
+rootProject.name = "xj-service-worker"
+
+include ':lib:core'
+project(':lib:core').projectDir = new File("../../lib/core")
+
+include ':lib:craft'
+project(':lib:craft').projectDir = new File("../../lib/craft")
+
+include ':lib:dub'
+project(':lib:dub').projectDir = new File("../../lib/dub")

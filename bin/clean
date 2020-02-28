@@ -5,14 +5,14 @@
 
 #
 step "Basic cleanup"
-destroy ui/hub-mk1-ui/dist
-destroy ui/hub-mk1-ui/tmp
+destroy ui/web-artist-mk1/dist
+destroy ui/web-artist-mk1/tmp
 destroy core/target
 destroy target
 clean_all_named *.pyc
 finished_ok
 
 #
-step "Maven Clean"
-mvn clean
+step "Gradle Clean"
+gradle clean
 finished_ok

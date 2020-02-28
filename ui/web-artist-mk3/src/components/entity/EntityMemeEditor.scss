@@ -1,0 +1,66 @@
+/*!
+ * Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+ */
+@import "../../theme";
+
+.entity-meme-editor {
+  display: inline-block;
+  width: 100%;
+
+  .meme {
+    display: inline-block;
+    flex-direction: row;
+    background-color: #777;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    padding: 0 0;
+    text-transform: uppercase;
+    font-size: 12px;
+    line-height: 16px;
+    margin: 3px 5px 2px 0;
+    font-weight: 900;
+    white-space: nowrap;
+
+    .field.name {
+      padding: 0 4px;
+      color: #e0e0e0;
+      display: inline-block;
+
+      input {
+        display: inline-block;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 80px !important;
+      }
+    }
+  }
+
+  .create, .destroy {
+    border-radius: 6px;
+    -webkit-border-radius: 6px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 10px 10px;
+    display: inline-block;
+    cursor: pointer;
+    padding: 2px 6px;
+    opacity: 1.0;
+    background-color: #666;
+    color: #a0a0a0;
+
+    &:hover {
+      opacity: 1.0;
+      background-color: $input-selection-background-color;
+      color: #fff;
+    }
+  }
+
+  .name {
+    font-size: 14px;
+    line-height: 0;
+    margin: 0 5px 0 0;
+    color: #888;
+    font-weight: 900;
+  }
+
+}

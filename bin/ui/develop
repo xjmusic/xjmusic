@@ -35,21 +35,21 @@ step_ok
 
 # Hub Mk1 UI (start)
 step "Build Hub Mk1 UI (Ember)"
-cd ${BASEPATH}/ui/hub-mk1-ui
+cd ${BASEPATH}/ui/web-artist-mk1
 npm install || fail "Installing Hub Mk1 UI dependencies via NPM"
 ember build --watch &
 HUB_EMBER_PID=$!
 
 # Hub Mk2 UI (start)
 step "Build Hub Mk2 UI (Vue)"
-cd ${BASEPATH}/ui/hub-mk2-ui
+cd ${BASEPATH}/ui/web-artist-mk2
 npm install || fail "Installing Hub Mk2 UI dependencies via NPM"
 npm run build-watch &
 STEPMATIC_UI_PID=$!
 
 # Player UI (start)
 step "Build Player UI"
-cd ${BASEPATH}/ui/player-ui
+cd ${BASEPATH}/ui/web-player
 npm install || fail "Installing Player UI dependencies via NPM"
 gulp watch &
 PLAYER_UI_PID=$!

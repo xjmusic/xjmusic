@@ -3,9 +3,11 @@
 # Include common functions
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
+deps
+
 #
 step "Platform Integration Tests"
-mvn verify || exit 1
+gradle check || exit 1
 step_ok
 
 #

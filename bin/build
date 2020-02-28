@@ -3,9 +3,11 @@
 # Include common functions
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
+deps
+
 #
 step "Compile Platform"
-mvn clean compile || exit 1
+gradle clean compileJava || exit 1
 step_ok
 
 #

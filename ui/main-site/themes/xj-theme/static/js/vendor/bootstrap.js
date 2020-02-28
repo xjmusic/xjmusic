@@ -1,4 +1,6 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+/*
+ * Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+ */
 
 if (typeof jQuery === 'undefined') {
   throw new Error('Bootstrap\'s JavaScript requires jQuery. jQuery must be included before Bootstrap\'s JavaScript.')

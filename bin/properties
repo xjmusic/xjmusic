@@ -19,14 +19,14 @@ for APP in ${APPS}; do
               --heading --color -o \
               'System.getProperty\(([^\)]+)\)' \
               ${PWD}/${APP}; then
-    printf "\n${RED}ERROR!${RESET}\nPlease ensure that all app configuration implements ${GREEN}io.xj.core.config${RESET}.\nThere should be no loose System.getProperty().\n\n"
+    printf "\n${RED}ERROR!${RESET}\nPlease ensure that all app configuration implements ${GREEN}io.xj.lib.core.config${RESET}.\nThere should be no loose System.getProperty().\n\n"
     exit 1
   fi
 done
 step_ok
 
 #
-step "io.xj.core.config.Config properties:"
+step "io.xj.lib.core.config.Config properties:"
 indent "$(grep -oE "\"[a-z]+\.[a-z\.]+\"" core/src/main/java/io/xj/core/config/Config.java | sort)"
 step_ok
 

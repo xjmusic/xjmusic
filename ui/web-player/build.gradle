@@ -1,0 +1,53 @@
+/*
+ * Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+ */
+
+buildscript {
+  repositories {
+    jcenter()
+    mavenLocal()
+    mavenCentral()
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+
+  dependencies {
+    classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8"
+  }
+}
+
+apply plugin: "org.sonarqube"
+
+group = 'io.xj'
+version = '1.0'
+description = 'xj-ui-web-player'
+tasks.withType(JavaCompile) {
+  options.encoding = 'UTF-8'
+}
+
+sonarqube {
+  properties {
+    property "sonar.sourceEncoding", "UTF-8"
+    property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+  }
+}
+
+task installJavascriptPackages(type: Exec) {
+  inputs.file("package.json")
+  outputs.file("package-lock.json")
+  outputs.dir("node_modules")
+  println "Will install Javascript packages"
+  commandLine "npm", "install"
+}
+
+task buildJavascript(type: Exec) {
+  inputs.file("gulpfile.js")
+  outputs.dir("build")
+  inputs.dir("src")
+  println "Will build Javascript"
+  commandLine "npm", "run-script", "build"
+}
+
+buildJavascript.dependsOn(installJavascriptPackages)
+if (build) build.dependsOn(buildJavascript)

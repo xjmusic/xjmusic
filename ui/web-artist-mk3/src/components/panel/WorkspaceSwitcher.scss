@@ -1,0 +1,53 @@
+/*!
+ * Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+ */
+@import "../../theme";
+
+.workspace-switcher {
+  display: flex;
+  flex-direction: row;
+
+  button {
+    color: #888 !important;
+    font-family: $roboto-mono;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.05) !important;
+    display: flex;
+    width: 90%;
+    padding: 2px 2px;
+    border-radius: 4px;
+    margin: 2px 0 2px 2px !important;
+    -webkit-border-radius: 4px;
+
+    &.active {
+      color: #fff !important;
+      background: $switch-active-background-color !important;
+      cursor: default !important;
+
+      &:hover, &:active {
+        background: $switch-active-background-color !important;
+      }
+    }
+
+    &:disabled {
+      color: #444 !important;
+      opacity: 0.3;
+    }
+
+    &.ready:not(:disabled) {
+      cursor: pointer;
+
+      &:hover {
+        color: #AAA !important;
+        background: rgba(255,255,255,0.2) !important;
+      }
+
+      &:active {
+        color: #FFF !important;
+        background: $input-selection-background-color !important;
+      }
+    }
+  }
+}

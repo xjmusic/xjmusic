@@ -1,0 +1,17 @@
+/*!
+ * Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+ */
+@import "../../theme";
+
+$panel-inner-shadow-color: rgba(0, 0, 0, 0.25);
+
+.program-sequence-pattern-track-editor {
+  display: flex;
+  background-color: rgba(255, 255, 255, 0.062);
+  border-style: solid;
+  border-color: #444 #292929 #000 #101010;
+  border-width: 2px 2px 0 2px;
+  flex-grow: 0;
+  flex-shrink: 0;
+  position: relative;
+}

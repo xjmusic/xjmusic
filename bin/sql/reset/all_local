@@ -14,7 +14,7 @@ SQL_PORT=5400
 SQL_HOST="127.0.0.1"
 
 # Database
-SQL_DB_MAIN="xj_dev"
+SQL_DB_MAIN=${1:-xj_dev}
 SQL_DB_TEST="xj_test"
 
 # Source

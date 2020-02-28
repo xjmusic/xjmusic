@@ -1,0 +1,20 @@
+{
+  "data": {
+    "relationships": {
+      "account": {
+        "data": {
+          "type": "accounts",
+          "id": "1"
+        }
+      },
+      "user": {
+        "data": {
+          "type": "users",
+          "id": "5"
+        }
+      }
+    },
+    "type": "account-users",
+    "id": "14"
+  }
+}

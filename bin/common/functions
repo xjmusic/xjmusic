@@ -5,7 +5,7 @@ deps() {
   ensure_version "docker version" "Docker Engine"
   ensure_version "docker-compose version" "Docker Compose"
   ensure_version "java -version" "Java"
-  ensure_version "mvn -version" "Maven"
+  ensure_version_number "gradle --version | grep '^Gradle' | grep -oe '[0-9\.]*' | grep -oe '^[0-9]*'" "Gradle" 6
   ensure_version "node -v" "NodeJS"
   ensure_version "npm -v" "NPM"
   ensure_version "ember -v" "EmberJS CLI"
@@ -69,6 +69,22 @@ ensure_version () {
   indent "${VERSION}"
   step_ok
 }
+
+# Ensuring Workflow Dependencies
+ensure_version_number () {
+  CMD=${1}
+  TEXT=${2}
+  NUM=${3}
+  step "Ensure ${TEXT} is at least version ${NUM}"
+  VERSION=$(${CMD}) || exit 1
+  if [[ ${VERSION} < ${NUM} ]]; then
+    printf "${TEXT} is only at version ${VERSION}"
+    exit 1
+  fi
+  indent "${VERSION}"
+  step_ok
+}
+
 ensure_nslookup () {
   ADDR=${1}
   TEXT=${2}

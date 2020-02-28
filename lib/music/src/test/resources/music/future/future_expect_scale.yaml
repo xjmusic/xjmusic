@@ -1,0 +1,222 @@
+---
+scales:
+
+  C7#9:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Poly:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Tone Cluster Extended:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C +6:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Aug 6:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Lydian:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C + 7 6:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Omit Sixth:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Omit Lydian:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Omit Seven Six:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Alpha:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Bridge:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Complexe Sonore:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Dream:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Elektra:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Farben:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Grandmother:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Magic:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C µ:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Mystic:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Northern Lights:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Petrushka:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Psalms:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C So What:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Tristan:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Viennese Triscale:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Mixed Interval:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Secundal:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Tertian:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Quartal:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  C Synthetic:
+    root: C
+    tones:
+      1: C
+      3: X
+      5: X
+
+  XXX:
+    root: "-"

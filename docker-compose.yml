@@ -3,28 +3,57 @@ version: '2'
 services:
 
   web:
-    environment:
-      APPS: hub
     container_name: web01xj1
+    image: nginx:1.17.8
+    volumes:
+      - ./log:/var/log
+      - ./ops/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ui/web-artist-mk1/build:/usr/share/nginx/html/web-artist-mk1:ro
+      - ./ui/web-artist-mk3/build:/usr/share/nginx/html/web-artist-mk3:ro
+      - ./ui/web-player/build:/usr/share/nginx/html/web-player:ro
+      - ./ui/hub-site:/usr/share/nginx/html/hub-site:ro
     ports:
       - "80:80"
-    extends:
-      file: docker-compose.common.yml
-      service: base
+    depends_on:
+      - hub
+    restart: always
+
+  hub:
+    build:
+      context: .
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/var/app/current
+      - ./log:/var/log
+      - ./service/hub/build/distributions/hub-1.0.tar:/var/app/hub-1.0.tar
+    environment:
+      APP_NAME: hub
+      APP_VERSION: 1.0
+    container_name: hub01xj1
+    ports:
+      - "8042:8042"
     depends_on:
       - postgres
       - redis
     restart: always
 
   work:
+    build:
+      context: .
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/var/app/current
+      - ./log:/var/log
+      - ./service/worker/build/distributions/worker-1.0.tar:/var/app/worker-1.0.tar
     environment:
-      APPS: worker
+      APP_NAME: worker
+      APP_VERSION: 1.0
     container_name: work01xj1
-    extends:
-      file: docker-compose.common.yml
-      service: base
+    ports:
+      - "8043:8043"
     depends_on:
-      - web
       - postgres
       - redis
     restart: always

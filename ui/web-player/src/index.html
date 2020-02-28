@@ -1,0 +1,63 @@
+<!--
+  ~ Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+  -->
+<!doctype html>
+
+<html class="no-js" lang="">
+
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-102762643-4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', 'UA-102762643-4');
+  </script>
+
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>XJ Music™</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!--link rel="manifest" href="site.webmanifest"-->
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Place favicon.ico in the root directory -->
+
+  <link rel="stylesheet" href="vendor/normalize.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+<!--[if lte IE 9]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade
+  your browser</a> to improve your experience and security.</p>
+<![endif]-->
+
+<table class="status">
+  <tr>
+    <td align="center" valign="middle">
+      <div id="status-text"></div>
+    </td>
+  </tr>
+</table>
+
+<div id="debug-container">
+  <h2 id="chain-name"></h2>
+  <h2 id="now-playing"></h2>
+  <h6 id="now-time"></h6>
+  <div id="messages"></div>
+</div>
+
+<script src="vendor/modernizr.js"></script>
+<script src="vendor/require.js"></script>
+<script src="js/main.js"></script>
+</body>
+
+</html>
+

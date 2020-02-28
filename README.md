@@ -55,7 +55,7 @@ NOTE: Hub UI still has Ember tests. See: [#158271368](https://www.pivotaltracker
 
 ## Getting Started
 
-There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables, in a new file called **env.conf** which is never checked in to version control or released with the distribution. Because the application only has **one single common bootstrap** (located at bin/common/bootstrap) the use of environment variables is federated across development and production deployments, while all actual configurations are kept outside the scope of the code.
+There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables, in a new file called **env.conf** which is never checked in to version control or released with the distribution. So, the use of environment variables is federated across development and production deployments, while all actual configurations are kept outside the scope of the code.
 
 We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development with uncanny parity to production. Once your **env.conf** file is configured, it's time to bring up the `hub01xj1` server and its supporting resources such as `postgres01xj1` and `redis01xj1`:
 
@@ -67,9 +67,9 @@ Note that `localhost` simply points to the local loopback. Docker-compose maps m
 
 Assuming the docker containers are up and the hosts configured, you'll be able to open the main UI in a browser at [http://localhost/](http://localhost/)
 
-The front-end UI is served by the Nginx server on `hub01xj1` via the local `ui/hub-mk1-ui/dist` volume. During development, use the [Ember CLI](https://ember-cli.com/) to keep the front-end continuously re-built in real time:
+The front-end UI is served by the Nginx server on `hub01xj1` via the local `ui/web-artist-mk1/dist` volume. During development, use the [Ember CLI](https://ember-cli.com/) to keep the front-end continuously re-built in real time:
 
-    cd ui/hub-mk1-ui
+    cd ui/web-artist-mk1
     ember build --watch
 
 Preferably, use the script from the project root, to build and watch the UI during dev:
@@ -78,11 +78,11 @@ Preferably, use the script from the project root, to build and watch the UI duri
 
 To compile the Java server-side applications and package them for deployment:
 
-    bin/package
+    bin/assemble
 
 To build and deploy the platform during local development, we run this a lot:
 
-    bin/package && docker restart hub01xj1 worker01xj1
+    bin/assemble && docker restart hub01xj1 worker01xj1
 
 For a complete rebuild, including configurations and front-end, we could run:
 
@@ -180,7 +180,7 @@ There is an example configuration called **env.example.conf** in the root of the
 
 ## Run local platform in Docker containers
 
-Before running the docker container, be sure to package the latest Java build artifacts, with `make` or `bin/package`.
+Before running the docker container, be sure to package the latest Java build artifacts, with `make` or `bin/assemble`.
 
 Bring up the `hub01xj1` docker container (with an Nginx server on port 80, which proxies backend requests to its own Hub via port 8042) and its required resource containers:
 Xj-control
@@ -220,9 +220,9 @@ There is only one Nginx server locations configuration, shared by the local Dock
 
     ops/nginx/locations.conf
 
-The front-end user interface (ui/hub-mk1-ui) is served via Nginx from the local ui/dist/ folder. While developing (and the docker-compose containers are up), run the Ember build in watch-mode to keep the front-end ui rebuilt as your local code changes automatically:
+The front-end user interface (ui/web-artist-mk1) is served via Nginx from the local ui/dist/ folder. While developing (and the docker-compose containers are up), run the Ember build in watch-mode to keep the front-end ui rebuilt as your local code changes automatically:
 
-    cd ui/hub-mk1-ui
+    cd ui/web-artist-mk1
     ember build --watch
 
 
@@ -239,7 +239,7 @@ Compile & Install the Java server-side application:
 
 Compile & Package the Java server-side application, e.g. as JAR files:
 
-    bin/package
+    bin/assemble
 
 
 
@@ -268,7 +268,7 @@ We use `maven-failsafe` to kick off integration tests. There's a helper script:
 
     bin/verify
 
-Also, the integration test suite is run by default during a `bin/package` or `bin/release` and will block the build if integration tests fail.
+Also, the integration test suite is run by default during a `bin/assemble` or `bin/release` and will block the build if integration tests fail.
 
 Integration uses the Docker `postgres01xj1` and `redis01xj1` databases.
 
@@ -353,18 +353,17 @@ Clean away all IntelliJ related files:
 
 ## Maven
 
-To clean, build and install all artifacts:
+To clean and build all artifacts:
 
-    mvn clean install
+    gradle clean compileJava
+    # or
+    bin/build
 
-To clean, build and package artifacts for shipment:
+To clean, build, test and assemble artifacts for shipment:
 
-    mvn clean package
-
-To run local migrations (in the `core` submodule via the Flyway plugin):
-
-    mvn flyway:migrate
-
+    gradle clean test assemble
+    # or
+    bin/assemble
 
 
 ## Google Authentication
@@ -423,7 +422,7 @@ Note that in order to use that command, the source bucket (xj-prod-audio) must g
 
 
 
-## ui/hub-mk1-ui
+## ui/web-artist-mk1
 
 Hub user interface web application. Built with Javascript, Ember, Node.
 
@@ -583,11 +582,6 @@ https://developers.google.com/+/web/samples/java
 
 See [Java SE 8: Creating a Basic REST Web Service using Grizzly, Jersey, and Maven](http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/griz_jersey_intro/Grizzly-Jersey-Intro.html)
 
-Bootstrap a Grizzly2 quickstart with:
-
-mvn archetype:generate -DarchetypeArtifactId=jersey-quickstart-grizzly2 -DarchetypeGroupId=org.glassfish.jersey.archetypes -DinteractiveMode=false -DgroupId=io.xj -DartifactId=strap -Dpackage=io.xj.strap -DarchetypeVersion=2.17
-
-
 
 ## AWS Elastic Beanstalk
 
@@ -675,7 +669,7 @@ GitHub Open Issue: https://github.com/docker/for-mac/issues/155
 
 Architect wants minimal, open-source web browser based XJ Music™ player, in order to embed XJ Music™ on any website, and ensure that the experience is as widely accessible as possible.
 
-See [player-ui README](ui/player-ui/README.md)
+See [web-player README](ui/web-player/README.md)
 
 
 

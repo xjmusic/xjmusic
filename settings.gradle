@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+ */
+
+rootProject.name = 'xj'
+
+include(':lib:core')
+include(':lib:dub')
+include(':lib:craft')
+include(':lib:mixer')
+include(':lib:music')
+include(':service:hub')
+include(':service:pulse')
+include(':service:worker')
+include(':ui:web-artist-mk1')
+include(':ui:web-artist-mk3')
+include(':ui:web-player')

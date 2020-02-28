@@ -6,7 +6,7 @@
 # Requires 6 arguments
 if [ $# != 6 ]; then echo "
    Usage:
-     bin/sql/dump_records <user> <password> <database> <host> <port> <path/to/output.sql>
+     bin/sql/dump/schema <user> <password> <database> <host> <port> <path/to/output.sql>
 
 "
 fi

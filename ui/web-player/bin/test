@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# messages and colors
+message_prefix="[ui/web-player]"
+RED=`tput setaf 1`
+GREEN=`tput setaf 2`
+RESET=`tput sgr0`
+
+# base path
+BASE_PATH=$(pwd)
+
+# run tests
+jest

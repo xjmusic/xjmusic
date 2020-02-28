@@ -66,14 +66,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install net-tool
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install postgresql-client
 
 ###
-### Nginx
-###
-
-# Install Nginx
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install nginx
-EXPOSE 80
-
-###
 ### App-specific content follows
 ###
 
@@ -86,21 +78,11 @@ EXPOSE 8043
 RUN mkdir -p /var/log/worker && chmod a+w /var/log/worker
 RUN mkdir -p /var/cache/worker && chmod a+w /var/cache/worker
 
-# App run script
+# App bootstrap
 ADD \
   ops/docker/bin/boot-docker \
   /data/bin/boot-docker
 
-# App bootstrap
-ADD \
-  bin/common/bootstrap \
-  /data/bin/bootstrap
-
 # Docker bootstrap
 CMD bin/boot-docker
-
-# Nginx needs log directory re-created, and start
-# (because /var/log is mounted as volume, it will have crashed by now)
-RUN mkdir -p /var/log/nginx && chmod a+w /var/log/nginx
-RUN service nginx start
 

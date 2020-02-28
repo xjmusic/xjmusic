@@ -1,0 +1,73 @@
+/*!
+ * Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+ */
+@import "palette";
+
+.digest {
+  margin-bottom: 2rem;
+
+  .loader {
+    display: none;
+  }
+
+  .result {
+    display: none;
+  }
+
+  .do-digest {
+    margin-bottom: 1rem;
+  }
+
+  .btn-default {
+    background: #222;
+    color: $gray;
+    border: 2px solid $dark-gray;
+  }
+
+  &.loading {
+    .active.btn-default {
+      background: #222;
+      color: $gold;
+      border: 2px solid darken($gold, 25%);
+    }
+
+    .loader {
+      display: block;
+    }
+  }
+
+  &.failed {
+    .active.btn-default {
+      background: #222;
+      color: $red;
+      border: 2px solid darken($red, 25%);
+    }
+  }
+
+  &.done {
+    .result {
+      display: block;
+      width: 100%;
+    }
+
+    .active.btn-default {
+      background: #222;
+      color: $green;
+      border: 2px solid darken($green, 25%);
+    }
+  }
+
+  .digest-meme-usage {
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1rem;
+    }
+  }
+
+  .digest-chord-progression-usages {
+  }
+
+  .digest-chord-markov {
+  }
+
+}
+
