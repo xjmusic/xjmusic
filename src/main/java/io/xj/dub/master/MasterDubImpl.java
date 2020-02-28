@@ -183,7 +183,7 @@ public class MasterDubImpl implements MasterDub {
     mixer().put(
       pick.getInstrumentAudioId().toString(),
       toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
-      toMicros(preroll + pick.getStart() + pick.getLength()),
+      toMicros(preroll + pick.getStart() + pick.getLength()) + audioReleaseMicros,
       audioAttackMicros,
       audioReleaseMicros,
       pick.getAmplitude(), computePitchRatio(pick), 0);
