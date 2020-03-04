@@ -97,6 +97,9 @@ sourceCompatibility = '11'
 
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
+  inputs.dir("src")
+  outputs.dir("out")
+  outputs.dir("build")
 }
 
 sonarqube {
