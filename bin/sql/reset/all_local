@@ -46,7 +46,7 @@ step_ok
 
 #
 step "Create test DB schema"
-psql ${CFG} ${SQL_DB_MAIN}< ${SOURCE_TEST_SCHEMA_SQL} || error
+psql ${CFG} ${SQL_DB_TEST}< ${SOURCE_TEST_SCHEMA_SQL} || error
 step_ok
 
 #
