@@ -13,7 +13,7 @@ target/
 */target/
 classes/
 /build/
-
+/out/
 # misc
 .DS_Store
 .env.local

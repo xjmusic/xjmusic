@@ -2,6 +2,7 @@
 
 # compiled output
 /build/
+/out/
 /tmp/
 
 # dependencies

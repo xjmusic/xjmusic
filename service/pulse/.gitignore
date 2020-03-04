@@ -24,7 +24,7 @@ docs/public/
 # Gradle build files
 .gradle
 /build/
-
+/out/
 # Ignore Gradle GUI config
 gradle-app.setting
 

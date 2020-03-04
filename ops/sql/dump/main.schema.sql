@@ -1,4 +1,4 @@
-\-\- Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+-- Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 --
 -- PostgreSQL database dump
@@ -18,27 +18,6 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
---
--- Name: xj_dev; Type: DATABASE; Schema: -; Owner: root
---
-
-CREATE DATABASE xj_dev WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'en_US.utf8' LC_CTYPE = 'en_US.utf8';
-
-
-ALTER DATABASE xj_dev OWNER TO root;
-
-\connect xj_dev
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
 
 --
 -- Name: xj; Type: SCHEMA; Schema: -; Owner: root
@@ -57,7 +36,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA xj;
 
 
 --
--- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
@@ -1620,3 +1599,47 @@ ALTER TABLE ONLY xj.user_role
 -- PostgreSQL database dump complete
 --
 
+--
+-- Data for Name: flyway_schema_history; Type: TABLE DATA; Schema: xj; Owner: root
+--
+
+COPY xj.flyway_schema_history (installed_rank, version, description, type, script, checksum, installed_by, installed_on, execution_time, success) FROM stdin;
+0	\N	<< Flyway Schema Creation >>	SCHEMA	"xj"	\N	root	2020-03-03 15:30:26.020979	0	t
+1	2	create extension uuid ossp	SQL	V2__create_extension_uuid_ossp.sql	2034728600	root	2020-03-03 15:30:26.042693	4	t
+2	3	create updated at now	SQL	V3__create_updated_at_now.sql	-981124898	root	2020-03-03 15:30:26.058347	2	t
+3	4	user	SQL	V4__user.sql	913045606	root	2020-03-03 15:30:26.071053	23	t
+4	5	user auth	SQL	V5__user_auth.sql	-448926434	root	2020-03-03 15:30:26.108625	23	t
+5	6	user auth token	SQL	V6__user_auth_token.sql	-1426970887	root	2020-03-03 15:30:26.140811	14	t
+6	7	user role	SQL	V7__user_role.sql	520858385	root	2020-03-03 15:30:26.163839	11	t
+7	8	account	SQL	V8__account.sql	-1413282908	root	2020-03-03 15:30:26.185594	14	t
+8	9	account user	SQL	V9__account_user.sql	1415864885	root	2020-03-03 15:30:26.208847	12	t
+9	10	library	SQL	V10__library.sql	1259098220	root	2020-03-03 15:30:26.23045	8	t
+10	11	instrument	SQL	V11__instrument.sql	-1433436616	root	2020-03-03 15:30:26.244786	14	t
+11	12	instrument meme	SQL	V12__instrument_meme.sql	-1027003655	root	2020-03-03 15:30:26.265726	13	t
+12	13	instrument audio	SQL	V13__instrument_audio.sql	-1261244184	root	2020-03-03 15:30:26.288726	23	t
+13	14	instrument audio chord	SQL	V14__instrument_audio_chord.sql	1803612396	root	2020-03-03 15:30:26.320943	8	t
+14	15	instrument audio event	SQL	V15__instrument_audio_event.sql	1426476358	root	2020-03-03 15:30:26.335761	14	t
+15	16	program	SQL	V16__program.sql	-941829822	root	2020-03-03 15:30:26.356632	26	t
+16	17	program meme	SQL	V17__program_meme.sql	1450167054	root	2020-03-03 15:30:26.391512	12	t
+17	18	program voice	SQL	V18__program_voice.sql	-276352046	root	2020-03-03 15:30:26.411963	14	t
+18	19	program voice track	SQL	V19__program_voice_track.sql	1664915003	root	2020-03-03 15:30:26.432717	7	t
+19	20	program sequence	SQL	V20__program_sequence.sql	-1827766662	root	2020-03-03 15:30:26.44644	25	t
+20	21	program sequence chord	SQL	V21__program_sequence_chord.sql	-261844648	root	2020-03-03 15:30:26.480505	12	t
+21	22	program sequence binding	SQL	V22__program_sequence_binding.sql	42064776	root	2020-03-03 15:30:26.501233	9	t
+22	23	program sequence binding meme	SQL	V23__program_sequence_binding_meme.sql	-1024515531	root	2020-03-03 15:30:26.516872	8	t
+23	24	program sequence pattern	SQL	V24__program_sequence_pattern.sql	-2133019060	root	2020-03-03 15:30:26.532549	26	t
+24	25	program sequence pattern event	SQL	V25__program_sequence_pattern_event.sql	1863665119	root	2020-03-03 15:30:26.569972	15	t
+25	26	chain	SQL	V26__chain.sql	-817753471	root	2020-03-03 15:30:26.602448	30	t
+26	27	chain config	SQL	V27__chain_config.sql	-1978914320	root	2020-03-03 15:30:26.642301	14	t
+27	28	chain binding	SQL	V28__chain_binding.sql	1711464431	root	2020-03-03 15:30:26.665447	13	t
+28	29	segment	SQL	V29__segment.sql	839872793	root	2020-03-03 15:30:26.687993	23	t
+29	30	segment meme	SQL	V30__segment_meme.sql	1945287463	root	2020-03-03 15:30:26.717552	8	t
+30	31	segment chord	SQL	V31__segment_chord.sql	-23710397	root	2020-03-03 15:30:26.732261	8	t
+31	32	segment choice	SQL	V32__segment_choice.sql	1686427245	root	2020-03-03 15:30:26.747424	13	t
+32	33	segment choice arrangement	SQL	V33__segment_choice_arrangement.sql	826509835	root	2020-03-03 15:30:26.768716	12	t
+33	34	segment choice arrangement pick	SQL	V34__segment_choice_arrangement_pick.sql	1654315292	root	2020-03-03 15:30:26.788818	12	t
+34	35	segment message	SQL	V35__segment_message.sql	-895760763	root	2020-03-03 15:30:26.806766	14	t
+35	36	platform message	SQL	V36__platform_message.sql	-1549213473	root	2020-03-03 15:30:26.827204	14	t
+36	37	work	SQL	V37__work.sql	-1737567323	root	2020-03-03 15:30:26.847661	8	t
+37	38	segment waveform preroll	SQL	V38__segment_waveform_preroll.sql	-1820712501	root	2020-03-03 15:30:26.869638	1	t
+\.
