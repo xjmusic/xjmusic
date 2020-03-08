@@ -29,6 +29,7 @@ xj.segment_choice_arrangement_pick
 xj.segment_chord
 xj.segment_meme
 xj.segment_message
+xj.flyway_schema_history
 )
 
 #

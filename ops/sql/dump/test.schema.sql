@@ -1,4 +1,4 @@
--- Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+\-\- Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 --
 -- PostgreSQL database dump
@@ -18,6 +18,27 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- Name: xj_test; Type: DATABASE; Schema: -; Owner: root
+--
+
+CREATE DATABASE xj_test WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'en_US.utf8' LC_CTYPE = 'en_US.utf8';
+
+
+ALTER DATABASE xj_test OWNER TO root;
+
+\connect xj_test
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Name: xj; Type: SCHEMA; Schema: -; Owner: root
@@ -36,7 +57,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA xj;
 
 
 --
--- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner:
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
 --
 
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
@@ -1565,6 +1586,24 @@ ALTER TABLE ONLY xj.user_role
 --
 
 --
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 11.6 (Debian 11.6-1.pgdg90+1)
+-- Dumped by pg_dump version 12.2 (Ubuntu 12.2-2.pgdg18.04+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
 -- Data for Name: flyway_schema_history; Type: TABLE DATA; Schema: xj; Owner: root
 --
 
@@ -1608,3 +1647,9 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 36	37	work	SQL	V37__work.sql	-1737567323	root	2020-03-03 15:30:26.847661	8	t
 37	38	segment waveform preroll	SQL	V38__segment_waveform_preroll.sql	-1820712501	root	2020-03-03 15:30:26.869638	1	t
 \.
+
+
+--
+-- PostgreSQL database dump complete
+--
+
