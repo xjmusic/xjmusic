@@ -31,6 +31,7 @@ export default Route.extend({
 
             let instrument = this.store.createRecord('instrument', {
               type: this.config.instrumentTypes[0],
+              state: this.config.instrumentStates[0],
               library: this.modelFor('accounts.one.libraries.one')
             });
 

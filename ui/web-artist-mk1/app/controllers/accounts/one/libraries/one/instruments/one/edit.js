@@ -15,6 +15,10 @@ export default Controller.extend({
       get(this, 'model').set('type', type);
     },
 
+    selectInstrumentState(state) {
+      get(this, 'model').set('state', state);
+    },
+
   }
 
 });

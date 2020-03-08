@@ -23,6 +23,7 @@
       <th width="4%">Key</th>
       <th width="4%">Density</th>
       <th width="4%">Tempo</th>
+      <th><!-- Actions --></th>
       <th width="1%">#</th>
     </tr>
     </thead>
@@ -37,6 +38,7 @@
         <td>{{program.key}}</td>
         <td style="white-space: nowrap">{{program.density}}</td>
         <td>{{program.tempo}}</td>
+        <td>{{entity-actions "accounts.one.libraries.one.programs.one" "edit|clone|destroy" program.library.account program.library program}}</td>
         <th scope="row">{{program.id}}</th>
       </tr>
     {{/each}}
