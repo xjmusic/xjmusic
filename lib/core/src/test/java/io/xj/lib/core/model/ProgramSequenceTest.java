@@ -196,7 +196,7 @@ public class ProgramSequenceTest {
     insertSequence(1, 2, 1, ProgramType.Main, ProgramState.Published, "fonds", 0.342, "C#", 0.286);
     insertPattern(1, 1, PatternType.Main, PatternState.Published, 16, "Ants", 0.583, "D minor", 120.0);
     insertSequenceBinding(101, 1, 1, 0);
-    insertProgramMeme(1, "leafy");
+    insertProgramMeme(1, "chunk");
     insertProgramMeme(1, "smooth");
     insertSequence(2, 2, 1, ProgramType.Rhythm, ProgramState.Published, "nuts", 0.342, "C#", 0.286);
 

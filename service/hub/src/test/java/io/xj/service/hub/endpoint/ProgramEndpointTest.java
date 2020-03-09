@@ -186,7 +186,7 @@ public class ProgramEndpointTest {
     Program program1 = Program.create(101, 1, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6);
     ProgramSequence sequence1 = program1.add(ProgramSequence.create(1, "Ants", 0.583, "D minor", 120.0));
     ProgramSequenceBinding binding1 = program1.add(ProgramSequenceBinding.create(sequence1, 0));
-    ProgramSequenceBindingMeme sequenceBindingMeme1 = program1.add(ProgramSequenceBindingMeme.create(binding1, "leafy"));
+    ProgramSequenceBindingMeme sequenceBindingMeme1 = program1.add(ProgramSequenceBindingMeme.create(binding1, "chunk"));
     ProgramSequenceBindingMeme sequenceBindingMeme2 = program1.add(ProgramSequenceBindingMeme.create(binding1, "smooth"));
     when(programDAO.readOne(same(access), eq(BigInteger.valueOf(1)))).thenReturn(program1);
     subject.id = "1";

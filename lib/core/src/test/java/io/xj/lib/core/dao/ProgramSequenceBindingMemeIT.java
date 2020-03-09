@@ -2,6 +2,7 @@
 package io.xj.lib.core.dao;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
@@ -40,24 +41,22 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collection;
 import java.util.Iterator;
 
-import static io.xj.lib.core.Tables.PROGRAM_SEQUENCE_BINDING;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
-public class ProgramSequenceBindingIT {
+public class ProgramSequenceBindingMemeIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private WorkManager workManager;
-  private ProgramSequenceBindingDAO testDAO;
+  private ProgramSequenceBindingMemeDAO testDAO;
 
   private IntegrationTestProvider test;
   private IntegrationTestingFixtures fixture;
 
   private ProgramSequenceBinding sequenceBinding1a_0;
   private ProgramSequenceBindingMeme sequenceBinding1a_0_meme0;
-  private ProgramSequenceBindingMeme sequenceBinding1a_0_meme1;
   private Injector injector;
 
   @Before
@@ -95,7 +94,7 @@ public class ProgramSequenceBindingIT {
     fixture.programSequence1 = test.insert(ProgramSequence.create(fixture.program1, 4, "Ants", 0.583, "D minor", 120.0));
     sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.create(fixture.programSequence1, 0));
     sequenceBinding1a_0_meme0 = test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "chunk"));
-    sequenceBinding1a_0_meme1 = test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "smooth"));
+    ProgramSequenceBindingMeme sequenceBinding1a_0_meme1 = test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "smooth"));
     fixture.program2 = test.insert(Program.create(fixture.user3, fixture.library1, ProgramType.Rhythm, ProgramState.Published, "Ants", "C#", 120.0, 0.6));
     fixture.programVoice3 = test.insert(ProgramVoice.create(fixture.program2, InstrumentType.Percussive, "Drums"));
 
@@ -103,11 +102,12 @@ public class ProgramSequenceBindingIT {
     fixture.library2 = test.insert(Library.create(fixture.account1, "boat", InternalResources.now()));
     fixture.program3 = test.insert(Program.create(fixture.user3, fixture.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0, 0.6));
     fixture.programSequence3 = test.insert(ProgramSequence.create(fixture.program3, 16, "Ants", 0.583, "D minor", 120.0));
+    fixture.program3_binding1 = test.insert(ProgramSequenceBinding.create(fixture.programSequence1, 0));
     test.insert(ProgramSequenceBinding.create(fixture.programSequence3, 0));
     fixture.program4 = test.insert(Program.create(fixture.user3, fixture.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0, 0.6));
 
     // Instantiate the test subject
-    testDAO = injector.getInstance(ProgramSequenceBindingDAO.class);
+    testDAO = injector.getInstance(ProgramSequenceBindingMemeDAO.class);
   }
 
   @After
@@ -118,49 +118,50 @@ public class ProgramSequenceBindingIT {
   @Test
   public void create() throws Exception {
     Access access = Access.create(fixture.user2, ImmutableList.of(fixture.account1), "Artist");
-    ProgramSequenceBinding subject = ProgramSequenceBinding.create()
+    ProgramSequenceBindingMeme subject = ProgramSequenceBindingMeme.create()
       .setProgramId(fixture.program3.getId())
-      .setProgramSequenceId(fixture.programSequence3.getId())
-      .setOffset(4L);
+      .setProgramSequenceBindingId(fixture.program3_binding1.getId())
+      .setName("Blue");
 
-    ProgramSequenceBinding result = testDAO.create(access, subject);
+    ProgramSequenceBindingMeme result = testDAO.create(access, subject);
 
     assertNotNull(result);
     assertEquals(fixture.program3.getId(), result.getProgramId());
-    assertEquals(fixture.programSequence3.getId(), result.getProgramSequenceId());
-    assertEquals(Long.valueOf(4), result.getOffset());
+    assertEquals(fixture.program3_binding1.getId(), result.getProgramSequenceBindingId());
+    assertEquals("BLUE", result.getName());
   }
 
   /**
-   [#156144567] Artist expects to of a Main-type programSequenceBinding without crashing the entire platform
+   [#156144567] Artist expects to of a Main-type programSequenceBindingMeme without crashing the entire platform
    NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test
   public void create_asArtist() throws Exception {
     Access access = Access.create(fixture.user2, ImmutableList.of(fixture.account1), "User,Artist");
-    ProgramSequenceBinding inputData = ProgramSequenceBinding.create()
+    ProgramSequenceBindingMeme inputData = ProgramSequenceBindingMeme.create()
       .setProgramId(fixture.program3.getId())
-      .setProgramSequenceId(fixture.programSequence3.getId())
-      .setOffset(4L);
+      .setProgramSequenceBindingId(fixture.program3_binding1.getId())
+      .setName("Blue");
 
-    ProgramSequenceBinding result = testDAO.create(access, inputData);
+    ProgramSequenceBindingMeme result = testDAO.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(fixture.program3.getId(), result.getProgramId());
-    assertEquals(fixture.programSequence3.getId(), result.getProgramSequenceId());
-    assertEquals(Long.valueOf(4), result.getOffset());
+    assertEquals(fixture.program3_binding1.getId(), result.getProgramSequenceBindingId());
+    assertEquals("BLUE", result.getName());
   }
 
   @Test
   public void readOne() throws Exception {
     Access access = Access.create(ImmutableList.of(fixture.account1), "User, Artist");
 
-    ProgramSequenceBinding result = testDAO.readOne(access, sequenceBinding1a_0.getId());
+    ProgramSequenceBindingMeme result = testDAO.readOne(access, sequenceBinding1a_0_meme0.getId());
 
     assertNotNull(result);
-    assertEquals(sequenceBinding1a_0.getId(), result.getId());
+    assertEquals(sequenceBinding1a_0_meme0.getId(), result.getId());
     assertEquals(fixture.program1.getId(), result.getProgramId());
-    assertEquals(Long.valueOf(0), result.getOffset());
+    assertEquals(sequenceBinding1a_0.getId(), result.getProgramSequenceBindingId());
+    assertEquals("chunk", result.getName());
   }
 
   @Test
@@ -169,7 +170,7 @@ public class ProgramSequenceBindingIT {
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.readOne(access, sequenceBinding1a_0.getId());
+    testDAO.readOne(access, sequenceBinding1a_0_meme0.getId());
   }
 
   // future test: readAllInAccount vs readAllInLibraries, positive and negative cases
@@ -178,71 +179,44 @@ public class ProgramSequenceBindingIT {
   public void readAll() throws Exception {
     Access access = Access.create(ImmutableList.of(fixture.account1), "Admin");
 
-    Collection<ProgramSequenceBinding> result = testDAO.readMany(access, ImmutableList.of(fixture.programSequence1.getId()));
+    Collection<ProgramSequenceBindingMeme> result = testDAO.readMany(access, ImmutableList.of(sequenceBinding1a_0.getId()));
 
-    assertEquals(1L, result.size());
-    Iterator<ProgramSequenceBinding> resultIt = result.iterator();
-    assertEquals(Long.valueOf(0), resultIt.next().getOffset());
+    assertEquals(2L, result.size());
+    Iterator<ProgramSequenceBindingMeme> resultIt = result.iterator();
+    assertEquals("chunk", resultIt.next().getName());
+    assertEquals("smooth", resultIt.next().getName());
+  }
+
+  @Test
+  public void readAllForPrograms() throws Exception {
+    Access access = Access.create(ImmutableList.of(fixture.account1), "Admin");
+
+    Collection<ProgramSequenceBindingMeme> result = testDAO.readAllForPrograms(access, ImmutableSet.of(fixture.program1.getId()));
+
+    assertEquals(2L, result.size());
+    Iterator<ProgramSequenceBindingMeme> resultIt = result.iterator();
+    assertEquals("chunk", resultIt.next().getName());
+    assertEquals("smooth", resultIt.next().getName());
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
     Access access = Access.create(ImmutableList.of(Account.create()), "User, Artist");
 
-    Collection<ProgramSequenceBinding> result = testDAO.readMany(access, ImmutableList.of(fixture.programSequence3.getId()));
+    Collection<ProgramSequenceBindingMeme> result = testDAO.readMany(access, ImmutableList.of(sequenceBinding1a_0.getId()));
 
     assertEquals(0L, result.size());
-  }
-
-  @Test
-  public void destroy_failsIfHasChildEntity() throws Exception {
-    Access access = Access.create("Admin");
-
-    failure.expect(CoreException.class);
-    failure.expectMessage("Found Meme on Sequence Binding");
-
-    testDAO.destroy(access, sequenceBinding1a_0.getId());
-  }
-
-  @Test
-  public void destroy_okWithNoChildEntities() throws Exception {
-    Access access = Access.create("Admin");
-    injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(Access.internal(), sequenceBinding1a_0_meme0.getId());
-    injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(Access.internal(), sequenceBinding1a_0_meme1.getId());
-
-    testDAO.destroy(access, sequenceBinding1a_0.getId());
-
-    assertEquals(Integer.valueOf(0), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_BINDING)
-      .where(PROGRAM_SEQUENCE_BINDING.ID.eq(sequenceBinding1a_0.getId()))
-      .fetchOne(0, int.class));
-  }
-
-  @Test
-  public void destroy_asArtist() throws Exception {
-    Access access = Access.create(ImmutableList.of(fixture.account1), "Artist");
-    injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(Access.internal(), sequenceBinding1a_0_meme0.getId());
-    injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(Access.internal(), sequenceBinding1a_0_meme1.getId());
-
-    testDAO.destroy(access, sequenceBinding1a_0.getId());
-
-    assertEquals(Integer.valueOf(0), test.getDSL()
-      .selectCount().from(PROGRAM_SEQUENCE_BINDING)
-      .where(PROGRAM_SEQUENCE_BINDING.ID.eq(sequenceBinding1a_0.getId()))
-      .fetchOne(0, int.class));
   }
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fixture.account2 = Account.create();
     Access access = Access.create(ImmutableList.of(fixture.account2), "Artist");
-    injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(Access.internal(), sequenceBinding1a_0_meme0.getId());
-    injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(Access.internal(), sequenceBinding1a_0_meme1.getId());
 
     failure.expect(CoreException.class);
-    failure.expectMessage("Sequence Binding in Program in Account you have access to does not exist");
+    failure.expectMessage("Meme belongs to Program in Account you have access to does not exist");
 
-    testDAO.destroy(access, sequenceBinding1a_0.getId());
+    testDAO.destroy(access, sequenceBinding1a_0_meme0.getId());
   }
 
 }

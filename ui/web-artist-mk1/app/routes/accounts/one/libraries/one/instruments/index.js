@@ -19,7 +19,7 @@ export default Route.extend({
   model: function () {
     let self = this;
     let library = this.modelFor('accounts.one.libraries.one');
-    let instruments = this.store.query('instrument', {libraryId: library.get('id')})
+    let instruments = this.store.query('instrument', {libraryId: library.get('id'), include: 'memes'})
       .catch((error) => {
         get(self, 'display').error(error);
         self.transitionTo('');

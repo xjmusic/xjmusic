@@ -5,7 +5,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import io.xj.lib.core.access.Access;
 import io.xj.lib.core.app.AppResource;
+import io.xj.lib.core.dao.DAO;
 import io.xj.lib.core.dao.InstrumentDAO;
+import io.xj.lib.core.dao.InstrumentMemeDAO;
 import io.xj.lib.core.model.Instrument;
 import io.xj.lib.core.model.UserRoleType;
 import io.xj.lib.core.payload.MediaType;
@@ -24,7 +26,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -33,7 +37,7 @@ import java.util.UUID;
 @Path("instruments")
 public class InstrumentEndpoint extends AppResource {
   private InstrumentDAO dao;
-
+  private InstrumentMemeDAO instrumentMemeDAO;
 
   /**
    The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
@@ -45,82 +49,53 @@ public class InstrumentEndpoint extends AppResource {
   ) {
     super(injector);
     dao = injector.getInstance(InstrumentDAO.class);
+    instrumentMemeDAO = injector.getInstance(InstrumentMemeDAO.class);
   }
 
   /**
    Get all instruments.
 
-   @return application/json response.
+   @param accountId to get instruments for
+   @param libraryId to get instruments for
+   @param include   (optional) "memes" or null
+   @return set of all instruments
    */
   @GET
   @RolesAllowed(UserRoleType.USER)
   public Response readAll(
     @Context ContainerRequestContext crc,
     @QueryParam("accountId") String accountId,
-    @QueryParam("libraryId") String libraryId
+    @QueryParam("libraryId") String libraryId,
+    @QueryParam("include") String include
   ) {
-    if (null != libraryId && !libraryId.isEmpty()) {
-      return readAllInLibrary(Access.fromContext(crc), libraryId);
-    } else if (null != accountId && !accountId.isEmpty()) {
-      return readAllInAccount(Access.fromContext(crc), accountId);
-    } else {
-      return readAll(Access.fromContext(crc));
-    }
-  }
-
-  /**
-   read all instruments in account
-
-   @param access    control
-   @param accountId account in which to read instruments
-   @return all instruments in account
-   */
-  private Response readAllInAccount(Access access, String accountId) {
     try {
-      return response.ok(
-        new Payload().setDataEntities(
-          dao().readAllInAccount(access, UUID.fromString(accountId))));
+      Access access = Access.fromContext(crc);
+      Payload payload = new Payload();
+      Collection<Instrument> instruments;
+
+      // how we source instruments depends on the query parameters
+      if (null != libraryId && !libraryId.isEmpty())
+        instruments = dao().readMany(access, ImmutableList.of(UUID.fromString(libraryId)));
+      else if (null != accountId && !accountId.isEmpty())
+        instruments = dao().readAllInAccount(access, UUID.fromString(accountId));
+      else
+        instruments = dao().readAll(access);
+
+      // add instruments as plural data in payload
+      payload.setDataEntities(instruments);
+      Set<UUID> instrumentIds = DAO.idsFrom(instruments);
+
+      // if included, seek and add events to payload
+      if (Objects.nonNull(include) && include.contains("memes"))
+        instrumentMemeDAO.readMany(access, instrumentIds)
+          .forEach(instrumentMeme -> payload.addIncluded(instrumentMeme.toPayloadObject()));
+
+      return response.ok(payload);
 
     } catch (Exception e) {
       return response.failure(e);
     }
   }
-
-  /**
-   read all instruments in library
-
-   @param access    control
-   @param libraryId library in which to read instruments
-   @return all instruments in library
-   */
-  private Response readAllInLibrary(Access access, String libraryId) {
-    try {
-      return response.ok(
-        new Payload().setDataEntities(
-          dao().readMany(access, ImmutableList.of(UUID.fromString(libraryId)))));
-
-    } catch (Exception e) {
-      return response.failure(e);
-    }
-  }
-
-  /**
-   read all instruments in account
-
-   @param access control
-   @return all instruments
-   */
-  private Response readAll(Access access) {
-    try {
-      return response.ok(
-        new Payload().setDataEntities(
-          dao().readAll(access)));
-
-    } catch (Exception e) {
-      return response.failure(e);
-    }
-  }
-
 
   /**
    Create new instrument

@@ -24,7 +24,7 @@ export default Route.extend({
     let self = this;
     let library = self.modelFor('accounts.one.libraries.one');
 
-    let programs = self.store.query('program', {libraryId: library.get('id')})
+    let programs = self.store.query('program', {libraryId: library.get('id'), include: 'memes'})
       .catch((error) => {
         self.display.error(error);
         self.transitionTo('');

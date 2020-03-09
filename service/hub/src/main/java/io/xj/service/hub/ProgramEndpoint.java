@@ -5,8 +5,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import io.xj.lib.core.access.Access;
 import io.xj.lib.core.app.AppResource;
+import io.xj.lib.core.dao.DAO;
 import io.xj.lib.core.dao.DAOCloner;
 import io.xj.lib.core.dao.ProgramDAO;
+import io.xj.lib.core.dao.ProgramMemeDAO;
+import io.xj.lib.core.dao.ProgramSequenceBindingMemeDAO;
 import io.xj.lib.core.entity.Entity;
 import io.xj.lib.core.exception.CoreException;
 import io.xj.lib.core.model.Program;
@@ -28,7 +31,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,7 +42,9 @@ import java.util.stream.Collectors;
  */
 @Path("programs")
 public class ProgramEndpoint extends AppResource {
+  private final ProgramSequenceBindingMemeDAO programSequenceBindingMemeDAO;
   private ProgramDAO dao;
+  private ProgramMemeDAO programMemeDAO;
 
   /**
    The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
@@ -49,46 +56,52 @@ public class ProgramEndpoint extends AppResource {
   ) {
     super(injector);
     dao = injector.getInstance(ProgramDAO.class);
+    programMemeDAO = injector.getInstance(ProgramMemeDAO.class);
+    programSequenceBindingMemeDAO = injector.getInstance(ProgramSequenceBindingMemeDAO.class);
   }
 
   /**
    Get all programs.
 
-   @return application/json response.
+   @param accountId to get programs for
+   @param libraryId to get programs for
+   @param include   (optional) "memes" or null
+   @return set of all programs
    */
   @GET
   @RolesAllowed(UserRoleType.USER)
   public Response readAll(
     @Context ContainerRequestContext crc,
     @QueryParam("accountId") String accountId,
-    @QueryParam("libraryId") String libraryId
+    @QueryParam("libraryId") String libraryId,
+    @QueryParam("include") String include
   ) {
-    Access access = Access.fromContext(crc);
     try {
+      Access access = Access.fromContext(crc);
+      Payload payload = new Payload();
+      Collection<Program> programs;
 
-      if (Objects.nonNull(libraryId) && !libraryId.isEmpty()) {
-        // read all in library
-        return response.ok(
-          new Payload().setDataEntities(
-            dao().readMany(
-              access,
-              ImmutableList.of(UUID.fromString(libraryId)))));
+      // how we source programs depends on the query parameters
+      if (null != libraryId && !libraryId.isEmpty())
+        programs = dao().readMany(access, ImmutableList.of(UUID.fromString(libraryId)));
+      else if (null != accountId && !accountId.isEmpty())
+        programs = dao().readAllInAccount(access, UUID.fromString(accountId));
+      else
+        programs = dao().readAll(access);
 
-      } else if (Objects.nonNull(accountId) && !accountId.isEmpty()) {
-        // read all in account
-        return response.ok(
-          new Payload().setDataEntities(
-            dao().readAllInAccount(
-              access,
-              UUID.fromString(accountId))));
+      // add programs as plural data in payload
+      payload.setDataEntities(programs);
+      Set<UUID> programIds = DAO.idsFrom(programs);
 
-      } else {
-        // read all we have access to
-        return response.ok(
-          new Payload().setDataEntities(
-            dao().readAll(
-              access)));
+      // if included, seek and add events to payload
+      if (Objects.nonNull(include) && include.contains("memes")) {
+        programMemeDAO.readMany(access, programIds)
+          .forEach(programMeme -> payload.addIncluded(programMeme.toPayloadObject()));
+        programSequenceBindingMemeDAO.readAllForPrograms(access, programIds)
+          .forEach(programMeme -> payload.addIncluded(programMeme.toPayloadObject()));
       }
+
+      return response.ok(payload);
 
     } catch (Exception e) {
       return response.failure(e);

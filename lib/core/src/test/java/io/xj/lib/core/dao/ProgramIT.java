@@ -115,7 +115,7 @@ public class ProgramIT {
     fixture.program1 = test.insert(Program.create(fixture.user3, fixture.library1, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6));
     fixture.programSequence1 = test.insert(ProgramSequence.create(fixture.program1, 4, "Ants", 0.583, "D minor", 120.0));
     sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.create(fixture.programSequence1, 0));
-    test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "leafy"));
+    test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "chunk"));
     test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "smooth"));
     fixture.program2 = test.insert(Program.create(fixture.user3, fixture.library1, ProgramType.Rhythm, ProgramState.Published, "nuts", "C#", 120.0, 0.6));
 
