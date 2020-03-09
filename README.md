@@ -1,12 +1,11 @@
 # XJ Music™ Hub Web UI
 
-Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+Both the https://hub.xj.io/ and https://play.xj.io/ domains are served from this frontend. The former allows artists and engineers to authenticate and interact, while the latter is a read-only distribution of the same.
 
-**Composite Music Fabrication Platform**
+*Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.*
 
-Also see: Documents in `site/docs` which are published to https://docs.xi.io
 
-# Laws
+## Laws
   * Any network connection can and will fail.
   * There are no launches, pertaining instead only to the spanning of time, and the availability of said platform and its components.
   * The platform does not implement passwords; it relies on OAuth.
