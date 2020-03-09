@@ -1,20 +1,18 @@
-# XJ Music™
+# XJ Music™ Hub Web UI
 
 Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 **Composite Music Fabrication Platform**
 
 Also see: Documents in `site/docs` which are published to https://docs.xi.io
-# Laws
 
-  * There is only one code repository.
-  * This is the ultimate README in the one and only code repository.
+# Laws
   * Any network connection can and will fail.
   * There are no launches, pertaining instead only to the spanning of time, and the availability of said platform and its components.
   * The platform does not implement passwords; it relies on OAuth.
   * The platform does not send or receive email; it relies on vendors for all external communications.
+  
 ## Workflow
-
   * Features are described as the desire of a person to take an action for a particular reason, e.g. "Artist wants Sequence and Pattern to be named according to musical norms, in order to make the most sense of XJ as a musical instrument."
   * Bugs are described as expectation versus actual, e.g. "Artist expects to be able to list Audios after deleting an Audio from an Instrument," then:
     - DESCRIBE LIKE THIS: "I clicked the button labeled 'Turn;' I expected the Earth to turn; actually, it stood still."
