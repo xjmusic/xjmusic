@@ -1,4 +1,0 @@
-# XJ
-
-https://xj.io/
-

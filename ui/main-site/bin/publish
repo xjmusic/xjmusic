@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-# do it and exit if any step fails
-hugo || exit 1
-s3_website push || exit 1
