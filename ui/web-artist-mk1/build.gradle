@@ -55,4 +55,4 @@ task buildJavascript(type: Exec) {
 }
 
 buildJavascript.dependsOn(installJavascriptPackages)
-if (build) build.dependsOn(buildJavascript)
+if (build) build.finalizedBy(buildJavascript)
