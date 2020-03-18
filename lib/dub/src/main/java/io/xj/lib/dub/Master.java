@@ -1,14 +1,14 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.dub.master;
+package io.xj.lib.dub;
 
 import io.xj.lib.core.exception.CoreException;
 import io.xj.lib.craft.exception.CraftException;
-import io.xj.lib.dub.exception.DubException;
+import io.xj.lib.dub.DubException;
 
 /**
  [#141] Dubworker Segment mix final output of instrument-audio-arrangements
  */
-public interface MasterDub {
+public interface Master {
 
   /**
    perform master dub for the current segment

@@ -3,8 +3,6 @@ package io.xj.lib.dub;
 
 import io.xj.lib.core.exception.CoreException;
 import io.xj.lib.core.fabricator.Fabricator;
-import io.xj.lib.dub.master.MasterDub;
-import io.xj.lib.dub.ship.ShipDub;
 
 import com.google.inject.assistedinject.Assisted;
 
@@ -26,7 +24,7 @@ public interface DubFactory {
    @return MasterDub
    @throws CoreException on failure
    */
-  MasterDub master(
+  Master master(
     @Assisted("basis") Fabricator fabricator
   ) throws CoreException;
 
@@ -38,7 +36,7 @@ public interface DubFactory {
    @return ShipDub
    @throws CoreException on failure
    */
-  ShipDub ship(
+  Ship ship(
     @Assisted("basis") Fabricator fabricator
   ) throws CoreException;
 

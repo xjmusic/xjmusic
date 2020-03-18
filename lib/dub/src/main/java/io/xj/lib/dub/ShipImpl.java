@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.dub.ship;
+package io.xj.lib.dub;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -12,14 +12,14 @@ import io.xj.lib.craft.exception.CraftException;
 /**
  [#264] Segment audio is compressed to OGG and shipped to https://segment.xj.io
  */
-public class ShipDubImpl implements ShipDub {
+public class ShipImpl implements Ship {
   //  private final Logger log = LoggerFactory.getLogger(ShipDubImpl.class);
   private final Fabricator fabricator;
   private final AmazonProvider amazonProvider;
   private final String segmentFileBucket;
 
   @Inject
-  public ShipDubImpl(
+  public ShipImpl(
     @Assisted("basis") Fabricator fabricator,
     AmazonProvider amazonProvider,
     Config config

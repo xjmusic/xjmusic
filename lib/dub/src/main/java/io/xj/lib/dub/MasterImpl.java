@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.dub.master;
+package io.xj.lib.dub;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -16,7 +16,6 @@ import io.xj.lib.core.model.InstrumentAudio;
 import io.xj.lib.core.model.SegmentChoiceArrangementPick;
 import io.xj.lib.core.model.SegmentMessage;
 import io.xj.lib.core.util.Text;
-import io.xj.lib.dub.exception.DubException;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerConfig;
 import io.xj.lib.mixer.MixerFactory;
@@ -33,9 +32,10 @@ import java.util.UUID;
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
-public class MasterDubImpl implements MasterDub {
+public class MasterImpl implements Master {
   private static final int MICROSECONDS_PER_SECOND = 1000000;
-  private final Logger log = LoggerFactory.getLogger(MasterDubImpl.class);
+  private static final long OUTPUT_LENGTH_EXTRA_SECONDS = 2;
+  private final Logger log = LoggerFactory.getLogger(MasterImpl.class);
   private final Fabricator fabricator;
   private final MixerFactory mixerFactory;
   private final List<String> warnings = Lists.newArrayList();
@@ -56,7 +56,7 @@ public class MasterDubImpl implements MasterDub {
   private double compressDecaySeconds;
 
   @Inject
-  public MasterDubImpl(
+  public MasterImpl(
     @Assisted("basis") Fabricator fabricator,
     AudioCacheProvider audioCacheProvider,
     MixerFactory mixerFactory,
@@ -231,7 +231,7 @@ public class MasterDubImpl implements MasterDub {
    */
   private Mixer mixer() throws Exception {
     if (Objects.isNull(_mixer)) {
-      MixerConfig config = new MixerConfig(fabricator.getOutputAudioFormat(), fabricator.getSegmentTotalLength())
+      MixerConfig config = new MixerConfig(fabricator.getOutputAudioFormat(), fabricator.getSegmentTotalLength().plusSeconds(OUTPUT_LENGTH_EXTRA_SECONDS)) // TODO need to compute actual longest sound in segment
         .setLogPrefix(String.format("[segId=%s] ", fabricator.getSegment().getId()))
         .setNormalizationMax(normalizationMax)
         .setDSPBufferSize(dspBufferSize)

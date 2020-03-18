@@ -233,9 +233,9 @@ public class Segment extends Entity {
   }
 
   /**
-   get WaveformPreroll
+   get Waveform Preroll (seconds)
 
-   @return WaveformPreroll
+   @return Waveform Preroll (seconds)
    */
   public Double getWaveformPreroll() {
     return waveformPreroll;
@@ -468,9 +468,9 @@ public class Segment extends Entity {
   }
 
   /**
-   Set the waveformPreroll
+   Set the waveformPreroll (seconds)
 
-   @param waveformPreroll to set
+   @param waveformPreroll to set (seconds)
    @return this Segment (for chaining setters)
    */
   public Segment setWaveformPreroll(Double waveformPreroll) {

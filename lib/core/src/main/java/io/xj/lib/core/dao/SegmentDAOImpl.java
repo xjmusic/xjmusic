@@ -127,7 +127,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public <N extends Entity> Collection<N> readAllSubEntities(Access access, Collection<UUID> segmentIds, boolean includePicks) throws CoreException {
+  public <N extends Entity> Collection<N> readAllSubEntities(Access access, Collection<UUID> segmentIds, Boolean includePicks) throws CoreException {
     requireTopLevel(access);
     DSLContext db = dbProvider.getDSL();
     Collection<N> entities = Lists.newArrayList();

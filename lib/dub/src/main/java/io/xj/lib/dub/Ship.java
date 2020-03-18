@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.dub.ship;
+package io.xj.lib.dub;
 
 import io.xj.lib.core.exception.CoreException;
 import io.xj.lib.craft.exception.CraftException;
@@ -7,7 +7,7 @@ import io.xj.lib.craft.exception.CraftException;
 /**
  [#264] Segment audio is compressed to OGG and shipped to https://segment.xj.io
  */
-public interface ShipDub {
+public interface Ship {
 
   /**
    perform delivery for the current segment

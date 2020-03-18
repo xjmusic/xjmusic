@@ -25,10 +25,10 @@ import io.xj.lib.core.model.ChainConfig;
 import io.xj.lib.core.model.ChainConfigType;
 import io.xj.lib.core.model.InstrumentAudio;
 import io.xj.lib.core.model.Program;
-import io.xj.lib.core.model.ProgramSequencePatternType;
 import io.xj.lib.core.model.ProgramSequence;
 import io.xj.lib.core.model.ProgramSequenceBinding;
 import io.xj.lib.core.model.ProgramSequencePattern;
+import io.xj.lib.core.model.ProgramSequencePatternType;
 import io.xj.lib.core.model.ProgramType;
 import io.xj.lib.core.model.ProgramVoice;
 import io.xj.lib.core.model.Segment;
@@ -433,7 +433,8 @@ class FabricatorImpl implements Fabricator {
     if (Objects.isNull(workbench.getSegment().getEndAt()))
       throw exception("Cannot compute total length create segment with no end!");
 
-    return Duration.between(workbench.getSegment().getBeginAt(), workbench.getSegment().getEndAt());
+    return Duration.between(workbench.getSegment().getBeginAt(), workbench.getSegment().getEndAt())
+      .plusNanos((long) (workbench.getSegment().getWaveformPreroll() * NANOS_PER_SECOND));
   }
 
   @Override

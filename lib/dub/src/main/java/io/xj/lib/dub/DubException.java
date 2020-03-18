@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.dub.exception;
+package io.xj.lib.dub;
 
 import io.xj.lib.core.util.Text;
 

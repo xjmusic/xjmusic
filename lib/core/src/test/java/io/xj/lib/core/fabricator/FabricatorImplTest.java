@@ -300,15 +300,15 @@ public class FabricatorImplTest {
 
   @Test
   public void timeComputer_variedSegmentTotals() throws Exception {
-    Chain chain = Chain.of();
+    Chain chain = Chain.create();
     when(chainDAO.readOne(any(), eq(chain.getId())))
-      .thenReturn(Chain.of(Account.of(), "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null));
+      .thenReturn(Chain.create(Account.create(), "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null));
     when(segmentDAO.readOneAtChainOffset(any(), eq(chain.getId()), eq(Long.valueOf(1))))
-      .thenReturn(Segment.of(Chain.of(), 1, SegmentState.Crafted, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 32, 0.6, 120, "seg123.ogg"));
-    when(segmentDAO.readAllSubEntities(any(), any())).thenReturn(ImmutableList.of());
-    when(timeComputerFactory.of(anyDouble(), anyDouble(), anyDouble())).thenReturn(timeComputer);
+      .thenReturn(Segment.create(Chain.create(), 1, SegmentState.Crafted, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 32, 0.6, 120, "seg123.ogg"));
+    when(segmentDAO.readAllSubEntities(any(), any(), any())).thenReturn(ImmutableList.of());
+    when(timeComputerFactory.create(anyDouble(), anyDouble(), anyDouble())).thenReturn(timeComputer);
     when(timeComputer.getSecondsAtPosition(anyDouble())).thenReturn(Double.valueOf(0));
-    subject = fabricatorFactory.fabricate(Access.internal(), Segment.of()
+    subject = fabricatorFactory.fabricate(Access.internal(), Segment.create()
       .setOffset(2L)
       .setDensity(0.6)
       .setKey("G major")
@@ -321,20 +321,20 @@ public class FabricatorImplTest {
 
     assertEquals(Double.valueOf(0), subject.computeSecondsAtPosition(0)); // instantiates a time computer; see expectation above
 
-    verify(timeComputerFactory).of(16, 120, 240.0);
+    verify(timeComputerFactory).create(16, 120, 240.0);
   }
 
   @Test
   public void timeComputer_weirdSegmentTotalsAndTempos() throws Exception {
-    Chain chain = Chain.of();
+    Chain chain = Chain.create();
     when(chainDAO.readOne(any(), eq(chain.getId())))
-      .thenReturn(Chain.of(Account.of(), "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null));
+      .thenReturn(Chain.create(Account.create(), "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null));
     when(segmentDAO.readOneAtChainOffset(any(), eq(chain.getId()), eq(Long.valueOf(1))))
-      .thenReturn(Segment.of(Chain.of(), 1, SegmentState.Crafted, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 23, 0.6, 67, "seg123.ogg"));
-    when(segmentDAO.readAllSubEntities(any(), any())).thenReturn(ImmutableList.of());
-    when(timeComputerFactory.of(anyDouble(), anyDouble(), anyDouble())).thenReturn(timeComputer);
+      .thenReturn(Segment.create(Chain.create(), 1, SegmentState.Crafted, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 23, 0.6, 67, "seg123.ogg"));
+    when(segmentDAO.readAllSubEntities(any(), any(), any())).thenReturn(ImmutableList.of());
+    when(timeComputerFactory.create(anyDouble(), anyDouble(), anyDouble())).thenReturn(timeComputer);
     when(timeComputer.getSecondsAtPosition(anyDouble())).thenReturn(Double.valueOf(0));
-    subject = fabricatorFactory.fabricate(Access.internal(), Segment.of()
+    subject = fabricatorFactory.fabricate(Access.internal(), Segment.create()
       .setOffset(2L)
       .setDensity(0.6)
       .setKey("G major")
@@ -347,31 +347,32 @@ public class FabricatorImplTest {
 
     assertEquals(Double.valueOf(0), subject.computeSecondsAtPosition(0)); // instantiates a time computer; see expectation above
 
-    verify(timeComputerFactory).of(79, 67.0, 121.0);
+    verify(timeComputerFactory).create(79, 67.0, 121.0);
   }
 
- public void getOutputAudioEncoding() throws Exception {
-    Chain chain = Chain.of();
-    Library library = Library.of();
-    Program program = Program.of();
-    Segment segment = Segment.of(Chain.of(), 1, SegmentState.Crafted, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120, "seg123.ogg");
+  @Test
+  public void getOutputAudioEncoding() throws Exception {
+    Chain chain = Chain.create();
+    Library library = Library.create();
+    Program program = Program.create();
+    Segment segment = Segment.create(Chain.create(), 1, SegmentState.Crafted, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120, "seg123.ogg");
     when(programDAO.readIdsInLibraries(any(), eq(ImmutableList.of(library.getId()))))
       .thenReturn(ImmutableList.of());
     when(instrumentDAO.readIdsInLibraries(any(), eq(ImmutableList.of(library.getId()))))
       .thenReturn(ImmutableList.of());
     when(chainConfigDAO.readMany(any(), eq(ImmutableList.of(chain.getId()))))
-      .thenReturn(ImmutableList.of(ChainConfig.of(chain, ChainConfigType.OutputEncoding, "PCM_SIGNED")));
+      .thenReturn(ImmutableList.of(ChainConfig.create(chain, ChainConfigType.OutputEncoding, "PCM_SIGNED")));
     when(chainBindingDAO.readMany(any(), eq(ImmutableList.of(chain.getId()))))
-      .thenReturn(ImmutableList.of(ChainBinding.of(chain, library)));
+      .thenReturn(ImmutableList.of(ChainBinding.create(chain, library)));
     when(chainDAO.readOne(any(), eq(chain.getId())))
-      .thenReturn(Chain.of(Account.of(), "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null));
+      .thenReturn(Chain.create(Account.create(), "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null));
     when(chainDAO.readOne(any(), eq(chain.getId())))
-      .thenReturn(Chain.of(Account.of(), "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null));
+      .thenReturn(Chain.create(Account.create(), "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null));
     when(segmentDAO.readOneAtChainOffset(any(), eq(chain.getId()), eq(Long.valueOf(1))))
       .thenReturn(segment);
-    when(segmentChoiceDAO.readOneOfTypeForSegment(any(), any(), eq(ProgramType.Main))).thenReturn(SegmentChoice.of(segment, ProgramType.Main, program, 4));
+    when(segmentChoiceDAO.readOneOfTypeForSegment(any(), any(), eq(ProgramType.Main))).thenReturn(SegmentChoice.create(segment, ProgramType.Main, program, 4));
 
-    subject = fabricatorFactory.fabricate(Access.internal(), Segment.of()
+    subject = fabricatorFactory.fabricate(Access.internal(), Segment.create()
       .setOffset(2L)
       .setDensity(0.6)
       .setKey("G major")
@@ -384,6 +385,8 @@ public class FabricatorImplTest {
 
     assertEquals("PCM_SIGNED", subject.getOutputAudioFormat().getEncoding().toString()); // instantiates a time computer; see expectation above
   }
+
+
 
   @Test
   public void choice_getChoiceOfType() throws Exception {

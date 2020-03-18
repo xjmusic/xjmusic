@@ -18,7 +18,7 @@ import io.xj.lib.core.work.WorkManager;
 import io.xj.lib.craft.CraftFactory;
 import io.xj.lib.craft.exception.CraftException;
 import io.xj.lib.dub.DubFactory;
-import io.xj.lib.dub.exception.DubException;
+import io.xj.lib.dub.DubException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
