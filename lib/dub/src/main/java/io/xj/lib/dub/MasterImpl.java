@@ -180,17 +180,23 @@ public class MasterImpl implements Master {
    @param pick    to set playback for
    */
   private void setupTarget(Double preroll, SegmentChoiceArrangementPick pick) throws Exception {
-    mixer().put(
-      pick.getInstrumentAudioId().toString(),
+    mixer().put(pick.getInstrumentAudioId().toString(),
       toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
       toMicros(preroll + pick.getStart() + pick.getLength()) + audioReleaseMicros,
       audioAttackMicros,
       audioReleaseMicros,
-      pick.getAmplitude(), computePitchRatio(pick), 0);
+      pick.getAmplitude(),
+      computePitchRatio(pick),
+      0);
   }
 
   /**
    Compute the pitch ratio for a pick, and cache results
+   <p>
+   If the picked audio is at higher pitch than the original source material, the ratio will be < 1.0 --
+   meaning that the audio is to be played back at a slower speed (lower pitch).
+   <p>
+   A ratio > 1.0 means the audio is to be played back at a faster speed (higher pitch).
 
    @param pick to get pitch ratio for
    @return pitch ratio, or cached result

@@ -39,8 +39,8 @@ public interface Mixer {
 
    @param startAtMicros duration from beginning of mix
    @param stopAtMicros  duration from beginning of mix
-   @param attackMicros
-   @param releaseMicros
+   @param attackMicros  length of attack in microseconds
+   @param releaseMicros length of release in microseconds
    @param velocity      0 to 1
    @param pitchRatio    relative speed multiplier, e.g. original = 1.0
    @param pan           -1 (left) to +1 (right)
