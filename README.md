@@ -1,6 +1,4 @@
-# XJ Music™ Hub Web UI
-
-Both the https://hub.xj.io/ and https://play.xj.io/ domains are served from this frontend. The former allows artists and engineers to authenticate and interact, while the latter is a read-only distribution of the same.
+# XJ Music™ platform backend services
 
 *Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.*
 
