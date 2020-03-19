@@ -39,7 +39,7 @@ Each service has a unique port assignment:
 | ------------- |---------------|
 | hub           | 8042          |
 | worker        | 8043          |
-| fab           | 8045          |
+| chains        | 8045          |
 
 
 ## Web UI
@@ -50,6 +50,7 @@ https://github.com/xjmusic/web-ui
 ## Chain Work
 
 This term refers (in the **xj** universe) to a layer of work performed on the Segments (sequentially, by their offset) in a Chain.
+
 
 ## Getting Started
 
@@ -222,13 +223,13 @@ Each service is responsible for migrating its private stores when it starts up.
 
 ## Run local platform manually
 
-Run a local **Hub** on its default port 8042:
+Run a local **Hub** service on its default port 8042:
 
     bin/hub    
 
-Run a local **Fab** on its default port 8045:
+Run a local **Chains** service on its default port 8045:
 
-    bin/fab    
+    bin/chains
 
 ## Cleanup
 
@@ -250,7 +251,7 @@ To clean, build, test and assemble artifacts for shipment:
 
 Login to the app using Google authentication. The redirect URL for local development is http://xj.io/auth/google/callback
 
-# Debugging
+## Debugging
 
 It is helpful to be able to compile and run Java components against the Docker container resources made available by Docker Compose. Assuming that the containers are running locally and addressed properly (see the 'DNS' section above) simply include the following in the Run Configuration -> Program Arguments:
 
@@ -265,7 +266,7 @@ Also remember, it is necessary to send an authentication cookie in the header of
 
     curl -b Access-Token
 
-# Audio File Uploading
+## Audio File Uploading
 
 Note that after an audio file is uploaded, it can be played back (on a GNU/Linux system) like:
 
@@ -277,7 +278,8 @@ Here are the public-facing Amazon CloudFront-backed URLs for audio files, and th
   * [https://audio.stage.xj.io](https://audio.stage.xj.io) is the staging URL, backed by [https://xj-stage-audio.s3.amazonaws.com](https://xj-stage-audio.s3.amazonaws.com)
   * [https://audio.dev.xj.io](https://audio.dev.xj.io) is the development URL, backed by [https://xj-dev-audio.s3.amazonaws.com](https://xj-dev-audio.s3.amazonaws.com)
 
-# Amazon S3
+
+## Amazon S3
 
 The `/ops/sql/dump/*` files are generated from data in the production environment, and refer to audio files located in the dev S3 bucket (synced from the production S3 bucket), xj-dev-audio.
 
@@ -289,11 +291,10 @@ Therefore, it is helpful to be able to sync the audio files from production into
 
 Note that in order to use that command, the source bucket (xj-prod-audio) must grant `s3:ListBucket` and `s3:GetObject` permission, and the target bucket (xj-dev-audio) must grant `s3:ListBucket` and `s3:PutObject` to the IAM user your AWS CLI is authenticated as.
 
-# Components
 
-## lib
+## Library
 
-Common models and utilities. Built with Java, Guice, Tomcat, Maven.
+Contained in the **[lib](lib/)** folder, these shared modules are dependencies of the XJ Music™ platform backend services built with Java.
 
 **Craft** fabricates a musical audio composite from source sequences and instrument-audio. Built with Java, Guice, Tomcat, Maven.
 
@@ -311,11 +312,15 @@ A **Chord** is any harmonic set of three or more notes that is heard as if sound
 
 A **Scale** is any set of musical notes ordered by fundamental frequency or pitch.
 
-## service
+
+## Services
+
+Contained in the [service](service/) folder.
+
 
 ### hub
 
-Central structured data and business logic. Built with Java, Guice, Tomcat, Maven.
+Central structured data and business logic. Built with Java.
 
 Depends on `lib` components
 
@@ -325,15 +330,10 @@ Connects to:
   * Redis Database
   * S3 Filesystem
   
-Expects a `POST /heartbeat` every 60 seconds with a `key` in order to ensure platform-wide vitals.
+  
+### chains
 
-There's a convenience script to send cURL to Hub and trigger heartbeat in development:
-
-    bin/heartbeat
-
-### fab
-
-Central structured data and business logic. Built with Java, Guice, Tomcat, Maven.
+Central structured data and business logic. Built with Java.
 
 Depends on `lib` components
 
@@ -342,27 +342,39 @@ Connects to:
   * Redis Database
   * S3 Filesystem
 
+Expects a `POST /heartbeat` every 60 seconds with a `key` in order to ensure platform-wide vitals.
+
+There's a convenience script to send cURL to Hub and trigger heartbeat in development:
+
+    bin/heartbeat
+
+
 ### pulse
 
 This app exists solely to be run in AWS Lambda, and call the Hub /heartbeat endpoint once per minute.
+
 
 ## Healthcheck Endpoint
 
 **GET /o2**
 
+
 ## Intro to Google OAuth2
 
 https://developers.google.com/+/web/samples/java
+
 
 ## Intro to Jersey and Grizzly2
 
 See [Java SE 8: Creating a Basic REST Web Service using Grizzly, Jersey, and Maven](http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/griz_jersey_intro/Grizzly-Jersey-Intro.html)
 
+
 ## Jersey
 
 [Latest User Guide](https://jersey.java.net/documentation/latest/user-guide.html)
 
-# Musical debugging
+
+## Musical debugging
 
 This sql query confirms that all segments begin where the preceding one ended:
 
@@ -389,15 +401,14 @@ SELECT
   WHERE chain_id=10; 
 ```
 
-# Developer Setup Gotchas
-
 ## IntelliJ IDEA
 
 Here's the official XJ Music Inc copyright Velocity template:
 
     Copyright (c) 1999-${today.year}, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-### Docker run as non-root user
+
+## Docker run as non-root user
 
  - Add the docker group if it doesn't already exist:
 
