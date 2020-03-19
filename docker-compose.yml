@@ -2,22 +2,6 @@ version: '2'
 
 services:
 
-  web:
-    container_name: web01xj1
-    image: nginx:1.17.8
-    volumes:
-      - ./log:/var/log
-      - ./ops/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ui/web-artist-mk1/build:/usr/share/nginx/html/web-artist-mk1:ro
-      - ./ui/web-artist-mk3/build:/usr/share/nginx/html/web-artist-mk3:ro
-      - ./ui/web-player/build:/usr/share/nginx/html/web-player:ro
-      - ./ui/hub-site:/usr/share/nginx/html/hub-site:ro
-    ports:
-      - "80:80"
-    depends_on:
-      - hub
-    restart: always
-
   hub:
     build:
       context: .
