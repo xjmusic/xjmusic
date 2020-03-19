@@ -43,7 +43,7 @@ Each service has a unique port assignment:
 
 ## Web UI
 
-https://github.com/xj.music/web-ui
+https://github.com/xjmusic/web-ui
 
 
 ## Chain Work
