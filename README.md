@@ -1,6 +1,7 @@
 # XJ Music™ platform backend services
 
-*Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.*
+*Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.*
+
 
 ## Art
 
