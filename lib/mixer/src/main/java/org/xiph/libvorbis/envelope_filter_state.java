@@ -1,18 +1,9 @@
-/********************************************************************
- *                                                                  *
- * THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.   *
- * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
- * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
- * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
- *                                                                  *
- * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2002             *
- * by the Xiph.Org Foundation http://www.xiph.org/                  *
- *                                                                  *
- ********************************************************************/
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package org.xiph.libvorbis;
 
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_AMP;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_NEARDC;
 
 class envelope_filter_state {
 
@@ -44,11 +35,11 @@ class envelope_filter_state {
 
 		this( src.ampbuf, src.ampptr, src.nearDC, src.nearDC_acc, src.nearDC_partialacc, src.nearptr );
 	}
-	
+
 	public envelope_filter_state() {
-		
+
 		ampbuf = new float[ VE_AMP ];
-		
+
 		nearDC = new float[ VE_NEARDC ];
 	}
 }

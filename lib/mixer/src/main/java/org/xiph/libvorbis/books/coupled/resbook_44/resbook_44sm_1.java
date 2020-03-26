@@ -1,18 +1,10 @@
-/********************************************************************
- *                                                                  *
- * THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.   *
- * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
- * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
- * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
- *                                                                  *
- * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2002             *
- * by the Xiph.Org Foundation http://www.xiph.org/                  *
- *                                                                  *
- ********************************************************************/
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package org.xiph.libvorbis.books.coupled.resbook_44;
 
-import org.xiph.libvorbis.*;
+import org.xiph.libvorbis.encode_aux_threshmatch;
+import org.xiph.libvorbis.static_bookblock;
+import org.xiph.libvorbis.static_codebook;
 
 class resbook_44sm_1 {
 
@@ -437,7 +429,7 @@ class resbook_44sm_1 {
 	};
 
 	static float _vq_quantthresh__44c1_sm_p1_0[] = {
-		-0.5f, 0.5f, 
+		-0.5f, 0.5f,
 	};
 
 	static int _vq_quantmap__44c1_sm_p1_0[] = {
@@ -514,7 +506,7 @@ class resbook_44sm_1 {
 	};
 
 	static float _vq_quantthresh__44c1_sm_p2_0[] = {
-		-1.5f, -0.5f, 0.5f, 1.5f, 
+		-1.5f, -0.5f, 0.5f, 1.5f,
 	};
 
 	static int _vq_quantmap__44c1_sm_p2_0[] = {
@@ -561,7 +553,7 @@ class resbook_44sm_1 {
 	};
 
 	static float _vq_quantthresh__44c1_sm_p3_0[] = {
-		-3.5f, -2.5f, -1.5f, -0.5f, 0.5f, 1.5f, 2.5f, 3.5f, 
+		-3.5f, -2.5f, -1.5f, -0.5f, 0.5f, 1.5f, 2.5f, 3.5f,
 	};
 
 	static int _vq_quantmap__44c1_sm_p3_0[] = {
@@ -609,7 +601,7 @@ class resbook_44sm_1 {
 	};
 
 	static float _vq_quantthresh__44c1_sm_p4_0[] = {
-		-3.5f, -2.5f, -1.5f, -0.5f, 0.5f, 1.5f, 2.5f, 3.5f, 
+		-3.5f, -2.5f, -1.5f, -0.5f, 0.5f, 1.5f, 2.5f, 3.5f,
 	};
 
 	static int _vq_quantmap__44c1_sm_p4_0[] = {
@@ -678,8 +670,8 @@ class resbook_44sm_1 {
 	};
 
 	static float _vq_quantthresh__44c1_sm_p5_0[] = {
-		-7.5f, -6.5f, -5.5f, -4.5f, -3.5f, -2.5f, -1.5f, -0.5f, 
-		0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f, 
+		-7.5f, -6.5f, -5.5f, -4.5f, -3.5f, -2.5f, -1.5f, -0.5f,
+		0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
 	};
 
 	static int _vq_quantmap__44c1_sm_p5_0[] = {
@@ -722,7 +714,7 @@ class resbook_44sm_1 {
 	};
 
 	static float _vq_quantthresh__44c1_sm_p6_0[] = {
-		-5.5f, 5.5f, 
+		-5.5f, 5.5f,
 	};
 
 	static int _vq_quantmap__44c1_sm_p6_0[] = {
@@ -773,8 +765,8 @@ class resbook_44sm_1 {
 	};
 
 	static float _vq_quantthresh__44c1_sm_p6_1[] = {
-		-4.5f, -3.5f, -2.5f, -1.5f, -0.5f, 0.5f, 1.5f, 2.5f, 
-		3.5f, 4.5f, 
+		-4.5f, -3.5f, -2.5f, -1.5f, -0.5f, 0.5f, 1.5f, 2.5f,
+		3.5f, 4.5f,
 	};
 
 	static int _vq_quantmap__44c1_sm_p6_1[] = {
@@ -831,8 +823,8 @@ class resbook_44sm_1 {
 	};
 
 	static float _vq_quantthresh__44c1_sm_p7_0[] = {
-		-27.5f, -22.5f, -17.5f, -12.5f, -7.5f, -2.5f, 2.5f, 7.5f, 
-		12.5f, 17.5f, 22.5f, 27.5f, 
+		-27.5f, -22.5f, -17.5f, -12.5f, -7.5f, -2.5f, 2.5f, 7.5f,
+		12.5f, 17.5f, 22.5f, 27.5f,
 	};
 
 	static int _vq_quantmap__44c1_sm_p7_0[] = {
@@ -872,7 +864,7 @@ class resbook_44sm_1 {
 	};
 
 	static float _vq_quantthresh__44c1_sm_p7_1[] = {
-		-1.5f, -0.5f, 0.5f, 1.5f, 
+		-1.5f, -0.5f, 0.5f, 1.5f,
 	};
 
 	static int _vq_quantmap__44c1_sm_p7_1[] = {
@@ -928,8 +920,8 @@ class resbook_44sm_1 {
 	};
 
 	static float _vq_quantthresh__44c1_sm_p8_0[] = {
-		-1215.5f, -994.5f, -773.5f, -552.5f, -331.5f, -110.5f, 110.5f, 331.5f, 
-		552.5f, 773.5f, 994.5f, 1215.5f, 
+		-1215.5f, -994.5f, -773.5f, -552.5f, -331.5f, -110.5f, 110.5f, 331.5f,
+		552.5f, 773.5f, 994.5f, 1215.5f,
 	};
 
 	static int _vq_quantmap__44c1_sm_p8_0[] = {
@@ -986,8 +978,8 @@ class resbook_44sm_1 {
 	};
 
 	static float _vq_quantthresh__44c1_sm_p8_1[] = {
-		-93.5f, -76.5f, -59.5f, -42.5f, -25.5f, -8.5f, 8.5f, 25.5f, 
-		42.5f, 59.5f, 76.5f, 93.5f, 
+		-93.5f, -76.5f, -59.5f, -42.5f, -25.5f, -8.5f, 8.5f, 25.5f,
+		42.5f, 59.5f, 76.5f, 93.5f,
 	};
 
 	static int _vq_quantmap__44c1_sm_p8_1[] = {
@@ -1056,8 +1048,8 @@ class resbook_44sm_1 {
 	};
 
 	static float _vq_quantthresh__44c1_sm_p8_2[] = {
-		-7.5f, -6.5f, -5.5f, -4.5f, -3.5f, -2.5f, -1.5f, -0.5f, 
-		0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f, 
+		-7.5f, -6.5f, -5.5f, -4.5f, -3.5f, -2.5f, -1.5f, -0.5f,
+		0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
 	};
 
 	static int _vq_quantmap__44c1_sm_p8_2[] = {
@@ -1083,8 +1075,8 @@ class resbook_44sm_1 {
 		null,
 		0
 	);
-	
-	
+
+
 	static int _huff_lengthlist__44c1_sm_short[] = {
 		 4, 7,13,14,14,15,16,18,18, 4, 2, 5, 8, 7, 9,12,
 		15,15,10, 4, 5,10, 6, 8,11,15,17,12, 5, 7, 5, 6,
@@ -1093,7 +1085,7 @@ class resbook_44sm_1 {
 		 8, 9, 6, 5, 6, 9,11,13,16,10,10, 7, 6, 7, 8,10,
 		11,
 	};
-	
+
 	static int _huff_lengthlist__44c1_sm_long[] = {
 		 5, 4, 8,10, 9, 9,10,11,12, 4, 2, 5, 6, 6, 8,10,
 		11,13, 8, 4, 6, 8, 7, 9,12,12,14,10, 6, 8, 4, 5,
@@ -1103,7 +1095,7 @@ class resbook_44sm_1 {
 		11,
 	};
 
-	
+
 	static_codebook zero = null;
 
 	public static_bookblock books;
@@ -1112,7 +1104,7 @@ class resbook_44sm_1 {
 
 
 	public resbook_44sm_1() {
-		
+
 		_huff_book__44c1_sm_short = new static_codebook(
 			2, 81,
 			_huff_lengthlist__44c1_sm_short,
@@ -1123,7 +1115,7 @@ class resbook_44sm_1 {
 			null,
 			0
 		);
-		
+
 		_huff_book__44c1_sm_long = new static_codebook(
 			2, 81,
 			_huff_lengthlist__44c1_sm_long,

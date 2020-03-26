@@ -3,23 +3,36 @@
 *Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.*
 
 
+
 ## Art
 
 See the **/art** folder. By Accessing the contents of that folder, you agree to these terms:
 
-> Please only read these files on your machine and then delete. Please do Not email that file anywhere, or upload it to any other servers. These files are confidential property of XJ Music Inc.
+> Please only read these files on your machine and then delete. Please do Not email that file anywhere, or upload it to 
+> any other servers. These files are confidential property of XJ Music Inc.
+
+
+### Architecture
+
+Here's the general architecture of the XJ Music platform backend services. [(Download PDF)](art/architecture/XJ-Mk3-Streaming-Segments-Architecture.pdf) 
+
+![XJ Mk3 Streaming Segments Architecture](art/architecture/XJ-Mk3-Streaming-Segments-Architecture.svg)
 
 
 ## Laws
   * Any network connection can and will fail.
-  * There are no launches, pertaining instead only to the spanning of time, and the availability of said platform and its components.
+  * There are no launches, pertaining instead only to the spanning of time, and the availability of said platform and 
+    its components.
   * The platform does not implement passwords; it relies on OAuth.
   * The platform does not send or receive email; it relies on vendors for all external communications.
   
   
 ## Workflow
-  * Features are described as the desire of a person to take an action for a particular reason, e.g. "Artist wants Sequence and Pattern to be named according to musical norms, in order to make the most sense of XJ as a musical instrument."
-  * Bugs are described as expectation versus actual, e.g. "Artist expects to be able to list Audios after deleting an Audio from an Instrument," then:
+  * Features are described as the desire of a person to take an action for a particular reason, e.g. "Artist wants 
+    Sequence and Pattern to be named according to musical norms, in order to make the most sense of XJ as a musical 
+    instrument."
+  * Bugs are described as expectation versus actual, e.g. "Artist expects to be able to list Audios after deleting an 
+    Audio from an Instrument," then:
     - DESCRIBE LIKE THIS: "I clicked the button labeled 'Turn;' I expected the Earth to turn; actually, it stood still."
     - NOT LIKE THIS: "I click the button and nothing happened."
   * Commits reference issues by id #.
@@ -28,7 +41,8 @@ See the **/art** folder. By Accessing the contents of that folder, you agree to 
     - Features are `feature/123-do-new-thing`
     - Bug Fixes are `bugfix/4567-should-do-this`
     - Hot Fixes are `hotfix/890-should-do-that`
-  * `TODO` comments are used only in working branches. Upon completion of branch work, any remaining `TODO` should be a new tracker issue.
+  * `TODO` comments are used only in working branches. Upon completion of branch work, any remaining `TODO` should be a 
+    new tracker issue.
 
 
 ## Service Ports
@@ -38,8 +52,7 @@ Each service has a unique port assignment:
 | Service       | Port          |
 | ------------- |---------------|
 | hub           | 8042          |
-| worker        | 8043          |
-| chains        | 8045          |
+| nexus        | 8043          |
 
 
 ## Web UI
@@ -49,20 +62,42 @@ https://github.com/xjmusic/web-ui
 
 ## Chain Work
 
-This term refers (in the **xj** universe) to a layer of work performed on the Segments (sequentially, by their offset) in a Chain.
+This term refers (in the **xj** universe) to a layer of work performed on the Segments (sequentially, by their offset) 
+in a Chain.
 
 
 ## Getting Started
 
-There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables, in a new file called **env.conf** which is never checked in to version control or released with the distribution. So, the use of environment variables is federated across development and production deployments, while all actual configurations are kept outside the scope of the code.
+We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development.
 
-We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development with uncanny parity to production. Once your **env.conf** file is configured, it's time to bring up the `hub01xj1` server and its supporting resources such as `postgres01xj1` and `redis01xj1`:
+First, you'll use `docker-compose` to bring up the Postgres and Redis databases:
+
+```bash
+docker-compose up -d postgres redis
+```
+
+There is a convenience script to reset the Postgres database to a proper known state right away. You'll need to have
+the `postgres-client` aka `psql` tool installed on your local machine for connecting to the database. Run:
+
+```bash
+bin/sql/reset/all_local
+``` 
+
+There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the 
+developer, to obtain keys and fill in the values of your own environment variables, in a new file called **env.conf** 
+which is never checked in to version control or released with the distribution. So, the use of environment variables is 
+federated across development and production deployments, while all actual configurations are kept outside the scope of 
+the code.
+
+Once your **env.conf** file is configured, it's time to bring up the `hub01xj1` server and its supporting resources such 
+as `postgres01xj1` and `redis01xj1`:
 
     docker-compose up -d
 
 In the above example, `-d` tells Docker to start the containers in the background (as Daemons).
 
-Note that `localhost` simply points to the local loopback. Docker-compose maps maps local port 80 to the `hub01xj1` docker container port 80.
+Note that `localhost` simply points to the local loopback. Docker-compose maps maps local port 80 to the `hub01xj1` 
+docker container port 80.
 
 To compile the Java server-side applications and package them for deployment:
 
@@ -70,7 +105,7 @@ To compile the Java server-side applications and package them for deployment:
 
 To build and deploy the platform during local development, we run this a lot:
 
-    gradle assemble && docker restart hub01xj1 worker01xj1
+    gradle assemble && docker restart hub01xj1 nexus01xj1
 
 For a complete rebuild, including configurations and front-end, we could run:
 
@@ -78,17 +113,20 @@ For a complete rebuild, including configurations and front-end, we could run:
 
 The data on `postgres01xj1` and `redis01xj1` persists until those containers are explicitly destroyed.
 
-Tail the docker container logs for the `hub` app while it's running (/var/log in the container is mounted from local volume ./log):
+Tail the docker container logs for the `hub` app while it's running (/var/log in the container is mounted from local 
+volume ./log):
 
     tail -f log/hub/*
 
-Or tail container logs for the `worker` app:
+Or tail container logs for the `nexus` app:
 
-    tail -f log/worker/*
+    tail -f log/nexus/*
 
 You'll need to install the Postgresql client `psql` version 12, e.g. `postgresql-client-12` (ubuntu linux)
 
-After logging in via Google, there will be a user created for you. It will have an `id`, for example 21. To grant the `admin` user role, you'll connect directly to the database on `postgres01xj1` using the port forwarding from local port 5400 (to Docker Postgres container port 5432):
+After logging in via Google, there will be a user created for you. It will have an `id`, for example 21. To grant the 
+`admin` user role, you'll connect directly to the database on `postgres01xj1` using the port forwarding from local 
+port 5400 (to Docker Postgres container port 5432):
 
     psql -h localhost -p 5400 -u root
 
@@ -105,13 +143,16 @@ There's a convenience script to instantly perform the above operation:
 
     bin/sql/user_auth
 
-Only between major platform configuration changes, it may be necessary to force Docker to rebuild the container using `--build`:
+Only between major platform configuration changes, it may be necessary to force Docker to rebuild the container 
+using `--build`:
 
     docker-compose up -d --build    
 
-There is a Postgresql dump of a complete example database, for quickly bootstrapping a dev environment. These files are located in `ops/sql/dump/*`:
+There is a Postgresql dump of a complete example database, for quickly bootstrapping a dev environment. These files 
+are located in `ops/sql/dump/*`:
 
-Load the example database into `postgres01xj1` using the port forwarding from local port 5400 (to Docker Postgres container port 5432). There's a convenience script to do this:
+Load the example database into `postgres01xj1` using the port forwarding from local port 5400 (to Docker Postgres 
+container port 5432). There's a convenience script to do this:
 
     bin/sql/reset/all_local
 
@@ -119,7 +160,9 @@ The `/ops/sql/dump/*` files can be quickly updated from the current dev database
 
     bin/sql/dump/all_local
 
-It is NOT necessary to have any local Postgres server running. The build process will use your Docker `postgres01xj1`, or more specifically (for cross-platform compatibility) it will use port 5400 which Docker maps to `postgres01xj1` port 5432, for Maven to use during the build process.
+It is NOT necessary to have any local Postgres server running. The build process will use your Docker `postgres01xj1`, 
+or more specifically (for cross-platform compatibility) it will use port 5400 which Docker maps to `postgres01xj1` 
+port 5432, for Maven to use during the build process.
 
 Connect to the Docker `postgres01xj1` server:
 
@@ -141,7 +184,12 @@ To only setup the workflow and check dependencies:
 
 ## App Configuration
 
-There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables, in a new file called **env.conf** which is never checked in to version control or released with the distribution.  Developers modify their local **env.conf** file with private keys and configuration. The **env.conf** file is never committed to the repository, because it contains secrets. The **env.example.conf** file is kept up-to-date with all environment variables required for the developer to configure.
+There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the 
+developer, to obtain keys and fill in the values of your own environment variables, in a new file called **env.conf** 
+which is never checked in to version control or released with the distribution.  Developers modify their local 
+**env.conf** file with private keys and configuration. The **env.conf** file is never committed to the repository, 
+because it contains secrets. The **env.example.conf** file is kept up-to-date with all environment variables required 
+for the developer to configure.
 
 
 ## Run local platform in Docker containers
@@ -152,7 +200,8 @@ Bring up the `hub01xj1` docker container and its required resource containers:
 
     docker-compose up -d
 
-The `-d` option above runs containers as background daemons, instead of seeing all their `stdin`. Use `docker-compose` or `docker` to manage containers from there.
+The `-d` option above runs containers as background daemons, instead of seeing all their `stdin`. Use `docker-compose` 
+or `docker` to manage containers from there.
 
 To see running containers:
 
@@ -178,7 +227,8 @@ To run just the `hub01xj1` container, attached via tty:
 
     docker-compose run xj
 
-The configuration uses volumes such that the latest build artifacts are available without having to rebuild the docker container. The container runs as user `root` by default. Project folders are available inside the container as:
+The configuration uses volumes such that the latest build artifacts are available without having to rebuild the docker 
+container. The container runs as user `root` by default. Project folders are available inside the container as:
 
     /var/app/current/
 
@@ -231,11 +281,13 @@ Run a local **Chains** service on its default port 8045:
 
     bin/chains
 
+
 ## Cleanup
 
 Clean all build targets:
 
     gradle clean
+
 
 ## Maven
 
@@ -247,9 +299,11 @@ To clean, build, test and assemble artifacts for shipment:
 
     gradle clean test assemble
 
+
 ## Google Authentication
 
 Login to the app using Google authentication. The redirect URL for local development is http://xj.io/auth/google/callback
+
 
 ## Debugging
 
@@ -265,6 +319,7 @@ It is helpful to be able to compile and run Java components against the Docker c
 Also remember, it is necessary to send an authentication cookie in the header of API requests:
 
     curl -b Access-Token
+
 
 ## Audio File Uploading
 

@@ -4573,6 +4573,9 @@ e78f3010-22a6-4405-84b0-ce4c857cc144	b9adee8a-59ca-11ea-84cb-77344de568df	8d8f79
 \.
 
 
+--  Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+
 --
 -- Data for Name: program_sequence_pattern_event; Type: TABLE DATA; Schema: xj; Owner: root
 --

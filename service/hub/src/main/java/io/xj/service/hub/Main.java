@@ -1,22 +1,25 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-import io.xj.lib.core.CoreModule;
-import io.xj.lib.core.app.App;
-import io.xj.lib.core.app.AppConfiguration;
-import io.xj.lib.core.app.AppException;
-import io.xj.lib.craft.CraftModule;
+import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.app.AppException;
+import io.xj.service.hub.digest.DigestModule;
+import io.xj.service.hub.generation.GenerationModule;
+
+import java.util.Set;
 
 /**
  Hub service
  */
 public interface Main {
-  Iterable<Module> injectorModules = ImmutableList.of(new CoreModule(), new CraftModule());
-  Iterable<String> resourcePackages = ImmutableList.of("io.xj.service.hub");
+  String DEFAULT_CONFIGURATION_RESOURCE_FILENAME = "default.conf";
+  Set<Module> injectorModules = ImmutableSet.of(new HubModule(), new DigestModule(), new GenerationModule());
+  Set<String> resourcePackages = ImmutableSet.of("io.xj.service.hub");
   int defaultPort = 8042;
 
   /**
@@ -27,14 +30,15 @@ public interface Main {
   static void main(String[] args) throws AppException {
 
     // Get default configuration
-    Config defaults = AppConfiguration.getDefault()
+    Config defaults = ConfigFactory.parseResources(DEFAULT_CONFIGURATION_RESOURCE_FILENAME)
+      .withFallback(AppConfiguration.getDefault())
       .withValue("app.port", ConfigValueFactory.fromAnyRef(defaultPort));
 
     // Read configuration from arguments to program, with default fallbacks
     Config config = AppConfiguration.parseArgs(args, defaults);
 
     // Instantiate app
-    App app = new App(resourcePackages, AppConfiguration.inject(config, injectorModules));
+    HubApp app = new HubApp(resourcePackages, AppConfiguration.inject(config, injectorModules));
 
     // Shutdown Hook
     Runtime.getRuntime().addShutdownHook(new Thread(app::stop));

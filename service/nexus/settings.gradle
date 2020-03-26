@@ -1,0 +1,16 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+rootProject.name = "xj-service-nexus"
+
+// FUTURE: instead of depending on a service, we use the client it publishes
+include ':service:hub'
+project(':service:hub').projectDir = new File("../hub")
+
+include ':lib:app'
+project(':lib:app').projectDir = new File("../../lib/app")
+
+include ':lib:util'
+project(':lib:util').projectDir = new File("../../lib/util")
+
+include ':lib:rest-api'
+project(':lib:rest-api').projectDir = new File("../../lib/rest-api")

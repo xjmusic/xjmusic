@@ -1,24 +1,17 @@
-/********************************************************************
- *                                                                  *
- * THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.   *
- * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
- * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
- * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
- *                                                                  *
- * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2002             *
- * by the Xiph.Org Foundation http://www.xiph.org/                  *
- *                                                                  *
- ********************************************************************/
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package org.xiph.libvorbis;
 
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.M_PI;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.cPI1_8;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.cPI2_8;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.cPI3_8;
 
 class mdct_lookup {
 
 	int n;
 	int log2n;
-  
+
 	float[] trig;
 	int[] bitrev;
 
@@ -153,14 +146,14 @@ class mdct_lookup {
 		float r0     = x[off+30] - x[off+14];
 		float r1     = x[off+31] - x[off+15];
 
-		x[off+30] +=         x[off+14];           
+		x[off+30] +=         x[off+14];
 		x[off+31] +=         x[off+15];
-		x[off+14]  =         r0;              
+		x[off+14]  =         r0;
 		x[off+15]  =         r1;
 
-		r0     = x[off+28] - x[off+12];   
+		r0     = x[off+28] - x[off+12];
 		r1     = x[off+29] - x[off+13];
-		x[off+28] +=         x[off+12];           
+		x[off+28] +=         x[off+12];
 		x[off+29] +=         x[off+13];
 		x[off+12]  = ( r0 * cPI1_8  -  r1 * cPI3_8 );
 		x[off+13]  = ( r0 * cPI3_8  +  r1 * cPI1_8 );
@@ -385,7 +378,7 @@ class mdct_lookup {
 
 			r0     = (x[x0+1] + x[x1+1]) * .5f;
 			r1     = (x[x0+0] - x[x1+0]) * .5f;
-      
+
 			x[w0+2]  = r0     + r2;
 			x[w1+0]  = r0     - r2;
 			x[w0+3]  = r1     + r3;
@@ -454,7 +447,7 @@ class mdct_lookup {
 		int oX2 = n2+n4;
 		iX = 0;
 		t = n2;
-    
+
 		do {
 			oX1-=4;
 
@@ -532,7 +525,7 @@ class mdct_lookup {
 		// rotate
 
 		// window + rotate + step 1
-  
+
 		float r0;
 		float r1;
 
@@ -543,15 +536,15 @@ class mdct_lookup {
 		int x0 = n2+n4;
 		int x1 = x0+1;
 		int t = n2;
-  
+
 		int i=0;
-  
+
 		for( i=0; i < n8; i+=2 ) {
 
 			x0 -=4;
 			t-=2;
 			r0= in[x0+2] + in[x1+0];
-			r1= in[x0+0] + in[x1+2];       
+			r1= in[x0+0] + in[x1+2];
 			w[w2+i]=   (r1*T[t+1] + r0*T[t+0]);
 			w[w2+i+1]= (r1*T[t+0] - r0*T[t+1]);
 			x1 +=4;
@@ -559,18 +552,18 @@ class mdct_lookup {
 
 		// x1=in+1;
 		x1 = 1;
-  
+
 		for( ; i < n2-n8; i+=2 ) {
 
 			t-=2;
 			x0 -=4;
 			r0= in[x0+2] - in[x1+0];
-			r1= in[x0+0] - in[x1+2];       
+			r1= in[x0+0] - in[x1+2];
 			w[w2+i]=   (r1*T[t+1] + r0*T[t+0]);
 			w[w2+i+1]= (r1*T[t+0] - r0*T[t+1]);
 			x1 +=4;
 		}
-    
+
 		// x0=in+n;
 		x0 = n;
 
@@ -579,7 +572,7 @@ class mdct_lookup {
 			t-=2;
 			x0 -=4;
 			r0= -in[x0+2] - in[x1+0];
-			r1= -in[x0+0] - in[x1+2];       
+			r1= -in[x0+0] - in[x1+2];
 			w[w2+i]=   (r1*T[t+1] + r0*T[t+0]);
 			w[w2+i+1]= (r1*T[t+0] - r0*T[t+1]);
 			x1 +=4;
@@ -605,7 +598,7 @@ class mdct_lookup {
 			t+=2;
 		}
 	}
-	
+
 	public void mdct_forward_offset( float[] in, int offset, float[] out, int out_offset ) {
 
 		int n2=n>>1;
@@ -622,7 +615,7 @@ class mdct_lookup {
 		// rotate
 
 		// window + rotate + step 1
-  
+
 		float r0;
 		float r1;
 
@@ -633,15 +626,15 @@ class mdct_lookup {
 		int x0 = n2+n4;
 		int x1 = x0+1;
 		int t = n2;
-  
+
 		int i=0;
-  
+
 		for( i=0; i < n8; i+=2 ) {
 
 			x0 -=4;
 			t-=2;
 			r0= in[offset+x0+2] + in[offset+x1+0];
-			r1= in[offset+x0+0] + in[offset+x1+2];       
+			r1= in[offset+x0+0] + in[offset+x1+2];
 			w[w2+i]=   (r1*T[t+1] + r0*T[t+0]);
 			w[w2+i+1]= (r1*T[t+0] - r0*T[t+1]);
 			x1 +=4;
@@ -649,18 +642,18 @@ class mdct_lookup {
 
 		// x1=in+1;
 		x1 = 1;
-  
+
 		for( ; i < n2-n8; i+=2 ) {
 
 			t-=2;
 			x0 -=4;
 			r0= in[offset+x0+2] - in[offset+x1+0];
-			r1= in[offset+x0+0] - in[offset+x1+2];       
+			r1= in[offset+x0+0] - in[offset+x1+2];
 			w[w2+i]=   (r1*T[t+1] + r0*T[t+0]);
 			w[w2+i+1]= (r1*T[t+0] - r0*T[t+1]);
 			x1 +=4;
 		}
-    
+
 		// x0=in+n;
 		x0 = n;
 
@@ -669,7 +662,7 @@ class mdct_lookup {
 			t-=2;
 			x0 -=4;
 			r0= -in[offset+x0+2] - in[offset+x1+0];
-			r1= -in[offset+x0+0] - in[offset+x1+2];       
+			r1= -in[offset+x0+0] - in[offset+x1+2];
 			w[w2+i]=   (r1*T[t+1] + r0*T[t+0]);
 			w[w2+i+1]= (r1*T[t+0] - r0*T[t+1]);
 			x1 +=4;

@@ -1,34 +1,32 @@
-/********************************************************************
- *                                                                  *
- * THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.   *
- * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
- * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
- * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
- *                                                                  *
- * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2002             *
- * by the Xiph.Org Foundation http://www.xiph.org/                  *
- *                                                                  *
- ********************************************************************/
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package org.xiph.libvorbis.modes;
 
-import org.xiph.libvorbis.*;
-import org.xiph.libvorbis.books.floor.*;
-import org.xiph.libvorbis.books.coupled.resbook_44.*;
+import org.xiph.libvorbis.adj_stereo;
+import org.xiph.libvorbis.att3;
+import org.xiph.libvorbis.books.coupled.resbook_44.res_books_stereo;
+import org.xiph.libvorbis.books.floor.floor_books;
+import org.xiph.libvorbis.compandblock;
+import org.xiph.libvorbis.noise3;
+import org.xiph.libvorbis.noiseguard;
+import org.xiph.libvorbis.ve_setup_data_template;
+import org.xiph.libvorbis.vorbis_info_floor1;
+import org.xiph.libvorbis.vorbis_info_psy_global;
+import org.xiph.libvorbis.vp_adjblock;
 
 public class setup_44 {
-	
+
 	public ve_setup_data_template data;
-	
-	
+
+
 	static float[] rate_mapping_44_stereo = new float[] { 22500.f, 32000.f, 40000.f, 48000.f, 56000.f, 64000.f, 80000.f, 96000.f, 112000.f, 128000.f, 160000.f, 250001.f };
 	static float[] quality_mapping_44 = new float[] { -.1f, .0f, .1f, .2f, .3f, .4f, .5f, .6f, .7f, .8f, .9f, 1.0f };
-	
+
 	static int[] blocksize_short_44 = new int[] { 512, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256 };
 	static int[] blocksize_long_44 = new int[] { 4096, 2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048 };
-	
+
 	static att3[] _psy_tone_masteratt_44 = new att3[] {
-		
+
 		new att3( new int[] { 35,  21,   9},  0,    0), /* -1 */
 		new att3( new int[] { 30,  20,   8}, -2, 1.25f), /* 0 */
 		  /*  {{ 25,  14,   4},  0,    0}, *//* 1 */
@@ -49,7 +47,7 @@ public class setup_44 {
 	static int[] _psy_tone_suppress = new int[] {  -20, -20, -20, -20, -20, -24, -30, -40, -40, -45, -45, -45 };
 
 	static vp_adjblock[] _vp_tonemask_adj_otherblock = new vp_adjblock[] {
-		
+
 		   /* 63     125     250     500       1       2       4       8      16 */
 		new vp_adjblock( new int[] { -3, -8,-13,-15,-10,-10, -9, -9, -9, -9, -9,  1,  1,  1,  1,  1,  1}), /* -1 */
 		/* {{-20,-20,-20,-20,-14,-12,-10, -8, -4,  0,  0, 10,  0,  0,  0,  0,  0}},    0 */
@@ -77,7 +75,7 @@ public class setup_44 {
 	};
 
 	static vp_adjblock[] _vp_tonemask_adj_longblock = new vp_adjblock[] {
-		
+
 		   /* 63     125     250     500       1       2       4       8      16 */
 		new vp_adjblock( new int[] { -3, -8,-13,-15,-10,-10,-10,-10,-10,-10,-10,  0,  0,  0,  0,  0,  0}), /* -1 */
 		/* {{-15,-15,-15,-15,-10, -8, -4, -2,  0,  0,  0, 10,  0,  0,  0,  0,  0}},    0 */
@@ -105,7 +103,7 @@ public class setup_44 {
 	};
 
 	static noiseguard[] _psy_noiseguards_44 = new noiseguard[] {
-		
+
 		new noiseguard( 3, 3, 15 ),
 		new noiseguard( 3, 3, 15 ),
 		new noiseguard( 10, 10, 100 ),
@@ -113,7 +111,7 @@ public class setup_44 {
 	};
 
 	static noise3[] _psy_noisebias_impulse = new noise3[] {
-		
+
 		/*  63     125     250     500      1k      2k      4k      8k     16k*/
 		  /* -1 */
 		new noise3( new int[][] { { -10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
@@ -146,7 +144,7 @@ public class setup_44 {
 		new noise3( new int[][] { { -20,-20,-20,-20,-20,-18,-14,-10, -4,  0,  0,  0,  0,  4,  4,  6, 11},
 		    {-32,-32,-32,-32,-28,-24,-22,-16,-10, -6, -8, -8, -6, -6, -6, -4, -2},
 		    {-34,-34,-34,-34,-30,-26,-24,-18,-14,-12,-12,-12,-12,-12,-10, -9, -5}}),
-		  /* 6 
+		  /* 6
 		  {{{-20,-20,-20,-20,-20,-18,-14,-10, -4,  0,  0,  0,  0,  4,  4,  6, 11},
 		      {-34,-34,-34,-34,-30,-30,-24,-20,-12,-12,-14,-14,-10, -9, -8, -6, -4},
 		      {-34,-34,-34,-34,-34,-30,-26,-20,-16,-15,-15,-15,-15,-15,-13,-12, -8}}},*/
@@ -181,7 +179,7 @@ public class setup_44 {
 	};
 
 	static noise3[] _psy_noisebias_padding = new noise3[] {
-		
+
 		/*  63     125     250     500      1k       2k      4k      8k     16k*/
 		  /* -1 */
 		new noise3( new int[][] { { -10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
@@ -237,76 +235,76 @@ public class setup_44 {
 	};
 
 	static noise3[] _psy_noisebias_trans = new noise3[] {
-		
+
 		/*  63     125     250     500      1k       2k      4k      8k     16k*/
 		  /* -1 */
 		new noise3( new int[][] { { -10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
 		    {-30,-30,-30,-30,-26,-20,-16, -8, -6, -6, -2,  2,  2,  3,  6,  6, 15},
 		    {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -4, -2}}),
-		  /* 0 
+		  /* 0
 		  {{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  4,  4,  5,  5,  5,  8,  10},
 		    {-30,-30,-30,-30,-26,-22,-20,-14, -8, -4,  0,  0,  0,  0,  2,  4,  10},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -6, -6, -6, -6, -4, -4, -4,  -2}}},*/
 		new noise3( new int[][] { { -15,-15,-15,-15,-15,-12, -6, -4,  0,  2,  4,  4,  5,  5,  5,  8,  10},
 		    {-30,-30,-30,-30,-26,-22,-20,-14, -8, -4,  0,  0,  0,  0,  2,  3,   6},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -6, -6, -6, -6, -4, -4, -4,  -2}}),
-		  /* 1 
+		  /* 1
 		  {{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  4,  4,  5,  5,  5,  8,  10},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -2, -2, -2, -2,  0,  2,  8},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -8, -8, -8, -8, -6, -6, -6, -4}}},*/
 		new noise3( new int[][] { { -15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  4,  4,  5,  5,  5,  8,  10},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -2, -2, -2, -2,  0,  1,   4},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -8, -8, -8, -8, -6, -6, -6,  -4}}),
-		  /* 2 
+		  /* 2
 		  {{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  2,  2,  4,  4,  5,  6,  10},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -2, -2, -2, -2,  0,  2,  6},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}}, */
 		new noise3( new int[][] { { -15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  2,  2,  4,  4,  5,  6,  10},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -3, -3, -3, -2, -1,  0,  3},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10,-10,-10,-10,-10, -8, -8, -7, -4}}),
-		  /* 3 
+		  /* 3
 		  {{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  2,  2,  4,  4,  4,  5,  8},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -3, -3, -3, -3, -1,  1,  6},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}},*/
 		new noise3( new int[][] { { -15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  2,  2,  4,  4,  4,  5,  8},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -3, -3, -3, -3, -2,  0,  2},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}),
-		  /* 4 
+		  /* 4
 		  {{{-20,-20,-20,-20,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -3, -3, -3, -3, -1,  1,  5},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}},*/
 		new noise3( new int[][] { { -20,-20,-20,-20,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -3, -3, -3, -3, -2, -1,  1},
 		    {-30,-30,-30,-30,-26,-22,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}),
-		  /* 5 
+		  /* 5
 		  {{{-24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
 		    {-32,-32,-32,-32,-28,-24,-22,-16,-12, -6, -4, -4, -4, -4, -2, -1,  2},
 		    {-34,-34,-34,-34,-30,-24,-24,-18,-14,-12,-12,-12,-12,-10,-10, -9, -5}}}, */
 		new noise3( new int[][] { { -24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
 		    {-32,-32,-32,-32,-28,-24,-22,-16,-12, -6, -4, -4, -4, -4, -3, -1,  0},
 		    {-34,-34,-34,-34,-30,-24,-24,-18,-14,-12,-12,-12,-12,-10,-10, -9, -5}}),
-		  /* 6 
+		  /* 6
 		  {{{-24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
 		    {-32,-32,-32,-32,-28,-24,-24,-18,-14, -8, -6, -6, -6, -6, -4, -2,  1},
 		    {-34,-34,-34,-34,-30,-26,-24,-18,-17,-15,-15,-15,-15,-13,-13,-12, -8}}},*/
 		new noise3( new int[][] { { -24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
 		    {-32,-32,-32,-32,-28,-24,-24,-18,-14, -8, -6, -6, -6, -6, -5, -2,  0},
 		    {-34,-34,-34,-34,-30,-26,-26,-24,-22,-19,-19,-19,-19,-18,-17,-16,-12}}),
-		  /* 7 
+		  /* 7
 		  {{{-24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
 		    {-32,-32,-32,-32,-28,-24,-24,-18,-14,-12,-10, -8, -8, -8, -6, -4,  0},
 		    {-34,-34,-34,-34,-30,-26,-26,-24,-22,-19,-19,-19,-19,-18,-17,-16,-12}}},*/
 		new noise3( new int[][] { { -24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
 		    {-32,-32,-32,-32,-28,-24,-24,-24,-18,-14,-12,-10,-10,-10, -8, -6, -2},
 		    {-34,-34,-34,-34,-30,-26,-26,-26,-24,-24,-24,-24,-24,-24,-24,-20,-16}}),
-		  /* 8 
+		  /* 8
 		  {{{-24,-24,-24,-24,-22,-20,-15,-10, -8, -2,  0,  0,  0,  1,  2,  3,  7},
 		    {-36,-36,-36,-36,-30,-30,-30,-24,-18,-14,-12,-10,-10,-10, -8, -6, -2},
 		    {-36,-36,-36,-36,-34,-30,-28,-26,-24,-24,-24,-24,-24,-24,-24,-20,-16}}},*/
-		new noise3( new int[][] { { -24,-24,-24,-24,-22,-20,-15,-10, -8, -2,  0,  0,  0,  1,  2,  3,  7}, 
+		new noise3( new int[][] { { -24,-24,-24,-24,-22,-20,-15,-10, -8, -2,  0,  0,  0,  1,  2,  3,  7},
 		    {-36,-36,-36,-36,-30,-30,-30,-24,-20,-16,-16,-16,-16,-14,-12,-10, -7},
 		    {-36,-36,-36,-36,-34,-30,-28,-26,-24,-30,-30,-30,-30,-30,-30,-24,-20}}),
-		  /* 9 
+		  /* 9
 		  {{{-28,-28,-28,-28,-28,-28,-28,-20,-14, -8, -4, -4, -4, -4, -4, -2,  2},
 		    {-36,-36,-36,-36,-34,-32,-32,-28,-20,-16,-16,-16,-16,-14,-12,-10, -7},
 		    {-40,-40,-40,-40,-40,-40,-40,-32,-30,-30,-30,-30,-30,-30,-30,-24,-20}}},*/
@@ -320,7 +318,7 @@ public class setup_44 {
 	};
 
 	static noise3[] _psy_noisebias_long = new noise3[] {
-		
+
 		/*63     125     250     500      1k       2k      4k      8k     16k*/
 		  /* -1 */
 		new noise3( new int[][] { { -10,-10,-10,-10,-10, -4,  0,  0,  0,  6,  6,  6,  6, 10, 10, 12,  20},
@@ -398,7 +396,7 @@ public class setup_44 {
 	static compandblock[] _psy_compand_44 = new compandblock[] {
 
 			/* sub-mode Z short */
-			new compandblock( new int[] { 
+			new compandblock( new int[] {
 			    0, 1, 2, 3, 4, 5, 6,  7,     /* 7dB */
 			    8, 9,10,11,12,13,14, 15,     /* 15dB */
 			    16,17,18,19,20,21,22, 23,     /* 23dB */
@@ -406,7 +404,7 @@ public class setup_44 {
 			    32,33,34,35,36,37,38, 39,     /* 39dB */
 			  }),
 			  /* mode_Z nominal short */
-			new compandblock( new int[] { 
+			new compandblock( new int[] {
 			     0, 1, 2, 3, 4, 5, 6,  6,     /* 7dB */
 			     7, 7, 7, 7, 6, 6, 6,  7,     /* 15dB */
 			     7, 8, 9,10,11,12,13, 14,     /* 23dB */
@@ -414,7 +412,7 @@ public class setup_44 {
 			    19,19,20,21,22,23,24, 25,     /* 39dB */
 			  }),
 			  /* mode A short */
-			new compandblock( new int[] { 
+			new compandblock( new int[] {
 			    0, 1, 2, 3, 4, 5, 5,  5,     /* 7dB */
 			    6, 6, 6, 5, 4, 4, 4,  4,     /* 15dB */
 			    4, 4, 5, 5, 5, 6, 6,  6,     /* 23dB */
@@ -422,7 +420,7 @@ public class setup_44 {
 			    11,12,13,14,15,16,17, 18,     /* 39dB */
 			  }),
 			  /* sub-mode Z long */
-			new compandblock( new int[] { 
+			new compandblock( new int[] {
 			     0, 1, 2, 3, 4, 5, 6,  7,     /* 7dB */
 			     8, 9,10,11,12,13,14, 15,     /* 15dB */
 			    16,17,18,19,20,21,22, 23,     /* 23dB */
@@ -430,7 +428,7 @@ public class setup_44 {
 			    32,33,34,35,36,37,38, 39,     /* 39dB */
 			  }),
 			  /* mode_Z nominal long */
-			new compandblock( new int[] { 
+			new compandblock( new int[] {
 			    0, 1, 2, 3, 4, 5, 6,  7,     /* 7dB */
 			    8, 9,10,11,12,12,13, 13,     /* 15dB */
 			    13,14,14,14,15,15,15, 15,     /* 23dB */
@@ -438,7 +436,7 @@ public class setup_44 {
 			    19,19,20,21,22,23,24, 25,     /* 39dB */
 			  }),
 			  /* mode A long */
-			new compandblock( new int[] { 
+			new compandblock( new int[] {
 			    0, 1, 2, 3, 4, 5, 6,  7,     /* 7dB */
 			    8, 8, 7, 6, 5, 4, 4,  4,     /* 15dB */
 			    4, 4, 5, 5, 5, 6, 6,  6,     /* 23dB */
@@ -446,7 +444,7 @@ public class setup_44 {
 			    11,12,13,14,15,16,17, 18,     /* 39dB */
 			  })
 	};
-		
+
 	static float _psy_compand_short_mapping[] = new float[] { 0.5f, 1.f, 1.f, 1.3f, 1.6f, 2.f, 2.f, 2.f, 2.f, 2.f, 2.f, 2.f };
 	static float _psy_compand_long_mapping[] = new float[] { 3.5f, 4.f, 4.f, 4.3f, 4.6f, 5.f, 5.f, 5.f, 5.f, 5.f, 5.f, 5.f };
 
@@ -462,18 +460,18 @@ public class setup_44 {
 	static float[] _psy_lowpass_44 = new float[] { 13.9f, 15.1f, 15.8f, 16.5f, 17.2f, 18.9f, 20.1f, 48.f, 999.f, 999.f, 999.f, 999.f };
 
 	static vorbis_info_psy_global[] _psy_global_44 = new vorbis_info_psy_global[] {
-			
+
 			new vorbis_info_psy_global( 8, new float[] { 20.f,14.f,12.f,12.f,12.f,12.f,12.f }, new float[] { -60.f,-30.f,-40.f,-40.f,-40.f,-40.f,-40.f }, 2.f,-75.f, -6.f, new int[] { 99 }, new int[][] {{ 99, 99 }}, new int[] { 0 }, new int[] { 0 }, new int[][] {{ 0, 0 }} ),
 			new vorbis_info_psy_global( 8, new float[] { 14.f,10.f,10.f,10.f,10.f,10.f,10.f }, new float[] { -40.f,-30.f,-25.f,-25.f,-25.f,-25.f,-25.f }, 2.f,-80.f, -6.f, new int[] { 99 }, new int[][] {{ 99, 99 }}, new int[] { 0 }, new int[] { 0 }, new int[][] {{ 0, 0 }} ),
 			new vorbis_info_psy_global( 8, new float[] { 12.f,10.f,10.f,10.f,10.f,10.f,10.f }, new float[] { -20.f,-20.f,-15.f,-15.f,-15.f,-15.f,-15.f }, 0,-80.f, -6.f, new int[] { 99 }, new int[][] {{ 99, 99 }}, new int[] { 0 }, new int[] { 0 }, new int[][] {{ 0, 0 }} ),
 			new vorbis_info_psy_global( 8, new float[] { 10.f,8.f,8.f,8.f,8.f,8.f,8.f }, new float[] { -20.f,-15.f,-12.f,-12.f,-12.f,-12.f,-12.f }, 0,-80.f, -6.f, new int[] { 99 }, new int[][] {{ 99, 99 }}, new int[] { 0 }, new int[] { 0 }, new int[][] {{ 0, 0 }} ),
 			new vorbis_info_psy_global( 8, new float[] { 10.f,6.f,6.f,6.f,6.f,6.f,6.f }, new float[] { -15.f,-15.f,-12.f,-12.f,-12.f,-12.f,-12.f }, 0,-85.f, -6.f, new int[] { 99 }, new int[][] {{ 99, 99 }}, new int[] { 0 }, new int[] { 0 }, new int[][] {{ 0, 0 }} ),
 	};
-	
+
 	static float[] _global_mapping_44 = new float[] { 0.f, 1.f, 1.f, 1.5f, 2.f, 2.f, 2.5f, 2.7f, 3.0f, 3.7f, 4.f, 4.f };
-	
+
 	static adj_stereo[] _psy_stereo_modes_44 = new adj_stereo[] {
-						
+
 	  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14         -1  */
 		new adj_stereo( new int[] {  4,  4,  4,  4,  4,  4,  4,  3,  2,  2,  1,  0,  0,  0,  0},
 			new int[] {  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  5,  4,  3},
@@ -559,86 +557,86 @@ public class setup_44 {
 			   new float[] {  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4},
 			   new float[] { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99} ),
 	};
-	
+
 	static vorbis_info_floor1[] _floor = new vorbis_info_floor1[] {
 
 		/* 128 x 4 */
-		new vorbis_info_floor1( 1, new int[]{0}, new int[]{4}, new int[]{2}, new int[]{0}, 
-								new int[][]{{1,2,3,4}}, 
-								4, new int[]{0,128, 33,8,16,70}, 
+		new vorbis_info_floor1( 1, new int[]{0}, new int[]{4}, new int[]{2}, new int[]{0},
+								new int[][]{{1,2,3,4}},
+								4, new int[]{0,128, 33,8,16,70},
 								60, 30, 500, 1, 18, -1 ),
 		/* 256 x 4 */
-		new vorbis_info_floor1( 1, new int[]{0}, new int[]{4}, new int[]{2}, new int[]{0}, 
-								new int[][]{{1,2,3,4}}, 
-								4, new int[]{0,256, 66,16,32,140}, 
+		new vorbis_info_floor1( 1, new int[]{0}, new int[]{4}, new int[]{2}, new int[]{0},
+								new int[][]{{1,2,3,4}},
+								4, new int[]{0,256, 66,16,32,140},
 								60, 30, 500, 1, 18, -1 ),
 		/* 128 x 7 */
-		new vorbis_info_floor1( 2, new int[]{0,1}, new int[]{3,4}, new int[]{2,2}, new int[]{0,1}, 
-								new int[][]{{-1,2,3,4},{-1,5,6,7}}, 
-								4, new int[]{0,128, 14,4,58, 2,8,28,90}, 
+		new vorbis_info_floor1( 2, new int[]{0,1}, new int[]{3,4}, new int[]{2,2}, new int[]{0,1},
+								new int[][]{{-1,2,3,4},{-1,5,6,7}},
+								4, new int[]{0,128, 14,4,58, 2,8,28,90},
 								60, 30, 500, 1, 18, -1 ),
 		/* 256 x 7 */
-		new vorbis_info_floor1( 2, new int[]{0,1}, new int[]{3,4}, new int[]{2,2}, new int[]{0,1}, 
-								new int[][]{{-1,2,3,4},{-1,5,6,7}}, 
-								4, new int[]{0,256, 28,8,116, 4,16,56,180}, 
+		new vorbis_info_floor1( 2, new int[]{0,1}, new int[]{3,4}, new int[]{2,2}, new int[]{0,1},
+								new int[][]{{-1,2,3,4},{-1,5,6,7}},
+								4, new int[]{0,256, 28,8,116, 4,16,56,180},
 								60, 30, 500, 1, 18, -1 ),
 		/* 128 x 11 */
-		new vorbis_info_floor1( 4, new int[]{0,1,2,3}, new int[]{2,3,3,3}, new int[]{0,1,2,2}, new int[]{-1,0,1,2}, 
-								new int[][]{{3},{4,5},{-1,6,7,8},{-1,9,10,11}}, 
-								2, new int[]{0,128,  8,33,  4,16,70,  2,6,12,  23,46,90}, 
+		new vorbis_info_floor1( 4, new int[]{0,1,2,3}, new int[]{2,3,3,3}, new int[]{0,1,2,2}, new int[]{-1,0,1,2},
+								new int[][]{{3},{4,5},{-1,6,7,8},{-1,9,10,11}},
+								2, new int[]{0,128,  8,33,  4,16,70,  2,6,12,  23,46,90},
 								60, 30, 500, 1, 18, -1 ),
 		/* 128 x 17 */
-		new vorbis_info_floor1( 6, new int[]{0,1,1,2,3,3}, new int[]{2,3,3,3}, new int[]{0,1,2,2}, new int[]{-1,0,1,2}, 
-								new int[][]{{3},{4,5},{-1,6,7,8},{-1,9,10,11}}, 
-								2, new int[]{0,128,  12,46,  4,8,16,  23,33,70,  2,6,10,  14,19,28,  39,58,90}, 
+		new vorbis_info_floor1( 6, new int[]{0,1,1,2,3,3}, new int[]{2,3,3,3}, new int[]{0,1,2,2}, new int[]{-1,0,1,2},
+								new int[][]{{3},{4,5},{-1,6,7,8},{-1,9,10,11}},
+								2, new int[]{0,128,  12,46,  4,8,16,  23,33,70,  2,6,10,  14,19,28,  39,58,90},
 								60, 30, 500, 1, 18, -1 ),
 		/* 256 x 4 (low bitrate version) */
-		new vorbis_info_floor1( 1, new int[]{0}, new int[]{4}, new int[]{2}, new int[]{0}, 
-								new int[][]{{1,2,3,4}}, 
-								4, new int[]{0,256, 66,16,32,140}, 
+		new vorbis_info_floor1( 1, new int[]{0}, new int[]{4}, new int[]{2}, new int[]{0},
+								new int[][]{{1,2,3,4}},
+								4, new int[]{0,256, 66,16,32,140},
 								60, 30, 500, 1, 18, -1 ),
 		/* 1024 x 27 */
-		new vorbis_info_floor1( 8, new int[]{0,1,2,2,3,3,4,4}, new int[]{3,4,3,4,3}, new int[]{0,1,1,2,2}, new int[]{-1,0,1,2,3}, 
-								new int[][]{{4},{5,6},{7,8},{-1,9,10,11},{-1,12,13,14}}, 
+		new vorbis_info_floor1( 8, new int[]{0,1,2,2,3,3,4,4}, new int[]{3,4,3,4,3}, new int[]{0,1,1,2,2}, new int[]{-1,0,1,2,3},
+								new int[][]{{4},{5,6},{7,8},{-1,9,10,11},{-1,12,13,14}},
 								2, new int[]{0,1024,   93,23,372, 6,46,186,750,  14,33,65, 130,260,556,
-												3,10,18,28,  39,55,79,111,  158,220,312,  464,650,850}, 
+												3,10,18,28,  39,55,79,111,  158,220,312,  464,650,850},
 								60, 30, 500, 3, 18, -1 ),
 		/* 2048 x 27 */
-		new vorbis_info_floor1( 8, new int[]{0,1,2,2,3,3,4,4}, new int[]{3,4,3,4,3}, new int[]{0,1,1,2,2}, new int[]{-1,0,1,2,3}, 
-								new int[][]{{4},{5,6},{7,8},{-1,9,10,11},{-1,12,13,14}}, 
+		new vorbis_info_floor1( 8, new int[]{0,1,2,2,3,3,4,4}, new int[]{3,4,3,4,3}, new int[]{0,1,1,2,2}, new int[]{-1,0,1,2,3},
+								new int[][]{{4},{5,6},{7,8},{-1,9,10,11},{-1,12,13,14}},
 								2, new int[]{0,2048,   186,46,744, 12,92,372,1500,  28,66,130, 260,520,1112,
-												6,20,36,56,  78,110,158,222,  316,440,624,  928,1300,1700}, 
+												6,20,36,56,  78,110,158,222,  316,440,624,  928,1300,1700},
 								60, 30, 500, 3, 18, -1 ),
 		/* 512 x 17 */
-		new vorbis_info_floor1( 6, new int[]{0,1,1,2,3,3}, new int[]{2,3,3,3}, new int[]{0,1,2,2}, new int[]{-1,0,1,2}, 
-								new int[][]{{3},{4,5},{-1,6,7,8},{-1,9,10,11}}, 
-								2, new int[]{0,512,  46,186,  16,33,65,  93,130,278,  
-												7,23,39,  55,79,110,  156,232,360}, 
+		new vorbis_info_floor1( 6, new int[]{0,1,1,2,3,3}, new int[]{2,3,3,3}, new int[]{0,1,2,2}, new int[]{-1,0,1,2},
+								new int[][]{{3},{4,5},{-1,6,7,8},{-1,9,10,11}},
+								2, new int[]{0,512,  46,186,  16,33,65,  93,130,278,
+												7,23,39,  55,79,110,  156,232,360},
 								60, 30, 500, 1, 18, -1 ),
 	};
-	
+
 	static int _floor_short_mapping_44[] = new int[] { 1,0,0,2,2,4,5,5,5,5,5 };
 	static int _floor_long_mapping_44[] = new int[] { 8,7,7,7,7,7,7,7,7,7,7 };
-		
-	
-	
+
+
+
 	public setup_44() {
-		
+
 		floor_books huff_books = new org.xiph.libvorbis.books.floor.floor_books();
 		res_books_stereo residue_44 = new org.xiph.libvorbis.books.coupled.resbook_44.res_books_stereo();
-		
-		data = new ve_setup_data_template( 
-				
+
+		data = new ve_setup_data_template(
+
 				11,
 				rate_mapping_44_stereo,
 				quality_mapping_44,
 				2,
 				40000,
 				50000,
-				
+
 				blocksize_short_44,
 				blocksize_long_44,
-				
+
 				_psy_tone_masteratt_44,
 				_psy_tone_0dB,
 				_psy_tone_suppress,
@@ -646,14 +644,14 @@ public class setup_44 {
 				_vp_tonemask_adj_otherblock,
 				_vp_tonemask_adj_longblock,
 				_vp_tonemask_adj_otherblock,
-				
+
 				_psy_noiseguards_44,
 				_psy_noisebias_impulse,
 				_psy_noisebias_padding,
 				_psy_noisebias_trans,
 				_psy_noisebias_long,
 				_psy_noise_suppress,
-				  
+
 				_psy_compand_44,
 				_psy_compand_short_mapping,
 				_psy_compand_long_mapping,
@@ -664,7 +662,7 @@ public class setup_44 {
 
 				_psy_ath_floater,
 				_psy_ath_abs,
-				  
+
 				_psy_lowpass_44,
 
 				_psy_global_44,
@@ -678,6 +676,6 @@ public class setup_44 {
 
 				residue_44._mapres_template_44_stereo
 		);
-		
+
 	}
 }

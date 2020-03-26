@@ -73,10 +73,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install postgres
 EXPOSE 8042
 RUN mkdir -p /var/log/hub && chmod a+w /var/log/hub
 
-# 'worker'
+# 'nexus'
 EXPOSE 8043
-RUN mkdir -p /var/log/worker && chmod a+w /var/log/worker
-RUN mkdir -p /var/cache/worker && chmod a+w /var/cache/worker
+RUN mkdir -p /var/log/nexus && chmod a+w /var/log/nexus
+RUN mkdir -p /var/cache/nexus && chmod a+w /var/cache/nexus
 
 # App bootstrap
 ADD \

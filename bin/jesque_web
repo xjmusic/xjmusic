@@ -12,8 +12,8 @@ USAGE="
      APPS=\"hub\"
        operates only the Hub frontend
 
-     APPS=\"worker\"
-       operates the Worker client
+     APPS=\"nexus\"
+       operates the Nexus client
 "
 
 AS_USER="webapp"

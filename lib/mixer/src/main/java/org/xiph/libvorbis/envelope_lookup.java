@@ -1,18 +1,14 @@
-/********************************************************************
- *                                                                  *
- * THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.   *
- * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
- * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
- * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
- *                                                                  *
- * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2002             *
- * by the Xiph.Org Foundation http://www.xiph.org/                  *
- *                                                                  *
- ********************************************************************/
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package org.xiph.libvorbis;
 
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.M_PI;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_AMP;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_BANDS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_MINSTRETCH;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_NEARDC;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_POST;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.todB;
 
 class envelope_lookup {
 
@@ -117,32 +113,32 @@ class envelope_lookup {
 			}
 			band[j].total = 1.0f / band[j].total;
 		}
-  
+
 		// filter=_ogg_calloc(VE_BANDS*ch,sizeof(*filter));
 		// mark=_ogg_calloc(storage,sizeof(*mark));
 
 		filter = new envelope_filter_state[ VE_BANDS*ch ];
 		for ( int i=0; i < VE_BANDS*ch; i++ )
 			filter[i] = new envelope_filter_state();
-		
+
 		mark = new int[ storage ];
 	}
-	
+
 	public int _ve_amp( vorbis_info_psy_global gi, float[] data, int offset1, envelope_band[] bands, envelope_filter_state[] filters, int offset2, int pos ) {
-		
+
 		int n = winlength;
 		int ret=0;
 		int i,j;
 		float decay;
-		
+
 		/* we want to have a 'minimum bar' for energy, else we're just
 		 * basing blocks on quantization noise that outweighs the signal
 		 * itself (for low power signals) */
-		
+
 		float minV = minenergy;
 		// float *vec=alloca(n*sizeof(*vec));
 		float[] vec = new float[ n ];
-		
+
 		/* stretch is used to gradually lengthen the number of windows
 		 * considered prevoius-to-potential-trigger */
 // local OOP variable rename stretch
@@ -152,18 +148,18 @@ class envelope_lookup {
 			penalty = 0.f;
 		if (penalty > gi.stretch_penalty )
 			penalty = gi.stretch_penalty;
-		
+
 		/*_analysis_output_always("lpcm",seq2,data,n,0,0,totalshift+pos*ve->searchstep);*/
-		
+
 		// window and transform
 		for ( i=0; i < n; i++ )
 			vec[i] = data[offset1+i]*mdct_win[i];
-		
+
 		mdct.mdct_forward( vec, vec );
 //		mdct.out( "", null );
-		
+
 		/*_analysis_output_always("mdct",seq2,vec,n/2,0,1,0); */
-		
+
 		/* near-DC spreading function; this has nothing to do with
 		 * psychoacoustics, just sidelobe leakage and window size */
 		float temp = vec[0]*vec[0]+.7f*vec[1]*vec[1]+.2f*vec[2]*vec[2];
@@ -179,13 +175,13 @@ class envelope_lookup {
 		}
 		filters[offset2].nearDC_acc -= filters[offset2].nearDC[ptr];
 		filters[offset2].nearDC[ptr] = temp;
-		
+
 		decay *= (1./(VE_NEARDC+1));
 		filters[offset2].nearptr++;
 		if ( filters[offset2].nearptr >= VE_NEARDC )
 			filters[offset2].nearptr = 0;
 		decay = todB(decay)*.5f-15.f;
-		
+
 		/* perform spreading and limiting, also smooth the spectrum.  yes, the MDCT results
 		 * in all real coefficients, but it still *behaves* like real/imaginary pairs */
 		for ( i=0; i < n/2; i+=2 ) {
@@ -198,54 +194,54 @@ class envelope_lookup {
 			vec[i>>1] = val;
 			decay-=8.;
 		}
-		
+
 		/*_analysis_output_always("spread",seq2++,vec,n/4,0,0,0);*/
-		
+
 		// perform preecho/postecho triggering by band
 		for ( j=0; j < VE_BANDS; j++ ) {
-			
+
 			float acc = 0.f;
 			float valmax;
 			float valmin;
-			
+
 			// accumulate amplitude
 			for ( i=0; i < bands[j].end; i++ )
 				acc += vec[i+bands[j].begin]*bands[j].window[i];
-			
+
 			acc *= bands[j].total;
-			
+
 			// convert amplitude to delta
 
 // local OOP variable rename
 // protected variable name this
 			int p,_this = filters[offset2+j].ampptr;
 			float postmax,postmin,premax = -99999.f, premin = 99999.f;
-			
+
 			p=_this;
 			p--;
 			if ( p < 0 )
 				p += VE_AMP;
 			postmax = Math.max( acc, filters[offset2+j].ampbuf[p] );
 			postmin = Math.min( acc, filters[offset2+j].ampbuf[p] );
-			
+
 			for ( i=0; i < stretch_local; i++ ) {
-				
+
 				p--;
 				if ( p < 0)
 					p += VE_AMP;
 				premax = Math.max( premax, filters[offset2+j].ampbuf[p] );
 				premin = Math.min( premin, filters[offset2+j].ampbuf[p] );
 			}
-			
+
 			valmin = postmin-premin;
 			valmax = postmax-premax;
-			
+
 			/*filters[j].markers[pos]=valmax;*/
 			filters[offset2+j].ampbuf[_this] = acc;
 			filters[offset2+j].ampptr++;
 			if (filters[offset2+j].ampptr >= VE_AMP )
 				filters[offset2+j].ampptr = 0;
-			
+
 			// look at min/max, decide trigger
 			if ( valmax > gi.preecho_thresh[j]+penalty ) {
 				ret|=1;
@@ -254,18 +250,18 @@ class envelope_lookup {
 			if ( valmin < gi.postecho_thresh[j]-penalty )
 				ret|=2;
 		}
-		
+
 		return ret;
 	}
-	
+
 	public void _ve_envelope_shift( int shift ) {
-		
+
 		int smallsize = current/searchstep+VE_POST; // adjust for placing marks ahead of ve->current
 		int smallshift = shift/searchstep;
-		
+
 		// memmove(e->mark,e->mark+smallshift,(smallsize-smallshift)*sizeof(*e->mark));
 		System.arraycopy( mark, smallshift, mark, 0, smallsize - smallshift );
-		
+
 		current -= shift;
 		if ( curmark >= 0 )
 			curmark -= shift;

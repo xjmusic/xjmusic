@@ -3,12 +3,12 @@ package io.xj.lib.mixer.demo;
 
 import com.google.inject.Guice;
 import com.google.inject.Module;
+import io.xj.lib.mixer.InternalResource;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerConfig;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.mixer.OutputEncoder;
-import io.xj.lib.mixer.InternalResource;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.BufferedInputStream;

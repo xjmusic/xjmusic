@@ -1,0 +1,49 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url = 'https://repo.maven.apache.org/maven2'
+    }
+    maven {
+        url = 'https://packages.confluent.io/maven/'
+    }
+}
+
+dependencies {
+    implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.10.2.1'
+    implementation 'com.google.guava:guava:28.2-jre'
+    implementation 'com.google.inject:guice:4.2.2'
+    implementation 'com.typesafe:config:1.4.0'
+    implementation 'io.prometheus:simpleclient:0.8.1'
+    implementation 'io.prometheus:simpleclient_hotspot:0.8.1'
+    implementation 'io.prometheus:simpleclient_httpserver:0.8.1'
+    implementation 'org.eclipse.jetty:jetty-server:9.4.26.v20200117'
+    implementation 'org.eclipse.jetty:jetty-servlet:9.4.26.v20200117'
+    implementation 'org.glassfish.hk2:hk2-api:2.6.1'
+    implementation 'org.glassfish.jersey.containers:jersey-container-servlet:2.30'
+    implementation 'org.glassfish.jersey.core:jersey-server:2.30'
+    implementation 'org.slf4j:slf4j-api:1.7.30'
+    implementation 'org.glassfish.jersey.containers:jersey-container-servlet:2.30'
+    implementation 'org.glassfish.jersey.inject:jersey-hk2:2.30'
+    testImplementation 'junit:junit:4.11'
+    testImplementation 'org.eclipse.jetty:jetty-client:9.4.26.v20200117'
+    testImplementation 'org.mockito:mockito-core:3.2.4'
+}
+
+
+group = 'io.xj'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+

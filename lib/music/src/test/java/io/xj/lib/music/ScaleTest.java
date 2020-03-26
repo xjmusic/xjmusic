@@ -3,7 +3,6 @@
 package io.xj.lib.music;
 
 import com.google.common.collect.Maps;
-
 import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
 

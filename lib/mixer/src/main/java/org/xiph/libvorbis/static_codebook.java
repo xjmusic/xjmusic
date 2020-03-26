@@ -1,14 +1,4 @@
-/********************************************************************
- *                                                                  *
- * THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.   *
- * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
- * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
- * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
- *                                                                  *
- * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2002             *
- * by the Xiph.Org Foundation http://www.xiph.org/                  *
- *                                                                  *
- ********************************************************************/
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package org.xiph.libvorbis;
 
@@ -20,7 +10,7 @@ public class static_codebook {
 
 	// mapping **************************************************
 	int maptype;		// 0=none
-						// 1=implicitly populated values from map column 
+						// 1=implicitly populated values from map column
 						// 2=listed arbitrary values
 
 	// The below does a linear, single monotonic sequence mapping.
@@ -41,7 +31,7 @@ public class static_codebook {
 	int allocedp;
 
 
-	public static_codebook( int _dim, int _entries, int[] _lengthlist, int _maptype, int _q_min, int _q_delta, int _q_quant, int _q_sequencep, int[] _quantlist, 
+	public static_codebook( int _dim, int _entries, int[] _lengthlist, int _maptype, int _q_min, int _q_delta, int _q_quant, int _q_sequencep, int[] _quantlist,
 				encode_aux_nearestmatch _nearest_tree, encode_aux_threshmatch _thresh_tree, encode_aux_pigeonhole _pigeon_tree, int _allocedp ) {
 
 		dim = _dim;
@@ -95,10 +85,10 @@ public class static_codebook {
 
 	public static_codebook( static_codebook src ) {
 
-		this( src.dim, src.entries, src.lengthlist, src.maptype, src.q_min, src.q_delta, src.q_quant, src.q_sequencep, src.quantlist, 
+		this( src.dim, src.entries, src.lengthlist, src.maptype, src.q_min, src.q_delta, src.q_quant, src.q_sequencep, src.quantlist,
 				new encode_aux_nearestmatch( src.nearest_tree), new encode_aux_threshmatch( src.thresh_tree ), new encode_aux_pigeonhole( src.pigeon_tree ), src.allocedp );
 	}
-	
+
 	// public long _book_maptype1_quantvals()
 	public int _book_maptype1_quantvals() {
 

@@ -2,7 +2,6 @@
 package io.xj.lib.mixer;
 
 import com.google.inject.Guice;
-
 import org.junit.Before;
 import org.junit.Test;
 

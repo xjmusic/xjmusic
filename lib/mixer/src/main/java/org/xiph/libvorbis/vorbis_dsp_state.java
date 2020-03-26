@@ -1,21 +1,19 @@
-/********************************************************************
- *                                                                  *
- * THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.   *
- * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
- * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
- * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
- *                                                                  *
- * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2002             *
- * by the Xiph.Org Foundation http://www.xiph.org/                  *
- *                                                                  *
- ********************************************************************/
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package org.xiph.libvorbis;
 
-import java.util.*;
+import org.xiph.libogg.ogg_packet;
 
-import org.xiph.libogg.*;
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import java.util.Arrays;
+
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.PACKETBLOBS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_BANDS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_MAXSTRETCH;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_POST;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_WIN;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VIF_POSIT;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.ilog;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.ilog2;
 
 public class vorbis_dsp_state {
 

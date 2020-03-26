@@ -1,14 +1,4 @@
-/********************************************************************
- *                                                                  *
- * THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.   *
- * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
- * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
- * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
- *                                                                  *
- * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2002             *
- * by the Xiph.Org Foundation http://www.xiph.org/                  *
- *                                                                  *
- ********************************************************************/
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package org.xiph.libvorbis;
 
@@ -62,8 +52,8 @@ public class ve_setup_data_template {
 	int[] floor_long_mapping;
 
 	vorbis_mapping_template[] maps;
-	
-	
+
+
 	public ve_setup_data_template() {}
 
     public ve_setup_data_template(  int _mappings, float[] _rate_mapping, float[] _quality_mapping, int _coupling_restriction, int _samplerate_min_restriction, int _samplerate_max_restriction,
@@ -85,49 +75,48 @@ public class ve_setup_data_template {
 		coupling_restriction = _coupling_restriction;
 		samplerate_min_restriction = _samplerate_min_restriction;
 		samplerate_max_restriction = _samplerate_max_restriction;
-		
+
 		blocksize_short = _blocksize_short;
 		blocksize_long = _blocksize_long;
-		
+
 		psy_tone_masteratt = _psy_tone_masteratt;
 		psy_tone_0dB = _psy_tone_0dB;
 		psy_tone_dBsuppress = _psy_tone_dBsuppress;
-		
+
 		psy_tone_adj_impulse = _psy_tone_adj_impulse;
 		psy_tone_adj_long = _psy_tone_adj_long;
 		psy_tone_adj_other = _psy_tone_adj_other;
-		
+
 		psy_noiseguards = _psy_noiseguards;
 		psy_noise_bias_impulse = _psy_noise_bias_impulse;
 		psy_noise_bias_padding = _psy_noise_bias_padding;
 		psy_noise_bias_trans = _psy_noise_bias_trans;
 		psy_noise_bias_long = _psy_noise_bias_long;
 		psy_noise_dBsuppress = _psy_noise_dBsuppress;
-		
+
 		psy_noise_compand = _psy_noise_compand;
 		psy_noise_compand_short_mapping = _psy_noise_compand_short_mapping;
 		psy_noise_compand_long_mapping = _psy_noise_compand_long_mapping;
-		
+
 		psy_noise_normal_start = _psy_noise_normal_start;
 		psy_noise_normal_partition = _psy_noise_normal_partition;
 		psy_noise_normal_thresh = _psy_noise_normal_thresh;
-		
+
 		psy_ath_float = _psy_ath_float;
 		psy_ath_abs = _psy_ath_abs;
-		
+
 		psy_lowpass = _psy_lowpass;
-		
+
 		global_params = _global_params;
 		global_mapping = _global_mapping;
 		stereo_modes = _stereo_modes;
-		
+
 		floor_books = _floor_books;
 		floor_params = _floor_params;
 		floor_short_mapping = _floor_short_mapping;
 		floor_long_mapping = _floor_long_mapping;
-		
-		maps = _maps;	
+
+		maps = _maps;
     }
-    
+
 }
-			

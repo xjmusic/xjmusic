@@ -1,0 +1,121 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.service.hub.dao;
+
+import com.google.inject.Inject;
+import io.xj.lib.rest_api.PayloadFactory;
+import io.xj.lib.rest_api.RestApiException;
+import io.xj.lib.util.ValueException;
+import io.xj.service.hub.HubException;
+import io.xj.service.hub.access.Access;
+import io.xj.service.hub.model.Account;
+import io.xj.service.hub.persistence.SQLDatabaseProvider;
+import org.jooq.DSLContext;
+
+import java.util.Collection;
+import java.util.UUID;
+
+import static io.xj.service.hub.Tables.ACCOUNT;
+import static io.xj.service.hub.tables.AccountUser.ACCOUNT_USER;
+import static io.xj.service.hub.tables.Chain.CHAIN;
+import static io.xj.service.hub.tables.Library.LIBRARY;
+
+public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
+
+  @Inject
+  public AccountDAOImpl(
+    PayloadFactory payloadFactory,
+    SQLDatabaseProvider dbProvider
+  ) {
+    super(payloadFactory);
+    this.dbProvider = dbProvider;
+  }
+
+  @Override
+  public Account create(Access access, Account entity) throws HubException, RestApiException, ValueException {
+    entity.validate();
+    requireTopLevel(access);
+
+    return modelFrom(Account.class,
+      executeCreate(dbProvider.getDSL(), ACCOUNT, entity));
+  }
+
+  @Override
+  public Account readOne(Access access, UUID id) throws HubException {
+    if (access.isTopLevel())
+      return modelFrom(Account.class,
+        dbProvider.getDSL().selectFrom(ACCOUNT)
+          .where(ACCOUNT.ID.eq(id))
+          .fetchOne());
+    else
+      return modelFrom(Account.class,
+        dbProvider.getDSL().select(ACCOUNT.fields())
+          .from(ACCOUNT)
+          .where(ACCOUNT.ID.eq(id))
+          .and(ACCOUNT.ID.in(access.getAccountIds()))
+          .fetchOne());
+  }
+
+  @Override
+  public Collection<Account> readMany(Access access, Collection<UUID> parentIds) throws HubException {
+    if (access.isTopLevel())
+      return modelsFrom(Account.class,
+        dbProvider.getDSL().selectFrom(ACCOUNT)
+          .fetch());
+    else
+      return modelsFrom(Account.class,
+        dbProvider.getDSL().selectFrom(ACCOUNT)
+          .where(ACCOUNT.ID.in(access.getAccountIds()))
+          .fetch());
+  }
+
+  @Override
+  public void update(Access access, UUID id, Account entity) throws HubException, RestApiException, ValueException {
+    requireTopLevel(access);
+    entity.validate();
+    executeUpdate(dbProvider.getDSL(), ACCOUNT, id, entity);
+  }
+
+  @Override
+  public void destroy(Access access, UUID id) throws HubException {
+    DSLContext db = dbProvider.getDSL();
+
+    requireTopLevel(access);
+
+    requireNotExists("Library in Account", db.select(LIBRARY.ID)
+      .from(LIBRARY)
+      .where(LIBRARY.ACCOUNT_ID.eq(id))
+      .fetch());
+
+    requireNotExists("Chain in Account", db.select(CHAIN.ID)
+      .from(CHAIN)
+      .where(CHAIN.ACCOUNT_ID.eq(id))
+      .fetch());
+
+    requireNotExists("User in Account", db.select(ACCOUNT_USER.ID)
+      .from(ACCOUNT_USER)
+      .where(ACCOUNT_USER.ACCOUNT_ID.eq(id))
+      .fetch());
+
+    db.deleteFrom(ACCOUNT)
+      .where(ACCOUNT.ID.eq(id))
+      .andNotExists(
+        db.select(LIBRARY.ID)
+          .from(LIBRARY)
+          .where(LIBRARY.ACCOUNT_ID.eq(id)))
+      .andNotExists(
+        db.select(CHAIN.ID)
+          .from(CHAIN)
+          .where(CHAIN.ACCOUNT_ID.eq(id)))
+      .andNotExists(
+        db.select(ACCOUNT_USER.ID)
+          .from(ACCOUNT_USER)
+          .where(ACCOUNT_USER.ACCOUNT_ID.eq(id)))
+      .execute();
+  }
+
+  @Override
+  public Account newInstance() {
+    return new Account();
+  }
+
+}

@@ -1,18 +1,9 @@
-/********************************************************************
- *                                                                  *
- * THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.   *
- * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
- * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
- * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
- *                                                                  *
- * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2002             *
- * by the Xiph.Org Foundation http://www.xiph.org/                  *
- *                                                                  *
- ********************************************************************/
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package org.xiph.libvorbis;
 
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VQ_FEXP_BIAS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VQ_FMAN;
 
 public class codebook {
 
@@ -32,7 +23,7 @@ public class codebook {
 	int[] dec_firsttable;	// ogg_uint32_t *dec_firsttable
 	int dec_firsttablen;
 	int dec_maxlength;
-	
+
 	public codebook() {}
 
 	public void vorbis_book_init_encode( static_codebook s ) {
@@ -58,9 +49,9 @@ public class codebook {
 			r = new int[ sparsecount ];
 		else
 			r = new int[ n ];
-  
+
 		// memset(marker,0,sizeof(marker));
-		marker = new int[ 33 ];	
+		marker = new int[ 33 ];
 
 		for ( i=0; i<n; i++ ) {
 
@@ -69,11 +60,11 @@ public class codebook {
 
 				// ogg_uint32_t entry=marker[length];
 				int entry = marker[length];
-      
-				// when we claim a node for an entry, we also claim the nodes below 
-				// it (pruning off the imagined tree that may have dangled from it) 
+
+				// when we claim a node for an entry, we also claim the nodes below
+				// it (pruning off the imagined tree that may have dangled from it)
 				// as well as blocking the use of any nodes directly above for leaves
-      
+
 				// update ourself
 				if ( length<32 && ((entry>>>length) != 0) ) {
 					// error condition; the lengths must specify an overpopulated tree
@@ -82,11 +73,11 @@ public class codebook {
 				}
 
 				r[count++]=entry;
-    
+
 				// Look to see if the next shorter marker points to the node above. if so, update it and repeat
 
 				for ( j=length; j>0; j-- ) {
-	  
+
 					if ( (marker[j]&1) != 0 ) {
 						// have to jump branches
 						if (j==1)
@@ -98,8 +89,8 @@ public class codebook {
 					}
 					marker[j]++;
 				}
-    
-      
+
+
 				// prune the tree; the implicit invariant says all the longer markers were
 				// dangling from our just-taken node.  Dangle them from our *new* node.
 
@@ -115,7 +106,7 @@ public class codebook {
 				if (sparsecount==0)
 					count++;
 		}
-    
+
 		// bitreverse the words because our bitwise packer/unpacker is LSb endian
 
 		for ( i=0,count=0; i<n; i++ ) {
@@ -138,7 +129,7 @@ public class codebook {
 	}
 
 	private float ldexp( double value, long exp ) {
-  
+
 		return new Double( value * Math.pow( 2, new Long( exp ).intValue() ) ).floatValue();
 	}
 
@@ -182,7 +173,7 @@ public class codebook {
 								float val=b.quantlist[index];
 								val = Math.abs(val)*delta+mindel+last;
 								if (b.q_sequencep != 0)
-									last=val;	  
+									last=val;
 								if (sparsemap != null)
 									r[sparsemap[count]*b.dim+k]=val;
 								else
@@ -205,7 +196,7 @@ public class codebook {
 								float val=b.quantlist[j*b.dim+k];
 								val = Math.abs(val)*delta+mindel+last;
 								if (b.q_sequencep != 0)
-									last=val;	  
+									last=val;
 								if (sparsemap != null)
 									r[sparsemap[count]*b.dim+k]=val;
 								else

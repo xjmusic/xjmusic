@@ -1,14 +1,4 @@
-/********************************************************************
- *                                                                  *
- * THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.   *
- * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
- * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
- * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
- *                                                                  *
- * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2002             *
- * by the Xiph.Org Foundation http://www.xiph.org/                  *
- *                                                                  *
- ********************************************************************/
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package org.xiph.libvorbis;
 
@@ -25,7 +15,7 @@ public class vorbis_residue_template {
 	static_bookblock books_base_managed;
 
 
-	public vorbis_residue_template( int _res_type, int _limit_type, vorbis_info_residue0 _res, 
+	public vorbis_residue_template( int _res_type, int _limit_type, vorbis_info_residue0 _res,
 				static_codebook _book_aux, static_codebook _book_aux_managed, static_bookblock _books_base, static_bookblock _books_base_managed ) {
 
 		res_type = _res_type;
@@ -41,7 +31,7 @@ public class vorbis_residue_template {
 
 	public vorbis_residue_template( vorbis_residue_template src ) {
 
-		this( src.res_type, src.limit_type, new vorbis_info_residue0( src.res ), 
+		this( src.res_type, src.limit_type, new vorbis_info_residue0( src.res ),
 			new static_codebook( src.book_aux ), new static_codebook( src.book_aux_managed ), new static_bookblock( src.books_base ), new static_bookblock( src.books_base_managed ) );
 	}
 }

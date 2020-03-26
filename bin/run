@@ -26,7 +26,7 @@ shift
 APP_ARGS=$@
 
 # Expected JAR files
-APP_JAR=${PWD}/target/${APP}-1.0-SNAPSHOT-jar-with-dependencies.jar
+APP_JAR=${PWD}/target/${APP}-1.0-jar-with-dependencies.jar
 CONFIG_PATH="env.conf"
 CLASSPATH=${APP_JAR}
 

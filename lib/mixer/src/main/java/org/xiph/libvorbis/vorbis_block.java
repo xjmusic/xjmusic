@@ -1,19 +1,23 @@
-/********************************************************************
- *                                                                  *
- * THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.   *
- * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
- * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
- * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
- *                                                                  *
- * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2002             *
- * by the Xiph.Org Foundation http://www.xiph.org/                  *
- *                                                                  *
- ********************************************************************/
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package org.xiph.libvorbis;
 
-import org.xiph.libogg.*;
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import org.xiph.libogg.ogg_packet;
+
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.BLOCKTYPE_IMPULSE;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.BLOCKTYPE_LONG;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.BLOCKTYPE_PADDING;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.BLOCKTYPE_TRANSITION;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.FLOOR1_fromdB_INV_LOOKUP;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.PACKETBLOBS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VIF_POSIT;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.WORD_ALIGN;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.render_point;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.stereo_threshholds;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.stereo_threshholds_limited;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.todB;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.unitnorm;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.vorbis_dBquant;
 
 
 public class vorbis_block {

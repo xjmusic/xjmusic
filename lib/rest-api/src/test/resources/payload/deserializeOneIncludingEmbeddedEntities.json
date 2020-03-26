@@ -1,0 +1,42 @@
+{
+  "data": {
+    "id": "805cf759-4e94-4275-a82d-5255c9e69347",
+    "attributes": {
+      "name": "Cool"
+    },
+    "relationships": {
+      "mockParentEntity": {
+        "data": {
+          "type": "mock-parent-entities",
+          "id": "f94290f4-537c-4444-92e5-dc0b0df352e5"
+        }
+      },
+      "mockChildEntities": {
+        "data": [
+          {
+            "type": "mock-child-entities",
+            "id": "9b862c2f-192f-4041-b849-442a2ec50218"
+          }
+        ]
+      }
+    },
+    "type": "mock-entities"
+  },
+  "included": [
+    {
+      "id": "9b862c2f-192f-4041-b849-442a2ec50218",
+      "attributes": {
+        "name": "Test #5"
+      },
+      "relationships": {
+        "mockEntity": {
+          "data": {
+            "type": "mock-entities",
+            "id": "805cf759-4e94-4275-a82d-5255c9e69347"
+          }
+        }
+      },
+      "type": "mock-child-entities"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 # Environment Variables
 /.env
 /env.conf
+/env.dev.conf
 
 # Build artifacts
 target/

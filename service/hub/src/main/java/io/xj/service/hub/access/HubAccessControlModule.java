@@ -1,0 +1,14 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.service.hub.access;
+
+import com.google.inject.AbstractModule;
+
+public class HubAccessControlModule extends AbstractModule {
+  @Override
+  protected void configure() {
+    bind(GoogleHttpProvider.class).to(GoogleHttpProviderImpl.class);
+    bind(GoogleProvider.class).to(GoogleProviderImpl.class);
+    bind(AccessControlProvider.class).to(AccessControlProviderImpl.class);
+    bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
+  }
+}
