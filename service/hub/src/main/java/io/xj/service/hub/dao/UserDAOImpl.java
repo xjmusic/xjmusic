@@ -322,7 +322,11 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
 
   @Override
   public void update(Access access, UUID id, User entity) throws HubException {
-    throw new HubException("Not allowed to update User record.");
+    try {
+      updateUserRolesAndDestroyTokens(access,id,entity);
+    } catch (ValueException e) {
+      throw new HubException("Cannot update User record.", e);
+    }
   }
 
   @Override
