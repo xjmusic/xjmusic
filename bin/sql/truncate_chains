@@ -14,7 +14,7 @@ SQL_PORT=5400
 SQL_HOST="127.0.0.1"
 
 # Database
-SQL_DB_MAIN="xj_prod"
+SQL_DB_MAIN="xj_dev"
 
 # Command
 TRUNCATE_CHAIN_SQL="truncate xj.segment, xj.segment_choice, xj.segment_choice_arrangement, xj.segment_choice_arrangement_pick, xj.segment_chord, xj.segment_meme, xj.segment_message, xj.chain, xj.chain_binding, xj.chain_config;"
