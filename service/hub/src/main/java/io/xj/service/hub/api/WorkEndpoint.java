@@ -3,6 +3,7 @@ package io.xj.service.hub.api;
 
 import com.google.inject.Injector;
 import io.xj.lib.rest_api.Payload;
+import io.xj.lib.rest_api.PayloadDataType;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.model.UserRoleType;
 import io.xj.service.hub.model.Work;
@@ -41,7 +42,7 @@ public class WorkEndpoint extends HubEndpoint {
   @RolesAllowed({UserRoleType.ADMIN, UserRoleType.ENGINEER})
   public Response readAll(@Context ContainerRequestContext crc) {
     try {
-      Payload payload = new Payload();
+      Payload payload = new Payload().setDataType(PayloadDataType.HasMany);
       for (Work work : workManager.readAllWork()) payload.addData(payloadFactory.toPayloadObject(work));
       return response.ok(payload);
 

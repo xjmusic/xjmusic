@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import io.xj.lib.rest_api.MediaType;
 import io.xj.lib.rest_api.Payload;
+import io.xj.lib.rest_api.PayloadDataType;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.Access;
 import io.xj.service.hub.dao.DAO;
@@ -71,7 +72,7 @@ public class InstrumentEndpoint extends HubEndpoint {
   ) {
     try {
       Access access = Access.fromContext(crc);
-      Payload payload = new Payload();
+      Payload payload = new Payload().setDataType(PayloadDataType.HasMany);
       Collection<Instrument> instruments;
 
       // how we source instruments depends on the query parameters

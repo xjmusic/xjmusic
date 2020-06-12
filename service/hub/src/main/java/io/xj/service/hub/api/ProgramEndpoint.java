@@ -5,41 +5,26 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import io.xj.lib.rest_api.MediaType;
 import io.xj.lib.rest_api.Payload;
+import io.xj.lib.rest_api.PayloadDataType;
 import io.xj.lib.rest_api.PayloadObject;
+import io.xj.lib.util.CSV;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.HubException;
 import io.xj.service.hub.access.Access;
-import io.xj.service.hub.dao.DAO;
-import io.xj.service.hub.dao.DAOCloner;
-import io.xj.service.hub.dao.ProgramDAO;
-import io.xj.service.hub.dao.ProgramMemeDAO;
-import io.xj.service.hub.dao.ProgramSequenceBindingMemeDAO;
+import io.xj.service.hub.dao.*;
 import io.xj.service.hub.entity.Entity;
 import io.xj.service.hub.model.Program;
 import io.xj.service.hub.model.ProgramMeme;
 import io.xj.service.hub.model.ProgramSequenceBindingMeme;
 import io.xj.service.hub.model.UserRoleType;
-import io.xj.lib.util.CSV;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  Programs
@@ -82,7 +67,7 @@ public class ProgramEndpoint extends HubEndpoint {
   ) {
     try {
       Access access = Access.fromContext(crc);
-      Payload payload = new Payload();
+      Payload payload = new Payload().setDataType(PayloadDataType.HasMany);
       Collection<Program> programs;
 
       // how we source programs depends on the query parameters

@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import io.xj.lib.rest_api.MediaType;
 import io.xj.lib.rest_api.Payload;
+import io.xj.lib.rest_api.PayloadDataType;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.Access;
 import io.xj.service.hub.dao.DAO;
@@ -132,7 +133,7 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
   public Response readAll(@Context ContainerRequestContext crc, @QueryParam("instrumentId") String instrumentId, @QueryParam("include") String include) {
     try {
       Access access = Access.fromContext(crc);
-      Payload payload = new Payload();
+      Payload payload = new Payload().setDataType(PayloadDataType.HasMany);
       Collection<InstrumentAudio> instrumentAudios = dao.readMany(Access.fromContext(crc), ImmutableList.of(UUID.fromString(instrumentId)));
       Set<UUID> instrumentAudioIds = DAO.idsFrom(instrumentAudios);
 

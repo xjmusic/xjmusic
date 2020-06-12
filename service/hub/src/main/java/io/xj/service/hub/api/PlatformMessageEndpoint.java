@@ -5,6 +5,7 @@ import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.lib.rest_api.MediaType;
 import io.xj.lib.rest_api.Payload;
+import io.xj.lib.rest_api.PayloadDataType;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.Access;
 import io.xj.service.hub.dao.PlatformMessageDAO;
@@ -59,7 +60,7 @@ public class PlatformMessageEndpoint extends HubEndpoint {
       previousDays = config.getInt("platform.messageReadPreviousDays");
 
     try {
-      Payload payload = new Payload();
+      Payload payload = new Payload().setDataType(PayloadDataType.HasMany);
       for (PlatformMessage message : dao().readAllPreviousDays(
         Access.fromContext(crc),
         previousDays))

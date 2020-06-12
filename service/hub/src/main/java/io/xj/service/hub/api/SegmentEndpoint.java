@@ -73,8 +73,7 @@ public class SegmentEndpoint extends HubEndpoint {
       }
 
       // Prepare payload
-      Payload payload = new Payload();
-      payload.setDataType(PayloadDataType.HasMany);
+      Payload payload = new Payload().setDataType(PayloadDataType.HasMany);
 
       // chain is either by uuid or embed key
       Collection<Segment> segments;

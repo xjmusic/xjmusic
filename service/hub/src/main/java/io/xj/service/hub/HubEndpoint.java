@@ -103,7 +103,7 @@ public class HubEndpoint {
   public <N extends Entity, O> Response readMany(ContainerRequestContext crc, DAO<N> dao, Collection<O> parentIds) {
     try {
       Collection<N> entities = dao.readMany(Access.fromContext(crc), parentIds.stream().map((Object name) -> UUID.fromString(String.valueOf(name))).collect(Collectors.toList()));
-      Payload payload = new Payload();
+      Payload payload = new Payload().setDataType(PayloadDataType.HasMany);
       payload.setDataType(PayloadDataType.HasMany);
       for (N entity : entities) payload.addData(payloadFactory.toPayloadObject(entity));
       return response.ok(payload);
