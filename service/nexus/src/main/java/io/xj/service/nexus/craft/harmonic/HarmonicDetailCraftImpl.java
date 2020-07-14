@@ -3,10 +3,10 @@ package io.xj.service.nexus.craft.harmonic;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.service.hub.HubException;
-import io.xj.service.nexus.fabricator.Fabricator;
-import io.xj.service.hub.model.SegmentType;
 import io.xj.service.nexus.craft.exception.CraftException;
+import io.xj.service.nexus.entity.SegmentType;
+import io.xj.service.nexus.fabricator.FabricationException;
+import io.xj.service.nexus.fabricator.Fabricator;
 
 /**
  Detail craft for the current segment
@@ -37,7 +37,7 @@ public class HarmonicDetailCraftImpl implements HarmonicDetailCraft {
       craftHarmonicDetailPatternEvents();
       report();
 
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw new CraftException(
         String.format("Failed to do %s-type HarmonicDetailCraft for segment #%s",
           fabricator.getSegment().getType(), fabricator.getSegment().getId().toString()), e);

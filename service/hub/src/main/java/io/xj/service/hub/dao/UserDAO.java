@@ -2,14 +2,8 @@
 package io.xj.service.hub.dao;
 
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.User;
-import io.xj.service.hub.model.UserAuth;
-import io.xj.service.hub.model.UserAuthToken;
-import io.xj.service.hub.model.UserAuthType;
-import io.xj.service.hub.model.UserRole;
-import io.xj.service.hub.model.UserRoleType;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.entity.*;
 
 import java.util.UUID;
 
@@ -37,7 +31,7 @@ public interface UserDAO extends DAO<User> {
    @param email                to contact user
    @return access token
    */
-  String authenticate(UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws HubException;
+  String authenticate(UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws DAOException;
 
   /**
    (ADMIN ONLY)
@@ -45,7 +39,7 @@ public interface UserDAO extends DAO<User> {
 
    @param userId to destroy all access tokens for.
    */
-  void destroyAllTokens(UUID userId) throws HubException;
+  void destroyAllTokens(UUID userId) throws DAOException;
 
   /**
    (ADMIN ONLY)
@@ -54,33 +48,33 @@ public interface UserDAO extends DAO<User> {
    @param userId of specific User to update.
    @param entity for the updated User.
    */
-  void updateUserRolesAndDestroyTokens(Access access, UUID userId, User entity) throws HubException, ValueException;
+  void updateUserRolesAndDestroyTokens(HubAccess hubAccess, UUID userId, User entity) throws DAOException, ValueException;
 
   /**
-   (ADMIN ONLY) read one user access token
+   (ADMIN ONLY) read one user hubAccess token
 
-   @param access      control
+   @param hubAccess   control
    @param accessToken to read
    @return model
    */
-  UserAuthToken readOneAuthToken(Access access, String accessToken) throws HubException;
+  UserAuthToken readOneAuthToken(HubAccess hubAccess, String accessToken) throws DAOException;
 
   /**
    (ADMIN ONLY) read one user auth
 
-   @param access     control
+   @param hubAccess  control
    @param userAuthId to read
    @return model
    */
-  UserAuth readOneAuth(Access access, UUID userAuthId) throws HubException;
+  UserAuth readOneAuth(HubAccess hubAccess, UUID userAuthId) throws DAOException;
 
   /**
    (ADMIN ONLY) read one user role
 
-   @param access control
-   @param userId having role
-   @param type   of role
+   @param hubAccess control
+   @param userId    having role
+   @param type      of role
    @return model
    */
-  UserRole readOneRole(Access access, UUID userId, UserRoleType type) throws HubException;
+  UserRole readOneRole(HubAccess hubAccess, UUID userId, UserRoleType type) throws DAOException;
 }

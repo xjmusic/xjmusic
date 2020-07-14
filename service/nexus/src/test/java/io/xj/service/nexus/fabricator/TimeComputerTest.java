@@ -7,8 +7,8 @@ import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
-import io.xj.service.hub.HubModule;
-import io.xj.service.hub.testing.AppTestConfiguration;
+import io.xj.service.nexus.testing.NexusTestConfiguration;
+import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,8 +23,8 @@ public class TimeComputerTest {
 
   @Before
   public void setUp() throws AppException {
-    Config config = AppTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubModule(), new FabricatorModule()));
+    Config config = NexusTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusWorkModule(), new NexusFabricatorModule()));
     timeComputerFactory = injector.getInstance(TimeComputerFactory.class);
   }
 

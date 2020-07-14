@@ -3,28 +3,21 @@ package io.xj.service.hub.api;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
-import io.xj.lib.rest_api.MediaType;
-import io.xj.lib.rest_api.Payload;
-import io.xj.lib.rest_api.PayloadDataType;
+import io.xj.lib.entity.Entity;
+import io.xj.lib.jsonapi.MediaType;
+import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.service.hub.HubEndpoint;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.dao.DAO;
+import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.InstrumentDAO;
 import io.xj.service.hub.dao.InstrumentMemeDAO;
-import io.xj.service.hub.model.Instrument;
-import io.xj.service.hub.model.InstrumentMeme;
-import io.xj.service.hub.model.UserRoleType;
+import io.xj.service.hub.entity.Instrument;
+import io.xj.service.hub.entity.InstrumentMeme;
+import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -71,25 +64,25 @@ public class InstrumentEndpoint extends HubEndpoint {
     @QueryParam("include") String include
   ) {
     try {
-      Access access = Access.fromContext(crc);
-      Payload payload = new Payload().setDataType(PayloadDataType.HasMany);
+      HubAccess hubAccess = HubAccess.fromContext(crc);
+      Payload payload = new Payload().setDataType(PayloadDataType.Many);
       Collection<Instrument> instruments;
 
       // how we source instruments depends on the query parameters
       if (null != libraryId && !libraryId.isEmpty())
-        instruments = dao().readMany(access, ImmutableList.of(UUID.fromString(libraryId)));
+        instruments = dao().readMany(hubAccess, ImmutableList.of(UUID.fromString(libraryId)));
       else if (null != accountId && !accountId.isEmpty())
-        instruments = dao().readAllInAccount(access, UUID.fromString(accountId));
+        instruments = dao().readAllInAccount(hubAccess, UUID.fromString(accountId));
       else
-        instruments = dao().readAll(access);
+        instruments = dao().readAll(hubAccess);
 
       // add instruments as plural data in payload
       for (Instrument instrument : instruments) payload.addData(payloadFactory.toPayloadObject(instrument));
-      Set<UUID> instrumentIds = DAO.idsFrom(instruments);
+      Set<UUID> instrumentIds = Entity.idsOf(instruments);
 
       // if included, seek and add events to payload
       if (Objects.nonNull(include) && include.contains("memes"))
-        for (InstrumentMeme instrumentMeme : instrumentMemeDAO.readMany(access, instrumentIds))
+        for (InstrumentMeme instrumentMeme : instrumentMemeDAO.readMany(hubAccess, instrumentIds))
           payload.getIncluded().add(payloadFactory.toPayloadObject(instrumentMeme));
 
       return response.ok(payload);
@@ -106,7 +99,7 @@ public class InstrumentEndpoint extends HubEndpoint {
    @return Response
    */
   @POST
-  @Consumes(MediaType.APPLICATION_JSON_API)
+  @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(UserRoleType.ARTIST)
   public Response create(Payload payload, @Context ContainerRequestContext crc, @QueryParam("cloneId") String cloneId) {
 
@@ -115,12 +108,12 @@ public class InstrumentEndpoint extends HubEndpoint {
       Instrument created;
       if (Objects.nonNull(cloneId))
         created = dao().clone(
-          Access.fromContext(crc),
+          HubAccess.fromContext(crc),
           UUID.fromString(cloneId),
           instrument);
       else
         created = dao().create(
-          Access.fromContext(crc),
+          HubAccess.fromContext(crc),
           instrument);
 
       return response.create(new Payload().setDataOne(payloadFactory.toPayloadObject(created)));
@@ -151,7 +144,7 @@ public class InstrumentEndpoint extends HubEndpoint {
    */
   @PATCH
   @Path("{id}")
-  @Consumes(MediaType.APPLICATION_JSON_API)
+  @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(UserRoleType.ARTIST)
   public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     return update(crc, dao(), id, payload);

@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Get a temp file
+ Get a temp file
  */
 public interface TempFile {
   String DEFAULT_TEMP_FILE_PATH_PREFIX_CHUNK = "tmp";

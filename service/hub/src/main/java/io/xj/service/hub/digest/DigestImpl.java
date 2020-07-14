@@ -1,80 +1,35 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.digest;
 
-import io.xj.lib.rest_api.PayloadObject;
+import io.xj.lib.entity.Entity;
+import io.xj.lib.jsonapi.PayloadObject;
 import io.xj.service.hub.HubException;
-import io.xj.service.hub.entity.Entity;
-import io.xj.service.hub.ingest.Ingest;
-import io.xj.service.hub.ingest.IngestState;
+import io.xj.service.hub.ingest.HubIngest;
+import io.xj.service.hub.ingest.HubIngestState;
 
 /**
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
- [#154350346] Architect wants a universal Ingest Provider, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
+ [#154350346] Architect wants a universal HubIngest Provider, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
  */
 public abstract class DigestImpl extends Entity implements Digest {
-  protected final Ingest ingest;
-  protected IngestState state;
+  protected final HubIngest ingest;
+  protected HubIngestState state;
   protected DigestType type;
 
   /**
    Instantiate a new digest with a collection of target entities
    */
-  protected DigestImpl(Ingest ingest, DigestType type) {
+  protected DigestImpl(HubIngest ingest, DigestType type) {
     this.ingest = ingest;
     this.type = type;
   }
-
-  /*
-
-     [#166746925] DEPRECATE SUPERSEQENCE/SUPERPATTERN FOR NOW
-
-   Retrieved a cached audio
-
-   @param id of audio
-   @return audio
-   *
-  public Audio getAudio(BigInteger id) {
-    return ingest.getAudioMap().get(id);
-  }
-
-  /**
-   Retrieved a cached sequence
-
-   @param id of sequence
-   @return sequence
-   *
-  public Sequence getProgram(BigInteger id) {
-    return ingest.getProgramMap().get(id);
-  }
-
-  /**
-   Retrieved a cached pattern
-
-   @param id of pattern
-   @return pattern
-   *
-  public Pattern getPattern(BigInteger id) {
-    return ingest.getPatternMap().get(id);
-  }
-
-  /**
-   Retrieved a cached instrument
-
-   @param id of instrument
-   @return instrument
-   *
-  public Instrument getInstrument(BigInteger id) {
-    return ingest.getInstrumentMap().get(id);
-  }
-
-   */
 
   /**
    Get state of ingest
 
    @return state of ingest
    */
-  public IngestState getState() {
+  public HubIngestState getState() {
     return state;
   }
 
@@ -84,7 +39,7 @@ public abstract class DigestImpl extends Entity implements Digest {
    @param state to set
    @return ingest, for method chaining
    */
-  public DigestImpl setState(IngestState state) {
+  public DigestImpl setState(HubIngestState state) {
     this.state = state;
     return this;
   }
@@ -132,7 +87,7 @@ public abstract class DigestImpl extends Entity implements Digest {
 
   @Override
   public PayloadObject getPayloadObject() {
-    // TODO actually return a payload object of the digest
+    // FUTURE actually return a payload object of the digest
     return new PayloadObject();
   }
 }

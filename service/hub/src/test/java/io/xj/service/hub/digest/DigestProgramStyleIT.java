@@ -6,19 +6,23 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.service.hub.HubModule;
+import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
-import io.xj.service.hub.access.Access;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.access.HubAccessControlModule;
+import io.xj.service.hub.dao.DAOModule;
 import io.xj.service.hub.dao.ProgramDAO;
-import io.xj.service.hub.ingest.IngestFactory;
-import io.xj.service.hub.model.Chain;
-import io.xj.service.hub.model.ChainBinding;
-import io.xj.service.hub.model.ProgramSequence;
-import io.xj.service.hub.model.ProgramSequenceBinding;
-import io.xj.service.hub.model.ProgramSequenceChord;
-import io.xj.service.hub.testing.AppTestConfiguration;
-import io.xj.service.hub.testing.IntegrationTestModule;
-import io.xj.service.hub.testing.IntegrationTestProvider;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.ProgramSequenceBinding;
+import io.xj.service.hub.entity.ProgramSequenceChord;
+import io.xj.service.hub.ingest.HubIngestFactory;
+import io.xj.service.hub.ingest.HubIngestModule;
+import io.xj.service.hub.persistence.HubPersistenceModule;
+import io.xj.service.hub.testing.HubIntegrationTestModule;
+import io.xj.service.hub.testing.HubIntegrationTestProvider;
+import io.xj.service.hub.testing.HubTestConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,18 +34,18 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DigestProgramStyleIT {
-  private IngestFactory ingestFactory;
+  private HubIngestFactory ingestFactory;
   private DigestFactory digestFactory;
   private ProgramDAO programDAO;
 
-  private IntegrationTestProvider test;
+  private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    Config config = AppTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubModule(), new DigestModule(), new IntegrationTestModule()));
-    test = injector.getInstance(IntegrationTestProvider.class);
+    Config config = HubTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubDigestModule(), new HubIntegrationTestModule()));
+    test = injector.getInstance(HubIntegrationTestProvider.class);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -49,10 +53,8 @@ public class DigestProgramStyleIT {
     fake.insertFixtureB2();
     fake.insertFixtureB3();
 
-    fake.chain1 = Chain.create();
-
     programDAO = injector.getInstance(ProgramDAO.class);
-    ingestFactory = injector.getInstance(IngestFactory.class);
+    ingestFactory = injector.getInstance(HubIngestFactory.class);
     digestFactory = injector.getInstance(DigestFactory.class);
   }
 
@@ -63,19 +65,19 @@ public class DigestProgramStyleIT {
 
   @Test
   public void digest() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.content.account1), "User,Artist");
     // Add two sequences to Main program 15
-    fake.program15 = programDAO.readOne(Access.internal(), fake.program15.getId());
-    ProgramSequence sequence15c = test.insert(ProgramSequence.create(fake.program15, 32, "Encore", 0.5, "A major", 135.0));
+    fake.content.program15 = programDAO.readOne(HubAccess.internal(), fake.content.program15.getId());
+    ProgramSequence sequence15c = test.insert(ProgramSequence.create(fake.content.program15, 32, "Encore", 0.5, "A major", 135.0));
     test.insert(ProgramSequenceChord.create(sequence15c, 0.0, "NC"));
     test.insert(ProgramSequenceBinding.create(sequence15c, 2));
-    ProgramSequence sequence15d = test.insert(ProgramSequence.create(fake.program15, 32, "Encore", 0.5, "A major", 135.0));
+    ProgramSequence sequence15d = test.insert(ProgramSequence.create(fake.content.program15, 32, "Encore", 0.5, "A major", 135.0));
     test.insert(ProgramSequenceChord.create(sequence15d, 0.0, "NC"));
     test.insert(ProgramSequenceBinding.create(sequence15d, 3));
-    programDAO.update(Access.internal(), fake.program15.getId(), fake.program15);
+    programDAO.update(HubAccess.internal(), fake.content.program15.getId(), fake.content.program15);
 
 
-    DigestProgramStyle result = digestFactory.programStyle(ingestFactory.ingest(access, ImmutableList.of(ChainBinding.create(fake.chain1, fake.library2))));
+    DigestProgramStyle result = digestFactory.programStyle(ingestFactory.ingest(hubAccess, ImmutableSet.of(fake.content.library2.getId()), ImmutableSet.of(), ImmutableSet.of()));
 
     assertNotNull(result);
     assertEquals(2.0, result.getMainSequencesPerProgramStats().min(), 0.1);

@@ -3,10 +3,12 @@
 rootProject.name = 'xj-platform'
 
 include(':lib:app')
-include(':lib:util')
+include(':lib:entity')
+include(':lib:filestore')
 include(':lib:mixer')
 include(':lib:music')
-include(':lib:rest-api')
+include(':lib:jsonapi')
+include(':lib:util')
 include(':service:hub')
-include(':service:pulse')
 include(':service:nexus')
+include(':service:pulse')

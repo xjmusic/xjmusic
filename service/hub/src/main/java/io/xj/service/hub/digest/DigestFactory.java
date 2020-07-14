@@ -2,10 +2,10 @@
 package io.xj.service.hub.digest;
 
 import com.google.inject.assistedinject.Assisted;
-import io.xj.service.hub.ingest.Ingest;
+import io.xj.service.hub.ingest.HubIngest;
 
 /**
- [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
+ [#154350346] Architect wants a universal HubIngest Factory, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
  DigestChordProgression entities = digestFactory.chordProgression(ingest);
  DigestMeme memes = digestFactory.meme(ingest);
  */
@@ -18,7 +18,7 @@ public interface DigestFactory {
    @return chord digest of ingest
    */
   DigestChordProgression chordProgression(
-    @Assisted("ingest") Ingest ingest
+    @Assisted("ingest") HubIngest ingest
   );
 
   /**
@@ -28,7 +28,7 @@ public interface DigestFactory {
    @return chord digest of ingest
    */
   DigestChordMarkov chordMarkov(
-    @Assisted("ingest") Ingest ingest
+    @Assisted("ingest") HubIngest ingest
   );
 
   /**
@@ -38,7 +38,7 @@ public interface DigestFactory {
    @return chord digest of ingest
    */
   DigestHash hashOf(
-    @Assisted("ingest") Ingest ingest
+    @Assisted("ingest") HubIngest ingest
   );
 
   /**
@@ -48,7 +48,7 @@ public interface DigestFactory {
    @return meme digest of ingest
    */
   DigestMeme meme(
-    @Assisted("ingest") Ingest ingest
+    @Assisted("ingest") HubIngest ingest
   );
 
   /**
@@ -58,7 +58,7 @@ public interface DigestFactory {
    @return sequence style digest of ingest
    */
   DigestProgramStyle programStyle(
-    @Assisted("ingest") Ingest ingest
+    @Assisted("ingest") HubIngest ingest
   );
 
 }

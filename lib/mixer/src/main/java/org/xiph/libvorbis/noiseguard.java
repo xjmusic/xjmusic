@@ -4,15 +4,15 @@ package org.xiph.libvorbis;
 
 public class noiseguard {
 
-	int lo;
-	int hi;
-	int fixed;
+  int lo;
+  int hi;
+  int fixed;
 
 
-	public noiseguard( int _lo, int _hi, int _fixed ) {
+  public noiseguard(int _lo, int _hi, int _fixed) {
 
-		lo = _lo;
-		hi = _hi;
-		fixed = _fixed;
-	}
+    lo = _lo;
+    hi = _hi;
+    fixed = _fixed;
+  }
 }

@@ -3,31 +3,21 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.service.hub.HubModule;
+import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.Account;
-import io.xj.service.hub.model.AccountUser;
-import io.xj.service.hub.model.Instrument;
-import io.xj.service.hub.model.InstrumentAudio;
-import io.xj.service.hub.model.InstrumentAudioEvent;
-import io.xj.service.hub.model.InstrumentMeme;
-import io.xj.service.hub.model.InstrumentState;
-import io.xj.service.hub.model.InstrumentType;
-import io.xj.service.hub.model.Library;
-import io.xj.service.hub.model.User;
-import io.xj.service.hub.model.UserRole;
-import io.xj.service.hub.model.UserRoleType;
-import io.xj.service.hub.testing.AppTestConfiguration;
-import io.xj.service.hub.testing.IntegrationTestModule;
-import io.xj.service.hub.testing.IntegrationTestProvider;
-import io.xj.service.hub.testing.InternalResources;
-import io.xj.service.hub.work.WorkManager;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.access.HubAccessControlModule;
+import io.xj.service.hub.entity.*;
+import io.xj.service.hub.ingest.HubIngestModule;
+import io.xj.service.hub.persistence.HubPersistenceModule;
+import io.xj.service.hub.testing.HubIntegrationTestModule;
+import io.xj.service.hub.testing.HubIntegrationTestProvider;
+import io.xj.service.hub.testing.HubTestConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,6 +25,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Instant;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -45,26 +37,17 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstrumentAudioEventIT {
-  public WorkManager workManager;
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private InstrumentAudioEventDAO testDAO;
-  private IntegrationTestProvider test;
+  private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    Config config = AppTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubModule(), new IntegrationTestModule()));
-    workManager = injector.getInstance(WorkManager.class);
-    injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubModule(), new IntegrationTestModule()).with(
-      new AbstractModule() {
-        @Override
-        public void configure() {
-          bind(WorkManager.class).toInstance(workManager);
-        }
-      })));
-    test = injector.getInstance(IntegrationTestProvider.class);
+    Config config = HubTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubIntegrationTestModule()));
+    test = injector.getInstance(HubIntegrationTestProvider.class);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -82,7 +65,7 @@ public class InstrumentAudioEventIT {
     test.insert(AccountUser.create(fake.account1, fake.user3));
 
     // Library "sandwich" has instrument "jams" and instrument "buns"
-    fake.library1 = test.insert(Library.create(fake.account1, "sandwich", InternalResources.now()));
+    fake.library1 = test.insert(Library.create(fake.account1, "sandwich", Instant.now()));
     fake.instrument201 = test.insert(Instrument.create(fake.user3, fake.library1, InstrumentType.Harmonic, InstrumentState.Published, "buns"));
     fake.instrument202 = test.insert(Instrument.create(fake.user3, fake.library1, InstrumentType.Percussive, InstrumentState.Published, "jams"));
     test.insert(InstrumentMeme.create(fake.instrument202, "smooth"));
@@ -100,12 +83,12 @@ public class InstrumentAudioEventIT {
 
   @Test
   public void update_Name() throws Exception {
-    Access access = Access.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
     InstrumentAudioEvent updatedEntity = InstrumentAudioEvent.create(fake.audio1, 0, 0.5, "wham", "D", 1);
 
-    testDAO.update(access, fake.audioEvent1.getId(), updatedEntity);
+    testDAO.update(hubAccess, fake.audioEvent1.getId(), updatedEntity);
 
-    InstrumentAudioEvent result = testDAO.readOne(Access.internal(), fake.audioEvent1.getId());
+    InstrumentAudioEvent result = testDAO.readOne(HubAccess.internal(), fake.audioEvent1.getId());
     assertNotNull(result);
     assertEquals("WHAM", result.getName());
   }

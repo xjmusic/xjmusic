@@ -7,9 +7,9 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 public class HubIngestModule extends AbstractModule {
   @Override
   protected void configure() {
-    bind(IngestCacheProvider.class).to(IngestCacheProviderImpl.class);
+    bind(HubIngestCacheProvider.class).to(HubIngestCacheProviderImpl.class);
     install(new FactoryModuleBuilder()
-      .implement(Ingest.class, IngestImpl.class)
-      .build(IngestFactory.class));
+      .implement(HubIngest.class, HubIngestImpl.class)
+      .build(HubIngestFactory.class));
   }
 }

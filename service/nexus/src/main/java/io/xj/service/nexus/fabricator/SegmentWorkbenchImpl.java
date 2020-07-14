@@ -5,24 +5,21 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.rest_api.PayloadFactory;
-import io.xj.lib.rest_api.RestApiException;
-import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.cache.EntityCache;
-import io.xj.service.hub.dao.SegmentDAO;
-import io.xj.service.hub.entity.Entity;
-import io.xj.service.hub.entity.MessageType;
-import io.xj.service.hub.model.ProgramType;
-import io.xj.service.hub.model.Segment;
-import io.xj.service.hub.model.SegmentChoice;
-import io.xj.service.hub.model.SegmentChoiceArrangement;
-import io.xj.service.hub.model.SegmentChoiceArrangementPick;
-import io.xj.service.hub.model.SegmentChord;
-import io.xj.service.hub.model.SegmentMeme;
-import io.xj.service.hub.model.SegmentMessage;
+import io.xj.lib.entity.Entity;
+import io.xj.lib.entity.EntityCache;
+import io.xj.lib.entity.MessageType;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.service.hub.client.HubClientAccess;
+import io.xj.service.hub.entity.ProgramType;
+import io.xj.service.nexus.dao.SegmentDAO;
+import io.xj.service.nexus.dao.exception.DAOExistenceException;
+import io.xj.service.nexus.dao.exception.DAOFatalException;
+import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
+import io.xj.service.nexus.dao.exception.DAOValidationException;
+import io.xj.service.nexus.entity.*;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
@@ -38,6 +35,7 @@ import java.util.Optional;
  Sends added records to segmentDAO batch insert method
  */
 class SegmentWorkbenchImpl implements SegmentWorkbench {
+  private final Chain chain;
   private final Segment segment;
   private final SegmentDAO segmentDAO;
   private final PayloadFactory payloadFactory;
@@ -47,17 +45,19 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   private final EntityCache<SegmentMeme> segmentMemes;
   private final EntityCache<SegmentMessage> segmentMessages;
   private final EntityCache<SegmentChoiceArrangementPick> segmentPicks;
-  private final Access access;
-  private Map<String, Object> report = Maps.newConcurrentMap();
+  private final HubClientAccess access;
+  private final Map<String, Object> report = Maps.newConcurrentMap();
 
   @Inject
   public SegmentWorkbenchImpl(
-    @Assisted("access") Access access,
+    @Assisted("access") HubClientAccess access,
+    @Assisted("chain") Chain chain,
     @Assisted("segment") Segment segment,
     SegmentDAO segmentDAO,
     PayloadFactory payloadFactory
-  ) throws HubException {
+  ) throws FabricationException {
     this.access = access;
+    this.chain = chain;
     this.segment = segment;
     this.segmentDAO = segmentDAO;
     this.payloadFactory = payloadFactory;
@@ -68,27 +68,13 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     segmentMessages = new EntityCache<>();
     segmentPicks = new EntityCache<>();
 
+
     // fetch all sub entities of all segments and store the results in the corresponding entity cache
-    segmentDAO.readAllSubEntities(access, ImmutableList.of(segment.getId()), true)
-      .forEach(entity -> {
-        switch (entity.getClass().getSimpleName()) {
-          case "SegmentChoiceArrangementPick":
-            segmentPicks.add((SegmentChoiceArrangementPick) entity);
-            break;
-          case "SegmentChoiceArrangement":
-            segmentArrangements.add((SegmentChoiceArrangement) entity);
-            break;
-          case "SegmentChoice":
-            segmentChoices.add((SegmentChoice) entity);
-            break;
-          case "SegmentChord":
-            segmentChords.add((SegmentChord) entity);
-            break;
-          case "SegmentMeme":
-            segmentMemes.add((SegmentMeme) entity);
-            break;
-        }
-      });
+    try {
+      stashAll(segmentDAO.readAllSubEntities(access, ImmutableList.of(segment.getId()), true));
+    } catch (DAOFatalException | DAOPrivilegeException e) {
+      throw new FabricationException("Failed to load Segment for Workbench!", e);
+    }
 
     // flush all inserts, so that the workbench can tell the difference between content that was loaded before work began, and new content that needs to be inserted
     segmentPicks.flushInserts();
@@ -96,6 +82,34 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     segmentChoices.flushInserts();
     segmentChords.flushInserts();
     segmentMemes.flushInserts();
+  }
+
+  /**
+   Create and stash an instance in right class's array
+
+   @param instance to stash
+   */
+  private <N extends Entity> void stash(N instance) {
+    if (instance.getClass().isAssignableFrom(SegmentChoiceArrangementPick.class))
+      segmentPicks.add((SegmentChoiceArrangementPick) instance);
+    else if (instance.getClass().isAssignableFrom(SegmentChoiceArrangement.class))
+      segmentArrangements.add((SegmentChoiceArrangement) instance);
+    else if (instance.getClass().isAssignableFrom(SegmentChoice.class))
+      segmentChoices.add((SegmentChoice) instance);
+    else if (instance.getClass().isAssignableFrom(SegmentChord.class))
+      segmentChords.add((SegmentChord) instance);
+    else if (instance.getClass().isAssignableFrom(SegmentMeme.class))
+      segmentMemes.add((SegmentMeme) instance);
+  }
+
+  /**
+   Stash all instances
+
+   @param instances to stash
+   @param <N>       type of instances
+   */
+  private <N extends Entity> void stashAll(Collection<N> instances) {
+    for (N instance : instances) stash(instance);
   }
 
   @Override
@@ -139,34 +153,40 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public void done() throws HubException, RestApiException, ValueException {
-    sendReportToSegmentMessage();
+  public void done() throws FabricationException {
+    try {
+      sendReportToSegmentMessage();
 
-    segmentDAO.update(access, getSegment().getId(), getSegment());
+      segmentDAO.update(access, getSegment().getId(), getSegment());
 
-    segmentDAO.createAllSubEntities(access,
-      ImmutableList.<Entity>builder()
-        .addAll(segmentMessages.flushInserts())
-        .addAll(segmentMemes.flushInserts())
-        .addAll(segmentChords.flushInserts())
-        .addAll(segmentChoices.flushInserts())
-        .addAll(segmentArrangements.flushInserts()) // after choices
-        .addAll(segmentPicks.flushInserts()) // after arrangements
-        .build());
-    // TODO write entire segment payload to JSON file
+      segmentDAO.createAllSubEntities(access, segmentMessages.flushInserts());
+      segmentDAO.createAllSubEntities(access, segmentMemes.flushInserts());
+      segmentDAO.createAllSubEntities(access, segmentChords.flushInserts());
+      segmentDAO.createAllSubEntities(access, segmentChoices.flushInserts());
+      segmentDAO.createAllSubEntities(access, segmentArrangements.flushInserts()); // after choices
+      segmentDAO.createAllSubEntities(access, segmentPicks.flushInserts()); // after arrangements
+
+    } catch (JsonApiException | DAOFatalException | DAOExistenceException | DAOPrivilegeException | DAOValidationException e) {
+      throw new FabricationException("Failed to build and update payload for Segment!", e);
+    }
   }
 
   @Override
-  public SegmentChoice getChoiceOfType(ProgramType type) throws HubException {
+  public SegmentChoice getChoiceOfType(ProgramType type) throws FabricationException {
     Optional<SegmentChoice> choice = getSegmentChoices().getAll().stream().filter(c -> c.getType().equals(type)).findFirst();
-    if (choice.isEmpty()) throw new HubException(String.format("No %s-type choice in workbench segment", type));
+    if (choice.isEmpty()) throw new FabricationException(String.format("No %s-type choice in workbench segment", type));
     return choice.get();
+  }
+
+  @Override
+  public Chain getChain() {
+    return chain;
   }
 
   /**
    Returns the current report map as json, and clears the report so it'll only be reported once
    */
-  private void sendReportToSegmentMessage() throws RestApiException {
+  private void sendReportToSegmentMessage() throws JsonApiException {
     String reported = payloadFactory.serialize(report);
     segmentMessages.add(SegmentMessage.create(segment, MessageType.Info, reported));
     report.clear();

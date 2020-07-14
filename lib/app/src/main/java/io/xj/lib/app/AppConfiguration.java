@@ -46,8 +46,8 @@ public class AppConfiguration {
       try {
         Preconditions.checkArgument(buf.ready(), "Unable to read configuration file at given path");
         config = ConfigFactory.parseReader(buf)
-                .withFallback(defaults)
-                .resolve();
+          .withFallback(defaults)
+          .resolve();
       } catch (Exception e) {
         throw new AppException("Unable to parse configuration", e);
       }
@@ -70,15 +70,15 @@ public class AppConfiguration {
     if (Objects.isNull(config)) throw new AppException("Config cannot be null!");
     if (config.isEmpty()) throw new AppException("Config cannot be empty!");
     return Guice.createInjector(
-            ImmutableList.<Module>builder()
-                    .add(new AbstractModule() {
-                      @Override
-                      protected void configure() {
-                        bind(Config.class).toInstance(config);
-                      }
-                    })
-                    .addAll(modules)
-                    .build());
+      ImmutableList.<Module>builder()
+        .add(new AbstractModule() {
+          @Override
+          protected void configure() {
+            bind(Config.class).toInstance(config);
+          }
+        })
+        .addAll(modules)
+        .build());
   }
 
   /**

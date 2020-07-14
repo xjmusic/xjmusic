@@ -6,22 +6,22 @@ package io.xj.lib.app;
  */
 public class AppException extends Exception {
 
-    /**
-     Construct XJ Music service App exception with message
+  /**
+   Construct XJ Music service App exception with message
 
-     @param message for exception
-     */
-    public AppException(String message) {
-        super(message);
-    }
+   @param message for exception
+   */
+  public AppException(String message) {
+    super(message);
+  }
 
-    /**
-     Construct XJ Music service App exception with message and throwable
+  /**
+   Construct XJ Music service App exception with message and throwable
 
-     @param message   for exception
-     @param throwable throwable to wrap in exception
-     */
-    public AppException(String message, Throwable throwable) {
-        super(message, throwable);
-    }
+   @param message   for exception
+   @param throwable throwable to wrap in exception
+   */
+  public AppException(String message, Throwable throwable) {
+    super(message, throwable);
+  }
 }

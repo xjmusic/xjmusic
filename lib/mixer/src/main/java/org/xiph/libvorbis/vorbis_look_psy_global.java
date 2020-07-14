@@ -6,37 +6,37 @@ import static org.xiph.libvorbis.vorbis_constants.integer_constants.P_NOISECURVE
 
 class vorbis_look_psy_global {
 
-	float ampmax;
-	int channels;
+  float ampmax;
+  int channels;
 
-	vorbis_info_psy_global gi;
-	int[][] coupling_pointlimit; 	// int coupling_pointlimit[2][P_NOISECURVES];
+  vorbis_info_psy_global gi;
+  int[][] coupling_pointlimit;  // int coupling_pointlimit[2][P_NOISECURVES];
 
 
-	public vorbis_look_psy_global( float _ampmax, int _channels, vorbis_info_psy_global _gi, int[][] _coupling_pointlimit ) {
+  public vorbis_look_psy_global(float _ampmax, int _channels, vorbis_info_psy_global _gi, int[][] _coupling_pointlimit) {
 
-		ampmax = _ampmax;
-		channels = _channels;
-		gi = _gi;
+    ampmax = _ampmax;
+    channels = _channels;
+    gi = _gi;
 
-		coupling_pointlimit = new int[2][ P_NOISECURVES ];
-		for ( int i=0; i < _coupling_pointlimit.length; i++ )
-			System.arraycopy( _coupling_pointlimit[i], 0, coupling_pointlimit[i], 0, _coupling_pointlimit[i].length );
-	}
+    coupling_pointlimit = new int[2][P_NOISECURVES];
+    for (int i = 0; i < _coupling_pointlimit.length; i++)
+      System.arraycopy(_coupling_pointlimit[i], 0, coupling_pointlimit[i], 0, _coupling_pointlimit[i].length);
+  }
 
-	public vorbis_look_psy_global( vorbis_look_psy_global src ) {
+  public vorbis_look_psy_global(vorbis_look_psy_global src) {
 
-		this( src.ampmax, src.channels, new vorbis_info_psy_global( src.gi ), src.coupling_pointlimit );
-	}
+    this(src.ampmax, src.channels, new vorbis_info_psy_global(src.gi), src.coupling_pointlimit);
+  }
 
-	public vorbis_look_psy_global( vorbis_info _vi ) {
+  public vorbis_look_psy_global(vorbis_info _vi) {
 
-		coupling_pointlimit = new int[2][ P_NOISECURVES ];
+    coupling_pointlimit = new int[2][P_NOISECURVES];
 
-		channels = _vi.channels;
+    channels = _vi.channels;
 
-		ampmax = -9999.0f;
-		gi = _vi.codec_setup.psy_g_param;
-	}
+    ampmax = -9999.0f;
+    gi = _vi.codec_setup.psy_g_param;
+  }
 }
 

@@ -6,15 +6,19 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.service.hub.HubModule;
+import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.ingest.IngestFactory;
-import io.xj.service.hub.model.Chain;
-import io.xj.service.hub.model.ChainBinding;
-import io.xj.service.hub.testing.AppTestConfiguration;
-import io.xj.service.hub.testing.IntegrationTestModule;
-import io.xj.service.hub.testing.IntegrationTestProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.access.HubAccessControlModule;
+import io.xj.service.hub.dao.DAOModule;
+import io.xj.service.hub.ingest.HubIngestFactory;
+import io.xj.service.hub.ingest.HubIngestModule;
+import io.xj.service.hub.persistence.HubPersistenceModule;
+import io.xj.service.hub.testing.HubIntegrationTestModule;
+import io.xj.service.hub.testing.HubIntegrationTestProvider;
+import io.xj.service.hub.testing.HubTestConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,24 +29,22 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DigestMemeIT {
-  private IngestFactory ingestFactory;
+  private HubIngestFactory ingestFactory;
   private DigestFactory digestFactory;
   private IntegrationTestingFixtures fake;
-  private IntegrationTestProvider test;
+  private HubIntegrationTestProvider test;
 
   @Before
   public void setUp() throws Exception {
-    Config config = AppTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubModule(), new DigestModule(), new IntegrationTestModule()));
-    test = injector.getInstance(IntegrationTestProvider.class);
+    Config config = HubTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubDigestModule(), new HubIntegrationTestModule()));
+    test = injector.getInstance(HubIntegrationTestProvider.class);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
     fake.insertFixtureA();
 
-    fake.chain1 = Chain.create();
-
-    ingestFactory = injector.getInstance(IngestFactory.class);
+    ingestFactory = injector.getInstance(HubIngestFactory.class);
     digestFactory = injector.getInstance(DigestFactory.class);
   }
 
@@ -53,9 +55,9 @@ public class DigestMemeIT {
 
   @Test
   public void digestMeme() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User,Artist");
 
-    DigestMeme result = digestFactory.meme(ingestFactory.ingest(access, ImmutableList.of(ChainBinding.create(fake.chain1, fake.library10000001))));
+    DigestMeme result = digestFactory.meme(ingestFactory.ingest(hubAccess, ImmutableSet.of(fake.library10000001.getId()), ImmutableSet.of(), ImmutableSet.of()));
 
     // Fuzz
     DigestMemeImpl.DigestMemesItem result1 = result.getMemes().get("Fuzz");

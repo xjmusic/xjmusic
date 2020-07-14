@@ -4,7 +4,7 @@ package io.xj.service.hub.digest;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import io.xj.service.hub.entity.ChordEntity;
+import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.util.Value;
 
 import java.util.Collections;

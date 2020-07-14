@@ -6,51 +6,55 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.service.hub.HubModule;
+import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
-import io.xj.service.hub.access.Access;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.access.HubAccessControlModule;
+import io.xj.service.hub.dao.DAOModule;
 import io.xj.service.hub.dao.ProgramDAO;
 import io.xj.service.hub.dao.ProgramMemeDAO;
-import io.xj.service.hub.ingest.IngestFactory;
-import io.xj.service.hub.model.Chain;
-import io.xj.service.hub.model.ChainBinding;
-import io.xj.service.hub.model.Program;
-import io.xj.service.hub.model.ProgramState;
-import io.xj.service.hub.model.ProgramType;
-import io.xj.service.hub.testing.AppTestConfiguration;
-import io.xj.service.hub.testing.IntegrationTestModule;
-import io.xj.service.hub.testing.IntegrationTestProvider;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramState;
+import io.xj.service.hub.entity.ProgramType;
+import io.xj.service.hub.ingest.HubIngestFactory;
+import io.xj.service.hub.ingest.HubIngestModule;
+import io.xj.service.hub.persistence.HubPersistenceModule;
+import io.xj.service.hub.testing.HubIntegrationTestModule;
+import io.xj.service.hub.testing.HubIntegrationTestProvider;
+import io.xj.service.hub.testing.HubTestConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collection;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DigestHashIT {
-  private IngestFactory ingestFactory;
+  private HubIngestFactory ingestFactory;
   private DigestFactory digestFactory;
   private IntegrationTestingFixtures fake;
   private Injector injector;
-  private IntegrationTestProvider test;
+  private HubIntegrationTestProvider test;
 
   @Before
   public void setUp() throws Exception {
-    Config config = AppTestConfiguration.getDefault();
-    injector = AppConfiguration.inject(config, ImmutableSet.of(new HubModule(), new DigestModule(), new IntegrationTestModule()));
-    test = injector.getInstance(IntegrationTestProvider.class);
+    Config config = HubTestConfiguration.getDefault();
+    injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubDigestModule(), new HubIntegrationTestModule()));
+    test = injector.getInstance(HubIntegrationTestProvider.class);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
     fake.insertFixtureA();
 
-    fake.chain1 = Chain.create();
 
-    ingestFactory = injector.getInstance(IngestFactory.class);
+    ingestFactory = injector.getInstance(HubIngestFactory.class);
     digestFactory = injector.getInstance(DigestFactory.class);
   }
 
@@ -61,19 +65,19 @@ public class DigestHashIT {
 
   @Test
   public void readHash_ofLibrary() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "User,Artist");
-    Collection<ChainBinding> entities = ImmutableList.of(ChainBinding.create(fake.chain1, fake.library10000001));
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User,Artist");
+    Set<UUID> libraryIds = ImmutableSet.of(fake.library10000001.getId());
 
-    DigestHash result = digestFactory.hashOf(ingestFactory.ingest(access, entities));
+    DigestHash result = digestFactory.hashOf(ingestFactory.ingest(hubAccess, libraryIds, ImmutableSet.of(), ImmutableSet.of()));
 
     assertNotNull(result);
   }
 
   @Test
   public void readHash_ofLibrary_afterUpdateEntity() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "User,Artist");
-    Collection<ChainBinding> entities = ImmutableList.of(ChainBinding.create(fake.chain1, fake.library10000001));
-    injector.getInstance(ProgramDAO.class).update(Access.internal(), fake.program703.getId(),
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User,Artist");
+    Set<UUID> libraryIds = ImmutableSet.of(fake.library10000001.getId());
+    injector.getInstance(ProgramDAO.class).update(HubAccess.internal(), fake.program703.getId(),
       new Program()
         .setUserId(fake.program703.getUserId())
         .setLibraryId(fake.program703.getLibraryId())
@@ -84,20 +88,20 @@ public class DigestHashIT {
         .setName("new name")
         .setTempo(150.0));
 
-    DigestHash result = digestFactory.hashOf(ingestFactory.ingest(access, entities));
+    DigestHash result = digestFactory.hashOf(ingestFactory.ingest(hubAccess, libraryIds, ImmutableSet.of(), ImmutableSet.of()));
 
     assertNotNull(result);
-    Program updatedProgram = injector.getInstance(ProgramDAO.class).readOne(Access.internal(), fake.program703.getId());
+    Program updatedProgram = injector.getInstance(ProgramDAO.class).readOne(HubAccess.internal(), fake.program703.getId());
     assertNotNull(updatedProgram);
   }
 
   @Test
   public void readHash_ofLibrary_afterDestroyEntity() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "User,Artist");
-    Collection<ChainBinding> entities = ImmutableList.of(ChainBinding.create(fake.chain1, fake.library10000001));
-    injector.getInstance(ProgramMemeDAO.class).destroy(Access.internal(), fake.program701_meme0.getId());
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User,Artist");
+    Set<UUID> libraryIds = ImmutableSet.of(fake.library10000001.getId());
+    injector.getInstance(ProgramMemeDAO.class).destroy(HubAccess.internal(), fake.program701_meme0.getId());
 
-    DigestHash result = digestFactory.hashOf(ingestFactory.ingest(access, entities));
+    DigestHash result = digestFactory.hashOf(ingestFactory.ingest(hubAccess, libraryIds, ImmutableSet.of(), ImmutableSet.of()));
   }
 
 }

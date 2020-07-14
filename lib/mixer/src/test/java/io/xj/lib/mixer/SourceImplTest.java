@@ -9,9 +9,7 @@ import javax.sound.sampled.AudioFormat;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class SourceImplTest {
   private final MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);

@@ -1,0 +1,153 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.lib.filestore;
+
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.UUID;
+
+class FileStoreProviderImpl implements FileStoreProvider {
+  private static final Logger log = LoggerFactory.getLogger(FileStoreProviderImpl.class);
+  private static final float MICROS_PER_SECOND = 1000000.0F;
+  private static final float NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
+  private static final String NAME_SEPARATOR = "-";
+  private static final String EXTENSION_SEPARATOR = ".";
+  private String awsDefaultRegion;
+  private String audioUploadUrl;
+  private String awsAccessKeyId;
+  private String awsSecretKey;
+  private String audioFileBucket;
+  private int awsFileUploadExpireMinutes;
+  private String fileUploadACL;
+  private int awsS3RetryLimit;
+
+  @Inject
+  public FileStoreProviderImpl(
+    Config config
+  ) {
+    audioUploadUrl = config.getString("audio.uploadUrl");
+    audioFileBucket = config.getString("audio.fileBucket");
+    awsFileUploadExpireMinutes = config.getInt("aws.uploadExpireMinutes");
+    awsDefaultRegion = config.getString("aws.defaultRegion");
+    awsAccessKeyId = config.getString("aws.accessKeyID");
+    awsSecretKey = config.getString("aws.secretKey");
+    fileUploadACL = config.getString("aws.fileUploadACL");
+    awsS3RetryLimit = config.getInt("aws.s3retryLimit");
+  }
+
+  /**
+   Get an Amazon S3 client
+
+   @return S3 client
+   */
+  private AmazonS3 s3Client() {
+    BasicAWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretKey);
+    return AmazonS3ClientBuilder.standard()
+      .withRegion(awsDefaultRegion)
+      .withCredentials(new AWSStaticCredentialsProvider(credentials))
+      .build();
+  }
+
+  @Override
+  public S3UploadPolicy generateAudioUploadPolicy() throws FileStoreException {
+    return new S3UploadPolicy(getCredentialId(), getCredentialSecret(), getAudioUploadACL(), getAudioBucketName(), "", getAudioUploadExpireInMinutes());
+  }
+
+  @Override
+  public String generateKey(String filename, String extension) {
+    return String.format("%s%s%s%s%s", UUID.randomUUID(), NAME_SEPARATOR, filename, EXTENSION_SEPARATOR, extension);
+  }
+
+  @Override
+  public String getUploadURL() throws FileStoreException {
+    return audioUploadUrl;
+  }
+
+  @Override
+  public String getCredentialId() throws FileStoreException {
+    return awsAccessKeyId;
+  }
+
+  @Override
+  public String getCredentialSecret() throws FileStoreException {
+    return awsSecretKey;
+  }
+
+  @Override
+  public String getAudioBucketName() throws FileStoreException {
+    return audioFileBucket;
+  }
+
+  @Override
+  public int getAudioUploadExpireInMinutes() {
+    return awsFileUploadExpireMinutes;
+  }
+
+  @Override
+  public String getAudioUploadACL() {
+    return fileUploadACL;
+  }
+
+  @Override
+  public InputStream streamS3Object(String bucketName, String key) throws FileStoreException {
+    AmazonS3 client = s3Client();
+    GetObjectRequest request = new GetObjectRequest(bucketName, key);
+    int count = 0;
+    int maxTries = awsS3RetryLimit;
+    while (true) {
+      try {
+        return client.getObject(request).getObjectContent();
+
+      } catch (Exception e) {
+        ++count;
+        if (count == maxTries)
+          throw new FileStoreException("Failed to stream S3 object", e);
+      }
+    }
+  }
+
+  @Override
+  public void putS3Object(String filePath, String bucket, String key) throws FileStoreException {
+    try {
+      long startedAt = System.nanoTime();
+      log.info("Will ship {} to {}/{}", filePath, bucket, key);
+      s3Client().putObject(new PutObjectRequest(
+        bucket, key, new File(filePath)));
+      log.info("Did ship {} to {}/{} OK in {}s", filePath, bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
+
+    } catch (Exception e) {
+      throw new FileStoreException("Failed to put S3 object", e);
+    }
+  }
+
+  @Override
+  public void deleteS3Object(String bucket, String key) throws FileStoreException {
+    try {
+      s3Client().deleteObject(bucket, key);
+
+    } catch (Exception e) {
+      throw new FileStoreException("Failed to delete S3 object", e);
+    }
+  }
+
+  @Override
+  public void copyS3Object(String sourceBucket, String sourceKey, String targetBucket, String targetKey) throws FileStoreException {
+    try {
+      s3Client().copyObject(sourceBucket, sourceKey, targetBucket, targetKey);
+
+    } catch (Exception e) {
+      throw new FileStoreException("Failed to revived S3 object", e);
+    }
+  }
+
+}

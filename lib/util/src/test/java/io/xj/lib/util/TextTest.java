@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -99,6 +98,7 @@ public class TextTest {
     assertEquals("libraries", Text.toPlural("library"));
     assertEquals("account-users", Text.toPlural("account-user"));
     assertEquals("accounts", Text.toPlural("account"));
+    assertEquals("accounts", Text.toPlural("accounts"));
   }
 
   @Test
@@ -115,61 +115,21 @@ public class TextTest {
 
   @Test
   public void toProper() {
-    assertEquals("Jammy biscuit", Text.toProper("jaMMy bISCUIT"));
-    assertEquals("Jammy", Text.toProper("jaMMy"));
-    assertEquals("J#mmy", Text.toProper("j#MMy"));
+    assertEquals("Jammy biscuit", Text.toProper("jammy biscuit"));
+    assertEquals("Jammy", Text.toProper("jammy"));
+    assertEquals("J#mmy", Text.toProper("j#mmy"));
     assertEquals("%&(#", Text.toProper("%&(#"));
   }
 
   @Test
   public void toProperSlug() {
-    assertEquals("Jammybiscuit", Text.toProperSlug("jaMMy bISCUIT"));
-    assertEquals("Jammy", Text.toProperSlug("jaMMy"));
-    assertEquals("Jmmy", Text.toProperSlug("j#MMy", "neuf"));
+    assertEquals("Jammybiscuit", Text.toProperSlug("jammy biscuit"));
+    assertEquals("Jammy", Text.toProperSlug("jammy"));
+    assertEquals("Jmmy", Text.toProperSlug("j#mmy", "neuf"));
     assertEquals("Neuf", Text.toProperSlug("%&(#", "neuf"));
     assertEquals("P", Text.toProperSlug("%&(#p"));
     assertEquals("", Text.toProperSlug("%&(#"));
-  }
-
-  @Test
-  public void toResourceBelongsTo() {
-    assertEquals("library", Text.toResourceBelongsTo("Library"));
-    assertEquals("accountUser", Text.toResourceBelongsTo("AccountUser"));
-    assertEquals("accountUser", Text.toResourceBelongsTo("accountUser"));
-    assertEquals("accountUser", Text.toResourceBelongsTo("accountUser"));
-    assertEquals("mockEntity", Text.toResourceBelongsTo(new MockEntity()));
-    assertEquals("mockEntity", Text.toResourceBelongsTo(MockEntity.class));
-    assertEquals("account", Text.toResourceBelongsTo("Account"));
-  }
-
-  @Test
-  public void toResourceHasMany() {
-    assertEquals("libraries", Text.toResourceHasMany("Library"));
-    assertEquals("accountUsers", Text.toResourceHasMany("AccountUser"));
-    assertEquals("accountUsers", Text.toResourceHasMany("accountUser"));
-    assertEquals("mockEntities", Text.toResourceHasMany(new MockEntity()));
-    assertEquals("mockEntities", Text.toResourceHasMany(MockEntity.class));
-    assertEquals("accounts", Text.toResourceHasMany("Account"));
-  }
-
-  @Test
-  public void toResourceHasManyFromType() {
-    assertEquals("libraries", Text.toResourceHasManyFromType("libraries"));
-    assertEquals("accountUsers", Text.toResourceHasManyFromType("account-users"));
-    assertEquals("programSequenceBindingMemes", Text.toResourceHasManyFromType("program-sequence-binding-memes"));
-    assertEquals("accountUsers", Text.toResourceHasManyFromType("account-users"));
-    assertEquals("accounts", Text.toResourceHasManyFromType("accounts"));
-  }
-
-  @Test
-  public void toResourceType() {
-    assertEquals("libraries", Text.toResourceType("Library"));
-    assertEquals("account-users", Text.toResourceType("AccountUser"));
-    assertEquals("account-users", Text.toResourceType("accountUser"));
-    assertEquals("account-users", Text.toResourceType("accountUser"));
-    assertEquals("mock-entities", Text.toResourceType(new MockEntity()));
-    assertEquals("mock-entities", Text.toResourceType(MockEntity.class));
-    assertEquals("accounts", Text.toResourceType("Account"));
+    assertEquals("NextMain", Text.toProperSlug("NextMain"));
   }
 
   @Test
@@ -226,18 +186,4 @@ public class TextTest {
     assertEquals("P", Text.toUpperSlug("%&(#p"));
     assertEquals("", Text.toUpperSlug("%&(#"));
   }
-
-  @Test
-  public void toIdAttribute() {
-    assertEquals("bilgeWaterId", Text.toIdAttribute("BilgeWater"));
-    assertEquals("mockEntityId", Text.toIdAttribute(new MockEntity()));
-    assertEquals("mockEntityId", Text.toIdAttribute(MockEntity.class));
-  }
-
-  @Test
-  public void keyValueString() {
-    assertEquals("Test{one=1,two=2,three=3}",
-      Text.toKeyValueString("Test", ImmutableMap.of("one", "1", "two", "2", "three", "3")));
-  }
-
 }

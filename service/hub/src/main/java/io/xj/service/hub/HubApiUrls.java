@@ -2,8 +2,6 @@
 
 package io.xj.service.hub;
 
-import io.xj.lib.rest_api.ApiUrlProvider;
-
 /**
  Class to configure the Hub API URLs
  */

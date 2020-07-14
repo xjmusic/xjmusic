@@ -3,22 +3,18 @@ package io.xj.service.hub.api;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
+import io.xj.lib.jsonapi.MediaType;
+import io.xj.lib.jsonapi.Payload;
 import io.xj.service.hub.HubEndpoint;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.access.HubAccessException;
 import io.xj.service.hub.dao.DAO;
 import io.xj.service.hub.dao.UserDAO;
-import io.xj.service.hub.model.UserRoleType;
-import io.xj.lib.rest_api.MediaType;
-import io.xj.lib.rest_api.Payload;
+import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -74,7 +70,7 @@ public class UserEndpoint extends HubEndpoint {
    */
   @PATCH
   @Path("{id}")
-  @Consumes(MediaType.APPLICATION_JSON_API)
+  @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(UserRoleType.ADMIN)
   public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     return update(crc, dao(), id, payload);
@@ -91,8 +87,8 @@ public class UserEndpoint extends HubEndpoint {
   public Response getCurrentlyAuthenticatedUser(@Context ContainerRequestContext crc) {
     UUID userId;
     try {
-      userId = Access.fromContext(crc).getUserId();
-    } catch (HubException e) {
+      userId = HubAccess.fromContext(crc).getUserId();
+    } catch (HubAccessException e) {
       return response.unauthorized();
     }
 

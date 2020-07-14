@@ -6,13 +6,8 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.ingest.Ingest;
-import io.xj.service.hub.model.Instrument;
-import io.xj.service.hub.model.InstrumentMeme;
-import io.xj.service.hub.model.Program;
-import io.xj.service.hub.model.ProgramMeme;
-import io.xj.service.hub.model.ProgramSequenceBinding;
-import io.xj.service.hub.model.ProgramSequenceBindingMeme;
+import io.xj.service.hub.entity.*;
+import io.xj.service.hub.ingest.HubIngest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +31,7 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
    */
   @Inject
   public DigestMemeImpl(
-    @Assisted("ingest") Ingest ingest
+    @Assisted("ingest") HubIngest ingest
   ) {
     super(ingest, DigestType.DigestMeme);
     try {

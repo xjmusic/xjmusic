@@ -2,13 +2,13 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.lib.rest_api.PayloadFactory;
-import io.xj.lib.rest_api.RestApiException;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.Library;
-import io.xj.service.hub.persistence.SQLDatabaseProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.entity.Library;
+import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
@@ -26,20 +26,21 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
   @Inject
   public LibraryDAOImpl(
     PayloadFactory payloadFactory,
-    SQLDatabaseProvider dbProvider
+    EntityFactory entityFactory,
+    HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory);
+    super(payloadFactory, entityFactory);
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public Library create(Access access, Library entity) throws HubException, RestApiException, ValueException {
+  public Library create(HubAccess hubAccess, Library entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
 
-    if (!access.isTopLevel())
+    if (!hubAccess.isTopLevel())
       requireExists("Account",
         dbProvider.getDSL().selectCount().from(ACCOUNT)
-          .where(ACCOUNT.ID.in(access.getAccountIds()))
+          .where(ACCOUNT.ID.in(hubAccess.getAccountIds()))
           .fetchOne(0, int.class));
 
     return modelFrom(Library.class, executeCreate(dbProvider.getDSL(), LIBRARY, entity));
@@ -47,8 +48,8 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
 
   @Override
   @Nullable
-  public Library readOne(Access access, UUID id) throws HubException {
-    if (access.isTopLevel())
+  public Library readOne(HubAccess hubAccess, UUID id) throws DAOException {
+    if (hubAccess.isTopLevel())
       return modelFrom(Library.class, dbProvider.getDSL().selectFrom(LIBRARY)
         .where(LIBRARY.ID.eq(id))
         .fetchOne());
@@ -56,15 +57,15 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
       return modelFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
         .from(LIBRARY)
         .where(LIBRARY.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne());
 
   }
 
   @Override
-  public Collection<Library> readMany(Access access, Collection<UUID> parentIds) throws HubException {
+  public Collection<Library> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
     if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
-      if (access.isTopLevel())
+      if (hubAccess.isTopLevel())
         return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(parentIds))
@@ -73,35 +74,35 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
         return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(parentIds))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetch());
     } else {
-      if (access.isTopLevel())
+      if (hubAccess.isTopLevel())
         return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
           .fetch());
       else
         return modelsFrom(Library.class, dbProvider.getDSL().select(LIBRARY.fields())
           .from(LIBRARY)
-          .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetch());
     }
 
   }
 
   @Override
-  public void update(Access access, UUID id, Library entity) throws HubException, RestApiException, ValueException {
+  public void update(HubAccess hubAccess, UUID id, Library entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
     entity.setId(id); //prevent changing id
 
-    if (!access.isTopLevel()) {
+    if (!hubAccess.isTopLevel()) {
       requireExists("Library",
         dbProvider.getDSL().selectCount().from(LIBRARY)
           .where(LIBRARY.ID.eq(id))
           .fetchOne(0, int.class));
       requireExists("Account",
         dbProvider.getDSL().selectCount().from(ACCOUNT)
-          .where(ACCOUNT.ID.in(access.getAccountIds()))
+          .where(ACCOUNT.ID.in(hubAccess.getAccountIds()))
           .fetchOne(0, int.class));
     }
 
@@ -109,9 +110,9 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
   }
 
   @Override
-  public void destroy(Access access, UUID id) throws HubException {
+  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
     DSLContext db = dbProvider.getDSL();
-    requireTopLevel(access);
+    requireTopLevel(hubAccess);
 
     requireNotExists("Program in Library", db.select(PROGRAM.ID)
       .from(PROGRAM)

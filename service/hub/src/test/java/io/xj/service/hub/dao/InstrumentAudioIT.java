@@ -8,31 +8,21 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.filestore.S3UploadPolicy;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.HubModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.persistence.AmazonProvider;
-import io.xj.service.hub.persistence.S3UploadPolicy;
-import io.xj.service.hub.model.Account;
-import io.xj.service.hub.model.AccountUser;
-import io.xj.service.hub.model.Instrument;
-import io.xj.service.hub.model.InstrumentAudio;
-import io.xj.service.hub.model.InstrumentAudioChord;
-import io.xj.service.hub.model.InstrumentAudioEvent;
-import io.xj.service.hub.model.InstrumentMeme;
-import io.xj.service.hub.model.InstrumentState;
-import io.xj.service.hub.model.InstrumentType;
-import io.xj.service.hub.model.Library;
-import io.xj.service.hub.model.User;
-import io.xj.service.hub.model.UserRole;
-import io.xj.service.hub.model.UserRoleType;
-import io.xj.service.hub.testing.AppTestConfiguration;
-import io.xj.service.hub.testing.IntegrationTestModule;
-import io.xj.service.hub.testing.IntegrationTestProvider;
-import io.xj.service.hub.testing.InternalResources;
-import io.xj.service.hub.work.WorkManager;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.access.HubAccessControlModule;
+import io.xj.service.hub.entity.*;
+import io.xj.service.hub.ingest.HubIngestModule;
+import io.xj.service.hub.persistence.HubPersistenceModule;
+import io.xj.service.hub.testing.HubIntegrationTestModule;
+import io.xj.service.hub.testing.HubIntegrationTestProvider;
+import io.xj.service.hub.testing.HubTestConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,15 +33,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
 import static io.xj.service.hub.tables.InstrumentAudioChord.INSTRUMENT_AUDIO_CHORD;
 import static io.xj.service.hub.tables.InstrumentAudioEvent.INSTRUMENT_AUDIO_EVENT;
-import static io.xj.service.hub.testing.Assert.assertNotExist;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -61,29 +50,25 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstrumentAudioIT {
-  public WorkManager workManager;
   @Rule
   public ExpectedException failure = ExpectedException.none();
   @Mock
-  public AmazonProvider amazonProvider;
+  public FileStoreProvider fileStoreProvider;
   private InstrumentAudioDAO testDAO;
-  private IntegrationTestProvider test;
+  private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    Config config = AppTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubModule(), new IntegrationTestModule()));
-    workManager = injector.getInstance(WorkManager.class);
-    injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubModule(), new IntegrationTestModule()).with(
+    Config config = HubTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubIntegrationTestModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
-          bind(WorkManager.class).toInstance(workManager);
-          bind(AmazonProvider.class).toInstance(amazonProvider);
+          bind(FileStoreProvider.class).toInstance(fileStoreProvider);
         }
       })));
-    test = injector.getInstance(IntegrationTestProvider.class);
+    test = injector.getInstance(HubIntegrationTestProvider.class);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -101,7 +86,7 @@ public class InstrumentAudioIT {
     test.insert(AccountUser.create(fake.account1, fake.user3));
 
     // Library "sandwich" has instrument "jams" and instrument "buns"
-    fake.library1 = test.insert(Library.create(fake.account1, "sandwich", InternalResources.now()));
+    fake.library1 = test.insert(Library.create(fake.account1, "sandwich", Instant.now()));
     fake.instrument201 = test.insert(Instrument.create(fake.user3, fake.library1, InstrumentType.Harmonic, InstrumentState.Published, "buns"));
     fake.instrument202 = test.insert(Instrument.create(fake.user3, fake.library1, InstrumentType.Percussive, InstrumentState.Published, "jams"));
     test.insert(InstrumentMeme.create(fake.instrument202, "smooth"));
@@ -121,7 +106,7 @@ public class InstrumentAudioIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     InstrumentAudio inputData = InstrumentAudio.create()
       .setInstrumentId(fake.instrument201.getId())
       .setName("maracas")
@@ -130,10 +115,10 @@ public class InstrumentAudioIT {
       .setPitch(1567.0)
       .setTempo(80.5);
 
-    when(amazonProvider.generateKey("instrument-2-audio", "wav"))
+    when(fileStoreProvider.generateKey("instrument-2-audio", "wav"))
       .thenReturn("instrument-2-audio-h2a34j5s34fd987gaw3.wav");
 
-    InstrumentAudio result = testDAO.create(access, inputData);
+    InstrumentAudio result = testDAO.create(hubAccess, inputData);
 
     assertNotNull(result);
     assertEquals(fake.instrument201.getId(), result.getInstrumentId());
@@ -147,7 +132,7 @@ public class InstrumentAudioIT {
 
   @Test(expected = ValueException.class)
   public void create_FailsWithoutInstrumentID() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     InstrumentAudio inputData = InstrumentAudio.create()
       .setName("maracas")
       .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "maracas.wav")
@@ -156,12 +141,12 @@ public class InstrumentAudioIT {
       .setPitch(1567.0)
       .setTempo(80.5);
 
-    testDAO.create(access, inputData);
+    testDAO.create(hubAccess, inputData);
   }
 
   @Test
   public void create_SucceedsWithoutWaveformKey() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     InstrumentAudio inputData = InstrumentAudio.create()
       .setInstrumentId(fake.instrument202.getId())
       .setName("maracas")
@@ -169,12 +154,12 @@ public class InstrumentAudioIT {
       .setLength(0.21)
       .setPitch(1567.0)
       .setTempo(80.5);
-    when(amazonProvider.generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav"))
+    when(fileStoreProvider.generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav"))
       .thenReturn("instrument-2-audio-h2a34j5s34fd987gaw3.wav");
 
-    InstrumentAudio result = testDAO.create(access, inputData);
+    InstrumentAudio result = testDAO.create(hubAccess, inputData);
 
-    verify(amazonProvider).generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav");
+    verify(fileStoreProvider).generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav");
     assertEquals("instrument-2-audio-h2a34j5s34fd987gaw3.wav", result.getWaveformKey());
   }
 
@@ -183,13 +168,13 @@ public class InstrumentAudioIT {
    */
   @Test
   public void clone_fromOriginal() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     InstrumentAudio inputData = InstrumentAudio.create()
       .setInstrumentId(fake.instrument202.getId())
       .setName("cannons fifty nine");
     fake.audioChord1 = test.insert(InstrumentAudioChord.create(fake.audio1, 0, "D minor"));
 
-    InstrumentAudio result = testDAO.clone(access, fake.audio1.getId(), inputData);
+    InstrumentAudio result = testDAO.clone(hubAccess, fake.audio1.getId(), inputData);
 
     assertEquals("cannons fifty nine", result.getName());
     assertEquals(fake.instrument202.getId(), result.getInstrumentId());
@@ -210,9 +195,9 @@ public class InstrumentAudioIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
-    InstrumentAudio result = testDAO.readOne(access, fake.audio1.getId());
+    InstrumentAudio result = testDAO.readOne(hubAccess, fake.audio1.getId());
 
     assertNotNull(result);
     assertEquals(fake.instrument202.getId(), result.getInstrumentId());
@@ -226,20 +211,20 @@ public class InstrumentAudioIT {
 
   @Test
   public void uploadOne() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
-    when(amazonProvider.generateAudioUploadPolicy())
+    when(fileStoreProvider.generateAudioUploadPolicy())
       .thenReturn(new S3UploadPolicy("MyId", "MySecret", "bucket-owner-is-awesome", "xj-audio-test", "", 5));
-    when(amazonProvider.getUploadURL())
+    when(fileStoreProvider.getUploadURL())
       .thenReturn("https://coconuts.com");
-    when(amazonProvider.getCredentialId())
+    when(fileStoreProvider.getCredentialId())
       .thenReturn("MyId");
-    when(amazonProvider.getAudioBucketName())
+    when(fileStoreProvider.getAudioBucketName())
       .thenReturn("xj-audio-test");
-    when(amazonProvider.getAudioUploadACL())
+    when(fileStoreProvider.getAudioUploadACL())
       .thenReturn("bucket-owner-is-awesome");
 
-    Map<String, String> result = testDAO.authorizeUpload(access, fake.audio2.getId());
+    Map<String, String> result = testDAO.authorizeUpload(hubAccess, fake.audio2.getId());
 
     assertNotNull(result);
     assertEquals("fake.audio5222.wav", result.get("waveformKey"));
@@ -253,25 +238,25 @@ public class InstrumentAudioIT {
 
   @Test
   public void readMany() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
-    Collection<InstrumentAudio> result = testDAO.readMany(access, ImmutableList.of(fake.instrument202.getId()));
+    Collection<InstrumentAudio> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.instrument202.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = Access.create(ImmutableList.of(), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(), "Artist");
 
-    Collection<InstrumentAudio> result = testDAO.readMany(access, ImmutableList.of(fake.instrument202.getId()));
+    Collection<InstrumentAudio> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.instrument202.getId()));
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void update_FailsWithoutInstrumentID() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     InstrumentAudio inputData = InstrumentAudio.create()
       .setName("maracas")
       .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "maracas.wav")
@@ -283,12 +268,12 @@ public class InstrumentAudioIT {
     failure.expect(ValueException.class);
     failure.expectMessage("Instrument ID is required");
 
-    testDAO.update(access, fake.audio1.getId(), inputData);
+    testDAO.update(hubAccess, fake.audio1.getId(), inputData);
   }
 
   @Test
   public void update_FailsUpdatingToNonexistentInstrument() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     InstrumentAudio inputData = InstrumentAudio.create()
       .setInstrumentId(UUID.randomUUID())
       .setName("maracas")
@@ -298,14 +283,14 @@ public class InstrumentAudioIT {
       .setPitch(1567.0)
       .setTempo(80.5);
 
-    failure.expect(HubException.class);
+    failure.expect(DAOException.class);
     failure.expectMessage("Instrument does not exist");
 
     try {
-      testDAO.update(access, fake.audio2.getId(), inputData);
+      testDAO.update(hubAccess, fake.audio2.getId(), inputData);
 
     } catch (Exception e) {
-      InstrumentAudio result = testDAO.readOne(Access.internal(), fake.audio2.getId());
+      InstrumentAudio result = testDAO.readOne(HubAccess.internal(), fake.audio2.getId());
       assertNotNull(result);
       assertEquals("Test audio2", result.getName());
       assertEquals(fake.instrument202.getId(), result.getInstrumentId());
@@ -317,7 +302,7 @@ public class InstrumentAudioIT {
   // [#162361785] InstrumentAudio can be moved to a different Instrument
   @Test
   public void update() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     InstrumentAudio inputData = InstrumentAudio.create()
       .setInstrumentId(fake.instrument201.getId())
       .setName("maracas")
@@ -326,9 +311,9 @@ public class InstrumentAudioIT {
       .setPitch(1567.0)
       .setTempo(80.5);
 
-    testDAO.update(access, fake.audio1.getId(), inputData);
+    testDAO.update(hubAccess, fake.audio1.getId(), inputData);
 
-    InstrumentAudio result = testDAO.readOne(Access.internal(), fake.audio1.getId());
+    InstrumentAudio result = testDAO.readOne(HubAccess.internal(), fake.audio1.getId());
     assertNotNull(result);
     assertEquals(fake.instrument201.getId(), result.getInstrumentId());
     assertEquals("maracas", result.getName());
@@ -343,24 +328,24 @@ public class InstrumentAudioIT {
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
-    Access access = Access.create(ImmutableList.of(), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(), "Artist");
 
-    failure.expect(HubException.class);
+    failure.expect(DAOException.class);
     failure.expectMessage("InstrumentAudio does not exist");
 
-    testDAO.destroy(access, fake.audio1.getId());
+    testDAO.destroy(hubAccess, fake.audio1.getId());
   }
 
   @Test
   public void destroy_SucceedsEvenWithChildren() throws Exception {
-    Access access = Access.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
     test.insert(InstrumentAudioEvent.create(fake.audio1, 0.42, 0.41, "HEAVY", "C", 0.7));
 
     try {
-      testDAO.destroy(access, fake.audio1.getId());
+      testDAO.destroy(hubAccess, fake.audio1.getId());
 
     } catch (Exception e) {
-      InstrumentAudio result = testDAO.readOne(Access.internal(), fake.audio1.getId());
+      InstrumentAudio result = testDAO.readOne(HubAccess.internal(), fake.audio1.getId());
       assertNotNull(result);
       throw e;
     }
@@ -368,11 +353,16 @@ public class InstrumentAudioIT {
 
   @Test
   public void destroy() throws Exception {
-    Access access = Access.internal();
+    HubAccess hubAccess = HubAccess.internal();
 
-    testDAO.destroy(access, fake.audio1.getId());
+    testDAO.destroy(hubAccess, fake.audio1.getId());
 
-    assertNotExist(testDAO, fake.audio1.getId());
+    try {
+      testDAO.readOne(HubAccess.internal(), fake.audio1.getId());
+      fail();
+    } catch (DAOException e) {
+      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+    }
   }
 
   // future test: AudioDAO cannot delete record unless user has account access
@@ -382,12 +372,12 @@ public class InstrumentAudioIT {
 
 /*
 
-TODO address deleting audio after it has been picked
+FUTURE address deleting audio after it has been picked
 
 
   @Test
   public void destroy_afterAudioHasBeenPicked() throws Exception {
-    Access access = Access.internal();
+    HubAccess access = HubAccess.internal();
     // EventEntity and ChordEntity on InstrumentAudio 1
     test.insert(InstrumentAudioEvent.create(fake.audio1, 2.5, 1.0, "KICK", "Eb", 0.8);
     test.insert(InstrumentAudioChord.create(fake.audio1, 4, "D major");
@@ -399,7 +389,12 @@ TODO address deleting audio after it has been picked
 
     testDAO.destroy(access, fake.audio1.getId());
 
-    assertNotExist(testDAO, fake.audio1.getId());
+    try {
+      testDAO.readOne(HubAccess.internal(), fake.audio1.getId());
+      fail();
+    } catch (DAOException e) {
+      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+    }
   }
 */
 
@@ -423,9 +418,8 @@ TODO address deleting audio after it has been picked
       new AbstractModule() {
         @Override
         public void configure() {
-          bind(AmazonProvider.class).toInstance(amazonProvider);
-          bind(WorkManager.class).toInstance(workManager);
-        }
+          bind(FileStoreProvider.class).toInstance(fileStoreProvider);
+          }
       }));
     audioFactory = injector.getInstance(AudioFactory.class);
 
@@ -460,7 +454,7 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void create() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setPosition(4.0)
       .setName("G minor 7")
@@ -476,7 +470,7 @@ TODO address deleting audio after it has been picked
 
   @Test(expected = CoreException.class)
   public void create_FailsWithoutAudioID() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setPosition(4.0)
       .setName("G minor 7");
@@ -486,7 +480,7 @@ TODO address deleting audio after it has been picked
 
   @Test(expected = CoreException.class)
   public void create_FailsWithoutName() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setPosition(4.0)
       .setInstrumentAudioId(UUID.randomUUID());
@@ -496,7 +490,7 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
     AudioChord result = testDAO.readOne(access, UUID.fromString(1000L));
 
@@ -507,7 +501,7 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = of(ImmutableList.of(of()), "Artist");
+    HubAccess access = of(ImmutableList.of(of()), "Artist");
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
@@ -516,7 +510,7 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void readMany() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
     Collection<AudioChord> result = testDAO.readMany(access, ImmutableList.of(fake.audio1.getId()));
 
@@ -525,7 +519,7 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = of(ImmutableList.of(of()), "Artist");
+    HubAccess access = of(ImmutableList.of(of()), "Artist");
 
     Collection<AudioChord> result = testDAO.readMany(access, ImmutableList.of(fake.audio1.getId()));
 
@@ -535,7 +529,7 @@ TODO address deleting audio after it has been picked
 
   @Test(expected = CoreException.class)
   public void update_FailsWithoutAudioID() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setPosition(4.0)
       .setName("G minor 7");
@@ -545,7 +539,7 @@ TODO address deleting audio after it has been picked
 
   @Test(expected = CoreException.class)
   public void update_FailsWithoutName() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setPosition(4.0)
       .setInstrumentAudioId(UUID.randomUUID());
@@ -555,7 +549,7 @@ TODO address deleting audio after it has been picked
 
   @Test(expected = CoreException.class)
   public void update_FailsUpdatingToNonexistentAudio() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setPosition(4.0)
       .setInstrumentAudioId(UUID.randomUUID())
@@ -565,7 +559,7 @@ TODO address deleting audio after it has been picked
       testDAO.update(access, UUID.fromString(1001L), inputData);
 
     } catch (Exception e) {
-      AudioChord result = testDAO.readOne(Access.internal(), UUID.fromString(1001L));
+      AudioChord result = testDAO.readOne(HubAccess.internal(), UUID.fromString(1001L));
       assertNotNull(result);
       assertEquals("C minor", result.getName());
       assertEquals(fake.audio1.getId(), result.getInstrumentAudioId());
@@ -575,7 +569,7 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void update() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setInstrumentAudioId(UUID.randomUUID())
       .setName("POPPYCOCK")
@@ -583,7 +577,7 @@ TODO address deleting audio after it has been picked
 
     testDAO.update(access, UUID.fromString(1000L), inputData);
 
-    AudioChord result = testDAO.readOne(Access.internal(), UUID.fromString(1000L));
+    AudioChord result = testDAO.readOne(HubAccess.internal(), UUID.fromString(1000L));
     assertNotNull(result);
     assertEquals("POPPYCOCK", result.getName());
     assertEquals(Double.valueOf(4.0), result.getPosition());
@@ -594,16 +588,21 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
     testDAO.destroy(access, UUID.fromString(1000L));
 
-    assertNotExist(testDAO, UUID.fromString(1000L));
+    try {
+      testDAO.readOne(HubAccess.internal(), UUID.fromString(1000L));
+      fail();
+    } catch (DAOException e) {
+      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+    }
   }
 
   @Test(expected = CoreException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    Access access = of(ImmutableList.of(account2), "Artist");
+    HubAccess access = of(ImmutableList.of(account2), "Artist");
 
     testDAO.destroy(access, UUID.fromString(1000L));
   }
@@ -643,7 +642,7 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void create() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.4)
       .setName("KICK")
@@ -658,7 +657,7 @@ TODO address deleting audio after it has been picked
 
   @Test(expected = CoreException.class)
   public void create_FailsWithoutAudioID() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0)
       .setName("KICK")
@@ -672,7 +671,7 @@ TODO address deleting audio after it has been picked
 
   @Test(expected = CoreException.class)
   public void create_FailsWithoutNote() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0)
       .setName("KICK")
@@ -686,7 +685,7 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
     AudioEvent result = testDAO.readOne(access, UUID.fromString(1003L));
 
@@ -703,7 +702,7 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = of(ImmutableList.of(of()), "Artist");
+    HubAccess access = of(ImmutableList.of(of()), "Artist");
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
@@ -712,7 +711,7 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void readMany() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
     Collection<AudioEvent> result = testDAO.readMany(access, ImmutableList.of(fake.audio1.getId()));
 
@@ -727,7 +726,7 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = of(ImmutableList.of(of()), "Artist");
+    HubAccess access = of(ImmutableList.of(of()), "Artist");
 
     Collection<AudioEvent> result = testDAO.readMany(access, ImmutableList.of(fake.audio1.getId()));
 
@@ -743,7 +742,7 @@ TODO address deleting audio after it has been picked
     insertAudioEvent(51, 14.0, 1.0, "PUMP", "Ab", 0.1, 0.8);
     insertAudioEvent(51, 18, 1.0, "JAM", "C", 0.8, 1.0);
     insertAudioEvent(51, 20.0, 1.0, "DUNK", "G", 0.1, 0.8);
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
     Collection<AudioEvent> result = testDAO.readAllOfInstrument(access, ImmutableList.of(fake.audio1.getId()));
 
@@ -771,7 +770,7 @@ TODO address deleting audio after it has been picked
     insertAudioEvent(61, 3.0, 1.0, "ASS", "Ab", 0.1, 0.8);
     insertAudioEvent(61, 0, 1.0, "ASS", "C", 0.8, 1.0);
     insertAudioEvent(61, 1.0, 1.0, "ASS", "G", 0.1, 0.8);
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
     Collection<AudioEvent> result = testDAO.readAllOfInstrument(access, ImmutableList.of(fake.audio1.getId()));
 
@@ -786,7 +785,7 @@ TODO address deleting audio after it has been picked
 
   @Test(expected = CoreException.class)
   public void update_FailsWithoutAudioID() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0)
       .setName("KICK")
@@ -800,7 +799,7 @@ TODO address deleting audio after it has been picked
 
   @Test(expected = CoreException.class)
   public void update_FailsWithoutNote() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0)
       .setName("KICK")
@@ -814,7 +813,7 @@ TODO address deleting audio after it has been picked
 
   @Test(expected = CoreException.class)
   public void update_FailsUpdatingToNonexistentAudio() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.0)
       .setName("SNARE")
@@ -828,7 +827,7 @@ TODO address deleting audio after it has been picked
       testDAO.update(access, UUID.fromString(1002L), inputData);
 
     } catch (Exception e) {
-      AudioEvent result = testDAO.readOne(Access.internal(), UUID.fromString(1002L));
+      AudioEvent result = testDAO.readOne(HubAccess.internal(), UUID.fromString(1002L));
       assertNotNull(result);
       assertEquals("KICK", result.getName());
       assertEquals(fake.audio1.getId(), result.getInstrumentAudioId());
@@ -838,7 +837,7 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void update() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
       .setDuration(1.2)
       .setName("POPPYCOCK")
@@ -850,7 +849,7 @@ TODO address deleting audio after it has been picked
 
     testDAO.update(access, UUID.fromString(1000L), inputData);
 
-    AudioEvent result = testDAO.readOne(Access.internal(), UUID.fromString(1000L));
+    AudioEvent result = testDAO.readOne(HubAccess.internal(), UUID.fromString(1000L));
     assertNotNull(result);
     assertEquals("POPPYCOCK", result.getName());
     assertEquals((Double) 1.2, result.getDuration());
@@ -864,16 +863,21 @@ TODO address deleting audio after it has been picked
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
     testDAO.destroy(access, UUID.fromString(1000L));
 
-    assertNotExist(testDAO, UUID.fromString(1000L));
+    try {
+      testDAO.readOne(HubAccess.internal(), UUID.fromString(1000L));
+      fail();
+    } catch (DAOException e) {
+      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+    }
   }
 
   @Test(expected = CoreException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    Access access = of(ImmutableList.of(account2), "Artist");
+    HubAccess access = of(ImmutableList.of(account2), "Artist");
 
     testDAO.destroy(access, UUID.fromString(1000L));
   }

@@ -2,51 +2,48 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.lib.rest_api.PayloadFactory;
-import io.xj.lib.rest_api.RestApiException;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.ProgramVoiceTrack;
-import io.xj.service.hub.persistence.SQLDatabaseProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.entity.ProgramVoiceTrack;
+import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.service.hub.Tables.LIBRARY;
-import static io.xj.service.hub.Tables.PROGRAM;
-import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
-import static io.xj.service.hub.Tables.PROGRAM_VOICE;
-import static io.xj.service.hub.Tables.PROGRAM_VOICE_TRACK;
+import static io.xj.service.hub.Tables.*;
 
 public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> implements ProgramVoiceTrackDAO {
 
   @Inject
   public ProgramVoiceTrackDAOImpl(
     PayloadFactory payloadFactory,
-    SQLDatabaseProvider dbProvider
+    EntityFactory entityFactory,
+    HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory);
+    super(payloadFactory, entityFactory);
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public ProgramVoiceTrack create(Access access, ProgramVoiceTrack entity) throws HubException, RestApiException, ValueException {
+  public ProgramVoiceTrack create(HubAccess hubAccess, ProgramVoiceTrack entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
-    requireArtist(access);
+    requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
-    requireProgramModification(db, access, entity.getProgramId());
+    requireProgramModification(db, hubAccess, entity.getProgramId());
     return modelFrom(ProgramVoiceTrack.class,
       executeCreate(db, PROGRAM_VOICE_TRACK, entity));
   }
 
   @Override
   @Nullable
-  public ProgramVoiceTrack readOne(Access access, UUID id) throws HubException {
-    requireArtist(access);
-    if (access.isTopLevel())
+  public ProgramVoiceTrack readOne(HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
+    if (hubAccess.isTopLevel())
       return modelFrom(ProgramVoiceTrack.class,
         dbProvider.getDSL().selectFrom(PROGRAM_VOICE_TRACK)
           .where(PROGRAM_VOICE_TRACK.ID.eq(id))
@@ -58,16 +55,16 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_VOICE.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_VOICE_TRACK.ID.eq(id))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne());
 
   }
 
   @Override
   @Nullable
-  public Collection<ProgramVoiceTrack> readMany(Access access, Collection<UUID> parentIds) throws HubException {
-    requireArtist(access);
-    if (access.isTopLevel())
+  public Collection<ProgramVoiceTrack> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+    requireArtist(hubAccess);
+    if (hubAccess.isTopLevel())
       return modelsFrom(ProgramVoiceTrack.class,
         dbProvider.getDSL().selectFrom(PROGRAM_VOICE_TRACK)
           .where(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID.in(parentIds))
@@ -79,24 +76,24 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_VOICE.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID.in(parentIds))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetch());
   }
 
   @Override
-  public void update(Access access, UUID id, ProgramVoiceTrack entity) throws HubException, RestApiException, ValueException {
+  public void update(HubAccess hubAccess, UUID id, ProgramVoiceTrack entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
-    requireArtist(access);
+    requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
-    requireModification(db, access, id);
+    requireModification(db, hubAccess, id);
     executeUpdate(db, PROGRAM_VOICE_TRACK, id, entity);
   }
 
   @Override
-  public void destroy(Access access, UUID id) throws HubException {
-    requireArtist(access);
+  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
-    requireModification(db, access, id);
+    requireModification(db, hubAccess, id);
     requireNotExists("Events in Track", db.selectCount().from(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID.eq(id))
       .fetchOne(0, int.class));
@@ -111,27 +108,27 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   }
 
   /**
-   Require modification access to an entity
+   Require modification hubAccess to an entity
 
-   @param db     context
-   @param access control
-   @param id     of entity to read
-   @throws HubException if none exists or no access
+   @param db        context
+   @param hubAccess control
+   @param id        of entity to read
+   @throws DAOException if none exists or no hubAccess
    */
-  private void requireModification(DSLContext db, Access access, UUID id) throws HubException {
-    if (access.isTopLevel())
+  private void requireModification(DSLContext db, HubAccess hubAccess, UUID id) throws DAOException {
+    if (hubAccess.isTopLevel())
       requireExists("Track",
         db.selectCount().from(PROGRAM_VOICE_TRACK)
           .where(PROGRAM_VOICE_TRACK.ID.eq(id))
           .fetchOne(0, int.class));
     else
-      requireExists("Track in Voice in Program you have access to",
+      requireExists("Track in Voice in Program you have hubAccess to",
         db.selectCount().from(PROGRAM_VOICE_TRACK)
           .join(PROGRAM_VOICE).on(PROGRAM_VOICE.ID.eq(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID))
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_VOICE.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_VOICE_TRACK.ID.eq(id))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne(0, int.class));
   }
 }

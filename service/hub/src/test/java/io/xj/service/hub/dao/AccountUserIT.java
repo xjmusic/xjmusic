@@ -6,18 +6,21 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.HubModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.Account;
-import io.xj.service.hub.model.AccountUser;
-import io.xj.service.hub.model.User;
-import io.xj.service.hub.testing.AppTestConfiguration;
-import io.xj.service.hub.testing.Assert;
-import io.xj.service.hub.testing.IntegrationTestModule;
-import io.xj.service.hub.testing.IntegrationTestProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.access.HubAccessControlModule;
+import io.xj.service.hub.entity.Account;
+import io.xj.service.hub.entity.AccountUser;
+import io.xj.service.hub.entity.User;
+import io.xj.service.hub.ingest.HubIngestModule;
+import io.xj.service.hub.persistence.HubPersistenceModule;
+import io.xj.service.hub.testing.HubIntegrationTestModule;
+import io.xj.service.hub.testing.HubIntegrationTestProvider;
+import io.xj.service.hub.testing.HubTestConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,8 +29,7 @@ import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 // future test: permissions of different users to readMany vs. of vs. update or delete account users
 public class AccountUserIT {
@@ -35,14 +37,14 @@ public class AccountUserIT {
   public ExpectedException failure = ExpectedException.none();
   private AccountUserDAO testDAO;
   private AccountUser accountUser_1_2;
-  private IntegrationTestProvider test;
+  private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    Config config = AppTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubModule(), new IntegrationTestModule()));
-    test = injector.getInstance(IntegrationTestProvider.class);
+    Config config = HubTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubIntegrationTestModule()));
+    test = injector.getInstance(HubIntegrationTestProvider.class);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -69,13 +71,13 @@ public class AccountUserIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     fake.user5 = test.insert(User.create("Jim", "jim@email.com", "http://pictures.com/jim.gif"));
     AccountUser inputData = new AccountUser()
       .setAccountId(fake.account1.getId())
       .setUserId(fake.user5.getId());
 
-    AccountUser result = testDAO.create(access, inputData);
+    AccountUser result = testDAO.create(hubAccess, inputData);
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -84,59 +86,59 @@ public class AccountUserIT {
 
   @Test
   public void create_FailIfAlreadyExists() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     AccountUser inputData = new AccountUser()
       .setAccountId(fake.account1.getId())
       .setUserId(fake.user2.getId());
 
-    failure.expect(HubException.class);
+    failure.expect(DAOException.class);
     failure.expectMessage("Account User already exists!");
 
-    testDAO.create(access, inputData);
+    testDAO.create(hubAccess, inputData);
   }
 
   @Test
   public void create_FailIfNotAdmin() throws Exception {
-    Access access = Access.create("User");
+    HubAccess hubAccess = HubAccess.create("User");
     AccountUser inputData = new AccountUser()
       .setAccountId(fake.account1.getId())
       .setUserId(fake.user2.getId());
 
-    failure.expect(HubException.class);
-    failure.expectMessage("top-level access is required");
+    failure.expect(DAOException.class);
+    failure.expectMessage("top-level hubAccess is required");
 
-    testDAO.create(access, inputData);
+    testDAO.create(hubAccess, inputData);
   }
 
   @Test
   public void create_FailsWithoutAccountID() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     AccountUser inputData = new AccountUser()
       .setUserId(fake.user2.getId());
 
     failure.expect(ValueException.class);
     failure.expectMessage("Account ID is required");
 
-    testDAO.create(access, inputData);
+    testDAO.create(hubAccess, inputData);
   }
 
   @Test
   public void create_FailsWithoutUserId() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     AccountUser inputData = new AccountUser()
       .setAccountId(fake.account1.getId());
 
     failure.expect(ValueException.class);
     failure.expectMessage("User ID is required");
 
-    testDAO.create(access, inputData);
+    testDAO.create(hubAccess, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
-    AccountUser result = testDAO.readOne(access, accountUser_1_2.getId());
+    AccountUser result = testDAO.readOne(hubAccess, accountUser_1_2.getId());
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -145,36 +147,36 @@ public class AccountUserIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.create(ImmutableList.of(Account.create()), "Artist");
-    failure.expect(HubException.class);
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "Artist");
+    failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.readOne(access, accountUser_1_2.getId());
+    testDAO.readOne(hubAccess, accountUser_1_2.getId());
   }
 
   @Test
   public void readAll_Admin() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
 
-    Collection<AccountUser> result = testDAO.readMany(access, ImmutableList.of(fake.account1.getId()));
+    Collection<AccountUser> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readAll_UserCanSeeInsideOwnAccount() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<AccountUser> result = testDAO.readMany(access, ImmutableList.of(fake.account1.getId()));
+    Collection<AccountUser> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = Access.create(ImmutableList.of(Account.create()), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "Artist");
 
-    Collection<AccountUser> result = testDAO.readMany(access, ImmutableList.of(fake.account1.getId()));
+    Collection<AccountUser> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
 
     assertNotNull(result);
     assertEquals(0L, result.size());
@@ -182,20 +184,25 @@ public class AccountUserIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
 
-    testDAO.destroy(access, accountUser_1_2.getId());
+    testDAO.destroy(hubAccess, accountUser_1_2.getId());
 
-    Assert.assertNotExist(testDAO, accountUser_1_2.getId());
+    try {
+      testDAO.readOne(HubAccess.internal(), accountUser_1_2.getId());
+      fail();
+    } catch (DAOException e) {
+      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+    }
   }
 
   @Test
   public void delete_FailIfNotAdmin() throws Exception {
-    Access access = Access.create("User");
+    HubAccess hubAccess = HubAccess.create("User");
 
-    failure.expect(HubException.class);
-    failure.expectMessage("top-level access is required");
+    failure.expect(DAOException.class);
+    failure.expectMessage("top-level hubAccess is required");
 
-    testDAO.destroy(access, accountUser_1_2.getId());
+    testDAO.destroy(hubAccess, accountUser_1_2.getId());
   }
 }

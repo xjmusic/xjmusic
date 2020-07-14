@@ -2,27 +2,20 @@
 package io.xj.service.hub.api;
 
 import com.google.inject.Injector;
-import io.xj.lib.rest_api.MediaType;
-import io.xj.lib.rest_api.Payload;
-import io.xj.lib.rest_api.PayloadObject;
+import io.xj.lib.entity.Entity;
+import io.xj.lib.jsonapi.MediaType;
+import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.PayloadObject;
 import io.xj.service.hub.HubEndpoint;
-import io.xj.service.hub.access.Access;
+import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.DAOCloner;
 import io.xj.service.hub.dao.ProgramSequenceDAO;
-import io.xj.service.hub.entity.Entity;
-import io.xj.service.hub.model.ProgramSequence;
-import io.xj.service.hub.model.UserRoleType;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -57,7 +50,7 @@ public class ProgramSequenceEndpoint extends HubEndpoint {
    @return Response
    */
   @POST
-  @Consumes(MediaType.APPLICATION_JSON_API)
+  @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({UserRoleType.ARTIST})
   public Response create(
     Payload payload,
@@ -66,11 +59,11 @@ public class ProgramSequenceEndpoint extends HubEndpoint {
   ) {
 
     try {
-      Access access = Access.fromContext(crc);
+      HubAccess hubAccess = HubAccess.fromContext(crc);
       ProgramSequence programSequence = payloadFactory.consume(dao().newInstance(), payload);
       Payload responsePayload = new Payload();
       if (Objects.nonNull(cloneId)) {
-        DAOCloner<ProgramSequence> cloner = dao().clone(access, UUID.fromString(cloneId), programSequence);
+        DAOCloner<ProgramSequence> cloner = dao().clone(hubAccess, UUID.fromString(cloneId), programSequence);
         responsePayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<PayloadObject> list = new ArrayList<>();
         for (Entity entity : cloner.getChildClones()) {
@@ -79,7 +72,7 @@ public class ProgramSequenceEndpoint extends HubEndpoint {
         }
         responsePayload.setIncluded(list);
       } else {
-        responsePayload.setDataOne(payloadFactory.toPayloadObject(dao().create(access, programSequence)));
+        responsePayload.setDataOne(payloadFactory.toPayloadObject(dao().create(hubAccess, programSequence)));
       }
 
       return response.create(responsePayload);
@@ -120,7 +113,7 @@ public class ProgramSequenceEndpoint extends HubEndpoint {
    */
   @PATCH
   @Path("{id}")
-  @Consumes(MediaType.APPLICATION_JSON_API)
+  @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(UserRoleType.ARTIST)
   public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     return update(crc, dao(), id, payload);

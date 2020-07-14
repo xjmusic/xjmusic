@@ -4,43 +4,25 @@ package io.xj.service.nexus.craft.rhythm;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.service.hub.entity.MemeEntity;
-import io.xj.service.hub.HubException;
-import io.xj.service.nexus.fabricator.Fabricator;
-import io.xj.service.hub.model.SegmentType;
-import io.xj.service.hub.isometry.EntityRank;
-import io.xj.service.hub.isometry.MemeIsometry;
-import io.xj.service.hub.isometry.NameIsometry;
-import io.xj.service.hub.model.Instrument;
-import io.xj.service.hub.model.InstrumentAudio;
-import io.xj.service.hub.model.InstrumentAudioEvent;
-import io.xj.service.hub.model.InstrumentType;
-import io.xj.service.hub.model.Program;
-import io.xj.service.hub.model.ProgramSequence;
-import io.xj.service.hub.model.ProgramSequencePattern;
-import io.xj.service.hub.model.ProgramSequencePatternEvent;
-import io.xj.service.hub.model.ProgramSequencePatternType;
-import io.xj.service.hub.model.ProgramType;
-import io.xj.service.hub.model.ProgramVoice;
-import io.xj.service.hub.model.SegmentChoice;
-import io.xj.service.hub.model.SegmentChoiceArrangement;
-import io.xj.service.hub.model.SegmentChoiceArrangementPick;
-import io.xj.lib.util.Chance;
-import io.xj.lib.util.Value;
-import io.xj.service.nexus.craft.CraftImpl;
-import io.xj.service.nexus.craft.exception.CraftException;
+import io.xj.lib.entity.MemeEntity;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
+import io.xj.lib.util.Chance;
+import io.xj.lib.util.Value;
+import io.xj.service.hub.entity.*;
+import io.xj.service.nexus.craft.CraftImpl;
+import io.xj.service.nexus.craft.exception.CraftException;
+import io.xj.service.nexus.entity.SegmentChoice;
+import io.xj.service.nexus.entity.SegmentChoiceArrangement;
+import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
+import io.xj.service.nexus.entity.SegmentType;
+import io.xj.service.nexus.fabricator.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  Rhythm craft for the current segment
@@ -67,12 +49,8 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    @param pick to get key of
    @return unique key for pattern event
    */
-  private String eventKey(SegmentChoiceArrangementPick pick) throws CraftException {
-    try {
-      return String.format(KEY_VOICE_NAME_TEMPLATE, fabricator.getSourceMaterial().getVoice(fabricator.getSourceMaterial().getProgramEvent(pick.getProgramSequencePatternEventId())).getId(), pick.getName());
-    } catch (HubException e) {
-      throw new CraftException(String.format("Unable to get event key for for SegmentChoiceArrangementPick[%s]", pick.getId()), e);
-    }
+  private String eventKey(SegmentChoiceArrangementPick pick) {
+    return String.format(KEY_VOICE_NAME_TEMPLATE, fabricator.getSourceMaterial().getVoice(fabricator.getSourceMaterial().getProgramEvent(pick.getProgramSequencePatternEventId())).getId(), pick.getName());
   }
 
   /**
@@ -81,12 +59,8 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    @param event to get key of
    @return unique key for pattern event
    */
-  private String eventKey(ProgramSequencePatternEvent event) throws CraftException {
-    try {
-      return String.format(KEY_VOICE_NAME_TEMPLATE, fabricator.getSourceMaterial().getVoice(event).getId(), getTrackName(event));
-    } catch (HubException e) {
-      throw new CraftException(String.format("Unable to get event key for for ProgramSequencePatternEvent[%s]", event.getId()), e);
-    }
+  private String eventKey(ProgramSequencePatternEvent event) {
+    return String.format(KEY_VOICE_NAME_TEMPLATE, fabricator.getSourceMaterial().getVoice(event).getId(), getTrackName(event));
   }
 
   /**
@@ -94,14 +68,9 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
 
    @param event to get voice UUID of
    @return Track name
-   @throws CraftException on failure to get Voice ID
    */
-  private String getTrackName(ProgramSequencePatternEvent event) throws CraftException {
-    try {
-      return fabricator.getSourceMaterial().getTrack(event).getName();
-    } catch (HubException e) {
-      throw new CraftException(String.format("Unable to get Track name for ProgramSequencePatternEvent[%s]", event.getId()), e);
-    }
+  private String getTrackName(ProgramSequencePatternEvent event) {
+    return fabricator.getSourceMaterial().getTrack(event).getName();
   }
 
   @Override
@@ -124,7 +93,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
       // Finally, update the segment with the crafted content
       fabricator.done();
 
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Failed to do Rhythm-Craft Work", e);
     }
   }
@@ -144,10 +113,10 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
         log.info("[segId={}] previous meme constellation picks {}", fabricator.getSegment().getId(), picks.size());
         for (SegmentChoiceArrangementPick pick : picks) {
           String key = eventKey(pick);
-          previousInstrumentAudio.put(key, fabricator.getSourceMaterial().getAudio(pick));
+          previousInstrumentAudio.put(key, fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()));
         }
       }
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw new CraftException("Unable to build map create previous instrument audio", e);
     }
     return previousInstrumentAudio;
@@ -162,7 +131,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
     SegmentType type;
     try {
       type = fabricator.getType();
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Cannot get fabricator type, in order to choose rhythm program", e);
     }
 
@@ -206,7 +175,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
       String constellation = MemeIsometry.ofMemes(fabricator.getSegmentMemes()).getConstellation();
       return constellationProgramIds.containsKey(constellation) ? Optional.of(fabricator.getSourceMaterial().getProgram(constellationProgramIds.get(constellation))) : Optional.empty();
 
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       log.warn(formatLog("Could not get rhythm program selected previously for segment meme constellation"), e);
       return Optional.empty();
     }
@@ -235,7 +204,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
           }
       }
 
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       log.warn(formatLog(String.format("Could not get previous voice instrumentId for segmentMemeConstellation=%s, voiceId=%s", segmentMemeConstellation, voiceId)), e);
     }
     return Optional.empty();
@@ -278,7 +247,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
     // (4) return the top choice
     try {
       return superEntityRank.getTop();
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Found no rhythm-type program bound to Chain!", e);
     }
   }
@@ -357,7 +326,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
       if (outroPattern.isPresent())
         craftRhythmPatternPatternEvents(previousInstrumentAudio, choice, arrangement, outroPattern.get(), curPos, loopOutPos, goForItRatio);
 
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw
         exception(String.format("Failed to craft arrangement for rhythm voiceId=%s", voice.getId()), e);
     }
@@ -395,7 +364,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
     // (4) return the top choice
     try {
       return superEntityRank.getTop();
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Found no percussive-type instrument bound to Chain!", e);
     }
   }
@@ -412,7 +381,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
     // Score includes matching memes, previous segment to macro instrument first pattern
     try {
       score += fabricator.getMemeIsometryOfSegment().score(fabricator.getSourceMaterial().getMemes(instrument)) * SCORE_MATCHED_MEMES;
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception(String.format("Could not score percussive instrumentId=%s", instrument.getId()), e);
     }
 
@@ -433,21 +402,16 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    @return deltaPos of start, after crafting this batch of rhythm pattern events
    */
   private double craftRhythmPatternPatternEvents(Map<String, InstrumentAudio> previousInstrumentAudio, SegmentChoice choice, SegmentChoiceArrangement arrangement, ProgramSequencePattern pattern, double fromPos, double maxPos, double goForItRatio) throws CraftException {
-    try {
-      if (Objects.isNull(pattern)) throw exception("Cannot craft create null pattern");
-      double totalPos = maxPos - fromPos;
-      Collection<ProgramSequencePatternEvent> events = fabricator.getSourceMaterial().getEvents(pattern);
-      Instrument instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId());
-      for (ProgramSequencePatternEvent event : events) {
-        double chanceOfRandomChoice = 0.0 == goForItRatio ? 0.0 : goForItRatio * Value.ratio(event.getPosition() - fromPos, totalPos);
-        pickInstrumentAudio(previousInstrumentAudio, instrument, arrangement, event, choice.getTranspose(), fromPos, chanceOfRandomChoice);
-      }
-      return Math.min(totalPos, pattern.getTotal());
-
-    } catch (HubException e) {
-      throw exception(String.format("Could not craft rhythm pattern patternEvents fromPos=%f, patternId=%s, maxPos=%f, goForItRatio=%f",
-        fromPos, pattern.getId(), maxPos, goForItRatio), e);
+    if (Objects.isNull(pattern)) throw exception("Cannot craft create null pattern");
+    double totalPos = maxPos - fromPos;
+    Collection<ProgramSequencePatternEvent> events = fabricator.getSourceMaterial().getEvents(pattern);
+    Instrument instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId());
+    for (ProgramSequencePatternEvent event : events) {
+      double chanceOfRandomChoice = 0.0 == goForItRatio ? 0.0 : goForItRatio * Value.ratio(event.getPosition() - fromPos, totalPos);
+      pickInstrumentAudio(previousInstrumentAudio, instrument, arrangement, event, choice.getTranspose(), fromPos, chanceOfRandomChoice);
     }
+    return Math.min(totalPos, pattern.getTotal());
+
   }
 
   /**
@@ -487,7 +451,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
         .setAmplitude(event.getVelocity())
         .setPitch(fabricator.getPitch(note)));
 
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception(String.format("Could not pick audio for instrumentId=%s, arrangementId=%s, eventId=%s, transpose=%d, shiftPosition=%f, chanceOfRandomChoice=%f",
         instrument.getId(), segmentChoiceArrangement.getId(), event.getId(), transpose, shiftPosition, chanceOfRandomChoice), e);
     }
@@ -556,7 +520,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
       // final chosen audio event
       return audioEntityRank.getTop();
 
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception(String.format("No acceptable Audio found for instrumentId=%s, eventId=%s", instrument.getId(), event.getId()), e);
     }
   }

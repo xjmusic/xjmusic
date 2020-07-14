@@ -7,23 +7,23 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.service.hub.entity.MemeEntity;
-import io.xj.service.hub.HubException;
-import io.xj.service.nexus.fabricator.Fabricator;
-import io.xj.service.hub.model.SegmentType;
-import io.xj.service.hub.isometry.EntityRank;
-import io.xj.service.hub.model.Program;
-import io.xj.service.hub.model.ProgramSequence;
-import io.xj.service.hub.model.ProgramSequenceBinding;
-import io.xj.service.hub.model.ProgramType;
-import io.xj.service.hub.model.SegmentChoice;
-import io.xj.service.hub.model.SegmentChord;
-import io.xj.service.hub.model.SegmentMeme;
+import io.xj.lib.entity.MemeEntity;
+import io.xj.lib.music.Key;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.ProgramSequenceBinding;
+import io.xj.service.hub.entity.ProgramType;
 import io.xj.service.nexus.craft.CraftImpl;
 import io.xj.service.nexus.craft.exception.CraftException;
-import io.xj.lib.music.Key;
+import io.xj.service.nexus.entity.SegmentChoice;
+import io.xj.service.nexus.entity.SegmentChord;
+import io.xj.service.nexus.entity.SegmentMeme;
+import io.xj.service.nexus.entity.SegmentType;
+import io.xj.service.nexus.fabricator.EntityRank;
+import io.xj.service.nexus.fabricator.FabricationException;
+import io.xj.service.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,7 +179,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         .setEndAtInstant(segmentEndInstant(mainSequence));
       fabricator.done();
 
-    } catch (HubException e) {
+    } catch (FabricationException e) {
 
       throw exception("Failed to do Macro+Main Craft work!", e);
     }
@@ -215,7 +215,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
           throw exception("unable to determine macro-type program transposition!");
       }
 
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Failed to get Macro Transpose", e);
     }
   }
@@ -243,7 +243,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
           throw exception(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
       }
 
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Failed to get Macro Pattern Offset", e);
     }
   }
@@ -269,7 +269,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
           throw exception(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
       }
 
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Failed to get Main Pattern Offset", e);
     }
   }
@@ -306,7 +306,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     try {
       if (typesContinueMacro.contains(fabricator.getType()))
         return fabricator.getProgram(fabricator.getPreviousMacroChoice());
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Failed to get Macro Program", e);
     }
 
@@ -328,7 +328,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // (3b) Avoid previous macro program
     if (!fabricator.isInitialSegment()) try {
       superEntityRank.score(fabricator.getProgram(fabricator.getPreviousMacroChoice()).getId(), -SCORE_AVOID_PREVIOUS);
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Failed to get program create previous Macro choice, in order to choose next Macro", e);
     }
 
@@ -338,7 +338,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // (4) return the top choice
     try {
       return superEntityRank.getTop();
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Found no macro-type program bound to Chain!", e);
     }
   }
@@ -357,13 +357,13 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // (3b) Avoid previous macro program
     if (!fabricator.isInitialSegment()) try {
       superEntityRank.score(fabricator.getProgram(fabricator.getPreviousMacroChoice()).getId(), -SCORE_AVOID_PREVIOUS);
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Failed to get program create previous Macro choice, in order to choose next Macro", e);
     }
 
     try {
       return superEntityRank.getTop();
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Found no macro-type program bound to Chain!", e);
     }
   }
@@ -383,7 +383,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     try {
       if (SegmentType.Continue == fabricator.getType())
         return fabricator.getProgram(fabricator.getPreviousMainChoice());
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Failed to get Macro Program", e);
     }
 
@@ -409,7 +409,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // (4) return the top choice
     try {
       return superEntityRank.getTop();
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Found no main-type program bound to Chain!", e);
     }
   }
@@ -433,7 +433,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     try {
       score += fabricator.getMemeIsometryOfNextSequenceInPreviousMacro()
         .score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCHED_MEMES;
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Failed to get source material for scoring Macro", e);
     }
 
@@ -462,7 +462,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         if (Objects.equals(program.getId(), fabricator.getProgram(fabricator.getPreviousMainChoice()).getId())) {
           score -= SCORE_AVOID_PREVIOUS;
         }
-      } catch (HubException e) {
+      } catch (FabricationException e) {
         throw exception("Failed to get previous main choice, in order to score next Main choice", e);
       }
 
@@ -471,7 +471,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         if (Key.isSameMode(fabricator.getKeyForChoice(fabricator.getPreviousMainChoice()), program.getKey())) {
           score += SCORE_MATCHED_KEY_MODE;
         }
-      } catch (HubException e) {
+      } catch (FabricationException e) {
         throw exception("Failed to get current macro offset, in order to score next Main choice", e);
       }
     }
@@ -480,7 +480,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     try {
       score += fabricator.getMemeIsometryOfCurrentMacro()
         .score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCHED_MEMES;
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Failed to get memes at beginning create program, in order to score next Main choice", e);
     }
 
@@ -500,7 +500,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         for (MemeEntity meme : fabricator.getMemesOfChoice(choice)) {
           uniqueResults.add(meme.getName());
         }
-      } catch (HubException e) {
+      } catch (FabricationException e) {
         log.warn("Failed to get memes create choice: {}", choice);
       }
     }
@@ -519,7 +519,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   private long segmentLengthNanos(ProgramSequence mainSequence) throws CraftException {
     try {
       return (long) (fabricator.computeSecondsAtPosition(mainSequence.getTotal()) * NANOS_PER_SECOND);
-    } catch (HubException e) {
+    } catch (FabricationException e) {
       throw exception("Failed to compute seconds at position", e);
     }
   }

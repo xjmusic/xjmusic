@@ -1,28 +1,40 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
-import io.xj.lib.rest_api.PayloadFactory;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.ApiUrlProvider;
+import io.xj.lib.util.TempFile;
 import io.xj.lib.util.Text;
 import io.xj.service.hub.HubApp;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.dao.PlatformMessageDAO;
-import io.xj.service.hub.entity.MessageType;
-import io.xj.service.hub.model.PlatformMessage;
-import io.xj.service.hub.persistence.SQLDatabaseProvider;
-import io.xj.service.hub.work.RobustWorkerPool;
-import io.xj.service.hub.work.WorkManager;
-import net.greghaines.jesque.worker.JobFactory;
-import net.greghaines.jesque.worker.WorkerEvent;
+import io.xj.service.hub.access.HubAccessLogFilter;
+import io.xj.service.hub.client.HubAccessTokenFilter;
+import io.xj.service.hub.client.HubClient;
+import io.xj.service.hub.entity.Account;
+import io.xj.service.hub.entity.Instrument;
+import io.xj.service.hub.entity.InstrumentAudio;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramSequenceBinding;
+import io.xj.service.hub.entity.ProgramSequencePatternEvent;
+import io.xj.service.hub.entity.ProgramVoice;
+import io.xj.service.nexus.entity.Chain;
+import io.xj.service.nexus.entity.ChainBinding;
+import io.xj.service.nexus.entity.ChainConfig;
+import io.xj.service.nexus.entity.Segment;
+import io.xj.service.nexus.entity.SegmentChoice;
+import io.xj.service.nexus.entity.SegmentChoiceArrangement;
+import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
+import io.xj.service.nexus.entity.SegmentChord;
+import io.xj.service.nexus.entity.SegmentMeme;
+import io.xj.service.nexus.entity.SegmentMessage;
+import io.xj.service.nexus.work.NexusWork;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
+import java.io.File;
 import java.util.Set;
-import java.util.concurrent.Executors;
 
 /**
  Base application for XJ services.
@@ -45,13 +57,8 @@ import java.util.concurrent.Executors;
  */
 public class NexusApp extends App {
   private final org.slf4j.Logger log = LoggerFactory.getLogger(NexusApp.class);
-  private final WorkManager workManager;
-  private final PlatformMessageDAO platformMessageDAO;
+  private final NexusWork work;
   private final String platformRelease;
-  private final SQLDatabaseProvider sqlDatabaseProvider;
-  private JobFactory jobFactory;
-  private RobustWorkerPool workerPool;
-  private int workConcurrency;
 
   /**
    Construct a new application by providing
@@ -70,26 +77,138 @@ public class NexusApp extends App {
     Config config = injector.getInstance(Config.class);
 
     // Configuration
-    workConcurrency = config.getInt("work.concurrency");
     platformRelease = config.getString("platform.release");
 
     // non-static logger for this class, because app must init first
     log.info("{} configuration:\n{}", getName(), Text.toReport(config));
 
     // core delegates
-    workManager = injector.getInstance(WorkManager.class);
-    platformMessageDAO = injector.getInstance(PlatformMessageDAO.class);
-    sqlDatabaseProvider = injector.getInstance(SQLDatabaseProvider.class);
+    work = injector.getInstance(NexusWork.class);
 
-    // Setup REST API payload topology
-    HubApp.buildApiTopology(injector.getInstance(PayloadFactory.class));
+    // Setup Entity topology
+    EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
+    HubApp.buildApiTopology(entityFactory);
+    buildApiTopology(entityFactory);
 
-    // Job factory
-    try {
-      jobFactory = injector.getInstance(JobFactory.class);
-    } catch (Exception ignored) {
-      log.info("{} has no JobFactory", getName());
-    }
+    // Configure REST API url provider
+    HubApp.configureApiUrls(config, injector.getInstance(ApiUrlProvider.class));
+
+    // Register JAX-RS filter for access log only registers if file succeeds to open for writing
+    String pathToWriteAccessLog = config.hasPath("app.accessLogFile") ?
+      config.getString("app.accessLogFile") :
+      TempFile.getTempFilePathPrefix() + File.separator + "access.log";
+    new HubAccessLogFilter(pathToWriteAccessLog).registerTo(getResourceConfig());
+
+    // Register JAX-RS filter for reading access control token
+    HubClient hubClient = injector.getInstance(HubClient.class);
+    getResourceConfig().register(new HubAccessTokenFilter(hubClient, config.getString("access.tokenName")));
+  }
+
+  /**
+   Given a entity factory, build the Hub REST API entity topology
+
+   @param entityFactory to build topology on
+   */
+  public static void buildApiTopology(EntityFactory entityFactory) {
+    // Chain
+    entityFactory.register(Chain.class)
+      .createdBy(Chain::new)
+      .withAttribute("name")
+      .withAttribute("state")
+      .withAttribute("type")
+      .withAttribute("startAt")
+      .withAttribute("stopAt")
+      .withAttribute("embedKey")
+      .belongsTo(Account.class)
+      .hasMany(ChainBinding.class)
+      .hasMany(ChainConfig.class);
+
+    // ChainBinding
+    entityFactory.register(ChainBinding.class)
+      .createdBy(ChainBinding::new)
+      .withAttribute("type")
+      .withAttribute("targetId")
+      .belongsTo(Chain.class);
+
+    // ChainConfig
+    entityFactory.register(ChainConfig.class)
+      .createdBy(ChainConfig::new)
+      .withAttribute("type")
+      .withAttribute("value")
+      .belongsTo(Chain.class);
+
+    // Segment
+    entityFactory.register(Segment.class)
+      .createdBy(Segment::new)
+      .withAttribute("state")
+      .withAttribute("beginAt")
+      .withAttribute("endAt")
+      .withAttribute("key")
+      .withAttribute("total")
+      .withAttribute("offset")
+      .withAttribute("density")
+      .withAttribute("tempo")
+      .withAttribute("waveformKey")
+      .withAttribute("waveformPreroll")
+      .withAttribute("type")
+      .belongsTo(Chain.class)
+      .hasMany(SegmentChoiceArrangement.class)
+      .hasMany(SegmentChoice.class)
+      .hasMany(SegmentChoiceArrangementPick.class)
+      .hasMany(SegmentChord.class)
+      .hasMany(SegmentMeme.class)
+      .hasMany(SegmentMessage.class);
+
+    // SegmentChoice
+    entityFactory.register(SegmentChoice.class)
+      .createdBy(SegmentChoice::new)
+      .withAttribute("type")
+      .withAttribute("transpose")
+      .belongsTo(Segment.class)
+      .belongsTo(Program.class)
+      .belongsTo(ProgramSequenceBinding.class)
+      .hasMany(SegmentChoiceArrangement.class);
+
+    // SegmentChoiceArrangement
+    entityFactory.register(SegmentChoiceArrangement.class)
+      .createdBy(SegmentChoiceArrangement::new)
+      .belongsTo(Segment.class)
+      .belongsTo(SegmentChoice.class)
+      .belongsTo(ProgramVoice.class)
+      .belongsTo(Instrument.class);
+
+    // SegmentChoiceArrangementPick
+    entityFactory.register(SegmentChoiceArrangementPick.class)
+      .createdBy(SegmentChoiceArrangementPick::new)
+      .withAttribute("start")
+      .withAttribute("length")
+      .withAttribute("amplitude")
+      .withAttribute("pitch")
+      .withAttribute("name")
+      .belongsTo(Segment.class)
+      .belongsTo(SegmentChoiceArrangement.class)
+      .belongsTo(InstrumentAudio.class)
+      .belongsTo(ProgramSequencePatternEvent.class);
+
+    // SegmentChord
+    entityFactory.register(SegmentChord.class)
+      .createdBy(SegmentChord::new)
+      .withAttribute("name")
+      .withAttribute("position")
+      .belongsTo(Segment.class);
+
+    // SegmentMeme
+    entityFactory.register(SegmentMeme.class)
+      .createdBy(SegmentMeme::new)
+      .withAttribute("name")
+      .belongsTo(Segment.class);
+
+    // SegmentMessage
+    entityFactory.register(SegmentMessage.class)
+      .createdBy(SegmentMessage::new)
+      .withAttribute("body")
+      .withAttribute("type")
+      .belongsTo(Segment.class);
   }
 
   /**
@@ -97,29 +216,11 @@ public class NexusApp extends App {
    exposing JAX-RS resources defined in this app.
    */
   public void start() throws AppException {
-    log.info("{} will start worker pool before resource servers", getName());
-
-    if (Objects.nonNull(jobFactory)) {
-      workerPool = new RobustWorkerPool(() -> workManager.getWorker(jobFactory),
-        workConcurrency, Executors.defaultThreadFactory());
-
-      // Handle errors of the worker pool
-      workerPool.getWorkerEventEmitter().addListener(
-        (event, worker, queue, errorJob, runner, result, t) ->
-          log.error("{} error in worker pool: {}",
-            getName(), ImmutableList.of(event, worker, queue, errorJob, runner, result, t)),
-        WorkerEvent.WORKER_ERROR
-      );
-
-      workerPool.run();
-    }
-
+    log.info("{} will start work management before resource servers", getName());
+    work.start();
+    //
     super.start();
-
-    sendPlatformMessage(String.format(
-      "%s (%s) is up at %s",
-      getName(), platformRelease, getBaseURI()
-    ));
+    log.info("{} ({}) is up at {}}", getName(), platformRelease, getBaseURI());
   }
 
   /**
@@ -127,34 +228,20 @@ public class NexusApp extends App {
 
    @return work manager
    */
-  public WorkManager getWorkManager() {
-    return workManager;
+  public NexusWork getWork() {
+    return work;
   }
 
 
   /**
    stop App Server
    */
-  public void stop() {
+  public void finish() {
     log.info("{} will stop worker pool before resource servers", getName());
-
-    // shutdown worker pool if present
-    if (Objects.nonNull(workerPool)) {
-      workerPool.end(false);
-      log.info("Worker pool did shutdown OK");
-    }
-
-    super.stop();
-
-    // send messages about successful shutdown
-    sendPlatformMessage(String.format(
-      "%s (%s) did exit OK at %s",
-      getName(), platformRelease, getBaseURI()
-    ));
-
-    // shutdown SQL database connection pool
-    sqlDatabaseProvider.shutdown();
-    log.info("{} SQL database connection pool did shutdown OK", getName());
+    work.finish();
+    //
+    super.finish();
+    log.info("{} ({}}) did exit OK at {}", getName(), platformRelease, getBaseURI());
   }
 
   /**
@@ -164,17 +251,5 @@ public class NexusApp extends App {
    */
   public String getBaseURI() {
     return "http://" + getRestHostname() + ":" + getRestPort() + "/";
-  }
-
-
-  /**
-   [#153539503] Developer wants any app to send PlatformMessage on startup, including code version, region, ip@param body of message
-   */
-  private void sendPlatformMessage(String body) {
-    try {
-      platformMessageDAO.create(Access.internal(), new PlatformMessage().setType(String.valueOf(MessageType.Debug)).setBody(body));
-    } catch (Exception e) {
-      log.error("failed to send startup platform message", e);
-    }
   }
 }

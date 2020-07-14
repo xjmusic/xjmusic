@@ -2,13 +2,13 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.lib.rest_api.PayloadFactory;
-import io.xj.lib.rest_api.RestApiException;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.InstrumentAudioEvent;
-import io.xj.service.hub.persistence.SQLDatabaseProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.entity.InstrumentAudioEvent;
+import io.xj.service.hub.persistence.HubDatabaseProvider;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -21,16 +21,17 @@ public class InstrumentAudioEventDAOImpl extends DAOImpl<InstrumentAudioEvent> i
   @Inject
   public InstrumentAudioEventDAOImpl(
     PayloadFactory payloadFactory,
-    SQLDatabaseProvider dbProvider
+    EntityFactory entityFactory,
+    HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory);
+    super(payloadFactory, entityFactory);
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public InstrumentAudioEvent create(Access access, InstrumentAudioEvent entity) throws HubException, RestApiException, ValueException {
+  public InstrumentAudioEvent create(HubAccess hubAccess, InstrumentAudioEvent entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
-    requireArtist(access);
+    requireArtist(hubAccess);
     return modelFrom(InstrumentAudioEvent.class,
       executeCreate(dbProvider.getDSL(), INSTRUMENT_AUDIO_EVENT, entity));
 
@@ -38,8 +39,8 @@ public class InstrumentAudioEventDAOImpl extends DAOImpl<InstrumentAudioEvent> i
 
   @Override
   @Nullable
-  public InstrumentAudioEvent readOne(Access access, UUID id) throws HubException {
-    requireArtist(access);
+  public InstrumentAudioEvent readOne(HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
     return modelFrom(InstrumentAudioEvent.class,
       dbProvider.getDSL().selectFrom(INSTRUMENT_AUDIO_EVENT)
         .where(INSTRUMENT_AUDIO_EVENT.ID.eq(id))
@@ -48,8 +49,8 @@ public class InstrumentAudioEventDAOImpl extends DAOImpl<InstrumentAudioEvent> i
 
   @Override
   @Nullable
-  public Collection<InstrumentAudioEvent> readMany(Access access, Collection<UUID> parentIds) throws HubException {
-    requireArtist(access);
+  public Collection<InstrumentAudioEvent> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+    requireArtist(hubAccess);
     return modelsFrom(InstrumentAudioEvent.class,
       dbProvider.getDSL().selectFrom(INSTRUMENT_AUDIO_EVENT)
         .where(INSTRUMENT_AUDIO_EVENT.INSTRUMENT_AUDIO_ID.in(parentIds))
@@ -57,15 +58,15 @@ public class InstrumentAudioEventDAOImpl extends DAOImpl<InstrumentAudioEvent> i
   }
 
   @Override
-  public void update(Access access, UUID id, InstrumentAudioEvent entity) throws HubException, RestApiException, ValueException {
+  public void update(HubAccess hubAccess, UUID id, InstrumentAudioEvent entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
-    requireArtist(access);
+    requireArtist(hubAccess);
     executeUpdate(dbProvider.getDSL(), INSTRUMENT_AUDIO_EVENT, id, entity);
   }
 
   @Override
-  public void destroy(Access access, UUID id) throws HubException {
-    requireArtist(access);
+  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
     dbProvider.getDSL().deleteFrom(INSTRUMENT_AUDIO_EVENT)
       .where(INSTRUMENT_AUDIO_EVENT.ID.eq(id))
       .execute();

@@ -2,13 +2,13 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.lib.rest_api.PayloadFactory;
-import io.xj.lib.rest_api.RestApiException;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.InstrumentMeme;
-import io.xj.service.hub.persistence.SQLDatabaseProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.entity.InstrumentMeme;
+import io.xj.service.hub.persistence.HubDatabaseProvider;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -21,24 +21,25 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   @Inject
   public InstrumentMemeDAOImpl(
     PayloadFactory payloadFactory,
-    SQLDatabaseProvider dbProvider
+    EntityFactory entityFactory,
+    HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory);
+    super(payloadFactory, entityFactory);
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public InstrumentMeme create(Access access, InstrumentMeme entity) throws HubException, RestApiException, ValueException {
+  public InstrumentMeme create(HubAccess hubAccess, InstrumentMeme entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
-    requireArtist(access);
+    requireArtist(hubAccess);
     return modelFrom(InstrumentMeme.class,
       executeCreate(dbProvider.getDSL(), INSTRUMENT_MEME, entity));
   }
 
   @Override
   @Nullable
-  public InstrumentMeme readOne(Access access, UUID id) throws HubException {
-    requireArtist(access);
+  public InstrumentMeme readOne(HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
     return modelFrom(InstrumentMeme.class,
       dbProvider.getDSL().selectFrom(INSTRUMENT_MEME)
         .where(INSTRUMENT_MEME.ID.eq(id))
@@ -47,8 +48,8 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
 
   @Override
   @Nullable
-  public Collection<InstrumentMeme> readMany(Access access, Collection<UUID> parentIds) throws HubException {
-    requireArtist(access);
+  public Collection<InstrumentMeme> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+    requireArtist(hubAccess);
     return modelsFrom(InstrumentMeme.class,
       dbProvider.getDSL().selectFrom(INSTRUMENT_MEME)
         .where(INSTRUMENT_MEME.INSTRUMENT_ID.in(parentIds))
@@ -56,15 +57,15 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   }
 
   @Override
-  public void update(Access access, UUID id, InstrumentMeme entity) throws HubException, RestApiException, ValueException {
+  public void update(HubAccess hubAccess, UUID id, InstrumentMeme entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
-    requireArtist(access);
+    requireArtist(hubAccess);
     executeUpdate(dbProvider.getDSL(), INSTRUMENT_MEME, id, entity);
   }
 
   @Override
-  public void destroy(Access access, UUID id) throws HubException {
-    requireArtist(access);
+  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
     dbProvider.getDSL().deleteFrom(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.ID.eq(id))
       .execute();

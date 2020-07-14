@@ -6,25 +6,20 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.HubException;
-import io.xj.service.hub.HubModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.Account;
-import io.xj.service.hub.model.Instrument;
-import io.xj.service.hub.model.InstrumentState;
-import io.xj.service.hub.model.InstrumentType;
-import io.xj.service.hub.model.Library;
-import io.xj.service.hub.model.Program;
-import io.xj.service.hub.model.ProgramState;
-import io.xj.service.hub.model.ProgramType;
-import io.xj.service.hub.model.User;
-import io.xj.service.hub.testing.AppTestConfiguration;
-import io.xj.service.hub.testing.Assert;
-import io.xj.service.hub.testing.IntegrationTestModule;
-import io.xj.service.hub.testing.IntegrationTestProvider;
-import io.xj.service.hub.testing.InternalResources;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.access.HubAccessControlModule;
+import io.xj.service.hub.entity.*;
+import io.xj.service.hub.ingest.HubIngestModule;
+import io.xj.service.hub.persistence.HubPersistenceModule;
+import io.xj.service.hub.testing.HubIntegrationTestModule;
+import io.xj.service.hub.testing.HubIntegrationTestProvider;
+import io.xj.service.hub.testing.HubTestConfiguration;
 import org.assertj.core.util.Lists;
 import org.junit.After;
 import org.junit.Before;
@@ -32,38 +27,37 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 public class LibraryIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private LibraryDAO testDAO;
-  private IntegrationTestProvider test;
+  private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    Config config = AppTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubModule(), new IntegrationTestModule()));
-test = injector.getInstance(IntegrationTestProvider.class);
+    Config config = HubTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubIntegrationTestModule()));
+    test = injector.getInstance(HubIntegrationTestProvider.class);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
 
     // Account "palm tree" has library "leaves" and library "coconuts"
     fake.account1 = test.insert(Account.create("palm tree"));
-    fake.library1a = test.insert(Library.create(fake.account1, "leaves", InternalResources.now()));
-    fake.library1b = test.insert(Library.create(fake.account1, "coconuts", InternalResources.now()));
+    fake.library1a = test.insert(Library.create(fake.account1, "leaves", Instant.now()));
+    fake.library1b = test.insert(Library.create(fake.account1, "coconuts", Instant.now()));
 
     // Account "boat" has library "helm" and library "sail"
     fake.account2 = test.insert(Account.create("boat"));
-    fake.library2a = test.insert(Library.create(fake.account2, "helm", InternalResources.now()));
-    fake.library2b = test.insert(Library.create(fake.account2, "sail", InternalResources.now()));
+    fake.library2a = test.insert(Library.create(fake.account2, "helm", Instant.now()));
+    fake.library2b = test.insert(Library.create(fake.account2, "sail", Instant.now()));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(LibraryDAO.class);
@@ -76,12 +70,12 @@ test = injector.getInstance(IntegrationTestProvider.class);
 
   @Test
   public void create() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     Library inputData = new Library()
       .setName("coconuts")
       .setAccountId(fake.account1.getId());
 
-    Library result = testDAO.create(access, inputData);
+    Library result = testDAO.create(hubAccess, inputData);
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -93,12 +87,12 @@ test = injector.getInstance(IntegrationTestProvider.class);
    */
   @Test
   public void create_asEngineer() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Engineer");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
     Library inputData = new Library()
       .setName("coconuts")
       .setAccountId(fake.account1.getId());
 
-    Library result = testDAO.create(access, inputData);
+    Library result = testDAO.create(hubAccess, inputData);
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -110,34 +104,34 @@ test = injector.getInstance(IntegrationTestProvider.class);
    */
   @Test
   public void create_asEngineer_failsWithoutAccountAccess() throws Exception {
-    Access access = Access.create(ImmutableList.of(Account.create()), "Engineer");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "Engineer");
     Library inputData = new Library()
       .setName("coconuts")
       .setAccountId(fake.account1.getId());
 
-    failure.expect(HubException.class);
+    failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.create(access, inputData);
+    testDAO.create(hubAccess, inputData);
   }
 
   @Test
   public void create_FailsWithoutAccountID() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     Library inputData = new Library()
       .setName("coconuts");
 
     failure.expect(ValueException.class);
     failure.expectMessage("Account ID is required");
 
-    testDAO.create(access, inputData);
+    testDAO.create(hubAccess, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Library result = testDAO.readOne(access, fake.library1b.getId());
+    Library result = testDAO.readOne(hubAccess, fake.library1b.getId());
 
     assertNotNull(result);
     assertEquals(fake.library1b.getId(), result.getId());
@@ -147,18 +141,18 @@ test = injector.getInstance(IntegrationTestProvider.class);
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.create(ImmutableList.of(Account.create()), "User");
-    failure.expect(HubException.class);
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User");
+    failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.readOne(access, fake.account1.getId());
+    testDAO.readOne(hubAccess, fake.account1.getId());
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<Library> result = testDAO.readMany(access, ImmutableList.of(fake.account1.getId()));
+    Collection<Library> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(2L, result.size());
     Iterator<Library> resultIt = result.iterator();
@@ -168,9 +162,9 @@ test = injector.getInstance(IntegrationTestProvider.class);
 
   @Test
   public void readAll_fromAllAccounts() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1, fake.account2), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1, fake.account2), "User");
 
-    Collection<Library> result = testDAO.readMany(access, Lists.newArrayList());
+    Collection<Library> result = testDAO.readMany(hubAccess, Lists.newArrayList());
 
     assertEquals(4L, result.size());
     Iterator<Library> it = result.iterator();
@@ -182,47 +176,47 @@ test = injector.getInstance(IntegrationTestProvider.class);
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = Access.create(ImmutableList.of(Account.create()), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User");
 
-    Collection<Library> result = testDAO.readMany(access, ImmutableList.of(fake.account1.getId()));
+    Collection<Library> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(0L, result.size());
   }
 
   @Test
   public void update_FailsWithoutAccountID() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     Library inputData = new Library()
       .setName("cannons");
 
     failure.expect(ValueException.class);
     failure.expectMessage("Account ID is required");
 
-    testDAO.update(access, fake.library1a.getId(), inputData);
+    testDAO.update(hubAccess, fake.library1a.getId(), inputData);
   }
 
   @Test
   public void update_FailsWithoutName() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     Library inputData = new Library()
       .setAccountId(fake.account1.getId());
 
     failure.expect(ValueException.class);
     failure.expectMessage("Name is required");
 
-    testDAO.update(access, fake.library1a.getId(), inputData);
+    testDAO.update(hubAccess, fake.library1a.getId(), inputData);
   }
 
   @Test
   public void update() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     Library inputData = new Library()
       .setName("cannons")
       .setAccountId(fake.account1.getId());
 
-    testDAO.update(access, fake.library1a.getId(), inputData);
+    testDAO.update(hubAccess, fake.library1a.getId(), inputData);
 
-    Library result = testDAO.readOne(Access.internal(), fake.library1a.getId());
+    Library result = testDAO.readOne(HubAccess.internal(), fake.library1a.getId());
     assertNotNull(result);
     assertEquals("cannons", result.getName());
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -233,14 +227,14 @@ test = injector.getInstance(IntegrationTestProvider.class);
    */
   @Test
   public void update_asEngineer() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "Engineer");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
     Library inputData = new Library()
       .setName("cannons")
       .setAccountId(fake.account1.getId());
 
-    testDAO.update(access, fake.library1a.getId(), inputData);
+    testDAO.update(hubAccess, fake.library1a.getId(), inputData);
 
-    Library result = testDAO.readOne(Access.internal(), fake.library1a.getId());
+    Library result = testDAO.readOne(HubAccess.internal(), fake.library1a.getId());
     assertNotNull(result);
     assertEquals("cannons", result.getName());
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -251,29 +245,29 @@ test = injector.getInstance(IntegrationTestProvider.class);
    */
   @Test
   public void update_asEngineer_failsWithoutAccountAccess() throws Exception {
-    Access access = Access.create(ImmutableList.of(Account.create()), "Engineer");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "Engineer");
     Library inputData = new Library()
       .setName("cannons")
       .setAccountId(fake.account1.getId());
 
-    failure.expect(HubException.class);
+    failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.update(access, fake.library1a.getId(), inputData);
+    testDAO.update(hubAccess, fake.library1a.getId(), inputData);
   }
 
   @Test
   public void update_FailsUpdatingToNonexistentAccount() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     Library inputData = new Library()
       .setName("cannons")
       .setAccountId(fake.account1.getId());
 
     try {
-      testDAO.update(access, fake.library1a.getId(), inputData);
+      testDAO.update(hubAccess, fake.library1a.getId(), inputData);
 
     } catch (Exception e) {
-      Library result = testDAO.readOne(Access.internal(), fake.library1a.getId());
+      Library result = testDAO.readOne(HubAccess.internal(), fake.library1a.getId());
       assertNotNull(result);
       assertEquals("helm", result.getName());
       assertEquals(fake.library1a.getId(), result.getAccountId());
@@ -283,14 +277,14 @@ test = injector.getInstance(IntegrationTestProvider.class);
 
   @Test
   public void update_Name() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     Library inputData = new Library()
       .setName("cannons")
       .setAccountId(fake.account2.getId());
 
-    testDAO.update(access, fake.library2a.getId(), inputData);
+    testDAO.update(hubAccess, fake.library2a.getId(), inputData);
 
-    Library result = testDAO.readOne(Access.internal(), fake.library2a.getId());
+    Library result = testDAO.readOne(HubAccess.internal(), fake.library2a.getId());
     assertNotNull(result);
     assertEquals("cannons", result.getName());
     assertEquals(fake.account2.getId(), result.getAccountId());
@@ -298,14 +292,14 @@ test = injector.getInstance(IntegrationTestProvider.class);
 
   @Test
   public void update_NameAndAccount() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     Library inputData = new Library()
       .setName("trunk")
       .setAccountId(fake.account1.getId());
 
-    testDAO.update(access, fake.library1a.getId(), inputData);
+    testDAO.update(hubAccess, fake.library1a.getId(), inputData);
 
-    Library result = testDAO.readOne(Access.internal(), fake.library1a.getId());
+    Library result = testDAO.readOne(HubAccess.internal(), fake.library1a.getId());
     assertNotNull(result);
     assertEquals("trunk", result.getName());
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -313,41 +307,46 @@ test = injector.getInstance(IntegrationTestProvider.class);
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
 
-    testDAO.destroy(access, fake.library1a.getId());
+    testDAO.destroy(hubAccess, fake.library1a.getId());
 
-    Assert.assertNotExist(testDAO, fake.library1a.getId());
+    try {
+      testDAO.readOne(HubAccess.internal(), fake.library1a.getId());
+      fail();
+    } catch (DAOException e) {
+      assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
+    }
   }
 
   @Test
   public void delete_FailsIfLibraryHasProgram() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     fake.user101 = test.insert(User.create("bill", "bill@email.com", "http://pictures.com/bill.gif"));
     test.insert(Program.create(fake.user101, fake.library2b, ProgramType.Main, ProgramState.Published, "brilliant", "C#", 120.0, 0.6));
 
     try {
-      testDAO.destroy(access, fake.library2b.getId());
+      testDAO.destroy(hubAccess, fake.library2b.getId());
     } catch (Exception e) {
-      Library result = testDAO.readOne(Access.internal(), fake.library2b.getId());
+      Library result = testDAO.readOne(HubAccess.internal(), fake.library2b.getId());
       assertNotNull(result);
-      assertSame(HubException.class, e.getClass());
+      assertSame(DAOException.class, e.getClass());
       assertEquals("Found Program in Library", e.getMessage());
     }
   }
 
   @Test
   public void delete_FailsIfLibraryHasInstrument() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     fake.user101 = test.insert(User.create("bill", "bill@email.com", "http://pictures.com/bill.gif"));
     test.insert(Instrument.create(fake.user101, fake.library2b, InstrumentType.Percussive, InstrumentState.Published, "brilliant"));
 
     try {
-      testDAO.destroy(access, fake.library2b.getId());
+      testDAO.destroy(hubAccess, fake.library2b.getId());
     } catch (Exception e) {
-      Library result = testDAO.readOne(Access.internal(), fake.library2b.getId());
+      Library result = testDAO.readOne(HubAccess.internal(), fake.library2b.getId());
       assertNotNull(result);
-      assertSame(HubException.class, e.getClass());
+      assertSame(DAOException.class, e.getClass());
       assertEquals("Found Instrument in Library", e.getMessage());
     }
   }

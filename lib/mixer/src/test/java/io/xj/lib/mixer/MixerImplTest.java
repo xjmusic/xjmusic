@@ -11,9 +11,7 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.time.Duration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MixerImplTest {
 
@@ -90,7 +88,7 @@ public class MixerImplTest {
     InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_Stereo.wav");
     testMixer.loadSource("F32LSB_48kHz_Stereo", new BufferedInputStream(new FileInputStream(internalResource.getFile())));
 
-    assertTrue( testMixer.hasLoadedSource("F32LSB_48kHz_Stereo"));
+    assertTrue(testMixer.hasLoadedSource("F32LSB_48kHz_Stereo"));
     assertFalse(testMixer.hasLoadedSource("bonkers"));
   }
 

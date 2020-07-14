@@ -2,9 +2,9 @@
 package io.xj.service.nexus.fabricator;
 
 import com.google.inject.assistedinject.Assisted;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.Segment;
+import io.xj.service.hub.client.HubClientAccess;
+import io.xj.service.nexus.entity.Chain;
+import io.xj.service.nexus.entity.Segment;
 
 /**
  Fabricator content = contentFactory.workOn(segment);
@@ -19,10 +19,11 @@ public interface SegmentWorkbenchFactory {
    @param access  control
    @param segment Segment to be worked on
    @return SegmentWorkbench
-   @throws HubException on failure
+   @throws FabricationException on failure
    */
   SegmentWorkbench workOn(
-    @Assisted("access") Access access,
+    @Assisted("access") HubClientAccess access,
+    @Assisted("chain") Chain chain,
     @Assisted("segment") Segment segment
-  ) throws HubException;
+  ) throws FabricationException;
 }

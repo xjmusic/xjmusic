@@ -1,18 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.fabricator;
 
-import io.xj.lib.rest_api.RestApiException;
+import io.xj.lib.entity.EntityCache;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.cache.EntityCache;
-import io.xj.service.hub.model.ProgramType;
-import io.xj.service.hub.model.Segment;
-import io.xj.service.hub.model.SegmentChoice;
-import io.xj.service.hub.model.SegmentChoiceArrangement;
-import io.xj.service.hub.model.SegmentChoiceArrangementPick;
-import io.xj.service.hub.model.SegmentChord;
-import io.xj.service.hub.model.SegmentMeme;
-import io.xj.service.hub.model.SegmentMessage;
+import io.xj.service.hub.entity.ProgramType;
+import io.xj.service.nexus.entity.*;
 
 public interface SegmentWorkbench {
 
@@ -24,7 +17,6 @@ public interface SegmentWorkbench {
    @return current segment
    */
   Segment getSegment();
-
 
   /**
    @return entity cache of SegmentChoiceArrangement
@@ -71,14 +63,21 @@ public interface SegmentWorkbench {
    Calls each EntityCache writeInserts() methods- which gets only the added records and clears the added-records queue
    Sends added records to segmentDAO batch insert method
    */
-  void done() throws HubException, RestApiException, ValueException;
+  void done() throws FabricationException, JsonApiException, ValueException;
 
   /**
    Get the choice of a given type
 
    @param type of choice to get
    @return choice of given type
-   @throws HubException if no such choice type exists
+   @throws FabricationException if no such choice type exists
    */
-  SegmentChoice getChoiceOfType(ProgramType type) throws HubException;
+  SegmentChoice getChoiceOfType(ProgramType type) throws FabricationException;
+
+  /**
+   Get the Chain this Segment Workbench is working within
+
+   @return Chain that this this Segment Workbench is working within
+   */
+  Chain getChain();
 }

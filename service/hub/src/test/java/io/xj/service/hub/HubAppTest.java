@@ -9,12 +9,13 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.lib.rest_api.RestApiModule;
-import io.xj.service.hub.access.AccessControlProvider;
-import io.xj.service.hub.dao.PlatformMessageDAO;
-import io.xj.service.hub.persistence.SQLDatabaseProvider;
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentResponse;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.service.hub.access.HubAccessControlProvider;
+import io.xj.service.hub.persistence.HubDatabaseProvider;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,30 +23,33 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.IOException;
+import java.net.URI;
+
 import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HubAppTest {
   @Mock
-  private PlatformMessageDAO platformMessageDAO;
+  private HubDatabaseProvider hubDatabaseProvider;
   @Mock
-  private SQLDatabaseProvider sqlDatabaseProvider;
-  @Mock
-  private AccessControlProvider accessControlProvider;
-  //
+  private HubAccessControlProvider hubAccessControlProvider;
   private App subject;
+  private CloseableHttpClient httpClient;
 
   @Before
   public void setUp() throws Exception {
+    httpClient = HttpClients.createDefault();
     Config config = AppConfiguration.getDefault()
+      .withValue("audio.baseUrl", ConfigValueFactory.fromAnyRef(""))
+      .withValue("segment.baseUrl", ConfigValueFactory.fromAnyRef(""))
       .withValue("app.port", ConfigValueFactory.fromAnyRef(1903))
       .withValue("prometheus.enabled", ConfigValueFactory.fromAnyRef(true));
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new RestApiModule(), new AbstractModule() {
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new JsonApiModule(), new AbstractModule() {
       @Override
       protected void configure() {
-        bind(PlatformMessageDAO.class).toInstance(platformMessageDAO);
-        bind(SQLDatabaseProvider.class).toInstance(sqlDatabaseProvider);
-        bind(AccessControlProvider.class).toInstance(accessControlProvider);
+        bind(HubDatabaseProvider.class).toInstance(hubDatabaseProvider);
+        bind(HubAccessControlProvider.class).toInstance(hubAccessControlProvider);
       }
     }));
     subject = new HubApp(ImmutableSet.of(), injector);
@@ -53,19 +57,17 @@ public class HubAppTest {
   }
 
   @After
-  public void tearDown() {
-    subject.stop();
+  public void tearDown() throws IOException {
+    subject.finish();
+    httpClient.close();
   }
 
   @Test
   public void checkApp() throws Exception {
-    HttpClient client = new HttpClient();
-    client.start();
+    HttpGet request = new HttpGet(new URI("http://localhost:1903/o2"));
+    CloseableHttpResponse result = httpClient.execute(request);
 
-    ContentResponse res = client.GET("http://localhost:1903/o2");
-
-    assertEquals(200, res.getStatus());
-    client.stop();
+    assertEquals(200, result.getStatusLine().getStatusCode());
 
     assertEquals("HubApp", subject.getName());
   }

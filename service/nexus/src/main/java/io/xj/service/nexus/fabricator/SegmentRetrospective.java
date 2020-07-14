@@ -1,14 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.fabricator;
 
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.model.ProgramType;
-import io.xj.service.hub.model.Segment;
-import io.xj.service.hub.model.SegmentChoice;
-import io.xj.service.hub.model.SegmentChoiceArrangement;
-import io.xj.service.hub.model.SegmentChoiceArrangementPick;
-import io.xj.service.hub.model.SegmentChord;
-import io.xj.service.hub.model.SegmentMeme;
+import io.xj.service.hub.entity.ProgramType;
+import io.xj.service.nexus.entity.*;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -16,8 +10,8 @@ import java.util.Optional;
 public interface SegmentRetrospective {
 
   /**
-   @return entity cache of SegmentChoiceArrangementPick
    @param segment to get picks for
+   @return entity cache of SegmentChoiceArrangementPick
    */
   Collection<SegmentChoiceArrangementPick> getSegmentPicks(Segment segment);
 
@@ -42,7 +36,7 @@ public interface SegmentRetrospective {
   Collection<SegmentMeme> getSegmentMemes(Segment segment);
 
   /**
-   * @return all cached segments
+   @return all cached segments
    */
   Collection<Segment> getSegments();
 
@@ -51,20 +45,22 @@ public interface SegmentRetrospective {
 
    @param type of choice to get
    @return choice of given type
-   @throws HubException if no such choice type exists
+   @throws FabricationException if no such choice type exists
    */
-  SegmentChoice getChoiceOfType(Segment segment, ProgramType type) throws HubException;
+  SegmentChoice getChoiceOfType(Segment segment, ProgramType type) throws FabricationException;
 
   /**
-   * Get the arrangements for a given choice
-   * @param segmentChoice to get arrangements for
-   * @return arrangements for choice
+   Get the arrangements for a given choice
+
+   @param segmentChoice to get arrangements for
+   @return arrangements for choice
    */
   Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice segmentChoice);
 
   /**
-   * Get the segment immediately previous to the current segment
-   * @return previous segment
+   Get the segment immediately previous to the current segment
+
+   @return previous segment
    */
   Optional<Segment> getPreviousSegment();
 
@@ -73,8 +69,8 @@ public interface SegmentRetrospective {
 
    @param type of choice to get
    @return choice of given type
-   @throws HubException if no such choice type exists
+   @throws FabricationException if no such choice type exists
    */
-  SegmentChoice getPreviousChoiceOfType(ProgramType type) throws HubException;
+  SegmentChoice getPreviousChoiceOfType(ProgramType type) throws FabricationException;
 
 }

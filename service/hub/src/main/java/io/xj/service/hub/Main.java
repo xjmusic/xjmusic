@@ -8,8 +8,16 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
-import io.xj.service.hub.digest.DigestModule;
-import io.xj.service.hub.generation.GenerationModule;
+import io.xj.lib.entity.EntityModule;
+import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.mixer.MixerModule;
+import io.xj.service.hub.access.HubAccessControlModule;
+import io.xj.service.hub.dao.DAOModule;
+import io.xj.service.hub.digest.HubDigestModule;
+import io.xj.service.hub.generation.HubGenerationModule;
+import io.xj.service.hub.ingest.HubIngestModule;
+import io.xj.service.hub.persistence.HubPersistenceModule;
 
 import java.util.Set;
 
@@ -18,7 +26,18 @@ import java.util.Set;
  */
 public interface Main {
   String DEFAULT_CONFIGURATION_RESOURCE_FILENAME = "default.conf";
-  Set<Module> injectorModules = ImmutableSet.of(new HubModule(), new DigestModule(), new GenerationModule());
+  Set<Module> injectorModules = ImmutableSet.of(
+    new FileStoreModule(),
+    new MixerModule(),
+    new EntityModule(),
+    new JsonApiModule(),
+    new HubAccessControlModule(),
+    new DAOModule(),
+    new HubDigestModule(),
+    new HubGenerationModule(),
+    new HubIngestModule(),
+    new HubPersistenceModule()
+  );
   Set<String> resourcePackages = ImmutableSet.of("io.xj.service.hub");
   int defaultPort = 8042;
 
@@ -41,10 +60,10 @@ public interface Main {
     HubApp app = new HubApp(resourcePackages, AppConfiguration.inject(config, injectorModules));
 
     // Shutdown Hook
-    Runtime.getRuntime().addShutdownHook(new Thread(app::stop));
+    Runtime.getRuntime().addShutdownHook(new Thread(app::finish));
 
     // run database migrations
-    // TODO create a separate service (top level, besides hub) only for migration
+    // FUTURE create a separate service (top level, besides hub) only for migration
     app.migrate();
 
     // start

@@ -1,21 +1,18 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.api;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
+import io.xj.lib.jsonapi.Payload;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
+import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.digest.Digest;
 import io.xj.service.hub.digest.DigestCacheProvider;
 import io.xj.service.hub.digest.DigestType;
-import io.xj.service.hub.ingest.Ingest;
-import io.xj.service.hub.ingest.IngestCacheProvider;
-import io.xj.service.hub.model.Chain;
-import io.xj.service.hub.model.ChainBinding;
-import io.xj.service.hub.model.Library;
-import io.xj.service.hub.model.UserRoleType;
-import io.xj.lib.rest_api.Payload;
+import io.xj.service.hub.entity.UserRoleType;
+import io.xj.service.hub.ingest.HubIngest;
+import io.xj.service.hub.ingest.HubIngestCacheProvider;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -35,7 +32,7 @@ import java.util.UUID;
  */
 @Path("digest")
 public class DigestEndpoint extends HubEndpoint {
-  private IngestCacheProvider ingestProvider;
+  private HubIngestCacheProvider ingestProvider;
   private DigestCacheProvider digestProvider;
 
   /**
@@ -47,7 +44,7 @@ public class DigestEndpoint extends HubEndpoint {
     Injector injector
   ) {
     super(injector);
-    ingestProvider = injector.getInstance(IngestCacheProvider.class);
+    ingestProvider = injector.getInstance(HubIngestCacheProvider.class);
     digestProvider = injector.getInstance(DigestCacheProvider.class);
   }
 
@@ -83,7 +80,7 @@ public class DigestEndpoint extends HubEndpoint {
       UUID libraryId = UUID.fromString(libraryIdString);
       Payload payload = new Payload();
       payload.setDataOne(evaluate(
-        Access.fromContext(crc),
+        HubAccess.fromContext(crc),
         digestType, libraryId
       ).getPayloadObject());
       return response.ok(payload);
@@ -96,13 +93,13 @@ public class DigestEndpoint extends HubEndpoint {
   /**
    Perform any type of digest
 
-   @param access   control
-   @param type     of ingest
-   @param targetId of entity
+   @param hubAccess control
+   @param type      of ingest
+   @param targetId  of entity
    @return ingest
    */
-  private Digest evaluate(Access access, DigestType type, UUID targetId) throws Exception {
-    Ingest ingest = ingestProvider.ingest(access, ImmutableList.of(ChainBinding.create(Chain.create(), new Library().setId(targetId))));
+  private Digest evaluate(HubAccess hubAccess, DigestType type, UUID targetId) throws Exception {
+    HubIngest ingest = ingestProvider.ingest(hubAccess, ImmutableSet.of(targetId), ImmutableSet.of(targetId), ImmutableSet.of(targetId));
     switch (type) {
 
       case DigestHash:

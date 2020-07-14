@@ -2,7 +2,6 @@
 package io.xj.service.nexus.dub;
 
 import com.google.inject.assistedinject.Assisted;
-import io.xj.service.hub.HubException;
 import io.xj.service.nexus.fabricator.Fabricator;
 
 /**
@@ -16,27 +15,27 @@ import io.xj.service.nexus.fabricator.Fabricator;
 public interface DubFactory {
 
   /**
-   Create Master Dub instance for a particular segment
+   Create DubMaster Dub instance for a particular segment
    [#141] Dub process Segment mix final output of instrument-audio-arrangements
 
    @param fabricator of dub
    @return MasterDub
-   @throws HubException on failure
+   @throws DubException on failure
    */
-  Master master(
+  DubMaster master(
     @Assisted("basis") Fabricator fabricator
-  ) throws HubException;
+  ) throws DubException;
 
   /**
-   Create Ship Dub instance for a particular segment
+   Create DubShip Dub instance for a particular segment
    [#264] Segment audio is compressed to OGG and shipped to https://segment.xj.io
 
    @param fabricator of dub
    @return ShipDub
-   @throws HubException on failure
+   @throws DubException on failure
    */
-  Ship ship(
+  DubShip ship(
     @Assisted("basis") Fabricator fabricator
-  ) throws HubException;
+  ) throws DubException;
 
 }

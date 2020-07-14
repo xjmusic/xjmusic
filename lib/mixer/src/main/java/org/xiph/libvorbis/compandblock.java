@@ -6,17 +6,17 @@ import static org.xiph.libvorbis.vorbis_constants.integer_constants.NOISE_COMPAN
 
 public class compandblock {
 
-	int[] data;		// data[NOISE_COMPAND_LEVELS]
+  int[] data;    // data[NOISE_COMPAND_LEVELS]
 
 
-	public compandblock( int[] _data ) {
+  public compandblock(int[] _data) {
 
-		data = new int[ NOISE_COMPAND_LEVELS ];
-		System.arraycopy( _data, 0, data, 0, _data.length );
-	}
+    data = new int[NOISE_COMPAND_LEVELS];
+    System.arraycopy(_data, 0, data, 0, _data.length);
+  }
 
-	public compandblock( compandblock src ) {
+  public compandblock(compandblock src) {
 
-		this( src.data );
-	}
+    this(src.data);
+  }
 }

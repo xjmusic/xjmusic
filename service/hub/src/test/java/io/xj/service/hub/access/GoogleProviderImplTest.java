@@ -15,11 +15,15 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.lib.rest_api.ApiUrlProvider;
+import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.ApiUrlProvider;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.HubApp;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.HubModule;
-import io.xj.service.hub.testing.AppTestConfiguration;
+import io.xj.service.hub.dao.DAOModule;
+import io.xj.service.hub.ingest.HubIngestModule;
+import io.xj.service.hub.persistence.HubPersistenceModule;
+import io.xj.service.hub.testing.HubTestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,12 +41,13 @@ public class GoogleProviderImplTest extends Mockito {
 
   @Before
   public void setUp() throws Exception {
-    Config config = AppTestConfiguration.getDefault()
+    Config config = HubTestConfiguration.getDefault()
       .withValue("google.clientId", ConfigValueFactory.fromAnyRef("12345"))
       .withValue("google.clientSecret", ConfigValueFactory.fromAnyRef("abcdef"))
-      .withValue("app.baseURL", ConfigValueFactory.fromAnyRef("http://shammy/"))
-      .withValue("app.apiURL", ConfigValueFactory.fromAnyRef("api/69/"));
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubModule()).with(
+      .withValue("app.baseUrl", ConfigValueFactory.fromAnyRef("http://shammy/"))
+      .withValue("app.apiUrl", ConfigValueFactory.fromAnyRef("api/69/"));
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(),
+      new FileStoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -86,7 +91,7 @@ public class GoogleProviderImplTest extends Mockito {
     assertEquals("abcdef", tokenResponse.getRefreshToken());
   }
 
-  @Test(expected = HubException.class)
+  @Test(expected = HubAccessException.class)
   public void getTokenFromCode_IOFailure() throws Exception {
     String responseJson = "garbage response will cause IO failure";
     MockLowLevelHttpResponse httpResponse = new MockLowLevelHttpResponse();
@@ -100,7 +105,7 @@ public class GoogleProviderImplTest extends Mockito {
     googleProvider.getTokenFromCode("red");
   }
 
-  @Test(expected = HubException.class)
+  @Test(expected = HubAccessException.class)
   public void getTokenFromCode_TokenResponseFailure() throws Exception {
     String responseJson = "{\"details\":{" +
       "\"error_description\":\"terrible\"," +
@@ -173,7 +178,7 @@ public class GoogleProviderImplTest extends Mockito {
     assertEquals("charneykaye@gmail.com", person.getEmails().get(0).getValue());
   }
 
-  @Test(expected = HubException.class)
+  @Test(expected = HubAccessException.class)
   public void getMe_IOFailure() throws Exception {
     MockLowLevelHttpResponse httpResponse = new MockLowLevelHttpResponse();
     httpResponse.setStatusCode(500);
@@ -185,7 +190,7 @@ public class GoogleProviderImplTest extends Mockito {
     googleProvider.getMe("12345");
   }
 
-  @Test(expected = HubException.class)
+  @Test(expected = HubAccessException.class)
   public void getMe_ResponseJSONFailure() throws Exception {
     String responseJson = "this ain't JSON";
     MockLowLevelHttpResponse httpResponse = new MockLowLevelHttpResponse();

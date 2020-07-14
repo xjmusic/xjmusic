@@ -5,52 +5,18 @@ import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
-import io.xj.lib.rest_api.ApiUrlProvider;
-import io.xj.lib.rest_api.PayloadFactory;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.util.TempFile;
 import io.xj.lib.util.Text;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.access.AccessControlProvider;
-import io.xj.service.hub.access.AccessLogFilter;
-import io.xj.service.hub.access.AccessTokenAuthFilter;
-import io.xj.service.hub.dao.PlatformMessageDAO;
-import io.xj.service.hub.entity.MessageType;
-import io.xj.service.hub.model.Account;
-import io.xj.service.hub.model.AccountUser;
-import io.xj.service.hub.model.Chain;
-import io.xj.service.hub.model.ChainBinding;
-import io.xj.service.hub.model.ChainConfig;
-import io.xj.service.hub.model.Instrument;
-import io.xj.service.hub.model.InstrumentAudio;
-import io.xj.service.hub.model.InstrumentAudioChord;
-import io.xj.service.hub.model.InstrumentAudioEvent;
-import io.xj.service.hub.model.InstrumentMeme;
-import io.xj.service.hub.model.Library;
-import io.xj.service.hub.model.PlatformMessage;
-import io.xj.service.hub.model.Program;
-import io.xj.service.hub.model.ProgramMeme;
-import io.xj.service.hub.model.ProgramSequence;
-import io.xj.service.hub.model.ProgramSequenceBinding;
-import io.xj.service.hub.model.ProgramSequenceBindingMeme;
-import io.xj.service.hub.model.ProgramSequenceChord;
-import io.xj.service.hub.model.ProgramSequencePattern;
-import io.xj.service.hub.model.ProgramSequencePatternEvent;
-import io.xj.service.hub.model.ProgramVoice;
-import io.xj.service.hub.model.ProgramVoiceTrack;
-import io.xj.service.hub.model.Segment;
-import io.xj.service.hub.model.SegmentChoice;
-import io.xj.service.hub.model.SegmentChoiceArrangement;
-import io.xj.service.hub.model.SegmentChoiceArrangementPick;
-import io.xj.service.hub.model.SegmentChord;
-import io.xj.service.hub.model.SegmentMeme;
-import io.xj.service.hub.model.SegmentMessage;
-import io.xj.service.hub.model.User;
-import io.xj.service.hub.model.UserAuth;
-import io.xj.service.hub.model.UserAuthToken;
-import io.xj.service.hub.model.UserRole;
-import io.xj.service.hub.model.Work;
-import io.xj.service.hub.persistence.Migration;
-import io.xj.service.hub.persistence.SQLDatabaseProvider;
+import io.xj.service.hub.access.HubAccessControlProvider;
+import io.xj.service.hub.access.HubAccessLogFilter;
+import io.xj.service.hub.access.HubAccessTokenAuthFilter;
+import io.xj.service.hub.entity.*;
+import io.xj.service.hub.persistence.HubDatabaseProvider;
+import io.xj.service.hub.persistence.HubMigration;
+import io.xj.service.hub.persistence.HubPersistenceException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -76,11 +42,10 @@ import java.util.Set;
  - Add shutdown hook that calls application stop()
  */
 public class HubApp extends App {
-  private final org.slf4j.Logger log = LoggerFactory.getLogger(HubApp.class);
-  private final PlatformMessageDAO platformMessageDAO;
+  private final Logger log = LoggerFactory.getLogger(HubApp.class);
   private final String platformRelease;
   private final Injector injector;
-  private final SQLDatabaseProvider sqlDatabaseProvider;
+  private final HubDatabaseProvider hubDatabaseProvider;
 
   /**
    Construct a new application by providing
@@ -98,8 +63,7 @@ public class HubApp extends App {
 
     // Injection
     this.injector = injector;
-    platformMessageDAO = injector.getInstance(PlatformMessageDAO.class);
-    sqlDatabaseProvider = injector.getInstance(SQLDatabaseProvider.class);
+    hubDatabaseProvider = injector.getInstance(HubDatabaseProvider.class);
     Config config = injector.getInstance(Config.class);
 
     // Configuration
@@ -108,8 +72,8 @@ public class HubApp extends App {
     // Non-static logger for this class, because app must init first
     log.info("{} configuration:\n{}", getName(), Text.toReport(config));
 
-    // Setup REST API payload topology
-    buildApiTopology(injector.getInstance(PayloadFactory.class));
+    // Setup Entity topology
+    buildApiTopology(injector.getInstance(EntityFactory.class));
 
     // Configure REST API url provider
     configureApiUrls(config, injector.getInstance(ApiUrlProvider.class));
@@ -117,58 +81,36 @@ public class HubApp extends App {
     // Register JAX-RS filter for access log only registers if file succeeds to open for writing
     String pathToWriteAccessLog = config.hasPath("app.accessLogFile") ?
       config.getString("app.accessLogFile") :
-      String.format("%s%saccess.log", TempFile.getTempFilePathPrefix(), File.separator);
-    new AccessLogFilter(pathToWriteAccessLog).registerTo(getResourceConfig());
+      String.format("%s%s-access.log", TempFile.getTempFilePathPrefix(), File.separator);
+    new HubAccessLogFilter(pathToWriteAccessLog).registerTo(getResourceConfig());
 
     // Register JAX-RS filter for reading access control token
-    AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
-    getResourceConfig().register(new AccessTokenAuthFilter(accessControlProvider, config.getString("access.tokenName")));
+    HubAccessControlProvider hubAccessControlProvider = injector.getInstance(HubAccessControlProvider.class);
+    getResourceConfig().register(new HubAccessTokenAuthFilter(hubAccessControlProvider, config.getString("access.tokenName")));
   }
 
   /**
-   Given a payload factory, build the Hub REST API payload topology
+   Given a entity factory, build the Hub REST API entity topology
 
-   @param payloadFactory to build topology on
+   @param entityFactory to build topology on
    */
-  public static void buildApiTopology(PayloadFactory payloadFactory) {
+  public static void buildApiTopology(EntityFactory entityFactory) {
     // Account
-    payloadFactory.register(Account.class)
+    entityFactory.register(Account.class)
+      .createdBy(Account::new)
       .withAttribute("name")
       .hasMany(Library.class)
-      .hasMany(AccountUser.class)
-      .hasMany(Chain.class);
+      .hasMany(AccountUser.class);
 
     // AccountUser
-    payloadFactory.register(AccountUser.class)
+    entityFactory.register(AccountUser.class)
+      .createdBy(AccountUser::new)
       .belongsTo(Account.class)
       .belongsTo(User.class);
 
-    // Chain
-    payloadFactory.register(Chain.class)
-      .withAttribute("name")
-      .withAttribute("state")
-      .withAttribute("type")
-      .withAttribute("startAt")
-      .withAttribute("stopAt")
-      .withAttribute("embedKey")
-      .belongsTo(Account.class)
-      .hasMany(ChainBinding.class)
-      .hasMany(ChainConfig.class);
-
-    // ChainBinding
-    payloadFactory.register(ChainBinding.class)
-      .withAttribute("type")
-      .withAttribute("targetId")
-      .belongsTo(io.xj.service.hub.model.Chain.class);
-
-    // ChainConfig
-    payloadFactory.register(ChainConfig.class)
-      .withAttribute("type")
-      .withAttribute("value")
-      .belongsTo(io.xj.service.hub.model.Chain.class);
-
     // Instrument
-    payloadFactory.register(Instrument.class)
+    entityFactory.register(Instrument.class)
+      .createdBy(Instrument::new)
       .withAttribute("state")
       .withAttribute("type")
       .withAttribute("name")
@@ -179,7 +121,8 @@ public class HubApp extends App {
       .hasMany(InstrumentMeme.class);
 
     // InstrumentAudio
-    payloadFactory.register(InstrumentAudio.class)
+    entityFactory.register(InstrumentAudio.class)
+      .createdBy(InstrumentAudio::new)
       .withAttribute("waveformKey")
       .withAttribute("name")
       .withAttribute("start")
@@ -187,46 +130,46 @@ public class HubApp extends App {
       .withAttribute("tempo")
       .withAttribute("pitch")
       .withAttribute("density")
-      .belongsTo(io.xj.service.hub.model.Instrument.class)
+      .belongsTo(Instrument.class)
       .hasMany(InstrumentAudioChord.class)
       .hasMany(InstrumentAudioEvent.class);
 
     // InstrumentAudioChord
-    payloadFactory.register(InstrumentAudioChord.class)
+    entityFactory.register(InstrumentAudioChord.class)
+      .createdBy(InstrumentAudioChord::new)
       .withAttribute("name")
       .withAttribute("position")
-      .belongsTo(io.xj.service.hub.model.Instrument.class)
-      .belongsTo(io.xj.service.hub.model.InstrumentAudio.class);
+      .belongsTo(Instrument.class)
+      .belongsTo(InstrumentAudio.class);
 
     // InstrumentAudioEvent
-    payloadFactory.register(InstrumentAudioEvent.class)
+    entityFactory.register(InstrumentAudioEvent.class)
+      .createdBy(InstrumentAudioEvent::new)
       .withAttribute("duration")
       .withAttribute("note")
       .withAttribute("position")
       .withAttribute("velocity")
       .withAttribute("name")
-      .belongsTo(io.xj.service.hub.model.Instrument.class)
-      .belongsTo(io.xj.service.hub.model.InstrumentAudio.class);
+      .belongsTo(Instrument.class)
+      .belongsTo(InstrumentAudio.class);
 
     // InstrumentMeme
-    payloadFactory.register(InstrumentMeme.class)
+    entityFactory.register(InstrumentMeme.class)
+      .createdBy(InstrumentMeme::new)
       .withAttribute("name")
-      .belongsTo(io.xj.service.hub.model.Instrument.class);
+      .belongsTo(Instrument.class);
 
     // Library
-    payloadFactory.register(Library.class)
+    entityFactory.register(Library.class)
+      .createdBy(Library::new)
       .withAttribute("name")
       .belongsTo(Account.class)
-      .hasMany(io.xj.service.hub.model.Instrument.class)
+      .hasMany(Instrument.class)
       .hasMany(Program.class);
 
-    // PlatformMessage
-    payloadFactory.register(PlatformMessage.class)
-      .withAttribute("body")
-      .withAttribute("type");
-
     // Program
-    payloadFactory.register(Program.class)
+    entityFactory.register(Program.class)
+      .createdBy(Program::new)
       .withAttribute("state")
       .withAttribute("key")
       .withAttribute("tempo")
@@ -234,7 +177,7 @@ public class HubApp extends App {
       .withAttribute("name")
       .withAttribute("density")
       .belongsTo(User.class)
-      .belongsTo(io.xj.service.hub.model.Library.class)
+      .belongsTo(Library.class)
       .hasMany(ProgramMeme.class)
       .hasMany(ProgramSequence.class)
       .hasMany(ProgramSequenceChord.class)
@@ -246,144 +189,88 @@ public class HubApp extends App {
       .hasMany(ProgramVoice.class);
 
     // ProgramMeme
-    payloadFactory.register(ProgramMeme.class)
+    entityFactory.register(ProgramMeme.class)
+      .createdBy(ProgramMeme::new)
       .withAttribute("name")
-      .belongsTo(io.xj.service.hub.model.Program.class);
+      .belongsTo(Program.class);
 
     // ProgramSequence
-    payloadFactory.register(ProgramSequence.class)
+    entityFactory.register(ProgramSequence.class)
+      .createdBy(ProgramSequence::new)
       .withAttribute("name")
       .withAttribute("key")
       .withAttribute("density")
       .withAttribute("total")
       .withAttribute("tempo")
-      .belongsTo(io.xj.service.hub.model.Program.class)
+      .belongsTo(Program.class)
       .hasMany(ProgramSequencePattern.class)
       .hasMany(ProgramSequenceBinding.class)
       .hasMany(ProgramSequenceChord.class);
 
     // ProgramSequenceBinding
-    payloadFactory.register(ProgramSequenceBinding.class)
+    entityFactory.register(ProgramSequenceBinding.class)
+      .createdBy(ProgramSequenceBinding::new)
       .withAttribute("offset")
-      .belongsTo(io.xj.service.hub.model.Program.class)
+      .belongsTo(Program.class)
       .belongsTo(ProgramSequence.class)
       .hasMany(ProgramSequenceBindingMeme.class);
 
     // ProgramSequenceBindingMeme
-    payloadFactory.register(ProgramSequenceBindingMeme.class)
+    entityFactory.register(ProgramSequenceBindingMeme.class)
+      .createdBy(ProgramSequenceBindingMeme::new)
       .withAttribute("name")
-      .belongsTo(io.xj.service.hub.model.Program.class)
+      .belongsTo(Program.class)
       .belongsTo(ProgramSequenceBinding.class);
 
     // ProgramSequenceChord
-    payloadFactory.register(ProgramSequenceChord.class)
+    entityFactory.register(ProgramSequenceChord.class)
+      .createdBy(ProgramSequenceChord::new)
       .withAttribute("name")
       .withAttribute("position")
-      .belongsTo(io.xj.service.hub.model.Program.class)
-      .belongsTo(io.xj.service.hub.model.ProgramSequence.class);
+      .belongsTo(Program.class)
+      .belongsTo(ProgramSequence.class);
 
     // ProgramSequencePattern
-    payloadFactory.register(ProgramSequencePattern.class)
+    entityFactory.register(ProgramSequencePattern.class)
+      .createdBy(ProgramSequencePattern::new)
       .withAttribute("type")
       .withAttribute("total")
       .withAttribute("name")
-      .belongsTo(io.xj.service.hub.model.Program.class)
-      .belongsTo(io.xj.service.hub.model.ProgramSequence.class)
+      .belongsTo(Program.class)
+      .belongsTo(ProgramSequence.class)
       .belongsTo(ProgramVoice.class)
       .hasMany(ProgramSequencePatternEvent.class);
 
     // ProgramSequencePatternEvent
-    payloadFactory.register(ProgramSequencePatternEvent.class)
+    entityFactory.register(ProgramSequencePatternEvent.class)
+      .createdBy(ProgramSequencePatternEvent::new)
       .withAttribute("duration")
       .withAttribute("note")
       .withAttribute("position")
       .withAttribute("velocity")
-      .belongsTo(io.xj.service.hub.model.Program.class)
-      .belongsTo(io.xj.service.hub.model.ProgramSequencePattern.class)
+      .belongsTo(Program.class)
+      .belongsTo(ProgramSequencePattern.class)
       .belongsTo(ProgramVoiceTrack.class);
 
     // ProgramVoice
-    payloadFactory.register(ProgramVoice.class)
+    entityFactory.register(ProgramVoice.class)
+      .createdBy(ProgramVoice::new)
       .withAttribute("type")
       .withAttribute("name")
-      .belongsTo(io.xj.service.hub.model.Program.class)
-      .hasMany(io.xj.service.hub.model.ProgramSequencePattern.class);
+      .belongsTo(Program.class)
+      .hasMany(ProgramSequencePattern.class);
 
     // ProgramVoiceTrack
-    payloadFactory.register(ProgramVoiceTrack.class)
+    entityFactory.register(ProgramVoiceTrack.class)
+      .createdBy(ProgramVoiceTrack::new)
       .withAttribute("name")
-      .belongsTo(io.xj.service.hub.model.Program.class)
-      .belongsTo(io.xj.service.hub.model.ProgramVoice.class)
-      .hasMany(io.xj.service.hub.model.ProgramSequencePatternEvent.class);
-
-    // Segment
-    payloadFactory.register(Segment.class)
-      .withAttribute("state")
-      .withAttribute("beginAt")
-      .withAttribute("endAt")
-      .withAttribute("key")
-      .withAttribute("total")
-      .withAttribute("offset")
-      .withAttribute("density")
-      .withAttribute("tempo")
-      .withAttribute("waveformKey")
-      .withAttribute("waveformPreroll")
-      .withAttribute("type")
-      .belongsTo(io.xj.service.hub.model.Chain.class)
-      .hasMany(SegmentChoiceArrangement.class)
-      .hasMany(SegmentChoice.class)
-      .hasMany(SegmentChoiceArrangementPick.class)
-      .hasMany(SegmentChord.class)
-      .hasMany(SegmentMeme.class)
-      .hasMany(SegmentMessage.class);
-
-    // SegmentChoice
-    payloadFactory.register(SegmentChoice.class)
-      .withAttribute("type")
-      .withAttribute("transpose")
-      .belongsTo(io.xj.service.hub.model.Segment.class)
-      .belongsTo(io.xj.service.hub.model.Program.class)
-      .belongsTo(io.xj.service.hub.model.ProgramSequenceBinding.class)
-      .hasMany(SegmentChoiceArrangement.class);
-
-    // SegmentChoiceArrangement
-    payloadFactory.register(SegmentChoiceArrangement.class)
-      .belongsTo(io.xj.service.hub.model.Segment.class)
-      .belongsTo(io.xj.service.hub.model.SegmentChoice.class)
-      .belongsTo(io.xj.service.hub.model.ProgramVoice.class)
-      .belongsTo(io.xj.service.hub.model.Instrument.class);
-
-    // SegmentChoiceArrangementPick
-    payloadFactory.register(SegmentChoiceArrangementPick.class)
-      .withAttribute("start")
-      .withAttribute("length")
-      .withAttribute("amplitude")
-      .withAttribute("pitch")
-      .withAttribute("name")
-      .belongsTo(io.xj.service.hub.model.Segment.class)
-      .belongsTo(io.xj.service.hub.model.SegmentChoiceArrangement.class)
-      .belongsTo(io.xj.service.hub.model.InstrumentAudio.class)
-      .belongsTo(io.xj.service.hub.model.ProgramSequencePatternEvent.class);
-
-    // SegmentChord
-    payloadFactory.register(SegmentChord.class)
-      .withAttribute("name")
-      .withAttribute("position")
-      .belongsTo(io.xj.service.hub.model.Segment.class);
-
-    // SegmentMeme
-    payloadFactory.register(SegmentMeme.class)
-      .withAttribute("name")
-      .belongsTo(io.xj.service.hub.model.Segment.class);
-
-    // SegmentMessage
-    payloadFactory.register(SegmentMessage.class)
-      .withAttribute("body")
-      .withAttribute("type")
-      .belongsTo(io.xj.service.hub.model.Segment.class);
+      .belongsTo(Program.class)
+      .belongsTo(ProgramVoice.class)
+      .hasMany(ProgramSequencePatternEvent.class);
 
     // User
-    payloadFactory.register(User.class)
+    entityFactory.register(User.class)
+      .createdBy(User::new)
       .withAttribute("name")
       .withAttribute("roles")
       .withAttribute("email")
@@ -392,39 +279,39 @@ public class HubApp extends App {
       .hasMany(UserAuthToken.class);
 
     // UserAuth
-    payloadFactory.register(UserAuth.class)
+    entityFactory.register(UserAuth.class)
+      .createdBy(UserAuth::new)
       .withAttribute("type")
       .withAttribute("externalAccessToken")
       .withAttribute("externalRefreshToken")
       .withAttribute("externalAccount")
-      .belongsTo(io.xj.service.hub.model.User.class);
+      .belongsTo(User.class);
 
     // UserAuthToken
-    payloadFactory.register(UserAuthToken.class)
+    entityFactory.register(UserAuthToken.class)
+      .createdBy(UserAuthToken::new)
       .withAttribute("accessToken")
-      .belongsTo(io.xj.service.hub.model.User.class)
-      .belongsTo(io.xj.service.hub.model.UserAuth.class);
+      .belongsTo(User.class)
+      .belongsTo(UserAuth.class);
 
     // UserRole
-    payloadFactory.register(UserRole.class)
+    entityFactory.register(UserRole.class)
+      .createdBy(UserRole::new)
       .withAttribute("type")
-      .belongsTo(io.xj.service.hub.model.User.class);
-
-    // Work
-    payloadFactory.register(Work.class);
+      .belongsTo(User.class);
   }
 
   /**
    Given an instance of the REST API library's ApiUrlProvider, configure it for this Hub Application@param apiUrlProvider of app to configure
    */
   public static void configureApiUrls(Config config, ApiUrlProvider apiUrlProvider) {
-    apiUrlProvider.setApiPath(config.getString("app.apiURL"));
-    apiUrlProvider.setAppBaseUrl(config.getString("app.baseURL"));
+    apiUrlProvider.setApiPath(config.getString("app.apiUrl"));
+    apiUrlProvider.setAppBaseUrl(config.getString("app.baseUrl"));
     apiUrlProvider.setAppHost(config.getString("app.host"));
     apiUrlProvider.setAppHostname(config.getString("app.hostname"));
     apiUrlProvider.setAppName(config.getString("app.name"));
-    apiUrlProvider.setAudioBaseUrl(config.getString("audio.baseURL"));
-    apiUrlProvider.setSegmentBaseUrl(config.getString("segment.baseURL"));
+    apiUrlProvider.setAudioBaseUrl(config.getString("audio.baseUrl"));
+    apiUrlProvider.setSegmentBaseUrl(config.getString("segment.baseUrl"));
     apiUrlProvider.setAppPathUnauthorized(config.getString("api.unauthorizedRedirectPath"));
     apiUrlProvider.setAppPathWelcome(config.getString("api.welcomeRedirectPath"));
   }
@@ -434,28 +321,21 @@ public class HubApp extends App {
    exposing JAX-RS resources defined in this app.
    */
   public void start() throws AppException {
+    // start the underlying app
     super.start();
-
-    sendPlatformMessage(String.format(
-      "%s (%s) is up at %s",
-      getName(), platformRelease, getBaseURI()
-    ));
+    log.info("{} ({}) is up at {}}", getName(), platformRelease, getBaseURI());
   }
 
   /**
    stop App Server
    */
-  public void stop() {
-    super.stop();
-
-    // send messages about successful shutdown
-    sendPlatformMessage(String.format(
-      "%s (%s) did exit OK at %s",
-      getName(), platformRelease, getBaseURI()
-    ));
+  public void finish() {
+    // stop the underlying app
+    super.finish();
+    log.info("{} ({}}) did exit OK at {}", getName(), platformRelease, getBaseURI());
 
     // shutdown SQL database connection pool
-    sqlDatabaseProvider.shutdown();
+    hubDatabaseProvider.shutdown();
     log.info("{} SQL database connection pool did shutdown OK", getName());
   }
 
@@ -469,24 +349,13 @@ public class HubApp extends App {
   }
 
   /**
-   [#153539503] Developer wants any app to send PlatformMessage on startup, including code version, region, ip@param body of message
-   */
-  private void sendPlatformMessage(String body) {
-    try {
-      platformMessageDAO.create(Access.internal(), new PlatformMessage().setType(String.valueOf(MessageType.Debug)).setBody(body));
-    } catch (Exception e) {
-      log.error("failed to send startup platform message", e);
-    }
-  }
-
-  /**
    Run database migrations
    */
   public void migrate() {
     // Database migrations
     try {
-      injector.getInstance(Migration.class).migrate();
-    } catch (HubException e) {
+      injector.getInstance(HubMigration.class).migrate();
+    } catch (HubPersistenceException e) {
       System.out.println(String.format("Migrations failed! HubApp will not start. %s: %s\n%s", e.getClass().getSimpleName(), e.getMessage(), Text.formatStackTrace(e)));
       System.exit(1);
     }

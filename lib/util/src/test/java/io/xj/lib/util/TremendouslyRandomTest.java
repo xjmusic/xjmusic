@@ -1,8 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.lib.util;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.lib.util;
 
-import io.xj.lib.util.TremendouslyRandom;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

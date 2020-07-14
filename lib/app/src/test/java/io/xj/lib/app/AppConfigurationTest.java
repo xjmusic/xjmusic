@@ -36,12 +36,12 @@ public class AppConfigurationTest {
   }
 
   /**
-   Reads the file **test.conf** from the **test/resources** folder
+   Reads the file **valid.conf** from the **test/resources** folder
    as if it were passed in as the first argument when starting a XJ Music app
    */
   @Test
   public void parseArgs() throws AppException {
-    String configFilePath = absolutePathOfResource("test.conf");
+    String configFilePath = absolutePathOfResource("valid.conf");
 
     Config result = AppConfiguration.parseArgs(new String[]{configFilePath}, AppConfiguration.getDefault());
 

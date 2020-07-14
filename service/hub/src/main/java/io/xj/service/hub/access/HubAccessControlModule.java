@@ -8,7 +8,7 @@ public class HubAccessControlModule extends AbstractModule {
   protected void configure() {
     bind(GoogleHttpProvider.class).to(GoogleHttpProviderImpl.class);
     bind(GoogleProvider.class).to(GoogleProviderImpl.class);
-    bind(AccessControlProvider.class).to(AccessControlProviderImpl.class);
-    bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
+    bind(HubAccessControlProvider.class).to(HubAccessControlProviderImpl.class);
+    bind(HubAccessTokenGenerator.class).to(HubAccessTokenGeneratorImpl.class);
   }
 }

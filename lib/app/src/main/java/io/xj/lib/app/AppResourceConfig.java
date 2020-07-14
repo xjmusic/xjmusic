@@ -15,40 +15,43 @@ import java.util.Set;
  */
 public class AppResourceConfig extends ResourceConfig {
 
-    /**
-     Construct a new XJ Music service App ResourceConfig
+  /**
+   Construct a new XJ Music service App ResourceConfig
 
-     @param injector         Guice injector instance to bind via HK2 to Injector.class
-     @param resourcePackages packages containing JAX-RS resources to add to ResourceConfig
-     */
-    AppResourceConfig(Injector injector, Set<String> resourcePackages) {
+   @param injector         Guice injector instance to bind via HK2 to Injector.class
+   @param resourcePackages packages containing JAX-RS resources to add to ResourceConfig
+   */
+  AppResourceConfig(Injector injector, Set<String> resourcePackages) {
 
-        // use HK2 to directly bind instance of Guice injector to Injector.class
-        register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(injector).to(Injector.class);
-            }
-        });
+    // use HK2 to directly bind instance of Guice injector to Injector.class
+    register(new AbstractBinder() {
+      @Override
+      protected void configure() {
+        bind(injector).to(Injector.class);
+      }
+    });
 
-        // add packages
-        packages(toStringArray(resourcePackages));
-    }
+    // Log all resources on application boot
+    register(new AppResourceEndpointLoggingListener("/"));
+
+    // add packages
+    packages(toStringArray(resourcePackages));
+  }
 
 
-    /**
-     Convert array of objects to array of strings
+  /**
+   Convert array of objects to array of strings
 
-     @param packages to convert to strings
-     @return array of strings
-     */
-    private static String[] toStringArray(Set<String> packages) {
-        Object[] objects = packages.toArray();
-        int len = objects.length;
-        String[] strings = new String[len];
-        for (int i = 0; i < len; i++)
-            strings[i] = String.valueOf(objects[i]);
-        return strings;
-    }
+   @param packages to convert to strings
+   @return array of strings
+   */
+  private static String[] toStringArray(Set<String> packages) {
+    Object[] objects = packages.toArray();
+    int len = objects.length;
+    String[] strings = new String[len];
+    for (int i = 0; i < len; i++)
+      strings[i] = String.valueOf(objects[i]);
+    return strings;
+  }
 
 }

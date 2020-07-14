@@ -2,11 +2,11 @@
 package io.xj.service.nexus.craft;
 
 import com.google.inject.assistedinject.Assisted;
-import io.xj.service.hub.HubException;
-import io.xj.service.nexus.fabricator.Fabricator;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.craft.harmonic.HarmonicDetailCraft;
 import io.xj.service.nexus.craft.macro.MacroMainCraft;
 import io.xj.service.nexus.craft.rhythm.RhythmCraft;
+import io.xj.service.nexus.fabricator.Fabricator;
 
 /**
  Craft is performed in order:
@@ -28,32 +28,32 @@ public interface CraftFactory {
 
    @param fabricator of craft
    @return MacroMainCraft
-   @throws HubException on failure
+   @throws NexusException on failure
    */
   MacroMainCraft macroMain(
     @Assisted("basis") Fabricator fabricator
-  ) throws HubException;
+  ) throws NexusException;
 
   /**
    Create Rhythm Craft instance for a particular segment
 
    @param fabricator of craft
    @return RhythmCraft
-   @throws HubException on failure
+   @throws NexusException on failure
    */
   RhythmCraft rhythm(
     @Assisted("basis") Fabricator fabricator
-  ) throws HubException;
+  ) throws NexusException;
 
   /**
    Create Detail Craft instance for a particular segment
 
    @param fabricator of craft
    @return HarmonicDetailCraft
-   @throws HubException on failure
+   @throws NexusException on failure
    */
   HarmonicDetailCraft harmonicDetail(
     @Assisted("basis") Fabricator fabricator
-  ) throws HubException;
+  ) throws NexusException;
 
 }

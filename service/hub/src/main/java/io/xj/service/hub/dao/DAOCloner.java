@@ -4,8 +4,7 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.entity.Entity;
+import io.xj.lib.entity.Entity;
 import org.jooq.DSLContext;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -26,7 +25,7 @@ public class DAOCloner<E extends Entity> {
   private final E clone;
   private final DAO<?> anyDao;
   private final Collection<Entity> childClones = Lists.newArrayList();
-  private final Collection<HubException> warnings = Lists.newArrayList();
+  private final Collection<DAOException> warnings = Lists.newArrayList();
   private Map<UUID, UUID> clonedIds = Maps.newConcurrentMap();
 
   /**
@@ -46,7 +45,7 @@ public class DAOCloner<E extends Entity> {
 
    @return warnings
    */
-  public Collection<HubException> getWarnings() {
+  public Collection<DAOException> getWarnings() {
     return warnings;
   }
 
@@ -73,7 +72,7 @@ public class DAOCloner<E extends Entity> {
     TableField<R, UUID> parentIdField,
     UUID fromParentId,
     UUID toParentId
-  ) throws HubException {
+  ) throws DAOException {
     Collection<R> toInsert = Lists.newArrayList();
     Map<UUID, UUID> newlyClonedIds = Maps.newConcurrentMap();
     db.selectFrom(table)
@@ -98,12 +97,12 @@ public class DAOCloner<E extends Entity> {
 
     int[] rows = db.batchInsert(toInsert).execute();
     if (rows.length != toInsert.size())
-      throw new HubException(String.format("Only created %d out create %d intended %s records", rows.length, toInsert.size(), table.getName()));
+      throw new DAOException(String.format("Only created %d out create %d intended %s records", rows.length, toInsert.size(), table.getName()));
 
     toInsert.forEach(record -> {
       try {
         childClones.add(anyDao.modelFrom(record));
-      } catch (HubException e) {
+      } catch (DAOException e) {
         warnings.add(e);
       }
     });

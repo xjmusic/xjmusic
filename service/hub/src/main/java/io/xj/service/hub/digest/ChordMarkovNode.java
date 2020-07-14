@@ -8,11 +8,7 @@ import com.google.common.collect.Maps;
 import io.xj.lib.util.TremendouslyRandom;
 import io.xj.lib.util.Value;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  a ChordMarkovNode object is a collection of possible outcomes and their likelihoods. It's expected that ChordMarkovNode be stored in a map keyed by the preceding state descriptor.

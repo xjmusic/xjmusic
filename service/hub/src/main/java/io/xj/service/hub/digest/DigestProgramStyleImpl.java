@@ -7,12 +7,12 @@ import com.google.common.collect.Multiset;
 import com.google.common.math.StatsAccumulator;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.service.hub.entity.ChordEntity;
-import io.xj.service.hub.ingest.Ingest;
-import io.xj.service.hub.model.Program;
-import io.xj.service.hub.model.ProgramSequence;
-import io.xj.service.hub.model.ProgramSequenceChord;
-import io.xj.service.hub.model.ProgramType;
+import io.xj.lib.entity.common.ChordEntity;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.ProgramSequenceChord;
+import io.xj.service.hub.entity.ProgramType;
+import io.xj.service.hub.ingest.HubIngest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class DigestProgramStyleImpl extends DigestImpl implements DigestProgramS
    */
   @Inject
   public DigestProgramStyleImpl(
-    @Assisted("ingest") Ingest ingest
+    @Assisted("ingest") HubIngest ingest
   ) {
     super(ingest, DigestType.DigestSequenceStyle);
     try {

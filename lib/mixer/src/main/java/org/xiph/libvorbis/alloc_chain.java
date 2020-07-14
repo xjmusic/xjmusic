@@ -4,10 +4,11 @@ package org.xiph.libvorbis;
 
 class alloc_chain {
 
-		Object[] ptr;
+  Object[] ptr;
 
-		alloc_chain next;
+  alloc_chain next;
 
 
-		public alloc_chain() {}
+  public alloc_chain() {
+  }
 }

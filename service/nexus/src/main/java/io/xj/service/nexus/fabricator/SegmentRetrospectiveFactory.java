@@ -2,10 +2,9 @@
 package io.xj.service.nexus.fabricator;
 
 import com.google.inject.assistedinject.Assisted;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.ingest.Ingest;
-import io.xj.service.hub.model.Segment;
+import io.xj.service.hub.client.HubClientAccess;
+import io.xj.service.hub.client.HubContent;
+import io.xj.service.nexus.entity.Segment;
 
 /**
  Fabricator content = contentFactory.workOn(segment);
@@ -21,10 +20,10 @@ public interface SegmentRetrospectiveFactory {
    @param currentSegment Segment that's on the workbench
    @param sourceMaterial to get answers about the segment content
    @return SegmentRetrospective
-   @throws HubException on failure
+   @throws FabricationException on failure
    */
   SegmentRetrospective workOn(
-    @Assisted("access") Access access,
+    @Assisted("access") HubClientAccess access,
     @Assisted("currentSegment") Segment currentSegment,
-    @Assisted("sourceMaterial") Ingest sourceMaterial) throws HubException;
+    @Assisted("sourceMaterial") HubContent sourceMaterial) throws FabricationException;
 }

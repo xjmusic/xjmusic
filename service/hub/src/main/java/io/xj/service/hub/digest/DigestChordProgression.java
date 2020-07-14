@@ -15,6 +15,7 @@ public interface DigestChordProgression extends Digest {
 
   /**
    Get sorted descriptors
+
    @return list of descriptors, sorted by
    */
   List<String> getSortedDescriptors();

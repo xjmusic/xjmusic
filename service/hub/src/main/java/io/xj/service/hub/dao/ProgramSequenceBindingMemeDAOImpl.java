@@ -2,13 +2,13 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.lib.rest_api.PayloadFactory;
-import io.xj.lib.rest_api.RestApiException;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.ProgramSequenceBindingMeme;
-import io.xj.service.hub.persistence.SQLDatabaseProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
+import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
@@ -17,27 +17,26 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.xj.service.hub.Tables.LIBRARY;
-import static io.xj.service.hub.Tables.PROGRAM;
-import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
+import static io.xj.service.hub.Tables.*;
 
 public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBindingMeme> implements ProgramSequenceBindingMemeDAO {
 
   @Inject
   public ProgramSequenceBindingMemeDAOImpl(
     PayloadFactory payloadFactory,
-    SQLDatabaseProvider dbProvider
+    EntityFactory entityFactory,
+    HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory);
+    super(payloadFactory, entityFactory);
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public ProgramSequenceBindingMeme create(Access access, ProgramSequenceBindingMeme entity) throws HubException, RestApiException, ValueException {
+  public ProgramSequenceBindingMeme create(HubAccess hubAccess, ProgramSequenceBindingMeme entity) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     entity.validate();
-    requireArtist(access);
-    requireProgramModification(db, access, entity.getProgramId());
+    requireArtist(hubAccess);
+    requireProgramModification(db, hubAccess, entity.getProgramId());
 
     return modelFrom(ProgramSequenceBindingMeme.class,
       executeCreate(db, PROGRAM_SEQUENCE_BINDING_MEME, entity));
@@ -45,9 +44,9 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
 
   @Override
   @Nullable
-  public ProgramSequenceBindingMeme readOne(Access access, UUID id) throws HubException {
-    requireArtist(access);
-    if (access.isTopLevel())
+  public ProgramSequenceBindingMeme readOne(HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
+    if (hubAccess.isTopLevel())
       return modelFrom(ProgramSequenceBindingMeme.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
           .where(PROGRAM_SEQUENCE_BINDING_MEME.ID.eq(id))
@@ -58,15 +57,15 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_BINDING_MEME.ID.eq(id))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne());
   }
 
   @Override
   @Nullable
-  public Collection<ProgramSequenceBindingMeme> readMany(Access access, Collection<UUID> parentIds) throws HubException {
-    requireArtist(access);
-    if (access.isTopLevel())
+  public Collection<ProgramSequenceBindingMeme> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+    requireArtist(hubAccess);
+    if (hubAccess.isTopLevel())
       return modelsFrom(ProgramSequenceBindingMeme.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
           .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID.in(parentIds))
@@ -77,33 +76,33 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID.in(parentIds))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetch());
   }
 
   @Override
-  public void update(Access access, UUID id, ProgramSequenceBindingMeme entity) throws HubException, RestApiException, ValueException {
+  public void update(HubAccess hubAccess, UUID id, ProgramSequenceBindingMeme entity) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     require("Same id", Objects.equals(id, entity.getId()));
     entity.validate();
-    requireArtist(access);
-    requireProgramModification(db, access, entity.getProgramId());
+    requireArtist(hubAccess);
+    requireProgramModification(db, hubAccess, entity.getProgramId());
 
     executeUpdate(db, PROGRAM_SEQUENCE_BINDING_MEME, id, entity);
   }
 
   @Override
-  public void destroy(Access access, UUID id) throws HubException {
+  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
     DSLContext db = dbProvider.getDSL();
-    requireArtist(access);
+    requireArtist(hubAccess);
 
-    if (!access.isTopLevel())
-      requireExists("Meme belongs to Program in Account you have access to", db.selectCount()
+    if (!hubAccess.isTopLevel())
+      requireExists("Meme belongs to Program in Account you have hubAccess to", db.selectCount()
         .from(PROGRAM_SEQUENCE_BINDING_MEME)
         .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(PROGRAM_SEQUENCE_BINDING_MEME.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne(0, int.class));
 
     db.deleteFrom(PROGRAM_SEQUENCE_BINDING_MEME)
@@ -117,9 +116,9 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   }
 
   @Override
-  public Collection<ProgramSequenceBindingMeme> readAllForPrograms(Access access, Set<UUID> programIds) throws HubException {
-    requireArtist(access);
-    if (access.isTopLevel())
+  public Collection<ProgramSequenceBindingMeme> readAllForPrograms(HubAccess hubAccess, Set<UUID> programIds) throws DAOException {
+    requireArtist(hubAccess);
+    if (hubAccess.isTopLevel())
       return modelsFrom(ProgramSequenceBindingMeme.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
           .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(programIds))
@@ -130,7 +129,7 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(programIds))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetch());
   }
 

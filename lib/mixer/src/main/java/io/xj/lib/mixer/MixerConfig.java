@@ -22,6 +22,7 @@ public class MixerConfig {
   private String logPrefix = "";
   private double lowpassThresholdHz = 12000;
   private double highpassThresholdHz = 20.0;
+
   /**
    Instantiate a new mixer configuration with format and length (and default compression settings)
 

@@ -2,23 +2,16 @@
 package io.xj.service.hub.api;
 
 import com.google.inject.Injector;
+import io.xj.lib.jsonapi.MediaType;
+import io.xj.lib.jsonapi.Payload;
 import io.xj.service.hub.HubEndpoint;
-import io.xj.service.hub.access.Access;
+import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.LibraryDAO;
-import io.xj.service.hub.model.UserRoleType;
-import io.xj.lib.rest_api.MediaType;
-import io.xj.lib.rest_api.Payload;
+import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -55,7 +48,7 @@ public class LibraryEndpoint extends HubEndpoint {
     if (Objects.nonNull(accountId))
       return readMany(crc, dao(), accountId);
     else
-      return readMany(crc, dao(), Access.fromContext(crc).getAccountIds());
+      return readMany(crc, dao(), HubAccess.fromContext(crc).getAccountIds());
   }
 
   /**
@@ -65,7 +58,7 @@ public class LibraryEndpoint extends HubEndpoint {
    @return Response
    */
   @POST
-  @Consumes(MediaType.APPLICATION_JSON_API)
+  @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({UserRoleType.ADMIN, UserRoleType.ENGINEER})
   public Response create(Payload payload, @Context ContainerRequestContext crc) {
     return create(crc, dao(), payload);
@@ -91,7 +84,7 @@ public class LibraryEndpoint extends HubEndpoint {
    */
   @PATCH
   @Path("{id}")
-  @Consumes(MediaType.APPLICATION_JSON_API)
+  @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({UserRoleType.ADMIN, UserRoleType.ENGINEER})
   public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     return update(crc, dao(), id, payload);

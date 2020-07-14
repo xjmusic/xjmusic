@@ -33,7 +33,7 @@ public class AppTest {
 
   @After
   public void tearDown() {
-    subject.stop();
+    subject.finish();
   }
 
   @Test

@@ -4,12 +4,7 @@ package io.xj.lib.music;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.SortedMap;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -271,6 +266,7 @@ public class Chord extends IntervalPitchGroup {
 
   /**
    Whether this is a No Chord instance
+
    @return true if No Chord
    */
   public Boolean isNoChord() {

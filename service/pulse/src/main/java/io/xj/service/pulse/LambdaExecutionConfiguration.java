@@ -10,9 +10,9 @@ public class LambdaExecutionConfiguration {
   private final Integer timeoutMillis;
 
   /**
-   * Instantiate a configuration
-   *
-   * @throws Exception if an environment parameter is not set
+   Instantiate a configuration
+
+   @throws Exception if an environment parameter is not set
    */
   public LambdaExecutionConfiguration() throws Exception {
     heartbeatKey = getRequired("platform_heartbeat_key");
@@ -21,37 +21,37 @@ public class LambdaExecutionConfiguration {
   }
 
   /**
-   * Get Heartbeat key from environment parameter
-   *
-   * @return heartbeat key
+   Get Heartbeat key from environment parameter
+
+   @return heartbeat key
    */
   public String getHeartbeatKey() {
     return heartbeatKey;
   }
 
   /**
-   * Get Heartbeat URL from environment parameter
-   *
-   * @return heartbeat URL
+   Get Heartbeat URL from environment parameter
+
+   @return heartbeat URL
    */
   public String getHeartbeatURL() {
     return heartbeatURL;
   }
 
   /**
-   * Get Timeout milliseconds from environment parameter, or default if not set
-   *
-   * @return timeout in milliseconds
+   Get Timeout milliseconds from environment parameter, or default if not set
+
+   @return timeout in milliseconds
    */
   public Integer getTimeoutMillis() {
     return timeoutMillis;
   }
 
   /**
-   * Get a required environment variable
-   *
-   * @param name to get
-   * @return value
+   Get a required environment variable
+
+   @param name to get
+   @return value
    */
   private static String getRequired(String name) throws Exception {
     String value = System.getenv(name);
@@ -62,10 +62,10 @@ public class LambdaExecutionConfiguration {
   }
 
   /**
-   * Get a required environment variable
-   *
-   * @param name to get
-   * @return value
+   Get a required environment variable
+
+   @param name to get
+   @return value
    */
   private static Integer getIntOrDefault(String name, Integer defaultValue) {
     String valueString = System.getenv(name);

@@ -2,40 +2,38 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.lib.rest_api.PayloadFactory;
-import io.xj.lib.rest_api.RestApiException;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.ProgramSequencePattern;
-import io.xj.service.hub.persistence.SQLDatabaseProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.entity.ProgramSequencePattern;
+import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.service.hub.Tables.LIBRARY;
-import static io.xj.service.hub.Tables.PROGRAM;
-import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
-import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.service.hub.Tables.*;
 
 public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePattern> implements ProgramSequencePatternDAO {
 
   @Inject
   public ProgramSequencePatternDAOImpl(
     PayloadFactory payloadFactory,
-    SQLDatabaseProvider dbProvider
+    EntityFactory entityFactory,
+    HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory);
+    super(payloadFactory, entityFactory);
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public ProgramSequencePattern create(Access access, ProgramSequencePattern entity) throws HubException, RestApiException, ValueException {
+  public ProgramSequencePattern create(HubAccess hubAccess, ProgramSequencePattern entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
     DSLContext db = dbProvider.getDSL();
-    requireProgramModification(db, access, entity.getProgramId());
+    requireProgramModification(db, hubAccess, entity.getProgramId());
     return modelFrom(ProgramSequencePattern.class,
       executeCreate(db, PROGRAM_SEQUENCE_PATTERN, entity));
 
@@ -43,9 +41,9 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
 
   @Override
   @Nullable
-  public ProgramSequencePattern readOne(Access access, UUID id) throws HubException {
-    requireArtist(access);
-    if (access.isTopLevel())
+  public ProgramSequencePattern readOne(HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
+    if (hubAccess.isTopLevel())
       return modelFrom(ProgramSequencePattern.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN)
           .where(PROGRAM_SEQUENCE_PATTERN.ID.eq(id))
@@ -56,15 +54,15 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_PATTERN.ID.eq(id))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne());
   }
 
   @Override
   @Nullable
-  public Collection<ProgramSequencePattern> readMany(Access access, Collection<UUID> parentIds) throws HubException {
-    requireArtist(access);
-    if (access.isTopLevel())
+  public Collection<ProgramSequencePattern> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+    requireArtist(hubAccess);
+    if (hubAccess.isTopLevel())
       return modelsFrom(ProgramSequencePattern.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN)
           .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.in(parentIds))
@@ -75,25 +73,25 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.in(parentIds))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetch());
 
   }
 
   @Override
-  public void update(Access access, UUID id, ProgramSequencePattern entity) throws HubException, RestApiException, ValueException {
+  public void update(HubAccess hubAccess, UUID id, ProgramSequencePattern entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
-    requireArtist(access);
+    requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
-    requireModification(db, access, id);
+    requireModification(db, hubAccess, id);
     executeUpdate(db, PROGRAM_SEQUENCE_PATTERN, id, entity);
   }
 
   @Override
-  public void destroy(Access access, UUID id) throws HubException {
-    requireArtist(access);
+  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
-    requireModification(db, access, id);
+    requireModification(db, hubAccess, id);
 
     db.deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID.eq(id))
@@ -110,25 +108,25 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
   }
 
   /**
-   Require access to modification of a Program Sequence Pattern
+   Require hubAccess to modification of a Program Sequence Pattern
 
-   @param db     context
-   @param access control
-   @param id     to validate access to
-   @throws HubException if no access
+   @param db        context
+   @param hubAccess control
+   @param id        to validate hubAccess to
+   @throws DAOException if no hubAccess
    */
-  private void requireModification(DSLContext db, Access access, UUID id) throws HubException {
-    requireArtist(access);
-    if (access.isTopLevel())
+  private void requireModification(DSLContext db, HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
+    if (hubAccess.isTopLevel())
       requireExists("Program Sequence Pattern", db.selectCount().from(PROGRAM_SEQUENCE_PATTERN)
         .where(PROGRAM_SEQUENCE_PATTERN.ID.eq(id))
         .fetchOne(0, int.class));
     else
-      requireExists("Sequence Pattern in Program in Account you have access to", db.selectCount().from(PROGRAM_SEQUENCE_PATTERN)
+      requireExists("Sequence Pattern in Program in Account you have hubAccess to", db.selectCount().from(PROGRAM_SEQUENCE_PATTERN)
         .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
         .where(PROGRAM_SEQUENCE_PATTERN.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne(0, int.class));
   }
 

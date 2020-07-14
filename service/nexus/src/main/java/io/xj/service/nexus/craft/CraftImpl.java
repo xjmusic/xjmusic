@@ -2,8 +2,8 @@
 
 package io.xj.service.nexus.craft;
 
-import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.craft.exception.CraftException;
+import io.xj.service.nexus.fabricator.Fabricator;
 
 public class CraftImpl {
   protected Fabricator fabricator;

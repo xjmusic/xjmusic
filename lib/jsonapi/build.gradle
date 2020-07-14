@@ -1,0 +1,44 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+plugins {
+  id 'java'
+}
+
+repositories {
+  mavenLocal()
+  maven {
+    url = 'https://repo.maven.apache.org/maven2'
+  }
+  maven {
+    url = 'https://packages.confluent.io/maven/'
+  }
+}
+
+dependencies {
+  // intravendor
+  implementation project(':lib:entity')
+  implementation project(':lib:util')
+  // vendor
+  implementation 'ch.qos.logback:logback-classic:1.2.3'
+  implementation 'ch.qos.logback:logback-core:1.2.3'
+  implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.10.2.1'
+  implementation 'com.fasterxml.jackson.module:jackson-module-guice:2.10.3'
+  implementation 'com.google.api-client:google-api-client:1.30.9'
+  implementation 'com.google.apis:google-api-services-plus:v1-rev590-1.25.0'
+  implementation 'com.google.guava:guava:28.2-jre'
+  implementation 'com.google.inject:guice:4.2.2'
+  implementation 'com.typesafe:config:1.4.0'
+  implementation 'io.confluent:rest-utils:5.4.0'
+  implementation 'javax.activation:activation:1.1.1'
+  implementation 'org.reflections:reflections:0.9.11'
+  implementation 'org.slf4j:slf4j-api:1.7.30'
+  testImplementation 'junit:junit:4.11'
+  testImplementation 'org.mockito:mockito-core:3.2.4'
+}
+
+
+group = 'io.xj'
+
+tasks.withType(JavaCompile) {
+  options.encoding = 'UTF-8'
+}

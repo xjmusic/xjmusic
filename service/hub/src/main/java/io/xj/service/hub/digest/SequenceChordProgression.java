@@ -4,8 +4,8 @@ package io.xj.service.hub.digest;
 import com.google.common.collect.Lists;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.PitchClass;
-import io.xj.service.hub.model.ProgramSequence;
-import io.xj.service.hub.model.ProgramSequenceChord;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.ProgramSequenceChord;
 
 import java.util.Collections;
 import java.util.List;

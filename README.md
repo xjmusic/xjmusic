@@ -14,12 +14,12 @@ See the **/art** folder. By Accessing the contents of that folder, you agree to 
 
 ### Architecture
 
-Here's the general architecture of the XJ Music platform backend services. [(Download PDF)](art/architecture/XJ-Mk3-Streaming-Segments-Architecture.pdf) 
+Here's the general architecture of the XJ Music platform backend services. [(Download PDF)](art/XJMk3StreamingSegmentsArchitecture.pdf) 
 
-![XJ Mk3 Streaming Segments Architecture](art/architecture/XJ-Mk3-Streaming-Segments-Architecture.svg)
+![XJ Mk3 Streaming Segments Architecture](art/XJMk3StreamingSegmentsArchitecture.svg)
 
 
-## Laws
+## Axioms
   * Any network connection can and will fail.
   * There are no launches, pertaining instead only to the spanning of time, and the availability of said platform and 
     its components.
@@ -45,6 +45,16 @@ Here's the general architecture of the XJ Music platform backend services. [(Dow
     new tracker issue.
 
 
+## Dependencies
+  * Java 11
+  * Gradle (6+ via SDKMAN!)
+  * Docker
+  * Docker-compose
+  * Postgres client tools (apt `postgresql-client-12`)
+  * Redis client tools (apt `redis-tools`)
+  * FDK AAC native libraries (apt `libfdk-aac-dev`)
+
+
 ## Service Ports
 
 Each service has a unique port assignment:
@@ -52,7 +62,7 @@ Each service has a unique port assignment:
 | Service       | Port          |
 | ------------- |---------------|
 | hub           | 8042          |
-| nexus        | 8043          |
+| nexus         | 8043          |
 
 
 ## Web UI
@@ -160,6 +170,13 @@ The `/ops/sql/dump/*` files can be quickly updated from the current dev database
 
     bin/sql/dump/all_local
 
+*note that the latest codebase may run migrations on top of that ^^^, and of course it had better pass checksum ;)*
+This means you can never change the contents of any of your hubMigration .sql files after production hubMigration is done.
+
+You may ask Gradle to migrate the Hub service's Postgres database at any time like this:
+
+    gradle :service:hub:flywayMigrate --info  
+
 It is NOT necessary to have any local Postgres server running. The build process will use your Docker `postgres01xj1`, 
 or more specifically (for cross-platform compatibility) it will use port 5400 which Docker maps to `postgres01xj1` 
 port 5432, for Maven to use during the build process.
@@ -168,12 +185,6 @@ Connect to the Docker `postgres01xj1` server:
 
     bin/sql/connect
 
-You will need to create two databases in your local Postgres server, `xj_dev` and `xj_test`:
-
-    of database xj_dev;
-    of database xj_test;
-
-*note that the latest codebase may run migrations on top of that ^^^, and of course it had better pass checksum ;)*
 
 ## Additional commands
 
@@ -266,7 +277,7 @@ Run all tests with Gradle
 Integration uses the Docker `postgres01xj1` and `redis01xj1` databases.
 
 
-## Database migration
+## Database hubMigration
 
 Each service is responsible for migrating its private stores when it starts up.
 

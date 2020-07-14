@@ -1,15 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
-import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -79,7 +76,7 @@ public interface Text {
    @param entityClass to get name of
    @return entity name
    */
-  static String getSimpleName(Class entityClass) {
+  static String getSimpleName(Class<?> entityClass) {
     if (entityClass.isInterface())
       return entityClass.getSimpleName();
     if (0 < entityClass.getInterfaces().length &&
@@ -123,36 +120,6 @@ public interface Text {
     return
       nonAlphaSlug.matcher(raw)
         .replaceAll("");
-  }
-
-  /**
-   To a thingId style attribute of an object
-
-   @param obj to add Id to
-   @return id attribute of key
-   */
-  static String toIdAttribute(Object obj) {
-    return String.format("%sId", Text.toResourceBelongsTo(obj));
-  }
-
-  /**
-   To a thingId style attribute of an object's class
-
-   @param key to add Id to
-   @return id attribute of key
-   */
-  static String toIdAttribute(Class key) {
-    return String.format("%sId", Text.toResourceBelongsTo(key));
-  }
-
-  /**
-   To an thingId style attribute
-
-   @param key to add Id to
-   @return id attribute of key
-   */
-  static String toIdAttribute(String key) {
-    return String.format("%sId", Text.toResourceBelongsTo(key));
   }
 
   /**
@@ -253,13 +220,17 @@ public interface Text {
     if ("se".equals(lastTwo))
       return String.format("%ss", noun);
 
+    // ends in "ss" -- add "es"
+    if ("ss".equals(lastTwo))
+      return String.format("%ses", noun);
+
     // ends in "y" -- remove "y" + add "ies"
     if ("y".equals(lastOne))
       return String.format("%sies", noun.substring(0, noun.length() - 1));
 
-    // ends in "s" -- add "es"
+    // ends in "s" -- skip
     if ("s".equals(lastOne))
-      return String.format("%ses", noun);
+      return noun;
 
     // add "s"
     return String.format("%ss", noun);
@@ -300,8 +271,7 @@ public interface Text {
    */
   static String toProper(String raw) {
     if (1 < raw.length()) {
-      String lower = raw.toLowerCase(Locale.ENGLISH);
-      return lower.substring(0, 1).toUpperCase(Locale.ENGLISH) + lower.substring(1);
+      return raw.substring(0, 1).toUpperCase(Locale.ENGLISH) + raw.substring(1);
 
     } else if (!raw.isEmpty())
       return raw.toUpperCase(Locale.ENGLISH);
@@ -328,151 +298,6 @@ public interface Text {
    */
   static String toProperSlug(String raw, String defaultValue) {
     return toProper(toSlug(raw, defaultValue));
-  }
-
-  /**
-   get belongs-to relationship name of object, the key to use when this class is the target of a belongs-to relationship
-   + Chain.class -> "chain"
-   + AccountUser.class -> "accountUser"
-   + Library.class -> "library"
-
-   @param belongsTo to get resource belongsTo of
-   @return resource belongsTo of object
-   */
-  static String toResourceBelongsTo(Object belongsTo) {
-    return toResourceBelongsTo(Text.getSimpleName(belongsTo));
-  }
-
-  /**
-   get belongs-to relationship name of class, the key to use when this class is the target of a belongs-to relationship
-   + Chain.class -> "chain"
-   + AccountUser.class -> "accountUser"
-   + Library.class -> "library"
-
-   @param belongsTo to get resource belongsTo of
-   @return resource belongsTo of object
-   */
-  static String toResourceBelongsTo(Class belongsTo) {
-    return toResourceBelongsTo(Text.getSimpleName(belongsTo));
-  }
-
-  /**
-   get belongs-to relationship name, to use when this key is the target of a belongs-to relationship
-   + Chain.class -> "chain"
-   + AccountUser.class -> "accountUser"
-   + Library.class -> "library"
-
-   @param belongsTo to conform
-   @return conformed resource belongsTo
-   */
-  static String toResourceBelongsTo(String belongsTo) {
-    return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, belongsTo);
-  }
-
-  /**
-   get belongs-to relationship name, to use when this key is the target of a belongs-to relationship
-   FROM a resource type
-   + "chains" -> "chain"
-   + "account-users" -> "accountUser"
-   + "libraries" -> "library"
-
-   @param type to conform
-   @return conformed resource hasMany
-   */
-  static String toResourceBelongsToFromType(String type) {
-    return CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, toSingular(type));
-  }
-
-  /**
-   get has-many relationship name of class, the key to use when this class is the target of a has-many relationship
-   + Chain.class -> "chains"
-   + AccountUser.class -> "accountUsers"
-   + Library.class -> "libraries"
-
-   @param resource to get resource hasMany of
-   @return resource hasMany of object
-   */
-  static String toResourceHasMany(Class resource) {
-    return toResourceHasMany(Text.getSimpleName(resource));
-  }
-
-  /**
-   get has-many relationship name of object, the key to use when this class is the target of a has-many relationship
-   + Chain.class -> "chains"
-   + AccountUser.class -> "accountUsers"
-   + Library.class -> "libraries"
-
-   @param resource to get resource hasMany of
-   @return resource hasMany of object
-   */
-  static String toResourceHasMany(Object resource) {
-    return toResourceHasMany(Text.getSimpleName(resource));
-  }
-
-  /**
-   get has-many relationship name, to use when this key is the target of a has-many relationship
-   + Chain.class -> "chains"
-   + AccountUser.class -> "accountUsers"
-   + Library.class -> "libraries"
-
-   @param hasMany to conform
-   @return conformed resource hasMany
-   */
-  static String toResourceHasMany(String hasMany) {
-    return toPlural(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, hasMany));
-  }
-
-  /**
-   get has-many relationship name, to use when this key is the target of a has-many relationship
-   FROM a resource type
-   + "chains" -> "chains"
-   + "account-users" -> "accountUsers"
-   + "libraries" -> "libraries"
-
-   @param type to conform
-   @return conformed resource hasMany
-   */
-  static String toResourceHasManyFromType(String type) {
-    return CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, type);
-  }
-
-  /**
-   Get resource type for any class, which is hyphenated lowercase pluralized
-   + Chain.class -> "chains"
-   + AccountUser.class -> "account-users"
-   + Library.class -> "libraries"
-
-   @param resource to get resource type of
-   @return resource type of object
-   */
-  static String toResourceType(Class resource) {
-    return toResourceType(Text.getSimpleName(resource));
-  }
-
-  /**
-   Get resource type for any object, which is hyphenated lowercase pluralized
-   + Chain.class -> "chains"
-   + AccountUser.class -> "account-users"
-   + Library.class -> "libraries"
-
-   @param resource to get resource type of
-   @return resource type of object
-   */
-  static String toResourceType(Object resource) {
-    return toResourceType(Text.getSimpleName(resource));
-  }
-
-  /**
-   Get resource type for any class, which is hyphenated lowercase pluralized
-   + Chain.class -> "chains"
-   + AccountUser.class -> "account-users"
-   + Library.class -> "libraries"
-
-   @param type to conform
-   @return conformed resource type
-   */
-  static String toResourceType(String type) {
-    return toPlural(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, type));
   }
 
   /**
@@ -602,62 +427,6 @@ public interface Text {
   }
 
   /**
-   Compute an attribute name based on the name of the getter method,
-   by removing the first three letters "get", then lower-casing the new first letter.
-   <p>
-   e.g., input of "getNewsPaper" results in "newsPaper"
-
-   @param method for which to compute name of attribute
-   @return attribute name
-   */
-  static String toAttributeName(Method method) {
-    return String.format("%s%s",
-      method.getName().substring(3, 4).toLowerCase(Locale.ENGLISH),
-      method.getName().substring(4));
-  }
-
-  /**
-   Compute a getter method name based on the name of the attribute,
-   capitalize the first letter, then prepend "get"
-   <p>
-   e.g., input of "newsPaper" results in "getNewsPaper"
-
-   @param attributeName for which to get name of getter method
-   @return attribute name
-   */
-  static String toGetterName(String attributeName) {
-    return String.format("%s%s%s", "get",
-      attributeName.substring(0, 1).toUpperCase(Locale.ENGLISH),
-      attributeName.substring(1));
-  }
-
-  /**
-   Compute a setter method name based on the name of the attribute,
-   capitalize the first letter, then prepend "set"
-   <p>
-   e.g., input of "newsPaper" results in "setNewsPaper"
-
-   @param attributeName for which to get name of setter method
-   @return attribute name
-   */
-  static String toSetterName(String attributeName) {
-    return String.format("%s%s%s", "set",
-      attributeName.substring(0, 1).toUpperCase(Locale.ENGLISH),
-      attributeName.substring(1));
-  }
-
-  /**
-   Get a string representation of an entity, comprising a key-value map of its properties
-
-   @param name       of entity
-   @param properties to map
-   @return string representation
-   */
-  static String toKeyValueString(String name, ImmutableMap<String, String> properties) {
-    return String.format("%s{%s}", name, CSV.from(properties));
-  }
-
-  /**
    Format a config into multiline key => value, padded to align into two columns, sorted alphabetically by key name
 
    @param config to format
@@ -680,4 +449,5 @@ public interface Text {
     // join lines into one multiline output
     return String.join("\n", lines);
   }
+
 }

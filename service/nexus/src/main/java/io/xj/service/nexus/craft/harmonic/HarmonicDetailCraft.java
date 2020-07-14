@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.craft.harmonic;
 
-import io.xj.service.hub.HubException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.craft.exception.CraftException;
 
 /**
@@ -14,6 +14,6 @@ public interface HarmonicDetailCraft {
   /**
    perform craft for the current segment
    */
-  void doWork() throws HubException, CraftException;
+  void doWork() throws NexusException, CraftException;
 
 }

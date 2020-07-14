@@ -3,17 +3,16 @@ package io.xj.service.nexus.dub;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import io.xj.lib.mixer.MixerModule;
 
 public class DubModule extends AbstractModule {
 
   protected void configure() {
-    installDubFactory();
-  }
-
-  private void installDubFactory() {
+    install(new MixerModule());
+    bind(DubAudioCache.class).to(DubAudioCacheImpl.class);
     install(new FactoryModuleBuilder()
-      .implement(Master.class, MasterImpl.class)
-      .implement(Ship.class, ShipImpl.class)
+      .implement(DubMaster.class, DubMasterImpl.class)
+      .implement(DubShip.class, DubShipImpl.class)
       .build(DubFactory.class));
   }
 

@@ -17,9 +17,7 @@ fi
 SQL_EXECUTE="update xj.user_auth set user_id=${USER_ID};"
 
 # Database
-SQL_DB="xj"
-
-# TODO get this working with Postgres
+SQL_DB="xj_dev"
 
 # connect to ${HOST}
 step "Will update all user_auth records to user_id=${USER_ID}"

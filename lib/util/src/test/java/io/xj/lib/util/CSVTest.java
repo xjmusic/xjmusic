@@ -2,7 +2,6 @@
 package io.xj.lib.util;
 
 import com.google.common.collect.ImmutableMap;
-import io.xj.lib.util.CSV;
 import org.junit.Test;
 
 import java.util.Arrays;

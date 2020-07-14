@@ -1,8 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.util;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.lib.util;
 
 import com.google.common.collect.ImmutableSet;
-import io.xj.lib.util.Value;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

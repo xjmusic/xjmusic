@@ -6,22 +6,19 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.HubModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.Account;
-import io.xj.service.hub.model.AccountUser;
-import io.xj.service.hub.model.User;
-import io.xj.service.hub.model.UserAuth;
-import io.xj.service.hub.model.UserAuthToken;
-import io.xj.service.hub.model.UserAuthType;
-import io.xj.service.hub.model.UserRole;
-import io.xj.service.hub.model.UserRoleType;
-import io.xj.service.hub.testing.AppTestConfiguration;
-import io.xj.service.hub.testing.IntegrationTestModule;
-import io.xj.service.hub.testing.IntegrationTestProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.access.HubAccessControlModule;
+import io.xj.service.hub.entity.*;
+import io.xj.service.hub.ingest.HubIngestModule;
+import io.xj.service.hub.persistence.HubPersistenceModule;
+import io.xj.service.hub.testing.HubIntegrationTestModule;
+import io.xj.service.hub.testing.HubIntegrationTestProvider;
+import io.xj.service.hub.testing.HubTestConfiguration;
 import org.assertj.core.util.Lists;
 import org.junit.After;
 import org.junit.Before;
@@ -31,24 +28,21 @@ import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class UserIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private UserDAO subjectDAO;
 
-  private IntegrationTestProvider test;
+  private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
 
   @Before
   public void setUp() throws Exception {
-    Config config = AppTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubModule(), new IntegrationTestModule()));
-    test = injector.getInstance(IntegrationTestProvider.class);
+    Config config = HubTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubIntegrationTestModule()));
+    test = injector.getInstance(HubIntegrationTestProvider.class);
     fake = new IntegrationTestingFixtures(test);
 
     test.reset();
@@ -94,17 +88,17 @@ public class UserIT {
       "shamu@email.com"
     );
 
-    // Created User Access Token
+    // Created User HubAccess Token
     assertNotNull(accessToken);
 
     // future test: token stored in Redis with correct auth
 
     // access token was persisted
-    UserAuthToken userAccessToken = subjectDAO.readOneAuthToken(Access.internal(), accessToken);
+    UserAuthToken userAccessToken = subjectDAO.readOneAuthToken(HubAccess.internal(), accessToken);
     assertNotNull(userAccessToken);
 
     // Created User Auth
-    UserAuth userAuth = subjectDAO.readOneAuth(Access.internal(), userAccessToken.getUserAuthId());
+    UserAuth userAuth = subjectDAO.readOneAuth(HubAccess.internal(), userAccessToken.getUserAuthId());
     assertNotNull(userAuth);
     assertEquals(UserAuthType.Google, userAuth.getType());
     assertEquals("88888", userAuth.getExternalAccount());
@@ -112,7 +106,7 @@ public class UserIT {
     assertEquals("refreshToken456", userAuth.getExternalRefreshToken());
 
     // Created User
-    User user = subjectDAO.readOne(Access.internal(), userAccessToken.getUserId());
+    User user = subjectDAO.readOne(HubAccess.internal(), userAccessToken.getUserId());
     assertNotNull(user);
     assertEquals("wayne", user.getName());
     assertEquals("http://pictures.com/wayne.gif", user.getAvatarUrl());
@@ -131,20 +125,20 @@ public class UserIT {
       "john@email.com"
     );
 
-    // Created User Access Token
+    // Created User HubAccess Token
     assertNotNull(accessToken);
     // future test: token stored in Redis with correct auth
-    UserAuthToken userAccessToken = subjectDAO.readOneAuthToken(Access.internal(), accessToken);
+    UserAuthToken userAccessToken = subjectDAO.readOneAuthToken(HubAccess.internal(), accessToken);
     assertNotNull(userAccessToken);
     // Created User Auth
-    UserAuth userAuth = subjectDAO.readOneAuth(Access.internal(), userAccessToken.getUserAuthId());
+    UserAuth userAuth = subjectDAO.readOneAuth(HubAccess.internal(), userAccessToken.getUserAuthId());
     assertNotNull(userAuth);
     assertEquals(UserAuthType.Google, userAuth.getType());
     assertEquals("22222", userAuth.getExternalAccount());
     assertEquals("external_access_token_123", userAuth.getExternalAccessToken());
     assertEquals("external_refresh_token_123", userAuth.getExternalRefreshToken());
     // Created User
-    User user = subjectDAO.readOne(Access.internal(), userAccessToken.getUserId());
+    User user = subjectDAO.readOne(HubAccess.internal(), userAccessToken.getUserId());
     assertNotNull(user);
     assertEquals(fake.user2.getId(), user.getId());
     assertEquals("john", user.getName());
@@ -154,9 +148,9 @@ public class UserIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    User result = subjectDAO.readOne(access, fake.user2.getId());
+    User result = subjectDAO.readOne(hubAccess, fake.user2.getId());
 
     assertNotNull(result);
     assertEquals(fake.user2.getId(), result.getId());
@@ -168,18 +162,18 @@ public class UserIT {
 
   @Test
   public void readOne_UserCannotSeeUserWithoutCommonAccountMembership() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "User");
-    failure.expect(HubException.class);
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
-    subjectDAO.readOne(access, fake.user4.getId());
+    subjectDAO.readOne(hubAccess, fake.user4.getId());
   }
 
   @Test
   public void readOne_UserSeesAnotherUserWithCommonAccountMembership() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    User result = subjectDAO.readOne(access, fake.user3.getId());
+    User result = subjectDAO.readOne(hubAccess, fake.user3.getId());
 
     assertNotNull(result);
     assertEquals(fake.user3.getId(), result.getId());
@@ -191,9 +185,9 @@ public class UserIT {
 
   @Test
   public void readOne_UserWithNoAccountMembershipCanStillSeeSelf() throws Exception {
-    Access access = Access.create(fake.user4, "User");
+    HubAccess hubAccess = HubAccess.create(fake.user4, "User");
 
-    User result = subjectDAO.readOne(access, fake.user4.getId());
+    User result = subjectDAO.readOne(hubAccess, fake.user4.getId());
 
     assertNotNull(result);
     assertEquals("bill", result.getName());
@@ -201,18 +195,18 @@ public class UserIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "User,Admin");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User,Admin");
 
-    Collection<User> result = subjectDAO.readMany(access, Lists.newArrayList());
+    Collection<User> result = subjectDAO.readMany(hubAccess, Lists.newArrayList());
 
     assertEquals(3L, result.size());
   }
 
   @Test
   public void readAll_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
-    Access access = Access.create(ImmutableList.of(fake.account1), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Collection<User> result = subjectDAO.readMany(access, Lists.newArrayList());
+    Collection<User> result = subjectDAO.readMany(hubAccess, Lists.newArrayList());
 
     assertEquals(2L, result.size());
   }
@@ -220,9 +214,9 @@ public class UserIT {
   @Test
   public void readAll_UserWithoutAccountMembershipSeesOnlySelf() throws Exception {
     // Bill is in no accounts
-    Access access = Access.create(fake.user4, "User");
+    HubAccess hubAccess = HubAccess.create(fake.user4, "User");
 
-    Collection<User> result = subjectDAO.readMany(access, Lists.newArrayList());
+    Collection<User> result = subjectDAO.readMany(hubAccess, Lists.newArrayList());
 
     assertNotNull(result);
     assertEquals(1L, result.size());
@@ -234,36 +228,36 @@ public class UserIT {
     subjectDAO.destroyAllTokens(fake.user2.getId());
 
     try {
-      subjectDAO.readOneAuthToken(Access.internal(), "this-is-my-actual-access-token");
+      subjectDAO.readOneAuthToken(HubAccess.internal(), "this-is-my-actual-access-token");
       fail();
-    } catch (HubException e) {
+    } catch (DAOException e) {
       assertTrue(e.getMessage().contains("does not exist"));
     }
   }
 
   @Test
   public void updateUserRolesAndDestroyTokens() throws Exception {
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     User inputData = new User()
       .setRoles("User,Artist");
 
-    subjectDAO.updateUserRolesAndDestroyTokens(access, fake.user2.getId(), inputData);
+    subjectDAO.updateUserRolesAndDestroyTokens(hubAccess, fake.user2.getId(), inputData);
 
-    // Access Token deleted
+    // HubAccess Token deleted
     try {
-      subjectDAO.readOneAuthToken(Access.internal(), "this-is-my-actual-access-token");
+      subjectDAO.readOneAuthToken(HubAccess.internal(), "this-is-my-actual-hubAccess-token");
       fail();
-    } catch (HubException e) {
+    } catch (DAOException e) {
       assertTrue(e.getMessage().contains("does not exist"));
     }
     // future test: token destroyed in Redis
     // Added artist role
-    assertNotNull(subjectDAO.readOneRole(Access.internal(), fake.user2.getId(), UserRoleType.Artist));
+    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user2.getId(), UserRoleType.Artist));
     // Removed admin role
     try {
-      subjectDAO.readOneRole(Access.internal(), fake.user2.getId(), UserRoleType.Admin);
+      subjectDAO.readOneRole(HubAccess.internal(), fake.user2.getId(), UserRoleType.Admin);
       fail();
-    } catch (HubException e) {
+    } catch (DAOException e) {
       assertTrue(e.getMessage().contains("does not exist"));
     }
   }
@@ -274,16 +268,16 @@ public class UserIT {
     fake.user53 = test.insert(User.create("julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif"));
     test.insert(UserRole.create(fake.user53, UserRoleType.User));
     test.insert(UserRole.create(fake.user53, UserRoleType.Artist));
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     User inputData = new User()
       .setRoles("User,Artist,Engineer,Admin");
 
-    subjectDAO.updateUserRolesAndDestroyTokens(access, fake.user53.getId(), inputData);
+    subjectDAO.updateUserRolesAndDestroyTokens(hubAccess, fake.user53.getId(), inputData);
 
-    assertNotNull(subjectDAO.readOneRole(Access.internal(), fake.user53.getId(), UserRoleType.User));
-    assertNotNull(subjectDAO.readOneRole(Access.internal(), fake.user53.getId(), UserRoleType.Artist));
-    assertNotNull(subjectDAO.readOneRole(Access.internal(), fake.user53.getId(), UserRoleType.Engineer));
-    assertNotNull(subjectDAO.readOneRole(Access.internal(), fake.user53.getId(), UserRoleType.Admin));
+    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user53.getId(), UserRoleType.User));
+    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user53.getId(), UserRoleType.Artist));
+    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user53.getId(), UserRoleType.Engineer));
+    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user53.getId(), UserRoleType.Admin));
   }
 
 
@@ -293,14 +287,14 @@ public class UserIT {
     fake.user53 = test.insert(User.create("julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif"));
     test.insert(UserRole.create(fake.user53, UserRoleType.User));
     test.insert(UserRole.create(fake.user53, UserRoleType.Artist));
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     User inputData = new User()
       .setRoles(",");
 
-    failure.expect(HubException.class);
+    failure.expect(DAOException.class);
     failure.expectMessage("Valid Role is required");
 
-    subjectDAO.updateUserRolesAndDestroyTokens(access, fake.user53.getId(), inputData);
+    subjectDAO.updateUserRolesAndDestroyTokens(hubAccess, fake.user53.getId(), inputData);
   }
 
   // [#154118206]should be impossible to remove all roles.
@@ -309,17 +303,17 @@ public class UserIT {
     fake.user53 = test.insert(User.create("julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif"));
     test.insert(UserRole.create(fake.user53, UserRoleType.User));
     test.insert(UserRole.create(fake.user53, UserRoleType.Artist));
-    Access access = Access.create("Admin");
+    HubAccess hubAccess = HubAccess.create("Admin");
     User inputData = new User()
       .setRoles("duke");
 
     failure.expect(ValueException.class);
     failure.expectMessage("'Duke' is not a valid role");
 
-    subjectDAO.updateUserRolesAndDestroyTokens(access, fake.user53.getId(), inputData);
+    subjectDAO.updateUserRolesAndDestroyTokens(hubAccess, fake.user53.getId(), inputData);
 
-    assertNotNull(subjectDAO.readOneRole(Access.internal(), fake.user53.getId(), UserRoleType.Admin));
-    assertNotNull(subjectDAO.readOneRole(Access.internal(), fake.user53.getId(), UserRoleType.Artist));
+    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user53.getId(), UserRoleType.Admin));
+    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user53.getId(), UserRoleType.Artist));
   }
 
 }

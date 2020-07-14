@@ -105,7 +105,7 @@ class MixerImpl implements Mixer {
         totalBytes);
 
     } catch (Exception e) {
-      throw new MixerException(config.getLogPrefix() +"unable to setup internal variables from output audio format", e);
+      throw new MixerException(config.getLogPrefix() + "unable to setup internal variables from output audio format", e);
     }
   }
 
@@ -117,7 +117,7 @@ class MixerImpl implements Mixer {
   @Override
   public void loadSource(String sourceId, BufferedInputStream inputStream) throws SourceException, FormatException, IOException {
     if (sources.containsKey(sourceId)) {
-      throw new SourceException(config.getLogPrefix() +"Already loaded source id '" + sourceId + "'");
+      throw new SourceException(config.getLogPrefix() + "Already loaded source id '" + sourceId + "'");
     }
 
     Source source = factory.createSource(sourceId, inputStream);

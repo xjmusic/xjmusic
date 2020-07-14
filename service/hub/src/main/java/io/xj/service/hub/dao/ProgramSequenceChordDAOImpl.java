@@ -2,13 +2,13 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.lib.rest_api.PayloadFactory;
-import io.xj.lib.rest_api.RestApiException;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.ProgramSequenceChord;
-import io.xj.service.hub.persistence.SQLDatabaseProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.entity.ProgramSequenceChord;
+import io.xj.service.hub.persistence.HubDatabaseProvider;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -21,16 +21,17 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   @Inject
   public ProgramSequenceChordDAOImpl(
     PayloadFactory payloadFactory,
-    SQLDatabaseProvider dbProvider
+    EntityFactory entityFactory,
+    HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory);
+    super(payloadFactory, entityFactory);
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public ProgramSequenceChord create(Access access, ProgramSequenceChord entity) throws HubException, RestApiException, ValueException {
+  public ProgramSequenceChord create(HubAccess hubAccess, ProgramSequenceChord entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
-    requireArtist(access);
+    requireArtist(hubAccess);
     return modelFrom(ProgramSequenceChord.class,
       executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE_CHORD, entity));
 
@@ -38,8 +39,8 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
 
   @Override
   @Nullable
-  public ProgramSequenceChord readOne(Access access, UUID id) throws HubException {
-    requireArtist(access);
+  public ProgramSequenceChord readOne(HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
     return modelFrom(ProgramSequenceChord.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD)
         .where(PROGRAM_SEQUENCE_CHORD.ID.eq(id))
@@ -48,8 +49,8 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
 
   @Override
   @Nullable
-  public Collection<ProgramSequenceChord> readMany(Access access, Collection<UUID> parentIds) throws HubException {
-    requireArtist(access);
+  public Collection<ProgramSequenceChord> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+    requireArtist(hubAccess);
     return modelsFrom(ProgramSequenceChord.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD)
         .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID.in(parentIds))
@@ -57,15 +58,15 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   }
 
   @Override
-  public void update(Access access, UUID id, ProgramSequenceChord entity) throws HubException, RestApiException, ValueException {
+  public void update(HubAccess hubAccess, UUID id, ProgramSequenceChord entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
-    requireArtist(access);
+    requireArtist(hubAccess);
     executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE_CHORD, id, entity);
   }
 
   @Override
-  public void destroy(Access access, UUID id) throws HubException {
-    requireArtist(access);
+  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
     dbProvider.getDSL().deleteFrom(PROGRAM_SEQUENCE_CHORD)
       .where(PROGRAM_SEQUENCE_CHORD.ID.eq(id))
       .execute();

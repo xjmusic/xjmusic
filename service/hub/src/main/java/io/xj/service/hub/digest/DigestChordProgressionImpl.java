@@ -6,21 +6,15 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.typesafe.config.Config;
-import io.xj.service.hub.entity.ChordEntity;
-import io.xj.service.hub.ingest.Ingest;
-import io.xj.service.hub.model.ProgramSequence;
-import io.xj.service.hub.model.ProgramSequenceChord;
+import io.xj.lib.entity.common.ChordEntity;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.ProgramSequenceChord;
+import io.xj.service.hub.ingest.HubIngest;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  [#166746925] DEPRECATE SUPERSEQENCE/SUPERPATTERN FOR NOW
@@ -43,7 +37,7 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
    */
   @Inject
   public DigestChordProgressionImpl(
-    @Assisted("ingest") Ingest ingest,
+    @Assisted("ingest") HubIngest ingest,
     Config config
   ) {
     super(ingest, DigestType.DigestChordProgression);
@@ -100,7 +94,7 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
   private static <C extends ProgramSequenceChord> Collection<C> sequenceChordsOf(Collection<C> sequenceChords, Object parentId) {
     Collection<C> result = Lists.newArrayList();
     sequenceChords.forEach(sequenceChord -> {
-      if (Objects.equals(parentId, sequenceChord.getParentId())) result.add(sequenceChord);
+//      if (Objects.equals(parentId, sequenceChord.getParentId())) result.add(sequenceChord);
     });
     return result;
   }

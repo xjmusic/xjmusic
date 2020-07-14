@@ -2,9 +2,9 @@
 package io.xj.service.hub.digest;
 
 import com.google.common.base.Splitter;
+import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.music.Key;
 import io.xj.lib.music.PitchClass;
-import io.xj.service.hub.entity.ChordEntity;
 import io.xj.lib.util.Value;
 
 import javax.annotation.Nullable;

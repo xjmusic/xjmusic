@@ -25,6 +25,7 @@ public class Step {
 
   /**
    Pitch Class to step to
+
    @return Pitch Class
    */
   public PitchClass getPitchClass() {
@@ -33,6 +34,7 @@ public class Step {
 
   /**
    +/- Octave to step to
+
    @return +/- octave
    */
   public Integer getDeltaOctave() {

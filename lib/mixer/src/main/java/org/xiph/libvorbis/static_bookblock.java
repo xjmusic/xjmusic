@@ -4,19 +4,19 @@ package org.xiph.libvorbis;
 
 public class static_bookblock {
 
-	static_codebook[][] books;
+  static_codebook[][] books;
 
 
-	public static_bookblock( static_codebook[][] _books ) {
+  public static_bookblock(static_codebook[][] _books) {
 
-		books = new static_codebook[12][3];
+    books = new static_codebook[12][3];
 
-		for ( int i=0; i < _books.length; i++ )
-			System.arraycopy( _books[i], 0, books[i], 0, _books[i].length );
-	}
+    for (int i = 0; i < _books.length; i++)
+      System.arraycopy(_books[i], 0, books[i], 0, _books[i].length);
+  }
 
-	public static_bookblock( static_bookblock src ) {
+  public static_bookblock(static_bookblock src) {
 
-		this( src.books );
-	}
+    this(src.books);
+  }
 }

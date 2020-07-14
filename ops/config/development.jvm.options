@@ -18,7 +18,7 @@
 -Dsegment.file.bucket=xj-dev-ship
 -Dsegment.url.base=https://ship.dev.xj.io/
 -Dsegment.url.upload=https://xj-dev-ship.s3.amazonaws.com
--Dlog.access.filename=/tmp/nexus/access.log
+-Dlog.hubAccess.filename=/tmp/nexus/hubAccess.log
 -Dcache.file.path.prefix=/tmp/nexus/cache/
 -Dcache.file.allocate.bytes=1000000000
 -Dplatform.heartbeat.key=1234

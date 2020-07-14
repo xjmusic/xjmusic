@@ -102,9 +102,9 @@ public interface MathUtil {
   /**
    Get an incremental delta from actual to target value
 
+   @param actual moving from
+   @param target to move towards
    @return incremental value delta
-   @param actual    moving from
-   @param target    to move towards
    */
   static double delta(double actual, double target) {
     if (Double.isInfinite(actual) || Double.isInfinite(target)) return 0;

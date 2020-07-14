@@ -247,7 +247,7 @@ public class App {
   /**
    stop App Server
    */
-  public void stop() {
+  public void finish() {
     log.info("{} will stop", name);
 
     try {

@@ -4,14 +4,15 @@ package io.xj.service.hub.api;
 import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
 import com.google.api.client.json.JsonFactory;
 import com.google.inject.Injector;
+import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.service.hub.HubEndpoint;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.access.AccessControlProvider;
-import io.xj.service.hub.dao.UserDAO;
 import io.xj.service.hub.access.GoogleProvider;
-import io.xj.service.hub.model.UserRoleType;
-import io.xj.lib.rest_api.ApiUrlProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.access.HubAccessControlProvider;
+import io.xj.service.hub.access.HubAccessException;
+import io.xj.service.hub.dao.DAOException;
+import io.xj.service.hub.dao.UserDAO;
+import io.xj.service.hub.entity.UserRoleType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class AuthEndpoint extends HubEndpoint {
   private static final Logger log = LoggerFactory.getLogger(AuthEndpoint.class);
   private final JsonFactory jsonFactory;
   private final UserDAO userDAO;
-  private final AccessControlProvider accessControlProvider;
+  private final HubAccessControlProvider hubAccessControlProvider;
   private final GoogleProvider authGoogleProvider;
   private final ApiUrlProvider apiUrlProvider;
 
@@ -51,7 +52,7 @@ public class AuthEndpoint extends HubEndpoint {
     super(injector);
     jsonFactory = injector.getInstance(JsonFactory.class);
     userDAO = injector.getInstance(UserDAO.class);
-    accessControlProvider = injector.getInstance(AccessControlProvider.class);
+    hubAccessControlProvider = injector.getInstance(HubAccessControlProvider.class);
     authGoogleProvider = injector.getInstance(GoogleProvider.class);
     apiUrlProvider = injector.getInstance(ApiUrlProvider.class);
   }
@@ -64,9 +65,9 @@ public class AuthEndpoint extends HubEndpoint {
   @GET
   @RolesAllowed(UserRoleType.USER)
   public Response getCurrentAuthentication(@Context ContainerRequestContext crc) {
-    Access access = Access.fromContext(crc);
+    HubAccess hubAccess = HubAccess.fromContext(crc);
     return Response
-      .accepted(access.toJSON(jsonFactory))
+      .accepted(hubAccess.toJSON(jsonFactory))
       .type(MediaType.APPLICATION_JSON)
       .build();
   }
@@ -79,19 +80,19 @@ public class AuthEndpoint extends HubEndpoint {
   @Path("no")
   @PermitAll
   public Response nullifyAuthentication(@Context ContainerRequestContext crc) {
-    Access access = Access.fromContext(crc);
+    HubAccess hubAccess = HubAccess.fromContext(crc);
 
-    if (access.isValid()) {
+    if (hubAccess.isValid()) {
       try {
-        userDAO.destroyAllTokens(access.getUserId());
-        return response.internalRedirectWithCookie("", accessControlProvider.newExpiredCookie());
+        userDAO.destroyAllTokens(hubAccess.getUserId());
+        return response.internalRedirectWithCookie("", hubAccessControlProvider.newExpiredCookie());
 
       } catch (Exception e) {
         return response.failure(e);
       }
 
     } else
-      return response.internalRedirectWithCookie("", accessControlProvider.newExpiredCookie());
+      return response.internalRedirectWithCookie("", hubAccessControlProvider.newExpiredCookie());
   }
 
   /**
@@ -106,7 +107,7 @@ public class AuthEndpoint extends HubEndpoint {
     String url;
     try {
       url = authGoogleProvider.getAuthCodeRequestUrl();
-    } catch (HubException e) {
+    } catch (HubAccessException e) {
       log.error("Google Auth Provider Failed!", e);
       return Response.serverError().build();
     }
@@ -137,14 +138,14 @@ public class AuthEndpoint extends HubEndpoint {
 
     String accessToken;
     try {
-      accessToken = accessControlProvider.authenticate(authResponse.getCode());
-    } catch (HubException e) {
+      accessToken = hubAccessControlProvider.authenticate(authResponse.getCode());
+    } catch (DAOException e) {
       return errorResponse("Authentication failed:" + e.getMessage());
     } catch (Exception e) {
       return errorResponse("Unknown error with authenticating access code", e);
     }
 
-    return response.internalRedirectWithCookie(apiUrlProvider.getAppPathWelcome(), accessControlProvider.newCookie(accessToken));
+    return response.internalRedirectWithCookie(apiUrlProvider.getAppPathWelcome(), hubAccessControlProvider.newCookie(accessToken));
   }
 
   /**

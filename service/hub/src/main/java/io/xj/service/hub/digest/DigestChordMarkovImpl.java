@@ -8,8 +8,8 @@ import com.google.inject.assistedinject.Assisted;
 import com.typesafe.config.Config;
 import io.xj.lib.music.Key;
 import io.xj.service.hub.HubException;
-import io.xj.service.hub.ingest.Ingest;
-import io.xj.service.hub.model.ProgramSequenceChord;
+import io.xj.service.hub.entity.ProgramSequenceChord;
+import io.xj.service.hub.ingest.HubIngest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,6 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  In-memory cache of ingest of all entities in a library
@@ -39,7 +38,7 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
    */
   @Inject
   public DigestChordMarkovImpl(
-    @Assisted("ingest") Ingest ingest,
+    @Assisted("ingest") HubIngest ingest,
     Config config
   ) {
     super(ingest, DigestType.DigestChordMarkov);
@@ -64,7 +63,7 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
   private static Collection<ProgramSequenceChord> chordsOf(Iterable<? extends ProgramSequenceChord> chords, Object parentId) {
     Collection<ProgramSequenceChord> result = Lists.newArrayList();
     chords.forEach(sequenceChord -> {
-      if (Objects.equals(parentId, sequenceChord.getParentId())) result.add(sequenceChord);
+//      if (Objects.equals(parentId, sequenceChord.getParentId())) result.add(sequenceChord);
     });
     return result;
   }

@@ -6,11 +6,17 @@ import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.HubApp;
-import io.xj.service.hub.HubModule;
-import io.xj.service.hub.digest.DigestModule;
-import io.xj.service.hub.generation.GenerationModule;
-import io.xj.service.hub.testing.AppTestConfiguration;
+import io.xj.service.hub.access.HubAccessControlModule;
+import io.xj.service.hub.dao.DAOModule;
+import io.xj.service.hub.digest.HubDigestModule;
+import io.xj.service.hub.generation.HubGenerationModule;
+import io.xj.service.hub.ingest.HubIngestModule;
+import io.xj.service.hub.persistence.HubPersistenceModule;
+import io.xj.service.hub.testing.HubTestConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,12 +48,13 @@ public class AuthGoogleResourceTest {
       log.error("Could not open access log for writing", e);
     }
 
-    Config config = AppTestConfiguration.getDefault()
+    Config config = HubTestConfiguration.getDefault()
       .withValue("google.clientId", ConfigValueFactory.fromAnyRef("12345"))
       .withValue("google.clientSecret", ConfigValueFactory.fromAnyRef("abcdef"))
-      .withValue("app.baseURL", ConfigValueFactory.fromAnyRef("https://xj.io/"))
-      .withValue("app.apiURL", ConfigValueFactory.fromAnyRef("api/69/"));
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubModule(), new DigestModule(), new GenerationModule()));
+      .withValue("app.port", ConfigValueFactory.fromAnyRef(1903))
+      .withValue("app.baseUrl", ConfigValueFactory.fromAnyRef("https://xj.io/"))
+      .withValue("app.apiUrl", ConfigValueFactory.fromAnyRef("api/69/"));
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubDigestModule(), new HubGenerationModule()));
     app = new HubApp(ImmutableSet.of("io.xj.service.hub"), injector);
     app.start();
 
@@ -65,7 +72,7 @@ public class AuthGoogleResourceTest {
 
   @After
   public void after() {
-    app.stop();
+    app.finish();
   }
 
   @Test

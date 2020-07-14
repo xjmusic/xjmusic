@@ -3,20 +3,12 @@ package io.xj.service.hub.api;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
-import io.xj.lib.rest_api.ApiUrlProvider;
-import io.xj.lib.rest_api.Payload;
-import io.xj.lib.rest_api.PayloadObject;
-import io.xj.lib.rest_api.RestApiException;
+import io.xj.lib.jsonapi.ApiUrlProvider;
+import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.PayloadObject;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.service.hub.HubEndpoint;
-import io.xj.service.hub.model.ChainConfigType;
-import io.xj.service.hub.model.ChainState;
-import io.xj.service.hub.model.ChainType;
-import io.xj.service.hub.model.InstrumentState;
-import io.xj.service.hub.model.InstrumentType;
-import io.xj.service.hub.model.ProgramSequencePatternType;
-import io.xj.service.hub.model.ProgramState;
-import io.xj.service.hub.model.ProgramType;
-import io.xj.service.hub.model.SegmentState;
+import io.xj.service.hub.entity.*;
 
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
@@ -53,16 +45,13 @@ public class ConfigEndpoint extends HubEndpoint {
    */
   @GET
   @PermitAll
-  public Response getConfig(@Context ContainerRequestContext crc) throws RestApiException {
+  public Response getConfig(@Context ContainerRequestContext crc) throws JsonApiException {
     return response.ok(
       new Payload().setDataOne(
         new PayloadObject().setAttributes(ImmutableMap.<String, Object>builder()
           .put("apiBaseUrl", apiUrlProvider.getAppBaseUrl() + apiUrlProvider.getApiPath())
           .put("audioBaseUrl", apiUrlProvider.getAudioBaseUrl())
           .put("baseUrl", apiUrlProvider.getAppBaseUrl())
-          .put("chainConfigTypes", ChainConfigType.stringValues())
-          .put("chainStates", ChainState.stringValues())
-          .put("chainTypes", ChainType.stringValues())
           .put("choiceTypes", ProgramType.stringValues())
           .put("instrumentStates", InstrumentState.stringValues())
           .put("instrumentTypes", InstrumentType.stringValues())
@@ -71,7 +60,6 @@ public class ConfigEndpoint extends HubEndpoint {
           .put("programStates", ProgramState.stringValues())
           .put("programTypes", ProgramType.stringValues())
           .put("segmentBaseUrl", apiUrlProvider.getSegmentBaseUrl())
-          .put("segmentStates", SegmentState.stringValues())
           .put("voiceTypes", InstrumentType.stringValues())
           .build())));
   }

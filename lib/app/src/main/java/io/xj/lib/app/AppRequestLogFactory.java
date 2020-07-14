@@ -10,16 +10,16 @@ import org.slf4j.Logger;
  */
 class AppRequestLogFactory {
 
-    private Logger logger;
+  private Logger logger;
 
-    AppRequestLogFactory(Logger logger) {
-        this.logger = logger;
-    }
+  AppRequestLogFactory(Logger logger) {
+    this.logger = logger;
+  }
 
-    CustomRequestLog create() {
-        RequestLog.Writer writer = requestEntry -> logger.info(requestEntry);
-        return new CustomRequestLog(writer, CustomRequestLog.EXTENDED_NCSA_FORMAT);
-    }
+  CustomRequestLog create() {
+    RequestLog.Writer writer = requestEntry -> logger.info(requestEntry);
+    return new CustomRequestLog(writer, CustomRequestLog.EXTENDED_NCSA_FORMAT);
+  }
 }
 
 

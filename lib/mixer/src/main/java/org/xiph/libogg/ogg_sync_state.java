@@ -4,14 +4,15 @@ package org.xiph.libogg;
 
 public class ogg_sync_state {
 
-	byte[] data;		// unsigned char
-	int storage;
-	int fill;
-	int returned;
+  byte[] data;    // unsigned char
+  int storage;
+  int fill;
+  int returned;
 
-	int unsynced;
-	int headerbytes;
-	int bodybytes;
+  int unsynced;
+  int headerbytes;
+  int bodybytes;
 
-	public ogg_sync_state() {}
+  public ogg_sync_state() {
+  }
 }

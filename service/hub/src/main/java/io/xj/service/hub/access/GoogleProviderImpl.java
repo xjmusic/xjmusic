@@ -7,18 +7,13 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleOAuthConstants;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.*;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.services.plus.model.Person;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.service.hub.HubException;
-import io.xj.lib.rest_api.ApiUrlProvider;
+import io.xj.lib.jsonapi.ApiUrlProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +61,7 @@ class GoogleProviderImpl implements GoogleProvider {
   }
 
   @Override
-  public String getAuthCodeRequestUrl() throws HubException {
+  public String getAuthCodeRequestUrl() throws HubAccessException {
     return new AuthorizationCodeRequestUrl(GoogleOAuthConstants.AUTHORIZATION_SERVER_URL, clientId)
       .setResponseTypes(ImmutableList.of("code"))
       .setRedirectUri(getCallbackUrl())
@@ -81,7 +76,7 @@ class GoogleProviderImpl implements GoogleProvider {
   }
 
   @Override
-  public GoogleTokenResponse getTokenFromCode(String code) throws HubException {
+  public GoogleTokenResponse getTokenFromCode(String code) throws HubAccessException {
     GoogleTokenResponse response;
     try {
       HttpTransport httpTransport = googleHttpProvider.getTransport();
@@ -91,17 +86,17 @@ class GoogleProviderImpl implements GoogleProvider {
       response = request.execute();
     } catch (TokenResponseException e) {
       log.error("GoogleProvider.getTokenFromCode failed to retrieve token response: {}", detailsOfTokenException(e));
-      throw new HubException("Failed to retrieve token response for Google OAuth2 code.", e);
+      throw new HubAccessException("Failed to retrieve token response for Google OAuth2 code.", e);
     } catch (IOException e) {
       log.error("GoogleProvider.getTokenFromCode had I/O failure!", e);
-      throw new HubException("I/O failure.", e);
+      throw new HubAccessException("I/O failure.", e);
     }
 
     return response;
   }
 
   @Override
-  public Person getMe(String externalAccessToken) throws HubException {
+  public Person getMe(String externalAccessToken) throws HubAccessException {
     GoogleCredential credential = new GoogleCredential()
       .setAccessToken(externalAccessToken)
       .createScoped(SCOPES);
@@ -114,14 +109,14 @@ class GoogleProviderImpl implements GoogleProvider {
       HttpResponse response = request.execute();
       responseJson = response.parseAsString();
     } catch (IOException e) {
-      throw new HubException("Failed to request profile create Google+ API: ", e);
+      throw new HubAccessException("Failed to request profile create Google+ API: ", e);
     }
 
     Person person;
     try {
       person = jsonFactory.createJsonParser(responseJson).parse(Person.class);
     } catch (Exception e) {
-      throw new HubException("Google API result is not valid JSON", e);
+      throw new HubAccessException("Google API result is not valid JSON", e);
     }
 
     return person;

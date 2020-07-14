@@ -2,13 +2,13 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.lib.rest_api.PayloadFactory;
-import io.xj.lib.rest_api.RestApiException;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.ProgramSequencePatternEvent;
-import io.xj.service.hub.persistence.SQLDatabaseProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.entity.ProgramSequencePatternEvent;
+import io.xj.service.hub.persistence.HubDatabaseProvider;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -21,16 +21,17 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
   @Inject
   public ProgramSequencePatternEventDAOImpl(
     PayloadFactory payloadFactory,
-    SQLDatabaseProvider dbProvider
+    EntityFactory entityFactory,
+    HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory);
+    super(payloadFactory, entityFactory);
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public ProgramSequencePatternEvent create(Access access, ProgramSequencePatternEvent entity) throws HubException, RestApiException, ValueException {
+  public ProgramSequencePatternEvent create(HubAccess hubAccess, ProgramSequencePatternEvent entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
-    requireArtist(access);
+    requireArtist(hubAccess);
     return modelFrom(ProgramSequencePatternEvent.class,
       executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, entity));
 
@@ -38,8 +39,8 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
 
   @Override
   @Nullable
-  public ProgramSequencePatternEvent readOne(Access access, UUID id) throws HubException {
-    requireArtist(access);
+  public ProgramSequencePatternEvent readOne(HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
     return modelFrom(ProgramSequencePatternEvent.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
         .where(PROGRAM_SEQUENCE_PATTERN_EVENT.ID.eq(id))
@@ -48,8 +49,8 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
 
   @Override
   @Nullable
-  public Collection<ProgramSequencePatternEvent> readMany(Access access, Collection<UUID> parentIds) throws HubException {
-    requireArtist(access);
+  public Collection<ProgramSequencePatternEvent> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+    requireArtist(hubAccess);
     return modelsFrom(ProgramSequencePatternEvent.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
         .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID.in(parentIds))
@@ -57,15 +58,15 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
   }
 
   @Override
-  public void update(Access access, UUID id, ProgramSequencePatternEvent entity) throws HubException, RestApiException, ValueException {
+  public void update(HubAccess hubAccess, UUID id, ProgramSequencePatternEvent entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
-    requireArtist(access);
+    requireArtist(hubAccess);
     executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, id, entity);
   }
 
   @Override
-  public void destroy(Access access, UUID id) throws HubException {
-    requireArtist(access);
+  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+    requireArtist(hubAccess);
     dbProvider.getDSL().deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .where(PROGRAM_SEQUENCE_PATTERN_EVENT.ID.eq(id))
       .execute();

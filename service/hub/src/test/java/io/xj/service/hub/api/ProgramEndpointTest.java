@@ -2,6 +2,7 @@
 
 package io.xj.service.hub.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
@@ -10,23 +11,24 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
-import io.xj.lib.rest_api.Payload;
-import io.xj.lib.rest_api.PayloadFactory;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.HubApp;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.HubModule;
-import io.xj.service.hub.access.Access;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.access.HubAccessControlModule;
+import io.xj.service.hub.dao.DAOException;
+import io.xj.service.hub.dao.DAOModule;
 import io.xj.service.hub.dao.ProgramDAO;
-import io.xj.service.hub.digest.DigestModule;
-import io.xj.service.hub.generation.GenerationModule;
-import io.xj.service.hub.model.Account;
-import io.xj.service.hub.model.Library;
-import io.xj.service.hub.model.Program;
-import io.xj.service.hub.model.ProgramState;
-import io.xj.service.hub.model.ProgramType;
-import io.xj.service.hub.model.User;
-import io.xj.service.hub.testing.AppTestConfiguration;
-import io.xj.service.hub.testing.InternalResources;
+import io.xj.service.hub.digest.HubDigestModule;
+import io.xj.service.hub.entity.*;
+import io.xj.service.hub.generation.HubGenerationModule;
+import io.xj.service.hub.ingest.HubIngestModule;
+import io.xj.service.hub.persistence.HubPersistenceModule;
+import io.xj.service.hub.testing.HubTestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,8 +40,8 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collection;
 
-import static io.xj.service.hub.access.Access.CONTEXT_KEY;
-import static io.xj.service.hub.testing.AssertPayload.assertPayload;
+import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
+import static io.xj.service.hub.access.HubAccess.CONTEXT_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
@@ -53,7 +55,7 @@ public class ProgramEndpointTest {
   ContainerRequestContext crc;
   @Mock
   ProgramDAO programDAO;
-  private Access access;
+  private HubAccess hubAccess;
   private ProgramEndpoint subject;
   private User user101;
   private Library library25;
@@ -61,17 +63,17 @@ public class ProgramEndpointTest {
 
   @Before
   public void setUp() throws AppException {
-    Config config = AppTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(new HubModule(), new DigestModule(), new GenerationModule()).with(
+    Config config = HubTestConfiguration.getDefault();
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubDigestModule(), new HubGenerationModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
           bind(ProgramDAO.class).toInstance(programDAO);
         }
       }))));
-    HubApp.buildApiTopology(injector.getInstance(PayloadFactory.class));
+    HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
     Account account1 = Account.create();
-    access = Access.create(ImmutableList.of(account1), "User,Artist");
+    hubAccess = HubAccess.create(ImmutableList.of(account1), "User,Artist");
     user101 = User.create();
     library25 = Library.create();
     library1 = Library.create();
@@ -80,34 +82,34 @@ public class ProgramEndpointTest {
   }
 
   @Test
-  public void readAll() throws HubException, IOException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+  public void readAll() throws DAOException, IOException, JsonApiException {
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     Program program1 = Program.create(user101, library25, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6);
     Program program2 = Program.create(user101, library25, ProgramType.Main, ProgramState.Published, "trunk", "B", 120.0, 0.6);
     Collection<Program> programs = ImmutableList.of(program1, program2);
-    when(programDAO.readMany(same(access), eq(ImmutableList.of(library25.getId()))))
+    when(programDAO.readMany(same(hubAccess), eq(ImmutableList.of(library25.getId()))))
       .thenReturn(programs);
 
     Response result = subject.readAll(crc, null, library25.getId().toString(), "");
 
-    verify(programDAO).readMany(same(access), eq(ImmutableList.of(library25.getId())));
+    verify(programDAO).readMany(same(hubAccess), eq(ImmutableList.of(library25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
-    assertPayload(InternalResources.deserializePayload(result.getEntity()))
+    assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class))
       .hasDataMany("programs", ImmutableList.of(program1.getId().toString(), program2.getId().toString()));
   }
 
   @Test
-  public void readOne() throws HubException, IOException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+  public void readOne() throws DAOException, IOException, JsonApiException {
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     Program program1 = Program.create(user101, library1, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6);
-    when(programDAO.readOne(same(access), eq(program1.getId()))).thenReturn(program1);
+    when(programDAO.readOne(same(hubAccess), eq(program1.getId()))).thenReturn(program1);
 
     Response result = subject.readOne(crc, program1.getId().toString(), "");
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
-    Payload resultPayload = InternalResources.deserializePayload(result.getEntity());
+    Payload resultPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class);
     assertPayload(resultPayload)
       .hasDataOne("programs", program1.getId().toString());
   }

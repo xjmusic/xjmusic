@@ -8,10 +8,9 @@ import com.google.inject.AbstractModule;
 public class HubPersistenceModule extends AbstractModule {
   @Override
   protected void configure() {
-    bind(AmazonProvider.class).to(AmazonProviderImpl.class);
-    bind(DataStoreFactory.class).to(MemoryDataStoreFactory.class);
-    bind(Migration.class).to(MigrationImpl.class);
-    bind(RedisDatabaseProvider.class).to(RedisDatabaseProviderImpl.class);
-    bind(SQLDatabaseProvider.class).to(SQLDatabaseProviderImpl.class);
+    bind(DataStoreFactory.class).to(MemoryDataStoreFactory.class); // required by Google OAuth flow
+    bind(HubMigration.class).to(HubMigrationImpl.class);
+    bind(HubRedisProvider.class).to(HubRedisProviderImpl.class);
+    bind(HubDatabaseProvider.class).to(HubDatabaseProviderImpl.class);
   }
 }

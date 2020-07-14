@@ -6,10 +6,10 @@ import com.google.common.collect.Maps;
 import com.google.common.hash.Hashing;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.service.hub.entity.Entity;
-import io.xj.service.hub.ingest.Ingest;
+import io.xj.lib.entity.Entity;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
+import io.xj.service.hub.ingest.HubIngest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class DigestHashImpl extends DigestImpl implements DigestHash {
    */
   @Inject
   public DigestHashImpl(
-    @Assisted("ingest") Ingest ingest
+    @Assisted("ingest") HubIngest ingest
   ) {
     super(ingest, DigestType.DigestHash);
     try {

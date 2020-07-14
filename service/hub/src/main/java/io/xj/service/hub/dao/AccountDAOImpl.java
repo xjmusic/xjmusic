@@ -2,13 +2,13 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.lib.rest_api.PayloadFactory;
-import io.xj.lib.rest_api.RestApiException;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.model.Account;
-import io.xj.service.hub.persistence.SQLDatabaseProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.entity.Account;
+import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.jooq.DSLContext;
 
 import java.util.Collection;
@@ -16,7 +16,6 @@ import java.util.UUID;
 
 import static io.xj.service.hub.Tables.ACCOUNT;
 import static io.xj.service.hub.tables.AccountUser.ACCOUNT_USER;
-import static io.xj.service.hub.tables.Chain.CHAIN;
 import static io.xj.service.hub.tables.Library.LIBRARY;
 
 public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
@@ -24,24 +23,25 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
   @Inject
   public AccountDAOImpl(
     PayloadFactory payloadFactory,
-    SQLDatabaseProvider dbProvider
+    EntityFactory entityFactory,
+    HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory);
+    super(payloadFactory, entityFactory);
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public Account create(Access access, Account entity) throws HubException, RestApiException, ValueException {
+  public Account create(HubAccess hubAccess, Account entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
-    requireTopLevel(access);
+    requireTopLevel(hubAccess);
 
     return modelFrom(Account.class,
       executeCreate(dbProvider.getDSL(), ACCOUNT, entity));
   }
 
   @Override
-  public Account readOne(Access access, UUID id) throws HubException {
-    if (access.isTopLevel())
+  public Account readOne(HubAccess hubAccess, UUID id) throws DAOException {
+    if (hubAccess.isTopLevel())
       return modelFrom(Account.class,
         dbProvider.getDSL().selectFrom(ACCOUNT)
           .where(ACCOUNT.ID.eq(id))
@@ -51,44 +51,39 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
         dbProvider.getDSL().select(ACCOUNT.fields())
           .from(ACCOUNT)
           .where(ACCOUNT.ID.eq(id))
-          .and(ACCOUNT.ID.in(access.getAccountIds()))
+          .and(ACCOUNT.ID.in(hubAccess.getAccountIds()))
           .fetchOne());
   }
 
   @Override
-  public Collection<Account> readMany(Access access, Collection<UUID> parentIds) throws HubException {
-    if (access.isTopLevel())
+  public Collection<Account> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+    if (hubAccess.isTopLevel())
       return modelsFrom(Account.class,
         dbProvider.getDSL().selectFrom(ACCOUNT)
           .fetch());
     else
       return modelsFrom(Account.class,
         dbProvider.getDSL().selectFrom(ACCOUNT)
-          .where(ACCOUNT.ID.in(access.getAccountIds()))
+          .where(ACCOUNT.ID.in(hubAccess.getAccountIds()))
           .fetch());
   }
 
   @Override
-  public void update(Access access, UUID id, Account entity) throws HubException, RestApiException, ValueException {
-    requireTopLevel(access);
+  public void update(HubAccess hubAccess, UUID id, Account entity) throws DAOException, JsonApiException, ValueException {
+    requireTopLevel(hubAccess);
     entity.validate();
     executeUpdate(dbProvider.getDSL(), ACCOUNT, id, entity);
   }
 
   @Override
-  public void destroy(Access access, UUID id) throws HubException {
+  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
     DSLContext db = dbProvider.getDSL();
 
-    requireTopLevel(access);
+    requireTopLevel(hubAccess);
 
     requireNotExists("Library in Account", db.select(LIBRARY.ID)
       .from(LIBRARY)
       .where(LIBRARY.ACCOUNT_ID.eq(id))
-      .fetch());
-
-    requireNotExists("Chain in Account", db.select(CHAIN.ID)
-      .from(CHAIN)
-      .where(CHAIN.ACCOUNT_ID.eq(id))
       .fetch());
 
     requireNotExists("User in Account", db.select(ACCOUNT_USER.ID)
@@ -102,10 +97,6 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
         db.select(LIBRARY.ID)
           .from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.eq(id)))
-      .andNotExists(
-        db.select(CHAIN.ID)
-          .from(CHAIN)
-          .where(CHAIN.ACCOUNT_ID.eq(id)))
       .andNotExists(
         db.select(ACCOUNT_USER.ID)
           .from(ACCOUNT_USER)

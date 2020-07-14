@@ -1,11 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.service.hub.digest;// Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.service.hub.digest;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.lib.music.PitchClass;
-import io.xj.service.hub.model.ProgramSequence;
-import io.xj.service.hub.model.ProgramSequenceChord;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.ProgramSequenceChord;
 import org.junit.Before;
 import org.junit.Test;
 

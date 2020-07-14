@@ -3,7 +3,7 @@ package io.xj.service.hub.access;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.plus.model.Person;
-import io.xj.service.hub.HubException;
+
 
 public interface GoogleProvider {
   /**
@@ -12,26 +12,26 @@ public interface GoogleProvider {
    auth.google.secret
 
    @return String authorization code request URL
-   @throws HubException if required system properties are not set
+   @throws HubAccessException if required system properties are not set
    */
-  String getAuthCodeRequestUrl() throws HubException;
+  String getAuthCodeRequestUrl() throws HubAccessException;
 
   /**
    URI that the authorization server directs the resource owner's user-agent back to
 
    @return String URI
-   @throws HubException if required system properties are not set.
+   @throws HubAccessException if required system properties are not set.
    */
-  String getCallbackUrl() throws HubException;
+  String getCallbackUrl() throws HubAccessException;
 
   /**
    Submits the access code to the token server for an OAuth2 access_token
 
    @param code of the first leg of the OAuth2 flow
    @return String access_token of a successful completed OAuth2 flow
-   @throws HubException if authentication fails
+   @throws HubAccessException if authentication fails
    */
-  GoogleTokenResponse getTokenFromCode(String code) throws HubException, HubException;
+  GoogleTokenResponse getTokenFromCode(String code) throws HubAccessException, HubAccessException;
 
   /**
    Retrieves the authenticating user's Google API person data.
@@ -78,7 +78,7 @@ public interface GoogleProvider {
 
    @param access_token for OAuth2 access to Google API on behalf of authenticating user
    @return profile as JSON
-   @throws HubException if auth fails
+   @throws HubAccessException if auth fails
    */
-  Person getMe(String access_token) throws HubException;
+  Person getMe(String access_token) throws HubAccessException;
 }

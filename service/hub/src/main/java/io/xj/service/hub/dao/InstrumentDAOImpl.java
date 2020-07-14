@@ -4,19 +4,14 @@ package io.xj.service.hub.dao;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import io.xj.lib.rest_api.PayloadFactory;
-import io.xj.lib.rest_api.RestApiException;
+import io.xj.lib.entity.Entity;
+import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
-import io.xj.service.hub.entity.Entity;
-import io.xj.service.hub.model.Instrument;
-import io.xj.service.hub.model.InstrumentAudio;
-import io.xj.service.hub.model.InstrumentAudioChord;
-import io.xj.service.hub.model.InstrumentAudioEvent;
-import io.xj.service.hub.model.InstrumentMeme;
-import io.xj.service.hub.model.InstrumentState;
-import io.xj.service.hub.persistence.SQLDatabaseProvider;
+import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.entity.*;
+import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
@@ -26,43 +21,39 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.service.hub.Tables.INSTRUMENT;
-import static io.xj.service.hub.Tables.INSTRUMENT_AUDIO;
-import static io.xj.service.hub.Tables.INSTRUMENT_AUDIO_CHORD;
-import static io.xj.service.hub.Tables.INSTRUMENT_AUDIO_EVENT;
-import static io.xj.service.hub.Tables.INSTRUMENT_MEME;
-import static io.xj.service.hub.Tables.LIBRARY;
+import static io.xj.service.hub.Tables.*;
 
 public class InstrumentDAOImpl extends DAOImpl<Instrument> implements InstrumentDAO {
 
   @Inject
   public InstrumentDAOImpl(
     PayloadFactory payloadFactory,
-    SQLDatabaseProvider dbProvider
+    EntityFactory entityFactory,
+    HubDatabaseProvider dbProvider
   ) {
-    super(payloadFactory);
+    super(payloadFactory, entityFactory);
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public Instrument create(Access access, Instrument entity) throws HubException, RestApiException, ValueException {
+  public Instrument create(HubAccess hubAccess, Instrument entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();// This entity's parent is a Library
-    requireArtist(access);
+    requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
-    requireParentExists(db, access, entity);
+    requireParentExists(db, hubAccess, entity);
     return modelFrom(Instrument.class, executeCreate(db, INSTRUMENT, entity));
   }
 
   @Override
-  public Instrument clone(Access access, UUID cloneId, Instrument entity) throws HubException {
-    requireArtist(access);
+  public Instrument clone(HubAccess hubAccess, UUID cloneId, Instrument entity) throws DAOException {
+    requireArtist(hubAccess);
     AtomicReference<Instrument> result = new AtomicReference<>();
     dbProvider.getDSL().transaction(ctx -> {
       DSLContext db = DSL.using(ctx);
 
-      Instrument from = readOne(db, access, cloneId);
+      Instrument from = readOne(db, hubAccess, cloneId);
       if (Objects.isNull(from))
-        throw new HubException("Can't clone nonexistent Instrument");
+        throw new DAOException("Can't clone nonexistent Instrument");
 
       // Inherits state, type if none specified
       if (Objects.isNull(entity.getType())) entity.setTypeEnum(from.getType());
@@ -71,7 +62,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
       if (Objects.isNull(entity.getName())) entity.setName(from.getName());
       entity.setUserId(from.getUserId());
       entity.validate();
-      requireParentExists(db, access, entity);
+      requireParentExists(db, hubAccess, entity);
 
       result.set(modelFrom(Instrument.class, executeCreate(db, INSTRUMENT, entity)));
 
@@ -86,19 +77,19 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
 
   @Override
   @Nullable
-  public Instrument readOne(Access access, UUID id) throws HubException {
-    return readOne(dbProvider.getDSL(), access, id);
+  public Instrument readOne(HubAccess hubAccess, UUID id) throws DAOException {
+    return readOne(dbProvider.getDSL(), hubAccess, id);
   }
 
   @Override
-  public void destroy(Access access, UUID id) throws HubException {
+  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
     DSLContext db = dbProvider.getDSL();
 
-    if (!access.isTopLevel())
+    if (!hubAccess.isTopLevel())
       requireExists("Instrument belonging to you", db.selectCount().from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(INSTRUMENT.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne(0, int.class));
 
     //
@@ -132,8 +123,8 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  public Collection<Instrument> readAllInAccount(Access access, UUID accountId) throws HubException {
-    if (access.isTopLevel())
+  public Collection<Instrument> readAllInAccount(HubAccess hubAccess, UUID accountId) throws DAOException {
+    if (hubAccess.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
@@ -145,14 +136,14 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
         .from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.in(accountId))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
   }
 
   @Override
-  public Collection<Instrument> readMany(Access access, Collection<UUID> parentIds) throws HubException {
-    if (access.isTopLevel())
+  public Collection<Instrument> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+    if (hubAccess.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
@@ -163,21 +154,21 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
         .from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
   }
 
   @Override
-  public Collection<Entity> readManyWithChildEntities(Access access, Collection<UUID> instrumentIds) throws HubException {
+  public Collection<Entity> readManyWithChildEntities(HubAccess hubAccess, Collection<UUID> instrumentIds) throws DAOException {
     DSLContext db = dbProvider.getDSL();
 
-    if (!access.isTopLevel())
+    if (!hubAccess.isTopLevel())
       for (UUID instrumentId : instrumentIds)
-        requireExists("access via account", db.selectCount().from(INSTRUMENT)
+        requireExists("hubAccess via account", db.selectCount().from(INSTRUMENT)
           .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
           .where(INSTRUMENT.ID.eq(instrumentId))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne(0, int.class));
 
     Collection<Entity> entities = Lists.newArrayList();
@@ -190,8 +181,8 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  public Collection<Instrument> readAll(Access access) throws HubException {
-    if (access.isTopLevel())
+  public Collection<Instrument> readAll(HubAccess hubAccess) throws DAOException {
+    if (hubAccess.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
@@ -200,14 +191,14 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.NAME)
         .fetch());
   }
 
   @Override
-  public Collection<UUID> readIdsInLibraries(Access access, Collection<UUID> parentIds) throws HubException {
-    requireArtist(access);
+  public Collection<UUID> readIdsInLibraries(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+    requireArtist(hubAccess);
     return DAO.idsFrom(dbProvider.getDSL().select(INSTRUMENT.ID)
       .from(INSTRUMENT)
       .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
@@ -216,27 +207,27 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  public void update(Access access, UUID id, Instrument entity) throws HubException, RestApiException, ValueException {
+  public void update(HubAccess hubAccess, UUID id, Instrument entity) throws DAOException, JsonApiException, ValueException {
     entity.validate();
     entity.setId(id); // prevent changing id
-    requireArtist(access);
+    requireArtist(hubAccess);
 
     DSLContext db = dbProvider.getDSL();
-    requireParentExists(db, access, entity);
+    requireParentExists(db, hubAccess, entity);
     executeUpdate(db, INSTRUMENT, id, entity);
   }
 
   /**
    Read one record
 
-   @param db     DSL context
-   @param access control
-   @param id     to read
+   @param db        DSL context
+   @param hubAccess control
+   @param id        to read
    @return record
-   @throws HubException on failure
+   @throws DAOException on failure
    */
-  private Instrument readOne(DSLContext db, Access access, UUID id) throws HubException {
-    if (access.isTopLevel())
+  private Instrument readOne(DSLContext db, HubAccess hubAccess, UUID id) throws DAOException {
+    if (hubAccess.isTopLevel())
       return modelFrom(Instrument.class, db.selectFrom(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(id))
         .fetchOne());
@@ -245,26 +236,26 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
         .from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(INSTRUMENT.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne());
   }
 
   /**
    Require parent instrument exists of a given possible entity in a DSL context
 
-   @param db     DSL context
-   @param access control
-   @param entity to validate
-   @throws HubException if parent does not exist
+   @param db        DSL context
+   @param hubAccess control
+   @param entity    to validate
+   @throws DAOException if parent does not exist
    */
-  private void requireParentExists(DSLContext db, Access access, Instrument entity) throws HubException {
-    if (access.isTopLevel())
+  private void requireParentExists(DSLContext db, HubAccess hubAccess, Instrument entity) throws DAOException {
+    if (hubAccess.isTopLevel())
       requireExists("Library", db.selectCount().from(LIBRARY)
         .where(LIBRARY.ID.eq(entity.getLibraryId()))
         .fetchOne(0, int.class));
     else
       requireExists("Library", db.selectCount().from(LIBRARY)
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .and(LIBRARY.ID.eq(entity.getLibraryId()))
         .fetchOne(0, int.class));
   }

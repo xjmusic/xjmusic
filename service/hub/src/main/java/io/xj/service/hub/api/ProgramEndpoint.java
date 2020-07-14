@@ -3,20 +3,19 @@ package io.xj.service.hub.api;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
-import io.xj.lib.rest_api.MediaType;
-import io.xj.lib.rest_api.Payload;
-import io.xj.lib.rest_api.PayloadDataType;
-import io.xj.lib.rest_api.PayloadObject;
+import io.xj.lib.entity.Entity;
+import io.xj.lib.jsonapi.MediaType;
+import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.PayloadDataType;
+import io.xj.lib.jsonapi.PayloadObject;
 import io.xj.lib.util.CSV;
 import io.xj.service.hub.HubEndpoint;
-import io.xj.service.hub.HubException;
-import io.xj.service.hub.access.Access;
+import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.*;
-import io.xj.service.hub.entity.Entity;
-import io.xj.service.hub.model.Program;
-import io.xj.service.hub.model.ProgramMeme;
-import io.xj.service.hub.model.ProgramSequenceBindingMeme;
-import io.xj.service.hub.model.UserRoleType;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramMeme;
+import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
+import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -66,27 +65,27 @@ public class ProgramEndpoint extends HubEndpoint {
     @QueryParam("include") String include
   ) {
     try {
-      Access access = Access.fromContext(crc);
-      Payload payload = new Payload().setDataType(PayloadDataType.HasMany);
+      HubAccess hubAccess = HubAccess.fromContext(crc);
+      Payload payload = new Payload().setDataType(PayloadDataType.Many);
       Collection<Program> programs;
 
       // how we source programs depends on the query parameters
       if (null != libraryId && !libraryId.isEmpty())
-        programs = dao().readMany(access, ImmutableList.of(UUID.fromString(libraryId)));
+        programs = dao().readMany(hubAccess, ImmutableList.of(UUID.fromString(libraryId)));
       else if (null != accountId && !accountId.isEmpty())
-        programs = dao().readAllInAccount(access, UUID.fromString(accountId));
+        programs = dao().readAllInAccount(hubAccess, UUID.fromString(accountId));
       else
-        programs = dao().readAll(access);
+        programs = dao().readAll(hubAccess);
 
       // add programs as plural data in payload
       for (Program program : programs) payload.addData(payloadFactory.toPayloadObject(program));
-      Set<UUID> programIds = DAO.idsFrom(programs);
+      Set<UUID> programIds = Entity.idsOf(programs);
 
       // if included, seek and add events to payload
       if (Objects.nonNull(include) && include.contains("memes")) {
-        for (ProgramMeme meme : programMemeDAO.readMany(access, programIds))
+        for (ProgramMeme meme : programMemeDAO.readMany(hubAccess, programIds))
           payload.getIncluded().add(payloadFactory.toPayloadObject(meme));
-        for (ProgramSequenceBindingMeme programMeme : programSequenceBindingMemeDAO.readAllForPrograms(access, programIds))
+        for (ProgramSequenceBindingMeme programMeme : programSequenceBindingMemeDAO.readAllForPrograms(hubAccess, programIds))
           payload.getIncluded().add(payloadFactory.toPayloadObject(programMeme));
       }
 
@@ -104,7 +103,7 @@ public class ProgramEndpoint extends HubEndpoint {
    @return Response
    */
   @POST
-  @Consumes(MediaType.APPLICATION_JSON_API)
+  @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(UserRoleType.ARTIST)
   public Response create(
     Payload payload,
@@ -113,11 +112,11 @@ public class ProgramEndpoint extends HubEndpoint {
   ) {
 
     try {
-      Access access = Access.fromContext(crc);
+      HubAccess hubAccess = HubAccess.fromContext(crc);
       Program program = payloadFactory.consume(dao().newInstance(), payload);
       Payload responsePayload = new Payload();
       if (Objects.nonNull(cloneId)) {
-        DAOCloner<Program> cloner = dao().clone(access, UUID.fromString(cloneId), program);
+        DAOCloner<Program> cloner = dao().clone(hubAccess, UUID.fromString(cloneId), program);
         responsePayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<PayloadObject> list = new ArrayList<>();
         for (Entity entity : cloner.getChildClones()) {
@@ -126,7 +125,7 @@ public class ProgramEndpoint extends HubEndpoint {
         }
         responsePayload.setIncluded(list);
       } else {
-        responsePayload.setDataOne(payloadFactory.toPayloadObject(dao().create(access, program)));
+        responsePayload.setDataOne(payloadFactory.toPayloadObject(dao().create(hubAccess, program)));
       }
 
       return response.create(responsePayload);
@@ -146,15 +145,15 @@ public class ProgramEndpoint extends HubEndpoint {
   @RolesAllowed(UserRoleType.USER)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id, @QueryParam("include") String include) {
     try {
-      Access access = Access.fromContext(crc);
+      HubAccess hubAccess = HubAccess.fromContext(crc);
       UUID uuid = UUID.fromString(String.valueOf(id));
 
-      Payload payload = new Payload().setDataOne(payloadFactory.toPayloadObject(dao().readOne(access, uuid)));
+      Payload payload = new Payload().setDataOne(payloadFactory.toPayloadObject(dao().readOne(hubAccess, uuid)));
 
       // optionally specify a CSV of included types to read
       if (Objects.nonNull(include)) {
         List<PayloadObject> list = new ArrayList<>();
-        for (Entity entity : dao().readChildEntities(access, ImmutableList.of(uuid), CSV.split(include))) {
+        for (Entity entity : dao().readChildEntities(hubAccess, ImmutableList.of(uuid), CSV.split(include))) {
           PayloadObject payloadObject = payloadFactory.toPayloadObject(entity);
           list.add(payloadObject);
         }
@@ -164,7 +163,7 @@ public class ProgramEndpoint extends HubEndpoint {
 
       return response.ok(payload);
 
-    } catch (HubException ignored) {
+    } catch (DAOException ignored) {
       return response.notFound(dao.newInstance().setId(UUID.fromString(String.valueOf(id))));
 
     } catch (Exception e) {
@@ -180,7 +179,7 @@ public class ProgramEndpoint extends HubEndpoint {
    */
   @PATCH
   @Path("{id}")
-  @Consumes(MediaType.APPLICATION_JSON_API)
+  @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(UserRoleType.ARTIST)
   public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     return update(crc, dao(), id, payload);
@@ -196,7 +195,7 @@ public class ProgramEndpoint extends HubEndpoint {
   @RolesAllowed(UserRoleType.ADMIN)
   public Response destroy(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     try {
-      dao().destroy(Access.fromContext(crc), UUID.fromString(id));
+      dao().destroy(HubAccess.fromContext(crc), UUID.fromString(id));
       return response.noContent();
 
     } catch (Exception e) {

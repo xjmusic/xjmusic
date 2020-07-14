@@ -8,7 +8,7 @@ The host `redis01.us-east-1.xj` is defined locally, by adding something like thi
 
 XJ platform requires a Redis server:
 
-  * to persist user sessions, and quickly check access tokens for every incoming request.
+  * to persist user sessions, and quickly check hubAccess tokens for every incoming request.
   * to persist work queues.
   
 In the docker configuration, the Redis server is named `redis01xj1`.
