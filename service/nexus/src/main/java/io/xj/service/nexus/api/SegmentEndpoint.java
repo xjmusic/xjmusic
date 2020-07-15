@@ -15,7 +15,6 @@ import io.xj.service.nexus.entity.Segment;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.management.Query;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -139,23 +138,26 @@ public class SegmentEndpoint extends NexusEndpoint {
 
   /**
    Read all segments by Chain Embed Key, optionally of offset or seconds UTC
+   <p>
+   TODO pass access down through here-- child processes need to know not to require access for embed-key based things
+   See: [#173806398] Must be able to read chain elements publicly by embed key
 
    @param access         control
-   @param chainId        to read segments for
+   @param embedKey       to read segments for
    @param fromOffset     from which to read segments
    @param fromSecondsUTC from which to read segments
    @return segments
    @throws Exception on failure
    */
-  private Collection<Segment> readAllSegmentsByChainEmbedKey(HubClientAccess access, String chainId, Long fromOffset, Long fromSecondsUTC) throws Exception {
+  private Collection<Segment> readAllSegmentsByChainEmbedKey(HubClientAccess access, String embedKey, Long fromOffset, Long fromSecondsUTC) throws Exception {
 
     if (Objects.nonNull(fromOffset))
-      return dao().readAllFromOffset(access, chainId, fromOffset);
+      return dao().readAllFromOffset(HubClientAccess.internal(), embedKey, fromOffset);
 
     if (Objects.nonNull(fromSecondsUTC))
-      return dao().readAllFromSecondsUTC(access, chainId, fromSecondsUTC);
+      return dao().readAllFromSecondsUTC(HubClientAccess.internal(), embedKey, fromSecondsUTC);
 
-    return dao().readMany(access, chainId);
+    return dao().readMany(HubClientAccess.internal(), embedKey);
   }
 
   /**
