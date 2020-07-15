@@ -159,10 +159,13 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
       .setDataType(PayloadDataType.One)
       .addError(error);
 
+/*
+    FUTURE: send this to detailed error logging, but DO NOT send back stack traces with public HTTP errors
     if (!Objects.equals(JsonApiException.class, e.getClass())) {
       log.error(e.getClass().getName(), e);
       error.setDetail(formatStackTrace(e));
     }
+*/
 
     try {
       return Response
