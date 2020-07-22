@@ -58,7 +58,7 @@ public class ProgramEndpoint extends HubEndpoint {
    */
   @GET
   @RolesAllowed(UserRoleType.USER)
-  public Response readAll(
+  public Response readMany(
     @Context ContainerRequestContext crc,
     @QueryParam("accountId") String accountId,
     @QueryParam("libraryId") String libraryId,
@@ -73,9 +73,9 @@ public class ProgramEndpoint extends HubEndpoint {
       if (null != libraryId && !libraryId.isEmpty())
         programs = dao().readMany(hubAccess, ImmutableList.of(UUID.fromString(libraryId)));
       else if (null != accountId && !accountId.isEmpty())
-        programs = dao().readAllInAccount(hubAccess, UUID.fromString(accountId));
+        programs = dao().readManyInAccount(hubAccess, UUID.fromString(accountId));
       else
-        programs = dao().readAll(hubAccess);
+        programs = dao().readMany(hubAccess);
 
       // add programs as plural data in payload
       for (Program program : programs) payload.addData(payloadFactory.toPayloadObject(program));
@@ -85,7 +85,7 @@ public class ProgramEndpoint extends HubEndpoint {
       if (Objects.nonNull(include) && include.contains("memes")) {
         for (ProgramMeme meme : programMemeDAO.readMany(hubAccess, programIds))
           payload.getIncluded().add(payloadFactory.toPayloadObject(meme));
-        for (ProgramSequenceBindingMeme programMeme : programSequenceBindingMemeDAO.readAllForPrograms(hubAccess, programIds))
+        for (ProgramSequenceBindingMeme programMeme : programSequenceBindingMemeDAO.readManyForPrograms(hubAccess, programIds))
           payload.getIncluded().add(payloadFactory.toPayloadObject(programMeme));
       }
 

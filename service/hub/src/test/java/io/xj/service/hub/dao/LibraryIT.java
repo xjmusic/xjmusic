@@ -149,7 +149,7 @@ public class LibraryIT {
   }
 
   @Test
-  public void readAll() throws Exception {
+  public void readMany() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
     Collection<Library> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
@@ -161,7 +161,7 @@ public class LibraryIT {
   }
 
   @Test
-  public void readAll_fromAllAccounts() throws Exception {
+  public void readMany_fromAllAccounts() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1, fake.account2), "User");
 
     Collection<Library> result = testDAO.readMany(hubAccess, Lists.newArrayList());
@@ -175,7 +175,7 @@ public class LibraryIT {
   }
 
   @Test
-  public void readAll_SeesNothingOutsideOfAccount() throws Exception {
+  public void readMany_SeesNothingOutsideOfAccount() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User");
 
     Collection<Library> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));

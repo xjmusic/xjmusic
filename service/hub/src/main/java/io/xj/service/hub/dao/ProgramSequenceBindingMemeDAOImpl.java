@@ -116,7 +116,7 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   }
 
   @Override
-  public Collection<ProgramSequenceBindingMeme> readAllForPrograms(HubAccess hubAccess, Set<UUID> programIds) throws DAOException {
+  public Collection<ProgramSequenceBindingMeme> readManyForPrograms(HubAccess hubAccess, Set<UUID> programIds) throws DAOException {
     requireArtist(hubAccess);
     if (hubAccess.isTopLevel())
       return modelsFrom(ProgramSequenceBindingMeme.class,

@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -47,7 +48,7 @@ public class SegmentDAOImplTest {
   public ExpectedException failure = ExpectedException.none();
   @Mock
   FileStoreProvider fileStoreProvider;
-  private NexusEntityStore test;
+  private NexusEntityStore store;
   private SegmentDAO testDAO;
   private Account account1;
   private Chain chain3;
@@ -62,28 +63,26 @@ public class SegmentDAOImplTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = NexusTestConfiguration.getDefault();
+    Config config = NexusTestConfiguration.getDefault()
+      .withValue("segment.limitReadSize", ConfigValueFactory.fromAnyRef(12));
     Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusDAOModule()));
     entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
     NexusApp.buildApiTopology(entityFactory);
 
     // Manipulate the underlying entity store
-    test = injector.getInstance(NexusEntityStore.class);
-    test.deleteAll();
+    store = injector.getInstance(NexusEntityStore.class);
+    store.deleteAll();
 
     // test subject
     testDAO = injector.getInstance(SegmentDAO.class);
 
-    // configs
-    System.setProperty("segment.file.bucket", "xj-segment-test");
-
     // Account "Testing" has chain "Test Print #1"
     account1 = Account.create("Testing");
-    chain3 = test.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    chain3 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
 
     // Chain "Test Print #1" has 5 sequential segments
-    segment1 = test.put(Segment.create()
+    segment1 = store.put(Segment.create()
       .setChainId(chain3.getId())
       .setOffset(0L)
       .setStateEnum(SegmentState.Dubbed)
@@ -94,7 +93,7 @@ public class SegmentDAOImplTest {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setEndAt("2017-02-14T12:01:32.000001Z"));
-    segment2 = test.put(Segment.create()
+    segment2 = store.put(Segment.create()
       .setChainId(chain3.getId())
       .setOffset(1L)
       .setStateEnum(SegmentState.Dubbing)
@@ -106,7 +105,7 @@ public class SegmentDAOImplTest {
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setWaveformPreroll(1.523)
       .setEndAt("2017-02-14T12:02:04.000001Z"));
-    segment3 = test.put(Segment.create()
+    segment3 = store.put(Segment.create()
       .setChainId(chain3.getId())
       .setOffset(2L)
       .setStateEnum(SegmentState.Crafted)
@@ -117,7 +116,7 @@ public class SegmentDAOImplTest {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setEndAt("2017-02-14T12:02:36.000001Z"));
-    segment4 = test.put(Segment.create()
+    segment4 = store.put(Segment.create()
       .setChainId(chain3.getId())
       .setOffset(3L)
       .setStateEnum(SegmentState.Crafting)
@@ -128,7 +127,7 @@ public class SegmentDAOImplTest {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:36.000001Z")
       .setEndAt("2017-02-14T12:03:08.000001Z"));
-    segment5 = test.put(Segment.create()
+    segment5 = store.put(Segment.create()
       .setChainId(chain3.getId())
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setOffset(4L)
@@ -314,7 +313,7 @@ public class SegmentDAOImplTest {
   }
 
   @Test
-  public void readAll() throws Exception {
+  public void readMany() throws Exception {
     HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
 
     Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(chain3.getId()));
@@ -339,10 +338,59 @@ public class SegmentDAOImplTest {
     assertEquals(SegmentState.Planned, result4.getState());
   }
 
+  /**
+   [#173806948] List of Segments returned should not be more than a dozen or so
+   */
   @Test
-  public void readAll_byChainEmbedKey() throws Exception {
-    chain5 = test.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich"));
-    test.put(Segment.create()
+  public void readMany_doesNotExceedReadLimit() throws Exception {
+    for (int i = 0; i < 20; i++)
+      store.put(Segment.create()
+        .setChainId(chain3.getId())
+        .setOffset(4L)
+        .setState("Crafting")
+        .setBeginAt("1995-04-28T11:23:00.000001Z")
+        .setEndAt("1995-04-28T11:23:32.000001Z")
+        .setTotal(64)
+        .setDensity(0.74)
+        .setKey("C# minor 7 b9")
+        .setTempo(120.0));
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
+
+    Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(chain3.getId()));
+
+    assertNotNull(result);
+    assertEquals(12L, result.size());
+  }
+
+  /**
+   [#173806948] List of Segments returned should not be more than a dozen or so
+   */
+  @Test
+  public void readMany_byChainEmbedKey_doesNotExceedReadLimit() throws Exception {
+    chain5 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "Barnacles"));
+    for (int i = 0; i < 20; i++)
+      store.put(Segment.create()
+        .setChainId(chain5.getId())
+        .setOffset(4L)
+        .setState("Crafting")
+        .setBeginAt("1995-04-28T11:23:00.000001Z")
+        .setEndAt("1995-04-28T11:23:32.000001Z")
+        .setTotal(64)
+        .setDensity(0.74)
+        .setKey("C# minor 7 b9")
+        .setTempo(120.0));
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
+
+    Collection<Segment> result = testDAO.readMany(HubClientAccess.internal(), "barnacles");
+
+    assertNotNull(result);
+    assertEquals(12L, result.size());
+  }
+
+  @Test
+  public void readMany_byChainEmbedKey() throws Exception {
+    chain5 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "Barnacles"));
+    store.put(Segment.create()
       .setChainId(chain5.getId())
       .setOffset(0L)
       .setStateEnum(SegmentState.Dubbed)
@@ -354,7 +402,7 @@ public class SegmentDAOImplTest {
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setCreatedAt("2017-02-14T12:01:00.000001Z")
       .setUpdatedAt("2017-02-14T12:01:32.000001Z"));
-    test.put(Segment.create()
+    store.put(Segment.create()
       .setChainId(chain5.getId())
       .setOffset(1L)
       .setStateEnum(SegmentState.Dubbing)
@@ -366,7 +414,7 @@ public class SegmentDAOImplTest {
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setCreatedAt("2017-02-14T12:01:32.000001Z")
       .setUpdatedAt("2017-02-14T12:02:04.000001Z"));
-    test.put(Segment.create()
+    store.put(Segment.create()
       .setChainId(chain5.getId())
       .setOffset(2L)
       .setStateEnum(SegmentState.Crafted)
@@ -378,7 +426,7 @@ public class SegmentDAOImplTest {
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setCreatedAt("2017-02-14T12:02:04.000001Z")
       .setUpdatedAt("2017-02-14T12:02:36.000001Z"));
-    test.put(Segment.create()
+    store.put(Segment.create()
       .setChainId(chain5.getId())
       .setOffset(3L)
       .setStateEnum(SegmentState.Crafting)
@@ -390,7 +438,7 @@ public class SegmentDAOImplTest {
       .setBeginAt("2017-02-14T12:02:36.000001Z")
       .setCreatedAt("2017-02-14T12:02:36.000001Z")
       .setUpdatedAt("2017-02-14T12:03:08.000001Z"));
-    test.put(Segment.create()
+    store.put(Segment.create()
       .setChainId(chain5.getId())
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setOffset(4L)
@@ -401,7 +449,7 @@ public class SegmentDAOImplTest {
       .setTempo(120.0)
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
 
-    Collection<Segment> result = testDAO.readMany(HubClientAccess.internal(), "jamsandwich");
+    Collection<Segment> result = testDAO.readMany(HubClientAccess.internal(), "barnacles");
 
     assertEquals(5L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -418,10 +466,10 @@ public class SegmentDAOImplTest {
   }
 
   @Test
-  public void readAllFromOffset() throws Exception {
+  public void readManyFromOffset() throws Exception {
     HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
 
-    Collection<Segment> result = testDAO.readAllFromOffset(access, chain3.getId(), 2L);
+    Collection<Segment> result = testDAO.readManyFromOffset(access, chain3.getId(), 2L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -434,10 +482,10 @@ public class SegmentDAOImplTest {
   }
 
   @Test
-  public void readAllFromToOffset() throws Exception {
+  public void readManyFromToOffset() throws Exception {
     HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
 
-    Collection<Segment> result = testDAO.readAllFromToOffset(access, chain3.getId(), 2L, 3L);
+    Collection<Segment> result = testDAO.readManyFromToOffset(access, chain3.getId(), 2L, 3L);
 
     assertEquals(2L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -448,18 +496,18 @@ public class SegmentDAOImplTest {
   }
 
   @Test
-  public void readAllFromToOffset_acceptsNegativeOffsets_returnsEmptyCollection() throws Exception {
+  public void readManyFromToOffset_acceptsNegativeOffsets_returnsEmptyCollection() throws Exception {
     HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
 
-    Collection<Segment> result = testDAO.readAllFromToOffset(access, chain3.getId(), -1L, -1L);
+    Collection<Segment> result = testDAO.readManyFromToOffset(access, chain3.getId(), -1L, -1L);
 
     assertEquals(0L, result.size());
   }
 
   @Test
-  public void readAllFromOffset_byChainEmbedKey() throws Exception {
-    chain5 = test.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich"));
-    test.put(Segment.create()
+  public void readManyFromOffset_byChainEmbedKey() throws Exception {
+    chain5 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "Barnacles"));
+    store.put(Segment.create()
       .setChainId(chain5.getId())
       .setOffset(0L)
       .setStateEnum(SegmentState.Dubbed)
@@ -471,7 +519,7 @@ public class SegmentDAOImplTest {
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setCreatedAt("2017-02-14T12:01:00.000001Z")
       .setUpdatedAt("2017-02-14T12:01:32.000001Z"));
-    test.put(Segment.create()
+    store.put(Segment.create()
       .setChainId(chain5.getId())
       .setOffset(1L)
       .setStateEnum(SegmentState.Dubbing)
@@ -483,7 +531,7 @@ public class SegmentDAOImplTest {
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setCreatedAt("2017-02-14T12:01:32.000001Z")
       .setUpdatedAt("2017-02-14T12:02:04.000001Z"));
-    test.put(Segment.create()
+    store.put(Segment.create()
       .setChainId(chain5.getId())
       .setOffset(2L)
       .setStateEnum(SegmentState.Crafted)
@@ -495,7 +543,7 @@ public class SegmentDAOImplTest {
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setCreatedAt("2017-02-14T12:02:04.000001Z")
       .setUpdatedAt("2017-02-14T12:02:36.000001Z"));
-    test.put(Segment.create()
+    store.put(Segment.create()
       .setChainId(chain5.getId())
       .setOffset(3L)
       .setStateEnum(SegmentState.Crafting)
@@ -507,7 +555,7 @@ public class SegmentDAOImplTest {
       .setBeginAt("2017-02-14T12:02:36.000001Z")
       .setCreatedAt("2017-02-14T12:02:36.000001Z")
       .setUpdatedAt("2017-02-14T12:03:08.000001Z"));
-    test.put(Segment.create()
+    store.put(Segment.create()
       .setChainId(chain5.getId())
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setOffset(4L)
@@ -518,7 +566,7 @@ public class SegmentDAOImplTest {
       .setTempo(120.0)
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
 
-    Collection<Segment> result = testDAO.readAllFromOffset(HubClientAccess.internal(), "jamsandwich", 2L);
+    Collection<Segment> result = testDAO.readManyFromOffset(HubClientAccess.internal(), "barnacles", 2L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -531,10 +579,10 @@ public class SegmentDAOImplTest {
   }
 
   @Test
-  public void readAllFromSecondsUTC() throws Exception {
+  public void readManyFromSecondsUTC() throws Exception {
     HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
 
-    Collection<Segment> result = testDAO.readAllFromSecondsUTC(access, chain3.getId(), 1487073724L);
+    Collection<Segment> result = testDAO.readManyFromSecondsUTC(access, chain3.getId(), 1487073724L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -551,23 +599,23 @@ public class SegmentDAOImplTest {
    currently possible to load too far into the future, causing playback delay
    */
   @Test
-  public void readAllFromSecondsUTC_limitedFromNow_notLatestSegment() throws Exception {
+  public void readManyFromSecondsUTC_limitedFromNow_notLatestSegment() throws Exception {
     long fromSecondsUTC = 1487073724L;
     Instant beginAt = Instant.ofEpochSecond(fromSecondsUTC);
     int numSegmentsToGenerate = 50;
     int total = 16;
     int tempo = 120;
-    chain5 = test.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, beginAt, null, "JamSandwich"));
+    chain5 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, beginAt, null, "Barnacles"));
     for (int offset = 0; offset < numSegmentsToGenerate; offset++) {
       Instant endAt = beginAt.plusMillis(1000 * total * 60 / tempo);
-      test.put(Segment.create(chain5, offset, SegmentState.Dubbed,
+      store.put(Segment.create(chain5, offset, SegmentState.Dubbed,
         beginAt, endAt, "D major", total, 0.73, tempo,
         "chains-1-segments-9f7s89d8a7892.wav"));
       beginAt = endAt;
     }
     HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
 
-    Collection<Segment> result = testDAO.readAllFromSecondsUTC(access, chain5.getId(), fromSecondsUTC + 1);
+    Collection<Segment> result = testDAO.readManyFromSecondsUTC(access, chain5.getId(), fromSecondsUTC + 1);
 
     assertEquals(12L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -576,9 +624,9 @@ public class SegmentDAOImplTest {
   }
 
   @Test
-  public void readAllFromSecondsUTC_byChainEmbedKey() throws Exception {
-    chain5 = test.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "jamsandwich"));
-    test.put(Segment.create().setChainId(chain5.getId())
+  public void readManyFromSecondsUTC_byChainEmbedKey() throws Exception {
+    chain5 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
+    store.put(Segment.create().setChainId(chain5.getId())
       .setOffset(0L)
       .setStateEnum(SegmentState.Dubbed)
       .setKey("D major")
@@ -588,7 +636,7 @@ public class SegmentDAOImplTest {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setEndAt("2017-02-14T12:01:32.000001Z"));
-    test.put(Segment.create().setChainId(chain5.getId())
+    store.put(Segment.create().setChainId(chain5.getId())
       .setOffset(1L)
       .setStateEnum(SegmentState.Dubbing)
       .setKey("Db minor")
@@ -598,7 +646,7 @@ public class SegmentDAOImplTest {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setEndAt("2017-02-14T12:02:04.000001Z"));
-    test.put(Segment.create().setChainId(chain5.getId())
+    store.put(Segment.create().setChainId(chain5.getId())
       .setOffset(2L)
       .setStateEnum(SegmentState.Crafted)
       .setKey("F major")
@@ -608,7 +656,7 @@ public class SegmentDAOImplTest {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setEndAt("2017-02-14T12:02:36.000001Z"));
-    test.put(Segment.create().setChainId(chain5.getId())
+    store.put(Segment.create().setChainId(chain5.getId())
       .setOffset(3L)
       .setStateEnum(SegmentState.Crafting)
       .setKey("E minor")
@@ -618,7 +666,7 @@ public class SegmentDAOImplTest {
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:36.000001Z")
       .setEndAt("2017-02-14T12:03:08.000001Z"));
-    test.put(Segment.create()
+    store.put(Segment.create()
       .setChainId(chain5.getId())
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setOffset(4L)
@@ -629,7 +677,7 @@ public class SegmentDAOImplTest {
       .setTempo(120.0)
       .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
 
-    Collection<Segment> result = testDAO.readAllFromSecondsUTC(HubClientAccess.internal(), "jamsandwich", 1487073724L);
+    Collection<Segment> result = testDAO.readManyFromSecondsUTC(HubClientAccess.internal(), "barnacles", 1487073724L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -699,7 +747,7 @@ public class SegmentDAOImplTest {
   @Test
   public void persistPriorSegmentContent() throws Exception {
     HubClientAccess access = HubClientAccess.create("Admin");
-    segment4 = test.put(Segment.create()
+    segment4 = store.put(Segment.create()
       .setChainId(chain3.getId())
       .setOffset(5L)
       .setState("Dubbed")
@@ -731,7 +779,7 @@ public class SegmentDAOImplTest {
   @Test
   public void update_FailsWithoutChainID() throws Exception {
     HubClientAccess access = HubClientAccess.create("Admin");
-    Segment inputData = test.put(Segment.create()
+    Segment inputData = store.put(Segment.create()
       .setOffset(4L)
       .setState("Crafting")
       .setBeginAt("1995-04-28T11:23:00.000001Z")

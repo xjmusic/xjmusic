@@ -246,7 +246,7 @@ public class InstrumentAudioIT {
   }
 
   @Test
-  public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(), "Artist");
 
     Collection<InstrumentAudio> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.instrument202.getId()));
@@ -424,9 +424,6 @@ FUTURE address deleting audio after it has been picked
     audioFactory = injector.getInstance(AudioFactory.class);
 
 
-    // audio waveform config
-    System.setProperty("audio.file.bucket", "xj-audio-test");
-
     // Account "bananas"
     insert(of(1, "bananas");
 
@@ -518,7 +515,7 @@ FUTURE address deleting audio after it has been picked
   }
 
   @Test
-  public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess access = of(ImmutableList.of(of()), "Artist");
 
     Collection<AudioChord> result = testDAO.readMany(access, ImmutableList.of(fake.audio1.getId()));
@@ -725,7 +722,7 @@ FUTURE address deleting audio after it has been picked
   }
 
   @Test
-  public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess access = of(ImmutableList.of(of()), "Artist");
 
     Collection<AudioEvent> result = testDAO.readMany(access, ImmutableList.of(fake.audio1.getId()));
@@ -736,7 +733,7 @@ FUTURE address deleting audio after it has been picked
 
 
   @Test
-  public void readAllOfInstrument() throws Exception {
+  public void readManyOfInstrument() throws Exception {
     insertAudio(51, 1, "Published", "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440.0);
     insertAudioEvent(51, 12.5, 1.0, "JAM", "Eb", 0.8, 1.0);
     insertAudioEvent(51, 14.0, 1.0, "PUMP", "Ab", 0.1, 0.8);
@@ -744,7 +741,7 @@ FUTURE address deleting audio after it has been picked
     insertAudioEvent(51, 20.0, 1.0, "DUNK", "G", 0.1, 0.8);
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
-    Collection<AudioEvent> result = testDAO.readAllOfInstrument(access, ImmutableList.of(fake.audio1.getId()));
+    Collection<AudioEvent> result = testDAO.readManyOfInstrument(access, ImmutableList.of(fake.audio1.getId()));
 
     assertNotNull(result);
     assertEquals(8L, result.size());
@@ -760,7 +757,7 @@ FUTURE address deleting audio after it has been picked
   }
 
   @Test
-  public void readAllOfInstrument_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readManyOfInstrument_SeesNothingOutsideOfLibrary() throws Exception {
     insert(of(6, "bananas");
     insert(of(61, 6, "palm tree", now()));
     insertInstrument(61, 61, 2, "808 Drums", InstrumentType.Percussive, 0.9);
@@ -772,7 +769,7 @@ FUTURE address deleting audio after it has been picked
     insertAudioEvent(61, 1.0, 1.0, "ASS", "G", 0.1, 0.8);
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
-    Collection<AudioEvent> result = testDAO.readAllOfInstrument(access, ImmutableList.of(fake.audio1.getId()));
+    Collection<AudioEvent> result = testDAO.readManyOfInstrument(access, ImmutableList.of(fake.audio1.getId()));
 
     assertNotNull(result);
     assertEquals(4L, result.size());

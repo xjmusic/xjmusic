@@ -29,7 +29,7 @@ public interface InstrumentDAO extends DAO<Instrument> {
    @return Collection of instruments.
    @throws DAOException on failure
    */
-  Collection<Instrument> readAllInAccount(HubAccess hubAccess, UUID accountId) throws DAOException;
+  Collection<Instrument> readManyInAccount(HubAccess hubAccess, UUID accountId) throws DAOException;
 
   /**
    Fetch all instrument visible to given hubAccess
@@ -38,7 +38,7 @@ public interface InstrumentDAO extends DAO<Instrument> {
    @return Collection of instruments.
    @throws DAOException on failure
    */
-  Collection<Instrument> readAll(HubAccess hubAccess) throws DAOException;
+  Collection<Instrument> readMany(HubAccess hubAccess) throws DAOException;
 
   /**
    Read all ids of Instruments in the specified Library ids

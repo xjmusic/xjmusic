@@ -95,7 +95,7 @@ public class ChainEndpointTest {
   }
 
   @Test
-  public void readAll() throws IOException, JsonApiException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public void readMany() throws IOException, JsonApiException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     Chain chain1;
     Chain chain2;
@@ -105,7 +105,7 @@ public class ChainEndpointTest {
     when(chainDAO.readMany(same(access), eq(ImmutableList.of(account25.getId()))))
       .thenReturn(chains);
 
-    Response result = subject.readAll(crc, account25.getId());
+    Response result = subject.readMany(crc, account25.getId());
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());

@@ -41,7 +41,7 @@ public class AccountUserEndpoint extends HubEndpoint {
    */
   @GET
   @RolesAllowed(UserRoleType.USER)
-  public Response readAll(@Context ContainerRequestContext crc, @QueryParam("accountId") String accountId) {
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("accountId") String accountId) {
     return readMany(crc, dao(), accountId);
   }
 

@@ -123,7 +123,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  public Collection<Instrument> readAllInAccount(HubAccess hubAccess, UUID accountId) throws DAOException {
+  public Collection<Instrument> readManyInAccount(HubAccess hubAccess, UUID accountId) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)
@@ -181,7 +181,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  public Collection<Instrument> readAll(HubAccess hubAccess) throws DAOException {
+  public Collection<Instrument> readMany(HubAccess hubAccess) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
         .from(INSTRUMENT)

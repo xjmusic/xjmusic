@@ -156,7 +156,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   }
 
   @Override
-  public Collection<Chain> readAllInState(HubClientAccess access, ChainState state) throws DAOFatalException, DAOPrivilegeException {
+  public Collection<Chain> readManyInState(HubClientAccess access, ChainState state) throws DAOFatalException, DAOPrivilegeException {
     try {
       Collection<Chain> chains = store.getAll(Chain.class).stream()
         .filter(chain -> state.equals(chain.getState()))
@@ -367,7 +367,7 @@ FUTURE determine for real messages to send about reviving a chain
     Instant thresholdChainHeadAt = Instant.now().minusSeconds(chainReviveThresholdHeadSeconds);
 
     Collection<UUID> stalledChainIds = Lists.newArrayList();
-    readAllInState(access, ChainState.Fabricate)
+    readManyInState(access, ChainState.Fabricate)
       .stream()
       .filter((chain) -> chain.isProductionStartedBefore(thresholdChainStartAt))
       .forEach(chain -> {

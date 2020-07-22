@@ -57,7 +57,7 @@ public class InstrumentEndpoint extends HubEndpoint {
    */
   @GET
   @RolesAllowed(UserRoleType.USER)
-  public Response readAll(
+  public Response readMany(
     @Context ContainerRequestContext crc,
     @QueryParam("accountId") String accountId,
     @QueryParam("libraryId") String libraryId,
@@ -72,9 +72,9 @@ public class InstrumentEndpoint extends HubEndpoint {
       if (null != libraryId && !libraryId.isEmpty())
         instruments = dao().readMany(hubAccess, ImmutableList.of(UUID.fromString(libraryId)));
       else if (null != accountId && !accountId.isEmpty())
-        instruments = dao().readAllInAccount(hubAccess, UUID.fromString(accountId));
+        instruments = dao().readManyInAccount(hubAccess, UUID.fromString(accountId));
       else
-        instruments = dao().readAll(hubAccess);
+        instruments = dao().readMany(hubAccess);
 
       // add instruments as plural data in payload
       for (Instrument instrument : instruments) payload.addData(payloadFactory.toPayloadObject(instrument));

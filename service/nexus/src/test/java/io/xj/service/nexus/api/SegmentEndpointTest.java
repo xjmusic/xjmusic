@@ -81,7 +81,7 @@ public class SegmentEndpointTest {
   }
 
   @Test
-  public void readAll() throws IOException, JsonApiException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public void readMany() throws IOException, JsonApiException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     // segments
     Segment segment5 = Segment.create(chain25, 4, SegmentState.Crafted, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:09:08.000001Z"), "C", 8, 0.6, 120, "chain-1-waveform.wav");
@@ -91,12 +91,12 @@ public class SegmentEndpointTest {
     // segments memes
     SegmentMeme segment5meme = SegmentMeme.create(segment5, "apple");
     SegmentMeme segment6meme = SegmentMeme.create(segment6, "banana");
-    when(segmentDAO.readAllSubEntities(any(), eq(ImmutableSet.of(segment6.getId(), segment5.getId())), eq(false)))
+    when(segmentDAO.readManySubEntities(any(), eq(ImmutableSet.of(segment6.getId(), segment5.getId())), eq(false)))
       .thenReturn(ImmutableSet.of(segment5meme, segment6meme));
 
-    Response result = subject.readAll(crc, chain25.getId().toString(), null, null);
+    Response result = subject.readMany(crc, chain25.getId().toString(), null, null, true);
 
-    verify(segmentDAO).readAllSubEntities(any(), eq(ImmutableSet.of(segment6.getId(), segment5.getId())), eq(false));
+    verify(segmentDAO).readManySubEntities(any(), eq(ImmutableSet.of(segment6.getId(), segment5.getId())), eq(false));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     Payload payloadResult = new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class);

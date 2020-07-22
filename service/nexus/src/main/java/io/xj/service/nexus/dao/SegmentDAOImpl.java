@@ -155,7 +155,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public <N extends Entity> Collection<N> readAllSubEntities(HubClientAccess access, Collection<UUID> segmentIds, Boolean includePicks) throws DAOPrivilegeException, DAOFatalException {
+  public <N extends Entity> Collection<N> readManySubEntities(HubClientAccess access, Collection<UUID> segmentIds, Boolean includePicks) throws DAOPrivilegeException, DAOFatalException {
     try {
       requireTopLevel(access);
       Collection<Entity> entities = Lists.newArrayList();
@@ -192,6 +192,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       return store.getAll(Segment.class, Chain.class, chainIds)
         .stream()
         .sorted(Comparator.comparing(Segment::getOffset))
+        .limit(limitSegmentReadSize)
         .collect(Collectors.toList());
 
     } catch (NexusEntityStoreException e) {
@@ -200,12 +201,12 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public Collection<Segment> readAllFromOffset(HubClientAccess access, UUID chainId, Long fromOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    return readAllFromToOffset(access, chainId, fromOffset, fromOffset + limitSegmentReadSize);
+  public Collection<Segment> readManyFromOffset(HubClientAccess access, UUID chainId, Long fromOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+    return readManyFromToOffset(access, chainId, fromOffset, fromOffset + limitSegmentReadSize);
   }
 
   @Override
-  public Collection<Segment> readAllFromToOffset(HubClientAccess access, UUID chainId, Long fromOffset, Long toOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public Collection<Segment> readManyFromToOffset(HubClientAccess access, UUID chainId, Long fromOffset, Long toOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     return 0 > toOffset ?
       Lists.newArrayList() :
       readMany(access, ImmutableSet.of(chainId))
@@ -217,7 +218,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public Collection<Segment> readAllInState(HubClientAccess access, UUID chainId, SegmentState state) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public Collection<Segment> readManyInState(HubClientAccess access, UUID chainId, SegmentState state) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     requireTopLevel(access);
     return readMany(access, ImmutableSet.of(chainId))
       .stream()
@@ -228,14 +229,14 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public Collection<Segment> readAllFromOffset(HubClientAccess access, String chainEmbedKey, Long fromOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    return readAllFromToOffset(access,
+  public Collection<Segment> readManyFromOffset(HubClientAccess access, String chainEmbedKey, Long fromOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+    return readManyFromToOffset(access,
       chainDAO.readOne(access, chainEmbedKey).getId(),
       fromOffset, fromOffset + limitSegmentReadSize);
   }
 
   @Override
-  public Collection<Segment> readAllFromSecondsUTC(HubClientAccess access, UUID chainId, Long fromSecondsUTC) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public Collection<Segment> readManyFromSecondsUTC(HubClientAccess access, UUID chainId, Long fromSecondsUTC) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     Instant from = Instant.ofEpochSecond(fromSecondsUTC);
     Instant maxBeginAt = from.plusSeconds(playBufferAheadSeconds);
     Instant minEndAt = from.minusSeconds(playBufferDelaySeconds);
@@ -250,8 +251,8 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public Collection<Segment> readAllFromSecondsUTC(HubClientAccess access, String chainEmbedKey, Long fromSecondsUTC) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    return readAllFromSecondsUTC(access,
+  public Collection<Segment> readManyFromSecondsUTC(HubClientAccess access, String chainEmbedKey, Long fromSecondsUTC) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+    return readManyFromSecondsUTC(access,
       chainDAO.readOne(access, chainEmbedKey).getId(),
       fromSecondsUTC);
   }

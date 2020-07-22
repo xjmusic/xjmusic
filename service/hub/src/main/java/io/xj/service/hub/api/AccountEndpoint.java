@@ -42,7 +42,7 @@ public class AccountEndpoint extends HubEndpoint {
    */
   @GET
   @RolesAllowed(UserRoleType.USER)
-  public Response readAll(@Context ContainerRequestContext crc) {
+  public Response readMany(@Context ContainerRequestContext crc) {
     return readMany(crc, dao(), ImmutableList.of());
   }
 

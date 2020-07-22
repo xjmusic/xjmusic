@@ -66,7 +66,7 @@ public class InstrumentMemeEndpoint extends HubEndpoint {
    */
   @GET
   @RolesAllowed({UserRoleType.ARTIST})
-  public Response readAll(@Context ContainerRequestContext crc, @QueryParam("instrumentId") String instrumentId) {
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("instrumentId") String instrumentId) {
     return readMany(crc, dao(), instrumentId);
   }
 

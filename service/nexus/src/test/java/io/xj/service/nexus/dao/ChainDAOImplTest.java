@@ -92,9 +92,6 @@ public class ChainDAOImplTest {
     test = injector.getInstance(NexusEntityStore.class);
     test.deleteAll();
 
-    // segment waveform config
-    System.setProperty("segment.file.bucket", "xj-segment-test");
-
     // hub entities as basis
     account1 = Account.create("fish");
     library1 = Library.create(account1, "test");
@@ -354,7 +351,7 @@ public class ChainDAOImplTest {
   }
 
   @Test
-  public void readAll() throws Exception {
+  public void readMany() throws Exception {
     HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
 
     Collection<Chain> result = subject.readMany(access, ImmutableList.of(account1.getId()));
@@ -363,7 +360,7 @@ public class ChainDAOImplTest {
   }
 
   @Test
-  public void readAll_excludesChainsInFabricateState() throws Exception {
+  public void readMany_excludesChainsInFabricateState() throws Exception {
     Chain.create(account1, "sham", ChainType.Production, ChainState.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null);
     HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
 
@@ -373,8 +370,8 @@ public class ChainDAOImplTest {
   }
 
   @Test
-  public void readAllInState() throws Exception {
-    Collection<Chain> result = subject.readAllInState(HubClientAccess.internal(), ChainState.Fabricate);
+  public void readManyInState() throws Exception {
+    Collection<Chain> result = subject.readManyInState(HubClientAccess.internal(), ChainState.Fabricate);
 
     assertNotNull(result);
     assertEquals(1L, result.size());
@@ -384,7 +381,7 @@ public class ChainDAOImplTest {
   }
 
   @Test
-  public void readAll_SeesNothingOutsideOfAccount() throws Exception {
+  public void readMany_SeesNothingOutsideOfAccount() throws Exception {
     HubClientAccess access = HubClientAccess.create(ImmutableList.of(Account.create()), "User");
 
     failure.expect(DAOPrivilegeException.class);
@@ -821,7 +818,7 @@ public class ChainDAOImplTest {
     assertNotNull(priorChain);
     assertEquals(ChainState.Failed, priorChain.getState());
     assertNull(priorChain.getEmbedKey());
-//  FUTURE assert for real message sent about work  org.junit.Assert.assertEquals(1, injector.getInstance(PlatformMessageDAO.class).readAllPreviousDays(HubClientAccess.internal(), 1).size());
+//  FUTURE assert for real message sent about work  org.junit.Assert.assertEquals(1, injector.getInstance(PlatformMessageDAO.class).readManyPreviousDays(HubClientAccess.internal(), 1).size());
   }
 
   /**

@@ -54,7 +54,7 @@ public class ChainEndpoint extends NexusEndpoint {
    */
   @GET
   @RolesAllowed(UserRoleType.USER)
-  public Response readAll(@Context ContainerRequestContext crc, @QueryParam("accountId") UUID accountId) {
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("accountId") UUID accountId) {
     try {
       HubClientAccess access = HubClientAccess.fromContext(crc);
 

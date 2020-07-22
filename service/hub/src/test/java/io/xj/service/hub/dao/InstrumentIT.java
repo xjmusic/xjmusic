@@ -164,10 +164,10 @@ public class InstrumentIT {
     testDAO.readOne(hubAccess, fake.instrument201.getId());
   }
 
-  // future test: readAllInAccount vs readAllInLibraries, positive and negative cases
+  // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
 
   @Test
-  public void readAll() throws Exception {
+  public void readMany() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
     Collection<Instrument> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.library1.getId()));
@@ -176,7 +176,7 @@ public class InstrumentIT {
   }
 
   @Test
-  public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User");
 
     Collection<Instrument> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.library1.getId()));

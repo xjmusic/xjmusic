@@ -158,7 +158,7 @@ public class ComplexLibraryTest {
    @throws Exception on failure
    */
   private boolean hasChainAtLeastSegments(UUID chainId, int threshold) throws Exception {
-    Collection<Segment> result = segmentDAO.readAllInState(HubClientAccess.internal(), chainId, SegmentState.Dubbed);
+    Collection<Segment> result = segmentDAO.readManyInState(HubClientAccess.internal(), chainId, SegmentState.Dubbed);
     return result.size() >= threshold;
   }
 }

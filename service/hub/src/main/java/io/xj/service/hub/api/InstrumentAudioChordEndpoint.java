@@ -66,7 +66,7 @@ public class InstrumentAudioChordEndpoint extends HubEndpoint {
    */
   @GET
   @RolesAllowed({UserRoleType.ARTIST})
-  public Response readAll(@Context ContainerRequestContext crc, @QueryParam("instrumentAudioId") String instrumentAudioId) {
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("instrumentAudioId") String instrumentAudioId) {
     return readMany(crc, dao(), instrumentAudioId);
   }
 

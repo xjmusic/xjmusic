@@ -71,7 +71,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
 
     // fetch all sub entities of all segments and store the results in the corresponding entity cache
     try {
-      stashAll(segmentDAO.readAllSubEntities(access, ImmutableList.of(segment.getId()), true));
+      stashAll(segmentDAO.readManySubEntities(access, ImmutableList.of(segment.getId()), true));
     } catch (DAOFatalException | DAOPrivilegeException e) {
       throw new FabricationException("Failed to load Segment for Workbench!", e);
     }

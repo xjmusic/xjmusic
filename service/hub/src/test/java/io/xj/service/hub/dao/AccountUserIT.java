@@ -155,7 +155,7 @@ public class AccountUserIT {
   }
 
   @Test
-  public void readAll_Admin() throws Exception {
+  public void readMany_Admin() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
 
     Collection<AccountUser> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
@@ -164,7 +164,7 @@ public class AccountUserIT {
   }
 
   @Test
-  public void readAll_UserCanSeeInsideOwnAccount() throws Exception {
+  public void readMany_UserCanSeeInsideOwnAccount() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
     Collection<AccountUser> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
@@ -173,7 +173,7 @@ public class AccountUserIT {
   }
 
   @Test
-  public void readAll_SeesNothingOutsideOfAccount() throws Exception {
+  public void readMany_SeesNothingOutsideOfAccount() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "Artist");
 
     Collection<AccountUser> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));

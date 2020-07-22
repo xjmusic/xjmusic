@@ -119,7 +119,7 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
    */
   @GET
   @RolesAllowed({UserRoleType.ARTIST})
-  public Response readAll(@Context ContainerRequestContext crc, @QueryParam("instrumentId") String instrumentId, @QueryParam("include") String include) {
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("instrumentId") String instrumentId, @QueryParam("include") String include) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
       Payload payload = new Payload().setDataType(PayloadDataType.Many);

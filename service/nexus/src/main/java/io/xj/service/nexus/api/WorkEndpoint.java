@@ -44,7 +44,7 @@ public class WorkEndpoint extends NexusEndpoint {
    */
   @GET
   @RolesAllowed({UserRoleType.ADMIN, UserRoleType.ENGINEER})
-  public Response readAll(@Context ContainerRequestContext crc) {
+  public Response readMany(@Context ContainerRequestContext crc) {
     try {
       Payload payload = new Payload().setDataType(PayloadDataType.Many);
       for (UUID id : nexusWork.getChainWorkingIds())

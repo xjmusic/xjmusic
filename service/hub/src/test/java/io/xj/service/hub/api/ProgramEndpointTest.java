@@ -82,7 +82,7 @@ public class ProgramEndpointTest {
   }
 
   @Test
-  public void readAll() throws DAOException, IOException, JsonApiException {
+  public void readMany() throws DAOException, IOException, JsonApiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     Program program1 = Program.create(user101, library25, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6);
     Program program2 = Program.create(user101, library25, ProgramType.Main, ProgramState.Published, "trunk", "B", 120.0, 0.6);
@@ -90,7 +90,7 @@ public class ProgramEndpointTest {
     when(programDAO.readMany(same(hubAccess), eq(ImmutableList.of(library25.getId()))))
       .thenReturn(programs);
 
-    Response result = subject.readAll(crc, null, library25.getId().toString(), "");
+    Response result = subject.readMany(crc, null, library25.getId().toString(), "");
 
     verify(programDAO).readMany(same(hubAccess), eq(ImmutableList.of(library25.getId())));
     assertEquals(200, result.getStatus());

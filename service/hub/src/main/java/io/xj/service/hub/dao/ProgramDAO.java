@@ -39,7 +39,7 @@ public interface ProgramDAO extends DAO<Program> {
    @return JSONArray of programs.
    @throws DAOException on failure
    */
-  Collection<Program> readAll(HubAccess hubAccess) throws DAOException;
+  Collection<Program> readMany(HubAccess hubAccess) throws DAOException;
 
   /**
    Read all program in a given account
@@ -49,7 +49,7 @@ public interface ProgramDAO extends DAO<Program> {
    @return programs
    @throws DAOException on failure
    */
-  Collection<Program> readAllInAccount(HubAccess hubAccess, UUID accountId) throws DAOException;
+  Collection<Program> readManyInAccount(HubAccess hubAccess, UUID accountId) throws DAOException;
 
   /**
    Fetch all Program in a certain state
@@ -60,7 +60,7 @@ public interface ProgramDAO extends DAO<Program> {
    @return Result of program records.
    @throws DAOException on failure
    */
-  Collection<Program> readAllInState(HubAccess hubAccess, ProgramState state) throws DAOException;
+  Collection<Program> readManyInState(HubAccess hubAccess, ProgramState state) throws DAOException;
 
   /**
    Read all ids of Programs in the specified Library ids

@@ -10,5 +10,5 @@ import java.util.UUID;
 
 public interface ProgramSequenceBindingMemeDAO extends DAO<ProgramSequenceBindingMeme> {
 
-  Collection<ProgramSequenceBindingMeme> readAllForPrograms(HubAccess hubAccess, Set<UUID> programIds) throws DAOException;
+  Collection<ProgramSequenceBindingMeme> readManyForPrograms(HubAccess hubAccess, Set<UUID> programIds) throws DAOException;
 }

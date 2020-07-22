@@ -154,10 +154,10 @@ public class ProgramVoiceTrackIT {
     testDAO.readOne(hubAccess, voiceTrack1a_0.getId());
   }
 
-  // future test: readAllInAccount vs readAllInLibraries, positive and negative cases
+  // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
 
   @Test
-  public void readAll() throws Exception {
+  public void readMany() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
     Collection<ProgramVoiceTrack> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.programVoice3.getId()));
@@ -168,7 +168,7 @@ public class ProgramVoiceTrackIT {
   }
 
   @Test
-  public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User, Artist");
 
     Collection<ProgramVoiceTrack> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.programVoice3.getId()));

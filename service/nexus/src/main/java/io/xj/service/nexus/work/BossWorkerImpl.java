@@ -38,7 +38,7 @@ public class BossWorkerImpl implements BossWorker {
     currentThread.setName(_ogThreadName + "-Boss");
     try {
       long t = Instant.now().toEpochMilli();
-      Collection<UUID> activeIds = chainDAO.readAllInState(access, ChainState.Fabricate)
+      Collection<UUID> activeIds = chainDAO.readManyInState(access, ChainState.Fabricate)
         .stream()
         .map(Entity::getId)
         .collect(Collectors.toList());

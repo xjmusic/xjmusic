@@ -78,7 +78,7 @@ public class AccountIT {
   }
 
   @Test
-  public void readAll() throws Exception {
+  public void readMany() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
     Collection<Account> results = testDAO.readMany(hubAccess, Lists.newArrayList());

@@ -194,7 +194,7 @@ public class UserIT {
   }
 
   @Test
-  public void readAll() throws Exception {
+  public void readMany() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User,Admin");
 
     Collection<User> result = subjectDAO.readMany(hubAccess, Lists.newArrayList());
@@ -203,7 +203,7 @@ public class UserIT {
   }
 
   @Test
-  public void readAll_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
+  public void readMany_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
     Collection<User> result = subjectDAO.readMany(hubAccess, Lists.newArrayList());
@@ -212,7 +212,7 @@ public class UserIT {
   }
 
   @Test
-  public void readAll_UserWithoutAccountMembershipSeesOnlySelf() throws Exception {
+  public void readMany_UserWithoutAccountMembershipSeesOnlySelf() throws Exception {
     // Bill is in no accounts
     HubAccess hubAccess = HubAccess.create(fake.user4, "User");
 

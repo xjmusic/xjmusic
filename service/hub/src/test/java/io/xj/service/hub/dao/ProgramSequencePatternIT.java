@@ -164,10 +164,10 @@ public class ProgramSequencePatternIT {
     testDAO.readOne(hubAccess, sequencePattern1a_0.getId());
   }
 
-  // future test: readAllInAccount vs readAllInLibraries, positive and negative cases
+  // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
 
   @Test
-  public void readAll() throws Exception {
+  public void readMany() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
     Collection<ProgramSequencePattern> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.programSequence1.getId()));
@@ -178,7 +178,7 @@ public class ProgramSequencePatternIT {
   }
 
   @Test
-  public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User, Artist");
 
     Collection<ProgramSequencePattern> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.programSequence3.getId()));

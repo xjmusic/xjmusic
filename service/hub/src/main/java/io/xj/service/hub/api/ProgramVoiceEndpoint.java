@@ -66,7 +66,7 @@ public class ProgramVoiceEndpoint extends HubEndpoint {
    */
   @GET
   @RolesAllowed({UserRoleType.ARTIST})
-  public Response readAll(@Context ContainerRequestContext crc, @QueryParam("programId") String programId) {
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programId") String programId) {
     return readMany(crc, dao(), programId);
   }
 

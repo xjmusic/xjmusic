@@ -233,10 +233,10 @@ public class ProgramSequenceIT {
     testDAO.readOne(hubAccess, fake.programSequence3.getId());
   }
 
-  // future test: readAllInAccount vs readAllInLibraries, positive and negative cases
+  // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
 
   @Test
-  public void readAll() throws Exception {
+  public void readMany() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
     Collection<ProgramSequence> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program3.getId()));
@@ -247,7 +247,7 @@ public class ProgramSequenceIT {
   }
 
   @Test
-  public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User, Artist");
 
     Collection<ProgramSequence> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program3.getId()));

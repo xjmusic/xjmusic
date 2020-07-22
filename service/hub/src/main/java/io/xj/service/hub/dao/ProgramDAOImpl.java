@@ -214,7 +214,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  public Collection<Program> readAll(HubAccess hubAccess) throws DAOException {
+  public Collection<Program> readMany(HubAccess hubAccess) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
@@ -306,7 +306,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  public Collection<Program> readAllInAccount(HubAccess hubAccess, UUID accountId) throws DAOException {
+  public Collection<Program> readManyInAccount(HubAccess hubAccess, UUID accountId) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
@@ -323,7 +323,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  public Collection<Program> readAllInState(HubAccess hubAccess, ProgramState state) throws DAOException {
+  public Collection<Program> readManyInState(HubAccess hubAccess, ProgramState state) throws DAOException {
     require(hubAccess, UserRoleType.Admin, UserRoleType.Engineer);
     // FUTURE: engineer should only see programs in account?
 

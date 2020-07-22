@@ -66,7 +66,7 @@ public class ProgramSequencePatternEventEndpoint extends HubEndpoint {
    */
   @GET
   @RolesAllowed({UserRoleType.ARTIST})
-  public Response readAll(@Context ContainerRequestContext crc, @QueryParam("programSequencePatternId") String programSequencePatternId) {
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programSequencePatternId") String programSequencePatternId) {
     return readMany(crc, dao(), programSequencePatternId);
   }
 

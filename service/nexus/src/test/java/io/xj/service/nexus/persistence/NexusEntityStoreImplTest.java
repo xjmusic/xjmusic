@@ -49,9 +49,6 @@ public class NexusEntityStoreImplTest {
 
     // Instantiate the test subject and put the payload
     subject = injector.getInstance(NexusEntityStore.class);
-
-    // segment waveform config
-    System.setProperty("segment.file.bucket", "xj-segment-test");
   }
 
   /**

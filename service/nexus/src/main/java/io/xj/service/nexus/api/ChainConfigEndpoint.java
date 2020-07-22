@@ -41,7 +41,7 @@ public class ChainConfigEndpoint extends NexusEndpoint {
    */
   @GET
   @RolesAllowed({UserRoleType.ENGINEER})
-  public Response readAll(@Context ContainerRequestContext crc, @QueryParam("chainId") String chainId) {
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("chainId") String chainId) {
     return readMany(crc, dao(), chainId);
   }
 
