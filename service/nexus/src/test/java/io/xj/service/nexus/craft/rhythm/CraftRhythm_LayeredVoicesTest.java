@@ -123,8 +123,7 @@ public class CraftRhythm_LayeredVoicesTest {
     fake = new NexusHubContentFixtures();
     when(hubClient.ingest(any(), any(), any(), any()))
       .thenReturn(new HubContent(Streams.concat(
-        fake.setupFixtureB1(true).stream(),
-        fake.setupFixtureB2().stream(),
+        fake.setupFixtureB1(true).stream().filter(entity -> !entity.isSame(fake.program35) && !entity.isChild(fake.program35)),
         customFixtures().stream()
       ).collect(Collectors.toList())));
 
@@ -248,7 +247,6 @@ public class CraftRhythm_LayeredVoicesTest {
     assertEquals(8, pickedKick);
     assertEquals(8, pickedSnare);
     assertEquals(64, pickedHihat);
-
   }
 
 

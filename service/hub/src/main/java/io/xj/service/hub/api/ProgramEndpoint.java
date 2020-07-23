@@ -11,19 +11,33 @@ import io.xj.lib.jsonapi.PayloadObject;
 import io.xj.lib.util.CSV;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.dao.*;
+import io.xj.service.hub.dao.DAOCloner;
+import io.xj.service.hub.dao.DAOException;
+import io.xj.service.hub.dao.ProgramDAO;
+import io.xj.service.hub.dao.ProgramMemeDAO;
+import io.xj.service.hub.dao.ProgramSequenceBindingMemeDAO;
 import io.xj.service.hub.entity.Program;
-import io.xj.service.hub.entity.ProgramMeme;
-import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
 import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  Programs
@@ -31,8 +45,8 @@ import java.util.*;
 @Path("programs")
 public class ProgramEndpoint extends HubEndpoint {
   private final ProgramSequenceBindingMemeDAO programSequenceBindingMemeDAO;
-  private ProgramDAO dao;
-  private ProgramMemeDAO programMemeDAO;
+  private final ProgramDAO dao;
+  private final ProgramMemeDAO programMemeDAO;
 
   /**
    The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
@@ -53,7 +67,7 @@ public class ProgramEndpoint extends HubEndpoint {
 
    @param accountId to get programs for
    @param libraryId to get programs for
-   @param include   (optional) "memes" or null
+   @param detailed  whether to include memes and bindings
    @return set of all programs
    */
   @GET
@@ -62,7 +76,7 @@ public class ProgramEndpoint extends HubEndpoint {
     @Context ContainerRequestContext crc,
     @QueryParam("accountId") String accountId,
     @QueryParam("libraryId") String libraryId,
-    @QueryParam("include") String include
+    @QueryParam("detailed") Boolean detailed
   ) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
@@ -81,13 +95,15 @@ public class ProgramEndpoint extends HubEndpoint {
       for (Program program : programs) payload.addData(payloadFactory.toPayloadObject(program));
       Set<UUID> programIds = Entity.idsOf(programs);
 
-      // if included, seek and add events to payload
-      if (Objects.nonNull(include) && include.contains("memes")) {
-        for (ProgramMeme meme : programMemeDAO.readMany(hubAccess, programIds))
-          payload.getIncluded().add(payloadFactory.toPayloadObject(meme));
-        for (ProgramSequenceBindingMeme programMeme : programSequenceBindingMemeDAO.readManyForPrograms(hubAccess, programIds))
-          payload.getIncluded().add(payloadFactory.toPayloadObject(programMeme));
-      }
+      // if detailed, add Program Memes
+      if (Objects.nonNull(detailed) && detailed)
+        payload.addAllToIncluded(payloadFactory.toPayloadObjects(
+          programMemeDAO.readMany(hubAccess, programIds)));
+
+      // if detailed, add Program Sequence Binding Memes
+      if (Objects.nonNull(detailed) && detailed)
+        payload.addAllToIncluded(payloadFactory.toPayloadObjects(
+          programSequenceBindingMemeDAO.readMany(hubAccess, programIds)));
 
       return response.ok(payload);
 

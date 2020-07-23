@@ -12,7 +12,20 @@ import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.access.HubAccessControlModule;
-import io.xj.service.hub.entity.*;
+import io.xj.service.hub.entity.Account;
+import io.xj.service.hub.entity.AccountUser;
+import io.xj.service.hub.entity.InstrumentType;
+import io.xj.service.hub.entity.Library;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.ProgramSequenceBinding;
+import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
+import io.xj.service.hub.entity.ProgramState;
+import io.xj.service.hub.entity.ProgramType;
+import io.xj.service.hub.entity.ProgramVoice;
+import io.xj.service.hub.entity.User;
+import io.xj.service.hub.entity.UserRole;
+import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubIntegrationTestModule;
@@ -159,19 +172,7 @@ public class ProgramSequenceBindingMemeIT {
   public void readMany() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    Collection<ProgramSequenceBindingMeme> result = testDAO.readMany(hubAccess, ImmutableList.of(sequenceBinding1a_0.getId()));
-
-    assertEquals(2L, result.size());
-    Iterator<ProgramSequenceBindingMeme> resultIt = result.iterator();
-    assertEquals("chunk", resultIt.next().getName());
-    assertEquals("smooth", resultIt.next().getName());
-  }
-
-  @Test
-  public void readManyForPrograms() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
-
-    Collection<ProgramSequenceBindingMeme> result = testDAO.readManyForPrograms(hubAccess, ImmutableSet.of(fake.program1.getId()));
+    Collection<ProgramSequenceBindingMeme> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program1.getId()));
 
     assertEquals(2L, result.size());
     Iterator<ProgramSequenceBindingMeme> resultIt = result.iterator();
@@ -183,7 +184,7 @@ public class ProgramSequenceBindingMemeIT {
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User, Artist");
 
-    Collection<ProgramSequenceBindingMeme> result = testDAO.readMany(hubAccess, ImmutableList.of(sequenceBinding1a_0.getId()));
+    Collection<ProgramSequenceBindingMeme> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program1.getId()));
 
     assertEquals(0L, result.size());
   }

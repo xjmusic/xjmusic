@@ -12,12 +12,18 @@ import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.InstrumentDAO;
 import io.xj.service.hub.dao.InstrumentMemeDAO;
 import io.xj.service.hub.entity.Instrument;
-import io.xj.service.hub.entity.InstrumentMeme;
 import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -31,8 +37,8 @@ import java.util.UUID;
  */
 @Path("instruments")
 public class InstrumentEndpoint extends HubEndpoint {
-  private InstrumentDAO dao;
-  private InstrumentMemeDAO instrumentMemeDAO;
+  private final InstrumentDAO dao;
+  private final InstrumentMemeDAO instrumentMemeDAO;
 
   /**
    The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
@@ -52,7 +58,7 @@ public class InstrumentEndpoint extends HubEndpoint {
 
    @param accountId to get instruments for
    @param libraryId to get instruments for
-   @param include   (optional) "memes" or null
+   @param detailed  whether to include memes
    @return set of all instruments
    */
   @GET
@@ -61,7 +67,7 @@ public class InstrumentEndpoint extends HubEndpoint {
     @Context ContainerRequestContext crc,
     @QueryParam("accountId") String accountId,
     @QueryParam("libraryId") String libraryId,
-    @QueryParam("include") String include
+    @QueryParam("detailed") Boolean detailed
   ) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
@@ -80,10 +86,10 @@ public class InstrumentEndpoint extends HubEndpoint {
       for (Instrument instrument : instruments) payload.addData(payloadFactory.toPayloadObject(instrument));
       Set<UUID> instrumentIds = Entity.idsOf(instruments);
 
-      // if included, seek and add events to payload
-      if (Objects.nonNull(include) && include.contains("memes"))
-        for (InstrumentMeme instrumentMeme : instrumentMemeDAO.readMany(hubAccess, instrumentIds))
-          payload.getIncluded().add(payloadFactory.toPayloadObject(instrumentMeme));
+      // if detailed, seek and add events to payload
+      if (Objects.nonNull(detailed) && detailed)
+        payload.addAllToIncluded(payloadFactory.toPayloadObjects(
+          instrumentMemeDAO.readMany(hubAccess, instrumentIds)));
 
       return response.ok(payload);
 

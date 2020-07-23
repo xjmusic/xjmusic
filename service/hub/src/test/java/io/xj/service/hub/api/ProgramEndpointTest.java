@@ -90,7 +90,7 @@ public class ProgramEndpointTest {
     when(programDAO.readMany(same(hubAccess), eq(ImmutableList.of(library25.getId()))))
       .thenReturn(programs);
 
-    Response result = subject.readMany(crc, null, library25.getId().toString(), "");
+    Response result = subject.readMany(crc, null, library25.getId().toString(), false);
 
     verify(programDAO).readMany(same(hubAccess), eq(ImmutableList.of(library25.getId())));
     assertEquals(200, result.getStatus());

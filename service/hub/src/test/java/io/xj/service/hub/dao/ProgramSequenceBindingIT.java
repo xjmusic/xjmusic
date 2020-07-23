@@ -159,7 +159,7 @@ public class ProgramSequenceBindingIT {
   public void readMany() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    Collection<ProgramSequenceBinding> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.programSequence1.getId()));
+    Collection<ProgramSequenceBinding> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program1.getId()));
 
     assertEquals(1L, result.size());
     Iterator<ProgramSequenceBinding> resultIt = result.iterator();
@@ -170,7 +170,7 @@ public class ProgramSequenceBindingIT {
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User, Artist");
 
-    Collection<ProgramSequenceBinding> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.programSequence3.getId()));
+    Collection<ProgramSequenceBinding> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program3.getId()));
 
     assertEquals(0L, result.size());
   }

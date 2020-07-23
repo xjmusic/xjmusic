@@ -3,8 +3,8 @@ package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
@@ -14,10 +14,11 @@ import org.jooq.DSLContext;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
-import static io.xj.service.hub.Tables.*;
+import static io.xj.service.hub.Tables.LIBRARY;
+import static io.xj.service.hub.Tables.PROGRAM;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
 
 public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBindingMeme> implements ProgramSequenceBindingMemeDAO {
 
@@ -63,19 +64,19 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
 
   @Override
   @Nullable
-  public Collection<ProgramSequenceBindingMeme> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+  public Collection<ProgramSequenceBindingMeme> readMany(HubAccess hubAccess, Collection<UUID> programIds) throws DAOException {
     requireArtist(hubAccess);
     if (hubAccess.isTopLevel())
       return modelsFrom(ProgramSequenceBindingMeme.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
-          .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID.in(parentIds))
+          .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(programIds))
           .fetch());
     else
       return modelsFrom(ProgramSequenceBindingMeme.class,
         dbProvider.getDSL().select(PROGRAM_SEQUENCE_BINDING_MEME.fields()).from(PROGRAM_SEQUENCE_BINDING_MEME)
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-          .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID.in(parentIds))
+          .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(programIds))
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetch());
   }
@@ -113,24 +114,6 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   @Override
   public ProgramSequenceBindingMeme newInstance() {
     return new ProgramSequenceBindingMeme();
-  }
-
-  @Override
-  public Collection<ProgramSequenceBindingMeme> readManyForPrograms(HubAccess hubAccess, Set<UUID> programIds) throws DAOException {
-    requireArtist(hubAccess);
-    if (hubAccess.isTopLevel())
-      return modelsFrom(ProgramSequenceBindingMeme.class,
-        dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING_MEME)
-          .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(programIds))
-          .fetch());
-    else
-      return modelsFrom(ProgramSequenceBindingMeme.class,
-        dbProvider.getDSL().select(PROGRAM_SEQUENCE_BINDING_MEME.fields()).from(PROGRAM_SEQUENCE_BINDING_MEME)
-          .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID))
-          .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-          .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID.in(programIds))
-          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
-          .fetch());
   }
 
 }

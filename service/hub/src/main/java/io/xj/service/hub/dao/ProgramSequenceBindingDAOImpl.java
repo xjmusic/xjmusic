@@ -61,19 +61,19 @@ public class ProgramSequenceBindingDAOImpl extends DAOImpl<ProgramSequenceBindin
 
   @Override
   @Nullable
-  public Collection<ProgramSequenceBinding> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+  public Collection<ProgramSequenceBinding> readMany(HubAccess hubAccess, Collection<UUID> programIds) throws DAOException {
     requireArtist(hubAccess);
     if (hubAccess.isTopLevel())
       return modelsFrom(ProgramSequenceBinding.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_BINDING)
-          .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID.in(parentIds))
+          .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.in(programIds))
           .fetch());
     else
       return modelsFrom(ProgramSequenceBinding.class,
         dbProvider.getDSL().select(PROGRAM_SEQUENCE_BINDING.fields()).from(PROGRAM_SEQUENCE_BINDING)
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-          .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID.in(parentIds))
+          .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_ID.in(programIds))
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetch());
   }

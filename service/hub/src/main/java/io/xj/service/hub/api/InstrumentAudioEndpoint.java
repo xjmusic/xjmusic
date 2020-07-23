@@ -13,17 +13,26 @@ import io.xj.service.hub.dao.InstrumentAudioChordDAO;
 import io.xj.service.hub.dao.InstrumentAudioDAO;
 import io.xj.service.hub.dao.InstrumentAudioEventDAO;
 import io.xj.service.hub.entity.InstrumentAudio;
-import io.xj.service.hub.entity.InstrumentAudioChord;
-import io.xj.service.hub.entity.InstrumentAudioEvent;
 import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  InstrumentAudio endpoint
@@ -32,7 +41,7 @@ import java.util.*;
 public class InstrumentAudioEndpoint extends HubEndpoint {
   private final InstrumentAudioEventDAO instrumentAudioEventDAO;
   private final InstrumentAudioChordDAO instrumentAudioChordDAO;
-  private InstrumentAudioDAO dao;
+  private final InstrumentAudioDAO dao;
 
   /**
    The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
@@ -115,11 +124,16 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
   /**
    Get Bindings in one instrumentAudio.
 
+   @param detailed whether to include events and chords
    @return application/json response.
    */
   @GET
   @RolesAllowed({UserRoleType.ARTIST})
-  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("instrumentId") String instrumentId, @QueryParam("include") String include) {
+  public Response readMany(
+    @Context ContainerRequestContext crc,
+    @QueryParam("instrumentId") String instrumentId,
+    @QueryParam("detailed") Boolean detailed
+  ) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
       Payload payload = new Payload().setDataType(PayloadDataType.Many);
@@ -131,14 +145,14 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
         payload.addData(payloadFactory.toPayloadObject(instrumentAudio));
 
       // if included, seek and add events to payload
-      if (Objects.nonNull(include) && include.contains("events"))
-        for (InstrumentAudioEvent instrumentAudioEvent : instrumentAudioEventDAO.readMany(hubAccess, instrumentAudioIds))
-          payload.getIncluded().add(payloadFactory.toPayloadObject(instrumentAudioEvent));
+      if (Objects.nonNull(detailed) && detailed)
+        payload.addAllToIncluded(payloadFactory.toPayloadObjects(
+          instrumentAudioEventDAO.readMany(hubAccess, instrumentAudioIds)));
 
       // if included, seek and add chords to payload
-      if (Objects.nonNull(include) && include.contains("chords"))
-        for (InstrumentAudioChord instrumentAudioChord : instrumentAudioChordDAO.readMany(hubAccess, instrumentAudioIds))
-          payload.getIncluded().add(payloadFactory.toPayloadObject(instrumentAudioChord));
+      if (Objects.nonNull(detailed) && detailed)
+        payload.addAllToIncluded(payloadFactory.toPayloadObjects(
+          instrumentAudioChordDAO.readMany(hubAccess, instrumentAudioIds)));
 
       // ok
       return response.ok(payload);
