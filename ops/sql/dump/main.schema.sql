@@ -131,58 +131,6 @@ CREATE TABLE xj.account_user (
 ALTER TABLE xj.account_user OWNER TO root;
 
 --
--- Name: chain; Type: TABLE; Schema: xj; Owner: root
---
-
-CREATE TABLE xj.chain (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    account_id uuid NOT NULL,
-    name character varying(255) NOT NULL,
-    state character varying(255) NOT NULL,
-    type character varying(255) NOT NULL,
-    start_at timestamp without time zone NOT NULL,
-    stop_at timestamp without time zone,
-    embed_key character varying(1023) DEFAULT NULL::character varying,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.chain OWNER TO root;
-
---
--- Name: chain_binding; Type: TABLE; Schema: xj; Owner: root
---
-
-CREATE TABLE xj.chain_binding (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    chain_id uuid NOT NULL,
-    target_id uuid NOT NULL,
-    type character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.chain_binding OWNER TO root;
-
---
--- Name: chain_config; Type: TABLE; Schema: xj; Owner: root
---
-
-CREATE TABLE xj.chain_config (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    chain_id uuid NOT NULL,
-    type character varying(255) NOT NULL,
-    value text NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.chain_config OWNER TO root;
-
---
 -- Name: flyway_schema_history; Type: TABLE; Schema: xj; Owner: root
 --
 
@@ -308,21 +256,6 @@ CREATE TABLE xj.library (
 
 
 ALTER TABLE xj.library OWNER TO root;
-
---
--- Name: platform_message; Type: TABLE; Schema: xj; Owner: root
---
-
-CREATE TABLE xj.platform_message (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    type character varying(255) NOT NULL,
-    body text NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.platform_message OWNER TO root;
 
 --
 -- Name: program; Type: TABLE; Schema: xj; Owner: root
@@ -500,135 +433,6 @@ CREATE TABLE xj.program_voice_track (
 ALTER TABLE xj.program_voice_track OWNER TO root;
 
 --
--- Name: segment; Type: TABLE; Schema: xj; Owner: root
---
-
-CREATE TABLE xj.segment (
-    chain_id uuid NOT NULL,
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    state character varying(255) NOT NULL,
-    begin_at timestamp without time zone NOT NULL,
-    "offset" bigint NOT NULL,
-    type character varying(255) DEFAULT NULL::character varying,
-    end_at timestamp without time zone,
-    total smallint,
-    density real,
-    tempo real,
-    key character varying(255) DEFAULT NULL::character varying,
-    waveform_key character varying(255) DEFAULT NULL::character varying,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    waveform_preroll double precision DEFAULT 0
-);
-
-
-ALTER TABLE xj.segment OWNER TO root;
-
---
--- Name: segment_choice; Type: TABLE; Schema: xj; Owner: root
---
-
-CREATE TABLE xj.segment_choice (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    segment_id uuid NOT NULL,
-    program_id uuid NOT NULL,
-    program_sequence_binding_id uuid,
-    type character varying(255) NOT NULL,
-    transpose smallint NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.segment_choice OWNER TO root;
-
---
--- Name: segment_choice_arrangement; Type: TABLE; Schema: xj; Owner: root
---
-
-CREATE TABLE xj.segment_choice_arrangement (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    segment_id uuid NOT NULL,
-    segment_choice_id uuid NOT NULL,
-    program_voice_id uuid NOT NULL,
-    instrument_id uuid NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.segment_choice_arrangement OWNER TO root;
-
---
--- Name: segment_choice_arrangement_pick; Type: TABLE; Schema: xj; Owner: root
---
-
-CREATE TABLE xj.segment_choice_arrangement_pick (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    segment_id uuid NOT NULL,
-    segment_choice_arrangement_id uuid NOT NULL,
-    instrument_audio_id uuid NOT NULL,
-    program_sequence_pattern_event_id uuid NOT NULL,
-    start real NOT NULL,
-    length real NOT NULL,
-    amplitude real NOT NULL,
-    pitch real NOT NULL,
-    name character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.segment_choice_arrangement_pick OWNER TO root;
-
---
--- Name: segment_chord; Type: TABLE; Schema: xj; Owner: root
---
-
-CREATE TABLE xj.segment_chord (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    segment_id uuid NOT NULL,
-    name character varying(255) NOT NULL,
-    "position" double precision NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.segment_chord OWNER TO root;
-
---
--- Name: segment_meme; Type: TABLE; Schema: xj; Owner: root
---
-
-CREATE TABLE xj.segment_meme (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    segment_id uuid NOT NULL,
-    name character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.segment_meme OWNER TO root;
-
---
--- Name: segment_message; Type: TABLE; Schema: xj; Owner: root
---
-
-CREATE TABLE xj.segment_message (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    segment_id uuid NOT NULL,
-    type character varying(255) NOT NULL,
-    body text NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.segment_message OWNER TO root;
-
---
 -- Name: user; Type: TABLE; Schema: xj; Owner: root
 --
 
@@ -694,21 +498,6 @@ CREATE TABLE xj.user_role (
 ALTER TABLE xj.user_role OWNER TO root;
 
 --
--- Name: work; Type: TABLE; Schema: xj; Owner: root
---
-
-CREATE TABLE xj.work (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    type character varying(255) NOT NULL,
-    target_id uuid,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.work OWNER TO root;
-
---
 -- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: public; Owner: root
 --
 
@@ -730,30 +519,6 @@ ALTER TABLE ONLY xj.account
 
 ALTER TABLE ONLY xj.account_user
     ADD CONSTRAINT account_user_pkey PRIMARY KEY (id);
-
-
---
--- Name: chain_binding chain_binding_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.chain_binding
-    ADD CONSTRAINT chain_binding_pkey PRIMARY KEY (id);
-
-
---
--- Name: chain_config chain_config_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.chain_config
-    ADD CONSTRAINT chain_config_pkey PRIMARY KEY (id);
-
-
---
--- Name: chain chain_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.chain
-    ADD CONSTRAINT chain_pkey PRIMARY KEY (id);
 
 
 --
@@ -810,14 +575,6 @@ ALTER TABLE ONLY xj.instrument
 
 ALTER TABLE ONLY xj.library
     ADD CONSTRAINT library_pkey PRIMARY KEY (id);
-
-
---
--- Name: platform_message platform_message_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.platform_message
-    ADD CONSTRAINT platform_message_pkey PRIMARY KEY (id);
 
 
 --
@@ -901,62 +658,6 @@ ALTER TABLE ONLY xj.program_voice_track
 
 
 --
--- Name: segment_choice_arrangement_pick segment_choice_arrangement_pick_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_choice_arrangement_pick
-    ADD CONSTRAINT segment_choice_arrangement_pick_pkey PRIMARY KEY (id);
-
-
---
--- Name: segment_choice_arrangement segment_choice_arrangement_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_choice_arrangement
-    ADD CONSTRAINT segment_choice_arrangement_pkey PRIMARY KEY (id);
-
-
---
--- Name: segment_choice segment_choice_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_choice
-    ADD CONSTRAINT segment_choice_pkey PRIMARY KEY (id);
-
-
---
--- Name: segment_chord segment_chord_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_chord
-    ADD CONSTRAINT segment_chord_pkey PRIMARY KEY (id);
-
-
---
--- Name: segment_meme segment_meme_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_meme
-    ADD CONSTRAINT segment_meme_pkey PRIMARY KEY (id);
-
-
---
--- Name: segment_message segment_message_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_message
-    ADD CONSTRAINT segment_message_pkey PRIMARY KEY (id);
-
-
---
--- Name: segment segment_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment
-    ADD CONSTRAINT segment_pkey PRIMARY KEY (id);
-
-
---
 -- Name: user_auth user_auth_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
 --
 
@@ -989,14 +690,6 @@ ALTER TABLE ONLY xj.user_role
 
 
 --
--- Name: work work_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.work
-    ADD CONSTRAINT work_pkey PRIMARY KEY (id);
-
-
---
 -- Name: flyway_schema_history_s_idx; Type: INDEX; Schema: public; Owner: root
 --
 
@@ -1022,27 +715,6 @@ CREATE TRIGGER account___updated BEFORE UPDATE ON xj.account FOR EACH ROW EXECUT
 --
 
 CREATE TRIGGER account_user___updated BEFORE UPDATE ON xj.account_user FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
-
-
---
--- Name: chain chain___updated; Type: TRIGGER; Schema: xj; Owner: root
---
-
-CREATE TRIGGER chain___updated BEFORE UPDATE ON xj.chain FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
-
-
---
--- Name: chain_binding chain_binding___updated; Type: TRIGGER; Schema: xj; Owner: root
---
-
-CREATE TRIGGER chain_binding___updated BEFORE UPDATE ON xj.chain_binding FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
-
-
---
--- Name: chain_config chain_config___updated; Type: TRIGGER; Schema: xj; Owner: root
---
-
-CREATE TRIGGER chain_config___updated BEFORE UPDATE ON xj.chain_config FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
 
 
 --
@@ -1085,13 +757,6 @@ CREATE TRIGGER instrument_meme___updated BEFORE UPDATE ON xj.instrument_meme FOR
 --
 
 CREATE TRIGGER library___updated BEFORE UPDATE ON xj.library FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
-
-
---
--- Name: platform_message platform_message___updated; Type: TRIGGER; Schema: xj; Owner: root
---
-
-CREATE TRIGGER platform_message___updated BEFORE UPDATE ON xj.platform_message FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
 
 
 --
@@ -1165,55 +830,6 @@ CREATE TRIGGER program_voice_track___updated BEFORE UPDATE ON xj.program_voice_t
 
 
 --
--- Name: segment segment___updated; Type: TRIGGER; Schema: xj; Owner: root
---
-
-CREATE TRIGGER segment___updated BEFORE UPDATE ON xj.segment FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
-
-
---
--- Name: segment_choice segment_choice___updated; Type: TRIGGER; Schema: xj; Owner: root
---
-
-CREATE TRIGGER segment_choice___updated BEFORE UPDATE ON xj.segment_choice FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
-
-
---
--- Name: segment_choice_arrangement segment_choice_arrangement___updated; Type: TRIGGER; Schema: xj; Owner: root
---
-
-CREATE TRIGGER segment_choice_arrangement___updated BEFORE UPDATE ON xj.segment_choice_arrangement FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
-
-
---
--- Name: segment_choice_arrangement_pick segment_choice_arrangement_pick___updated; Type: TRIGGER; Schema: xj; Owner: root
---
-
-CREATE TRIGGER segment_choice_arrangement_pick___updated BEFORE UPDATE ON xj.segment_choice_arrangement_pick FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
-
-
---
--- Name: segment_chord segment_chord___updated; Type: TRIGGER; Schema: xj; Owner: root
---
-
-CREATE TRIGGER segment_chord___updated BEFORE UPDATE ON xj.segment_chord FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
-
-
---
--- Name: segment_meme segment_meme___updated; Type: TRIGGER; Schema: xj; Owner: root
---
-
-CREATE TRIGGER segment_meme___updated BEFORE UPDATE ON xj.segment_meme FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
-
-
---
--- Name: segment_message segment_message___updated; Type: TRIGGER; Schema: xj; Owner: root
---
-
-CREATE TRIGGER segment_message___updated BEFORE UPDATE ON xj.segment_message FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
-
-
---
 -- Name: user user___updated; Type: TRIGGER; Schema: xj; Owner: root
 --
 
@@ -1242,13 +858,6 @@ CREATE TRIGGER user_role___updated BEFORE UPDATE ON xj.user_role FOR EACH ROW EX
 
 
 --
--- Name: work work___updated; Type: TRIGGER; Schema: xj; Owner: root
---
-
-CREATE TRIGGER work___updated BEFORE UPDATE ON xj.work FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
-
-
---
 -- Name: account_user account_user_account_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
 --
 
@@ -1262,30 +871,6 @@ ALTER TABLE ONLY xj.account_user
 
 ALTER TABLE ONLY xj.account_user
     ADD CONSTRAINT account_user_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
-
-
---
--- Name: chain chain_account_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.chain
-    ADD CONSTRAINT chain_account_id_fkey FOREIGN KEY (account_id) REFERENCES xj.account(id);
-
-
---
--- Name: chain_binding chain_binding_chain_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.chain_binding
-    ADD CONSTRAINT chain_binding_chain_id_fkey FOREIGN KEY (chain_id) REFERENCES xj.chain(id);
-
-
---
--- Name: chain_config chain_config_chain_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.chain_config
-    ADD CONSTRAINT chain_config_chain_id_fkey FOREIGN KEY (chain_id) REFERENCES xj.chain(id);
 
 
 --
@@ -1513,78 +1098,6 @@ ALTER TABLE ONLY xj.program_voice_track
 
 
 --
--- Name: segment segment_chain_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment
-    ADD CONSTRAINT segment_chain_id_fkey FOREIGN KEY (chain_id) REFERENCES xj.chain(id);
-
-
---
--- Name: segment_choice_arrangement_pick segment_choice_arrangement_pi_segment_choice_arrangement_i_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_choice_arrangement_pick
-    ADD CONSTRAINT segment_choice_arrangement_pi_segment_choice_arrangement_i_fkey FOREIGN KEY (segment_choice_arrangement_id) REFERENCES xj.segment_choice_arrangement(id);
-
-
---
--- Name: segment_choice_arrangement_pick segment_choice_arrangement_pick_segment_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_choice_arrangement_pick
-    ADD CONSTRAINT segment_choice_arrangement_pick_segment_id_fkey FOREIGN KEY (segment_id) REFERENCES xj.segment(id);
-
-
---
--- Name: segment_choice_arrangement segment_choice_arrangement_segment_choice_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_choice_arrangement
-    ADD CONSTRAINT segment_choice_arrangement_segment_choice_id_fkey FOREIGN KEY (segment_choice_id) REFERENCES xj.segment_choice(id);
-
-
---
--- Name: segment_choice_arrangement segment_choice_arrangement_segment_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_choice_arrangement
-    ADD CONSTRAINT segment_choice_arrangement_segment_id_fkey FOREIGN KEY (segment_id) REFERENCES xj.segment(id);
-
-
---
--- Name: segment_choice segment_choice_segment_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_choice
-    ADD CONSTRAINT segment_choice_segment_id_fkey FOREIGN KEY (segment_id) REFERENCES xj.segment(id);
-
-
---
--- Name: segment_chord segment_chord_segment_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_chord
-    ADD CONSTRAINT segment_chord_segment_id_fkey FOREIGN KEY (segment_id) REFERENCES xj.segment(id);
-
-
---
--- Name: segment_meme segment_meme_segment_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_meme
-    ADD CONSTRAINT segment_meme_segment_id_fkey FOREIGN KEY (segment_id) REFERENCES xj.segment(id);
-
-
---
--- Name: segment_message segment_message_segment_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
---
-
-ALTER TABLE ONLY xj.segment_message
-    ADD CONSTRAINT segment_message_segment_id_fkey FOREIGN KEY (segment_id) REFERENCES xj.segment(id);
-
-
---
 -- Name: user_auth_token user_auth_token_user_auth_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
 --
 
@@ -1681,6 +1194,7 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 35	36	platform message	SQL	V36__platform_message.sql	-1549213473	root	2020-03-03 15:30:26.827204	14	t
 36	37	work	SQL	V37__work.sql	-1737567323	root	2020-03-03 15:30:26.847661	8	t
 37	38	segment waveform preroll	SQL	V38__segment_waveform_preroll.sql	-1820712501	root	2020-03-03 15:30:26.869638	1	t
+38	39	nexus tables dropped	SQL	V39__nexus_tables_dropped.sql	639873279	root	2020-07-15 00:06:47.139317	21	t
 \.
 
 
