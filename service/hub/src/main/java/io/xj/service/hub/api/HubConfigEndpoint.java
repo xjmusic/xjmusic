@@ -21,9 +21,9 @@ import javax.ws.rs.core.Response;
 /**
  Current platform configuration
  */
-@Path("config")
-public class ConfigEndpoint extends HubEndpoint {
-  private ApiUrlProvider apiUrlProvider;
+@Path("hub/config")
+public class HubConfigEndpoint extends HubEndpoint {
+  private final ApiUrlProvider apiUrlProvider;
 
 
   /**
@@ -31,7 +31,7 @@ public class ConfigEndpoint extends HubEndpoint {
    which injects the inner com.google.inject.Injector for Guice-bound classes
    */
   @Inject
-  public ConfigEndpoint(
+  public HubConfigEndpoint(
     Injector injector
   ) {
     super(injector);

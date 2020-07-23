@@ -25,9 +25,9 @@ import javax.ws.rs.core.Response;
 /**
  Current platform configuration
  */
-@Path("nexus-config")
+@Path("nexus/config")
 public class NexusConfigEndpoint extends NexusEndpoint {
-  private ApiUrlProvider apiUrlProvider;
+  private final ApiUrlProvider apiUrlProvider;
 
 
   /**
