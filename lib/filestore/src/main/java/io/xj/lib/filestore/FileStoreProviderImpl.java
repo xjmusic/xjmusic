@@ -65,7 +65,7 @@ class FileStoreProviderImpl implements FileStoreProvider {
 
   @Override
   public String generateKey(String filename, String extension) {
-    return String.format("%s%s%s%s%s", UUID.randomUUID(), NAME_SEPARATOR, filename, EXTENSION_SEPARATOR, extension);
+    return String.format("%s%s%s%s%s", filename, NAME_SEPARATOR, UUID.randomUUID(), EXTENSION_SEPARATOR, extension);
   }
 
   @Override
