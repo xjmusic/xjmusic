@@ -61,6 +61,7 @@ dependencies {
   implementation 'org.apache.httpcomponents:httpcore:4.4.13'
   implementation 'com.google.apis:google-api-services-plus:v1-rev590-1.25.0'
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+  implementation 'org.logback-extensions:logback-ext-loggly:0.1.2'
   implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.119'
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.10.1'
   implementation group: 'com.github.axet', name: 'TarsosDSP', version: '2.4-1'

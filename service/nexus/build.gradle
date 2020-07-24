@@ -29,6 +29,7 @@ dependencies {
   implementation project(':service:hub') // FUTURE: instead of depending on hub, we use the client it publishes
   // vendor
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+  implementation 'org.logback-extensions:logback-ext-loggly:0.1.2'
   implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.119'
   implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.0'
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.10.1'

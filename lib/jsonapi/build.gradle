@@ -21,6 +21,7 @@ dependencies {
   // vendor
   implementation 'ch.qos.logback:logback-classic:1.2.3'
   implementation 'ch.qos.logback:logback-core:1.2.3'
+  implementation 'org.logback-extensions:logback-ext-loggly:0.1.2'
   implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.10.2.1'
   implementation 'com.fasterxml.jackson.module:jackson-module-guice:2.10.3'
   implementation 'com.google.api-client:google-api-client:1.30.9'

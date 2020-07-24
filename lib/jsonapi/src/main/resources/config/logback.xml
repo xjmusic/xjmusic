@@ -1,15 +1,11 @@
 <!-- Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved. -->
 
-<configuration>
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%d{ISO8601} [%thread] %-5level %logger{36} - %msg%n</pattern>
-    </encoder>
+<configuration debug="true">
+  <appender name="loggly" class="ch.qos.logback.ext.loggly.LogglyAppender">
+    <endpointUrl>https://logs-01.loggly.com/inputs/8aed0f0a-396d-4deb-9d11-e40765bb2a39/tag/logback</endpointUrl>
+    <pattern>%d{"ISO8601", UTC}  %p %t %c{0}.%M - %m%n</pattern>
   </appender>
-
-  <logger name="deng" level="INFO"/>
-
-  <root level="INFO">
-    <appender-ref ref="STDOUT"/>
+  <root level="info">
+    <appender-ref ref="loggly" />
   </root>
 </configuration>
