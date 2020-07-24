@@ -708,7 +708,7 @@ public class SegmentDAOImplTest {
     HubClientAccess access = HubClientAccess.create("Internal");
     Chain.create(account1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
     failure.expect(DAOExistenceException.class);
-    failure.expectMessage("does not exist");
+    failure.expectMessage("Found no Segment");
 
     testDAO.readOneInState(access, segment2.getId(), SegmentState.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"));
   }

@@ -10,7 +10,6 @@ import com.typesafe.config.Config;
 import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
@@ -41,29 +40,24 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
-  private final FileStoreProvider fileStoreProvider;
   private final ChainDAO chainDAO;
   private final int playBufferAheadSeconds;
   private final int playBufferDelaySeconds;
-  private final String segmentFileBucket;
   private final int limitSegmentReadSize;
 
   @Inject
   public SegmentDAOImpl(
     EntityFactory entityFactory,
     NexusEntityStore nexusEntityStore,
-    FileStoreProvider fileStoreProvider,
     ChainDAO chainDAO,
     Config config
   ) {
     super(entityFactory, nexusEntityStore);
-    this.fileStoreProvider = fileStoreProvider;
     this.chainDAO = chainDAO;
 
     playBufferAheadSeconds = config.getInt("play.bufferAheadSeconds");
     playBufferDelaySeconds = config.getInt("play.bufferDelaySeconds");
     limitSegmentReadSize = config.getInt("segment.limitReadSize");
-    segmentFileBucket = config.getString("segment.fileBucket");
   }
 
   @Override
@@ -121,22 +115,34 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
 
   @Override
   public Segment readOneAtChainOffset(HubClientAccess access, UUID chainId, Long offset) throws DAOPrivilegeException, DAOExistenceException, DAOFatalException {
-    requireTopLevel(access);
-    return this.readMany(access, ImmutableSet.of(chainId)).stream()
-      .filter(s -> offset.equals(s.getOffset()))
-      .findFirst()
-      .orElseThrow(() -> new DAOExistenceException(String.format("Found no Segment@%d in Chain[%s]!", offset, chainId)));
+    try {
+      requireTopLevel(access);
+      return store.getAll(Segment.class, Chain.class, ImmutableSet.of(chainId))
+        .stream()
+        .filter(s -> offset.equals(s.getOffset()))
+        .findFirst()
+        .orElseThrow(() -> new DAOExistenceException(String.format("Found no Segment@%d in Chain[%s]!", offset, chainId)));
+
+    } catch (NexusEntityStoreException e) {
+      throw new DAOFatalException(e);
+    }
   }
 
   @Override
   public Segment readOneInState(HubClientAccess access, UUID chainId, SegmentState segmentState, Instant segmentBeginBefore) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    requireTopLevel(access);
-    return this.readMany(access, ImmutableSet.of(chainId)).stream()
-      .sorted(Comparator.comparing(Segment::getOffset))
-      .filter(s -> segmentState.equals(s.getState()) &&
-        (segmentBeginBefore.equals(s.getBeginAt()) || segmentBeginBefore.isAfter(s.getBeginAt())))
-      .findFirst()
-      .orElseThrow(() -> new DAOExistenceException(String.format("Found no Segment[state=%s] in Chain[%s]!", segmentState, chainId)));
+    try {
+      requireTopLevel(access);
+      return store.getAll(Segment.class, Chain.class, ImmutableSet.of(chainId))
+        .stream()
+        .sorted(Comparator.comparing(Segment::getOffset))
+        .filter(s -> segmentState.equals(s.getState()) &&
+          (segmentBeginBefore.equals(s.getBeginAt()) || segmentBeginBefore.isAfter(s.getBeginAt())))
+        .findFirst()
+        .orElseThrow(() -> new DAOExistenceException(String.format("Found no Segment[state=%s] in Chain[%s]!", segmentState, chainId)));
+
+    } catch (NexusEntityStoreException e) {
+      throw new DAOFatalException(e);
+    }
   }
 
   @Override
@@ -201,31 +207,43 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public Collection<Segment> readManyFromOffset(HubClientAccess access, UUID chainId, Long fromOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public Collection<Segment> readManyFromOffset(HubClientAccess access, UUID chainId, Long fromOffset) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException {
     return readManyFromToOffset(access, chainId, fromOffset, fromOffset + limitSegmentReadSize);
   }
 
   @Override
-  public Collection<Segment> readManyFromToOffset(HubClientAccess access, UUID chainId, Long fromOffset, Long toOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    return 0 > toOffset ?
-      Lists.newArrayList() :
-      readMany(access, ImmutableSet.of(chainId))
-        .stream()
-        .filter(s -> s.getOffset() >= fromOffset && s.getOffset() <= toOffset)
-        .sorted(Comparator.comparing(Segment::getOffset))
-        .limit(limitSegmentReadSize)
-        .collect(Collectors.toList());
+  public Collection<Segment> readManyFromToOffset(HubClientAccess access, UUID chainId, Long fromOffset, Long toOffset) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException {
+    try {
+      requireChainAccount(access, chainId);
+      return 0 > toOffset ?
+        Lists.newArrayList() :
+        store.getAll(Segment.class, Chain.class, ImmutableSet.of(chainId))
+          .stream()
+          .filter(s -> s.getOffset() >= fromOffset && s.getOffset() <= toOffset)
+          .sorted(Comparator.comparing(Segment::getOffset))
+          .limit(limitSegmentReadSize)
+          .collect(Collectors.toList());
+
+    } catch (NexusEntityStoreException e) {
+      throw new DAOFatalException(e);
+    }
   }
 
   @Override
-  public Collection<Segment> readManyInState(HubClientAccess access, UUID chainId, SegmentState state) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    requireTopLevel(access);
-    return readMany(access, ImmutableSet.of(chainId))
-      .stream()
-      .filter(s -> state.equals(s.getState()))
-      .sorted(Comparator.comparing(Segment::getOffset))
-      .limit(limitSegmentReadSize)
-      .collect(Collectors.toList());
+  public Collection<Segment> readManyInState(HubClientAccess access, UUID chainId, SegmentState state) throws DAOPrivilegeException, DAOFatalException {
+    try {
+      requireTopLevel(access);
+      return
+        store.getAll(Segment.class, Chain.class, ImmutableSet.of(chainId))
+          .stream()
+          .filter(s -> state.equals(s.getState()))
+          .sorted(Comparator.comparing(Segment::getOffset))
+          .limit(limitSegmentReadSize)
+          .collect(Collectors.toList());
+
+    } catch (NexusEntityStoreException e) {
+      throw new DAOFatalException(e);
+    }
   }
 
   @Override
@@ -237,17 +255,23 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
 
   @Override
   public Collection<Segment> readManyFromSecondsUTC(HubClientAccess access, UUID chainId, Long fromSecondsUTC) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    Instant from = Instant.ofEpochSecond(fromSecondsUTC);
-    Instant maxBeginAt = from.plusSeconds(playBufferAheadSeconds);
-    Instant minEndAt = from.minusSeconds(playBufferDelaySeconds);
-    return readMany(access, ImmutableSet.of(chainId))
-      .stream()
-      .filter(s -> Objects.nonNull(s.getEndAt()) &&
-        maxBeginAt.isAfter(s.getBeginAt()) &&
-        minEndAt.isBefore(s.getEndAt()))
-      .sorted(Comparator.comparing(Segment::getOffset))
-      .limit(limitSegmentReadSize)
-      .collect(Collectors.toList());
+    try {
+      Instant from = Instant.ofEpochSecond(fromSecondsUTC);
+      Instant maxBeginAt = from.plusSeconds(playBufferAheadSeconds);
+      Instant minEndAt = from.minusSeconds(playBufferDelaySeconds);
+      requireChainAccount(access, chainId);
+      return store.getAll(Segment.class, Chain.class, ImmutableSet.of(chainId))
+        .stream()
+        .filter(s -> Objects.nonNull(s.getEndAt()) &&
+          maxBeginAt.isAfter(s.getBeginAt()) &&
+          minEndAt.isBefore(s.getEndAt()))
+        .sorted(Comparator.comparing(Segment::getOffset))
+        .limit(limitSegmentReadSize)
+        .collect(Collectors.toList());
+
+    } catch (NexusEntityStoreException e) {
+      throw new DAOFatalException(e);
+    }
   }
 
   @Override
@@ -307,10 +331,16 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
 
   @Override
   public Segment readLastSegment(HubClientAccess access, UUID chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    return readMany(access, ImmutableSet.of(chainId))
-      .stream()
-      .max(Comparator.comparing(Segment::getOffset))
-      .orElseThrow(() -> new DAOExistenceException(String.format("Found no last Segment with no end-at in Chain[%s]!", chainId)));
+    try {
+      requireChainAccount(access, chainId);
+      return store.getAll(Segment.class, Chain.class, ImmutableSet.of(chainId))
+        .stream()
+        .max(Comparator.comparing(Segment::getOffset))
+        .orElseThrow(() -> new DAOExistenceException(String.format("Found no last Segment with no end-at in Chain[%s]!", chainId)));
+
+    } catch (NexusEntityStoreException e) {
+      throw new DAOFatalException(e);
+    }
   }
 
   @Override
@@ -344,6 +374,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       store.deleteAll(SegmentChord.class, Segment.class, id);
       if (destroyMessages)
         store.deleteAll(SegmentMessage.class, Segment.class, id);
+
     } catch (NexusEntityStoreException e) {
       throw new DAOFatalException(e);
     }
