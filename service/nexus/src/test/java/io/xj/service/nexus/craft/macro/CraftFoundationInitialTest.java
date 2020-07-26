@@ -13,6 +13,7 @@ import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.MemeEntity;
 import io.xj.lib.entity.common.ChordEntity;
+import io.xj.lib.mixer.OutputEncoder;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
@@ -112,6 +113,7 @@ public class CraftFoundationInitialTest {
 
     Segment result = store.get(Segment.class, segment6.getId()).orElseThrow();
     assertEquals(segment6.getId(), result.getId());
+    assertEquals(OutputEncoder.AAC, result.getOutputEncoder());
     assertEquals(SegmentType.Initial, result.getType());
     assertEquals("2017-02-14T12:01:07.384616Z", result.getEndAt().toString());
     assertEquals(Integer.valueOf(16), result.getTotal());

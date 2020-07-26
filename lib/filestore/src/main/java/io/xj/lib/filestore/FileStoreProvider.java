@@ -20,11 +20,10 @@ public interface FileStoreProvider {
    Generate a new key of an object in AWS file storage (S3)
    [#
 
-   @param prefix    of the file
-   @param extension of the file
    @return key
+   @param prefix    of the key
    */
-  String generateKey(String prefix, String extension);
+  String generateKey(String prefix);
 
   /**
    Get the URL to upload an object to AWS file storage (S3)
@@ -78,14 +77,24 @@ public interface FileStoreProvider {
   InputStream streamS3Object(String bucketName, String key) throws FileStoreException;
 
   /**
-   Put an object to S3 (of a file)
+   Put an object to S3 (from a temp file)
    [#361] Segment & Audio S3 object key schema ought to have random UUID at the beginning of the key, in order to be optimized for S3 partitioning.
 
    @param filePath path to file for upload
    @param bucket   to put file to
    @param key      to put file at
    */
-  void putS3Object(String filePath, String bucket, String key) throws FileStoreException;
+  void putS3ObjectFromTempFile(String filePath, String bucket, String key) throws FileStoreException;
+
+  /**
+   Put an object to S3 from a string
+   [#162223929] Ship Segment data JSON with audio
+
+   @param content path to file for upload
+   @param bucket   to put file to
+   @param key      to put file at
+   */
+  void putS3ObjectFromString(String content, String bucket, String key) throws FileStoreException;
 
   /**
    Delete an object of S3

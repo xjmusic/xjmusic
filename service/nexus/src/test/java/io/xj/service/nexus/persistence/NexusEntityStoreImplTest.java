@@ -81,7 +81,7 @@ public class NexusEntityStoreImplTest {
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav");
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav");
 
     subject.put(segment);
     Segment result = subject.get(Segment.class, segment.getId()).orElseThrow();
@@ -97,7 +97,7 @@ public class NexusEntityStoreImplTest {
     assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(Double.valueOf(0.73), result.getDensity());
     assertEquals(Double.valueOf(120.0), result.getTempo());
-    assertEquals("chains-1-segments-9f7s89d8a7892.wav", result.getWaveformKey());
+    assertEquals("chains-1-segments-9f7s89d8a7892.wav", result.getStorageKey());
   }
 
   @Test
@@ -186,7 +186,7 @@ public class NexusEntityStoreImplTest {
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav");
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav");
     subject.put(chain3_segment0);
 
     Segment result = subject.get(Segment.class, chain3_segment0.getId()).orElseThrow();
@@ -200,7 +200,7 @@ public class NexusEntityStoreImplTest {
     assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(Double.valueOf(0.73), result.getDensity());
     assertEquals(Double.valueOf(120.0), result.getTempo());
-    assertEquals("chains-1-segments-9f7s89d8a7892.wav", result.getWaveformKey());
+    assertEquals("chains-1-segments-9f7s89d8a7892.wav", result.getStorageKey());
   }
 
   @Test
@@ -218,7 +218,7 @@ public class NexusEntityStoreImplTest {
       .setTotal(32)
       .setDensity(0.3)
       .setTempo(10.0)
-      .setWaveformKey("chains-2-segments-8929f7sd8a789.wav");
+      .setStorageKey("chains-2-segments-8929f7sd8a789.wav");
     Segment chain3_segment0 = Segment.create()
       .setChainId(chain3.getId())
       .setOffset(0L)
@@ -229,7 +229,7 @@ public class NexusEntityStoreImplTest {
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
-      .setWaveformKey("chains-3-segments-9f7s89d8a7892.wav");
+      .setStorageKey("chains-3-segments-9f7s89d8a7892.wav");
     Segment chain3_segment1 = Segment.create()
       .setChainId(chain3.getId())
       .setOffset(0L)
@@ -240,7 +240,7 @@ public class NexusEntityStoreImplTest {
       .setTotal(48)
       .setDensity(0.73)
       .setTempo(120.0)
-      .setWaveformKey("chains-3-segments-d8a78929f7s89.wav");
+      .setStorageKey("chains-3-segments-d8a78929f7s89.wav");
     assertEquals(5, subject.putAll(ImmutableList.of(chain2, chain3, chain2_segment0, chain3_segment0, chain3_segment1)).size());
 
     Collection<Segment> result = subject.getAll(Segment.class, Chain.class, ImmutableList.of(chain3.getId()));

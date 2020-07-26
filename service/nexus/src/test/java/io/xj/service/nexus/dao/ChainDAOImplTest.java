@@ -541,7 +541,7 @@ public class ChainDAOImplTest {
       .setTempo(120.0)
       .setBeginAtInstant(Instant.now())
       .setTypeEnum(SegmentType.NextMain)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
     Chain input = Chain.create()
       .setAccountId(account1.getId())
       .setName("bucket")
@@ -570,7 +570,7 @@ public class ChainDAOImplTest {
       .setTempo(120.0)
       .setBeginAtInstant(Instant.now())
       .setTypeEnum(SegmentType.NextMain)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setCreatedAt("2015-05-10T12:18:02.527142Z")
       .setUpdatedAt("2015-05-10T12:18:32.527142Z"));
     Chain input = Chain.create()
@@ -924,7 +924,7 @@ public class ChainDAOImplTest {
       .setBeginAt("2014-02-14T12:03:40.000001Z")
       .setEndAt("2014-02-14T12:04:10.000001Z")
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
 
     Segment result = subject.buildNextSegmentOrCompleteTheChain(access, chain1, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T11:53:40.000001Z")).orElseThrow();
 
@@ -949,7 +949,7 @@ public class ChainDAOImplTest {
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
 
     Segment result = subject.buildNextSegmentOrCompleteTheChain(access, chain1, Instant.parse("2014-02-14T14:03:50.000001Z"), Instant.parse("2014-02-14T13:53:50.000001Z")).orElseThrow();
 
@@ -973,7 +973,7 @@ public class ChainDAOImplTest {
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
 
     Optional<Segment> result = subject.buildNextSegmentOrCompleteTheChain(access, chain1, Instant.parse("2014-02-14T14:03:50.000001Z"), Instant.parse("2014-02-14T14:15:50.000001Z"));
 
@@ -999,7 +999,7 @@ public class ChainDAOImplTest {
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
 
     Optional<Segment> result = subject.buildNextSegmentOrCompleteTheChain(access, chain1, Instant.parse("2014-02-14T14:03:50.000001Z"), Instant.parse("2014-02-14T14:15:50.000001Z"));
 
@@ -1025,7 +1025,7 @@ public class ChainDAOImplTest {
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
 
     Segment result = subject.buildNextSegmentOrCompleteTheChain(access, chain1, Instant.parse("2014-02-14T14:03:50.000001Z"), Instant.parse("2014-02-14T14:15:50.000001Z")).orElseThrow();
 
@@ -1050,7 +1050,7 @@ public class ChainDAOImplTest {
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
 
     Optional<Segment> result = subject.buildNextSegmentOrCompleteTheChain(access, chain1, Instant.parse("2014-08-12T14:03:38.000001Z"), Instant.parse("2014-08-12T13:53:38.000001Z"));
 

@@ -6,14 +6,17 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 class FileStoreProviderImpl implements FileStoreProvider {
@@ -21,7 +24,6 @@ class FileStoreProviderImpl implements FileStoreProvider {
   private static final float MICROS_PER_SECOND = 1000000.0F;
   private static final float NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
   private static final String NAME_SEPARATOR = "-";
-  private static final String EXTENSION_SEPARATOR = ".";
   private String awsDefaultRegion;
   private String audioUploadUrl;
   private String awsAccessKeyId;
@@ -64,8 +66,8 @@ class FileStoreProviderImpl implements FileStoreProvider {
   }
 
   @Override
-  public String generateKey(String filename, String extension) {
-    return String.format("%s%s%s%s%s", filename, NAME_SEPARATOR, UUID.randomUUID(), EXTENSION_SEPARATOR, extension);
+  public String generateKey(String filename) {
+    return String.format("%s%s%s", filename, NAME_SEPARATOR, UUID.randomUUID());
   }
 
   @Override
@@ -117,13 +119,28 @@ class FileStoreProviderImpl implements FileStoreProvider {
   }
 
   @Override
-  public void putS3Object(String filePath, String bucket, String key) throws FileStoreException {
+  public void putS3ObjectFromTempFile(String filePath, String bucket, String key) throws FileStoreException {
     try {
       long startedAt = System.nanoTime();
       log.info("Will ship {} to {}/{}", filePath, bucket, key);
       s3Client().putObject(new PutObjectRequest(
         bucket, key, new File(filePath)));
       log.info("Did ship {} to {}/{} OK in {}s", filePath, bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
+
+    } catch (Exception e) {
+      throw new FileStoreException("Failed to put S3 object", e);
+    }
+  }
+
+  @Override
+  public void putS3ObjectFromString(String content, String bucket, String key) throws FileStoreException {
+    try {
+      long startedAt = System.nanoTime();
+      log.info("Will ship {} bytes of content to {}/{}", content.length(), bucket, key);
+      ObjectMetadata metadata = new ObjectMetadata();
+      metadata.setContentLength(content.length());
+      s3Client().putObject(new PutObjectRequest(bucket, key, new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), metadata));
+      log.info("Did ship {} bytes to {}/{} OK in {}s", content.length(), bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
     } catch (Exception e) {
       throw new FileStoreException("Failed to put S3 object", e);

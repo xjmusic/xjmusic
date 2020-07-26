@@ -9,9 +9,12 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.typesafe.config.Config;
 import io.xj.lib.entity.Entity;
+import io.xj.lib.entity.EntityException;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.MemeEntity;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.MusicalException;
 import io.xj.lib.music.Note;
@@ -90,6 +93,8 @@ class FabricatorImpl implements Fabricator {
   private SegmentType type;
   private final String workTempFilePathPrefix;
   private final DecimalFormat segmentNameFormat;
+  private final PayloadFactory payloadFactory;
+  private final EntityFactory entityFactory;
 
   @AssistedInject
   public FabricatorImpl(
@@ -103,7 +108,9 @@ class FabricatorImpl implements Fabricator {
     SegmentWorkbenchFactory segmentWorkbenchFactory,
     FileStoreProvider fileStoreProvider,
     SegmentRetrospectiveFactory retrospectiveFactory,
-    Config config
+    Config config,
+    PayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) throws FabricationException {
     try {
       // FUTURE: [#165815496] Chain fabrication access control
@@ -113,6 +120,8 @@ class FabricatorImpl implements Fabricator {
 
       this.fileStoreProvider = fileStoreProvider;
       this.timeComputerFactory = timeComputerFactory;
+      this.payloadFactory = payloadFactory;
+      this.entityFactory = entityFactory;
 
       tuningRootPitch = config.getDouble("tuning.rootPitchHz");
       tuningRootNote = config.getString("tuning.rootNote");
@@ -147,7 +156,7 @@ class FabricatorImpl implements Fabricator {
       workbench = segmentWorkbenchFactory.workOn(access, chain, segment);
 
       // final pre-flight check
-      ensureWaveformKey();
+      ensureStorageKey();
 
     } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException | HubClientException e) {
       throw new FabricationException("Failed to instantiate Fabricator!", e);
@@ -402,11 +411,8 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getOutputFilePath() throws FabricationException {
-    if (Objects.isNull(workbench.getSegment().getWaveformKey()))
-      throw exception("Segment has no waveform key!");
-
-    return String.format("%s%s", workTempFilePathPrefix, workbench.getSegment().getWaveformKey());
+  public String getFullQualityAudioOutputFilePath() throws FabricationException {
+    return String.format("%s%s", workTempFilePathPrefix, getSegment().getOutputWaveformKey());
   }
 
   @Override
@@ -562,6 +568,23 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public String getResultMetadata() throws FabricationException {
+    try {
+      return entityFactory.serialize(payloadFactory.newPayload()
+        .setDataOne(payloadFactory.toPayloadObject(workbench.getSegment()))
+        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentArrangements().getAll()))
+        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChoices().getAll()))
+        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChords().getAll()))
+        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentMemes().getAll()))
+        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentMessages().getAll()))
+        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentPicks().getAll())));
+
+    } catch (JsonApiException | EntityException e) {
+      throw new FabricationException(e);
+    }
+  }
+
+  @Override
   public Collection<SegmentChoiceArrangementPick> getSegmentPicks() {
     return workbench.getSegmentPicks().getAll();
   }
@@ -584,6 +607,16 @@ class FabricatorImpl implements Fabricator {
   @Override
   public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) {
     return getSegmentArrangements().stream().filter(arrangement -> choice.getId().equals(arrangement.getSegmentChoiceId())).collect(Collectors.toList());
+  }
+
+  /**
+   @return the storage key for this segment, or throw an exception if not computable
+   @throws FabricationException on failure to compute
+   */
+  private String storageKeyOrException() throws FabricationException {
+    if (Objects.isNull(workbench.getSegment().getStorageKey()))
+      throw exception("Segment has no storage key!");
+    return workbench.getSegment().getStorageKey();
   }
 
   /**
@@ -671,13 +704,12 @@ class FabricatorImpl implements Fabricator {
    @param segment to generate URL for
    @return URL as string
    */
-  private String generateWaveformKey(Chain chain, Segment segment) throws FabricationException {
-    String extension = getChainConfig(ChainConfigType.OutputContainer).getValue().toLowerCase(Locale.ENGLISH);
+  private String generateStorageKey(Chain chain, Segment segment) {
     String chainName = Strings.isNullOrEmpty(chain.getEmbedKey()) ?
       "chain" + NAME_SEPARATOR + chain.getId().toString() :
       chain.getEmbedKey();
     String segmentName = segmentNameFormat.format(segment.getBeginAt().toEpochMilli());
-    return fileStoreProvider.generateKey(chainName + NAME_SEPARATOR + segmentName, extension);
+    return fileStoreProvider.generateKey(chainName + NAME_SEPARATOR + segmentName);
   }
 
   /**
@@ -794,14 +826,14 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Ensure the current segment has a waveform key; if not, add a waveform key to this Segment
+   Ensure the current segment has a storage key; if not, add a storage key to this Segment
 
-   @throws FabricationException on failure to ensure generate waveform key
+   @throws FabricationException on failure to ensure generate storage key
    */
-  private void ensureWaveformKey() throws FabricationException {
-    if (Objects.isNull(workbench.getSegment().getWaveformKey()) || workbench.getSegment().getWaveformKey().isEmpty()) {
-      workbench.getSegment().setWaveformKey(generateWaveformKey(workbench.getChain(), workbench.getSegment()));
-      log.info("[segId={}] Generated Waveform Key {}", workbench.getSegment().getId(), workbench.getSegment().getWaveformKey());
+  private void ensureStorageKey() throws FabricationException {
+    if (Objects.isNull(workbench.getSegment().getStorageKey()) || workbench.getSegment().getStorageKey().isEmpty()) {
+      workbench.getSegment().setStorageKey(generateStorageKey(workbench.getChain(), workbench.getSegment()));
+      log.info("[segId={}] Generated storage key {}", workbench.getSegment().getId(), workbench.getSegment().getStorageKey());
     }
   }
 

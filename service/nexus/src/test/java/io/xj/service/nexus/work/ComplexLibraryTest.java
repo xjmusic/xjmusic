@@ -105,8 +105,8 @@ public class ComplexLibraryTest {
 
   @Test
   public void fabricatesManySegments() throws Exception {
-    when(fileStoreProvider.generateKey(any(), eq("aac")))
-      .thenReturn("chains-1-segments-12345.aac");
+    when(fileStoreProvider.generateKey(any()))
+      .thenReturn("chains-1-segments-12345");
     when(fileStoreProvider.streamS3Object(any(), any()))
       .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(resourceAudioFile()));
 
@@ -120,7 +120,10 @@ public class ComplexLibraryTest {
 
     // assertions
     verify(fileStoreProvider, atLeast(assertShippedSegmentsMinimum))
-      .putS3Object(eq("/tmp/chains-1-segments-12345.aac"), eq("xj-segment-test"), any());
+      .putS3ObjectFromTempFile(eq("/tmp/chains-1-segments-12345.aac"), eq("xj-segment-test"), eq("chains-1-segments-12345.aac"));
+    // FUTURE use a spy to assert actual json payload shipped to S3 for metadata
+    verify(fileStoreProvider, atLeast(assertShippedSegmentsMinimum))
+      .putS3ObjectFromString(any(), eq("xj-segment-test"), eq("chains-1-segments-12345.json"));
     Collection<Segment> result = segmentDAO.readMany(HubClientAccess.internal(), ImmutableList.of(chain1.getId()));
     assertTrue(assertShippedSegmentsMinimum <= result.size());
   }

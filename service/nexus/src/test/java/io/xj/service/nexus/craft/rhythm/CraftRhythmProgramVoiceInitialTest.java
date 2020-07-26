@@ -172,7 +172,7 @@ public class CraftRhythmProgramVoiceInitialTest {
       .setTotal(32)
       .setDensity(0.55)
       .setTempo(130.0)
-      .setWaveformKey("chains-1-segments-0970305977172.wav"));
+      .setStorageKey("chains-1-segments-0970305977172.wav"));
     store.put(SegmentChoice.create().setSegmentId(segment5.getId())
       .setProgramId(fake.program4.getId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
@@ -195,7 +195,7 @@ public class CraftRhythmProgramVoiceInitialTest {
       .setTotal(32)
       .setDensity(0.55)
       .setTempo(130.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
     store.put(SegmentChoice.create().setSegmentId(segment6.getId())
       .setProgramId(fake.program4.getId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())

@@ -13,6 +13,7 @@ import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.MemeEntity;
 import io.xj.lib.entity.common.ChordEntity;
+import io.xj.lib.mixer.OutputEncoder;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
@@ -123,7 +124,7 @@ public class CraftFoundationNextMainTest {
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
     store.put(SegmentChoice.create(segment3, ProgramType.Macro, fake.program4_sequence0_binding0, 3));
     store.put(SegmentChoice.create(segment3, ProgramType.Main, fake.program5_sequence1_binding0, -4));
 
@@ -146,6 +147,7 @@ public class CraftFoundationNextMainTest {
     assertEquals(SegmentType.NextMain, result.getType());
     assertEquals("2017-02-14T12:03:15.840157Z", result.getEndAt().toString());
     assertEquals(Integer.valueOf(16), result.getTotal());
+    assertEquals(OutputEncoder.AAC, result.getOutputEncoder());
     assertEquals(Double.valueOf(0.45), result.getDensity());
     assertEquals("G minor", result.getKey());
     assertEquals(Double.valueOf(125), result.getTempo());

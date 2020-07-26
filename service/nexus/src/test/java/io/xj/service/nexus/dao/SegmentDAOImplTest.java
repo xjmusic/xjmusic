@@ -90,7 +90,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setEndAt("2017-02-14T12:01:32.000001Z"));
     segment2 = store.put(Segment.create()
@@ -101,7 +101,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.85)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setWaveformPreroll(1.523)
       .setEndAt("2017-02-14T12:02:04.000001Z"));
@@ -113,7 +113,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setEndAt("2017-02-14T12:02:36.000001Z"));
     segment4 = store.put(Segment.create()
@@ -124,7 +124,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:36.000001Z")
       .setEndAt("2017-02-14T12:03:08.000001Z"));
     segment5 = store.put(Segment.create()
@@ -136,7 +136,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
   }
 
   /**
@@ -154,11 +154,11 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.74)
       .setWaveformPreroll(2.898)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(fileStoreProvider.generateKey("chains-1-segments", "ogg"))
+    when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
     Segment result = testDAO.create(access, inputData);
@@ -174,7 +174,7 @@ public class SegmentDAOImplTest {
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(120.0, result.getTempo(), 0.01);
     assertEquals(Double.valueOf(2.898), result.getWaveformPreroll());
-    assertNotNull(result.getWaveformKey());
+    assertNotNull(result.getStorageKey());
   }
 
   /**
@@ -190,13 +190,13 @@ public class SegmentDAOImplTest {
       .setState("Crafting")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(fileStoreProvider.generateKey("chains-1-segments", "ogg"))
+    when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
     Segment result = testDAO.create(access, inputData);
@@ -211,7 +211,7 @@ public class SegmentDAOImplTest {
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(120.0, result.getTempo(), 0.1);
-    assertNotNull(result.getWaveformKey());
+    assertNotNull(result.getStorageKey());
   }
 
   @Test
@@ -228,7 +228,7 @@ public class SegmentDAOImplTest {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(fileStoreProvider.generateKey("chains-1-segments", "ogg"))
+    when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
     failure.expect(DAOValidationException.class);
@@ -251,7 +251,7 @@ public class SegmentDAOImplTest {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(fileStoreProvider.generateKey("chains-1-segments", "ogg"))
+    when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
     failure.expect(DAOPrivilegeException.class);
@@ -273,7 +273,7 @@ public class SegmentDAOImplTest {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(fileStoreProvider.generateKey("chains-1-segments", "ogg"))
+    when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
     failure.expect(DAOValidationException.class);
@@ -398,7 +398,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setCreatedAt("2017-02-14T12:01:00.000001Z")
       .setUpdatedAt("2017-02-14T12:01:32.000001Z"));
@@ -410,7 +410,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.85)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setCreatedAt("2017-02-14T12:01:32.000001Z")
       .setUpdatedAt("2017-02-14T12:02:04.000001Z"));
@@ -422,7 +422,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setCreatedAt("2017-02-14T12:02:04.000001Z")
       .setUpdatedAt("2017-02-14T12:02:36.000001Z"));
@@ -434,7 +434,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:36.000001Z")
       .setCreatedAt("2017-02-14T12:02:36.000001Z")
       .setUpdatedAt("2017-02-14T12:03:08.000001Z"));
@@ -447,7 +447,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
 
     Collection<Segment> result = testDAO.readMany(HubClientAccess.internal(), "barnacles");
 
@@ -515,7 +515,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setCreatedAt("2017-02-14T12:01:00.000001Z")
       .setUpdatedAt("2017-02-14T12:01:32.000001Z"));
@@ -527,7 +527,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.85)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setCreatedAt("2017-02-14T12:01:32.000001Z")
       .setUpdatedAt("2017-02-14T12:02:04.000001Z"));
@@ -539,7 +539,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setCreatedAt("2017-02-14T12:02:04.000001Z")
       .setUpdatedAt("2017-02-14T12:02:36.000001Z"));
@@ -551,7 +551,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:36.000001Z")
       .setCreatedAt("2017-02-14T12:02:36.000001Z")
       .setUpdatedAt("2017-02-14T12:03:08.000001Z"));
@@ -564,7 +564,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
 
     Collection<Segment> result = testDAO.readManyFromOffset(HubClientAccess.internal(), "barnacles", 2L);
 
@@ -633,7 +633,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setEndAt("2017-02-14T12:01:32.000001Z"));
     store.put(Segment.create().setChainId(chain5.getId())
@@ -643,7 +643,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.85)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setEndAt("2017-02-14T12:02:04.000001Z"));
     store.put(Segment.create().setChainId(chain5.getId())
@@ -653,7 +653,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setEndAt("2017-02-14T12:02:36.000001Z"));
     store.put(Segment.create().setChainId(chain5.getId())
@@ -663,7 +663,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:36.000001Z")
       .setEndAt("2017-02-14T12:03:08.000001Z"));
     store.put(Segment.create()
@@ -675,7 +675,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
 
     Collection<Segment> result = testDAO.readManyFromSecondsUTC(HubClientAccess.internal(), "barnacles", 1487073724L);
 
@@ -722,7 +722,7 @@ public class SegmentDAOImplTest {
       .setState("Dubbed")
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setTotal(64)
       .setDensity(0.74)
       .setWaveformPreroll(0.0123)
@@ -756,7 +756,7 @@ public class SegmentDAOImplTest {
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav")
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setTempo(120.0));
 
     testDAO.update(access, segment4.getId(), segment4);

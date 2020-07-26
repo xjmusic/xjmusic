@@ -13,6 +13,7 @@ import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.MemeEntity;
 import io.xj.lib.entity.common.ChordEntity;
+import io.xj.lib.mixer.OutputEncoder;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
@@ -126,6 +127,7 @@ public class CraftFoundationContinueTest {
     assertEquals(SegmentType.Continue, result.getType());
     assertEquals("2017-02-14T12:03:23.680157Z", result.getEndAt().toString());
     assertEquals(Integer.valueOf(32), result.getTotal());
+    assertEquals(OutputEncoder.AAC, result.getOutputEncoder());
     assertEquals(Double.valueOf(0.45), result.getDensity());
     assertEquals("Ab minor", result.getKey());
     assertEquals(Double.valueOf(125), result.getTempo());

@@ -3,14 +3,18 @@
 package io.xj.service.nexus.entity;
 
 import io.xj.lib.entity.Entity;
+import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 
 import java.time.Instant;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
 public class Segment extends Entity {
+  private static final String EXTENSION_SEPARATOR = ".";
+  private static final String EXTENSION_JSON = "json";
   private UUID chainId;
   private SegmentState state;
   private Instant beginAt;
@@ -22,11 +26,12 @@ public class Segment extends Entity {
   private Long offset;
   private Double density;
   private Double tempo;
-  private String waveformKey;
+  private String storageKey;
   private Double waveformPreroll;
   private SegmentType type;
   private Exception stateException;
   private ValueException typeException;
+  private OutputEncoder outputEncoder;
 
   /**
    of Segment
@@ -35,6 +40,7 @@ public class Segment extends Entity {
    */
   public static Segment create() {
     return new Segment()
+      .setOutputEncoderEnum(OutputEncoder.AAC)
       .setTypeEnum(SegmentType.Pending)
       .setId(UUID.randomUUID())
       .setWaveformPreroll(0.0);
@@ -43,19 +49,19 @@ public class Segment extends Entity {
   /**
    Create a new Segment
 
-   @param chain       of Segment
-   @param offset      of Segment
-   @param state       of Segment
-   @param beginAt     of Segment
-   @param endAt       of Segment
-   @param key         of Segment
-   @param total       of Segment
-   @param density     of Segment
-   @param tempo       of Segment
-   @param waveformKey of Segment
+   @param chain      of Segment
+   @param offset     of Segment
+   @param state      of Segment
+   @param beginAt    of Segment
+   @param endAt      of Segment
+   @param key        of Segment
+   @param total      of Segment
+   @param density    of Segment
+   @param tempo      of Segment
+   @param storageKey of Segment
    @return new Segment
    */
-  public static Segment create(Chain chain, long offset, SegmentState state, Instant beginAt, Instant endAt, String key, int total, double density, double tempo, String waveformKey) {
+  public static Segment create(Chain chain, long offset, SegmentState state, Instant beginAt, Instant endAt, String key, int total, double density, double tempo, String storageKey) {
     return create()
       .setTypeEnum(SegmentType.Continue)
       .setChainId(chain.getId())
@@ -67,7 +73,7 @@ public class Segment extends Entity {
       .setKey(key)
       .setDensity(density)
       .setTempo(tempo)
-      .setWaveformKey(waveformKey);
+      .setStorageKey(storageKey);
   }
 
   /**
@@ -188,12 +194,21 @@ public class Segment extends Entity {
   }
 
   /**
-   get WaveformKey
+   get StorageKey
 
-   @return WaveformKey
+   @return StorageKey
    */
-  public String getWaveformKey() {
-    return waveformKey;
+  public String getStorageKey() {
+    return storageKey;
+  }
+
+  /**
+   get StorageKey
+
+   @return StorageKey
+   */
+  public OutputEncoder getOutputEncoder() {
+    return outputEncoder;
   }
 
   /**
@@ -413,6 +428,30 @@ public class Segment extends Entity {
     return this;
   }
 
+  /**
+   Set the outputEncoder
+
+   @param raw to set
+   @return this Segment (for chaining setters)
+   */
+  public Segment setOutputEncoder(String raw) {
+    if (Objects.nonNull(raw))
+      outputEncoder = OutputEncoder.parse(raw);
+    return this;
+  }
+
+  /**
+   Set the outputEncoder
+
+   @param outputEncoder to set
+   @return this Segment (for chaining setters)
+   */
+  public Segment setOutputEncoderEnum(OutputEncoder outputEncoder) {
+    this.outputEncoder = outputEncoder;
+    return this;
+  }
+
+
   @Override
   public Segment setUpdatedAt(String updatedAt) {
     super.setUpdatedAt(updatedAt);
@@ -426,13 +465,13 @@ public class Segment extends Entity {
   }
 
   /**
-   Set the waveformKey
+   Set the storageKey
 
-   @param waveformKey to set
+   @param storageKey to set
    @return this Segment (for chaining setters)
    */
-  public Segment setWaveformKey(String waveformKey) {
-    this.waveformKey = waveformKey;
+  public Segment setStorageKey(String storageKey) {
+    this.storageKey = storageKey;
     return this;
   }
 
@@ -492,4 +531,32 @@ public class Segment extends Entity {
       this.getEndAt().isBefore(eraseBefore) :
       this.getBeginAt().isBefore(eraseBefore);
   }
+
+  /**
+   Returns the storage key concatenated with the output encoder as its file extension
+
+   @return Output Waveform Key
+   */
+  public String getOutputWaveformKey() {
+    return getStorageKey(outputEncoder.toString().toLowerCase(Locale.ENGLISH));
+  }
+
+  /**
+   Returns the storage key concatenated with JSON as its file extension
+
+   @return Output Metadata Key
+   */
+  public String getOutputMetadataKey() {
+    return getStorageKey(EXTENSION_JSON);
+  }
+
+  /**
+   Returns the storage key concatenated with JSON as its file extension
+
+   @return Output Metadata Key
+   */
+  public String getStorageKey(String extension) {
+    return String.format("%s%s%s", storageKey, EXTENSION_SEPARATOR, extension);
+  }
+
 }

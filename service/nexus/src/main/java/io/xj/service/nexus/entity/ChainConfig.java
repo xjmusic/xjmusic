@@ -22,8 +22,6 @@ import java.util.UUID;
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class ChainConfig extends Entity {
-
-
   private ChainConfigType type;
   private String value;
   private Exception typeException;

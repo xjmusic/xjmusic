@@ -58,16 +58,16 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   }
 
   @Override
-  public InstrumentAudio create(HubAccess hubAccess, InstrumentAudio entity) throws DAOException, JsonApiException, ValueException {
-    entity.validate();
+  public InstrumentAudio create(HubAccess hubAccess, InstrumentAudio audio) throws DAOException, JsonApiException, ValueException {
+    audio.validate();
     requireArtist(hubAccess);
 
     DSLContext db = dbProvider.getDSL();
-    requireParentExists(db, hubAccess, entity);
-    entity.setWaveformKey(generateKey(entity.getInstrumentId()));
+    requireParentExists(db, hubAccess, audio);
+    audio.setWaveformKey(generateKey(audio.getInstrumentId()));
 
     return modelFrom(InstrumentAudio.class,
-      executeCreate(db, INSTRUMENT_AUDIO, entity));
+      executeCreate(db, INSTRUMENT_AUDIO, audio));
   }
 
   @Override
@@ -192,7 +192,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
    */
   private String generateKey(UUID instrumentId) {
     String prefix = String.format("instrument-%s-audio", instrumentId);
-    return fileStoreProvider.generateKey(prefix, waveformFileExtension);
+    return fileStoreProvider.generateKey(prefix);
   }
 
   /**

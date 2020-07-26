@@ -49,10 +49,9 @@ public class FileStoreProviderImplTest {
 
   @Test
   public void generateKey() {
-    String url = fileStoreProvider.generateKey("file-name", "wav");
+    String url = fileStoreProvider.generateKey("file-name");
 
     assertContains("file-name-", url);
-    assertContains(".wav", url);
   }
 
   @Test

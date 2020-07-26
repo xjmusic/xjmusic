@@ -120,7 +120,7 @@ public class CraftSegmentPatternMemeTest {
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
     store.put(SegmentChoice.create(segment1, ProgramType.Macro, fake.program4_sequence1_binding0, 3));
     store.put(SegmentChoice.create(segment1, ProgramType.Main, fake.program5_sequence1_binding0, 5));
   }

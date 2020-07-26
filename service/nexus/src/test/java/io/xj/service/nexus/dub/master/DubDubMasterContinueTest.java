@@ -71,7 +71,7 @@ public class DubDubMasterContinueTest {
   public ExpectedException failure = ExpectedException.none();
 
   @Mock
-  FileStoreProvider fileStoreProvider;
+  public FileStoreProvider fileStoreProvider;
 
   @Mock
   public HubClient hubClient;

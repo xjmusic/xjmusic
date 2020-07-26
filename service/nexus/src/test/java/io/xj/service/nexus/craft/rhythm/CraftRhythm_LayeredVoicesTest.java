@@ -145,7 +145,7 @@ public class CraftRhythm_LayeredVoicesTest {
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
     store.put(SegmentChoice.create(segment3, ProgramType.Macro, fake.program4_sequence0_binding0, 3));
     store.put(SegmentChoice.create(segment3, ProgramType.Main, fake.program5_sequence0_binding0, 5));
     store.put(SegmentChoice.create(segment3, ProgramType.Rhythm, program42, 5));
@@ -161,7 +161,7 @@ public class CraftRhythm_LayeredVoicesTest {
       .setTotal(16)
       .setDensity(0.45)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
     store.put(SegmentChoice.create(segment4, ProgramType.Macro, fake.program4_sequence0_binding0, 3));
     store.put(SegmentChoice.create(segment4, ProgramType.Main, fake.program5_sequence1_binding0, -5));
 

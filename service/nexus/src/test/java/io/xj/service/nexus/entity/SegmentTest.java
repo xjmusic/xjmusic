@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.entity;
 
+import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.util.ValueException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -245,5 +246,54 @@ public class SegmentTest {
     assertTrue(Segment.create()
       .setBeginAtInstant(Instant.parse("2014-09-11T12:17:00.679314Z"))
       .isBefore(Instant.parse("2014-09-11T12:17:29.679314Z")));
+  }
+
+  @Test
+  public void getOutputEncoder() {
+    assertEquals(OutputEncoder.WAV,
+      Segment.create().setOutputEncoderEnum(OutputEncoder.WAV).getOutputEncoder());
+  }
+
+  @Test
+  public void setOutputEncoder() {
+    assertEquals(OutputEncoder.WAV,
+      Segment.create().setOutputEncoder("WAV").getOutputEncoder());
+    assertEquals(OutputEncoder.OGG,
+      Segment.create().setOutputEncoder("OGG").getOutputEncoder());
+    assertEquals(OutputEncoder.AAC,
+      Segment.create().setOutputEncoder("AAC").getOutputEncoder());
+    assertEquals(OutputEncoder.AAC,
+      Segment.create().setOutputEncoder("something else").getOutputEncoder());
+  }
+
+  @Test
+  public void setOutputEncoderEnum() {
+    assertEquals(OutputEncoder.OGG,
+      Segment.create().setOutputEncoderEnum(OutputEncoder.OGG).getOutputEncoder());
+  }
+
+  @Test
+  public void getOutputWaveformKey() {
+    assertEquals("beans-123.wav",
+      Segment.create()
+        .setStorageKey("beans-123")
+        .setOutputEncoder("WAV")
+        .getOutputWaveformKey());
+  }
+
+  @Test
+  public void getOutputMetadataKey() {
+    assertEquals("beans-123.json",
+      Segment.create()
+        .setStorageKey("beans-123")
+        .getOutputMetadataKey());
+  }
+
+  @Test
+  public void getStorageKey() {
+    assertEquals("beans.txt",
+      Segment.create()
+        .setStorageKey("beans")
+        .getStorageKey("txt"));
   }
 }

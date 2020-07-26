@@ -222,7 +222,7 @@ public class DubMasterImpl implements DubMaster {
    */
   private void doMix() throws Exception {
     float quality = Float.parseFloat(fabricator.getChainConfig(ChainConfigType.OutputEncodingQuality).getValue());
-    mixer().mixToFile(OutputEncoder.parse(fabricator.getChainConfig(ChainConfigType.OutputContainer)), fabricator.getOutputFilePath(), quality);
+    mixer().mixToFile(OutputEncoder.parse(fabricator.getChainConfig(ChainConfigType.OutputContainer)), fabricator.getFullQualityAudioOutputFilePath(), quality);
   }
 
   /**

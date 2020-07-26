@@ -2,7 +2,6 @@
 
 package io.xj.service.nexus.work;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
@@ -14,15 +13,12 @@ import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.service.hub.HubApp;
-import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.entity.Account;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.entity.Chain;
 import io.xj.service.nexus.entity.ChainState;
 import io.xj.service.nexus.entity.ChainType;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentState;
 import io.xj.service.nexus.persistence.NexusEntityStore;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
@@ -32,12 +28,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -102,7 +95,7 @@ public class NexusWorkImplTest {
   public void fabricatesSegments() throws Exception {
     Account account1 = store.put(Account.create("palm tree"));
     Chain chain1 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    when(fileStoreProvider.generateKey(String.format("chains-%s-segments", chain1.getId()), "aac"))
+    when(fileStoreProvider.generateKey(String.format("chains-%s-segments", chain1.getId())))
       .thenReturn("chains-1-segments-12345.aac");
     when(workerFactory.boss()).thenReturn(fakeBossWorker);
     when(workerFactory.janitor()).thenReturn(fakeJanitorWorker);

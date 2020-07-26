@@ -119,7 +119,7 @@ public class SegmentEndpointTest {
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
-      .setWaveformKey("chains-1-segments-9f7s89d8a7892.wav");
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav");
     when(segmentDAO.readOne(same(access), eq(segment1.getId()))).thenReturn(segment1);
 
     Response result = subject.readOne(crc, segment1.getId().toString());

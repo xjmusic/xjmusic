@@ -115,7 +115,7 @@ public class InstrumentAudioIT {
       .setPitch(1567.0)
       .setTempo(80.5);
 
-    when(fileStoreProvider.generateKey("instrument-2-audio", "wav"))
+    when(fileStoreProvider.generateKey("instrument-2-audio"))
       .thenReturn("instrument-2-audio-h2a34j5s34fd987gaw3.wav");
 
     InstrumentAudio result = testDAO.create(hubAccess, inputData);
@@ -154,12 +154,12 @@ public class InstrumentAudioIT {
       .setLength(0.21)
       .setPitch(1567.0)
       .setTempo(80.5);
-    when(fileStoreProvider.generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav"))
+    when(fileStoreProvider.generateKey("instrument-" + fake.instrument202.getId() + "-audio"))
       .thenReturn("instrument-2-audio-h2a34j5s34fd987gaw3.wav");
 
     InstrumentAudio result = testDAO.create(hubAccess, inputData);
 
-    verify(fileStoreProvider).generateKey("instrument-" + fake.instrument202.getId() + "-audio", "wav");
+    verify(fileStoreProvider).generateKey("instrument-" + fake.instrument202.getId() + "-audio");
     assertEquals("instrument-2-audio-h2a34j5s34fd987gaw3.wav", result.getWaveformKey());
   }
 
@@ -367,7 +367,7 @@ public class InstrumentAudioIT {
 
   // future test: AudioDAO cannot delete record unless user has account access
 
-  // future test: AudioDAO cannot write to WaveformKey value on of or update- ONLY updated by generating an upload policy
+  // future test: AudioDAO cannot write to Waveform Key value on of or update- ONLY updated by generating an upload policy
 
 
 /*

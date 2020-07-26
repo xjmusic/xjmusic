@@ -36,6 +36,7 @@ public class DubShipImpl implements DubShip {
     SegmentType type = null;
     try {
       type = fabricator.getType();
+      shipFinalMetadata();
       shipFinalAudio();
       report();
 
@@ -48,14 +49,22 @@ public class DubShipImpl implements DubShip {
 
   /**
    DubShip the final audio
-
-   @throws Exception on failure
    */
   private void shipFinalAudio() throws FabricationException, FileStoreException {
-    fileStoreProvider.putS3Object(
-      fabricator.getOutputFilePath(),
+    fileStoreProvider.putS3ObjectFromTempFile(
+      fabricator.getFullQualityAudioOutputFilePath(),
       segmentFileBucket,
-      fabricator.getSegment().getWaveformKey());
+      fabricator.getSegment().getOutputWaveformKey());
+  }
+
+  /**
+   DubShip the final metadata
+   */
+  private void shipFinalMetadata() throws FabricationException, FileStoreException {
+    fileStoreProvider.putS3ObjectFromString(
+      fabricator.getResultMetadata(),
+      segmentFileBucket,
+      fabricator.getSegment().getOutputMetadataKey());
   }
 
   /**

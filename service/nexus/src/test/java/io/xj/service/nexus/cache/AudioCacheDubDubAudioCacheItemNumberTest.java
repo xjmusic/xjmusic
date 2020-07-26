@@ -16,11 +16,11 @@ public class AudioCacheDubDubAudioCacheItemNumberTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
   }
 
   @Test
-  public void next() throws Exception {
+  public void next() {
     assertThat(AudioCacheItemNumber.next(), is(1));
     assertThat(AudioCacheItemNumber.next(), is(2));
     assertThat(AudioCacheItemNumber.next(), is(3));

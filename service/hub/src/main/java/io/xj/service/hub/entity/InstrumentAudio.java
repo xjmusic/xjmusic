@@ -12,8 +12,6 @@ import java.util.UUID;
  [#166708597] Audio model handles all of its own entities
  */
 public class InstrumentAudio extends Entity {
-
-
   private String waveformKey;
   private String name;
   private Double start;
@@ -143,9 +141,9 @@ public class InstrumentAudio extends Entity {
   }
 
   /**
-   Get WaveformKey
+   Get Waveform Key
 
-   @return WaveformKey
+   @return Waveform Key
    */
   public String getWaveformKey() {
     return waveformKey;
@@ -218,7 +216,7 @@ public class InstrumentAudio extends Entity {
   }
 
   /**
-   Set WaveformKey
+   Set Waveform Key
 
    @param waveformKey to set
    @return this Audio (for chaining setters)

@@ -284,11 +284,11 @@ public interface Fabricator {
   AudioFormat getOutputAudioFormat() throws FabricationException;
 
   /**
-   Output file path
+   Output file path for a High-quality Audio output file
 
-   @return output file path
+   @return High-quality Audio output file path
    */
-  String getOutputFilePath() throws FabricationException;
+  String getFullQualityAudioOutputFilePath() throws FabricationException;
 
   /**
    Pitch for any Note, in Hz
@@ -499,4 +499,11 @@ public interface Fabricator {
    @throws FabricationException on failure
    */
   Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(ProgramSequence sequence, ProgramVoice voice, ProgramSequencePatternType patternType) throws FabricationException;
+
+  /**
+   Get a JSON:API payload of the entire result of Segment Fabrication
+
+   @return JSON:API payload of the entire result of Segment Fabrication
+   */
+  String getResultMetadata() throws FabricationException;
 }
