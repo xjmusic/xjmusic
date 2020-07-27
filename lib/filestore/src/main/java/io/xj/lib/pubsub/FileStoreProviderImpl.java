@@ -9,7 +9,6 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,25 +19,19 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-/**
- Implementation of Amazon S3 provider
- <p>
- Singleton to instantiate the client only once per application
- */
-@Singleton
 class FileStoreProviderImpl implements FileStoreProvider {
   private static final Logger log = LoggerFactory.getLogger(FileStoreProviderImpl.class);
   private static final float MICROS_PER_SECOND = 1000000.0F;
   private static final float NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
   private static final String NAME_SEPARATOR = "-";
-  private final AmazonS3 client;
-  private final String audioUploadUrl;
-  private final String awsAccessKeyId;
-  private final String awsSecretKey;
-  private final String audioFileBucket;
-  private final int awsFileUploadExpireMinutes;
-  private final String fileUploadACL;
-  private final int awsS3RetryLimit;
+  private String awsDefaultRegion;
+  private String audioUploadUrl;
+  private String awsAccessKeyId;
+  private String awsSecretKey;
+  private String audioFileBucket;
+  private int awsFileUploadExpireMinutes;
+  private String fileUploadACL;
+  private int awsS3RetryLimit;
 
   @Inject
   public FileStoreProviderImpl(
@@ -47,21 +40,28 @@ class FileStoreProviderImpl implements FileStoreProvider {
     audioUploadUrl = config.getString("audio.uploadUrl");
     audioFileBucket = config.getString("audio.fileBucket");
     awsFileUploadExpireMinutes = config.getInt("aws.uploadExpireMinutes");
-    String awsDefaultRegion = config.getString("aws.defaultRegion");
+    awsDefaultRegion = config.getString("aws.defaultRegion");
     awsAccessKeyId = config.getString("aws.accessKeyID");
     awsSecretKey = config.getString("aws.secretKey");
     fileUploadACL = config.getString("aws.fileUploadACL");
     awsS3RetryLimit = config.getInt("aws.s3retryLimit");
+  }
 
+  /**
+   Get an Amazon S3 client
+
+   @return S3 client
+   */
+  private AmazonS3 s3Client() {
     BasicAWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretKey);
-    client = AmazonS3ClientBuilder.standard()
+    return AmazonS3ClientBuilder.standard()
       .withRegion(awsDefaultRegion)
       .withCredentials(new AWSStaticCredentialsProvider(credentials))
       .build();
   }
 
   @Override
-  public S3UploadPolicy generateAudioUploadPolicy() {
+  public S3UploadPolicy generateAudioUploadPolicy() throws FileStoreException {
     return new S3UploadPolicy(getCredentialId(), getCredentialSecret(), getAudioUploadACL(), getAudioBucketName(), "", getAudioUploadExpireInMinutes());
   }
 
@@ -71,22 +71,22 @@ class FileStoreProviderImpl implements FileStoreProvider {
   }
 
   @Override
-  public String getUploadURL() {
+  public String getUploadURL() throws FileStoreException {
     return audioUploadUrl;
   }
 
   @Override
-  public String getCredentialId() {
+  public String getCredentialId() throws FileStoreException {
     return awsAccessKeyId;
   }
 
   @Override
-  public String getCredentialSecret() {
+  public String getCredentialSecret() throws FileStoreException {
     return awsSecretKey;
   }
 
   @Override
-  public String getAudioBucketName() {
+  public String getAudioBucketName() throws FileStoreException {
     return audioFileBucket;
   }
 
@@ -102,15 +102,17 @@ class FileStoreProviderImpl implements FileStoreProvider {
 
   @Override
   public InputStream streamS3Object(String bucketName, String key) throws FileStoreException {
+    AmazonS3 client = s3Client();
     GetObjectRequest request = new GetObjectRequest(bucketName, key);
     int count = 0;
+    int maxTries = awsS3RetryLimit;
     while (true) {
       try {
         return client.getObject(request).getObjectContent();
 
       } catch (Exception e) {
         ++count;
-        if (count == awsS3RetryLimit)
+        if (count == maxTries)
           throw new FileStoreException("Failed to stream S3 object", e);
       }
     }
@@ -121,7 +123,7 @@ class FileStoreProviderImpl implements FileStoreProvider {
     try {
       long startedAt = System.nanoTime();
       log.info("Will ship {} to {}/{}", filePath, bucket, key);
-      client.putObject(new PutObjectRequest(
+      s3Client().putObject(new PutObjectRequest(
         bucket, key, new File(filePath)));
       log.info("Did ship {} to {}/{} OK in {}s", filePath, bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
@@ -137,7 +139,7 @@ class FileStoreProviderImpl implements FileStoreProvider {
       log.info("Will ship {} bytes of content to {}/{}", content.length(), bucket, key);
       ObjectMetadata metadata = new ObjectMetadata();
       metadata.setContentLength(content.length());
-      client.putObject(new PutObjectRequest(bucket, key, new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), metadata));
+      s3Client().putObject(new PutObjectRequest(bucket, key, new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), metadata));
       log.info("Did ship {} bytes to {}/{} OK in {}s", content.length(), bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
     } catch (Exception e) {
@@ -148,7 +150,7 @@ class FileStoreProviderImpl implements FileStoreProvider {
   @Override
   public void deleteS3Object(String bucket, String key) throws FileStoreException {
     try {
-      client.deleteObject(bucket, key);
+      s3Client().deleteObject(bucket, key);
 
     } catch (Exception e) {
       throw new FileStoreException("Failed to delete S3 object", e);
@@ -158,7 +160,7 @@ class FileStoreProviderImpl implements FileStoreProvider {
   @Override
   public void copyS3Object(String sourceBucket, String sourceKey, String targetBucket, String targetKey) throws FileStoreException {
     try {
-      client.copyObject(sourceBucket, sourceKey, targetBucket, targetKey);
+      s3Client().copyObject(sourceBucket, sourceKey, targetBucket, targetKey);
 
     } catch (Exception e) {
       throw new FileStoreException("Failed to revived S3 object", e);
