@@ -33,13 +33,13 @@ import io.xj.service.nexus.persistence.NexusEntityStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  <p>
  Core directive here is to keep business logic CENTRAL ("oneness")
  <p>
- All variants on an update resolve (after recordUpdateFirstStep transformation,
+ All variants on an update resolve (afterafter recordUpdateFirstStep transformation,
  or additional validation) to one singular central update(fieldValues)
  <p>
  Also note buildNextSegmentOrComplete(...) is one singular central implementation
@@ -59,6 +59,10 @@ import java.util.stream.Collectors;
 @Singleton
 public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
+  private static final Set<ChainState> NOTIFY_ON_CHAIN_STATES = ImmutableSet.of(
+    ChainState.Fabricate,
+    ChainState.Failed
+  );
   private final int chainReviveThresholdStartSeconds;
   private final ChainConfigDAO chainConfigDAO;
   private final ChainBindingDAO chainBindingDAO;
@@ -66,12 +70,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   private final SegmentDAO segmentDAO;
   private final int previewLengthMaxSeconds;
   private final PubSubProvider pubsub;
-
-  /**
-   Optional-- when null, no notifications are sent (as in testing)
-   */
-  @Nullable
-  private final String notificationTopicArn;
 
   @Inject
   public ChainDAOImpl(
@@ -81,7 +79,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     SegmentDAO segmentDAO,
     ChainConfigDAO chainConfigDAO,
     ChainBindingDAO chainBindingDAO,
-    PubSubProvider pubSubProvider) {
+    PubSubProvider pubSubProvider
+  ) {
     super(entityFactory, nexusEntityStore);
     this.segmentDAO = segmentDAO;
     this.pubsub = pubSubProvider;
@@ -89,8 +88,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     previewLengthMaxSeconds = config.getInt("chain.previewLengthMaxSeconds");
     chainReviveThresholdHeadSeconds = config.getInt("chain.reviveThresholdHeadSeconds");
     chainReviveThresholdStartSeconds = config.getInt("chain.reviveThresholdStartSeconds");
-    notificationTopicArn = config.hasPath("aws.chainFabricationTopicArn") ?
-      config.getString("aws.chainFabricationTopicArn") : null;
     this.chainConfigDAO = chainConfigDAO;
     this.chainBindingDAO = chainBindingDAO;
   }
@@ -211,6 +208,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
           if (!segmentDAO.readMany(access, ImmutableList.of(chain.getId())).isEmpty())
             throw new DAOValidationException("cannot change chain startAt time after it has segments");
 
+      // Commit changes
       store.put(chain);
 
     } catch (ValueException e) {
@@ -231,8 +229,15 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       // update to chain state only
       chain.setStateEnum(state);
 
+      // all standard before-update tests
       beforeUpdate(access, chain, fromState);
+
+      // commit changes and publish notification
       store.put(chain);
+      if (NOTIFY_ON_CHAIN_STATES.contains(chain.getState())) {
+        log.info("Updated Chain {} to state {}", chain.getId(), chain.getState());
+        pubsub.publish(String.format("Updated Chain %s to state %s", chain.getId(), chain.getState()), MessageType.Info.toString());
+      }
 
     } catch (NexusEntityStoreException e) {
       throw new DAOFatalException(e);
@@ -361,7 +366,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     // publish a notification reporting the event
     log.info("Revived Chain created {} from prior {}}", created.getId(), priorChain.getId());
-    notify(String.format("Revived Chain created %s create from prior %s", created.getId(), priorChain.getId()), MessageType.Info.toString());
+    pubsub.publish(String.format("Revived Chain created %s create from prior %s", created.getId(), priorChain.getId()), MessageType.Info.toString());
 
     // return newly created chain
     return created;
@@ -424,17 +429,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       } catch (DAOExistenceException ignored) {
         // OK if no other chain exists with this embed key
       }
-  }
-
-  /**
-   Publish a notification if the notifcations topic is set
-
-   @param message to publish
-   @param subject so publish with
-   */
-  private void notify(String message, String subject) {
-    if (Objects.nonNull(notificationTopicArn))
-      pubsub.publish(notificationTopicArn, message, subject);
   }
 
   /**

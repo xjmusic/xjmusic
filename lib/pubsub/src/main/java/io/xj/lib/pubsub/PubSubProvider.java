@@ -11,12 +11,11 @@ public interface PubSubProvider {
 
   /**
    Publish a message on Amazon SNS
-   [#173968289] Messages that result from Chain fabrication are persisted
-
-   @param topicArn topic on which to publish message
-   @param message  to publish
+   [#173968289] Messages that result from Chain fabrication are persisted@param message  to publish
    @param subject  of message
+
+
    */
-  void publish(String topicArn, String message, String subject);
+  void publish(String message, String subject);
 
 }
