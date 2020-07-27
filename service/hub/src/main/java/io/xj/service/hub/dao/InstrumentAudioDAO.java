@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.dao;
 
-import io.xj.lib.filestore.FileStoreException;
+import io.xj.lib.pubsub.FileStoreException;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.entity.InstrumentAudio;
 

@@ -9,6 +9,8 @@ import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.MessageType;
+import io.xj.lib.pubsub.PubSubProvider;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
@@ -31,6 +33,7 @@ import io.xj.service.nexus.persistence.NexusEntityStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
@@ -62,6 +65,13 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   private final int chainReviveThresholdHeadSeconds;
   private final SegmentDAO segmentDAO;
   private final int previewLengthMaxSeconds;
+  private final PubSubProvider pubsub;
+
+  /**
+   Optional-- when null, no notifications are sent (as in testing)
+   */
+  @Nullable
+  private final String notificationTopicArn;
 
   @Inject
   public ChainDAOImpl(
@@ -70,14 +80,17 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     Config config,
     SegmentDAO segmentDAO,
     ChainConfigDAO chainConfigDAO,
-    ChainBindingDAO chainBindingDAO
-  ) {
+    ChainBindingDAO chainBindingDAO,
+    PubSubProvider pubSubProvider) {
     super(entityFactory, nexusEntityStore);
     this.segmentDAO = segmentDAO;
+    this.pubsub = pubSubProvider;
 
     previewLengthMaxSeconds = config.getInt("chain.previewLengthMaxSeconds");
     chainReviveThresholdHeadSeconds = config.getInt("chain.reviveThresholdHeadSeconds");
     chainReviveThresholdStartSeconds = config.getInt("chain.reviveThresholdStartSeconds");
+    notificationTopicArn = config.hasPath("aws.chainFabricationTopicArn") ?
+      config.getString("aws.chainFabricationTopicArn") : null;
     this.chainConfigDAO = chainConfigDAO;
     this.chainBindingDAO = chainBindingDAO;
   }
@@ -346,20 +359,16 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     updateState(access, created.getId(), ChainState.Fabricate);
     created.setStateEnum(ChainState.Fabricate);
 
-/*
-FUTURE determine for real messages to send about reviving a chain
-    // of a platform message reporting the event
-    platformMessageDAO.create(HubClientAccess.internal(), new PlatformMessage()
-      .setType(MessageType.Warning.toString())
-      .setBody(String.format("Revived Chain #%s create prior Chain #%s", createdChain.getId(), priorChain.getId())));
-*/
+    // publish a notification reporting the event
+    log.info("Revived Chain created {} from prior {}}", created.getId(), priorChain.getId());
+    notify(String.format("Revived Chain created %s create from prior %s", created.getId(), priorChain.getId()), MessageType.Info.toString());
 
     // return newly created chain
     return created;
   }
 
   @Override
-  public Collection<Chain> checkAndReviveAll(HubClientAccess access) throws DAOFatalException, DAOPrivilegeException {
+  public Collection<Chain> checkAndReviveAll(HubClientAccess access) throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     requireTopLevel(access);
 
     Collection<Chain> outcome = Lists.newArrayList();
@@ -372,25 +381,30 @@ FUTURE determine for real messages to send about reviving a chain
       .filter((chain) -> chain.isProductionStartedBefore(thresholdChainStartAt))
       .forEach(chain -> {
         try {
-          if (segmentDAO.readMany(access, ImmutableList.of(chain.getId())).stream()
-            .noneMatch(segment -> segment.isDubbedEndingAfter(thresholdChainHeadAt)))
+          if (store.getAll(Segment.class, Chain.class, ImmutableSet.of(chain.getId())).stream()
+            .noneMatch(segment -> segment.isDubbedEndingAfter(thresholdChainHeadAt))) {
+            log.warn("Found stalled Chain {} with no Segments Dubbed ending after {}", chain.getId(), thresholdChainHeadAt);
             stalledChainIds.add(chain.getId());
-        } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException e) {
+          }
+        } catch (NexusEntityStoreException e) {
           log.warn("Failure while checking for Chains to revive!", e);
         }
       });
 
     // revive all stalled chains
-    stalledChainIds
-      .forEach(chainId -> {
-        try {
-          outcome.add(revive(access, chainId));
-        } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException | DAOValidationException e) {
-          log.warn("Failure while reviving Chain!", e);
-        }
-      });
+    for (UUID chainId : stalledChainIds)
+      outcome.add(revive(access, chainId));
 
     return outcome;
+  }
+
+  @Override
+  public Chain newInstance() {
+    try {
+      return entityFactory.getInstance(Chain.class);
+    } catch (EntityException ignored) {
+      return new Chain();
+    }
   }
 
   /**
@@ -410,6 +424,17 @@ FUTURE determine for real messages to send about reviving a chain
       } catch (DAOExistenceException ignored) {
         // OK if no other chain exists with this embed key
       }
+  }
+
+  /**
+   Publish a notification if the notifcations topic is set
+
+   @param message to publish
+   @param subject so publish with
+   */
+  private void notify(String message, String subject) {
+    if (Objects.nonNull(notificationTopicArn))
+      pubsub.publish(notificationTopicArn, message, subject);
   }
 
   /**
@@ -504,14 +529,5 @@ FUTURE determine for real messages to send about reviving a chain
     }
     throw new DAOPrivilegeException(String.format("transition to %s not in allowed (%s)",
       toState, CSV.join(allowedStateNames)));
-  }
-
-  @Override
-  public Chain newInstance() {
-    try {
-      return entityFactory.getInstance(Chain.class);
-    } catch (EntityException ignored) {
-      return new Chain();
-    }
   }
 }

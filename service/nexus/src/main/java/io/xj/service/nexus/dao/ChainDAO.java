@@ -93,5 +93,5 @@ public interface ChainDAO extends DAO<Chain> {
    @param access control
    @return collection of chains (if any) which were revived of stale chains.
    */
-  Collection<Chain> checkAndReviveAll(HubClientAccess access) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException;
+  Collection<Chain> checkAndReviveAll(HubClientAccess access) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
 }

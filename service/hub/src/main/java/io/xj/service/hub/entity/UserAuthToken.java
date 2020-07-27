@@ -31,9 +31,9 @@ public class UserAuthToken extends Entity {
   }
 
   /**
-   Creaet a new Platform Message
+   Create a new UserAuthToken
 
-   @return new Platform Message
+   @return new UserAuthToken
    */
   public static UserAuthToken create() {
     return (UserAuthToken) new UserAuthToken().setId(UUID.randomUUID());

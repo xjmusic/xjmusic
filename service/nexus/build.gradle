@@ -22,6 +22,7 @@ dependencies {
   implementation project(':lib:app')
   implementation project(':lib:entity')
   implementation project(':lib:filestore')
+  implementation project(':lib:pubsub')
   implementation project(':lib:mixer')
   implementation project(':lib:music')
   implementation project(':lib:jsonapi')

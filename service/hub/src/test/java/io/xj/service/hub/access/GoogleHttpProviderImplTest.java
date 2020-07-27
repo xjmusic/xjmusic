@@ -9,7 +9,7 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.pubsub.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.dao.DAOModule;

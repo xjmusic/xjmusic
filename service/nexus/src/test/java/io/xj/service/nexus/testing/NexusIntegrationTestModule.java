@@ -2,7 +2,7 @@
 package io.xj.service.nexus.testing;
 
 import com.google.inject.AbstractModule;
-import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.pubsub.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.client.HubClientModule;

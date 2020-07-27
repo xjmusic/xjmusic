@@ -1,13 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.filestore;
+package io.xj.lib.pubsub;
 
 import java.io.InputStream;
 
 /**
- Requires these System Properties to be set:
- audio.url.upload
- aws.accessKeyId
- aws.secretKey
+ Requires these typesafe configurations to be set:
+ - aws.defaultRegion
+ - aws.accessKeyID
+ - aws.secretKey
  */
 public interface FileStoreProvider {
 

@@ -15,7 +15,7 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.pubsub.FileStoreModule;
 import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
