@@ -397,8 +397,11 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       });
 
     // revive all stalled chains
-    for (UUID chainId : stalledChainIds)
-      outcome.add(revive(access, chainId));
+    for (UUID stalledChainId : stalledChainIds) {
+      outcome.add(revive(access, stalledChainId));
+      // [#173968355] Nexus deletes entire chain when no current segments are left.
+      destroy(access, stalledChainId);
+    }
 
     return outcome;
   }
