@@ -57,7 +57,6 @@ public class ProgramSequenceEndpoint extends HubEndpoint {
     @Context ContainerRequestContext crc,
     @QueryParam("cloneId") String cloneId
   ) {
-
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
       ProgramSequence programSequence = payloadFactory.consume(dao().newInstance(), payload);

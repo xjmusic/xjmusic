@@ -44,9 +44,6 @@ public class ProgramSequencePatternIT {
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
 
-  private ProgramSequencePattern sequencePattern1a_0;
-  private ProgramSequencePatternEvent sequencePattern1a_0_event0;
-  private ProgramSequencePatternEvent sequencePattern1a_0_event1;
   private Injector injector;
   private ProgramVoice programVoice3;
 
@@ -77,9 +74,9 @@ public class ProgramSequencePatternIT {
     fake.program1_sequence1 = test.insert(ProgramSequence.create(fake.program1, 4, "Ants", 0.583, "D minor", 120.0));
     ProgramVoice programVoice1 = test.insert(ProgramVoice.create(fake.program1, InstrumentType.Percussive, "Drums"));
     ProgramVoiceTrack programVoiceTrack1 = test.insert(ProgramVoiceTrack.create(programVoice1, "KICK"));
-    sequencePattern1a_0 = test.insert(ProgramSequencePattern.create(fake.program1_sequence1, programVoice1, ProgramSequencePatternType.Loop, 4, "Beat"));
-    sequencePattern1a_0_event0 = test.insert(ProgramSequencePatternEvent.create(sequencePattern1a_0, programVoiceTrack1, 0, 1, "X", 1));
-    sequencePattern1a_0_event1 = test.insert(ProgramSequencePatternEvent.create(sequencePattern1a_0, programVoiceTrack1, 1, 1, "X", 1));
+    fake.program2_sequence1_pattern1 = test.insert(ProgramSequencePattern.create(fake.program1_sequence1, programVoice1, ProgramSequencePatternType.Loop, 4, "Beat"));
+    fake.program2_sequence1_pattern1_event0 = test.insert(ProgramSequencePatternEvent.create(fake.program2_sequence1_pattern1, programVoiceTrack1, 0, 1, "X", 1));
+    fake.program2_sequence1_pattern1_event1 = test.insert(ProgramSequencePatternEvent.create(fake.program2_sequence1_pattern1, programVoiceTrack1, 1, 1, "X", 1));
     fake.program2 = test.insert(Program.create(fake.user3, fake.library1, ProgramType.Rhythm, ProgramState.Published, "Ants", "C#", 120.0, 0.6));
     test.insert(ProgramVoice.create(fake.program2, InstrumentType.Percussive, "Drums"));
 
@@ -121,6 +118,31 @@ public class ProgramSequencePatternIT {
   }
 
   /**
+   [#171617769] Artist editing Program clones a pattern
+   [#173912361] Hub API create pattern cloning existing pattern
+   */
+  @Test
+  public void cloneExisting() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    ProgramSequencePattern subject = ProgramSequencePattern.create()
+      .setType("Loop")
+      .setTotal(4)
+      .setProgramId(fake.program3.getId())
+      .setProgramVoiceId(programVoice3.getId())
+      .setProgramSequenceId(fake.program3_sequence1.getId())
+      .setName("Beat");
+
+    DAOCloner<ProgramSequencePattern> result = testDAO.clone(hubAccess, fake.program2_sequence1_pattern1.getId(), subject);
+
+    assertNotNull(result);
+    assertEquals(ProgramSequencePatternType.Loop, result.getClone().getType());
+    assertEquals(2, result.getChildClones().size());
+    assertEquals(2, injector.getInstance(ProgramSequencePatternEventDAO.class)
+      .readMany(HubAccess.internal(), ImmutableSet.of(result.getClone().getId()))
+      .size());
+  }
+
+  /**
    [#156144567] Artist expects to of a Main-type programSequencePattern without crashing the entire platform
    NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
@@ -147,10 +169,10 @@ public class ProgramSequencePatternIT {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    ProgramSequencePattern result = testDAO.readOne(hubAccess, sequencePattern1a_0.getId());
+    ProgramSequencePattern result = testDAO.readOne(hubAccess, fake.program2_sequence1_pattern1.getId());
 
     assertNotNull(result);
-    assertEquals(sequencePattern1a_0.getId(), result.getId());
+    assertEquals(fake.program2_sequence1_pattern1.getId(), result.getId());
     assertEquals(fake.program1.getId(), result.getProgramId());
     assertEquals("Beat", result.getName());
   }
@@ -161,7 +183,7 @@ public class ProgramSequencePatternIT {
     failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.readOne(hubAccess, sequencePattern1a_0.getId());
+    testDAO.readOne(hubAccess, fake.program2_sequence1_pattern1.getId());
   }
 
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
@@ -193,21 +215,21 @@ public class ProgramSequencePatternIT {
   public void destroy_okWithChildEntities() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
 
-    testDAO.destroy(hubAccess, sequencePattern1a_0.getId());
+    testDAO.destroy(hubAccess, fake.program2_sequence1_pattern1.getId());
   }
 
 
   @Test
   public void destroy_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), sequencePattern1a_0_event0.getId());
-    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), sequencePattern1a_0_event1.getId());
+    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event0.getId());
+    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event1.getId());
 
-    testDAO.destroy(hubAccess, sequencePattern1a_0.getId());
+    testDAO.destroy(hubAccess, fake.program2_sequence1_pattern1.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_PATTERN)
-      .where(PROGRAM_SEQUENCE_PATTERN.ID.eq(sequencePattern1a_0.getId()))
+      .where(PROGRAM_SEQUENCE_PATTERN.ID.eq(fake.program2_sequence1_pattern1.getId()))
       .fetchOne(0, int.class));
   }
 
@@ -215,13 +237,13 @@ public class ProgramSequencePatternIT {
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = Account.create();
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
-    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), sequencePattern1a_0_event0.getId());
-    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), sequencePattern1a_0_event1.getId());
+    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event0.getId());
+    injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event1.getId());
 
     failure.expect(DAOException.class);
     failure.expectMessage("Sequence Pattern in Program in Account you have hubAccess to does not exist");
 
-    testDAO.destroy(hubAccess, sequencePattern1a_0.getId());
+    testDAO.destroy(hubAccess, fake.program2_sequence1_pattern1.getId());
   }
 
 }

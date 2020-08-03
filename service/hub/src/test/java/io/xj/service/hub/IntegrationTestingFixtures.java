@@ -91,13 +91,15 @@ public class IntegrationTestingFixtures {
   public ProgramMeme programMeme35;
   public ProgramMeme programMeme3;
   public ProgramSequence program1_sequence1;
-  public ProgramSequence programSequence35;
   public ProgramSequence program3_sequence1;
+  public ProgramSequence programSequence35;
   public ProgramSequenceBinding program15_binding0;
   public ProgramSequenceBinding program15_binding1;
   public ProgramSequenceBinding program3_binding0;
   public ProgramSequenceBinding program3_binding1;
   public ProgramSequencePattern program2_sequence1_pattern1;
+  public ProgramSequencePatternEvent program2_sequence1_pattern1_event0;
+  public ProgramSequencePatternEvent program2_sequence1_pattern1_event1;
   public ProgramSequencePatternEvent program702_pattern901_boomEvent;
   public ProgramVoice program2_voice1;
   public ProgramVoiceTrack program2_voice1_track0;

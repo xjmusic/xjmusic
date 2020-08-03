@@ -56,7 +56,7 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
       if (Objects.isNull(from))
         throw new DAOException("Can't clone nonexistent ProgramSequence");
 
-      // Inherits state, type if none specified
+      // Inherits attributes if none specified
       if (Objects.isNull(entity.getTotal())) entity.setTotal(from.getTotal());
       if (Objects.isNull(entity.getName())) entity.setName(from.getName());
       if (Objects.isNull(entity.getTempo())) entity.setTempo(from.getTempo());
@@ -103,7 +103,6 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
     });
     return cloner.get();
   }
-
 
   @Override
   @Nullable
