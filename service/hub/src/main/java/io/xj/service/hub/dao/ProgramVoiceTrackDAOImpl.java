@@ -57,7 +57,6 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
           .where(PROGRAM_VOICE_TRACK.ID.eq(id))
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne());
-
   }
 
   @Override
@@ -68,6 +67,7 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
       return modelsFrom(ProgramVoiceTrack.class,
         dbProvider.getDSL().selectFrom(PROGRAM_VOICE_TRACK)
           .where(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID.in(parentIds))
+          .orderBy(PROGRAM_VOICE_TRACK.ORDER.asc())
           .fetch());
     else
       return modelsFrom(ProgramVoiceTrack.class,
@@ -77,6 +77,7 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
           .where(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID.in(parentIds))
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .orderBy(PROGRAM_VOICE_TRACK.ORDER.asc())
           .fetch());
   }
 

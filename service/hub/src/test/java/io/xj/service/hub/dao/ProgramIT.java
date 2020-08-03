@@ -79,8 +79,8 @@ public class ProgramIT {
     // Library "palm tree" has program "fonds" and program "nuts"
     fake.library1 = test.insert(Library.create(fake.account1, "palm tree", Instant.now()));
     fake.program1 = test.insert(Program.create(fake.user3, fake.library1, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6));
-    fake.programSequence1 = test.insert(ProgramSequence.create(fake.program1, 4, "Ants", 0.583, "D minor", 120.0));
-    sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.create(fake.programSequence1, 0));
+    fake.program1_sequence1 = test.insert(ProgramSequence.create(fake.program1, 4, "Ants", 0.583, "D minor", 120.0));
+    sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.create(fake.program1_sequence1, 0));
     test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "chunk"));
     test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "smooth"));
     fake.program2 = test.insert(Program.create(fake.user3, fake.library1, ProgramType.Rhythm, ProgramState.Published, "nuts", "C#", 120.0, 0.6));
@@ -88,8 +88,8 @@ public class ProgramIT {
     // Library "boat" has program "helm" and program "sail"
     fake.library2 = test.insert(Library.create(fake.account1, "boat", Instant.now()));
     fake.program3 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0, 0.6));
-    fake.programSequence3 = test.insert(ProgramSequence.create(fake.program3, 16, "Ants", 0.583, "D minor", 120.0));
-    test.insert(ProgramSequenceBinding.create(fake.programSequence3, 0));
+    fake.program3_sequence1 = test.insert(ProgramSequence.create(fake.program3, 16, "Ants", 0.583, "D minor", 120.0));
+    test.insert(ProgramSequenceBinding.create(fake.program3_sequence1, 0));
     fake.program4 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0, 0.6));
 
     // Instantiate the test subject
@@ -165,8 +165,8 @@ public class ProgramIT {
     test.insert(ProgramMeme.create(fake.program1, "cinnamon"));
     ProgramVoice voice = test.insert(ProgramVoice.create(fake.program1, InstrumentType.Percussive, "drums"));
     ProgramVoiceTrack track = test.insert(ProgramVoiceTrack.create(voice, "Kick"));
-    test.insert(ProgramSequenceChord.create(fake.programSequence1, 0, "D"));
-    ProgramSequencePattern pattern = test.insert(ProgramSequencePattern.create(fake.programSequence1, voice, ProgramSequencePatternType.Loop, 8, "jam"));
+    test.insert(ProgramSequenceChord.create(fake.program1_sequence1, 0, "D"));
+    ProgramSequencePattern pattern = test.insert(ProgramSequencePattern.create(fake.program1_sequence1, voice, ProgramSequencePatternType.Loop, 8, "jam"));
     test.insert(ProgramSequencePatternEvent.create(pattern, track, 0, 1, "C", 1));
 
     DAOCloner<Program> resultCloner = testDAO.clone(hubAccess, fake.program1.getId(), inputData);

@@ -71,7 +71,7 @@ public class ProgramMemeIT {
     fake.program1 = test.insert(Program.create(fake.user3, fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0, 0.6));
     fake.programMeme1 = test.insert(ProgramMeme.create(fake.program1, "ANTS"));
     fake.program2 = test.insert(Program.create(fake.user3, fake.library1, ProgramType.Rhythm, ProgramState.Published, "ANTS", "C#", 120.0, 0.6));
-    fake.programVoice3 = test.insert(ProgramVoice.create(fake.program2, InstrumentType.Percussive, "Drums"));
+    fake.program2_voice1 = test.insert(ProgramVoice.create(fake.program2, InstrumentType.Percussive, "Drums"));
 
     // Library "boat" has program "helm" and program "sail"
     fake.library2 = test.insert(Library.create(fake.account1, "boat", Instant.now()));

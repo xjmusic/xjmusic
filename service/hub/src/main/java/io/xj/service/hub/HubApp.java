@@ -257,6 +257,7 @@ public class HubApp extends App {
       .createdBy(ProgramVoice::new)
       .withAttribute("type")
       .withAttribute("name")
+      .withAttribute("order")
       .belongsTo(Program.class)
       .hasMany(ProgramSequencePattern.class);
 
@@ -264,6 +265,7 @@ public class HubApp extends App {
     entityFactory.register(ProgramVoiceTrack.class)
       .createdBy(ProgramVoiceTrack::new)
       .withAttribute("name")
+      .withAttribute("order")
       .belongsTo(Program.class)
       .belongsTo(ProgramVoice.class)
       .hasMany(ProgramSequencePatternEvent.class);

@@ -6,6 +6,7 @@ import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -16,11 +17,11 @@ import java.util.UUID;
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class ProgramVoiceTrack extends Entity {
-
-
+  private static final Float DEFAULT_ORDER_VALUE = 1000.0f;
   private UUID programId;
   private UUID programVoiceId;
   private String name;
+  private Float order;
 
   /**
    Create a new Track
@@ -116,9 +117,32 @@ public class ProgramVoiceTrack extends Entity {
     return this;
   }
 
+  /**
+   get the order
+
+   @return order
+   */
+  public Float getOrder() {
+    return order;
+  }
+
+  /**
+   set the order
+
+   @param order to set
+   @return this ProgramVoiceTrack (for chaining methods)
+   */
+  public ProgramVoiceTrack setOrder(Float order) {
+    this.order = order;
+    return this;
+  }
+
+
   @Override
   public void validate() throws ValueException {
     super.validate();
+    if (Objects.isNull(order)) order = DEFAULT_ORDER_VALUE;
+
     Value.require(programId, "Program ID");
     Value.require(programVoiceId, "Voice ID");
     Value.require(name, "Name");

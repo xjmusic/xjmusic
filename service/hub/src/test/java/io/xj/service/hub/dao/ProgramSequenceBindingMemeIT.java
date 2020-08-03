@@ -84,19 +84,18 @@ public class ProgramSequenceBindingMemeIT {
     // Library "palm tree" has program "Ants" and program "Ants"
     fake.library1 = test.insert(Library.create(fake.account1, "palm tree", Instant.now()));
     fake.program1 = test.insert(Program.create(fake.user3, fake.library1, ProgramType.Main, ProgramState.Published, "Ants", "C#", 120.0, 0.6));
-    fake.programSequence1 = test.insert(ProgramSequence.create(fake.program1, 4, "Ants", 0.583, "D minor", 120.0));
-    sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.create(fake.programSequence1, 0));
+    fake.program1_sequence1 = test.insert(ProgramSequence.create(fake.program1, 4, "Ants", 0.583, "D minor", 120.0));
+    sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.create(fake.program1_sequence1, 0));
     sequenceBinding1a_0_meme0 = test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "chunk"));
     ProgramSequenceBindingMeme sequenceBinding1a_0_meme1 = test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "smooth"));
     fake.program2 = test.insert(Program.create(fake.user3, fake.library1, ProgramType.Rhythm, ProgramState.Published, "Ants", "C#", 120.0, 0.6));
-    fake.programVoice3 = test.insert(ProgramVoice.create(fake.program2, InstrumentType.Percussive, "Drums"));
+    fake.program2_voice1 = test.insert(ProgramVoice.create(fake.program2, InstrumentType.Percussive, "Drums"));
 
     // Library "boat" has program "helm" and program "sail"
     fake.library2 = test.insert(Library.create(fake.account1, "boat", Instant.now()));
     fake.program3 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0, 0.6));
-    fake.programSequence3 = test.insert(ProgramSequence.create(fake.program3, 16, "Ants", 0.583, "D minor", 120.0));
-    fake.program3_binding1 = test.insert(ProgramSequenceBinding.create(fake.programSequence1, 0));
-    test.insert(ProgramSequenceBinding.create(fake.programSequence3, 0));
+    fake.program3_sequence1 = test.insert(ProgramSequence.create(fake.program3, 16, "Ants", 0.583, "D minor", 120.0));
+    fake.program3_binding1 = test.insert(ProgramSequenceBinding.create(fake.program3_sequence1, 0));
     fake.program4 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0, 0.6));
 
     // Instantiate the test subject

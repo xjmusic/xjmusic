@@ -3,8 +3,8 @@ package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.entity.ProgramVoice;
@@ -15,7 +15,10 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.service.hub.Tables.*;
+import static io.xj.service.hub.Tables.LIBRARY;
+import static io.xj.service.hub.Tables.PROGRAM;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
+import static io.xj.service.hub.Tables.PROGRAM_VOICE;
 
 public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements ProgramVoiceDAO {
 
@@ -42,20 +45,40 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
   @Nullable
   public ProgramVoice readOne(HubAccess hubAccess, UUID id) throws DAOException {
     requireArtist(hubAccess);
-    return modelFrom(ProgramVoice.class,
-      dbProvider.getDSL().selectFrom(PROGRAM_VOICE)
-        .where(PROGRAM_VOICE.ID.eq(id))
-        .fetchOne());
+    if (hubAccess.isTopLevel())
+      return modelFrom(ProgramVoice.class,
+        dbProvider.getDSL().selectFrom(PROGRAM_VOICE)
+          .where(PROGRAM_VOICE.ID.eq(id))
+          .fetchOne());
+    else
+      return modelFrom(ProgramVoice.class,
+        dbProvider.getDSL().select(PROGRAM_VOICE.fields()).from(PROGRAM_VOICE)
+          .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_VOICE.PROGRAM_ID))
+          .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
+          .where(PROGRAM_VOICE.ID.eq(id))
+          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .fetchOne());
   }
 
   @Override
   @Nullable
   public Collection<ProgramVoice> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
     requireArtist(hubAccess);
-    return modelsFrom(ProgramVoice.class,
-      dbProvider.getDSL().selectFrom(PROGRAM_VOICE)
-        .where(PROGRAM_VOICE.PROGRAM_ID.in(parentIds))
-        .fetch());
+    if (hubAccess.isTopLevel())
+      return modelsFrom(ProgramVoice.class,
+        dbProvider.getDSL().selectFrom(PROGRAM_VOICE)
+          .where(PROGRAM_VOICE.PROGRAM_ID.in(parentIds))
+          .orderBy(PROGRAM_VOICE.ORDER.asc())
+          .fetch());
+    else
+      return modelsFrom(ProgramVoice.class,
+        dbProvider.getDSL().select(PROGRAM_VOICE.fields()).from(PROGRAM_VOICE)
+          .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_VOICE.PROGRAM_ID))
+          .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
+          .where(PROGRAM_VOICE.PROGRAM_ID.in(parentIds))
+          .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+          .orderBy(PROGRAM_VOICE.ORDER.asc())
+          .fetch());
   }
 
   @Override

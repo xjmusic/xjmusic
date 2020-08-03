@@ -5,6 +5,7 @@ import io.xj.lib.entity.Entity;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -18,12 +19,12 @@ import java.util.UUID;
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class ProgramVoice extends Entity {
-
-
+  private static final Float DEFAULT_ORDER_VALUE = 1000.0f;
   private UUID programId;
   private InstrumentType type;
   private String name;
   private Exception typeException;
+  private Float order;
 
   /**
    Create a new voice
@@ -151,9 +152,31 @@ public class ProgramVoice extends Entity {
     return this;
   }
 
+  /**
+   get the order
+
+   @return order
+   */
+  public Float getOrder() {
+    return order;
+  }
+
+  /**
+   set the order
+
+   @param order to set
+   @return this ProgramVoice (for chaining methods)
+   */
+  public ProgramVoice setOrder(Float order) {
+    this.order = order;
+    return this;
+  }
+
   @Override
   public void validate() throws ValueException {
     super.validate();
+    if (Objects.isNull(order)) order = DEFAULT_ORDER_VALUE;
+
     Value.require(programId, "Program ID");
     Value.require(name, "Name");
 
