@@ -198,7 +198,7 @@ To only setup the workflow and check dependencies:
 There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the 
 developer, to obtain keys and fill in the values of your own environment variables, in a new file called **env.conf** 
 which is never checked in to version control or released with the distribution.  Developers modify their local 
-**env.conf** file with private keys and configuration. The **env.conf** file is never committed to the repository, 
+**env.conf** file with private keys and ceonfiguration. The **env.conf** file is never committed to the repository, 
 because it contains secrets. The **env.example.conf** file is kept up-to-date with all environment variables required 
 for the developer to configure.
 
@@ -351,12 +351,9 @@ The `/ops/sql/dump/*` files are generated from data in the production environmen
 
 Therefore, it is helpful to be able to sync the audio files from production into the dev environment.
 
-**Note that this command will become impractical if production grows to any significant size!**
-
-    aws s3 sync s3://xj-prod-audio/ s3://xj-dev-audio/
+     aws sync s3://xj-prod-audio/ s3://xj-dev-audio/
 
 Note that in order to use that command, the source bucket (xj-prod-audio) must grant `s3:ListBucket` and `s3:GetObject` permission, and the target bucket (xj-dev-audio) must grant `s3:ListBucket` and `s3:PutObject` to the IAM user your AWS CLI is authenticated as.
-
 
 ## Library
 
