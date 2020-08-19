@@ -12,13 +12,13 @@ import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.MemeEntity;
-import io.xj.lib.pubsub.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.MusicalException;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.Tuning;
+import io.xj.lib.pubsub.FileStoreProvider;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClient;
@@ -78,7 +78,6 @@ class FabricatorImpl implements Fabricator {
   private final FileStoreProvider fileStoreProvider;
   private final Chain chain;
   private final Collection<ChainConfig> chainConfigs;
-  private final Collection<ChainBinding> chainBindings;
   private final HubContent sourceMaterial;
   private final Logger log = LoggerFactory.getLogger(FabricatorImpl.class);
   private final long startTime;
@@ -138,7 +137,7 @@ class FabricatorImpl implements Fabricator {
       // read the chain, bindings, and configs
       chain = chainDAO.readOne(access, segment.getChainId());
       chainConfigs = chainConfigDAO.readMany(access, ImmutableList.of(chain.getId()));
-      chainBindings = chainBindingDAO.readMany(access, ImmutableList.of(chain.getId()));
+      Collection<ChainBinding> chainBindings = chainBindingDAO.readMany(access, ImmutableList.of(chain.getId()));
       log.info("[segId={}] Chain {}", segment.getId(), chain);
 
       // read the source material
@@ -163,33 +162,33 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public SegmentChoiceArrangement add(SegmentChoiceArrangement arrangement) {
-    return workbench.getSegmentArrangements().add(arrangement);
+  public SegmentChoiceArrangement add(SegmentChoiceArrangement arrangement) throws FabricationException {
+    return workbench.add(arrangement);
   }
 
   @Override
-  public SegmentChoice add(SegmentChoice choice) {
-    return workbench.getSegmentChoices().add(choice);
+  public SegmentChoice add(SegmentChoice choice) throws FabricationException {
+    return workbench.add(choice);
   }
 
   @Override
-  public SegmentChoiceArrangementPick add(SegmentChoiceArrangementPick pick) {
-    return workbench.getSegmentPicks().add(pick);
+  public SegmentChoiceArrangementPick add(SegmentChoiceArrangementPick pick) throws FabricationException {
+    return workbench.add(pick);
   }
 
   @Override
-  public SegmentChord add(SegmentChord segmentChord) {
-    return workbench.getSegmentChords().add(segmentChord);
+  public SegmentChord add(SegmentChord segmentChord) throws FabricationException {
+    return workbench.add(segmentChord);
   }
 
   @Override
-  public SegmentMeme add(SegmentMeme segmentMeme) {
-    return workbench.getSegmentMemes().add(segmentMeme);
+  public SegmentMeme add(SegmentMeme segmentMeme) throws FabricationException {
+    return workbench.add(segmentMeme);
   }
 
   @Override
-  public SegmentMessage add(SegmentMessage segmentMessage) {
-    return workbench.getSegmentMessages().add(segmentMessage);
+  public SegmentMessage add(SegmentMessage segmentMessage) throws FabricationException {
+    return workbench.add(segmentMessage);
   }
 
   @Override
@@ -203,9 +202,9 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<InstrumentAudio> getPickedAudios() {
+  public Collection<InstrumentAudio> getPickedAudios() throws FabricationException {
     Collection<InstrumentAudio> audios = Lists.newArrayList();
-    for (SegmentChoiceArrangementPick pick : workbench.getSegmentPicks().getAll()) {
+    for (SegmentChoiceArrangementPick pick : workbench.getSegmentPicks()) {
       audios.add(sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId()));
     }
     return audios;
@@ -219,11 +218,6 @@ class FabricatorImpl implements Fabricator {
   @Override
   public Collection<ChainConfig> getChainConfigs() {
     return chainConfigs;
-  }
-
-  @Override
-  public Collection<ChainBinding> getChainBindings() {
-    return chainBindings;
   }
 
   @Override
@@ -248,13 +242,13 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Chord getChordAt(int position) {
+  public Chord getChordAt(int position) throws FabricationException {
     // default to returning a chord based on the segment key, if nothing else is found
     String foundChordText = workbench.getSegment().getKey();
     Double foundPosition = null;
 
     // we assume that these entities are in order of position ascending
-    for (SegmentChord segmentChord : workbench.getSegmentChords().getAll()) {
+    for (SegmentChord segmentChord : workbench.getSegmentChords()) {
       // if it's a better match (or no match has yet been found) then use it
       if (Objects.isNull(foundPosition) ||
         segmentChord.getPosition() > foundPosition && segmentChord.getPosition() < position) {
@@ -269,11 +263,6 @@ class FabricatorImpl implements Fabricator {
   @Override
   public SegmentChoice getCurrentMacroChoice() throws FabricationException {
     return workbench.getChoiceOfType(ProgramType.Macro);
-  }
-
-  @Override
-  public ProgramSequence getCurrentMacroSequence() throws FabricationException {
-    return getSequence(getCurrentMacroChoice());
   }
 
   @Override
@@ -312,18 +301,24 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Map<String, Collection<SegmentChoiceArrangement>> getMemeConstellationArrangementsOfPreviousSegments() {
+  public Map<String, Collection<SegmentChoiceArrangement>> getMemeConstellationArrangementsOfPreviousSegments() throws FabricationException {
     Map<String, Collection<SegmentChoiceArrangement>> out = Maps.newHashMap();
-    getMemeConstellationChoicesOfPreviousSegments().forEach((con, previousChoices) -> {
+    for (Map.Entry<String, Collection<SegmentChoice>> entry : getMemeConstellationChoicesOfPreviousSegments().entrySet()) {
+      String con = entry.getKey();
+      Collection<SegmentChoice> previousChoices = entry.getValue();
       if (!out.containsKey(con)) out.put(con, Lists.newArrayList());
 
-      previousChoices.forEach(choice -> retrospective.getArrangements(choice).forEach(arrangement -> out.get(con).add(arrangement)));
-    });
+      for (SegmentChoice choice : previousChoices) {
+        for (SegmentChoiceArrangement arrangement : retrospective.getArrangements(choice)) {
+          out.get(con).add(arrangement);
+        }
+      }
+    }
     return out;
   }
 
   @Override
-  public Map<String, Collection<SegmentChoice>> getMemeConstellationChoicesOfPreviousSegments() {
+  public Map<String, Collection<SegmentChoice>> getMemeConstellationChoicesOfPreviousSegments() throws FabricationException {
     Map<String, Collection<SegmentChoice>> out = Maps.newHashMap();
     for (Segment seg : getPreviousSegmentsWithSameMainProgram()) {
       Isometry iso = MemeIsometry.ofMemes(retrospective.getSegmentMemes(seg));
@@ -335,7 +330,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Map<String, Collection<SegmentChoiceArrangementPick>> getMemeConstellationPicksOfPreviousSegments() {
+  public Map<String, Collection<SegmentChoiceArrangementPick>> getMemeConstellationPicksOfPreviousSegments() throws FabricationException {
     Map<String, Collection<SegmentChoiceArrangementPick>> out = Maps.newHashMap();
     for (Segment seg : getPreviousSegmentsWithSameMainProgram()) {
       Isometry iso = MemeIsometry.ofMemes(retrospective.getSegmentMemes(seg));
@@ -361,8 +356,8 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public MemeIsometry getMemeIsometryOfSegment() {
-    return MemeIsometry.ofMemes(workbench.getSegmentMemes().getAll());
+  public MemeIsometry getMemeIsometryOfSegment() throws FabricationException {
+    return MemeIsometry.ofMemes(workbench.getSegmentMemes());
   }
 
   @Override
@@ -410,7 +405,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getFullQualityAudioOutputFilePath() throws FabricationException {
+  public String getFullQualityAudioOutputFilePath() {
     return String.format("%s%s", workTempFilePathPrefix, getSegment().getOutputWaveformKey());
   }
 
@@ -420,7 +415,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<Segment> getPreviousSegmentsWithSameMainProgram() {
+  public Collection<Segment> getPreviousSegmentsWithSameMainProgram() throws FabricationException {
     return retrospective.getSegments();
   }
 
@@ -571,12 +566,12 @@ class FabricatorImpl implements Fabricator {
     try {
       return entityFactory.serialize(payloadFactory.newPayload()
         .setDataOne(payloadFactory.toPayloadObject(workbench.getSegment()))
-        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentArrangements().getAll()))
-        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChoices().getAll()))
-        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChords().getAll()))
-        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentMemes().getAll()))
-        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentMessages().getAll()))
-        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentPicks().getAll())));
+        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentArrangements()))
+        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChoices()))
+        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChords()))
+        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentMemes()))
+        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentMessages()))
+        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentPicks())));
 
     } catch (JsonApiException | EntityException e) {
       throw new FabricationException(e);
@@ -584,38 +579,28 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangementPick> getSegmentPicks() {
-    return workbench.getSegmentPicks().getAll();
+  public Collection<SegmentChoiceArrangementPick> getSegmentPicks() throws FabricationException {
+    return workbench.getSegmentPicks();
   }
 
   @Override
-  public Collection<SegmentMeme> getSegmentMemes() {
-    return workbench.getSegmentMemes().getAll();
+  public Collection<SegmentMeme> getSegmentMemes() throws FabricationException {
+    return workbench.getSegmentMemes();
   }
 
   @Override
-  public Collection<SegmentChoice> getSegmentChoices() {
-    return workbench.getSegmentChoices().getAll();
+  public Collection<SegmentChoice> getSegmentChoices() throws FabricationException {
+    return workbench.getSegmentChoices();
   }
 
   @Override
-  public Collection<SegmentChoiceArrangement> getSegmentArrangements() {
-    return workbench.getSegmentArrangements().getAll();
+  public Collection<SegmentChoiceArrangement> getSegmentArrangements() throws FabricationException {
+    return workbench.getSegmentArrangements();
   }
 
   @Override
-  public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) {
+  public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) throws FabricationException {
     return getSegmentArrangements().stream().filter(arrangement -> choice.getId().equals(arrangement.getSegmentChoiceId())).collect(Collectors.toList());
-  }
-
-  /**
-   @return the storage key for this segment, or throw an exception if not computable
-   @throws FabricationException on failure to compute
-   */
-  private String storageKeyOrException() throws FabricationException {
-    if (Objects.isNull(workbench.getSegment().getStorageKey()))
-      throw exception("Segment has no storage key!");
-    return workbench.getSegment().getStorageKey();
   }
 
   /**
@@ -826,10 +811,8 @@ class FabricatorImpl implements Fabricator {
 
   /**
    Ensure the current segment has a storage key; if not, add a storage key to this Segment
-
-   @throws FabricationException on failure to ensure generate storage key
    */
-  private void ensureStorageKey() throws FabricationException {
+  private void ensureStorageKey() {
     if (Objects.isNull(workbench.getSegment().getStorageKey()) || workbench.getSegment().getStorageKey().isEmpty()) {
       workbench.getSegment().setStorageKey(generateStorageKey(workbench.getChain(), workbench.getSegment()));
       log.info("[segId={}] Generated storage key {}", workbench.getSegment().getId(), workbench.getSegment().getStorageKey());

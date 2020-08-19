@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
@@ -15,7 +16,6 @@ import io.xj.service.nexus.dao.exception.DAOValidationException;
 import io.xj.service.nexus.entity.Chain;
 import io.xj.service.nexus.entity.ChainConfig;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -58,7 +58,7 @@ public class ChainConfigDAOImpl extends DAOImpl<ChainConfig> implements ChainCon
     } catch (ValueException e) {
       throw new DAOValidationException(e);
 
-    } catch (NexusEntityStoreException e) {
+    } catch (EntityStoreException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -71,7 +71,7 @@ public class ChainConfigDAOImpl extends DAOImpl<ChainConfig> implements ChainCon
       requireChainAccountRole(access, chainConfig);
       return chainConfig;
 
-    } catch (NexusEntityStoreException e) {
+    } catch (EntityStoreException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -82,7 +82,7 @@ public class ChainConfigDAOImpl extends DAOImpl<ChainConfig> implements ChainCon
       for (UUID chainId : chainIds) requireChainAccountRole(access, chainId);
       return store.getAll(ChainConfig.class, Chain.class, chainIds);
 
-    } catch (NexusEntityStoreException | DAOExistenceException e) {
+    } catch (EntityStoreException | DAOExistenceException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -100,7 +100,7 @@ public class ChainConfigDAOImpl extends DAOImpl<ChainConfig> implements ChainCon
       requireChainAccountRole(access, chainConfig);
       store.delete(ChainConfig.class, id);
 
-    } catch (NexusEntityStoreException e) {
+    } catch (EntityStoreException e) {
       throw new DAOFatalException(e);
     }
   }

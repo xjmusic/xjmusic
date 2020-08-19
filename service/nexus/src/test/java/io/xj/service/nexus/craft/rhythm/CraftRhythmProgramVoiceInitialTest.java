@@ -31,7 +31,7 @@ import io.xj.service.nexus.entity.SegmentState;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
+import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.After;
@@ -160,7 +160,7 @@ public class CraftRhythmProgramVoiceInitialTest {
   /**
    Insert fixture segment 6, including the rhythm choice only if specified
    */
-  private void insertSegments() throws NexusEntityStoreException {
+  private void insertSegments() throws EntityStoreException {
     // segment crafted
     segment5 = store.put(Segment.create()
       .setChainId(chain2.getId())

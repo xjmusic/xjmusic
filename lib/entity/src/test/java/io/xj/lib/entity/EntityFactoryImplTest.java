@@ -184,6 +184,27 @@ public class EntityFactoryImplTest {
   }
 
 
+  /**
+   This should ostensibly be a test inside the Entity library-- and it is, except for this bug that
+   at the time of this writing, we couldn't isolate to that library, and are therefore reproducing it here.
+
+   @throws EntityException on failure
+   */
+  @Test
+  public void internal_entityFactoryClonesMockEntityTypeOK() throws EntityException {
+    // Some topology
+    subject.register("MockEntity");
+    subject.register("MockSuperEntity")
+      .withAttributes("stringValue", "enumValue")
+      .belongsTo("mockEntity")
+      .createdBy(MockSuperEntity::new);
+    MockSuperEntity mockSuperEntity = new MockSuperEntity().setEnumValue(MockEnumValue.Apples);
+
+    MockSuperEntity result = subject.clone(mockSuperEntity);
+
+    assertEquals(MockEnumValue.Apples, result.getEnumValue());
+  }
+
   @Test
   public void testClone_withNullBelongsToId() throws EntityException {
     subject.register("MockEntity").withAttribute("name").belongsTo("mockEntity").createdBy(MockEntity::new);

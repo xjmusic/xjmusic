@@ -169,11 +169,4 @@ public class HubIngestIT {
     assertEquals(Integer.valueOf(2), classes.get("Instrument"));
   }
 
-  @Test
-  public void toStringOutput() throws Exception {
-    HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), ImmutableSet.of(fake.library10000001.getId()), ImmutableSet.of(), ImmutableSet.of());
-
-    assertEquals("2 Instrument, 2 InstrumentAudio, 6 InstrumentAudioChord, 4 InstrumentAudioEvent, 3 InstrumentMeme, 3 Program, 3 ProgramMeme, 2 ProgramSequence, 6 ProgramSequenceBinding, 8 ProgramSequenceBindingMeme, 6 ProgramSequenceChord, 1 ProgramSequencePattern, 4 ProgramSequencePatternEvent, 1 ProgramVoice, 2 ProgramVoiceTrack", ingest.toString());
-  }
-
 }

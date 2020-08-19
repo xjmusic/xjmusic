@@ -33,7 +33,7 @@ import io.xj.service.nexus.entity.SegmentType;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
+import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.After;
@@ -186,7 +186,7 @@ public class CraftSegmentPatternMemeTest {
    @param segmentId of Segment to update
    @param state     to update Segment to
    */
-  private void updateState(UUID segmentId, SegmentState state) throws NexusEntityStoreException {
+  private void updateState(UUID segmentId, SegmentState state) throws EntityStoreException {
     store.put(store.get(Segment.class, segmentId).orElseThrow().setStateEnum(state));
   }
 

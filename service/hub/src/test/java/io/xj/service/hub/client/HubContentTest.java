@@ -2,11 +2,14 @@ package io.xj.service.hub.client;
 
 import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import io.xj.lib.entity.Entity;
 import io.xj.service.hub.HubContentFixtures;
+import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.entity.Instrument;
 import io.xj.service.hub.entity.InstrumentType;
+import io.xj.service.hub.ingest.HubIngest;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,6 +40,11 @@ public class HubContentTest {
     Collections.sort(result);
 
     assertEquals(ImmutableList.of(0L, 1L, 2L), result);
+  }
+
+  @Test
+  public void toStringOutput() throws Exception {
+    assertEquals("1 Instrument, 4 InstrumentAudio, 4 InstrumentAudioEvent, 1 InstrumentMeme, 8 Program, 6 ProgramMeme, 11 ProgramSequence, 9 ProgramSequenceBinding, 11 ProgramSequenceBindingMeme, 9 ProgramSequenceChord, 6 ProgramSequencePattern, 24 ProgramSequencePatternEvent, 2 ProgramVoice, 20 ProgramVoiceTrack", subject.toString());
   }
 
   @Test

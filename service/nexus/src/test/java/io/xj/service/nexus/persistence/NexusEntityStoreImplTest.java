@@ -9,6 +9,7 @@ import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.entity.Account;
 import io.xj.service.nexus.NexusApp;
@@ -68,7 +69,7 @@ public class NexusEntityStoreImplTest {
 
 
   @Test
-  public void put_get_Segment() throws NexusEntityStoreException {
+  public void put_get_Segment() throws EntityStoreException {
     UUID chainId = UUID.randomUUID();
     Segment segment = Segment.create()
       .setChainId(chainId)
@@ -101,7 +102,7 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void put_get_Chain() throws NexusEntityStoreException {
+  public void put_get_Chain() throws EntityStoreException {
     UUID accountId = UUID.randomUUID();
     Chain chain = Chain.create()
       .setAccountId(accountId)
@@ -124,7 +125,7 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void put_cantBeMutated() throws NexusEntityStoreException {
+  public void put_cantBeMutated() throws EntityStoreException {
     Account account1 = Account.create("fish");
     Chain chain3 = Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null);
     subject.put(chain3);
@@ -136,7 +137,7 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void get_cantBeMutated() throws NexusEntityStoreException {
+  public void get_cantBeMutated() throws EntityStoreException {
     Account account1 = Account.create("fish");
     Chain chain3 = subject.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
     Chain got = subject.get(Chain.class, chain3.getId()).orElseThrow();
@@ -148,7 +149,7 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void getAll_cantBeMutated() throws NexusEntityStoreException {
+  public void getAll_cantBeMutated() throws EntityStoreException {
     Account account1 = Account.create("fish");
     Chain chain3 = subject.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
     Collection<Chain> got = subject.getAll(Chain.class);
@@ -160,7 +161,7 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void getAllBelongingTo_cantBeMutated() throws NexusEntityStoreException {
+  public void getAllBelongingTo_cantBeMutated() throws EntityStoreException {
     Account account1 = Account.create("fish");
     Chain chain3 = subject.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
     Collection<Chain> got = subject.getAll(Chain.class, Account.class, ImmutableList.of(account1.getId()));
@@ -172,7 +173,7 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void putWithoutId_getHasNewId() throws NexusEntityStoreException {
+  public void putWithoutId_getHasNewId() throws EntityStoreException {
     Account account1 = Account.create("fish");
     Chain chain3 = Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null);
     chain3.setId(null);
@@ -204,7 +205,7 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void putAll_getAll() throws NexusEntityStoreException {
+  public void putAll_getAll() throws EntityStoreException {
     Account account1 = Account.create("fish");
     Chain chain2 = Chain.create(account1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null);
     Chain chain3 = Chain.create(account1, "Test Print #3", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null);

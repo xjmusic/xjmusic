@@ -14,7 +14,7 @@ import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.entity.Chain;
 import io.xj.service.nexus.entity.ChainBinding;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
+import io.xj.lib.entity.EntityStoreException;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -54,7 +54,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
       requireChainAccountRole(access, chainBinding);
       return store.put(chainBinding);
 
-    } catch (NexusEntityStoreException | ValueException | DAOExistenceException e) {
+    } catch (EntityStoreException | ValueException | DAOExistenceException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -67,7 +67,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
       requireChainAccountRole(access, chainBinding);
       return chainBinding;
 
-    } catch (NexusEntityStoreException e) {
+    } catch (EntityStoreException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -78,7 +78,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
       for (UUID chainId : chainIds) requireChainAccountRole(access, chainId);
       return store.getAll(ChainBinding.class, Chain.class, chainIds);
 
-    } catch (NexusEntityStoreException | DAOExistenceException e) {
+    } catch (EntityStoreException | DAOExistenceException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -105,7 +105,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
       requireChainAccountRole(access, chainBinding);
       store.delete(ChainBinding.class, id);
 
-    } catch (NexusEntityStoreException e) {
+    } catch (EntityStoreException e) {
       throw new DAOFatalException(e);
     }
   }

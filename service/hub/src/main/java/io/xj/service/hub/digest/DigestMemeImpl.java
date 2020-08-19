@@ -6,8 +6,14 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.entity.*;
+import io.xj.service.hub.entity.Instrument;
+import io.xj.service.hub.entity.InstrumentMeme;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramMeme;
+import io.xj.service.hub.entity.ProgramSequenceBinding;
+import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
 import io.xj.service.hub.ingest.HubIngest;
+import io.xj.service.hub.ingest.HubIngestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +28,7 @@ import java.util.UUID;
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  */
 public class DigestMemeImpl extends DigestImpl implements DigestMeme {
+  private final Logger log = LoggerFactory.getLogger(DigestMemeImpl.class);
   private final Map<String, DigestMemesItem> memes = Maps.newHashMap();
 
   /**
@@ -37,7 +44,6 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
     try {
       digest();
     } catch (Exception e) {
-      Logger log = LoggerFactory.getLogger(DigestMemeImpl.class);
       log.error("Failed to digest memes create ingest {}", ingest, e);
     }
   }
@@ -46,24 +52,28 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
    Digest entities of ingest
    */
   private void digest() {
-    // for each program, stash collection of program memes and prepare map of program patterns
-    for (Program program : ingest.getAllPrograms()) {
-      for (ProgramMeme programMeme : ingest.getMemes(program)) {
-        digestMemesItem(programMeme.getName()).addProgramId(program.getId());
-      }
-      // for each program pattern in program, stash collection of program pattern memes
-      for (ProgramSequenceBinding sequenceBinding : ingest.getSequenceBindings(program)) {
-        for (ProgramSequenceBindingMeme sequenceBindingMeme : ingest.getMemes(sequenceBinding)) {
-          digestMemesItem(sequenceBindingMeme.getName()).addSequenceBinding(sequenceBinding);
+    try {
+      // for each program, stash collection of program memes and prepare map of program patterns
+      for (Program program : ingest.getAllPrograms()) {
+        for (ProgramMeme programMeme : ingest.getMemes(program)) {
+          digestMemesItem(programMeme.getName()).addProgramId(program.getId());
+        }
+        // for each program pattern in program, stash collection of program pattern memes
+        for (ProgramSequenceBinding sequenceBinding : ingest.getSequenceBindings(program)) {
+          for (ProgramSequenceBindingMeme sequenceBindingMeme : ingest.getMemes(sequenceBinding)) {
+            digestMemesItem(sequenceBindingMeme.getName()).addSequenceBinding(sequenceBinding);
+          }
         }
       }
-    }
 
-    // for each instrument, stash collection of instrument memes
-    for (Instrument instrument : ingest.getAllInstruments()) {
-      for (InstrumentMeme instrumentMeme : ingest.getMemes(instrument)) {
-        digestMemesItem(instrumentMeme.getName()).addInstrumentId(instrument.getId());
+      // for each instrument, stash collection of instrument memes
+      for (Instrument instrument : ingest.getAllInstruments()) {
+        for (InstrumentMeme instrumentMeme : ingest.getMemes(instrument)) {
+          digestMemesItem(instrumentMeme.getName()).addInstrumentId(instrument.getId());
+        }
       }
+    } catch (HubIngestException e) {
+      log.error("Failure to digest", e);
     }
   }
 
@@ -98,7 +108,7 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
    <p>
    [#154234716] Artist wants to run a library ingest in order to understand all of the existing contents within the programs in a library.
    */
-  public class DigestMemesItem {
+  public static class DigestMemesItem {
     private final String name;
     private final Collection<UUID> instrumentIds = Lists.newArrayList();
     private final Collection<UUID> programIds = Lists.newArrayList();

@@ -10,7 +10,7 @@ import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.service.hub.HubApp;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
+import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.nexus.work.NexusWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,13 +60,13 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
   }
 
   @Override
-  public <N extends Entity> N put(N entity) throws NexusEntityStoreException {
+  public <N extends Entity> N put(N entity) throws EntityStoreException {
     store.put(entity);
     return entity;
   }
 
   @Override
-  public <E extends Entity, I extends Entity> E put(E entity, Collection<I> included) throws NexusEntityStoreException {
+  public <E extends Entity, I extends Entity> E put(E entity, Collection<I> included) throws EntityStoreException {
     store.put(entity);
     store.putAll(included);
     return entity;

@@ -495,7 +495,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
    @return map of meme name to SegmentMeme entity
    */
-  private Collection<SegmentMeme> segmentMemes() {
+  private Collection<SegmentMeme> segmentMemes() throws FabricationException {
     Multiset<String> uniqueResults = ConcurrentHashMultiset.create();
     for (SegmentChoice choice : fabricator.getSegmentChoices()) {
       try {

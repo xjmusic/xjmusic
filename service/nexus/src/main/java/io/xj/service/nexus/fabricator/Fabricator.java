@@ -6,8 +6,24 @@ import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
-import io.xj.service.hub.entity.*;
-import io.xj.service.nexus.entity.*;
+import io.xj.service.hub.entity.InstrumentAudio;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.ProgramSequenceBinding;
+import io.xj.service.hub.entity.ProgramSequencePattern;
+import io.xj.service.hub.entity.ProgramSequencePatternType;
+import io.xj.service.hub.entity.ProgramVoice;
+import io.xj.service.nexus.entity.Chain;
+import io.xj.service.nexus.entity.ChainConfig;
+import io.xj.service.nexus.entity.ChainConfigType;
+import io.xj.service.nexus.entity.Segment;
+import io.xj.service.nexus.entity.SegmentChoice;
+import io.xj.service.nexus.entity.SegmentChoiceArrangement;
+import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
+import io.xj.service.nexus.entity.SegmentChord;
+import io.xj.service.nexus.entity.SegmentMeme;
+import io.xj.service.nexus.entity.SegmentMessage;
+import io.xj.service.nexus.entity.SegmentType;
 
 import javax.sound.sampled.AudioFormat;
 import java.time.Duration;
@@ -24,7 +40,7 @@ public interface Fabricator {
    @param arrangement to of
    @return arrangement with assigned next id (unique for this segment)
    */
-  SegmentChoiceArrangement add(SegmentChoiceArrangement arrangement);
+  SegmentChoiceArrangement add(SegmentChoiceArrangement arrangement) throws FabricationException;
 
   /**
    Add a new Choice
@@ -32,7 +48,7 @@ public interface Fabricator {
    @param choice to of
    @return choice with assigned next id (unique for this segment)
    */
-  SegmentChoice add(SegmentChoice choice);
+  SegmentChoice add(SegmentChoice choice) throws FabricationException;
 
   /**
    Add a new Pick
@@ -40,7 +56,7 @@ public interface Fabricator {
    @param pick to add
    @return pick with assigned next id (unique for this segment)
    */
-  SegmentChoiceArrangementPick add(SegmentChoiceArrangementPick pick);
+  SegmentChoiceArrangementPick add(SegmentChoiceArrangementPick pick) throws FabricationException;
 
   /**
    Add a new SegmentChord
@@ -48,7 +64,7 @@ public interface Fabricator {
    @param segmentChord to of
    @return segmentChord with assigned next id (unique for this segment)
    */
-  SegmentChord add(SegmentChord segmentChord);
+  SegmentChord add(SegmentChord segmentChord) throws FabricationException;
 
   /**
    Add a new SegmentMeme
@@ -56,7 +72,7 @@ public interface Fabricator {
    @param segmentMeme to of
    @return segmentMeme with assigned next id (unique for this segment)
    */
-  SegmentMeme add(SegmentMeme segmentMeme);
+  SegmentMeme add(SegmentMeme segmentMeme) throws FabricationException;
 
   /**
    Add a new SegmentMessage
@@ -64,7 +80,7 @@ public interface Fabricator {
    @param segmentMessage to of
    @return segmentMessage with assigned next id (unique for this segment)
    */
-  SegmentMessage add(SegmentMessage segmentMessage);
+  SegmentMessage add(SegmentMessage segmentMessage) throws FabricationException;
 
   /**
    Compute using an integral
@@ -110,13 +126,6 @@ public interface Fabricator {
   Collection<ChainConfig> getChainConfigs();
 
   /**
-   Get bindings of Chain
-
-   @return Chain Bindings
-   */
-  Collection<ChainBinding> getChainBindings();
-
-  /**
    Chain configuration, by type
    If no chain config is found for this type, a default config is returned.
 
@@ -148,14 +157,6 @@ public interface Fabricator {
    @throws FabricationException on failure
    */
   SegmentChoice getCurrentMacroChoice() throws FabricationException;
-
-  /**
-   macro-type sequence binding in current segment
-
-   @return pattern
-   @throws FabricationException on failure
-   */
-  ProgramSequence getCurrentMacroSequence() throws FabricationException;
 
   /**
    fetch the main-type choice for the current segment in the chain
@@ -305,7 +306,7 @@ public interface Fabricator {
 
    @return previous segments with ame main program
    */
-  Collection<Segment> getPreviousSegmentsWithSameMainProgram();
+  Collection<Segment> getPreviousSegmentsWithSameMainProgram() throws FabricationException;
 
   /**
    Get Program for any given choice
@@ -444,7 +445,7 @@ public interface Fabricator {
   /**
    Randomly select any sequence
 
-   @return ranomly selected sequence
+   @return randomly selected sequence
    @throws FabricationException if failure to select a sequence
    */
   ProgramSequence randomlySelectSequence(Program program) throws FabricationException;
@@ -454,21 +455,21 @@ public interface Fabricator {
 
    @return picks for segment
    */
-  Collection<SegmentChoiceArrangementPick> getSegmentPicks();
+  Collection<SegmentChoiceArrangementPick> getSegmentPicks() throws FabricationException;
 
   /**
    Get choices for segment
 
    @return choices for segment
    */
-  Collection<SegmentChoice> getSegmentChoices();
+  Collection<SegmentChoice> getSegmentChoices() throws FabricationException;
 
   /**
    Get arrangements for segment
 
    @return arrangements for segment
    */
-  Collection<SegmentChoiceArrangement> getSegmentArrangements();
+  Collection<SegmentChoiceArrangement> getSegmentArrangements() throws FabricationException;
 
   /**
    Get segment arrangements for a given choice
@@ -476,14 +477,14 @@ public interface Fabricator {
    @param choice to get segment arrangements for
    @return segments arrangements for the given segment choice
    */
-  Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice);
+  Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) throws FabricationException;
 
   /**
    Get memes for segment
 
    @return memes for segment
    */
-  Collection<SegmentMeme> getSegmentMemes();
+  Collection<SegmentMeme> getSegmentMemes() throws FabricationException;
 
   /**
    [#165954619] Selects one (at random) of all available patterns of a given type within a sequence.

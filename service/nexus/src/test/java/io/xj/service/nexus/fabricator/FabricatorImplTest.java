@@ -10,12 +10,11 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.lib.entity.EntityCache;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.pubsub.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.music.Tuning;
+import io.xj.lib.pubsub.FileStoreModule;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
@@ -183,7 +182,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
     when(mockSegmentWorkbench.getSegmentPicks())
-      .thenReturn(new EntityCache<>(ImmutableList.of(rhythmPick)));
+      .thenReturn(ImmutableList.of(rhythmPick));
     when(mockSegmentRetrospective.getPreviousSegment())
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
     subject = fabricatorFactory.fabricate(HubClientAccess.internal(), segment);

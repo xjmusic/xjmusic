@@ -14,6 +14,7 @@ public class EntityModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(EntityFactory.class).to(EntityFactoryImpl.class);
+    bind(EntityStore.class).to(EntityStoreImpl.class);
   }
 
 }

@@ -13,6 +13,7 @@ import io.xj.service.hub.entity.ProgramSequence;
 import io.xj.service.hub.entity.ProgramSequenceChord;
 import io.xj.service.hub.entity.ProgramType;
 import io.xj.service.hub.ingest.HubIngest;
+import io.xj.service.hub.ingest.HubIngestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,7 @@ public class DigestProgramStyleImpl extends DigestImpl implements DigestProgramS
   /**
    Digest entities of ingest
    */
-  private void digest() {
+  private void digest() throws HubIngestException {
     for (Program program : ingest.getProgramsOfType(ProgramType.Main)) {
       Collection<ProgramSequence> sequences = ingest.getSequences(program);
       mainSequencesPerSequenceStats.add(sequences.size());

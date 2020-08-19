@@ -17,6 +17,7 @@ import io.xj.service.nexus.entity.ChainConfigType;
 import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
 import io.xj.service.nexus.entity.SegmentMessage;
 import io.xj.service.nexus.entity.SegmentType;
+import io.xj.service.nexus.fabricator.FabricationException;
 import io.xj.service.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +138,7 @@ public class DubMasterImpl implements DubMaster {
 
    @return computed preroll (in seconds)
    */
-  private double computePreroll() {
+  private double computePreroll() throws FabricationException {
     double maxPreroll = 0.0;
     for (SegmentChoiceArrangementPick pick : fabricator.getSegmentPicks())
       try {
@@ -156,7 +157,7 @@ public class DubMasterImpl implements DubMaster {
 
    @param preroll (seconds)
    */
-  private void doMixerTargetSetting(Double preroll) {
+  private void doMixerTargetSetting(Double preroll) throws FabricationException {
     for (SegmentChoiceArrangementPick pick : fabricator.getSegmentPicks())
       try {
         setupTarget(preroll, pick);

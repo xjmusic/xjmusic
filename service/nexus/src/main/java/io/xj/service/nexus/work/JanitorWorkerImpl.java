@@ -3,18 +3,16 @@ package io.xj.service.nexus.work;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.lib.entity.Entity;
+import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.entity.Segment;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -24,19 +22,16 @@ import java.util.stream.Collectors;
 public class JanitorWorkerImpl implements JanitorWorker {
   private final Logger log = LoggerFactory.getLogger(JanitorWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
-  private final NexusWork work;
   private final NexusEntityStore store;
   private final SegmentDAO segmentDAO;
   private final int eraseSegmentsOlderThanSeconds;
 
   @Inject
   public JanitorWorkerImpl(
-    NexusWork work,
     NexusEntityStore store,
     SegmentDAO segmentDAO,
     Config config
   ) {
-    this.work = work;
     this.store = store;
     this.segmentDAO = segmentDAO;
 
@@ -71,9 +66,8 @@ public class JanitorWorkerImpl implements JanitorWorker {
    Get the IDs of all Segments that we ought to erase
 
    @return list of IDs of Segments we ought to erase
-   @throws NexusEntityStoreException on failure to read Segments
    */
-  private Collection<UUID> getSegmentIdsToErase() throws NexusEntityStoreException {
+  private Collection<UUID> getSegmentIdsToErase() throws EntityStoreException {
     Instant eraseBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);
     return store.getAll(Segment.class)
       .stream()

@@ -2,28 +2,28 @@
 package io.xj.lib.entity;
 
 /**
- Exception for Entity
+ Exception for Entity Store
  <p>
  Created by Charney Kaye on 2020/03/05
  */
-public class EntityException extends Exception {
+public class EntityStoreException extends Exception {
 
   /**
-   Construct Entity Exception
+   Construct Entity Store Exception
 
-   @param message for exception
+   @param cause throwable to wrap in exception
    */
-  public EntityException(String message) {
-    super(message);
+  public EntityStoreException(Throwable cause) {
+    super(cause);
   }
 
   /**
-   Construct Entity Exception
+   Construct Entity Store Exception
 
    @param message for exception
    @param cause   throwable to wrap in exception
    */
-  public EntityException(String message, Throwable cause) {
+  public EntityStoreException(String message, Throwable cause) {
     super(String.format("%s because %s", message, cause.getMessage()));
   }
 }
