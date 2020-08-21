@@ -6,6 +6,7 @@ import com.google.api.services.plus.model.Person;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.service.hub.dao.UserDAO;
 import io.xj.service.hub.entity.AccountUser;
 import io.xj.service.hub.entity.UserAuth;
@@ -18,7 +19,7 @@ import redis.clients.jedis.Jedis;
 
 import javax.ws.rs.core.NewCookie;
 import java.util.Collection;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 class HubAccessControlProviderImpl implements HubAccessControlProvider {
@@ -34,6 +35,7 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
   private final String tokenPath;
   private final int tokenMaxAge;
   private final Set<String> internalTokens;
+  private final EntityFactory entityFactory;
 
   @Inject
   public HubAccessControlProviderImpl(
@@ -41,7 +43,8 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
     HubAccessTokenGenerator hubAccessTokenGenerator,
     GoogleProvider googleProvider,
     UserDAO userDAO,
-    Config config
+    Config config,
+    EntityFactory entityFactory
   ) {
     this.hubRedisProvider = hubRedisProvider;
     this.hubAccessTokenGenerator = hubAccessTokenGenerator;
@@ -54,6 +57,7 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
     tokenPath = config.getString("access.tokenPath");
     tokenMaxAge = config.getInt("access.tokenMaxAgeSeconds");
     internalTokens = ImmutableSet.of(config.getString("hub.internalToken"));
+    this.entityFactory = entityFactory;
   }
 
   @Override
@@ -64,18 +68,17 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
   }
 
   @Override
-  public Map<String, String> update(String token, UserAuth userAuth, Collection<AccountUser> accountUsers, Collection<UserRole> userRoles) throws HubAccessException {
-    Map<String, String> userMap = HubAccess.create(userAuth, accountUsers, userRoles).toMap();
+  public void update(String token, UserAuth userAuth, Collection<AccountUser> accountUsers, Collection<UserRole> userRoles) throws HubAccessException {
+    HubAccess hubAccess = HubAccess.create(userAuth, accountUsers, userRoles);
     Jedis client = hubRedisProvider.getClient();
     try {
-      client.hmset(computeKey(token), userMap);
+      client.set(computeKey(token), entityFactory.serialize(hubAccess));
       client.close();
     } catch (Exception e) {
       client.close();
       log.error("Redis database connection", e);
       throw new HubAccessException("Redis database connection", e);
     }
-    return userMap;
   }
 
 
@@ -97,8 +100,9 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
 
     Jedis client = hubRedisProvider.getClient();
     try {
-      HubAccess hubAccess = new HubAccess(client.hgetAll(computeKey(token)));
+      HubAccess hubAccess = entityFactory.deserialize(HubAccess.class, client.get(computeKey(token)));
       client.close();
+      if (Objects.isNull(hubAccess)) throw new HubAccessException("Token does not exist!");
       return hubAccess;
     } catch (Exception e) {
       client.close();

@@ -70,7 +70,7 @@ public class ChainEndpoint extends NexusEndpoint {
       return response.notFound(Account.class, accountId);
 
     } catch (DAOPrivilegeException e) {
-      return response.unauthorized(Account.class, accountId);
+      return response.unauthorized(Account.class, accountId, e);
 
     } catch (JsonApiException | DAOFatalException e) {
       return response.failure(e);
@@ -100,7 +100,7 @@ public class ChainEndpoint extends NexusEndpoint {
 
     } catch (DAOPrivilegeException e) {
       return Objects.nonNull(reviveId) ?
-        response.unauthorized(Chain.class, reviveId) :
+        response.unauthorized(Chain.class, reviveId, e) :
         response.unauthorized();
 
     } catch (DAOValidationException e) {
@@ -147,7 +147,7 @@ public class ChainEndpoint extends NexusEndpoint {
             dao.readOne(access, identifier))));
 
     } catch (DAOPrivilegeException e) {
-      return response.unauthorized(Chain.class, identifier);
+      return response.unauthorized(Chain.class, identifier, e);
 
     } catch (DAOExistenceException e) {
       return response.notFound(Chain.class, identifier);
@@ -181,10 +181,10 @@ public class ChainEndpoint extends NexusEndpoint {
       return response.ok(payloadFactory.newPayload().setDataOne(payloadFactory.toPayloadObject(chain)));
 
     } catch (DAOValidationException e) {
-      return response.notAcceptable(e.getMessage());
+      return response.notAcceptable(e.getCause().getMessage());
 
     } catch (DAOPrivilegeException e) {
-      return response.unauthorized(Chain.class, id);
+      return response.unauthorized(Chain.class, id, e);
 
     } catch (DAOExistenceException e) {
       return response.notFound(Chain.class, id);
@@ -216,7 +216,7 @@ public class ChainEndpoint extends NexusEndpoint {
       return response.noContent();
 
     } catch (DAOPrivilegeException e) {
-      return response.unauthorized(Chain.class, id);
+      return response.unauthorized(Chain.class, id, e);
 
     } catch (DAOExistenceException e) {
       return response.notFound(Chain.class, id);

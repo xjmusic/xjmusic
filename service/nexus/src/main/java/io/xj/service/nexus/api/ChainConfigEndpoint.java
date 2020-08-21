@@ -10,7 +10,13 @@ import io.xj.service.nexus.dao.ChainConfigDAO;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -20,7 +26,7 @@ import javax.ws.rs.core.Response;
  */
 @Path("chain-configs")
 public class ChainConfigEndpoint extends NexusEndpoint {
-  private ChainConfigDAO dao;
+  private final ChainConfigDAO dao;
 
   /**
    The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
@@ -40,7 +46,7 @@ public class ChainConfigEndpoint extends NexusEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("chainId") String chainId) {
     return readMany(crc, dao(), chainId);
   }
@@ -53,7 +59,7 @@ public class ChainConfigEndpoint extends NexusEndpoint {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
   public Response create(Payload payload, @Context ContainerRequestContext crc) {
     return create(crc, dao(), payload);
   }
@@ -65,7 +71,7 @@ public class ChainConfigEndpoint extends NexusEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -77,7 +83,7 @@ public class ChainConfigEndpoint extends NexusEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

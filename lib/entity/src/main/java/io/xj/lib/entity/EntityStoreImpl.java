@@ -42,7 +42,7 @@ public class EntityStoreImpl implements EntityStore {
       store.putIfAbsent(entity.getClass(), Maps.newConcurrentMap());
       N actual = entityFactory.clone(entity);
       store.get(entity.getClass()).put(entity.getId(), actual);
-      return actual;
+      return entity;
 
     } catch (Exception e) {
       throw new EntityStoreException(e);

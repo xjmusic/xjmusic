@@ -9,6 +9,7 @@ import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.entity.MessageType;
 import io.xj.lib.pubsub.PubSubProvider;
 import io.xj.lib.util.CSV;
@@ -29,10 +30,10 @@ import io.xj.service.nexus.entity.Segment;
 import io.xj.service.nexus.entity.SegmentState;
 import io.xj.service.nexus.entity.SegmentType;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.lib.entity.EntityStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
@@ -43,12 +44,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static java.time.temporal.ChronoUnit.HOURS;
+
 /**
  Chain D.A.O. Implementation
  <p>
  Core directive here is to keep business logic CENTRAL ("oneness")
  <p>
- All variants on an update resolve (afterafter recordUpdateFirstStep transformation,
+ All variants on an update resolve (after recordUpdateFirstStep transformation,
  or additional validation) to one singular central update(fieldValues)
  <p>
  Also note buildNextSegmentOrComplete(...) is one singular central implementation
@@ -68,8 +71,10 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   private final ChainBindingDAO chainBindingDAO;
   private final int chainReviveThresholdHeadSeconds;
   private final SegmentDAO segmentDAO;
-  private final int previewLengthMaxSeconds;
+  private final int previewLengthMaxHours;
   private final PubSubProvider pubsub;
+  private final int previewEmbedKeyLength;
+  private final SecureRandom secureRandom = new SecureRandom();
 
   @Inject
   public ChainDAOImpl(
@@ -85,7 +90,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     this.segmentDAO = segmentDAO;
     this.pubsub = pubSubProvider;
 
-    previewLengthMaxSeconds = config.getInt("chain.previewLengthMaxSeconds");
+    previewLengthMaxHours = config.getInt("chain.previewLengthMaxHours");
+    previewEmbedKeyLength = config.getInt("chain.previewEmbedKeyLength");
     chainReviveThresholdHeadSeconds = config.getInt("chain.reviveThresholdHeadSeconds");
     chainReviveThresholdStartSeconds = config.getInt("chain.reviveThresholdStartSeconds");
     this.chainConfigDAO = chainConfigDAO;
@@ -96,8 +102,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   public Chain create(HubClientAccess access, Chain chain) throws DAOFatalException, DAOPrivilegeException, DAOValidationException {
     try {
       // [#126] Chains are always created in DRAFT state
-      chain.setId(UUID.randomUUID());
-      chain.validate();
       chain.setStateEnum(ChainState.Draft);
 
       // logic based on Chain Type
@@ -111,10 +115,14 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         case Preview:
           requireAccount(access, chain.getAccountId(), UserRoleType.Artist);
           chain.setStartAtInstant(Instant.now());
-          chain.setStopAtInstant(instantLimitUpper(chain.getStopAt(), chain.getStartAt().plusSeconds(previewLengthMaxSeconds)));
-          chain.setEmbedKey(null); // [#402] Preview Chain cannot be public
+          chain.setStopAtInstant(chain.getStartAt().plus(previewLengthMaxHours, HOURS)); // [#174153691]
+          chain.setEmbedKey(generatePreviewEmbedKey());
           break;
       }
+
+      // Give model a fresh unique ID and Validate
+      chain.setId(UUID.randomUUID());
+      chain.validate();
 
       // store and return sanitized payload comprising only the valid Chain
       return store.put(chain);
@@ -191,6 +199,12 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       // cannot change type of chain
       if (existing.getType() != chain.getType())
         throw new DAOValidationException("Cannot modify Chain Type");
+
+      // [#174153691] Cannot change stop-at time or Embed Key of Preview chain
+      if (ChainType.Preview == existing.getType())
+        chain
+          .setStopAtInstant(existing.getStopAt())
+          .setEmbedKey(existing.getEmbedKey());
 
       // override id (cannot be changed) from existing chain, and then validate
       chain.setId(id);
@@ -324,7 +338,15 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
   @Override
   public void requireAccount(HubClientAccess access, Chain chain) throws DAOPrivilegeException {
-    requireAccount(access, chain.getAccountId());
+    switch (chain.getType()) {
+      case Production:
+        requireAccount(access, chain.getAccountId(), UserRoleType.Engineer);
+        break;
+
+      case Preview:
+        requireAccount(access, chain.getAccountId(), UserRoleType.Engineer, UserRoleType.Artist);
+        break;
+    }
   }
 
   @Override
@@ -416,6 +438,18 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   }
 
   /**
+   Generate a Preview Chain embed key
+
+   @return generated Preview Chain embed key
+   */
+  private String generatePreviewEmbedKey() {
+    byte[] L = new byte[previewEmbedKeyLength];
+    for (int i = 0; i < previewEmbedKeyLength; i++)
+      L[i] = (byte) (secureRandom.nextInt(26) + 'a');
+    return String.format("preview_%s", new String(L));
+  }
+
+  /**
    Require that the provided chain is the only one existing with this embed key
 
    @param access control
@@ -445,19 +479,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
    */
   private void beforeUpdate(HubClientAccess access, Chain chain, ChainState fromState) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException, DAOValidationException {
     // Conditions based on Chain type
-    switch (chain.getType()) {
-      case Production:
-        requireAccount(access, chain.getAccountId(), UserRoleType.Engineer);
-        break;
-
-      case Preview:
-        requireAccount(access, chain.getAccountId(), UserRoleType.Engineer, UserRoleType.Artist);
-        chain.setStopAtInstant(instantLimitUpper(chain.getStopAt(), chain.getStartAt().plusSeconds(previewLengthMaxSeconds)));
-
-        // [#402] Preview Chain cannot be public
-        chain.setEmbedKey(null);
-        break;
-    }
+    requireAccount(access, chain);
 
     // Conditions based on Chain state
     switch (fromState) {
@@ -497,17 +519,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         // no op
         break;
     }
-  }
-
-  /**
-   Limit a moment in time by an upper limit of another moment in time
-
-   @param source     instant
-   @param upperLimit instant to limit upper threshold
-   @return source limited to upper limit
-   */
-  private Instant instantLimitUpper(Instant source, Instant upperLimit) {
-    return source.isBefore(upperLimit) ? source : upperLimit;
   }
 
   /**

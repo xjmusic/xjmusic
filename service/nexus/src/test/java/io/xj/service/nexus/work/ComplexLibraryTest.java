@@ -32,6 +32,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,6 +54,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComplexLibraryTest {
+  private static final Logger log = LoggerFactory.getLogger(ComplexLibraryTest.class);
   private static final int MILLIS_PER_SECOND = 1000;
   private static final int MARATHON_NUMBER_OF_SEGMENTS = 7;
   private static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
@@ -149,7 +152,10 @@ public class ComplexLibraryTest {
    @return true if within time limit
    */
   private boolean isWithinTimeLimit() {
-    return MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > System.currentTimeMillis() - startTime;
+    if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > System.currentTimeMillis() - startTime)
+      return true;
+    log.error("EXCEEDED TEST TIME LIMIT OF {} SECONDS", MAXIMUM_TEST_WAIT_SECONDS);
+    return false;
   }
 
   /**

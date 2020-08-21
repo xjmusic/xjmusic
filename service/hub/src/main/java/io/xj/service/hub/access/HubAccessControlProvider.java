@@ -8,7 +8,6 @@ import io.xj.service.hub.entity.UserRole;
 
 import javax.ws.rs.core.NewCookie;
 import java.util.Collection;
-import java.util.Map;
 
 public interface HubAccessControlProvider {
   /**
@@ -27,9 +26,8 @@ public interface HubAccessControlProvider {
    @param userAuth         to of a token for.
    @param userAccountRoles accounts that this user has access to.
    @param userRoles        roles that this user has access to.
-   @return map of cached properties for this user
    */
-  Map<String, String> update(String accessToken, UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws HubAccessException;
+  void update(String accessToken, UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws HubAccessException;
 
   /**
    Expire an access token.

@@ -285,7 +285,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
 
     Segment result = testDAO.readOne(access, segment2.getId());
 
@@ -314,7 +314,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readMany() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(chain3.getId()));
 
@@ -354,7 +354,7 @@ public class SegmentDAOImplTest {
         .setDensity(0.74)
         .setKey("C# minor 7 b9")
         .setTempo(120.0));
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(chain3.getId()));
 
@@ -467,7 +467,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readManyFromOffset() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromOffset(access, chain3.getId(), 2L);
 
@@ -483,7 +483,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readManyFromToOffset() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromToOffset(access, chain3.getId(), 2L, 3L);
 
@@ -497,7 +497,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readManyFromToOffset_acceptsNegativeOffsets_returnsEmptyCollection() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromToOffset(access, chain3.getId(), -1L, -1L);
 
@@ -580,7 +580,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readManyFromSecondsUTC() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromSecondsUTC(access, chain3.getId(), 1487073724L);
 
@@ -613,7 +613,7 @@ public class SegmentDAOImplTest {
         "chains-1-segments-9f7s89d8a7892.wav"));
       beginAt = endAt;
     }
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromSecondsUTC(access, chain5.getId(), fromSecondsUTC + 1);
 

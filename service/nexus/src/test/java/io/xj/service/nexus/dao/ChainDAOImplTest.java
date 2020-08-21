@@ -48,6 +48,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -193,6 +194,27 @@ public class ChainDAOImplTest {
     assertNotNull(result);
     assertEquals(account1.getId(), result.getAccountId());
     assertEquals("coconuts", result.getName());
+    assertEquals(28, Objects.requireNonNull(result.getEmbedKey()).length());
+    assertEquals(ChainState.Draft, result.getState());
+    assertEquals(ChainType.Preview, result.getType());
+  }
+
+
+  @Test
+  public void create_PreviewType_asArtist() throws Exception {
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "Artist");
+    Chain input = Chain.create()
+      .setAccountId(account1.getId())
+      .setStartAt("now")
+      .setState("Draft")
+      .setType("Preview")
+      .setName("coconuts");
+
+    Chain result = subject.create(access, input);
+
+    assertNotNull(result);
+    assertEquals(account1.getId(), result.getAccountId());
+    assertEquals("coconuts", result.getName());
     assertEquals(ChainState.Draft, result.getState());
     assertEquals(ChainType.Preview, result.getType());
   }
@@ -306,7 +328,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
 
     Chain result = subject.readOne(access, chain2.getId());
 
@@ -352,7 +374,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void readMany() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Artist");
 
     Collection<Chain> result = subject.readMany(access, ImmutableList.of(account1.getId()));
 
@@ -409,6 +431,36 @@ public class ChainDAOImplTest {
     assertEquals(account1.getId(), result.getAccountId());
     assertEquals(ChainState.Complete, result.getState());
     assertEquals(ChainType.Production, result.getType());
+    assertEquals("2009-08-12T12:17:02.687327Z", result.getStartAt().toString());
+    assertEquals("2009-09-11T12:17:01.989941Z", result.getStopAt().toString());
+  }
+
+  @Test
+  public void update_cantChangeEndOfPreviewChain() throws Exception {
+    HubClientAccess access = HubClientAccess.create("Admin");
+    Chain previewChain = test.put(Chain.create()
+      .setAccountId(account1.getId())
+      .setName("coconuts")
+      .setType("Preview")
+      .setState("Fabricate")
+      .setStartAt("2009-08-12T12:17:02.687327Z")
+      .setStopAt("2009-09-11T12:17:01.989941Z"));
+    Chain input = Chain.create()
+      .setAccountId(account1.getId())
+      .setName("coconuts")
+      .setType("Preview")
+      .setState("Fabricate")
+      .setStartAt("2009-08-12T12:17:02.687327Z")
+      .setStopAt("2009-09-12T12:17:01.989941Z");
+
+    subject.update(access, previewChain.getId(), input);
+
+    Chain result = subject.readOne(HubClientAccess.internal(), previewChain.getId());
+    assertNotNull(result);
+    assertEquals("coconuts", result.getName());
+    assertEquals(account1.getId(), result.getAccountId());
+    assertEquals(ChainState.Fabricate, result.getState());
+    assertEquals(ChainType.Preview, result.getType());
     assertEquals("2009-08-12T12:17:02.687327Z", result.getStartAt().toString());
     assertEquals("2009-09-11T12:17:01.989941Z", result.getStopAt().toString());
   }
@@ -716,6 +768,18 @@ public class ChainDAOImplTest {
     failure.expectMessage("Engineer/Artist role is required");
 
     subject.updateState(access, chain3.getId(), ChainState.Complete);
+  }
+
+  @Test
+  public void update_outOfDraft_WithoutEntitiesBound_Fails() throws Exception {
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Artist,Engineer");
+    Chain chain3 = test.put(Chain.create(account1, "bucket", ChainType.Production, ChainState.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
+    chain3.setStateEnum(ChainState.Ready);
+
+    failure.expect(DAOValidationException.class);
+    failure.expectMessage("Chain must be bound to at least one Library, Sequence, or Instrument");
+
+    subject.update(access, chain3.getId(), chain3);
   }
 
   @Test
@@ -1075,6 +1139,7 @@ public class ChainDAOImplTest {
     HubClientAccess access = HubClientAccess.create("Internal");
     test.put(Chain.create(account1, "Test Print #2", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
     Chain fromChain = test.put(Chain.create()
+      .setTypeEnum(ChainType.Production)
       .setStartAt("2014-08-12T12:17:02.527142Z")
       .setStopAt(null));
 

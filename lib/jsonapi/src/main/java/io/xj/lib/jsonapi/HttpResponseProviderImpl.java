@@ -95,13 +95,13 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
   }
 
   @Override
-  public Response unauthorized(Class<?> type, Object identifier) {
+  public Response unauthorized(Class<?> type, Object identifier, Throwable cause) {
     Payload payload = new Payload()
       .setDataType(PayloadDataType.One)
       .addError(new PayloadError()
-        .setCode(String.format("%sUnauthorized", type))
-        .setTitle(String.format("Not authorized for %s!", type))
-        .setDetail(String.format("Not authorized for resource type=%s, id=%s", type, identifier)));
+        .setCode(String.format("%s Unauthorized", type.getSimpleName()))
+        .setTitle(String.format("Not authorized for %s[%s]!", type.getSimpleName(), identifier))
+        .setDetail(cause.getMessage()));
 
     return Response
       .status(HttpStatus.SC_UNAUTHORIZED)

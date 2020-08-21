@@ -2,9 +2,11 @@
 package io.xj.service.hub.api;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
-import com.google.api.client.json.JsonFactory;
 import com.google.inject.Injector;
+import io.xj.lib.entity.EntityException;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.ApiUrlProvider;
+import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.GoogleProvider;
 import io.xj.service.hub.access.HubAccess;
@@ -35,11 +37,12 @@ import java.util.Objects;
 @Path("auth")
 public class AuthEndpoint extends HubEndpoint {
   private static final Logger log = LoggerFactory.getLogger(AuthEndpoint.class);
-  private final JsonFactory jsonFactory;
   private final UserDAO userDAO;
   private final HubAccessControlProvider hubAccessControlProvider;
   private final GoogleProvider authGoogleProvider;
   private final ApiUrlProvider apiUrlProvider;
+  private final EntityFactory entityFactory;
+  private final HttpResponseProvider httpResponseProvider;
 
   /**
    The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
@@ -50,11 +53,12 @@ public class AuthEndpoint extends HubEndpoint {
     Injector injector
   ) {
     super(injector);
-    jsonFactory = injector.getInstance(JsonFactory.class);
     userDAO = injector.getInstance(UserDAO.class);
     hubAccessControlProvider = injector.getInstance(HubAccessControlProvider.class);
     authGoogleProvider = injector.getInstance(GoogleProvider.class);
     apiUrlProvider = injector.getInstance(ApiUrlProvider.class);
+    entityFactory = injector.getInstance(EntityFactory.class);
+    httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
   }
 
   /**
@@ -65,11 +69,15 @@ public class AuthEndpoint extends HubEndpoint {
   @GET
   @RolesAllowed(UserRoleType.USER)
   public Response getCurrentAuthentication(@Context ContainerRequestContext crc) {
-    HubAccess hubAccess = HubAccess.fromContext(crc);
-    return Response
-      .accepted(hubAccess.toJSON(jsonFactory))
-      .type(MediaType.APPLICATION_JSON)
-      .build();
+    try {
+      return Response
+        .accepted(entityFactory.serialize(HubAccess.fromContext(crc)))
+        .type(MediaType.APPLICATION_JSON)
+        .build();
+
+    } catch (EntityException e) {
+      return httpResponseProvider.failure(e);
+    }
   }
 
 

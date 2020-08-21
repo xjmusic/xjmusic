@@ -10,7 +10,13 @@ import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.access.HubAccessControlProvider;
 import io.xj.service.hub.access.HubAccessException;
-import io.xj.service.hub.entity.*;
+import io.xj.service.hub.entity.AccountUser;
+import io.xj.service.hub.entity.User;
+import io.xj.service.hub.entity.UserAuth;
+import io.xj.service.hub.entity.UserAuthToken;
+import io.xj.service.hub.entity.UserAuthType;
+import io.xj.service.hub.entity.UserRole;
+import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 import io.xj.service.hub.tables.records.UserAuthRecord;
 import io.xj.service.hub.tables.records.UserAuthTokenRecord;
@@ -27,7 +33,11 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.service.hub.Tables.*;
+import static io.xj.service.hub.Tables.ACCOUNT_USER;
+import static io.xj.service.hub.Tables.USER;
+import static io.xj.service.hub.Tables.USER_AUTH;
+import static io.xj.service.hub.Tables.USER_AUTH_TOKEN;
+import static io.xj.service.hub.Tables.USER_ROLE;
 import static org.jooq.impl.DSL.groupConcatDistinct;
 
 /**
@@ -280,7 +290,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
         .and(ACCOUNT_USER.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .groupBy(USER_ROLE.USER_ID, USER.ID)
         .fetchOne());
-    } else try {
+    } else {
       if (Objects.equals(hubAccess.getUserId(), id)) {
         return modelFrom(User.class, select(db)
           .from(USER_ROLE)
@@ -291,8 +301,6 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
       } else {
         throw new DAOException("Not found");
       }
-    } catch (HubAccessException e) {
-      throw new DAOException("Cannot read user!", e);
     }
   }
 
@@ -306,6 +314,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
         .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
         .groupBy(USER_ROLE.USER_ID, USER.ID)
         .fetch());
+
     } else if (!hubAccess.getAccountIds().isEmpty()) {
       return modelsFrom(User.class, select(db)
         .from(USER_ROLE)
@@ -314,16 +323,13 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
         .where(ACCOUNT_USER.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .groupBy(USER.ID)
         .fetch());
-    } else try {
-      return modelsFrom(User.class, select(db)
-        .from(USER_ROLE)
-        .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-        .where(USER_ROLE.USER_ID.eq(hubAccess.getUserId()))
-        .groupBy(USER.ID)
-        .fetch());
-    } catch (HubAccessException e) {
-      throw new DAOException("Cannot read users!", e);
-    }
+
+    } else return modelsFrom(User.class, select(db)
+      .from(USER_ROLE)
+      .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+      .where(USER_ROLE.USER_ID.eq(hubAccess.getUserId()))
+      .groupBy(USER.ID)
+      .fetch());
   }
 
   @Override

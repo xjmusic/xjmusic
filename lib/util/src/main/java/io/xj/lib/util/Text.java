@@ -449,5 +449,4 @@ public interface Text {
     // join lines into one multiline output
     return String.join("\n", lines);
   }
-
 }

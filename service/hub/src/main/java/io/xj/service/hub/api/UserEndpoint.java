@@ -7,14 +7,17 @@ import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.Payload;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.access.HubAccessException;
 import io.xj.service.hub.dao.DAO;
 import io.xj.service.hub.dao.UserDAO;
 import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -86,11 +89,7 @@ public class UserEndpoint extends HubEndpoint {
   @RolesAllowed({UserRoleType.USER})
   public Response getCurrentlyAuthenticatedUser(@Context ContainerRequestContext crc) {
     UUID userId;
-    try {
-      userId = HubAccess.fromContext(crc).getUserId();
-    } catch (HubAccessException e) {
-      return response.unauthorized();
-    }
+    userId = HubAccess.fromContext(crc).getUserId();
 
     return readOne(crc, dao(), userId.toString());
   }

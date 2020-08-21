@@ -2,6 +2,7 @@
 package io.xj.service.hub.access;
 
 import com.google.inject.Inject;
+import io.xj.service.hub.client.HubClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,6 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
@@ -48,14 +48,10 @@ public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
   }
 
   @Override
-  public void filter(ContainerRequestContext requestContext) throws IOException {
-    try {
-      String errorMessage = authenticate(requestContext);
-      if (Objects.nonNull(errorMessage)) {
-        deny(requestContext, new HubAccessException(errorMessage));
-      }
-    } catch (Exception e) {
-      fail(requestContext, e);
+  public void filter(ContainerRequestContext requestContext) {
+    String errorMessage = authenticate(requestContext);
+    if (Objects.nonNull(errorMessage)) {
+      deny(requestContext, new HubAccessException(errorMessage));
     }
   }
 
@@ -70,7 +66,7 @@ public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
    @return null if allowed -- String message on failure
    */
   @Nullable
-  private String authenticate(ContainerRequestContext context) throws Exception {
+  private String authenticate(ContainerRequestContext context) {
     // use reflection to get resource method annotation values
     Method method = resourceInfo.getResourceMethod();
     RolesAllowed aRolesAllowed = method.getAnnotation(RolesAllowed.class);
@@ -79,20 +75,20 @@ public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
 
     // deny-all is exactly that
     if (Objects.nonNull(aDenyAll))
-      return "no hubAccess permitted";
+      return "no hub access permitted";
 
     // roles required of here on
     if (Objects.isNull(aPermitAll) && Objects.isNull(aRolesAllowed))
       return "resource allows no roles";
 
-    // get AccessControl of (required of here on) hubAccess token
+    // get AccessControl of (required of here on) hub access token
     Map<String, Cookie> cookies = context.getCookies();
     Cookie accessTokenCookie = cookies.getOrDefault(accessTokenName, null);
     if (Objects.isNull(aPermitAll) && Objects.isNull(accessTokenCookie))
-      return "token-less hubAccess";
+      return "token-less hub access";
 
     // permit-all is exactly that (but overridden by deny-all)
-    // BUT if an hubAccess token was provided, we're going to treat this as a user auth
+    // BUT if an hub access token was provided, we're going to treat this as a user auth
     // Required, for example, to implement an idempotent /logout endpoint that redirects somewhere, never returning a 401, whether or not the user is auth'd
     // [#153110625] Logout, expect redirect to logged-out home view
     if (Objects.nonNull(aPermitAll) && Objects.isNull(accessTokenCookie))
@@ -101,19 +97,19 @@ public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
     HubAccess hubAccess;
     try {
       hubAccess = hubAccessControlProvider.get(accessTokenCookie.getValue());
-    } catch (Exception e) {
-      log.warn("Could not retrieve hubAccess token {}", accessTokenCookie.getValue(), e);
+    } catch (HubAccessException e) {
+      log.warn("Could not retrieve hub access token {}", accessTokenCookie.getValue(), e);
       if (Objects.nonNull(aPermitAll))
-        return null; // allowed to supply bad hubAccess token for a permit-all route
+        return null; // allowed to supply bad hub access token for a permit-all route
       else
-        return "cannot get hubAccess token";
+        return "cannot get hub access token";
     }
 
     if (!hubAccess.isValid())
       if (Objects.nonNull(aPermitAll))
-        return null; // allowed to have invalid hubAccess for a permit-all route
+        return null; // allowed to have invalid hub access for a permit-all route
       else
-        return "invalid hubAccess token";
+        return "invalid hub access token";
 
     if (!hubAccess.isTopLevel() && Objects.isNull(aPermitAll) && !hubAccess.isAllowed(aRolesAllowed.value()))
       return "user has no accessible role";
@@ -124,7 +120,7 @@ public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
   }
 
   /**
-   HubAccess denial implements this central method for logging.
+   Hub access denial implements this central method for logging.
 
    @param e pertaining to denial.
    */
@@ -136,16 +132,6 @@ public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
         .status(Response.Status.UNAUTHORIZED)
         .build()
     );
-  }
-
-  /**
-   HubAccess failure implements this central method for logging.
-
-   @param e pertaining to internal server error.
-   */
-  private void fail(ContainerRequestContext context, Exception e) {
-    log.error("Failed {} /{} ({})", context.getRequest().getMethod(), context.getUriInfo().getPath(), e);
-    context.abortWith(Response.serverError().build());
   }
 
 }

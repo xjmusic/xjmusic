@@ -5,12 +5,16 @@ import com.google.common.collect.Lists;
 import io.xj.lib.entity.Entity;
 import io.xj.lib.util.Text;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.access.HubAccessException;
 import io.xj.service.hub.entity.Instrument;
 import io.xj.service.hub.entity.Library;
 import io.xj.service.hub.entity.Program;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -40,11 +44,8 @@ public interface HubIngestCacheKey {
    */
   static String of(HubAccess hubAccess) {
     List<String> pieces = Lists.newArrayList();
-    try {
-      pieces.add(String.format("User%s%s",
-        SIGNATURE_DELIMITER_ALPHA, hubAccess.getUserId()));
-    } catch (HubAccessException ignored) {
-    }
+    pieces.add(String.format("User%s%s",
+      SIGNATURE_DELIMITER_ALPHA, hubAccess.getUserId()));
     if (Objects.nonNull(hubAccess.getUserAuthId()))
       pieces.add(String.format("UserAuth%s%s",
         SIGNATURE_DELIMITER_ALPHA, hubAccess.getUserAuthId()));

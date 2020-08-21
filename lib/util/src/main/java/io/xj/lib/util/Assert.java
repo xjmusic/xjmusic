@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  Assertion utilities for testing Payload sent/received to/from a XJ Music REST JSON:API service
@@ -24,17 +25,20 @@ public enum Assert {
    @param actual items to assert same
    @throws ValueException if not the same items
    */
-  public static void assertSameItems(Collection<String> expect, Collection<String> actual) throws ValueException {
-    assertEquals(String.format("Different number create items! expected=[%s] vs actual=[%s]", String.join(",", expect), String.join(",", actual)), expect.size(), actual.size());
+  public static void assertSameItems(Collection<?> expect, Collection<?> actual) throws ValueException {
+    assertEquals(String.format("Different number create items! expected=[%s] vs actual=[%s]",
+      expect.stream().map(Object::toString).collect(Collectors.joining(",")),
+      actual.stream().map(Object::toString).collect(Collectors.joining(","))),
+      expect.size(), actual.size());
 
     // prepare a map of expected segment chord, all marked false (not yet found)
-    Map<String, Boolean> found = Maps.newHashMap();
+    Map<Object, Boolean> found = Maps.newHashMap();
     expect.forEach(item -> found.put(item, false));
 
     // for each found segment chord, assert that we were expecting it, assert that it hasn't been found yet, then mark that it's been found
-    for (String item : actual) {
-      assertTrue(String.format("Not expecting item %s", Text.toSingleQuoted(item)), found.containsKey(item));
-      assertFalse(String.format("Already encountered %s and can't have a duplicate", Text.toSingleQuoted(item)), found.get(item));
+    for (Object item : actual) {
+      assertTrue(String.format("Not expecting item %s", Text.toSingleQuoted(item.toString())), found.containsKey(item));
+      assertFalse(String.format("Already encountered %s and can't have a duplicate", Text.toSingleQuoted(item.toString())), found.get(item));
       found.put(item, true);
     }
   }

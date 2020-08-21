@@ -15,12 +15,12 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
+import static java.time.temporal.ChronoUnit.HOURS;
+
 /**
  [#166743281] Chain handles all of its own binding + config entities
  */
 public class Chain extends Entity {
-
-
   private UUID accountId;
   private String name;
   private ChainState state;
@@ -358,7 +358,6 @@ public class Chain extends Entity {
     Value.requireNo(stopAtException, "Stop-at");
     if (ChainType.Production != type)
       Value.require(stopAt, "Stop-at time (for non-production chain)");
-
   }
 
   /**

@@ -3,18 +3,25 @@ package io.xj.service.hub.access;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
-import io.xj.lib.pubsub.FileStoreModule;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
+import io.xj.lib.pubsub.FileStoreModule;
 import io.xj.service.hub.dao.DAOModule;
-import io.xj.service.hub.entity.*;
+import io.xj.service.hub.entity.Account;
+import io.xj.service.hub.entity.AccountUser;
+import io.xj.service.hub.entity.User;
+import io.xj.service.hub.entity.UserAuth;
+import io.xj.service.hub.entity.UserRole;
+import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.persistence.HubRedisProvider;
@@ -30,7 +37,6 @@ import redis.clients.jedis.Jedis;
 import javax.ws.rs.core.Cookie;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -52,6 +58,7 @@ public class RedisHubAccessTokenTest {
   private Collection<AccountUser> accountUsers;
   private Collection<UserRole> roles;
   private User user;
+  private EntityFactory entityFactory;
 
   @Before
   public void setUp() throws Exception {
@@ -72,6 +79,7 @@ public class RedisHubAccessTokenTest {
         }
       }));
     hubAccessControlProvider = injector.getInstance(HubAccessControlProvider.class);
+    entityFactory = injector.getInstance(EntityFactory.class);
 
     user = User.create();
 
@@ -116,23 +124,12 @@ public class RedisHubAccessTokenTest {
 
     hubAccessControlProvider.create(userAuth, accountUsers, roles);
 
-    Map<String, String> expectUserAccess = Maps.newHashMap();
-    expectUserAccess.put("userId", user.getId().toString());
-    expectUserAccess.put("userAuthId", userAuth.getId().toString());
-    expectUserAccess.put("roles", "User,Artist");
-    expectUserAccess.put("accounts", account1.getId().toString() + "," + account2.getId().toString());
-    verify(redisClient).hmset("xj_session_test:token123", expectUserAccess);
-    /*
-        userAuth.setUserId(BigInteger.valueOf(5609877L));
-    userAuth.setId(BigInteger.valueOf(12363L));
-
-    accounts = new LinkedList<>();
-    AccountUser accountRole1 = new AccountUser();
-    accountRole1.setAccountId(BigInteger.valueOf(790809874L));
-    AccountUser accountRole2 = new AccountUser();
-    accountRole2.setAccountId(BigInteger.valueOf(90888932L));
-
-     */
+    HubAccess expectUserAccess = new HubAccess()
+      .setUserId(user.getId())
+      .setUserAuthId(userAuth.getId())
+      .setRoleTypes(ImmutableList.of(UserRoleType.User, UserRoleType.Artist))
+      .setAccountIds(ImmutableSet.of(account1.getId(), account2.getId()));
+    verify(redisClient).set("xj_session_test:token123", entityFactory.serialize(expectUserAccess));
   }
 
   @Test

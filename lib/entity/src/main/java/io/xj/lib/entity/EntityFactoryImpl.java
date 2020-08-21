@@ -196,9 +196,10 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   /**
-   Ensure the given type exists in the inner schema, else add it@param message
+   Ensure the given type exists in the inner schema, else add it
 
-   @param type to ensure existence of
+   @param message on failure
+   @param type    to ensure existence of
    */
   private void ensureSchemaExists(Object message, String type) throws EntityException {
     if (!schema.containsKey(type))

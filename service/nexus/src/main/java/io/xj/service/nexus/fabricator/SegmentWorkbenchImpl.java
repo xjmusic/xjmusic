@@ -37,7 +37,8 @@ import java.util.Optional;
  until the very end of the process, when the trigger is pulled and all the entities are written to the database
  using a special segment DAO method that does them all in one transaction.
  <p>
- SegmentWorkbench.done()    Called at the end of Segment fabrication.
+ SegmentWorkbench.done()
+ Called at the end of Segment fabrication.
  Sends added records to segmentDAO batch insert method
  */
 class SegmentWorkbenchImpl implements SegmentWorkbench {

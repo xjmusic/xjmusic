@@ -74,28 +74,4 @@ public class HubEndpointTest {
     Payload resultPayload = payloadFactory.deserialize(String.valueOf(result.getEntity()));
     (new AssertPayload(resultPayload)).hasDataOne(createdAccount);
   }
-
-/*
-FUTURE like the above create() test
-
-  @Test
-  public void readOne() {
-  }
-
-  @Test
-  public void readMany() {
-  }
-
-  @Test
-  public void testReadMany() {
-  }
-
-  @Test
-  public void update() {
-  }
-
-  @Test
-  public void delete() {
-  }
-*/
 }

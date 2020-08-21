@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response;
  */
 @Path("chain-bindings")
 public class ChainBindingEndpoint extends NexusEndpoint {
-  private ChainBindingDAO dao;
+  private final ChainBindingDAO dao;
 
   /**
    The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
@@ -40,7 +40,7 @@ public class ChainBindingEndpoint extends NexusEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("chainId") String chainId) {
     return readMany(crc, dao(), chainId);
   }
@@ -53,7 +53,7 @@ public class ChainBindingEndpoint extends NexusEndpoint {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
   public Response create(Payload payload, @Context ContainerRequestContext crc) {
     return create(crc, dao(), payload);
   }
@@ -65,7 +65,7 @@ public class ChainBindingEndpoint extends NexusEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -77,7 +77,7 @@ public class ChainBindingEndpoint extends NexusEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ENGINEER})
+  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

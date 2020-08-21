@@ -1,81 +1,43 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.access;
 
-import com.google.api.client.json.JsonFactory;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.xj.lib.entity.Entity;
-import io.xj.lib.util.CSV;
-import io.xj.service.hub.entity.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.xj.service.hub.entity.Account;
+import io.xj.service.hub.entity.AccountUser;
+import io.xj.service.hub.entity.User;
+import io.xj.service.hub.entity.UserAuth;
+import io.xj.service.hub.entity.UserRole;
+import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.container.ContainerRequestContext;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.UUID;
 
 public class HubAccess {
   public static final String CONTEXT_KEY = "userAccess";
-  private static final Logger log = LoggerFactory.getLogger(HubAccess.class);
-  private static final String KEY_USER_ID = "userId";
-  private static final String KEY_USER_AUTH_ID = "userAuthId";
-  private static final String KEY_ACCOUNT_IDS = "accounts";
-  private static final String KEY_ROLE_TYPES = "roles";
   private static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
+
+  @JsonProperty("roleTypes")
   private final Collection<UserRoleType> roleTypes = Lists.newArrayList();
+
+  @JsonProperty("accountIds")
   private final Collection<UUID> accountIds = Lists.newArrayList();
 
   @Nullable
+  @JsonProperty("userId")
   private UUID userId;
 
   @Nullable
+  @JsonProperty("userAuthId")
   private UUID userAuthId;
-
-  /**
-   Construct an empty HubAccess model of models retrieved of structured data persistence layer
-   */
-  public HubAccess() {
-  }
-
-  /**
-   For parsing an incoming message, e.g. stored session in Redis
-
-   @param data to parse
-   */
-  public HubAccess(Map<String, String> data) {
-    if (data.containsKey(KEY_USER_ID))
-      userId = UUID.fromString(data.get(KEY_USER_ID));
-    else
-      userId = null;
-
-    if (data.containsKey(KEY_USER_AUTH_ID))
-      userAuthId = UUID.fromString(data.get(KEY_USER_AUTH_ID));
-    else
-      userAuthId = null;
-
-    if (data.containsKey(KEY_ROLE_TYPES))
-      setRoleTypes(UserRoleType.fromCsv(data.get(KEY_ROLE_TYPES)));
-    else
-      setRoleTypes(Lists.newArrayList());
-
-    if (data.containsKey(KEY_ACCOUNT_IDS))
-      setAccountIds(Entity.idsFromCSV(data.get(KEY_ACCOUNT_IDS)));
-    else
-      setAccountIds(Lists.newArrayList());
-  }
-
-  /**
-   of access with only role types, e.g. top level direct access
-
-   @param userRoleTypes to grant
-   */
-  public HubAccess(Collection<UserRoleType> userRoleTypes) {
-    userId = null;
-    userAuthId = null;
-    setAccountIds(Lists.newArrayList());
-    setRoleTypes(Lists.newArrayList(userRoleTypes));
-  }
 
   /**
    Create an access control object of request context
@@ -96,7 +58,7 @@ public class HubAccess {
    @return access control
    */
   public static HubAccess internal() {
-    return new HubAccess(ImmutableList.of(UserRoleType.Internal));
+    return new HubAccess().setRoleTypes(ImmutableList.of(UserRoleType.Internal));
   }
 
   /**
@@ -226,6 +188,7 @@ public class HubAccess {
 
    @param context to put
    */
+  @JsonIgnore
   public void toContext(ContainerRequestContext context) {
     context.setProperty(CONTEXT_KEY, this);
   }
@@ -237,6 +200,7 @@ public class HubAccess {
    @return whether user access roles match resource access roles.
    */
   @SafeVarargs
+  @JsonIgnore
   public final <T> boolean isAllowed(T... matchRoles) {
     return Arrays.stream(matchRoles).anyMatch(matchRole -> roleTypes.stream().anyMatch(userRoleType -> userRoleType == UserRoleType.valueOf(matchRole.toString())));
   }
@@ -246,8 +210,8 @@ public class HubAccess {
 
    @return id
    */
-  public UUID getUserId() throws HubAccessException {
-    if (Objects.isNull(userId)) throw new HubAccessException("HubAccess has no user");
+  @Nullable
+  public UUID getUserId() {
     return userId;
   }
 
@@ -284,6 +248,7 @@ public class HubAccess {
 
    @return boolean
    */
+  @JsonIgnore
   public Boolean isTopLevel() {
     return isAllowed(topLevelRoles);
   }
@@ -292,57 +257,12 @@ public class HubAccess {
    Validation
    [#154580129] valid with no accounts, because User expects to login without having access to any accounts.
    */
+  @JsonIgnore
   public boolean isValid() {
     if (isTopLevel()) return true;
     if (roleTypes.isEmpty()) return false;
     if (Objects.isNull(userAuthId)) return false;
     return !Objects.isNull(userId);
-  }
-
-  /**
-   Has access to account id?
-
-   @param accountId to check
-   @return true if has access
-   */
-  public Boolean hasAccount(UUID accountId) {
-    if (null != accountId) {
-      return accountIds.stream().anyMatch(matchAccountId -> Objects.equals(accountId, matchAccountId));
-    }
-    return false;
-  }
-
-  /**
-   Get a representation of this access control
-
-   @return JSON
-   */
-  public String toJSON(JsonFactory jsonFactory) {
-    try {
-      return jsonFactory.toString(toMap());
-    } catch (Exception e) {
-      log.error("failed JSON serialization", e);
-      return "{}";
-    }
-  }
-
-  /**
-   Inner map
-   */
-  public Map<String, String> toMap() {
-    Map<String, String> result = Maps.newHashMap();
-
-    if (Objects.nonNull(userId))
-      result.put(KEY_USER_ID, userId.toString());
-
-    if (Objects.nonNull(userAuthId))
-      result.put(KEY_USER_AUTH_ID, userAuthId.toString());
-
-    result.put(KEY_ROLE_TYPES, CSV.fromStringsOf(roleTypes));
-
-    result.put(KEY_ACCOUNT_IDS, CSV.fromStringsOf(accountIds));
-
-    return result;
   }
 
   /**

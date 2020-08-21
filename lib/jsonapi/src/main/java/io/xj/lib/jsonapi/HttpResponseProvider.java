@@ -50,9 +50,10 @@ public interface HttpResponseProvider {
 
    @param type       not found
    @param identifier not found
+   @param cause      to include in detail
    @return response
    */
-  Response unauthorized(Class<?> type, Object identifier);
+  Response unauthorized(Class<?> type, Object identifier, Throwable cause);
 
   /**
    Response with entity (named) not found
