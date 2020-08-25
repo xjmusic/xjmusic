@@ -410,7 +410,8 @@ CREATE TABLE xj.program_voice (
     type character varying(255) NOT NULL,
     name character varying(255) NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    "order" double precision DEFAULT 1000.0
 );
 
 
@@ -426,7 +427,8 @@ CREATE TABLE xj.program_voice_track (
     program_voice_id uuid NOT NULL,
     name character varying(255) NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    "order" double precision DEFAULT 1000.0
 );
 
 
@@ -701,6 +703,20 @@ CREATE INDEX flyway_schema_history_s_idx ON public.flyway_schema_history USING b
 --
 
 CREATE INDEX flyway_schema_history_s_idx ON xj.flyway_schema_history USING btree (success);
+
+
+--
+-- Name: program_voice_order_idx; Type: INDEX; Schema: xj; Owner: root
+--
+
+CREATE INDEX program_voice_order_idx ON xj.program_voice USING btree ("order");
+
+
+--
+-- Name: program_voice_track_order_idx; Type: INDEX; Schema: xj; Owner: root
+--
+
+CREATE INDEX program_voice_track_order_idx ON xj.program_voice_track USING btree ("order");
 
 
 --
@@ -1195,6 +1211,7 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 36	37	work	SQL	V37__work.sql	-1737567323	root	2020-03-03 15:30:26.847661	8	t
 37	38	segment waveform preroll	SQL	V38__segment_waveform_preroll.sql	-1820712501	root	2020-03-03 15:30:26.869638	1	t
 38	39	nexus tables dropped	SQL	V39__nexus_tables_dropped.sql	639873279	root	2020-07-15 00:06:47.139317	21	t
+39	40	program voice track order	SQL	V40__program_voice_track_order.sql	-2048787325	root	2020-08-21 21:35:32.45529	20	t
 \.
 
 
