@@ -6,6 +6,7 @@ import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.SegmentDAO;
+import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.entity.Segment;
 import io.xj.service.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
@@ -48,7 +49,12 @@ public class JanitorWorkerImpl implements JanitorWorker {
       long t = Instant.now().toEpochMilli();
       Collection<UUID> idsToErase = getSegmentIdsToErase();
       for (UUID segmentId : idsToErase)
-        segmentDAO.destroy(access, segmentId);
+        try {
+          segmentDAO.destroy(access, segmentId);
+        } catch (DAOExistenceException e) {
+          log.warn("Entity nonexistent while destroying Segment[{}]", segmentId, e);
+        }
+
       if (idsToErase.isEmpty())
         log.info("Found no segments to erase in {}ms OK", Instant.now().toEpochMilli() - t);
       else
