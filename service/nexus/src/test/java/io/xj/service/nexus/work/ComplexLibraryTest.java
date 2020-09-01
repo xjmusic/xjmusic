@@ -100,7 +100,7 @@ public class ComplexLibraryTest {
       .thenReturn(new HubContent(fake.generatedFixture(3)));
 
     // Chain "Test Print #1" is ready to begin
-    chain1 = test.put(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(1000), null, null));
+    chain1 = test.put(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now(), null, null));
     test.put(ChainBinding.create(chain1, fake.library1));
 
     app = new NexusApp(ImmutableSet.of("io.xj.nexus"), injector);

@@ -67,7 +67,7 @@ public class ChainWorkerImpl implements ChainWorker {
       if (segment.isEmpty()) return;
       segment.get().validate();
       Segment createdSegment = segmentDAO.create(access, segment.get());
-      log.info("Created Segment, id:{}, chainId:{}, offset:{}", createdSegment.getId(), createdSegment.getChainId(), createdSegment.getOffset());
+      log.info("Created Segment {}", createdSegment);
       long start = Instant.now().toEpochMilli();
 
       // FUTURE: fork/join thread possible for this runnable

@@ -10,6 +10,7 @@ import com.typesafe.config.Config;
 import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
@@ -26,7 +27,6 @@ import io.xj.service.nexus.entity.SegmentMeme;
 import io.xj.service.nexus.entity.SegmentMessage;
 import io.xj.service.nexus.entity.SegmentState;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.lib.entity.EntityStoreException;
 
 import java.time.Instant;
 import java.util.Collection;

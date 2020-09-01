@@ -151,6 +151,14 @@ public interface Fabricator {
   Chord getChordAt(int position) throws FabricationException;
 
   /**
+   Get the Messages for the current segment in the chain
+
+   @return Segment Messages
+   @throws FabricationException on failure
+   */
+  Collection<SegmentMessage> getSegmentMessages() throws FabricationException;
+
+  /**
    fetch the macro-type choice for the current segment in the chain
 
    @return macro-type segment choice
@@ -506,5 +514,5 @@ public interface Fabricator {
 
    @return JSON:API payload of the entire result of Segment Fabrication
    */
-  String getResultMetadata() throws FabricationException;
+  String getResultMetadataJson() throws FabricationException;
 }

@@ -4,6 +4,7 @@ package io.xj.service.nexus.dao;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
@@ -38,6 +39,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -72,7 +74,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   private final int chainReviveThresholdHeadSeconds;
   private final SegmentDAO segmentDAO;
   private final int previewLengthMaxHours;
-  private final PubSubProvider pubsub;
+  private final PubSubProvider pubSub;
   private final int previewEmbedKeyLength;
   private final SecureRandom secureRandom = new SecureRandom();
 
@@ -88,7 +90,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   ) {
     super(entityFactory, nexusEntityStore);
     this.segmentDAO = segmentDAO;
-    this.pubsub = pubSubProvider;
+    this.pubSub = pubSubProvider;
 
     previewLengthMaxHours = config.getInt("chain.previewLengthMaxHours");
     previewEmbedKeyLength = config.getInt("chain.previewEmbedKeyLength");
@@ -114,7 +116,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
         case Preview:
           requireAccount(access, chain.getAccountId(), UserRoleType.Artist);
-          chain.setStartAtInstant(Instant.now());
+          chain.setStartAtNow();
           chain.setStopAtInstant(chain.getStartAt().plus(previewLengthMaxHours, HOURS)); // [#174153691]
           chain.setEmbedKey(generatePreviewEmbedKey());
           break;
@@ -250,7 +252,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       store.put(chain);
       if (NOTIFY_ON_CHAIN_STATES.contains(chain.getState())) {
         log.info("Updated Chain {} to state {}", chain.getId(), chain.getState());
-        pubsub.publish(String.format("Updated Chain %s to state %s", chain.getId(), chain.getState()), MessageType.Info.toString());
+        pubSub.publish(String.format("Updated Chain %s to state %s", chain.getId(), chain.getState()), MessageType.Info.toString());
       }
 
     } catch (EntityStoreException e) {
@@ -350,28 +352,28 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   }
 
   @Override
-  public Chain revive(HubClientAccess access, UUID priorChainId) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException {
-    Chain priorChain = readOne(access, priorChainId);
+  public Chain revive(HubClientAccess access, UUID priorChainId, String reason) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException {
+    Chain prior = readOne(access, priorChainId);
 
-    if (ChainState.Fabricate != priorChain.getState())
+    if (ChainState.Fabricate != prior.getState())
       throw new DAOPrivilegeException("Only a Fabricate-state Chain can be revived.");
 
-    if (ChainType.Production != priorChain.getType())
+    if (ChainType.Production != prior.getType())
       throw new DAOPrivilegeException("Only a Production-type Chain can be revived.");
 
     // save the embed key to re-use on new chain
-    String embedKey = priorChain.getEmbedKey();
+    String embedKey = prior.getEmbedKey();
 
     // update the prior chain to failed state and null embed key
-    priorChain.setStateEnum(ChainState.Failed);
-    priorChain.setEmbedKey(null);
-    update(access, priorChainId, priorChain);
+    prior.setStateEnum(ChainState.Failed);
+    prior.setEmbedKey(null);
+    update(access, priorChainId, prior);
 
     // of new chain with original properties (implicitly created in draft state)
-    priorChain.setId(UUID.randomUUID()); // new id
-    priorChain.setEmbedKey(embedKey);
-    priorChain.setStartAtInstant(Instant.now()); // [#170273871] Revived chain should always start now
-    Chain created = create(access, priorChain);
+    prior.setId(UUID.randomUUID()); // new id
+    prior.setEmbedKey(embedKey);
+    prior.setStartAtNow();// [#170273871] Revived chain should always start now
+    Chain created = create(access, prior);
 
     // Re-create all chain configs of original chain
     for (ChainConfig chainConfig : chainConfigDAO.readMany(access, ImmutableList.of(priorChainId)))
@@ -387,22 +389,21 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     created.setStateEnum(ChainState.Fabricate);
 
     // publish a notification reporting the event
-    log.info("Revived Chain created {} from prior {}}", created.getId(), priorChain.getId());
-    pubsub.publish(String.format("Revived Chain created %s create from prior %s", created.getId(), priorChain.getId()), MessageType.Info.toString());
+    log.info("Revived Chain created {} from prior {} because {}", created.getId(), prior.getId(), reason);
+    pubSub.publish(String.format("Revived Chain created %s create from prior %s because %s", created.getId(), prior.getId(), reason), MessageType.Info.toString());
 
     // return newly created chain
     return created;
   }
 
   @Override
-  public Collection<Chain> checkAndReviveAll(HubClientAccess access) throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
+  public void checkAndReviveAll(HubClientAccess access) throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     requireTopLevel(access);
 
-    Collection<Chain> outcome = Lists.newArrayList();
     Instant thresholdChainStartAt = Instant.now().minusSeconds(chainReviveThresholdStartSeconds);
     Instant thresholdChainHeadAt = Instant.now().minusSeconds(chainReviveThresholdHeadSeconds);
 
-    Collection<UUID> stalledChainIds = Lists.newArrayList();
+    Map<UUID, String> stalledChainIds = Maps.newHashMap();
     readManyInState(access, ChainState.Fabricate)
       .stream()
       .filter((chain) -> chain.isProductionStartedBefore(thresholdChainStartAt))
@@ -411,7 +412,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
           if (store.getAll(Segment.class, Chain.class, ImmutableSet.of(chain.getId())).stream()
             .noneMatch(segment -> segment.isDubbedEndingAfter(thresholdChainHeadAt))) {
             log.warn("Found stalled Chain {} with no Segments Dubbed ending after {}", chain.getId(), thresholdChainHeadAt);
-            stalledChainIds.add(chain.getId());
+            stalledChainIds.put(chain.getId(), String.format("found no Segments Dubbed ending after %s in production Chain started before %s", thresholdChainHeadAt, thresholdChainStartAt));
           }
         } catch (EntityStoreException e) {
           log.warn("Failure while checking for Chains to revive!", e);
@@ -419,13 +420,12 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       });
 
     // revive all stalled chains
-    for (UUID stalledChainId : stalledChainIds) {
-      outcome.add(revive(access, stalledChainId));
+    for (UUID stalledChainId : stalledChainIds.keySet()) {
+      revive(access, stalledChainId, stalledChainIds.get(stalledChainId));
       // [#173968355] Nexus deletes entire chain when no current segments are left.
       destroy(access, stalledChainId);
     }
 
-    return outcome;
   }
 
   @Override

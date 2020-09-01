@@ -868,7 +868,7 @@ public class ChainDAOImplTest {
     Chain chain = test.put(Chain.create(account1, "school", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
     test.put(ChainBinding.create(chain, Library.create(account1, "pajamas", Instant.now())));
 
-    Chain result = subject.revive(access, chain.getId());
+    Chain result = subject.revive(access, chain.getId(), "Testing");
 
     assertNotNull(result);
     assertTrue(1000 > Instant.now().toEpochMilli() - result.getStartAt().toEpochMilli()); // [#170273871] Revived chain should always start now
@@ -894,7 +894,7 @@ public class ChainDAOImplTest {
     failure.expect(DAOExistenceException.class);
     failure.expectMessage("does not exist");
 
-    subject.revive(access, UUID.randomUUID());
+    subject.revive(access, UUID.randomUUID(), "Testing");
   }
 
   /**
@@ -908,7 +908,7 @@ public class ChainDAOImplTest {
     failure.expect(DAOPrivilegeException.class);
     failure.expectMessage("Only a Fabricate-state Chain can be revived.");
 
-    subject.revive(access, chain.getId());
+    subject.revive(access, chain.getId(), "Testing");
   }
 
   /**
@@ -920,7 +920,7 @@ public class ChainDAOImplTest {
     Chain chain = test.put(Chain.create(account1, "school", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
     test.put(ChainBinding.create(chain, Library.create(account1, "pajamas", Instant.now())));
 
-    Chain result = subject.revive(access, chain.getId());
+    Chain result = subject.revive(access, chain.getId(), "Testing");
 
     assertNotNull(result);
     assertEquals("school", result.getName());
@@ -942,7 +942,7 @@ public class ChainDAOImplTest {
     failure.expect(DAOPrivilegeException.class);
     failure.expectMessage("Account access is required");
 
-    subject.revive(access, chain.getId());
+    subject.revive(access, chain.getId(), "Testing");
   }
 
   /**
@@ -962,7 +962,7 @@ public class ChainDAOImplTest {
     test.put(ChainBinding.create(chain, Program.create(user3, library1, ProgramType.Rhythm, ProgramState.Published, "beets", "C", 120.0, 0.6)));
     test.put(ChainBinding.create(chain, Instrument.create(user3, library1, InstrumentType.Harmonic, InstrumentState.Published, "fonds")));
 
-    Chain result = subject.revive(access, chain.getId());
+    Chain result = subject.revive(access, chain.getId(), "Testing");
 
     assertNotNull(result);
     assertEquals(2, chainConfigDAO.readMany(HubClientAccess.internal(), ImmutableList.of(result.getId())).size());

@@ -7,6 +7,7 @@ import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.service.hub.client.HubClientAccess;
+import io.xj.service.hub.client.HubClientException;
 import io.xj.service.hub.entity.Account;
 import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.nexus.NexusEndpoint;
@@ -90,10 +91,11 @@ public class ChainEndpoint extends NexusEndpoint {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response create(Payload payload, @Context ContainerRequestContext crc, @QueryParam("reviveId") String reviveId) {
     try {
+      HubClientAccess access = HubClientAccess.fromContext(crc);
       // if present, we will revive a prior chain, else create a new one
       Chain chain = Objects.nonNull(reviveId) && !reviveId.isEmpty() ?
-        dao.revive(HubClientAccess.fromContext(crc), UUID.fromString(reviveId)) :
-        dao.create(HubClientAccess.fromContext(crc), payloadFactory.consume(new Chain(), payload));
+        dao.revive(access, UUID.fromString(reviveId), String.format("Requested by User[%s]", access.getUserId().toString())) :
+        dao.create(access, payloadFactory.consume(new Chain(), payload));
 
       // create either a new chain, or a chain revived from an existing prior chain
       return response.create(payloadFactory.newPayload().setDataOne(payloadFactory.toPayloadObject(chain)));
@@ -109,7 +111,7 @@ public class ChainEndpoint extends NexusEndpoint {
     } catch (DAOExistenceException e) {
       return response.notFound(Chain.class, reviveId);
 
-    } catch (JsonApiException | DAOFatalException e) {
+    } catch (HubClientException | JsonApiException | DAOFatalException e) {
       return response.failureToCreate(e);
     }
   }

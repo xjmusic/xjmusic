@@ -56,14 +56,14 @@ public interface ChainDAO extends DAO<Chain> {
    Build a template for the next segment in this Chain,
    or set the Chain state to COMPLETE if we are past the end time
 
-   @throws DAOFatalException     on failure
-   @throws DAOExistenceException if the entity does not exist
-   @throws DAOPrivilegeException if access is prohibited
    @param access                  control needs to be internal
    @param chain                   to build segment for
    @param segmentBeginBefore      ahead to of Segment before end of previous Segment
    @param chainStopCompleteBefore behind to consider a chain complete
    @return next segment if one needed to be built, or empty if no action needs to be taken
+   @throws DAOFatalException     on failure
+   @throws DAOExistenceException if the entity does not exist
+   @throws DAOPrivilegeException if access is prohibited
    */
   Optional<Segment> buildNextSegmentOrCompleteTheChain(HubClientAccess access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteBefore) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
 
@@ -82,16 +82,16 @@ public interface ChainDAO extends DAO<Chain> {
 
    @param access       control
    @param priorChainId to revived
+   @param reason       provided description why we are reviving this chain
    @return newly created revived chain
    */
-  Chain revive(HubClientAccess access, UUID priorChainId) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
+  Chain revive(HubClientAccess access, UUID priorChainId, String reason) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
 
   /**
    [#158897383] Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
    and if found, *revive* it in order to ensure the Chain remains in an operable state.
 
    @param access control
-   @return collection of chains (if any) which were revived of stale chains.
    */
-  Collection<Chain> checkAndReviveAll(HubClientAccess access) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
+  void checkAndReviveAll(HubClientAccess access) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
 }

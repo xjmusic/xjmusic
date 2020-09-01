@@ -55,8 +55,17 @@ public interface Text {
    */
   static String formatStackTrace(@Nullable Throwable e) {
     if (Objects.isNull(e)) return "";
-    StackTraceElement[] stack = e.getStackTrace();
-    String[] stackLines = Arrays.stream(stack).map(StackTraceElement::toString).toArray(String[]::new);
+    return formatMultiline(e.getStackTrace());
+  }
+
+  /**
+   Format multiline text in carriage-return-separated lines
+
+   @param stack of strings to format as multiline
+   @return formatted stack trace
+   */
+  static String formatMultiline(Object[] stack) {
+    String[] stackLines = Arrays.stream(stack).map(String::valueOf).toArray(String[]::new);
     return String.join(System.getProperty("line.separator"), stackLines);
   }
 

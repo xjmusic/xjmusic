@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.UUID;
 
 @Singleton
 class DubAudioCacheImpl implements DubAudioCache {
@@ -26,7 +27,7 @@ class DubAudioCacheImpl implements DubAudioCache {
   final String pathPrefix;
   private final FileStoreProvider fileStoreProvider;
   private final LoadingCache<String, DubAudioCacheItem> items;
-  private String audioFileBucket;
+  private final String audioFileBucket;
 
   @Inject
   DubAudioCacheImpl(
@@ -38,7 +39,7 @@ class DubAudioCacheImpl implements DubAudioCache {
     long allocateBytes = config.getLong("audio.cacheAllocateBytes");
     pathPrefix = config.hasPath("audio.cacheFilePrefix") ?
       config.getString("audio.cacheFilePrefix") :
-      String.format("%scache%s", TempFile.getTempFilePathPrefix(), File.separator);
+      TempFile.getTempFilePathPrefix() + "cache" + File.separator;
 
     try {
       // make directory for cache files
@@ -107,13 +108,7 @@ class DubAudioCacheImpl implements DubAudioCache {
    @return computed item
    */
   private DubAudioCacheItem fetchAndWrite(String key) throws IOException, FileStoreException {
-    String path = String.format("%s%s%s%d-%s.data",
-      pathPrefix,
-      audioFileBucket,
-      File.separator,
-      AudioCacheItemNumber.next(), // atomic integer is always unique
-      key);
-
+    String path = String.format("%s%s.data", pathPrefix, UUID.randomUUID().toString());
     DubAudioCacheItem item = new DubAudioCacheItem(key, path);
     InputStream stream = fileStoreProvider.streamS3Object(audioFileBucket, key);
     item.writeFrom(stream);

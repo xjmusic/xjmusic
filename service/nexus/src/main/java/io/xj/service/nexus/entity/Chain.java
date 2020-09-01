@@ -15,12 +15,11 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-import static java.time.temporal.ChronoUnit.HOURS;
-
 /**
  [#166743281] Chain handles all of its own binding + config entities
  */
 public class Chain extends Entity {
+  private static final long NOW_PLUS_SECONDS = 60;
   private UUID accountId;
   private String name;
   private ChainState state;
@@ -217,12 +216,22 @@ public class Chain extends Entity {
    */
   public Chain setStartAt(String value) {
     if (Objects.equals("now", Text.toLowerSlug(value))) {
-      startAt = Instant.now();
+      return setStartAtNow();
     } else try {
       startAt = Instant.parse(value);
     } catch (Exception e) {
       startAtException = e;
     }
+    return this;
+  }
+
+  /**
+   set StartAt to now (plus constant # of seconds)
+
+   @return this Chain (for chaining setters)
+   */
+  public Chain setStartAtNow() {
+    startAt = Instant.now().plusSeconds(NOW_PLUS_SECONDS);
     return this;
   }
 
@@ -327,7 +336,7 @@ public class Chain extends Entity {
 
   @Override
   public String toString() {
-    return Entities.toKeyValueString("Chain", ImmutableMap.<String, String>builder()
+    return Entities.toKeyValueString(Chain.class.getSimpleName(), ImmutableMap.<String, String>builder()
       .put("id", String.valueOf(id))
       .put("embedKey", Objects.nonNull(embedKey) ? Text.toSingleQuoted(embedKey) : "null")
       .put("accountId", String.valueOf(accountId))

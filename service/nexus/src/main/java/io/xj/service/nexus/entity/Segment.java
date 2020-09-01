@@ -2,8 +2,11 @@
 
 package io.xj.service.nexus.entity;
 
+import com.google.common.collect.ImmutableMap;
+import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.Entity;
 import io.xj.lib.mixer.OutputEncoder;
+import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 
@@ -488,7 +491,17 @@ public class Segment extends Entity {
 
   @Override
   public String toString() {
-    return String.format("Segment[%s]-offset@%d-in-Chain[%s]", getId().toString(), getOffset(), getChainId().toString());
+    return Entities.toKeyValueString(Segment.class.getSimpleName(), ImmutableMap.<String, String>builder()
+      .put("id", String.valueOf(id))
+      .put("chainId", String.valueOf(chainId))
+      .put("offset", String.valueOf(offset))
+      .put("state", Text.toSingleQuoted(String.valueOf(state)))
+      .put("type", Text.toSingleQuoted(String.valueOf(type)))
+      .put("beginAt", String.valueOf(beginAt))
+      .put("endAt", String.valueOf(endAt))
+      .put("createdAt", String.valueOf(createdAt))
+      .put("updatedAt", String.valueOf(updatedAt))
+      .build());
   }
 
   @Override

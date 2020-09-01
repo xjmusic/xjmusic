@@ -4,29 +4,40 @@ package io.xj.service.nexus.dub;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.typesafe.config.Config;
+import io.xj.lib.entity.MessageType;
 import io.xj.lib.pubsub.FileStoreException;
 import io.xj.lib.pubsub.FileStoreProvider;
+import io.xj.lib.pubsub.PubSubProvider;
+import io.xj.lib.util.Text;
+import io.xj.service.nexus.entity.SegmentMessage;
 import io.xj.service.nexus.entity.SegmentType;
 import io.xj.service.nexus.fabricator.FabricationException;
 import io.xj.service.nexus.fabricator.Fabricator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
 
 /**
  [#264] Segment audio is compressed to OGG and shipped to https://segment.xj.io
  */
 public class DubShipImpl implements DubShip {
-  //  private final Logger log = LoggerFactory.getLogger(ShipDubImpl.class);
+  private final Logger log = LoggerFactory.getLogger(DubShipImpl.class);
   private final Fabricator fabricator;
-  private final FileStoreProvider fileStoreProvider;
+  private final FileStoreProvider fileStore;
   private final String segmentFileBucket;
+  private final PubSubProvider pubSub;
 
   @Inject
   public DubShipImpl(
     @Assisted("basis") Fabricator fabricator,
-    FileStoreProvider fileStoreProvider,
+    FileStoreProvider fileStore,
+    PubSubProvider pubSub,
     Config config
     /*-*/) {
     this.fabricator = fabricator;
-    this.fileStoreProvider = fileStoreProvider;
+    this.fileStore = fileStore;
+    this.pubSub = pubSub;
 
     segmentFileBucket = config.getString("segment.fileBucket");
   }
@@ -38,7 +49,7 @@ public class DubShipImpl implements DubShip {
       type = fabricator.getType();
       shipFinalMetadata();
       shipFinalAudio();
-      report();
+      publishWarningMessages();
 
     } catch (FabricationException | FileStoreException e) {
       throw new DubException(String.format("Failed to do %s-type ShipDub for segment #%s",
@@ -51,7 +62,7 @@ public class DubShipImpl implements DubShip {
    DubShip the final audio
    */
   private void shipFinalAudio() throws FabricationException, FileStoreException {
-    fileStoreProvider.putS3ObjectFromTempFile(
+    fileStore.putS3ObjectFromTempFile(
       fabricator.getFullQualityAudioOutputFilePath(),
       segmentFileBucket,
       fabricator.getSegment().getOutputWaveformKey());
@@ -61,8 +72,8 @@ public class DubShipImpl implements DubShip {
    DubShip the final metadata
    */
   private void shipFinalMetadata() throws FabricationException, FileStoreException {
-    fileStoreProvider.putS3ObjectFromString(
-      fabricator.getResultMetadata(),
+    fileStore.putS3ObjectFromString(
+      fabricator.getResultMetadataJson(),
       segmentFileBucket,
       fabricator.getSegment().getOutputMetadataKey());
   }
@@ -70,8 +81,25 @@ public class DubShipImpl implements DubShip {
   /**
    report things
    */
-  private void report() {
-    // future: send report
+  private void publishWarningMessages() {
+    try {
+      Collection<SegmentMessage> messages = fabricator.getSegmentMessages();
+      if (0 < messages.size()) {
+        MessageType mostSevereType = MessageType.mostSevereType(messages);
+        if (MessageType.isMoreSevere(mostSevereType, MessageType.Info))
+          pubSub.publish(
+            String.format("There were messages!\n\n%s", Text.formatMultiline(
+              messages.stream()
+                .map(segmentMessage -> String.format("[%s] %s\n\n", segmentMessage.getType(), segmentMessage.getBody()))
+                .toArray()
+            )),
+            mostSevereType.toString()
+          );
+      }
+
+    } catch (FabricationException e) {
+      log.error("Failed to publish report", e);
+    }
   }
 
 }

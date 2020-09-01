@@ -9,8 +9,8 @@ public class TextTest {
 
 
   @Test
-  public void formatSimpleTrace() {
-    // FUTURE test Text.formatSimpleTrace()
+  public void formatMultiline() {
+    assertEquals("Line One\nLine Two", Text.formatMultiline(new String[]{"Line One", "Line Two"}));
   }
 
   @Test

@@ -261,6 +261,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public Collection<SegmentMessage> getSegmentMessages() throws FabricationException {
+    return workbench.getSegmentMessages();
+  }
+
+  @Override
   public SegmentChoice getCurrentMacroChoice() throws FabricationException {
     return workbench.getChoiceOfType(ProgramType.Macro);
   }
@@ -562,7 +567,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getResultMetadata() throws FabricationException {
+  public String getResultMetadataJson() throws FabricationException {
     try {
       return entityFactory.serialize(payloadFactory.newPayload()
         .setDataOne(payloadFactory.toPayloadObject(workbench.getSegment()))
