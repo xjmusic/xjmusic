@@ -47,7 +47,7 @@ public abstract class WorkerImpl implements Runnable {
    @return metric name
    */
   private String getMetricNamespace() {
-    return String.format(METRIC_NAMESPACE_FORMAT, getName().toUpperCase());
+    return String.format(METRIC_NAMESPACE_FORMAT, getName());
   }
 
   /**

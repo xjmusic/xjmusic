@@ -5,6 +5,7 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder;
+import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
@@ -23,16 +24,37 @@ import com.typesafe.config.Config;
  <p>
  */
 class TelemetryProviderImpl implements TelemetryProvider {
+  private static final String ENVIRONMENT = "env";
+  private static final String APPLICATION = "app";
   private final AmazonCloudWatch telemetry;
   private final String awsAccessKeyId;
   private final String awsSecretKey;
   private final String awsDefaultRegion;
+  private final Dimension environment;
+  private final Dimension application;
+
+  @Inject
+  public TelemetryProviderImpl(
+    Config config
+  ) {
+    awsDefaultRegion = config.getString("aws.defaultRegion");
+    awsAccessKeyId = config.getString("aws.accessKeyID");
+    awsSecretKey = config.getString("aws.secretKey");
+    telemetry = buildCloudWatchClient();
+    environment = new Dimension()
+      .withName(ENVIRONMENT)
+      .withValue(config.getString("app.env"));
+    application = new Dimension()
+      .withName(APPLICATION)
+      .withValue(config.getString("app.name"));
+  }
 
   @Override
   public MetricDatum datum(String name, StandardUnit unit, Double value) {
     return new MetricDatum()
       .withMetricName(name)
       .withUnit(unit)
+      .withDimensions(environment, application)
       .withValue(value);
   }
 
@@ -47,16 +69,6 @@ class TelemetryProviderImpl implements TelemetryProvider {
   @Override
   public void send(String namespace, String name, StandardUnit unit, Double value) {
     send(namespace, datum(name, unit, value));
-  }
-
-  @Inject
-  public TelemetryProviderImpl(
-    Config config
-  ) {
-    awsDefaultRegion = config.getString("aws.defaultRegion");
-    awsAccessKeyId = config.getString("aws.accessKeyID");
-    awsSecretKey = config.getString("aws.secretKey");
-    telemetry = buildCloudWatchClient();
   }
 
   /**
