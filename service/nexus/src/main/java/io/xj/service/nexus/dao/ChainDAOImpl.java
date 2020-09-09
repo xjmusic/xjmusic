@@ -4,7 +4,6 @@ package io.xj.service.nexus.dao;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
@@ -39,7 +38,6 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -68,10 +66,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     ChainState.Fabricate,
     ChainState.Failed
   );
-  private final int chainReviveThresholdStartSeconds;
   private final ChainConfigDAO chainConfigDAO;
   private final ChainBindingDAO chainBindingDAO;
-  private final int chainReviveThresholdHeadSeconds;
   private final SegmentDAO segmentDAO;
   private final int previewLengthMaxHours;
   private final PubSubProvider pubSub;
@@ -80,9 +76,9 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
   @Inject
   public ChainDAOImpl(
+    Config config,
     EntityFactory entityFactory,
     NexusEntityStore nexusEntityStore,
-    Config config,
     SegmentDAO segmentDAO,
     ChainConfigDAO chainConfigDAO,
     ChainBindingDAO chainBindingDAO,
@@ -94,8 +90,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     previewLengthMaxHours = config.getInt("chain.previewLengthMaxHours");
     previewEmbedKeyLength = config.getInt("chain.previewEmbedKeyLength");
-    chainReviveThresholdHeadSeconds = config.getInt("chain.reviveThresholdHeadSeconds");
-    chainReviveThresholdStartSeconds = config.getInt("chain.reviveThresholdStartSeconds");
     this.chainConfigDAO = chainConfigDAO;
     this.chainBindingDAO = chainBindingDAO;
   }
@@ -261,7 +255,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   }
 
   @Override
-  public Optional<Segment> buildNextSegmentOrCompleteTheChain(HubClientAccess access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteBefore) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException {
+  public Optional<Segment> buildNextSegmentOrCompleteTheChain(HubClientAccess access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteAfter) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException {
     requireTopLevel(access);
 
     // If there's already a no-endAt-time-having Segment at the end of this Chain, get outta here
@@ -296,7 +290,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       && Objects.nonNull(chain.getStopAt())
       && lastSegmentInChain.getEndAt().isAfter(chain.getStopAt())) {
       // this is where we check to see if the chain is ready to be COMPLETE.
-      if (chain.getStopAt().isBefore(chainStopCompleteBefore)
+      if (chain.getStopAt().isBefore(chainStopCompleteAfter)
         // and [#122] require the last segment in the chain to be in state DUBBED.
         && SegmentState.Dubbed.equals(lastSegmentInChain.getState())) {
         updateState(access, chain.getId(), ChainState.Complete);
@@ -394,38 +388,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     // return newly created chain
     return created;
-  }
-
-  @Override
-  public void checkAndReviveAll(HubClientAccess access) throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
-    requireTopLevel(access);
-
-    Instant thresholdChainStartAt = Instant.now().minusSeconds(chainReviveThresholdStartSeconds);
-    Instant thresholdChainHeadAt = Instant.now().minusSeconds(chainReviveThresholdHeadSeconds);
-
-    Map<UUID, String> stalledChainIds = Maps.newHashMap();
-    readManyInState(access, ChainState.Fabricate)
-      .stream()
-      .filter((chain) -> chain.isProductionStartedBefore(thresholdChainStartAt))
-      .forEach(chain -> {
-        try {
-          if (store.getAll(Segment.class, Chain.class, ImmutableSet.of(chain.getId())).stream()
-            .noneMatch(segment -> segment.isDubbedEndingAfter(thresholdChainHeadAt))) {
-            log.warn("Found stalled Chain {} with no Segments Dubbed ending after {}", chain.getId(), thresholdChainHeadAt);
-            stalledChainIds.put(chain.getId(), String.format("found no Segments Dubbed ending after %s in production Chain started before %s", thresholdChainHeadAt, thresholdChainStartAt));
-          }
-        } catch (EntityStoreException e) {
-          log.warn("Failure while checking for Chains to revive!", e);
-        }
-      });
-
-    // revive all stalled chains
-    for (UUID stalledChainId : stalledChainIds.keySet()) {
-      revive(access, stalledChainId, stalledChainIds.get(stalledChainId));
-      // [#173968355] Nexus deletes entire chain when no current segments are left.
-      destroy(access, stalledChainId);
-    }
-
   }
 
   @Override

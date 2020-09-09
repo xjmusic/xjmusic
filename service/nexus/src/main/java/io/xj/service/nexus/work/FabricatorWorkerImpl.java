@@ -3,6 +3,7 @@ package io.xj.service.nexus.work;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.lib.entity.MessageType;
+import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.craft.CraftFactory;
@@ -23,14 +24,17 @@ import io.xj.service.nexus.fabricator.FabricatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.UUID;
 
 /**
  Fabricator Worker implementation
  */
-public class FabricatorWorkerImpl implements FabricatorWorker {
+public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker {
+  private static final String NAME = "Medic";
   private static final Logger log = LoggerFactory.getLogger(FabricatorWorker.class);
-
+  private static final String CRAFT_DURATION = "CRAFT_DURATION";
+  private static final String DUB_DURATION = "DUB_DURATION";
   private final SegmentDAO segmentDAO;
   private final UUID segmentId;
   private final FabricatorFactory fabricatorFactory;
@@ -46,20 +50,28 @@ public class FabricatorWorkerImpl implements FabricatorWorker {
     CraftFactory craftFactory,
     FabricatorFactory fabricatorFactory,
     SegmentDAO segmentDAO,
-    DubFactory dubFactory
+    DubFactory dubFactory,
+    TelemetryProvider telemetryProvider
   ) {
+    super(telemetryProvider);
     this.segmentId = segmentId;
     this.craftFactory = craftFactory;
     this.fabricatorFactory = fabricatorFactory;
     this.segmentDAO = segmentDAO;
     this.dubFactory = dubFactory;
+
+    log.info("Instantiated OK");
+  }
+
+  @Override
+  protected String getName() {
+    return NAME;
   }
 
   /**
-   Do the segment Job
+   Do the work-- this is called by the underlying WorkerImpl run() hook
    */
-  @Override
-  public void run() {
+  protected void doWork() {
     try {
       log.info("[segId={}] will read Segment for fabrication", segmentId);
       segment = segmentDAO.readOne(access, segmentId);
@@ -136,10 +148,12 @@ public class FabricatorWorkerImpl implements FabricatorWorker {
    @throws DAOExistenceException  if segment does not exist
    */
   private void doCraftWork() throws NexusException, CraftException, DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
+    long startAtMillis = Instant.now().toEpochMilli();
     updateSegmentState(SegmentState.Planned, SegmentState.Crafting);
     craftFactory.macroMain(fabricator).doWork();
     craftFactory.rhythm(fabricator).doWork();
     craftFactory.harmonicDetail(fabricator).doWork();
+    observeMillis(CRAFT_DURATION, Instant.now().toEpochMilli() - startAtMillis);
   }
 
   /**
@@ -153,9 +167,11 @@ public class FabricatorWorkerImpl implements FabricatorWorker {
    @throws DAOExistenceException  if segment does not exist
    */
   protected void doDubWork() throws CraftException, DubException, DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
+    long startAtMillis = Instant.now().toEpochMilli();
     updateSegmentState(SegmentState.Crafting, SegmentState.Dubbing);
     dubFactory.master(fabricator).doWork();
     dubFactory.ship(fabricator).doWork();
+    observeMillis(DUB_DURATION, Instant.now().toEpochMilli() - startAtMillis);
   }
 
   /**

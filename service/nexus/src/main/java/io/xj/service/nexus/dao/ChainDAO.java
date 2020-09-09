@@ -58,14 +58,14 @@ public interface ChainDAO extends DAO<Chain> {
 
    @param access                  control needs to be internal
    @param chain                   to build segment for
-   @param segmentBeginBefore      ahead to of Segment before end of previous Segment
-   @param chainStopCompleteBefore behind to consider a chain complete
+   @param segmentBeginBefore      build the next Segment if we are before this time
+   @param chainStopCompleteAfter  complete the Chain if we are after this time
    @return next segment if one needed to be built, or empty if no action needs to be taken
    @throws DAOFatalException     on failure
    @throws DAOExistenceException if the entity does not exist
    @throws DAOPrivilegeException if access is prohibited
    */
-  Optional<Segment> buildNextSegmentOrCompleteTheChain(HubClientAccess access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteBefore) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
+  Optional<Segment> buildNextSegmentOrCompleteTheChain(HubClientAccess access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteAfter) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
 
   /**
    Require Account and role from given access
@@ -86,12 +86,4 @@ public interface ChainDAO extends DAO<Chain> {
    @return newly created revived chain
    */
   Chain revive(HubClientAccess access, UUID priorChainId, String reason) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
-
-  /**
-   [#158897383] Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
-   and if found, *revive* it in order to ensure the Chain remains in an operable state.
-
-   @param access control
-   */
-  void checkAndReviveAll(HubClientAccess access) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
 }

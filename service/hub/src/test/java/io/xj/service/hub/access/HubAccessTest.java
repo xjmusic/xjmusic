@@ -11,7 +11,7 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
-import io.xj.lib.pubsub.FileStoreModule;
+import io.xj.lib.filestore.FileStoreModule;
 import io.xj.service.hub.dao.DAOModule;
 import io.xj.service.hub.entity.AccountUser;
 import io.xj.service.hub.entity.User;

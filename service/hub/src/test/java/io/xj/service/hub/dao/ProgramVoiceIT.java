@@ -8,7 +8,7 @@ import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
-import io.xj.lib.pubsub.FileStoreModule;
+import io.xj.lib.filestore.FileStoreModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.access.HubAccessControlModule;

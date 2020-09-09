@@ -10,7 +10,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.pubsub.FileStoreProvider;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
@@ -69,6 +70,9 @@ public class ComplexLibraryTest {
   @Mock
   public FileStoreProvider fileStoreProvider;
 
+  @Mock
+  private TelemetryProvider telemetryProvider;
+
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault()
@@ -82,6 +86,7 @@ public class ComplexLibraryTest {
           @Override
           public void configure() {
             bind(FileStoreProvider.class).toInstance(fileStoreProvider);
+            bind(TelemetryProvider.class).toInstance(telemetryProvider);
             bind(HubClient.class).toInstance(hubClient);
           }
         })));

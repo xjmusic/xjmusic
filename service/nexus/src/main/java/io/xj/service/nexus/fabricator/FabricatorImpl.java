@@ -18,7 +18,7 @@ import io.xj.lib.music.Chord;
 import io.xj.lib.music.MusicalException;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.Tuning;
-import io.xj.lib.pubsub.FileStoreProvider;
+import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClient;

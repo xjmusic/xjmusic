@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.pubsub;
+package io.xj.lib.filestore;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;

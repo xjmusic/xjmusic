@@ -2,22 +2,29 @@ package io.xj.service.nexus.work;
 
 import com.google.inject.Inject;
 import io.xj.lib.entity.Entity;
+import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
+import io.xj.service.nexus.dao.exception.DAOFatalException;
+import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.entity.ChainState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
  Boss Worker implementation
+ <p>
+ [#171919183] Prometheus metrics reported by Java apps and consumed by CloudWatch
  */
-public class BossWorkerImpl implements BossWorker {
-  private final Logger log = LoggerFactory.getLogger(BossWorker.class);
+public class BossWorkerImpl extends WorkerImpl implements BossWorker {
+  private static final String NAME = "Boss";
+  private static final String CHAINS_STARTED = "CHAINS_STARTED";
+  private static final String CHAINS_CANCELLED = "CHAINS_CANCELLED";
+  private final Logger log = LoggerFactory.getLogger(BossWorkerImpl.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final NexusWork work;
   private final ChainDAO chainDAO;
@@ -25,36 +32,76 @@ public class BossWorkerImpl implements BossWorker {
   @Inject
   public BossWorkerImpl(
     NexusWork work,
-    ChainDAO chainDAO
+    ChainDAO chainDAO,
+    TelemetryProvider telemetryProvider
   ) {
+    super(telemetryProvider);
     this.work = work;
     this.chainDAO = chainDAO;
+
     log.info("Instantiated OK");
   }
 
-  public void run() {
-    final Thread currentThread = Thread.currentThread();
-    final String _ogThreadName = currentThread.getName();
-    currentThread.setName(_ogThreadName + "-Boss");
-    try {
-      long t = Instant.now().toEpochMilli();
-      Collection<UUID> activeIds = chainDAO.readManyInState(access, ChainState.Fabricate)
-        .stream()
-        .map(Entity::getId)
-        .collect(Collectors.toList());
-      for (UUID id : activeIds)
-        if (!work.isWorkingOnChain(id))
-          work.beginChainWork(id);
-      for (UUID id : work.getChainWorkingIds())
-        if (!activeIds.contains(id))
-          work.cancelChainWork(id);
-      log.info("Did run in {}ms OK", Instant.now().toEpochMilli() - t);
+  /**
+   Do the work-- this is called by the underlying WorkerImpl run() hook
 
-    } catch (Throwable e) {
-      log.error("Failed!", e);
+   @throws DAOPrivilegeException on access failure
+   @throws DAOFatalException     on internal failure
+   */
+  protected void doWork() throws DAOPrivilegeException, DAOFatalException {
+    Collection<UUID> activeIds = getActiveChainIds();
+    startActiveChains(activeIds);
+    cancelInactiveChains(activeIds);
+  }
 
-    } finally {
-      currentThread.setName(_ogThreadName);
-    }
+  @Override
+  protected String getName() {
+    return NAME;
+  }
+
+  /**
+   Get the IDs of all Chains in the store whose state is currently in Fabricate
+
+   @return active Chain IDS
+   @throws DAOPrivilegeException on access control failure
+   @throws DAOFatalException     on internal failure
+   */
+  private Collection<UUID> getActiveChainIds() throws DAOPrivilegeException, DAOFatalException {
+    return chainDAO.readManyInState(access, ChainState.Fabricate)
+      .stream()
+      .map(Entity::getId)
+      .collect(Collectors.toList());
+  }
+
+  /**
+   Cancel all Chains that are not in the list of active Chain IDs
+
+   @param activeIds to avoid cancellation
+   */
+  private void cancelInactiveChains(Collection<UUID> activeIds) {
+    long chainsCanceled = 0;
+    for (UUID id : work.getChainWorkingIds())
+      if (!activeIds.contains(id)) {
+        work.cancelChainWork(id);
+        log.info("Did cancel work on Chain[{}]", id);
+        chainsCanceled++;
+      }
+    observeCount(CHAINS_CANCELLED, chainsCanceled);
+  }
+
+  /**
+   Start work on all chains from this list of active Chain IDs
+
+   @param activeIds to start if not already active
+   */
+  private void startActiveChains(Collection<UUID> activeIds) {
+    long chainsStarted = 0;
+    for (UUID id : activeIds)
+      if (!work.isWorkingOnChain(id)) {
+        work.beginChainWork(id);
+        log.info("Did start work on Chain[{}]", id);
+        chainsStarted++;
+      }
+    observeCount(CHAINS_STARTED, chainsStarted);
   }
 }

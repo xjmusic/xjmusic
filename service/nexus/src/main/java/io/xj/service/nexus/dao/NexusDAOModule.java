@@ -2,7 +2,7 @@
 package io.xj.service.nexus.dao;
 
 import com.google.inject.AbstractModule;
-import io.xj.lib.pubsub.FileStoreModule;
+import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.pubsub.PubSubModule;
 import io.xj.service.nexus.persistence.NexusEntityStoreModule;
 

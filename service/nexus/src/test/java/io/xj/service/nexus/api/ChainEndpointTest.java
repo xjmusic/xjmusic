@@ -12,7 +12,7 @@ import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.pubsub.FileStoreModule;
+import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;

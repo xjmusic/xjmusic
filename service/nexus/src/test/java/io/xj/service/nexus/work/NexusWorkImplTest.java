@@ -11,7 +11,7 @@ import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.pubsub.FileStoreProvider;
+import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.entity.Account;
 import io.xj.service.nexus.NexusApp;

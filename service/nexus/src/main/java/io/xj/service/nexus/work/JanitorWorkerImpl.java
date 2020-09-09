@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityStoreException;
+import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
@@ -20,7 +21,9 @@ import java.util.stream.Collectors;
 /**
  Janitor Worker implementation
  */
-public class JanitorWorkerImpl implements JanitorWorker {
+public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
+  private static final String NAME = "Janitor";
+  private static final String SEGMENTS_ERASED = "SEGMENTS_ERASED";
   private final Logger log = LoggerFactory.getLogger(JanitorWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final NexusEntityStore store;
@@ -29,10 +32,12 @@ public class JanitorWorkerImpl implements JanitorWorker {
 
   @Inject
   public JanitorWorkerImpl(
+    Config config,
     NexusEntityStore store,
     SegmentDAO segmentDAO,
-    Config config
+    TelemetryProvider telemetryProvider
   ) {
+    super(telemetryProvider);
     this.store = store;
     this.segmentDAO = segmentDAO;
 
@@ -41,31 +46,32 @@ public class JanitorWorkerImpl implements JanitorWorker {
     log.info("Instantiated OK");
   }
 
-  public void run() {
-    final Thread currentThread = Thread.currentThread();
-    final String _ogThreadName = currentThread.getName();
-    currentThread.setName(_ogThreadName + "-Janitor");
-    try {
-      long t = Instant.now().toEpochMilli();
-      Collection<UUID> idsToErase = getSegmentIdsToErase();
-      for (UUID segmentId : idsToErase)
-        try {
-          segmentDAO.destroy(access, segmentId);
-        } catch (DAOExistenceException e) {
-          log.warn("Entity nonexistent while destroying Segment[{}]", segmentId, e);
-        }
+  /**
+   Do the work-- this is called by the underlying WorkerImpl run() hook
 
-      if (idsToErase.isEmpty())
-        log.info("Found no segments to erase in {}ms OK", Instant.now().toEpochMilli() - t);
-      else
-        log.info("Did erase {} segments in {}ms OK", idsToErase.size(), Instant.now().toEpochMilli() - t);
+   @throws Exception on failure
+   */
+  protected void doWork() throws Exception {
+    long t = Instant.now().toEpochMilli();
+    Collection<UUID> idsToErase = getSegmentIdsToErase();
+    for (UUID segmentId : idsToErase)
+      try {
+        segmentDAO.destroy(access, segmentId);
+      } catch (DAOExistenceException e) {
+        log.warn("Entity nonexistent while destroying Segment[{}]", segmentId, e);
+      }
 
-    } catch (Throwable e) {
-      log.error("Failed!", e);
+    if (idsToErase.isEmpty())
+      log.info("Found no segments to erase in {}ms OK", Instant.now().toEpochMilli() - t);
+    else
+      log.info("Did erase {} segments in {}ms OK", idsToErase.size(), Instant.now().toEpochMilli() - t);
 
-    } finally {
-      currentThread.setName(_ogThreadName);
-    }
+    observeCount(SEGMENTS_ERASED, idsToErase.size());
+  }
+
+  @Override
+  protected String getName() {
+    return NAME;
   }
 
   /**

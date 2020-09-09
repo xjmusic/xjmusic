@@ -344,6 +344,17 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
+  public boolean existsAnyDubbedEndingAfter(UUID chainId, Instant thresholdChainHeadAt) throws DAOFatalException {
+    try {
+      return store.getAll(Segment.class, Chain.class, ImmutableSet.of(chainId)).stream()
+        .noneMatch(segment -> segment.isDubbedEndingAfter(thresholdChainHeadAt));
+
+    } catch (EntityStoreException e) {
+      throw new DAOFatalException(e);
+    }
+  }
+
+  @Override
   public void destroy(HubClientAccess access, UUID id) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     requireTopLevel(access);
 

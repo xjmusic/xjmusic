@@ -12,7 +12,7 @@ import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
-import io.xj.lib.pubsub.FileStoreModule;
+import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.access.HubAccess;
