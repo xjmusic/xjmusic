@@ -9,7 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 
 public abstract class WorkerImpl implements Runnable {
-  private static final String JOB_DURATION = "JOB_DURATION";
+  private static final String JOB_DURATION = "JobDuration";
+  private static final String METRIC_NAMESPACE_FORMAT = "XJ Nexus %s";
   private final Logger log = LoggerFactory.getLogger(WorkerImpl.class);
   protected final TelemetryProvider metrics;
 
@@ -46,7 +47,7 @@ public abstract class WorkerImpl implements Runnable {
    @return metric name
    */
   private String getMetricNamespace() {
-    return String.format("NEXUS/WORKER/%s", getName().toUpperCase());
+    return String.format(METRIC_NAMESPACE_FORMAT, getName().toUpperCase());
   }
 
   /**

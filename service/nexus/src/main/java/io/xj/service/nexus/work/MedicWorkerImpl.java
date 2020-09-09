@@ -24,7 +24,7 @@ import java.util.UUID;
  */
 public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
   private static final String NAME = "Medic";
-  private static final String CHAINS_REVIVED = "CHAINS_REVIVED";
+  private static final String CHAIN_REVIVED = "ChainRevived";
   private final Logger log = LoggerFactory.getLogger(MedicWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final ChainDAO chainDAO;
@@ -104,6 +104,6 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
       chainDAO.destroy(access, stalledChainId);
     }
 
-    observeCount(CHAINS_REVIVED, stalledChainIds.size());
+    observeCount(CHAIN_REVIVED, stalledChainIds.size());
   }
 }

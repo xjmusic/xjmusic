@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
  */
 public class BossWorkerImpl extends WorkerImpl implements BossWorker {
   private static final String NAME = "Boss";
-  private static final String CHAINS_STARTED = "CHAINS_STARTED";
-  private static final String CHAINS_CANCELLED = "CHAINS_CANCELLED";
+  private static final String CHAIN_STARTED = "ChainStarted";
+  private static final String CHAIN_CANCELLED = "ChainCancelled";
   private final Logger log = LoggerFactory.getLogger(BossWorkerImpl.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final NexusWork work;
@@ -86,7 +86,7 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
         log.info("Did cancel work on Chain[{}]", id);
         chainsCanceled++;
       }
-    observeCount(CHAINS_CANCELLED, chainsCanceled);
+    observeCount(CHAIN_CANCELLED, chainsCanceled);
   }
 
   /**
@@ -102,6 +102,6 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
         log.info("Did start work on Chain[{}]", id);
         chainsStarted++;
       }
-    observeCount(CHAINS_STARTED, chainsStarted);
+    observeCount(CHAIN_STARTED, chainsStarted);
   }
 }

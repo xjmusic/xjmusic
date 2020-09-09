@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
   private static final String NAME = "Janitor";
-  private static final String SEGMENTS_ERASED = "SEGMENTS_ERASED";
+  private static final String SEGMENT_ERASED = "SegmentErased";
   private final Logger log = LoggerFactory.getLogger(JanitorWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final NexusEntityStore store;
@@ -66,7 +66,7 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
     else
       log.info("Did erase {} segments in {}ms OK", idsToErase.size(), Instant.now().toEpochMilli() - t);
 
-    observeCount(SEGMENTS_ERASED, idsToErase.size());
+    observeCount(SEGMENT_ERASED, idsToErase.size());
   }
 
   @Override

@@ -31,10 +31,10 @@ import java.util.UUID;
  Fabricator Worker implementation
  */
 public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker {
-  private static final String NAME = "Medic";
+  private static final String NAME = "Fabricator";
   private static final Logger log = LoggerFactory.getLogger(FabricatorWorker.class);
-  private static final String CRAFT_DURATION = "CRAFT_DURATION";
-  private static final String DUB_DURATION = "DUB_DURATION";
+  private static final String CRAFT_DURATION = "CraftDuration";
+  private static final String DUB_DURATION = "DubDuration";
   private final SegmentDAO segmentDAO;
   private final UUID segmentId;
   private final FabricatorFactory fabricatorFactory;

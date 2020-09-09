@@ -27,7 +27,7 @@ import java.util.UUID;
  */
 public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
   private static final String NAME = "Chain";
-  private static final String SEGMENT_CREATED = "SEGMENT_CREATED";
+  private static final String SEGMENT_CREATED = "SegmentCreated";
   private final Logger log = LoggerFactory.getLogger(ChainWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final int bufferProductionSeconds;
