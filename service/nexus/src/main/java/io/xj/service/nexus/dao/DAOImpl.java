@@ -4,11 +4,13 @@ package io.xj.service.nexus.dao;
 
 import com.google.inject.Inject;
 import io.xj.lib.entity.Entity;
+import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.Value;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
+import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
 import io.xj.service.nexus.persistence.NexusEntityStore;
@@ -214,6 +216,36 @@ public abstract class DAOImpl<N extends Entity> implements DAO<N> {
       return;
     }
     throw new DAOValidationException(message);
+  }
+
+  /**
+   Make a clone of an entity, to mutate the clone without side effects
+
+   @param prior entity to make a clone of
+   @return clone of entity
+   @throws DAOFatalException on failure
+   */
+  protected <E extends Entity> E makeClone(E prior) throws DAOFatalException {
+    try {
+      return entityFactory.clone(prior);
+    } catch (EntityException e) {
+      throw new DAOFatalException(e);
+    }
+  }
+
+  /**
+   Make clone of some entities, to mutate the clones without side effects
+
+   @param priors entities to make clones of
+   @return clones of entity
+   @throws DAOFatalException on failure
+   */
+  protected <E extends Entity> Collection<E> makeClones(Collection<E> priors) throws DAOFatalException {
+    try {
+      return entityFactory.cloneAll(priors);
+    } catch (EntityException e) {
+      throw new DAOFatalException(e);
+    }
   }
 
 }

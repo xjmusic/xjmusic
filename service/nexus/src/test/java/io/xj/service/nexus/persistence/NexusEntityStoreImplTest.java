@@ -136,8 +136,14 @@ public class NexusEntityStoreImplTest {
     assertEquals("Test Print #1", result.getName());
   }
 
+    /**
+   [#174742042] Engineer expects linear scaling of entity read time
+   <p>
+   Cloning entities when getting them from memory was creating a problem
+   and so we no longer cloning entities when we get them from the memory store
+   */
   @Test
-  public void get_cantBeMutated() throws EntityStoreException {
+  public void get_canBeMutated_soDontDoIt() throws EntityStoreException {
     Account account1 = Account.create("fish");
     Chain chain3 = subject.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
     Chain got = subject.get(Chain.class, chain3.getId()).orElseThrow();
@@ -145,11 +151,17 @@ public class NexusEntityStoreImplTest {
     got.setName("FunkyTown");
 
     Chain result = subject.get(Chain.class, chain3.getId()).orElseThrow();
-    assertEquals("Test Print #1", result.getName());
+    assertEquals("FunkyTown", result.getName());
   }
 
+    /**
+   [#174742042] Engineer expects linear scaling of entity read time
+   <p>
+   Cloning entities when getting them from memory was creating a problem
+   and so we no longer cloning entities when we get them from the memory store
+   */
   @Test
-  public void getAll_cantBeMutated() throws EntityStoreException {
+  public void getAll_canBeMutated_soDontDoIt() throws EntityStoreException {
     Account account1 = Account.create("fish");
     Chain chain3 = subject.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
     Collection<Chain> got = subject.getAll(Chain.class);
@@ -157,11 +169,17 @@ public class NexusEntityStoreImplTest {
     got.iterator().next().setName("FunkyTown");
 
     Chain result = subject.get(Chain.class, chain3.getId()).orElseThrow();
-    assertEquals("Test Print #1", result.getName());
+    assertEquals("FunkyTown", result.getName());
   }
 
+    /**
+   [#174742042] Engineer expects linear scaling of entity read time
+   <p>
+   Cloning entities when getting them from memory was creating a problem
+   and so we no longer cloning entities when we get them from the memory store
+   */
   @Test
-  public void getAllBelongingTo_cantBeMutated() throws EntityStoreException {
+  public void getAllBelongingTo_canBeMutated_soDontDoIt() throws EntityStoreException {
     Account account1 = Account.create("fish");
     Chain chain3 = subject.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
     Collection<Chain> got = subject.getAll(Chain.class, Account.class, ImmutableList.of(account1.getId()));
@@ -169,7 +187,7 @@ public class NexusEntityStoreImplTest {
     got.iterator().next().setName("FunkyTown");
 
     Chain result = subject.get(Chain.class, chain3.getId()).orElseThrow();
-    assertEquals("Test Print #1", result.getName());
+    assertEquals("FunkyTown", result.getName());
   }
 
   @Test

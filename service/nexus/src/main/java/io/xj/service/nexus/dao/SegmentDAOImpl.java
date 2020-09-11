@@ -355,12 +355,8 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public void destroy(HubClientAccess access, UUID id) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public void destroy(HubClientAccess access, UUID id) throws DAOPrivilegeException, DAOFatalException {
     requireTopLevel(access);
-
-    // Require Segment exist in order to destroy it
-    Segment segment = readOne(access, id);
-    requireExists("Segment #" + id, segment);
 
     // Destroy ALL child entities of segment
     destroyChildEntities(access, id, true);

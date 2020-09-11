@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.util.UUID;
 
+import static org.joda.time.DateTimeConstants.MILLIS_PER_SECOND;
+
 /**
  Fabricator Worker implementation
  */
@@ -153,7 +155,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
     craftFactory.macroMain(fabricator).doWork();
     craftFactory.rhythm(fabricator).doWork();
     craftFactory.harmonicDetail(fabricator).doWork();
-    observeMillis(CRAFT_DURATION, Instant.now().toEpochMilli() - startAtMillis);
+    observeSeconds(CRAFT_DURATION, (double) (Instant.now().toEpochMilli() - startAtMillis) / MILLIS_PER_SECOND);
   }
 
   /**
@@ -171,7 +173,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
     updateSegmentState(SegmentState.Crafting, SegmentState.Dubbing);
     dubFactory.master(fabricator).doWork();
     dubFactory.ship(fabricator).doWork();
-    observeMillis(DUB_DURATION, Instant.now().toEpochMilli() - startAtMillis);
+    observeSeconds(DUB_DURATION, (double) (Instant.now().toEpochMilli() - startAtMillis) / MILLIS_PER_SECOND);
   }
 
   /**

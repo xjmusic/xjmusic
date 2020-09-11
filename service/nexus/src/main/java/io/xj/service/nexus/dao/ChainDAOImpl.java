@@ -364,17 +364,18 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     update(access, priorChainId, prior);
 
     // of new chain with original properties (implicitly created in draft state)
-    prior.setId(UUID.randomUUID()); // new id
-    prior.setEmbedKey(embedKey);
-    prior.setStartAtNow();// [#170273871] Revived chain should always start now
-    Chain created = create(access, prior);
+    Chain toCreate = makeClone(prior);
+    toCreate.setId(UUID.randomUUID()); // new id
+    toCreate.setEmbedKey(embedKey);
+    toCreate.setStartAtNow();// [#170273871] Revived chain should always start now
+    Chain created = create(access, toCreate);
 
     // Re-create all chain configs of original chain
-    for (ChainConfig chainConfig : chainConfigDAO.readMany(access, ImmutableList.of(priorChainId)))
+    for (ChainConfig chainConfig : makeClones(chainConfigDAO.readMany(access, ImmutableList.of(priorChainId))))
       chainConfigDAO.create(access, chainConfig.setChainId(created.getId()));
 
     // Re-create all chain bindings of original chain
-    for (ChainBinding chainBinding : chainBindingDAO.readMany(access, ImmutableList.of(priorChainId)))
+    for (ChainBinding chainBinding : makeClones(chainBindingDAO.readMany(access, ImmutableList.of(priorChainId))))
       chainBindingDAO.create(access, chainBinding.setChainId(created.getId()));
 
     // update new chain into ready, then fabricate, which begins the new work

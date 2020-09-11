@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
-import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
@@ -19,12 +18,11 @@ public class EntityStoreImplTest {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private EntityStore subject;
-  private EntityFactory entityFactory;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     Injector injector = Guice.createInjector(new EntityModule());
-    entityFactory = injector.getInstance(EntityFactory.class);
+    EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
     subject = injector.getInstance(EntityStore.class);
 
     // Some topology
@@ -39,7 +37,6 @@ public class EntityStoreImplTest {
 
   @Test
   public void put_get_MockEntity() throws EntityStoreException {
-    UUID mockEntityId = UUID.randomUUID();
     MockEntity mockEntity = MockEntity.create()
       .setName("bingo");
 
@@ -65,8 +62,14 @@ public class EntityStoreImplTest {
     assertEquals("Test57", result.getName());
   }
 
+  /**
+   [#174742042] Engineer expects linear scaling of entity read time
+   <p>
+   Cloning entities when getting them from memory was creating a problem
+   and so we no longer cloning entities when we get them from the memory store
+   */
   @Test
-  public void get_cantBeMutated() throws EntityStoreException {
+  public void get_canBeMutated_soDontDoIt() throws EntityStoreException {
     MockEntity mockEntity1 = MockEntity.create()
       .setName("fish");
     MockEntity mockEntity3 = subject.put(MockEntity.create()
@@ -77,11 +80,17 @@ public class EntityStoreImplTest {
     got.setName("FunkyTown");
 
     MockEntity result = subject.get(MockEntity.class, mockEntity3.getId()).orElseThrow();
-    assertEquals("Test25", result.getName());
+    assertEquals("FunkyTown", result.getName());
   }
 
+  /**
+   [#174742042] Engineer expects linear scaling of entity read time
+   <p>
+   Cloning entities when getting them from memory was creating a problem
+   and so we no longer cloning entities when we get them from the memory store
+   */
   @Test
-  public void getAll_cantBeMutated() throws EntityStoreException {
+  public void getAll_canBeMutated_soDontDoIt() throws EntityStoreException {
     MockEntity mockEntity1 = MockEntity.create()
       .setName("fish");
     MockEntity mockEntity3 = subject.put(MockEntity.create()
@@ -92,11 +101,17 @@ public class EntityStoreImplTest {
     got.iterator().next().setName("FunkyTown");
 
     MockEntity result = subject.get(MockEntity.class, mockEntity3.getId()).orElseThrow();
-    assertEquals("TestXP", result.getName());
+    assertEquals("FunkyTown", result.getName());
   }
 
+  /**
+   [#174742042] Engineer expects linear scaling of entity read time
+   <p>
+   Cloning entities when getting them from memory was creating a problem
+   and so we no longer cloning entities when we get them from the memory store
+   */
   @Test
-  public void getAllBelongingTo_cantBeMutated() throws EntityStoreException {
+  public void getAllBelongingTo_canBeMutated_soDontDoIt() throws EntityStoreException {
     MockEntity mockEntity1 = MockEntity.create()
       .setName("fish");
     MockEntity mockEntity3 = subject.put(MockEntity.create()
@@ -107,7 +122,7 @@ public class EntityStoreImplTest {
     got.iterator().next().setName("FunkyTown");
 
     MockEntity result = subject.get(MockEntity.class, mockEntity3.getId()).orElseThrow();
-    assertEquals("Test98", result.getName());
+    assertEquals("FunkyTown", result.getName());
   }
 
   @Test

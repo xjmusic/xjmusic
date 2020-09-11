@@ -60,7 +60,7 @@ public class EntityStoreImpl implements EntityStore {
       if (!store.containsKey(type)) return Optional.empty();
       if (!store.get(type).containsKey(id)) return Optional.empty();
       //noinspection unchecked
-      return Optional.of((N) entityFactory.clone(store.get(type).get(id)));
+      return (Optional<N>) Optional.of(store.get(type).get(id));
 
     } catch (Exception e) {
       throw new EntityStoreException(e);
@@ -71,7 +71,7 @@ public class EntityStoreImpl implements EntityStore {
     try {
       if (!store.containsKey(type)) return ImmutableList.of();
       //noinspection unchecked
-      return (Collection<N>) entityFactory.cloneAll(store.get(type).values());
+      return (Collection<N>) store.get(type).values();
 
     } catch (Exception e) {
       throw new EntityStoreException(e);
@@ -82,9 +82,9 @@ public class EntityStoreImpl implements EntityStore {
     try {
       if (!store.containsKey(type)) return ImmutableList.of();
       //noinspection unchecked
-      return (Collection<N>) entityFactory.cloneAll(store.get(type).values().stream()
+      return (Collection<N>) store.get(type).values().stream()
         .filter(entity -> entity.isChild(belongsToType, belongsToIds))
-        .collect(Collectors.toList()));
+        .collect(Collectors.toList());
 
     } catch (Exception e) {
       throw new EntityStoreException(e);

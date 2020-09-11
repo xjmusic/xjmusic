@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 
+import static org.joda.time.DateTimeConstants.MILLIS_PER_SECOND;
+
 public abstract class WorkerImpl implements Runnable {
   private static final String JOB_DURATION = "JobDuration";
   private static final String METRIC_NAMESPACE_FORMAT = "XJ Nexus %s";
@@ -30,8 +32,9 @@ public abstract class WorkerImpl implements Runnable {
     try {
       long jobStartAtMillis = Instant.now().toEpochMilli();
       doWork();
-      long totalMillis = Instant.now().toEpochMilli() - jobStartAtMillis;
-      metrics.send(getMetricNamespace(), JOB_DURATION, StandardUnit.Milliseconds, (double) totalMillis);
+      double totalSeconds = (double) (Instant.now().toEpochMilli() - jobStartAtMillis) / MILLIS_PER_SECOND;
+      observeSeconds(JOB_DURATION, totalSeconds);
+      log.info("Completed {} in {}s", getName(), totalSeconds);
 
     } catch (Throwable e) {
       log.error("Failed!", e);
@@ -73,12 +76,12 @@ public abstract class WorkerImpl implements Runnable {
   }
 
   /**
-   Send a milliseconds-type datum in this worker namespace
+   Send a seconds-type datum in this worker namespace
 
-   @param name  of milliseconds-type datum
-   @param value of milliseconds-type datum
+   @param name  of seconds-type datum
+   @param value of seconds-type datum
    */
-  protected void observeMillis(String name, double value) {
-    metrics.send(getMetricNamespace(), name, StandardUnit.Milliseconds, value);
+  protected void observeSeconds(String name, double value) {
+    metrics.send(getMetricNamespace(), name, StandardUnit.Seconds, value);
   }
 }

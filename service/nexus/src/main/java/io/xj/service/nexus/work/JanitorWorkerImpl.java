@@ -53,20 +53,20 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
    */
   protected void doWork() throws Exception {
     long t = Instant.now().toEpochMilli();
-    Collection<UUID> idsToErase = getSegmentIdsToErase();
-    for (UUID segmentId : idsToErase)
+    Collection<UUID> segmentIdsToErase = getSegmentIdsToErase();
+    for (UUID segmentId : segmentIdsToErase)
       try {
         segmentDAO.destroy(access, segmentId);
       } catch (DAOExistenceException e) {
         log.warn("Entity nonexistent while destroying Segment[{}]", segmentId, e);
       }
 
-    if (idsToErase.isEmpty())
+    if (segmentIdsToErase.isEmpty())
       log.info("Found no segments to erase in {}ms OK", Instant.now().toEpochMilli() - t);
     else
-      log.info("Did erase {} segments in {}ms OK", idsToErase.size(), Instant.now().toEpochMilli() - t);
+      log.info("Did erase {} segments in {}ms OK", segmentIdsToErase.size(), Instant.now().toEpochMilli() - t);
 
-    observeCount(SEGMENT_ERASED, idsToErase.size());
+    observeCount(SEGMENT_ERASED, segmentIdsToErase.size());
   }
 
   @Override
