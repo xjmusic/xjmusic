@@ -336,7 +336,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       return store.getAll(Segment.class, Chain.class, ImmutableSet.of(chainId))
         .stream()
         .max(Comparator.comparing(Segment::getOffset))
-        .orElseThrow(() -> new DAOExistenceException(String.format("Found no last Segment with no end-at in Chain[%s]!", chainId)));
+        .orElseThrow(() -> new DAOExistenceException(String.format("Found no last Segment in Chain[%s]!", chainId)));
 
     } catch (EntityStoreException e) {
       throw new DAOFatalException(e);
@@ -344,10 +344,14 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public boolean existsAnyDubbedEndingAfter(UUID chainId, Instant thresholdChainHeadAt) throws DAOFatalException {
+  public Segment readLastDubbedSegment(HubClientAccess access, UUID chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     try {
-      return store.getAll(Segment.class, Chain.class, ImmutableSet.of(chainId)).stream()
-        .noneMatch(segment -> segment.isDubbedEndingAfter(thresholdChainHeadAt));
+      requireTopLevel(access);
+      return store.getAll(Segment.class, Chain.class, ImmutableSet.of(chainId))
+        .stream()
+        .filter(segment -> SegmentState.Dubbed == segment.getState())
+        .max(Comparator.comparing(Segment::getOffset))
+        .orElseThrow(() -> new DAOExistenceException(String.format("Found no last dubbed-state Segment in Chain[%s]!", chainId)));
 
     } catch (EntityStoreException e) {
       throw new DAOFatalException(e);

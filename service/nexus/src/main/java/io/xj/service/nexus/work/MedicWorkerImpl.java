@@ -28,9 +28,9 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
   private final Logger log = LoggerFactory.getLogger(MedicWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final ChainDAO chainDAO;
-  private final int chainReviveThresholdStartSeconds;
+  private final int reviveChainProductionStartedBeforeSeconds;
   private final SegmentDAO segmentDAO;
-  private final int chainReviveThresholdHeadSeconds;
+  private final int reviveChainSegmentsDubbedPastSeconds;
 
   @Inject
   public MedicWorkerImpl(
@@ -43,8 +43,8 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
     this.chainDAO = chainDAO;
     this.segmentDAO = segmentDAO;
 
-    chainReviveThresholdHeadSeconds = config.getInt("chain.reviveThresholdHeadSeconds");
-    chainReviveThresholdStartSeconds = config.getInt("chain.reviveThresholdStartSeconds");
+    reviveChainSegmentsDubbedPastSeconds = config.getInt("chain.reviveChainSegmentsDubbedPastSeconds");
+    reviveChainProductionStartedBeforeSeconds = config.getInt("chain.reviveChainProductionStartedBeforeSeconds");
 
     log.info("Instantiated OK");
   }
@@ -78,20 +78,25 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
    @throws DAOExistenceException  on failure
    */
   public void checkAndReviveAll() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
-    Instant thresholdChainStartAt = Instant.now().minusSeconds(chainReviveThresholdStartSeconds);
-    Instant thresholdChainHeadAt = Instant.now().minusSeconds(chainReviveThresholdHeadSeconds);
+    Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionStartedBeforeSeconds);
+    Instant thresholdChainSegmentsDubbedPast = Instant.now().plusSeconds(reviveChainSegmentsDubbedPastSeconds);
 
     Map<UUID, String> stalledChainIds = Maps.newHashMap();
     chainDAO.readManyInState(access, ChainState.Fabricate)
       .stream()
-      .filter((chain) -> chain.isProductionStartedBefore(thresholdChainStartAt))
+      .filter((chain) -> chain.isProductionStartedBefore(thresholdChainProductionStartedBefore))
       .forEach(chain -> {
         try {
-          if (!segmentDAO.existsAnyDubbedEndingAfter(chain.getId(), thresholdChainHeadAt)) {
-            log.warn("Found stalled Chain {} with no Segments Dubbed ending after {}", chain.getId(), thresholdChainHeadAt);
-            stalledChainIds.put(chain.getId(), String.format("found no Segments Dubbed ending after %s in production Chain started before %s", thresholdChainHeadAt, thresholdChainStartAt));
+          Instant chainDubbedUntil = segmentDAO.readLastDubbedSegment(access, chain.getId()).getEndAt();
+          log.info("Chain[{}] dubbed until {} -- required until {}",
+            chain.getId(), chainDubbedUntil, thresholdChainSegmentsDubbedPast);
+          if (chainDubbedUntil.isBefore(thresholdChainSegmentsDubbedPast)) {
+            log.warn("Chain {} is stalled!", chain.getId());
+            stalledChainIds.put(chain.getId(),
+              String.format("Segments dubbed until %s but are required to be dubbed until %s in production Chain started before %s",
+                chainDubbedUntil, thresholdChainSegmentsDubbedPast, thresholdChainProductionStartedBefore));
           }
-        } catch (DAOFatalException e) {
+        } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException e) {
           log.warn("Failure while checking for Chains to revive!", e);
           e.printStackTrace();
         }

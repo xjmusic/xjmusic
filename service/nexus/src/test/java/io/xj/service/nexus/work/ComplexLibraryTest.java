@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.work;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
@@ -19,12 +18,13 @@ import io.xj.service.hub.client.HubContent;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.NexusHubContentFixtures;
 import io.xj.service.nexus.dao.SegmentDAO;
+import io.xj.service.nexus.dao.exception.DAOExistenceException;
+import io.xj.service.nexus.dao.exception.DAOFatalException;
+import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.entity.Chain;
 import io.xj.service.nexus.entity.ChainBinding;
 import io.xj.service.nexus.entity.ChainState;
 import io.xj.service.nexus.entity.ChainType;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentState;
 import io.xj.service.nexus.persistence.NexusEntityStore;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
@@ -42,7 +42,6 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -57,7 +56,7 @@ import static org.mockito.Mockito.when;
 public class ComplexLibraryTest {
   private static final Logger log = LoggerFactory.getLogger(ComplexLibraryTest.class);
   private static final int MILLIS_PER_SECOND = 1000;
-  private static final int MARATHON_NUMBER_OF_SEGMENTS = 15; // more than this and garbage collection prevents success
+  private static final int MARATHON_NUMBER_OF_SEGMENTS = 30;
   private static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
   long startTime = System.currentTimeMillis();
   private NexusApp app;
@@ -105,7 +104,7 @@ public class ComplexLibraryTest {
       .thenReturn(new HubContent(fake.generatedFixture(3)));
 
     // Chain "Test Print #1" is ready to begin
-    chain1 = test.put(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(MAXIMUM_TEST_WAIT_SECONDS), null, null));
+    chain1 = test.put(Chain.create(fake.account1, "Test Print #1", ChainType.Preview, ChainState.Fabricate, Instant.now().minusSeconds(MAXIMUM_TEST_WAIT_SECONDS), null, null));
     test.put(ChainBinding.create(chain1, fake.library1));
 
     app = new NexusApp(ImmutableSet.of("io.xj.nexus"), injector);
@@ -120,20 +119,18 @@ public class ComplexLibraryTest {
 
     // Start app, wait for work, stop app
     app.start();
-    int assertShippedSegmentsMinimum = MARATHON_NUMBER_OF_SEGMENTS;
-    while (!hasChainAtLeastSegments(chain1.getId(), assertShippedSegmentsMinimum) && isWithinTimeLimit())
+    while (!hasSegmentsDubbedPastMinimumOffset(chain1.getId()) && isWithinTimeLimit())
       //noinspection BusyWait
       Thread.sleep(MILLIS_PER_SECOND);
     app.finish();
 
     // assertions
-    verify(fileStoreProvider, atLeast(assertShippedSegmentsMinimum))
+    verify(fileStoreProvider, atLeast(MARATHON_NUMBER_OF_SEGMENTS))
       .putS3ObjectFromTempFile(eq("/tmp/chains-1-segments-12345.aac"), eq("xj-segment-test"), eq("chains-1-segments-12345.aac"));
     // FUTURE use a spy to assert actual json payload shipped to S3 for metadata
-    verify(fileStoreProvider, atLeast(assertShippedSegmentsMinimum))
+    verify(fileStoreProvider, atLeast(MARATHON_NUMBER_OF_SEGMENTS))
       .putS3ObjectFromString(any(), eq("xj-segment-test"), eq("chains-1-segments-12345.json"));
-    Collection<Segment> result = segmentDAO.readMany(HubClientAccess.internal(), ImmutableList.of(chain1.getId()));
-    assertTrue(assertShippedSegmentsMinimum <= result.size());
+    assertTrue(hasSegmentsDubbedPastMinimumOffset(chain1.getId()));
   }
 
   /**
@@ -166,13 +163,14 @@ public class ComplexLibraryTest {
   /**
    Does a specified Chain have at least N segments?
 
-   @param chainId   to test
-   @param threshold minimum # of segments to qualify
+   @param chainId to test
    @return true if has at least N segments
-   @throws Exception on failure
    */
-  private boolean hasChainAtLeastSegments(UUID chainId, int threshold) throws Exception {
-    Collection<Segment> result = segmentDAO.readManyInState(HubClientAccess.internal(), chainId, SegmentState.Dubbed);
-    return result.size() >= threshold;
+  private boolean hasSegmentsDubbedPastMinimumOffset(UUID chainId) {
+    try {
+      return MARATHON_NUMBER_OF_SEGMENTS <= segmentDAO.readLastDubbedSegment(HubClientAccess.internal(), chainId).getOffset();
+    } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException ignored) {
+      return false;
+    }
   }
 }

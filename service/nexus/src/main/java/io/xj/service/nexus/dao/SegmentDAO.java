@@ -202,11 +202,11 @@ public interface SegmentDAO extends DAO<Segment> {
   Segment readLastSegment(HubClientAccess access, UUID chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
 
   /**
-   Whether any segments exist in dubbed state ending after the specified time
+   Read the last dubbed-state segment in a Chain, Segments sorted by offset ascending
 
-   @param chainId              to look for Segments of
-   @param thresholdChainHeadAt time after which to look for a segment's ending
-   @return true if any segment exists in dubbed state after the given time
+   @param access  control
+   @param chainId of chain
+   @return Last Dubbed-state Segment in Chain
    */
-  boolean existsAnyDubbedEndingAfter(UUID chainId, Instant thresholdChainHeadAt) throws DAOFatalException;
+  Segment readLastDubbedSegment(HubClientAccess access, UUID chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
 }
