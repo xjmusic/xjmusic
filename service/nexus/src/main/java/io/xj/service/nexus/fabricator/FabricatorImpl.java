@@ -12,19 +12,21 @@ import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.MemeEntity;
+import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.MusicalException;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.Tuning;
-import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubClientException;
 import io.xj.service.hub.client.HubContent;
+import io.xj.service.hub.entity.Instrument;
 import io.xj.service.hub.entity.InstrumentAudio;
 import io.xj.service.hub.entity.Program;
 import io.xj.service.hub.entity.ProgramSequence;
@@ -88,6 +90,8 @@ class FabricatorImpl implements Fabricator {
   private final Tuning tuning;
   private final double tuningRootPitch;
   private final String tuningRootNote;
+  private final Set<UUID> boundProgramIds;
+  private final Set<UUID> boundInstrumentIds;
   private SegmentType type;
   private final String workTempFilePathPrefix;
   private final DecimalFormat segmentNameFormat;
@@ -134,17 +138,19 @@ class FabricatorImpl implements Fabricator {
       startTime = System.nanoTime();
       log.info("[segId={}] StartTime {}ns since epoch zulu", segment.getId(), startTime);
 
-      // read the chain, bindings, and configs
+      // read the chain, configs, and bindings
       chain = chainDAO.readOne(access, segment.getChainId());
       chainConfigs = chainConfigDAO.readMany(access, ImmutableList.of(chain.getId()));
       Collection<ChainBinding> chainBindings = chainBindingDAO.readMany(access, ImmutableList.of(chain.getId()));
-      log.info("[segId={}] Chain {}", segment.getId(), chain);
+      Set<UUID> boundLibraryIds = targetIdsOfType(chainBindings, ChainBindingType.Library);
+      boundProgramIds = targetIdsOfType(chainBindings, ChainBindingType.Program);
+      boundInstrumentIds = targetIdsOfType(chainBindings, ChainBindingType.Instrument);
+      log.info("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(),
+        CSV.fromStringsOf(chainConfigs),
+        CSV.fromStringsOf(chainBindings));
 
       // read the source material
-      sourceMaterial = hubClient.ingest(access,
-        targetIdsOfType(chainBindings, ChainBindingType.Library),
-        targetIdsOfType(chainBindings, ChainBindingType.Program),
-        targetIdsOfType(chainBindings, ChainBindingType.Instrument));
+      sourceMaterial = hubClient.ingest(access, boundLibraryIds, boundProgramIds, boundInstrumentIds);
       log.info("[segId={}] SourceMaterial loaded {} entities", segment.getId(), sourceMaterial.size());
 
       // setup the segment retrospective
@@ -361,8 +367,12 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public MemeIsometry getMemeIsometryOfSegment() throws FabricationException {
-    return MemeIsometry.ofMemes(workbench.getSegmentMemes());
+  public MemeIsometry getMemeIsometryOfSegment() {
+    try {
+      return MemeIsometry.ofMemes(workbench.getSegmentMemes());
+    } catch (FabricationException e) {
+      return MemeIsometry.none();
+    }
   }
 
   @Override
@@ -581,6 +591,16 @@ class FabricatorImpl implements Fabricator {
     } catch (JsonApiException | EntityException e) {
       throw new FabricationException(e);
     }
+  }
+
+  @Override
+  public boolean isDirectlyBound(Program program) {
+    return boundProgramIds.contains(program.getId());
+  }
+
+  @Override
+  public boolean isDirectlyBound(Instrument instrument) {
+    return boundInstrumentIds.contains(instrument.getId());
   }
 
   @Override

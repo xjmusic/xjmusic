@@ -40,3 +40,7 @@ gradle-app.setting
 
 # Kafka properties
 kafka.properties
+
+# YourKit Java Profiler
+*.hprof
+*.hprof.idom

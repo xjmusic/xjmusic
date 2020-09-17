@@ -152,4 +152,9 @@ public class ChainConfig extends Entity {
     }
   }
 
+  @Override
+  public String toString() {
+    return String.format("Config[%s=%s]", type, value);
+  }
+
 }

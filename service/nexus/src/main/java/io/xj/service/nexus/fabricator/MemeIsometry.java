@@ -26,6 +26,15 @@ public class MemeIsometry extends Isometry {
   }
 
   /**
+   Instantiate a new MemeIsometry representing having no memes
+
+   @return an empty MemeIsometry
+   */
+  public static MemeIsometry none() {
+    return new MemeIsometry();
+  }
+
+  /**
    Score a CSV list of memes based on isometry to source memes
 
    @param targetMemes comma-separated values to score against source meme names

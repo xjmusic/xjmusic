@@ -10,19 +10,37 @@ import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
-import io.xj.service.hub.entity.*;
+import io.xj.service.hub.entity.Instrument;
+import io.xj.service.hub.entity.InstrumentAudio;
+import io.xj.service.hub.entity.InstrumentAudioEvent;
+import io.xj.service.hub.entity.InstrumentType;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.ProgramSequencePattern;
+import io.xj.service.hub.entity.ProgramSequencePatternEvent;
+import io.xj.service.hub.entity.ProgramSequencePatternType;
+import io.xj.service.hub.entity.ProgramType;
+import io.xj.service.hub.entity.ProgramVoice;
 import io.xj.service.nexus.craft.CraftImpl;
 import io.xj.service.nexus.craft.exception.CraftException;
 import io.xj.service.nexus.entity.SegmentChoice;
 import io.xj.service.nexus.entity.SegmentChoiceArrangement;
 import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
 import io.xj.service.nexus.entity.SegmentType;
-import io.xj.service.nexus.fabricator.*;
+import io.xj.service.nexus.fabricator.EntityRank;
+import io.xj.service.nexus.fabricator.FabricationException;
+import io.xj.service.nexus.fabricator.Fabricator;
+import io.xj.service.nexus.fabricator.MemeIsometry;
+import io.xj.service.nexus.fabricator.NameIsometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  Rhythm craft for the current segment
@@ -32,6 +50,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
   private static final double SCORE_INSTRUMENT_ENTROPY = 0.5;
   private static final double SCORE_MATCHED_MEMES = 5;
   private static final double SCORE_RHYTHM_ENTROPY = 0.5;
+  private static final double SCORE_DIRECTLY_BOUND = 100;
   private static final String KEY_VOICE_NAME_TEMPLATE = "%s_%s";
   private final Logger log = LoggerFactory.getLogger(RhythmCraftImpl.class);
   private final SecureRandom random = new SecureRandom();
@@ -220,6 +239,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
     return Key.delta(rhythmProgram.getKey(), fabricator.getSegment().getKey(), 0);
   }
 
+
   /**
    Choose a fresh rhythm based on a set of memes
    FUTURE [#150279436] Key of first Pattern of chosen Rhythm-Program must match the `minor` or `major` with the Key of the current Segment.
@@ -236,10 +256,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
     Collection<Program> sourcePrograms = fabricator.getSourceMaterial().getProgramsOfType(ProgramType.Rhythm);
 
     // (3) score each source program based on meme isometry
-    for (Program program : sourcePrograms) {
-      Optional<Double> score = getRhythmScoreOf(program);
-      score.ifPresent(aDouble -> superEntityRank.add(program, aDouble));
-    }
+    for (Program program : sourcePrograms) superEntityRank.add(program, scoreRhythm(program));
 
     // report
     fabricator.putReport("rhythmChoice", superEntityRank.report());
@@ -260,18 +277,20 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    [#162040109] Artist expects program with no memes will never be selected for chain craft.
 
    @param program to score
-   @return score, including +/- entropy, -1 if this program has no memes
+   @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
-  private Optional<Double> getRhythmScoreOf(Program program) {
-    try {
-      Collection<MemeEntity> memes = fabricator.getSourceMaterial().getMemesAtBeginning(program);
-      if (!memes.isEmpty())
-        return Optional.of(fabricator.getMemeIsometryOfSegment().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_RHYTHM_ENTROPY));
+  private Double scoreRhythm(Program program) {
+    double score = 0;
+    Collection<MemeEntity> memes = fabricator.getSourceMaterial().getMemesAtBeginning(program);
+    if (!memes.isEmpty())
+      score += fabricator.getMemeIsometryOfSegment().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_RHYTHM_ENTROPY);
 
-    } catch (Exception e) {
-      log.warn("[segId={}] While scoring rhythm {}", fabricator.getSegment().getId(), program, e);
-    }
-    return Optional.empty();
+    // [#174435421] Chain bindings specify Program & Instrument within Library
+    if (fabricator.isDirectlyBound(program))
+      score += SCORE_DIRECTLY_BOUND;
+
+    // score is above zero, else empty
+    return score;
   }
 
 
@@ -350,13 +369,8 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
     log.debug("[segId={}] not currently in use: {}", fabricator.getSegment().getId(), voice);
 
     // (3) score each source instrument based on meme isometry
-    for (Instrument instrument : sourceInstruments) {
-      try {
-        superEntityRank.add(instrument, scorePercussiveInstrument(instrument));
-      } catch (Exception e) {
-        log.debug("[segId={}] while scoring percussive instrument", fabricator.getSegment().getId(), e);
-      }
-    }
+    for (Instrument instrument : sourceInstruments)
+      superEntityRank.add(instrument, scorePercussive(instrument));
 
     // report
     fabricator.putReport("percussiveChoice", superEntityRank.report());
@@ -375,15 +389,16 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    @param instrument to score
    @return score, including +/- entropy
    */
-  private double scorePercussiveInstrument(Instrument instrument) throws CraftException {
+  private double scorePercussive(Instrument instrument) {
     double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
 
     // Score includes matching memes, previous segment to macro instrument first pattern
-    try {
-      score += fabricator.getMemeIsometryOfSegment().score(fabricator.getSourceMaterial().getMemes(instrument)) * SCORE_MATCHED_MEMES;
-    } catch (FabricationException e) {
-      throw exception(String.format("Could not score percussive instrumentId=%s", instrument.getId()), e);
-    }
+    score += SCORE_MATCHED_MEMES *
+      fabricator.getMemeIsometryOfSegment().score(fabricator.getSourceMaterial().getMemes(instrument));
+
+    // [#174435421] Chain bindings specify Program & Instrument within Library
+    if (fabricator.isDirectlyBound(instrument))
+      score += SCORE_DIRECTLY_BOUND;
 
     return score;
   }

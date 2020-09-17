@@ -25,6 +25,15 @@ public class ChainConfigTest {
   }
 
   @Test
+  public void custom_toString() {
+    assertEquals("Config[OutputChannels=4]", new ChainConfig()
+      .setChainId(UUID.randomUUID())
+      .setType("OutputChannels")
+      .setValue(String.valueOf(4))
+      .toString());
+  }
+
+  @Test
   public void validate_failsWithoutChainID() throws Exception {
     failure.expect(ValueException.class);
     failure.expectMessage("Chain ID is required");

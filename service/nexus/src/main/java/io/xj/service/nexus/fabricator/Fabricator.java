@@ -6,6 +6,7 @@ import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
+import io.xj.service.hub.entity.Instrument;
 import io.xj.service.hub.entity.InstrumentAudio;
 import io.xj.service.hub.entity.Program;
 import io.xj.service.hub.entity.ProgramSequence;
@@ -253,9 +254,8 @@ public interface Fabricator {
    Get meme isometry for the current segment
 
    @return MemeIsometry for current segment
-   @throws FabricationException on failure
    */
-  MemeIsometry getMemeIsometryOfSegment() throws FabricationException;
+  MemeIsometry getMemeIsometryOfSegment();
 
   /**
    Get all memes for a given Choice id
@@ -515,4 +515,23 @@ public interface Fabricator {
    @return JSON:API payload of the entire result of Segment Fabrication
    */
   String getResultMetadataJson() throws FabricationException;
+
+  /**
+   Whether a given Program is directly bound to the Chain,
+   where "directly" means a level more specific than Library, e.g. Program or Instrument
+
+   @param program to test for direct binding
+   @return true if Program is directly bound to chain
+   */
+  boolean isDirectlyBound(Program program);
+
+  /**
+   Whether a given Instrument is directly bound to the Chain,
+   where "directly" means a level more specific than Library, e.g. Program or Instrument
+
+   @param instrument to test for direct binding
+   @return true if Instrument is directly bound to chain
+   */
+  boolean isDirectlyBound(Instrument instrument);
+
 }

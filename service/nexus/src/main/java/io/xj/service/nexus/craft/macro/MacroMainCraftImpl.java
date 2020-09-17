@@ -39,7 +39,8 @@ import java.util.Optional;
 public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   private static final double SCORE_MATCHED_KEY_MODE = 2;
   private static final double SCORE_MATCHED_MEMES = 10;
-  private static final double SCORE_AVOID_PREVIOUS = 5;
+  private static final double SCORE_AVOID_PREVIOUS = -5;
+  private static final double SCORE_DIRECTLY_BOUND = 100;
   private static final double SCORE_MACRO_ENTROPY = 0.5;
   private static final double SCORE_MAIN_ENTROPY = 0.5;
   private static final long NANOS_PER_SECOND = 1_000_000_000;
@@ -329,7 +330,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     // (3b) Avoid previous macro program
     if (!fabricator.isInitialSegment()) try {
-      superEntityRank.score(fabricator.getProgram(fabricator.getPreviousMacroChoice()).getId(), -SCORE_AVOID_PREVIOUS);
+      superEntityRank.score(fabricator.getProgram(fabricator.getPreviousMacroChoice()).getId(), SCORE_AVOID_PREVIOUS);
     } catch (FabricationException e) {
       throw exception("Failed to get program create previous Macro choice, in order to choose next Macro", e);
     }
@@ -358,7 +359,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     // (3b) Avoid previous macro program
     if (!fabricator.isInitialSegment()) try {
-      superEntityRank.score(fabricator.getProgram(fabricator.getPreviousMacroChoice()).getId(), -SCORE_AVOID_PREVIOUS);
+      superEntityRank.score(fabricator.getProgram(fabricator.getPreviousMacroChoice()).getId(), SCORE_AVOID_PREVIOUS);
     } catch (FabricationException e) {
       throw exception("Failed to get program create previous Macro choice, in order to choose next Macro", e);
     }
@@ -399,7 +400,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // (3) score each source program based on meme isometry
     sourcePrograms.forEach((program -> {
       try {
-        superEntityRank.add(program, scoreMainProgram(program));
+        superEntityRank.add(program, scoreMain(program));
       } catch (Exception e) {
         log.warn("while scoring main programs", e);
       }
@@ -440,9 +441,12 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     }
 
     // Score includes matching mode (major/minor) to previous segment's macro-program's next pattern
-    if (Objects.nonNull(macroNextSequence) && Key.isSameMode(macroNextSequence.getKey(), program.getKey())) {
+    if (Objects.nonNull(macroNextSequence) && Key.isSameMode(macroNextSequence.getKey(), program.getKey()))
       score += SCORE_MATCHED_KEY_MODE;
-    }
+
+    // [#174435421] Chain bindings specify Program & Instrument within Library
+    if (fabricator.isDirectlyBound(program))
+      score += SCORE_DIRECTLY_BOUND;
 
     return score;
   }
@@ -454,7 +458,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @return score, including +/- entropy
    @throws CraftException on failure
    */
-  private double scoreMainProgram(Program program) throws CraftException {
+  private double scoreMain(Program program) throws CraftException {
     double score = Chance.normallyAround(0, SCORE_MAIN_ENTROPY);
 
     if (!fabricator.isInitialSegment()) {
@@ -462,7 +466,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       // Avoid previous main program
       try {
         if (Objects.equals(program.getId(), fabricator.getProgram(fabricator.getPreviousMainChoice()).getId())) {
-          score -= SCORE_AVOID_PREVIOUS;
+          score += SCORE_AVOID_PREVIOUS;
         }
       } catch (FabricationException e) {
         throw exception("Failed to get previous main choice, in order to score next Main choice", e);
@@ -477,6 +481,10 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         throw exception("Failed to get current macro offset, in order to score next Main choice", e);
       }
     }
+
+    // [#174435421] Chain bindings specify Program & Instrument within Library
+    if (fabricator.isDirectlyBound(program))
+      score += SCORE_DIRECTLY_BOUND;
 
     // Score includes matching memes, previous segment to macro program first pattern
     try {

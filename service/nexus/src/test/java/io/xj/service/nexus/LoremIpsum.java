@@ -349,9 +349,7 @@ class LoremIpsum {
   static final Integer[] SEQUENCE_TOTALS = {
     8,
     12,
-    16,
-    32,
-    64
+    16
   };
   /**
    List of possible Pattern totals

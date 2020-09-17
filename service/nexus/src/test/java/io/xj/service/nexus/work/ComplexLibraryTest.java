@@ -56,7 +56,7 @@ import static org.mockito.Mockito.when;
 public class ComplexLibraryTest {
   private static final Logger log = LoggerFactory.getLogger(ComplexLibraryTest.class);
   private static final int MILLIS_PER_SECOND = 1000;
-  private static final int MARATHON_NUMBER_OF_SEGMENTS = 30;
+  private static final int MARATHON_NUMBER_OF_SEGMENTS = 100;
   private static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
   long startTime = System.currentTimeMillis();
   private NexusApp app;

@@ -143,4 +143,10 @@ public class ChainBinding extends Entity {
     Value.requireNo(typeException, "Type");
     Value.require(type, "Type");
   }
+
+  @Override
+  public String toString() {
+    return String.format("Binding[%s=%s]", type, targetId);
+  }
+
 }

@@ -6,7 +6,6 @@ import io.xj.service.hub.entity.Account;
 import io.xj.service.hub.entity.Library;
 import io.xj.service.hub.entity.Program;
 import io.xj.service.hub.entity.ProgramMeme;
-import io.xj.service.nexus.NexusException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -27,6 +26,15 @@ public class ChainBindingTest {
       .setTypeEnum(ChainBindingType.Library)
       .setTargetId(UUID.randomUUID())
       .validate();
+  }
+
+  @Test
+  public void custom_toString() {
+    assertEquals("Binding[Library=050d2312-9a23-4fb4-a8ef-cc94e17ebe32]", new ChainBinding()
+      .setChainId(UUID.randomUUID())
+      .setTypeEnum(ChainBindingType.Library)
+      .setTargetId(UUID.fromString("050d2312-9a23-4fb4-a8ef-cc94e17ebe32"))
+      .toString());
   }
 
   @Test
