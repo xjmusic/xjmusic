@@ -110,8 +110,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
         case Preview:
           requireAccount(access, chain.getAccountId(), UserRoleType.Artist);
-          chain.setStartAtNow();
-          chain.setStopAtInstant(chain.getStartAt().plus(previewLengthMaxHours, HOURS)); // [#174153691]
           chain.setEmbedKey(generatePreviewEmbedKey());
           break;
       }
@@ -477,6 +475,9 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       case Draft:
       case Ready:
       case Fabricate:
+        chain.setStartAtNow();
+        if (ChainType.Preview.equals(chain.getType()))
+          chain.setStopAtInstant(chain.getStartAt().plus(previewLengthMaxHours, HOURS)); // [#174153691]
       case Complete:
       case Failed:
         // no op

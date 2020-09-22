@@ -52,10 +52,7 @@ public class ChainTest {
   }
 
   @Test
-  public void validatePreviewChain_stopAtIsRequired() throws Exception {
-    failure.expect(ValueException.class);
-    failure.expectMessage("Stop-at time (for non-production chain) is required.");
-
+  public void validatePreviewChain_stopAtNotRequired() throws Exception {
     subject
       .setName("Mic Check One Two")
       .setType("Preview")
@@ -151,10 +148,7 @@ public class ChainTest {
   }
 
   @Test
-  public void validateProductionChain_failsWithoutStartAt() throws Exception {
-    failure.expect(ValueException.class);
-    failure.expectMessage("Start-at time is required.");
-
+  public void validateProductionChain_okWithoutStartAt() throws Exception {
     subject
       .setName("Mic Check One Two")
       .setType("Production")

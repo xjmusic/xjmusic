@@ -362,11 +362,7 @@ public class Chain extends Entity {
     if (isEmpty(state)) state = ChainState.Draft;
 
     Value.requireNo(startAtException, "Start-at");
-    Value.require(startAt, "Start-at time");
-
     Value.requireNo(stopAtException, "Stop-at");
-    if (ChainType.Production != type)
-      Value.require(stopAt, "Stop-at time (for non-production chain)");
   }
 
   /**
