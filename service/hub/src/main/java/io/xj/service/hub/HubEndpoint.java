@@ -61,7 +61,7 @@ public class HubEndpoint {
       return response.create(responseData);
 
     } catch (Exception e) {
-      return response.failureToCreate(e);
+      return response.notAcceptable(e);
     }
   }
 
@@ -146,7 +146,7 @@ public class HubEndpoint {
       return response.ok(new Payload().setDataOne(payloadFactory.toPayloadObject(current)));
 
     } catch (Exception e) {
-      return response.failureToUpdate(e);
+      return response.notAcceptable(e);
     }
   }
 

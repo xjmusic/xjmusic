@@ -61,8 +61,8 @@ Each service has a unique port assignment:
 
 | Service       | Port          |
 | ------------- |---------------|
-| hub           | 8042          |
-| nexus         | 8043          |
+| hub           | 3000          |
+| nexus         | 3000          |
 
 
 ## Web UI
@@ -284,7 +284,7 @@ Each service is responsible for migrating its private stores when it starts up.
 
 ## Run local platform manually
 
-Run a local **Hub** service on its default port 8042:
+Run a local **Hub** service on its default port 3000:
 
     bin/hub    
 
@@ -320,7 +320,7 @@ Login to the app using Google authentication. The redirect URL for local develop
 
 It is helpful to be able to compile and run Java components against the Docker container resources made available by Docker Compose. Assuming that the containers are running locally and addressed properly (see the 'DNS' section above) simply include the following in the Run Configuration -> Program Arguments:
 
-    -Dapp.url.base=http://localhost:8042/
+    -Dapp.url.base=http://localhost:3000/
     -Dapp.url.api=
     -Dauth.google.id=<dev google oauth client id>
     -Dauth.google.secret=<dev google oauth client secret>

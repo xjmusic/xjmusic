@@ -54,7 +54,7 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
 
     } catch (JsonApiException e) {
       log.error("Failed to create {}", payload, e);
-      return failureToCreate(e);
+      return notAcceptable(e);
     }
   }
 
@@ -131,56 +131,47 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
 
   @Override
   public Response failure(Exception e) {
-    return failure(e, HttpStatus.SC_BAD_REQUEST);
+    return failure(Response.Status.BAD_REQUEST, e);
   }
 
   @Override
-  public Response failure(Exception e, int code) {
-    log.error("Internal server error, code {}", code, e);
-    PayloadError error = PayloadError.of(e);
+  public Response failure(Response.Status status, Exception e) {
+    return failure(status, PayloadError.of(e));
+  }
 
+  @Override
+  public Response failure(Response.Status status, String message) {
+    return failure(status, new PayloadError()
+      .setCode(String.valueOf(status.getStatusCode()))
+      .setTitle(message));
+  }
+
+  @Override
+  public Response failure(Response.Status status, PayloadError error) {
     Payload payload = new Payload()
       .setDataType(PayloadDataType.One)
       .addError(error);
 
-/*
-    FUTURE: send this to detailed error logging, but DO NOT send back stack traces with public HTTP errors
-    if (!Objects.equals(JsonApiException.class, e.getClass())) {
-      log.error(e.getClass().getName(), e);
-      error.setDetail(formatStackTrace(e));
-    }
-*/
-
     try {
       return Response
-        .status(code)
+        .status(status)
         .entity(payloadFactory.serialize(payload))
         .build();
 
     } catch (JsonApiException e2) {
-      log.error("Failed to serialize original failure {} code {}", e, code, e2);
+      log.error("Failed to serialize original failure {} code {}", status, e2);
       return Response.serverError().build();
     }
   }
 
   @Override
-  public Response failureToCreate(Exception e) {
-    return failure(e, HttpStatus.SC_UNPROCESSABLE_ENTITY);
-  }
-
-  @Override
-  public Response failureToUpdate(Exception e) {
-    return failure(e, HttpStatus.SC_UNPROCESSABLE_ENTITY);
+  public Response notAcceptable(Exception e) {
+    return notAcceptable(e.getMessage());
   }
 
   @Override
   public Response notAcceptable(String message) {
-    return failure(new JsonApiException(String.format("Unacceptable! %s", message)), HttpStatus.SC_NOT_ACCEPTABLE);
-  }
-
-  @Override
-  public Response notAcceptable(Exception e) {
-    return failure(e, HttpStatus.SC_NOT_ACCEPTABLE);
+    return failure(Response.Status.NOT_ACCEPTABLE, message);
   }
 
   @Override

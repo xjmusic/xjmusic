@@ -63,30 +63,30 @@ public class HttpResponseProviderImplTest {
 
   @Test
   public void failure_andCode() {
-    Response result = subject.failure(new JsonApiException("Fails"), 422);
+    Response result = subject.failure(Response.Status.NOT_ACCEPTABLE, new JsonApiException("Fails"));
 
-    assertEquals(422, result.getStatus());
+    assertEquals(406, result.getStatus());
   }
 
   @Test
   public void failure_andCode_serverFailureUnknownException() {
-    Response result = subject.failure(new Exception("Low Level"), 422);
+    Response result = subject.failure(Response.Status.NOT_ACCEPTABLE, new Exception("Low Level"));
 
-    assertEquals(422, result.getStatus());
+    assertEquals(406, result.getStatus());
   }
 
   @Test
   public void failureToCreate() {
-    Response result = subject.failureToCreate(new JsonApiException("Fails"));
+    Response result = subject.notAcceptable(new JsonApiException("Fails"));
 
-    assertEquals(422, result.getStatus());
+    assertEquals(406, result.getStatus());
   }
 
   @Test
   public void failureToUpdate() {
-    Response result = subject.failureToUpdate(new JsonApiException("Fails"));
+    Response result = subject.notAcceptable(new JsonApiException("Fails"));
 
-    assertEquals(422, result.getStatus());
+    assertEquals(406, result.getStatus());
   }
 
   @Test

@@ -39,7 +39,7 @@ public interface Main {
     new HubPersistenceModule()
   );
   Set<String> resourcePackages = ImmutableSet.of("io.xj.service.hub");
-  int defaultPort = 8042;
+  int defaultPort = 3000;
 
   /**
    Main method.

@@ -90,13 +90,31 @@ public interface HttpResponseProvider {
   Response failure(Exception e);
 
   /**
-   Return a response of an exception
+   Return a failure response of an exception with a code
 
-   @param e    Exception
-   @param code HTTP Status Code
+   @param status HTTP Status Code
+   @param e      Exception
    @return Response
    */
-  Response failure(Exception e, int code);
+  Response failure(Response.Status status, Exception e);
+
+  /**
+   Return a failure response of a message and code
+
+   @param status  HTTP Status Code
+   @param message to include
+   @return Response
+   */
+  Response failure(Response.Status status, String message);
+
+  /**
+   Return a failure response of a message and PayloadError
+
+   @param status HTTP Status Code
+   @param error  to include
+   @return Response
+   */
+  Response failure(Response.Status status, PayloadError error);
 
   /**
    Return a response of an exception during a Create operation
@@ -104,15 +122,7 @@ public interface HttpResponseProvider {
    @param e Exception
    @return Response
    */
-  Response failureToCreate(Exception e);
-
-  /**
-   Return a response of an exception during an Update operation
-
-   @param e Exception
-   @return Response
-   */
-  Response failureToUpdate(Exception e);
+  Response notAcceptable(Exception e);
 
   /**
    Return a response that the request is not acceptable, with a JSON error payload
@@ -121,14 +131,6 @@ public interface HttpResponseProvider {
    @return response
    */
   Response notAcceptable(String message);
-
-  /**
-   Return a response that the request is not acceptable, with a JSON error payload
-
-   @param e exception in error payload
-   @return response
-   */
-  Response notAcceptable(Exception e);
 
   /**
    Return a response having read successfully

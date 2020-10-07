@@ -37,7 +37,7 @@ public interface Main {
     new NexusWorkModule()
   );
   Set<String> resourcePackages = ImmutableSet.of("io.xj.service.nexus.api");
-  int defaultPort = 8042;
+  int defaultPort = 3000;
 
   /**
    Main method.

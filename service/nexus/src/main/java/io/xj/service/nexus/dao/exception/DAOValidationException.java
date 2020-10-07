@@ -2,8 +2,6 @@
 
 package io.xj.service.nexus.dao.exception;
 
-import io.xj.lib.util.Text;
-
 public class DAOValidationException extends Exception {
 
   public DAOValidationException(String msg) {
@@ -11,10 +9,10 @@ public class DAOValidationException extends Exception {
   }
 
   public DAOValidationException(String msg, Exception e) {
-    super(String.format("%s %s\n%s", msg, e.toString(), Text.formatStackTrace(e)));
+    super(msg, e);
   }
 
-  public DAOValidationException(Throwable targetException) {
-    super(String.format("%s\n%s", targetException.getMessage(), Text.formatStackTrace(targetException)));
+  public DAOValidationException(Exception e) {
+    super(e.getMessage(), e);
   }
 }

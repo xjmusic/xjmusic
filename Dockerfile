@@ -70,11 +70,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install postgres
 ###
 
 # 'hub'
-EXPOSE 8042
+EXPOSE 3000
 RUN mkdir -p /var/log/hub && chmod a+w /var/log/hub
 
 # 'nexus'
-EXPOSE 8043
+EXPOSE 3000
 RUN mkdir -p /var/log/nexus && chmod a+w /var/log/nexus
 RUN mkdir -p /var/cache/nexus && chmod a+w /var/cache/nexus
 

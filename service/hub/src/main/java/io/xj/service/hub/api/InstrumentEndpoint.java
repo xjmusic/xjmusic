@@ -130,7 +130,7 @@ public class InstrumentEndpoint extends HubEndpoint {
       return response.create(new Payload().setDataOne(payloadFactory.toPayloadObject(created)));
 
     } catch (Exception e) {
-      return response.failureToCreate(e);
+      return response.notAcceptable(e);
     }
   }
 

@@ -115,14 +115,11 @@ public class ChainEndpoint extends NexusEndpoint {
         response.unauthorized(Chain.class, reviveId, e) :
         response.unauthorized();
 
-    } catch (DAOValidationException e) {
-      return response.notAcceptable(e.getMessage());
-
     } catch (DAOExistenceException e) {
       return response.notFound(Chain.class, reviveId);
 
-    } catch (HubClientException | JsonApiException | DAOFatalException e) {
-      return response.failureToCreate(e);
+    } catch (DAOValidationException | HubClientException | JsonApiException | DAOFatalException e) {
+      return response.notAcceptable(e);
     }
   }
 
@@ -193,7 +190,7 @@ public class ChainEndpoint extends NexusEndpoint {
       return response.ok(payloadFactory.newPayload().setDataOne(payloadFactory.toPayloadObject(chain)));
 
     } catch (DAOValidationException e) {
-      return response.notAcceptable(e);
+      return response.notAcceptable(e.getMessage());
 
     } catch (DAOPrivilegeException e) {
       return response.unauthorized(Chain.class, id, e);
@@ -202,7 +199,7 @@ public class ChainEndpoint extends NexusEndpoint {
       return response.notFound(Chain.class, id);
 
     } catch (JsonApiException | DAOFatalException e) {
-      return response.failureToCreate(e);
+      return response.notAcceptable(e);
     }
   }
 
@@ -234,7 +231,7 @@ public class ChainEndpoint extends NexusEndpoint {
       return response.notFound(Chain.class, id);
 
     } catch (DAOFatalException e) {
-      return response.failureToCreate(e);
+      return response.notAcceptable(e);
     }
   }
 

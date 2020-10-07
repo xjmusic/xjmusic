@@ -88,7 +88,7 @@ public class ProgramSequencePatternEndpoint extends HubEndpoint {
       return response.create(responsePayload);
 
     } catch (Exception e) {
-      return response.failureToCreate(e);
+      return response.notAcceptable(e);
     }
   }
 
