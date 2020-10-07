@@ -34,7 +34,7 @@ import io.xj.service.nexus.work.NexusWork;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Set;
+import java.util.Collections;
 
 /**
  Base application for XJ services.
@@ -64,15 +64,14 @@ public class NexusApp extends App {
    Construct a new application by providing
    - a config,
    - a set of resource packages to add to the core set, and
-   - an injector to create a child injector of in order to add the core set.@param resourcePackages to add to the core set of packages for the new application@param resourcePackages
+   - an injector to create a child injector of in order to add the core set.@param resourcePackages to add to the core set of packages for the new application@param resourcePackages@param injector to add to the core set of modules for the new application
 
-   @param injector to add to the core set of modules for the new application
+
    */
   public NexusApp(
-    Set<String> resourcePackages,
     Injector injector
   ) {
-    super(resourcePackages, injector, NexusApp.class.getSimpleName());
+    super(injector, Collections.singleton("io.xj.service.nexus.api"));
 
     Config config = injector.getInstance(Config.class);
 
@@ -91,7 +90,7 @@ public class NexusApp extends App {
     buildApiTopology(entityFactory);
 
     // Configure REST API url provider
-    HubApp.configureApiUrls(config, injector.getInstance(ApiUrlProvider.class));
+    ApiUrlProvider.configureApiUrls(config, injector.getInstance(ApiUrlProvider.class));
 
     // Register JAX-RS filter for access log only registers if file succeeds to open for writing
     String pathToWriteAccessLog = config.hasPath("app.accessLogFile") ?

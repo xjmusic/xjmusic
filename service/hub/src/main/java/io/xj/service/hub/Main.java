@@ -57,7 +57,7 @@ public interface Main {
     Config config = AppConfiguration.parseArgs(args, defaults);
 
     // Instantiate app
-    HubApp app = new HubApp(resourcePackages, AppConfiguration.inject(config, injectorModules));
+    HubApp app = new HubApp(AppConfiguration.inject(config, injectorModules));
 
     // Shutdown Hook
     Runtime.getRuntime().addShutdownHook(new Thread(app::finish));

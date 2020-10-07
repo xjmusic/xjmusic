@@ -14,6 +14,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -24,10 +26,11 @@ public class AppTest {
   @Before
   public void setUp() throws Exception {
     Config config = AppConfiguration.getDefault()
+      .withValue("app.name", ConfigValueFactory.fromAnyRef("test"))
       .withValue("app.port", ConfigValueFactory.fromAnyRef(1903))
       .withValue("prometheus.enabled", ConfigValueFactory.fromAnyRef(true));
     Injector injector = AppConfiguration.inject(config, ImmutableSet.of());
-    subject = new App(ImmutableSet.of(), injector, "test");
+    subject = new App(injector, Collections.singleton("io.xj.lib.app"));
     subject.start();
   }
 
@@ -41,7 +44,7 @@ public class AppTest {
     HttpClient client = new HttpClient();
     client.start();
 
-    ContentResponse res = client.GET("http://localhost:1903/o2");
+    ContentResponse res = client.GET("http://localhost:1903/-/health");
 
     assertEquals(200, res.getStatus());
     client.stop();

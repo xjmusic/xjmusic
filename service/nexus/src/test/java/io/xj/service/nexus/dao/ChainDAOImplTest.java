@@ -898,15 +898,46 @@ public class ChainDAOImplTest {
   }
 
   /**
-   [#160299309] Engineer wants a *revived* action, throw error if trying to revived of chain that is not production in fabricate state
+   [#160299309] Engineer wants a *revived* action
+   [#174898524] Artist can revive a Chain of any type
    */
   @Test
-  public void revive_failsIfNotFabricateState() throws Exception {
+  public void revive_okOfAnyType() throws Exception {
     HubClientAccess access = HubClientAccess.create("Admin");
-    Chain chain = test.put(Chain.create(account1, "school", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
+    Chain chain = test.put(Chain.create(account1, "school", ChainType.Preview, ChainState.Failed, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
     test.put(ChainBinding.create(chain, Library.create(account1, "pajamas", Instant.now())));
+
+    subject.revive(access, chain.getId(), "Testing");
+  }
+
+  /**
+   [#160299309] Engineer wants a *revived* action
+   [#175137186] Artist can only revive Chain in fabricate, failed, or completed state
+   */
+  @Test
+  public void revive_failsInDraftState() throws Exception {
+    HubClientAccess access = HubClientAccess.create("Admin");
+    Chain chain = test.put(Chain.create(account1, "school", ChainType.Preview, ChainState.Draft, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
+    test.put(ChainBinding.create(chain, Library.create(account1, "pajamas", Instant.now())));
+
     failure.expect(DAOPrivilegeException.class);
-    failure.expectMessage("Only a Fabricate-state Chain can be revived.");
+    failure.expectMessage("Can't revive a Chain unless it's in Fabricate, Complete, or Failed state");
+
+    subject.revive(access, chain.getId(), "Testing");
+  }
+
+  /**
+   [#160299309] Engineer wants a *revived* action
+   [#175137186] Artist can only revive Chain in fabricate, failed, or completed state
+   */
+  @Test
+  public void revive_failsInReadyState() throws Exception {
+    HubClientAccess access = HubClientAccess.create("Admin");
+    Chain chain = test.put(Chain.create(account1, "school", ChainType.Preview, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
+    test.put(ChainBinding.create(chain, Library.create(account1, "pajamas", Instant.now())));
+
+    failure.expect(DAOPrivilegeException.class);
+    failure.expectMessage("Can't revive a Chain unless it's in Fabricate, Complete, or Failed state");
 
     subject.revive(access, chain.getId(), "Testing");
   }

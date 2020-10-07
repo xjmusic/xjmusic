@@ -2,11 +2,14 @@
 package io.xj.service.hub.api;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.xj.lib.entity.Entity;
+import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.PayloadDataType;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.InstrumentDAO;
@@ -15,7 +18,6 @@ import io.xj.service.hub.entity.Instrument;
 import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -41,16 +43,19 @@ public class InstrumentEndpoint extends HubEndpoint {
   private final InstrumentMemeDAO instrumentMemeDAO;
 
   /**
-   The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public InstrumentEndpoint(
-    Injector injector
+    InstrumentDAO dao,
+    InstrumentMemeDAO instrumentMemeDAO,
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory
   ) {
-    super(injector);
-    dao = injector.getInstance(InstrumentDAO.class);
-    instrumentMemeDAO = injector.getInstance(InstrumentMemeDAO.class);
+    super(response, config, payloadFactory);
+    this.dao = dao;
+    this.instrumentMemeDAO = instrumentMemeDAO;
   }
 
   /**

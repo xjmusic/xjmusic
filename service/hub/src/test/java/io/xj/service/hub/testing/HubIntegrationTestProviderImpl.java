@@ -63,7 +63,7 @@ public class HubIntegrationTestProviderImpl<O extends Entity> extends DAOImpl<O>
     HubApp.buildApiTopology(entityFactory);
 
     // Build the Hub REST API payload topology
-    HubApp.configureApiUrls(config, apiUrlProvider);
+    ApiUrlProvider.configureApiUrls(config, apiUrlProvider);
 
     // Requires that a configuration has been bound
     config.getString("app.name");

@@ -55,7 +55,7 @@ public class AuthGoogleResourceTest {
       .withValue("app.baseUrl", ConfigValueFactory.fromAnyRef("https://xj.io/"))
       .withValue("app.apiUrl", ConfigValueFactory.fromAnyRef("api/69/"));
     Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubDigestModule(), new HubGenerationModule()));
-    app = new HubApp(ImmutableSet.of("io.xj.service.hub"), injector);
+    app = new HubApp(injector);
     app.start();
 
     // get the client

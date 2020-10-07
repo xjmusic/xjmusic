@@ -12,9 +12,9 @@ import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClientAccess;
@@ -46,7 +46,9 @@ import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static io.xj.service.hub.client.HubClientAccess.CONTEXT_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -76,7 +78,7 @@ public class SegmentEndpointTest {
     User user101 = User.create();
     access = HubClientAccess.create(user101, ImmutableList.of(account1), "User,Artist");
     chain25 = Chain.create();
-    subject = new SegmentEndpoint(injector);
+    subject = injector.getInstance(SegmentEndpoint.class);
     injector.injectMembers(subject);
   }
 

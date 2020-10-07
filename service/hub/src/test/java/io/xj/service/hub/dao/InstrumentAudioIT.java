@@ -17,7 +17,19 @@ import io.xj.lib.util.ValueException;
 import io.xj.service.hub.IntegrationTestingFixtures;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.access.HubAccessControlModule;
-import io.xj.service.hub.entity.*;
+import io.xj.service.hub.entity.Account;
+import io.xj.service.hub.entity.AccountUser;
+import io.xj.service.hub.entity.Instrument;
+import io.xj.service.hub.entity.InstrumentAudio;
+import io.xj.service.hub.entity.InstrumentAudioChord;
+import io.xj.service.hub.entity.InstrumentAudioEvent;
+import io.xj.service.hub.entity.InstrumentMeme;
+import io.xj.service.hub.entity.InstrumentState;
+import io.xj.service.hub.entity.InstrumentType;
+import io.xj.service.hub.entity.Library;
+import io.xj.service.hub.entity.User;
+import io.xj.service.hub.entity.UserRole;
+import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubIntegrationTestModule;
@@ -40,7 +52,10 @@ import java.util.UUID;
 
 import static io.xj.service.hub.tables.InstrumentAudioChord.INSTRUMENT_AUDIO_CHORD;
 import static io.xj.service.hub.tables.InstrumentAudioEvent.INSTRUMENT_AUDIO_EVENT;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -215,6 +230,8 @@ public class InstrumentAudioIT {
 
     when(fileStoreProvider.generateAudioUploadPolicy())
       .thenReturn(new S3UploadPolicy("MyId", "MySecret", "bucket-owner-is-awesome", "xj-audio-test", "", 5));
+    when(fileStoreProvider.generateKey("instrument-" + fake.instrument202.getId() + "-audio"))
+      .thenReturn("instrument-" + fake.instrument202.getId() + "-audio-123456789.wav");
     when(fileStoreProvider.getUploadURL())
       .thenReturn("https://coconuts.com");
     when(fileStoreProvider.getCredentialId())
@@ -227,7 +244,7 @@ public class InstrumentAudioIT {
     Map<String, String> result = testDAO.authorizeUpload(hubAccess, fake.audio2.getId());
 
     assertNotNull(result);
-    assertEquals("fake.audio5222.wav", result.get("waveformKey"));
+    assertEquals("instrument-" + fake.instrument202.getId() + "-audio-123456789.wav", result.get("waveformKey"));
     assertEquals("xj-audio-test", result.get("bucketName"));
     assertNotNull(result.get("uploadPolicySignature"));
     assertEquals("https://coconuts.com", result.get("uploadUrl"));

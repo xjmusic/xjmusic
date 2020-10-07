@@ -1,9 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.app;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.prometheus.client.exporter.HTTPServer;
@@ -19,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -50,7 +47,6 @@ import java.util.stream.Collectors;
  */
 public class App {
   private static final Logger log = LoggerFactory.getLogger(App.class);
-  private static final Collection<String> commonResourcesPackages = ImmutableList.of("io.xj.lib.app");
   //
   private final boolean prometheusEnabled;
   private final int prometheusPort;
@@ -65,11 +61,9 @@ public class App {
   private boolean started = false;
 
   public App(
-    Set<String> resourcePackages,
     Injector injector,
-    String name
+    Set<String> resourcePackages
   ) {
-    this.name = name;
 
     // Configuration from typesafe config
     Config config = injector.getInstance(Config.class);
@@ -77,6 +71,7 @@ public class App {
     prometheusEnabled = config.getBoolean("prometheus.enabled");
     restHostname = fallback(System.getenv("FULL_HOSTNAME"), () -> getInetHostname(config.getString("app.hostname")));
     restPort = config.getInt("app.port");
+    name = config.getString("app.name");
 
     // Exposes JVM stats to Prometheus
     DefaultExports.initialize();
@@ -86,7 +81,7 @@ public class App {
 
     // resources configuration for jetty/server server
     // This is how we get our Guice Injector available for all JAX-RS resources that want it
-    resourceConfig = initJerseyResources(resourcePackages, injector);
+    resourceConfig = initJerseyResources(injector, resourcePackages);
   }
 
   /**
@@ -164,24 +159,12 @@ public class App {
    Scans for all resource classes in package
    Use specified packages plus common resources@param packages to register
 
-   @param addPackages containing JAX-RS resources to serve
-   @param injector    to resolve Guice bindings in JAX-RS resource classes
+   @param injector         to resolve Guice bindings
+   @param resourcePackages in which to search for resources classes to Guice-instantiate
    @return resource configuration
    */
-  private ResourceConfig initJerseyResources(Set<String> addPackages, Injector injector) {
-    Set<String> packages = ImmutableSet.<String>builder()
-      .addAll(commonResourcesPackages)
-      .addAll(addPackages)
-      .build();
-
-    // scans for all resource classes in packages
-    ResourceConfig config = new AppResourceConfig(injector, packages);
-
-    // register jackson json provider
-    config.register(JacksonJsonProvider.class);
-
-    packages.forEach(pkg -> log.info("{} will serve resources from package {}", name, pkg));
-    return config;
+  private ResourceConfig initJerseyResources(Injector injector, Set<String> resourcePackages) {
+    return new AppResourceConfig(injector, resourcePackages);
   }
 
   /**

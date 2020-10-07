@@ -1,16 +1,25 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.api;
 
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
+import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.dao.ProgramSequencePatternEventDAO;
 import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -20,18 +29,20 @@ import javax.ws.rs.core.Response;
  */
 @Path("program-sequence-pattern-events")
 public class ProgramSequencePatternEventEndpoint extends HubEndpoint {
-  private ProgramSequencePatternEventDAO dao;
+  private final ProgramSequencePatternEventDAO dao;
 
   /**
-   The constructor's @javax.inject.Inject patternEvent is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public ProgramSequencePatternEventEndpoint(
-    Injector injector
+    ProgramSequencePatternEventDAO dao,
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory
   ) {
-    super(injector);
-    dao = injector.getInstance(ProgramSequencePatternEventDAO.class);
+    super(response, config, payloadFactory);
+    this.dao = dao;
   }
 
   /**

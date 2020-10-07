@@ -2,16 +2,22 @@
 package io.xj.service.hub.api;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.xj.lib.jsonapi.ApiUrlProvider;
-import io.xj.lib.jsonapi.Payload;
-import io.xj.lib.jsonapi.PayloadObject;
+import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.PayloadObject;
 import io.xj.service.hub.HubEndpoint;
-import io.xj.service.hub.entity.*;
+import io.xj.service.hub.entity.InstrumentState;
+import io.xj.service.hub.entity.InstrumentType;
+import io.xj.service.hub.entity.ProgramSequencePatternType;
+import io.xj.service.hub.entity.ProgramState;
+import io.xj.service.hub.entity.ProgramType;
 
 import javax.annotation.security.PermitAll;
-import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -27,15 +33,17 @@ public class HubConfigEndpoint extends HubEndpoint {
 
 
   /**
-   The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public HubConfigEndpoint(
-    Injector injector
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory,
+    ApiUrlProvider apiUrlProvider
   ) {
-    super(injector);
-    apiUrlProvider = injector.getInstance(ApiUrlProvider.class);
+    super(response, config, payloadFactory);
+    this.apiUrlProvider = apiUrlProvider;
   }
 
   /**
@@ -60,6 +68,7 @@ public class HubConfigEndpoint extends HubEndpoint {
           .put("programStates", ProgramState.stringValues())
           .put("programTypes", ProgramType.stringValues())
           .put("segmentBaseUrl", apiUrlProvider.getSegmentBaseUrl())
+          .put("playerBaseUrl", apiUrlProvider.getPlayerBaseUrl())
           .put("voiceTypes", InstrumentType.stringValues())
           .build())));
   }

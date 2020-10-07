@@ -9,7 +9,11 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.*;
+import io.xj.lib.jsonapi.AssertPayload;
+import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.DAO;
@@ -28,7 +32,9 @@ import static io.xj.service.hub.access.HubAccess.CONTEXT_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HubEndpointTest {
@@ -52,7 +58,7 @@ public class HubEndpointTest {
     payloadFactory = injector.getInstance(PayloadFactory.class);
     EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
-    subject = new HubEndpoint(injector);
+    subject = injector.getInstance(HubEndpoint.class);
   }
 
   @Test

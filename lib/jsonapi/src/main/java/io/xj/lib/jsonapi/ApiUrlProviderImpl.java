@@ -14,6 +14,9 @@ class ApiUrlProviderImpl implements ApiUrlProvider {
   private String appName;
   private String audioBaseUrl;
   private String segmentBaseUrl;
+
+  private String playerBaseUrl;
+
   private String appPathUnauthorized;
   private String appPathWelcome;
 
@@ -61,6 +64,11 @@ class ApiUrlProviderImpl implements ApiUrlProvider {
   @Override
   public String getSegmentBaseUrl() {
     return segmentBaseUrl;
+  }
+
+  @Override
+  public String getPlayerBaseUrl() {
+    return playerBaseUrl;
   }
 
   @Override
@@ -112,6 +120,12 @@ class ApiUrlProviderImpl implements ApiUrlProvider {
   @Override
   public ApiUrlProvider setSegmentBaseUrl(String segmentBaseUrl) {
     this.segmentBaseUrl = segmentBaseUrl;
+    return this;
+  }
+
+  @Override
+  public ApiUrlProvider setPlayerBaseUrl(String playerBaseUrl) {
+    this.playerBaseUrl = playerBaseUrl;
     return this;
   }
 

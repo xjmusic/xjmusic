@@ -12,7 +12,28 @@ import io.xj.lib.util.Text;
 import io.xj.service.hub.access.HubAccessControlProvider;
 import io.xj.service.hub.access.HubAccessLogFilter;
 import io.xj.service.hub.access.HubAccessTokenAuthFilter;
-import io.xj.service.hub.entity.*;
+import io.xj.service.hub.entity.Account;
+import io.xj.service.hub.entity.AccountUser;
+import io.xj.service.hub.entity.Instrument;
+import io.xj.service.hub.entity.InstrumentAudio;
+import io.xj.service.hub.entity.InstrumentAudioChord;
+import io.xj.service.hub.entity.InstrumentAudioEvent;
+import io.xj.service.hub.entity.InstrumentMeme;
+import io.xj.service.hub.entity.Library;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramMeme;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.ProgramSequenceBinding;
+import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
+import io.xj.service.hub.entity.ProgramSequenceChord;
+import io.xj.service.hub.entity.ProgramSequencePattern;
+import io.xj.service.hub.entity.ProgramSequencePatternEvent;
+import io.xj.service.hub.entity.ProgramVoice;
+import io.xj.service.hub.entity.ProgramVoiceTrack;
+import io.xj.service.hub.entity.User;
+import io.xj.service.hub.entity.UserAuth;
+import io.xj.service.hub.entity.UserAuthToken;
+import io.xj.service.hub.entity.UserRole;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 import io.xj.service.hub.persistence.HubMigration;
 import io.xj.service.hub.persistence.HubPersistenceException;
@@ -20,7 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Set;
+import java.util.Collections;
 
 /**
  Base application for XJ services.
@@ -51,15 +72,12 @@ public class HubApp extends App {
    Construct a new application by providing
    - a config,
    - a set of resource packages to add to the core set, and
-   - an injector to create a child injector of in order to add the core set.@param resourcePackages to add to the core set of packages for the new application@param resourcePackages
-
-   @param injector to add to the core set of modules for the new application
+   - an injector to create a child injector of in order to add the core set.@param resourcePackages to add to the core set of packages for the new application@param resourcePackages@param injector to add to the core set of modules for the new application
    */
   public HubApp(
-    Set<String> resourcePackages,
     Injector injector
   ) {
-    super(resourcePackages, injector, HubApp.class.getSimpleName());
+    super(injector, Collections.singleton("io.xj.service.hub.api"));
 
     // Injection
     this.injector = injector;
@@ -76,7 +94,7 @@ public class HubApp extends App {
     buildApiTopology(injector.getInstance(EntityFactory.class));
 
     // Configure REST API url provider
-    configureApiUrls(config, injector.getInstance(ApiUrlProvider.class));
+    ApiUrlProvider.configureApiUrls(config, injector.getInstance(ApiUrlProvider.class));
 
     // Register JAX-RS filter for access log only registers if file succeeds to open for writing
     String pathToWriteAccessLog = config.hasPath("app.accessLogFile") ?
@@ -86,8 +104,8 @@ public class HubApp extends App {
 
     // Register JAX-RS filter for reading access control token
     HubAccessControlProvider hubAccessControlProvider = injector.getInstance(HubAccessControlProvider.class);
-    getResourceConfig().register(new HubAccessTokenAuthFilter(hubAccessControlProvider, config.getString("access.tokenName")));
-  }
+    getResourceConfig().register(new HubAccessTokenAuthFilter(hubAccessControlProvider,
+      config.getString("access.tokenName"))); }
 
   /**
    Given a entity factory, build the Hub REST API entity topology
@@ -301,21 +319,6 @@ public class HubApp extends App {
       .createdBy(UserRole::new)
       .withAttribute("type")
       .belongsTo(User.class);
-  }
-
-  /**
-   Given an instance of the REST API library's ApiUrlProvider, configure it for this Hub Application@param apiUrlProvider of app to configure
-   */
-  public static void configureApiUrls(Config config, ApiUrlProvider apiUrlProvider) {
-    apiUrlProvider.setApiPath(config.getString("app.apiUrl"));
-    apiUrlProvider.setAppBaseUrl(config.getString("app.baseUrl"));
-    apiUrlProvider.setAppHost(config.getString("app.host"));
-    apiUrlProvider.setAppHostname(config.getString("app.hostname"));
-    apiUrlProvider.setAppName(config.getString("app.name"));
-    apiUrlProvider.setAudioBaseUrl(config.getString("audio.baseUrl"));
-    apiUrlProvider.setSegmentBaseUrl(config.getString("segment.baseUrl"));
-    apiUrlProvider.setAppPathUnauthorized(config.getString("api.unauthorizedRedirectPath"));
-    apiUrlProvider.setAppPathWelcome(config.getString("api.welcomeRedirectPath"));
   }
 
   /**

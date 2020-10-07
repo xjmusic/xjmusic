@@ -2,10 +2,13 @@
 package io.xj.service.nexus.api;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
+import io.xj.lib.jsonapi.HttpResponseProvider;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.Payload;
-import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubClientException;
 import io.xj.service.hub.entity.Account;
@@ -20,8 +23,14 @@ import io.xj.service.nexus.entity.Chain;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -36,17 +45,18 @@ public class ChainEndpoint extends NexusEndpoint {
   private final ChainDAO dao;
 
   /**
-   The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public ChainEndpoint(
-    Injector injector
+    ChainDAO dao,
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory
   ) {
-    super(injector);
-    dao = injector.getInstance(ChainDAO.class);
+    super(response, config, payloadFactory);
+    this.dao = dao;
   }
-
 
   /**
    Get all chains.
@@ -183,7 +193,7 @@ public class ChainEndpoint extends NexusEndpoint {
       return response.ok(payloadFactory.newPayload().setDataOne(payloadFactory.toPayloadObject(chain)));
 
     } catch (DAOValidationException e) {
-      return response.notAcceptable(e.getCause().getMessage());
+      return response.notAcceptable(e);
 
     } catch (DAOPrivilegeException e) {
       return response.unauthorized(Chain.class, id, e);

@@ -2,9 +2,12 @@
 package io.xj.service.hub.api;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
+import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.DAO;
@@ -12,7 +15,6 @@ import io.xj.service.hub.dao.UserDAO;
 import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
@@ -21,6 +23,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -28,18 +31,20 @@ import java.util.UUID;
  */
 @Path("users")
 public class UserEndpoint extends HubEndpoint {
-  private UserDAO dao;
+  private final UserDAO dao;
 
   /**
-   The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public UserEndpoint(
-    Injector injector
+    UserDAO dao,
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory
   ) {
-    super(injector);
-    dao = injector.getInstance(UserDAO.class);
+    super(response, config, payloadFactory);
+    this.dao = dao;
   }
 
   /**
@@ -91,7 +96,7 @@ public class UserEndpoint extends HubEndpoint {
     UUID userId;
     userId = HubAccess.fromContext(crc).getUserId();
 
-    return readOne(crc, dao(), userId.toString());
+    return readOne(crc, dao(), Objects.requireNonNull(userId).toString());
   }
 
   /**
@@ -99,7 +104,7 @@ public class UserEndpoint extends HubEndpoint {
 
    @return DAO
    */
-  private DAO dao() {
+  private DAO<io.xj.service.hub.entity.User> dao() {
     return dao;
   }
 }

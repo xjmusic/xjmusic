@@ -2,7 +2,7 @@
 package io.xj.service.nexus;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.lib.entity.Entity;
 import io.xj.lib.jsonapi.HttpResponseProvider;
@@ -15,7 +15,6 @@ import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 
-import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
@@ -32,16 +31,17 @@ public class NexusEndpoint {
   protected final PayloadFactory payloadFactory;
 
   /**
-   The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public NexusEndpoint(
-    Injector injector
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory
   ) {
-    response = injector.getInstance(HttpResponseProvider.class);
-    config = injector.getInstance(Config.class);
-    payloadFactory = injector.getInstance(PayloadFactory.class);
+    this.response = response;
+    this.config = config;
+    this.payloadFactory = payloadFactory;
   }
 
   /**

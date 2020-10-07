@@ -13,9 +13,9 @@ import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.access.HubAccess;
@@ -24,7 +24,12 @@ import io.xj.service.hub.dao.DAOException;
 import io.xj.service.hub.dao.DAOModule;
 import io.xj.service.hub.dao.ProgramDAO;
 import io.xj.service.hub.digest.HubDigestModule;
-import io.xj.service.hub.entity.*;
+import io.xj.service.hub.entity.Account;
+import io.xj.service.hub.entity.Library;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramState;
+import io.xj.service.hub.entity.ProgramType;
+import io.xj.service.hub.entity.User;
 import io.xj.service.hub.generation.HubGenerationModule;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
@@ -77,7 +82,7 @@ public class ProgramEndpointTest {
     user101 = User.create();
     library25 = Library.create();
     library1 = Library.create();
-    subject = new ProgramEndpoint(injector);
+    subject = injector.getInstance(ProgramEndpoint.class);
     injector.injectMembers(subject);
   }
 

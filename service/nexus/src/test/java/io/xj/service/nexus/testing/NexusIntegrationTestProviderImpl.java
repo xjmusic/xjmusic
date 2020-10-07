@@ -7,7 +7,6 @@ import com.typesafe.config.Config;
 import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.ApiUrlProvider;
-import io.xj.service.hub.HubApp;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.persistence.NexusEntityStore;
 import io.xj.lib.entity.EntityStoreException;
@@ -42,7 +41,7 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
     NexusApp.buildApiTopology(entityFactory);
 
     // Build the Nexus REST API payload topology
-    HubApp.configureApiUrls(config, apiUrlProvider);
+    ApiUrlProvider.configureApiUrls(config, apiUrlProvider);
 
     // Requires that a configuration has been bound
     config.getString("app.name");

@@ -19,7 +19,6 @@ import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
-import io.xj.service.hub.HubApp;
 import io.xj.service.hub.dao.DAOModule;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
@@ -57,7 +56,7 @@ public class GoogleProviderImplTest extends Mockito {
         }
       })));
     googleProvider = injector.getInstance(GoogleProvider.class);
-    HubApp.configureApiUrls(config, injector.getInstance(ApiUrlProvider.class));
+    ApiUrlProvider.configureApiUrls(config, injector.getInstance(ApiUrlProvider.class));
   }
 
   @Test

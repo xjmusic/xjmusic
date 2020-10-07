@@ -2,11 +2,13 @@
 package io.xj.service.hub.api;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.jsonapi.HttpResponseProvider;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.GoogleProvider;
 import io.xj.service.hub.access.HubAccess;
@@ -20,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -45,20 +46,27 @@ public class AuthEndpoint extends HubEndpoint {
   private final HttpResponseProvider httpResponseProvider;
 
   /**
-   The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public AuthEndpoint(
-    Injector injector
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory,
+    UserDAO userDAO,
+    HubAccessControlProvider hubAccessControlProvider,
+    GoogleProvider authGoogleProvider,
+    ApiUrlProvider apiUrlProvider,
+    EntityFactory entityFactory,
+    HttpResponseProvider httpResponseProvider
   ) {
-    super(injector);
-    userDAO = injector.getInstance(UserDAO.class);
-    hubAccessControlProvider = injector.getInstance(HubAccessControlProvider.class);
-    authGoogleProvider = injector.getInstance(GoogleProvider.class);
-    apiUrlProvider = injector.getInstance(ApiUrlProvider.class);
-    entityFactory = injector.getInstance(EntityFactory.class);
-    httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+    super(response, config, payloadFactory);
+    this.userDAO = userDAO;
+    this.hubAccessControlProvider = hubAccessControlProvider;
+    this.authGoogleProvider = authGoogleProvider;
+    this.apiUrlProvider = apiUrlProvider;
+    this.entityFactory = entityFactory;
+    this.httpResponseProvider = httpResponseProvider;
   }
 
   /**

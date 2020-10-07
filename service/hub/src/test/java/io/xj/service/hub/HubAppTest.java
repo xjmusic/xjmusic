@@ -10,7 +10,29 @@ import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.service.hub.access.GoogleProvider;
 import io.xj.service.hub.access.HubAccessControlProvider;
+import io.xj.service.hub.dao.AccountDAO;
+import io.xj.service.hub.dao.AccountUserDAO;
+import io.xj.service.hub.dao.InstrumentAudioChordDAO;
+import io.xj.service.hub.dao.InstrumentAudioDAO;
+import io.xj.service.hub.dao.InstrumentAudioEventDAO;
+import io.xj.service.hub.dao.InstrumentDAO;
+import io.xj.service.hub.dao.InstrumentMemeDAO;
+import io.xj.service.hub.dao.LibraryDAO;
+import io.xj.service.hub.dao.ProgramDAO;
+import io.xj.service.hub.dao.ProgramMemeDAO;
+import io.xj.service.hub.dao.ProgramSequenceBindingDAO;
+import io.xj.service.hub.dao.ProgramSequenceBindingMemeDAO;
+import io.xj.service.hub.dao.ProgramSequenceChordDAO;
+import io.xj.service.hub.dao.ProgramSequenceDAO;
+import io.xj.service.hub.dao.ProgramSequencePatternDAO;
+import io.xj.service.hub.dao.ProgramSequencePatternEventDAO;
+import io.xj.service.hub.dao.ProgramVoiceDAO;
+import io.xj.service.hub.dao.ProgramVoiceTrackDAO;
+import io.xj.service.hub.dao.UserDAO;
+import io.xj.service.hub.digest.DigestCacheProvider;
+import io.xj.service.hub.ingest.HubIngestCacheProvider;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -31,11 +53,55 @@ import static org.junit.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class HubAppTest {
   @Mock
-  private HubDatabaseProvider hubDatabaseProvider;
+  public HubDatabaseProvider hubDatabaseProvider;
   @Mock
-  private HubAccessControlProvider hubAccessControlProvider;
-  private App subject;
-  private CloseableHttpClient httpClient;
+  public HubAccessControlProvider hubAccessControlProvider;
+  @Mock
+  public HubIngestCacheProvider hubIngestCacheProvider;
+  @Mock
+  public AccountDAO accountDAO;
+  @Mock
+  public AccountUserDAO accountUserDAO;
+  @Mock
+  public InstrumentDAO instrumentDAO;
+  @Mock
+  public InstrumentAudioDAO instrumentAudioDAO;
+  @Mock
+  public InstrumentAudioChordDAO instrumentAudioChordDAO;
+  @Mock
+  public InstrumentAudioEventDAO instrumentAudioEventDAO;
+  @Mock
+  public InstrumentMemeDAO instrumentMemeDAO;
+  @Mock
+  public LibraryDAO libraryDAO;
+  @Mock
+  public ProgramDAO programDAO;
+  @Mock
+  public ProgramSequencePatternEventDAO programSequencePatternEventDAO;
+  @Mock
+  public ProgramMemeDAO programMemeDAO;
+  @Mock
+  public ProgramSequencePatternDAO programSequencePatternDAO;
+  @Mock
+  public ProgramSequenceDAO programSequenceDAO;
+  @Mock
+  public ProgramSequenceBindingDAO programSequenceBindingDAO;
+  @Mock
+  public ProgramSequenceBindingMemeDAO programSequenceBindingMemeDAO;
+  @Mock
+  public ProgramSequenceChordDAO programSequenceChordDAO;
+  @Mock
+  public ProgramVoiceTrackDAO programVoiceTrackDAO;
+  @Mock
+  public ProgramVoiceDAO programVoiceDAO;
+  @Mock
+  public UserDAO userDAO;
+  @Mock
+  private DigestCacheProvider digestCacheProvider;
+  @Mock
+  private GoogleProvider googleProvider;
+  public App subject;
+  public CloseableHttpClient httpClient;
 
   @Before
   public void setUp() throws Exception {
@@ -50,9 +116,31 @@ public class HubAppTest {
       protected void configure() {
         bind(HubDatabaseProvider.class).toInstance(hubDatabaseProvider);
         bind(HubAccessControlProvider.class).toInstance(hubAccessControlProvider);
+        bind(HubIngestCacheProvider.class).toInstance(hubIngestCacheProvider);
+        bind(AccountDAO.class).toInstance(accountDAO);
+        bind(AccountUserDAO.class).toInstance(accountUserDAO);
+        bind(InstrumentDAO.class).toInstance(instrumentDAO);
+        bind(InstrumentAudioDAO.class).toInstance(instrumentAudioDAO);
+        bind(InstrumentAudioChordDAO.class).toInstance(instrumentAudioChordDAO);
+        bind(InstrumentAudioEventDAO.class).toInstance(instrumentAudioEventDAO);
+        bind(InstrumentMemeDAO.class).toInstance(instrumentMemeDAO);
+        bind(LibraryDAO.class).toInstance(libraryDAO);
+        bind(ProgramDAO.class).toInstance(programDAO);
+        bind(ProgramSequencePatternEventDAO.class).toInstance(programSequencePatternEventDAO);
+        bind(ProgramMemeDAO.class).toInstance(programMemeDAO);
+        bind(ProgramSequencePatternDAO.class).toInstance(programSequencePatternDAO);
+        bind(ProgramSequenceDAO.class).toInstance(programSequenceDAO);
+        bind(ProgramSequenceBindingDAO.class).toInstance(programSequenceBindingDAO);
+        bind(ProgramSequenceBindingMemeDAO.class).toInstance(programSequenceBindingMemeDAO);
+        bind(ProgramSequenceChordDAO.class).toInstance(programSequenceChordDAO);
+        bind(ProgramVoiceTrackDAO.class).toInstance(programVoiceTrackDAO);
+        bind(ProgramVoiceDAO.class).toInstance(programVoiceDAO);
+        bind(UserDAO.class).toInstance(userDAO);
+        bind(DigestCacheProvider.class).toInstance(digestCacheProvider);
+        bind(GoogleProvider.class).toInstance(googleProvider);
       }
     }));
-    subject = new HubApp(ImmutableSet.of(), injector);
+    subject = new HubApp(injector);
     subject.start();
   }
 
@@ -64,11 +152,11 @@ public class HubAppTest {
 
   @Test
   public void checkApp() throws Exception {
-    HttpGet request = new HttpGet(new URI("http://localhost:1903/o2"));
+    HttpGet request = new HttpGet(new URI("http://localhost:1903/-/health"));
     CloseableHttpResponse result = httpClient.execute(request);
 
     assertEquals(200, result.getStatusLine().getStatusCode());
 
-    assertEquals("HubApp", subject.getName());
+    assertEquals("hub", subject.getName());
   }
 }

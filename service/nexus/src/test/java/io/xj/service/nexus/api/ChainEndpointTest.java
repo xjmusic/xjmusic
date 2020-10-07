@@ -13,9 +13,9 @@ import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClientAccess;
@@ -23,7 +23,6 @@ import io.xj.service.hub.client.HubClientModule;
 import io.xj.service.hub.digest.HubDigestModule;
 import io.xj.service.hub.entity.Account;
 import io.xj.service.nexus.NexusApp;
-import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.NexusDAOModule;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
@@ -90,7 +89,7 @@ public class ChainEndpointTest {
 
     account25 = Account.create();
     access = HubClientAccess.create(ImmutableList.of(account25), "User,Artist");
-    subject = new ChainEndpoint(injector);
+    subject = injector.getInstance(ChainEndpoint.class);
     injector.injectMembers(subject);
   }
 
@@ -114,7 +113,7 @@ public class ChainEndpointTest {
   }
 
   @Test
-  public void readOne() throws IOException, JsonApiException, NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public void readOne() throws IOException, JsonApiException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     Account account25 = Account.create();
     Chain chain17 = Chain.create(account25, "Test Print #1", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print");

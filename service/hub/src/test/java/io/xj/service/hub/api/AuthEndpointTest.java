@@ -57,7 +57,7 @@ public class AuthEndpointTest {
     HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
     account1 = Account.create();
     hubAccess = HubAccess.create(ImmutableList.of(account1), "User,Artist");
-    subject = new AuthEndpoint(injector);
+    subject = injector.getInstance(AuthEndpoint.class);
     injector.injectMembers(subject);
   }
 

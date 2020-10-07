@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.dao;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -10,8 +11,8 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.filestore.S3UploadPolicy;
-import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.entity.InstrumentAudio;
@@ -27,7 +28,11 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.service.hub.Tables.*;
+import static io.xj.service.hub.Tables.INSTRUMENT;
+import static io.xj.service.hub.Tables.INSTRUMENT_AUDIO;
+import static io.xj.service.hub.Tables.INSTRUMENT_AUDIO_CHORD;
+import static io.xj.service.hub.Tables.INSTRUMENT_AUDIO_EVENT;
+import static io.xj.service.hub.Tables.LIBRARY;
 
 public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements InstrumentAudioDAO {
   private final FileStoreProvider fileStoreProvider;
@@ -77,7 +82,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
     Map<String, String> uploadAuthorization = Maps.newConcurrentMap();
     S3UploadPolicy uploadPolicy = fileStoreProvider.generateAudioUploadPolicy();
 
-    uploadAuthorization.put(KEY_WAVEFORM_KEY, entity.getWaveformKey());
+    uploadAuthorization.put(KEY_WAVEFORM_KEY, generateKey(entity.getInstrumentId()));
     uploadAuthorization.put(KEY_UPLOAD_URL, fileStoreProvider.getUploadURL());
     uploadAuthorization.put(KEY_UPLOAD_ACCESS_KEY, fileStoreProvider.getCredentialId());
     uploadAuthorization.put(KEY_UPLOAD_POLICY, uploadPolicy.getPolicyString());
@@ -114,18 +119,18 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   }
 
   @Override
-  public void update(HubAccess hubAccess, UUID id, InstrumentAudio updates) throws DAOException, JsonApiException, ValueException {
-    updates.validate();
+  public void update(HubAccess hubAccess, UUID id, InstrumentAudio updated) throws DAOException, JsonApiException, ValueException {
+    updated.validate();
     requireArtist(hubAccess);
 
     DSLContext db = dbProvider.getDSL();
 
-    requireParentExists(db, hubAccess, updates);
+    requireParentExists(db, hubAccess, updated);
 
-    InstrumentAudio original = readOne(db, hubAccess, id);
-    updates.setWaveformKey(original.getWaveformKey());
+    if (Strings.isNullOrEmpty(updated.getWaveformKey()))
+      updated.setWaveformKey(readOne(db, hubAccess, id).getWaveformKey());
 
-    executeUpdate(db, INSTRUMENT_AUDIO, id, updates);
+    executeUpdate(db, INSTRUMENT_AUDIO, id, updated);
   }
 
   @Override

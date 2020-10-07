@@ -9,13 +9,10 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Objects;
 
 @Singleton
 class HttpResponseProviderImpl implements HttpResponseProvider {
@@ -33,19 +30,6 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
 
     appUrl = apiUrlProvider.getAppBaseUrl();
     this.apiUrlProvider = apiUrlProvider;
-  }
-
-  /**
-   Format a stack trace in carriage-return-separated lines
-
-   @param e exception to format the stack trace of
-   @return formatted stack trace
-   */
-  private static String formatStackTrace(@Nullable Throwable e) {
-    if (Objects.isNull(e)) return "";
-    StackTraceElement[] stack = e.getStackTrace();
-    String[] stackLines = Arrays.stream(stack).map(StackTraceElement::toString).toArray(String[]::new);
-    return String.join(System.getProperty("line.separator"), stackLines);
   }
 
   @Override
@@ -191,7 +175,12 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
 
   @Override
   public Response notAcceptable(String message) {
-    return failure(new JsonApiException("Unacceptable entity!"), HttpStatus.SC_NOT_ACCEPTABLE);
+    return failure(new JsonApiException(String.format("Unacceptable! %s", message)), HttpStatus.SC_NOT_ACCEPTABLE);
+  }
+
+  @Override
+  public Response notAcceptable(Exception e) {
+    return failure(e, HttpStatus.SC_NOT_ACCEPTABLE);
   }
 
   @Override

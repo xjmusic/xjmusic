@@ -2,8 +2,11 @@
 package io.xj.service.hub.api;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
+import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.HubException;
 import io.xj.service.hub.access.HubAccess;
@@ -15,7 +18,6 @@ import io.xj.service.hub.ingest.HubIngest;
 import io.xj.service.hub.ingest.HubIngestCacheProvider;
 
 import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
@@ -32,20 +34,23 @@ import java.util.UUID;
  */
 @Path("digest")
 public class DigestEndpoint extends HubEndpoint {
-  private HubIngestCacheProvider ingestProvider;
-  private DigestCacheProvider digestProvider;
+  private final HubIngestCacheProvider ingestProvider;
+  private final DigestCacheProvider digestProvider;
 
   /**
-   The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public DigestEndpoint(
-    Injector injector
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory,
+    HubIngestCacheProvider ingestProvider,
+    DigestCacheProvider digestProvider
   ) {
-    super(injector);
-    ingestProvider = injector.getInstance(HubIngestCacheProvider.class);
-    digestProvider = injector.getInstance(DigestCacheProvider.class);
+    super(response, config, payloadFactory);
+    this.ingestProvider = ingestProvider;
+    this.digestProvider = digestProvider;
   }
 
   /**

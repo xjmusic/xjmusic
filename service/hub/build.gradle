@@ -82,7 +82,6 @@ dependencies {
   implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.8'
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '6.2.4'
   implementation group: 'org.glassfish.jersey.containers', name: 'jersey-container-grizzly2-http', version: '2.29.1'
-  implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.29.1'
   implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.29.1'
   implementation group: 'org.glassfish.jersey.test-framework.providers', name: 'jersey-test-framework-provider-simple', version: '2.29.1'
   implementation group: 'org.jooq', name: 'jooq', version: '3.12.3'

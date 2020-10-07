@@ -419,7 +419,7 @@ This app exists solely to be run in AWS Lambda, and call the Hub /heartbeat endp
 
 ## Healthcheck Endpoint
 
-**GET /o2**
+**GET /-/health**
 
 
 ## Intro to Google OAuth2

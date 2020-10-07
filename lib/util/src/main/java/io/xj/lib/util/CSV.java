@@ -5,10 +5,17 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public interface CSV {
+  char COMMA = ',';
+  char SPACE = ' ';
+
   static Collection<String> split(String csv) {
     return Arrays.asList(csv.split(","));
   }
@@ -31,19 +38,24 @@ public interface CSV {
   }
 
   /**
-   write a collection of ids to a CSV string
+   Join a set of items' toString() values properly, e.g. "One, Two, Three, and Four"
 
-   @param ids to write
+   @param ids             to write
+   @param beforeFinalItem text after last comma
    @return CSV of ids
    */
-  static <T> String fromStringsOf(Collection<T> ids) {
+  static <T> String prettyFrom(Collection<T> ids, String beforeFinalItem) {
     if (Objects.isNull(ids) || ids.isEmpty()) {
       return "";
     }
     Iterator<T> it = ids.iterator();
     StringBuilder result = new StringBuilder(it.next().toString());
     while (it.hasNext()) {
-      result.append(",").append(it.next());
+      result.append(COMMA).append(SPACE);
+      String item = it.next().toString();
+      if (!it.hasNext())
+        result.append(beforeFinalItem).append(SPACE);
+      result.append(item);
     }
     return result.toString();
   }
@@ -59,4 +71,5 @@ public interface CSV {
     properties.forEach((key, value) -> pieces.add(String.format("%s=%s", key, value)));
     return join(pieces);
   }
+
 }

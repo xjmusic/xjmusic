@@ -1,16 +1,24 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.api;
 
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
+import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.nexus.NexusEndpoint;
 import io.xj.service.nexus.dao.ChainBindingDAO;
 
 import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -23,15 +31,17 @@ public class ChainBindingEndpoint extends NexusEndpoint {
   private final ChainBindingDAO dao;
 
   /**
-   The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public ChainBindingEndpoint(
-    Injector injector
+    ChainBindingDAO dao,
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory
   ) {
-    super(injector);
-    dao = injector.getInstance(ChainBindingDAO.class);
+    super(response, config, payloadFactory);
+    this.dao = dao;
   }
 
   /**

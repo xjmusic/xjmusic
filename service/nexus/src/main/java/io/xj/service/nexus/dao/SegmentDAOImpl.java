@@ -41,8 +41,8 @@ import java.util.stream.Collectors;
 @Singleton
 public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   private final ChainDAO chainDAO;
-  private final int playBufferAheadSeconds;
-  private final int playBufferDelaySeconds;
+  private final int playerBufferAheadSeconds;
+  private final int playerBufferDelaySeconds;
   private final int limitSegmentReadSize;
 
   @Inject
@@ -55,8 +55,8 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     super(entityFactory, nexusEntityStore);
     this.chainDAO = chainDAO;
 
-    playBufferAheadSeconds = config.getInt("play.bufferAheadSeconds");
-    playBufferDelaySeconds = config.getInt("play.bufferDelaySeconds");
+    playerBufferAheadSeconds = config.getInt("player.bufferAheadSeconds");
+    playerBufferDelaySeconds = config.getInt("player.bufferDelaySeconds");
     limitSegmentReadSize = config.getInt("segment.limitReadSize");
   }
 
@@ -257,8 +257,8 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   public Collection<Segment> readManyFromSecondsUTC(HubClientAccess access, UUID chainId, Long fromSecondsUTC) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     try {
       Instant from = Instant.ofEpochSecond(fromSecondsUTC);
-      Instant maxBeginAt = from.plusSeconds(playBufferAheadSeconds);
-      Instant minEndAt = from.minusSeconds(playBufferDelaySeconds);
+      Instant maxBeginAt = from.plusSeconds(playerBufferAheadSeconds);
+      Instant minEndAt = from.minusSeconds(playerBufferDelaySeconds);
       requireChainAccount(access, chainId);
       return store.getAll(Segment.class, Chain.class, ImmutableSet.of(chainId))
         .stream()

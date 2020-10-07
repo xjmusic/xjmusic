@@ -2,11 +2,14 @@
 package io.xj.service.hub.api;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.xj.lib.entity.Entity;
+import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.PayloadDataType;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.InstrumentAudioChordDAO;
@@ -16,7 +19,6 @@ import io.xj.service.hub.entity.InstrumentAudio;
 import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -44,17 +46,21 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
   private final InstrumentAudioDAO dao;
 
   /**
-   The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public InstrumentAudioEndpoint(
-    Injector injector
+    InstrumentAudioDAO dao,
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory,
+    InstrumentAudioEventDAO instrumentAudioEventDAO,
+    InstrumentAudioChordDAO instrumentAudioChordDAO
   ) {
-    super(injector);
-    dao = injector.getInstance(InstrumentAudioDAO.class);
-    this.instrumentAudioEventDAO = injector.getInstance(InstrumentAudioEventDAO.class);
-    this.instrumentAudioChordDAO = injector.getInstance(InstrumentAudioChordDAO.class);
+    super(response, config, payloadFactory);
+    this.dao = dao;
+    this.instrumentAudioEventDAO = instrumentAudioEventDAO;
+    this.instrumentAudioChordDAO = instrumentAudioChordDAO;
   }
 
   /**

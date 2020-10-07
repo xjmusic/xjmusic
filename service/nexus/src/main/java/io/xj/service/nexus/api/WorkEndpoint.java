@@ -1,16 +1,18 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.api;
 
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
+import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.PayloadDataType;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.nexus.NexusEndpoint;
 import io.xj.service.nexus.entity.Chain;
 import io.xj.service.nexus.work.NexusWork;
 
 import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -26,15 +28,17 @@ public class WorkEndpoint extends NexusEndpoint {
   private final NexusWork nexusWork;
 
   /**
-   The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public WorkEndpoint(
-    Injector injector
+    NexusWork nexusWork,
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory
   ) {
-    super(injector);
-    nexusWork = injector.getInstance(NexusWork.class);
+    super(response, config, payloadFactory);
+    this.nexusWork = nexusWork;
   }
 
   /**

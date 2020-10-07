@@ -2,12 +2,19 @@
 package io.xj.service.nexus.api;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.xj.lib.jsonapi.ApiUrlProvider;
-import io.xj.lib.jsonapi.Payload;
-import io.xj.lib.jsonapi.PayloadObject;
+import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.JsonApiException;
-import io.xj.service.hub.entity.*;
+import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.PayloadObject;
+import io.xj.service.hub.entity.InstrumentState;
+import io.xj.service.hub.entity.InstrumentType;
+import io.xj.service.hub.entity.ProgramSequencePatternType;
+import io.xj.service.hub.entity.ProgramState;
+import io.xj.service.hub.entity.ProgramType;
 import io.xj.service.nexus.NexusEndpoint;
 import io.xj.service.nexus.entity.ChainConfigType;
 import io.xj.service.nexus.entity.ChainState;
@@ -15,7 +22,6 @@ import io.xj.service.nexus.entity.ChainType;
 import io.xj.service.nexus.entity.SegmentState;
 
 import javax.annotation.security.PermitAll;
-import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -29,17 +35,18 @@ import javax.ws.rs.core.Response;
 public class NexusConfigEndpoint extends NexusEndpoint {
   private final ApiUrlProvider apiUrlProvider;
 
-
   /**
-   The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public NexusConfigEndpoint(
-    Injector injector
+    ApiUrlProvider apiUrlProvider,
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory
   ) {
-    super(injector);
-    apiUrlProvider = injector.getInstance(ApiUrlProvider.class);
+    super(response, config, payloadFactory);
+    this.apiUrlProvider = apiUrlProvider;
   }
 
   /**
@@ -67,6 +74,7 @@ public class NexusConfigEndpoint extends NexusEndpoint {
           .put("programStates", ProgramState.stringValues())
           .put("programTypes", ProgramType.stringValues())
           .put("segmentBaseUrl", apiUrlProvider.getSegmentBaseUrl())
+          .put("playerBaseUrl", apiUrlProvider.getPlayerBaseUrl())
           .put("segmentStates", SegmentState.stringValues())
           .put("voiceTypes", InstrumentType.stringValues())
           .build())));

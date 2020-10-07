@@ -123,6 +123,14 @@ public interface HttpResponseProvider {
   Response notAcceptable(String message);
 
   /**
+   Return a response that the request is not acceptable, with a JSON error payload
+
+   @param e exception in error payload
+   @return response
+   */
+  Response notAcceptable(Exception e);
+
+  /**
    Return a response having read successfully
 
    @param payload of content that was read

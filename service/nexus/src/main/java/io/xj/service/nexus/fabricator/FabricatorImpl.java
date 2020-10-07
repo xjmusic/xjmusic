@@ -146,8 +146,8 @@ class FabricatorImpl implements Fabricator {
       boundProgramIds = targetIdsOfType(chainBindings, ChainBindingType.Program);
       boundInstrumentIds = targetIdsOfType(chainBindings, ChainBindingType.Instrument);
       log.info("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(),
-        CSV.fromStringsOf(chainConfigs),
-        CSV.fromStringsOf(chainBindings));
+        CSV.prettyFrom(chainConfigs, "and"),
+        CSV.prettyFrom(chainBindings, "and"));
 
       // read the source material
       sourceMaterial = hubClient.ingest(access, boundLibraryIds, boundProgramIds, boundInstrumentIds);

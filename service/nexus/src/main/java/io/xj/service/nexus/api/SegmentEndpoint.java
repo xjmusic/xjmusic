@@ -2,10 +2,13 @@
 package io.xj.service.nexus.api;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.xj.lib.entity.Entity;
+import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.PayloadDataType;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.nexus.NexusEndpoint;
@@ -14,7 +17,6 @@ import io.xj.service.nexus.entity.Segment;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -31,18 +33,20 @@ import java.util.UUID;
  */
 @Path("segments")
 public class SegmentEndpoint extends NexusEndpoint {
-  private SegmentDAO dao;
+  private final SegmentDAO dao;
 
   /**
-   The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public SegmentEndpoint(
-    Injector injector
+    SegmentDAO dao,
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory
   ) {
-    super(injector);
-    dao = injector.getInstance(SegmentDAO.class);
+    super(response, config, payloadFactory);
+    this.dao = dao;
   }
 
   /**
@@ -63,8 +67,6 @@ public class SegmentEndpoint extends NexusEndpoint {
       return response.notAcceptable("Chain id is required");
 
     try {
-      HubClientAccess access = HubClientAccess.fromContext(crc);
-
       // will only have value if this can parse a uuid from string
       // otherwise, ignore the exception on attempt and store a null value for uuid
       UUID uuidId;
@@ -82,7 +84,7 @@ public class SegmentEndpoint extends NexusEndpoint {
       if (Objects.nonNull(uuidId))
         segments = readManySegmentsByChainId(HubClientAccess.fromContext(crc), chainId, fromOffset, fromSecondsUTC); // uuid
       else
-        segments = readManySegmentsByChainEmbedKey(access, chainId, fromOffset, fromSecondsUTC); // embed key
+        segments = readManySegmentsByChainEmbedKey(chainId, fromOffset, fromSecondsUTC); // embed key
 
       // add segments as plural data in payload
       for (Segment segment : segments) payload.addData(payloadFactory.toPayloadObject(segment));
@@ -142,14 +144,13 @@ public class SegmentEndpoint extends NexusEndpoint {
    TODO pass access down through here-- child processes need to know not to require access for embed-key based things
    See: [#173806398] Must be able to read chain elements publicly by embed key
 
-   @param access         control
    @param embedKey       to read segments for
    @param fromOffset     from which to read segments
    @param fromSecondsUTC from which to read segments
    @return segments
    @throws Exception on failure
    */
-  private Collection<Segment> readManySegmentsByChainEmbedKey(HubClientAccess access, String embedKey, Long fromOffset, Long fromSecondsUTC) throws Exception {
+  private Collection<Segment> readManySegmentsByChainEmbedKey(String embedKey, Long fromOffset, Long fromSecondsUTC) throws Exception {
 
     if (Objects.nonNull(fromOffset))
       return dao().readManyFromOffset(HubClientAccess.internal(), embedKey, fromOffset);

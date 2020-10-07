@@ -2,7 +2,7 @@
 package io.xj.service.hub;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.lib.entity.Entity;
 import io.xj.lib.jsonapi.HttpResponseProvider;
@@ -13,7 +13,6 @@ import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.DAO;
 import io.xj.service.hub.dao.DAOException;
 
-import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
@@ -30,16 +29,17 @@ public class HubEndpoint {
   protected final PayloadFactory payloadFactory;
 
   /**
-   The constructor's @javax.inject.Inject binding is for HK2, Jersey's injection system,
-   which injects the inner com.google.inject.Injector for Guice-bound classes
+   Constructor
    */
   @Inject
   public HubEndpoint(
-    Injector injector
+    HttpResponseProvider response,
+    Config config,
+    PayloadFactory payloadFactory
   ) {
-    response = injector.getInstance(HttpResponseProvider.class);
-    config = injector.getInstance(Config.class);
-    payloadFactory = injector.getInstance(PayloadFactory.class);
+    this.response = response;
+    this.config = config;
+    this.payloadFactory = payloadFactory;
   }
 
   /**

@@ -39,7 +39,6 @@ dependencies {
   implementation group: 'net.greghaines', name: 'jesque', version: '2.1.3'
   implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.8'
   implementation group: 'org.glassfish.jersey.containers', name: 'jersey-container-grizzly2-http', version: '2.29.1'
-  implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.29.1'
   implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.29.1'
   implementation group: 'org.glassfish.jersey.test-framework.providers', name: 'jersey-test-framework-provider-simple', version: '2.29.1'
   implementation group: 'org.json', name: 'json', version: '20160810'

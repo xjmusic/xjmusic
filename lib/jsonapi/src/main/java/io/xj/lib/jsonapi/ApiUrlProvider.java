@@ -1,12 +1,30 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
+import com.typesafe.config.Config;
+
 import java.net.URI;
 
 /**
  Provider of URLs using the injected configuration and some custom formatting
  */
 public interface ApiUrlProvider {
+  /**
+   Given an instance of the REST API library's ApiUrlProvider, configure it for this Hub Application@param apiUrlProvider of app to configure
+   */
+  static void configureApiUrls(Config config, ApiUrlProvider apiUrlProvider) {
+    apiUrlProvider.setApiPath(config.getString("app.apiUrl"));
+    apiUrlProvider.setAppBaseUrl(config.getString("app.baseUrl"));
+    apiUrlProvider.setAppHost(config.getString("app.host"));
+    apiUrlProvider.setAppHostname(config.getString("app.hostname"));
+    apiUrlProvider.setAppName(config.getString("app.name"));
+    apiUrlProvider.setAudioBaseUrl(config.getString("audio.baseUrl"));
+    apiUrlProvider.setSegmentBaseUrl(config.getString("segment.baseUrl"));
+    apiUrlProvider.setPlayerBaseUrl(config.getString("player.baseUrl"));
+    apiUrlProvider.setAppPathUnauthorized(config.getString("api.unauthorizedRedirectPath"));
+    apiUrlProvider.setAppPathWelcome(config.getString("api.welcomeRedirectPath"));
+  }
+
   /**
    @return API path
    */
@@ -59,6 +77,11 @@ public interface ApiUrlProvider {
   String getSegmentBaseUrl() throws JsonApiException;
 
   /**
+   @return Players base URL
+   */
+  String getPlayerBaseUrl() throws JsonApiException;
+
+  /**
    @return path for unauthorized redirect
    */
   String getAppPathUnauthorized();
@@ -74,7 +97,7 @@ public interface ApiUrlProvider {
    @param apiPath to set
    @return this ApiUrlProvider (for chaining methods)
    */
-  public ApiUrlProvider setApiPath(String apiPath);
+  ApiUrlProvider setApiPath(String apiPath);
 
   /**
    Set AppBaseUrl
@@ -82,7 +105,7 @@ public interface ApiUrlProvider {
    @param appBaseUrl to set
    @return this ApiUrlProvider (for chaining methods)
    */
-  public ApiUrlProvider setAppBaseUrl(String appBaseUrl);
+  ApiUrlProvider setAppBaseUrl(String appBaseUrl);
 
   /**
    Set AppHost
@@ -90,7 +113,7 @@ public interface ApiUrlProvider {
    @param appHost to set
    @return this ApiUrlProvider (for chaining methods)
    */
-  public ApiUrlProvider setAppHost(String appHost);
+  ApiUrlProvider setAppHost(String appHost);
 
   /**
    Set AppHostname
@@ -98,7 +121,7 @@ public interface ApiUrlProvider {
    @param appHostname to set
    @return this ApiUrlProvider (for chaining methods)
    */
-  public ApiUrlProvider setAppHostname(String appHostname);
+  ApiUrlProvider setAppHostname(String appHostname);
 
   /**
    Set AppName
@@ -106,7 +129,7 @@ public interface ApiUrlProvider {
    @param appName to set
    @return this ApiUrlProvider (for chaining methods)
    */
-  public ApiUrlProvider setAppName(String appName);
+  ApiUrlProvider setAppName(String appName);
 
   /**
    Set AudioBaseUrl
@@ -114,7 +137,7 @@ public interface ApiUrlProvider {
    @param audioBaseUrl to set
    @return this ApiUrlProvider (for chaining methods)
    */
-  public ApiUrlProvider setAudioBaseUrl(String audioBaseUrl);
+  ApiUrlProvider setAudioBaseUrl(String audioBaseUrl);
 
   /**
    Set SegmentBaseUrl
@@ -122,7 +145,15 @@ public interface ApiUrlProvider {
    @param segmentBaseUrl to set
    @return this ApiUrlProvider (for chaining methods)
    */
-  public ApiUrlProvider setSegmentBaseUrl(String segmentBaseUrl);
+  ApiUrlProvider setSegmentBaseUrl(String segmentBaseUrl);
+
+  /**
+   Set PlayerBaseUrl
+
+   @param playerBaseUrl to set
+   @return this ApiUrlProvider (for chaining methods)
+   */
+  ApiUrlProvider setPlayerBaseUrl(String playerBaseUrl);
 
   /**
    Set AppPathUnauthorized
@@ -130,7 +161,7 @@ public interface ApiUrlProvider {
    @param appPathUnauthorized to set
    @return this ApiUrlProvider (for chaining methods)
    */
-  public ApiUrlProvider setAppPathUnauthorized(String appPathUnauthorized);
+  ApiUrlProvider setAppPathUnauthorized(String appPathUnauthorized);
 
   /**
    Set AppPathWelcome
@@ -138,6 +169,6 @@ public interface ApiUrlProvider {
    @param appPathWelcome to set
    @return this ApiUrlProvider (for chaining methods)
    */
-  public ApiUrlProvider setAppPathWelcome(String appPathWelcome);
+  ApiUrlProvider setAppPathWelcome(String appPathWelcome);
 
 }

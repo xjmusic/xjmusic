@@ -53,7 +53,7 @@ public interface Main {
     Config config = AppConfiguration.parseArgs(args, defaults);
 
     // Instantiate app
-    NexusApp app = new NexusApp(resourcePackages, AppConfiguration.inject(config, injectorModules));
+    NexusApp app = new NexusApp(AppConfiguration.inject(config, injectorModules));
 
     // Shutdown Hook
     Runtime.getRuntime().addShutdownHook(new Thread(app::finish));

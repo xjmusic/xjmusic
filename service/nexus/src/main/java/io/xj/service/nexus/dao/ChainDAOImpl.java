@@ -66,6 +66,11 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     ChainState.Fabricate,
     ChainState.Failed
   );
+  private static final Set<ChainState> REVIVE_FROM_STATES_ALLOWED = ImmutableSet.of(
+    ChainState.Fabricate,
+    ChainState.Complete,
+    ChainState.Failed
+  );
   private final ChainConfigDAO chainConfigDAO;
   private final ChainBindingDAO chainBindingDAO;
   private final SegmentDAO segmentDAO;
@@ -347,11 +352,9 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   public Chain revive(HubClientAccess access, UUID priorChainId, String reason) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException {
     Chain prior = readOne(access, priorChainId);
 
-    if (ChainState.Fabricate != prior.getState())
-      throw new DAOPrivilegeException("Only a Fabricate-state Chain can be revived.");
-
-    if (ChainType.Production != prior.getType())
-      throw new DAOPrivilegeException("Only a Production-type Chain can be revived.");
+    if (!REVIVE_FROM_STATES_ALLOWED.contains(prior.getState()))
+      throw new DAOPrivilegeException(String.format("Can't revive a Chain unless it's in %s state",
+        CSV.prettyFrom(REVIVE_FROM_STATES_ALLOWED, "or")));
 
     // save the embed key to re-use on new chain
     String embedKey = prior.getEmbedKey();

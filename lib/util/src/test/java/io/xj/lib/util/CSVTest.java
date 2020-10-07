@@ -36,4 +36,10 @@ public class CSVTest {
       CSV.from(ImmutableMap.of("one", "1", "two", "2", "three", "3")));
   }
 
+  @Test
+  public void prettyFrom() {
+    assertEquals(
+      "One, Two, or Three",
+      CSV.prettyFrom(Arrays.asList("One", "Two", "Three"), "or"));
+  }
 }
