@@ -69,7 +69,6 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
 
     DSLContext db = dbProvider.getDSL();
     requireParentExists(db, hubAccess, audio);
-    audio.setWaveformKey(generateKey(audio.getInstrumentId()));
 
     return modelFrom(InstrumentAudio.class,
       executeCreate(db, INSTRUMENT_AUDIO, audio));

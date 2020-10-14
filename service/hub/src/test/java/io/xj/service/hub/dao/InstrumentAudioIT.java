@@ -56,6 +56,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -119,6 +120,9 @@ public class InstrumentAudioIT {
     test.shutdown();
   }
 
+  /**
+   [#175213519] Expect new Audios to have no waveform
+   */
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
@@ -135,10 +139,11 @@ public class InstrumentAudioIT {
 
     InstrumentAudio result = testDAO.create(hubAccess, inputData);
 
+    verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio");
     assertNotNull(result);
     assertEquals(fake.instrument201.getId(), result.getInstrumentId());
     assertEquals("maracas", result.getName());
-    assertNotNull(result.getWaveformKey());
+    assertEquals("", result.getWaveformKey());
     assertEquals(0.009, result.getStart(), 0.01);
     assertEquals(0.21, result.getLength(), 0.01);
     assertEquals(80.5, result.getTempo(), 0.01);
@@ -159,6 +164,9 @@ public class InstrumentAudioIT {
     testDAO.create(hubAccess, inputData);
   }
 
+  /**
+   [#175213519] Expect new Audios to have no waveform
+   */
   @Test
   public void create_SucceedsWithoutWaveformKey() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
@@ -169,13 +177,11 @@ public class InstrumentAudioIT {
       .setLength(0.21)
       .setPitch(1567.0)
       .setTempo(80.5);
-    when(fileStoreProvider.generateKey("instrument-" + fake.instrument202.getId() + "-audio"))
-      .thenReturn("instrument-2-audio-h2a34j5s34fd987gaw3.wav");
 
     InstrumentAudio result = testDAO.create(hubAccess, inputData);
 
-    verify(fileStoreProvider).generateKey("instrument-" + fake.instrument202.getId() + "-audio");
-    assertEquals("instrument-2-audio-h2a34j5s34fd987gaw3.wav", result.getWaveformKey());
+    verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio");
+    assertEquals("", result.getWaveformKey());
   }
 
   /**

@@ -7,10 +7,56 @@ import io.xj.lib.entity.Entity;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
+import io.xj.service.hub.entity.Account;
+import io.xj.service.hub.entity.AccountUser;
+import io.xj.service.hub.entity.Instrument;
+import io.xj.service.hub.entity.InstrumentAudio;
+import io.xj.service.hub.entity.InstrumentAudioChord;
+import io.xj.service.hub.entity.InstrumentAudioEvent;
+import io.xj.service.hub.entity.InstrumentMeme;
+import io.xj.service.hub.entity.Library;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramMeme;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.ProgramSequenceBinding;
+import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
+import io.xj.service.hub.entity.ProgramSequenceChord;
+import io.xj.service.hub.entity.ProgramSequencePattern;
+import io.xj.service.hub.entity.ProgramSequencePatternEvent;
+import io.xj.service.hub.entity.ProgramVoice;
+import io.xj.service.hub.entity.ProgramVoiceTrack;
 import io.xj.service.hub.entity.User;
-import io.xj.service.hub.entity.*;
-import io.xj.service.hub.tables.records.*;
-import org.jooq.*;
+import io.xj.service.hub.entity.UserAuth;
+import io.xj.service.hub.entity.UserAuthToken;
+import io.xj.service.hub.entity.UserRole;
+import io.xj.service.hub.tables.records.AccountRecord;
+import io.xj.service.hub.tables.records.AccountUserRecord;
+import io.xj.service.hub.tables.records.InstrumentAudioChordRecord;
+import io.xj.service.hub.tables.records.InstrumentAudioEventRecord;
+import io.xj.service.hub.tables.records.InstrumentAudioRecord;
+import io.xj.service.hub.tables.records.InstrumentMemeRecord;
+import io.xj.service.hub.tables.records.InstrumentRecord;
+import io.xj.service.hub.tables.records.LibraryRecord;
+import io.xj.service.hub.tables.records.ProgramMemeRecord;
+import io.xj.service.hub.tables.records.ProgramRecord;
+import io.xj.service.hub.tables.records.ProgramSequenceBindingMemeRecord;
+import io.xj.service.hub.tables.records.ProgramSequenceBindingRecord;
+import io.xj.service.hub.tables.records.ProgramSequenceChordRecord;
+import io.xj.service.hub.tables.records.ProgramSequencePatternEventRecord;
+import io.xj.service.hub.tables.records.ProgramSequencePatternRecord;
+import io.xj.service.hub.tables.records.ProgramSequenceRecord;
+import io.xj.service.hub.tables.records.ProgramVoiceRecord;
+import io.xj.service.hub.tables.records.ProgramVoiceTrackRecord;
+import io.xj.service.hub.tables.records.UserAuthRecord;
+import io.xj.service.hub.tables.records.UserAuthTokenRecord;
+import io.xj.service.hub.tables.records.UserRecord;
+import io.xj.service.hub.tables.records.UserRoleRecord;
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Record1;
+import org.jooq.Result;
+import org.jooq.SQLDialect;
+import org.jooq.Table;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 import org.slf4j.Logger;
@@ -21,7 +67,27 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
-import static io.xj.service.hub.Tables.*;
+import static io.xj.service.hub.Tables.ACCOUNT;
+import static io.xj.service.hub.Tables.ACCOUNT_USER;
+import static io.xj.service.hub.Tables.INSTRUMENT;
+import static io.xj.service.hub.Tables.INSTRUMENT_AUDIO;
+import static io.xj.service.hub.Tables.INSTRUMENT_AUDIO_CHORD;
+import static io.xj.service.hub.Tables.INSTRUMENT_AUDIO_EVENT;
+import static io.xj.service.hub.Tables.INSTRUMENT_MEME;
+import static io.xj.service.hub.Tables.LIBRARY;
+import static io.xj.service.hub.Tables.PROGRAM_MEME;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_BINDING;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.service.hub.Tables.PROGRAM_VOICE;
+import static io.xj.service.hub.Tables.PROGRAM_VOICE_TRACK;
+import static io.xj.service.hub.Tables.USER;
+import static io.xj.service.hub.Tables.USER_AUTH;
+import static io.xj.service.hub.Tables.USER_AUTH_TOKEN;
+import static io.xj.service.hub.Tables.USER_ROLE;
 import static io.xj.service.hub.tables.Program.PROGRAM;
 
 public interface DAO<E> {
@@ -99,6 +165,8 @@ public interface DAO<E> {
 
   /**
    Create a new Record
+   <p>
+   [#175213519] Expect new Audios to have no waveform
 
    @param hubAccess control
    @param entity    for the new Record
