@@ -5,7 +5,7 @@
 --
 
 -- Dumped from database version 11.6 (Debian 11.6-1.pgdg90+1)
--- Dumped by pg_dump version 12.4 (Ubuntu 12.4-1.pgdg18.04+1)
+-- Dumped by pg_dump version 13.0 (Ubuntu 13.0-1.pgdg18.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -22,7 +22,7 @@ SET row_security = off;
 -- Name: xj_dev; Type: DATABASE; Schema: -; Owner: root
 --
 
-CREATE DATABASE xj_dev WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'en_US.utf8' LC_CTYPE = 'en_US.utf8';
+CREATE DATABASE xj_dev WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'en_US.utf8';
 
 
 ALTER DATABASE xj_dev OWNER TO root;
@@ -1154,7 +1154,7 @@ ALTER TABLE ONLY xj.user_role
 --
 
 -- Dumped from database version 11.6 (Debian 11.6-1.pgdg90+1)
--- Dumped by pg_dump version 12.4 (Ubuntu 12.4-1.pgdg18.04+1)
+-- Dumped by pg_dump version 13.0 (Ubuntu 13.0-1.pgdg18.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
