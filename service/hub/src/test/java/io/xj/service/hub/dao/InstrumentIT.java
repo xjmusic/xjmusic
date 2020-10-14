@@ -248,7 +248,7 @@ public class InstrumentIT {
    */
   @Test
   public void update_Name_PreservesOriginalOwner() throws Exception {
-    test.insert(Instrument.create(fake.user3, fake.library1, InstrumentType.Melodic, InstrumentState.Published, "jenny's jams"));
+    test.insert(Instrument.create(fake.user3, fake.library1, InstrumentType.Bass, InstrumentState.Published, "jenny's jams"));
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
     Instrument subject = Instrument.create()
       .setUserId(fake.user3.getId())

@@ -10,9 +10,10 @@ import java.util.Objects;
 
 public enum InstrumentType {
   Percussive,
-  Melodic,
+  Bass,
   Harmonic,
-  Vocal;
+  Common,
+  Stripe;
 
   /**
    String Values
