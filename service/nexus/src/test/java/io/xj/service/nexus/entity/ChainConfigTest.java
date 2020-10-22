@@ -2,137 +2,68 @@
 package io.xj.service.nexus.entity;
 
 import io.xj.lib.util.ValueException;
+import io.xj.service.hub.entity.Account;
+import io.xj.service.nexus.testing.NexusTestConfiguration;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.UUID;
+import javax.sound.sampled.AudioFormat;
+import java.time.Instant;
 
 import static org.junit.Assert.assertEquals;
 
 public class ChainConfigTest {
+  private ChainConfig subject;
+  private Chain chain1;
+
+  @Before
+  public void setUp() throws ValueException {
+    Account account25 = Account.create();
+    chain1 = Chain.create(account25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
+    subject = new ChainConfig(chain1, NexusTestConfiguration.getDefault());
+  }
 
   @Rule
   public ExpectedException failure = ExpectedException.none();
 
   @Test
-  public void validate() throws Exception {
-    new ChainConfig()
-      .setChainId(UUID.randomUUID())
-      .setType("OutputChannels")
-      .setValue(String.valueOf(4))
-      .validate();
+  public void getOutputChannels() {
+    assertEquals(2, subject.getOutputChannels());
   }
 
   @Test
-  public void custom_toString() {
-    assertEquals("Config[OutputChannels=4]", new ChainConfig()
-      .setChainId(UUID.randomUUID())
-      .setType("OutputChannels")
-      .setValue(String.valueOf(4))
-      .toString());
+  public void getOutputContainer() {
+    assertEquals("AAC", subject.getOutputContainer());
   }
 
   @Test
-  public void validate_failsWithoutChainID() throws Exception {
-    failure.expect(ValueException.class);
-    failure.expectMessage("Chain ID is required");
+  public void getOutputContainer_fromChain() throws ValueException {
+    chain1.setConfig("outputContainer=\"BARGE\"");
+    subject = new ChainConfig(chain1, NexusTestConfiguration.getDefault());
 
-    new ChainConfig()
-      .setType("OutputChannels")
-      .setValue(String.valueOf(4))
-      .validate();
+    assertEquals("BARGE", subject.getOutputContainer());
   }
 
   @Test
-  public void validate_failsWithoutType() throws Exception {
-    failure.expect(ValueException.class);
-    failure.expectMessage("Type is required");
-
-    new ChainConfig()
-      .setChainId(UUID.randomUUID())
-      .setValue(String.valueOf(4))
-      .validate();
+  public void getOutputEncoding() {
+    assertEquals(AudioFormat.Encoding.PCM_SIGNED, subject.getOutputEncoding());
   }
 
   @Test
-  public void validate_failsWithInvalidType() throws Exception {
-    failure.expect(ValueException.class);
-    failure.expectMessage("'jello' is not a valid type");
-
-    new ChainConfig()
-      .setChainId(UUID.randomUUID())
-      .setType("jello")
-      .setValue(String.valueOf(4))
-      .validate();
+  public void getOutputEncodingQuality() {
+    assertEquals(0.618, subject.getOutputEncodingQuality(), 0.001);
   }
 
   @Test
-  public void validate_failsWithInvalidValue_forNumericType() throws Exception {
-    failure.expect(ValueException.class);
-    failure.expectMessage("Chain OutputChannels requires numeric value!");
-
-    new ChainConfig()
-      .setChainId(UUID.randomUUID())
-      .setTypeEnum(ChainConfigType.OutputChannels)
-      .setValue("Not a numeric value")
-      .validate();
+  public void getOutputFrameRate() {
+    assertEquals(48000, subject.getOutputFrameRate());
   }
 
   @Test
-  public void validate_failsWithInvalidValue_forTextType() throws Exception {
-    failure.expect(ValueException.class);
-    failure.expectMessage("Chain OutputContainer requires text value!");
-
-    new ChainConfig()
-      .setChainId(UUID.randomUUID())
-      .setTypeEnum(ChainConfigType.OutputContainer)
-      .setValue("75") // not a text value
-      .validate();
+  public void getOutputSampleBits() {
+    assertEquals(16, subject.getOutputSampleBits());
   }
 
-  @Test
-  public void validate_failsWithoutValue() throws Exception {
-    failure.expect(ValueException.class);
-    failure.expectMessage("Value is required");
-
-    new ChainConfig()
-      .setChainId(UUID.randomUUID())
-      .setType("OutputChannels")
-      .validate();
-  }
-
-  @Test
-  public void validation_sanitizesTypeValue() throws ValueException {
-    ChainConfig config;
-
-    config = ChainConfig.create(Chain.create(), ChainConfigType.OutputSampleBits, "jangles24").setChainId(UUID.randomUUID());
-    config.validate();
-    assertEquals("24", config.getValue());
-
-    config = ChainConfig.create(Chain.create(), ChainConfigType.OutputFrameRate, "48b000d").setChainId(UUID.randomUUID());
-    config.validate();
-    assertEquals("48000", config.getValue());
-
-    config = ChainConfig.create(Chain.create(), ChainConfigType.OutputChannels, "2!!!!").setChainId(UUID.randomUUID());
-    config.validate();
-    assertEquals("2", config.getValue());
-
-    config = ChainConfig.create(Chain.create(), ChainConfigType.OutputEncoding, "    PCM_SIGNED!!!!").setChainId(UUID.randomUUID());
-    config.validate();
-    assertEquals("PCM_SIGNED", config.getValue());
-
-    config = ChainConfig.create(Chain.create(), ChainConfigType.OutputEncodingQuality, "0D.X785V  ").setChainId(UUID.randomUUID());
-    config.validate();
-    assertEquals("0.785", config.getValue());
-
-    config = ChainConfig.create(Chain.create(), ChainConfigType.OutputContainer, "wav???").setChainId(UUID.randomUUID());
-    config.validate();
-    assertEquals("WAV", config.getValue());
-  }
-
-  @Test
-  public void setValue_okToSetWhateverValueBeforeValidation() {
-    assertEquals("    PCM_SIGNED!!!!", new ChainConfig().setValue("    PCM_SIGNED!!!!").getValue());
-  }
 }

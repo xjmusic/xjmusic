@@ -15,6 +15,19 @@ public class ProgramTest {
   public ExpectedException failure = ExpectedException.none();
 
   @Test
+  public void validate_ok() throws Exception {
+    Program.create()
+      .setUserId(UUID.randomUUID())
+      .setLibraryId(UUID.randomUUID())
+      .setKey("G minor 7")
+      .setName("cannons")
+      .setTempo(129.4)
+      .setState("Published")
+      .setType("Main")
+      .validate();
+  }
+
+  @Test
   public void validate_FailsWithoutLibraryID() throws Exception {
     failure.expect(ValueException.class);
     failure.expectMessage("Library ID is required");

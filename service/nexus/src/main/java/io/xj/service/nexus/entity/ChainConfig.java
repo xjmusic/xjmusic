@@ -1,160 +1,91 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.entity;
 
-import io.xj.lib.entity.Entity;
-import io.xj.lib.util.Text;
-import io.xj.lib.util.Value;
+import com.google.common.base.Strings;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
+import com.typesafe.config.ConfigFactory;
 import io.xj.lib.util.ValueException;
 
-import java.util.Objects;
-import java.util.UUID;
+import javax.sound.sampled.AudioFormat;
 
 /**
- [#160980748] Developer wants all chain binding models to extend `ChainBinding` with common properties and methods pertaining to Chain membership.
- <p>
- POJO for persisting data in memory while performing business logic,
- or decoding messages received by JAX-RS resources.
- a.k.a. JSON input will be stored into an instance of this object
- <p>
- Business logic ought to be performed beginning with an instance of this object,
- to implement common methods.
- <p>
- NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ Parse a TypeSafe `config` value for a Chain's configuration, overriding values from top-level default.conf--
+ e.g.
+ if the `config` value contains only `previewLengthMaxHours = 8`
  */
-public class ChainConfig extends Entity {
-  private ChainConfigType type;
-  private String value;
-  private Exception typeException;
-  private UUID chainId;
+public class ChainConfig {
+  private final int outputChannels;
+  private final String outputContainer;
+  private final AudioFormat.Encoding outputEncoding;
+  private final double outputEncodingQuality;
+  private final int outputFrameRate;
+  private final int outputSampleBits;
 
   /**
-   Create a new ChainConfig
+   Instantiate a Chain configuration from a string of typesafe config.
+   Said string will be embedded in a `chain{...}` block such that
+   provided simple Key=Value pairs will be understood as members of `chain`
+   e.g. will override values from the `chain{...}` block of the top-level **default.conf**
 
-   @return new ChainConfig
+   @param chain to get Config from
    */
-  public static ChainConfig create() {
-    return (ChainConfig) new ChainConfig().setId(UUID.randomUUID());
-  }
-
-  /**
-   Create a new ChainConfig
-
-   @param chain of ChainConfig
-   @param type  of ChainConfig
-   @param value of ChainConfig
-   @return new ChainConfig
-   */
-  public static ChainConfig create(Chain chain, ChainConfigType type, String value) {
-    return create()
-      .setChainId(chain.getId())
-      .setTypeEnum(type)
-      .setValue(value);
-  }
-
-  /**
-   Get id of Chain to which this entity belongs
-
-   @return chain id
-   */
-  public UUID getChainId() {
-    return chainId;
-  }
-
-  /**
-   Set id of Chain to which this entity belongs
-
-   @param chainId to which this entity belongs
-   @return this Chain Entity (for chaining setters)
-   */
-  public ChainConfig setChainId(UUID chainId) {
-    this.chainId = chainId;
-    return this;
-  }
-
-  /**
-   Get type
-
-   @return type
-   */
-  public ChainConfigType getType() {
-    return type;
-  }
-
-  /**
-   Get value
-
-   @return value
-   */
-  public String getValue() {
-    return value;
-  }
-
-  /**
-   @param typeString pending validation
-   */
-  public ChainConfig setType(String typeString) {
+  public ChainConfig(Chain chain, Config defaultConfig) throws ValueException {
     try {
-      type = ChainConfigType.validate(typeString);
-    } catch (ValueException e) {
-      typeException = e;
-    }
-    return this;
-  }
+      Config config = Strings.isNullOrEmpty(chain.getConfig()) ?
+        defaultConfig :
+        ConfigFactory.parseString(String.format("chain {\n%s\n}", chain.getConfig()))
+          .withFallback(defaultConfig);
+      outputChannels = config.getInt("chain.outputChannels");
+      outputContainer = config.getString("chain.outputContainer");
+      outputEncoding = new AudioFormat.Encoding(config.getString("chain.outputEncoding"));
+      outputEncodingQuality = config.getDouble("chain.outputEncodingQuality");
+      outputFrameRate = config.getInt("chain.outputFrameRate");
+      outputSampleBits = config.getInt("chain.outputSampleBits");
 
-  /**
-   Set type enum
-
-   @param type enum to set
-   @return self
-   */
-  public ChainConfig setTypeEnum(ChainConfigType type) {
-    this.type = type;
-    return this;
-  }
-
-  /**
-   Set value
-
-   @param value to set
-   @return self
-   */
-  public ChainConfig setValue(String value) {
-    this.value = value;
-    return this;
-  }
-
-  @Override
-  public void validate() throws ValueException {
-    super.validate();
-
-    Value.require(chainId, "Chain ID");
-
-    Value.requireNo(typeException, "Type");
-    Value.require(type, "Type");
-
-    if (Objects.isNull(value) || value.isEmpty())
-      throw new ValueException("Value is required.");
-
-    switch (type) {
-      case OutputSampleBits:
-      case OutputFrameRate:
-      case OutputChannels:
-      case OutputEncodingQuality:
-        value = Text.toNumeric(value);
-        Value.require(value, String.format("Chain %s requires numeric value!", type));
-        break;
-
-      case OutputEncoding:
-      case OutputContainer:
-        value = Text.toAlphaSlug(value).toUpperCase();
-        Value.require(value, String.format("Chain %s requires text value!", type));
-        break;
+    } catch (ConfigException e) {
+      throw new ValueException(e.getMessage());
     }
   }
 
-  @Override
-  public String toString() {
-    return String.format("Config[%s=%s]", type, value);
+  /**
+   @return Output Sample Bits
+   */
+  public int getOutputSampleBits() {
+    return outputSampleBits;
   }
 
+  /**
+   @return Output Frame Rate (Hz)
+   */
+  public int getOutputFrameRate() {
+    return outputFrameRate;
+  }
+
+  /**
+   @return Output Encoding Quality (ratio from 0 to 1)
+   */
+  public double getOutputEncodingQuality() {
+    return outputEncodingQuality;
+  }
+
+  /**
+   @return Output Encoding
+   */
+  public AudioFormat.Encoding getOutputEncoding() {
+    return outputEncoding;
+  }
+
+  /**
+   @return Output Container
+   */
+  public String getOutputContainer() {
+    return outputContainer;
+  }
+
+  /**
+   @return # of Output Channels
+   */
+  public int getOutputChannels() {
+    return outputChannels;
+  }
 }

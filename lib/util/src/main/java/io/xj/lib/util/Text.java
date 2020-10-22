@@ -458,4 +458,16 @@ public interface Text {
     // join lines into one multiline output
     return String.join("\n", lines);
   }
+
+  /**
+   Format a TypeSafe config as K=V lines
+
+   @param config to format
+   @return formatted config
+   */
+  static String format(Config config) {
+    return config.entrySet().stream()
+      .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue().render()))
+      .collect(Collectors.joining("\n"));
+  }
 }

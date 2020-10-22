@@ -9,7 +9,6 @@ import io.xj.service.hub.entity.ProgramSequenceBinding;
 import io.xj.service.hub.entity.ProgramType;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -91,16 +90,6 @@ public class SegmentChoice extends Entity {
     Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getType().equals(type)).findFirst();
     if (found.isEmpty()) throw new ValueException(String.format("No %s-type choice found", type));
     return found.get();
-  }
-
-  /**
-   Is a value not present?
-
-   @param value to test
-   @return true if null or empty
-   */
-  public static boolean isEmpty(Object value) {
-    return Objects.isNull(value) || String.valueOf(value).isEmpty();
   }
 
   /**

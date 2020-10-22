@@ -26,6 +26,7 @@ import io.xj.service.hub.entity.ProgramSequence;
 import io.xj.service.hub.entity.ProgramSequenceBinding;
 import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
 import io.xj.service.hub.entity.ProgramSequenceChord;
+import io.xj.service.hub.entity.ProgramSequenceChordVoicing;
 import io.xj.service.hub.entity.ProgramSequencePattern;
 import io.xj.service.hub.entity.ProgramSequencePatternEvent;
 import io.xj.service.hub.entity.ProgramVoice;
@@ -105,7 +106,8 @@ public class HubApp extends App {
     // Register JAX-RS filter for reading access control token
     HubAccessControlProvider hubAccessControlProvider = injector.getInstance(HubAccessControlProvider.class);
     getResourceConfig().register(new HubAccessTokenAuthFilter(hubAccessControlProvider,
-      config.getString("access.tokenName"))); }
+      config.getString("access.tokenName")));
+  }
 
   /**
    Given a entity factory, build the Hub REST API entity topology
@@ -133,6 +135,7 @@ public class HubApp extends App {
       .withAttribute("type")
       .withAttribute("name")
       .withAttribute("density")
+      .withAttribute("config")
       .belongsTo(User.class)
       .belongsTo(Library.class)
       .hasMany(InstrumentAudio.class)
@@ -194,6 +197,7 @@ public class HubApp extends App {
       .withAttribute("type")
       .withAttribute("name")
       .withAttribute("density")
+      .withAttribute("config")
       .belongsTo(User.class)
       .belongsTo(Library.class)
       .hasMany(ProgramMeme.class)
@@ -247,6 +251,14 @@ public class HubApp extends App {
       .withAttribute("position")
       .belongsTo(Program.class)
       .belongsTo(ProgramSequence.class);
+
+    // ProgramSequenceChordVoicing
+    entityFactory.register(ProgramSequenceChordVoicing.class)
+      .createdBy(ProgramSequenceChordVoicing::new)
+      .withAttribute("type")
+      .withAttribute("notes")
+      .belongsTo(Program.class)
+      .belongsTo(ProgramSequenceChord.class);
 
     // ProgramSequencePattern
     entityFactory.register(ProgramSequencePattern.class)

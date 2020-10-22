@@ -36,7 +36,6 @@ import io.xj.service.hub.entity.ProgramSequencePatternType;
 import io.xj.service.hub.entity.ProgramType;
 import io.xj.service.hub.entity.ProgramVoice;
 import io.xj.service.nexus.dao.ChainBindingDAO;
-import io.xj.service.nexus.dao.ChainConfigDAO;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
@@ -45,7 +44,6 @@ import io.xj.service.nexus.entity.Chain;
 import io.xj.service.nexus.entity.ChainBinding;
 import io.xj.service.nexus.entity.ChainBindingType;
 import io.xj.service.nexus.entity.ChainConfig;
-import io.xj.service.nexus.entity.ChainConfigType;
 import io.xj.service.nexus.entity.Segment;
 import io.xj.service.nexus.entity.SegmentChoice;
 import io.xj.service.nexus.entity.SegmentChoiceArrangement;
@@ -76,10 +74,8 @@ class FabricatorImpl implements Fabricator {
   private static final double NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
   private static final String NAME_SEPARATOR = "-";
   private final HubClientAccess access;
-  private final Config config;
   private final FileStoreProvider fileStoreProvider;
   private final Chain chain;
-  private final Collection<ChainConfig> chainConfigs;
   private final HubContent sourceMaterial;
   private final Logger log = LoggerFactory.getLogger(FabricatorImpl.class);
   private final long startTime;
@@ -97,6 +93,7 @@ class FabricatorImpl implements Fabricator {
   private final DecimalFormat segmentNameFormat;
   private final PayloadFactory payloadFactory;
   private final EntityFactory entityFactory;
+  private final ChainConfig chainConfig;
 
   @AssistedInject
   public FabricatorImpl(
@@ -105,7 +102,6 @@ class FabricatorImpl implements Fabricator {
     HubClient hubClient,
     ChainDAO chainDAO,
     ChainBindingDAO chainBindingDAO,
-    ChainConfigDAO chainConfigDAO,
     TimeComputerFactory timeComputerFactory,
     SegmentWorkbenchFactory segmentWorkbenchFactory,
     FileStoreProvider fileStoreProvider,
@@ -117,7 +113,6 @@ class FabricatorImpl implements Fabricator {
     try {
       // FUTURE: [#165815496] Chain fabrication access control
       this.access = access;
-      this.config = config;
       log.info("[segId={}] HubClientAccess {}", segment.getId(), access);
 
       this.fileStoreProvider = fileStoreProvider;
@@ -140,13 +135,13 @@ class FabricatorImpl implements Fabricator {
 
       // read the chain, configs, and bindings
       chain = chainDAO.readOne(access, segment.getChainId());
-      chainConfigs = chainConfigDAO.readMany(access, ImmutableList.of(chain.getId()));
+      chainConfig = new ChainConfig(chain, config);
       Collection<ChainBinding> chainBindings = chainBindingDAO.readMany(access, ImmutableList.of(chain.getId()));
       Set<UUID> boundLibraryIds = targetIdsOfType(chainBindings, ChainBindingType.Library);
       boundProgramIds = targetIdsOfType(chainBindings, ChainBindingType.Program);
       boundInstrumentIds = targetIdsOfType(chainBindings, ChainBindingType.Instrument);
       log.info("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(),
-        CSV.prettyFrom(chainConfigs, "and"),
+        chainConfig,
         CSV.prettyFrom(chainBindings, "and"));
 
       // read the source material
@@ -162,7 +157,7 @@ class FabricatorImpl implements Fabricator {
       // final pre-flight check
       ensureStorageKey();
 
-    } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException | HubClientException e) {
+    } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException | HubClientException | ValueException e) {
       throw new FabricationException("Failed to instantiate Fabricator!", e);
     }
   }
@@ -222,24 +217,8 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<ChainConfig> getChainConfigs() {
-    return chainConfigs;
-  }
-
-  @Override
-  public ChainConfig getChainConfig(ChainConfigType chainConfigType) throws FabricationException {
-    Optional<ChainConfig> config = getChainConfigs().stream()
-      .filter(c -> c.getType().equals(chainConfigType)).findFirst();
-    if (config.isPresent()) return config.get();
-
-    try {
-      return new ChainConfig()
-        .setChainId(getChainId())
-        .setTypeEnum(chainConfigType)
-        .setValue(getDefaultValue(chainConfigType));
-    } catch (FabricationException e) {
-      throw exception(String.format("No default value for chainConfigType=%s", chainConfigType), e);
-    }
+  public ChainConfig getChainConfig() {
+    return chainConfig;
   }
 
   @Override
@@ -408,14 +387,14 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public AudioFormat getOutputAudioFormat() throws FabricationException {
+  public AudioFormat getOutputAudioFormat() {
     return new AudioFormat(
-      getOutputEncoding(),
-      getOutputFrameRate(),
-      getOutputSampleBits(),
-      getOutputChannels(),
-      getOutputChannels() * getOutputSampleBits() / 8,
-      getOutputFrameRate(),
+      chainConfig.getOutputEncoding(),
+      chainConfig.getOutputFrameRate(),
+      chainConfig.getOutputSampleBits(),
+      chainConfig.getOutputChannels(),
+      chainConfig.getOutputChannels() * chainConfig.getOutputSampleBits() / 8,
+      chainConfig.getOutputFrameRate(),
       false);
   }
 
@@ -658,20 +637,6 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Get default value for a given configuration type
-
-   @param chainConfigType to get default value for
-   @return default value for configuration type
-   */
-  private String getDefaultValue(ChainConfigType chainConfigType) throws FabricationException {
-    try {
-      return config.getString(String.format("chainConfig.default%s", chainConfigType));
-    } catch (Exception ignored) {
-      throw new FabricationException(String.format("No default value for type %s", this));
-    }
-  }
-
-  /**
    Determine the type of fabricator
 
    @return type of fabricator
@@ -796,42 +761,6 @@ class FabricatorImpl implements Fabricator {
     putReport("fromTempo", fromTempo);
     putReport("toTempo", toTempo);
     return timeComputerFactory.create(totalBeats, fromTempo, toTempo);
-  }
-
-  /**
-   real output channels based on chain configs
-
-   @return output channels
-   */
-  private int getOutputChannels() throws FabricationException {
-    return Integer.parseInt(getChainConfig(ChainConfigType.OutputChannels).getValue());
-  }
-
-  /**
-   output encoding based on chain configs
-
-   @return output encoding
-   */
-  private AudioFormat.Encoding getOutputEncoding() throws FabricationException {
-    return new AudioFormat.Encoding(getChainConfig(ChainConfigType.OutputEncoding).getValue());
-  }
-
-  /**
-   real output frame rate based on chain configs
-
-   @return output frame rate, per second
-   */
-  private float getOutputFrameRate() throws FabricationException {
-    return Integer.parseInt(getChainConfig(ChainConfigType.OutputFrameRate).getValue());
-  }
-
-  /**
-   real output sample bits based on chain configs
-
-   @return output sample bits
-   */
-  private int getOutputSampleBits() throws FabricationException {
-    return Integer.parseInt(getChainConfig(ChainConfigType.OutputSampleBits).getValue());
   }
 
   /**

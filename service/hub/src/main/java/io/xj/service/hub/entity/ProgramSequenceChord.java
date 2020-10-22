@@ -11,11 +11,8 @@ import java.util.UUID;
  [#166690830] Pattern model handles all of its own entities
  */
 public class ProgramSequenceChord extends ChordEntity {
-
-
   private UUID programId;
   private UUID programSequenceId;
-
 
   public ProgramSequenceChord() {
   }

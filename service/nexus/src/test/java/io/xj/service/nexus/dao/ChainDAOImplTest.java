@@ -29,8 +29,6 @@ import io.xj.service.nexus.dao.exception.DAOValidationException;
 import io.xj.service.nexus.entity.Chain;
 import io.xj.service.nexus.entity.ChainBinding;
 import io.xj.service.nexus.entity.ChainBindingType;
-import io.xj.service.nexus.entity.ChainConfig;
-import io.xj.service.nexus.entity.ChainConfigType;
 import io.xj.service.nexus.entity.ChainState;
 import io.xj.service.nexus.entity.ChainType;
 import io.xj.service.nexus.entity.Segment;
@@ -76,14 +74,12 @@ public class ChainDAOImplTest {
   private Chain chain2;
   private User user3;
   private HubContent hubContent;
-  private ChainConfigDAO chainConfigDAO;
   private ChainBindingDAO chainBindingDAO;
 
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
     Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusDAOModule()));
-    chainConfigDAO = injector.getInstance(ChainConfigDAO.class);
     chainBindingDAO = injector.getInstance(ChainBindingDAO.class);
     EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
@@ -137,6 +133,24 @@ public class ChainDAOImplTest {
     assertEquals(ChainType.Production, result.getType());
     assertEquals("2009-08-12T12:17:02.527142Z", result.getStartAt().toString());
     assertEquals("2009-09-11T12:17:01.047563Z", result.getStopAt().toString());
+  }
+
+  @Test
+  public void create_failsWithInvalidConfig() throws Exception {
+    HubClientAccess access = HubClientAccess.create("Admin");
+    Chain input = Chain.create()
+      .setAccountId(account1.getId())
+      .setName("coconuts")
+      .setConfig("no type of config I've ever seen")
+      .setState("Draft")
+      .setType("Production")
+      .setStartAt("2009-08-12T12:17:02.527142Z")
+      .setStopAt("2009-09-11T12:17:01.047563Z");
+
+    failure.expect(DAOValidationException.class);
+    failure.expectMessage("Key 'no type of config I've ever seen' may not be followed by token");
+
+    subject.create(access, input);
   }
 
   @Test
@@ -700,6 +714,39 @@ public class ChainDAOImplTest {
   }
 
   @Test
+  public void update_failsWithInvalidConfig() throws Exception {
+    HubClientAccess access = HubClientAccess.create("Admin");
+    Chain input = Chain.create()
+      .setAccountId(account1.getId())
+      .setName("coconuts")
+      .setConfig("no type of config I've ever seen")
+      .setType("Production")
+      .setState("Complete")
+      .setStartAt("2009-08-12T12:17:02.687327Z")
+      .setStopAt("2009-09-11T12:17:01.989941Z");
+
+    failure.expect(DAOValidationException.class);
+    failure.expectMessage("Key 'no type of config I've ever seen' may not be followed by token");
+
+    subject.update(access, chain2.getId(), input);
+  }
+
+  @Test
+  public void update_withValidConfig() throws Exception {
+    HubClientAccess access = HubClientAccess.create("Admin");
+    Chain input = Chain.create()
+      .setAccountId(account1.getId())
+      .setName("coconuts")
+      .setConfig("outputContainer=\"WAV\"")
+      .setType("Production")
+      .setState("Complete")
+      .setStartAt("2009-08-12T12:17:02.687327Z")
+      .setStopAt("2009-09-11T12:17:01.989941Z");
+
+    subject.update(access, chain2.getId(), input);
+  }
+
+  @Test
   public void update_CannotChangeAccount() throws Exception {
     HubClientAccess access = HubClientAccess.create("Admin");
     Chain input = Chain.create()
@@ -983,9 +1030,8 @@ public class ChainDAOImplTest {
   public void revive_duplicatesAllChainBindings() throws Exception {
     HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "Engineer");
     user3 = User.create("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    Chain chain = test.put(Chain.create(account1, "school", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
-    test.put(ChainConfig.create(chain, ChainConfigType.OutputFrameRate, "1,4,35"));
-    test.put(ChainConfig.create(chain, ChainConfigType.OutputChannels, "2,83,4"));
+    Chain chain = test.put(Chain.create(account1, "school", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky")
+      .setConfig("outputFrameRate=35\noutputChannels=4"));
     test.put(ChainBinding.create(chain, Library.create(account1, "pajamas", Instant.now())));
     test.put(ChainBinding.create(chain, Program.create(user3, library1, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6)));
     test.put(ChainBinding.create(chain, Program.create(user3, library1, ProgramType.Macro, ProgramState.Published, "trees A to B", "D#", 120.0, 0.6)));
@@ -996,7 +1042,6 @@ public class ChainDAOImplTest {
     Chain result = subject.revive(access, chain.getId(), "Testing");
 
     assertNotNull(result);
-    assertEquals(2, chainConfigDAO.readMany(HubClientAccess.internal(), ImmutableList.of(result.getId())).size());
     Collection<ChainBinding> bindings = chainBindingDAO.readMany(HubClientAccess.internal(), ImmutableList.of(result.getId()));
     assertEquals(1, bindings.stream().filter(binding -> binding.getType().equals(ChainBindingType.Instrument)).count());
     assertEquals(1, bindings.stream().filter(binding -> binding.getType().equals(ChainBindingType.Library)).count());

@@ -51,15 +51,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftRhythmInitialTest {
-  private Injector injector;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
-  private NexusHubContentFixtures fake;
-  private Chain chain1;
-  private Segment segment1;
-  private Segment segment2;
-  private Segment segment3;
-  private Segment segment4;
   private NexusEntityStore store;
 
   @Rule
@@ -67,13 +60,12 @@ public class CraftRhythmInitialTest {
 
   @Mock
   public HubClient hubClient;
-  private Chain chain2;
   private Segment segment6;
 
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
-    injector = AppConfiguration.inject(config,
+    Injector injector = AppConfiguration.inject(config,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override
@@ -92,7 +84,7 @@ public class CraftRhythmInitialTest {
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
-    fake = new NexusHubContentFixtures();
+    NexusHubContentFixtures fake = new NexusHubContentFixtures();
     when(hubClient.ingest(any(), any(), any(), any()))
       .thenReturn(new HubContent(Streams.concat(
         fake.setupFixtureB1(true).stream(),
@@ -101,7 +93,7 @@ public class CraftRhythmInitialTest {
       ).collect(Collectors.toList())));
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
-    chain2 = store.put(Chain.create(fake.account1, "Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    Chain chain2 = store.put(Chain.create(fake.account1, "Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
     store.put(ChainBinding.create(chain2, fake.library2));
 
     // segment crafting

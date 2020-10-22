@@ -22,6 +22,7 @@ public class DAOModule extends AbstractModule {
     bind(ProgramSequenceBindingDAO.class).to(ProgramSequenceBindingDAOImpl.class);
     bind(ProgramSequenceBindingMemeDAO.class).to(ProgramSequenceBindingMemeDAOImpl.class);
     bind(ProgramSequenceChordDAO.class).to(ProgramSequenceChordDAOImpl.class);
+    bind(ProgramSequenceChordVoicingDAO.class).to(ProgramSequenceChordVoicingDAOImpl.class);
     bind(ProgramVoiceTrackDAO.class).to(ProgramVoiceTrackDAOImpl.class);
     bind(ProgramVoiceDAO.class).to(ProgramVoiceDAOImpl.class);
     bind(UserDAO.class).to(UserDAOImpl.class);

@@ -16,7 +16,6 @@ public class HubTestConfiguration {
    @return default configuration for tests
    */
   public static Config getDefault() {
-
     return ConfigFactory.parseResources("test.conf")
       .withFallback(ConfigFactory.parseResources("default.conf"))
       .withFallback(AppConfiguration.getDefault())

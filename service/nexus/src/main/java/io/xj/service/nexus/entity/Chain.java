@@ -26,6 +26,7 @@ public class Chain extends Entity {
   private ChainType type;
   private Instant startAt;
   private Exception startAtException;
+  private String config;
   private Instant stopAt;
   private Exception stopAtException;
   @Nullable
@@ -83,16 +84,6 @@ public class Chain extends Entity {
    */
   public static String toEmbedKey(String embedKey) {
     return Text.toLowerScored(embedKey);
-  }
-
-  /**
-   Is a value not present?
-
-   @param value to test
-   @return true if null or empty
-   */
-  public static boolean isEmpty(Object value) {
-    return Objects.isNull(value) || String.valueOf(value).isEmpty();
   }
 
   /**
@@ -247,6 +238,27 @@ public class Chain extends Entity {
   }
 
   /**
+   @return configuration
+   */
+  public String getConfig() {
+    return config;
+  }
+
+  /**
+   Set the Chain configuration from a string of typesafe config.
+   Said string will be embedded in a `chain{...}` block such that
+   provided simple Key=Value pairs will be understood as members of `chain`
+   e.g. will override values from the `chain{...}` block of the top-level **default.conf**
+
+   @param config to set
+   @return this Chain (for chaining setters)
+   */
+  public Chain setConfig(String config) {
+    this.config = config;
+    return this;
+  }
+
+  /**
    set State
 
    @param state to set
@@ -314,15 +326,6 @@ public class Chain extends Entity {
     return this;
   }
 
-/*
-  FUTURE address chain cloning
-  public Chain setContentCloned(Chain of) {
-    setConfigs(of.getConfigs());
-    setBindings(of.getBindings());
-    return this;
-  }
-*/
-
   /**
    set StopAtInstant
 
@@ -363,6 +366,8 @@ public class Chain extends Entity {
 
     Value.requireNo(startAtException, "Start-at");
     Value.requireNo(stopAtException, "Stop-at");
+
+    if (Objects.isNull(config)) config = "";
   }
 
   /**
@@ -374,4 +379,6 @@ public class Chain extends Entity {
   public boolean isProductionStartedBefore(Instant threshold) {
     return ChainType.Production.equals(getType()) && getStartAt().isBefore(threshold);
   }
+
+
 }

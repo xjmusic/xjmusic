@@ -4,15 +4,28 @@ package io.xj.service.hub.dao;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.jsonapi.JsonApiException;
-import io.xj.lib.util.Text;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.*;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramConfig;
+import io.xj.service.hub.entity.ProgramMeme;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.ProgramSequenceBinding;
+import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
+import io.xj.service.hub.entity.ProgramSequenceChord;
+import io.xj.service.hub.entity.ProgramSequencePattern;
+import io.xj.service.hub.entity.ProgramSequencePatternEvent;
+import io.xj.service.hub.entity.ProgramState;
+import io.xj.service.hub.entity.ProgramType;
+import io.xj.service.hub.entity.ProgramVoice;
+import io.xj.service.hub.entity.ProgramVoiceTrack;
+import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -23,29 +36,44 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.service.hub.Tables.*;
+import static io.xj.service.hub.Tables.LIBRARY;
+import static io.xj.service.hub.Tables.PROGRAM;
+import static io.xj.service.hub.Tables.PROGRAM_MEME;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_BINDING;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.service.hub.Tables.PROGRAM_VOICE;
+import static io.xj.service.hub.Tables.PROGRAM_VOICE_TRACK;
 
 public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
 
+  private final Config config;
+
   @Inject
   public ProgramDAOImpl(
+    Config config,
     PayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
     super(payloadFactory, entityFactory);
+    this.config = config;
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public Program create(HubAccess hubAccess, Program entity) throws DAOException, JsonApiException, ValueException {
-    entity.validate();
+  public Program create(HubAccess hubAccess, Program program) throws DAOException, JsonApiException, ValueException {
+    program.validate();
     requireArtist(hubAccess);
-    return modelFrom(Program.class, executeCreate(dbProvider.getDSL(), PROGRAM, entity));
+    validateConfig(program);
+    return modelFrom(Program.class, executeCreate(dbProvider.getDSL(), PROGRAM, program));
   }
 
   @Override
-  public DAOCloner<Program> clone(HubAccess hubAccess, UUID cloneId, Program entity) throws DAOException {
+  public DAOCloner<Program> clone(HubAccess hubAccess, UUID cloneId, Program program) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<Program> result = new AtomicReference<>();
     AtomicReference<DAOCloner<Program>> cloner = new AtomicReference<>();
@@ -57,18 +85,19 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
         throw new DAOException("Can't clone nonexistent Program");
 
       // Inherits state, type if none specified
-      if (Objects.isNull(entity.getState())) entity.setStateEnum(from.getState());
-      if (Objects.isNull(entity.getDensity())) entity.setDensity(from.getDensity());
-      if (Objects.isNull(entity.getName())) entity.setName(from.getName());
-      if (Objects.isNull(entity.getType())) entity.setTypeEnum(from.getType());
-      if (Objects.isNull(entity.getTempo())) entity.setTempo(from.getTempo());
-      if (Objects.isNull(entity.getKey())) entity.setKey(from.getKey());
-      entity.setUserId(from.getUserId());
-      entity.validate();
-      requireParentExists(db, hubAccess, entity);
+      if (Objects.isNull(program.getState())) program.setStateEnum(from.getState());
+      if (Objects.isNull(program.getDensity())) program.setDensity(from.getDensity());
+      if (Objects.isNull(program.getName())) program.setName(from.getName());
+      if (Objects.isNull(program.getType())) program.setTypeEnum(from.getType());
+      if (Objects.isNull(program.getTempo())) program.setTempo(from.getTempo());
+      if (Objects.isNull(program.getKey())) program.setKey(from.getKey());
+      program.setUserId(from.getUserId());
+      program.validate();
+      requireParentExists(db, hubAccess, program);
+      validateConfig(program);
 
       // Create main entity
-      result.set(modelFrom(Program.class, executeCreate(db, PROGRAM, entity)));
+      result.set(modelFrom(Program.class, executeCreate(db, PROGRAM, program)));
 
       // Prepare to clone sub-entities
       cloner.set(new DAOCloner<>(result.get(), this));
@@ -228,19 +257,20 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  public void update(HubAccess hubAccess, UUID id, Program entity) throws DAOException, JsonApiException, ValueException {
-    entity.validate();
+  public void update(HubAccess hubAccess, UUID id, Program program) throws DAOException, JsonApiException, ValueException {
+    program.validate();
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
     Program existing = readOne(db, hubAccess, id);
+    validateConfig(program);
 
     // [#170390872] prevent user from changing program type of a Rhythm program, when it has any Tracks and/or Voices.
-    if (ProgramType.Rhythm.equals(existing.getType()) && !ProgramType.Rhythm.equals(entity.getType()))
+    if (ProgramType.Rhythm.equals(existing.getType()) && !ProgramType.Rhythm.equals(program.getType()))
       requireNotExists("Voice in Program; Can't change type away from Rhythm", db.selectCount().from(PROGRAM_VOICE)
         .where(PROGRAM_VOICE.PROGRAM_ID.eq(id))
         .fetchOne(0, int.class));
 
-    executeUpdate(db, PROGRAM, id, entity);
+    executeUpdate(db, PROGRAM, id, program);
   }
 
   @Override
@@ -342,6 +372,15 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
       .where(PROGRAM.LIBRARY_ID.in(parentIds))
       .and(PROGRAM.STATE.equal(ProgramState.Published.toString()))
       .fetch());
+  }
+
+  /**
+   [#175347578] validate TypeSafe program config
+
+   @param program config to validate
+   */
+  private void validateConfig(Program program) throws ValueException {
+    new ProgramConfig(program, config);
   }
 
   /**

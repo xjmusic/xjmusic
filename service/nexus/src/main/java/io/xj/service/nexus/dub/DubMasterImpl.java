@@ -13,7 +13,6 @@ import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.util.Text;
 import io.xj.service.hub.entity.InstrumentAudio;
-import io.xj.service.nexus.entity.ChainConfigType;
 import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
 import io.xj.service.nexus.entity.SegmentMessage;
 import io.xj.service.nexus.entity.SegmentType;
@@ -222,8 +221,8 @@ public class DubMasterImpl implements DubMaster {
    MasterDub implements Mixer module to mix final output to waveform streamed directly to Amazon S3@param preroll
    */
   private void doMix() throws Exception {
-    float quality = Float.parseFloat(fabricator.getChainConfig(ChainConfigType.OutputEncodingQuality).getValue());
-    mixer().mixToFile(OutputEncoder.parse(fabricator.getChainConfig(ChainConfigType.OutputContainer)), fabricator.getFullQualityAudioOutputFilePath(), quality);
+    float quality = (float) fabricator.getChainConfig().getOutputEncodingQuality();
+    mixer().mixToFile(OutputEncoder.parse(fabricator.getChainConfig().getOutputContainer()), fabricator.getFullQualityAudioOutputFilePath(), quality);
   }
 
   /**

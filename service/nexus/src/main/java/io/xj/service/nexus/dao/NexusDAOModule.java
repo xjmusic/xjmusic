@@ -14,7 +14,6 @@ public class NexusDAOModule extends AbstractModule {
     install(new PubSubModule());
     bind(ChainDAO.class).to(ChainDAOImpl.class);
     bind(ChainBindingDAO.class).to(ChainBindingDAOImpl.class);
-    bind(ChainConfigDAO.class).to(ChainConfigDAOImpl.class);
     bind(SegmentDAO.class).to(SegmentDAOImpl.class);
   }
 

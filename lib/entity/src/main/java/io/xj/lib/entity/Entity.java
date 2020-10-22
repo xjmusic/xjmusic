@@ -240,4 +240,14 @@ public abstract class Entity {
   public boolean isSame(Entity target) {
     return this.isSame(target.getClass(), Collections.singleton(target.getId()));
   }
+
+  /**
+   Is a value not present?
+
+   @param value to test
+   @return true if null or empty
+   */
+  public static boolean isEmpty(Object value) {
+    return Objects.isNull(value) || String.valueOf(value).isEmpty();
+  }
 }

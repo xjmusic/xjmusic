@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class DAOValidationExceptionTest {
   private DAOValidationException subject;
@@ -30,8 +31,7 @@ public class DAOValidationExceptionTest {
     subject = new DAOValidationException(new IOException("Party on, dudes!"));
 
     assertEquals("Party on, dudes!", subject.getMessage());
-    assertEquals(IOException.class, subject.getCause().getClass());
-    assertEquals("Party on, dudes!", subject.getCause().getMessage());
+    assertNull(subject.getCause());
   }
 
 }

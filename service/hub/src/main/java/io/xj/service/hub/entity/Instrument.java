@@ -6,11 +6,11 @@ import io.xj.lib.entity.Entity;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class Instrument extends Entity {
-
-
+  private String config;
   private InstrumentState state;
   private String name;
   private InstrumentType type;
@@ -124,6 +124,15 @@ FUTURE address density computation for instrument
   }
 
   /**
+   Get config for the instrument
+
+   @return config
+   */
+  public String getConfig() {
+    return config;
+  }
+
+  /**
    get LibraryId
 
    @return LibraryId
@@ -176,6 +185,17 @@ FUTURE address density computation for instrument
    */
   public Instrument setName(String name) {
     this.name = name;
+    return this;
+  }
+
+  /**
+   Set config of instrument
+
+   @param config to set
+   @return this Instrument (for chaining methods)
+   */
+  public Instrument setConfig(String config) {
+    this.config = config;
     return this;
   }
 
@@ -292,6 +312,8 @@ FUTURE address density computation for instrument
 
     Value.requireNo(stateException, "State");
     Value.require(state, "State");
+
+    if (Objects.isNull(config)) config = "";
   }
 
 }

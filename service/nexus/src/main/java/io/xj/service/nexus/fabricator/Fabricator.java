@@ -16,7 +16,6 @@ import io.xj.service.hub.entity.ProgramSequencePatternType;
 import io.xj.service.hub.entity.ProgramVoice;
 import io.xj.service.nexus.entity.Chain;
 import io.xj.service.nexus.entity.ChainConfig;
-import io.xj.service.nexus.entity.ChainConfigType;
 import io.xj.service.nexus.entity.Segment;
 import io.xj.service.nexus.entity.SegmentChoice;
 import io.xj.service.nexus.entity.SegmentChoiceArrangement;
@@ -120,20 +119,12 @@ public interface Fabricator {
   Chain getChain() throws FabricationException;
 
   /**
-   Get configs of Chain
-
-   @return Chain Configs
-   */
-  Collection<ChainConfig> getChainConfigs();
-
-  /**
    Chain configuration, by type
    If no chain config is found for this type, a default config is returned.
 
-   @param chainConfigType of config to fetch
-   @return chain config value
+   @return chain configuration
    */
-  ChainConfig getChainConfig(ChainConfigType chainConfigType) throws FabricationException;
+  ChainConfig getChainConfig() throws FabricationException;
 
   /**
    Chain id, of segment

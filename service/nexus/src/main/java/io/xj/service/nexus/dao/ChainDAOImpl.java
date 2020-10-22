@@ -71,8 +71,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     ChainState.Complete,
     ChainState.Failed
   );
-  private final ChainConfigDAO chainConfigDAO;
   private final ChainBindingDAO chainBindingDAO;
+  private final Config config;
   private final SegmentDAO segmentDAO;
   private final int previewLengthMaxHours;
   private final PubSubProvider pubSub;
@@ -85,17 +85,16 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     EntityFactory entityFactory,
     NexusEntityStore nexusEntityStore,
     SegmentDAO segmentDAO,
-    ChainConfigDAO chainConfigDAO,
     ChainBindingDAO chainBindingDAO,
     PubSubProvider pubSubProvider
   ) {
     super(entityFactory, nexusEntityStore);
+    this.config = config;
     this.segmentDAO = segmentDAO;
     this.pubSub = pubSubProvider;
 
-    previewLengthMaxHours = config.getInt("chain.previewLengthMaxHours");
-    previewEmbedKeyLength = config.getInt("chain.previewEmbedKeyLength");
-    this.chainConfigDAO = chainConfigDAO;
+    previewLengthMaxHours = config.getInt("fabrication.previewLengthMaxHours");
+    previewEmbedKeyLength = config.getInt("fabrication.previewEmbedKeyLength");
     this.chainBindingDAO = chainBindingDAO;
   }
 
@@ -122,6 +121,9 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       // Give model a fresh unique ID and Validate
       chain.setId(UUID.randomUUID());
       chain.validate();
+
+      // [#175347578] validate TypeSafe chain config
+      new ChainConfig(chain, config);
 
       // store and return sanitized payload comprising only the valid Chain
       return store.put(chain);
@@ -208,6 +210,9 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       // override id (cannot be changed) from existing chain, and then validate
       chain.setId(id);
       chain.validate();
+
+      // [#175347578] validate TypeSafe chain config
+      new ChainConfig(chain, config);
 
       // If we have an embed key, it must not belong to another chain
       requireUniqueEmbedKey(access, chain);
@@ -319,9 +324,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         .orElseThrow(() -> new DAOExistenceException(Chain.class, id));
       requireAccount(access, chain);
 
-      for (ChainConfig chainConfig : chainConfigDAO.readMany(access, ImmutableList.of()))
-        chainConfigDAO.destroy(access, chainConfig.getId());
-
       for (ChainBinding chainBinding : chainBindingDAO.readMany(access, ImmutableList.of()))
         chainBindingDAO.destroy(access, chainBinding.getId());
 
@@ -370,10 +372,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     toCreate.setEmbedKey(embedKey);
     toCreate.setStartAtNow();// [#170273871] Revived chain should always start now
     Chain created = create(access, toCreate);
-
-    // Re-create all chain configs of original chain
-    for (ChainConfig chainConfig : makeClones(chainConfigDAO.readMany(access, ImmutableList.of(priorChainId))))
-      chainConfigDAO.create(access, chainConfig.setChainId(created.getId()));
 
     // Re-create all chain bindings of original chain
     for (ChainBinding chainBinding : makeClones(chainBindingDAO.readMany(access, ImmutableList.of(priorChainId))))

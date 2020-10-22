@@ -11,10 +11,10 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.music.Tuning;
-import io.xj.lib.filestore.FileStoreModule;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
@@ -28,8 +28,6 @@ import io.xj.service.nexus.NexusHubContentFixtures;
 import io.xj.service.nexus.dao.NexusDAOModule;
 import io.xj.service.nexus.entity.Chain;
 import io.xj.service.nexus.entity.ChainBinding;
-import io.xj.service.nexus.entity.ChainConfig;
-import io.xj.service.nexus.entity.ChainConfigType;
 import io.xj.service.nexus.entity.ChainState;
 import io.xj.service.nexus.entity.ChainType;
 import io.xj.service.nexus.entity.Segment;
@@ -127,11 +125,11 @@ public class FabricatorImplTest {
   @Test
   public void usesTimeComputer() throws Exception {
     Library library = Library.create();
-    Chain chain = store.put(Chain.create(Account.create(), "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null));
+    Chain chain = store.put(Chain.create(Account.create(), "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null)
+      .setConfig("outputEncoding=\"PCM_SIGNED\""));
     Segment previousSegment = store.put(Segment.create(chain, 1, SegmentState.Crafted, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120, "seg123.ogg"));
     Segment segment = store.put(Segment.create(chain, 2, SegmentState.Crafting, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 8, 0.6, 240, "seg123.ogg"));
     store.put(ChainBinding.create(chain, library));
-    store.put(ChainConfig.create(chain, ChainConfigType.OutputEncoding, "PCM_SIGNED"));
     when(mockTimeComputerFactory.create(anyDouble(), anyDouble(), anyDouble()))
       .thenReturn(mockTimeComputer);
     when(mockTimeComputer.getSecondsAtPosition(anyDouble()))
@@ -155,11 +153,11 @@ public class FabricatorImplTest {
 
   @Test
   public void pick_returned_by_picks() throws Exception {
-    Chain chain = store.put(Chain.create(Account.create(), "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null));
+    Chain chain = store.put(Chain.create(Account.create(), "test", ChainType.Production, ChainState.Fabricate, Instant.parse("2017-12-12T01:00:08.000000Z"), null, null)
+      .setConfig("outputEncoding=\"PCM_SIGNED\""));
     Segment previousSegment = store.put(Segment.create(chain, 1, SegmentState.Crafted, Instant.parse("2017-12-12T01:00:08.000000Z"), Instant.parse("2017-12-12T01:00:16.000000Z"), "F major", 8, 0.6, 120, "seg123.ogg"));
     Segment segment = store.put(Segment.create(chain, 2, SegmentState.Crafting, Instant.parse("2017-12-12T01:00:16.000000Z"), Instant.parse("2017-12-12T01:00:22.000000Z"), "G major", 8, 0.6, 240, "seg123.ogg"));
     store.put(ChainBinding.create(chain, fake.library2));
-    store.put(ChainConfig.create(chain, ChainConfigType.OutputEncoding, "PCM_SIGNED"));
     store.put(SegmentChoice.create(segment, ProgramType.Main, fake.program5, 4));
     SegmentChoice rhythmChoice = store.put(SegmentChoice.create(segment, ProgramType.Rhythm, fake.program35, 0));
     SegmentChoiceArrangement rhythmArrangement = store.put(SegmentChoiceArrangement.create(segment, rhythmChoice, fake.program35_voice0, fake.instrument8));

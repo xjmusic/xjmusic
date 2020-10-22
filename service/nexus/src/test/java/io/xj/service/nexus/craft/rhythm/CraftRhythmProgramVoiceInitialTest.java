@@ -10,6 +10,7 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
@@ -31,7 +32,6 @@ import io.xj.service.nexus.entity.SegmentState;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.After;
@@ -54,20 +54,12 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftRhythmProgramVoiceInitialTest {
-  private Injector injector;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
   private NexusHubContentFixtures fake;
-  private Chain chain1;
-  private Segment segment1;
-  private Segment segment2;
-  private Segment segment3;
-  private Segment segment4;
   private NexusEntityStore store;
   private Chain chain2;
   private Segment segment6;
-  private HubContent hubContent;
-  private Segment segment5;
 
   @Rule
   public ExpectedException failure = ExpectedException.none();
@@ -78,7 +70,7 @@ public class CraftRhythmProgramVoiceInitialTest {
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
-    injector = AppConfiguration.inject(config,
+    Injector injector = AppConfiguration.inject(config,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override
@@ -162,7 +154,7 @@ public class CraftRhythmProgramVoiceInitialTest {
    */
   private void insertSegments() throws EntityStoreException {
     // segment crafted
-    segment5 = store.put(Segment.create()
+    Segment segment5 = store.put(Segment.create()
       .setChainId(chain2.getId())
       .setOffset(2L)
       .setStateEnum(SegmentState.Crafted)

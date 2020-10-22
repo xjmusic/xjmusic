@@ -10,13 +10,13 @@ import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.jsonapi.PayloadObject;
+import io.xj.lib.util.Text;
 import io.xj.service.hub.entity.InstrumentState;
 import io.xj.service.hub.entity.InstrumentType;
 import io.xj.service.hub.entity.ProgramSequencePatternType;
 import io.xj.service.hub.entity.ProgramState;
 import io.xj.service.hub.entity.ProgramType;
 import io.xj.service.nexus.NexusEndpoint;
-import io.xj.service.nexus.entity.ChainConfigType;
 import io.xj.service.nexus.entity.ChainState;
 import io.xj.service.nexus.entity.ChainType;
 import io.xj.service.nexus.entity.SegmentState;
@@ -34,6 +34,7 @@ import javax.ws.rs.core.Response;
 @Path("nexus/config")
 public class NexusConfigEndpoint extends NexusEndpoint {
   private final ApiUrlProvider apiUrlProvider;
+  private final String defaultChainConfig;
 
   /**
    Constructor
@@ -46,6 +47,7 @@ public class NexusConfigEndpoint extends NexusEndpoint {
     PayloadFactory payloadFactory
   ) {
     super(response, config, payloadFactory);
+    defaultChainConfig = Text.format(config.getConfig("chain"));
     this.apiUrlProvider = apiUrlProvider;
   }
 
@@ -63,18 +65,18 @@ public class NexusConfigEndpoint extends NexusEndpoint {
           .put("apiBaseUrl", apiUrlProvider.getAppBaseUrl() + apiUrlProvider.getApiPath())
           .put("audioBaseUrl", apiUrlProvider.getAudioBaseUrl())
           .put("baseUrl", apiUrlProvider.getAppBaseUrl())
-          .put("chainConfigTypes", ChainConfigType.stringValues())
           .put("chainStates", ChainState.stringValues())
           .put("chainTypes", ChainType.stringValues())
           .put("choiceTypes", ProgramType.stringValues())
+          .put("defaultChainConfig", defaultChainConfig)
           .put("instrumentStates", InstrumentState.stringValues())
           .put("instrumentTypes", InstrumentType.stringValues())
           .put("patternDetailTypes", ProgramSequencePatternType.stringValuesForDetailSequence())
           .put("patternTypes", ProgramSequencePatternType.stringValues())
+          .put("playerBaseUrl", apiUrlProvider.getPlayerBaseUrl())
           .put("programStates", ProgramState.stringValues())
           .put("programTypes", ProgramType.stringValues())
           .put("segmentBaseUrl", apiUrlProvider.getSegmentBaseUrl())
-          .put("playerBaseUrl", apiUrlProvider.getPlayerBaseUrl())
           .put("segmentStates", SegmentState.stringValues())
           .put("voiceTypes", InstrumentType.stringValues())
           .build())));

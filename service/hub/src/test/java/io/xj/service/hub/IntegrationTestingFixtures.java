@@ -97,6 +97,7 @@ public class IntegrationTestingFixtures {
   public ProgramSequenceBinding program15_binding1;
   public ProgramSequenceBinding program3_binding0;
   public ProgramSequenceBinding program3_binding1;
+  public ProgramSequenceChord program3_chord1;
   public ProgramSequencePattern program2_sequence1_pattern1;
   public ProgramSequencePatternEvent program2_sequence1_pattern1_event0;
   public ProgramSequencePatternEvent program2_sequence1_pattern1_event1;

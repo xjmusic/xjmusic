@@ -17,7 +17,6 @@ import io.xj.service.hub.entity.ProgramSequenceBinding;
 import io.xj.service.hub.entity.ProgramType;
 import io.xj.service.nexus.craft.CraftImpl;
 import io.xj.service.nexus.craft.exception.CraftException;
-import io.xj.service.nexus.entity.ChainConfigType;
 import io.xj.service.nexus.entity.SegmentChoice;
 import io.xj.service.nexus.entity.SegmentChord;
 import io.xj.service.nexus.entity.SegmentMeme;
@@ -174,7 +173,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
       // Finally, update the segment with fabricated content
       fabricator.getSegment()
-        .setOutputEncoder(fabricator.getChainConfig(ChainConfigType.OutputContainer).getValue())
+        .setOutputEncoder(fabricator.getChainConfig().getOutputContainer())
         .setDensity(computeSegmentDensity(macroSequence, mainSequence))
         .setTempo(computeSegmentTempo(macroSequence, mainSequence))
         .setKey(computeSegmentKey(mainSequence, mainTranspose))
@@ -183,7 +182,6 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       fabricator.done();
 
     } catch (FabricationException e) {
-
       throw exception("Failed to do Macro+Main Craft work!", e);
     }
   }

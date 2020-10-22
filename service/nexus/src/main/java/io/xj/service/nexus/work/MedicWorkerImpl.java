@@ -43,8 +43,8 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
     this.chainDAO = chainDAO;
     this.segmentDAO = segmentDAO;
 
-    reviveChainSegmentsDubbedPastSeconds = config.getInt("chain.reviveChainSegmentsDubbedPastSeconds");
-    reviveChainProductionStartedBeforeSeconds = config.getInt("chain.reviveChainProductionStartedBeforeSeconds");
+    reviveChainSegmentsDubbedPastSeconds = config.getInt("fabrication.reviveChainSegmentsDubbedPastSeconds");
+    reviveChainProductionStartedBeforeSeconds = config.getInt("fabrication.reviveChainProductionStartedBeforeSeconds");
 
     log.info("Instantiated OK");
   }

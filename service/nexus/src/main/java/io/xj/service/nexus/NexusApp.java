@@ -65,8 +65,6 @@ public class NexusApp extends App {
    - a config,
    - a set of resource packages to add to the core set, and
    - an injector to create a child injector of in order to add the core set.@param resourcePackages to add to the core set of packages for the new application@param resourcePackages@param injector to add to the core set of modules for the new application
-
-
    */
   public NexusApp(
     Injector injector
@@ -113,27 +111,20 @@ public class NexusApp extends App {
     entityFactory.register(Chain.class)
       .createdBy(Chain::new)
       .withAttribute("name")
+      .withAttribute("config")
       .withAttribute("state")
       .withAttribute("type")
       .withAttribute("startAt")
       .withAttribute("stopAt")
       .withAttribute("embedKey")
       .belongsTo(Account.class)
-      .hasMany(ChainBinding.class)
-      .hasMany(ChainConfig.class);
+      .hasMany(ChainBinding.class);
 
     // ChainBinding
     entityFactory.register(ChainBinding.class)
       .createdBy(ChainBinding::new)
       .withAttribute("type")
       .withAttribute("targetId")
-      .belongsTo(Chain.class);
-
-    // ChainConfig
-    entityFactory.register(ChainConfig.class)
-      .createdBy(ChainConfig::new)
-      .withAttribute("type")
-      .withAttribute("value")
       .belongsTo(Chain.class);
 
     // Segment

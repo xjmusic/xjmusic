@@ -7,6 +7,7 @@ import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Program extends Entity {
@@ -14,6 +15,7 @@ public class Program extends Entity {
   private UUID libraryId;
   private ProgramState state;
   private String key;
+  private String config;
   private Double tempo;
   private ProgramType type;
   private String name;
@@ -106,6 +108,15 @@ public class Program extends Entity {
    */
   public String getName() {
     return name;
+  }
+
+  /**
+   Get config for the program
+
+   @return config
+   */
+  public String getConfig() {
+    return config;
   }
 
   /**
@@ -223,6 +234,17 @@ public class Program extends Entity {
   }
 
   /**
+   Set config of program
+
+   @param config to set
+   @return this Program (for chaining methods)
+   */
+  public Program setConfig(String config) {
+    this.config = config;
+    return this;
+  }
+
+  /**
    Set state of Program
 
    @param value to set
@@ -335,9 +357,12 @@ public class Program extends Entity {
 
     Value.requireNo(stateException, "State");
     Value.require(state, "State");
+
+    if (Objects.isNull(config)) config = "";
   }
 
   public Double getDensity() {
     return density;
   }
+
 }

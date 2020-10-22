@@ -10,6 +10,7 @@ import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.jsonapi.PayloadObject;
+import io.xj.lib.util.Text;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.entity.InstrumentState;
 import io.xj.service.hub.entity.InstrumentType;
@@ -30,7 +31,8 @@ import javax.ws.rs.core.Response;
 @Path("hub/config")
 public class HubConfigEndpoint extends HubEndpoint {
   private final ApiUrlProvider apiUrlProvider;
-
+  private final String defaultProgramConfig;
+  private final String defaultInstrumentConfig;
 
   /**
    Constructor
@@ -44,6 +46,8 @@ public class HubConfigEndpoint extends HubEndpoint {
   ) {
     super(response, config, payloadFactory);
     this.apiUrlProvider = apiUrlProvider;
+    defaultProgramConfig = Text.format(config.getConfig("program"));
+    defaultInstrumentConfig = Text.format(config.getConfig("instrument"));
   }
 
   /**
@@ -61,14 +65,16 @@ public class HubConfigEndpoint extends HubEndpoint {
           .put("audioBaseUrl", apiUrlProvider.getAudioBaseUrl())
           .put("baseUrl", apiUrlProvider.getAppBaseUrl())
           .put("choiceTypes", ProgramType.stringValues())
+          .put("defaultInstrumentConfig", defaultInstrumentConfig)
+          .put("defaultProgramConfig", defaultProgramConfig)
           .put("instrumentStates", InstrumentState.stringValues())
           .put("instrumentTypes", InstrumentType.stringValues())
           .put("patternDetailTypes", ProgramSequencePatternType.stringValuesForDetailSequence())
           .put("patternTypes", ProgramSequencePatternType.stringValues())
+          .put("playerBaseUrl", apiUrlProvider.getPlayerBaseUrl())
           .put("programStates", ProgramState.stringValues())
           .put("programTypes", ProgramType.stringValues())
           .put("segmentBaseUrl", apiUrlProvider.getSegmentBaseUrl())
-          .put("playerBaseUrl", apiUrlProvider.getPlayerBaseUrl())
           .put("voiceTypes", InstrumentType.stringValues())
           .build())));
   }

@@ -4,13 +4,20 @@ package io.xj.service.hub.dao;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.*;
+import io.xj.service.hub.entity.Instrument;
+import io.xj.service.hub.entity.InstrumentAudio;
+import io.xj.service.hub.entity.InstrumentAudioChord;
+import io.xj.service.hub.entity.InstrumentAudioEvent;
+import io.xj.service.hub.entity.InstrumentConfig;
+import io.xj.service.hub.entity.InstrumentMeme;
+import io.xj.service.hub.entity.InstrumentState;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -21,31 +28,41 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.service.hub.Tables.*;
+import static io.xj.service.hub.Tables.INSTRUMENT;
+import static io.xj.service.hub.Tables.INSTRUMENT_AUDIO;
+import static io.xj.service.hub.Tables.INSTRUMENT_AUDIO_CHORD;
+import static io.xj.service.hub.Tables.INSTRUMENT_AUDIO_EVENT;
+import static io.xj.service.hub.Tables.INSTRUMENT_MEME;
+import static io.xj.service.hub.Tables.LIBRARY;
 
 public class InstrumentDAOImpl extends DAOImpl<Instrument> implements InstrumentDAO {
 
+  private final Config config;
+
   @Inject
   public InstrumentDAOImpl(
+    Config config,
     PayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
     super(payloadFactory, entityFactory);
+    this.config = config;
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public Instrument create(HubAccess hubAccess, Instrument entity) throws DAOException, JsonApiException, ValueException {
-    entity.validate();// This entity's parent is a Library
-    requireArtist(hubAccess);
+  public Instrument create(HubAccess hubAccess, Instrument instrument) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
-    requireParentExists(db, hubAccess, entity);
-    return modelFrom(Instrument.class, executeCreate(db, INSTRUMENT, entity));
+    instrument.validate();// This entity's parent is a Library
+    requireArtist(hubAccess);
+    requireParentExists(db, hubAccess, instrument);
+    validateConfig(instrument);
+    return modelFrom(Instrument.class, executeCreate(db, INSTRUMENT, instrument));
   }
 
   @Override
-  public Instrument clone(HubAccess hubAccess, UUID cloneId, Instrument entity) throws DAOException {
+  public Instrument clone(HubAccess hubAccess, UUID cloneId, Instrument instrument) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<Instrument> result = new AtomicReference<>();
     dbProvider.getDSL().transaction(ctx -> {
@@ -56,15 +73,16 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
         throw new DAOException("Can't clone nonexistent Instrument");
 
       // Inherits state, type if none specified
-      if (Objects.isNull(entity.getType())) entity.setTypeEnum(from.getType());
-      if (Objects.isNull(entity.getState())) entity.setStateEnum(from.getState());
-      if (Objects.isNull(entity.getDensity())) entity.setDensity(from.getDensity());
-      if (Objects.isNull(entity.getName())) entity.setName(from.getName());
-      entity.setUserId(from.getUserId());
-      entity.validate();
-      requireParentExists(db, hubAccess, entity);
+      if (Objects.isNull(instrument.getType())) instrument.setTypeEnum(from.getType());
+      if (Objects.isNull(instrument.getState())) instrument.setStateEnum(from.getState());
+      if (Objects.isNull(instrument.getDensity())) instrument.setDensity(from.getDensity());
+      if (Objects.isNull(instrument.getName())) instrument.setName(from.getName());
+      instrument.setUserId(from.getUserId());
+      instrument.validate();
+      requireParentExists(db, hubAccess, instrument);
+      validateConfig(instrument);
 
-      result.set(modelFrom(Instrument.class, executeCreate(db, INSTRUMENT, entity)));
+      result.set(modelFrom(Instrument.class, executeCreate(db, INSTRUMENT, instrument)));
 
       DAOCloner<Entity> cloner = new DAOCloner<>(result.get(), this);
       cloner.clone(db, INSTRUMENT_MEME, INSTRUMENT_MEME.ID, ImmutableSet.of(), INSTRUMENT_MEME.INSTRUMENT_ID, cloneId, result.get().getId());
@@ -73,6 +91,15 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
       cloner.clone(db, INSTRUMENT_AUDIO_CHORD, INSTRUMENT_AUDIO_CHORD.ID, ImmutableSet.of(INSTRUMENT_AUDIO_CHORD.INSTRUMENT_AUDIO_ID), INSTRUMENT_AUDIO_CHORD.INSTRUMENT_ID, cloneId, result.get().getId());
     });
     return result.get();
+  }
+
+  /**
+   [#175347578] validate TypeSafe instrument config
+
+   @param instrument config to validate
+   */
+  private void validateConfig(Instrument instrument) throws ValueException {
+    new InstrumentConfig(instrument, config);
   }
 
   @Override
@@ -207,14 +234,14 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  public void update(HubAccess hubAccess, UUID id, Instrument entity) throws DAOException, JsonApiException, ValueException {
-    entity.validate();
-    entity.setId(id); // prevent changing id
-    requireArtist(hubAccess);
-
+  public void update(HubAccess hubAccess, UUID id, Instrument instrument) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
-    requireParentExists(db, hubAccess, entity);
-    executeUpdate(db, INSTRUMENT, id, entity);
+    instrument.validate();
+    instrument.setId(id); // prevent changing id
+    requireArtist(hubAccess);
+    requireParentExists(db, hubAccess, instrument);
+    validateConfig(instrument);
+    executeUpdate(db, INSTRUMENT, id, instrument);
   }
 
   /**

@@ -25,6 +25,7 @@ import io.xj.service.hub.dao.ProgramMemeDAO;
 import io.xj.service.hub.dao.ProgramSequenceBindingDAO;
 import io.xj.service.hub.dao.ProgramSequenceBindingMemeDAO;
 import io.xj.service.hub.dao.ProgramSequenceChordDAO;
+import io.xj.service.hub.dao.ProgramSequenceChordVoicingDAO;
 import io.xj.service.hub.dao.ProgramSequenceDAO;
 import io.xj.service.hub.dao.ProgramSequencePatternDAO;
 import io.xj.service.hub.dao.ProgramSequencePatternEventDAO;
@@ -91,6 +92,8 @@ public class HubAppTest {
   @Mock
   public ProgramSequenceChordDAO programSequenceChordDAO;
   @Mock
+  public ProgramSequenceChordVoicingDAO programSequenceChordVoicingDAO;
+  @Mock
   public ProgramVoiceTrackDAO programVoiceTrackDAO;
   @Mock
   public ProgramVoiceDAO programVoiceDAO;
@@ -133,6 +136,7 @@ public class HubAppTest {
         bind(ProgramSequenceBindingDAO.class).toInstance(programSequenceBindingDAO);
         bind(ProgramSequenceBindingMemeDAO.class).toInstance(programSequenceBindingMemeDAO);
         bind(ProgramSequenceChordDAO.class).toInstance(programSequenceChordDAO);
+        bind(ProgramSequenceChordVoicingDAO.class).toInstance(programSequenceChordVoicingDAO);
         bind(ProgramVoiceTrackDAO.class).toInstance(programVoiceTrackDAO);
         bind(ProgramVoiceDAO.class).toInstance(programVoiceDAO);
         bind(UserDAO.class).toInstance(userDAO);

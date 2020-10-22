@@ -29,6 +29,13 @@ public class ChainTest {
   }
 
   @Test
+  public void configGetSet() {
+    subject.setConfig("outputContainer=\"WAV\"");
+
+    assertEquals("outputContainer=\"WAV\"", subject.getConfig());
+  }
+
+  @Test
   public void validateProductionChain() throws Exception {
     subject
       .setName("Mic Check One Two")

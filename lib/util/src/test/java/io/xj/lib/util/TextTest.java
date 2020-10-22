@@ -1,6 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -185,5 +187,13 @@ public class TextTest {
     assertEquals("NEUF", Text.toUpperSlug("%&(#", "neuf"));
     assertEquals("P", Text.toUpperSlug("%&(#p"));
     assertEquals("", Text.toUpperSlug("%&(#"));
+  }
+
+  @Test
+  public void formatConfig() {
+    assertEquals("outputFrameRate=35\noutputChannels=4",
+      Text.format(ConfigFactory.empty()
+        .withValue("outputFrameRate", ConfigValueFactory.fromAnyRef(35))
+        .withValue("outputChannels", ConfigValueFactory.fromAnyRef(4))));
   }
 }

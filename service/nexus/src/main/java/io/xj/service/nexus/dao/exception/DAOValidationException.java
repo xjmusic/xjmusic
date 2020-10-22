@@ -13,6 +13,6 @@ public class DAOValidationException extends Exception {
   }
 
   public DAOValidationException(Exception e) {
-    super(e.getMessage(), e);
+    super(e.getMessage());
   }
 }
