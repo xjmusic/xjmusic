@@ -55,8 +55,8 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     super(entityFactory, nexusEntityStore);
     this.chainDAO = chainDAO;
 
-    playerBufferAheadSeconds = config.getInt("player.bufferAheadSeconds");
-    playerBufferDelaySeconds = config.getInt("player.bufferDelaySeconds");
+    playerBufferAheadSeconds = config.getInt("chain.playerBufferAheadSeconds");
+    playerBufferDelaySeconds = config.getInt("chain.playerBufferDelaySeconds");
     limitSegmentReadSize = config.getInt("segment.limitReadSize");
   }
 

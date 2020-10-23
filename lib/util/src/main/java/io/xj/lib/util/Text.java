@@ -468,6 +468,7 @@ public interface Text {
   static String format(Config config) {
     return config.entrySet().stream()
       .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue().render()))
+      .sorted()
       .collect(Collectors.joining("\n"));
   }
 }

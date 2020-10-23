@@ -64,17 +64,17 @@ public class DubMasterImpl implements DubMaster {
     this.fabricator = fabricator;
     this.mixerFactory = mixerFactory;
 
-    audioAttackMicros = config.getInt("mixer.sampleAttackMicros");
-    audioReleaseMicros = config.getInt("mixer.sampleReleaseMicros");
-    normalizationMax = config.getDouble("mixer.normalizationMax");
-    dspBufferSize = config.getInt("mixer.dspBufferSize");
-    compressRatioMax = config.getDouble("mixer.compressRatioMax");
-    compressRatioMin = config.getDouble("mixer.compressRatioMin");
-    highpassThresholdHz = config.getDouble("mixer.highpassThresholdHz");
-    lowpassThresholdHz = config.getDouble("mixer.lowpassThresholdHz");
-    compressToAmplitude = config.getDouble("mixer.compressToAmplitude");
-    compressAheadSeconds = config.getDouble("mixer.compressAheadSeconds");
-    compressDecaySeconds = config.getDouble("mixer.compressDecaySeconds");
+    audioAttackMicros = config.getInt("chain.mixerSampleAttackMicros");
+    audioReleaseMicros = config.getInt("chain.mixerSampleReleaseMicros");
+    normalizationMax = config.getDouble("chain.mixerNormalizationMax");
+    dspBufferSize = config.getInt("chain.mixerDspBufferSize");
+    compressRatioMax = config.getDouble("chain.mixerCompressRatioMax");
+    compressRatioMin = config.getDouble("chain.mixerCompressRatioMin");
+    highpassThresholdHz = config.getDouble("chain.mixerHighpassThresholdHz");
+    lowpassThresholdHz = config.getDouble("chain.mixerLowpassThresholdHz");
+    compressToAmplitude = config.getDouble("chain.mixerCompressToAmplitude");
+    compressAheadSeconds = config.getDouble("chain.mixerCompressAheadSeconds");
+    compressDecaySeconds = config.getDouble("chain.mixerCompressDecaySeconds");
   }
 
   /**

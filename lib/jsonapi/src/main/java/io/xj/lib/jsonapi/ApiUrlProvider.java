@@ -18,11 +18,11 @@ public interface ApiUrlProvider {
     apiUrlProvider.setAppHost(config.getString("app.host"));
     apiUrlProvider.setAppHostname(config.getString("app.hostname"));
     apiUrlProvider.setAppName(config.getString("app.name"));
-    apiUrlProvider.setAudioBaseUrl(config.getString("audio.baseUrl"));
-    apiUrlProvider.setSegmentBaseUrl(config.getString("segment.baseUrl"));
-    apiUrlProvider.setPlayerBaseUrl(config.getString("player.baseUrl"));
     apiUrlProvider.setAppPathUnauthorized(config.getString("api.unauthorizedRedirectPath"));
     apiUrlProvider.setAppPathWelcome(config.getString("api.welcomeRedirectPath"));
+    apiUrlProvider.setAudioBaseUrl(config.getString("audio.baseUrl"));
+    apiUrlProvider.setPlayerBaseUrl(config.getString("player.baseUrl"));
+    apiUrlProvider.setSegmentBaseUrl(config.getString("segment.baseUrl"));
   }
 
   /**
