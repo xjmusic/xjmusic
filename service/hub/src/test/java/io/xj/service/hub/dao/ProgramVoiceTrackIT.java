@@ -12,7 +12,23 @@ import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.access.HubAccessControlModule;
-import io.xj.service.hub.entity.*;
+import io.xj.service.hub.entity.Account;
+import io.xj.service.hub.entity.AccountUser;
+import io.xj.service.hub.entity.InstrumentType;
+import io.xj.service.hub.entity.Library;
+import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.service.hub.entity.ProgramSequenceBinding;
+import io.xj.service.hub.entity.ProgramSequencePattern;
+import io.xj.service.hub.entity.ProgramSequencePatternEvent;
+import io.xj.service.hub.entity.ProgramSequencePatternType;
+import io.xj.service.hub.entity.ProgramState;
+import io.xj.service.hub.entity.ProgramType;
+import io.xj.service.hub.entity.ProgramVoice;
+import io.xj.service.hub.entity.ProgramVoiceTrack;
+import io.xj.service.hub.entity.User;
+import io.xj.service.hub.entity.UserRole;
+import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubIntegrationTestModule;
@@ -225,6 +241,21 @@ public class ProgramVoiceTrackIT {
     failure.expectMessage("Track in Voice in Program you have hubAccess to does not exist");
 
     testDAO.destroy(hubAccess, voiceTrack1a_0.getId());
+  }
+
+  /**
+   [#175423724] Update ProgramVoiceTrack to belong to a different ProgramVoice
+   */
+  @Test
+  public void update_moveToDifferentVoice() throws Exception {
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
+    fake.program2_voice2 = test.insert(ProgramVoice.create(fake.program2, InstrumentType.Percussive, "Cans"));
+    voiceTrack1a_0.setProgramVoiceId(fake.program2_voice2.getId());
+
+    testDAO.update(hubAccess, voiceTrack1a_0.getId(), voiceTrack1a_0);
+
+    ProgramVoiceTrack result = testDAO.readOne(hubAccess, voiceTrack1a_0.getId());
+    assertEquals(fake.program2_voice2.getId(), result.getProgramVoiceId());
   }
 
 }

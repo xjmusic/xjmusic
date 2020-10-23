@@ -103,6 +103,7 @@ public class IntegrationTestingFixtures {
   public ProgramSequencePatternEvent program2_sequence1_pattern1_event1;
   public ProgramSequencePatternEvent program702_pattern901_boomEvent;
   public ProgramVoice program2_voice1;
+  public ProgramVoice program2_voice2;
   public ProgramVoiceTrack program2_voice1_track0;
   public ProgramVoiceTrack program2_voice1_track1;
   public User user101;
