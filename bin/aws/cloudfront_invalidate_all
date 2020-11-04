@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-for ID in E14FEVVVSDZ9WB E14FEVVVSDZ9WB;
-do
-  aws cloudfront create-invalidation --distribution-id ${ID} --paths "/*"
-done
