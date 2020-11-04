@@ -163,7 +163,8 @@ CREATE TABLE xj.instrument (
     name character varying(255) NOT NULL,
     density real NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    config text DEFAULT ''::text NOT NULL
 );
 
 
@@ -272,7 +273,8 @@ CREATE TABLE xj.program (
     name character varying(255) NOT NULL,
     density real NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    config text DEFAULT ''::text NOT NULL
 );
 
 
@@ -360,6 +362,23 @@ CREATE TABLE xj.program_sequence_chord (
 
 
 ALTER TABLE xj.program_sequence_chord OWNER TO root;
+
+--
+-- Name: program_sequence_chord_voicing; Type: TABLE; Schema: xj; Owner: root
+--
+
+CREATE TABLE xj.program_sequence_chord_voicing (
+    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
+    program_id uuid NOT NULL,
+    program_sequence_chord_id uuid NOT NULL,
+    type character varying(255) NOT NULL,
+    notes text NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE xj.program_sequence_chord_voicing OWNER TO root;
 
 --
 -- Name: program_sequence_pattern; Type: TABLE; Schema: xj; Owner: root
@@ -620,6 +639,14 @@ ALTER TABLE ONLY xj.program_sequence_chord
 
 
 --
+-- Name: program_sequence_chord_voicing program_sequence_chord_voicing_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+--
+
+ALTER TABLE ONLY xj.program_sequence_chord_voicing
+    ADD CONSTRAINT program_sequence_chord_voicing_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: program_sequence_pattern_event program_sequence_pattern_event_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
 --
 
@@ -815,6 +842,13 @@ CREATE TRIGGER program_sequence_binding_meme___updated BEFORE UPDATE ON xj.progr
 --
 
 CREATE TRIGGER program_sequence_chord___updated BEFORE UPDATE ON xj.program_sequence_chord FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
+
+
+--
+-- Name: program_sequence_chord_voicing program_sequence_chord_voicing___updated; Type: TRIGGER; Schema: xj; Owner: root
+--
+
+CREATE TRIGGER program_sequence_chord_voicing___updated BEFORE UPDATE ON xj.program_sequence_chord_voicing FOR EACH ROW EXECUTE PROCEDURE xj.updated_at_now();
 
 
 --
@@ -1026,6 +1060,22 @@ ALTER TABLE ONLY xj.program_sequence_chord
 
 
 --
+-- Name: program_sequence_chord_voicing program_sequence_chord_voicing_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+--
+
+ALTER TABLE ONLY xj.program_sequence_chord_voicing
+    ADD CONSTRAINT program_sequence_chord_voicing_program_id_fkey FOREIGN KEY (program_id) REFERENCES xj.program(id);
+
+
+--
+-- Name: program_sequence_chord_voicing program_sequence_chord_voicing_program_sequence_chord_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+--
+
+ALTER TABLE ONLY xj.program_sequence_chord_voicing
+    ADD CONSTRAINT program_sequence_chord_voicing_program_sequence_chord_id_fkey FOREIGN KEY (program_sequence_chord_id) REFERENCES xj.program_sequence_chord(id);
+
+
+--
 -- Name: program_sequence_pattern_event program_sequence_pattern_event_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
 --
 
@@ -1212,6 +1262,8 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 37	38	segment waveform preroll	SQL	V38__segment_waveform_preroll.sql	-1820712501	root	2020-03-03 15:30:26.869638	1	t
 38	39	nexus tables dropped	SQL	V39__nexus_tables_dropped.sql	639873279	root	2020-07-15 00:06:47.139317	21	t
 39	40	program voice track order	SQL	V40__program_voice_track_order.sql	-2048787325	root	2020-08-21 21:35:32.45529	20	t
+40	41	program sequence chord voicing	SQL	V41__program_sequence_chord_voicing.sql	-1144011713	root	2020-10-22 02:53:13.759502	34	t
+41	42	config program and instrument	SQL	V42__config_program_and_instrument.sql	-1304738102	root	2020-10-22 02:53:13.807552	4	t
 \.
 
 
