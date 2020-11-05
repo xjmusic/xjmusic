@@ -11,6 +11,7 @@ import io.xj.lib.entity.MemeEntity;
 import io.xj.lib.music.Key;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
+import io.xj.lib.util.ValueException;
 import io.xj.service.hub.entity.Program;
 import io.xj.service.hub.entity.ProgramSequence;
 import io.xj.service.hub.entity.ProgramSequenceBinding;
@@ -55,6 +56,8 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
   /**
    compute Transpose Main-Program to the transposed key of the current macro pattern
+   <p>
+   [#175548549] Program and Instrument parameters to turn off transposition and tonality.
 
    @param macroProgram   of which to compute transpose of main program
    @param macroTranspose of which to compute transpose of main program
@@ -62,10 +65,19 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @param macroSequence  of which to compute transpose
    @return mainTranspose
    */
-  private static Integer computeMainTranspose(Program macroProgram, int macroTranspose, Program mainProgram, ProgramSequence macroSequence) {
-    return Key.delta(mainProgram.getKey(),
-      Value.eitherOr(macroSequence.getKey(), macroProgram.getKey()),
-      macroTranspose);
+  private Integer computeMainTranspose(Program macroProgram, int macroTranspose, Program mainProgram, ProgramSequence macroSequence) {
+    try {
+      return
+        fabricator.getProgramConfig(mainProgram).doTranspose() ?
+          Key.delta(mainProgram.getKey(),
+            Value.eitherOr(macroSequence.getKey(), macroProgram.getKey()),
+            macroTranspose) :
+          0;
+
+    } catch (ValueException e) {
+      log.error("Failed to compute main transpose; will skip transposition.", e);
+    }
+    return 0;
   }
 
   /**
@@ -188,12 +200,22 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
   /**
    compute the macroTranspose
+   <p>
+   [#175548549] Program and Instrument parameters to turn off transposition and tonality.
 
    @param macroProgram      to compute transpose of
    @param macroNextSequence to base choice on (never actually used, because next macro first sequence overlaps it)
    @return macroTranspose
    */
   private Integer computeMacroTranspose(Program macroProgram, ProgramSequence macroNextSequence) throws CraftException {
+    try {
+      if (!fabricator.getProgramConfig(macroProgram).doTranspose()) return 0;
+
+    } catch (ValueException e) {
+      log.error("Failed to compute macro transpose; will skip transposition.", e);
+      return 0;
+    }
+
     try {
       switch (fabricator.getType()) {
 

@@ -594,6 +594,28 @@ public class ChainDAOImplTest {
   }
 
   @Test
+  public void update_outOfDraft_failsWithNoBindings() throws Exception {
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "Admin");
+    Chain chain = test.put(Chain.create(account1, "bucket", ChainType.Production, ChainState.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
+
+    failure.expect(DAOValidationException.class);
+    failure.expectMessage("Chain must be bound to at least one Library, Sequence, or Instrument");
+
+    subject.update(access, chain.getId(),Chain.create(account1, "bucket", ChainType.Production, ChainState.Ready, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
+  }
+
+  @Test
+  public void updateState_outOfDraft_failsWithNoBindings() throws Exception {
+    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Artist,Engineer");
+    Chain chain = test.put(Chain.create(account1, "bucket", ChainType.Production, ChainState.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
+
+    failure.expect(DAOValidationException.class);
+    failure.expectMessage("Chain must be bound to at least one Library, Sequence, or Instrument");
+
+    subject.updateState(access, chain.getId(), ChainState.Ready);
+  }
+
+  @Test
   public void update_failsToChangeStartAt_whenChainsHasSegment() throws Exception {
     HubClientAccess access = HubClientAccess.create("Admin");
     test.put(ChainBinding.create(chain2, library2));

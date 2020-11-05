@@ -2,6 +2,7 @@
 package io.xj.service.nexus.entity;
 
 import io.xj.lib.util.ValueException;
+import io.xj.service.hub.entity.InstrumentAudioEvent;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -58,13 +59,13 @@ public class SegmentChordTest {
   }
 
   /**
-   [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
+   [#175602029] SegmentChord Position persists exact floating point
+   <p>
+   DEPRECATED: [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
    */
   @Test
-  public void position_rounded() {
-    assertEquals(1.25, new SegmentChord().setPosition(1.25179957).getPosition(), 0.0000001);
+  public void exactPosition() {
+    assertEquals(1.25179957, new SegmentChord().setPosition(1.25179957).getPosition(), 0.0000001);
   }
-
-
 }
 

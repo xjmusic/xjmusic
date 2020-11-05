@@ -6,6 +6,7 @@ import com.typesafe.config.ConfigValueFactory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TextTest {
 
@@ -191,9 +192,11 @@ public class TextTest {
 
   @Test
   public void formatConfig() {
-    assertEquals("outputFrameRate=35\noutputChannels=4",
-      Text.format(ConfigFactory.empty()
-        .withValue("outputFrameRate", ConfigValueFactory.fromAnyRef(35))
-        .withValue("outputChannels", ConfigValueFactory.fromAnyRef(4))));
+    String result = Text.format(ConfigFactory.empty()
+      .withValue("outputFrameRate", ConfigValueFactory.fromAnyRef(35))
+      .withValue("outputChannels", ConfigValueFactory.fromAnyRef(4)));
+
+    assertTrue(result.contains("outputChannels=4"));
+    assertTrue(result.contains("outputFrameRate=35"));
   }
 }

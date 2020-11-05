@@ -90,7 +90,7 @@ public abstract class EventEntity extends Entity {
    @return this EventEntity (for chaining methods)
    */
   public EventEntity setPosition(Double position) {
-    this.position = Value.limitDecimalPrecision(position);
+    this.position = position;
     return this;
   }
 

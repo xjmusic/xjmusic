@@ -4,7 +4,6 @@ package io.xj.lib.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,9 +11,7 @@ import org.junit.rules.ExpectedException;
 
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class EntityTest {
 
@@ -26,13 +23,13 @@ public class EntityTest {
   }
 
   /**
-   [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
+   [#175602029] EventEntity Position persists exact floating point
+   <p>
+   DEPRECATED: [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
    */
   @Test
-  public void roundPosition() {
-    MockChordEntity chord = MockChordEntity.create(5.3589897490, "C");
-
-    Assert.assertEquals(5.35, chord.getPosition(), 0.0000001);
+  public void exactPosition() {
+    assertEquals(1.25179957, new MockChordEntity().setPosition(1.25179957).getPosition(), 0.0000001);
   }
 
   @Test

@@ -10,6 +10,7 @@ import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
+import io.xj.lib.util.ValueException;
 import io.xj.service.hub.entity.Instrument;
 import io.xj.service.hub.entity.InstrumentAudio;
 import io.xj.service.hub.entity.InstrumentAudioEvent;
@@ -432,6 +433,8 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
   /**
    of a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
    pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement@param arrangement   to of pick within@param previousInstrumentAudio
+   <p>
+   [#175548549] Program and Instrument parameters to turn off transposition and tonality.
 
    @param previousInstrumentAudio map of previous instrument audio of which to potentially select
    @param event                   to pick audio for
@@ -456,6 +459,10 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
       double startSeconds = fabricator.computeSecondsAtPosition(position);
       double lengthSeconds = fabricator.computeSecondsAtPosition(position + duration) - startSeconds;
 
+      // Audio pitch is not modified for atonal instruments
+      Double pitch = fabricator.getInstrumentConfig(instrument).isTonal() ?
+        fabricator.getPitch(note) : audio.getPitch();
+
       // of pick
       fabricator.add(SegmentChoiceArrangementPick.create(segmentChoiceArrangement)
         .setInstrumentAudioId(audio.getId())
@@ -464,9 +471,9 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
         .setStart(startSeconds)
         .setLength(lengthSeconds)
         .setAmplitude(event.getVelocity())
-        .setPitch(fabricator.getPitch(note)));
+        .setPitch(pitch));
 
-    } catch (FabricationException e) {
+    } catch (FabricationException | ValueException e) {
       throw exception(String.format("Could not pick audio for instrumentId=%s, arrangementId=%s, eventId=%s, transpose=%d, shiftPosition=%f, chanceOfRandomChoice=%f",
         instrument.getId(), segmentChoiceArrangement.getId(), event.getId(), transpose, shiftPosition, chanceOfRandomChoice), e);
     }

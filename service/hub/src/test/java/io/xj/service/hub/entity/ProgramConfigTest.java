@@ -32,8 +32,16 @@ public class ProgramConfigTest {
   public ExpectedException failure = ExpectedException.none();
 
   @Test
-  public void getDoPatternRestartOnChord() {
-    assertFalse(subject.getDoPatternRestartOnChord());
+  public void doPatternRestartOnChord() {
+    assertFalse(subject.doPatternRestartOnChord());
+  }
+
+  /**
+   [#175548549] Program and Instrument parameters to turn off transposition and tonality.
+   */
+  @Test
+  public void doTranspose() {
+    assertFalse(subject.doTranspose());
   }
 
 }

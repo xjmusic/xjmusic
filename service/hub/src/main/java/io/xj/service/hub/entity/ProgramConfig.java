@@ -12,7 +12,9 @@ import io.xj.lib.util.ValueException;
  if the `config` value contains only `previewLengthMaxHours = 8`
  */
 public class ProgramConfig {
-  private final boolean doPatternRestartOnChord;
+  private final boolean patternRestartOnChord;
+  private final boolean transpose;
+
 
   /**
    Instantiate a Program configuration from a string of typesafe config.
@@ -28,7 +30,8 @@ public class ProgramConfig {
         defaultConfig :
         ConfigFactory.parseString(String.format("program {\n%s\n}", program.getConfig()))
           .withFallback(defaultConfig);
-      doPatternRestartOnChord = config.getBoolean("program.doPatternRestartOnChord");
+      patternRestartOnChord = config.getBoolean("program.doPatternRestartOnChord");
+      transpose = config.getBoolean("program.doTranspose");
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
@@ -38,7 +41,14 @@ public class ProgramConfig {
   /**
    @return # of Output Channels
    */
-  public boolean getDoPatternRestartOnChord() {
-    return doPatternRestartOnChord;
+  public boolean doPatternRestartOnChord() {
+    return patternRestartOnChord;
+  }
+
+  /**
+   @return whether to do transposition for this program
+   */
+  public boolean doTranspose() {
+    return transpose;
   }
 }

@@ -44,4 +44,9 @@ public class ValueTest {
     assertEquals(false, Value.isInteger(" 27773"));
     assertEquals(true, Value.isInteger("32"));
   }
+
+  @Test
+  public void limitDecimalPrecision() {
+    assertEquals(1.25, Value.limitDecimalPrecision(1.2545897987), 0.0000001);
+  }
 }

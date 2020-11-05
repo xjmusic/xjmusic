@@ -134,11 +134,23 @@ public class InstrumentAudioEventTest {
   }
 
   /**
-   [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
+   [#175602029] InstrumentAudioEvent Position persists exact floating point
+   <p>
+   DEPRECATED: [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
    */
   @Test
-  public void position_rounded() {
-    assertEquals(1.25, new InstrumentAudioEvent().setPosition(1.25179957).getPosition(), 0.0000001);
+  public void exactPosition() {
+    assertEquals(1.25179957, new InstrumentAudioEvent().setPosition(1.25179957).getPosition(), 0.0000001);
+  }
+
+  /**
+   [#175602029] InstrumentAudioEvent Duration persists exact floating point
+   <p>
+   DEPRECATED: [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
+   */
+  @Test
+  public void exactDuration() {
+    assertEquals(1.25179957, new InstrumentAudioEvent().setDuration(1.25179957).getDuration(), 0.0000001);
   }
 
 }

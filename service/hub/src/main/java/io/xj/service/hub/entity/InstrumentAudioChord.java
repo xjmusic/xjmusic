@@ -132,7 +132,7 @@ public class InstrumentAudioChord extends ChordEntity {
 
   @Override
   public InstrumentAudioChord setPosition(Double position) {
-    this.position = Value.limitDecimalPrecision(position);
+    this.position = position;
     return this;
   }
 

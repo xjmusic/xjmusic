@@ -4,11 +4,14 @@ package io.xj.service.nexus.fabricator;
 import io.xj.lib.entity.MemeEntity;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
+import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
 import io.xj.service.hub.entity.Instrument;
 import io.xj.service.hub.entity.InstrumentAudio;
+import io.xj.service.hub.entity.InstrumentConfig;
 import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramConfig;
 import io.xj.service.hub.entity.ProgramSequence;
 import io.xj.service.hub.entity.ProgramSequenceBinding;
 import io.xj.service.hub.entity.ProgramSequencePattern;
@@ -525,4 +528,19 @@ public interface Fabricator {
    */
   boolean isDirectlyBound(Instrument instrument);
 
+  /**
+   Get the ProgramConfig from a given program, with fallback to program section of guice-injected config values
+
+   @param program to get config of
+   @return ProgramConfig from a given program, with fallback values
+   */
+  ProgramConfig getProgramConfig(Program program) throws ValueException;
+
+  /**
+   Get the InstrumentConfig from a given instrument, with fallback to instrument section of guice-injected config values
+
+   @param instrument to get config of
+   @return InstrumentConfig from a given instrument, with fallback values
+   */
+  InstrumentConfig getInstrumentConfig(Instrument instrument) throws ValueException;
 }

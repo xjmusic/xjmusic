@@ -30,8 +30,13 @@ public class InstrumentConfigTest {
   public ExpectedException failure = ExpectedException.none();
 
   @Test
-  public void getMultiPhonic() {
-    assertFalse(subject.getMultiPhonic());
+  public void isMultiPhonic() {
+    assertFalse(subject.isMultiPhonic());
+  }
+
+  @Test
+  public void isTonal() {
+    assertFalse(subject.isTonal());
   }
 
 }

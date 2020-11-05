@@ -74,11 +74,13 @@ public class ProgramSequenceChordTest {
   }
 
   /**
-   [#154976066] Architect wants to limit the floating point precision of chord and chord position, in order to limit obsession over the position of things.
+   [#175602029] ProgramSequenceChord Position persists exact floating point
+   <p>
+   DEPRECATED: [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
    */
   @Test
-  public void position_rounded() {
-    assertEquals(1.25, new ProgramSequenceChord().setPosition(1.25179957).getPosition(), 0.0000001);
+  public void exactPosition() {
+    assertEquals(1.25179957, new ProgramSequenceChord().setPosition(1.25179957).getPosition(), 0.0000001);
   }
 
   @Test

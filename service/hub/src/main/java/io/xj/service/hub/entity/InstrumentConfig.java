@@ -12,7 +12,8 @@ import io.xj.lib.util.ValueException;
  if the `config` value contains only `previewLengthMaxHours = 8`
  */
 public class InstrumentConfig {
-  private final boolean isMultiPhonic;
+  private final boolean multiphonic;
+  private final boolean atonal;
 
   /**
    Instantiate a Instrument configuration from a string of typesafe config.
@@ -28,7 +29,8 @@ public class InstrumentConfig {
         defaultConfig :
         ConfigFactory.parseString(String.format("instrument {\n%s\n}", instrument.getConfig()))
           .withFallback(defaultConfig);
-      isMultiPhonic = config.getBoolean("instrument.isMultiPhonic");
+      multiphonic = config.getBoolean("instrument.isMultiPhonic");
+      atonal = config.getBoolean("instrument.isTonal");
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
@@ -36,9 +38,17 @@ public class InstrumentConfig {
   }
 
   /**
-   @return # of Output Channels
+   @return whether this instrument ios multiphonic
    */
-  public boolean getMultiPhonic() {
-    return isMultiPhonic;
+  public boolean isMultiPhonic() {
+    return multiphonic;
   }
+
+  /**
+   @return whether this instrument is atonal
+   */
+  public boolean isTonal() {
+    return atonal;
+  }
+
 }

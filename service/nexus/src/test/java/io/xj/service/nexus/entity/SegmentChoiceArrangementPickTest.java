@@ -8,6 +8,8 @@ import org.junit.rules.ExpectedException;
 
 import java.util.UUID;
 
+import static org.junit.Assert.assertEquals;
+
 public class SegmentChoiceArrangementPickTest {
 
   @Rule
@@ -202,6 +204,26 @@ public class SegmentChoiceArrangementPickTest {
     failure.expectMessage("must be at least 1.0");
 
     pick.validate();
+  }
+
+  /**
+   [#175602029] SegmentChoiceArrangementPick Start persists exact floating point
+   <p>
+   DEPRECATED: [#154976066] Architect wants to limit the floating point precision of chord and event start, in order to limit obsession over the start of things.
+   */
+  @Test
+  public void exactStart() {
+    assertEquals(1.25179957, new SegmentChoiceArrangementPick().setStart(1.25179957).getStart(), 0.0000001);
+  }
+
+  /**
+   [#175602029] SegmentChoiceArrangementPick Length persists exact floating point
+   <p>
+   DEPRECATED: [#154976066] Architect wants to limit the floating point precision of chord and event start, in order to limit obsession over the start of things.
+   */
+  @Test
+  public void exactLength() {
+    assertEquals(1.25179957, new SegmentChoiceArrangementPick().setLength(1.25179957).getLength(), 0.0000001);
   }
 
 }

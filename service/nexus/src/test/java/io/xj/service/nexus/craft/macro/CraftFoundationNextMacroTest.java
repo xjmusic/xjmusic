@@ -9,6 +9,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.MemeEntity;
@@ -76,7 +77,9 @@ public class CraftFoundationNextMacroTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = NexusTestConfiguration.getDefault();
+    Config config = NexusTestConfiguration.getDefault()
+      .withValue("program.doTranspose", ConfigValueFactory.fromAnyRef(true))
+      .withValue("instrument.isTonal", ConfigValueFactory.fromAnyRef(true));
     injector = AppConfiguration.inject(config,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {

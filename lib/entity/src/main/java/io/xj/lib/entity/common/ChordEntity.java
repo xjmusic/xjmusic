@@ -86,7 +86,7 @@ public abstract class ChordEntity extends Entity {
    @return this (for chaining setters)
    */
   public ChordEntity setPosition(Double position) {
-    this.position = Value.limitDecimalPrecision(position);
+    this.position = position;
     return this;
   }
 

@@ -28,7 +28,9 @@ import io.xj.service.hub.client.HubClientException;
 import io.xj.service.hub.client.HubContent;
 import io.xj.service.hub.entity.Instrument;
 import io.xj.service.hub.entity.InstrumentAudio;
+import io.xj.service.hub.entity.InstrumentConfig;
 import io.xj.service.hub.entity.Program;
+import io.xj.service.hub.entity.ProgramConfig;
 import io.xj.service.hub.entity.ProgramSequence;
 import io.xj.service.hub.entity.ProgramSequenceBinding;
 import io.xj.service.hub.entity.ProgramSequencePattern;
@@ -88,6 +90,7 @@ class FabricatorImpl implements Fabricator {
   private final String tuningRootNote;
   private final Set<UUID> boundProgramIds;
   private final Set<UUID> boundInstrumentIds;
+  private final Config config;
   private SegmentType type;
   private final String workTempFilePathPrefix;
   private final DecimalFormat segmentNameFormat;
@@ -99,6 +102,7 @@ class FabricatorImpl implements Fabricator {
   public FabricatorImpl(
     @Assisted("access") HubClientAccess access,
     @Assisted("segment") Segment segment,
+    Config config,
     HubClient hubClient,
     ChainDAO chainDAO,
     ChainBindingDAO chainBindingDAO,
@@ -106,7 +110,6 @@ class FabricatorImpl implements Fabricator {
     SegmentWorkbenchFactory segmentWorkbenchFactory,
     FileStoreProvider fileStoreProvider,
     SegmentRetrospectiveFactory retrospectiveFactory,
-    Config config,
     PayloadFactory payloadFactory,
     EntityFactory entityFactory
   ) throws FabricationException {
@@ -120,6 +123,7 @@ class FabricatorImpl implements Fabricator {
       this.payloadFactory = payloadFactory;
       this.entityFactory = entityFactory;
 
+      this.config = config;
       tuningRootPitch = config.getDouble("tuning.rootPitchHz");
       tuningRootNote = config.getString("tuning.rootNote");
       workTempFilePathPrefix = config.getString("work.tempFilePathPrefix");
@@ -580,6 +584,16 @@ class FabricatorImpl implements Fabricator {
   @Override
   public boolean isDirectlyBound(Instrument instrument) {
     return boundInstrumentIds.contains(instrument.getId());
+  }
+
+  @Override
+  public ProgramConfig getProgramConfig(Program program) throws ValueException {
+    return new ProgramConfig(program, config);
+  }
+
+  @Override
+  public InstrumentConfig getInstrumentConfig(Instrument instrument) throws ValueException {
+    return new InstrumentConfig(instrument, config);
   }
 
   @Override
