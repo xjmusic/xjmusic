@@ -19,6 +19,7 @@ import io.xj.service.hub.entity.ProgramSequence;
 import io.xj.service.hub.entity.ProgramSequenceBinding;
 import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
 import io.xj.service.hub.entity.ProgramSequenceChord;
+import io.xj.service.hub.entity.ProgramSequenceChordVoicing;
 import io.xj.service.hub.entity.ProgramSequencePattern;
 import io.xj.service.hub.entity.ProgramSequencePatternEvent;
 import io.xj.service.hub.entity.ProgramState;
@@ -43,6 +44,7 @@ import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE;
 import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_BINDING;
 import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
 import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
 import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
 import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
 import static io.xj.service.hub.Tables.PROGRAM_VOICE;
@@ -223,6 +225,11 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     if (types.contains(Entities.toResourceType(ProgramSequenceChord.class)))
       entities.addAll(modelsFrom(ProgramSequenceChord.class,
         db.selectFrom(PROGRAM_SEQUENCE_CHORD).where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.in(programIds))));
+
+    // ProgramSequenceChordVoicing
+    if (types.contains(Entities.toResourceType(ProgramSequenceChordVoicing.class)))
+      entities.addAll(modelsFrom(ProgramSequenceChordVoicing.class,
+        db.selectFrom(PROGRAM_SEQUENCE_CHORD_VOICING).where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID.in(programIds))));
 
     // ProgramSequence
     if (types.contains(Entities.toResourceType(ProgramSequence.class)))
