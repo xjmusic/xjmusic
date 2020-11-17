@@ -3,9 +3,11 @@ package io.xj.lib.jsonapi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import io.xj.Program;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import io.xj.ProgramSequence;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +31,12 @@ public class PayloadDeserializerTest {
 
   @Before
   public void setUp() {
-    Injector injector = Guice.createInjector(new JsonApiModule());
+    Injector injector = Guice.createInjector(new JsonApiModule(), new AbstractModule() {
+      @Override
+      protected void configure() {
+        bind(Config.class).toInstance(ConfigFactory.empty());
+      }
+    });
     payloadFactory = injector.getInstance(PayloadFactory.class);
   }
 

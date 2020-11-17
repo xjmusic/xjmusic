@@ -219,7 +219,7 @@ public class ProgramSequenceBindingMemeIT {
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramId(fake.program3_binding1.getProgramId())
-.setProgramSequenceBindingId(fake.program3_binding1.getId())
+      .setProgramSequenceBindingId(fake.program3_binding1.getId())
       .setName("Blue")
       .build();
 
@@ -243,7 +243,7 @@ public class ProgramSequenceBindingMemeIT {
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramId(fake.program3_binding1.getProgramId())
-.setProgramSequenceBindingId(fake.program3_binding1.getId())
+      .setProgramSequenceBindingId(fake.program3_binding1.getId())
       .setName("Blue")
       .build();
 

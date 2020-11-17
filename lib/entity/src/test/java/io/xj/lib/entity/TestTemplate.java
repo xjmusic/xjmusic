@@ -16,8 +16,8 @@ public class TestTemplate {
   /**
    Create a new Program with the given id and name
 
-   @param libraryId   of mock entity
-   @param name of mock entity
+   @param libraryId of mock entity
+   @param name      of mock entity
    @return new mock entity
    */
   public static Program createProgram(String libraryId, String name) {

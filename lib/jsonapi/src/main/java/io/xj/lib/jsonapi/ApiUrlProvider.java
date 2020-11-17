@@ -1,29 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
-import com.typesafe.config.Config;
-
 import java.net.URI;
 
 /**
  Provider of URLs using the injected configuration and some custom formatting
  */
 public interface ApiUrlProvider {
-  /**
-   Given an instance of the REST API library's ApiUrlProvider, configure it for this Hub Application@param apiUrlProvider of app to configure
-   */
-  static void configureApiUrls(Config config, ApiUrlProvider apiUrlProvider) {
-    apiUrlProvider.setApiPath(config.getString("app.apiUrl"));
-    apiUrlProvider.setAppBaseUrl(config.getString("app.baseUrl"));
-    apiUrlProvider.setAppHost(config.getString("app.host"));
-    apiUrlProvider.setAppHostname(config.getString("app.hostname"));
-    apiUrlProvider.setAppName(config.getString("app.name"));
-    apiUrlProvider.setAppPathUnauthorized(config.getString("api.unauthorizedRedirectPath"));
-    apiUrlProvider.setAppPathWelcome(config.getString("api.welcomeRedirectPath"));
-    apiUrlProvider.setAudioBaseUrl(config.getString("audio.baseUrl"));
-    apiUrlProvider.setPlayerBaseUrl(config.getString("player.baseUrl"));
-    apiUrlProvider.setSegmentBaseUrl(config.getString("segment.baseUrl"));
-  }
 
   /**
    @return API path

@@ -146,11 +146,11 @@ public class IntegrationTestingFixtures {
     test.insert(buildInstrumentAudioEvent(audio401, 3.0, 1.0, "SNARE", "B", 0.8));
 
     // Instrument 202
-    instrument202 = test.insert(buildInstrument( library10000001, Instrument.Type.Percussive, Instrument.State.Published, "909 Drums"));
+    instrument202 = test.insert(buildInstrument(library10000001, Instrument.Type.Percussive, Instrument.State.Published, "909 Drums"));
     test.insert(buildInstrumentMeme(instrument202, "Peel"));
 
     // Program 701, main-type, has sequence with chords, bound to many offsets
-    program701 = test.insert(buildProgram( library10000001, Program.Type.Main, Program.State.Published, "leaves", "C#", 120.4, 0.6));
+    program701 = test.insert(buildProgram(library10000001, Program.Type.Main, Program.State.Published, "leaves", "C#", 120.4, 0.6));
     program701_meme0 = test.insert(buildProgramMeme(program701, "Ants"));
     ProgramSequence sequence902 = test.insert(buildProgramSequence(program701, 16, "decay", 0.25, "F#", 110.3));
     test.insert(buildProgramSequenceChord(sequence902, 0.0, "G minor"));
@@ -175,7 +175,7 @@ public class IntegrationTestingFixtures {
     test.insert(buildProgramSequenceBindingMeme(binding902_4, "Noise"));
 
     // Program 702, rhythm-type, has unbound sequence with pattern with events
-    program702 = test.insert(buildProgram( library10000001, Program.Type.Rhythm, Program.State.Published, "coconuts", "F#", 110.3, 0.6));
+    program702 = test.insert(buildProgram(library10000001, Program.Type.Rhythm, Program.State.Published, "coconuts", "F#", 110.3, 0.6));
     test.insert(buildProgramMeme(program702, "Ants"));
     program2_voice1 = test.insert(buildProgramVoice(program702, Instrument.Type.Percussive, "Drums"));
     ProgramSequence sequence702a = test.insert(buildProgramSequence(program702, 16, "Base", 0.5, "C", 110.3));
@@ -188,16 +188,16 @@ public class IntegrationTestingFixtures {
     test.insert(buildProgramSequencePatternEvent(pattern901, trackSmack, 3.0, 1.0, "G", 0.9));
 
     // Program 703
-    program703 = test.insert(buildProgram( library10000001, Program.Type.Main, Program.State.Published, "bananas", "Gb", 100.6, 0.6));
+    program703 = test.insert(buildProgram(library10000001, Program.Type.Main, Program.State.Published, "bananas", "Gb", 100.6, 0.6));
     test.insert(buildProgramMeme(program703, "Peel"));
 
     // DELIBERATELY UNUSED stuff that should not get used because it's in a different library
     library10000002 = test.insert(buildLibrary(account1, "Garbage Library"));
     //
-    instrument251 = test.insert(buildInstrument( library10000002, Instrument.Type.Percussive, Instrument.State.Published, "Garbage Instrument"));
+    instrument251 = test.insert(buildInstrument(library10000002, Instrument.Type.Percussive, Instrument.State.Published, "Garbage Instrument"));
     test.insert(buildInstrumentMeme(instrument251, "Garbage MemeObject"));
     //
-    program751 = test.insert(buildProgram( library10000002, Program.Type.Rhythm, Program.State.Published, "coconuts", "F#", 110.3, 0.6));
+    program751 = test.insert(buildProgram(library10000002, Program.Type.Rhythm, Program.State.Published, "coconuts", "F#", 110.3, 0.6));
     test.insert(buildProgramMeme(program751, "Ants"));
     ProgramVoice voiceGarbage = test.insert(buildProgramVoice(program751, Instrument.Type.Percussive, "Garbage"));
     ProgramSequence sequence751a = test.insert(buildProgramSequence(program751, 16, "Base", 0.5, "C", 110.3));

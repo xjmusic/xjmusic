@@ -261,7 +261,7 @@ public class FabricatorImplTest {
         .setLength(1.571)
         .setAmplitude(0.8)
         .setPitch(432.0)
-      .build());
+        .build());
     when(mockTimeComputerFactory.create(anyDouble(), anyDouble(), anyDouble()))
       .thenReturn(mockTimeComputer);
     when(mockTimeComputer.getSecondsAtPosition(anyDouble()))

@@ -20,8 +20,8 @@ public interface FileStoreProvider {
    Generate a new key of an object in AWS file storage (S3)
    [#
 
+   @param prefix of the key
    @return key
-   @param prefix    of the key
    */
   String generateKey(String prefix);
 
@@ -91,8 +91,8 @@ public interface FileStoreProvider {
    [#162223929] Ship Segment data JSON with audio
 
    @param content path to file for upload
-   @param bucket   to put file to
-   @param key      to put file at
+   @param bucket  to put file to
+   @param key     to put file at
    */
   void putS3ObjectFromString(String content, String bucket, String key) throws FileStoreException;
 

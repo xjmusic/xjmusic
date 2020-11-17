@@ -190,7 +190,7 @@ public class CraftDetailNextMacroTest {
       .setSegmentId(segment3.getId())
       .setProgramId(fake.program4.getId())
       .setProgramId(fake.program4_sequence2_binding0.getProgramId())
-.setProgramSequenceBindingId(fake.program4_sequence2_binding0.getId())
+      .setProgramSequenceBindingId(fake.program4_sequence2_binding0.getId())
       .setProgramType(Program.Type.Macro)
       .setTranspose(3)
       .build());
@@ -199,7 +199,7 @@ public class CraftDetailNextMacroTest {
       .setSegmentId(segment3.getId())
       .setProgramId(fake.program5.getId())
       .setProgramId(fake.program5_sequence1_binding0.getProgramId())
-.setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
+      .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
       .setProgramType(Program.Type.Main)
       .setTranspose(1)
       .build());
@@ -232,7 +232,7 @@ public class CraftDetailNextMacroTest {
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
-.setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
+      .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
       .setTranspose(4)
       .build());
@@ -242,7 +242,7 @@ public class CraftDetailNextMacroTest {
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program15.getId())
       .setProgramId(fake.program15_sequence0_binding0.getProgramId())
-.setProgramSequenceBindingId(fake.program15_sequence0_binding0.getId())
+      .setProgramSequenceBindingId(fake.program15_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
       .setTranspose(-2)
       .build());

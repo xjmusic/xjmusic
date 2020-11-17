@@ -161,7 +161,7 @@ public class DubDubMasterContinueTest {
       .setSegmentId(segment3.getId())
       .setProgramType(Program.Type.Macro)
       .setProgramId(fake.program4_sequence1_binding0.getProgramId())
-.setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
+      .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
       .setTranspose(3)
       .build());
     store.put(SegmentChoice.newBuilder()
@@ -169,7 +169,7 @@ public class DubDubMasterContinueTest {
       .setSegmentId(segment3.getId())
       .setProgramType(Program.Type.Main)
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
-.setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
+      .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
       .setTranspose(5)
       .build());
 

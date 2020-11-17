@@ -39,9 +39,6 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
     // Build the Nexus REST API payload topology
     NexusApp.buildApiTopology(entityFactory);
 
-    // Build the Nexus REST API payload topology
-    ApiUrlProvider.configureApiUrls(config, apiUrlProvider);
-
     // Requires that a configuration has been bound
     config.getString("app.name");
 

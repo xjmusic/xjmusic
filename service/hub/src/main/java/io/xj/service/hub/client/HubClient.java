@@ -16,7 +16,7 @@ public interface HubClient {
    <p>
    HubAccess entity contains the token itself, such that one of these entities can also be used (e.g. by a HubClient) in order to make a request to a Hub API
 
-   @param access              control
+   @param access        control
    @param libraryIds    to ingest
    @param programIds    to ingest
    @param instrumentIds on ingest

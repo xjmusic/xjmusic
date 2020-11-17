@@ -61,9 +61,6 @@ public class HubIntegrationTestProviderImpl<O extends GeneratedMessageLite<O, ?>
     // Build the Hub REST API payload topology
     HubApp.buildApiTopology(entityFactory);
 
-    // Build the Hub REST API payload topology
-    ApiUrlProvider.configureApiUrls(config, apiUrlProvider);
-
     // Requires that a configuration has been bound
     config.getString("app.name");
 

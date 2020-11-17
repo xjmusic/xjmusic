@@ -16,7 +16,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.dao.DAOModule;
@@ -56,7 +55,6 @@ public class GoogleProviderImplTest extends Mockito {
         }
       })));
     googleProvider = injector.getInstance(GoogleProvider.class);
-    ApiUrlProvider.configureApiUrls(config, injector.getInstance(ApiUrlProvider.class));
   }
 
   @Test

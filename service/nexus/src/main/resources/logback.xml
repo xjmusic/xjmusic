@@ -1,19 +1,19 @@
 <!-- Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved. -->
 
 <configuration>
-    <appender name="loggly" class="ch.qos.logback.ext.loggly.LogglyAppender">
-        <endpointUrl>https://logs-01.loggly.com/inputs/8aed0f0a-396d-4deb-9d11-e40765bb2a39/tag/logback</endpointUrl>
-        <pattern>%d{"ISO8601", UTC} %p %t %c{0}.%M - %m%n</pattern>
-    </appender>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{ISO8601} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-    <logger name="deng" level="INFO"/>
-    <root level="info">
-        <appender-ref ref="loggly"/>
-        <appender-ref ref="STDOUT"/>
-    </root>
+  <appender name="loggly" class="ch.qos.logback.ext.loggly.LogglyAppender">
+    <endpointUrl>https://logs-01.loggly.com/inputs/8aed0f0a-396d-4deb-9d11-e40765bb2a39/tag/logback</endpointUrl>
+    <pattern>%d{"ISO8601", UTC} %p %t %c{0}.%M - %m%n</pattern>
+  </appender>
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{ISO8601} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+  <logger name="deng" level="INFO"/>
+  <root level="info">
+    <appender-ref ref="loggly"/>
+    <appender-ref ref="STDOUT"/>
+  </root>
 </configuration>
 

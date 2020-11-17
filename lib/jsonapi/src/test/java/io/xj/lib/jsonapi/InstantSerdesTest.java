@@ -2,7 +2,10 @@
 
 package io.xj.lib.jsonapi;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,7 +20,12 @@ public class InstantSerdesTest {
 
   @Before
   public void setUp() {
-    payloadFactory = Guice.createInjector(new JsonApiModule()).getInstance(PayloadFactory.class);
+    payloadFactory = Guice.createInjector(new JsonApiModule(), new AbstractModule() {
+      @Override
+      protected void configure() {
+        bind(Config.class).toInstance(ConfigFactory.empty());
+      }
+    }).getInstance(PayloadFactory.class);
     subject = Instant.parse("2014-09-11T12:17:00.679314Z");
     subjectJson = "\"2014-09-11T12:17:00.679314Z\"";
   }

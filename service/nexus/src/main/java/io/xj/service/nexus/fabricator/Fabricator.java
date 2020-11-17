@@ -16,8 +16,6 @@ import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
 import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
-import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.EntityException;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.util.ValueException;
@@ -33,8 +31,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public interface Fabricator {
 
@@ -514,6 +510,7 @@ public interface Fabricator {
 
   /**
    Get arrangement picks for segment
+
    @return arrangement picks for segment
    */
   Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() throws FabricationException;

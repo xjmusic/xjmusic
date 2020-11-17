@@ -1,7 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.jsonapi;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.typesafe.config.Config;
 
 import java.net.URI;
 
@@ -19,6 +21,20 @@ class ApiUrlProviderImpl implements ApiUrlProvider {
 
   private String appPathUnauthorized;
   private String appPathWelcome;
+
+  @Inject
+  public ApiUrlProviderImpl(Config config) {
+    this.apiPath = config.getString("app.apiUrl");
+    this.appBaseUrl = config.getString("app.baseUrl");
+    this.appHost = config.getString("app.host");
+    this.appHostname = config.getString("app.hostname");
+    this.appName = config.getString("app.name");
+    this.appPathUnauthorized = config.getString("api.unauthorizedRedirectPath");
+    this.appPathWelcome = config.getString("api.welcomeRedirectPath");
+    this.audioBaseUrl = config.getString("audio.baseUrl");
+    this.playerBaseUrl = config.getString("player.baseUrl");
+    this.segmentBaseUrl = config.getString("segment.baseUrl");
+  }
 
   @Override
   public String getApiPath() {

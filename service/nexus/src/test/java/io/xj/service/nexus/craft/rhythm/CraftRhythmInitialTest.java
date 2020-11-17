@@ -125,19 +125,19 @@ public class CraftRhythmInitialTest {
       .setSegmentId(segment6.getId())
       .setProgramId(fake.program4.getId())
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
-.setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
+      .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
       .setTranspose(0)
-.build());
+      .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment6.getId())
       .setProgramId(fake.program5.getId())
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
-.setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
+      .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
       .setTranspose(-6)
-.build());
+      .build());
     for (String memeName : ImmutableList.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(buildSegmentMeme(segment6, memeName));
 

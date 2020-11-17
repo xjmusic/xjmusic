@@ -2,8 +2,12 @@
 
 package io.xj.lib.jsonapi;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import io.xj.Program;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,8 +24,22 @@ public class HttpResponseProviderImplTest {
 
   @Before
   public void setUp() {
-    Injector injector = Guice.createInjector(new JsonApiModule());
-    injector.getInstance(ApiUrlProvider.class).setAppBaseUrl("/");
+    Injector injector = Guice.createInjector(new JsonApiModule(), new AbstractModule() {
+      @Override
+      protected void configure() {
+        bind(Config.class).toInstance(ConfigFactory.empty()
+          .withValue("app.apiUrl", ConfigValueFactory.fromAnyRef("http://localhost/"))
+          .withValue("app.baseUrl", ConfigValueFactory.fromAnyRef("http://localhost/"))
+          .withValue("app.host", ConfigValueFactory.fromAnyRef("localhost"))
+          .withValue("app.hostname", ConfigValueFactory.fromAnyRef("localhost"))
+          .withValue("app.name", ConfigValueFactory.fromAnyRef("testApp"))
+          .withValue("api.unauthorizedRedirectPath", ConfigValueFactory.fromAnyRef("unauthorized"))
+          .withValue("api.welcomeRedirectPath", ConfigValueFactory.fromAnyRef(""))
+          .withValue("audio.baseUrl", ConfigValueFactory.fromAnyRef("http://localhost/"))
+          .withValue("player.baseUrl", ConfigValueFactory.fromAnyRef("http://localhost/"))
+          .withValue("segment.baseUrl", ConfigValueFactory.fromAnyRef("http://localhost/")));
+      }
+    });
     subject = injector.getInstance(HttpResponseProvider.class);
   }
 

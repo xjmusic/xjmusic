@@ -3,8 +3,11 @@
 package io.xj.lib.jsonapi;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import io.xj.Program;
 import io.xj.lib.entity.EntityFactory;
 import org.junit.Before;
@@ -18,7 +21,12 @@ public class PayloadErrorTest {
 
   @Before
   public void setUp() {
-    Injector injector = Guice.createInjector(new JsonApiModule());
+    Injector injector = Guice.createInjector(new JsonApiModule(), new AbstractModule() {
+      @Override
+      protected void configure() {
+        bind(Config.class).toInstance(ConfigFactory.empty());
+      }
+    });
     payloadFactory = injector.getInstance(PayloadFactory.class);
     EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
     entityFactory.register(Program.class);

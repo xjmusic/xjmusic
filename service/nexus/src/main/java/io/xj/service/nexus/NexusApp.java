@@ -22,7 +22,6 @@ import io.xj.SegmentMessage;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.util.TempFile;
 import io.xj.lib.util.Text;
 import io.xj.service.hub.HubApp;
@@ -85,9 +84,6 @@ public class NexusApp extends App {
     EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
     buildApiTopology(entityFactory);
-
-    // Configure REST API url provider
-    ApiUrlProvider.configureApiUrls(config, injector.getInstance(ApiUrlProvider.class));
 
     // Register JAX-RS filter for access log only registers if file succeeds to open for writing
     String pathToWriteAccessLog = config.hasPath("app.accessLogFile") ?
