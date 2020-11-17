@@ -3,8 +3,9 @@ package io.xj.service.nexus.work;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.typesafe.config.Config;
+import io.xj.Chain;
+import io.xj.Segment;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.SegmentDAO;
@@ -12,15 +13,11 @@ import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.ChainState;
-import io.xj.service.nexus.entity.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  Chain Worker implementation
@@ -32,14 +29,14 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
   private final HubClientAccess access = HubClientAccess.internal();
   private final int bufferProductionSeconds;
   private final int bufferPreviewSeconds;
-  private final UUID chainId;
+  private final String chainId;
   private final ChainDAO chainDAO;
   private final SegmentDAO segmentDAO;
   private final WorkerFactory workers;
 
   @Inject
   public ChainWorkerImpl(
-    @Assisted UUID chainId,
+    @Assisted String chainId,
     Config config,
     SegmentDAO segmentDAO,
     ChainDAO chainDAO,
@@ -66,17 +63,16 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
   /**
    Do the work-- this is called by the underlying WorkerImpl run() hook
 
-   @throws ValueException         on failure
    @throws DAOFatalException      on failure
    @throws DAOPrivilegeException  on failure
    @throws DAOValidationException on failure
    @throws DAOExistenceException  on failure
    */
-  protected void doWork() throws ValueException, DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
+  protected void doWork() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     try {
       Chain chain = chainDAO.readOne(access, chainId);
 
-      if (ChainState.Fabricate != chain.getState()) {
+      if (Chain.State.Fabricate != chain.getState()) {
         log.error("Cannot fabricate Chain id:{} in non-Fabricate ({}) state!", chain.getId(), chain.getState());
         return;
       }
@@ -87,7 +83,6 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
         Instant.now().plusSeconds(workBufferSeconds),
         Instant.now().minusSeconds(workBufferSeconds));
       if (segment.isEmpty()) return;
-      segment.get().validate();
       Segment createdSegment = segmentDAO.create(access, segment.get());
       log.info("Created Segment {}", createdSegment);
       observeCount(SEGMENT_CREATED, 1.0);

@@ -6,16 +6,16 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.Entity;
+import io.xj.InstrumentAudio;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.filestore.S3UploadPolicy;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.InstrumentAudio;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -44,7 +44,6 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   String KEY_UPLOAD_POLICY_SIGNATURE = "uploadPolicySignature";
   String KEY_UPLOAD_BUCKET_NAME = "bucketName";
   String KEY_UPLOAD_ACL = "acl";
-  private String waveformFileExtension;
 
   @Inject
   public InstrumentAudioDAOImpl(
@@ -59,12 +58,12 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
     this.dbProvider = dbProvider;
 
     // FUTURE [#170288602] Create instrument audio, provide waveform file extension as query parameter (checked by front-end after selecting the upload file)
-    waveformFileExtension = config.getString("audio.fileExtension");
+    String waveformFileExtension = config.getString("audio.fileExtension");
   }
 
   @Override
-  public InstrumentAudio create(HubAccess hubAccess, InstrumentAudio audio) throws DAOException, JsonApiException, ValueException {
-    audio.validate();
+  public InstrumentAudio create(HubAccess hubAccess, InstrumentAudio rawAudio) throws DAOException, JsonApiException, ValueException {
+    InstrumentAudio audio = validate(rawAudio.toBuilder()).build();
     requireArtist(hubAccess);
 
     DSLContext db = dbProvider.getDSL();
@@ -75,7 +74,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   }
 
   @Override
-  public Map<String, String> authorizeUpload(HubAccess hubAccess, UUID id) throws DAOException, FileStoreException {
+  public Map<String, String> authorizeUpload(HubAccess hubAccess, String id) throws DAOException, FileStoreException {
     InstrumentAudio entity = readOne(dbProvider.getDSL(), hubAccess, id);
 
     Map<String, String> uploadAuthorization = Maps.newConcurrentMap();
@@ -93,13 +92,13 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
 
   @Override
   @Nullable
-  public InstrumentAudio readOne(HubAccess hubAccess, UUID id) throws DAOException {
+  public InstrumentAudio readOne(HubAccess hubAccess, String id) throws DAOException {
     return readOne(dbProvider.getDSL(), hubAccess, id);
   }
 
   @Override
   @Nullable
-  public Collection<InstrumentAudio> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+  public Collection<InstrumentAudio> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
     if (hubAccess.isTopLevel())
       return modelsFrom(InstrumentAudio.class,
@@ -118,26 +117,28 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   }
 
   @Override
-  public void update(HubAccess hubAccess, UUID id, InstrumentAudio updated) throws DAOException, JsonApiException, ValueException {
-    updated.validate();
+  public void update(HubAccess hubAccess, String id, InstrumentAudio rawAudio) throws DAOException, JsonApiException, ValueException {
+    InstrumentAudio audio = validate(rawAudio.toBuilder()).build();
     requireArtist(hubAccess);
 
     DSLContext db = dbProvider.getDSL();
 
-    requireParentExists(db, hubAccess, updated);
+    requireParentExists(db, hubAccess, audio);
 
-    if (Strings.isNullOrEmpty(updated.getWaveformKey()))
-      updated.setWaveformKey(readOne(db, hubAccess, id).getWaveformKey());
-
-    executeUpdate(db, INSTRUMENT_AUDIO, id, updated);
+    if (Strings.isNullOrEmpty(audio.getWaveformKey()))
+      executeUpdate(db, INSTRUMENT_AUDIO, id, audio.toBuilder()
+        .setWaveformKey(readOne(db, hubAccess, id).getWaveformKey())
+        .build());
+    else
+      executeUpdate(db, INSTRUMENT_AUDIO, id, audio);
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
-
+  public void destroy(HubAccess hubAccess, String rawId) throws DAOException {
+    UUID id = UUID.fromString(rawId);
     DSLContext db = dbProvider.getDSL();
 
-    requireExists("InstrumentAudio", readOne(db, hubAccess, id));
+    requireExists("InstrumentAudio", readOne(db, hubAccess, rawId));
 
     db.deleteFrom(INSTRUMENT_AUDIO_EVENT)
       .where(INSTRUMENT_AUDIO_EVENT.INSTRUMENT_AUDIO_ID.eq(id))
@@ -154,36 +155,34 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
 
   @Override
   public InstrumentAudio newInstance() {
-    return new InstrumentAudio();
+    return InstrumentAudio.getDefaultInstance();
   }
 
   @Override
-  public InstrumentAudio clone(HubAccess hubAccess, UUID cloneId, InstrumentAudio entity) throws DAOException {
+  public InstrumentAudio clone(HubAccess hubAccess, String rawCloneId, InstrumentAudio rawAudio) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<InstrumentAudio> result = new AtomicReference<>();
     dbProvider.getDSL().transaction(ctx -> {
       DSLContext db = DSL.using(ctx);
 
-      InstrumentAudio from = readOne(db, hubAccess, cloneId);
+      InstrumentAudio from = readOne(db, hubAccess, rawCloneId);
       if (Objects.isNull(from))
         throw new DAOException("Can't clone nonexistent InstrumentAudio");
 
-      // When null, inherits, type, state, key, and tempo
-      if (Objects.isNull(entity.getPitch())) entity.setPitch(from.getPitch());
-      if (Objects.isNull(entity.getStart())) entity.setStart(from.getStart());
-      if (Objects.isNull(entity.getWaveformKey())) entity.setWaveformKey(from.getWaveformKey());
-      if (Objects.isNull(entity.getTempo())) entity.setTempo(from.getTempo());
-      if (Objects.isNull(entity.getDensity())) entity.setDensity(from.getDensity());
-      if (Objects.isNull(entity.getLength())) entity.setLength(from.getLength());
-      if (Objects.isNull(entity.getName())) entity.setName(from.getName());
-      entity.validate();
-      requireParentExists(db, hubAccess, entity);
+      // When not set, clone inherits attribute values from original record
+      InstrumentAudio.Builder audioBuilder = rawAudio.toBuilder();
+      if (Value.isEmpty(rawAudio.getWaveformKey())) audioBuilder.setWaveformKey(from.getWaveformKey());
+      if (Value.isEmpty(rawAudio.getName())) audioBuilder.setName(from.getName());
+      InstrumentAudio audio = validate(audioBuilder).build();
+      requireParentExists(db, hubAccess, audio);
 
-      result.set(modelFrom(InstrumentAudio.class, executeCreate(db, INSTRUMENT_AUDIO, entity)));
+      result.set(modelFrom(InstrumentAudio.class, executeCreate(db, INSTRUMENT_AUDIO, audio)));
+      UUID cloneId = UUID.fromString(rawCloneId);
+      UUID sourceId = UUID.fromString(result.get().getId());
 
-      DAOCloner<Entity> cloner = new DAOCloner<>(result.get(), this);
-      cloner.clone(db, INSTRUMENT_AUDIO_EVENT, INSTRUMENT_AUDIO_EVENT.ID, ImmutableSet.of(), INSTRUMENT_AUDIO_EVENT.INSTRUMENT_AUDIO_ID, cloneId, result.get().getId());
-      cloner.clone(db, INSTRUMENT_AUDIO_CHORD, INSTRUMENT_AUDIO_CHORD.ID, ImmutableSet.of(), INSTRUMENT_AUDIO_CHORD.INSTRUMENT_AUDIO_ID, cloneId, result.get().getId());
+      DAOCloner<Object> cloner = new DAOCloner<>(result.get(), this);
+      cloner.clone(db, INSTRUMENT_AUDIO_EVENT, INSTRUMENT_AUDIO_EVENT.ID, ImmutableSet.of(), INSTRUMENT_AUDIO_EVENT.INSTRUMENT_AUDIO_ID, cloneId, sourceId);
+      cloner.clone(db, INSTRUMENT_AUDIO_CHORD, INSTRUMENT_AUDIO_CHORD.ID, ImmutableSet.of(), INSTRUMENT_AUDIO_CHORD.INSTRUMENT_AUDIO_ID, cloneId, sourceId);
     });
     return result.get();
   }
@@ -194,7 +193,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
    @param instrumentId to generate URL for
    @return URL as string
    */
-  private String generateKey(UUID instrumentId) {
+  private String generateKey(String instrumentId) {
     String prefix = String.format("instrument-%s-audio", instrumentId);
     return fileStoreProvider.generateKey(prefix);
   }
@@ -210,13 +209,13 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   private void requireParentExists(DSLContext db, HubAccess hubAccess, InstrumentAudio entity) throws DAOException {
     if (hubAccess.isTopLevel())
       requireExists("Instrument", db.selectCount().from(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
+        .where(INSTRUMENT.ID.eq(UUID.fromString(entity.getInstrumentId())))
         .fetchOne(0, int.class));
     else
       requireExists("Instrument", db.selectCount().from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
-        .and(INSTRUMENT.ID.eq(entity.getInstrumentId()))
+        .and(INSTRUMENT.ID.eq(UUID.fromString(entity.getInstrumentId())))
         .fetchOne(0, int.class));
   }
 
@@ -229,23 +228,61 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
    @param id        of record to read
    @return entity
    */
-  private InstrumentAudio readOne(DSLContext db, HubAccess hubAccess, UUID id) throws DAOException {
+  private InstrumentAudio readOne(DSLContext db, HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     Record record;
     if (hubAccess.isTopLevel())
       record = db.selectFrom(INSTRUMENT_AUDIO)
-        .where(INSTRUMENT_AUDIO.ID.eq(id))
+        .where(INSTRUMENT_AUDIO.ID.eq(UUID.fromString(id)))
         .fetchOne();
     else
       record = db.select(INSTRUMENT_AUDIO.fields())
         .from(INSTRUMENT_AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(INSTRUMENT_AUDIO.ID.eq(id))
+        .where(INSTRUMENT_AUDIO.ID.eq(UUID.fromString(id)))
         .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne();
     requireExists("InstrumentAudio", record);
     return modelFrom(InstrumentAudio.class, record);
+  }
+
+  /**
+   Validate data
+
+   @param builder to validate
+   @throws DAOException if invalid
+   */
+  public InstrumentAudio.Builder validate(InstrumentAudio.Builder builder) throws DAOException {
+    try {
+      Value.require(builder.getInstrumentId(), "Instrument ID");
+
+      if (Objects.isNull(builder.getName()) || builder.getName().isEmpty())
+        throw new ValueException("Name is required.");
+
+      if (Objects.isNull(builder.getWaveformKey()) || builder.getWaveformKey().isEmpty())
+        builder.setWaveformKey("");
+
+      if (Value.isEmpty(builder.getDensity()))
+        builder.setDensity(0.5d);
+
+      if (Value.isEmpty(builder.getStart()))
+        builder.setStart(0.0d);
+
+      if (Value.isEmpty(builder.getLength()))
+        builder.setLength(0.0d);
+
+      Value.require(builder.getTempo(), "Tempo");
+      Value.requireNonZero(builder.getTempo(), "Tempo");
+
+      Value.require(builder.getPitch(), "Pitch");
+      Value.requireNonZero(builder.getPitch(), "Pitch");
+
+      return builder;
+
+    } catch (ValueException e) {
+      throw new DAOException(e);
+    }
   }
 
 }

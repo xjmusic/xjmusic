@@ -3,6 +3,7 @@ package io.xj.service.nexus.work;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import io.xj.Chain;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
@@ -11,13 +12,11 @@ import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
-import io.xj.service.nexus.entity.ChainState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  Medic Worker implementation
@@ -81,13 +80,16 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
     Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionStartedBeforeSeconds);
     Instant thresholdChainSegmentsDubbedPast = Instant.now().plusSeconds(reviveChainSegmentsDubbedPastSeconds);
 
-    Map<UUID, String> stalledChainIds = Maps.newHashMap();
-    chainDAO.readManyInState(access, ChainState.Fabricate)
+    Map<String, String> stalledChainIds = Maps.newHashMap();
+    chainDAO.readManyInState(access, Chain.State.Fabricate)
       .stream()
-      .filter((chain) -> chain.isProductionStartedBefore(thresholdChainProductionStartedBefore))
+      .filter((chain) ->
+        Chain.Type.Production.equals(chain.getType()) &&
+          Instant.parse(chain.getStartAt()).isBefore(thresholdChainProductionStartedBefore))
       .forEach(chain -> {
         try {
-          Instant chainDubbedUntil = segmentDAO.readLastDubbedSegment(access, chain.getId()).getEndAt();
+          Instant chainDubbedUntil = Instant.parse(
+            segmentDAO.readLastDubbedSegment(access, chain.getId()).getEndAt());
           log.info("Chain[{}] dubbed until {} -- required until {}",
             chain.getId(), chainDubbedUntil, thresholdChainSegmentsDubbedPast);
           if (chainDubbedUntil.isBefore(thresholdChainSegmentsDubbedPast)) {
@@ -103,7 +105,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
       });
 
     // revive all stalled chains
-    for (UUID stalledChainId : stalledChainIds.keySet()) {
+    for (String stalledChainId : stalledChainIds.keySet()) {
       chainDAO.revive(access, stalledChainId, stalledChainIds.get(stalledChainId));
       // [#173968355] Nexus deletes entire chain when no current segments are left.
       chainDAO.destroy(access, stalledChainId);

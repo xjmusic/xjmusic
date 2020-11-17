@@ -2,12 +2,14 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import io.xj.InstrumentAudioChord;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.InstrumentAudioChord;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 
 import javax.annotation.Nullable;
@@ -30,7 +32,7 @@ public class InstrumentAudioChordDAOImpl extends DAOImpl<InstrumentAudioChord> i
 
   @Override
   public InstrumentAudioChord create(HubAccess hubAccess, InstrumentAudioChord entity) throws DAOException, JsonApiException, ValueException {
-    entity.validate();
+    validate(entity);
     requireArtist(hubAccess);
     return modelFrom(InstrumentAudioChord.class,
       executeCreate(dbProvider.getDSL(), INSTRUMENT_AUDIO_CHORD, entity));
@@ -39,17 +41,17 @@ public class InstrumentAudioChordDAOImpl extends DAOImpl<InstrumentAudioChord> i
 
   @Override
   @Nullable
-  public InstrumentAudioChord readOne(HubAccess hubAccess, UUID id) throws DAOException {
+  public InstrumentAudioChord readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     return modelFrom(InstrumentAudioChord.class,
       dbProvider.getDSL().selectFrom(INSTRUMENT_AUDIO_CHORD)
-        .where(INSTRUMENT_AUDIO_CHORD.ID.eq(id))
+        .where(INSTRUMENT_AUDIO_CHORD.ID.eq(UUID.fromString(id)))
         .fetchOne());
   }
 
   @Override
   @Nullable
-  public Collection<InstrumentAudioChord> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+  public Collection<InstrumentAudioChord> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
     return modelsFrom(InstrumentAudioChord.class,
       dbProvider.getDSL().selectFrom(INSTRUMENT_AUDIO_CHORD)
@@ -58,23 +60,39 @@ public class InstrumentAudioChordDAOImpl extends DAOImpl<InstrumentAudioChord> i
   }
 
   @Override
-  public void update(HubAccess hubAccess, UUID id, InstrumentAudioChord entity) throws DAOException, JsonApiException, ValueException {
-    entity.validate();
+  public void update(HubAccess hubAccess, String id, InstrumentAudioChord entity) throws DAOException, JsonApiException, ValueException {
+    validate(entity);
     requireArtist(hubAccess);
     executeUpdate(dbProvider.getDSL(), INSTRUMENT_AUDIO_CHORD, id, entity);
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+  public void destroy(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     dbProvider.getDSL().deleteFrom(INSTRUMENT_AUDIO_CHORD)
-      .where(INSTRUMENT_AUDIO_CHORD.ID.eq(id))
+      .where(INSTRUMENT_AUDIO_CHORD.ID.eq(UUID.fromString(id)))
       .execute();
   }
 
   @Override
   public InstrumentAudioChord newInstance() {
-    return new InstrumentAudioChord();
+    return InstrumentAudioChord.getDefaultInstance();
   }
 
+  /**
+   Validate data
+
+   @param record to validate
+   @throws DAOException if invalid
+   */
+  public void validate(InstrumentAudioChord record) throws DAOException {
+    try {
+      Value.require(record.getInstrumentId(), "Instrument ID");
+      Value.require(record.getInstrumentAudioId(), "Instrument Audio ID");
+      ChordEntity.validate(record);
+
+    } catch (ValueException e) {
+      throw new DAOException(e);
+    }
+  }
 }

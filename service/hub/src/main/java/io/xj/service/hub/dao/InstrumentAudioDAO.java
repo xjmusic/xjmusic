@@ -1,12 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.dao;
 
+import io.xj.InstrumentAudio;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.InstrumentAudio;
 
 import java.util.Map;
-import java.util.UUID;
 
 public interface InstrumentAudioDAO extends DAO<InstrumentAudio> {
 
@@ -18,7 +17,7 @@ public interface InstrumentAudioDAO extends DAO<InstrumentAudio> {
    @return retrieved record
    @throws DAOException on failure
    */
-  Map<String, String> authorizeUpload(HubAccess hubAccess, UUID id) throws DAOException, FileStoreException;
+  Map<String, String> authorizeUpload(HubAccess hubAccess, String id) throws DAOException, FileStoreException;
 
   /**
    Provide an entity containing some new properties, but otherwise clone everything of a source instrumentAudio, of new record, and return it.
@@ -29,6 +28,6 @@ public interface InstrumentAudioDAO extends DAO<InstrumentAudio> {
    @param entity    for the new InstrumentAudio
    @return newly readMany record
    */
-  InstrumentAudio clone(HubAccess hubAccess, UUID cloneId, InstrumentAudio entity) throws DAOException;
+  InstrumentAudio clone(HubAccess hubAccess, String cloneId, InstrumentAudio entity) throws DAOException;
 
 }

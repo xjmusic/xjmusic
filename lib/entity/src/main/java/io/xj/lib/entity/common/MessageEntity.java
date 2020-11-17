@@ -1,7 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.entity.common;
 
-import io.xj.lib.entity.Entity;
+import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.MessageType;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
@@ -16,7 +17,7 @@ import io.xj.lib.util.ValueException;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public abstract class MessageEntity extends Entity {
+public abstract class MessageEntity {
   static int BODY_LENGTH_LIMIT = 65535;
   static String BODY_TRUNCATE_SUFFIX = " (truncated to fit character limit)";
   protected ValueException typeException;
@@ -29,12 +30,17 @@ public abstract class MessageEntity extends Entity {
    @param message to validate
    @throws ValueException if invalid
    */
-  public static void validate(MessageEntity message) throws ValueException {
-    Value.require(message.getBody(), "Body");
-    Value.require(message.getType(), "Type");
+  public static void validate(Object message) throws ValueException {
+    try {
+      Value.require(Entities.get(message, "type"), "Type");
+      String body = String.valueOf(Entities.get(message, "body").orElseThrow());
+      Value.require(body, "Body");
+      if (BODY_LENGTH_LIMIT < body.length())
+        Entities.set(message, "body", body.substring(0, BODY_LENGTH_LIMIT - BODY_TRUNCATE_SUFFIX.length()) + BODY_TRUNCATE_SUFFIX);
 
-    if (BODY_LENGTH_LIMIT < message.getBody().length())
-      message.setBody(message.getBody().substring(0, BODY_LENGTH_LIMIT - BODY_TRUNCATE_SUFFIX.length()) + BODY_TRUNCATE_SUFFIX);
+    } catch (EntityException e) {
+      throw new ValueException(e);
+    }
   }
 
   /**
@@ -87,7 +93,7 @@ public abstract class MessageEntity extends Entity {
    @param type to set
    @return this message (for chaining setters)
    */
-  public MessageEntity setTypeEnum(MessageType type) {
+  public MessageEntity setType(MessageType type) {
     this.type = type;
     return this;
   }

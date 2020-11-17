@@ -3,8 +3,8 @@ package io.xj.service.nexus;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.google.protobuf.GeneratedMessageLite;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.Entity;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.PayloadDataType;
@@ -19,13 +19,19 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  A JAX-RS resource
  */
 public class NexusEndpoint {
+  public static final String ADMIN = "Admin";
+  public static final String ARTIST = "Artist";
+  public static final String BANNED = "Banned";
+  public static final String ENGINEER = "Engineer";
+  public static final String INTERNAL = "Internal";
+  public static final String USER = "User";
   protected final Config config;
   protected final HttpResponseProvider response;
   protected final PayloadFactory payloadFactory;
@@ -53,7 +59,7 @@ public class NexusEndpoint {
    @param <N>     type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends Entity> Response create(ContainerRequestContext crc, DAO<N> dao, Payload payload) {
+  public <N extends GeneratedMessageLite<N, ?>> Response create(ContainerRequestContext crc, DAO<N> dao, Payload payload) {
     try {
       HubClientAccess hubClientAccess = HubClientAccess.fromContext(crc);
       N createdEntity = dao.create(hubClientAccess, payloadFactory.consume(dao.newInstance(), payload));
@@ -76,15 +82,15 @@ public class NexusEndpoint {
    @param <N> type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends Entity> Response readOne(ContainerRequestContext crc, DAO<N> dao, Object id) {
+  public <N extends GeneratedMessageLite<N, ?>> Response readOne(ContainerRequestContext crc, DAO<N> dao, Object id) {
     try {
-      Entity entity = dao.readOne(HubClientAccess.fromContext(crc), UUID.fromString(String.valueOf(id)));
+      Object entity = dao.readOne(HubClientAccess.fromContext(crc), String.valueOf(id));
       Payload payload = new Payload();
       payload.setDataOne(payloadFactory.toPayloadObject(entity));
       return response.ok(payload);
 
     } catch (DAOExistenceException | DAOFatalException | DAOPrivilegeException ignored) {
-      return response.notFound(dao.newInstance().setId(UUID.fromString(String.valueOf(id))));
+      return response.notFound(dao.newInstance().getClass(), String.valueOf(id));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -100,9 +106,9 @@ public class NexusEndpoint {
    @param <N>       type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends Entity, O> Response readMany(ContainerRequestContext crc, DAO<N> dao, Collection<O> parentIds) {
+  public <N extends GeneratedMessageLite<N, ?>, O> Response readMany(ContainerRequestContext crc, DAO<N> dao, Collection<O> parentIds) {
     try {
-      Collection<N> entities = dao.readMany(HubClientAccess.fromContext(crc), parentIds.stream().map((Object name) -> UUID.fromString(String.valueOf(name))).collect(Collectors.toList()));
+      Collection<N> entities = dao.readMany(HubClientAccess.fromContext(crc), parentIds.stream().map((Function<Object, String>) String::valueOf).collect(Collectors.toList()));
       Payload payload = new Payload();
       payload.setDataType(PayloadDataType.Many);
       for (N entity : entities) payload.addData(payloadFactory.toPayloadObject(entity));
@@ -122,7 +128,7 @@ public class NexusEndpoint {
    @param <N>      type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends Entity> Response readMany(ContainerRequestContext crc, DAO<N> dao, String parentId) {
+  public <N extends GeneratedMessageLite<N, ?>> Response readMany(ContainerRequestContext crc, DAO<N> dao, String parentId) {
     if (Objects.isNull(parentId))
       return response.notAcceptable("parent id is required");
 
@@ -139,12 +145,12 @@ public class NexusEndpoint {
    @param <N>     type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends Entity> Response update(ContainerRequestContext crc, DAO<N> dao, String id, Payload payload) {
+  public <N extends GeneratedMessageLite<N, ?>> Response update(ContainerRequestContext crc, DAO<N> dao, String id, Payload payload) {
     try {
       HubClientAccess hubClientAccess = HubClientAccess.fromContext(crc);
-      N current = dao.readOne(hubClientAccess, UUID.fromString(id));
+      N current = dao.readOne(hubClientAccess, id);
       payloadFactory.consume(current, payload);
-      dao.update(hubClientAccess, UUID.fromString(id), current);
+      dao.update(hubClientAccess, id, current);
       return response.ok(new Payload().setDataOne(payloadFactory.toPayloadObject(current)));
 
     } catch (Exception e) {
@@ -161,9 +167,9 @@ public class NexusEndpoint {
    @param <N> type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends Entity> Response delete(ContainerRequestContext crc, DAO<N> dao, String id) {
+  public <N extends GeneratedMessageLite<N, ?>> Response delete(ContainerRequestContext crc, DAO<N> dao, String id) {
     try {
-      dao.destroy(HubClientAccess.fromContext(crc), UUID.fromString(id));
+      dao.destroy(HubClientAccess.fromContext(crc), id);
       return response.noContent();
 
     } catch (Exception e) {

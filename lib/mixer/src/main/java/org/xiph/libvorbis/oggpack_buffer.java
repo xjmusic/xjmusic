@@ -4,7 +4,13 @@ package org.xiph.libvorbis;
 
 import java.util.Arrays;
 
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.BUFFER_INCREMENT;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VIF_POSIT;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.icount;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.ilog;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.ilog2;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.render_line0;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.render_point;
 
 class oggpack_buffer {
 

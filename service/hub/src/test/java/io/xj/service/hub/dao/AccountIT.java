@@ -5,6 +5,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.Account;
+import io.xj.AccountUser;
+import io.xj.Library;
+import io.xj.User;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
@@ -12,10 +16,6 @@ import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.access.HubAccessControlModule;
-import io.xj.service.hub.entity.Account;
-import io.xj.service.hub.entity.AccountUser;
-import io.xj.service.hub.entity.Library;
-import io.xj.service.hub.entity.User;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubIntegrationTestModule;
@@ -28,10 +28,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.time.Instant;
 import java.util.Collection;
+import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class AccountIT {
   @Rule
@@ -50,7 +53,10 @@ public class AccountIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(Account.create("bananas"));
+    fake.account1 = test.insert(Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("bananas")
+      .build());
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AccountDAO.class);
@@ -93,7 +99,10 @@ public class AccountIT {
   @Test
   public void update() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
-    Account entity = Account.create().setName("jammers");
+    Account entity = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("jammers")
+      .build();
 
     testDAO.update(hubAccess, fake.account1.getId(), entity);
 
@@ -105,7 +114,10 @@ public class AccountIT {
   @Test
   public void update_failsIfNotAdmin() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
-    Account entity = Account.create().setName("jammers");
+    Account entity = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("jammers")
+      .build();
 
     failure.expect(DAOException.class);
     failure.expectMessage("top-level hubAccess is required");
@@ -139,7 +151,11 @@ public class AccountIT {
   @Test
   public void delete_failsIfHasLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
-    test.insert(Library.create(fake.account1, "Testing", Instant.now()));
+    test.insert(Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setName("Testing")
+      .build());
 
     failure.expect(DAOException.class);
     failure.expectMessage("Found Library in Account");
@@ -150,8 +166,17 @@ public class AccountIT {
   @Test
   public void delete_failsIfHasAccountUser() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
-    fake.user1 = test.insert(User.create("jim", "jim@jim.com", "http://www.jim.com/jim.png"));
-    test.insert(AccountUser.create(fake.account1, fake.user1));
+    fake.user1 = test.insert(User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("jim")
+      .setEmail("jim@jim.com")
+      .setAvatarUrl("http://www.jim.com/jim.png")
+      .build());
+    test.insert(AccountUser.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setUserId(fake.user1.getId())
+      .build());
 
     failure.expect(DAOException.class);
     failure.expectMessage("Found User in Account");

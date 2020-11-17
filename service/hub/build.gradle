@@ -1,155 +1,158 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 buildscript {
-  repositories {
-    jcenter()
-    mavenLocal()
-    mavenCentral()
-    maven {
-      url "https://plugins.gradle.org/m2/"
+    repositories {
+        jcenter()
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
-  }
 
-  dependencies {
-    classpath 'org.jooq:jooq-codegen:3.13.1'
-    classpath 'org.postgresql:postgresql:42.2.8'
-    classpath "gradle.plugin.org.flywaydb:gradle-plugin-publishing:6.2.4"
-    classpath "nu.studer:gradle-jooq-plugin:4.1"
-  }
+    dependencies {
+        classpath 'org.jooq:jooq-codegen:3.13.1'
+        classpath 'org.postgresql:postgresql:42.2.8'
+        classpath "gradle.plugin.org.flywaydb:gradle-plugin-publishing:6.2.4"
+        classpath "nu.studer:gradle-jooq-plugin:4.1"
+    }
 }
 
 plugins {
-  id 'java'
-  id 'application'
-  id 'distribution'
-  id 'jacoco'
+    id 'java'
+    id 'application'
+    id 'distribution'
+    id 'jacoco'
 }
 
 apply plugin: "nu.studer.jooq"
 apply plugin: "org.flywaydb.flyway"
 
 repositories {
-  mavenLocal()
-  maven {
-    url = 'https://repo.maven.apache.org/maven2'
-  }
-  maven {
-    url = 'https://packages.confluent.io/maven/'
-  }
+    mavenLocal()
+    maven {
+        url = 'https://repo.maven.apache.org/maven2'
+    }
+    maven {
+        url = 'https://packages.confluent.io/maven/'
+    }
 }
 
 flyway {
-  url = 'jdbc:postgresql://127.0.0.1:5400/xj_dev'
-  user = 'root'
-  password = ''
-  schemas = ['xj']
+    url = 'jdbc:postgresql://127.0.0.1:5400/xj_dev'
+    user = 'root'
+    password = ''
+    schemas = ['xj']
 }
 
 dependencies {
-  // intravendor
-  implementation project(':lib:app')
-  implementation project(':lib:entity')
-  implementation project(':lib:filestore')
-  implementation project(':lib:mixer')
-  implementation project(':lib:music')
-  implementation project(':lib:jsonapi')
-  implementation project(':lib:util')
-  // jOOq vendor
-  jooqRuntime group: 'org.postgresql', name: 'postgresql', version: '42.2.10'
-  // vendor
-  implementation 'org.apache.httpcomponents:httpclient:4.5.12'
-  implementation 'org.apache.httpcomponents:httpcore:4.4.13'
-  implementation 'com.google.apis:google-api-services-plus:v1-rev590-1.25.0'
-  implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-  implementation 'org.logback-extensions:logback-ext-loggly:0.1.2'
-  implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.119'
-  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.10.1'
-  implementation group: 'com.github.axet', name: 'TarsosDSP', version: '2.4-1'
-  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.6.0'
-  implementation group: 'com.github.rholder', name: 'snowball-stemmer', version: '1.3.0.581.1'
-  implementation group: 'com.google.guava', name: 'guava', version: '28.2-jre'
-  implementation group: 'com.google.inject', name: 'guice', version: '4.2.2'
-  implementation group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.2'
-  implementation group: 'com.typesafe', name: 'config', version: '1.4.0'
-  implementation group: 'com.zaxxer', name: 'HikariCP', version: '3.4.1'
-  implementation group: 'commons-codec', name: 'commons-codec', version: '1.10'
-  implementation group: 'commons-io', name: 'commons-io', version: '2.6'
-  implementation group: 'javax.activation', name: 'activation', version: '1.1'
-  implementation group: 'javax.cache', name: 'cache-api', version: '1.1.1'
-  implementation group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0.1'
-  implementation group: 'me.xdrop', name: 'fuzzywuzzy', version: '1.1.9'
-  implementation group: 'net.greghaines', name: 'jesque', version: '2.1.3'
-  implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.8'
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '6.2.4'
-  implementation group: 'org.glassfish.jersey.containers', name: 'jersey-container-grizzly2-http', version: '2.29.1'
-  implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.29.1'
-  implementation group: 'org.glassfish.jersey.test-framework.providers', name: 'jersey-test-framework-provider-simple', version: '2.29.1'
-  implementation group: 'org.jooq', name: 'jooq', version: '3.12.3'
-  implementation group: 'org.jooq', name: 'jooq-codegen', version: '3.12.3'
-  implementation group: 'org.json', name: 'json', version: '20160810'
-  implementation group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
-  implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.8'
-  implementation group: 'org.reflections', name: 'reflections', version: '0.9.11'
-  implementation group: 'org.sheinbergon', name: 'jna-aac-encoder', version: '0.1.4'
-  implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
-  implementation group: 'org.yaml', name: 'snakeyaml', version: '1.18'
-  implementation group: 'redis.clients', name: 'jedis', version: '2.9.0'
-  testImplementation group: 'junit', name: 'junit', version: '4.12'
-  testImplementation 'com.github.tomakehurst:wiremock-jre8:2.26.3'
-  testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.8.0'
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '1.3'
+    // intravendor
+    implementation project(':lib:app')
+    implementation project(':lib:entity')
+    implementation project(':lib:filestore')
+    implementation project(':lib:mixer')
+    implementation project(':lib:music')
+    implementation project(':lib:jsonapi')
+    implementation project(':lib:util')
+    //
+    implementation 'io.xj:protocol:v0.7'
+    // jOOq vendor
+    jooqRuntime group: 'org.postgresql', name: 'postgresql', version: '42.2.10'
+    jooqRuntime group: 'org.postgresql', name: 'postgresql', version: '42.2.10'
+    // vendor
+    implementation 'org.apache.httpcomponents:httpclient:4.5.12'
+    implementation 'org.apache.httpcomponents:httpcore:4.4.13'
+    implementation 'com.google.apis:google-api-services-plus:v1-rev590-1.25.0'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    implementation 'org.logback-extensions:logback-ext-loggly:0.1.2'
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.119'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.10.1'
+    implementation group: 'com.github.axet', name: 'TarsosDSP', version: '2.4-1'
+    implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.6.0'
+    implementation group: 'com.github.rholder', name: 'snowball-stemmer', version: '1.3.0.581.1'
+    implementation group: 'com.google.guava', name: 'guava', version: '28.2-jre'
+    implementation group: 'com.google.inject', name: 'guice', version: '4.2.2'
+    implementation group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '4.2.2'
+    implementation group: 'com.typesafe', name: 'config', version: '1.4.0'
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '3.4.1'
+    implementation group: 'commons-codec', name: 'commons-codec', version: '1.10'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    implementation group: 'javax.activation', name: 'activation', version: '1.1'
+    implementation group: 'javax.cache', name: 'cache-api', version: '1.1.1'
+    implementation group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0.1'
+    implementation group: 'me.xdrop', name: 'fuzzywuzzy', version: '1.1.9'
+    implementation group: 'net.greghaines', name: 'jesque', version: '2.1.3'
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.8'
+    implementation group: 'org.flywaydb', name: 'flyway-core', version: '6.2.4'
+    implementation group: 'org.glassfish.jersey.containers', name: 'jersey-container-grizzly2-http', version: '2.29.1'
+    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.29.1'
+    implementation group: 'org.glassfish.jersey.test-framework.providers', name: 'jersey-test-framework-provider-simple', version: '2.29.1'
+    implementation group: 'org.jooq', name: 'jooq', version: '3.12.3'
+    implementation group: 'org.jooq', name: 'jooq-codegen', version: '3.12.3'
+    implementation group: 'org.json', name: 'json', version: '20160810'
+    implementation group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.8'
+    implementation group: 'org.reflections', name: 'reflections', version: '0.9.11'
+    implementation group: 'org.sheinbergon', name: 'jna-aac-encoder', version: '0.1.4'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '1.18'
+    implementation group: 'redis.clients', name: 'jedis', version: '2.9.0'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.26.3'
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.8.0'
+    testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '1.3'
 }
 
 jooq {
-  version = '3.12.3'
-  edition = 'OSS'
-  generateSchemaSourceOnCompilation = true
-  sample(sourceSets.main) {
-    jdbc {
-      driver = 'org.postgresql.Driver'
-      url = 'jdbc:postgresql://localhost:5400/xj_dev'
-      user = 'root'
-      password = ''
+    version = '3.12.3'
+    edition = 'OSS'
+    generateSchemaSourceOnCompilation = true
+    sample(sourceSets.main) {
+        jdbc {
+            driver = 'org.postgresql.Driver'
+            url = 'jdbc:postgresql://localhost:5400/xj_dev'
+            user = 'root'
+            password = ''
+        }
+        generator {
+            name = 'org.jooq.codegen.DefaultGenerator'
+            strategy {
+                name = 'org.jooq.codegen.DefaultGeneratorStrategy'
+                // ...
+            }
+            database {
+                name = 'org.jooq.meta.postgres.PostgresDatabase'
+                inputSchema = 'xj'
+                includes = '.*'
+                // ...
+            }
+            generate {
+                relations = true
+                deprecated = false
+                records = true
+                immutablePojos = false
+                fluentSetters = false
+                // ...
+            }
+            target {
+                packageName = 'io.xj.service.hub'
+                directory = 'build/generated/sources/db'
+                // directory = ...
+            }
+        }
     }
-    generator {
-      name = 'org.jooq.codegen.DefaultGenerator'
-      strategy {
-        name = 'org.jooq.codegen.DefaultGeneratorStrategy'
-        // ...
-      }
-      database {
-        name = 'org.jooq.meta.postgres.PostgresDatabase'
-        inputSchema = 'xj'
-        includes = '.*'
-        // ...
-      }
-      generate {
-        relations = true
-        deprecated = false
-        records = true
-        immutablePojos = false
-        fluentSetters = false
-        // ...
-      }
-      target {
-        packageName = 'io.xj.service.hub'
-        directory = 'build/generated/sources/db'
-        // directory = ...
-      }
-    }
-  }
 }
 
 generateSampleJooqSchemaSource.dependsOn(flywayMigrate)
 
 jar {
-  manifest {
-    attributes 'Main-Class': 'io.xj.service.hub.Main'
-  }
+    manifest {
+        attributes 'Main-Class': 'io.xj.service.hub.Main'
+    }
 }
 
 application {
-  mainClassName = 'io.xj.service.hub.Main'
+    mainClassName = 'io.xj.service.hub.Main'
 }
 
 group = 'io.xj'
@@ -158,12 +161,12 @@ description = 'xj-service-hub'
 sourceCompatibility = '11'
 
 tasks.withType(JavaCompile) {
-  options.encoding = 'UTF-8'
-  dependsOn generateSampleJooqSchemaSource
+    options.encoding = 'UTF-8'
+    dependsOn generateSampleJooqSchemaSource
 }
 
 jacocoTestReport {
-  reports {
-    xml.enabled true
-  }
+    reports {
+        xml.enabled true
+    }
 }

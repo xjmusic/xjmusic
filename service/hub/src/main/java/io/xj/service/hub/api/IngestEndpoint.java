@@ -10,9 +10,8 @@ import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.hub.ingest.HubIngest;
-import io.xj.service.hub.ingest.HubIngestCacheProvider;
+import io.xj.service.hub.ingest.HubIngestFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +23,6 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  HubIngest
@@ -34,7 +32,7 @@ import java.util.UUID;
 @Path("ingest")
 public class IngestEndpoint extends HubEndpoint {
   private final Logger log = LoggerFactory.getLogger(IngestEndpoint.class);
-  private final HubIngestCacheProvider ingestProvider;
+  private final HubIngestFactory ingestFactory;
 
   /**
    Constructor
@@ -44,10 +42,10 @@ public class IngestEndpoint extends HubEndpoint {
     HttpResponseProvider response,
     Config config,
     PayloadFactory payloadFactory,
-    HubIngestCacheProvider ingestProvider
+    HubIngestFactory ingestFactory
   ) {
     super(response, config, payloadFactory);
-    this.ingestProvider = ingestProvider;
+    this.ingestFactory = ingestFactory;
   }
 
   /**
@@ -56,17 +54,17 @@ public class IngestEndpoint extends HubEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed({UserRoleType.INTERNAL})
+  @RolesAllowed({INTERNAL})
   public Response ingest(
     @Context ContainerRequestContext crc,
-    @QueryParam("libraryIds") Set<UUID> libraryIds,
-    @QueryParam("programIds") Set<UUID> programIds,
-    @QueryParam("instrumentIds") Set<UUID> instrumentIds
+    @QueryParam("libraryIds") Set<String> libraryIds,
+    @QueryParam("programIds") Set<String> programIds,
+    @QueryParam("instrumentIds") Set<String> instrumentIds
   ) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
       Payload payload = payloadFactory.newPayload();
-      HubIngest ingest = ingestProvider.ingest(hubAccess, libraryIds, programIds, instrumentIds);
+      HubIngest ingest = ingestFactory.ingest(hubAccess, libraryIds, programIds, instrumentIds);
       payload.setDataType(PayloadDataType.Many);
       ingest.getAllEntities().forEach(entity -> {
         try {

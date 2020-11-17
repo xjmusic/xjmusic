@@ -3,25 +3,22 @@
 package io.xj.service.nexus.dao;
 
 import com.google.inject.Inject;
-import io.xj.lib.entity.Entity;
-import io.xj.lib.entity.EntityException;
+import com.google.protobuf.GeneratedMessageLite;
+import io.xj.UserRole;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.Value;
 import io.xj.service.hub.client.HubClientAccess;
-import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
-import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
 import io.xj.service.nexus.persistence.NexusEntityStore;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-public abstract class DAOImpl<N extends Entity> implements DAO<N> {
+public abstract class DAOImpl<E extends GeneratedMessageLite<E, ?>> implements DAO<E> {
   protected final EntityFactory entityFactory;
   protected final NexusEntityStore store;
 
@@ -63,7 +60,7 @@ public abstract class DAOImpl<N extends Entity> implements DAO<N> {
    @param entity to require existence of
    @throws DAOExistenceException if not isNonNull
    */
-  protected void requireExists(String name, N entity) throws DAOExistenceException {
+  protected void requireExists(String name, E entity) throws DAOExistenceException {
     if (!Value.isNonNull(entity)) throw new DAOExistenceException(String.format("%s does not exist!", name));
   }
 
@@ -107,7 +104,7 @@ public abstract class DAOImpl<N extends Entity> implements DAO<N> {
    @throws DAOPrivilegeException if does not have access
    */
   protected void requireArtist(HubClientAccess access) throws DAOPrivilegeException {
-    require(access, UserRoleType.Artist);
+    require(access, UserRole.Type.Artist);
   }
 
   /**
@@ -139,7 +136,7 @@ public abstract class DAOImpl<N extends Entity> implements DAO<N> {
    @param accountId to check for access to
    @throws DAOPrivilegeException if not admin
    */
-  protected void requireAccount(HubClientAccess access, UUID accountId) throws DAOPrivilegeException {
+  protected void requireAccount(HubClientAccess access, String accountId) throws DAOPrivilegeException {
     if (access.isTopLevel()) return;
     require("Account access", access.hasAccount(accountId));
   }
@@ -151,7 +148,7 @@ public abstract class DAOImpl<N extends Entity> implements DAO<N> {
    @param accountId to check for access to
    @throws DAOPrivilegeException if not admin
    */
-  protected void requireAccount(HubClientAccess access, UUID accountId, UserRoleType... allowedRoles) throws DAOPrivilegeException {
+  protected void requireAccount(HubClientAccess access, String accountId, UserRole.Type... allowedRoles) throws DAOPrivilegeException {
     requireAccount(access, accountId);
     require(access, allowedRoles);
   }
@@ -165,7 +162,7 @@ public abstract class DAOImpl<N extends Entity> implements DAO<N> {
    @param allowedRoles to require
    @throws DAOPrivilegeException if access does not have any one of the specified roles
    */
-  protected void require(HubClientAccess access, UserRoleType... allowedRoles) throws DAOPrivilegeException {
+  protected void require(HubClientAccess access, UserRole.Type... allowedRoles) throws DAOPrivilegeException {
     if (access.isTopLevel()) return;
     if (3 < allowedRoles.length)
       require(
@@ -190,7 +187,7 @@ public abstract class DAOImpl<N extends Entity> implements DAO<N> {
    @throws DAOPrivilegeException if not user
    */
   protected void requireUser(HubClientAccess access) throws DAOPrivilegeException {
-    require(access, UserRoleType.User);
+    require(access, UserRole.Type.User);
   }
 
   /**
@@ -200,7 +197,7 @@ public abstract class DAOImpl<N extends Entity> implements DAO<N> {
    @throws DAOPrivilegeException if not engineer
    */
   protected void requireEngineer(HubClientAccess access) throws DAOPrivilegeException {
-    require(access, UserRoleType.Engineer);
+    require(access, UserRole.Type.Engineer);
   }
 
   /**
@@ -216,36 +213,6 @@ public abstract class DAOImpl<N extends Entity> implements DAO<N> {
       return;
     }
     throw new DAOValidationException(message);
-  }
-
-  /**
-   Make a clone of an entity, to mutate the clone without side effects
-
-   @param prior entity to make a clone of
-   @return clone of entity
-   @throws DAOFatalException on failure
-   */
-  protected <E extends Entity> E makeClone(E prior) throws DAOFatalException {
-    try {
-      return entityFactory.clone(prior);
-    } catch (EntityException e) {
-      throw new DAOFatalException(e);
-    }
-  }
-
-  /**
-   Make clone of some entities, to mutate the clones without side effects
-
-   @param priors entities to make clones of
-   @return clones of entity
-   @throws DAOFatalException on failure
-   */
-  protected <E extends Entity> Collection<E> makeClones(Collection<E> priors) throws DAOFatalException {
-    try {
-      return entityFactory.cloneAll(priors);
-    } catch (EntityException e) {
-      throw new DAOFatalException(e);
-    }
   }
 
 }

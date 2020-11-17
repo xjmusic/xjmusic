@@ -7,17 +7,19 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.Instrument;
+import io.xj.Library;
+import io.xj.Program;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.InstrumentDAO;
 import io.xj.service.hub.dao.ProgramDAO;
-import io.xj.service.hub.entity.Instrument;
-import io.xj.service.hub.entity.Library;
-import io.xj.service.hub.entity.Program;
 import io.xj.service.hub.testing.HubTestConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.UUID;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -39,12 +41,24 @@ public class HubIngestImplTest {
         bind(Config.class).toInstance(config);
       }
     });
-    Library library1 = Library.create();
-    Library library2 = Library.create();
-    Program program1 = Program.create();
-    Program program2 = Program.create();
-    Instrument instrument1 = Instrument.create();
-    Instrument instrument2 = Instrument.create();
+    Library library1 = Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    Library library2 = Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    Program program1 = Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    Program program2 = Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    Instrument instrument1 = Instrument.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    Instrument instrument2 = Instrument.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
 
     HubIngest subject = injector.getInstance(HubIngestFactory.class).ingest(HubAccess.internal(),
       ImmutableSet.of(library1.getId(), library2.getId()),

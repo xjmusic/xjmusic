@@ -3,6 +3,29 @@ package io.xj.service.hub;
 
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.Account;
+import io.xj.AccountUser;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.InstrumentAudioChord;
+import io.xj.InstrumentAudioEvent;
+import io.xj.InstrumentMeme;
+import io.xj.Library;
+import io.xj.Program;
+import io.xj.ProgramMeme;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequenceBindingMeme;
+import io.xj.ProgramSequenceChord;
+import io.xj.ProgramSequenceChordVoicing;
+import io.xj.ProgramSequencePattern;
+import io.xj.ProgramSequencePatternEvent;
+import io.xj.ProgramVoice;
+import io.xj.ProgramVoiceTrack;
+import io.xj.User;
+import io.xj.UserAuth;
+import io.xj.UserAuthToken;
+import io.xj.UserRole;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
@@ -12,29 +35,6 @@ import io.xj.lib.util.Text;
 import io.xj.service.hub.access.HubAccessControlProvider;
 import io.xj.service.hub.access.HubAccessLogFilter;
 import io.xj.service.hub.access.HubAccessTokenAuthFilter;
-import io.xj.service.hub.entity.Account;
-import io.xj.service.hub.entity.AccountUser;
-import io.xj.service.hub.entity.Instrument;
-import io.xj.service.hub.entity.InstrumentAudio;
-import io.xj.service.hub.entity.InstrumentAudioChord;
-import io.xj.service.hub.entity.InstrumentAudioEvent;
-import io.xj.service.hub.entity.InstrumentMeme;
-import io.xj.service.hub.entity.Library;
-import io.xj.service.hub.entity.Program;
-import io.xj.service.hub.entity.ProgramMeme;
-import io.xj.service.hub.entity.ProgramSequence;
-import io.xj.service.hub.entity.ProgramSequenceBinding;
-import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
-import io.xj.service.hub.entity.ProgramSequenceChord;
-import io.xj.service.hub.entity.ProgramSequenceChordVoicing;
-import io.xj.service.hub.entity.ProgramSequencePattern;
-import io.xj.service.hub.entity.ProgramSequencePatternEvent;
-import io.xj.service.hub.entity.ProgramVoice;
-import io.xj.service.hub.entity.ProgramVoiceTrack;
-import io.xj.service.hub.entity.User;
-import io.xj.service.hub.entity.UserAuth;
-import io.xj.service.hub.entity.UserAuthToken;
-import io.xj.service.hub.entity.UserRole;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 import io.xj.service.hub.persistence.HubMigration;
 import io.xj.service.hub.persistence.HubPersistenceException;
@@ -117,20 +117,20 @@ public class HubApp extends App {
   public static void buildApiTopology(EntityFactory entityFactory) {
     // Account
     entityFactory.register(Account.class)
-      .createdBy(Account::new)
+      .createdBy(Account::getDefaultInstance)
       .withAttribute("name")
       .hasMany(Library.class)
       .hasMany(AccountUser.class);
 
     // AccountUser
     entityFactory.register(AccountUser.class)
-      .createdBy(AccountUser::new)
+      .createdBy(AccountUser::getDefaultInstance)
       .belongsTo(Account.class)
       .belongsTo(User.class);
 
     // Instrument
     entityFactory.register(Instrument.class)
-      .createdBy(Instrument::new)
+      .createdBy(Instrument::getDefaultInstance)
       .withAttribute("state")
       .withAttribute("type")
       .withAttribute("name")
@@ -143,7 +143,7 @@ public class HubApp extends App {
 
     // InstrumentAudio
     entityFactory.register(InstrumentAudio.class)
-      .createdBy(InstrumentAudio::new)
+      .createdBy(InstrumentAudio::getDefaultInstance)
       .withAttribute("waveformKey")
       .withAttribute("name")
       .withAttribute("start")
@@ -157,7 +157,7 @@ public class HubApp extends App {
 
     // InstrumentAudioChord
     entityFactory.register(InstrumentAudioChord.class)
-      .createdBy(InstrumentAudioChord::new)
+      .createdBy(InstrumentAudioChord::getDefaultInstance)
       .withAttribute("name")
       .withAttribute("position")
       .belongsTo(Instrument.class)
@@ -165,7 +165,7 @@ public class HubApp extends App {
 
     // InstrumentAudioEvent
     entityFactory.register(InstrumentAudioEvent.class)
-      .createdBy(InstrumentAudioEvent::new)
+      .createdBy(InstrumentAudioEvent::getDefaultInstance)
       .withAttribute("duration")
       .withAttribute("note")
       .withAttribute("position")
@@ -176,13 +176,13 @@ public class HubApp extends App {
 
     // InstrumentMeme
     entityFactory.register(InstrumentMeme.class)
-      .createdBy(InstrumentMeme::new)
+      .createdBy(InstrumentMeme::getDefaultInstance)
       .withAttribute("name")
       .belongsTo(Instrument.class);
 
     // Library
     entityFactory.register(Library.class)
-      .createdBy(Library::new)
+      .createdBy(Library::getDefaultInstance)
       .withAttribute("name")
       .belongsTo(Account.class)
       .hasMany(Instrument.class)
@@ -190,7 +190,7 @@ public class HubApp extends App {
 
     // Program
     entityFactory.register(Program.class)
-      .createdBy(Program::new)
+      .createdBy(Program::getDefaultInstance)
       .withAttribute("state")
       .withAttribute("key")
       .withAttribute("tempo")
@@ -212,13 +212,13 @@ public class HubApp extends App {
 
     // ProgramMeme
     entityFactory.register(ProgramMeme.class)
-      .createdBy(ProgramMeme::new)
+      .createdBy(ProgramMeme::getDefaultInstance)
       .withAttribute("name")
       .belongsTo(Program.class);
 
     // ProgramSequence
     entityFactory.register(ProgramSequence.class)
-      .createdBy(ProgramSequence::new)
+      .createdBy(ProgramSequence::getDefaultInstance)
       .withAttribute("name")
       .withAttribute("key")
       .withAttribute("density")
@@ -231,7 +231,7 @@ public class HubApp extends App {
 
     // ProgramSequenceBinding
     entityFactory.register(ProgramSequenceBinding.class)
-      .createdBy(ProgramSequenceBinding::new)
+      .createdBy(ProgramSequenceBinding::getDefaultInstance)
       .withAttribute("offset")
       .belongsTo(Program.class)
       .belongsTo(ProgramSequence.class)
@@ -239,14 +239,14 @@ public class HubApp extends App {
 
     // ProgramSequenceBindingMeme
     entityFactory.register(ProgramSequenceBindingMeme.class)
-      .createdBy(ProgramSequenceBindingMeme::new)
+      .createdBy(ProgramSequenceBindingMeme::getDefaultInstance)
       .withAttribute("name")
       .belongsTo(Program.class)
       .belongsTo(ProgramSequenceBinding.class);
 
     // ProgramSequenceChord
     entityFactory.register(ProgramSequenceChord.class)
-      .createdBy(ProgramSequenceChord::new)
+      .createdBy(ProgramSequenceChord::getDefaultInstance)
       .withAttribute("name")
       .withAttribute("position")
       .belongsTo(Program.class)
@@ -254,7 +254,7 @@ public class HubApp extends App {
 
     // ProgramSequenceChordVoicing
     entityFactory.register(ProgramSequenceChordVoicing.class)
-      .createdBy(ProgramSequenceChordVoicing::new)
+      .createdBy(ProgramSequenceChordVoicing::getDefaultInstance)
       .withAttribute("type")
       .withAttribute("notes")
       .belongsTo(Program.class)
@@ -262,7 +262,7 @@ public class HubApp extends App {
 
     // ProgramSequencePattern
     entityFactory.register(ProgramSequencePattern.class)
-      .createdBy(ProgramSequencePattern::new)
+      .createdBy(ProgramSequencePattern::getDefaultInstance)
       .withAttribute("type")
       .withAttribute("total")
       .withAttribute("name")
@@ -273,7 +273,7 @@ public class HubApp extends App {
 
     // ProgramSequencePatternEvent
     entityFactory.register(ProgramSequencePatternEvent.class)
-      .createdBy(ProgramSequencePatternEvent::new)
+      .createdBy(ProgramSequencePatternEvent::getDefaultInstance)
       .withAttribute("duration")
       .withAttribute("note")
       .withAttribute("position")
@@ -284,7 +284,7 @@ public class HubApp extends App {
 
     // ProgramVoice
     entityFactory.register(ProgramVoice.class)
-      .createdBy(ProgramVoice::new)
+      .createdBy(ProgramVoice::getDefaultInstance)
       .withAttribute("type")
       .withAttribute("name")
       .withAttribute("order")
@@ -293,7 +293,7 @@ public class HubApp extends App {
 
     // ProgramVoiceTrack
     entityFactory.register(ProgramVoiceTrack.class)
-      .createdBy(ProgramVoiceTrack::new)
+      .createdBy(ProgramVoiceTrack::getDefaultInstance)
       .withAttribute("name")
       .withAttribute("order")
       .belongsTo(Program.class)
@@ -302,7 +302,7 @@ public class HubApp extends App {
 
     // User
     entityFactory.register(User.class)
-      .createdBy(User::new)
+      .createdBy(User::getDefaultInstance)
       .withAttribute("name")
       .withAttribute("roles")
       .withAttribute("email")
@@ -312,7 +312,7 @@ public class HubApp extends App {
 
     // UserAuth
     entityFactory.register(UserAuth.class)
-      .createdBy(UserAuth::new)
+      .createdBy(UserAuth::getDefaultInstance)
       .withAttribute("type")
       .withAttribute("externalAccessToken")
       .withAttribute("externalRefreshToken")
@@ -321,14 +321,14 @@ public class HubApp extends App {
 
     // UserAuthToken
     entityFactory.register(UserAuthToken.class)
-      .createdBy(UserAuthToken::new)
+      .createdBy(UserAuthToken::getDefaultInstance)
       .withAttribute("accessToken")
       .belongsTo(User.class)
       .belongsTo(UserAuth.class);
 
     // UserRole
     entityFactory.register(UserRole.class)
-      .createdBy(UserRole::new)
+      .createdBy(UserRole::getDefaultInstance)
       .withAttribute("type")
       .belongsTo(User.class);
   }

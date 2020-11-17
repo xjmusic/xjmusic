@@ -14,8 +14,6 @@ import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.access.HubAccessControlModule;
 import io.xj.service.hub.dao.DAOModule;
-import io.xj.service.hub.digest.HubDigestModule;
-import io.xj.service.hub.generation.HubGenerationModule;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 
@@ -33,8 +31,6 @@ public interface Main {
     new JsonApiModule(),
     new HubAccessControlModule(),
     new DAOModule(),
-    new HubDigestModule(),
-    new HubGenerationModule(),
     new HubIngestModule(),
     new HubPersistenceModule()
   );

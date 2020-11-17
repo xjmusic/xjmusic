@@ -2,12 +2,13 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import io.xj.Account;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.Account;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.jooq.DSLContext;
 
@@ -32,7 +33,7 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
 
   @Override
   public Account create(HubAccess hubAccess, Account entity) throws DAOException, JsonApiException, ValueException {
-    entity.validate();
+    validate(entity);
     requireTopLevel(hubAccess);
 
     return modelFrom(Account.class,
@@ -40,23 +41,23 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
   }
 
   @Override
-  public Account readOne(HubAccess hubAccess, UUID id) throws DAOException {
+  public Account readOne(HubAccess hubAccess, String id) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelFrom(Account.class,
         dbProvider.getDSL().selectFrom(ACCOUNT)
-          .where(ACCOUNT.ID.eq(id))
+          .where(ACCOUNT.ID.eq(UUID.fromString(id)))
           .fetchOne());
     else
       return modelFrom(Account.class,
         dbProvider.getDSL().select(ACCOUNT.fields())
           .from(ACCOUNT)
-          .where(ACCOUNT.ID.eq(id))
+          .where(ACCOUNT.ID.eq(UUID.fromString(id)))
           .and(ACCOUNT.ID.in(hubAccess.getAccountIds()))
           .fetchOne());
   }
 
   @Override
-  public Collection<Account> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+  public Collection<Account> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Account.class,
         dbProvider.getDSL().selectFrom(ACCOUNT)
@@ -69,15 +70,16 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
   }
 
   @Override
-  public void update(HubAccess hubAccess, UUID id, Account entity) throws DAOException, JsonApiException, ValueException {
+  public void update(HubAccess hubAccess, String id, Account entity) throws DAOException, JsonApiException, ValueException {
     requireTopLevel(hubAccess);
-    entity.validate();
+    validate(entity);
     executeUpdate(dbProvider.getDSL(), ACCOUNT, id, entity);
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+  public void destroy(HubAccess hubAccess, String rawId) throws DAOException {
     DSLContext db = dbProvider.getDSL();
+    UUID id = UUID.fromString(rawId);
 
     requireTopLevel(hubAccess);
 
@@ -106,7 +108,22 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
 
   @Override
   public Account newInstance() {
-    return new Account();
+    return Account.getDefaultInstance();
+  }
+
+  /**
+   Validate data
+
+   @param record to validate
+   @throws DAOException if invalid
+   */
+  public void validate(Account record) throws DAOException {
+    try {
+      Value.require(record.getName(), "Account name");
+
+    } catch (ValueException e) {
+      throw new DAOException(e);
+    }
   }
 
 }

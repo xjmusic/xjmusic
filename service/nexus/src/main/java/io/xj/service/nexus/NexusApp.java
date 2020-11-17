@@ -3,6 +3,22 @@ package io.xj.service.nexus;
 
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.Account;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.Program;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequencePatternEvent;
+import io.xj.ProgramVoice;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
+import io.xj.SegmentMeme;
+import io.xj.SegmentMessage;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
@@ -13,23 +29,6 @@ import io.xj.service.hub.HubApp;
 import io.xj.service.hub.access.HubAccessLogFilter;
 import io.xj.service.hub.client.HubAccessTokenFilter;
 import io.xj.service.hub.client.HubClient;
-import io.xj.service.hub.entity.Account;
-import io.xj.service.hub.entity.Instrument;
-import io.xj.service.hub.entity.InstrumentAudio;
-import io.xj.service.hub.entity.Program;
-import io.xj.service.hub.entity.ProgramSequenceBinding;
-import io.xj.service.hub.entity.ProgramSequencePatternEvent;
-import io.xj.service.hub.entity.ProgramVoice;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.ChainBinding;
-import io.xj.service.nexus.entity.ChainConfig;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentChoice;
-import io.xj.service.nexus.entity.SegmentChoiceArrangement;
-import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
-import io.xj.service.nexus.entity.SegmentChord;
-import io.xj.service.nexus.entity.SegmentMeme;
-import io.xj.service.nexus.entity.SegmentMessage;
 import io.xj.service.nexus.work.NexusWork;
 import org.slf4j.LoggerFactory;
 
@@ -109,7 +108,7 @@ public class NexusApp extends App {
   public static void buildApiTopology(EntityFactory entityFactory) {
     // Chain
     entityFactory.register(Chain.class)
-      .createdBy(Chain::new)
+      .createdBy(Chain::getDefaultInstance)
       .withAttribute("name")
       .withAttribute("config")
       .withAttribute("state")
@@ -122,14 +121,14 @@ public class NexusApp extends App {
 
     // ChainBinding
     entityFactory.register(ChainBinding.class)
-      .createdBy(ChainBinding::new)
+      .createdBy(ChainBinding::getDefaultInstance)
       .withAttribute("type")
       .withAttribute("targetId")
       .belongsTo(Chain.class);
 
     // Segment
     entityFactory.register(Segment.class)
-      .createdBy(Segment::new)
+      .createdBy(Segment::getDefaultInstance)
       .withAttribute("state")
       .withAttribute("beginAt")
       .withAttribute("endAt")
@@ -152,7 +151,7 @@ public class NexusApp extends App {
 
     // SegmentChoice
     entityFactory.register(SegmentChoice.class)
-      .createdBy(SegmentChoice::new)
+      .createdBy(SegmentChoice::getDefaultInstance)
       .withAttribute("type")
       .withAttribute("transpose")
       .belongsTo(Segment.class)
@@ -162,7 +161,7 @@ public class NexusApp extends App {
 
     // SegmentChoiceArrangement
     entityFactory.register(SegmentChoiceArrangement.class)
-      .createdBy(SegmentChoiceArrangement::new)
+      .createdBy(SegmentChoiceArrangement::getDefaultInstance)
       .belongsTo(Segment.class)
       .belongsTo(SegmentChoice.class)
       .belongsTo(ProgramVoice.class)
@@ -170,7 +169,7 @@ public class NexusApp extends App {
 
     // SegmentChoiceArrangementPick
     entityFactory.register(SegmentChoiceArrangementPick.class)
-      .createdBy(SegmentChoiceArrangementPick::new)
+      .createdBy(SegmentChoiceArrangementPick::getDefaultInstance)
       .withAttribute("start")
       .withAttribute("length")
       .withAttribute("amplitude")
@@ -183,20 +182,20 @@ public class NexusApp extends App {
 
     // SegmentChord
     entityFactory.register(SegmentChord.class)
-      .createdBy(SegmentChord::new)
+      .createdBy(SegmentChord::getDefaultInstance)
       .withAttribute("name")
       .withAttribute("position")
       .belongsTo(Segment.class);
 
     // SegmentMeme
     entityFactory.register(SegmentMeme.class)
-      .createdBy(SegmentMeme::new)
+      .createdBy(SegmentMeme::getDefaultInstance)
       .withAttribute("name")
       .belongsTo(Segment.class);
 
     // SegmentMessage
     entityFactory.register(SegmentMessage.class)
-      .createdBy(SegmentMessage::new)
+      .createdBy(SegmentMessage::getDefaultInstance)
       .withAttribute("body")
       .withAttribute("type")
       .belongsTo(Segment.class);

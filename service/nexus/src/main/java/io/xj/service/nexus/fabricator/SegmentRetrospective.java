@@ -1,14 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.fabricator;
 
-import io.xj.lib.entity.Entity;
+import io.xj.Program;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentMeme;
 import io.xj.lib.entity.EntityStoreException;
-import io.xj.service.hub.entity.ProgramType;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentChoice;
-import io.xj.service.nexus.entity.SegmentChoiceArrangement;
-import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
-import io.xj.service.nexus.entity.SegmentMeme;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -43,7 +42,7 @@ public interface SegmentRetrospective {
    @return choice of given type
    @throws FabricationException if no such choice type exists
    */
-  SegmentChoice getChoiceOfType(Segment segment, ProgramType type) throws FabricationException, EntityStoreException;
+  SegmentChoice getChoiceOfType(Segment segment, Program.Type type) throws FabricationException, EntityStoreException;
 
   /**
    Get the arrangements for a given choice
@@ -67,7 +66,7 @@ public interface SegmentRetrospective {
    @return choice of given type
    @throws FabricationException if no such choice type exists
    */
-  SegmentChoice getPreviousChoiceOfType(ProgramType type) throws FabricationException;
+  SegmentChoice getPreviousChoiceOfType(Program.Type type) throws FabricationException;
 
   /**
    Add an Entity
@@ -77,5 +76,5 @@ public interface SegmentRetrospective {
    @return entity that was added
    @throws FabricationException on failure
    */
-  <N extends Entity> N add(N entity) throws FabricationException;
+  <N> N add(N entity) throws FabricationException;
 }

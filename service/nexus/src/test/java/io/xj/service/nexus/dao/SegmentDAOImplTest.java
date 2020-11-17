@@ -6,21 +6,18 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
+import io.xj.Account;
+import io.xj.Chain;
+import io.xj.Segment;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClientAccess;
-import io.xj.service.hub.entity.Account;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.ChainState;
-import io.xj.service.nexus.entity.ChainType;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentState;
 import io.xj.service.nexus.persistence.NexusEntityStore;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
@@ -34,10 +31,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.UUID;
 
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildAccount;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildHubClientAccess;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
@@ -78,25 +79,35 @@ public class SegmentDAOImplTest {
     testDAO = injector.getInstance(SegmentDAO.class);
 
     // Account "Testing" has chain "Test Print #1"
-    account1 = Account.create("Testing");
-    chain3 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    account1 = buildAccount("Testing");
+    chain3 = store.put(Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(account1.getId())
+      .setName("Test Print #1")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2014-08-12T12:17:02.527142Z")
+      .build());
 
     // Chain "Test Print #1" has 5 sequential segments
-    segment1 = store.put(Segment.create()
+    segment1 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(0L)
-      .setStateEnum(SegmentState.Dubbed)
+      .setState(Segment.State.Dubbed)
       .setKey("D major")
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setEndAt("2017-02-14T12:01:32.000001Z"));
-    segment2 = store.put(Segment.create()
+      .setEndAt("2017-02-14T12:01:32.000001Z")
+      .build());
+    segment2 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(1L)
-      .setStateEnum(SegmentState.Dubbing)
+      .setState(Segment.State.Dubbing)
       .setKey("Db minor")
       .setTotal(64)
       .setDensity(0.85)
@@ -104,39 +115,47 @@ public class SegmentDAOImplTest {
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setWaveformPreroll(1.523)
-      .setEndAt("2017-02-14T12:02:04.000001Z"));
-    segment3 = store.put(Segment.create()
+      .setEndAt("2017-02-14T12:02:04.000001Z")
+      .build());
+    segment3 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(2L)
-      .setStateEnum(SegmentState.Crafted)
+      .setState(Segment.State.Crafted)
       .setKey("F major")
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:04.000001Z")
-      .setEndAt("2017-02-14T12:02:36.000001Z"));
-    segment4 = store.put(Segment.create()
+      .setEndAt("2017-02-14T12:02:36.000001Z")
+      .build());
+    segment4 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(3L)
-      .setStateEnum(SegmentState.Crafting)
+      .setState(Segment.State.Crafting)
       .setKey("E minor")
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:36.000001Z")
-      .setEndAt("2017-02-14T12:03:08.000001Z"));
-    segment5 = store.put(Segment.create()
+      .setEndAt("2017-02-14T12:03:08.000001Z")
+      .build());
+    segment5 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setOffset(4L)
-      .setStateEnum(SegmentState.Planned)
+      .setState(Segment.State.Planned)
       .setKey("E minor")
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892")
+      .setOutputEncoder("wav")
+      .build());
   }
 
   /**
@@ -144,11 +163,12 @@ public class SegmentDAOImplTest {
    */
   @Test
   public void create() throws Exception {
-    HubClientAccess access = HubClientAccess.create("Admin");
-    Segment inputData = Segment.create()
+    HubClientAccess access = buildHubClientAccess("Admin");
+    Segment inputData = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(5L)
-      .setState("Planned")
+      .setState(Segment.State.Planned)
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
@@ -156,7 +176,8 @@ public class SegmentDAOImplTest {
       .setWaveformPreroll(2.898)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setKey("C# minor 7 b9")
-      .setTempo(120.0);
+      .setTempo(120.0)
+      .build();
 
     when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
@@ -165,15 +186,15 @@ public class SegmentDAOImplTest {
 
     assertNotNull(result);
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Long.valueOf(5L), result.getOffset());
-    assertEquals(SegmentState.Planned, result.getState());
-    assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt().toString());
-    assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt().toString());
-    assertEquals(Integer.valueOf(64), result.getTotal());
+    assertEquals(5L, result.getOffset());
+    assertEquals(Segment.State.Planned, result.getState());
+    assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt());
+    assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt());
+    assertEquals(64, result.getTotal());
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(120.0, result.getTempo(), 0.01);
-    assertEquals(Double.valueOf(2.898), result.getWaveformPreroll());
+    assertEquals(2.898, result.getWaveformPreroll(), 0.01);
     assertNotNull(result.getStorageKey());
   }
 
@@ -183,18 +204,20 @@ public class SegmentDAOImplTest {
    */
   @Test
   public void create_alwaysInPlannedState() throws Exception {
-    HubClientAccess access = HubClientAccess.create("Admin");
-    Segment inputData = Segment.create()
+    HubClientAccess access = buildHubClientAccess("Admin");
+    Segment inputData = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(5L)
-      .setState("Crafting")
+      .setState(Segment.State.Crafting)
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
-      .setTempo(120.0);
+      .setTempo(120.0)
+      .build();
 
     when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
@@ -203,11 +226,11 @@ public class SegmentDAOImplTest {
 
     assertNotNull(result);
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Long.valueOf(5L), result.getOffset());
-    assertEquals(SegmentState.Planned, result.getState());
-    assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt().toString());
-    assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt().toString());
-    assertEquals(Integer.valueOf(64), result.getTotal());
+    assertEquals(5L, result.getOffset());
+    assertEquals(Segment.State.Planned, result.getState());
+    assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt());
+    assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt());
+    assertEquals(64, result.getTotal());
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(120.0, result.getTempo(), 0.1);
@@ -216,17 +239,19 @@ public class SegmentDAOImplTest {
 
   @Test
   public void create_FailsIfNotUniqueChainOffset() throws Exception {
-    HubClientAccess access = HubClientAccess.create("Admin");
-    Segment inputData = Segment.create()
+    HubClientAccess access = buildHubClientAccess("Admin");
+    Segment inputData = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(4L)
-      .setState("Crafting")
+      .setState(Segment.State.Crafting)
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
-      .setTempo(120.0);
+      .setTempo(120.0)
+      .build();
 
     when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
@@ -239,17 +264,18 @@ public class SegmentDAOImplTest {
 
   @Test
   public void create_FailsWithoutTopLevelAccess() throws Exception {
-    HubClientAccess access = HubClientAccess.create("User");
-    Segment inputData = Segment.create()
+    HubClientAccess access = buildHubClientAccess("User");
+    Segment inputData = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(4L)
-      .setState("Crafting")
+      .setState(Segment.State.Crafting)
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
-      .setTempo(120.0);
+      .setTempo(120.0).build();
 
     when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
@@ -262,16 +288,16 @@ public class SegmentDAOImplTest {
 
   @Test
   public void create_FailsWithoutChainID() throws Exception {
-    HubClientAccess access = HubClientAccess.create("Admin");
-    Segment inputData = Segment.create()
+    HubClientAccess access = buildHubClientAccess("Admin");
+    Segment inputData = Segment.newBuilder()
       .setOffset(4L)
-      .setState("Crafting")
+      .setState(Segment.State.Crafting)
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
-      .setTempo(120.0);
+      .setTempo(120.0).build();
 
     when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
@@ -285,27 +311,29 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Segment result = testDAO.readOne(access, segment2.getId());
 
     assertNotNull(result);
     assertEquals(segment2.getId(), result.getId());
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Long.valueOf(1L), result.getOffset());
-    assertEquals(SegmentState.Dubbing, result.getState());
-    assertEquals("2017-02-14T12:01:32.000001Z", result.getBeginAt().toString());
-    assertEquals("2017-02-14T12:02:04.000001Z", result.getEndAt().toString());
-    assertEquals(Integer.valueOf(64), result.getTotal());
-    assertEquals(Double.valueOf(0.85), result.getDensity());
+    assertEquals(1L, result.getOffset());
+    assertEquals(Segment.State.Dubbing, result.getState());
+    assertEquals("2017-02-14T12:01:32.000001Z", result.getBeginAt());
+    assertEquals("2017-02-14T12:02:04.000001Z", result.getEndAt());
+    assertEquals(64, result.getTotal());
+    assertEquals(0.85, result.getDensity(), 0.01);
     assertEquals("Db minor", result.getKey());
-    assertEquals(Double.valueOf(120.0), result.getTempo());
-    assertEquals(Double.valueOf(1.523), result.getWaveformPreroll());
+    assertEquals(120.0, result.getTempo(), 0.01);
+    assertEquals(1.523, result.getWaveformPreroll(), 0.01);
   }
 
   @Test
   public void readOne_failsWhenUserIsNotInChain() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(Account.create()), "User");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build()), "User");
     failure.expect(DAOPrivilegeException.class);
     failure.expectMessage("access is required");
 
@@ -314,7 +342,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readMany() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(chain3.getId()));
 
@@ -323,19 +351,19 @@ public class SegmentDAOImplTest {
     Iterator<Segment> it = result.iterator();
 
     Segment result0 = it.next();
-    assertEquals(SegmentState.Dubbed, result0.getState());
+    assertEquals(Segment.State.Dubbed, result0.getState());
 
     Segment result1 = it.next();
-    assertEquals(SegmentState.Dubbing, result1.getState());
+    assertEquals(Segment.State.Dubbing, result1.getState());
 
     Segment result2 = it.next();
-    assertEquals(SegmentState.Crafted, result2.getState());
+    assertEquals(Segment.State.Crafted, result2.getState());
 
     Segment result3 = it.next();
-    assertEquals(SegmentState.Crafting, result3.getState());
+    assertEquals(Segment.State.Crafting, result3.getState());
 
     Segment result4 = it.next();
-    assertEquals(SegmentState.Planned, result4.getState());
+    assertEquals(Segment.State.Planned, result4.getState());
   }
 
   /**
@@ -344,17 +372,19 @@ public class SegmentDAOImplTest {
   @Test
   public void readMany_doesNotExceedReadLimit() throws Exception {
     for (int i = 0; i < 20; i++)
-      store.put(Segment.create()
+      store.put(Segment.newBuilder()
+        .setId(UUID.randomUUID().toString())
         .setChainId(chain3.getId())
         .setOffset(4L)
-        .setState("Crafting")
+        .setState(Segment.State.Crafting)
         .setBeginAt("1995-04-28T11:23:00.000001Z")
         .setEndAt("1995-04-28T11:23:32.000001Z")
         .setTotal(64)
         .setDensity(0.74)
         .setKey("C# minor 7 b9")
-        .setTempo(120.0));
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
+        .setTempo(120.0)
+        .build());
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(chain3.getId()));
 
@@ -367,21 +397,22 @@ public class SegmentDAOImplTest {
    */
   @Test
   public void readMany_byChainEmbedKey_doesNotExceedReadLimit() throws Exception {
-    chain5 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "Barnacles"));
+    chain5 = store.put(buildChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
     for (int i = 0; i < 20; i++)
-      store.put(Segment.create()
+      store.put(Segment.newBuilder()
+        .setId(UUID.randomUUID().toString())
         .setChainId(chain5.getId())
         .setOffset(4L)
-        .setState("Crafting")
+        .setState(Segment.State.Crafting)
         .setBeginAt("1995-04-28T11:23:00.000001Z")
         .setEndAt("1995-04-28T11:23:32.000001Z")
         .setTotal(64)
         .setDensity(0.74)
         .setKey("C# minor 7 b9")
-        .setTempo(120.0));
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User");
+        .setTempo(120.0)
+        .build());
 
-    Collection<Segment> result = testDAO.readMany(HubClientAccess.internal(), "barnacles");
+    Collection<Segment> result = testDAO.readManyByEmbedKey(HubClientAccess.internal(), "barnacles");
 
     assertNotNull(result);
     assertEquals(12L, result.size());
@@ -389,115 +420,121 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readMany_byChainEmbedKey() throws Exception {
-    chain5 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "Barnacles"));
-    store.put(Segment.create()
+    chain5 = store.put(buildChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain5.getId())
       .setOffset(0L)
-      .setStateEnum(SegmentState.Dubbed)
+      .setState(Segment.State.Dubbed)
       .setKey("D major")
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setCreatedAt("2017-02-14T12:01:00.000001Z")
-      .setUpdatedAt("2017-02-14T12:01:32.000001Z"));
-    store.put(Segment.create()
+      .build()
+    );
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain5.getId())
       .setOffset(1L)
-      .setStateEnum(SegmentState.Dubbing)
+      .setState(Segment.State.Dubbing)
       .setKey("Db minor")
       .setTotal(64)
       .setDensity(0.85)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:32.000001Z")
-      .setCreatedAt("2017-02-14T12:01:32.000001Z")
-      .setUpdatedAt("2017-02-14T12:02:04.000001Z"));
-    store.put(Segment.create()
+      .build()
+    );
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain5.getId())
       .setOffset(2L)
-      .setStateEnum(SegmentState.Crafted)
+      .setState(Segment.State.Crafted)
       .setKey("F major")
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:04.000001Z")
-      .setCreatedAt("2017-02-14T12:02:04.000001Z")
-      .setUpdatedAt("2017-02-14T12:02:36.000001Z"));
-    store.put(Segment.create()
+      .build()
+    );
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain5.getId())
       .setOffset(3L)
-      .setStateEnum(SegmentState.Crafting)
+      .setState(Segment.State.Crafting)
       .setKey("E minor")
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:36.000001Z")
-      .setCreatedAt("2017-02-14T12:02:36.000001Z")
-      .setUpdatedAt("2017-02-14T12:03:08.000001Z"));
-    store.put(Segment.create()
+      .build()
+    );
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain5.getId())
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setOffset(4L)
-      .setStateEnum(SegmentState.Planned)
+      .setState(Segment.State.Planned)
       .setKey("E minor")
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build());
 
-    Collection<Segment> result = testDAO.readMany(HubClientAccess.internal(), "barnacles");
+    Collection<Segment> result = testDAO.readManyByEmbedKey(HubClientAccess.internal(), "barnacles");
 
     assertEquals(5L, result.size());
     Iterator<Segment> it = result.iterator();
     Segment actualResult0 = it.next();
-    assertEquals(SegmentState.Planned, actualResult0.getState());
+    assertEquals(Segment.State.Planned, actualResult0.getState());
     Segment result1 = it.next();
-    assertEquals(SegmentState.Crafting, result1.getState());
+    assertEquals(Segment.State.Crafting, result1.getState());
     Segment result2 = it.next();
-    assertEquals(SegmentState.Crafted, result2.getState());
+    assertEquals(Segment.State.Crafted, result2.getState());
     Segment result3 = it.next();
-    assertEquals(SegmentState.Dubbing, result3.getState());
+    assertEquals(Segment.State.Dubbing, result3.getState());
     Segment result4 = it.next();
-    assertEquals(SegmentState.Dubbed, result4.getState());
+    assertEquals(Segment.State.Dubbed, result4.getState());
   }
 
   @Test
   public void readManyFromOffset() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromOffset(access, chain3.getId(), 2L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
     Segment actualResult0 = it.next();
-    assertEquals(SegmentState.Crafted, actualResult0.getState());
+    assertEquals(Segment.State.Crafted, actualResult0.getState());
     Segment result1 = it.next();
-    assertEquals(SegmentState.Crafting, result1.getState());
+    assertEquals(Segment.State.Crafting, result1.getState());
     Segment result2 = it.next();
-    assertEquals(SegmentState.Planned, result2.getState());
+    assertEquals(Segment.State.Planned, result2.getState());
   }
 
   @Test
   public void readManyFromToOffset() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromToOffset(access, chain3.getId(), 2L, 3L);
 
     assertEquals(2L, result.size());
     Iterator<Segment> it = result.iterator();
     Segment result1 = it.next();
-    assertEquals(SegmentState.Crafted, result1.getState());
+    assertEquals(Segment.State.Crafted, result1.getState());
     Segment result2 = it.next();
-    assertEquals(SegmentState.Crafting, result2.getState());
+    assertEquals(Segment.State.Crafting, result2.getState());
   }
 
   @Test
   public void readManyFromToOffset_acceptsNegativeOffsets_returnsEmptyCollection() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromToOffset(access, chain3.getId(), -1L, -1L);
 
@@ -506,92 +543,94 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readManyFromOffset_byChainEmbedKey() throws Exception {
-    chain5 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "Barnacles"));
-    store.put(Segment.create()
+    chain5 = store.put(buildChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain5.getId())
       .setOffset(0L)
-      .setStateEnum(SegmentState.Dubbed)
+      .setState(Segment.State.Dubbed)
       .setKey("D major")
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setCreatedAt("2017-02-14T12:01:00.000001Z")
-      .setUpdatedAt("2017-02-14T12:01:32.000001Z"));
-    store.put(Segment.create()
+      .build());
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain5.getId())
       .setOffset(1L)
-      .setStateEnum(SegmentState.Dubbing)
+      .setState(Segment.State.Dubbing)
       .setKey("Db minor")
       .setTotal(64)
       .setDensity(0.85)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:32.000001Z")
-      .setCreatedAt("2017-02-14T12:01:32.000001Z")
-      .setUpdatedAt("2017-02-14T12:02:04.000001Z"));
-    store.put(Segment.create()
+      .build());
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain5.getId())
       .setOffset(2L)
-      .setStateEnum(SegmentState.Crafted)
+      .setState(Segment.State.Crafted)
       .setKey("F major")
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:04.000001Z")
-      .setCreatedAt("2017-02-14T12:02:04.000001Z")
-      .setUpdatedAt("2017-02-14T12:02:36.000001Z"));
-    store.put(Segment.create()
+      .build());
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain5.getId())
       .setOffset(3L)
-      .setStateEnum(SegmentState.Crafting)
+      .setState(Segment.State.Crafting)
       .setKey("E minor")
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:36.000001Z")
-      .setCreatedAt("2017-02-14T12:02:36.000001Z")
-      .setUpdatedAt("2017-02-14T12:03:08.000001Z"));
-    store.put(Segment.create()
+      .build());
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain5.getId())
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setOffset(4L)
-      .setStateEnum(SegmentState.Planned)
+      .setState(Segment.State.Planned)
       .setKey("E minor")
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build());
 
-    Collection<Segment> result = testDAO.readManyFromOffset(HubClientAccess.internal(), "barnacles", 2L);
+    Collection<Segment> result = testDAO.readManyFromOffsetByEmbedKey(HubClientAccess.internal(), "barnacles", 2L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
     Segment actualResult0 = it.next();
-    assertEquals(SegmentState.Crafted, actualResult0.getState());
+    assertEquals(Segment.State.Crafted, actualResult0.getState());
     Segment result1 = it.next();
-    assertEquals(SegmentState.Crafting, result1.getState());
+    assertEquals(Segment.State.Crafting, result1.getState());
     Segment result2 = it.next();
-    assertEquals(SegmentState.Planned, result2.getState());
+    assertEquals(Segment.State.Planned, result2.getState());
   }
 
   @Test
   public void readManyFromSecondsUTC() throws Exception {
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromSecondsUTC(access, chain3.getId(), 1487073724L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
     Segment actualResult0 = it.next();
-    assertEquals(SegmentState.Dubbing, actualResult0.getState());
+    assertEquals(Segment.State.Dubbing, actualResult0.getState());
     Segment result1 = it.next();
-    assertEquals(SegmentState.Crafted, result1.getState());
+    assertEquals(Segment.State.Crafted, result1.getState());
     Segment result2 = it.next();
-    assertEquals(SegmentState.Crafting, result2.getState());
+    assertEquals(Segment.State.Crafting, result2.getState());
   }
 
   /**
@@ -605,121 +644,134 @@ public class SegmentDAOImplTest {
     int numSegmentsToGenerate = 50;
     int total = 16;
     int tempo = 120;
-    chain5 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, beginAt, null, "Barnacles"));
+    chain5 = store.put(buildChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, beginAt, null, "barnacles"));
     for (int offset = 0; offset < numSegmentsToGenerate; offset++) {
       Instant endAt = beginAt.plusMillis(1000 * total * 60 / tempo);
-      store.put(Segment.create(chain5, offset, SegmentState.Dubbed,
+      store.put(buildSegment(chain5, offset, Segment.State.Dubbed,
         beginAt, endAt, "D major", total, 0.73, tempo,
-        "chains-1-segments-9f7s89d8a7892.wav"));
+        "chains-1-segments-9f7s89d8a7892.wav", "AAC"));
       beginAt = endAt;
     }
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromSecondsUTC(access, chain5.getId(), fromSecondsUTC + 1);
 
     assertEquals(12L, result.size());
     Iterator<Segment> it = result.iterator();
     Segment firstReturnedSegment = it.next();
-    assertEquals(Instant.ofEpochSecond(fromSecondsUTC), firstReturnedSegment.getBeginAt());
+    assertEquals(Instant.ofEpochSecond(fromSecondsUTC),
+      Instant.parse(firstReturnedSegment.getBeginAt()));
   }
 
   @Test
   public void readManyFromSecondsUTC_byChainEmbedKey() throws Exception {
-    chain5 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
-    store.put(Segment.create().setChainId(chain5.getId())
+    chain5 = store.put(buildChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain5.getId())
       .setOffset(0L)
-      .setStateEnum(SegmentState.Dubbed)
+      .setState(Segment.State.Dubbed)
       .setKey("D major")
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setEndAt("2017-02-14T12:01:32.000001Z"));
-    store.put(Segment.create().setChainId(chain5.getId())
+      .setEndAt("2017-02-14T12:01:32.000001Z")
+      .build());
+    store.put(Segment.newBuilder().setChainId(chain5.getId())
+      .setId(UUID.randomUUID().toString())
       .setOffset(1L)
-      .setStateEnum(SegmentState.Dubbing)
+      .setState(Segment.State.Dubbing)
       .setKey("Db minor")
       .setTotal(64)
       .setDensity(0.85)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:01:32.000001Z")
-      .setEndAt("2017-02-14T12:02:04.000001Z"));
-    store.put(Segment.create().setChainId(chain5.getId())
+      .setEndAt("2017-02-14T12:02:04.000001Z")
+      .build());
+    store.put(Segment.newBuilder().setChainId(chain5.getId())
+      .setId(UUID.randomUUID().toString())
       .setOffset(2L)
-      .setStateEnum(SegmentState.Crafted)
+      .setState(Segment.State.Crafted)
       .setKey("F major")
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:04.000001Z")
-      .setEndAt("2017-02-14T12:02:36.000001Z"));
-    store.put(Segment.create().setChainId(chain5.getId())
+      .setEndAt("2017-02-14T12:02:36.000001Z")
+      .build());
+    store.put(Segment.newBuilder().setChainId(chain5.getId())
+      .setId(UUID.randomUUID().toString())
       .setOffset(3L)
-      .setStateEnum(SegmentState.Crafting)
+      .setState(Segment.State.Crafting)
       .setKey("E minor")
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .setBeginAt("2017-02-14T12:02:36.000001Z")
-      .setEndAt("2017-02-14T12:03:08.000001Z"));
-    store.put(Segment.create()
+      .setEndAt("2017-02-14T12:03:08.000001Z")
+      .build());
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain5.getId())
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setOffset(4L)
-      .setStateEnum(SegmentState.Planned)
+      .setState(Segment.State.Planned)
       .setKey("E minor")
       .setTotal(64)
       .setDensity(0.41)
       .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build());
 
-    Collection<Segment> result = testDAO.readManyFromSecondsUTC(HubClientAccess.internal(), "barnacles", 1487073724L);
+    Collection<Segment> result = testDAO.readManyFromSecondsUTCbyEmbedKey(HubClientAccess.internal(), "barnacles", 1487073724L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
     Segment result0 = it.next();
-    assertEquals(SegmentState.Dubbing, result0.getState());
+    assertEquals(Segment.State.Dubbing, result0.getState());
     Segment result1 = it.next();
-    assertEquals(SegmentState.Crafted, result1.getState());
+    assertEquals(Segment.State.Crafted, result1.getState());
     Segment result2 = it.next();
-    assertEquals(SegmentState.Crafting, result2.getState());
+    assertEquals(Segment.State.Crafting, result2.getState());
   }
 
   @Test
   public void readOneInState() throws Exception {
-    HubClientAccess access = HubClientAccess.create("Internal");
+    HubClientAccess access = buildHubClientAccess("Internal");
 
-    Segment result = testDAO.readOneInState(access, chain3.getId(), SegmentState.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"));
+    Segment result = testDAO.readOneInState(access, chain3.getId(), Segment.State.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"));
 
     assertEquals(segment5.getId(), result.getId());
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Long.valueOf(4L), result.getOffset());
-    assertEquals(SegmentState.Planned, result.getState());
-    assertEquals("2017-02-14T12:03:08.000001Z", result.getBeginAt().toString());
-    assertNull(result.getEndAt());
+    assertEquals(4L, result.getOffset());
+    assertEquals(Segment.State.Planned, result.getState());
+    assertEquals("2017-02-14T12:03:08.000001Z", result.getBeginAt());
+    assertEquals("", result.getEndAt());
   }
 
   @Test
   public void readOneInState_failIfNoneInChain() throws Exception {
-    HubClientAccess access = HubClientAccess.create("Internal");
-    Chain.create(account1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
+    HubClientAccess access = buildHubClientAccess("Internal");
+    buildChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
     failure.expect(DAOExistenceException.class);
     failure.expectMessage("Found no Segment");
 
-    testDAO.readOneInState(access, segment2.getId(), SegmentState.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"));
+    testDAO.readOneInState(access, segment2.getId(), Segment.State.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"));
   }
 
   @Test
   public void update() throws Exception {
-    HubClientAccess access = HubClientAccess.create("Admin");
-    Segment inputData = Segment.create()
+    HubClientAccess access = buildHubClientAccess("Admin");
+    Segment inputData = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(5L)
-      .setState("Dubbed")
+      .setState(Segment.State.Dubbed)
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
@@ -727,7 +779,8 @@ public class SegmentDAOImplTest {
       .setDensity(0.74)
       .setWaveformPreroll(0.0123)
       .setKey("C# minor 7 b9")
-      .setTempo(120.0);
+      .setTempo(120.0)
+      .build();
 
     testDAO.update(access, segment2.getId(), inputData);
 
@@ -735,10 +788,10 @@ public class SegmentDAOImplTest {
     assertNotNull(result);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(SegmentState.Dubbed, result.getState());
-    assertEquals(Double.valueOf(0.0123), result.getWaveformPreroll());
-    assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt().toString());
-    assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt().toString());
+    assertEquals(Segment.State.Dubbed, result.getState());
+    assertEquals(0.0123, result.getWaveformPreroll(), 0.001);
+    assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt());
+    assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt());
   }
 
   /**
@@ -746,18 +799,20 @@ public class SegmentDAOImplTest {
    */
   @Test
   public void persistPriorSegmentContent() throws Exception {
-    HubClientAccess access = HubClientAccess.create("Admin");
-    segment4 = store.put(Segment.create()
+    HubClientAccess access = buildHubClientAccess("Admin");
+    segment4 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(5L)
-      .setState("Dubbed")
+      .setState(Segment.State.Dubbed)
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setTempo(120.0));
+      .setTempo(120.0)
+      .build());
 
     testDAO.update(access, segment4.getId(), segment4);
 
@@ -767,27 +822,29 @@ public class SegmentDAOImplTest {
 
   @Test
   public void update_failsToTransitionFromDubbingToCrafting() throws Exception {
-    HubClientAccess access = HubClientAccess.create("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
 
     failure.expect(DAOValidationException.class);
     failure.expectMessage("transition to Crafting not in allowed");
 
     testDAO.update(access, segment2.getId(),
-      entityFactory.clone(segment2).setStateEnum(SegmentState.Crafting));
+      entityFactory.clone(segment2).toBuilder().setState(Segment.State.Crafting).build());
   }
 
   @Test
   public void update_FailsWithoutChainID() throws Exception {
-    HubClientAccess access = HubClientAccess.create("Admin");
-    Segment inputData = store.put(Segment.create()
+    HubClientAccess access = buildHubClientAccess("Admin");
+    Segment inputData = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setOffset(4L)
-      .setState("Crafting")
+      .setState(Segment.State.Crafting)
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
-      .setTempo(120.0));
+      .setTempo(120.0)
+      .build());
 
     failure.expect(DAOValidationException.class);
     failure.expectMessage("Chain ID is required");
@@ -797,17 +854,19 @@ public class SegmentDAOImplTest {
 
   @Test
   public void update_FailsToChangeChain() throws Exception {
-    HubClientAccess access = HubClientAccess.create("Admin");
-    Segment inputData = Segment.create()
+    HubClientAccess access = buildHubClientAccess("Admin");
+    Segment inputData = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(4L)
-      .setState("Crafting")
+      .setState(Segment.State.Crafting)
       .setBeginAt("1995-04-28T11:23:00.000001Z")
       .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
-      .setTempo(120.0);
+      .setTempo(120.0)
+      .build();
 
     failure.expect(DAOValidationException.class);
     failure.expectMessage("transition to Crafting not in allowed");
@@ -845,14 +904,14 @@ public class SegmentDAOImplTest {
 
   @Test
   public void destroy_okRegardlessOfChainState() throws Exception {
-    HubClientAccess access = HubClientAccess.create("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
 
     testDAO.destroy(access, segment1.getId());
   }
 
   @Test
   public void destroy_allChildEntities() throws Exception {
-    HubClientAccess access = HubClientAccess.create("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
 
     //
     // Go!

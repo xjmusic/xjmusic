@@ -1,6 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -128,7 +132,7 @@ public interface Value {
    @throws ValueException if null
    */
   static <V> void requireNonZero(V value, String name) throws ValueException {
-    if (Objects.isNull(value) || String.valueOf(value).isEmpty() || Double.valueOf(String.valueOf(value)).equals(0.0))
+    if (Value.isUnsetOrZero(value))
       throw new ValueException(String.format("Non-zero %s is required.", name));
   }
 
@@ -177,5 +181,47 @@ public interface Value {
   static boolean isNonNull(Object obj) {
     return Objects.nonNull(obj) &&
       !Objects.equals("null", String.valueOf(obj));
+  }
+
+  /**
+   Is a value not present?
+
+   @param value to test
+   @return true if null or empty
+   */
+  static boolean isEmpty(Object value) {
+    if (Objects.isNull(value)) return true;
+    return String.valueOf(value).isBlank();
+  }
+
+  /**
+   Is a value not present, empty, or equal to zero?
+
+   @param value to test
+   @return true if unset, empty, or equals zero
+   */
+  static <V> boolean isUnsetOrZero(V value) {
+    return Objects.isNull(value) || String.valueOf(value).isEmpty() || Double.valueOf(String.valueOf(value)).equals(0.0);
+  }
+
+  /**
+   Format an Instant as ISO-8601 UTC
+
+   @param instant to format
+   @return formatted ISO-8601 UTC from instant
+   */
+  static String formatIso8601UTC(Instant instant) {
+    return ZonedDateTime.ofInstant(instant, ZoneOffset.UTC)
+      .format(DateTimeFormatter.ISO_DATE_TIME);
+  }
+
+  /**
+   Whether a value is non-null and non-empty
+   @param value to test
+   @return true if non-null and non-empty
+   */
+  static boolean isSet(Object value) {
+    if (Objects.isNull(value)) return false;
+    return !String.valueOf(value).isBlank();
   }
 }

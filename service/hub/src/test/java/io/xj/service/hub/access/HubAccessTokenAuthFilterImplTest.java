@@ -10,13 +10,13 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.lib.entity.EntityException;
-import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonApiModule;
-import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.mixer.MixerModule;
+import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.dao.DAOModule;
-import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubTestConfiguration;
@@ -37,7 +37,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.UUID;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
@@ -59,7 +58,7 @@ public class HubAccessTokenAuthFilterImplTest {
   private UriInfo uriInfo;
   //
   private HubAccessTokenAuthFilter subject;
-  private EntityFactory entityFactory;
+  private PayloadFactory payloadFactory;
 
   @Before
   public void setUp() throws Exception {
@@ -72,7 +71,7 @@ public class HubAccessTokenAuthFilterImplTest {
         bind(HubAccessControlProvider.class).toInstance(hubAccessControlProvider);
       }
     })));
-    entityFactory = injector.getInstance(EntityFactory.class);
+    payloadFactory = injector.getInstance(PayloadFactory.class);
     subject = new HubAccessTokenAuthFilter(injector.getInstance(HubAccessControlProvider.class), "access_token");
     subject.setResourceInfo(resourceInfo);
   }
@@ -84,11 +83,11 @@ public class HubAccessTokenAuthFilterImplTest {
   public void filter_allowedWithNoAccounts() throws Exception {
     class TestResource {
       @GET
-      @RolesAllowed(UserRoleType.USER)
-      public Response get(@Context ContainerRequestContext crc) throws EntityException {
+      @RolesAllowed(HubEndpoint.USER)
+      public Response get(@Context ContainerRequestContext crc) throws JsonApiException {
         HubAccess hubAccess = HubAccess.fromContext(crc);
         return Response
-          .accepted(entityFactory.serialize(hubAccess))
+          .accepted(payloadFactory.serialize(hubAccess))
           .type(MediaType.APPLICATION_JSON)
           .build();
       }
@@ -104,8 +103,8 @@ public class HubAccessTokenAuthFilterImplTest {
     when(uriInfo.getPath()).thenReturn("/");
     when(hubAccessControlProvider.get("abc-def-0123456789")).thenReturn(
       HubAccess.create("User")
-        .setUserId(UUID.fromString("61562554-0fd8-11ea-ab87-6f844ba10e4f")) // Bill is in no accounts
-        .setUserAuthId(UUID.fromString("7c8d0740-0fdb-11ea-b5c9-8f1250fb0100")));
+        .setUserId("61562554-0fd8-11ea-ab87-6f844ba10e4f") // Bill is in no accounts
+        .setUserAuthId("7c8d0740-0fdb-11ea-b5c9-8f1250fb0100"));
 
     subject.filter(requestContext);
 
@@ -120,10 +119,10 @@ public class HubAccessTokenAuthFilterImplTest {
     class TestResource {
       @GET
       @PermitAll
-      public Response get(@Context ContainerRequestContext crc) throws EntityException {
+      public Response get(@Context ContainerRequestContext crc) throws JsonApiException {
         HubAccess hubAccess = HubAccess.fromContext(crc);
         return Response
-          .accepted(entityFactory.serialize(hubAccess))
+          .accepted(payloadFactory.serialize(hubAccess))
           .type(MediaType.APPLICATION_JSON)
           .build();
       }
@@ -135,8 +134,8 @@ public class HubAccessTokenAuthFilterImplTest {
     ));
     when(hubAccessControlProvider.get("abc-def-0123456789")).thenReturn(
       HubAccess.create("User")
-        .setUserId(UUID.fromString("61562554-0fd8-11ea-ab87-6f844ba10e4f")) // Bill is in no accounts
-        .setUserAuthId(UUID.fromString("7c8d0740-0fdb-11ea-b5c9-8f1250fb0100")));
+        .setUserId("61562554-0fd8-11ea-ab87-6f844ba10e4f") // Bill is in no accounts
+        .setUserAuthId("7c8d0740-0fdb-11ea-b5c9-8f1250fb0100"));
 
     subject.filter(requestContext);
 
@@ -150,11 +149,11 @@ public class HubAccessTokenAuthFilterImplTest {
   public void filter_nullHubAccessToken() throws Exception {
     class TestResource {
       @GET
-      @RolesAllowed(UserRoleType.USER)
-      public Response get(@Context ContainerRequestContext crc) throws EntityException {
+      @RolesAllowed(HubEndpoint.USER)
+      public Response get(@Context ContainerRequestContext crc) throws JsonApiException {
         HubAccess hubAccess = HubAccess.fromContext(crc);
         return Response
-          .accepted(entityFactory.serialize(hubAccess))
+          .accepted(payloadFactory.serialize(hubAccess))
           .type(MediaType.APPLICATION_JSON)
           .build();
       }
@@ -183,10 +182,10 @@ public class HubAccessTokenAuthFilterImplTest {
     class TestResource {
       @GET
       @PermitAll
-      public Response get(@Context ContainerRequestContext crc) throws EntityException {
+      public Response get(@Context ContainerRequestContext crc) throws JsonApiException {
         HubAccess hubAccess = HubAccess.fromContext(crc);
         return Response
-          .accepted(entityFactory.serialize(hubAccess))
+          .accepted(payloadFactory.serialize(hubAccess))
           .type(MediaType.APPLICATION_JSON)
           .build();
       }

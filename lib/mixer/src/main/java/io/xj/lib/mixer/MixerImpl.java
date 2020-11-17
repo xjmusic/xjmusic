@@ -385,7 +385,7 @@ class MixerImpl implements Mixer {
     long offsetMicros = getMicros(frameOffset);
 
     // for garbage collection of unused sources:
-    Map<String, Boolean> sourceUsage = buildMapAllSourceIdTo(false);
+    Map<String, Boolean> sourceUsage = buildMapAllSourceIdToFalse();
 
     // iterate through ready Puts
     readyPuts.forEach((putId, readyPut) -> {
@@ -444,12 +444,11 @@ class MixerImpl implements Mixer {
   /**
    build a map of all source id to boolean value
 
-   @param value to set all values to
    @return map
    */
-  private Map<String, Boolean> buildMapAllSourceIdTo(boolean value) {
+  private Map<String, Boolean> buildMapAllSourceIdToFalse() {
     Map<String, Boolean> result = Maps.newHashMap();
-    sources.keySet().forEach((sourceId) -> result.put(sourceId, value));
+    sources.keySet().forEach((sourceId) -> result.put(sourceId, false));
     return result;
   }
 

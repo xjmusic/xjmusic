@@ -4,6 +4,10 @@ package io.xj.service.nexus.api;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import io.xj.Account;
+import io.xj.Chain;
+import io.xj.lib.entity.EntityException;
+import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.MediaType;
@@ -11,16 +15,14 @@ import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubClientException;
-import io.xj.service.hub.entity.Account;
-import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.nexus.NexusEndpoint;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
-import io.xj.service.nexus.entity.Chain;
 
+import javax.annotation.Nullable;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -43,6 +45,7 @@ import java.util.UUID;
 @Path("chains")
 public class ChainEndpoint extends NexusEndpoint {
   private final ChainDAO dao;
+  private final EntityFactory entityFactory;
 
   /**
    Constructor
@@ -52,10 +55,12 @@ public class ChainEndpoint extends NexusEndpoint {
     ChainDAO dao,
     HttpResponseProvider response,
     Config config,
-    PayloadFactory payloadFactory
+    PayloadFactory payloadFactory,
+    EntityFactory entityFactory
   ) {
     super(response, config, payloadFactory);
     this.dao = dao;
+    this.entityFactory = entityFactory;
   }
 
   /**
@@ -64,8 +69,8 @@ public class ChainEndpoint extends NexusEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed(UserRoleType.USER)
-  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("accountId") UUID accountId) {
+  @RolesAllowed(USER)
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("accountId") String accountId) {
     try {
       HubClientAccess access = HubClientAccess.fromContext(crc);
 
@@ -98,14 +103,14 @@ public class ChainEndpoint extends NexusEndpoint {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed(UserRoleType.ARTIST)
+  @RolesAllowed(ARTIST)
   public Response create(Payload payload, @Context ContainerRequestContext crc, @QueryParam("reviveId") String reviveId) {
     try {
       HubClientAccess access = HubClientAccess.fromContext(crc);
       // if present, we will revive a prior chain, else create a new one
       Chain chain = Objects.nonNull(reviveId) && !reviveId.isEmpty() ?
-        dao.revive(access, UUID.fromString(reviveId), String.format("Requested by User[%s]", access.getUserId().toString())) :
-        dao.create(access, payloadFactory.consume(new Chain(), payload));
+        dao.revive(access, reviveId, String.format("Requested by User[%s]", access.getUserId())) :
+        dao.create(access, payloadFactory.consume(entityFactory.getInstance(Chain.class), payload));
 
       // create either a new chain, or a chain revived from an existing prior chain
       return response.create(payloadFactory.newPayload().setDataOne(payloadFactory.toPayloadObject(chain)));
@@ -118,7 +123,7 @@ public class ChainEndpoint extends NexusEndpoint {
     } catch (DAOExistenceException e) {
       return response.notFound(Chain.class, reviveId);
 
-    } catch (DAOValidationException | HubClientException | JsonApiException | DAOFatalException e) {
+    } catch (DAOValidationException | HubClientException | JsonApiException | DAOFatalException | EntityException e) {
       return response.notAcceptable(e);
     }
   }
@@ -141,9 +146,9 @@ public class ChainEndpoint extends NexusEndpoint {
 
       // will only have value if this can parse a uuid from string
       // otherwise, ignore the exception on attempt and store a null value for uuid
-      UUID uuidId;
+      @Nullable String uuidId;
       try {
-        uuidId = UUID.fromString(identifier);
+        uuidId = UUID.fromString(identifier).toString();
       } catch (Exception ignored) {
         uuidId = null;
       }
@@ -153,7 +158,7 @@ public class ChainEndpoint extends NexusEndpoint {
         payloadFactory.toPayloadObject(
           Objects.nonNull(uuidId) ?
             dao.readOne(access, uuidId) :
-            dao.readOne(access, identifier))));
+            dao.readOneByEmbedKey(access, identifier))));
 
     } catch (DAOPrivilegeException e) {
       return response.unauthorized(Chain.class, identifier, e);
@@ -175,8 +180,8 @@ public class ChainEndpoint extends NexusEndpoint {
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed(UserRoleType.ARTIST)
-  public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") UUID id) {
+  @RolesAllowed(ARTIST)
+  public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     try {
       HubClientAccess access = HubClientAccess.fromContext(crc);
 
@@ -211,8 +216,8 @@ public class ChainEndpoint extends NexusEndpoint {
   @DELETE
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed(UserRoleType.ARTIST)
-  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") UUID id) {
+  @RolesAllowed(ARTIST)
+  public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     try {
       HubClientAccess access = HubClientAccess.fromContext(crc);
 

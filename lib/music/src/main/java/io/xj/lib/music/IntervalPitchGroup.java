@@ -4,7 +4,11 @@ package io.xj.lib.music;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.SortedMap;
 
 /**
  Interval Pitch Group is the super-entity to a Key, Chord or Scale- any group of pitches at specific intervals.

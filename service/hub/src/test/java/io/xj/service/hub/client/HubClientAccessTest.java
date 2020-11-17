@@ -4,15 +4,22 @@ package io.xj.service.hub.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
-import io.xj.service.hub.entity.*;
+import io.xj.Account;
+import io.xj.User;
+import io.xj.UserAuth;
+import io.xj.UserRole;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.container.ContainerRequestContext;
+import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static io.xj.service.hub.HubContentFixtures.buildHubClientAccess;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -22,35 +29,46 @@ public class HubClientAccessTest {
 
   @Test
   public void matchRoles() {
-    HubClientAccess access = HubClientAccess.create("User,Artist");
+    HubClientAccess access = buildHubClientAccess("User,Artist");
 
-    assertTrue(access.isAllowed(UserRoleType.User));
-    assertTrue(access.isAllowed(UserRoleType.Artist));
-    assertTrue(access.isAllowed(UserRoleType.User, UserRoleType.Artist));
-    assertFalse(access.isAllowed(UserRoleType.Admin));
+    assertTrue(access.isAllowed(UserRole.Type.User));
+    assertTrue(access.isAllowed(UserRole.Type.Artist));
+    assertTrue(access.isAllowed(UserRole.Type.User, UserRole.Type.Artist));
+    assertFalse(access.isAllowed(UserRole.Type.Admin));
   }
 
   @Test
   public void createFromUserAuth_setsUserId() throws HubClientException {
-    User user = User.create();
-    UserAuth userAuth = UserAuth.create(user, UserAuthType.Google);
+    User user = User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    UserAuth userAuth = UserAuth.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setUserId(user.getId())
+      .setType(UserAuth.Type.Google)
+      .build();
 
-    HubClientAccess result = HubClientAccess.create(user, userAuth, ImmutableList.of(), "User,Admin");
+    HubClientAccess result = buildHubClientAccess(user, userAuth, ImmutableList.of(), "User,Admin");
 
     assertEquals(user.getId(), result.getUserId());
   }
 
   @Test
   public void getUserId() throws HubClientException {
-    User user = User.create();
-    HubClientAccess access = HubClientAccess.create(user, "User");
+    User user = User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    HubClientAccess access = buildHubClientAccess(user, "User");
 
     assertEquals(user.getId(), access.getUserId());
   }
 
   @Test
   public void fromContext() {
-    HubClientAccess expectAccess = HubClientAccess.create(User.create(), "User");
+    User user = User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    HubClientAccess expectAccess = buildHubClientAccess(user, "User");
     when(crc.getProperty(HubClientAccess.CONTEXT_KEY))
       .thenReturn(expectAccess);
 
@@ -61,9 +79,13 @@ public class HubClientAccessTest {
 
   @Test
   public void toJSON() throws JsonProcessingException {
-    User user = User.create();
-    Account account = Account.create();
-    HubClientAccess access = HubClientAccess.create(user, ImmutableList.of(account), "User,Artist");
+    User user = User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    Account account = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    HubClientAccess access = buildHubClientAccess(user, ImmutableList.of(account), "User,Artist");
 
     String result = new ObjectMapper().writeValueAsString(access);
     assertEquals(String.format("{\"roleTypes\":[\"User\",\"Artist\"],\"accountIds\":[\"%s\"],\"token\":null,\"userId\":\"%s\",\"userAuthId\":null,\"roles\":\"User,Artist\"}", account.getId(), user.getId()), result);
@@ -71,10 +93,16 @@ public class HubClientAccessTest {
 
   @Test
   public void getAccountIds() {
-    Account account1 = Account.create();
-    Account account2 = Account.create();
-    Account account3 = Account.create();
-    HubClientAccess access = HubClientAccess.create(ImmutableList.of(account1, account2, account3), "User");
+    Account account1 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    Account account2 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    Account account3 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1, account2, account3), "User");
 
     assertTrue(access.getAccountIds().contains(account1.getId()));
     assertTrue(access.getAccountIds().contains(account2.getId()));
@@ -83,24 +111,33 @@ public class HubClientAccessTest {
 
   @Test
   public void isAdmin() {
-    HubClientAccess access = HubClientAccess.create("User,Admin");
+    HubClientAccess access = buildHubClientAccess("User,Admin");
 
     assertTrue(access.isTopLevel());
   }
 
   @Test
   public void isAdmin_Not() {
-    HubClientAccess access = HubClientAccess.create("User,Artist");
+    HubClientAccess access = buildHubClientAccess("User,Artist");
 
     assertFalse(access.isTopLevel());
   }
 
   @Test
   public void valid() {
-    HubClientAccess access = HubClientAccess.create(
-      User.create(),
-      UserAuth.create(User.create(), UserAuthType.Google),
-      ImmutableList.of(Account.create()),
+    User user = User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    Account account = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    HubClientAccess access = buildHubClientAccess(
+      user,
+      UserAuth.newBuilder()
+        .setUserId(user.getId())
+        .setType(UserAuth.Type.Google)
+        .build(),
+      ImmutableList.of(account),
       "User,Artist");
 
     assertTrue(access.isValid());
@@ -108,10 +145,19 @@ public class HubClientAccessTest {
 
   @Test
   public void valid_not() {
-    HubClientAccess access = HubClientAccess.create(
-      User.create(),
-      UserAuth.create(User.create(), UserAuthType.Google),
-      ImmutableList.of(Account.create()));
+    User user = User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    Account account = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    HubClientAccess access = buildHubClientAccess(
+      user,
+      UserAuth.newBuilder()
+        .setUserId(user.getId())
+        .setType(UserAuth.Type.Google)
+        .build(),
+      ImmutableList.of(account));
 
     assertFalse(access.isValid());
   }

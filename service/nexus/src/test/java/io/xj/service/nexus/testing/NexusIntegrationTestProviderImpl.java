@@ -4,12 +4,11 @@ package io.xj.service.nexus.testing;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.nexus.work.NexusWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,13 +58,13 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
   }
 
   @Override
-  public <N extends Entity> N put(N entity) throws EntityStoreException {
+  public <N> N put(N entity) throws EntityStoreException {
     store.put(entity);
     return entity;
   }
 
   @Override
-  public <E extends Entity, I extends Entity> E put(E entity, Collection<I> included) throws EntityStoreException {
+  public <E, I> E put(E entity, Collection<I> included) throws EntityStoreException {
     store.put(entity);
     store.putAll(included);
     return entity;

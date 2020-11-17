@@ -4,7 +4,8 @@ package io.xj.service.hub.api;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.Entity;
+import io.xj.Program;
+import io.xj.lib.entity.Entities;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.Payload;
@@ -19,8 +20,6 @@ import io.xj.service.hub.dao.DAOException;
 import io.xj.service.hub.dao.ProgramDAO;
 import io.xj.service.hub.dao.ProgramMemeDAO;
 import io.xj.service.hub.dao.ProgramSequenceBindingMemeDAO;
-import io.xj.service.hub.entity.Program;
-import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -39,7 +38,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  Programs
@@ -77,7 +75,7 @@ public class ProgramEndpoint extends HubEndpoint {
    @return set of all programs
    */
   @GET
-  @RolesAllowed(UserRoleType.USER)
+  @RolesAllowed(USER)
   public Response readMany(
     @Context ContainerRequestContext crc,
     @QueryParam("accountId") String accountId,
@@ -91,15 +89,15 @@ public class ProgramEndpoint extends HubEndpoint {
 
       // how we source programs depends on the query parameters
       if (null != libraryId && !libraryId.isEmpty())
-        programs = dao().readMany(hubAccess, ImmutableList.of(UUID.fromString(libraryId)));
+        programs = dao().readMany(hubAccess, ImmutableList.of(libraryId));
       else if (null != accountId && !accountId.isEmpty())
-        programs = dao().readManyInAccount(hubAccess, UUID.fromString(accountId));
+        programs = dao().readManyInAccount(hubAccess, accountId);
       else
         programs = dao().readMany(hubAccess);
 
       // add programs as plural data in payload
       for (Program program : programs) payload.addData(payloadFactory.toPayloadObject(program));
-      Set<UUID> programIds = Entity.idsOf(programs);
+      Set<String> programIds = Entities.idsOf(programs);
 
       // if detailed, add Program Memes
       if (Objects.nonNull(detailed) && detailed)
@@ -126,7 +124,7 @@ public class ProgramEndpoint extends HubEndpoint {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed(UserRoleType.ARTIST)
+  @RolesAllowed(ARTIST)
   public Response create(
     Payload payload,
     @Context ContainerRequestContext crc,
@@ -138,10 +136,10 @@ public class ProgramEndpoint extends HubEndpoint {
       Program program = payloadFactory.consume(dao().newInstance(), payload);
       Payload responsePayload = new Payload();
       if (Objects.nonNull(cloneId)) {
-        DAOCloner<Program> cloner = dao().clone(hubAccess, UUID.fromString(cloneId), program);
+        DAOCloner<Program> cloner = dao().clone(hubAccess, cloneId, program);
         responsePayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<PayloadObject> list = new ArrayList<>();
-        for (Entity entity : cloner.getChildClones()) {
+        for (Object entity : cloner.getChildClones()) {
           PayloadObject payloadObject = payloadFactory.toPayloadObject(entity);
           list.add(payloadObject);
         }
@@ -164,18 +162,18 @@ public class ProgramEndpoint extends HubEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed(UserRoleType.USER)
+  @RolesAllowed(USER)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id, @QueryParam("include") String include) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      UUID uuid = UUID.fromString(String.valueOf(id));
+      String uuid = String.valueOf(id);
 
       Payload payload = new Payload().setDataOne(payloadFactory.toPayloadObject(dao().readOne(hubAccess, uuid)));
 
       // optionally specify a CSV of included types to read
       if (Objects.nonNull(include)) {
         List<PayloadObject> list = new ArrayList<>();
-        for (Entity entity : dao().readChildEntities(hubAccess, ImmutableList.of(uuid), CSV.split(include))) {
+        for (Object entity : dao().readChildEntities(hubAccess, ImmutableList.of(uuid), CSV.split(include))) {
           PayloadObject payloadObject = payloadFactory.toPayloadObject(entity);
           list.add(payloadObject);
         }
@@ -186,7 +184,7 @@ public class ProgramEndpoint extends HubEndpoint {
       return response.ok(payload);
 
     } catch (DAOException ignored) {
-      return response.notFound(dao.newInstance().setId(UUID.fromString(String.valueOf(id))));
+      return response.notFound(dao.newInstance().getClass(), String.valueOf(id));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -202,7 +200,7 @@ public class ProgramEndpoint extends HubEndpoint {
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed(UserRoleType.ARTIST)
+  @RolesAllowed(ARTIST)
   public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     return update(crc, dao(), id, payload);
   }
@@ -214,10 +212,10 @@ public class ProgramEndpoint extends HubEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed(UserRoleType.ADMIN)
+  @RolesAllowed(ADMIN)
   public Response destroy(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     try {
-      dao().destroy(HubAccess.fromContext(crc), UUID.fromString(id));
+      dao().destroy(HubAccess.fromContext(crc), id);
       return response.noContent();
 
     } catch (Exception e) {

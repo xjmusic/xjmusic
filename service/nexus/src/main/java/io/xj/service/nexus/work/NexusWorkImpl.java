@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -33,7 +32,7 @@ public class NexusWorkImpl implements NexusWork {
   private final WorkerFactory worker;
 
   // Name pool threads
-  private final Map<UUID/*ChainID*/, ScheduledFuture<?>/*ChainWorker*/> work = Maps.newConcurrentMap();
+  private final Map<String/*ChainID*/, ScheduledFuture<?>/*ChainWorker*/> work = Maps.newConcurrentMap();
   private final int bossDelayMillis;
   private final int janitorDelayMillis;
   private final int medicDelayMillis;
@@ -84,30 +83,30 @@ public class NexusWorkImpl implements NexusWork {
 
   @Override
   public void cancelAllChainWork() {
-    for (UUID chainId : work.keySet())
+    for (String chainId : work.keySet())
       cancelChainWork(chainId);
   }
 
   @Override
-  public boolean isWorkingOnChain(UUID id) {
+  public boolean isWorkingOnChain(String id) {
     return work.containsKey(id);
   }
 
   @Override
-  public void beginChainWork(UUID chainId) {
+  public void beginChainWork(String chainId) {
     if (work.containsKey(chainId)) return;
     work.put(chainId, scheduler.scheduleWithFixedDelay(worker.chain(chainId), chainDelayMillis, chainDelayMillis, TimeUnit.MILLISECONDS));
   }
 
   @Override
-  public void cancelChainWork(UUID chainId) {
+  public void cancelChainWork(String chainId) {
     if (!work.containsKey(chainId)) return;
     work.get(chainId).cancel(false);
     work.remove(chainId);
   }
 
   @Override
-  public Collection<UUID> getChainWorkingIds() {
+  public Collection<String> getChainWorkingIds() {
     return work.keySet();
   }
 

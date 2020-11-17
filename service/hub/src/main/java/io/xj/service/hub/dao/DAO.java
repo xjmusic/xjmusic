@@ -3,33 +3,33 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.xj.lib.entity.Entity;
+import com.google.protobuf.GeneratedMessageLite;
+import io.xj.Account;
+import io.xj.AccountUser;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.InstrumentAudioChord;
+import io.xj.InstrumentAudioEvent;
+import io.xj.InstrumentMeme;
+import io.xj.Library;
+import io.xj.Program;
+import io.xj.ProgramMeme;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequenceBindingMeme;
+import io.xj.ProgramSequenceChord;
+import io.xj.ProgramSequenceChordVoicing;
+import io.xj.ProgramSequencePattern;
+import io.xj.ProgramSequencePatternEvent;
+import io.xj.ProgramVoice;
+import io.xj.ProgramVoiceTrack;
+import io.xj.User;
+import io.xj.UserAuth;
+import io.xj.UserAuthToken;
+import io.xj.UserRole;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.Account;
-import io.xj.service.hub.entity.AccountUser;
-import io.xj.service.hub.entity.Instrument;
-import io.xj.service.hub.entity.InstrumentAudio;
-import io.xj.service.hub.entity.InstrumentAudioChord;
-import io.xj.service.hub.entity.InstrumentAudioEvent;
-import io.xj.service.hub.entity.InstrumentMeme;
-import io.xj.service.hub.entity.Library;
-import io.xj.service.hub.entity.Program;
-import io.xj.service.hub.entity.ProgramMeme;
-import io.xj.service.hub.entity.ProgramSequence;
-import io.xj.service.hub.entity.ProgramSequenceBinding;
-import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
-import io.xj.service.hub.entity.ProgramSequenceChord;
-import io.xj.service.hub.entity.ProgramSequenceChordVoicing;
-import io.xj.service.hub.entity.ProgramSequencePattern;
-import io.xj.service.hub.entity.ProgramSequencePatternEvent;
-import io.xj.service.hub.entity.ProgramVoice;
-import io.xj.service.hub.entity.ProgramVoiceTrack;
-import io.xj.service.hub.entity.User;
-import io.xj.service.hub.entity.UserAuth;
-import io.xj.service.hub.entity.UserAuthToken;
-import io.xj.service.hub.entity.UserRole;
 import io.xj.service.hub.tables.records.AccountRecord;
 import io.xj.service.hub.tables.records.AccountUserRecord;
 import io.xj.service.hub.tables.records.InstrumentAudioChordRecord;
@@ -43,6 +43,7 @@ import io.xj.service.hub.tables.records.ProgramRecord;
 import io.xj.service.hub.tables.records.ProgramSequenceBindingMemeRecord;
 import io.xj.service.hub.tables.records.ProgramSequenceBindingRecord;
 import io.xj.service.hub.tables.records.ProgramSequenceChordRecord;
+import io.xj.service.hub.tables.records.ProgramSequenceChordVoicingRecord;
 import io.xj.service.hub.tables.records.ProgramSequencePatternEventRecord;
 import io.xj.service.hub.tables.records.ProgramSequencePatternRecord;
 import io.xj.service.hub.tables.records.ProgramSequenceRecord;
@@ -92,8 +93,7 @@ import static io.xj.service.hub.Tables.USER_AUTH_TOKEN;
 import static io.xj.service.hub.Tables.USER_ROLE;
 import static io.xj.service.hub.tables.Program.PROGRAM;
 
-public interface DAO<E> {
-
+public interface DAO<E extends GeneratedMessageLite<E, ?>> {
   Map<Class<?>, Table<?>> tablesInSchemaConstructionOrder = ImmutableMap.<Class<?>, Table<?>>builder() // DELIBERATE ORDER
     .put(User.class, USER)
     .put(UserRole.class, USER_ROLE) // after user
@@ -119,7 +119,7 @@ public interface DAO<E> {
     .put(InstrumentAudioEvent.class, INSTRUMENT_AUDIO_EVENT)
     .put(InstrumentMeme.class, INSTRUMENT_MEME)
     .build();
-  Map<Class<? extends Record>, Class<? extends Entity>> modelsForRecords = ImmutableMap.<Class<? extends Record>, Class<? extends Entity>>builder()
+  Map<Class<? extends Record>, Class<?>> modelsForRecords = ImmutableMap.<Class<? extends Record>, Class<?>>builder()
     .put(UserRecord.class, User.class)
     .put(UserRoleRecord.class, UserRole.class)
     .put(UserAuthRecord.class, UserAuth.class)
@@ -135,6 +135,7 @@ public interface DAO<E> {
     .put(ProgramSequenceBindingRecord.class, ProgramSequenceBinding.class)
     .put(ProgramSequenceBindingMemeRecord.class, ProgramSequenceBindingMeme.class)
     .put(ProgramSequenceChordRecord.class, ProgramSequenceChord.class)
+    .put(ProgramSequenceChordVoicingRecord.class, ProgramSequenceChordVoicing.class)
     .put(ProgramSequencePatternRecord.class, ProgramSequencePattern.class)
     .put(ProgramSequencePatternEventRecord.class, ProgramSequencePatternEvent.class)
     .put(InstrumentRecord.class, Instrument.class)
@@ -152,8 +153,8 @@ public interface DAO<E> {
    @param records set
    @return ids
    */
-  static Collection<UUID> idsFrom(Result<Record1<UUID>> records) {
-    return records.map(Record1::value1);
+  static Collection<String> idsFrom(Result<Record1<UUID>> records) {
+    return records.map(r -> r.value1().toString());
   }
 
   /**
@@ -182,7 +183,7 @@ public interface DAO<E> {
 
    @param id of specific Entity to delete.
    */
-  void destroy(HubAccess hubAccess, UUID id) throws DAOException;
+  void destroy(HubAccess hubAccess, String id) throws DAOException;
 
   /**
    Create a new instance of this type of Entity
@@ -199,7 +200,7 @@ public interface DAO<E> {
    @return collection of retrieved records
    @throws DAOException on failure
    */
-  Collection<E> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException;
+  Collection<E> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException;
 
   /**
    Fetch one record  if accessible
@@ -209,7 +210,7 @@ public interface DAO<E> {
    @return retrieved record
    @throws DAOException on failure
    */
-  E readOne(HubAccess hubAccess, UUID id) throws DAOException;
+  E readOne(HubAccess hubAccess, String id) throws DAOException;
 
   /**
    Update a specified Entity@param hubAccess control
@@ -217,7 +218,7 @@ public interface DAO<E> {
    @param id     of specific Entity to update.
    @param entity for the updated Entity.
    */
-  void update(HubAccess hubAccess, UUID id, E entity) throws DAOException, JsonApiException, ValueException;
+  void update(HubAccess hubAccess, String id, E entity) throws DAOException, JsonApiException, ValueException;
 
   /**
    Transmogrify a jOOQ Result set into a Collection of POJO entities
@@ -227,7 +228,7 @@ public interface DAO<E> {
    @return entity after transmogrification
    @throws DAOException on failure to transmogrify
    */
-  <N extends Entity, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws DAOException;
+  <N extends GeneratedMessageLite<N, ?>, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws DAOException;
 
   /**
    Transmogrify the field-value pairs of a jOOQ record and set values on the corresponding POJO entity.
@@ -236,5 +237,6 @@ public interface DAO<E> {
    @return entity after transmogrification
    @throws DAOException on failure to transmogrify
    */
-  <N extends Entity, R extends Record> N modelFrom(R record) throws DAOException;
+  <N extends GeneratedMessageLite<N, ?>, R extends Record> N modelFrom(R record) throws DAOException;
+
 }

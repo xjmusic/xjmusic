@@ -5,6 +5,7 @@ package io.xj.lib.jsonapi;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import io.xj.Program;
 import io.xj.lib.entity.EntityFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +21,7 @@ public class PayloadErrorTest {
     Injector injector = Guice.createInjector(new JsonApiModule());
     payloadFactory = injector.getInstance(PayloadFactory.class);
     EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
-    entityFactory.register(MockEntity.class);
+    entityFactory.register(Program.class);
     subject = payloadFactory.newPayloadError();
   }
 

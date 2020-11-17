@@ -5,6 +5,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.Account;
+import io.xj.AccountUser;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.InstrumentAudioEvent;
+import io.xj.InstrumentMeme;
+import io.xj.Library;
+import io.xj.User;
+import io.xj.UserRole;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
@@ -12,7 +21,6 @@ import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.access.HubAccessControlModule;
-import io.xj.service.hub.entity.*;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubIntegrationTestModule;
@@ -26,7 +34,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Instant;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -53,24 +61,108 @@ public class InstrumentAudioEventIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(Account.create("bananas"));
-
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(User.create("john", "john@email.com", "http://pictures.com/john.gif"));
-    test.insert(UserRole.create(fake.user2, UserRoleType.Admin));
+    fake.account1 = test.insert(Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("bananas")
+      .build());
+// John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
+    fake.user2 = test.insert(User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("john")
+      .setEmail("john@email.com")
+      .setAvatarUrl("http://pictures.com/john.gif")
+      .build());
+    test.insert(UserRole.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setUserId(fake.user2.getId())
+      .setType(UserRole.Type.Admin)
+      .build());
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(User.create("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
-    test.insert(UserRole.create(fake.user3, UserRoleType.User));
-    test.insert(AccountUser.create(fake.account1, fake.user3));
+    fake.user3 = test.insert(User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("jenny")
+      .setEmail("jenny@email.com")
+      .setAvatarUrl("http://pictures.com/jenny.gif")
+      .build());
+    test.insert(UserRole.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setUserId(fake.user2.getId())
+      .setType(UserRole.Type.User)
+      .build());
+    test.insert(AccountUser.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setUserId(fake.user3.getId())
+      .build());
 
     // Library "sandwich" has instrument "jams" and instrument "buns"
-    fake.library1 = test.insert(Library.create(fake.account1, "sandwich", Instant.now()));
-    fake.instrument201 = test.insert(Instrument.create(fake.user3, fake.library1, InstrumentType.Harmonic, InstrumentState.Published, "buns"));
-    fake.instrument202 = test.insert(Instrument.create(fake.user3, fake.library1, InstrumentType.Percussive, InstrumentState.Published, "jams"));
-    test.insert(InstrumentMeme.create(fake.instrument202, "smooth"));
-    fake.audio1 = test.insert(InstrumentAudio.create(fake.instrument202, "Test audio", "fake.audio5.wav", 0, 2, 120, 300, 0.5));
-    fake.audioEvent1 = test.insert(InstrumentAudioEvent.create(fake.audio1, 0, 0.5, "bing", "D", 1));
+    fake.library1 = test.insert(Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setName("sandwich")
+      .build());
+    fake.instrument201 = test.insert(Instrument.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library1.getId())
+      .setType(Instrument.Type.Harmonic)
+      .setState(Instrument.State.Published)
+      .setName("buns")
+      .build());
+    fake.instrument202 = test.insert(Instrument.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library1.getId())
+      .setType(Instrument.Type.Percussive)
+      .setState(Instrument.State.Published)
+      .setName("jams")
+      .build());
+    test.insert(InstrumentMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setInstrumentId(fake.instrument202.getId())
+      .setName("smooth")
+      .build());
+    fake.audio1 = test.insert(InstrumentAudio.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setInstrumentId(fake.instrument202.getId())
+      .setName("Test audio")
+      .setWaveformKey("fake.audio5.wav")
+      .setStart(0)
+      .setLength(2)
+      .setTempo(120)
+      .setPitch(300)
+      .setDensity(0.5)
+      .build());
+    fake.audioEvent1 = test.insert(InstrumentAudioEvent.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setInstrumentId(fake.audio1.getInstrumentId())
+      .setInstrumentAudioId(fake.audio1.getId())
+      .setPosition(0)
+      .setDuration(0.5)
+      .setName("bing")
+      .setNote("D")
+      .setVelocity(1)
+      .build());
+    fake.audio2 = test.insert(InstrumentAudio.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setInstrumentId(fake.instrument202.getId())
+      .setName("Test audio2")
+      .setWaveformKey("fake.audio5222.wav")
+      .setStart(0)
+      .setLength(2)
+      .setTempo(120)
+      .setPitch(300)
+      .setDensity(0.5)
+      .build());
+    fake.audioEvent2 = test.insert(InstrumentAudioEvent.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setInstrumentId(fake.audio2.getInstrumentId())
+      .setInstrumentAudioId(fake.audio2.getId())
+      .setPosition(0)
+      .setDuration(0.5)
+      .setName("bang")
+      .setNote("E")
+      .setVelocity(1)
+      .build());
 
     // Instantiate the test subject
     testDAO = injector.getInstance(InstrumentAudioEventDAO.class);
@@ -84,7 +176,16 @@ public class InstrumentAudioEventIT {
   @Test
   public void update_Name() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    InstrumentAudioEvent updatedEntity = InstrumentAudioEvent.create(fake.audio1, 0, 0.5, "wham", "D", 1);
+    InstrumentAudioEvent updatedEntity = InstrumentAudioEvent.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setInstrumentId(fake.audio1.getInstrumentId())
+      .setInstrumentAudioId(fake.audio1.getId())
+      .setPosition(0)
+      .setDuration(0.5)
+      .setName("wham")
+      .setNote("D")
+      .setVelocity(1)
+      .build();
 
     testDAO.update(hubAccess, fake.audioEvent1.getId(), updatedEntity);
 

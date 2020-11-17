@@ -471,4 +471,14 @@ public interface Text {
       .sorted()
       .collect(Collectors.joining("\n"));
   }
+
+  /**
+   Format an embed key
+
+   @param embedKey to format
+   @return formatted embed key
+   */
+  static String toEmbedKey(String embedKey) {
+    return toLowerScored(embedKey);
+  }
 }

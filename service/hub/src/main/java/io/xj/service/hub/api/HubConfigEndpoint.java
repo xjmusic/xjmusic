@@ -12,11 +12,9 @@ import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.jsonapi.PayloadObject;
 import io.xj.lib.util.Text;
 import io.xj.service.hub.HubEndpoint;
-import io.xj.service.hub.entity.InstrumentState;
-import io.xj.service.hub.entity.InstrumentType;
-import io.xj.service.hub.entity.ProgramSequencePatternType;
-import io.xj.service.hub.entity.ProgramState;
-import io.xj.service.hub.entity.ProgramType;
+import io.xj.service.hub.dao.InstrumentDAO;
+import io.xj.service.hub.dao.ProgramDAO;
+import io.xj.service.hub.dao.ProgramSequencePatternDAO;
 
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.GET;
@@ -64,18 +62,18 @@ public class HubConfigEndpoint extends HubEndpoint {
           .put("apiBaseUrl", apiUrlProvider.getAppBaseUrl() + apiUrlProvider.getApiPath())
           .put("audioBaseUrl", apiUrlProvider.getAudioBaseUrl())
           .put("baseUrl", apiUrlProvider.getAppBaseUrl())
-          .put("choiceTypes", ProgramType.stringValues())
+          .put("choiceTypes", ProgramDAO.programTypeStringValues())
           .put("defaultInstrumentConfig", defaultInstrumentConfig)
           .put("defaultProgramConfig", defaultProgramConfig)
-          .put("instrumentStates", InstrumentState.stringValues())
-          .put("instrumentTypes", InstrumentType.stringValues())
-          .put("patternDetailTypes", ProgramSequencePatternType.stringValuesForDetailSequence())
-          .put("patternTypes", ProgramSequencePatternType.stringValues())
+          .put("instrumentStates", InstrumentDAO.instrumentStateStringValues())
+          .put("instrumentTypes", InstrumentDAO.instrumentTypeStringValues())
+          .put("patternDetailTypes", ProgramSequencePatternDAO.patternTypesForDetailSequenceStringValues())
+          .put("patternTypes", ProgramSequencePatternDAO.programSequencePatternTypeStringValues())
           .put("playerBaseUrl", apiUrlProvider.getPlayerBaseUrl())
-          .put("programStates", ProgramState.stringValues())
-          .put("programTypes", ProgramType.stringValues())
+          .put("programStates", ProgramDAO.programStateStringValues())
+          .put("programTypes", ProgramDAO.programTypeStringValues())
           .put("segmentBaseUrl", apiUrlProvider.getSegmentBaseUrl())
-          .put("voiceTypes", InstrumentType.stringValues())
+          .put("voiceTypes", InstrumentDAO.instrumentTypeStringValues())
           .build())));
   }
 }

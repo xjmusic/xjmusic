@@ -38,6 +38,9 @@ gradle-app.setting
 # Mac OS X
 .DS_Store
 
+# GitHub properties
+github.properties
+
 # Kafka properties
 kafka.properties
 

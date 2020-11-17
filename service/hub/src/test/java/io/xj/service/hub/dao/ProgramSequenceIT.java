@@ -5,15 +5,29 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.Account;
+import io.xj.AccountUser;
+import io.xj.Instrument;
+import io.xj.Library;
+import io.xj.Program;
+import io.xj.ProgramMeme;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequenceBindingMeme;
+import io.xj.ProgramSequenceChord;
+import io.xj.ProgramSequencePattern;
+import io.xj.ProgramSequencePatternEvent;
+import io.xj.ProgramVoice;
+import io.xj.ProgramVoiceTrack;
+import io.xj.User;
+import io.xj.UserRole;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
-import io.xj.lib.util.ValueException;
 import io.xj.service.hub.IntegrationTestingFixtures;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.access.HubAccessControlModule;
-import io.xj.service.hub.entity.*;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubIntegrationTestModule;
@@ -27,7 +41,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
@@ -38,7 +51,9 @@ import static io.xj.service.hub.tables.ProgramSequenceBindingMeme.PROGRAM_SEQUEN
 import static io.xj.service.hub.tables.ProgramSequenceChord.PROGRAM_SEQUENCE_CHORD;
 import static io.xj.service.hub.tables.ProgramSequencePattern.PROGRAM_SEQUENCE_PATTERN;
 import static io.xj.service.hub.tables.ProgramSequencePatternEvent.PROGRAM_SEQUENCE_PATTERN_EVENT;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
@@ -60,33 +75,142 @@ public class ProgramSequenceIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(Account.create("bananas"));
-
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(User.create("john", "john@email.com", "http://pictures.com/john.gif"));
-    test.insert(UserRole.create(fake.user2, UserRoleType.Admin));
+    fake.account1 = test.insert(Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("bananas")
+      .build());
+// John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
+    fake.user2 = test.insert(User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("john")
+      .setEmail("john@email.com")
+      .setAvatarUrl("http://pictures.com/john.gif")
+      .build());
+    test.insert(UserRole.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setUserId(fake.user2.getId())
+      .setType(UserRole.Type.Admin)
+      .build());
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(User.create("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
-    test.insert(UserRole.create(fake.user3, UserRoleType.User));
-    test.insert(AccountUser.create(fake.account1, fake.user3));
+    fake.user3 = test.insert(User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("jenny")
+      .setEmail("jenny@email.com")
+      .setAvatarUrl("http://pictures.com/jenny.gif")
+      .build());
+    test.insert(UserRole.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setUserId(fake.user2.getId())
+      .setType(UserRole.Type.User)
+      .build());
+    test.insert(AccountUser.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setUserId(fake.user3.getId())
+      .build());
 
     // Library "palm tree" has program "Ants" and program "Ants"
-    fake.library1 = test.insert(Library.create(fake.account1, "palm tree", Instant.now()));
-    fake.program1 = test.insert(Program.create(fake.user3, fake.library1, ProgramType.Main, ProgramState.Published, "Ants", "C#", 120.0, 0.6));
-    fake.program1_sequence1 = test.insert(ProgramSequence.create(fake.program1, 4, "Ants", 0.583, "D minor", 120.0));
-    ProgramSequenceBinding sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.create(fake.program1_sequence1, 0));
-    test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "chunk"));
-    test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "smooth"));
-    fake.program2 = test.insert(Program.create(fake.user3, fake.library1, ProgramType.Rhythm, ProgramState.Published, "Ants", "C#", 120.0, 0.6));
-    fake.program2_voice1 = test.insert(ProgramVoice.create(fake.program2, InstrumentType.Percussive, "Drums"));
+    fake.library1 = test.insert(Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setName("palm tree")
+      .build());
+    fake.program1 = test.insert(Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library1.getId())
+      .setType(Program.Type.Main)
+      .setState(Program.State.Published)
+      .setName("ANTS")
+      .setKey("C#")
+      .setTempo(120.0)
+      .setDensity(0.6)
+      .build());
+    fake.program1_sequence1 = test.insert(ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1.getId())
+      .setTotal(4)
+      .setName("Ants")
+      .setDensity(0.583)
+      .setKey("D minor")
+      .setTempo(120.0)
+      .build());
+    ProgramSequenceBinding sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1_sequence1.getProgramId())
+      .setProgramSequenceId(fake.program1_sequence1.getId())
+      .setOffset(0)
+      .build());
+    test.insert(ProgramSequenceBindingMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(sequenceBinding1a_0.getProgramId())
+      .setProgramSequenceBindingId(sequenceBinding1a_0.getId())
+      .setName("chunk")
+      .build());
+    test.insert(ProgramSequenceBindingMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(sequenceBinding1a_0.getProgramId())
+      .setProgramSequenceBindingId(sequenceBinding1a_0.getId())
+      .setName("smooth")
+      .build());
+    fake.program2 = test.insert(Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library1.getId())
+      .setType(Program.Type.Rhythm)
+      .setState(Program.State.Published)
+      .setName("ANTS")
+      .setKey("C#")
+      .setTempo(120.0)
+      .setDensity(0.6)
+      .build());
+    fake.program2_voice1 = test.insert(ProgramVoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program2.getId())
+      .setType(Instrument.Type.Percussive)
+      .setName("Drums")
+      .build());
 
     // Library "boat" has program "helm" and program "sail"
-    fake.library2 = test.insert(Library.create(fake.account1, "boat", Instant.now()));
-    fake.program3 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0, 0.6));
-    fake.program3_sequence1 = test.insert(ProgramSequence.create(fake.program3, 16, "Ants", 0.583, "D minor", 120.0));
-    test.insert(ProgramSequenceBinding.create(fake.program3_sequence1, 0));
-    fake.program4 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0, 0.6));
+    fake.library2 = test.insert(Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setName("boat")
+      .build());
+    fake.program3 = test.insert(Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library2.getId())
+      .setType(Program.Type.Macro)
+      .setState(Program.State.Published)
+      .setName("helm")
+      .setKey("C#")
+      .setTempo(120.0)
+      .setDensity(0.6)
+      .build());
+    fake.program3_sequence1 = test.insert(ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program3.getId())
+      .setTotal(16)
+      .setName("Ants")
+      .setDensity(0.583)
+      .setKey("D minor")
+      .setTempo(120.0)
+      .build());
+    test.insert(ProgramSequenceBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program3_sequence1.getProgramId())
+      .setProgramSequenceId(fake.program3_sequence1.getId())
+      .setOffset(0)
+      .build());
+    fake.program4 = test.insert(Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library2.getId())
+      .setType(Program.Type.Detail)
+      .setState(Program.State.Published)
+      .setName("sail")
+      .setKey("C#")
+      .setTempo(120.0)
+      .setDensity(0.6)
+      .build());
 
     // Instantiate the test subject
     testDAO = injector.getInstance(ProgramSequenceDAO.class);
@@ -100,15 +224,18 @@ public class ProgramSequenceIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramSequence subject = ProgramSequence.create()
+    ProgramSequence subject = ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setKey("G minor 7")
       .setProgramId(fake.program3.getId())
       .setName("cannons")
       .setTempo(129.4)
       .setTotal(4)
-      .setDensity(0.6);
+      .setDensity(0.6)
+      .build();
 
-    ProgramSequence result = testDAO.create(hubAccess, subject);
+    ProgramSequence result = testDAO.create(
+      hubAccess, subject);
 
     assertNotNull(result);
     assertEquals("G minor 7", result.getKey());
@@ -124,15 +251,18 @@ public class ProgramSequenceIT {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
-    ProgramSequence inputData = ProgramSequence.create()
+    ProgramSequence inputData = ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setKey("G minor 7")
       .setProgramId(fake.program3.getId())
       .setName("cannons")
       .setTempo(129.4)
       .setTotal(4)
-      .setDensity(0.6);
+      .setDensity(0.6)
+      .build();
 
-    ProgramSequence result = testDAO.create(hubAccess, inputData);
+    ProgramSequence result = testDAO.create(
+      hubAccess, inputData);
 
     assertNotNull(result);
     assertEquals("G minor 7", result.getKey());
@@ -147,17 +277,57 @@ public class ProgramSequenceIT {
   @Test
   public void clone_fromOriginal() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramSequence inputData = ProgramSequence.create()
+    ProgramSequence inputData = ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setDensity(0.583)
+      .setTempo(120.0)
       .setKey("C#")
-      .setName("cannons fifty nine");
-    test.insert(ProgramMeme.create(fake.program1, "cinnamon"));
-    ProgramVoice voice = test.insert(ProgramVoice.create(fake.program1, InstrumentType.Percussive, "drums"));
-    ProgramVoiceTrack track = test.insert(ProgramVoiceTrack.create(voice, "Kick"));
-    test.insert(ProgramSequenceChord.create(fake.program1_sequence1, 0, "D"));
-    ProgramSequencePattern pattern = test.insert(ProgramSequencePattern.create(fake.program1_sequence1, voice, ProgramSequencePatternType.Loop, 8, "jam"));
-    test.insert(ProgramSequencePatternEvent.create(pattern, track, 0, 1, "C", 1));
+      .setName("cannons fifty nine")
+      .build();
+    test.insert(ProgramMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1.getId())
+      .setName("cinnamon")
+      .build());
+    ProgramVoice voice = test.insert(ProgramVoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1.getId())
+      .setType(Instrument.Type.Percussive)
+      .setName("drums")
+      .build());
+    ProgramVoiceTrack track = test.insert(ProgramVoiceTrack.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(voice.getProgramId())
+      .setProgramVoiceId(voice.getId())
+      .setName("Kick")
+      .build());
+    test.insert(ProgramSequenceChord.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1_sequence1.getProgramId())
+      .setProgramSequenceId(fake.program1_sequence1.getId())
+      .setPosition(0)
+      .setName("D")
+      .build());
+    ProgramSequencePattern pattern = test.insert(ProgramSequencePattern.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1_sequence1.getProgramId())
+      .setProgramSequenceId(fake.program1_sequence1.getId())
+      .setProgramVoiceId(voice.getId())
+      .setType(ProgramSequencePattern.Type.Loop)
+      .setTotal(8)
+      .setName("jam")
+      .build());
+    test.insert(ProgramSequencePatternEvent.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(pattern.getProgramId())
+      .setProgramSequencePatternId(pattern.getId())
+      .setProgramVoiceTrackId(track.getId())
+      .setPosition(0)
+      .setDuration(1)
+      .setNote("C")
+      .setVelocity(1)
+      .build());
 
     DAOCloner<ProgramSequence> resultCloner = testDAO.clone(hubAccess, fake.program1_sequence1.getId(), inputData);
 
@@ -171,21 +341,21 @@ public class ProgramSequenceIT {
     // Cloned ProgramSequence
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE)
-      .where(PROGRAM_SEQUENCE.ID.eq(result.getId()))
+      .where(PROGRAM_SEQUENCE.ID.eq(UUID.fromString(result.getId())))
       .fetchOne(0, int.class));
     // Cloned ProgramSequenceChord belongs to ProgramSequence
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceChord.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_CHORD)
-      .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID.eq(result.getId()))
+      .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID.eq(UUID.fromString(result.getId())))
       .fetchOne(0, int.class));
     // Cloned ProgramSequenceBinding belongs to ProgramSequence
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequenceBinding.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_BINDING)
-      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID.eq(result.getId()))
+      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID.eq(UUID.fromString(result.getId())))
       .fetchOne(0, int.class));
     // Cloned ProgramSequenceBindingMeme belongs to ProgramSequenceBinding
     assertEquals(2, resultCloner.getChildClones().stream()
@@ -193,14 +363,14 @@ public class ProgramSequenceIT {
     assertEquals(Integer.valueOf(2), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_BINDING_MEME)
       .join(PROGRAM_SEQUENCE_BINDING).on(PROGRAM_SEQUENCE_BINDING.ID.eq(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID))
-      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID.eq(result.getId()))
+      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID.eq(UUID.fromString(result.getId())))
       .fetchOne(0, int.class));
     // Cloned ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
     assertEquals(1, resultCloner.getChildClones().stream()
       .filter(e -> ProgramSequencePattern.class.equals(e.getClass())).count());
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_PATTERN)
-      .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.eq(result.getId()))
+      .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.eq(UUID.fromString(result.getId())))
       .fetchOne(0, int.class));
     // Cloned ProgramSequencePatternEvent belongs to ProgramSequencePattern and ProgramVoiceTrack
     assertEquals(1, resultCloner.getChildClones().stream()
@@ -208,7 +378,7 @@ public class ProgramSequenceIT {
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .join(PROGRAM_SEQUENCE_PATTERN).on(PROGRAM_SEQUENCE_PATTERN.ID.eq(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID))
-      .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.eq(result.getId()))
+      .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.eq(UUID.fromString(result.getId())))
       .fetchOne(0, int.class));
   }
 
@@ -226,7 +396,8 @@ public class ProgramSequenceIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User, Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.newBuilder()
+      .setId(UUID.randomUUID().toString()).build()), "User, Artist");
     failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
@@ -248,7 +419,8 @@ public class ProgramSequenceIT {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User, Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.newBuilder()
+      .setId(UUID.randomUUID().toString()).build()), "User, Artist");
 
     Collection<ProgramSequence> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program3.getId()));
 
@@ -258,9 +430,11 @@ public class ProgramSequenceIT {
   @Test
   public void update_FailsUpdatingToNonexistentLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
-    ProgramSequence subject = ProgramSequence.create()
+    ProgramSequence subject = ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setName("cannons")
-      .setProgramId(UUID.randomUUID());
+      .setProgramId(UUID.randomUUID().toString())
+      .build();
 
     try {
       testDAO.update(hubAccess, fake.program3_sequence1.getId(), subject);
@@ -270,21 +444,22 @@ public class ProgramSequenceIT {
       assertNotNull(result);
       assertEquals("Ants", result.getName());
       assertEquals(fake.program3.getId(), result.getProgramId());
-      assertSame(ValueException.class, e.getClass());
+      assertSame(DAOException.class, e.getClass());
     }
   }
 
   @Test
   public void update_Name() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramSequence subject = new ProgramSequence()
+    ProgramSequence subject = ProgramSequence.newBuilder()
       .setId(fake.program3_sequence1.getId())
       .setDensity(1.0)
       .setKey("G minor 7")
       .setProgramId(fake.program3.getId())
       .setName("cannons")
       .setTotal(4)
-      .setTempo(129.4);
+      .setTempo(129.4)
+      .build();
 
     testDAO.update(hubAccess, fake.program3_sequence1.getId(), subject);
 
@@ -302,14 +477,15 @@ public class ProgramSequenceIT {
   public void update_Name_PreservesOriginalOwner() throws Exception {
     // John will edit a programSequence originally belonging to Jenny
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Admin");
-    ProgramSequence subject = new ProgramSequence()
+    ProgramSequence subject = ProgramSequence.newBuilder()
       .setId(fake.program3_sequence1.getId())
       .setKey("G minor 7")
       .setDensity(1.0)
       .setProgramId(fake.program3.getId())
       .setTotal(4)
       .setName("cannons")
-      .setTempo(129.4);
+      .setTempo(129.4)
+      .build();
 
     testDAO.update(hubAccess, fake.program3_sequence1.getId(), subject);
 
@@ -330,19 +506,29 @@ public class ProgramSequenceIT {
   @Test
   public void destroy_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    fake.programSequence35 = test.insert(ProgramSequence.create(fake.program2, 16, "Ants", 0.6, "C#", 120.0));
+    fake.programSequence35 = test.insert(ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program2.getId())
+      .setTotal(16)
+      .setName("Ants")
+      .setDensity(0.6)
+      .setKey("C#")
+      .setTempo(120.0)
+      .build());
 
     testDAO.destroy(hubAccess, fake.programSequence35.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE)
-      .where(PROGRAM_SEQUENCE.ID.eq(fake.programSequence35.getId()))
+      .where(PROGRAM_SEQUENCE.ID.eq(UUID.fromString(fake.programSequence35.getId())))
       .fetchOne(0, int.class));
   }
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
-    fake.account2 = Account.create();
+    fake.account2 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
 
     failure.expect(DAOException.class);
@@ -357,8 +543,24 @@ public class ProgramSequenceIT {
   @Test
   public void destroy_succeedsEvenWhenHasPattern() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    ProgramSequence programSequence = test.insert(ProgramSequence.create(fake.program2, 16, "Ants", 0.6, "C#", 120.0));
-    test.insert(ProgramSequencePattern.create(programSequence, fake.program2_voice1, ProgramSequencePatternType.Loop, 4, "Jam"));
+    ProgramSequence programSequence = test.insert(ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program2.getId())
+      .setTotal(16)
+      .setName("Ants")
+      .setDensity(0.6)
+      .setKey("C#")
+      .setTempo(120.0)
+      .build());
+    test.insert(ProgramSequencePattern.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(programSequence.getProgramId())
+      .setProgramSequenceId(programSequence.getId())
+      .setProgramVoiceId(fake.program2_voice1.getId())
+      .setType(ProgramSequencePattern.Type.Loop)
+      .setTotal(4)
+      .setName("Jam")
+      .build());
 
     testDAO.destroy(hubAccess, programSequence.getId());
   }
@@ -369,8 +571,21 @@ public class ProgramSequenceIT {
   @Test
   public void destroy_failsIfHasBinding() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    ProgramSequence programSequence = test.insert(ProgramSequence.create(fake.program2, 16, "Ants", 0.6, "C#", 120.0));
-    test.insert(ProgramSequenceBinding.create(programSequence, 0));
+    ProgramSequence programSequence = test.insert(ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program2.getId())
+      .setTotal(16)
+      .setName("Ants")
+      .setDensity(0.6)
+      .setKey("C#")
+      .setTempo(120.0)
+      .build());
+    test.insert(ProgramSequenceBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(programSequence.getProgramId())
+      .setProgramSequenceId(programSequence.getId())
+      .setOffset(0)
+      .build());
 
     failure.expect(DAOException.class);
     failure.expectMessage("Found binding of Sequence to Program");

@@ -9,6 +9,11 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
+import io.xj.Account;
+import io.xj.Chain;
+import io.xj.Segment;
+import io.xj.SegmentMeme;
+import io.xj.User;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
@@ -18,18 +23,11 @@ import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClientAccess;
-import io.xj.service.hub.digest.HubDigestModule;
-import io.xj.service.hub.entity.Account;
-import io.xj.service.hub.entity.User;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentMeme;
-import io.xj.service.nexus.entity.SegmentState;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,10 +38,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.time.Instant;
+import java.util.UUID;
 
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static io.xj.service.hub.client.HubClientAccess.CONTEXT_KEY;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildHubClientAccess;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -65,7 +64,7 @@ public class SegmentEndpointTest {
   @Before
   public void setUp() throws AppException {
     Config config = NexusTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(new MixerModule(), new JsonApiModule(), new HubDigestModule()).with(
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(new MixerModule(), new JsonApiModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -74,10 +73,16 @@ public class SegmentEndpointTest {
       }))));
     HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
     NexusApp.buildApiTopology(injector.getInstance(EntityFactory.class));
-    Account account1 = Account.create();
-    User user101 = User.create();
-    access = HubClientAccess.create(user101, ImmutableList.of(account1), "User,Artist");
-    chain25 = Chain.create();
+    Account account1 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    User user101 = User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    access = buildHubClientAccess(user101, ImmutableList.of(account1), "User,Artist");
+    chain25 = Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
     subject = injector.getInstance(SegmentEndpoint.class);
     injector.injectMembers(subject);
   }
@@ -86,24 +91,55 @@ public class SegmentEndpointTest {
   public void readMany() throws IOException, JsonApiException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     // segments
-    Segment segment5 = Segment.create(chain25, 4, SegmentState.Crafted, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:09:08.000001Z"), "C", 8, 0.6, 120, "chain-1-waveform.wav");
-    Segment segment6 = Segment.create(chain25, 5, SegmentState.Planned, Instant.parse("2017-02-14T12:09:08.000001Z"), null, "C", 8, 0.6, 120, "chain-1-waveform.wav");
+    Segment segment5 = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain25.getId())
+      .setOffset(4)
+      .setState(Segment.State.Crafted)
+      .setBeginAt("2017-02-14T12:03:08.000001Z")
+      .setEndAt("2017-02-14T12:09:08.000001Z")
+      .setKey("C")
+      .setTotal(8)
+      .setDensity(0.6)
+      .setTempo(120)
+      .setStorageKey("chain-1-waveform.wav")
+      .build();
+    Segment segment6 = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain25.getId())
+      .setOffset(5)
+      .setState(Segment.State.Planned)
+      .setBeginAt("2017-02-14T12:09:08.000001Z")
+      .setKey("C")
+      .setTotal(8)
+      .setDensity(0.6)
+      .setTempo(120)
+      .setStorageKey("chain-1-waveform.wav")
+      .build();
     when(segmentDAO.readMany(same(access), eq(ImmutableList.of(chain25.getId()))))
       .thenReturn(ImmutableList.of(segment5, segment6));
     // segments memes
-    SegmentMeme segment5meme = SegmentMeme.create(segment5, "apple");
-    SegmentMeme segment6meme = SegmentMeme.create(segment6, "banana");
+    SegmentMeme segment5meme = SegmentMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment5.getId())
+      .setName("apple")
+      .build();
+    SegmentMeme segment6meme = SegmentMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment6.getId())
+      .setName("banana")
+      .build();
     when(segmentDAO.readManySubEntities(any(), eq(ImmutableSet.of(segment6.getId(), segment5.getId())), eq(false)))
       .thenReturn(ImmutableSet.of(segment5meme, segment6meme));
 
-    Response result = subject.readMany(crc, chain25.getId().toString(), null, null, true);
+    Response result = subject.readMany(crc, chain25.getId(), null, null, true);
 
     verify(segmentDAO).readManySubEntities(any(), eq(ImmutableSet.of(segment6.getId(), segment5.getId())), eq(false));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     Payload payloadResult = new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class);
     assertPayload(payloadResult)
-      .hasDataMany("segments", ImmutableSet.of(segment5.getId().toString(), segment6.getId().toString()));
+      .hasDataMany("segments", ImmutableSet.of(segment5.getId(), segment6.getId()));
     assertPayload(payloadResult)
       .hasIncluded("segment-memes", ImmutableList.of(segment5meme, segment6meme));
   }
@@ -111,26 +147,28 @@ public class SegmentEndpointTest {
   @Test
   public void readOne() throws IOException, JsonApiException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
-    Segment segment1 = Segment.create()
+    Segment segment1 = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain25.getId())
       .setOffset(1L)
-      .setStateEnum(SegmentState.Crafted)
+      .setState(Segment.State.Crafted)
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setEndAt("2017-02-14T12:02:36.000001Z")
       .setKey("F Major")
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav");
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build();
     when(segmentDAO.readOne(same(access), eq(segment1.getId()))).thenReturn(segment1);
 
-    Response result = subject.readOne(crc, segment1.getId().toString());
+    Response result = subject.readOne(crc, segment1.getId());
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     Payload resultPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class);
     assertPayload(resultPayload)
-      .hasDataOne("segments", segment1.getId().toString());
+      .hasDataOne("segments", segment1.getId());
   }
 
 }

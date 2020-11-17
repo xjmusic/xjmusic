@@ -8,7 +8,6 @@ import io.xj.lib.entity.EntityModule;
 public class HubIngestModule extends AbstractModule {
   @Override
   protected void configure() {
-    bind(HubIngestCacheProvider.class).to(HubIngestCacheProviderImpl.class);
     install(new EntityModule());
     install(new FactoryModuleBuilder()
       .implement(HubIngest.class, HubIngestImpl.class)

@@ -6,21 +6,25 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import io.xj.Program;
 import io.xj.lib.entity.EntityFactory;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  Payload test
  <p>
  Created by Charney Kaye on 2020/03/09
  */
-public class PayloadTest extends TestTemplate {
+public class PayloadTest {
   private Payload subject;
   private PayloadFactory payloadFactory;
 
@@ -29,7 +33,7 @@ public class PayloadTest extends TestTemplate {
     Injector injector = Guice.createInjector(new JsonApiModule());
     EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
     payloadFactory = injector.getInstance(PayloadFactory.class);
-    entityFactory.register(MockEntity.class);
+    entityFactory.register(Program.class);
     subject = payloadFactory.newPayload();
   }
 
@@ -45,12 +49,18 @@ public class PayloadTest extends TestTemplate {
 
   @Test
   public void isEmpty_falseAfterSetDataEntity() throws JsonApiException {
-    assertFalse(payloadFactory.setDataEntity(subject, createMockEntity("Test")).isEmpty());
+    assertFalse(payloadFactory.setDataEntity(subject, Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("Test")
+      .build()).isEmpty());
   }
 
   @Test
   public void isEmpty_falseAfterSetDataEntities() throws JsonApiException {
-    assertFalse(payloadFactory.setDataEntities(subject, ImmutableList.of(createMockEntity("Test"))).isEmpty());
+    assertFalse(payloadFactory.setDataEntities(subject, ImmutableList.of(Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("Test")
+      .build())).isEmpty());
   }
 
   @Test
@@ -80,12 +90,20 @@ public class PayloadTest extends TestTemplate {
 
   @Test
   public void type_hasOne_afterSetDataEntity() throws JsonApiException {
-    assertEquals(PayloadDataType.One, payloadFactory.setDataEntity(subject, createMockEntity("Test")).getDataType());
+    assertEquals(PayloadDataType.One, payloadFactory.setDataEntity(subject,
+      Program.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setName("Test")
+        .build()).getDataType());
   }
 
   @Test
   public void type_hasMany_afterSetDataEntities() throws JsonApiException {
-    assertEquals(PayloadDataType.Many, payloadFactory.setDataEntities(subject, ImmutableList.of(createMockEntity("Test"))).getDataType());
+    assertEquals(PayloadDataType.Many, payloadFactory.setDataEntities(subject,
+      ImmutableList.of(Program.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setName("Test")
+        .build())).getDataType());
   }
 
   @Test
@@ -129,21 +147,27 @@ public class PayloadTest extends TestTemplate {
   }
 
   /**
-   Serialize a payload comprising a MockEntity
+   Serialize a payload comprising a Program
 
    @throws JsonApiException on failure
    */
   @Test
   public void setDataOne_program() throws JsonApiException {
-    MockEntity entity1 = createMockEntity("Test");
-    MockEntity entity2 = createMockEntity("Shim");
+    Program entity1 = Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("Test")
+      .build();
+    Program entity2 = Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("Shim")
+      .build();
 
     payloadFactory.setDataEntity(subject, entity1);
     payloadFactory.addIncluded(subject, payloadFactory.toPayloadObject(entity2));
 
     assertTrue(subject.getLinks().isEmpty());
     assertTrue(subject.getDataOne().isPresent());
-    assertEquals("mock-entities", subject.getDataOne().get().getType());
+    assertEquals("programs", subject.getDataOne().get().getType());
     assertEquals(1, subject.getIncluded().size());
   }
 

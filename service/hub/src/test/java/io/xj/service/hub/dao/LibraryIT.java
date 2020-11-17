@@ -5,16 +5,19 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.Account;
+import io.xj.Instrument;
+import io.xj.Library;
+import io.xj.Program;
+import io.xj.User;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
-import io.xj.lib.util.ValueException;
 import io.xj.service.hub.HubException;
 import io.xj.service.hub.IntegrationTestingFixtures;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.access.HubAccessControlModule;
-import io.xj.service.hub.entity.*;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubIntegrationTestModule;
@@ -27,11 +30,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class LibraryIT {
   @Rule
@@ -50,14 +57,36 @@ public class LibraryIT {
     test.reset();
 
     // Account "palm tree" has library "leaves" and library "coconuts"
-    fake.account1 = test.insert(Account.create("palm tree"));
-    fake.library1a = test.insert(Library.create(fake.account1, "leaves", Instant.now()));
-    fake.library1b = test.insert(Library.create(fake.account1, "coconuts", Instant.now()));
+    fake.account1 = test.insert(Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("palm tree")
+      .build());
+    fake.library1a = test.insert(Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setName("leaves")
+      .build());
+    fake.library1b = test.insert(Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setName("coconuts")
+      .build());
 
     // Account "boat" has library "helm" and library "sail"
-    fake.account2 = test.insert(Account.create("boat"));
-    fake.library2a = test.insert(Library.create(fake.account2, "helm", Instant.now()));
-    fake.library2b = test.insert(Library.create(fake.account2, "sail", Instant.now()));
+    fake.account2 = test.insert(Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("boat")
+      .build());
+    fake.library2a = test.insert(Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account2.getId())
+      .setName("helm")
+      .build());
+    fake.library2b = test.insert(Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account2.getId())
+      .setName("sail")
+      .build());
 
     // Instantiate the test subject
     testDAO = injector.getInstance(LibraryDAO.class);
@@ -71,11 +100,13 @@ public class LibraryIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Library inputData = new Library()
+    Library inputData = Library.newBuilder()
       .setName("coconuts")
-      .setAccountId(fake.account1.getId());
+      .setAccountId(fake.account1.getId())
+      .build();
 
-    Library result = testDAO.create(hubAccess, inputData);
+    Library result = testDAO.create(
+      hubAccess, inputData);
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -88,11 +119,13 @@ public class LibraryIT {
   @Test
   public void create_asEngineer() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
-    Library inputData = new Library()
+    Library inputData = Library.newBuilder()
       .setName("coconuts")
-      .setAccountId(fake.account1.getId());
+      .setAccountId(fake.account1.getId())
+      .build();
 
-    Library result = testDAO.create(hubAccess, inputData);
+    Library result = testDAO.create(
+      hubAccess, inputData);
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -104,27 +137,32 @@ public class LibraryIT {
    */
   @Test
   public void create_asEngineer_failsWithoutAccountAccess() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "Engineer");
-    Library inputData = new Library()
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.newBuilder()
+      .setId(UUID.randomUUID().toString()).build()), "Engineer");
+    Library inputData = Library.newBuilder()
       .setName("coconuts")
-      .setAccountId(fake.account1.getId());
+      .setAccountId(fake.account1.getId())
+      .build();
 
     failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.create(hubAccess, inputData);
+    testDAO.create(
+      hubAccess, inputData);
   }
 
   @Test
   public void create_FailsWithoutAccountID() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Library inputData = new Library()
-      .setName("coconuts");
+    Library inputData = Library.newBuilder()
+      .setName("coconuts")
+      .build();
 
-    failure.expect(ValueException.class);
+    failure.expect(DAOException.class);
     failure.expectMessage("Account ID is required");
 
-    testDAO.create(hubAccess, inputData);
+    testDAO.create(
+      hubAccess, inputData);
   }
 
   @Test
@@ -141,7 +179,8 @@ public class LibraryIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.newBuilder()
+      .setId(UUID.randomUUID().toString()).build()), "User");
     failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
@@ -176,7 +215,8 @@ public class LibraryIT {
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.newBuilder()
+      .setId(UUID.randomUUID().toString()).build()), "User");
 
     Collection<Library> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
 
@@ -186,10 +226,11 @@ public class LibraryIT {
   @Test
   public void update_FailsWithoutAccountID() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Library inputData = new Library()
-      .setName("cannons");
+    Library inputData = Library.newBuilder()
+      .setName("cannons")
+      .build();
 
-    failure.expect(ValueException.class);
+    failure.expect(DAOException.class);
     failure.expectMessage("Account ID is required");
 
     testDAO.update(hubAccess, fake.library1a.getId(), inputData);
@@ -198,10 +239,11 @@ public class LibraryIT {
   @Test
   public void update_FailsWithoutName() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Library inputData = new Library()
-      .setAccountId(fake.account1.getId());
+    Library inputData = Library.newBuilder()
+      .setAccountId(fake.account1.getId())
+      .build();
 
-    failure.expect(ValueException.class);
+    failure.expect(DAOException.class);
     failure.expectMessage("Name is required");
 
     testDAO.update(hubAccess, fake.library1a.getId(), inputData);
@@ -210,9 +252,10 @@ public class LibraryIT {
   @Test
   public void update() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Library inputData = new Library()
+    Library inputData = Library.newBuilder()
       .setName("cannons")
-      .setAccountId(fake.account1.getId());
+      .setAccountId(fake.account1.getId())
+      .build();
 
     testDAO.update(hubAccess, fake.library1a.getId(), inputData);
 
@@ -228,9 +271,10 @@ public class LibraryIT {
   @Test
   public void update_asEngineer() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
-    Library inputData = new Library()
+    Library inputData = Library.newBuilder()
       .setName("cannons")
-      .setAccountId(fake.account1.getId());
+      .setAccountId(fake.account1.getId())
+      .build();
 
     testDAO.update(hubAccess, fake.library1a.getId(), inputData);
 
@@ -245,10 +289,12 @@ public class LibraryIT {
    */
   @Test
   public void update_asEngineer_failsWithoutAccountAccess() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "Engineer");
-    Library inputData = new Library()
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.newBuilder()
+      .setId(UUID.randomUUID().toString()).build()), "Engineer");
+    Library inputData = Library.newBuilder()
       .setName("cannons")
-      .setAccountId(fake.account1.getId());
+      .setAccountId(fake.account1.getId())
+      .build();
 
     failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
@@ -259,9 +305,10 @@ public class LibraryIT {
   @Test
   public void update_FailsUpdatingToNonexistentAccount() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Library inputData = new Library()
+    Library inputData = Library.newBuilder()
       .setName("cannons")
-      .setAccountId(fake.account1.getId());
+      .setAccountId(fake.account1.getId())
+      .build();
 
     try {
       testDAO.update(hubAccess, fake.library1a.getId(), inputData);
@@ -278,9 +325,10 @@ public class LibraryIT {
   @Test
   public void update_Name() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Library inputData = new Library()
+    Library inputData = Library.newBuilder()
       .setName("cannons")
-      .setAccountId(fake.account2.getId());
+      .setAccountId(fake.account2.getId())
+      .build();
 
     testDAO.update(hubAccess, fake.library2a.getId(), inputData);
 
@@ -293,9 +341,10 @@ public class LibraryIT {
   @Test
   public void update_NameAndAccount() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Library inputData = new Library()
+    Library inputData = Library.newBuilder()
       .setName("trunk")
-      .setAccountId(fake.account1.getId());
+      .setAccountId(fake.account1.getId())
+      .build();
 
     testDAO.update(hubAccess, fake.library1a.getId(), inputData);
 
@@ -322,8 +371,22 @@ public class LibraryIT {
   @Test
   public void delete_FailsIfLibraryHasProgram() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    fake.user101 = test.insert(User.create("bill", "bill@email.com", "http://pictures.com/bill.gif"));
-    test.insert(Program.create(fake.user101, fake.library2b, ProgramType.Main, ProgramState.Published, "brilliant", "C#", 120.0, 0.6));
+    fake.user101 = test.insert(User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("bill")
+      .setEmail("bill@email.com")
+      .setAvatarUrl("http://pictures.com/bill.gif")
+      .build());
+    test.insert(Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library2b.getId())
+      .setType(Program.Type.Main)
+      .setState(Program.State.Published)
+      .setName("brilliant")
+      .setKey("C#")
+      .setTempo(120.0)
+      .setDensity(0.6)
+      .build());
 
     try {
       testDAO.destroy(hubAccess, fake.library2b.getId());
@@ -338,8 +401,19 @@ public class LibraryIT {
   @Test
   public void delete_FailsIfLibraryHasInstrument() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    fake.user101 = test.insert(User.create("bill", "bill@email.com", "http://pictures.com/bill.gif"));
-    test.insert(Instrument.create(fake.user101, fake.library2b, InstrumentType.Percussive, InstrumentState.Published, "brilliant"));
+    fake.user101 = test.insert(User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("bill")
+      .setEmail("bill@email.com")
+      .setAvatarUrl("http://pictures.com/bill.gif")
+      .build());
+    test.insert(Instrument.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library2b.getId())
+      .setType(Instrument.Type.Percussive)
+      .setState(Instrument.State.Published)
+      .setName("brilliant")
+      .build());
 
     try {
       testDAO.destroy(hubAccess, fake.library2b.getId());

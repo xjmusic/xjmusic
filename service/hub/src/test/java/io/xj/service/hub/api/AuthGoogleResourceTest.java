@@ -12,8 +12,6 @@ import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.access.HubAccessControlModule;
 import io.xj.service.hub.dao.DAOModule;
-import io.xj.service.hub.digest.HubDigestModule;
-import io.xj.service.hub.generation.HubGenerationModule;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubTestConfiguration;
@@ -54,7 +52,7 @@ public class AuthGoogleResourceTest {
       .withValue("app.port", ConfigValueFactory.fromAnyRef(1903))
       .withValue("app.baseUrl", ConfigValueFactory.fromAnyRef("https://xj.io/"))
       .withValue("app.apiUrl", ConfigValueFactory.fromAnyRef("api/69/"));
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubDigestModule(), new HubGenerationModule()));
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule()));
     app = new HubApp(injector);
     app.start();
 

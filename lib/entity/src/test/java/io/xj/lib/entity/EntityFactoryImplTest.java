@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import io.xj.Program;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,52 +32,52 @@ public class EntityFactoryImplTest {
 
   @Test
   public void register_returnsSameSchema_forExistingType() {
-    subject.register("MockEntity").createdBy(MockEntity::new).belongsTo("OtherThing");
+    subject.register("Program").createdBy(Program::getDefaultInstance).belongsTo("OtherThing");
 
-    assertEquals(ImmutableSet.of("otherThing"), subject.register("mock-entities").getBelongsTo());
+    assertEquals(ImmutableSet.of("otherThing"), subject.register("programs").getBelongsTo());
   }
 
   @Test
   public void register_returnsSameSchema_forExistingTypeClass() {
-    subject.register(MockEntity.class).createdBy(MockEntity::new).belongsTo("OtherThing");
+    subject.register(Program.class).createdBy(Program::getDefaultInstance).belongsTo("OtherThing");
 
-    assertEquals(ImmutableSet.of("otherThing"), subject.register(MockEntity.class).getBelongsTo());
+    assertEquals(ImmutableSet.of("otherThing"), subject.register(Program.class).getBelongsTo());
   }
 
   @Test
   public void register_returnsSameSchema_forExisting_TypeThenClass() {
-    subject.register("MockEntity").createdBy(MockEntity::new).belongsTo("OtherThing");
+    subject.register("Program").createdBy(Program::getDefaultInstance).belongsTo("OtherThing");
 
-    assertEquals(ImmutableSet.of("otherThing"), subject.register(MockEntity.class).getBelongsTo());
+    assertEquals(ImmutableSet.of("otherThing"), subject.register(Program.class).getBelongsTo());
   }
 
   @Test
   public void register_returnsSameSchema_forExisting_ClassThenType() {
-    subject.register(MockEntity.class).createdBy(MockEntity::new).belongsTo("OtherThing");
+    subject.register(Program.class).createdBy(Program::getDefaultInstance).belongsTo("OtherThing");
 
-    assertEquals(ImmutableSet.of("otherThing"), subject.register("MockEntity").getBelongsTo());
+    assertEquals(ImmutableSet.of("otherThing"), subject.register("Program").getBelongsTo());
   }
 
   @Test
   public void register_basicTypeCreator() throws EntityException {
-    subject.register("MockEntity").createdBy(MockEntity::new);
+    subject.register("Program").createdBy(Program::getDefaultInstance);
 
-    assertEquals(MockEntity.class, subject.getInstance("mock-entity").getClass());
+    assertEquals(Program.class, subject.getInstance("program").getClass());
   }
 
   @Test
   public void register_withBelongsTo() throws EntityException {
-    subject.register("MockEntity").belongsTo("FictionalEntity");
+    subject.register("Program").belongsTo("FictionalEntity");
 
-    assertEquals(ImmutableSet.of("fictionalEntity"), subject.getBelongsTo("mock-entities"));
+    assertEquals(ImmutableSet.of("fictionalEntity"), subject.getBelongsTo("programs"));
   }
 
   @Test
   public void register_withAttributesAndBelongsTo() throws EntityException {
-    subject.register("MockEntity");
-    subject.register("FictionalEntity").withAttribute("name").belongsTo("mockEntity").createdBy(MockEntity::new);
+    subject.register("Program");
+    subject.register("FictionalEntity").withAttribute("name").belongsTo("library").createdBy(Program::getDefaultInstance);
 
-    assertEquals(ImmutableSet.of("mockEntity"),
+    assertEquals(ImmutableSet.of("library"),
       subject.getBelongsTo("fictional-entity"));
 
     assertEquals(ImmutableSet.of("name"),
@@ -85,7 +86,7 @@ public class EntityFactoryImplTest {
 
   @Test
   public void register_withAttributes() throws EntityException {
-    subject.register("FictionalEntity").withAttribute("name").createdBy(MockEntity::new);
+    subject.register("FictionalEntity").withAttribute("name").createdBy(Program::getDefaultInstance);
 
     assertEquals(ImmutableSet.of("name"), subject.getAttributes("fictional-entity"));
   }
@@ -93,7 +94,7 @@ public class EntityFactoryImplTest {
   @Test
   public void getBelongsToType() throws EntityException {
     subject.register("OtherEntity");
-    subject.register("FakeEntity").belongsTo("otherEntity").createdBy(MockEntity::new);
+    subject.register("FakeEntity").belongsTo("otherEntity").createdBy(Program::getDefaultInstance);
 
     assertEquals(ImmutableSet.of("otherEntity"), subject.getBelongsTo("fake-entity"));
   }
@@ -115,70 +116,45 @@ public class EntityFactoryImplTest {
 
   @Test
   public void getAttributes() throws EntityException {
-    subject.register("FalseEntity").withAttribute("yarn").createdBy(MockEntity::new);
+    subject.register("FalseEntity").withAttribute("yarn").createdBy(Program::getDefaultInstance);
 
     assertEquals(ImmutableSet.of("yarn"), subject.getAttributes("false-entity"));
   }
 
-  @Test
-  public void serialize() throws EntityException {
-    subject.register("MockEntity").createdBy(MockEntity::new).withAttribute("name");
-    MockEntity entity = subject.getInstance(MockEntity.class).setId(UUID.fromString("63c30864-db29-4138-a867-32afa01da884")).setName("Jams");
-
-    String result = subject.serialize(entity);
-
-    assertEquals("{\"id\":\"63c30864-db29-4138-a867-32afa01da884\",\"createdAt\":null,\"updatedAt\":null,\"name\":\"Jams\",\"mockEntityId\":null,\"parentId\":null}", result);
-  }
-
-  @Test
-  public void deserialize() throws EntityException {
-    subject.register("MockEntity").createdBy(MockEntity::new).withAttribute("name");
-
-    MockEntity result = subject.deserialize(MockEntity.class, "{\"id\":\"63c30864-db29-4138-a867-32afa01da884\",\"createdAt\":null,\"updatedAt\":null,\"name\":\"Jams\",\"mockEntityId\":null,\"parentId\":null}");
-
-    assertEquals("Jams", result.getName());
-  }
-
-  @Test
-  public void deserialize_failsWithBadJson() throws EntityException {
-    subject.register("MockEntity").createdBy(MockEntity::new).withAttribute("name");
-
-    failure.expect(EntityException.class);
-    failure.expectMessage("Failed to deserialize JSON");
-
-    subject.deserialize("this is absolutely not json");
-  }
 
   @Test
   public void testClone() throws EntityException {
-    subject.register("MockEntity")
+    subject.register("Program")
       .withAttributes("name")
-      .belongsTo("mockEntity")
-      .createdBy(MockEntity::new);
-    MockEntity from = MockEntity.create().setName("Flight").setMockEntityId(UUID.randomUUID());
+      .belongsTo("library")
+      .createdBy(Program::getDefaultInstance);
+    Program from = Program.newBuilder().setName("Flight")
+      .setLibraryId(UUID.randomUUID().toString())
+      .build();
 
-    MockEntity result = subject.clone(from);
+    Program result = subject.clone(from);
 
     assertEquals("Flight", result.getName());
-    assertEquals(from.getMockEntityId(), result.getMockEntityId());
+    assertEquals(from.getLibraryId(), result.getLibraryId());
     assertEquals(from.getId(), result.getId());
     assertNotSame(result, from);
   }
 
   @Test
-  public void testClone_withEnumValue() throws EntityException {
-    subject.register("MockSuperEntity")
-      .withAttributes("stringValue", "enumValue")
-      .belongsTo("mockEntity")
-      .createdBy(MockSuperEntity::new);
-    MockSuperEntity from = MockSuperEntity.create()
-      .setStringValue("Flight")
-      .setEnumValue(MockEnumValue.Apples);
+  public void testClone_withState() throws EntityException {
+    subject.register("Program")
+      .withAttributes("name", "state")
+      .belongsTo("library")
+      .createdBy(Program::getDefaultInstance);
+    Program from = Program.newBuilder()
+      .setName("Flight")
+      .setState(Program.State.Published)
+      .build();
 
-    MockSuperEntity result = subject.clone(from);
+    Program result = subject.clone(from);
 
-    assertEquals("Flight", result.getStringValue());
-    assertEquals(from.getEnumValue(), result.getEnumValue());
+    assertEquals("Flight", result.getName());
+    assertEquals(from.getState(), result.getState());
     assertEquals(from.getId(), result.getId());
     assertNotSame(result, from);
   }
@@ -191,26 +167,31 @@ public class EntityFactoryImplTest {
    @throws EntityException on failure
    */
   @Test
-  public void internal_entityFactoryClonesMockEntityTypeOK() throws EntityException {
+  public void internal_entityFactoryClonesProgramTypeOK() throws EntityException {
     // Some topology
-    subject.register("MockEntity");
-    subject.register("MockSuperEntity")
-      .withAttributes("stringValue", "enumValue")
-      .belongsTo("mockEntity")
-      .createdBy(MockSuperEntity::new);
-    MockSuperEntity mockSuperEntity = new MockSuperEntity().setEnumValue(MockEnumValue.Apples);
+    subject.register("Program");
+    subject.register("Program")
+      .withAttributes("name", "state")
+      .belongsTo("library")
+      .createdBy(Program::getDefaultInstance);
+    Program program = Program.newBuilder()
+      .setId("ac5eba0a-f725-4831-9ff2-a8d92a73a09d")
+      .setState(Program.State.Published)
+      .build();
 
-    MockSuperEntity result = subject.clone(mockSuperEntity);
+    Program result = subject.clone(program);
 
-    assertEquals(MockEnumValue.Apples, result.getEnumValue());
+    assertEquals(Program.State.Published, result.getState());
   }
 
   @Test
   public void testClone_withNullBelongsToId() throws EntityException {
-    subject.register("MockEntity").withAttribute("name").belongsTo("mockEntity").createdBy(MockEntity::new);
-    MockEntity from = MockEntity.create().setName("Flight");
+    subject.register("Program").withAttribute("name").belongsTo("library").createdBy(Program::getDefaultInstance);
+    Program from = Program.newBuilder()
+      .setName("Flight")
+      .build();
 
-    MockEntity result = subject.clone(from);
+    Program result = subject.clone(from);
 
     assertEquals("Flight", result.getName());
     assertEquals(from.getId(), result.getId());
@@ -219,24 +200,33 @@ public class EntityFactoryImplTest {
 
   @Test
   public void testCloneAll() throws EntityException {
-    subject.register("MockEntity").withAttribute("name").belongsTo("mockEntity").createdBy(MockEntity::new);
-    MockEntity fromA = MockEntity.create().setName("Air").setMockEntityId(UUID.randomUUID());
-    MockEntity fromB = MockEntity.create().setName("Ground").setMockEntityId(UUID.randomUUID());
+    subject.register("Program")
+      .withAttribute("name")
+      .belongsTo("library")
+      .createdBy(Program::getDefaultInstance);
+    Program fromA = Program.newBuilder()
+      .setName("Air")
+      .setLibraryId(UUID.randomUUID().toString())
+      .build();
+    Program fromB = Program.newBuilder()
+      .setName("Ground")
+      .setLibraryId(UUID.randomUUID().toString())
+      .build();
 
-    Collection<MockEntity> result = subject.cloneAll(ImmutableList.of(fromA, fromB));
+    Collection<Program> result = subject.cloneAll(ImmutableList.of(fromA, fromB));
 
     assertEquals(2, result.size());
-    Iterator<MockEntity> resultIt = result.iterator();
+    Iterator<Program> resultIt = result.iterator();
     //
-    MockEntity resultA = resultIt.next();
+    Program resultA = resultIt.next();
     assertEquals("Air", resultA.getName());
-    assertEquals(fromA.getMockEntityId(), resultA.getMockEntityId());
+    assertEquals(fromA.getLibraryId(), resultA.getLibraryId());
     assertEquals(fromA.getId(), resultA.getId());
     assertNotSame(resultA, fromA);
     //
-    MockEntity resultB = resultIt.next();
+    Program resultB = resultIt.next();
     assertEquals("Ground", resultB.getName());
-    assertEquals(fromB.getMockEntityId(), resultB.getMockEntityId());
+    assertEquals(fromB.getLibraryId(), resultB.getLibraryId());
     assertEquals(fromB.getId(), resultB.getId());
     assertNotSame(resultB, fromB);
   }

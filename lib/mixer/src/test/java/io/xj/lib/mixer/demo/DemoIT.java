@@ -3,7 +3,13 @@ package io.xj.lib.mixer.demo;
 
 import com.google.common.io.Files;
 import com.google.inject.Guice;
-import io.xj.lib.mixer.*;
+import io.xj.lib.mixer.FormatException;
+import io.xj.lib.mixer.InternalResource;
+import io.xj.lib.mixer.Mixer;
+import io.xj.lib.mixer.MixerConfig;
+import io.xj.lib.mixer.MixerFactory;
+import io.xj.lib.mixer.MixerModule;
+import io.xj.lib.mixer.OutputEncoder;
 import org.junit.Test;
 
 import javax.sound.sampled.AudioFormat;

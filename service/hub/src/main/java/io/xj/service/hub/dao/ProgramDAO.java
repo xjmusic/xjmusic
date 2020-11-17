@@ -1,15 +1,75 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.dao;
 
-import io.xj.lib.entity.Entity;
+import com.google.protobuf.GeneratedMessageLite;
+import io.xj.Program;
+import io.xj.lib.util.CSV;
+import io.xj.lib.util.Text;
+import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.Program;
-import io.xj.service.hub.entity.ProgramState;
 
 import java.util.Collection;
-import java.util.UUID;
+import java.util.List;
+import java.util.Objects;
 
 public interface ProgramDAO extends DAO<Program> {
+
+  /**
+   String Values
+
+   @return ImmutableList of string values
+   */
+  static List<String> programTypeStringValues() {
+    return Text.toStrings(Program.Type.values());
+  }
+
+  /**
+   cast string to enum
+
+   @param value to cast to enum
+   @return enum
+   @throws ValueException on failure
+   */
+  static Program.Type validateProgramType(String value) throws ValueException {
+    if (Objects.isNull(value))
+      throw new ValueException("Type is required");
+
+    try {
+      return Program.Type.valueOf(Text.toProperSlug(value));
+    } catch (Exception e) {
+      throw new ValueException("'" + value + "' is not a valid type (" + CSV.joinEnum(Program.Type.values()) + ").", e);
+    }
+  }
+
+  /**
+   String Values
+
+   @return ImmutableList of string values
+   */
+  static List<String> programStateStringValues() {
+    return Text.toStrings(Program.State.values());
+  }
+
+  /**
+   cast string to enum
+   <p>
+   FUTURE: Sequence can be createdin draft state, then published
+   </p>
+
+   @param value to cast to enum
+   @return config state enum
+   @throws ValueException on failure
+   */
+  static Program.State validateProgramState(String value) throws ValueException {
+    if (Objects.isNull(value))
+      return Program.State.Published;
+
+    try {
+      return Program.State.valueOf(Text.toProperSlug(value));
+    } catch (Exception ignored) {
+      throw new ValueException("'" + value + "' is not a valid state (" + CSV.joinEnum(Program.State.values()) + ").");
+    }
+  }
 
   /**
    Provide an entity containing some new properties, but otherwise clone everything of a source program, of new record, and return it.
@@ -20,7 +80,7 @@ public interface ProgramDAO extends DAO<Program> {
    @param entity    for the new Program
    @return newly readMany record
    */
-  DAOCloner<Program> clone(HubAccess hubAccess, UUID cloneId, Program entity) throws DAOException;
+  DAOCloner<Program> clone(HubAccess hubAccess, String cloneId, Program entity) throws DAOException;
 
   /**
    Read child entities of many programs
@@ -30,7 +90,7 @@ public interface ProgramDAO extends DAO<Program> {
    @param types      of entities to include
    @return collection of entities
    */
-  Collection<Entity> readChildEntities(HubAccess hubAccess, Collection<UUID> programIds, Collection<String> types) throws DAOException;
+  Collection<Object> readChildEntities(HubAccess hubAccess, Collection<String> programIds, Collection<String> types) throws DAOException;
 
   /**
    Fetch all program visible to given hubAccess
@@ -49,7 +109,7 @@ public interface ProgramDAO extends DAO<Program> {
    @return programs
    @throws DAOException on failure
    */
-  Collection<Program> readManyInAccount(HubAccess hubAccess, UUID accountId) throws DAOException;
+  Collection<Program> readManyInAccount(HubAccess hubAccess, String accountId) throws DAOException;
 
   /**
    Fetch all Program in a certain state
@@ -60,7 +120,7 @@ public interface ProgramDAO extends DAO<Program> {
    @return Result of program records.
    @throws DAOException on failure
    */
-  Collection<Program> readManyInState(HubAccess hubAccess, ProgramState state) throws DAOException;
+  Collection<Program> readManyInState(HubAccess hubAccess, Program.State state) throws DAOException;
 
   /**
    Read all ids of Programs in the specified Library ids
@@ -69,7 +129,7 @@ public interface ProgramDAO extends DAO<Program> {
    @param hubAccess  control
    @return program ids in the specified library ids
    */
-  Collection<UUID> readIdsInLibraries(HubAccess hubAccess, Collection<UUID> libraryIds) throws DAOException;
+  Collection<String> readIdsInLibraries(HubAccess hubAccess, Collection<String> libraryIds) throws DAOException;
 
   /**
    Read many programs including all child entities
@@ -78,5 +138,5 @@ public interface ProgramDAO extends DAO<Program> {
    @param programIds to read
    @return collection of entities
    */
-  Collection<Entity> readManyWithChildEntities(HubAccess hubAccess, Collection<UUID> programIds) throws DAOException;
+  <N extends GeneratedMessageLite<N, ?>> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<String> programIds) throws DAOException;
 }

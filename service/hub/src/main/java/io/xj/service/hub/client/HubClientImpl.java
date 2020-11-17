@@ -6,10 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.Entity;
+import io.xj.lib.entity.Entities;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.PayloadFactory;
-import io.xj.lib.jsonapi.JsonApiException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -27,7 +27,6 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  Implementation of a Hub Client for connecting to Hub and accessing contents
@@ -57,12 +56,12 @@ public class HubClientImpl implements HubClient {
   }
 
   @Override
-  public HubContent ingest(HubClientAccess access, Set<UUID> libraryIds, Set<UUID> programIds, Set<UUID> instrumentIds) throws HubClientException {
+  public HubContent ingest(HubClientAccess access, Set<String> libraryIds, Set<String> programIds, Set<String> instrumentIds) throws HubClientException {
     try {
       HttpGet request = new HttpGet(buildURI(HubClientImpl.API_PATH_INGEST, ImmutableMap.of(
-        "libraryIds", Entity.csvOf(libraryIds),
-        "programIds", Entity.csvOf(programIds),
-        "instrumentIds", Entity.csvOf(instrumentIds)
+        "libraryIds", Entities.csvOf(libraryIds),
+        "programIds", Entities.csvOf(programIds),
+        "instrumentIds", Entities.csvOf(instrumentIds)
       )));
       setAccessCookie(request, internalToken);
       CloseableHttpResponse response = httpClient.execute(request);

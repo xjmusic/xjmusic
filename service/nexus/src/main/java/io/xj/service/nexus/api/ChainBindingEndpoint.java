@@ -7,7 +7,6 @@ import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.PayloadFactory;
-import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.nexus.NexusEndpoint;
 import io.xj.service.nexus.dao.ChainBindingDAO;
 
@@ -50,7 +49,7 @@ public class ChainBindingEndpoint extends NexusEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
+  @RolesAllowed({ARTIST, ENGINEER})
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("chainId") String chainId) {
     return readMany(crc, dao(), chainId);
   }
@@ -63,7 +62,7 @@ public class ChainBindingEndpoint extends NexusEndpoint {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
+  @RolesAllowed({ARTIST, ENGINEER})
   public Response create(Payload payload, @Context ContainerRequestContext crc) {
     return create(crc, dao(), payload);
   }
@@ -75,7 +74,7 @@ public class ChainBindingEndpoint extends NexusEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
+  @RolesAllowed({ARTIST, ENGINEER})
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -87,7 +86,7 @@ public class ChainBindingEndpoint extends NexusEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
+  @RolesAllowed({ARTIST, ENGINEER})
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

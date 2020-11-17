@@ -7,24 +7,23 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
+import io.xj.Chain;
+import io.xj.ChainBinding;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
+import io.xj.lib.util.Value;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
 import io.xj.service.nexus.NexusApp;
-import io.xj.service.nexus.NexusHubContentFixtures;
+import io.xj.service.nexus.NexusIntegrationTestingFixtures;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.ChainBinding;
-import io.xj.service.nexus.entity.ChainState;
-import io.xj.service.nexus.entity.ChainType;
 import io.xj.service.nexus.persistence.NexusEntityStore;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
@@ -75,6 +74,7 @@ public class ComplexLibraryTest {
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault()
+      .withValue("prometheus.enabled", ConfigValueFactory.fromAnyRef(false))
       .withValue("app.port", ConfigValueFactory.fromAnyRef(9043))
       .withValue("work.bossDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.chainDelayMillis", ConfigValueFactory.fromAnyRef(1))
@@ -99,13 +99,26 @@ public class ComplexLibraryTest {
     test.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
-    NexusHubContentFixtures fake = new NexusHubContentFixtures();
+    NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
     when(hubClient.ingest(any(), any(), any(), any()))
       .thenReturn(new HubContent(fake.generatedFixture(3)));
 
     // Chain "Test Print #1" is ready to begin
-    chain1 = test.put(Chain.create(fake.account1, "Test Print #1", ChainType.Preview, ChainState.Fabricate, Instant.now().minusSeconds(MAXIMUM_TEST_WAIT_SECONDS), null, null));
-    test.put(ChainBinding.create(chain1, fake.library1));
+    chain1 = test.put(Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setName("Test Print #1")
+      .setType(Chain.Type.Preview)
+      .setState(Chain.State.Fabricate)
+      .setStartAt(Value.formatIso8601UTC(Instant.now().minusSeconds(MAXIMUM_TEST_WAIT_SECONDS)))
+      .build());
+
+    test.put(ChainBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setTargetId(fake.library1.getId())
+      .setType(ChainBinding.Type.Library)
+      .build());
 
     app = new NexusApp(injector);
   }
@@ -166,7 +179,7 @@ public class ComplexLibraryTest {
    @param chainId to test
    @return true if has at least N segments
    */
-  private boolean hasSegmentsDubbedPastMinimumOffset(UUID chainId) {
+  private boolean hasSegmentsDubbedPastMinimumOffset(String chainId) {
     try {
       return MARATHON_NUMBER_OF_SEGMENTS <= segmentDAO.readLastDubbedSegment(HubClientAccess.internal(), chainId).getOffset();
     } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException ignored) {

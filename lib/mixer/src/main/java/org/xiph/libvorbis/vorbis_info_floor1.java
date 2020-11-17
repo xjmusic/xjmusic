@@ -2,7 +2,9 @@
 
 package org.xiph.libvorbis;
 
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VIF_CLASS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VIF_PARTS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VIF_POSIT;
 
 public class vorbis_info_floor1 {
 

@@ -2,6 +2,8 @@
 
 package io.xj.lib.entity;
 
+import com.google.protobuf.GeneratedMessageLite;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +47,7 @@ public interface EntityFactory {
    @param type of entity to get an instance of
    @return instance of given type of entity
    */
-  <N extends Entity> N getInstance(String type) throws EntityException;
+  <N extends GeneratedMessageLite<N, ?>> N getInstance(String type) throws EntityException;
 
   /**
    Get an instance of a given type of entity
@@ -53,7 +55,7 @@ public interface EntityFactory {
    @param type of entity to get an instance of
    @return instance of given type of entity
    */
-  <N extends Entity> N getInstance(Class<N> type) throws EntityException;
+  <N extends GeneratedMessageLite<N, ?>> N getInstance(Class<N> type) throws EntityException;
 
   /**
    Get the belongs-to types for a given type of entity
@@ -94,7 +96,7 @@ public interface EntityFactory {
    @param target from which to get resource attributes
    @return entity attributes
    */
-  <N extends Entity> Map<String, Object> getResourceAttributes(N target) throws EntityException;
+  <N> Map<String, Object> getResourceAttributes(N target) throws EntityException;
 
   /**
    Set all values available of a source Entity
@@ -102,36 +104,7 @@ public interface EntityFactory {
    @param source source Entity
    @param target on which to set all resource attributes
    */
-  <N extends Entity> void setAllAttributes(N source, N target) throws EntityException;
-
-  /**
-   Serialize an object  into JSON string
-
-   @param obj to serialize, probably a {@link Entity}, but it doesn't have to be.
-   @return Entity serialized as JSON text
-   @throws EntityException on failure to serialize
-   */
-  String serialize(Object obj) throws EntityException;
-
-  /**
-   Parse some JSON text, deserializing it into a {@link Entity}
-
-   @param json to deserialize
-   @return {@link Entity} deserialized from JSON
-   @throws EntityException on failure to deserialize
-   */
-  Entity deserialize(String json) throws EntityException;
-
-  /**
-   Parse some JSON text, deserializing it into a the specified class
-
-   @param <N>       class of entity
-   @param valueType class which deserialization will result in
-   @param json      to deserialize
-   @return {@link Object} deserialized from JSON
-   @throws EntityException on failure to deserialize
-   */
-  <N> N deserialize(Class<N> valueType, String json) throws EntityException;
+  <N> void setAllAttributes(N source, N target) throws EntityException;
 
   /**
    Whether the specified type is a known schema
@@ -165,7 +138,7 @@ public interface EntityFactory {
    @param <N>    type of entity
    @return clone of original entity
    */
-  <N extends Entity> N clone(N entity) throws EntityException;
+  <N extends GeneratedMessageLite<N, ?>> N clone(N entity) throws EntityException;
 
   /**
    Clone a collection of entities: their id, know attributes, and relationships,
@@ -175,5 +148,5 @@ public interface EntityFactory {
    @param <N>      type of entities
    @return clones of original entities
    */
-  <N extends Entity> Collection<N> cloneAll(Collection<N> entities) throws EntityException;
+  <N extends GeneratedMessageLite<N, ?>> Collection<N> cloneAll(Collection<N> entities) throws EntityException;
 }

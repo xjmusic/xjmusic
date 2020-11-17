@@ -4,7 +4,7 @@ package io.xj.service.nexus.craft.rhythm;
 import io.xj.service.nexus.craft.exception.CraftException;
 
 /**
- Structure craft for the current segment includes rhythm and harmonicDetail
+ Structure craft for the current segment rhythm
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public interface RhythmCraft {

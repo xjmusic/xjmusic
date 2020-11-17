@@ -2,7 +2,6 @@
 
 package io.xj.service.hub.testing;
 
-import io.xj.lib.entity.Entity;
 import io.xj.service.hub.HubException;
 import org.jooq.DSLContext;
 import org.jooq.Table;
@@ -46,14 +45,14 @@ public interface HubIntegrationTestProvider {
    @param entity to insert
    @return the same entity (for chaining methods)
    */
-  <N extends Entity> N insert(N entity) throws HubException;
+  <N> N insert(N entity) throws HubException;
 
   /**
    Batch Insert many entities to the database
 
    @param entities to insert
    */
-  <N extends Entity> void batchInsert(Collection<N> entities) throws HubException;
+  <N> void batchInsert(Collection<N> entities) throws HubException;
 
   /**
    Get the master connection to integration database

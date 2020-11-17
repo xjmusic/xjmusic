@@ -5,17 +5,17 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.Account;
+import io.xj.AccountUser;
+import io.xj.User;
+import io.xj.UserRole;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
-import io.xj.lib.util.ValueException;
 import io.xj.service.hub.IntegrationTestingFixtures;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.access.HubAccessControlModule;
-import io.xj.service.hub.entity.Account;
-import io.xj.service.hub.entity.AccountUser;
-import io.xj.service.hub.entity.User;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubIntegrationTestModule;
@@ -28,8 +28,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
+import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 // future test: permissions of different users to readMany vs. of vs. update or delete account users
 public class AccountUserIT {
@@ -50,15 +54,46 @@ public class AccountUserIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(Account.create("bananas"));
+    fake.account1 = test.insert(Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("bananas")
+      .build());
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(User.create("john", "john@email.com", "http://pictures.com/john.gif"));
-    accountUser_1_2 = test.insert(AccountUser.create(fake.account1, fake.user2));
+    fake.user2 = test.insert(User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("john")
+      .setEmail("john@email.com")
+      .setAvatarUrl("http://pictures.com/john.gif")
+      .build());
+    test.insert(UserRole.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setUserId(fake.user2.getId())
+      .setType(UserRole.Type.Admin)
+      .build());
+    accountUser_1_2 = test.insert(AccountUser.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setUserId(fake.user2.getId())
+      .build());
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(User.create("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
-    test.insert(AccountUser.create(fake.account1, fake.user3));
+    fake.user3 = test.insert(User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("jenny")
+      .setEmail("jenny@email.com")
+      .setAvatarUrl("http://pictures.com/jenny.gif")
+      .build());
+    test.insert(UserRole.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setUserId(fake.user2.getId())
+      .setType(UserRole.Type.User)
+      .build());
+    test.insert(AccountUser.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setUserId(fake.user3.getId())
+      .build());
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AccountUserDAO.class);
@@ -72,12 +107,19 @@ public class AccountUserIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    fake.user5 = test.insert(User.create("Jim", "jim@email.com", "http://pictures.com/jim.gif"));
-    AccountUser inputData = new AccountUser()
+    fake.user5 = test.insert(User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("Jim")
+      .setEmail("jim@email.com")
+      .setAvatarUrl("http://pictures.com/jim.gif")
+      .build());
+    AccountUser inputData = AccountUser.newBuilder()
       .setAccountId(fake.account1.getId())
-      .setUserId(fake.user5.getId());
+      .setUserId(fake.user5.getId())
+      .build();
 
-    AccountUser result = testDAO.create(hubAccess, inputData);
+    AccountUser result = testDAO.create(
+      hubAccess, inputData);
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());
@@ -87,51 +129,59 @@ public class AccountUserIT {
   @Test
   public void create_FailIfAlreadyExists() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    AccountUser inputData = new AccountUser()
+    AccountUser inputData = AccountUser.newBuilder()
       .setAccountId(fake.account1.getId())
-      .setUserId(fake.user2.getId());
+      .setUserId(fake.user2.getId())
+      .build();
 
     failure.expect(DAOException.class);
     failure.expectMessage("Account User already exists!");
 
-    testDAO.create(hubAccess, inputData);
+    testDAO.create(
+      hubAccess, inputData);
   }
 
   @Test
   public void create_FailIfNotAdmin() throws Exception {
     HubAccess hubAccess = HubAccess.create("User");
-    AccountUser inputData = new AccountUser()
+    AccountUser inputData = AccountUser.newBuilder()
       .setAccountId(fake.account1.getId())
-      .setUserId(fake.user2.getId());
+      .setUserId(fake.user2.getId())
+      .build();
 
     failure.expect(DAOException.class);
     failure.expectMessage("top-level hubAccess is required");
 
-    testDAO.create(hubAccess, inputData);
+    testDAO.create(
+      hubAccess, inputData);
   }
 
   @Test
   public void create_FailsWithoutAccountID() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    AccountUser inputData = new AccountUser()
-      .setUserId(fake.user2.getId());
+    AccountUser inputData = AccountUser.newBuilder()
+      .setUserId(fake.user2.getId())
+      .build();
 
-    failure.expect(ValueException.class);
+    failure.expect(DAOException.class);
     failure.expectMessage("Account ID is required");
 
-    testDAO.create(hubAccess, inputData);
+    testDAO.create(
+      hubAccess, inputData);
   }
 
   @Test
   public void create_FailsWithoutUserId() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    AccountUser inputData = new AccountUser()
-      .setAccountId(fake.account1.getId());
+    AccountUser inputData = AccountUser.newBuilder()
+      .setAccountId(fake.account1.getId())
+      .build();
 
-    failure.expect(ValueException.class);
+    failure.expect(DAOException.class);
     failure.expectMessage("User ID is required");
 
-    testDAO.create(hubAccess, inputData);
+    testDAO.create(
+      hubAccess, inputData);
   }
 
   @Test
@@ -147,7 +197,8 @@ public class AccountUserIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.newBuilder()
+      .setId(UUID.randomUUID().toString()).build()), "Artist");
     failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
@@ -174,7 +225,9 @@ public class AccountUserIT {
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build()), "Artist");
 
     Collection<AccountUser> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
 

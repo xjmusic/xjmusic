@@ -32,8 +32,7 @@ import io.xj.service.hub.dao.ProgramSequencePatternEventDAO;
 import io.xj.service.hub.dao.ProgramVoiceDAO;
 import io.xj.service.hub.dao.ProgramVoiceTrackDAO;
 import io.xj.service.hub.dao.UserDAO;
-import io.xj.service.hub.digest.DigestCacheProvider;
-import io.xj.service.hub.ingest.HubIngestCacheProvider;
+import io.xj.service.hub.ingest.HubIngestFactory;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -58,7 +57,7 @@ public class HubAppTest {
   @Mock
   public HubAccessControlProvider hubAccessControlProvider;
   @Mock
-  public HubIngestCacheProvider hubIngestCacheProvider;
+  public HubIngestFactory hubIngestFactory;
   @Mock
   public AccountDAO accountDAO;
   @Mock
@@ -100,8 +99,6 @@ public class HubAppTest {
   @Mock
   public UserDAO userDAO;
   @Mock
-  private DigestCacheProvider digestCacheProvider;
-  @Mock
   private GoogleProvider googleProvider;
   public App subject;
   public CloseableHttpClient httpClient;
@@ -119,7 +116,7 @@ public class HubAppTest {
       protected void configure() {
         bind(HubDatabaseProvider.class).toInstance(hubDatabaseProvider);
         bind(HubAccessControlProvider.class).toInstance(hubAccessControlProvider);
-        bind(HubIngestCacheProvider.class).toInstance(hubIngestCacheProvider);
+        bind(HubIngestFactory.class).toInstance(hubIngestFactory);
         bind(AccountDAO.class).toInstance(accountDAO);
         bind(AccountUserDAO.class).toInstance(accountUserDAO);
         bind(InstrumentDAO.class).toInstance(instrumentDAO);
@@ -140,7 +137,6 @@ public class HubAppTest {
         bind(ProgramVoiceTrackDAO.class).toInstance(programVoiceTrackDAO);
         bind(ProgramVoiceDAO.class).toInstance(programVoiceDAO);
         bind(UserDAO.class).toInstance(userDAO);
-        bind(DigestCacheProvider.class).toInstance(digestCacheProvider);
         bind(GoogleProvider.class).toInstance(googleProvider);
       }
     }));

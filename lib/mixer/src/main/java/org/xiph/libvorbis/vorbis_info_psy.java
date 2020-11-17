@@ -2,7 +2,9 @@
 
 package org.xiph.libvorbis;
 
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.NOISE_COMPAND_LEVELS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.P_BANDS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.P_NOISECURVES;
 
 class vorbis_info_psy {
 

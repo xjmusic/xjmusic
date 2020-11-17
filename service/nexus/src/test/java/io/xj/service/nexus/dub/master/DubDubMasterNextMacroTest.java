@@ -7,26 +7,20 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Program;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
-import io.xj.service.hub.entity.ProgramType;
 import io.xj.service.nexus.NexusApp;
-import io.xj.service.nexus.NexusHubContentFixtures;
+import io.xj.service.nexus.NexusIntegrationTestingFixtures;
 import io.xj.service.nexus.dub.DubFactory;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.ChainBinding;
-import io.xj.service.nexus.entity.ChainState;
-import io.xj.service.nexus.entity.ChainType;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentChoice;
-import io.xj.service.nexus.entity.SegmentChoiceArrangement;
-import io.xj.service.nexus.entity.SegmentChord;
-import io.xj.service.nexus.entity.SegmentMeme;
-import io.xj.service.nexus.entity.SegmentState;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
@@ -42,8 +36,15 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -51,7 +52,7 @@ import static org.mockito.Mockito.when;
 public class DubDubMasterNextMacroTest {
   private DubFactory dubFactory;
   private FabricatorFactory fabricatorFactory;
-  private NexusHubContentFixtures fake;
+  private NexusIntegrationTestingFixtures fake;
   private Chain chain1;
   private Segment segment1;
   private Segment segment2;
@@ -87,37 +88,68 @@ public class DubDubMasterNextMacroTest {
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
-    fake = new NexusHubContentFixtures();
+    fake = new NexusIntegrationTestingFixtures();
     when(hubClient.ingest(any(), any(), any(), any()))
       .thenReturn(new HubContent(Streams.concat(
-        fake.setupFixtureB1(true).stream(),
+        fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream(),
         fake.setupFixtureB3().stream()
       ).collect(Collectors.toList())));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    store.put(ChainBinding.create(chain1, fake.library2));
-    segment1 = store.put(Segment.create(chain1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120, "chains-1-segments-9f7s89d8a7892.wav"));
-    segment2 = store.put(Segment.create(chain1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120, "chains-1-segments-9f7s89d8a7892.wav"));
+    chain1 = store.put(buildChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    store.put(ChainBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setTargetId(fake.library2.getId())
+      .setType(ChainBinding.Type.Library)
+      .build());
+    segment1 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setOffset(0)
+      .setState(Segment.State.Dubbed)
+      .setBeginAt("2017-02-14T12:01:00.000001Z")
+      .setEndAt("2017-02-14T12:01:32.000001Z")
+      .setKey("D major")
+      .setTotal(64)
+      .setDensity(0.73)
+      .setTempo(120)
+      .setStorageKey("chains-1-segments-9f7s89d8a7892")
+      .setOutputEncoder("wav")
+      .build());
+    segment2 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setOffset(1)
+      .setState(Segment.State.Dubbing)
+      .setBeginAt("2017-02-14T12:01:32.000001Z")
+      .setEndAt("2017-02-14T12:02:04.000001Z")
+      .setKey("Db minor")
+      .setTotal(64)
+      .setDensity(0.85)
+      .setTempo(120)
+      .setStorageKey("chains-1-segments-9f7s89d8a7892")
+      .setOutputEncoder("wav")
+      .build());
 
     // Chain "Test Print #1" has this segment that was just dubbed
-    segment3 = store.put(Segment.create(chain1, 2, SegmentState.Dubbed, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "Ab minor", 64, 0.30, 120.0, "chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(SegmentChoice.create(segment3, ProgramType.Macro, fake.program4_sequence1_binding0, 3));
-    store.put(SegmentChoice.create(segment3, ProgramType.Main, fake.program5_sequence1_binding0, -4));
+    segment3 = store.put(buildSegment(chain1, 2, Segment.State.Dubbed, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "Ab minor", 64, 0.30, 120.0, "chains-1-segments-9f7s89d8a7892", "wav"));
+    store.put(buildSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence1_binding0, 3));
+    store.put(buildSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence1_binding0, -4));
 
     // Chain "Test Print #1" has this segment dubbing - Structure is complete
-    segment4 = store.put(Segment.create(chain1, 3, SegmentState.Dubbing, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:03:15.836735Z"), "F minor", 16, 0.45, 120.0, "chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(SegmentChoice.create(segment4, ProgramType.Macro, fake.program4_sequence0_binding0, 4));
-    store.put(SegmentChoice.create(segment4, ProgramType.Main, fake.program15_sequence0_binding0, -2));
-    SegmentChoice choice1 = store.put(SegmentChoice.create(segment4, ProgramType.Rhythm, fake.program35, 5));
-    store.put(SegmentMeme.create(segment4, "Hindsight"));
-    store.put(SegmentMeme.create(segment4, "Chunky"));
-    store.put(SegmentMeme.create(segment4, "Regret"));
-    store.put(SegmentMeme.create(segment4, "Tangy"));
-    store.put(SegmentChord.create(segment4, 0.0, "F minor"));
-    store.put(SegmentChord.create(segment4, 8.0, "Gb minor"));
-    store.put(SegmentChoiceArrangement.create(choice1, fake.program35_voice0, fake.instrument8));
+    segment4 = store.put(buildSegment(chain1, 3, Segment.State.Dubbing, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:03:15.836735Z"), "F minor", 16, 0.45, 120.0, "chains-1-segments-9f7s89d8a7892", "wav"));
+    store.put(buildSegmentChoice(segment4, Program.Type.Macro, fake.program4_sequence0_binding0, 4));
+    store.put(buildSegmentChoice(segment4, Program.Type.Main, fake.program15_sequence0_binding0, -2));
+    SegmentChoice choice1 = store.put(buildSegmentChoice(segment4, Program.Type.Rhythm, fake.program35, 5));
+    store.put(buildSegmentMeme(segment4, "Hindsight"));
+    store.put(buildSegmentMeme(segment4, "Chunky"));
+    store.put(buildSegmentMeme(segment4, "Regret"));
+    store.put(buildSegmentMeme(segment4, "Tangy"));
+    store.put(buildSegmentChord(segment4, 0.0, "F minor"));
+    store.put(buildSegmentChord(segment4, 8.0, "Gb minor"));
+    store.put(buildSegmentChoiceArrangement(choice1, fake.program35_voice0, fake.instrument8));
 
     // future: insert arrangement of choice
     // future: insert 8 picks of audio 1
@@ -132,7 +164,7 @@ public class DubDubMasterNextMacroTest {
 
   @Test
   public void dubMasterNextMacro() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(),segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment4);
 
     dubFactory.master(fabricator).doWork();
 

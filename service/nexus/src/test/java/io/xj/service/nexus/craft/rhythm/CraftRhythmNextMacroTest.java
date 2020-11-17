@@ -8,29 +8,27 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Program;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChord;
+import io.xj.SegmentMeme;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
-import io.xj.service.hub.entity.ProgramType;
 import io.xj.service.nexus.NexusApp;
-import io.xj.service.nexus.NexusHubContentFixtures;
+import io.xj.service.nexus.NexusIntegrationTestingFixtures;
 import io.xj.service.nexus.craft.CraftFactory;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.ChainBinding;
-import io.xj.service.nexus.entity.ChainState;
-import io.xj.service.nexus.entity.ChainType;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentChoice;
-import io.xj.service.nexus.entity.SegmentChord;
-import io.xj.service.nexus.entity.SegmentMeme;
-import io.xj.service.nexus.entity.SegmentState;
+import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.After;
@@ -44,8 +42,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -55,7 +55,7 @@ public class CraftRhythmNextMacroTest {
   private Injector injector;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
-  private NexusHubContentFixtures fake;
+  private NexusIntegrationTestingFixtures fake;
   private Chain chain1;
   private Segment segment1;
   private Segment segment2;
@@ -91,19 +91,49 @@ public class CraftRhythmNextMacroTest {
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
-    fake = new NexusHubContentFixtures();
+    fake = new NexusIntegrationTestingFixtures();
     when(hubClient.ingest(any(), any(), any(), any()))
       .thenReturn(new HubContent(Streams.concat(
-        fake.setupFixtureB1(true).stream(),
+        fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream(),
         fake.setupFixtureB3().stream()
       ).collect(Collectors.toList())));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    store.put(ChainBinding.create(chain1, fake.library2));
-    segment1 = store.put(Segment.create(chain1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120, "chains-1-segments-9f7s89d8a7892.wav"));
-    segment2 = store.put(Segment.create(chain1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120, "chains-1-segments-9f7s89d8a7892.wav"));
+    chain1 = store.put(buildChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    store.put(ChainBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setTargetId(fake.library2.getId())
+      .setType(ChainBinding.Type.Library)
+      .build());
+    segment1 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setOffset(0)
+      .setState(Segment.State.Dubbed)
+      .setBeginAt("2017-02-14T12:01:00.000001Z")
+      .setEndAt("2017-02-14T12:01:32.000001Z")
+      .setKey("D major")
+      .setTotal(64)
+      .setDensity(0.73)
+      .setTempo(120)
+      .setStorageKey("chains-1-segments-9f7s89d8a7892")
+      .setOutputEncoder("wav")
+      .build());
+    segment2 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setOffset(1)
+      .setState(Segment.State.Dubbing)
+      .setBeginAt("2017-02-14T12:01:32.000001Z")
+      .setEndAt("2017-02-14T12:02:04.000001Z")
+      .setKey("Db minor")
+      .setTotal(64)
+      .setDensity(0.85)
+      .setTempo(120)
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build());
   }
 
   @After
@@ -121,7 +151,7 @@ public class CraftRhythmNextMacroTest {
     // assert choice of rhythm-type sequence
     Collection<SegmentChoice> segmentChoices =
       store.getAll(SegmentChoice.class, Segment.class, ImmutableList.of(segment4.getId()));
-    assertNotNull(SegmentChoice.findFirstOfType(segmentChoices, ProgramType.Rhythm));
+    assertNotNull(SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Rhythm));
   }
 
   @Test
@@ -134,7 +164,7 @@ public class CraftRhythmNextMacroTest {
     // assert choice of rhythm-type sequence
     Collection<SegmentChoice> segmentChoices =
       store.getAll(SegmentChoice.class, Segment.class, ImmutableList.of(segment4.getId()));
-    assertNotNull(SegmentChoice.findFirstOfType(segmentChoices, ProgramType.Rhythm));
+    assertNotNull(SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Rhythm));
   }
 
   /**
@@ -144,65 +174,95 @@ public class CraftRhythmNextMacroTest {
    */
   private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws EntityStoreException {
     // Chain "Test Print #1" has this segment that was just crafted
-    segment3 = store.put(Segment.create()
+    segment3 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(2L)
-      .setStateEnum(SegmentState.Crafted)
+      .setState(Segment.State.Crafted)
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setEndAt("2017-02-14T12:02:36.000001Z")
       .setKey("Ab minor")
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(SegmentChoice.create().setSegmentId(segment3.getId())
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build());
+    store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment3.getId())
       .setProgramId(fake.program4.getId())
+      .setProgramId(fake.program4_sequence2_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence2_binding0.getId())
-      .setTypeEnum(ProgramType.Macro)
-      .setTranspose(3));
-    store.put(SegmentChoice.create().setSegmentId(segment3.getId())
+      .setProgramType(Program.Type.Macro)
+      .setTranspose(3)
+      .build());
+    store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment3.getId())
       .setProgramId(fake.program5.getId())
+      .setProgramId(fake.program5_sequence1_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
-      .setTypeEnum(ProgramType.Main)
-      .setTranspose(1));
+      .setProgramType(Program.Type.Main)
+      .setTranspose(1)
+      .build());
     if (!excludeRhythmChoiceForSegment3)
-      store.put(SegmentChoice.create().setSegmentId(segment3.getId())
+      store.put(SegmentChoice.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setSegmentId(segment3.getId())
         .setProgramId(fake.program35.getId())
-        .setTypeEnum(ProgramType.Rhythm)
-        .setTranspose(-4));
+        .setProgramType(Program.Type.Rhythm)
+        .setTranspose(-4)
+        .build());
 
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
-    segment4 = store.put(Segment.create()
+    segment4 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(3L)
-      .setStateEnum(SegmentState.Crafting)
+      .setState(Segment.State.Crafting)
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setEndAt("2017-02-14T12:03:15.836735Z")
       .setKey("F minor")
       .setTotal(16)
       .setDensity(0.45)
       .setTempo(125.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(SegmentChoice.create().setSegmentId(segment4.getId())
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build());
+    store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment4.getId())
       .setProgramId(fake.program3.getId())
+      .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
-      .setTypeEnum(ProgramType.Macro)
-      .setTranspose(4));
-    store.put(SegmentChoice.create().setSegmentId(segment4.getId())
+      .setProgramType(Program.Type.Macro)
+      .setTranspose(4)
+      .build());
+    store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment4.getId())
       .setProgramId(fake.program15.getId())
+      .setProgramId(fake.program15_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program15_sequence0_binding0.getId())
-      .setTypeEnum(ProgramType.Main)
-      .setTranspose(-2));
+      .setProgramType(Program.Type.Main)
+      .setTranspose(-2)
+      .build());
     for (String memeName : ImmutableList.of("Hindsight", "Chunky", "Regret", "Tangy"))
-      store.put(SegmentMeme.create(segment4, memeName));
-    store.put(SegmentChord.create()
+      store.put(SegmentMeme.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setSegmentId(segment4.getId()).setName(memeName)
+        .build());
+    store.put(SegmentChord.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setSegmentId(segment4.getId())
       .setPosition(0.0)
-      .setName("F minor"));
-    store.put(SegmentChord.create()
+      .setName("F minor")
+      .build());
+    store.put(SegmentChord.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setSegmentId(segment4.getId())
       .setPosition(8.0)
-      .setName("Gb minor"));
+      .setName("Gb minor")
+      .build());
   }
 
 

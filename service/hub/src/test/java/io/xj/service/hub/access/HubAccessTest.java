@@ -5,20 +5,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.UserRole;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
-import io.xj.lib.entity.EntityException;
-import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonApiModule;
-import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.dao.DAOModule;
-import io.xj.service.hub.entity.AccountUser;
-import io.xj.service.hub.entity.User;
-import io.xj.service.hub.entity.UserAuth;
-import io.xj.service.hub.entity.UserAuthType;
-import io.xj.service.hub.entity.UserRole;
-import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubTestConfiguration;
@@ -28,7 +23,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.container.ContainerRequestContext;
-import java.util.Collection;
 import java.util.UUID;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -46,27 +40,15 @@ public class HubAccessTest {
   public void matchRoles() {
     HubAccess hubAccess = HubAccess.create("User,Artist");
 
-    assertTrue(hubAccess.isAllowed(UserRoleType.User));
-    assertTrue(hubAccess.isAllowed(UserRoleType.Artist));
-    assertTrue(hubAccess.isAllowed(UserRoleType.User, UserRoleType.Artist));
-    assertFalse(hubAccess.isAllowed(UserRoleType.Admin));
-  }
-
-  @Test
-  public void createFromUserAuth_setsUserId() {
-    User user = User.create();
-    UserAuth userAuth = UserAuth.create(user, UserAuthType.Google);
-    Collection<AccountUser> accountUsers = ImmutableSet.of();
-    Collection<UserRole> userRoles = ImmutableSet.of();
-
-    HubAccess result = HubAccess.create(userAuth, accountUsers, userRoles);
-
-    assertEquals(user.getId(), result.getUserId());
+    assertTrue(hubAccess.isAllowed(UserRole.Type.User));
+    assertTrue(hubAccess.isAllowed(UserRole.Type.Artist));
+    assertTrue(hubAccess.isAllowed(UserRole.Type.User, UserRole.Type.Artist));
+    assertFalse(hubAccess.isAllowed(UserRole.Type.Admin));
   }
 
   @Test
   public void getUserId() {
-    UUID id = UUID.randomUUID();
+    String id = UUID.randomUUID().toString();
     HubAccess hubAccess = new HubAccess().setUserId(id);
 
     assertEquals(id, hubAccess.getUserId());
@@ -74,7 +56,7 @@ public class HubAccessTest {
 
   @Test
   public void fromContext() {
-    HubAccess expectHubAccess = new HubAccess().setUserId(UUID.randomUUID());
+    HubAccess expectHubAccess = new HubAccess().setUserId(UUID.randomUUID().toString());
     when(crc.getProperty(HubAccess.CONTEXT_KEY))
       .thenReturn(expectHubAccess);
 
@@ -84,7 +66,7 @@ public class HubAccessTest {
   }
 
   @Test
-  public void serialize() throws AppException, EntityException {
+  public void serialize() throws AppException, JsonApiException {
     Config config = HubTestConfiguration.getDefault();
     Injector injector = AppConfiguration.inject(config, ImmutableSet.of(
       new HubAccessControlModule(),
@@ -94,26 +76,26 @@ public class HubAccessTest {
       new MixerModule(),
       new JsonApiModule(),
       new FileStoreModule()));
-    EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
+    PayloadFactory payloadFactory = injector.getInstance(PayloadFactory.class);
 
-    UUID userId = UUID.randomUUID();
-    UUID accountId = UUID.randomUUID();
+    String userId = UUID.randomUUID().toString();
+    String accountId = UUID.randomUUID().toString();
     HubAccess hubAccess = HubAccess.create("User,Artist")
       .setUserId(userId)
       .setAccountIds(ImmutableList.of(accountId));
 
-    assertEquals(String.format("{\"roleTypes\":[\"User\",\"Artist\"],\"accountIds\":[\"%s\"],\"userId\":\"%s\",\"userAuthId\":null}", accountId, userId), entityFactory.serialize(hubAccess));
+    assertEquals(String.format("{\"roleTypes\":[\"User\",\"Artist\"],\"accountIds\":[\"%s\"],\"userId\":\"%s\",\"userAuthId\":null}", accountId, userId), payloadFactory.serialize(hubAccess));
   }
 
   @Test
   public void getAccounts() {
-    UUID id1 = UUID.randomUUID();
-    UUID id2 = UUID.randomUUID();
-    UUID id3 = UUID.randomUUID();
+    String id1 = UUID.randomUUID().toString();
+    String id2 = UUID.randomUUID().toString();
+    String id3 = UUID.randomUUID().toString();
     HubAccess hubAccess = new HubAccess()
       .setAccountIds(ImmutableSet.of(id1, id2, id3));
 
-    assertArrayEquals(new UUID[]{id1, id2, id3}, hubAccess.getAccountIds().toArray());
+    assertArrayEquals(new String[]{id1, id2, id3}, hubAccess.getAccountIds().toArray());
   }
 
   @Test
@@ -133,9 +115,9 @@ public class HubAccessTest {
   @Test
   public void valid() {
     HubAccess hubAccess = HubAccess.create("User,Artist")
-      .setUserId(UUID.randomUUID())
-      .setUserAuthId(UUID.randomUUID())
-      .setAccountIds(ImmutableList.of(UUID.randomUUID()));
+      .setUserId(UUID.randomUUID().toString())
+      .setUserAuthId(UUID.randomUUID().toString())
+      .setAccountIds(ImmutableList.of(UUID.randomUUID().toString()));
 
     assertTrue(hubAccess.isValid());
   }
@@ -146,8 +128,8 @@ public class HubAccessTest {
   @Test
   public void valid_evenWithNoAccounts() {
     HubAccess hubAccess = HubAccess.create("User,Artist")
-      .setUserId(UUID.randomUUID())
-      .setUserAuthId(UUID.randomUUID());
+      .setUserId(UUID.randomUUID().toString())
+      .setUserAuthId(UUID.randomUUID().toString());
 
     assertTrue(hubAccess.isValid());
   }
@@ -155,9 +137,9 @@ public class HubAccessTest {
   @Test
   public void valid_not() {
     HubAccess hubAccess = new HubAccess()
-      .setUserId(UUID.randomUUID())
-      .setUserAuthId(UUID.randomUUID())
-      .setAccountIds(ImmutableList.of(UUID.randomUUID()));
+      .setUserId(UUID.randomUUID().toString())
+      .setUserAuthId(UUID.randomUUID().toString())
+      .setAccountIds(ImmutableList.of(UUID.randomUUID().toString()));
 
     assertFalse(hubAccess.isValid());
   }

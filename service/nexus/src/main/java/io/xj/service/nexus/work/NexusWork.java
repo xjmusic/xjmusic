@@ -2,7 +2,6 @@
 package io.xj.service.nexus.work;
 
 import java.util.Collection;
-import java.util.UUID;
 
 /**
  The Mk3 Nexus Distributed Work Manager
@@ -46,26 +45,26 @@ public interface NexusWork {
    @param id to check for working status
    @return true if Nexus is working on the given Chain ID
    */
-  boolean isWorkingOnChain(UUID id);
+  boolean isWorkingOnChain(String id);
 
   /**
    Begin scheduled work on a chain
 
    @param chainId to begin work for
    */
-  void beginChainWork(UUID chainId);
+  void beginChainWork(String chainId);
 
   /**
    Explicit and safe shutdown of a Work executor service
 
    @param chainId to cancel & shutdown work for
    */
-  void cancelChainWork(UUID chainId);
+  void cancelChainWork(String chainId);
 
   /**
    Get all IDs of Chains that we are currently working on
 
    @return IDs of Chains that we are currently working on
    */
-  Collection<UUID> getChainWorkingIds();
+  Collection<String> getChainWorkingIds();
 }

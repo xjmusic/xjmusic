@@ -2,9 +2,9 @@
   "data": [
     {
       "attributes": {
-        "name": "Test MockEntity"
+        "name": "Test Program"
       },
-      "type": "mock-entities",
+      "type": "programs",
       "id": "716f0033-e7fe-4242-b993-1f840e4a242f"
     }
   ]

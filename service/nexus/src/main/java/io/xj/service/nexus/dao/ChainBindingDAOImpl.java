@@ -4,17 +4,18 @@ package io.xj.service.nexus.dao;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.xj.Chain;
+import io.xj.ChainBinding;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityStoreException;
+import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.ChainBinding;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.lib.entity.EntityStoreException;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -47,12 +48,13 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   }
 
   @Override
-  public ChainBinding create(HubClientAccess access, ChainBinding chainBinding) throws DAOFatalException, DAOPrivilegeException {
+  public ChainBinding create(HubClientAccess access, ChainBinding entity) throws DAOFatalException, DAOPrivilegeException {
     try {
-      chainBinding.setId(UUID.randomUUID());
-      chainBinding.validate();
-      requireChainAccountRole(access, chainBinding);
-      return store.put(chainBinding);
+      requireChainAccountRole(access, entity);
+      ChainBinding.Builder builder = entity.toBuilder();
+      builder.setId(UUID.randomUUID().toString());
+      validate(builder);
+      return store.put(builder.build());
 
     } catch (EntityStoreException | ValueException | DAOExistenceException e) {
       throw new DAOFatalException(e);
@@ -60,7 +62,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   }
 
   @Override
-  public ChainBinding readOne(HubClientAccess access, UUID id) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException {
+  public ChainBinding readOne(HubClientAccess access, String id) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException {
     try {
       ChainBinding chainBinding = store.get(ChainBinding.class, id)
         .orElseThrow(() -> new DAOExistenceException(ChainBinding.class, id));
@@ -73,9 +75,9 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   }
 
   @Override
-  public Collection<ChainBinding> readMany(HubClientAccess access, Collection<UUID> chainIds) throws DAOFatalException, DAOPrivilegeException {
+  public Collection<ChainBinding> readMany(HubClientAccess access, Collection<String> chainIds) throws DAOFatalException, DAOPrivilegeException {
     try {
-      for (UUID chainId : chainIds) requireChainAccountRole(access, chainId);
+      for (String chainId : chainIds) requireChainAccountRole(access, chainId);
       return store.getAll(ChainBinding.class, Chain.class, chainIds);
 
     } catch (EntityStoreException | DAOExistenceException e) {
@@ -84,7 +86,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   }
 
   @Override
-  public void update(HubClientAccess access, UUID id, ChainBinding update) throws DAOPrivilegeException {
+  public void update(HubClientAccess access, String id, ChainBinding update) throws DAOPrivilegeException {
     throw new DAOPrivilegeException("Not permitted to update Chain Binding. Delete this and create a new one.");
   }
 
@@ -93,12 +95,12 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
     try {
       return entityFactory.getInstance(ChainBinding.class);
     } catch (EntityException ignored) {
-      return new ChainBinding();
+      return ChainBinding.getDefaultInstance();
     }
   }
 
   @Override
-  public void destroy(HubClientAccess access, UUID id) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException {
+  public void destroy(HubClientAccess access, String id) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException {
     try {
       ChainBinding chainBinding = store.get(ChainBinding.class, id)
         .orElseThrow(() -> new DAOExistenceException(ChainBinding.class, id));
@@ -108,6 +110,18 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
     } catch (EntityStoreException e) {
       throw new DAOFatalException(e);
     }
+  }
+
+  /**
+   Validate chain binding
+
+   @param record to validate
+   @throws ValueException on invalid
+   */
+  private void validate(ChainBinding.Builder record) throws ValueException {
+    Value.require(record.getChainId(), "Chain ID");
+    Value.require(record.getTargetId(), "Chain-bound target ID");
+    Value.require(record.getType(), "Type");
   }
 
   /**
@@ -134,7 +148,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
    @param chainId to attempt reading, in order to trigger failure in the event that we do not have access
    @throws DAOExistenceException if record does not exist
    */
-  private void requireChainAccountRole(HubClientAccess access, UUID chainId) throws DAOExistenceException, DAOPrivilegeException, DAOFatalException {
+  private void requireChainAccountRole(HubClientAccess access, String chainId) throws DAOExistenceException, DAOPrivilegeException, DAOFatalException {
     Chain chain = chainDAO.readOne(access, chainId);
     chainDAO.requireAccount(access, chain);
   }

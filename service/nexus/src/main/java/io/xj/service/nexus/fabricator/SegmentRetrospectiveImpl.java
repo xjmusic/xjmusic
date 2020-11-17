@@ -4,21 +4,22 @@ package io.xj.service.nexus.fabricator;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.entity.Entity;
+import io.xj.Program;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentMeme;
+import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.client.HubClientAccess;
+import io.xj.service.hub.client.HubClientException;
 import io.xj.service.hub.client.HubContent;
-import io.xj.service.hub.entity.ProgramType;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentChoice;
-import io.xj.service.nexus.entity.SegmentChoiceArrangement;
-import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
-import io.xj.service.nexus.entity.SegmentMeme;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -51,21 +52,20 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
 
       // previous segment must have a main choice to continue past here.
       SegmentChoice previousSegmentMainChoice = store.getAll(SegmentChoice.class).stream()
-        .filter(segmentChoice -> ProgramType.Main.equals(segmentChoice.getType()))
+        .filter(segmentChoice -> Program.Type.Main.equals(segmentChoice.getProgramType()))
         .findFirst().orElseThrow(() -> new FabricationException("No main choice!"));
 
       // if relevant populate the retrospective with the previous segments with the same main sequence as this one
-      Long sequenceBindingOffset = sourceMaterial.getProgramSequenceBinding(previousSegmentMainChoice.getProgramSequenceBindingId()).getOffset();
+      long sequenceBindingOffset = sourceMaterial.getProgramSequenceBinding(previousSegmentMainChoice.getProgramSequenceBindingId()).getOffset();
       if (0 >= sequenceBindingOffset) return;
       long oF = segment.getOffset() - sequenceBindingOffset;
       long oT = segment.getOffset() - 1;
       if (0 > oF || 0 > oT) return;
       Collection<Segment> previousMany = segmentDAO.readManyFromToOffset(access, segment.getChainId(), oF, oT);
       store.putAll(previousMany);
-      store.putAll(segmentDAO.readManySubEntities(access,
-        previousMany.stream().map(Entity::getId).collect(Collectors.toList()), true));
+      store.putAll(segmentDAO.readManySubEntities(access, Entities.idsOf(previousMany), true));
 
-    } catch (DAOExistenceException | DAOFatalException | DAOPrivilegeException | EntityStoreException e) {
+    } catch (DAOExistenceException | DAOFatalException | DAOPrivilegeException | EntityStoreException | HubClientException e) {
       throw new FabricationException(e);
     }
   }
@@ -115,12 +115,12 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public SegmentChoice getChoiceOfType(Segment segment, ProgramType type) throws FabricationException {
+  public SegmentChoice getChoiceOfType(Segment segment, Program.Type type) throws FabricationException {
     try {
       Optional<SegmentChoice> choice =
         store.getAll(SegmentChoice.class).stream().filter(c ->
           c.getSegmentId().equals(segment.getId()) &&
-            c.getType().equals(type)).findFirst();
+            c.getProgramType().equals(type)).findFirst();
       if (choice.isEmpty())
         throw new FabricationException(String.format("No %s-type choice in retrospective %s", type, segment));
       return choice.get();
@@ -148,14 +148,14 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public SegmentChoice getPreviousChoiceOfType(ProgramType type) throws FabricationException {
+  public SegmentChoice getPreviousChoiceOfType(Program.Type type) throws FabricationException {
     Optional<Segment> seg = getPreviousSegment();
     if (seg.isEmpty()) throw new FabricationException("Cannot get previous segment to get choice create");
     return getChoiceOfType(seg.get(), type);
   }
 
   @Override
-  public <N extends Entity> N add(N entity) throws FabricationException {
+  public <N> N add(N entity) throws FabricationException {
     try {
       return store.put(entity);
     } catch (EntityStoreException e) {

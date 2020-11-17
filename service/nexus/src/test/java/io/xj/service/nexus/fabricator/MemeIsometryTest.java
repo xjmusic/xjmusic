@@ -2,7 +2,8 @@
 package io.xj.service.nexus.fabricator;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.service.hub.entity.ProgramMeme;
+import io.xj.ProgramMeme;
+import io.xj.lib.entity.EntityException;
 import org.junit.Test;
 
 import java.util.List;
@@ -13,31 +14,31 @@ import static org.junit.Assert.assertArrayEquals;
 public class MemeIsometryTest {
 
   @Test
-  public void of_List() {
+  public void of_List() throws EntityException {
     MemeIsometry result = MemeIsometry.ofMemes(ImmutableList.of(
-      new ProgramMeme().setProgramId(UUID.randomUUID()).setName("Smooth"),
-      new ProgramMeme().setProgramId(UUID.randomUUID()).setName("Catlike")
+      "Smooth",
+      "Catlike"
     ));
 
     assertArrayEquals(new String[]{"smooth", "catlik"}, result.getSources().toArray());
   }
 
   @Test
-  public void add() {
+  public void add() throws EntityException {
     MemeIsometry result = MemeIsometry.ofMemes(ImmutableList.of(
-      new ProgramMeme().setProgramId(UUID.randomUUID()).setName("Smooth")
+      "Smooth"
     ));
-    result.add(new ProgramMeme().setProgramId(UUID.randomUUID()).setName("Catlike"));
+    result.add(ProgramMeme.newBuilder().setProgramId(UUID.randomUUID().toString()).setName("Catlike").build());
 
     assertArrayEquals(new String[]{"smooth", "catlik"}, result.getSources().toArray());
   }
 
   @Test
-  public void getSourceStems() {
+  public void getSourceStems() throws EntityException {
     List<String> result = MemeIsometry.ofMemes(ImmutableList.of(
-      new ProgramMeme().setProgramId(UUID.randomUUID()).setName("Intensity"),
-      new ProgramMeme().setProgramId(UUID.randomUUID()).setName("Cool"),
-      new ProgramMeme().setProgramId(UUID.randomUUID()).setName("Dark")
+      "Intensity",
+      "Cool",
+      "Dark"
     )).getSources();
 
     assertArrayEquals(new String[]{"intens", "cool", "dark"}, result.toArray());

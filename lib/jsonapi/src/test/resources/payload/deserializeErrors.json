@@ -6,10 +6,10 @@
       "mockChildEntities": {
         "data": []
       },
-      "mockEntity": {
+      "program": {
         "data": {
           "id": "69ea1325-9dfc-423b-b8a6-9cf72f419aa5",
-          "type": "mock-entities"
+          "type": "programs"
         }
       }
     },
@@ -22,7 +22,7 @@
     {
       "links": {},
       "code": "RestApiException",
-      "title": "MockParentEntity requires name!",
+      "title": "Library requires name!",
       "detail": null,
       "id": null
     }

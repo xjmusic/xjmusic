@@ -3,7 +3,6 @@
 package io.xj.service.hub.client;
 
 import java.util.Set;
-import java.util.UUID;
 
 /**
  Interface of a Hub Client for connecting to Hub and accessing contents
@@ -24,7 +23,7 @@ public interface HubClient {
    @return HubClient comprising ingested entities, including all child sub-entities
    @throws HubClientException on failure to perform request
    */
-  HubContent ingest(HubClientAccess access, Set<UUID> libraryIds, Set<UUID> programIds, Set<UUID> instrumentIds) throws HubClientException;
+  HubContent ingest(HubClientAccess access, Set<String> libraryIds, Set<String> programIds, Set<String> instrumentIds) throws HubClientException;
 
   /**
    Retrieve a HubClientAccess entity from Hub via the /auth endpoint

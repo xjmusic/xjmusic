@@ -3,7 +3,9 @@ package io.xj.lib.music;
 
 import org.junit.Test;
 
-import static io.xj.lib.music.AdjSymbol.*;
+import static io.xj.lib.music.AdjSymbol.Flat;
+import static io.xj.lib.music.AdjSymbol.None;
+import static io.xj.lib.music.AdjSymbol.Sharp;
 import static org.junit.Assert.assertEquals;
 
 public class PitchClassTest {

@@ -15,7 +15,6 @@ import io.xj.lib.entity.EntityModule;
  Created by Charney Kaye on 2020/03/09
  */
 public class JsonApiModule extends AbstractModule {
-
   @Override
   protected void configure() {
     install(new EntityModule());
@@ -25,5 +24,4 @@ public class JsonApiModule extends AbstractModule {
     bind(HttpTransport.class).to(NetHttpTransport.class);
     bind(JsonFactory.class).to(JacksonFactory.class);
   }
-
 }

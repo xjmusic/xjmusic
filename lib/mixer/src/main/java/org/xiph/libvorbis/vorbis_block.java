@@ -4,7 +4,20 @@ package org.xiph.libvorbis;
 
 import org.xiph.libogg.ogg_packet;
 
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.BLOCKTYPE_IMPULSE;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.BLOCKTYPE_LONG;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.BLOCKTYPE_PADDING;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.BLOCKTYPE_TRANSITION;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.FLOOR1_fromdB_INV_LOOKUP;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.PACKETBLOBS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VIF_POSIT;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.WORD_ALIGN;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.render_point;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.stereo_threshholds;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.stereo_threshholds_limited;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.todB;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.unitnorm;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.vorbis_dBquant;
 
 
 public class vorbis_block {

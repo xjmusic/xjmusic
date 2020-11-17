@@ -52,3 +52,67 @@ subprojects {
   }
 
 }
+
+
+// For access to private GitHub packages
+def props = getGithubPropertiesFromFile('./github.properties')
+def githubUsername = getGithubUsername(props)
+def githubPassword = getGithubPassword(props)
+
+subprojects {
+  apply plugin: 'java'
+
+  repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+      name = 'GitHubPackages'
+      url = 'https://maven.pkg.github.com/xjmusic/protocol'
+      credentials {
+        username = githubUsername
+        password = githubPassword
+      }
+    }
+  }
+
+  java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+  }
+}
+
+static String getGithubUsername(Properties props) {
+  String value
+  if (props.getProperty('github.username')) {
+    value = props.getProperty('github.username')
+    println 'Github username (from property github.username): ' + value
+  } else {
+    value = System.getenv('GITHUB_USERNAME')
+    if (!value) throw new Exception('Could not find required env GITHUB_USERNAME or prop "github.username"');
+    println 'Github username (from env GITHUB_USERNAME): ' + value
+  }
+  return value
+}
+
+static String getGithubPassword(Properties props) {
+  String value
+  if (props.getProperty('github.token')) {
+    value = props.getProperty('github.token')
+    println 'Github password (from property github.token): ' + value.length() + ' characters'
+  } else {
+    value = System.getenv('GITHUB_TOKEN')
+    if (!value) throw new Exception('Could not find required env GITHUB_TOKEN or prop "github.token"');
+    println 'Github password (from env GITHUB_TOKEN): ' + value.length() + ' characters'
+  }
+  return value
+}
+
+Properties getGithubPropertiesFromFile(String pathToGithubPropertiesFile) {
+  def githubPropertiesFile = file(pathToGithubPropertiesFile)
+  def props = new Properties()
+  if (githubPropertiesFile.exists()) {
+    println('Will read Github properties from ' + pathToGithubPropertiesFile)
+    githubPropertiesFile.withInputStream { props.load(it) }
+  }
+  return props
+}

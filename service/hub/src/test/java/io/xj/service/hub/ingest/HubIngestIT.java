@@ -5,8 +5,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.Instrument;
+import io.xj.Program;
 import io.xj.lib.app.AppConfiguration;
-import io.xj.lib.entity.Entity;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
@@ -15,7 +16,6 @@ import io.xj.service.hub.IntegrationTestingFixtures;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.access.HubAccessControlModule;
 import io.xj.service.hub.dao.DAOModule;
-import io.xj.service.hub.entity.*;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubIntegrationTestModule;
 import io.xj.service.hub.testing.HubIntegrationTestProvider;
@@ -43,7 +43,7 @@ public class HubIngestIT {
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
 
-  private static Map<String, Integer> classTally(Collection<Entity> allEntities) {
+  private static Map<String, Integer> classTally(Collection<Object> allEntities) {
     Map<String, Integer> out = Maps.newHashMap();
     allEntities.forEach(entity -> {
       String name = Text.getSimpleName(entity);
@@ -85,14 +85,41 @@ public class HubIngestIT {
 
   @Test
   public void getProgramsOfType() throws Exception {
-    test.insert(Program.create(fake.user101, fake.library10000001, ProgramType.Rhythm, ProgramState.Published, "cups", "B", 120.4, 0.6));
-    test.insert(Program.create(fake.user101, fake.library10000001, ProgramType.Main, ProgramState.Published, "plates", "Bb", 120.4, 0.6));
-    test.insert(Program.create(fake.user101, fake.library10000001, ProgramType.Detail, ProgramState.Published, "bowls", "A", 120.4, 0.6));
+    test.insert(Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library10000001.getId())
+      .setType(Program.Type.Rhythm)
+      .setState(Program.State.Published)
+      .setName("cups")
+      .setKey("B")
+      .setTempo(120.4)
+      .setDensity(0.6)
+      .build());
+    test.insert(Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library10000001.getId())
+      .setType(Program.Type.Main)
+      .setState(Program.State.Published)
+      .setName("plates")
+      .setKey("Bb")
+      .setTempo(120.4)
+      .setDensity(0.6)
+      .build());
+    test.insert(Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library10000001.getId())
+      .setType(Program.Type.Detail)
+      .setState(Program.State.Published)
+      .setName("bowls")
+      .setKey("A")
+      .setTempo(120.4)
+      .setDensity(0.6)
+      .build());
     HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), ImmutableSet.of(fake.library10000001.getId()), ImmutableSet.of(), ImmutableSet.of());
 
-    assertEquals(3, ingest.getProgramsOfType(ProgramType.Main).size());
-    assertEquals(2, ingest.getProgramsOfType(ProgramType.Rhythm).size());
-    assertEquals(1, ingest.getProgramsOfType(ProgramType.Detail).size());
+    assertEquals(3, ingest.getProgramsOfType(Program.Type.Main).size());
+    assertEquals(2, ingest.getProgramsOfType(Program.Type.Rhythm).size());
+    assertEquals(1, ingest.getProgramsOfType(Program.Type.Detail).size());
   }
 
   @Test
@@ -118,7 +145,7 @@ public class HubIngestIT {
     failure.expectMessage("No such Program");
     HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), ImmutableSet.of(fake.library10000001.getId()), ImmutableSet.of(), ImmutableSet.of());
 
-    ingest.getProgram(UUID.randomUUID());
+    ingest.getProgram(String.valueOf(UUID.randomUUID()));
   }
 
   @Test
@@ -130,11 +157,17 @@ public class HubIngestIT {
 
   @Test
   public void getInstrumentsOfType() throws Exception {
-    test.insert(Instrument.create(fake.user101, fake.library10000001, InstrumentType.Harmonic, InstrumentState.Published, "Dreamy"));
+    test.insert(Instrument.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library10000001.getId())
+      .setType(Instrument.Type.Harmonic)
+      .setState(Instrument.State.Published)
+      .setName("Dreamy")
+      .build());
     HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), ImmutableSet.of(fake.library10000001.getId()), ImmutableSet.of(), ImmutableSet.of());
 
-    assertEquals(2, ingest.getInstrumentsOfType(InstrumentType.Percussive).size());
-    assertEquals(1, ingest.getInstrumentsOfType(InstrumentType.Harmonic).size());
+    assertEquals(2, ingest.getInstrumentsOfType(Instrument.Type.Percussive).size());
+    assertEquals(1, ingest.getInstrumentsOfType(Instrument.Type.Harmonic).size());
   }
 
   @Test
@@ -148,7 +181,7 @@ public class HubIngestIT {
   public void getAllEntities() throws Exception {
     HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), ImmutableSet.of(fake.library10000001.getId()), ImmutableSet.of(), ImmutableSet.of());
 
-    Collection<Entity> result = ingest.getAllEntities();
+    Collection<Object> result = ingest.getAllEntities();
 
     assertEquals(53, result.size());
     Map<String, Integer> classes = classTally(result);

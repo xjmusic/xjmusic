@@ -2,7 +2,7 @@
 
 package io.xj.service.nexus.dao;
 
-import io.xj.lib.entity.Entity;
+import com.google.protobuf.GeneratedMessageLite;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
@@ -10,7 +10,6 @@ import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
 
 import java.util.Collection;
-import java.util.UUID;
 
 /**
  Nexus base DAO interface
@@ -18,7 +17,7 @@ import java.util.UUID;
  [#171553408] XJ Mk3 Distributed Architecture
  Chains, ChainBindings, ChainConfigs, Segments and all Segment content sub-entities persisted in memory
  */
-public interface DAO<N extends Entity> {
+public interface DAO<E extends GeneratedMessageLite<E, ?>> {
 
   /**
    Create a new Record
@@ -28,7 +27,7 @@ public interface DAO<N extends Entity> {
    @return newly readMany record
    @throws DAOFatalException on failure
    */
-  N create(HubClientAccess access, N entity) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException;
+  E create(HubClientAccess access, E entity) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException;
 
   /**
    Delete a specified Entity@param access control
@@ -39,7 +38,7 @@ public interface DAO<N extends Entity> {
    @throws DAOExistenceException if the entity does not exist
    @throws DAOPrivilegeException if access is prohibited
    */
-  void destroy(HubClientAccess access, UUID id) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException;
+  void destroy(HubClientAccess access, String id) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException;
 
   /**
    Fetch many records for many parents by id, if accessible
@@ -50,7 +49,7 @@ public interface DAO<N extends Entity> {
    @throws DAOFatalException     on failure
    @throws DAOPrivilegeException if access is prohibited
    */
-  Collection<N> readMany(HubClientAccess access, Collection<UUID> parentIds) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException;
+  Collection<E> readMany(HubClientAccess access, Collection<String> parentIds) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException;
 
   /**
    Fetch one record  if accessible
@@ -60,7 +59,7 @@ public interface DAO<N extends Entity> {
    @return retrieved record
    @throws DAOPrivilegeException if access is prohibited
    */
-  N readOne(HubClientAccess access, UUID id) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
+  E readOne(HubClientAccess access, String id) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
 
   /**
    Update a specified Entity
@@ -72,12 +71,12 @@ public interface DAO<N extends Entity> {
    @throws DAOExistenceException if the entity does not exist
    @throws DAOPrivilegeException if access is prohibited
    */
-  void update(HubClientAccess access, UUID id, N entity) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException;
+  void update(HubClientAccess access, String id, E entity) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException;
 
   /**
    New instance of the primary expected Entity class for a given DAO
 
    @return new instance of entity
    */
-  N newInstance();
+  E newInstance();
 }

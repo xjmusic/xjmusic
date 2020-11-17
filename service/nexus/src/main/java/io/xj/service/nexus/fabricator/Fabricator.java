@@ -1,39 +1,40 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.fabricator;
 
-import io.xj.lib.entity.MemeEntity;
+import io.xj.Chain;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.Program;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequencePattern;
+import io.xj.ProgramVoice;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
+import io.xj.SegmentMeme;
+import io.xj.SegmentMessage;
+import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityException;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
-import io.xj.service.hub.entity.Instrument;
-import io.xj.service.hub.entity.InstrumentAudio;
-import io.xj.service.hub.entity.InstrumentConfig;
-import io.xj.service.hub.entity.Program;
-import io.xj.service.hub.entity.ProgramConfig;
-import io.xj.service.hub.entity.ProgramSequence;
-import io.xj.service.hub.entity.ProgramSequenceBinding;
-import io.xj.service.hub.entity.ProgramSequencePattern;
-import io.xj.service.hub.entity.ProgramSequencePatternType;
-import io.xj.service.hub.entity.ProgramVoice;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.ChainConfig;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentChoice;
-import io.xj.service.nexus.entity.SegmentChoiceArrangement;
-import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
-import io.xj.service.nexus.entity.SegmentChord;
-import io.xj.service.nexus.entity.SegmentMeme;
-import io.xj.service.nexus.entity.SegmentMessage;
-import io.xj.service.nexus.entity.SegmentType;
+import io.xj.service.hub.dao.InstrumentConfig;
+import io.xj.service.hub.dao.ProgramConfig;
+import io.xj.service.nexus.dao.ChainConfig;
 
 import javax.sound.sampled.AudioFormat;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public interface Fabricator {
 
@@ -134,7 +135,7 @@ public interface Fabricator {
 
    @return chain id
    */
-  UUID getChainId();
+  String getChainId();
 
   /**
    Get current ChordEntity for any position in Segment.
@@ -176,6 +177,14 @@ public interface Fabricator {
    @throws FabricationException on failure
    */
   SegmentChoice getCurrentRhythmChoice() throws FabricationException;
+
+  /**
+   fetch the detail-type choice for the current segment in the chain
+
+   @return detail-type segment choice
+   @throws FabricationException on failure
+   */
+  Collection<SegmentChoice> getCurrentDetailChoices() throws FabricationException;
 
   /**
    @return Seconds elapsed since fabricator was instantiated
@@ -259,7 +268,7 @@ public interface Fabricator {
    @return memes for choice
    @throws FabricationException on failure
    */
-  Collection<MemeEntity> getMemesOfChoice(SegmentChoice choice) throws FabricationException;
+  Collection<SegmentMeme> getMemesOfChoice(SegmentChoice choice) throws FabricationException;
 
   /**
    Given a Choice having a SequenceBinding,
@@ -349,6 +358,36 @@ public interface Fabricator {
   Segment getSegment();
 
   /**
+   Set the Segment.
+   Any modifications to the Segment must be re-written to here
+   because protobuf instances are immutable
+
+   @param segment to set
+   */
+  void updateSegment(Segment segment) throws FabricationException;
+
+  /**
+   Returns the storage key concatenated with the output encoder as its file extension
+
+   @return Output Waveform Key
+   */
+  String getSegmentOutputWaveformKey();
+
+  /**
+   Returns the storage key concatenated with JSON as its file extension
+
+   @return Output Metadata Key
+   */
+  String getSegmentOutputMetadataKey();
+
+  /**
+   Returns the storage key concatenated with JSON as its file extension
+
+   @return Output Metadata Key
+   */
+  String getStorageKey(String extension);
+
+  /**
    Total length of segment of beginning to end
 
    @return total length
@@ -389,7 +428,7 @@ public interface Fabricator {
 
    @return macro-craft type
    */
-  SegmentType getType() throws FabricationException;
+  Segment.Type getType() throws FabricationException;
 
   /**
    Whether the current Segment Choice has one or more sequence pattern offsets
@@ -471,15 +510,21 @@ public interface Fabricator {
 
    @return arrangements for segment
    */
-  Collection<SegmentChoiceArrangement> getSegmentArrangements() throws FabricationException;
+  Collection<SegmentChoiceArrangement> getSegmentChoiceArrangements() throws FabricationException;
+
+  /**
+   Get arrangement picks for segment
+   @return arrangement picks for segment
+   */
+  Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() throws FabricationException;
 
   /**
    Get segment arrangements for a given choice
 
-   @param choice to get segment arrangements for
+   @param choices to get segment arrangements for
    @return segments arrangements for the given segment choice
    */
-  Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice choice) throws FabricationException;
+  Collection<SegmentChoiceArrangement> getArrangements(Collection<SegmentChoice> choices) throws FabricationException;
 
   /**
    Get memes for segment
@@ -501,7 +546,7 @@ public interface Fabricator {
    @return Pattern model, or null if no pattern of this type is found
    @throws FabricationException on failure
    */
-  Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(ProgramSequence sequence, ProgramVoice voice, ProgramSequencePatternType patternType) throws FabricationException;
+  Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(ProgramSequence sequence, ProgramVoice voice, ProgramSequencePattern.Type patternType) throws FabricationException;
 
   /**
    Get a JSON:API payload of the entire result of Segment Fabrication
@@ -543,4 +588,12 @@ public interface Fabricator {
    @return InstrumentConfig from a given instrument, with fallback values
    */
   InstrumentConfig getInstrumentConfig(Instrument instrument) throws ValueException;
+
+  /**
+   Get a list of unique voicing (instrument) types present in the voicings of the current main program's chords.
+
+   @return list of voicing (instrument) types
+   */
+  List<Instrument.Type> getDistinctChordVoicingTypes() throws FabricationException;
+
 }

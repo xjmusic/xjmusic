@@ -12,7 +12,6 @@ import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.DAO;
 import io.xj.service.hub.dao.UserDAO;
-import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -24,7 +23,6 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  Current user
@@ -53,7 +51,7 @@ public class UserEndpoint extends HubEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed(UserRoleType.USER)
+  @RolesAllowed(USER)
   public Response readMany(@Context ContainerRequestContext crc) {
     return readMany(crc, dao(), ImmutableList.of());
   }
@@ -65,7 +63,7 @@ public class UserEndpoint extends HubEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed(UserRoleType.USER)
+  @RolesAllowed(USER)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -79,7 +77,7 @@ public class UserEndpoint extends HubEndpoint {
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed(UserRoleType.ADMIN)
+  @RolesAllowed(ADMIN)
   public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     return update(crc, dao(), id, payload);
   }
@@ -91,9 +89,9 @@ public class UserEndpoint extends HubEndpoint {
    */
   @GET
   @Path("me")
-  @RolesAllowed({UserRoleType.USER})
+  @RolesAllowed({USER})
   public Response getCurrentlyAuthenticatedUser(@Context ContainerRequestContext crc) {
-    UUID userId;
+    String userId;
     userId = HubAccess.fromContext(crc).getUserId();
 
     return readOne(crc, dao(), Objects.requireNonNull(userId).toString());
@@ -104,7 +102,7 @@ public class UserEndpoint extends HubEndpoint {
 
    @return DAO
    */
-  private DAO<io.xj.service.hub.entity.User> dao() {
+  private DAO<io.xj.User> dao() {
     return dao;
   }
 }

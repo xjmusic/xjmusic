@@ -36,32 +36,6 @@ public class MessageTypeTest {
   }
 
   @Test
-  public void mostSevereType() {
-    assertEquals(MessageType.Debug, MessageType.mostSevereType(ImmutableList.of(
-      MockMessageEntity.create(MessageType.Debug, "Debug message"),
-      MockMessageEntity.create(MessageType.Debug, "Debug message")
-    )));
-    assertEquals(MessageType.Info, MessageType.mostSevereType(ImmutableList.of(
-      MockMessageEntity.create(MessageType.Debug, "Debug message"),
-      MockMessageEntity.create(MessageType.Info, "Info message"),
-      MockMessageEntity.create(MessageType.Debug, "Debug message")
-    )));
-    assertEquals(MessageType.Warning, MessageType.mostSevereType(ImmutableList.of(
-      MockMessageEntity.create(MessageType.Debug, "Debug message"),
-      MockMessageEntity.create(MessageType.Warning, "Warning message"),
-      MockMessageEntity.create(MessageType.Info, "Info message"),
-      MockMessageEntity.create(MessageType.Debug, "Debug message")
-    )));
-    assertEquals(MessageType.Error, MessageType.mostSevereType(ImmutableList.of(
-      MockMessageEntity.create(MessageType.Error, "Error message"),
-      MockMessageEntity.create(MessageType.Debug, "Debug message"),
-      MockMessageEntity.create(MessageType.Info, "Info message"),
-      MockMessageEntity.create(MessageType.Warning, "Warning message"),
-      MockMessageEntity.create(MessageType.Debug, "Debug message")
-    )));
-  }
-
-  @Test
   public void isMoreSevere() {
     assertFalse(MessageType.isMoreSevere(MessageType.Debug, MessageType.Debug));
     assertFalse(MessageType.isMoreSevere(MessageType.Debug, MessageType.Info));

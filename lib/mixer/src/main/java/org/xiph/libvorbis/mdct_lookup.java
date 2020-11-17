@@ -2,7 +2,10 @@
 
 package org.xiph.libvorbis;
 
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.M_PI;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.cPI1_8;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.cPI2_8;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.cPI3_8;
 
 class mdct_lookup {
 

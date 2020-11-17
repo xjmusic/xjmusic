@@ -5,6 +5,17 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.Account;
+import io.xj.AccountUser;
+import io.xj.Instrument;
+import io.xj.Library;
+import io.xj.Program;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequenceBindingMeme;
+import io.xj.ProgramVoice;
+import io.xj.User;
+import io.xj.UserRole;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
@@ -12,7 +23,6 @@ import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.IntegrationTestingFixtures;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.access.HubAccessControlModule;
-import io.xj.service.hub.entity.*;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubIntegrationTestModule;
@@ -26,9 +36,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.UUID;
 
 import static io.xj.service.hub.tables.ProgramSequenceBinding.PROGRAM_SEQUENCE_BINDING;
 import static org.junit.Assert.assertEquals;
@@ -59,33 +69,142 @@ public class ProgramSequenceBindingIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(Account.create("bananas"));
-
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(User.create("john", "john@email.com", "http://pictures.com/john.gif"));
-    test.insert(UserRole.create(fake.user2, UserRoleType.Admin));
+    fake.account1 = test.insert(Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("bananas")
+      .build());
+// John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
+    fake.user2 = test.insert(User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("john")
+      .setEmail("john@email.com")
+      .setAvatarUrl("http://pictures.com/john.gif")
+      .build());
+    test.insert(UserRole.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setUserId(fake.user2.getId())
+      .setType(UserRole.Type.Admin)
+      .build());
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(User.create("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
-    test.insert(UserRole.create(fake.user3, UserRoleType.User));
-    test.insert(AccountUser.create(fake.account1, fake.user3));
+    fake.user3 = test.insert(User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("jenny")
+      .setEmail("jenny@email.com")
+      .setAvatarUrl("http://pictures.com/jenny.gif")
+      .build());
+    test.insert(UserRole.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setUserId(fake.user2.getId())
+      .setType(UserRole.Type.User)
+      .build());
+    test.insert(AccountUser.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setUserId(fake.user3.getId())
+      .build());
 
     // Library "palm tree" has program "Ants" and program "Ants"
-    fake.library1 = test.insert(Library.create(fake.account1, "palm tree", Instant.now()));
-    fake.program1 = test.insert(Program.create(fake.user3, fake.library1, ProgramType.Main, ProgramState.Published, "Ants", "C#", 120.0, 0.6));
-    fake.program1_sequence1 = test.insert(ProgramSequence.create(fake.program1, 4, "Ants", 0.583, "D minor", 120.0));
-    sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.create(fake.program1_sequence1, 0));
-    sequenceBinding1a_0_meme0 = test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "chunk"));
-    sequenceBinding1a_0_meme1 = test.insert(ProgramSequenceBindingMeme.create(sequenceBinding1a_0, "smooth"));
-    fake.program2 = test.insert(Program.create(fake.user3, fake.library1, ProgramType.Rhythm, ProgramState.Published, "Ants", "C#", 120.0, 0.6));
-    fake.program2_voice1 = test.insert(ProgramVoice.create(fake.program2, InstrumentType.Percussive, "Drums"));
+    fake.library1 = test.insert(Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setName("palm tree")
+      .build());
+    fake.program1 = test.insert(Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library1.getId())
+      .setType(Program.Type.Main)
+      .setState(Program.State.Published)
+      .setName("ANTS")
+      .setKey("C#")
+      .setTempo(120.0)
+      .setDensity(0.6)
+      .build());
+    fake.program1_sequence1 = test.insert(ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1.getId())
+      .setTotal(4)
+      .setName("Ants")
+      .setDensity(0.583)
+      .setKey("D minor")
+      .setTempo(120.0)
+      .build());
+    sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1_sequence1.getProgramId())
+      .setProgramSequenceId(fake.program1_sequence1.getId())
+      .setOffset(0)
+      .build());
+    sequenceBinding1a_0_meme0 = test.insert(ProgramSequenceBindingMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(sequenceBinding1a_0.getProgramId())
+      .setProgramSequenceBindingId(sequenceBinding1a_0.getId())
+      .setName("chunk")
+      .build());
+    sequenceBinding1a_0_meme1 = test.insert(ProgramSequenceBindingMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(sequenceBinding1a_0.getProgramId())
+      .setProgramSequenceBindingId(sequenceBinding1a_0.getId())
+      .setName("smooth")
+      .build());
+    fake.program2 = test.insert(Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library1.getId())
+      .setType(Program.Type.Rhythm)
+      .setState(Program.State.Published)
+      .setName("ANTS")
+      .setKey("C#")
+      .setTempo(120.0)
+      .setDensity(0.6)
+      .build());
+    fake.program2_voice1 = test.insert(ProgramVoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program2.getId())
+      .setType(Instrument.Type.Percussive)
+      .setName("Drums")
+      .build());
 
     // Library "boat" has program "helm" and program "sail"
-    fake.library2 = test.insert(Library.create(fake.account1, "boat", Instant.now()));
-    fake.program3 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0, 0.6));
-    fake.program3_sequence1 = test.insert(ProgramSequence.create(fake.program3, 16, "Ants", 0.583, "D minor", 120.0));
-    test.insert(ProgramSequenceBinding.create(fake.program3_sequence1, 0));
-    fake.program4 = test.insert(Program.create(fake.user3, fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0, 0.6));
+    fake.library2 = test.insert(Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setName("boat")
+      .build());
+    fake.program3 = test.insert(Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library2.getId())
+      .setType(Program.Type.Macro)
+      .setState(Program.State.Published)
+      .setName("helm")
+      .setKey("C#")
+      .setTempo(120.0)
+      .setDensity(0.6)
+      .build());
+    fake.program3_sequence1 = test.insert(ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program3.getId())
+      .setTotal(16)
+      .setName("Ants")
+      .setDensity(0.583)
+      .setKey("D minor")
+      .setTempo(120.0)
+      .build());
+    test.insert(ProgramSequenceBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program3_sequence1.getProgramId())
+      .setProgramSequenceId(fake.program3_sequence1.getId())
+      .setOffset(0)
+      .build());
+    fake.program4 = test.insert(Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(fake.library2.getId())
+      .setType(Program.Type.Detail)
+      .setState(Program.State.Published)
+      .setName("sail")
+      .setKey("C#")
+      .setTempo(120.0)
+      .setDensity(0.6)
+      .build());
 
     // Instantiate the test subject
     testDAO = injector.getInstance(ProgramSequenceBindingDAO.class);
@@ -99,17 +218,20 @@ public class ProgramSequenceBindingIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramSequenceBinding subject = ProgramSequenceBinding.create()
+    ProgramSequenceBinding subject = ProgramSequenceBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramSequenceId(fake.program3_sequence1.getId())
-      .setOffset(4L);
+      .setOffset(4L)
+      .build();
 
-    ProgramSequenceBinding result = testDAO.create(hubAccess, subject);
+    ProgramSequenceBinding result = testDAO.create(
+      hubAccess, subject);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals(fake.program3_sequence1.getId(), result.getProgramSequenceId());
-    assertEquals(Long.valueOf(4), result.getOffset());
+    assertEquals(4, result.getOffset());
   }
 
   /**
@@ -119,17 +241,20 @@ public class ProgramSequenceBindingIT {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
-    ProgramSequenceBinding inputData = ProgramSequenceBinding.create()
+    ProgramSequenceBinding inputData = ProgramSequenceBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramSequenceId(fake.program3_sequence1.getId())
-      .setOffset(4L);
+      .setOffset(4L)
+      .build();
 
-    ProgramSequenceBinding result = testDAO.create(hubAccess, inputData);
+    ProgramSequenceBinding result = testDAO.create(
+      hubAccess, inputData);
 
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals(fake.program3_sequence1.getId(), result.getProgramSequenceId());
-    assertEquals(Long.valueOf(4), result.getOffset());
+    assertEquals(4, result.getOffset());
   }
 
   @Test
@@ -141,12 +266,13 @@ public class ProgramSequenceBindingIT {
     assertNotNull(result);
     assertEquals(sequenceBinding1a_0.getId(), result.getId());
     assertEquals(fake.program1.getId(), result.getProgramId());
-    assertEquals(Long.valueOf(0), result.getOffset());
+    assertEquals(0, result.getOffset());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User, Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.newBuilder()
+      .setId(UUID.randomUUID().toString()).build()), "User, Artist");
     failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
@@ -163,12 +289,13 @@ public class ProgramSequenceBindingIT {
 
     assertEquals(1L, result.size());
     Iterator<ProgramSequenceBinding> resultIt = result.iterator();
-    assertEquals(Long.valueOf(0), resultIt.next().getOffset());
+    assertEquals(0, resultIt.next().getOffset());
   }
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.create()), "User, Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.newBuilder()
+      .setId(UUID.randomUUID().toString()).build()), "User, Artist");
 
     Collection<ProgramSequenceBinding> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program3.getId()));
 
@@ -195,7 +322,7 @@ public class ProgramSequenceBindingIT {
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_BINDING)
-      .where(PROGRAM_SEQUENCE_BINDING.ID.eq(sequenceBinding1a_0.getId()))
+      .where(PROGRAM_SEQUENCE_BINDING.ID.eq(UUID.fromString(sequenceBinding1a_0.getId())))
       .fetchOne(0, int.class));
   }
 
@@ -209,13 +336,15 @@ public class ProgramSequenceBindingIT {
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_BINDING)
-      .where(PROGRAM_SEQUENCE_BINDING.ID.eq(sequenceBinding1a_0.getId()))
+      .where(PROGRAM_SEQUENCE_BINDING.ID.eq(UUID.fromString(sequenceBinding1a_0.getId())))
       .fetchOne(0, int.class));
   }
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
-    fake.account2 = Account.create();
+    fake.account2 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
     injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme0.getId());
     injector.getInstance(ProgramSequenceBindingMemeDAO.class).destroy(HubAccess.internal(), sequenceBinding1a_0_meme1.getId());

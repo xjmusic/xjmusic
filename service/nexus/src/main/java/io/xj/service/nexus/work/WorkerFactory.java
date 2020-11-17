@@ -3,8 +3,6 @@ package io.xj.service.nexus.work;
 
 import com.google.inject.assistedinject.Assisted;
 
-import java.util.UUID;
-
 /**
  Nexus Worker Factory
  */
@@ -37,7 +35,7 @@ public interface WorkerFactory {
    @param chainId chain id
    @return instance of runnable worker
    */
-  ChainWorker chain(@Assisted UUID chainId);
+  ChainWorker chain(@Assisted String chainId);
 
   /**
    Create a Chain Segment worker
@@ -45,6 +43,6 @@ public interface WorkerFactory {
    @param segmentId segment id
    @return instance of runnable worker
    */
-  FabricatorWorker segment(@Assisted UUID segmentId);
+  FabricatorWorker segment(@Assisted String segmentId);
 
 }

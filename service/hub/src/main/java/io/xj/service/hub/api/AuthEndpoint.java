@@ -8,6 +8,7 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.jsonapi.HttpResponseProvider;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.GoogleProvider;
@@ -16,7 +17,6 @@ import io.xj.service.hub.access.HubAccessControlProvider;
 import io.xj.service.hub.access.HubAccessException;
 import io.xj.service.hub.dao.DAOException;
 import io.xj.service.hub.dao.UserDAO;
-import io.xj.service.hub.entity.UserRoleType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,15 +75,15 @@ public class AuthEndpoint extends HubEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed(UserRoleType.USER)
+  @RolesAllowed(USER)
   public Response getCurrentAuthentication(@Context ContainerRequestContext crc) {
     try {
       return Response
-        .accepted(entityFactory.serialize(HubAccess.fromContext(crc)))
+        .accepted(payloadFactory.serialize(HubAccess.fromContext(crc)))
         .type(MediaType.APPLICATION_JSON)
         .build();
 
-    } catch (EntityException e) {
+    } catch (JsonApiException e) {
       return httpResponseProvider.failure(e);
     }
   }

@@ -2,13 +2,14 @@
 package io.xj.service.nexus.fabricator;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.service.hub.entity.InstrumentType;
-import io.xj.service.hub.entity.Program;
-import io.xj.service.hub.entity.ProgramVoice;
+import io.xj.Instrument;
+import io.xj.Program;
+import io.xj.ProgramVoice;
 import org.junit.Before;
 import org.junit.Test;
 
-import static junit.framework.TestCase.assertEquals;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildProgramVoice;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class ProgramVoiceIsometryTest {
@@ -17,9 +18,9 @@ public class ProgramVoiceIsometryTest {
 
   @Before
   public void setUp() {
-    Program program1 = Program.create();
-    programVoice1a = ProgramVoice.create(program1, InstrumentType.Harmonic, "Super Cool");
-    programVoice1b = ProgramVoice.create(program1, InstrumentType.Harmonic, "Very Interesting");
+    Program program1 = Program.newBuilder().build();
+    programVoice1a = buildProgramVoice(program1, Instrument.Type.Harmonic, "Super Cool");
+    programVoice1b = buildProgramVoice(program1, Instrument.Type.Harmonic, "Very Interesting");
   }
 
   @Test
@@ -33,11 +34,11 @@ public class ProgramVoiceIsometryTest {
   public void find() {
     VoiceIsometry result = VoiceIsometry.ofVoices(ImmutableList.of(programVoice1a, programVoice1b));
 
-    ProgramVoice find1 = result.find(new ProgramVoice().setName("Sooper Kewl"));
+    ProgramVoice find1 = result.find(ProgramVoice.newBuilder().setName("Sooper Kewl").build());
     assertNotNull(find1);
     assertEquals(programVoice1a.getId(), find1.getId());
 
-    ProgramVoice find2 = result.find(new ProgramVoice().setName("Vury Anterestin"));
+    ProgramVoice find2 = result.find(ProgramVoice.newBuilder().setName("Vury Anterestin").build());
     assertNotNull(find2);
     assertEquals(programVoice1b.getId(), find2.getId());
   }

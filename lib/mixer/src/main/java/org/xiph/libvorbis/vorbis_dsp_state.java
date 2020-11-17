@@ -6,7 +6,14 @@ import org.xiph.libogg.ogg_packet;
 
 import java.util.Arrays;
 
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.PACKETBLOBS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_BANDS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_MAXSTRETCH;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_POST;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_WIN;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VIF_POSIT;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.ilog;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.ilog2;
 
 public class vorbis_dsp_state {
 

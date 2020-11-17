@@ -2,7 +2,13 @@
 
 package org.xiph.libvorbis;
 
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.M_PI;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_AMP;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_BANDS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_MINSTRETCH;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_NEARDC;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.VE_POST;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.todB;
 
 class envelope_lookup {
 

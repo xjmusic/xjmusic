@@ -9,38 +9,30 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.Program;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
+import io.xj.SegmentMeme;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
-import io.xj.service.hub.entity.Instrument;
-import io.xj.service.hub.entity.InstrumentAudio;
-import io.xj.service.hub.entity.InstrumentAudioEvent;
-import io.xj.service.hub.entity.InstrumentMeme;
-import io.xj.service.hub.entity.InstrumentState;
-import io.xj.service.hub.entity.InstrumentType;
-import io.xj.service.hub.entity.ProgramType;
 import io.xj.service.nexus.NexusApp;
-import io.xj.service.nexus.NexusHubContentFixtures;
+import io.xj.service.nexus.NexusIntegrationTestingFixtures;
 import io.xj.service.nexus.craft.CraftFactory;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.ChainBinding;
-import io.xj.service.nexus.entity.ChainState;
-import io.xj.service.nexus.entity.ChainType;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentChoice;
-import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
-import io.xj.service.nexus.entity.SegmentChord;
-import io.xj.service.nexus.entity.SegmentMeme;
-import io.xj.service.nexus.entity.SegmentState;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.After;
@@ -54,8 +46,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildInstrument;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildInstrumentAudio;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildInstrumentAudioEvent;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildInstrumentMeme;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
@@ -66,7 +64,7 @@ public class CraftRhythmProgramVoiceContinueTest {
   private Injector injector;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
-  private NexusHubContentFixtures fake;
+  private NexusIntegrationTestingFixtures fake;
   private Chain chain1;
   private Segment segment1;
   private Segment segment2;
@@ -105,19 +103,49 @@ public class CraftRhythmProgramVoiceContinueTest {
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
-    fake = new NexusHubContentFixtures();
+    fake = new NexusIntegrationTestingFixtures();
     when(hubClient.ingest(any(), any(), any(), any()))
       .thenReturn(new HubContent(Streams.concat(
-        fake.setupFixtureB1(true).stream(),
+        fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream(),
         customFixtures().stream()
       ).collect(Collectors.toList())));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    store.put(ChainBinding.create(chain1, fake.library2));
-    segment1 = store.put(Segment.create(chain1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120, "chains-1-segments-9f7s89d8a7892.wav"));
-    segment2 = store.put(Segment.create(chain1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120, "chains-1-segments-9f7s89d8a7892.wav"));
+    chain1 = store.put(buildChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    store.put(ChainBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setTargetId(fake.library2.getId())
+      .setType(ChainBinding.Type.Library)
+      .build());
+    segment1 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setOffset(0)
+      .setState(Segment.State.Dubbed)
+      .setBeginAt("2017-02-14T12:01:00.000001Z")
+      .setEndAt("2017-02-14T12:01:32.000001Z")
+      .setKey("D major")
+      .setTotal(64)
+      .setDensity(0.73)
+      .setTempo(120)
+      .setStorageKey("chains-1-segments-9f7s89d8a7892")
+      .setOutputEncoder("wav")
+      .build());
+    segment2 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setOffset(1)
+      .setState(Segment.State.Dubbing)
+      .setBeginAt("2017-02-14T12:01:32.000001Z")
+      .setEndAt("2017-02-14T12:02:04.000001Z")
+      .setKey("Db minor")
+      .setTotal(64)
+      .setDensity(0.85)
+      .setTempo(120)
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build());
   }
 
   /**
@@ -125,18 +153,18 @@ public class CraftRhythmProgramVoiceContinueTest {
 
    @return list of all entities
    */
-  private Collection<Entity> customFixtures() {
-    Collection<Entity> entities = Lists.newArrayList();
+  private Collection<Object> customFixtures() {
+    Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    instrument1 = Entities.add(entities, Instrument.create(fake.user3, fake.library2, InstrumentType.Percussive, InstrumentState.Published, "808 Drums"));
-    Entities.add(entities, InstrumentMeme.create(instrument1, "heavy"));
+    instrument1 = Entities.add(entities, buildInstrument(fake.library2, Instrument.Type.Percussive, Instrument.State.Published, "808 Drums"));
+    Entities.add(entities, buildInstrumentMeme(instrument1, "heavy"));
     //
-    audioKick = Entities.add(entities, InstrumentAudio.create(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440, 0.6));
-    Entities.add(entities, InstrumentAudioEvent.create(audioKick, 0, 1, "KICK", "Eb", 1.0));
+    audioKick = Entities.add(entities, buildInstrumentAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440, 0.6));
+    Entities.add(entities, buildInstrumentAudioEvent(audioKick, 0, 1, "KICK", "Eb", 1.0));
     //
-    audioSnare = Entities.add(entities, InstrumentAudio.create(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01, 1.5, 120.0, 1200, 0.6));
-    Entities.add(entities, InstrumentAudioEvent.create(audioSnare, 1, 1, "SNARE", "Ab", 1.0));
+    audioSnare = Entities.add(entities, buildInstrumentAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01, 1.5, 120.0, 1200, 0.6));
+    Entities.add(entities, buildInstrumentAudioEvent(audioSnare, 1, 1, "SNARE", "Ab", 1.0));
 
     return entities;
   }
@@ -158,8 +186,7 @@ public class CraftRhythmProgramVoiceContinueTest {
     // test vector for [#154014731] persist Audio pick in memory
     int pickedKick = 0;
     int pickedSnare = 0;
-    Collection<SegmentChoiceArrangementPick> picks = store.getAll(SegmentChoiceArrangementPick.class,
-      Segment.class, ImmutableList.of(result.getId()));
+    Collection<SegmentChoiceArrangementPick> picks = fabricator.getSegmentChoiceArrangementPicks();
 
     for (SegmentChoiceArrangementPick pick : picks) {
       if (pick.getInstrumentAudioId().equals(audioKick.getId()))
@@ -187,59 +214,91 @@ public class CraftRhythmProgramVoiceContinueTest {
   private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws EntityStoreException {
     // segment just crafted
     // Testing entities for reference
-    segment3 = store.put(Segment.create()
+    segment3 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(2L)
-      .setStateEnum(SegmentState.Crafted)
+      .setState(Segment.State.Crafted)
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setEndAt("2017-02-14T12:02:36.000001Z")
       .setKey("F Major")
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(SegmentChoice.create().setSegmentId(segment3.getId())
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build());
+    store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment3.getId())
       .setProgramId(fake.program4.getId())
-      .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
-      .setTypeEnum(ProgramType.Macro)
-      .setTranspose(3));
-    store.put(SegmentChoice.create().setSegmentId(segment3.getId())
+      .setProgramId(fake.program4_sequence0_binding0.getProgramId())
+.setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
+      .setProgramType(Program.Type.Macro)
+      .setTranspose(3)
+.build());
+    store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment3.getId())
       .setProgramId(fake.program5.getId())
-      .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
-      .setTypeEnum(ProgramType.Main)
-      .setTranspose(5));
+      .setProgramId(fake.program5_sequence0_binding0.getProgramId())
+.setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
+      .setProgramType(Program.Type.Main)
+      .setTranspose(5)
+.build());
     if (!excludeRhythmChoiceForSegment3)
-      store.put(SegmentChoice.create().setSegmentId(segment3.getId())
+      store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment3.getId())
         .setProgramId(fake.program35.getId())
-        .setTypeEnum(ProgramType.Rhythm)
-        .setTranspose(5));
+        .setProgramType(Program.Type.Rhythm)
+        .setTranspose(5)
+.build());
 
     // segment crafting
-    segment4 = store.put(Segment.create()
+    segment4 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(3L)
-      .setStateEnum(SegmentState.Crafting)
+      .setState(Segment.State.Crafting)
       .setBeginAt("2017-02-14T12:03:08.000001Z")
       .setEndAt("2017-02-14T12:03:15.836735Z")
       .setKey("D Major")
       .setTotal(16)
       .setDensity(0.45)
       .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(SegmentChoice.create().setSegmentId(segment4.getId())
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build());
+    store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment4.getId())
       .setProgramId(fake.program4.getId())
-      .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
-      .setTypeEnum(ProgramType.Macro)
-      .setTranspose(3));
-    store.put(SegmentChoice.create().setSegmentId(segment4.getId())
+      .setProgramId(fake.program4_sequence0_binding0.getProgramId())
+.setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
+      .setProgramType(Program.Type.Macro)
+      .setTranspose(3)
+      .build());
+    store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment4.getId())
       .setProgramId(fake.program5.getId())
-      .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
-      .setTypeEnum(ProgramType.Main)
-      .setTranspose(-5));
+      .setProgramId(fake.program5_sequence1_binding0.getProgramId())
+.setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
+      .setProgramType(Program.Type.Main)
+      .setTranspose(-5)
+      .build());
     for (String memeName : ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy"))
-      store.put(SegmentMeme.create(segment4, memeName));
-    store.put(SegmentChord.create(segment4, 0.0, "A minor"));
-    store.put(SegmentChord.create(segment4, 8.0, "D Major"));
+      store.put(SegmentMeme.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setSegmentId(segment4.getId()).setName(memeName)
+        .build());
+    store.put(SegmentChord.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment4.getId()).setPosition(0.0).setName("A minor")
+      .build());
+    store.put(SegmentChord.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment4.getId()).setPosition(8.0).setName("D Major")
+      .build());
   }
 
 

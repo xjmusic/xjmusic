@@ -1,13 +1,75 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.dao;
 
+import com.google.common.collect.Lists;
+import io.xj.User;
+import io.xj.UserAuth;
+import io.xj.UserAuthToken;
+import io.xj.UserRole;
+import io.xj.lib.util.CSV;
+import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.*;
 
-import java.util.UUID;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public interface UserDAO extends DAO<User> {
+
+  /**
+   String Values
+
+   @return ImmutableList of string values
+   */
+  static List<String> userRoleTypeStringValues() {
+    return Text.toStrings(UserRole.Type.values());
+  }
+
+  /**
+   cast string to enum
+
+   @param value to cast to enum
+   @return enum
+   @throws ValueException on failure
+   */
+  static UserRole.Type validateUserRoleType(String value) throws ValueException {
+    if (Objects.isNull(value))
+      throw new ValueException("Role is required");
+
+    try {
+      return UserRole.Type.valueOf(Text.toProperSlug(value));
+    } catch (Exception ignored) {
+      throw new ValueException("'" + value + "' is not a valid role (" + CSV.joinEnum(UserRole.Type.values()) + ").");
+    }
+  }
+
+  /**
+   extract a collection of ids of a string CSV
+
+   @param csv to parse
+   @return collection of ids
+   */
+  static Collection<UserRole.Type> userRoleTypesFromCsv(String csv) {
+    Collection<UserRole.Type> result = Lists.newArrayList();
+
+    if (Objects.nonNull(csv) && !csv.isEmpty()) {
+      result = CSV.split(csv).stream().map(type -> UserRole.Type.valueOf(Text.toProperSlug(type))).collect(Collectors.toList());
+    }
+
+    return result;
+  }
+
+  /**
+   Get CSV of a collection of user role types
+
+   @param roleTypes to get CSV of
+   @return CSV of user role types
+   */
+  static String csvOfUserRoleTypes(Collection<UserRole.Type> roleTypes) {
+    return CSV.join(roleTypes.stream().map(Enum::toString).collect(Collectors.toList()));
+  }
 
   /**
    Authenticates a User using external credentials:
@@ -31,7 +93,7 @@ public interface UserDAO extends DAO<User> {
    @param email                to contact user
    @return access token
    */
-  String authenticate(UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws DAOException;
+  String authenticate(UserAuth.Type authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws DAOException;
 
   /**
    (ADMIN ONLY)
@@ -39,7 +101,7 @@ public interface UserDAO extends DAO<User> {
 
    @param userId to destroy all access tokens for.
    */
-  void destroyAllTokens(UUID userId) throws DAOException;
+  void destroyAllTokens(String userId) throws DAOException;
 
   /**
    (ADMIN ONLY)
@@ -48,7 +110,7 @@ public interface UserDAO extends DAO<User> {
    @param userId of specific User to update.
    @param entity for the updated User.
    */
-  void updateUserRolesAndDestroyTokens(HubAccess hubAccess, UUID userId, User entity) throws DAOException, ValueException;
+  void updateUserRolesAndDestroyTokens(HubAccess hubAccess, String userId, User entity) throws DAOException, ValueException;
 
   /**
    (ADMIN ONLY) read one user hubAccess token
@@ -66,7 +128,7 @@ public interface UserDAO extends DAO<User> {
    @param userAuthId to read
    @return model
    */
-  UserAuth readOneAuth(HubAccess hubAccess, UUID userAuthId) throws DAOException;
+  UserAuth readOneAuth(HubAccess hubAccess, String userAuthId) throws DAOException;
 
   /**
    (ADMIN ONLY) read one user role
@@ -76,5 +138,5 @@ public interface UserDAO extends DAO<User> {
    @param type      of role
    @return model
    */
-  UserRole readOneRole(HubAccess hubAccess, UUID userId, UserRoleType type) throws DAOException;
+  UserRole readOneRole(HubAccess hubAccess, String userId, UserRole.Type type) throws DAOException;
 }

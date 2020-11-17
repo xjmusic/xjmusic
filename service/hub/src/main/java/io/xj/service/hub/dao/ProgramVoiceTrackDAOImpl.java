@@ -2,12 +2,14 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import io.xj.ProgramVoiceTrack;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.util.Text;
+import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.ProgramVoiceTrack;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.jooq.DSLContext;
 
@@ -15,9 +17,14 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.service.hub.Tables.*;
+import static io.xj.service.hub.Tables.LIBRARY;
+import static io.xj.service.hub.Tables.PROGRAM;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.service.hub.Tables.PROGRAM_VOICE;
+import static io.xj.service.hub.Tables.PROGRAM_VOICE_TRACK;
 
 public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> implements ProgramVoiceTrackDAO {
+  private static final Float DEFAULT_ORDER_VALUE = 1000.0f;
 
   @Inject
   public ProgramVoiceTrackDAOImpl(
@@ -31,22 +38,22 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
 
   @Override
   public ProgramVoiceTrack create(HubAccess hubAccess, ProgramVoiceTrack entity) throws DAOException, JsonApiException, ValueException {
-    entity.validate();
+    ProgramVoiceTrack record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
-    requireProgramModification(db, hubAccess, entity.getProgramId());
+    requireProgramModification(db, hubAccess, record.getProgramId());
     return modelFrom(ProgramVoiceTrack.class,
-      executeCreate(db, PROGRAM_VOICE_TRACK, entity));
+      executeCreate(db, PROGRAM_VOICE_TRACK, record));
   }
 
   @Override
   @Nullable
-  public ProgramVoiceTrack readOne(HubAccess hubAccess, UUID id) throws DAOException {
+  public ProgramVoiceTrack readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     if (hubAccess.isTopLevel())
       return modelFrom(ProgramVoiceTrack.class,
         dbProvider.getDSL().selectFrom(PROGRAM_VOICE_TRACK)
-          .where(PROGRAM_VOICE_TRACK.ID.eq(id))
+          .where(PROGRAM_VOICE_TRACK.ID.eq(UUID.fromString(id)))
           .fetchOne());
     else
       return modelFrom(ProgramVoiceTrack.class,
@@ -54,14 +61,14 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
           .join(PROGRAM_VOICE).on(PROGRAM_VOICE.ID.eq(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID))
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_VOICE.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-          .where(PROGRAM_VOICE_TRACK.ID.eq(id))
+          .where(PROGRAM_VOICE_TRACK.ID.eq(UUID.fromString(id)))
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne());
   }
 
   @Override
   @Nullable
-  public Collection<ProgramVoiceTrack> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+  public Collection<ProgramVoiceTrack> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
     if (hubAccess.isTopLevel())
       return modelsFrom(ProgramVoiceTrack.class,
@@ -82,30 +89,30 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   }
 
   @Override
-  public void update(HubAccess hubAccess, UUID id, ProgramVoiceTrack entity) throws DAOException, JsonApiException, ValueException {
-    entity.validate();
+  public void update(HubAccess hubAccess, String id, ProgramVoiceTrack entity) throws DAOException, JsonApiException, ValueException {
+    ProgramVoiceTrack record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
     requireModification(db, hubAccess, id);
-    executeUpdate(db, PROGRAM_VOICE_TRACK, id, entity);
+    executeUpdate(db, PROGRAM_VOICE_TRACK, id, record);
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+  public void destroy(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
     requireModification(db, hubAccess, id);
     requireNotExists("Events in Track", db.selectCount().from(PROGRAM_SEQUENCE_PATTERN_EVENT)
-      .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID.eq(id))
+      .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID.eq(UUID.fromString(id)))
       .fetchOne(0, int.class));
     db.deleteFrom(PROGRAM_VOICE_TRACK)
-      .where(PROGRAM_VOICE_TRACK.ID.eq(id))
+      .where(PROGRAM_VOICE_TRACK.ID.eq(UUID.fromString(id)))
       .execute();
   }
 
   @Override
   public ProgramVoiceTrack newInstance() {
-    return new ProgramVoiceTrack();
+    return ProgramVoiceTrack.getDefaultInstance();
   }
 
   /**
@@ -116,11 +123,11 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
    @param id        of entity to read
    @throws DAOException if none exists or no hubAccess
    */
-  private void requireModification(DSLContext db, HubAccess hubAccess, UUID id) throws DAOException {
+  private void requireModification(DSLContext db, HubAccess hubAccess, String id) throws DAOException {
     if (hubAccess.isTopLevel())
       requireExists("Track",
         db.selectCount().from(PROGRAM_VOICE_TRACK)
-          .where(PROGRAM_VOICE_TRACK.ID.eq(id))
+          .where(PROGRAM_VOICE_TRACK.ID.eq(UUID.fromString(id)))
           .fetchOne(0, int.class));
     else
       requireExists("Track in Voice in Program you have hubAccess to",
@@ -128,8 +135,29 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
           .join(PROGRAM_VOICE).on(PROGRAM_VOICE.ID.eq(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID))
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_VOICE.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-          .where(PROGRAM_VOICE_TRACK.ID.eq(id))
+          .where(PROGRAM_VOICE_TRACK.ID.eq(UUID.fromString(id)))
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne(0, int.class));
   }
+
+  /**
+   Validate data
+
+   @param builder to validate
+   @throws DAOException if invalid
+   */
+  public ProgramVoiceTrack.Builder validate(ProgramVoiceTrack.Builder builder) throws DAOException {
+    try {
+      if (Value.isEmpty(builder.getOrder())) builder.setOrder(DEFAULT_ORDER_VALUE);
+      Value.require(builder.getProgramId(), "Program ID");
+      Value.require(builder.getProgramVoiceId(), "Voice ID");
+      Value.require(builder.getName(), "Name");
+      builder.setName(Text.toUpperSlug(builder.getName()));
+      return builder;
+
+    } catch (ValueException e) {
+      throw new DAOException(e);
+    }
+  }
+
 }

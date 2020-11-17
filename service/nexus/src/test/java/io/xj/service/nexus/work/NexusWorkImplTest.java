@@ -8,17 +8,15 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
+import io.xj.Account;
+import io.xj.Chain;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.service.hub.HubApp;
-import io.xj.service.hub.entity.Account;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.dao.SegmentDAO;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.ChainState;
-import io.xj.service.nexus.entity.ChainType;
 import io.xj.service.nexus.persistence.NexusEntityStore;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
@@ -28,9 +26,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
+import java.util.UUID;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -93,8 +90,19 @@ public class NexusWorkImplTest {
 
   @Test
   public void fabricatesSegments() throws Exception {
-    Account account1 = store.put(Account.create("palm tree"));
-    Chain chain1 = store.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    Account account1 = store.put(Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("palm tree")
+      .build());
+    Chain chain1 = store.put(Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(account1.getId())
+      .setName("Test Print #1")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2014-08-12T12:17:02.527142Z")
+      .build());
+
     when(fileStoreProvider.generateKey(String.format("chains-%s-segments", chain1.getId())))
       .thenReturn("chains-1-segments-12345.aac");
     when(workerFactory.boss()).thenReturn(fakeBossWorker);

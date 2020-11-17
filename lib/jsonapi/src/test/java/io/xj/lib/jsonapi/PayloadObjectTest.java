@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import io.xj.Library;
+import io.xj.Program;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.ValueException;
 import org.junit.Before;
@@ -26,7 +28,7 @@ import static org.junit.Assert.assertTrue;
  <p>
  Created by Charney Kaye on 2020/03/09
  */
-public class PayloadObjectTest extends TestTemplate {
+public class PayloadObjectTest {
   PayloadFactory payloadFactory;
   EntityFactory entityFactory;
   PayloadObject subject;
@@ -36,31 +38,42 @@ public class PayloadObjectTest extends TestTemplate {
     Injector injector = Guice.createInjector(new JsonApiModule());
     payloadFactory = injector.getInstance(PayloadFactory.class);
     entityFactory = injector.getInstance(EntityFactory.class);
-    entityFactory.register(MockEntity.class);
+    entityFactory.register(Program.class);
     subject = payloadFactory.newPayloadObject();
   }
 
   @Test
   public void add() throws JsonApiException {
-    MockEntity parentEntity1 = createMockEntity("Test MockEntity");
+    Program parentEntity1 = Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("Test Program")
+      .build();
     subject.add("parentEntity", payloadFactory.setDataEntity(payloadFactory.newPayload(), parentEntity1));
 
     assertTrue(subject.getRelationships().get("parentEntity").getDataOne().isPresent());
-    assertEquals(parentEntity1.getId().toString(), subject.getRelationships().get("parentEntity").getDataOne().get().getId());
+    assertEquals(parentEntity1.getId(), subject.getRelationships().get("parentEntity").getDataOne().get().getId());
   }
 
   @Test
   public void addIfRelated() throws IOException, JsonApiException {
-    MockEntity mockEntity1 = createMockEntity("test.jpg");
-    MockEntity mockEntity2 = createMockEntity("sham", mockEntity1);
-    entityFactory.register(MockEntity.class).belongsTo(MockEntity.class);
-    subject = payloadFactory.toPayloadObject(mockEntity1);
-    PayloadObject rel = payloadFactory.toPayloadObject(mockEntity2);
+    Library library1 = Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("test.jpg")
+      .build();
+    Program program2 = Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("sham")
+      .setLibraryId(library1.getId())
+      .build();
+    entityFactory.register(Library.class);
+    entityFactory.register(Program.class).belongsTo(Library.class);
+    subject = payloadFactory.toPayloadObject(library1);
+    PayloadObject rel = payloadFactory.toPayloadObject(program2);
 
     payloadFactory.addIfRelated(subject, rel);
 
     assertPayloadObject(subject)
-      .hasMany(MockEntity.class, ImmutableList.of(mockEntity2));
+      .hasMany(Program.class, ImmutableList.of(program2));
   }
 
   @Test
@@ -75,7 +88,10 @@ public class PayloadObjectTest extends TestTemplate {
 
   @Test
   public void toMinimal() throws JsonApiException {
-    MockEntity parentEntity1 = createMockEntity("Test MockEntity");
+    Program parentEntity1 = Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("Test Program")
+      .build();
     subject = payloadFactory.toPayloadObject(parentEntity1);
 
     PayloadObject result = subject.toMinimal();
@@ -116,18 +132,27 @@ public class PayloadObjectTest extends TestTemplate {
 
   @Test
   public void getRelationshipObject() throws JsonApiException {
-    MockEntity parentEntity1 = createMockEntity("Test MockEntity");
+    Program parentEntity1 = Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("Test Program")
+      .build();
     subject.add("parentEntity", payloadFactory.setDataEntity(payloadFactory.newPayload(), parentEntity1));
 
     assertTrue(subject.getRelationshipDataOne("parentEntity").isPresent());
-    assertEquals(parentEntity1.getId().toString(), subject.getRelationshipDataOne("parentEntity").get().getId());
+    assertEquals(parentEntity1.getId(), subject.getRelationshipDataOne("parentEntity").get().getId());
   }
 
   @Test
   public void getRelationships_setRelationships() throws JsonApiException {
     subject.setRelationships(ImmutableMap.of(
-      "parentEntity", payloadFactory.setDataEntity(payloadFactory.newPayload(), createMockEntity("Test MockEntity")),
-      "childEntity", payloadFactory.setDataEntity(payloadFactory.newPayload(), createMockEntity("Test MockEntity"))
+      "parentEntity", payloadFactory.setDataEntity(payloadFactory.newPayload(), Program.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setName("Test Program")
+      .build()),
+      "childEntity", payloadFactory.setDataEntity(payloadFactory.newPayload(), Program.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setName("Test Program")
+      .build())
     ));
 
     assertEquals(2, subject.getRelationships().size());
@@ -135,14 +160,14 @@ public class PayloadObjectTest extends TestTemplate {
 
   @Test
   public void getType_setType() {
-    subject.setType("mock-entities");
+    subject.setType("programs");
 
-    assertEquals("mock-entities", subject.getType());
+    assertEquals("programs", subject.getType());
   }
 
   @Test
   public void setType_fromClass() {
-    assertEquals("mock-entities", subject.setType(MockEntity.class).getType());
+    assertEquals("programs", subject.setType(Program.class).getType());
   }
 
   @Test
@@ -157,21 +182,20 @@ public class PayloadObjectTest extends TestTemplate {
 
   @Test
   public void isSame() {
-    UUID id = UUID.randomUUID();
-    subject.setId(id.toString());
-    subject.setType("MockEntity");
+    String id = UUID.randomUUID().toString();
+    subject.setId(id);
+    subject.setType("Program");
 
-    assertTrue(subject.isSame(createMockEntity(id)));
-    assertFalse(subject.isSame(createMockEntity(UUID.randomUUID())));
+    assertTrue(subject.isSame(Program.newBuilder().setId(id).build()));
+    assertFalse(subject.isSame(Program.newBuilder().setId(UUID.randomUUID().toString()).build()));
   }
 
   @Test
   public void isSame_subjectStringId_compareToUuid() {
-    UUID id = UUID.randomUUID();
-    subject.setId(id.toString());
-    subject.setType("MockSuperEntity");
-    MockSuperEntity compareTo = new MockSuperEntity();
-    compareTo.setId(id);
+    String id = UUID.randomUUID().toString();
+    subject.setId(id);
+    subject.setType("Program");
+    Program compareTo = Program.newBuilder().setId(id).build();
 
     assertTrue(subject.isSame(compareTo));
   }

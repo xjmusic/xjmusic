@@ -11,17 +11,16 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
-import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.JsonApiModule;
-import io.xj.lib.mixer.MixerModule;
+import io.xj.Account;
+import io.xj.AccountUser;
+import io.xj.User;
+import io.xj.UserAuth;
+import io.xj.UserRole;
 import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.dao.DAOModule;
-import io.xj.service.hub.entity.Account;
-import io.xj.service.hub.entity.AccountUser;
-import io.xj.service.hub.entity.User;
-import io.xj.service.hub.entity.UserAuth;
-import io.xj.service.hub.entity.UserRole;
-import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.persistence.HubRedisProvider;
@@ -36,7 +35,7 @@ import redis.clients.jedis.Jedis;
 
 import javax.ws.rs.core.Cookie;
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -58,7 +57,7 @@ public class RedisHubAccessTokenTest {
   private Collection<AccountUser> accountUsers;
   private Collection<UserRole> roles;
   private User user;
-  private EntityFactory entityFactory;
+  private PayloadFactory payloadFactory;
 
   @Before
   public void setUp() throws Exception {
@@ -79,32 +78,37 @@ public class RedisHubAccessTokenTest {
         }
       }));
     hubAccessControlProvider = injector.getInstance(HubAccessControlProvider.class);
-    entityFactory = injector.getInstance(EntityFactory.class);
+    payloadFactory = injector.getInstance(PayloadFactory.class);
 
-    user = User.create();
+    user = User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    userAuth = UserAuth.newBuilder()
+      .setUserId(user.getId())
+      .setId(UUID.randomUUID().toString())
+      .build();
+    account1 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    account2 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
 
-    userAuth = new UserAuth();
-    userAuth.setUserId(user.getId());
-    userAuth.setId(UUID.randomUUID());
+    AccountUser accountUser1 = AccountUser.newBuilder()
+      .setAccountId(account1.getId())
+      .build();
+    AccountUser accountUser2 = AccountUser.newBuilder()
+      .setAccountId(account2.getId())
+      .build();
+    accountUsers = List.of(accountUser1, accountUser2);
 
-    account1 = Account.create();
-    account2 = Account.create();
-
-    accountUsers = new LinkedList<>();
-    AccountUser accountUser1 = new AccountUser();
-    accountUser1.setAccountId(account1.getId());
-    AccountUser accountUser2 = new AccountUser();
-    accountUser2.setAccountId(account2.getId());
-    accountUsers.add(accountUser1);
-    accountUsers.add(accountUser2);
-
-    roles = new LinkedList<>();
-    UserRole role1 = new UserRole();
-    role1.setTypeEnum(UserRoleType.User);
-    UserRole role2 = new UserRole();
-    role2.setTypeEnum(UserRoleType.Artist);
-    roles.add(role1);
-    roles.add(role2);
+    UserRole role1 = UserRole.newBuilder()
+      .setType(UserRole.Type.User)
+      .build();
+    UserRole role2 = UserRole.newBuilder()
+      .setType(UserRole.Type.Artist)
+      .build();
+    roles = List.of(role1, role2);
   }
 
   @After
@@ -127,9 +131,9 @@ public class RedisHubAccessTokenTest {
     HubAccess expectUserAccess = new HubAccess()
       .setUserId(user.getId())
       .setUserAuthId(userAuth.getId())
-      .setRoleTypes(ImmutableList.of(UserRoleType.User, UserRoleType.Artist))
+      .setRoleTypes(ImmutableList.of(UserRole.Type.User, UserRole.Type.Artist))
       .setAccountIds(ImmutableSet.of(account1.getId(), account2.getId()));
-    verify(redisClient).set("xj_session_test:token123", entityFactory.serialize(expectUserAccess));
+    verify(redisClient).set("xj_session_test:token123", payloadFactory.serialize(expectUserAccess));
   }
 
   @Test

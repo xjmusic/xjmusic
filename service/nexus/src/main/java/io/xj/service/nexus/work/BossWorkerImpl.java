@@ -1,18 +1,17 @@
 package io.xj.service.nexus.work;
 
 import com.google.inject.Inject;
-import io.xj.lib.entity.Entity;
+import io.xj.Chain;
+import io.xj.lib.entity.Entities;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.service.nexus.entity.ChainState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -49,7 +48,7 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
    @throws DAOFatalException     on internal failure
    */
   protected void doWork() throws DAOPrivilegeException, DAOFatalException {
-    Collection<UUID> activeIds = getActiveChainIds();
+    Collection<String> activeIds = getActiveChainIds();
     startActiveChains(activeIds);
     cancelInactiveChains(activeIds);
   }
@@ -66,10 +65,10 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
    @throws DAOPrivilegeException on access control failure
    @throws DAOFatalException     on internal failure
    */
-  private Collection<UUID> getActiveChainIds() throws DAOPrivilegeException, DAOFatalException {
-    return chainDAO.readManyInState(access, ChainState.Fabricate)
+  private Collection<String> getActiveChainIds() throws DAOPrivilegeException, DAOFatalException {
+    return chainDAO.readManyInState(access, Chain.State.Fabricate)
       .stream()
-      .map(Entity::getId)
+      .flatMap(Entities::flatMapIds)
       .collect(Collectors.toList());
   }
 
@@ -78,9 +77,9 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
 
    @param activeIds to avoid cancellation
    */
-  private void cancelInactiveChains(Collection<UUID> activeIds) {
+  private void cancelInactiveChains(Collection<String> activeIds) {
     long chainsCanceled = 0;
-    for (UUID id : work.getChainWorkingIds())
+    for (String id : work.getChainWorkingIds())
       if (!activeIds.contains(id)) {
         work.cancelChainWork(id);
         log.info("Did cancel work on Chain[{}]", id);
@@ -94,9 +93,9 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
 
    @param activeIds to start if not already active
    */
-  private void startActiveChains(Collection<UUID> activeIds) {
+  private void startActiveChains(Collection<String> activeIds) {
     long chainsStarted = 0;
-    for (UUID id : activeIds)
+    for (String id : activeIds)
       if (!work.isWorkingOnChain(id)) {
         work.beginChainWork(id);
         log.info("Did start work on Chain[{}]", id);

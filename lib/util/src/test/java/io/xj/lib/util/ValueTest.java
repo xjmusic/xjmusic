@@ -4,6 +4,8 @@ package io.xj.lib.util;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 
+import java.time.Instant;
+
 import static org.junit.Assert.assertEquals;
 
 public class ValueTest {
@@ -48,5 +50,11 @@ public class ValueTest {
   @Test
   public void limitDecimalPrecision() {
     assertEquals(1.25, Value.limitDecimalPrecision(1.2545897987), 0.0000001);
+  }
+
+  @Test
+  public void formatIso8601UTC() {
+    assertEquals("2014-08-12T12:17:02.527142Z",
+      Value.formatIso8601UTC(Instant.parse("2014-08-12T12:17:02.527142Z")));
   }
 }

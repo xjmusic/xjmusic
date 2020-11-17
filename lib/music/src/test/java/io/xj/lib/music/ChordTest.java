@@ -7,9 +7,23 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.util.Map;
 
-import static io.xj.lib.music.Interval.*;
-import static io.xj.lib.music.PitchClass.*;
-import static org.junit.Assert.*;
+import static io.xj.lib.music.Interval.I3;
+import static io.xj.lib.music.Interval.I6;
+import static io.xj.lib.music.Interval.I7;
+import static io.xj.lib.music.Interval.I9;
+import static io.xj.lib.music.PitchClass.A;
+import static io.xj.lib.music.PitchClass.As;
+import static io.xj.lib.music.PitchClass.C;
+import static io.xj.lib.music.PitchClass.Cs;
+import static io.xj.lib.music.PitchClass.D;
+import static io.xj.lib.music.PitchClass.Ds;
+import static io.xj.lib.music.PitchClass.F;
+import static io.xj.lib.music.PitchClass.Fs;
+import static io.xj.lib.music.PitchClass.None;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ChordTest {
   private static final String EXPECTED_CHORDS_YAML = "/music/expect_chord.yaml";

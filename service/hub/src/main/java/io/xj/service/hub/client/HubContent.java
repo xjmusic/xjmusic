@@ -1,110 +1,59 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.client;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ConcurrentHashMultiset;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Ordering;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.entity.Entity;
-import io.xj.lib.entity.MemeEntity;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.InstrumentAudioChord;
+import io.xj.InstrumentAudioEvent;
+import io.xj.InstrumentMeme;
+import io.xj.Program;
+import io.xj.ProgramMeme;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequenceBindingMeme;
+import io.xj.ProgramSequenceChord;
+import io.xj.ProgramSequenceChordVoicing;
+import io.xj.ProgramSequencePattern;
+import io.xj.ProgramSequencePatternEvent;
+import io.xj.ProgramVoice;
+import io.xj.ProgramVoiceTrack;
+import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Text;
-import io.xj.service.hub.entity.*;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  [#154350346] to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments)
+ <p>
+ Refactoring this class ala [#173803936] `HubContent` extends common `EntityStore` implementation
  */
 public class HubContent {
-  private final Map<UUID, Program> programs;
-  private final Map<UUID, InstrumentAudio> instrumentAudios;
-  private final Map<UUID, InstrumentAudioChord> instrumentAudioChords;
-  private final Map<UUID, InstrumentAudioEvent> instrumentAudioEvents;
-  private final Map<UUID, InstrumentMeme> instrumentMemes;
-  private final Map<UUID, ProgramSequencePatternEvent> programEvents;
-  private final Map<UUID, ProgramMeme> programMemes;
-  private final Map<UUID, ProgramSequencePattern> programPatterns;
-  private final Map<UUID, ProgramSequence> programSequences;
-  private final Map<UUID, ProgramSequenceBinding> programSequenceBindings;
-  private final Map<UUID, ProgramSequenceBindingMeme> programSequenceBindingMemes;
-  private final Map<UUID, ProgramSequenceChord> programSequenceChords;
-  private final Map<UUID, ProgramVoiceTrack> programTracks;
-  private final Map<UUID, ProgramVoice> programVoices;
-  private final Map<UUID, Instrument> instruments;
+  private final Map<Class<?>/*Type*/, Map<String/*ID*/, Object>> store = Maps.newConcurrentMap();
 
   @Inject
   public HubContent(
-    @Assisted("entities") Collection<Entity> entities
-  ) {
-    this.instrumentAudioChords = Maps.newConcurrentMap();
-    this.instrumentAudios = Maps.newConcurrentMap();
-    this.instrumentAudioEvents = Maps.newConcurrentMap();
-    this.instruments = Maps.newConcurrentMap();
-    this.instrumentMemes = Maps.newConcurrentMap();
-    this.programs = Maps.newConcurrentMap();
-    this.programEvents = Maps.newConcurrentMap();
-    this.programMemes = Maps.newConcurrentMap();
-    this.programPatterns = Maps.newConcurrentMap();
-    this.programSequenceBindings = Maps.newConcurrentMap();
-    this.programSequenceBindingMemes = Maps.newConcurrentMap();
-    this.programSequenceChords = Maps.newConcurrentMap();
-    this.programSequences = Maps.newConcurrentMap();
-    this.programTracks = Maps.newConcurrentMap();
-    this.programVoices = Maps.newConcurrentMap();
-
-    // ingest programs
-    entities.forEach(entity -> {
-      switch (entity.getClass().getSimpleName()) {
-        case "InstrumentAudioChord":
-          instrumentAudioChords.put(entity.getId(), (InstrumentAudioChord) entity);
-          break;
-        case "InstrumentAudio":
-          instrumentAudios.put(entity.getId(), (InstrumentAudio) entity);
-          break;
-        case "InstrumentAudioEvent":
-          instrumentAudioEvents.put(entity.getId(), (InstrumentAudioEvent) entity);
-          break;
-        case "Instrument":
-          instruments.put(entity.getId(), (Instrument) entity);
-          break;
-        case "InstrumentMeme":
-          instrumentMemes.put(entity.getId(), (InstrumentMeme) entity);
-          break;
-        case "Program":
-          programs.put(entity.getId(), (Program) entity);
-          break;
-        case "ProgramSequencePatternEvent":
-          programEvents.put(entity.getId(), (ProgramSequencePatternEvent) entity);
-          break;
-        case "ProgramMeme":
-          programMemes.put(entity.getId(), (ProgramMeme) entity);
-          break;
-        case "ProgramSequencePattern":
-          programPatterns.put(entity.getId(), (ProgramSequencePattern) entity);
-          break;
-        case "ProgramSequenceBinding":
-          programSequenceBindings.put(entity.getId(), (ProgramSequenceBinding) entity);
-          break;
-        case "ProgramSequenceBindingMeme":
-          programSequenceBindingMemes.put(entity.getId(), (ProgramSequenceBindingMeme) entity);
-          break;
-        case "ProgramSequenceChord":
-          programSequenceChords.put(entity.getId(), (ProgramSequenceChord) entity);
-          break;
-        case "ProgramSequence":
-          programSequences.put(entity.getId(), (ProgramSequence) entity);
-          break;
-        case "ProgramVoiceTrack":
-          programTracks.put(entity.getId(), (ProgramVoiceTrack) entity);
-          break;
-        case "ProgramVoice":
-          programVoices.put(entity.getId(), (ProgramVoice) entity);
-          break;
+    Collection<?> entities
+  ) throws HubClientException {
+    try {
+      for (Object entity : entities) {
+        store.putIfAbsent(entity.getClass(), Maps.newConcurrentMap());
+        store.get(entity.getClass()).put(Entities.getId(entity), entity);
       }
-    });
+
+    } catch (Exception e) {
+      throw new HubClientException(e);
+    }
   }
 
   /**
@@ -113,7 +62,7 @@ public class HubContent {
    @param sequenceBinding to get available sequence pattern offsets for
    @return collection of available sequence pattern offsets
    */
-  public Collection<Long> getAvailableOffsets(ProgramSequenceBinding sequenceBinding) {
+  public Collection<Long> getAvailableOffsets(ProgramSequenceBinding sequenceBinding) throws HubClientException {
     return getAllProgramSequenceBindings().stream()
       .filter(psb -> psb.getProgramId().equals(sequenceBinding.getProgramId()))
       .map(ProgramSequenceBinding::getOffset)
@@ -127,8 +76,8 @@ public class HubContent {
    @param id of InstrumentAudioChord to get
    @return InstrumentAudioChord
    */
-  public InstrumentAudioChord getInstrumentAudioChord(UUID id) {
-    return this.instrumentAudioChords.get(id);
+  public InstrumentAudioChord getInstrumentAudioChord(String id) throws HubClientException {
+    return get(InstrumentAudioChord.class, id);
   }
 
   /**
@@ -137,8 +86,8 @@ public class HubContent {
    @param id of InstrumentAudio to get
    @return InstrumentAudio
    */
-  public InstrumentAudio getInstrumentAudio(UUID id) {
-    return this.instrumentAudios.get(id);
+  public InstrumentAudio getInstrumentAudio(String id) throws HubClientException {
+    return get(InstrumentAudio.class, id);
   }
 
   /**
@@ -147,8 +96,8 @@ public class HubContent {
    @param id of InstrumentAudioEvent to get
    @return InstrumentAudioEvent
    */
-  public InstrumentAudioEvent getInstrumentAudioEvent(UUID id) {
-    return this.instrumentAudioEvents.get(id);
+  public InstrumentAudioEvent getInstrumentAudioEvent(String id) throws HubClientException {
+    return get(InstrumentAudioEvent.class, id);
   }
 
   /**
@@ -157,8 +106,8 @@ public class HubContent {
    @param id of Instrument to get
    @return Instrument
    */
-  public Instrument getInstrument(UUID id) {
-    return this.instruments.get(id);
+  public Instrument getInstrument(String id) throws HubClientException {
+    return get(Instrument.class, id);
   }
 
   /**
@@ -167,8 +116,8 @@ public class HubContent {
    @param id of InstrumentMeme to get
    @return InstrumentMeme
    */
-  public InstrumentMeme getInstrumentMeme(UUID id) {
-    return this.instrumentMemes.get(id);
+  public InstrumentMeme getInstrumentMeme(String id) throws HubClientException {
+    return get(InstrumentMeme.class, id);
   }
 
   /**
@@ -177,8 +126,8 @@ public class HubContent {
    @param id of Program to get
    @return Program
    */
-  public Program getProgram(UUID id) {
-    return this.programs.get(id);
+  public Program getProgram(String id) throws HubClientException {
+    return get(Program.class, id);
   }
 
   /**
@@ -187,8 +136,8 @@ public class HubContent {
    @param id of ProgramSequencePatternEvent to get
    @return ProgramSequencePatternEvent
    */
-  public ProgramSequencePatternEvent getProgramEvent(UUID id) {
-    return this.programEvents.get(id);
+  public ProgramSequencePatternEvent getProgramSequencePatternEvent(String id) throws HubClientException {
+    return get(ProgramSequencePatternEvent.class, id);
   }
 
   /**
@@ -197,8 +146,8 @@ public class HubContent {
    @param id of ProgramMeme to get
    @return ProgramMeme
    */
-  public ProgramMeme getProgramMeme(UUID id) {
-    return this.programMemes.get(id);
+  public ProgramMeme getProgramMeme(String id) throws HubClientException {
+    return get(ProgramMeme.class, id);
   }
 
   /**
@@ -207,8 +156,8 @@ public class HubContent {
    @param id of ProgramSequencePattern to get
    @return ProgramSequencePattern
    */
-  public ProgramSequencePattern getProgramPattern(UUID id) {
-    return this.programPatterns.get(id);
+  public ProgramSequencePattern getProgramSequencePattern(String id) throws HubClientException {
+    return get(ProgramSequencePattern.class, id);
   }
 
   /**
@@ -217,8 +166,8 @@ public class HubContent {
    @param id of ProgramSequenceBinding to get
    @return ProgramSequenceBinding
    */
-  public ProgramSequenceBinding getProgramSequenceBinding(UUID id) {
-    return this.programSequenceBindings.get(id);
+  public ProgramSequenceBinding getProgramSequenceBinding(String id) throws HubClientException {
+    return get(ProgramSequenceBinding.class, id);
   }
 
   /**
@@ -227,8 +176,8 @@ public class HubContent {
    @param id of ProgramSequenceBindingMeme to get
    @return ProgramSequenceBindingMeme
    */
-  public ProgramSequenceBindingMeme getProgramSequenceBindingMeme(UUID id) {
-    return this.programSequenceBindingMemes.get(id);
+  public ProgramSequenceBindingMeme getProgramSequenceBindingMeme(String id) throws HubClientException {
+    return get(ProgramSequenceBindingMeme.class, id);
   }
 
   /**
@@ -237,8 +186,8 @@ public class HubContent {
    @param id of ProgramSequenceChord to get
    @return ProgramSequenceChord
    */
-  public ProgramSequenceChord getProgramSequenceChord(UUID id) {
-    return this.programSequenceChords.get(id);
+  public ProgramSequenceChord getProgramSequenceChord(String id) throws HubClientException {
+    return get(ProgramSequenceChord.class, id);
   }
 
   /**
@@ -247,8 +196,8 @@ public class HubContent {
    @param id of ProgramSequence to get
    @return ProgramSequence
    */
-  public ProgramSequence getProgramSequence(UUID id) {
-    return this.programSequences.get(id);
+  public ProgramSequence getProgramSequence(String id) throws HubClientException {
+    return get(ProgramSequence.class, id);
   }
 
   /**
@@ -257,8 +206,8 @@ public class HubContent {
    @param id of ProgramVoiceTrack to get
    @return ProgramVoiceTrack
    */
-  public ProgramVoiceTrack getProgramTrack(UUID id) {
-    return this.programTracks.get(id);
+  public ProgramVoiceTrack getProgramVoiceTrack(String id) throws HubClientException {
+    return get(ProgramVoiceTrack.class, id);
   }
 
   /**
@@ -267,18 +216,17 @@ public class HubContent {
    @param id of ProgramVoice to get
    @return ProgramVoice
    */
-  public ProgramVoice getProgramVoice(UUID id) {
-    return this.programVoices.get(id);
+  public ProgramVoice getProgramVoice(String id) throws HubClientException {
+    return get(ProgramVoice.class, id);
   }
-
 
   /**
    get all cached Programs
 
    @return cached Programs
    */
-  public Collection<Program> getAllPrograms() {
-    return programs.values();
+  public Collection<Program> getAllPrograms() throws HubClientException {
+    return getAll(Program.class);
   }
 
   /**
@@ -286,8 +234,8 @@ public class HubContent {
 
    @return cached InstrumentAudios
    */
-  public Collection<InstrumentAudio> getAllInstrumentAudios() {
-    return instrumentAudios.values();
+  public Collection<InstrumentAudio> getAllInstrumentAudios() throws HubClientException {
+    return getAll(InstrumentAudio.class);
   }
 
   /**
@@ -295,8 +243,8 @@ public class HubContent {
 
    @return cached InstrumentAudioChords
    */
-  public Collection<InstrumentAudioChord> getAllInstrumentAudioChords() {
-    return instrumentAudioChords.values();
+  public Collection<InstrumentAudioChord> getAllInstrumentAudioChords() throws HubClientException {
+    return getAll(InstrumentAudioChord.class);
   }
 
   /**
@@ -304,8 +252,8 @@ public class HubContent {
 
    @return cached InstrumentAudioEvents
    */
-  public Collection<InstrumentAudioEvent> getAllInstrumentAudioEvents() {
-    return instrumentAudioEvents.values();
+  public Collection<InstrumentAudioEvent> getAllInstrumentAudioEvents() throws HubClientException {
+    return getAll(InstrumentAudioEvent.class);
   }
 
   /**
@@ -313,8 +261,8 @@ public class HubContent {
 
    @return cached InstrumentMemes
    */
-  public Collection<InstrumentMeme> getAllInstrumentMemes() {
-    return instrumentMemes.values();
+  public Collection<InstrumentMeme> getAllInstrumentMemes() throws HubClientException {
+    return getAll(InstrumentMeme.class);
   }
 
   /**
@@ -322,8 +270,8 @@ public class HubContent {
 
    @return cached ProgramEvents
    */
-  public Collection<ProgramSequencePatternEvent> getAllProgramSequencePatternEvents() {
-    return programEvents.values();
+  public Collection<ProgramSequencePatternEvent> getAllProgramSequencePatternEvents() throws HubClientException {
+    return getAll(ProgramSequencePatternEvent.class);
   }
 
   /**
@@ -331,8 +279,8 @@ public class HubContent {
 
    @return cached ProgramMemes
    */
-  public Collection<ProgramMeme> getAllProgramMemes() {
-    return programMemes.values();
+  public Collection<ProgramMeme> getAllProgramMemes() throws HubClientException {
+    return getAll(ProgramMeme.class);
   }
 
   /**
@@ -340,8 +288,8 @@ public class HubContent {
 
    @return cached ProgramPatterns
    */
-  public Collection<ProgramSequencePattern> getAllProgramSequencePatterns() {
-    return programPatterns.values();
+  public Collection<ProgramSequencePattern> getAllProgramSequencePatterns() throws HubClientException {
+    return getAll(ProgramSequencePattern.class);
   }
 
   /**
@@ -349,8 +297,8 @@ public class HubContent {
 
    @return cached ProgramSequences
    */
-  public Collection<ProgramSequence> getAllProgramSequences() {
-    return programSequences.values();
+  public Collection<ProgramSequence> getAllProgramSequences() throws HubClientException {
+    return getAll(ProgramSequence.class);
   }
 
   /**
@@ -358,8 +306,8 @@ public class HubContent {
 
    @return cached ProgramSequenceBindings
    */
-  public Collection<ProgramSequenceBinding> getAllProgramSequenceBindings() {
-    return programSequenceBindings.values();
+  public Collection<ProgramSequenceBinding> getAllProgramSequenceBindings() throws HubClientException {
+    return getAll(ProgramSequenceBinding.class);
   }
 
   /**
@@ -367,8 +315,8 @@ public class HubContent {
 
    @return cached ProgramSequenceBindingMemes
    */
-  public Collection<ProgramSequenceBindingMeme> getAllProgramSequenceBindingMemes() {
-    return programSequenceBindingMemes.values();
+  public Collection<ProgramSequenceBindingMeme> getAllProgramSequenceBindingMemes() throws HubClientException {
+    return getAll(ProgramSequenceBindingMeme.class);
   }
 
   /**
@@ -376,8 +324,17 @@ public class HubContent {
 
    @return cached ProgramSequenceChords
    */
-  public Collection<ProgramSequenceChord> getAllProgramSequenceChords() {
-    return programSequenceChords.values();
+  public Collection<ProgramSequenceChord> getAllProgramSequenceChords() throws HubClientException {
+    return getAll(ProgramSequenceChord.class);
+  }
+
+  /**
+   get all cached ProgramSequenceChordVoicings
+
+   @return cached ProgramSequenceChordVoicings
+   */
+  public Collection<ProgramSequenceChordVoicing> getAllProgramSequenceChordVoicings() throws HubClientException {
+    return getAll(ProgramSequenceChordVoicing.class);
   }
 
   /**
@@ -385,8 +342,8 @@ public class HubContent {
 
    @return cached ProgramTracks
    */
-  public Collection<ProgramVoiceTrack> getAllProgramTracks() {
-    return programTracks.values();
+  public Collection<ProgramVoiceTrack> getAllProgramVoiceTracks() throws HubClientException {
+    return getAll(ProgramVoiceTrack.class);
   }
 
   /**
@@ -394,8 +351,8 @@ public class HubContent {
 
    @return cached ProgramVoices
    */
-  public Collection<ProgramVoice> getAllProgramVoices() {
-    return programVoices.values();
+  public Collection<ProgramVoice> getAllProgramVoices() throws HubClientException {
+    return getAll(ProgramVoice.class);
   }
 
   /**
@@ -403,8 +360,8 @@ public class HubContent {
 
    @return cached Instruments
    */
-  public Collection<Instrument> getAllInstruments() {
-    return instruments.values();
+  public Collection<Instrument> getAllInstruments() throws HubClientException {
+    return getAll(Instrument.class);
   }
 
   /**
@@ -412,7 +369,7 @@ public class HubContent {
 
    @return collection of sequences
    */
-  public Collection<Program> getProgramsOfType(ProgramType type) {
+  public Collection<Program> getProgramsOfType(Program.Type type) throws HubClientException {
     return getAllPrograms().stream()
       .filter(program -> program.getType().equals(type))
       .collect(Collectors.toList());
@@ -423,35 +380,10 @@ public class HubContent {
 
    @return collection of instruments
    */
-  public Collection<Instrument> getInstrumentsOfType(InstrumentType type) {
+  public Collection<Instrument> getInstrumentsOfType(Instrument.Type type) throws HubClientException {
     return getAllInstruments().stream()
       .filter(instrument -> instrument.getType().equals(type))
       .collect(Collectors.toList());
-  }
-
-  /**
-   Get a collection of all entities
-
-   @return collection of all entities
-   */
-  public Collection<Entity> getAllEntities() {
-    return ImmutableList.<Entity>builder()
-      .addAll(instrumentAudioChords.values())
-      .addAll(instrumentAudios.values())
-      .addAll(instrumentAudioEvents.values())
-      .addAll(instruments.values())
-      .addAll(instrumentMemes.values())
-      .addAll(programs.values())
-      .addAll(programEvents.values())
-      .addAll(programMemes.values())
-      .addAll(programPatterns.values())
-      .addAll(programSequenceBindings.values())
-      .addAll(programSequenceBindingMemes.values())
-      .addAll(programSequenceChords.values())
-      .addAll(programSequences.values())
-      .addAll(programTracks.values())
-      .addAll(programVoices.values())
-      .build();
   }
 
   /**
@@ -460,7 +392,7 @@ public class HubContent {
   @Override
   public String toString() {
     Multiset<String> entityHistogram = ConcurrentHashMultiset.create();
-    getAllEntities().forEach((Object obj) -> entityHistogram.add(Text.getSimpleName(obj)));
+    getAll().forEach((Object obj) -> entityHistogram.add(Text.getSimpleName(obj)));
     List<String> descriptors = Lists.newArrayList();
     Collection<String> names = Ordering.from(String.CASE_INSENSITIVE_ORDER).sortedCopy(entityHistogram.elementSet());
     names.forEach((String name) -> descriptors.add(String.format("%d %s", entityHistogram.count(name), name)));
@@ -473,8 +405,8 @@ public class HubContent {
    @param program to get memes for
    @return memes of program
    */
-  public Collection<ProgramMeme> getMemes(Program program) {
-    return programMemes.values().stream()
+  public Collection<ProgramMeme> getMemes(Program program) throws HubClientException {
+    return getAllProgramMemes().stream()
       .filter(m -> m.getProgramId().equals(program.getId()))
       .collect(Collectors.toList());
   }
@@ -485,8 +417,8 @@ public class HubContent {
    @param program to get events for
    @return events for given program
    */
-  public Collection<ProgramSequencePatternEvent> getEvents(Program program) {
-    return programEvents.values().stream()
+  public Collection<ProgramSequencePatternEvent> getEvents(Program program) throws HubClientException {
+    return getAllProgramSequencePatternEvents().stream()
       .filter(m -> m.getProgramId().equals(program.getId()))
       .collect(Collectors.toList());
   }
@@ -497,8 +429,8 @@ public class HubContent {
    @param programPattern to get events for
    @return events for given program pattern
    */
-  public Collection<ProgramSequencePatternEvent> getEvents(ProgramSequencePattern programPattern) {
-    return programEvents.values().stream()
+  public Collection<ProgramSequencePatternEvent> getEvents(ProgramSequencePattern programPattern) throws HubClientException {
+    return getAllProgramSequencePatternEvents().stream()
       .filter(m -> m.getProgramSequencePatternId().equals(programPattern.getId()))
       .collect(Collectors.toList());
   }
@@ -509,8 +441,8 @@ public class HubContent {
    @param instrument to get memes for
    @return memes of instrument
    */
-  public Collection<InstrumentMeme> getMemes(Instrument instrument) {
-    return instrumentMemes.values().stream()
+  public Collection<InstrumentMeme> getMemes(Instrument instrument) throws HubClientException {
+    return getAllInstrumentMemes().stream()
       .filter(m -> m.getInstrumentId().equals(instrument.getId()))
       .collect(Collectors.toList());
   }
@@ -521,8 +453,8 @@ public class HubContent {
    @param uuid of instrument to get audios for
    @return audios of instrument id
    */
-  public Collection<InstrumentAudio> getAudiosForInstrumentId(UUID uuid) {
-    return instrumentAudios.values().stream()
+  public Collection<InstrumentAudio> getAudiosForInstrumentId(String uuid) throws HubClientException {
+    return getAllInstrumentAudios().stream()
       .filter(a -> a.getInstrumentId().equals(uuid))
       .collect(Collectors.toList());
   }
@@ -533,7 +465,7 @@ public class HubContent {
    @param instrument to get audios for
    @return audios for instrument
    */
-  public Collection<InstrumentAudio> getAudios(Instrument instrument) {
+  public Collection<InstrumentAudio> getAudios(Instrument instrument) throws HubClientException {
     return getAudiosForInstrumentId(instrument.getId());
   }
 
@@ -543,8 +475,8 @@ public class HubContent {
    @param audio to get events for
    @return events of audio
    */
-  public Collection<InstrumentAudioEvent> getEvents(InstrumentAudio audio) {
-    return instrumentAudioEvents.values().stream()
+  public Collection<InstrumentAudioEvent> getEvents(InstrumentAudio audio) throws HubClientException {
+    return getAllInstrumentAudioEvents().stream()
       .filter(e -> e.getInstrumentAudioId().equals(audio.getId()))
       .collect(Collectors.toList());
   }
@@ -555,8 +487,8 @@ public class HubContent {
    @param audio to get chords for
    @return chords of audio
    */
-  public Collection<InstrumentAudioChord> getChords(InstrumentAudio audio) {
-    return instrumentAudioChords.values().stream()
+  public Collection<InstrumentAudioChord> getChords(InstrumentAudio audio) throws HubClientException {
+    return getAllInstrumentAudioChords().stream()
       .filter(e -> e.getInstrumentAudioId().equals(audio.getId()))
       .collect(Collectors.toList());
   }
@@ -567,8 +499,8 @@ public class HubContent {
    @param sequence to get chords for
    @return chords of sequence
    */
-  public Collection<ProgramSequenceChord> getChords(ProgramSequence sequence) {
-    return programSequenceChords.values().stream()
+  public Collection<ProgramSequenceChord> getChords(ProgramSequence sequence) throws HubClientException {
+    return getAllProgramSequenceChords().stream()
       .filter(e -> e.getProgramSequenceId().equals(sequence.getId()))
       .collect(Collectors.toList());
   }
@@ -579,8 +511,8 @@ public class HubContent {
    @param programSequenceBinding to get memes for
    @return memes
    */
-  public Collection<ProgramSequenceBindingMeme> getMemes(ProgramSequenceBinding programSequenceBinding) {
-    return programSequenceBindingMemes.values().stream()
+  public Collection<ProgramSequenceBindingMeme> getMemes(ProgramSequenceBinding programSequenceBinding) throws HubClientException {
+    return getAllProgramSequenceBindingMemes().stream()
       .filter(m -> m.getProgramSequenceBindingId().equals(programSequenceBinding.getId()))
       .collect(Collectors.toList());
   }
@@ -591,8 +523,8 @@ public class HubContent {
    @param program to get sequence bindings for
    @return all sequence bindings for given program
    */
-  public Collection<ProgramSequenceBinding> getSequenceBindings(Program program) {
-    return programSequenceBindings.values().stream()
+  public Collection<ProgramSequenceBinding> getSequenceBindings(Program program) throws HubClientException {
+    return getAllProgramSequenceBindings().stream()
       .filter(m -> m.getProgramId().equals(program.getId()))
       .collect(Collectors.toList());
   }
@@ -603,8 +535,8 @@ public class HubContent {
    @param program to get program sequences for
    @return all program sequences for given program
    */
-  public Collection<ProgramSequence> getSequences(Program program) {
-    return programSequences.values().stream()
+  public Collection<ProgramSequence> getSequences(Program program) throws HubClientException {
+    return getAllProgramSequences().stream()
       .filter(m -> m.getProgramId().equals(program.getId()))
       .collect(Collectors.toList());
   }
@@ -615,8 +547,8 @@ public class HubContent {
    @param sequenceBinding to get program sequence for
    @return program sequence for the given program sequence binding
    */
-  public ProgramSequence getSequence(ProgramSequenceBinding sequenceBinding) {
-    return programSequences.get(sequenceBinding.getProgramSequenceId());
+  public ProgramSequence getProgramSequence(ProgramSequenceBinding sequenceBinding) throws HubClientException {
+    return getProgramSequence(sequenceBinding.getProgramSequenceId());
   }
 
   /**
@@ -624,13 +556,12 @@ public class HubContent {
 
    @param instrument to get audio for
    @return audio events
-   @throws HubClientException on failure
    */
-  public Collection<InstrumentAudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) {
+  public Collection<InstrumentAudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) throws HubClientException {
     Map<String, InstrumentAudioEvent> result = Maps.newHashMap();
-    getAudios(instrument).forEach(audio ->
+    for (InstrumentAudio audio : getAudios(instrument)) {
       getEvents(audio).stream().filter(search -> search.getInstrumentAudioId().equals(audio.getId())).forEach(audioEvent -> {
-        String key = audioEvent.getInstrumentAudioId().toString();
+        String key = audioEvent.getInstrumentAudioId();
         if (result.containsKey(key)) {
           if (audioEvent.getPosition() < result.get(key).getPosition()) {
             result.put(key, audioEvent);
@@ -638,7 +569,8 @@ public class HubContent {
         } else {
           result.put(key, audioEvent);
         }
-      }));
+      });
+    }
     return result.values();
   }
 
@@ -646,21 +578,20 @@ public class HubContent {
    Fetch all memes for a given program at sequence binding offset 0
 
    @return collection of sequence memes
-   @throws HubClientException on failure
    */
-  public Collection<MemeEntity> getMemesAtBeginning(Program program) {
-    Map<String, MemeEntity> memes = Maps.newHashMap();
+  public Collection<String> getMemesAtBeginning(Program program) throws HubClientException {
+    Map<String, Boolean> memes = Maps.newHashMap();
 
     // add sequence memes
     getMemes(program).forEach((meme ->
-      memes.put(meme.getName(), meme)));
+      memes.put(meme.getName(), true)));
 
     // add sequence binding memes
-    getProgramSequenceBindingsAtOffset(program, 0L).forEach(sequenceBinding ->
-      getMemes(sequenceBinding).forEach(meme ->
-        memes.put(meme.getName(), meme)));
+    for (ProgramSequenceBinding sequenceBinding : getProgramSequenceBindingsAtOffset(program, 0L))
+      for (ProgramSequenceBindingMeme meme : getMemes(sequenceBinding))
+        memes.put(meme.getName(), true);
 
-    return memes.values();
+    return memes.keySet();
   }
 
   /**
@@ -670,9 +601,23 @@ public class HubContent {
    @param offset  to get sequence bindings at
    @return sequence bindings at offset
    */
-  public Collection<ProgramSequenceBinding> getProgramSequenceBindingsAtOffset(Program program, Long offset) {
+  public Collection<ProgramSequenceBinding> getProgramSequenceBindingsAtOffset(Program program, Long offset) throws HubClientException {
     return getAllProgramSequenceBindings().stream()
-      .filter(psb -> psb.getProgramId().equals(program.getId()) && psb.getOffset().equals(offset))
+      .filter(psb ->
+        Objects.equals(psb.getProgramId(), program.getId()) &&
+          Objects.equals(psb.getOffset(), offset))
+      .collect(Collectors.toList());
+  }
+
+  /**
+   Get program sequence chord voicings
+
+   @param programId to get sequence chord voicings of
+   @return sequence chord voicings for program
+   */
+  public List<ProgramSequenceChordVoicing> getProgramSequenceChordVoicings(String programId) throws HubClientException {
+    return getAllProgramSequenceChordVoicings().stream()
+      .filter(psb -> psb.getProgramId().equals(programId))
       .collect(Collectors.toList());
   }
 
@@ -682,8 +627,8 @@ public class HubContent {
    @param event to get program voice of
    @return Program voice for the given program event
    */
-  public ProgramVoice getVoice(ProgramSequencePatternEvent event) {
-    return programVoices.get(getTrack(event).getProgramVoiceId());
+  public ProgramVoice getVoice(ProgramSequencePatternEvent event) throws HubClientException {
+    return getProgramVoice(getTrack(event).getProgramVoiceId());
   }
 
   /**
@@ -692,8 +637,8 @@ public class HubContent {
    @param event to get program track of
    @return Program track for the given program event
    */
-  public ProgramVoiceTrack getTrack(ProgramSequencePatternEvent event) {
-    return programTracks.get(event.getProgramVoiceTrackId());
+  public ProgramVoiceTrack getTrack(ProgramSequencePatternEvent event) throws HubClientException {
+    return getProgramVoiceTrack(event.getProgramVoiceTrackId());
   }
 
   /**
@@ -702,8 +647,8 @@ public class HubContent {
    @param program to get program voices for
    @return program voices for the given program
    */
-  public Collection<ProgramVoice> getVoices(Program program) {
-    return programVoices.values().stream()
+  public Collection<ProgramVoice> getVoices(Program program) throws HubClientException {
+    return getAllProgramVoices().stream()
       .filter(m -> m.getProgramId().equals(program.getId()))
       .collect(Collectors.toList());
   }
@@ -714,20 +659,61 @@ public class HubContent {
    @return total number of entities in this Hub Content
    */
   public int size() {
-    return instrumentAudioChords.size() +
-      instrumentAudios.size() +
-      instrumentAudioEvents.size() +
-      instruments.size() +
-      instrumentMemes.size() +
-      programs.size() +
-      programEvents.size() +
-      programMemes.size() +
-      programPatterns.size() +
-      programSequenceBindings.size() +
-      programSequenceBindingMemes.size() +
-      programSequenceChords.size() +
-      programSequences.size() +
-      programTracks.size() +
-      programVoices.size();
+    return store.values().stream()
+      .mapToInt(Map::size)
+      .sum();
   }
+
+  /**
+   Get an entity of a given type and id from the store, or throw an exception
+
+   @param type to get
+   @param id   to get
+   @param <E>  class
+   @return entity
+   @throws HubClientException on failure, or if nonexistent
+   */
+  private <E> E get(Class<E> type, String id) throws HubClientException {
+    try {
+      if (store.containsKey(type) && store.get(type).containsKey(id))
+        //noinspection unchecked
+        return (E) store.get(type).get(id);
+      // otherwise
+      throw new HubClientException(String.format("%s[%s] not in content!", type.getSimpleName(), id));
+
+    } catch (Exception e) {
+      throw new HubClientException(String.format("Failed to retrieve %s[%s]!", type.getSimpleName(), id), e);
+    }
+  }
+
+  /**
+   Get all entities of a given type from the store, or throw an exception
+
+   @param type to get
+   @param <E>  class
+   @return entity
+   @throws HubClientException on failure, or if nonexistent
+   */
+  private <E> Collection<E> getAll(Class<E> type) throws HubClientException {
+    try {
+      if (store.containsKey(type))
+        //noinspection unchecked
+        return (Collection<E>) store.get(type).values();
+      return ImmutableList.of();
+
+    } catch (Exception e) {
+      throw new HubClientException(String.format("Failed to retrieve all %s!", type.getSimpleName()), e);
+    }
+  }
+
+  /**
+   Get all entities from the store
+
+   @return all entities
+   */
+  public Collection<Object> getAll() {
+    return store.values().stream()
+      .flatMap(map -> map.values().stream()).collect(Collectors.toList());
+  }
+
 }

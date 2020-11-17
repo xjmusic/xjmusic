@@ -1,14 +1,75 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.dao;
 
-import io.xj.lib.entity.Entity;
+import com.google.protobuf.GeneratedMessageLite;
+import io.xj.Instrument;
+import io.xj.lib.util.CSV;
+import io.xj.lib.util.Text;
+import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.Instrument;
 
 import java.util.Collection;
-import java.util.UUID;
+import java.util.List;
+import java.util.Objects;
 
 public interface InstrumentDAO extends DAO<Instrument> {
+
+  /**
+   String Values
+
+   @return ImmutableList of string values
+   */
+  static List<String> instrumentTypeStringValues() {
+    return Text.toStrings(Instrument.Type.values());
+  }
+
+  /**
+   cast string to enum
+
+   @param value to cast to enum
+   @return enum
+   @throws ValueException on failure
+   */
+  static Instrument.Type validateInstrumentType(String value) throws ValueException {
+    if (Objects.isNull(value))
+      throw new ValueException("Type is required");
+
+    try {
+      return Instrument.Type.valueOf(Text.toProperSlug(value));
+    } catch (Exception e) {
+      throw new ValueException("'" + value + "' is not a valid type (" + CSV.joinEnum(Instrument.Type.values()) + ").", e);
+    }
+  }
+
+  /**
+   String Values
+
+   @return ImmutableList of string values
+   */
+  static List<String> instrumentStateStringValues() {
+    return Text.toStrings(Instrument.State.values());
+  }
+
+  /**
+   cast string to enum
+   <p>
+   Maybe in future: [#294] Instrument can be createdin draft state, then published
+   </p>
+
+   @param value to cast to enum
+   @return config state enum
+   @throws ValueException on failure
+   */
+  static Instrument.State validateInstrumentState(String value) throws ValueException {
+    if (Objects.isNull(value))
+      return Instrument.State.Published;
+
+    try {
+      return Instrument.State.valueOf(Text.toProperSlug(value));
+    } catch (Exception ignored) {
+      throw new ValueException("'" + value + "' is not a valid state (" + CSV.joinEnum(Instrument.State.values()) + ").");
+    }
+  }
 
   /**
    Clone a Instrument into a new Instrument
@@ -19,7 +80,7 @@ public interface InstrumentDAO extends DAO<Instrument> {
    @param entity    for the new Instrument
    @return newly readMany record
    */
-  Instrument clone(HubAccess hubAccess, UUID cloneId, Instrument entity) throws DAOException;
+  Instrument clone(HubAccess hubAccess, String cloneId, Instrument entity) throws DAOException;
 
   /**
    Fetch many instrument for one Account by id, if accessible
@@ -29,7 +90,7 @@ public interface InstrumentDAO extends DAO<Instrument> {
    @return Collection of instruments.
    @throws DAOException on failure
    */
-  Collection<Instrument> readManyInAccount(HubAccess hubAccess, UUID accountId) throws DAOException;
+  Collection<Instrument> readManyInAccount(HubAccess hubAccess, String accountId) throws DAOException;
 
   /**
    Fetch all instrument visible to given hubAccess
@@ -47,7 +108,7 @@ public interface InstrumentDAO extends DAO<Instrument> {
    @param libraryIds of which to get all instrument ids
    @return instrument ids in the specified library ids
    */
-  Collection<UUID> readIdsInLibraries(HubAccess hubAccess, Collection<UUID> libraryIds) throws DAOException;
+  Collection<String> readIdsInLibraries(HubAccess hubAccess, Collection<String> libraryIds) throws DAOException;
 
   /**
    Read many instruments including all child entities
@@ -56,5 +117,5 @@ public interface InstrumentDAO extends DAO<Instrument> {
    @param instrumentIds to read
    @return collection of entities
    */
-  Collection<Entity> readManyWithChildEntities(HubAccess hubAccess, Collection<UUID> instrumentIds) throws DAOException;
+  <N extends GeneratedMessageLite<N, ?>> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<String> instrumentIds) throws DAOException;
 }

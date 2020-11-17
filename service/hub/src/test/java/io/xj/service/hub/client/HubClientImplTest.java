@@ -13,23 +13,30 @@ import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-import io.xj.lib.entity.Entity;
+import io.xj.Account;
+import io.xj.User;
+import io.xj.UserAuth;
+import io.xj.UserRole;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityModule;
+import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.PayloadFactory;
-import io.xj.lib.jsonapi.JsonApiException;
-import io.xj.service.hub.HubContentFixtures;
 import io.xj.service.hub.HubApp;
-import io.xj.service.hub.entity.*;
+import io.xj.service.hub.HubContentFixtures;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -45,7 +52,7 @@ public class HubClientImplTest {
 
   HubClient subject;
   private HubContentFixtures content;
-  private Collection<? extends Entity> hubEntities;
+  private Collection<?> hubEntities;
 
   @Before
   public void setUp() throws Exception {
@@ -78,7 +85,7 @@ public class HubClientImplTest {
       .setDataMany(payloadFactory.toPayloadObjects(hubEntities)));
     stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/ingest"))
       .withQueryParams(ImmutableMap.of(
-        "libraryIds", new EqualToPattern(content.library2.getId().toString()),
+        "libraryIds", new EqualToPattern(content.library2.getId()),
         "programIds", new EqualToPattern(""),
         "instrumentIds", new EqualToPattern("")
       ))
@@ -87,12 +94,12 @@ public class HubClientImplTest {
         .withStatus(200)
         .withHeader("Content-Type", MediaType.APPLICATION_JSON)
         .withBody(hubContentBody)));
-    HubClientAccess access = HubClientAccess.create(content.user2, ImmutableList.of(content.account1), "Artist")
+    HubClientAccess access = HubContentFixtures.buildHubClientAccess(content.user2, ImmutableList.of(content.account1), "Artist")
       .setToken("secret_token_123");
 
     HubContent result = subject.ingest(access, ImmutableSet.of(content.library2.getId()), ImmutableSet.of(), ImmutableSet.of());
 
-    assertEquals(45, result.getAllEntities().size());
+    assertEquals(48, result.getAll().size());
     assertEquals(0, result.getAllInstrumentAudioChords().size());
     assertEquals(0, result.getAllInstrumentAudios().size());
     assertEquals(0, result.getAllInstrumentAudioEvents().size());
@@ -106,15 +113,23 @@ public class HubClientImplTest {
     assertEquals(6, result.getAllProgramSequenceBindingMemes().size());
     assertEquals(5, result.getAllProgramSequenceChords().size());
     assertEquals(6, result.getAllProgramSequences().size());
-    assertEquals(4, result.getAllProgramTracks().size());
+    assertEquals(4, result.getAllProgramVoiceTracks().size());
     assertEquals(1, result.getAllProgramVoices().size());
   }
 
   @Test
   public void auth() throws HubClientException {
-    User user1 = User.create();
-    Account account1 = Account.create();
-    UserAuth userAuth1 = UserAuth.create(user1, UserAuthType.Google);
+    User user1 = User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    Account account1 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    UserAuth userAuth1 = UserAuth.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setUserId(user1.getId())
+      .setType(UserAuth.Type.Google)
+      .build();
     stubFor(com.github.tomakehurst.wiremock.client.WireMock.any(urlEqualTo("/auth"))
       .withHeader("Cookie", equalTo("access_token=secret_token_123"))
       .willReturn(aResponse()
@@ -126,11 +141,12 @@ public class HubClientImplTest {
     HubClientAccess result = subject.auth("secret_token_123");
 
     assertEquals(2, result.getRoleTypes().size());
-    assertEquals(UserRoleType.User, result.getRoleTypes().toArray()[0]);
-    assertEquals(UserRoleType.Admin, result.getRoleTypes().toArray()[1]);
+    assertEquals(UserRole.Type.User, result.getRoleTypes().toArray()[0]);
+    assertEquals(UserRole.Type.Admin, result.getRoleTypes().toArray()[1]);
     assertEquals(1, result.getAccountIds().size());
     assertEquals(account1.getId(), result.getAccountIds().toArray()[0]);
     assertEquals(user1.getId(), result.getUserId());
     assertEquals(userAuth1.getId(), result.getUserAuthId());
   }
+
 }

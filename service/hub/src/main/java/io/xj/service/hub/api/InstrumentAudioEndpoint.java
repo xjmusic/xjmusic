@@ -4,7 +4,8 @@ package io.xj.service.hub.api;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.Entity;
+import io.xj.InstrumentAudio;
+import io.xj.lib.entity.Entities;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.Payload;
@@ -15,8 +16,6 @@ import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.InstrumentAudioChordDAO;
 import io.xj.service.hub.dao.InstrumentAudioDAO;
 import io.xj.service.hub.dao.InstrumentAudioEventDAO;
-import io.xj.service.hub.entity.InstrumentAudio;
-import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -34,7 +33,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  InstrumentAudio endpoint
@@ -71,14 +69,14 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed({ARTIST})
   public Response create(Payload payload, @Context ContainerRequestContext crc, @QueryParam("cloneId") String cloneId) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
       InstrumentAudio instrumentAudio = payloadFactory.consume(dao().newInstance(), payload);
       InstrumentAudio created;
       if (Objects.nonNull(cloneId))
-        created = dao().clone(hubAccess, UUID.fromString(cloneId), instrumentAudio);
+        created = dao().clone(hubAccess, cloneId, instrumentAudio);
       else
         created = dao().create(hubAccess, instrumentAudio);
 
@@ -96,17 +94,17 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
    */
   @GET
   @Path("{id}/upload")
-  @RolesAllowed(UserRoleType.ARTIST)
+  @RolesAllowed(ARTIST)
   public Response uploadOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     try {
-      Map<String, String> result = dao().authorizeUpload(HubAccess.fromContext(crc), UUID.fromString(id));
+      Map<String, String> result = dao().authorizeUpload(HubAccess.fromContext(crc), id);
       if (null != result) {
         return Response
           .accepted(payloadFactory.serialize(result))
           .type(MediaType.APPLICATION_JSON)
           .build();
       } else {
-        return response.notFound(dao.newInstance().setId(UUID.fromString(id)));
+        return response.notFound(dao.newInstance().getClass(), id);
       }
 
 
@@ -122,7 +120,7 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed({ARTIST})
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -134,7 +132,7 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed({ARTIST})
   public Response readMany(
     @Context ContainerRequestContext crc,
     @QueryParam("instrumentId") String instrumentId,
@@ -143,8 +141,8 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
       Payload payload = new Payload().setDataType(PayloadDataType.Many);
-      Collection<InstrumentAudio> instrumentAudios = dao.readMany(HubAccess.fromContext(crc), ImmutableList.of(UUID.fromString(instrumentId)));
-      Set<UUID> instrumentAudioIds = Entity.idsOf(instrumentAudios);
+      Collection<InstrumentAudio> instrumentAudios = dao.readMany(HubAccess.fromContext(crc), ImmutableList.of(instrumentId));
+      Set<String> instrumentAudioIds = Entities.idsOf(instrumentAudios);
 
       // add instrumentAudios as plural data in payload
       for (InstrumentAudio instrumentAudio : instrumentAudios)
@@ -177,7 +175,7 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed(UserRoleType.ARTIST)
+  @RolesAllowed(ARTIST)
   public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     return update(crc, dao(), id, payload);
   }
@@ -189,7 +187,7 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed({ARTIST})
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

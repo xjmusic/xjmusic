@@ -11,6 +11,15 @@ public class EntityStoreException extends Exception {
   /**
    Construct Entity Store Exception
 
+   @param message throwable to wrap in exception
+   */
+  public EntityStoreException(String message) {
+    super(message);
+  }
+
+  /**
+   Construct Entity Store Exception
+
    @param cause throwable to wrap in exception
    */
   public EntityStoreException(Throwable cause) {

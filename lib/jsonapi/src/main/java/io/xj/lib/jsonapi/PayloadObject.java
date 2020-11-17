@@ -10,7 +10,13 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  Object in a Payload sent/received to/from a XJ Music REST JSON:API service
@@ -259,7 +265,7 @@ public class PayloadObject {
    @param parentIds  of relationship
    @return true if this payload object has the requested belongs-to relationship
    */
-  public boolean belongsTo(Class<?> parentType, Collection<UUID> parentIds) {
+  public boolean belongsTo(Class<?> parentType, Collection<String> parentIds) {
     String key = Entities.toBelongsTo(type);
     return relationships.containsKey(key) &&
       relationships.get(key).hasDataOne(Entities.toType(type), parentIds);

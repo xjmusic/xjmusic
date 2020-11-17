@@ -4,16 +4,16 @@ package io.xj.service.nexus.api;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.Entity;
+import io.xj.Segment;
+import io.xj.lib.entity.Entities;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.util.Value;
 import io.xj.service.hub.client.HubClientAccess;
-import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.nexus.NexusEndpoint;
 import io.xj.service.nexus.dao.SegmentDAO;
-import io.xj.service.nexus.entity.Segment;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -58,20 +58,20 @@ public class SegmentEndpoint extends NexusEndpoint {
   @PermitAll
   public Response readMany(
     @Context ContainerRequestContext crc,
-    @QueryParam("chainId") String chainId,
+    @QueryParam("chainId") String chainIdentifier,
     @QueryParam("fromOffset") Long fromOffset,
     @QueryParam("fromSecondsUTC") Long fromSecondsUTC,
     @QueryParam("detailed") Boolean detailed
   ) {
-    if (Objects.isNull(chainId) || chainId.isEmpty())
+    if (Objects.isNull(chainIdentifier) || chainIdentifier.isEmpty())
       return response.notAcceptable("Chain id is required");
 
     try {
       // will only have value if this can parse a uuid from string
       // otherwise, ignore the exception on attempt and store a null value for uuid
-      UUID uuidId;
+      String uuidId;
       try {
-        uuidId = UUID.fromString(chainId);
+        uuidId = UUID.fromString(chainIdentifier).toString();
       } catch (Exception ignored) {
         uuidId = null;
       }
@@ -81,10 +81,10 @@ public class SegmentEndpoint extends NexusEndpoint {
 
       // chain is either by uuid or embed key
       Collection<Segment> segments;
-      if (Objects.nonNull(uuidId))
-        segments = readManySegmentsByChainId(HubClientAccess.fromContext(crc), chainId, fromOffset, fromSecondsUTC); // uuid
+      if (Value.isNonNull(uuidId))
+        segments = readManySegmentsByChainId(HubClientAccess.fromContext(crc), uuidId, fromOffset, fromSecondsUTC); // uuid
       else
-        segments = readManySegmentsByChainEmbedKey(chainId, fromOffset, fromSecondsUTC); // embed key
+        segments = readManySegmentsByChainEmbedKey(chainIdentifier, fromOffset, fromSecondsUTC); // embed key
 
       // add segments as plural data in payload
       for (Segment segment : segments) payload.addData(payloadFactory.toPayloadObject(segment));
@@ -93,7 +93,7 @@ public class SegmentEndpoint extends NexusEndpoint {
       // use internal access because we already cleared these segment ids from access control,
       // and there is no access object when reading chain by embed key
       if (Objects.nonNull(detailed) && detailed)
-        for (Entity entity : dao().readManySubEntities(HubClientAccess.internal(), Entity.idsOf(segments), false))
+        for (Object entity : dao().readManySubEntities(HubClientAccess.internal(), Entities.idsOf(segments), false))
           payload.getIncluded().add(payloadFactory.toPayloadObject(entity));
 
       // done
@@ -111,7 +111,7 @@ public class SegmentEndpoint extends NexusEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed(UserRoleType.USER)
+  @RolesAllowed(USER)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -130,12 +130,12 @@ public class SegmentEndpoint extends NexusEndpoint {
   private Collection<Segment> readManySegmentsByChainId(HubClientAccess access, String chainId, Long fromOffset, Long fromSecondsUTC) throws Exception {
 
     if (Objects.nonNull(fromOffset))
-      return dao().readManyFromOffset(access, UUID.fromString(chainId), fromOffset);
+      return dao().readManyFromOffset(access, chainId, fromOffset);
 
     if (Objects.nonNull(fromSecondsUTC))
-      return dao().readManyFromSecondsUTC(access, UUID.fromString(chainId), fromSecondsUTC);
+      return dao().readManyFromSecondsUTC(access, chainId, fromSecondsUTC);
 
-    return dao().readMany(access, ImmutableList.of(UUID.fromString(chainId)));
+    return dao().readMany(access, ImmutableList.of(chainId));
   }
 
   /**
@@ -153,12 +153,12 @@ public class SegmentEndpoint extends NexusEndpoint {
   private Collection<Segment> readManySegmentsByChainEmbedKey(String embedKey, Long fromOffset, Long fromSecondsUTC) throws Exception {
 
     if (Objects.nonNull(fromOffset))
-      return dao().readManyFromOffset(HubClientAccess.internal(), embedKey, fromOffset);
+      return dao().readManyFromOffsetByEmbedKey(HubClientAccess.internal(), embedKey, fromOffset);
 
     if (Objects.nonNull(fromSecondsUTC))
-      return dao().readManyFromSecondsUTC(HubClientAccess.internal(), embedKey, fromSecondsUTC);
+      return dao().readManyFromSecondsUTCbyEmbedKey(HubClientAccess.internal(), embedKey, fromSecondsUTC);
 
-    return dao().readMany(HubClientAccess.internal(), embedKey);
+    return dao().readManyByEmbedKey(HubClientAccess.internal(), embedKey);
   }
 
   /**

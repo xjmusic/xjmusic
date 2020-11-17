@@ -2,7 +2,6 @@
 package io.xj.service.hub.access;
 
 import com.google.inject.Inject;
-import io.xj.service.hub.client.HubClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

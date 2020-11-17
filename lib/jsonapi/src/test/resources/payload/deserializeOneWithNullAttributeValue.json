@@ -1,12 +1,12 @@
 {
   "data": {
     "id": "5d5db584-0530-4477-8a5b-9429e779316e",
-    "type": "mock-entities",
+    "type": "programs",
     "relationships": {
-      "mockParentEntity": {
+      "library": {
         "data": {
           "id": "50622594-af99-4fa6-8279-cc403cd287ea",
-          "type": "mock-parent-entities"
+          "type": "libraries"
         }
       }
     },

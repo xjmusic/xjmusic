@@ -1,37 +1,31 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.entity.common;
 
-import io.xj.lib.entity.Entity;
+import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
-
-import java.util.Comparator;
 
 /**
  This represents common properties of all entities,
  although a ChordEntity only actually exists as a Segment ChordEntity, Pattern ChordEntity, etc.
  */
-public abstract class ChordEntity extends Entity {
-  /**
-   Sort Chords by Position in Ascending order
-   */
-  public static Comparator<? super ChordEntity> byPositionAscending = Comparator.comparing(ChordEntity::getPosition);
+public class ChordEntity {
   private String name;
   private Double position;
-
-  /*
-   Sort Chords by Position in Descending order
-   */
-//Comparator<? super ChordEntity> byPositionDescending = (Comparator<? super ChordEntity>) (o1, o2) -> o2.getPosition().compareTo(o1.getPosition());
 
   /**
    validation of common ChordEntity attributes
 
    @throws ValueException on invalid
    */
-  public static void validate(ChordEntity chord) throws ValueException {
-    Value.require(chord.getName(), "Name");
-    Value.require(chord.getPosition(), "Position");
+  public static void validate(Object chord) throws ValueException {
+    try {
+      Value.require(Entities.get(chord, "name"), "Name");
+      Value.require(Entities.get(chord, "position"), "Position");
+    } catch (EntityException e) {
+      throw new ValueException(e);
+    }
   }
 
   /**

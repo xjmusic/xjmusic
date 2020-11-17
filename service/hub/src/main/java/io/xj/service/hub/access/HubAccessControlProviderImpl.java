@@ -6,12 +6,11 @@ import com.google.api.services.plus.model.Person;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.EntityFactory;
+import io.xj.AccountUser;
+import io.xj.UserAuth;
+import io.xj.UserRole;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.dao.UserDAO;
-import io.xj.service.hub.entity.AccountUser;
-import io.xj.service.hub.entity.UserAuth;
-import io.xj.service.hub.entity.UserAuthType;
-import io.xj.service.hub.entity.UserRole;
 import io.xj.service.hub.persistence.HubRedisProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
   private final String tokenPath;
   private final int tokenMaxAge;
   private final Set<String> internalTokens;
-  private final EntityFactory entityFactory;
+  private final PayloadFactory payloadFactory;
 
   @Inject
   public HubAccessControlProviderImpl(
@@ -44,7 +43,7 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
     GoogleProvider googleProvider,
     UserDAO userDAO,
     Config config,
-    EntityFactory entityFactory
+    PayloadFactory payloadFactory
   ) {
     this.hubRedisProvider = hubRedisProvider;
     this.hubAccessTokenGenerator = hubAccessTokenGenerator;
@@ -57,7 +56,7 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
     tokenPath = config.getString("access.tokenPath");
     tokenMaxAge = config.getInt("access.tokenMaxAgeSeconds");
     internalTokens = ImmutableSet.of(config.getString("hub.internalToken"));
-    this.entityFactory = entityFactory;
+    this.payloadFactory = payloadFactory;
   }
 
   @Override
@@ -72,7 +71,7 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
     HubAccess hubAccess = HubAccess.create(userAuth, accountUsers, userRoles);
     Jedis client = hubRedisProvider.getClient();
     try {
-      client.set(computeKey(token), entityFactory.serialize(hubAccess));
+      client.set(computeKey(token), payloadFactory.serialize(hubAccess));
       client.close();
     } catch (Exception e) {
       client.close();
@@ -100,7 +99,7 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
 
     Jedis client = hubRedisProvider.getClient();
     try {
-      HubAccess hubAccess = entityFactory.deserialize(HubAccess.class, client.get(computeKey(token)));
+      HubAccess hubAccess = payloadFactory.deserialize(HubAccess.class, client.get(computeKey(token)));
       client.close();
       if (Objects.isNull(hubAccess)) throw new HubAccessException("Token does not exist!");
       return hubAccess;
@@ -151,7 +150,7 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
     }
 
     return userDAO.authenticate(
-      UserAuthType.Google,
+      UserAuth.Type.Google,
       person.getId(),
       externalAccessToken,
       externalRefreshToken,

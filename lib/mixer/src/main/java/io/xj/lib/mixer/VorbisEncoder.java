@@ -6,7 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.xiph.libogg.ogg_packet;
 import org.xiph.libogg.ogg_page;
 import org.xiph.libogg.ogg_stream_state;
-import org.xiph.libvorbis.*;
+import org.xiph.libvorbis.vorbis_block;
+import org.xiph.libvorbis.vorbis_comment;
+import org.xiph.libvorbis.vorbis_dsp_state;
+import org.xiph.libvorbis.vorbis_info;
+import org.xiph.libvorbis.vorbisenc;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

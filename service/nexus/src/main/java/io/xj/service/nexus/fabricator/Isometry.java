@@ -8,7 +8,11 @@ import org.apache.commons.codec.language.Metaphone;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /**
  Determine the isometry between a source and target group of Memes

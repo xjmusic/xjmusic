@@ -3,20 +3,19 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import io.xj.AccountUser;
+import io.xj.User;
+import io.xj.UserAuth;
+import io.xj.UserAuthToken;
+import io.xj.UserRole;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.CSV;
+import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.access.HubAccessControlProvider;
 import io.xj.service.hub.access.HubAccessException;
-import io.xj.service.hub.entity.AccountUser;
-import io.xj.service.hub.entity.User;
-import io.xj.service.hub.entity.UserAuth;
-import io.xj.service.hub.entity.UserAuthToken;
-import io.xj.service.hub.entity.UserAuthType;
-import io.xj.service.hub.entity.UserRole;
-import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 import io.xj.service.hub.tables.records.UserAuthRecord;
 import io.xj.service.hub.tables.records.UserAuthTokenRecord;
@@ -74,8 +73,6 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
       USER.NAME,
       USER.AVATAR_URL,
       USER.EMAIL,
-      USER.CREATED_AT,
-      USER.UPDATED_AT,
       groupConcatDistinct(USER_ROLE.TYPE).separator(",").as("roles")
     );
   }
@@ -89,14 +86,14 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
    @param accessToken for user access to this system
    @throws DAOException if anything goes wrong
    */
-  private static void newUserAuthTokenRecord(DSLContext db, UUID userId, UUID userAuthId, String accessToken) throws DAOException {
+  private static void newUserAuthTokenRecord(DSLContext db, String userId, String userAuthId, String accessToken) throws DAOException {
     UserAuthTokenRecord userAccessToken = db.insertInto(USER_AUTH_TOKEN,
       USER_AUTH_TOKEN.USER_ID,
       USER_AUTH_TOKEN.USER_AUTH_ID,
       USER_AUTH_TOKEN.ACCESS_TOKEN
     ).values(
-      userId,
-      userAuthId,
+      UUID.fromString(userId),
+      UUID.fromString(userAuthId),
       accessToken
     ).returning(
       USER_AUTH_TOKEN.ID,
@@ -143,9 +140,9 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
    @param userId of existing User.
    @return collection of AccountUserRecord.
    */
-  private Collection<AccountUser> fetchAccounts(DSLContext db, UUID userId) throws DAOException {
+  private Collection<AccountUser> fetchAccounts(DSLContext db, String userId) throws DAOException {
     return modelsFrom(AccountUser.class, db.selectFrom(ACCOUNT_USER)
-      .where(ACCOUNT_USER.USER_ID.equal(userId))
+      .where(ACCOUNT_USER.USER_ID.equal(UUID.fromString(userId)))
       .fetch());
   }
 
@@ -156,9 +153,9 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
    @param userId of existing User.
    @return collection of UserRoleRecord.
    */
-  private Collection<UserRole> fetchRoles(DSLContext db, UUID userId) throws DAOException {
+  private Collection<UserRole> fetchRoles(DSLContext db, String userId) throws DAOException {
     return modelsFrom(UserRole.class, db.selectFrom(USER_ROLE)
-      .where(USER_ROLE.USER_ID.equal(userId))
+      .where(USER_ROLE.USER_ID.equal(UUID.fromString(userId)))
       .fetch());
   }
 
@@ -172,7 +169,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
    @param externalAccount identifier in external system
    @return UserAuth, or null
    */
-  private UserAuth readOneAuth(DSLContext db, UserAuthType authType, String externalAccount) throws DAOException {
+  private UserAuth readOneAuth(DSLContext db, UserAuth.Type authType, String externalAccount) throws DAOException {
     return modelFrom(UserAuth.class, db.selectFrom(USER_AUTH)
       .where(USER_AUTH.TYPE.equal(authType.toString()))
       .and(USER_AUTH.EXTERNAL_ACCOUNT.equal(externalAccount))
@@ -186,9 +183,9 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
    @param userId of new User.
    @return collection of new UserRole records, including actual id
    */
-  private Collection<UserRole> newRoles(DSLContext db, UUID userId) throws DAOException {
+  private Collection<UserRole> newRoles(DSLContext db, String userId) throws DAOException {
     UserRoleRecord userRole1 = db.insertInto(USER_ROLE, USER_ROLE.USER_ID, USER_ROLE.TYPE)
-      .values(userId, UserRoleType.User.toString())
+      .values(UUID.fromString(userId), UserRole.Type.User.toString())
       .returning(USER_ROLE.ID, USER_ROLE.USER_ID, USER_ROLE.TYPE)
       .fetchOne();
     if (Objects.isNull(userRole1)) {
@@ -213,9 +210,9 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
    @param externalRefreshToken for refreshing OAuth2 access
    @return new UserAuth record, including actual id
    */
-  private UserAuth newUserAuth(DSLContext db, UUID userId, UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken) throws DAOException {
+  private UserAuth newUserAuth(DSLContext db, String userId, UserAuth.Type authType, String account, String externalAccessToken, String externalRefreshToken) throws DAOException {
     UserAuthRecord userAuth = db.insertInto(USER_AUTH, USER_AUTH.USER_ID, USER_AUTH.TYPE, USER_AUTH.EXTERNAL_ACCOUNT, USER_AUTH.EXTERNAL_ACCESS_TOKEN, USER_AUTH.EXTERNAL_REFRESH_TOKEN)
-      .values(userId, authType.toString(), account, externalAccessToken, externalRefreshToken)
+      .values(UUID.fromString(userId), authType.toString(), account, externalAccessToken, externalRefreshToken)
       .returning(USER_AUTH.ID, USER_AUTH.USER_ID, USER_AUTH.TYPE, USER_AUTH.EXTERNAL_ACCOUNT, USER_AUTH.EXTERNAL_ACCESS_TOKEN, USER_AUTH.EXTERNAL_REFRESH_TOKEN)
       .fetchOne();
     if (Objects.isNull(userAuth)) {
@@ -227,7 +224,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   }
 
   @Override
-  public String authenticate(UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws DAOException {
+  public String authenticate(UserAuth.Type authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws DAOException {
     DSLContext db = dbProvider.getDSL();
     Collection<AccountUser> accounts;
     Collection<UserRole> roles;
@@ -245,8 +242,8 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
       try {
         UserRecord user = newUser(db, name, avatarUrl, email);
         accounts = Lists.newArrayList();
-        roles = newRoles(db, user.getId());
-        userAuth = newUserAuth(db, user.getId(), authType, account, externalAccessToken, externalRefreshToken);
+        roles = newRoles(db, user.getId().toString());
+        userAuth = newUserAuth(db, user.getId().toString(), authType, account, externalAccessToken, externalRefreshToken);
       } catch (Exception e) {
         throw new DAOException("SQL Exception", e);
       }
@@ -272,13 +269,13 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   }
 
   @Override
-  public User readOne(HubAccess hubAccess, UUID id) throws DAOException {
+  public User readOne(HubAccess hubAccess, String id) throws DAOException {
     DSLContext db = dbProvider.getDSL();
     if (hubAccess.isTopLevel()) {
       return modelFrom(User.class, select(db)
         .from(USER_ROLE)
         .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-        .where(USER_ROLE.USER_ID.equal(id))
+        .where(USER_ROLE.USER_ID.equal(UUID.fromString(id)))
         .groupBy(USER_ROLE.USER_ID, USER.ID)
         .fetchOne());
     } else if (!hubAccess.getAccountIds().isEmpty()) {
@@ -286,7 +283,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
         .from(USER_ROLE)
         .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
         .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(USER_ROLE.USER_ID))
-        .where(USER_ROLE.USER_ID.equal(id))
+        .where(USER_ROLE.USER_ID.equal(UUID.fromString(id)))
         .and(ACCOUNT_USER.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .groupBy(USER_ROLE.USER_ID, USER.ID)
         .fetchOne());
@@ -295,7 +292,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
         return modelFrom(User.class, select(db)
           .from(USER_ROLE)
           .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-          .where(USER_ROLE.USER_ID.equal(id))
+          .where(USER_ROLE.USER_ID.equal(UUID.fromString(id)))
           .groupBy(USER_ROLE.USER_ID, USER.ID)
           .fetchOne());
       } else {
@@ -306,7 +303,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
 
   @Override
   @Nullable
-  public Collection<User> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+  public Collection<User> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     DSLContext db = dbProvider.getDSL();
     if (hubAccess.isTopLevel()) {
       return modelsFrom(User.class, select(db)
@@ -327,13 +324,13 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
     } else return modelsFrom(User.class, select(db)
       .from(USER_ROLE)
       .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-      .where(USER_ROLE.USER_ID.eq(hubAccess.getUserId()))
+      .where(USER_ROLE.USER_ID.eq(UUID.fromString(Objects.requireNonNull(hubAccess.getUserId()))))
       .groupBy(USER.ID)
       .fetch());
   }
 
   @Override
-  public void update(HubAccess access, UUID id, User entity) throws DAOException {
+  public void update(HubAccess access, String id, User entity) throws DAOException {
     try {
       updateUserRolesAndDestroyTokens(access, id, entity);
     } catch (ValueException e) {
@@ -342,13 +339,13 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+  public void destroy(HubAccess hubAccess, String id) throws DAOException {
     throw new DAOException("Not allowed to destroy User record.");
   }
 
   @Override
   public User newInstance() {
-    return new User();
+    return User.getDefaultInstance();
   }
 
   @Override
@@ -362,42 +359,42 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   }
 
   @Override
-  public UserAuth readOneAuth(HubAccess hubAccess, UUID userAuthId) throws DAOException {
+  public UserAuth readOneAuth(HubAccess hubAccess, String userAuthId) throws DAOException {
     requireTopLevel(hubAccess);
 
     return modelFrom(UserAuth.class, dbProvider.getDSL().select(USER_AUTH.fields())
       .from(USER_AUTH)
-      .where(USER_AUTH.ID.equal(userAuthId))
+      .where(USER_AUTH.ID.equal(UUID.fromString(userAuthId)))
       .fetchOne());
   }
 
   @Override
-  public UserRole readOneRole(HubAccess hubAccess, UUID userId, UserRoleType type) throws DAOException {
+  public UserRole readOneRole(HubAccess hubAccess, String userId, UserRole.Type type) throws DAOException {
     requireTopLevel(hubAccess);
 
     return modelFrom(UserRole.class, dbProvider.getDSL().select(USER_ROLE.fields())
       .from(USER_ROLE)
-      .where(USER_ROLE.USER_ID.eq(userId))
+      .where(USER_ROLE.USER_ID.eq(UUID.fromString(userId)))
       .and(USER_ROLE.TYPE.eq(type.toString()))
       .fetchOne());
   }
 
   @Override
-  public void destroyAllTokens(UUID userId) throws DAOException {
+  public void destroyAllTokens(String userId) throws DAOException {
     destroyAllTokens(dbProvider.getDSL(), userId);
   }
 
   @Override
-  public void updateUserRolesAndDestroyTokens(HubAccess hubAccess, UUID userId, User entity) throws DAOException, ValueException {
+  public void updateUserRolesAndDestroyTokens(HubAccess hubAccess, String userId, User entity) throws DAOException, ValueException {
     // FUTURE figure out how to make this all a rollback-able transaction in the new getDataSource() context: dataSource.commit(); and dataSource.setAutoCommit(false);
     requireTopLevel(hubAccess);
-    entity.validate();// Prepare key entity
+    validate(entity);// Prepare key entity
     Collection<String> newRoles = CSV.splitProperSlug(entity.getRoles());
 
     // First check all provided roles for validity.
     boolean foundValidRole = false;
     for (String checkRole : newRoles) {
-      UserRoleType.validate(checkRole);
+      UserDAO.validateUserRoleType(checkRole);
       foundValidRole = true;
     }
     require("Valid Role", foundValidRole);
@@ -405,21 +402,21 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
     DSLContext db = dbProvider.getDSL();
 
     // Iterate through all possible role types; either delete that role or ensure that it exists, depending on whether its included in the list of updated roles
-    for (UserRoleType type : UserRoleType.values()) {
+    for (UserRole.Type type : UserRole.Type.values()) {
       if (newRoles.contains(type.toString())) {
         if (0 >= db.selectCount()
           .from(USER_ROLE)
-          .where(USER_ROLE.USER_ID.eq(userId))
+          .where(USER_ROLE.USER_ID.eq(UUID.fromString(userId)))
           .and(USER_ROLE.TYPE.eq(type.toString()))
           .fetchOne(0, int.class)) {
           UserRoleRecord record = db.newRecord(USER_ROLE);
           record.setType(type.toString());
-          record.setUserId(userId);
+          record.setUserId(UUID.fromString(userId));
           record.store();
         }
       } else {
         db.deleteFrom(USER_ROLE)
-          .where(USER_ROLE.USER_ID.eq(userId))
+          .where(USER_ROLE.USER_ID.eq(UUID.fromString(userId)))
           .and(USER_ROLE.TYPE.eq(type.toString()))
           .execute();
       }
@@ -432,9 +429,9 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
 
    @param userId to destroy all access tokens for.
    */
-  private void destroyAllTokens(DSLContext db, UUID userId) throws DAOException {
+  private void destroyAllTokens(DSLContext db, String userId) throws DAOException {
     Result<UserAuthTokenRecord> userAccessTokens = db.selectFrom(USER_AUTH_TOKEN)
-      .where(USER_AUTH_TOKEN.USER_ID.eq(userId))
+      .where(USER_AUTH_TOKEN.USER_ID.eq(UUID.fromString(userId)))
       .fetch();
     for (UserAuthTokenRecord userAccessToken : userAccessTokens) {
       destroyToken(db, userAccessToken);
@@ -456,6 +453,21 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
       log.info("Deleted UserAuthToken, id:{}, userId:{}, userAuthId:{}, accessToken:{}", userAccessToken.getId(), userAccessToken.getUserId(), userAccessToken.getUserAuthId(), userAccessToken.getAccessToken());
     } catch (HubAccessException e) {
       throw new DAOException("Cannot destroy token!", e);
+    }
+  }
+
+  /**
+   Validate a User record
+
+   @param record to validate
+   @throws DAOException if invalid
+   */
+  public void validate(User record) throws DAOException {
+    try {
+      Value.require(record.getRoles(), "User roles");
+
+    } catch (ValueException e) {
+      throw new DAOException(e);
     }
   }
 

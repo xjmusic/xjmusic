@@ -9,6 +9,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
+import io.xj.Account;
+import io.xj.Library;
+import io.xj.Program;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
@@ -23,14 +26,6 @@ import io.xj.service.hub.access.HubAccessControlModule;
 import io.xj.service.hub.dao.DAOException;
 import io.xj.service.hub.dao.DAOModule;
 import io.xj.service.hub.dao.ProgramDAO;
-import io.xj.service.hub.digest.HubDigestModule;
-import io.xj.service.hub.entity.Account;
-import io.xj.service.hub.entity.Library;
-import io.xj.service.hub.entity.Program;
-import io.xj.service.hub.entity.ProgramState;
-import io.xj.service.hub.entity.ProgramType;
-import io.xj.service.hub.entity.User;
-import io.xj.service.hub.generation.HubGenerationModule;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubTestConfiguration;
@@ -44,6 +39,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.UUID;
 
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static io.xj.service.hub.access.HubAccess.CONTEXT_KEY;
@@ -62,14 +58,13 @@ public class ProgramEndpointTest {
   ProgramDAO programDAO;
   private HubAccess hubAccess;
   private ProgramEndpoint subject;
-  private User user101;
   private Library library25;
   private Library library1;
 
   @Before
   public void setUp() throws AppException {
     Config config = HubTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubDigestModule(), new HubGenerationModule()).with(
+    Injector injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -77,11 +72,16 @@ public class ProgramEndpointTest {
         }
       }))));
     HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
-    Account account1 = Account.create();
+    Account account1 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
     hubAccess = HubAccess.create(ImmutableList.of(account1), "User,Artist");
-    user101 = User.create();
-    library25 = Library.create();
-    library1 = Library.create();
+    library25 = Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    library1 = Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
     subject = injector.getInstance(ProgramEndpoint.class);
     injector.injectMembers(subject);
   }
@@ -89,33 +89,60 @@ public class ProgramEndpointTest {
   @Test
   public void readMany() throws DAOException, IOException, JsonApiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
-    Program program1 = Program.create(user101, library25, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6);
-    Program program2 = Program.create(user101, library25, ProgramType.Main, ProgramState.Published, "trunk", "B", 120.0, 0.6);
+    Program program1 = Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(library25.getId())
+      .setType(Program.Type.Main)
+      .setState(Program.State.Published)
+      .setName("fonds")
+      .setKey("C#")
+      .setTempo(120.0)
+      .setDensity(0.6)
+      .build();
+    Program program2 = Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(library25.getId())
+      .setType(Program.Type.Main)
+      .setState(Program.State.Published)
+      .setName("trunk")
+      .setKey("B")
+      .setTempo(120.0)
+      .setDensity(0.6)
+      .build();
     Collection<Program> programs = ImmutableList.of(program1, program2);
     when(programDAO.readMany(same(hubAccess), eq(ImmutableList.of(library25.getId()))))
       .thenReturn(programs);
 
-    Response result = subject.readMany(crc, null, library25.getId().toString(), false);
+    Response result = subject.readMany(crc, null, library25.getId(), false);
 
     verify(programDAO).readMany(same(hubAccess), eq(ImmutableList.of(library25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class))
-      .hasDataMany("programs", ImmutableList.of(program1.getId().toString(), program2.getId().toString()));
+      .hasDataMany("programs", ImmutableList.of(program1.getId(), program2.getId()));
   }
 
   @Test
   public void readOne() throws DAOException, IOException, JsonApiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
-    Program program1 = Program.create(user101, library1, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0, 0.6);
+    Program program1 = Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(library1.getId())
+      .setType(Program.Type.Main)
+      .setState(Program.State.Published)
+      .setName("fonds")
+      .setKey("C#")
+      .setTempo(120.0)
+      .setDensity(0.6)
+      .build();
     when(programDAO.readOne(same(hubAccess), eq(program1.getId()))).thenReturn(program1);
 
-    Response result = subject.readOne(crc, program1.getId().toString(), "");
+    Response result = subject.readOne(crc, program1.getId(), "");
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     Payload resultPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class);
     assertPayload(resultPayload)
-      .hasDataOne("programs", program1.getId().toString());
+      .hasDataOne("programs", program1.getId());
   }
 }

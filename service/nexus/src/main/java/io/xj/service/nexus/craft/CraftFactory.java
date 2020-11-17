@@ -3,7 +3,7 @@ package io.xj.service.nexus.craft;
 
 import com.google.inject.assistedinject.Assisted;
 import io.xj.service.nexus.NexusException;
-import io.xj.service.nexus.craft.harmonic.HarmonicDetailCraft;
+import io.xj.service.nexus.craft.detail.DetailCraft;
 import io.xj.service.nexus.craft.macro.MacroMainCraft;
 import io.xj.service.nexus.craft.rhythm.RhythmCraft;
 import io.xj.service.nexus.fabricator.Fabricator;
@@ -49,10 +49,10 @@ public interface CraftFactory {
    Create Detail Craft instance for a particular segment
 
    @param fabricator of craft
-   @return HarmonicDetailCraft
+   @return DetailCraft
    @throws NexusException on failure
    */
-  HarmonicDetailCraft harmonicDetail(
+  DetailCraft detail(
     @Assisted("basis") Fabricator fabricator
   ) throws NexusException;
 

@@ -18,7 +18,7 @@ public class EntitySchema {
   private final Set<String> attributes;
   private final Set<String> hasManyTypes;
   private final Set<String> belongsToTypes;
-  private Supplier<? extends Entity> creator;
+  private Supplier<?> creator;
 
   /**
    Constructor initializes empty inner sets
@@ -92,7 +92,7 @@ public class EntitySchema {
    @param creator function which creates a new instance of this type of entity
    @return this entity type schema (for chaining methods)
    */
-  public EntitySchema createdBy(Supplier<? extends Entity> creator) {
+  public EntitySchema createdBy(Supplier<?> creator) {
     this.creator = creator;
     return this;
   }
@@ -102,7 +102,7 @@ public class EntitySchema {
 
    @return creator function which creates a new instance of this type of entity
    */
-  public Supplier<? extends Entity> getCreator() {
+  public Supplier<?> getCreator() {
     return creator;
   }
 

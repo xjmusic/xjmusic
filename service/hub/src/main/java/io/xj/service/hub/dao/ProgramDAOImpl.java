@@ -4,29 +4,27 @@ package io.xj.service.hub.dao;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.google.protobuf.GeneratedMessageLite;
 import com.typesafe.config.Config;
+import io.xj.Program;
+import io.xj.ProgramMeme;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequenceBindingMeme;
+import io.xj.ProgramSequenceChord;
+import io.xj.ProgramSequenceChordVoicing;
+import io.xj.ProgramSequencePattern;
+import io.xj.ProgramSequencePatternEvent;
+import io.xj.ProgramVoice;
+import io.xj.ProgramVoiceTrack;
+import io.xj.UserRole;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.Program;
-import io.xj.service.hub.entity.ProgramConfig;
-import io.xj.service.hub.entity.ProgramMeme;
-import io.xj.service.hub.entity.ProgramSequence;
-import io.xj.service.hub.entity.ProgramSequenceBinding;
-import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
-import io.xj.service.hub.entity.ProgramSequenceChord;
-import io.xj.service.hub.entity.ProgramSequenceChordVoicing;
-import io.xj.service.hub.entity.ProgramSequencePattern;
-import io.xj.service.hub.entity.ProgramSequencePatternEvent;
-import io.xj.service.hub.entity.ProgramState;
-import io.xj.service.hub.entity.ProgramType;
-import io.xj.service.hub.entity.ProgramVoice;
-import io.xj.service.hub.entity.ProgramVoiceTrack;
-import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -67,92 +65,95 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  public Program create(HubAccess hubAccess, Program program) throws DAOException, JsonApiException, ValueException {
-    program.validate();
+  public Program create(HubAccess hubAccess, Program rawProgram) throws DAOException, JsonApiException, ValueException {
+    Program program = validate(rawProgram.toBuilder()).build();
     requireArtist(hubAccess);
     validateConfig(program);
     return modelFrom(Program.class, executeCreate(dbProvider.getDSL(), PROGRAM, program));
   }
 
   @Override
-  public DAOCloner<Program> clone(HubAccess hubAccess, UUID cloneId, Program program) throws DAOException {
+  public DAOCloner<Program> clone(HubAccess hubAccess, String rawCloneId, Program rawProgram) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<Program> result = new AtomicReference<>();
     AtomicReference<DAOCloner<Program>> cloner = new AtomicReference<>();
     dbProvider.getDSL().transaction(ctx -> {
       DSLContext db = DSL.using(ctx);
 
-      Program from = readOne(db, hubAccess, cloneId);
+      Program from = readOne(db, hubAccess, rawCloneId);
       if (Objects.isNull(from))
         throw new DAOException("Can't clone nonexistent Program");
 
       // Inherits state, type if none specified
-      if (Objects.isNull(program.getState())) program.setStateEnum(from.getState());
-      if (Objects.isNull(program.getDensity())) program.setDensity(from.getDensity());
-      if (Objects.isNull(program.getName())) program.setName(from.getName());
-      if (Objects.isNull(program.getType())) program.setTypeEnum(from.getType());
-      if (Objects.isNull(program.getTempo())) program.setTempo(from.getTempo());
-      if (Objects.isNull(program.getKey())) program.setKey(from.getKey());
-      program.setUserId(from.getUserId());
-      program.validate();
+      Program.Builder programBuilder = rawProgram.toBuilder();
+      if (Value.isEmpty(rawProgram.getName())) programBuilder.setName(from.getName());
+      if (Value.isEmpty(rawProgram.getKey())) programBuilder.setKey(from.getKey());
+      Program program = validate(programBuilder).build();
       requireParentExists(db, hubAccess, program);
       validateConfig(program);
 
       // Create main entity
       result.set(modelFrom(Program.class, executeCreate(db, PROGRAM, program)));
+      UUID cloneId = UUID.fromString(rawCloneId);
+      UUID originalId = UUID.fromString(result.get().getId());
 
       // Prepare to clone sub-entities
       cloner.set(new DAOCloner<>(result.get(), this));
 
       // Clone ProgramMeme
-      cloner.get().clone(db, PROGRAM_MEME, PROGRAM_MEME.ID, ImmutableSet.of(), PROGRAM_MEME.PROGRAM_ID, cloneId, result.get().getId());
+      cloner.get().clone(db, PROGRAM_MEME, PROGRAM_MEME.ID, ImmutableSet.of(), PROGRAM_MEME.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramVoice
-      cloner.get().clone(db, PROGRAM_VOICE, PROGRAM_VOICE.ID, ImmutableSet.of(), PROGRAM_VOICE.PROGRAM_ID, cloneId, result.get().getId());
+      cloner.get().clone(db, PROGRAM_VOICE, PROGRAM_VOICE.ID, ImmutableSet.of(), PROGRAM_VOICE.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramVoiceTrack belongs to ProgramVoice
       cloner.get().clone(db, PROGRAM_VOICE_TRACK, PROGRAM_VOICE_TRACK.ID,
         ImmutableSet.of(PROGRAM_VOICE_TRACK.PROGRAM_VOICE_ID),
-        PROGRAM_VOICE_TRACK.PROGRAM_ID, cloneId, result.get().getId());
+        PROGRAM_VOICE_TRACK.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramSequence
-      cloner.get().clone(db, PROGRAM_SEQUENCE, PROGRAM_SEQUENCE.ID, ImmutableSet.of(), PROGRAM_SEQUENCE.PROGRAM_ID, cloneId, result.get().getId());
+      cloner.get().clone(db, PROGRAM_SEQUENCE, PROGRAM_SEQUENCE.ID, ImmutableSet.of(), PROGRAM_SEQUENCE.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramSequenceChord belongs to ProgramSequence
       cloner.get().clone(db, PROGRAM_SEQUENCE_CHORD, PROGRAM_SEQUENCE_CHORD.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID),
-        PROGRAM_SEQUENCE_CHORD.PROGRAM_ID, cloneId, result.get().getId());
+        PROGRAM_SEQUENCE_CHORD.PROGRAM_ID, cloneId, originalId);
+
+      // Clone ProgramSequenceChordVoiding belongs to ProgramSequenceChord
+      cloner.get().clone(db, PROGRAM_SEQUENCE_CHORD_VOICING, PROGRAM_SEQUENCE_CHORD_VOICING.ID,
+        ImmutableSet.of(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID),
+        PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramSequenceBinding belongs to ProgramSequence
       cloner.get().clone(db, PROGRAM_SEQUENCE_BINDING, PROGRAM_SEQUENCE_BINDING.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID),
-        PROGRAM_SEQUENCE_BINDING.PROGRAM_ID, cloneId, result.get().getId());
+        PROGRAM_SEQUENCE_BINDING.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramSequenceBindingMeme belongs to ProgramSequenceBinding
       cloner.get().clone(db, PROGRAM_SEQUENCE_BINDING_MEME, PROGRAM_SEQUENCE_BINDING_MEME.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID),
-        PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID, cloneId, result.get().getId());
+        PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramSequencePattern belongs to ProgramSequence and ProgramVoice
       cloner.get().clone(db, PROGRAM_SEQUENCE_PATTERN, PROGRAM_SEQUENCE_PATTERN.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID, PROGRAM_SEQUENCE_PATTERN.PROGRAM_VOICE_ID),
-        PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID, cloneId, result.get().getId());
+        PROGRAM_SEQUENCE_PATTERN.PROGRAM_ID, cloneId, originalId);
 
       // Clone ProgramSequencePatternEvent belongs to ProgramSequencePattern and ProgramVoiceTrack
       cloner.get().clone(db, PROGRAM_SEQUENCE_PATTERN_EVENT, PROGRAM_SEQUENCE_PATTERN_EVENT.ID,
         ImmutableSet.of(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID, PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_VOICE_TRACK_ID),
-        PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID, cloneId, result.get().getId());
+        PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID, cloneId, originalId);
     });
     return cloner.get();
   }
 
   @Override
-  public Program readOne(HubAccess hubAccess, UUID id) throws DAOException {
+  public Program readOne(HubAccess hubAccess, String id) throws DAOException {
     return readOne(dbProvider.getDSL(), hubAccess, id);
   }
 
   @Override
-  public Collection<Program> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+  public Collection<Program> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .where(PROGRAM.LIBRARY_ID.in(parentIds))
@@ -168,12 +169,12 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  public Collection<Entity> readManyWithChildEntities(HubAccess hubAccess, Collection<UUID> programIds) throws DAOException {
+  public <N extends GeneratedMessageLite<N, ?>> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<String> programIds) throws DAOException {
     DSLContext db = dbProvider.getDSL();
 
     requireRead(db, hubAccess, programIds);
 
-    Collection<Entity> entities = Lists.newArrayList();
+    Collection<GeneratedMessageLite<?, ?>> entities = Lists.newArrayList();
     entities.addAll(modelsFrom(Program.class, db.selectFrom(PROGRAM).where(PROGRAM.ID.in(programIds)).fetch()));
     entities.addAll(modelsFrom(ProgramSequencePatternEvent.class, db.selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT).where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.in(programIds))));
     entities.addAll(modelsFrom(ProgramMeme.class, db.selectFrom(PROGRAM_MEME).where(PROGRAM_MEME.PROGRAM_ID.in(programIds))));
@@ -184,17 +185,17 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     entities.addAll(modelsFrom(ProgramSequence.class, db.selectFrom(PROGRAM_SEQUENCE).where(PROGRAM_SEQUENCE.PROGRAM_ID.in(programIds))));
     entities.addAll(modelsFrom(ProgramVoiceTrack.class, db.selectFrom(PROGRAM_VOICE_TRACK).where(PROGRAM_VOICE_TRACK.PROGRAM_ID.in(programIds))));
     entities.addAll(modelsFrom(ProgramVoice.class, db.selectFrom(PROGRAM_VOICE).where(PROGRAM_VOICE.PROGRAM_ID.in(programIds))));
-    return entities;
-
+    //noinspection unchecked
+    return (Collection<N>) entities;
   }
 
   @Override
-  public Collection<Entity> readChildEntities(HubAccess hubAccess, Collection<UUID> programIds, Collection<String> types) throws DAOException {
+  public Collection<Object> readChildEntities(HubAccess hubAccess, Collection<String> programIds, Collection<String> types) throws DAOException {
     DSLContext db = dbProvider.getDSL();
 
     requireRead(db, hubAccess, programIds);
 
-    Collection<Entity> entities = Lists.newArrayList();
+    Collection<Object> entities = Lists.newArrayList();
 
     // ProgramSequencePatternEvent
     if (types.contains(Entities.toResourceType(ProgramSequencePatternEvent.class)))
@@ -264,25 +265,26 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  public void update(HubAccess hubAccess, UUID id, Program program) throws DAOException, JsonApiException, ValueException {
-    program.validate();
+  public void update(HubAccess hubAccess, String id, Program rawProgram) throws DAOException, JsonApiException, ValueException {
+    Program program = validate(rawProgram.toBuilder()).build();
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
     Program existing = readOne(db, hubAccess, id);
     validateConfig(program);
 
     // [#170390872] prevent user from changing program type of a Rhythm program, when it has any Tracks and/or Voices.
-    if (ProgramType.Rhythm.equals(existing.getType()) && !ProgramType.Rhythm.equals(program.getType()))
+    if (Program.Type.Rhythm.equals(existing.getType()) && !Program.Type.Rhythm.equals(program.getType()))
       requireNotExists("Voice in Program; Can't change type away from Rhythm", db.selectCount().from(PROGRAM_VOICE)
-        .where(PROGRAM_VOICE.PROGRAM_ID.eq(id))
+        .where(PROGRAM_VOICE.PROGRAM_ID.eq(UUID.fromString(id)))
         .fetchOne(0, int.class));
 
     executeUpdate(db, PROGRAM, id, program);
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+  public void destroy(HubAccess hubAccess, String rawId) throws DAOException {
     DSLContext db = dbProvider.getDSL();
+    UUID id = UUID.fromString(rawId);
 
     if (!hubAccess.isTopLevel())
       requireExists("Program belonging to you", db.selectCount().from(PROGRAM)
@@ -339,29 +341,29 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
 
   @Override
   public Program newInstance() {
-    return new Program();
+    return Program.getDefaultInstance();
   }
 
   @Override
-  public Collection<Program> readManyInAccount(HubAccess hubAccess, UUID accountId) throws DAOException {
+  public Collection<Program> readManyInAccount(HubAccess hubAccess, String accountId) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(LIBRARY.ACCOUNT_ID.eq(accountId))
+        .where(LIBRARY.ACCOUNT_ID.eq(UUID.fromString(accountId)))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
     else
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(LIBRARY.ACCOUNT_ID.in(accountId))
+        .where(LIBRARY.ACCOUNT_ID.in(UUID.fromString(accountId)))
         .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .orderBy(PROGRAM.TYPE, PROGRAM.NAME)
         .fetch());
   }
 
   @Override
-  public Collection<Program> readManyInState(HubAccess hubAccess, ProgramState state) throws DAOException {
-    require(hubAccess, UserRoleType.Admin, UserRoleType.Engineer);
+  public Collection<Program> readManyInState(HubAccess hubAccess, Program.State state) throws DAOException {
+    require(hubAccess, UserRole.Type.Admin, UserRole.Type.Engineer);
     // FUTURE: engineer should only see programs in account?
 
     return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields())
@@ -372,12 +374,12 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  public Collection<UUID> readIdsInLibraries(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+  public Collection<String> readIdsInLibraries(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
     return DAO.idsFrom(dbProvider.getDSL().select(PROGRAM.ID)
       .from(PROGRAM)
       .where(PROGRAM.LIBRARY_ID.in(parentIds))
-      .and(PROGRAM.STATE.equal(ProgramState.Published.toString()))
+      .and(PROGRAM.STATE.equal(Program.State.Published.toString()))
       .fetch());
   }
 
@@ -397,12 +399,12 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
    @param hubAccess  control
    @param programIds to require hubAccess to
    */
-  private void requireRead(DSLContext db, HubAccess hubAccess, Collection<UUID> programIds) throws DAOException {
+  private void requireRead(DSLContext db, HubAccess hubAccess, Collection<String> programIds) throws DAOException {
     if (!hubAccess.isTopLevel())
-      for (UUID programId : programIds)
+      for (String programId : programIds)
         requireExists("hubAccess via account", db.selectCount().from(PROGRAM)
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-          .where(PROGRAM.ID.eq(programId))
+          .where(PROGRAM.ID.eq(UUID.fromString(programId)))
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne(0, int.class));
   }
@@ -416,18 +418,18 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
    @return record
    @throws DAOException on failure
    */
-  private Program readOne(DSLContext db, HubAccess hubAccess, UUID id) throws DAOException {
+  private Program readOne(DSLContext db, HubAccess hubAccess, String id) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelFrom(Program.class,
         db.selectFrom(PROGRAM)
-          .where(PROGRAM.ID.eq(id))
+          .where(PROGRAM.ID.eq(UUID.fromString(id)))
           .fetchOne());
     else
       return modelFrom(Program.class,
         db.select(PROGRAM.fields())
           .from(PROGRAM)
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-          .where(PROGRAM.ID.eq(id))
+          .where(PROGRAM.ID.eq(UUID.fromString(id)))
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne());
   }
@@ -443,13 +445,36 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   private void requireParentExists(DSLContext db, HubAccess hubAccess, Program entity) throws DAOException {
     if (hubAccess.isTopLevel())
       requireExists("Library", db.selectCount().from(LIBRARY)
-        .where(LIBRARY.ID.eq(entity.getLibraryId()))
+        .where(LIBRARY.ID.eq(UUID.fromString(entity.getLibraryId())))
         .fetchOne(0, int.class));
     else
       requireExists("Library", db.selectCount().from(LIBRARY)
         .where(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
-        .and(LIBRARY.ID.eq(entity.getLibraryId()))
+        .and(LIBRARY.ID.eq(UUID.fromString(entity.getLibraryId())))
         .fetchOne(0, int.class));
+  }
+
+  /**
+   Validate data
+
+   @param record to validate
+   @return validated Program
+   @throws DAOException if invalid
+   */
+  public Program.Builder validate(Program.Builder record) throws DAOException {
+    try {
+      Value.require(record.getLibraryId(), "Library ID");
+      Value.require(record.getName(), "Name");
+      Value.require(record.getKey(), "Key");
+      Value.requireNonZero(record.getTempo(), "Tempo");
+      Value.require(record.getType(), "Type");
+      Value.require(record.getState(), "State");
+      if (Objects.isNull(record.getConfig())) record.setConfig("");
+      return record;
+
+    } catch (ValueException e) {
+      throw new DAOException(e);
+    }
   }
 
 }

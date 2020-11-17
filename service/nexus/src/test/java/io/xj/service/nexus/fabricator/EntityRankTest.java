@@ -2,14 +2,16 @@
 package io.xj.service.nexus.fabricator;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.service.hub.entity.ProgramSequence;
+import io.xj.ProgramSequence;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class EntityRankTest {
   private EntityRank<ProgramSequence> entityRank;
@@ -21,21 +23,25 @@ public class EntityRankTest {
 
   @Before
   public void setUp() {
-    sequenceB = new ProgramSequence();
-    sequenceB.setId(UUID.randomUUID());
-    sequenceB.setName("Super Jam");
+    sequenceB = ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("Super Jam")
+      .build();
 
-    sequenceC = new ProgramSequence();
-    sequenceC.setId(UUID.randomUUID());
-    sequenceC.setName("Dope Beat");
+    sequenceC = ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("Dope Beat")
+      .build();
 
-    sequenceD = new ProgramSequence();
-    sequenceD.setId(UUID.randomUUID());
-    sequenceD.setName("The Illest");
+    sequenceD = ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("The Illest")
+      .build();
 
-    sequenceE = new ProgramSequence();
-    sequenceE.setId(UUID.randomUUID());
-    sequenceE.setName("Good News");
+    sequenceE = ProgramSequence.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("Good News")
+      .build();
 
     entityRank = new EntityRank<>();
 
@@ -121,14 +127,14 @@ public class EntityRankTest {
   public void score_adjustExisting() {
     entityRank.score(sequenceC, 2.0);
 
-    Map<UUID, Double> result = entityRank.getScores();
+    Map<String, Double> result = entityRank.getScores();
     assertEquals(Double.valueOf(2.25), result.get(sequenceC.getId()));
   }
 
 
   @Test
   public void getScores() {
-    Map<UUID, Double> result = entityRank.getScores();
+    Map<String, Double> result = entityRank.getScores();
 
     assertEquals(Double.valueOf(0.75), result.get(sequenceB.getId()));
     assertEquals(Double.valueOf(0.25), result.get(sequenceC.getId()));

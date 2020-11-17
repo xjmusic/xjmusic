@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import io.xj.Program;
+import io.xj.ProgramSequence;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,7 +16,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
-import java.util.UUID;
 
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 
@@ -23,7 +24,7 @@ import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
  <p>
  Created by Charney Kaye on 2020/03/09
  */
-public class PayloadDeserializerTest extends TestTemplate {
+public class PayloadDeserializerTest {
   private PayloadFactory payloadFactory;
 
   @Before
@@ -37,9 +38,9 @@ public class PayloadDeserializerTest extends TestTemplate {
     Payload result = payloadFactory.deserialize(readResourceFile("payload/deserializeOneIncludingEmbeddedEntities.json"));
 
     assertPayload(result)
-      .hasDataOne("mock-entities", "805cf759-4e94-4275-a82d-5255c9e69347")
-      .belongsTo("MockParentEntity", "f94290f4-537c-4444-92e5-dc0b0df352e5")
-      .hasMany("MockChildEntity", ImmutableList.of(createMockEntity(UUID.fromString("9b862c2f-192f-4041-b849-442a2ec50218"))));
+      .hasDataOne("programs", "805cf759-4e94-4275-a82d-5255c9e69347")
+      .belongsTo("Library", "f94290f4-537c-4444-92e5-dc0b0df352e5")
+      .hasMany("ProgramSequence", ImmutableList.of(ProgramSequence.newBuilder().setId("9b862c2f-192f-4041-b849-442a2ec50218").build()));
   }
 
   @Test
@@ -52,8 +53,8 @@ public class PayloadDeserializerTest extends TestTemplate {
     }
 
     assertPayload(result)
-      .hasDataOne("mock-entities", "a1acee68-ade3-465c-8b07-596b179e1a51")
-      .belongsTo("MockParentEntity", "aec6e236-322b-4c66-bd48-8c7ce6a1ef4a");
+      .hasDataOne("programs", "a1acee68-ade3-465c-8b07-596b179e1a51")
+      .belongsTo("Library", "aec6e236-322b-4c66-bd48-8c7ce6a1ef4a");
   }
 
   @Test
@@ -66,7 +67,7 @@ public class PayloadDeserializerTest extends TestTemplate {
     }
 
     assertPayload(result)
-      .hasDataOne("mock-entities", "19f3fced-2c3f-405d-bde8-f7ef71f9ad9d");
+      .hasDataOne("programs", "19f3fced-2c3f-405d-bde8-f7ef71f9ad9d");
   }
 
   @Test
@@ -92,7 +93,7 @@ public class PayloadDeserializerTest extends TestTemplate {
     }
 
     assertPayload(result)
-      .hasDataOne("mock-entities", "5d5db584-0530-4477-8a5b-9429e779316e");
+      .hasDataOne("programs", "5d5db584-0530-4477-8a5b-9429e779316e");
   }
 
   @Test
@@ -105,7 +106,7 @@ public class PayloadDeserializerTest extends TestTemplate {
     }
 
     assertPayload(result)
-      .hasDataMany("mock-entities", ImmutableList.of("716f0033-e7fe-4242-b993-1f840e4a242f"));
+      .hasDataMany("programs", ImmutableList.of("716f0033-e7fe-4242-b993-1f840e4a242f"));
   }
 
   @Test

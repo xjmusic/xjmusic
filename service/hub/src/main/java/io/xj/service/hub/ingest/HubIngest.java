@@ -1,23 +1,19 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.ingest;
 
-import io.xj.lib.entity.Entity;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.InstrumentAudioChord;
+import io.xj.InstrumentMeme;
+import io.xj.Program;
+import io.xj.ProgramMeme;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequenceBindingMeme;
+import io.xj.ProgramSequenceChord;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.Instrument;
-import io.xj.service.hub.entity.InstrumentAudio;
-import io.xj.service.hub.entity.InstrumentAudioChord;
-import io.xj.service.hub.entity.InstrumentMeme;
-import io.xj.service.hub.entity.InstrumentType;
-import io.xj.service.hub.entity.Program;
-import io.xj.service.hub.entity.ProgramMeme;
-import io.xj.service.hub.entity.ProgramSequence;
-import io.xj.service.hub.entity.ProgramSequenceBinding;
-import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
-import io.xj.service.hub.entity.ProgramSequenceChord;
-import io.xj.service.hub.entity.ProgramType;
 
 import java.util.Collection;
-import java.util.UUID;
 
 /**
  [#154350346] Architect wants a universal HubIngest Factory, to modularize graph mathematics used during craft to ingest any combination of Library, Sequence, and Instrument for any purpose.
@@ -25,7 +21,6 @@ import java.util.UUID;
  # Component
  <p>
  - **HubIngest**
- - **Digest**
  <p>
  # Entity
  <p>
@@ -136,7 +131,7 @@ public interface HubIngest {
    @param id of Instrument to get
    @return Instrument
    */
-  Instrument getInstrument(UUID id) throws HubIngestException;
+  Instrument getInstrument(String id) throws HubIngestException;
 
   /**
    get cached Program by id
@@ -144,14 +139,14 @@ public interface HubIngest {
    @param id of Program to get
    @return Program
    */
-  Program getProgram(UUID id) throws HubIngestException;
+  Program getProgram(String id) throws HubIngestException;
 
   /**
    Get a collection of all sequences of a particular type for ingest
 
    @return collection of sequences
    */
-  Collection<Program> getProgramsOfType(ProgramType type) throws HubIngestException;
+  Collection<Program> getProgramsOfType(Program.Type type) throws HubIngestException;
 
   /**
    Get the access with which this HubIngest was instantiated.
@@ -165,14 +160,14 @@ public interface HubIngest {
 
    @return collection of instruments
    */
-  Collection<Instrument> getInstrumentsOfType(InstrumentType type) throws HubIngestException;
+  Collection<Instrument> getInstrumentsOfType(Instrument.Type type) throws HubIngestException;
 
   /**
    Get a collection of all entities
 
    @return collection of all entities
    */
-  Collection<Entity> getAllEntities();
+  Collection<Object> getAllEntities();
 
 
   /**

@@ -1,18 +1,18 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.fabricator;
 
-import io.xj.lib.entity.Entity;
+import com.google.protobuf.GeneratedMessageLite;
+import io.xj.Chain;
+import io.xj.Program;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
+import io.xj.SegmentMeme;
+import io.xj.SegmentMessage;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.entity.ProgramType;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentChoice;
-import io.xj.service.nexus.entity.SegmentChoiceArrangement;
-import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
-import io.xj.service.nexus.entity.SegmentChord;
-import io.xj.service.nexus.entity.SegmentMeme;
-import io.xj.service.nexus.entity.SegmentMessage;
 
 import java.util.Collection;
 
@@ -26,6 +26,15 @@ public interface SegmentWorkbench {
    @return current segment
    */
   Segment getSegment();
+
+  /**
+   Set the Segment.
+   Any modifications to the Segment must be re-written to here
+   because protobuf instances are immutable
+
+   @param segment to set
+   */
+  void setSegment(Segment segment);
 
   /**
    @return entity cache of SegmentChoiceArrangement
@@ -55,7 +64,7 @@ public interface SegmentWorkbench {
   /**
    @return entity cache of SegmentChoiceArrangementPick
    */
-  Collection<SegmentChoiceArrangementPick> getSegmentPicks() throws FabricationException;
+  Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() throws FabricationException;
 
   /**
    Put a key-value pair into the report
@@ -79,7 +88,16 @@ public interface SegmentWorkbench {
    @return choice of given type
    @throws FabricationException if no such choice type exists
    */
-  SegmentChoice getChoiceOfType(ProgramType type) throws FabricationException;
+  SegmentChoice getChoiceOfType(Program.Type type) throws FabricationException;
+
+  /**
+   Get the choices of a given program and instrument type
+
+   @param type of choice to get
+   @return choices of a given type
+   @throws FabricationException if no such choice type exists
+   */
+  Collection<SegmentChoice> getChoicesOfType(Program.Type type) throws FabricationException;
 
   /**
    Get the Chain this Segment Workbench is working within
@@ -96,5 +114,5 @@ public interface SegmentWorkbench {
    @return entity that was added
    @throws FabricationException on failure
    */
-  <N extends Entity> N add(N entity) throws FabricationException;
+  <N extends GeneratedMessageLite<N, ?>> N add(N entity) throws FabricationException;
 }

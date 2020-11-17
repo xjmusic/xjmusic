@@ -4,7 +4,6 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.xj.lib.entity.Entity;
 import org.jooq.DSLContext;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -21,12 +20,12 @@ import java.util.UUID;
  and then swaps out all parent ids for the cloned parent ids
  of each successive cloning.
  */
-public class DAOCloner<E extends Entity> {
+public class DAOCloner<E> {
   private final E clone;
   private final DAO<?> anyDao;
-  private final Collection<Entity> childClones = Lists.newArrayList();
+  private final Collection<Object> childClones = Lists.newArrayList();
   private final Collection<DAOException> warnings = Lists.newArrayList();
-  private Map<UUID, UUID> clonedIds = Maps.newConcurrentMap();
+  private final Map<UUID, UUID> clonedIds = Maps.newConcurrentMap();
 
   /**
    Instantiates a DAOCloner with a newly created entity,
@@ -124,7 +123,7 @@ public class DAOCloner<E extends Entity> {
 
    @return collection of created child clone entities
    */
-  public Collection<Entity> getChildClones() {
+  public Collection<Object> getChildClones() {
     return childClones;
   }
 }

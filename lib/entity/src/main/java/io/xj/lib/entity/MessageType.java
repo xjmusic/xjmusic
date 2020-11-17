@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.entity;
 
-import io.xj.lib.entity.common.MessageEntity;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
@@ -10,12 +9,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public enum MessageType {
   Debug,
   Info,
   Warning,
   Error;
+
+  private static final String TYPE_KEY = "type";
 
   /**
    String Values
@@ -64,8 +66,14 @@ public enum MessageType {
    @param messages to get most severe type of
    @return most severe type out of the collection
    */
-  public static MessageType mostSevereType(Collection<? extends MessageEntity> messages) {
-    return mostSevere(messages.stream().map(MessageEntity::getType).collect(Collectors.toList()));
+  public static MessageType mostSevereType(Collection<?> messages) {
+    return mostSevere(messages.stream().flatMap(e -> {
+      try {
+        return Stream.of(MessageType.valueOf(String.valueOf(Entities.get(e, TYPE_KEY).orElseThrow())));
+      } catch (Exception ignore) {
+        return Stream.empty();
+      }
+    }).collect(Collectors.toList()));
   }
 
   /**

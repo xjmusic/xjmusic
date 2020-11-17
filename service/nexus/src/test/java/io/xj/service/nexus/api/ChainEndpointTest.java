@@ -9,6 +9,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
+import io.xj.Account;
+import io.xj.Chain;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
@@ -20,17 +22,12 @@ import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubClientModule;
-import io.xj.service.hub.digest.HubDigestModule;
-import io.xj.service.hub.entity.Account;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.NexusDAOModule;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.ChainState;
-import io.xj.service.nexus.entity.ChainType;
 import io.xj.service.nexus.persistence.NexusEntityStoreModule;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
@@ -42,11 +39,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.Collection;
+import java.util.UUID;
 
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static io.xj.service.hub.client.HubClientAccess.CONTEXT_KEY;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildHubClientAccess;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -72,7 +70,6 @@ public class ChainEndpointTest {
     Injector injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(
       new FileStoreModule(),
       new HubClientModule(),
-      new HubDigestModule(),
       new MixerModule(),
       new NexusDAOModule(),
       new NexusEntityStoreModule(),
@@ -87,8 +84,10 @@ public class ChainEndpointTest {
     HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
     NexusApp.buildApiTopology(injector.getInstance(EntityFactory.class));
 
-    account25 = Account.create();
-    access = HubClientAccess.create(ImmutableList.of(account25), "User,Artist");
+    account25 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    access = buildHubClientAccess(ImmutableList.of(account25), "User,Artist");
     subject = injector.getInstance(ChainEndpoint.class);
     injector.injectMembers(subject);
   }
@@ -98,8 +97,22 @@ public class ChainEndpointTest {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
     Chain chain1;
     Chain chain2;
-    chain1 = Chain.create(account25, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
-    chain2 = Chain.create(account25, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-09-12T12:17:02.527142Z"), null, null);
+    chain1 = Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(account25.getId())
+      .setName("Test Print #1")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2014-08-12T12:17:02.527142Z")
+      .build();
+    chain2 = Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(account25.getId())
+      .setName("Test Print #2")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2014-09-12T12:17:02.527142Z")
+      .build();
     Collection<Chain> chains = ImmutableList.of(chain1, chain2);
     when(chainDAO.readMany(same(access), eq(ImmutableList.of(account25.getId()))))
       .thenReturn(chains);
@@ -109,29 +122,49 @@ public class ChainEndpointTest {
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class))
-      .hasDataMany("chains", ImmutableList.of(chain1.getId().toString(), chain2.getId().toString()));
+      .hasDataMany("chains", ImmutableList.of(chain1.getId(), chain2.getId()));
   }
 
   @Test
   public void readOne() throws IOException, JsonApiException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
-    Account account25 = Account.create();
-    Chain chain17 = Chain.create(account25, "Test Print #1", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print");
+    Account account25 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    Chain chain17 = Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(account25.getId())
+      .setName("Test Print #1")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Ready)
+      .setStartAt("2014-08-12T12:17:02.527142Z")
+      .setEmbedKey("test_print")
+      .build();
     when(chainDAO.readOne(same(access), eq(chain17.getId()))).thenReturn(chain17);
 
-    Response result = subject.readOne(crc, chain17.getId().toString());
+    Response result = subject.readOne(crc, chain17.getId());
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
     assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class))
-      .hasDataOne("chains", chain17.getId().toString());
+      .hasDataOne("chains", chain17.getId());
   }
 
   @Test
   public void delete() throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
-    Account account25 = Account.create();
-    Chain chain17 = Chain.create(account25, "Test Print #1", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "test_print");
+    Account account25 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
+    Chain chain17 = Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(account25.getId())
+      .setName("Test Print #1")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Ready)
+      .setStartAt("2014-08-12T12:17:02.527142Z")
+      .setEmbedKey("test_print")
+      .build();
 
     Response result = subject.delete(crc, chain17.getId());
 

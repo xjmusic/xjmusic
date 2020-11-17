@@ -10,7 +10,6 @@ import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.dao.AccountDAO;
-import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -51,7 +50,7 @@ public class AccountEndpoint extends HubEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed(UserRoleType.USER)
+  @RolesAllowed(USER)
   public Response readMany(@Context ContainerRequestContext crc) {
     return readMany(crc, dao(), ImmutableList.of());
   }
@@ -64,7 +63,7 @@ public class AccountEndpoint extends HubEndpoint {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed(UserRoleType.ADMIN)
+  @RolesAllowed(ADMIN)
   public Response create(Payload payload, @Context ContainerRequestContext crc) {
     return create(crc, dao(), payload);
   }
@@ -76,7 +75,7 @@ public class AccountEndpoint extends HubEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed(UserRoleType.USER)
+  @RolesAllowed(USER)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -90,7 +89,7 @@ public class AccountEndpoint extends HubEndpoint {
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed(UserRoleType.ADMIN)
+  @RolesAllowed(ADMIN)
   public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     return update(crc, dao(), id, payload);
   }
@@ -102,7 +101,7 @@ public class AccountEndpoint extends HubEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed(UserRoleType.ADMIN)
+  @RolesAllowed(ADMIN)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

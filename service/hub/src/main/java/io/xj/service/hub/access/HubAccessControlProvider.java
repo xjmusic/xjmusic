@@ -2,9 +2,9 @@
 package io.xj.service.hub.access;
 
 
-import io.xj.service.hub.entity.AccountUser;
-import io.xj.service.hub.entity.UserAuth;
-import io.xj.service.hub.entity.UserRole;
+import io.xj.AccountUser;
+import io.xj.UserAuth;
+import io.xj.UserRole;
 
 import javax.ws.rs.core.NewCookie;
 import java.util.Collection;

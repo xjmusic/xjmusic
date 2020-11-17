@@ -6,16 +6,16 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.MessageType;
+import io.xj.InstrumentAudio;
+import io.xj.Segment;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentMessage;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerConfig;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.util.Text;
-import io.xj.service.hub.entity.InstrumentAudio;
-import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
-import io.xj.service.nexus.entity.SegmentMessage;
-import io.xj.service.nexus.entity.SegmentType;
+import io.xj.service.hub.client.HubClientException;
 import io.xj.service.nexus.fabricator.FabricationException;
 import io.xj.service.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
@@ -25,7 +25,6 @@ import java.io.BufferedInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -37,8 +36,8 @@ public class DubMasterImpl implements DubMaster {
   private final Fabricator fabricator;
   private final MixerFactory mixerFactory;
   private final List<String> warnings = Lists.newArrayList();
-  private final Map<UUID, Double> pickOffsetStart = Maps.newHashMap();
-  private final Map<UUID, Double> pickPitchRatio = Maps.newHashMap();
+  private final Map<String, Double> pickOffsetStart = Maps.newHashMap();
+  private final Map<String, Double> pickPitchRatio = Maps.newHashMap();
   private final DubAudioCache dubAudioCache;
   private final long audioAttackMicros;
   private final long audioReleaseMicros;
@@ -89,24 +88,25 @@ public class DubMasterImpl implements DubMaster {
 
   @Override
   public void doWork() throws DubException {
-    SegmentType type = null;
+    Segment.Type type = null;
     try {
       type = fabricator.getType();
       doMixerSourceLoading();
-      Double preroll = computePreroll();
+      double preroll = computePreroll();
       doMixerTargetSetting(preroll);
       doMix();
       reportWarnings();
       report();
 
       // write updated segment with waveform preroll
-      fabricator.getSegment().setWaveformPreroll(preroll);
+      fabricator.updateSegment(fabricator.getSegment().toBuilder()
+        .setWaveformPreroll(preroll).build());
       fabricator.done();
 
     } catch (Exception e) {
       throw new DubException(
         String.format("Failed to do %s-type MasterDub for segment #%s",
-          type, fabricator.getSegment().getId().toString()), e);
+          type, fabricator.getSegment().getId()), e);
     }
   }
 
@@ -117,9 +117,9 @@ public class DubMasterImpl implements DubMaster {
     for (InstrumentAudio audio : fabricator.getPickedAudios()) {
       String key = audio.getWaveformKey();
 
-      if (!mixer().hasLoadedSource(audio.getId().toString())) try {
+      if (!mixer().hasLoadedSource(audio.getId())) try {
         BufferedInputStream stream = dubAudioCache.get(key).stream();
-        mixer().loadSource(audio.getId().toString(), stream);
+        mixer().loadSource(audio.getId(), stream);
         stream.close();
 
       } catch (Exception e) {
@@ -178,7 +178,7 @@ public class DubMasterImpl implements DubMaster {
    @param pick    to set playback for
    */
   private void setupTarget(Double preroll, SegmentChoiceArrangementPick pick) throws Exception {
-    mixer().put(pick.getInstrumentAudioId().toString(),
+    mixer().put(pick.getInstrumentAudioId(),
       toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
       toMicros(preroll + pick.getStart() + pick.getLength()) + audioReleaseMicros,
       audioAttackMicros,
@@ -199,10 +199,15 @@ public class DubMasterImpl implements DubMaster {
    @param pick to get pitch ratio for
    @return pitch ratio, or cached result
    */
-  private Double computePitchRatio(SegmentChoiceArrangementPick pick) {
-    if (!pickPitchRatio.containsKey(pick.getId()))
-      pickPitchRatio.put(pick.getId(), fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()).getPitch() / pick.getPitch());
-    return pickPitchRatio.get(pick.getId());
+  private Double computePitchRatio(SegmentChoiceArrangementPick pick) throws DubException {
+    try {
+      if (!pickPitchRatio.containsKey(pick.getId()))
+        pickPitchRatio.put(pick.getId(), fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()).getPitch() / pick.getPitch());
+      return pickPitchRatio.get(pick.getId());
+
+    } catch (HubClientException e) {
+      throw new DubException("compute pitch ratio");
+    }
   }
 
   /**
@@ -211,10 +216,15 @@ public class DubMasterImpl implements DubMaster {
    @param pick to get offset start for
    @return offset start, or cached result
    */
-  private Double computeOffsetStart(SegmentChoiceArrangementPick pick) {
-    if (!pickOffsetStart.containsKey(pick.getId()))
-      pickOffsetStart.put(pick.getId(), fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()).getStart() / computePitchRatio(pick));
-    return pickOffsetStart.get(pick.getId());
+  private Double computeOffsetStart(SegmentChoiceArrangementPick pick) throws DubException {
+    try {
+      if (!pickOffsetStart.containsKey(pick.getId()))
+        pickOffsetStart.put(pick.getId(), fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()).getStart() / computePitchRatio(pick));
+      return pickOffsetStart.get(pick.getId());
+
+    } catch (HubClientException e) {
+      throw new DubException("compute offset start");
+    }
   }
 
   /**
@@ -245,7 +255,6 @@ public class DubMasterImpl implements DubMaster {
         .setCompressAheadSeconds(compressAheadSeconds)
         .setCompressDecaySeconds(compressDecaySeconds);
 
-
       _mixer = mixerFactory.createMixer(config);
     }
 
@@ -271,7 +280,11 @@ public class DubMasterImpl implements DubMaster {
         body.append(String.format("%n%n%s", warning));
       }
 
-      fabricator.add(SegmentMessage.create(fabricator.getSegment(), MessageType.Warning, body.toString()));
+      fabricator.add(SegmentMessage.newBuilder()
+        .setSegmentId(fabricator.getSegment().getId())
+        .setType(SegmentMessage.Type.Warning)
+        .setBody(body.toString())
+        .build());
     } catch (Exception e1) {
       log.warn("Failed to create SegmentMessage", e1);
     }

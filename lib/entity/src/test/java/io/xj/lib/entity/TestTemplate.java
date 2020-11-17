@@ -2,6 +2,8 @@
 
 package io.xj.lib.entity;
 
+import io.xj.Program;
+
 import java.util.UUID;
 
 /**
@@ -12,39 +14,29 @@ import java.util.UUID;
 public class TestTemplate {
 
   /**
-   Create a new MockEntity with the given name
+   Create a new Program with the given id and name
 
+   @param libraryId   of mock entity
    @param name of mock entity
    @return new mock entity
    */
-  protected MockEntity createMockEntity(String name) {
-    MockEntity e = createMockEntity(UUID.randomUUID());
-    e.setName(name);
-    return e;
+  public static Program createProgram(String libraryId, String name) {
+    return Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId(libraryId)
+      .setName(name)
+      .build();
   }
 
   /**
-   Create a new MockEntity with the given id and name
-
-   @param id   of mock entity
-   @param name of mock entity
-   @return new mock entity
-   */
-  protected MockEntity createMockEntity(UUID id, String name) {
-    MockEntity e = createMockEntity(id);
-    e.setName(name);
-    return e;
-  }
-
-  /**
-   Create a new MockEntity with the given name
+   Create a new Program with the given name
 
    @param id of mock entity
    @return new mock entity
    */
-  protected MockEntity createMockEntity(UUID id) {
-    MockEntity e = new MockEntity();
-    e.setId(id);
-    return e;
+  public static Program createProgram(String id) {
+    return Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build();
   }
 }

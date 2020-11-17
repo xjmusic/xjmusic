@@ -5,12 +5,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.AccountUser;
+import io.xj.UserAuth;
+import io.xj.UserRole;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.dao.DAOModule;
-import io.xj.service.hub.entity.*;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
 import io.xj.service.hub.testing.HubIntegrationTestModule;
@@ -65,27 +67,27 @@ public class HubAccessControlIT {
     when(hubAccessTokenGenerator.generate())
       .thenReturn("token123");
     // user auth
-    UserAuth userAuth = new UserAuth();
-    UUID userAuthId = UUID.randomUUID();
+    UserAuth.Builder userAuth = UserAuth.newBuilder();
+    String userAuthId = UUID.randomUUID().toString();
     userAuth.setId(userAuthId);
-    UUID userId = UUID.randomUUID();
+    String userId = UUID.randomUUID().toString();
     userAuth.setUserId(userId);
-    userAuth.setTypeEnum(UserAuthType.Google);
+    userAuth.setType(UserAuth.Type.Google);
     userAuth.setExternalAccount("google");
     userAuth.setExternalAccessToken("google-token");
     // user role
-    UserRole userRole = new UserRole();
+    UserRole.Builder userRole = UserRole.newBuilder();
     userRole.setUserId(userId);
-    userRole.setTypeEnum(UserRoleType.User);
+    userRole.setType(UserRole.Type.User);
     // account user
-    AccountUser accountUser = new AccountUser();
+    AccountUser.Builder accountUser = AccountUser.newBuilder();
     accountUser.setUserId(userId);
-    UUID accountId = UUID.randomUUID();
+    String accountId = UUID.randomUUID().toString();
     accountUser.setAccountId(accountId);
     // access control provider
-    Collection<AccountUser> accounts = Lists.newArrayList(accountUser);
-    Collection<UserRole> roles = Lists.newArrayList(userRole);
-    String TEST_TOKEN = hubAccessControlProvider.create(userAuth, accounts, roles);
+    Collection<AccountUser> accounts = Lists.newArrayList(accountUser.build());
+    Collection<UserRole> roles = Lists.newArrayList(userRole.build());
+    String TEST_TOKEN = hubAccessControlProvider.create(userAuth.build(), accounts, roles);
 
     // now stress test
     for (int i = 0; STRESS_TEST_ITERATIONS > i; i++) {

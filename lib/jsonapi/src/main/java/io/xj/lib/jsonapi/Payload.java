@@ -12,7 +12,11 @@ import io.xj.lib.entity.EntityException;
 
 import javax.annotation.Nullable;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -334,12 +338,12 @@ public class Payload {
    @param resourceIds  to test
    @return true if the Payload has-one data, with the specified class + id
    */
-  public boolean hasDataOne(String resourceType, Collection<UUID> resourceIds) {
+  public boolean hasDataOne(String resourceType, Collection<String> resourceIds) {
     if (!PayloadDataType.One.equals(dataType)) return false;
     Optional<PayloadObject> dataOne = getDataOne();
     if (dataOne.isEmpty()) return false;
     if (!Objects.equals(resourceType, dataOne.get().getType())) return false;
-    return resourceIds.contains(UUID.fromString(dataOne.get().getId()));
+    return resourceIds.contains(dataOne.get().getId());
   }
 
   /**

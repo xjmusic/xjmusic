@@ -2,9 +2,9 @@
 package io.xj.service.nexus.fabricator;
 
 import com.google.inject.assistedinject.Assisted;
+import io.xj.Chain;
+import io.xj.Segment;
 import io.xj.service.hub.client.HubClientAccess;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.Segment;
 
 /**
  Fabricator content = contentFactory.workOn(segment);

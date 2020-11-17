@@ -2,12 +2,13 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import io.xj.ProgramSequenceChordVoicing;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.ProgramSequenceChordVoicing;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 import org.jooq.DSLContext;
 
@@ -35,7 +36,7 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
   @Override
   public ProgramSequenceChordVoicing create(HubAccess hubAccess, ProgramSequenceChordVoicing entity) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
-    entity.validate();
+    validate(entity);
     requireArtist(hubAccess);
     requireProgramModification(db, hubAccess, entity.getProgramId());
 
@@ -45,26 +46,26 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
 
   @Override
   @Nullable
-  public ProgramSequenceChordVoicing readOne(HubAccess hubAccess, UUID id) throws DAOException {
+  public ProgramSequenceChordVoicing readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     if (hubAccess.isTopLevel())
       return modelFrom(ProgramSequenceChordVoicing.class,
         dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
-          .where(PROGRAM_SEQUENCE_CHORD_VOICING.ID.eq(id))
+          .where(PROGRAM_SEQUENCE_CHORD_VOICING.ID.eq(UUID.fromString(id)))
           .fetchOne());
     else
       return modelFrom(ProgramSequenceChordVoicing.class,
         dbProvider.getDSL().select(PROGRAM_SEQUENCE_CHORD_VOICING.fields()).from(PROGRAM_SEQUENCE_CHORD_VOICING)
           .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID))
           .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-          .where(PROGRAM_SEQUENCE_CHORD_VOICING.ID.eq(id))
+          .where(PROGRAM_SEQUENCE_CHORD_VOICING.ID.eq(UUID.fromString(id)))
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne());
   }
 
   @Override
   @Nullable
-  public Collection<ProgramSequenceChordVoicing> readMany(HubAccess hubAccess, Collection<UUID> programIds) throws DAOException {
+  public Collection<ProgramSequenceChordVoicing> readMany(HubAccess hubAccess, Collection<String> programIds) throws DAOException {
     requireArtist(hubAccess);
     if (hubAccess.isTopLevel())
       return modelsFrom(ProgramSequenceChordVoicing.class,
@@ -82,10 +83,10 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
   }
 
   @Override
-  public void update(HubAccess hubAccess, UUID id, ProgramSequenceChordVoicing entity) throws DAOException, JsonApiException, ValueException {
+  public void update(HubAccess hubAccess, String id, ProgramSequenceChordVoicing entity) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     require("Same id", Objects.equals(id, entity.getId()));
-    entity.validate();
+    validate(entity);
     requireArtist(hubAccess);
     requireProgramModification(db, hubAccess, entity.getProgramId());
 
@@ -93,7 +94,7 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+  public void destroy(HubAccess hubAccess, String id) throws DAOException {
     DSLContext db = dbProvider.getDSL();
     requireArtist(hubAccess);
 
@@ -102,18 +103,37 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
         .from(PROGRAM_SEQUENCE_CHORD_VOICING)
         .join(PROGRAM).on(PROGRAM.ID.eq(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PROGRAM.LIBRARY_ID))
-        .where(PROGRAM_SEQUENCE_CHORD_VOICING.ID.eq(id))
+        .where(PROGRAM_SEQUENCE_CHORD_VOICING.ID.eq(UUID.fromString(id)))
         .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne(0, int.class));
 
     db.deleteFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
-      .where(PROGRAM_SEQUENCE_CHORD_VOICING.ID.eq(id))
+      .where(PROGRAM_SEQUENCE_CHORD_VOICING.ID.eq(UUID.fromString(id)))
       .execute();
   }
 
   @Override
   public ProgramSequenceChordVoicing newInstance() {
-    return new ProgramSequenceChordVoicing();
+    return ProgramSequenceChordVoicing.getDefaultInstance();
   }
+
+  /**
+   Validate data
+
+   @param record to validate
+   @throws DAOException if invalid
+   */
+  public void validate(ProgramSequenceChordVoicing record) throws DAOException {
+    try {
+      Value.require(record.getProgramId(), "Program ID");
+      Value.require(record.getProgramSequenceChordId(), "Sequence Chord ID");
+      Value.require(record.getType(), "Voice type");
+      Value.require(record.getNotes(), "Notes are required");
+
+    } catch (ValueException e) {
+      throw new DAOException(e);
+    }
+  }
+
 
 }

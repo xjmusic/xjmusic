@@ -5,31 +5,32 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.entity.Entity;
+import com.google.protobuf.GeneratedMessageLite;
+import io.xj.Chain;
+import io.xj.Program;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
+import io.xj.SegmentMeme;
+import io.xj.SegmentMessage;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
-import io.xj.lib.entity.MessageType;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.client.HubClientAccess;
-import io.xj.service.hub.entity.ProgramType;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentChoice;
-import io.xj.service.nexus.entity.SegmentChoiceArrangement;
-import io.xj.service.nexus.entity.SegmentChoiceArrangementPick;
-import io.xj.service.nexus.entity.SegmentChord;
-import io.xj.service.nexus.entity.SegmentMeme;
-import io.xj.service.nexus.entity.SegmentMessage;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  The SegmentWorkbench is a delegate to manipulate the segment currently in progress during the fabrication.
@@ -43,7 +44,9 @@ import java.util.Optional;
  */
 class SegmentWorkbenchImpl implements SegmentWorkbench {
   private final Chain chain;
-  private final Segment segment;
+
+  private Segment segment;
+
   private final SegmentDAO segmentDAO;
   private final PayloadFactory payloadFactory;
   private final HubClientAccess access;
@@ -72,6 +75,11 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     } catch (DAOFatalException | DAOPrivilegeException | EntityStoreException e) {
       throw new FabricationException("Failed to load Segment for Workbench!", e);
     }
+  }
+
+  @Override
+  public void setSegment(Segment segment) {
+    this.segment = segment;
   }
 
   @Override
@@ -120,7 +128,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangementPick> getSegmentPicks() throws FabricationException {
+  public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() throws FabricationException {
     try {
       return store.getAll(SegmentChoiceArrangementPick.class);
     } catch (EntityStoreException e) {
@@ -158,10 +166,18 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public SegmentChoice getChoiceOfType(ProgramType type) throws FabricationException {
-    Optional<SegmentChoice> choice = getSegmentChoices().stream().filter(c -> c.getType().equals(type)).findFirst();
+  public SegmentChoice getChoiceOfType(Program.Type type) throws FabricationException {
+    Optional<SegmentChoice> choice = getSegmentChoices().stream().filter(c -> c.getProgramType().equals(type)).findFirst();
     if (choice.isEmpty()) throw new FabricationException(String.format("No %s-type choice in workbench segment", type));
     return choice.get();
+  }
+
+  @Override
+  public Collection<SegmentChoice> getChoicesOfType(Program.Type type)
+    throws FabricationException {
+    return getSegmentChoices().stream()
+      .filter(c -> c.getProgramType().equals(type))
+      .collect(Collectors.toList());
   }
 
   @Override
@@ -170,7 +186,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public <N extends Entity> N add(N entity) throws FabricationException {
+  public <N extends GeneratedMessageLite<N, ?>> N add(N entity) throws FabricationException {
     try {
       return store.put(entity);
     } catch (EntityStoreException e) {
@@ -183,7 +199,12 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
    */
   private void sendReportToSegmentMessage() throws JsonApiException, FabricationException {
     String reported = payloadFactory.serialize(report);
-    add(SegmentMessage.create(segment, MessageType.Info, reported));
+    add(SegmentMessage.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment.getId())
+      .setType(SegmentMessage.Type.Info)
+      .setBody(reported)
+      .build());
     report.clear();
   }
 

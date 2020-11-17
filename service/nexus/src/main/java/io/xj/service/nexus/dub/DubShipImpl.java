@@ -4,14 +4,13 @@ package io.xj.service.nexus.dub;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.MessageType;
+import io.xj.Segment;
+import io.xj.SegmentMessage;
 import io.xj.lib.entity.MessageType;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.pubsub.PubSubProvider;
 import io.xj.lib.util.Text;
-import io.xj.service.nexus.entity.SegmentMessage;
-import io.xj.service.nexus.entity.SegmentType;
 import io.xj.service.nexus.fabricator.FabricationException;
 import io.xj.service.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
@@ -45,7 +44,7 @@ public class DubShipImpl implements DubShip {
 
   @Override
   public void doWork() throws DubException {
-    SegmentType type = null;
+    Segment.Type type = null;
     try {
       type = fabricator.getType();
       shipFinalMetadata();
@@ -54,7 +53,7 @@ public class DubShipImpl implements DubShip {
 
     } catch (FabricationException | FileStoreException e) {
       throw new DubException(String.format("Failed to do %s-type ShipDub for segment #%s",
-        type, fabricator.getSegment().getId().toString()), e);
+        type, fabricator.getSegment().getId()), e);
     }
   }
 
@@ -66,7 +65,7 @@ public class DubShipImpl implements DubShip {
     fileStore.putS3ObjectFromTempFile(
       fabricator.getFullQualityAudioOutputFilePath(),
       segmentFileBucket,
-      fabricator.getSegment().getOutputWaveformKey());
+      fabricator.getSegmentOutputWaveformKey());
   }
 
   /**
@@ -76,7 +75,7 @@ public class DubShipImpl implements DubShip {
     fileStore.putS3ObjectFromString(
       fabricator.getResultMetadataJson(),
       segmentFileBucket,
-      fabricator.getSegment().getOutputMetadataKey());
+      fabricator.getSegmentOutputMetadataKey());
   }
 
   /**

@@ -2,11 +2,12 @@
 
 package io.xj.lib.entity.common;
 
-import io.xj.lib.entity.Entity;
+import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 
-public abstract class EventEntity extends Entity {
+public abstract class EventEntity {
   private Double duration;
   private String note;
   private Double position;
@@ -18,11 +19,15 @@ public abstract class EventEntity extends Entity {
    @param event to validate
    @throws ValueException if invalid
    */
-  public static void validate(EventEntity event) throws ValueException {
-    Value.require(event.getDuration(), "Duration");
-    Value.require(event.getNote(), "Note");
-    Value.require(event.getPosition(), "Position");
-    Value.require(event.getVelocity(), "Velocity");
+  public static void validate(Object event) throws ValueException {
+    try {
+      Value.require(Entities.get(event, "duration"), "Duration");
+      Value.require(Entities.get(event, "note"), "Note");
+      Value.require(Entities.get(event, "position"), "Position");
+      Value.require(Entities.get(event, "velocity"), "Velocity");
+    } catch (EntityException e) {
+      throw new ValueException(e);
+    }
   }
 
   /**

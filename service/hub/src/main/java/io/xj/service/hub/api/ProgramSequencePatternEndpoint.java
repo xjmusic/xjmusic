@@ -3,7 +3,7 @@ package io.xj.service.hub.api;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.Entity;
+import io.xj.ProgramSequencePattern;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.Payload;
@@ -13,8 +13,6 @@ import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.DAOCloner;
 import io.xj.service.hub.dao.ProgramSequencePatternDAO;
-import io.xj.service.hub.entity.ProgramSequencePattern;
-import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -31,7 +29,6 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  ProgramSequencePattern endpoint
@@ -62,7 +59,7 @@ public class ProgramSequencePatternEndpoint extends HubEndpoint {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed({ARTIST})
   public Response create(
     Payload payload,
     @Context ContainerRequestContext crc,
@@ -73,10 +70,10 @@ public class ProgramSequencePatternEndpoint extends HubEndpoint {
       ProgramSequencePattern programSequencePattern = payloadFactory.consume(dao().newInstance(), payload);
       Payload responsePayload = new Payload();
       if (Objects.nonNull(cloneId)) {
-        DAOCloner<ProgramSequencePattern> cloner = dao().clone(hubAccess, UUID.fromString(cloneId), programSequencePattern);
+        DAOCloner<ProgramSequencePattern> cloner = dao().clone(hubAccess, cloneId, programSequencePattern);
         responsePayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
         List<PayloadObject> list = new ArrayList<>();
-        for (Entity entity : cloner.getChildClones()) {
+        for (Object entity : cloner.getChildClones()) {
           PayloadObject payloadObject = payloadFactory.toPayloadObject(entity);
           list.add(payloadObject);
         }
@@ -99,7 +96,7 @@ public class ProgramSequencePatternEndpoint extends HubEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed({ARTIST})
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -110,7 +107,7 @@ public class ProgramSequencePatternEndpoint extends HubEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed({ARTIST})
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programSequenceId") String programSequenceId) {
     return readMany(crc, dao(), programSequenceId);
   }
@@ -124,7 +121,7 @@ public class ProgramSequencePatternEndpoint extends HubEndpoint {
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed(UserRoleType.ARTIST)
+  @RolesAllowed(ARTIST)
   public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     return update(crc, dao(), id, payload);
   }
@@ -136,7 +133,7 @@ public class ProgramSequencePatternEndpoint extends HubEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed({ARTIST})
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

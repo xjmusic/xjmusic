@@ -6,19 +6,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.Account;
+import io.xj.Chain;
+import io.xj.Segment;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.HubApp;
-import io.xj.service.hub.entity.Account;
 import io.xj.service.nexus.NexusApp;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.ChainState;
-import io.xj.service.nexus.entity.ChainType;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentState;
-import io.xj.service.nexus.entity.SegmentType;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,7 +23,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -60,206 +55,182 @@ public class NexusEntityStoreImplTest {
    */
   @Test
   public void internal_entityFactoryClonesSegmentTypeOK() throws EntityException {
-    Segment segment = new Segment().setTypeEnum(SegmentType.NextMacro);
+    Segment segment = Segment.newBuilder().setType(Segment.Type.NextMacro).build();
 
     Segment result = entityFactory.clone(segment);
 
-    assertEquals(SegmentType.NextMacro, result.getType());
+    assertEquals(Segment.Type.NextMacro, result.getType());
   }
 
 
   @Test
   public void put_get_Segment() throws EntityStoreException {
-    UUID chainId = UUID.randomUUID();
-    Segment segment = Segment.create()
+    String chainId = UUID.randomUUID().toString();
+    Segment segment = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chainId)
       .setOffset(0L)
-      .setTypeEnum(SegmentType.NextMacro)
-      .setStateEnum(SegmentState.Dubbed)
+      .setType(Segment.Type.NextMacro)
+      .setState(Segment.State.Dubbed)
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setEndAt("2017-02-14T12:01:32.000001Z")
       .setKey("D Major")
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav");
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build();
 
     subject.put(segment);
     Segment result = subject.get(Segment.class, segment.getId()).orElseThrow();
 
     assertEquals(segment.getId(), result.getId());
     assertEquals(chainId, result.getChainId());
-    assertEquals(Long.valueOf(0L), result.getOffset());
-    assertEquals(SegmentType.NextMacro, result.getType());
-    assertEquals(SegmentState.Dubbed, result.getState());
-    assertEquals(Instant.parse("2017-02-14T12:01:00.000001Z"), result.getBeginAt());
-    assertEquals(Instant.parse("2017-02-14T12:01:32.000001Z"), result.getEndAt());
+    assertEquals(0, result.getOffset());
+    assertEquals(Segment.Type.NextMacro, result.getType());
+    assertEquals(Segment.State.Dubbed, result.getState());
+    assertEquals("2017-02-14T12:01:00.000001Z", result.getBeginAt());
+    assertEquals("2017-02-14T12:01:32.000001Z", result.getEndAt());
     assertEquals("D Major", result.getKey());
-    assertEquals(Integer.valueOf(64), result.getTotal());
-    assertEquals(Double.valueOf(0.73), result.getDensity());
-    assertEquals(Double.valueOf(120.0), result.getTempo());
+    assertEquals(64, result.getTotal());
+    assertEquals(0.73, result.getDensity(), 0.01);
+    assertEquals(120.0, result.getTempo(), 0.01);
     assertEquals("chains-1-segments-9f7s89d8a7892.wav", result.getStorageKey());
   }
 
   @Test
   public void put_get_Chain() throws EntityStoreException {
-    UUID accountId = UUID.randomUUID();
-    Chain chain = Chain.create()
+    String accountId = UUID.randomUUID().toString();
+    Chain chain = Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setAccountId(accountId)
-      .setTypeEnum(ChainType.Preview)
-      .setStateEnum(ChainState.Fabricate)
+      .setType(Chain.Type.Preview)
+      .setState(Chain.State.Fabricate)
       .setStartAt("2017-02-14T12:01:00.000001Z")
       .setStopAt("2017-02-14T12:01:32.000001Z")
-      .setEmbedKey("super");
+      .setEmbedKey("super")
+      .build();
 
     subject.put(chain);
     Chain result = subject.get(Chain.class, chain.getId()).orElseThrow();
 
     assertEquals(chain.getId(), result.getId());
     assertEquals(accountId, result.getAccountId());
-    assertEquals(ChainType.Preview, result.getType());
-    assertEquals(ChainState.Fabricate, result.getState());
-    assertEquals(Instant.parse("2017-02-14T12:01:00.000001Z"), result.getStartAt());
-    assertEquals(Instant.parse("2017-02-14T12:01:32.000001Z"), result.getStopAt());
+    assertEquals(Chain.Type.Preview, result.getType());
+    assertEquals(Chain.State.Fabricate, result.getState());
+    assertEquals("2017-02-14T12:01:00.000001Z", result.getStartAt());
+    assertEquals("2017-02-14T12:01:32.000001Z", result.getStopAt());
     assertEquals("super", result.getEmbedKey());
   }
 
   @Test
-  public void put_cantBeMutated() throws EntityStoreException {
-    Account account1 = Account.create("fish");
-    Chain chain3 = Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null);
-    subject.put(chain3);
-    // and then after putting the entity, change the object that was sent-- this should NOT mutate the store
-    chain3.setName("FunkyTown");
-
-    Chain result = subject.get(Chain.class, chain3.getId()).orElseThrow();
-    assertEquals("Test Print #1", result.getName());
-  }
-
-    /**
-   [#174742042] Engineer expects linear scaling of entity read time
-   <p>
-   Cloning entities when getting them from memory was creating a problem
-   and so we no longer cloning entities when we get them from the memory store
-   */
-  @Test
-  public void get_canBeMutated_soDontDoIt() throws EntityStoreException {
-    Account account1 = Account.create("fish");
-    Chain chain3 = subject.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
-    Chain got = subject.get(Chain.class, chain3.getId()).orElseThrow();
-    // and then after getting an entity, change the object we got-- this should NOT mutate the store
-    got.setName("FunkyTown");
-
-    Chain result = subject.get(Chain.class, chain3.getId()).orElseThrow();
-    assertEquals("FunkyTown", result.getName());
-  }
-
-    /**
-   [#174742042] Engineer expects linear scaling of entity read time
-   <p>
-   Cloning entities when getting them from memory was creating a problem
-   and so we no longer cloning entities when we get them from the memory store
-   */
-  @Test
-  public void getAll_canBeMutated_soDontDoIt() throws EntityStoreException {
-    Account account1 = Account.create("fish");
-    Chain chain3 = subject.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
-    Collection<Chain> got = subject.getAll(Chain.class);
-    // and then after getting the entities, change one of the objects-- this should NOT mutate the store
-    got.iterator().next().setName("FunkyTown");
-
-    Chain result = subject.get(Chain.class, chain3.getId()).orElseThrow();
-    assertEquals("FunkyTown", result.getName());
-  }
-
-    /**
-   [#174742042] Engineer expects linear scaling of entity read time
-   <p>
-   Cloning entities when getting them from memory was creating a problem
-   and so we no longer cloning entities when we get them from the memory store
-   */
-  @Test
-  public void getAllBelongingTo_canBeMutated_soDontDoIt() throws EntityStoreException {
-    Account account1 = Account.create("fish");
-    Chain chain3 = subject.put(Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
-    Collection<Chain> got = subject.getAll(Chain.class, Account.class, ImmutableList.of(account1.getId()));
-    // and then after getting the entities, change one of the objects-- this should NOT mutate the store
-    got.iterator().next().setName("FunkyTown");
-
-    Chain result = subject.get(Chain.class, chain3.getId()).orElseThrow();
-    assertEquals("FunkyTown", result.getName());
-  }
-
-  @Test
   public void putWithoutId_getHasNewId() throws EntityStoreException {
-    Account account1 = Account.create("fish");
-    Chain chain3 = Chain.create(account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null);
-    chain3.setId(null);
-    Segment chain3_segment0 = Segment.create()
+    Account account1 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("fish")
+      .build();
+    Chain chain3 = Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(account1.getId())
+      .setName("Test Print #1")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2014-08-12T12:17:02.527142Z")
+      .setStopAt("2014-09-11T12:17:01.047563Z")
+      .build();
+    Segment chain3_segment0 = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(0L)
-      .setStateEnum(SegmentState.Dubbed)
+      .setState(Segment.State.Dubbed)
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setEndAt("2017-02-14T12:01:32.000001Z")
       .setKey("D Major")
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav");
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build();
     subject.put(chain3_segment0);
 
     Segment result = subject.get(Segment.class, chain3_segment0.getId()).orElseThrow();
     assertEquals(chain3_segment0.getId(), result.getId());
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Long.valueOf(0L), result.getOffset());
-    assertEquals(SegmentState.Dubbed, result.getState());
-    assertEquals(Instant.parse("2017-02-14T12:01:00.000001Z"), result.getBeginAt());
-    assertEquals(Instant.parse("2017-02-14T12:01:32.000001Z"), result.getEndAt());
+    assertEquals(0L, result.getOffset());
+    assertEquals(Segment.State.Dubbed, result.getState());
+    assertEquals("2017-02-14T12:01:00.000001Z", result.getBeginAt());
+    assertEquals("2017-02-14T12:01:32.000001Z", result.getEndAt());
     assertEquals("D Major", result.getKey());
-    assertEquals(Integer.valueOf(64), result.getTotal());
-    assertEquals(Double.valueOf(0.73), result.getDensity());
-    assertEquals(Double.valueOf(120.0), result.getTempo());
+    assertEquals(64, result.getTotal());
+    assertEquals(0.73, result.getDensity(), 0.01);
+    assertEquals(120.0, result.getTempo(), 0.01);
     assertEquals("chains-1-segments-9f7s89d8a7892.wav", result.getStorageKey());
   }
 
   @Test
   public void putAll_getAll() throws EntityStoreException {
-    Account account1 = Account.create("fish");
-    Chain chain2 = Chain.create(account1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null);
-    Chain chain3 = Chain.create(account1, "Test Print #3", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null);
-    Segment chain2_segment0 = Segment.create()
+    Account account1 = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("fish")
+      .build();
+
+    Chain chain2 = Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(account1.getId())
+      .setName("Test Print #2")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2014-08-12T12:17:02.527142Z")
+      .setStopAt("2014-09-11T12:17:01.047563Z")
+      .build();
+    Chain chain3 = Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(account1.getId())
+      .setName("Test Print #3")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2014-08-12T12:17:02.527142Z")
+      .setStopAt("2014-09-11T12:17:01.047563Z")
+      .build();
+    Segment chain2_segment0 = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain2.getId())
       .setOffset(12L)
-      .setStateEnum(SegmentState.Dubbed)
+      .setState(Segment.State.Dubbed)
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setEndAt("2017-02-14T12:01:32.000001Z")
       .setKey("G minor")
       .setTotal(32)
       .setDensity(0.3)
       .setTempo(10.0)
-      .setStorageKey("chains-2-segments-8929f7sd8a789.wav");
-    Segment chain3_segment0 = Segment.create()
+      .setStorageKey("chains-2-segments-8929f7sd8a789.wav")
+      .build();
+    Segment chain3_segment0 = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(0L)
-      .setStateEnum(SegmentState.Dubbed)
+      .setState(Segment.State.Dubbed)
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setEndAt("2017-02-14T12:01:32.000001Z")
       .setKey("D Major")
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120.0)
-      .setStorageKey("chains-3-segments-9f7s89d8a7892.wav");
-    Segment chain3_segment1 = Segment.create()
+      .setStorageKey("chains-3-segments-9f7s89d8a7892.wav")
+      .build();
+    Segment chain3_segment1 = Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(0L)
-      .setStateEnum(SegmentState.Dubbed)
+      .setState(Segment.State.Dubbed)
       .setBeginAt("2017-02-14T12:01:32.000001Z")
       .setEndAt("2017-02-14T12:01:48.000001Z")
       .setKey("D Major")
       .setTotal(48)
       .setDensity(0.73)
       .setTempo(120.0)
-      .setStorageKey("chains-3-segments-d8a78929f7s89.wav");
+      .setStorageKey("chains-3-segments-d8a78929f7s89.wav")
+      .build();
     assertEquals(5, subject.putAll(ImmutableList.of(chain2, chain3, chain2_segment0, chain3_segment0, chain3_segment1)).size());
 
     Collection<Segment> result = subject.getAll(Segment.class, Chain.class, ImmutableList.of(chain3.getId()));

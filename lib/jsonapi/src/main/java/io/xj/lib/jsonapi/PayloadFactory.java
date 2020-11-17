@@ -2,7 +2,7 @@
 
 package io.xj.lib.jsonapi;
 
-import io.xj.lib.entity.Entity;
+import com.google.protobuf.GeneratedMessageLite;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -36,7 +36,7 @@ public interface PayloadFactory {
    @return target Entity (for chaining methods)
    @throws JsonApiException on failure to consume payload
    */
-  <N extends Entity> N consume(N target, Payload payload) throws JsonApiException;
+  <N extends GeneratedMessageLite<N, ?>> N consume(N target, Payload payload) throws JsonApiException;
 
   /**
    Set all attributes of entity of a payload object
@@ -58,7 +58,7 @@ public interface PayloadFactory {
    @return target Entity (for chaining methods)
    @throws JsonApiException on failure to set
    */
-  <N extends Entity> N consume(N target, PayloadObject payloadObject) throws JsonApiException;
+  <N extends GeneratedMessageLite<N, ?>> N consume(N target, PayloadObject payloadObject) throws JsonApiException;
 
   /**
    Shortcut to build payload object with no child entities
@@ -66,7 +66,7 @@ public interface PayloadFactory {
    @param target from which to build payload object
    @return resource object
    */
-  <N extends Entity> PayloadObject toPayloadObject(N target) throws JsonApiException;
+  <N> PayloadObject toPayloadObject(N target) throws JsonApiException;
 
   /**
    Shortcut to build a collection of payload objects with no child entities
@@ -74,7 +74,7 @@ public interface PayloadFactory {
    @param targets from which to build collection of payload objects
    @return resource object
    */
-  <N extends Entity> Collection<PayloadObject> toPayloadObjects(Collection<N> targets) throws JsonApiException;
+  <N> Collection<PayloadObject> toPayloadObjects(Collection<N> targets) throws JsonApiException;
 
   /**
    Build and return a Entity Object of target entity, probably for an API Payload
@@ -97,7 +97,7 @@ public interface PayloadFactory {
    @param childResources to search for possible children-- only add matched resources
    @return resource object
    */
-  <N extends Entity> PayloadObject toPayloadObject(N target, Collection<N> childResources) throws JsonApiException;
+  <N> PayloadObject toPayloadObject(N target, Collection<N> childResources) throws JsonApiException;
 
   /**
    Create a new Payload instance
@@ -128,7 +128,7 @@ public interface PayloadFactory {
    @param target from while to get payload reference object
    @return resource object
    */
-  <N extends Entity> PayloadObject toPayloadReferenceObject(N target) throws JsonApiException;
+  <N> PayloadObject toPayloadReferenceObject(N target) throws JsonApiException;
 
   /**
    Add all sub-entities of given entity to included resource objects
@@ -138,7 +138,7 @@ public interface PayloadFactory {
    @param resources to be added
    @return this Payload (for chaining methods)
    */
-  <N extends Entity> Payload addIncluded(Payload payload, Collection<N> resources) throws JsonApiException;
+  <N> Payload addIncluded(Payload payload, Collection<N> resources) throws JsonApiException;
 
   /**
    Add a resource to the included objects
@@ -165,7 +165,7 @@ public interface PayloadFactory {
    @param entities to set
    @return this Payload (for chaining methods)
    */
-  <N extends Entity> Payload setDataEntities(Payload payload, Collection<N> entities) throws JsonApiException;
+  <N> Payload setDataEntities(Payload payload, Collection<N> entities) throws JsonApiException;
 
   /**
    Set has-one data
@@ -173,7 +173,7 @@ public interface PayloadFactory {
    @param entity to set
    @return this Payload (for chaining methods)
    */
-  <N extends Entity> Payload setDataEntity(Payload payload, N entity) throws JsonApiException;
+  <N> Payload setDataEntity(Payload payload, N entity) throws JsonApiException;
 
   /**
    Set Data as references to many type and id
@@ -181,7 +181,7 @@ public interface PayloadFactory {
    @param resources to reference
    @return this payload (for chaining methods)
    */
-  <N extends Entity> Payload setDataReferences(Payload payload, Collection<N> resources) throws JsonApiException;
+  <N> Payload setDataReferences(Payload payload, Collection<N> resources) throws JsonApiException;
 
   /**
    Add one payload to a has-many relationship of this resource object
@@ -261,13 +261,24 @@ public interface PayloadFactory {
   Payload deserialize(String json) throws JsonApiException;
 
   /**
+   Parse some JSON text, and deserialize it into the specified class
+
+   @param <N>       class of entity
+   @param valueType class which deserialization will result in
+   @param json      to deserialize
+   @return {@link Object} deserialized from JSON
+   @throws JsonApiException on failure to deserialize
+   */
+  <N> N deserialize(Class<N> valueType, String json) throws JsonApiException;
+
+  /**
    Get an instance of an entity from a payload object comprising it.
    <p>
    Looks up the `type` of the provided payload object in our registry of entities, in order to obtain a constructor.
 
    @param payloadObject to get instance of
    */
-  <N extends Entity> N toOne(PayloadObject payloadObject) throws JsonApiException;
+  <N extends GeneratedMessageLite<N, ?>> N toOne(PayloadObject payloadObject) throws JsonApiException;
 
   /**
    Get an instance of an entity from a payload object comprising it.
@@ -278,50 +289,50 @@ public interface PayloadFactory {
 
    @param payload to get instance of
    */
-  <N extends Entity> N toOne(Payload payload) throws JsonApiException;
+  <N extends GeneratedMessageLite<N, ?>> N toOne(Payload payload) throws JsonApiException;
 
   /**
    Get a set of instances of entities from a payload with data-many payload objects.
 
    @param payload to get collection of instances of payload objects of
    */
-  <N extends Entity> Collection<N> toMany(Payload payload) throws JsonApiException;
+  <N extends GeneratedMessageLite<N, ?>> Collection<N> toMany(Payload payload) throws JsonApiException;
 
   /**
    Get a data-one Payload from the given entity
 
    @param entity to get payload of
-   @param <N     extends Entity>    type of entity
+   @param <N>    type of entity
    @return data-one Payload of given entity
    */
-  <N extends Entity> Payload from(N entity) throws JsonApiException;
+  <N extends GeneratedMessageLite<N, ?>> Payload from(N entity) throws JsonApiException;
 
   /**
    Get a data-one Payload from the given entity, including the given entities
 
    @param entity   to get payload of
    @param included entities to include in payload
-   @param <N       extends Entity>      type of entity
+   @param <N>      type of entity
    @return data-one Payload of given entity, including the given entities
    */
-  <N extends Entity> Payload from(N entity, Collection<N> included) throws JsonApiException;
+  <N extends GeneratedMessageLite<N, ?>> Payload from(N entity, Collection<N> included) throws JsonApiException;
 
   /**
    Get a data-many Payload from the given entities
 
    @param entities to get payload of
-   @param <N       extends Entity>      type of entities
+   @param <N>      type of entities
    @return data-many Payload of given entities
    */
-  <N extends Entity> Payload from(Collection<N> entities) throws JsonApiException;
+  <N extends GeneratedMessageLite<N, ?>> Payload from(Collection<N> entities) throws JsonApiException;
 
   /**
    Get a data-many Payload from the given entities, including the given entities
 
    @param entities to get payload of
    @param included entities to include in payload
-   @param <N       extends Entity>      type of entities
+   @param <N>      type of entities
    @return data-many Payload of given entities, including the given entities
    */
-  <N extends Entity> Payload from(Collection<N> entities, Collection<N> included) throws JsonApiException;
+  <N extends GeneratedMessageLite<N, ?>> Payload from(Collection<N> entities, Collection<N> included) throws JsonApiException;
 }

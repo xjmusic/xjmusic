@@ -9,6 +9,10 @@ public class CraftException extends Exception {
     super(msg);
   }
 
+  public CraftException(Exception e) {
+    super(e);
+  }
+
   public CraftException(String msg, Exception e) {
     super(String.format("%s %s at %s", msg, e.toString(), Text.formatSimpleTrace(e)));
   }

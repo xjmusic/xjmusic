@@ -2,12 +2,14 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import io.xj.ProgramSequencePatternEvent;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.entity.common.EventEntity;
 import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.ProgramSequencePatternEvent;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 
 import javax.annotation.Nullable;
@@ -30,26 +32,26 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
 
   @Override
   public ProgramSequencePatternEvent create(HubAccess hubAccess, ProgramSequencePatternEvent entity) throws DAOException, JsonApiException, ValueException {
-    entity.validate();
+    ProgramSequencePatternEvent record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
     return modelFrom(ProgramSequencePatternEvent.class,
-      executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, entity));
+      executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, record));
 
   }
 
   @Override
   @Nullable
-  public ProgramSequencePatternEvent readOne(HubAccess hubAccess, UUID id) throws DAOException {
+  public ProgramSequencePatternEvent readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     return modelFrom(ProgramSequencePatternEvent.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
-        .where(PROGRAM_SEQUENCE_PATTERN_EVENT.ID.eq(id))
+        .where(PROGRAM_SEQUENCE_PATTERN_EVENT.ID.eq(UUID.fromString(id)))
         .fetchOne());
   }
 
   @Override
   @Nullable
-  public Collection<ProgramSequencePatternEvent> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+  public Collection<ProgramSequencePatternEvent> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
     return modelsFrom(ProgramSequencePatternEvent.class,
       dbProvider.getDSL().selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
@@ -58,23 +60,43 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
   }
 
   @Override
-  public void update(HubAccess hubAccess, UUID id, ProgramSequencePatternEvent entity) throws DAOException, JsonApiException, ValueException {
-    entity.validate();
+  public void update(HubAccess hubAccess, String id, ProgramSequencePatternEvent entity) throws DAOException, JsonApiException, ValueException {
+    ProgramSequencePatternEvent record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
-    executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, id, entity);
+    executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, id, record);
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+  public void destroy(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     dbProvider.getDSL().deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
-      .where(PROGRAM_SEQUENCE_PATTERN_EVENT.ID.eq(id))
+      .where(PROGRAM_SEQUENCE_PATTERN_EVENT.ID.eq(UUID.fromString(id)))
       .execute();
   }
 
   @Override
   public ProgramSequencePatternEvent newInstance() {
-    return new ProgramSequencePatternEvent();
+    return ProgramSequencePatternEvent.getDefaultInstance();
   }
+
+  /**
+   Validate data
+
+   @param builder to validate
+   @throws DAOException if invalid
+   */
+  public ProgramSequencePatternEvent.Builder validate(ProgramSequencePatternEvent.Builder builder) throws DAOException {
+    try {
+      Value.require(builder.getProgramId(), "Program ID");
+      Value.require(builder.getProgramSequencePatternId(), "Pattern ID");
+      Value.require(builder.getProgramVoiceTrackId(), "Track ID");
+      EventEntity.validate(builder);
+      return builder;
+
+    } catch (ValueException e) {
+      throw new DAOException(e);
+    }
+  }
+
 
 }

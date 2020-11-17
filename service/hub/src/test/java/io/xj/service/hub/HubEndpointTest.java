@@ -7,6 +7,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.xj.Account;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.AssertPayload;
@@ -18,7 +19,6 @@ import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.DAO;
 import io.xj.service.hub.dao.DAOException;
-import io.xj.service.hub.entity.Account;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
+import java.util.UUID;
 
 import static io.xj.service.hub.access.HubAccess.CONTEXT_KEY;
 import static org.junit.Assert.assertEquals;
@@ -41,7 +42,7 @@ public class HubEndpointTest {
   @Mock
   ContainerRequestContext crc;
   @Mock
-  DAO<Account> dao; // can be any class that extends Entity, we picked a simple one with no belongs-to
+  DAO<Account> dao; // can be any class that, we picked a simple one with no belongs-to
   //
   HubEndpoint subject;
   private PayloadFactory payloadFactory;
@@ -69,8 +70,13 @@ public class HubEndpointTest {
         .setType(Account.class)
         .setAttribute("name", "test5"));
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
-    when(dao.newInstance()).thenReturn(new Account());
-    Account createdAccount = Account.create("test5");
+    when(dao.newInstance()).thenReturn(Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .build());
+    Account createdAccount = Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("test5")
+      .build();
     when(dao.create(same(hubAccess), any(Account.class))).thenReturn(createdAccount);
 
     Response result = subject.create(crc, dao, payload);

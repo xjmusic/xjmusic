@@ -4,7 +4,16 @@ package org.xiph.libvorbis;
 
 import org.xiph.libvorbis.modes.setup_44;
 
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.NOISE_COMPAND_LEVELS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.OV_ECTL_IBLOCK_GET;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.OV_ECTL_IBLOCK_SET;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.OV_ECTL_LOWPASS_GET;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.OV_ECTL_LOWPASS_SET;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.OV_ECTL_RATEMANAGE2_GET;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.OV_ECTL_RATEMANAGE2_SET;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.PACKETBLOBS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.P_BANDS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.P_NOISECURVES;
 
 
 /*********************************************************************

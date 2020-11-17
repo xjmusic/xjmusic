@@ -2,7 +2,7 @@
 package io.xj.service.nexus.fabricator;
 
 import com.google.common.collect.Maps;
-import io.xj.service.hub.entity.ProgramVoice;
+import io.xj.ProgramVoice;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 
 import javax.annotation.Nullable;

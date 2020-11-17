@@ -4,6 +4,7 @@ package io.xj.lib.jsonapi;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import io.xj.Program;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,7 +50,7 @@ public class HttpResponseProviderImplTest {
 
   @Test
   public void notFound() {
-    Response result = subject.notFound(new MockEntity().setId(UUID.randomUUID()));
+    Response result = subject.notFound(Program.newBuilder().setId(UUID.randomUUID().toString()));
 
     assertEquals(404, result.getStatus());
   }

@@ -4,27 +4,31 @@ package io.xj.service.hub.client;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import io.xj.lib.entity.Entity;
-import io.xj.service.hub.entity.Account;
-import io.xj.service.hub.entity.User;
-import io.xj.service.hub.entity.UserAuth;
-import io.xj.service.hub.entity.UserRoleType;
+import io.xj.Account;
+import io.xj.User;
+import io.xj.UserAuth;
+import io.xj.UserRole;
+import io.xj.lib.entity.Entities;
+import io.xj.service.hub.dao.UserDAO;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.container.ContainerRequestContext;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
 
 public class HubClientAccess {
   public static final String CONTEXT_KEY = "hub_access";
-  private static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
-  private final Collection<UserRoleType> roleTypes = Lists.newArrayList();
-  private final Collection<UUID> accountIds = Lists.newArrayList();
+  private static final UserRole.Type[] topLevelRoles = {UserRole.Type.Admin, UserRole.Type.Internal};
+  private final Collection<UserRole.Type> roleTypes = Lists.newArrayList();
+  private final Collection<String> accountIds = Lists.newArrayList();
   @Nullable
   private String token = null;
   @Nullable
-  private UUID userId = null;
+  private String userId = null;
   @Nullable
-  private UUID userAuthId = null;
+  private String userAuthId = null;
 
   /**
    Construct an HubClientAccess model
@@ -37,7 +41,7 @@ public class HubClientAccess {
 
    @param userRoleTypes to grant
    */
-  public HubClientAccess(Collection<UserRoleType> userRoleTypes) {
+  public HubClientAccess(Collection<UserRole.Type> userRoleTypes) {
     roleTypes.addAll(userRoleTypes);
   }
 
@@ -61,7 +65,7 @@ public class HubClientAccess {
    */
   public static HubClientAccess internal() {
     // TODO how does Hub plan on authenticating a request made with this "credential?"
-    return new HubClientAccess(ImmutableList.of(UserRoleType.Internal));
+    return new HubClientAccess(ImmutableList.of(UserRole.Type.Internal));
   }
 
   /**
@@ -74,108 +78,12 @@ public class HubClientAccess {
   }
 
   /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param userAuth for access
-   @param accounts for access
-   @param rolesCSV for access
-   @return access control object
-   */
-  public static HubClientAccess create(User user, UserAuth userAuth, ImmutableList<Account> accounts, String rolesCSV) {
-    return new HubClientAccess()
-      .setUserId(user.getId())
-      .setUserAuthId(userAuth.getId())
-      .setAccountIds(Entity.idsOf(accounts))
-      .setRoleTypes(UserRoleType.fromCsv(rolesCSV));
-  }
-
-  /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param rolesCSV for access
-   @return access control object
-   */
-  public static HubClientAccess create(User user, String rolesCSV) {
-    return new HubClientAccess()
-      .setUserId(user.getId())
-      .setRoleTypes(UserRoleType.fromCsv(rolesCSV));
-  }
-
-  /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param accounts for access
-   @param rolesCSV for access
-   @return access control object
-   */
-  public static HubClientAccess create(User user, ImmutableList<Account> accounts, String rolesCSV) {
-    return new HubClientAccess()
-      .setUserId(user.getId())
-      .setAccountIds(Entity.idsOf(accounts))
-      .setRoleTypes(UserRoleType.fromCsv(rolesCSV));
-  }
-
-  /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param userAuth for access
-   @param accounts for access
-   @return access control object
-   */
-  public static HubClientAccess create(User user, UserAuth userAuth, ImmutableList<Account> accounts) {
-    return new HubClientAccess()
-      .setUserId(user.getId())
-      .setUserAuthId(userAuth.getId())
-      .setAccountIds(Entity.idsOf(accounts));
-  }
-
-  /**
-   Create a new HubAccess control object
-
-   @param user     for access
-   @param accounts for access
-   @return access control object
-   */
-  public static HubClientAccess create(User user, ImmutableList<Account> accounts) {
-    return new HubClientAccess()
-      .setUserId(user.getId())
-      .setAccountIds(Entity.idsOf(accounts));
-  }
-
-  /**
-   Create a new HubAccess control object
-
-   @param accounts for access
-   @param rolesCSV for access
-   @return access control object
-   */
-  public static HubClientAccess create(ImmutableList<Account> accounts, String rolesCSV) {
-    return new HubClientAccess()
-      .setAccountIds(Entity.idsOf(accounts))
-      .setRoleTypes(UserRoleType.fromCsv(rolesCSV));
-  }
-
-  /**
-   Create a new HubAccess control object
-
-   @param rolesCSV for access
-   @return access control object
-   */
-  public static HubClientAccess create(String rolesCSV) {
-    return new HubClientAccess().setRoleTypes(UserRoleType.fromCsv(rolesCSV));
-  }
-
-  /**
    Set RoleTypes
 
    @param roleTypes to set
    @return this HubClientAccess (for chaining setters)
    */
-  public HubClientAccess setRoleTypes(Collection<UserRoleType> roleTypes) {
+  public HubClientAccess setRoleTypes(Collection<UserRole.Type> roleTypes) {
     this.roleTypes.clear();
     this.roleTypes.addAll(roleTypes);
     return this;
@@ -187,7 +95,7 @@ public class HubClientAccess {
    @param accountIds to set
    @return this HubClientAccess (for chaining setters)
    */
-  public HubClientAccess setAccountIds(Collection<UUID> accountIds) {
+  public HubClientAccess setAccountIds(Collection<String> accountIds) {
     this.accountIds.clear();
     this.accountIds.addAll(accountIds);
     return this;
@@ -199,7 +107,7 @@ public class HubClientAccess {
    @param userId to set
    @return this HubClientAccess (for chaining setters)
    */
-  public HubClientAccess setUserId(@Nullable UUID userId) {
+  public HubClientAccess setUserId(@Nullable String userId) {
     this.userId = userId;
     return this;
   }
@@ -210,7 +118,7 @@ public class HubClientAccess {
    @param userAuthId to set
    @return this HubClientAccess (for chaining setters)
    */
-  public HubClientAccess setUserAuthId(@Nullable UUID userAuthId) {
+  public HubClientAccess setUserAuthId(@Nullable String userAuthId) {
     this.userAuthId = userAuthId;
     return this;
   }
@@ -231,7 +139,7 @@ public class HubClientAccess {
    @param accountId to check for access to
    @return true if access is permitted to the specified account
    */
-  public boolean hasAccount(UUID accountId) {
+  public boolean hasAccount(String accountId) {
     return accountIds.contains(accountId);
   }
 
@@ -243,7 +151,7 @@ public class HubClientAccess {
    */
   @SafeVarargs
   public final <T> boolean isAllowed(T... matchRoles) {
-    return Arrays.stream(matchRoles).anyMatch(matchRole -> roleTypes.stream().anyMatch(userRoleType -> userRoleType == UserRoleType.valueOf(matchRole.toString())));
+    return Arrays.stream(matchRoles).anyMatch(matchRole -> roleTypes.stream().anyMatch(userRoleType -> userRoleType == UserRole.Type.valueOf(matchRole.toString())));
   }
 
   /**
@@ -251,7 +159,7 @@ public class HubClientAccess {
 
    @return id
    */
-  public UUID getUserId() throws HubClientException {
+  public String getUserId() throws HubClientException {
     if (Objects.isNull(userId)) throw new HubClientException("HubAccess has no user");
     return userId;
   }
@@ -261,7 +169,7 @@ public class HubClientAccess {
 
    @return array of account id
    */
-  public Collection<UUID> getAccountIds() {
+  public Collection<String> getAccountIds() {
     return Collections.unmodifiableCollection(accountIds);
   }
 
@@ -270,7 +178,7 @@ public class HubClientAccess {
 
    @return user role types
    */
-  public Collection<UserRoleType> getRoleTypes() {
+  public Collection<UserRole.Type> getRoleTypes() {
     return Collections.unmodifiableCollection(roleTypes);
   }
 
@@ -280,7 +188,7 @@ public class HubClientAccess {
    @return user role types
    */
   public String getRoles() {
-    return UserRoleType.csvOf(roleTypes);
+    return UserDAO.csvOfUserRoleTypes(roleTypes);
   }
 
   /**
@@ -290,7 +198,7 @@ public class HubClientAccess {
    @return user role types
    */
   public HubClientAccess setRoles(String rolesCsv) {
-    setRoleTypes(UserRoleType.fromCsv(rolesCsv));
+    setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCsv));
     return this;
   }
 
@@ -301,7 +209,7 @@ public class HubClientAccess {
    */
   @JsonIgnore
   public String getAccounts() {
-    return Entity.csvOf(accountIds);
+    return Entities.csvOf(accountIds);
   }
 
   /**
@@ -311,7 +219,7 @@ public class HubClientAccess {
    @return user account types
    */
   public HubClientAccess setAccounts(String accountsCsv) {
-    setAccountIds(Entity.idsFromCSV(accountsCsv));
+    setAccountIds(Entities.idsFromCSV(accountsCsv));
     return this;
   }
 
@@ -321,7 +229,7 @@ public class HubClientAccess {
    @return user auth id
    */
   @Nullable
-  public UUID getUserAuthId() {
+  public String getUserAuthId() {
     return userAuthId;
   }
 

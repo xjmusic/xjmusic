@@ -9,7 +9,6 @@ import io.xj.lib.jsonapi.Payload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.dao.ProgramSequenceChordDAO;
-import io.xj.service.hub.entity.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -53,7 +52,7 @@ public class ProgramSequenceChordEndpoint extends HubEndpoint {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed({ARTIST})
   public Response create(Payload payload, @Context ContainerRequestContext crc) {
     return create(crc, dao(), payload);
   }
@@ -65,7 +64,7 @@ public class ProgramSequenceChordEndpoint extends HubEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed({ARTIST})
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -76,7 +75,7 @@ public class ProgramSequenceChordEndpoint extends HubEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed({ARTIST})
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programSequenceId") String programSequenceId) {
     return readMany(crc, dao(), programSequenceId);
   }
@@ -90,7 +89,7 @@ public class ProgramSequenceChordEndpoint extends HubEndpoint {
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed(UserRoleType.ARTIST)
+  @RolesAllowed(ARTIST)
   public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     return update(crc, dao(), id, payload);
   }
@@ -102,7 +101,7 @@ public class ProgramSequenceChordEndpoint extends HubEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed({ARTIST})
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

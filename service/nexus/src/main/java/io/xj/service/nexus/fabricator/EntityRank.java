@@ -3,10 +3,19 @@ package io.xj.service.nexus.fabricator;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.xj.lib.entity.Entity;
+import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  EntityRank is a collection of one type of Entity (e.g. Instrument or Program),
@@ -16,10 +25,10 @@ import java.util.*;
  for a double that represents that entity's score.
 
  @param <E>  */
-public class EntityRank<E extends Entity> {
-  //  final TypeToken<T> type = new TypeToken<T>(getClass()) {};
+public class EntityRank<E> {
+  private static final Logger log = LoggerFactory.getLogger(EntityRank.class);
   private final List<E> entities;
-  private final HashMap<UUID, Double> scores;
+  private final HashMap<String, Double> scores;
 
   /**
    Constructor instantiates a new inner hash map
@@ -63,7 +72,11 @@ public class EntityRank<E extends Entity> {
    @param entity to add
    */
   public void score(E entity, Double Q) {
-    score(entity.getId(), Q);
+    try {
+      score(Entities.getId(entity), Q);
+    } catch (EntityException e) {
+      log.warn("could not score {}={}", entity, Q, e);
+    }
   }
 
   /**
@@ -71,7 +84,7 @@ public class EntityRank<E extends Entity> {
 
    @param entityId to add
    */
-  public void score(UUID entityId, Double Q) {
+  public void score(String entityId, Double Q) {
     if (scores.containsKey(entityId))
       scores.put(entityId, scores.get(entityId) + Q);
     else
@@ -92,7 +105,7 @@ public class EntityRank<E extends Entity> {
 
    @return all entities
    */
-  public Map<UUID, Double> getScores() {
+  public Map<String, Double> getScores() {
     return Collections.unmodifiableMap(scores);
   }
 
@@ -128,11 +141,13 @@ public class EntityRank<E extends Entity> {
     entities.sort(
       Comparator.comparing(
         e -> {
-          Double score = scores.get(e.getId());
-          if (Objects.nonNull(score))
-            return -score;
-          else
-            return 0.0d;
+          try {
+            Double score = scores.get(Entities.getId(e));
+            if (Objects.nonNull(score))
+              return -score;
+          } catch (EntityException ignored) {
+          }
+          return 0.0d;
         })
     );
     return Collections.unmodifiableList(entities);

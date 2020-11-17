@@ -5,7 +5,16 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.entity.Entity;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.InstrumentAudioChord;
+import io.xj.InstrumentMeme;
+import io.xj.Program;
+import io.xj.ProgramMeme;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequenceBindingMeme;
+import io.xj.ProgramSequenceChord;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.util.Value;
@@ -13,23 +22,10 @@ import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.DAOException;
 import io.xj.service.hub.dao.InstrumentDAO;
 import io.xj.service.hub.dao.ProgramDAO;
-import io.xj.service.hub.entity.Instrument;
-import io.xj.service.hub.entity.InstrumentAudio;
-import io.xj.service.hub.entity.InstrumentAudioChord;
-import io.xj.service.hub.entity.InstrumentMeme;
-import io.xj.service.hub.entity.InstrumentType;
-import io.xj.service.hub.entity.Program;
-import io.xj.service.hub.entity.ProgramMeme;
-import io.xj.service.hub.entity.ProgramSequence;
-import io.xj.service.hub.entity.ProgramSequenceBinding;
-import io.xj.service.hub.entity.ProgramSequenceBindingMeme;
-import io.xj.service.hub.entity.ProgramSequenceChord;
-import io.xj.service.hub.entity.ProgramType;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -42,18 +38,18 @@ class HubIngestImpl implements HubIngest {
   @Inject
   public HubIngestImpl(
     @Assisted("hubAccess") HubAccess hubAccess,
-    @Assisted("libraryIds") Set<UUID> sourceLibraryIds,
-    @Assisted("programIds") Set<UUID> sourceProgramIds,
-    @Assisted("instrumentIds") Set<UUID> sourceInstrumentIds,
+    @Assisted("libraryIds") Set<String> sourceLibraryIds,
+    @Assisted("programIds") Set<String> sourceProgramIds,
+    @Assisted("instrumentIds") Set<String> sourceInstrumentIds,
     InstrumentDAO instrumentDAO,
     ProgramDAO programDAO,
     EntityStore entityStore
   ) throws HubIngestException {
     store = entityStore;
     try {
-      List<UUID> libraryIds = Lists.newArrayList(sourceLibraryIds);
-      List<UUID> programIds = Lists.newArrayList(sourceProgramIds);
-      List<UUID> instrumentIds = Lists.newArrayList(sourceInstrumentIds);
+      List<String> libraryIds = Lists.newArrayList(sourceLibraryIds);
+      List<String> programIds = Lists.newArrayList(sourceProgramIds);
+      List<String> instrumentIds = Lists.newArrayList(sourceInstrumentIds);
       this.hubAccess = hubAccess;
 
       // library ids -> program and instrument ids; disregard library ids after this
@@ -62,10 +58,13 @@ class HubIngestImpl implements HubIngest {
       libraryIds.clear();
 
       // ingest programs
-      store.putAll(programDAO.readManyWithChildEntities(hubAccess, programIds));
+      for (Object o : programDAO.readManyWithChildEntities(hubAccess, programIds))
+        store.put(o);
+
 
       // ingest instruments
-      store.putAll(instrumentDAO.readManyWithChildEntities(hubAccess, instrumentIds));
+      for (Object n : instrumentDAO.readManyWithChildEntities(hubAccess, instrumentIds))
+        store.put(n);
 
     } catch (DAOException | EntityStoreException e) {
       throw new HubIngestException(e);
@@ -73,12 +72,12 @@ class HubIngestImpl implements HubIngest {
   }
 
   @Override
-  public Instrument getInstrument(UUID id) throws HubIngestException {
+  public Instrument getInstrument(String id) throws HubIngestException {
     return getOrThrow(Instrument.class, id);
   }
 
   @Override
-  public Program getProgram(UUID id) throws HubIngestException {
+  public Program getProgram(String id) throws HubIngestException {
     return getOrThrow(Program.class, id);
   }
 
@@ -97,7 +96,7 @@ class HubIngestImpl implements HubIngest {
     return getAll(InstrumentMeme.class);
   }
 
-  private <N extends Entity> Collection<N> getAll(Class<N> type) throws HubIngestException {
+  private <N> Collection<N> getAll(Class<N> type) throws HubIngestException {
     try {
       return store.getAll(type);
     } catch (EntityStoreException e) {
@@ -136,7 +135,7 @@ class HubIngestImpl implements HubIngest {
   }
 
   @Override
-  public Collection<Program> getProgramsOfType(ProgramType type) throws HubIngestException {
+  public Collection<Program> getProgramsOfType(Program.Type type) throws HubIngestException {
     return getAllPrograms().stream()
       .filter(program -> program.getType().equals(type))
       .collect(Collectors.toList());
@@ -148,15 +147,15 @@ class HubIngestImpl implements HubIngest {
   }
 
   @Override
-  public Collection<Instrument> getInstrumentsOfType(InstrumentType type) throws HubIngestException {
+  public Collection<Instrument> getInstrumentsOfType(Instrument.Type type) throws HubIngestException {
     return getAllInstruments().stream()
       .filter(instrument -> instrument.getType().equals(type))
       .collect(Collectors.toList());
   }
 
   @Override
-  public Collection<Entity> getAllEntities() {
-    return ImmutableList.<Entity>builder().addAll(store.getAll()).build();
+  public Collection<Object> getAllEntities() {
+    return ImmutableList.builder().addAll(store.getAll()).build();
   }
 
   @Override
@@ -216,7 +215,7 @@ class HubIngestImpl implements HubIngest {
    @return entity from map
    @throws HubIngestException if no such entity exists
    */
-  private <N extends Entity> N getOrThrow(Class<N> type, UUID id) throws HubIngestException {
+  private <N> N getOrThrow(Class<N> type, String id) throws HubIngestException {
     try {
       return store.get(type, id)
         .orElseThrow(() -> new HubIngestException(String.format("No such %s[%s]",

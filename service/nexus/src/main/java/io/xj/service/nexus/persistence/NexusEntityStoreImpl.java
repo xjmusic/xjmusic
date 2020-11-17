@@ -19,6 +19,6 @@ public class NexusEntityStoreImpl extends EntityStoreImpl implements NexusEntity
   public NexusEntityStoreImpl(
     EntityFactory entityFactory
   ) {
-    super(entityFactory);
+    super();
   }
 }

@@ -4,18 +4,22 @@ package io.xj.service.hub.dao;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.google.protobuf.GeneratedMessageLite;
+import io.xj.UserRole;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.UserRoleType;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
-import org.jooq.*;
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Table;
+import org.jooq.TableRecord;
+import org.jooq.UpdatableRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,14 +27,20 @@ import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static io.xj.service.hub.Tables.LIBRARY;
 import static io.xj.service.hub.Tables.PROGRAM;
 
-public abstract class DAOImpl<E extends Entity> implements DAO<E> {
+public abstract class DAOImpl<E extends GeneratedMessageLite<E, ?>> implements DAO<E> {
   private static final Logger log = LoggerFactory.getLogger(DAOImpl.class);
+  private static final String KEY_ID = "id";
   protected final PayloadFactory payloadFactory;
   protected final EntityFactory entityFactory;
   protected HubDatabaseProvider dbProvider;
@@ -68,14 +78,17 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
   }
 
   /**
-   Execute a database UPDATE operation@param <R>        record type dynamic@param table      to update@param db
+   Execute a database UPDATE operation
 
-   @param id of record to update
+   @param <R>   record type dynamic
+   @param table to update
+   @param db    context in which to execute
+   @param id    of record to update
    */
-  protected <R extends UpdatableRecord<R>> void executeUpdate(DSLContext db, Table<R> table, UUID id, E entity) throws DAOException, JsonApiException {
+  protected <R extends UpdatableRecord<R>> void executeUpdate(DSLContext db, Table<R> table, String id, E entity) throws DAOException, JsonApiException {
     R record = db.newRecord(table);
     setAll(record, entity);
-    set(record, "id", id);
+    set(record, KEY_ID, id);
 
     if (0 == db.executeUpdate(record))
       throw new DAOException("No records updated.");
@@ -156,7 +169,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @throws DAOException if does not have hubAccess
    */
   protected void requireArtist(HubAccess hubAccess) throws DAOException {
-    require(hubAccess, UserRoleType.Artist);
+    require(hubAccess, UserRole.Type.Artist);
   }
 
   /**
@@ -168,7 +181,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param allowedRoles to require
    @throws DAOException if hubAccess does not have any one of the specified roles
    */
-  protected void require(HubAccess hubAccess, UserRoleType... allowedRoles) throws DAOException {
+  protected void require(HubAccess hubAccess, UserRole.Type... allowedRoles) throws DAOException {
     if (hubAccess.isTopLevel()) return;
     if (3 < allowedRoles.length)
       require(
@@ -217,17 +230,17 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param id        of entity to require modification hubAccess to
    @throws DAOException on invalid permissions
    */
-  protected void requireProgramModification(DSLContext db, HubAccess hubAccess, UUID id) throws DAOException {
+  protected void requireProgramModification(DSLContext db, HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
 
     if (hubAccess.isTopLevel())
       requireExists("Program", db.selectCount().from(PROGRAM)
-        .where(PROGRAM.ID.eq(id))
+        .where(PROGRAM.ID.eq(UUID.fromString(id)))
         .fetchOne(0, int.class));
     else
       requireExists("Program in Account you have hubAccess to", db.selectCount().from(PROGRAM)
         .join(LIBRARY).on(PROGRAM.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(PROGRAM.ID.eq(id))
+        .where(PROGRAM.ID.eq(UUID.fromString(id)))
         .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne(0, int.class));
   }
@@ -241,7 +254,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param <N>    type of entity
    @throws JsonApiException on a REST API payload related failure to parse
    */
-  protected <R extends Record, N extends Entity> void setAll(R target, N source) throws JsonApiException {
+  protected <R extends Record, N> void setAll(R target, N source) throws JsonApiException {
     try {
       // start with all of the entity resource attributes and their values
       Map<String, Object> attributes = entityFactory.getResourceAttributes(source);
@@ -282,11 +295,8 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
         try {
           return Entities.get(target, method);
 
-        } catch (InvocationTargetException e) {
-          throw new DAOException(String.format("Failed to %s.%s(), reason: %s", Text.getSimpleName(target), getterName, e.getTargetException().getMessage()));
-
-        } catch (IllegalAccessException e) {
-          throw new DAOException(String.format("Could not access %s.%s(), reason: %s", Text.getSimpleName(target), getterName, e.getMessage()));
+        } catch (EntityException e) {
+          throw new DAOException(String.format("Failed to %s.%s(), reason: %s", Text.getSimpleName(target), getterName, e.getMessage()));
         }
 
     return Optional.empty();
@@ -312,14 +322,14 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
             Entities.set(target, method, value);
           return;
 
-        } catch (InvocationTargetException e) {
-          throw new DAOException(String.format("Failed to %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getTargetException().getMessage()));
+        } catch (EntityException e) {
+          throw new DAOException(String.format("Failed to %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getMessage()));
 
         } catch (IllegalAccessException e) {
           throw new DAOException(String.format("Could not access %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getMessage()));
 
-        } catch (NoSuchMethodException e) {
-          throw new DAOException(String.format("No such method %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getMessage()));
+        } catch (InvocationTargetException e) {
+          throw new DAOException(String.format("Cannot invoke target %s.%s(), reason: %s", Text.getSimpleName(target), setterName, e.getMessage()));
         }
 
     // no op if setter does not exist
@@ -371,13 +381,19 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @return collection of records
    @throws DAOException on failure
    */
-  protected <R extends TableRecord<?>, N extends Entity> Collection<R> recordsFrom(DSLContext db, Table<?> table, Collection<N> entities) throws DAOException, JsonApiException {
+  protected <R extends TableRecord<?>, N> Collection<R> recordsFrom(DSLContext db, Table<?> table, Collection<N> entities) throws DAOException, JsonApiException {
     Collection<R> records = Lists.newArrayList();
     for (N e : entities) {
       //noinspection unchecked
       R record = (R) db.newRecord(table);
-      if (Objects.nonNull(e.getId()))
-        set(record, "id", e.getId());
+      try {
+        String id = Entities.getId(e);
+        if (Objects.nonNull(id))
+          set(record, KEY_ID, id);
+
+      } catch (EntityException ignored) {
+
+      }
       setAll(record, e);
       records.add(record);
     }
@@ -385,19 +401,19 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
   }
 
   @Override
-  public <N extends Entity, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws DAOException {
+  public <N extends GeneratedMessageLite<N, ?>, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws DAOException {
     Collection<N> models = Lists.newArrayList();
     for (R record : records) models.add(modelFrom(modelClass, record));
     return models;
   }
 
   @Override
-  public <N extends Entity, R extends Record> N modelFrom(R record) throws DAOException {
+  public <N extends GeneratedMessageLite<N, ?>, R extends Record> N modelFrom(R record) throws DAOException {
     if (!modelsForRecords.containsKey(record.getClass()))
       throw new DAOException(String.format("Unrecognized class of entity record: %s", record.getClass().getName()));
 
     //noinspection unchecked
-    return (N) modelFrom(modelsForRecords.get(record.getClass()), record);
+    return modelFrom((Class<N>) modelsForRecords.get(record.getClass()), record);
   }
 
   /**
@@ -408,14 +424,14 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @return entity after transmogrification
    @throws DAOException on failure to transmogrify
    */
-  protected <N extends Entity, R extends Record> N modelFrom(Class<N> modelClass, R record) throws DAOException {
+  protected <N extends GeneratedMessageLite<N, ?>, R extends Record> N modelFrom(Class<N> modelClass, R record) throws DAOException {
     if (Objects.isNull(modelClass))
       throw new DAOException("Will not transmogrify null modelClass");
 
     // new instance of model
-    N model;
+    GeneratedMessageLite.Builder<N, ?> model;
     try {
-      model = modelClass.getConstructor().newInstance();
+      model = entityFactory.getInstance(modelClass).toBuilder();
     } catch (Exception e) {
       throw new DAOException(String.format("Could not get a new instance create class %s because %s", modelClass, e));
     }
@@ -423,7 +439,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
     // set all values
     modelSetTransmogrified(record, model);
 
-    return model;
+    return model.build();
   }
 
   /**
@@ -433,7 +449,7 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param model  to set fields of
    @throws DAOException on failure to set transmogrified values
    */
-  protected <N extends Entity, R extends Record> void modelSetTransmogrified(R record, N model) throws DAOException {
+  protected <N, R extends Record> void modelSetTransmogrified(R record, N model) throws DAOException {
     if (Objects.isNull(record))
       throw new DAOException("Record does not exist");
 
@@ -457,18 +473,18 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @return table record
    @throws DAOException on failure
    */
-  protected <N extends Entity> UpdatableRecord<?> recordFor(DSLContext db, N entity) throws DAOException, JsonApiException {
+  protected <N> UpdatableRecord<?> recordFor(DSLContext db, N entity) throws DAOException, JsonApiException {
     Table<?> table = tablesInSchemaConstructionOrder.get(entity.getClass());
+    if (entity instanceof com.google.protobuf.GeneratedMessageLite.Builder)
+      throw new DAOException("Cannot create record from protobuf Builder");
     UpdatableRecord<?> record = (UpdatableRecord<?>) db.newRecord(table);
 
-    if (Objects.nonNull(entity.getId()))
-      set(record, "id", entity.getId());
-
-    if (Objects.nonNull(entity.getCreatedAt()))
-      set(record, "createdAt", Timestamp.from(entity.getCreatedAt()));
-
-    if (Objects.nonNull(entity.getUpdatedAt()))
-      set(record, "updatedAt", Timestamp.from(entity.getUpdatedAt()));
+    try {
+      String id = Entities.getId(entity);
+      if (Objects.nonNull(id))
+        set(record, KEY_ID, id);
+    } catch (EntityException ignored) {
+    }
 
     setAll(record, entity);
 
@@ -482,11 +498,16 @@ public abstract class DAOImpl<E extends Entity> implements DAO<E> {
    @param db     database context
    @return the same entity (for chaining methods)
    */
-  protected <N extends Entity> N insert(DSLContext db, N entity) throws DAOException, JsonApiException {
+  protected <N> N insert(DSLContext db, N entity) throws DAOException, JsonApiException {
     UpdatableRecord<?> record = recordFor(db, entity);
     record.store();
-    get(record, "id").ifPresent(id ->
-      entity.setId(UUID.fromString(String.valueOf(id))));
+
+    try {
+      String id = Entities.getId(entity);
+      if (Objects.nonNull(id)) Entities.setId(record, id);
+    } catch (EntityException ignored) {
+    }
+
     return entity;
   }
 

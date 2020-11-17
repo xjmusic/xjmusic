@@ -2,12 +2,13 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import io.xj.AccountUser;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
-import io.xj.service.hub.entity.AccountUser;
 import io.xj.service.hub.persistence.HubDatabaseProvider;
 
 import java.util.Collection;
@@ -29,12 +30,12 @@ public class AccountUserDAOImpl extends DAOImpl<AccountUser> implements AccountU
 
   @Override
   public AccountUser create(HubAccess hubAccess, AccountUser entity) throws DAOException, JsonApiException, ValueException {
-    entity.validate();
+    validate(entity);
     requireTopLevel(hubAccess);
 
     if (null != dbProvider.getDSL().selectFrom(ACCOUNT_USER)
-      .where(ACCOUNT_USER.ACCOUNT_ID.eq(entity.getAccountId()))
-      .and(ACCOUNT_USER.USER_ID.eq(entity.getUserId()))
+      .where(ACCOUNT_USER.ACCOUNT_ID.eq(UUID.fromString(entity.getAccountId())))
+      .and(ACCOUNT_USER.USER_ID.eq(UUID.fromString(entity.getUserId())))
       .fetchOne())
       throw new DAOException("Account User already exists!");
 
@@ -42,20 +43,20 @@ public class AccountUserDAOImpl extends DAOImpl<AccountUser> implements AccountU
   }
 
   @Override
-  public AccountUser readOne(HubAccess hubAccess, UUID id) throws DAOException {
+  public AccountUser readOne(HubAccess hubAccess, String id) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelFrom(AccountUser.class, dbProvider.getDSL().selectFrom(ACCOUNT_USER)
-        .where(ACCOUNT_USER.ID.eq(id))
+        .where(ACCOUNT_USER.ID.eq(UUID.fromString(id)))
         .fetchOne());
     else
       return modelFrom(AccountUser.class, dbProvider.getDSL().selectFrom(ACCOUNT_USER)
-        .where(ACCOUNT_USER.ID.eq(id))
+        .where(ACCOUNT_USER.ID.eq(UUID.fromString(id)))
         .and(ACCOUNT_USER.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne());
   }
 
   @Override
-  public Collection<AccountUser> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException {
+  public Collection<AccountUser> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(AccountUser.class, dbProvider.getDSL().selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ACCOUNT_ID.in(parentIds))
@@ -68,21 +69,38 @@ public class AccountUserDAOImpl extends DAOImpl<AccountUser> implements AccountU
   }
 
   @Override
-  public void update(HubAccess hubAccess, UUID id, AccountUser entity) throws DAOException {
+  public void update(HubAccess hubAccess, String id, AccountUser entity) throws DAOException {
     throw new DAOException("Not allowed to update AccountUser record.");
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) throws DAOException {
+  public void destroy(HubAccess hubAccess, String id) throws DAOException {
     requireTopLevel(hubAccess);
     dbProvider.getDSL().deleteFrom(ACCOUNT_USER)
-      .where(ACCOUNT_USER.ID.eq(id))
+      .where(ACCOUNT_USER.ID.eq(UUID.fromString(id)))
       .execute();
   }
 
   @Override
   public AccountUser newInstance() {
-    return new AccountUser();
+    return AccountUser.getDefaultInstance();
+  }
+
+
+  /**
+   Validate data
+
+   @param record to validate
+   @throws DAOException if invalid
+   */
+  public void validate(AccountUser record) throws DAOException {
+    try {
+      Value.require(record.getAccountId(), "Account ID");
+      Value.require(record.getUserId(), "User ID");
+
+    } catch (ValueException e) {
+      throw new DAOException(e);
+    }
   }
 
 }

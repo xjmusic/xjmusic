@@ -5,8 +5,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.protobuf.GeneratedMessageLite;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.Entity;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.jsonapi.PayloadFactory;
@@ -31,11 +31,10 @@ import redis.clients.jedis.Jedis;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Singleton
-public class HubIntegrationTestProviderImpl<O extends Entity> extends DAOImpl<O> implements HubIntegrationTestProvider {
+public class HubIntegrationTestProviderImpl<O extends GeneratedMessageLite<O, ?>> extends DAOImpl<O> implements HubIntegrationTestProvider {
   private static final String SELECT_ALL_PATTERN = "*";
   final Logger log = LoggerFactory.getLogger(HubIntegrationTestProviderImpl.class);
   final Jedis redisConnection;
@@ -116,7 +115,7 @@ public class HubIntegrationTestProviderImpl<O extends Entity> extends DAOImpl<O>
   }
 
   @Override
-  public <N extends Entity> N insert(N entity) throws HubException {
+  public <N> N insert(N entity) throws HubException {
     try {
       return insert(hubDatabaseProvider.getDSL(), entity);
     } catch (Exception e) {
@@ -125,7 +124,7 @@ public class HubIntegrationTestProviderImpl<O extends Entity> extends DAOImpl<O>
   }
 
   @Override
-  public <N extends Entity> void batchInsert(Collection<N> entities) throws HubException {
+  public <N> void batchInsert(Collection<N> entities) throws HubException {
     try {
       DSLContext db = hubDatabaseProvider.getDSL();
       Collection<? extends TableRecord<?>> records = Lists.newArrayList();
@@ -171,7 +170,7 @@ public class HubIntegrationTestProviderImpl<O extends Entity> extends DAOImpl<O>
   }
 
   @Override
-  public void destroy(HubAccess hubAccess, UUID id) {
+  public void destroy(HubAccess hubAccess, String id) {
 
   }
 
@@ -181,17 +180,17 @@ public class HubIntegrationTestProviderImpl<O extends Entity> extends DAOImpl<O>
   }
 
   @Override
-  public Collection<O> readMany(HubAccess hubAccess, Collection<UUID> parentIds) {
+  public Collection<O> readMany(HubAccess hubAccess, Collection<String> parentIds) {
     return null;
   }
 
   @Override
-  public O readOne(HubAccess hubAccess, UUID id) {
+  public O readOne(HubAccess hubAccess, String id) {
     return null;
   }
 
   @Override
-  public void update(HubAccess hubAccess, UUID id, O entity) {
+  public void update(HubAccess hubAccess, String id, O entity) {
     // no op
   }
 

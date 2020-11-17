@@ -3,8 +3,8 @@ package io.xj.service.nexus.craft;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import io.xj.service.nexus.craft.harmonic.HarmonicDetailCraft;
-import io.xj.service.nexus.craft.harmonic.HarmonicDetailCraftImpl;
+import io.xj.service.nexus.craft.detail.DetailCraft;
+import io.xj.service.nexus.craft.detail.DetailCraftImpl;
 import io.xj.service.nexus.craft.macro.MacroMainCraft;
 import io.xj.service.nexus.craft.macro.MacroMainCraftImpl;
 import io.xj.service.nexus.craft.rhythm.RhythmCraft;
@@ -16,7 +16,7 @@ public class CraftModule extends AbstractModule {
     install(new FactoryModuleBuilder()
       .implement(MacroMainCraft.class, MacroMainCraftImpl.class)
       .implement(RhythmCraft.class, RhythmCraftImpl.class)
-      .implement(HarmonicDetailCraft.class, HarmonicDetailCraftImpl.class)
+      .implement(DetailCraft.class, DetailCraftImpl.class)
       .build(CraftFactory.class));
   }
 }

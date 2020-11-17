@@ -2,7 +2,8 @@ package io.xj.service.nexus.work;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.lib.entity.MessageType;
+import io.xj.Segment;
+import io.xj.SegmentMessage;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.NexusException;
@@ -15,9 +16,6 @@ import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
 import io.xj.service.nexus.dub.DubException;
 import io.xj.service.nexus.dub.DubFactory;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentMessage;
-import io.xj.service.nexus.entity.SegmentState;
 import io.xj.service.nexus.fabricator.FabricationException;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
@@ -25,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.UUID;
 
 import static org.joda.time.DateTimeConstants.MILLIS_PER_SECOND;
 
@@ -38,7 +35,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
   private static final String CRAFT_DURATION = "CraftDuration";
   private static final String DUB_DURATION = "DubDuration";
   private final SegmentDAO segmentDAO;
-  private final UUID segmentId;
+  private final String segmentId;
   private final FabricatorFactory fabricatorFactory;
   private final CraftFactory craftFactory;
   private final DubFactory dubFactory;
@@ -48,7 +45,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
 
   @Inject
   public FabricatorWorkerImpl(
-    @Assisted UUID segmentId,
+    @Assisted String segmentId,
     CraftFactory craftFactory,
     FabricatorFactory fabricatorFactory,
     SegmentDAO segmentDAO,
@@ -119,58 +116,45 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
    */
   private void revert() {
     try {
-      updateSegmentState(fabricator.getSegment().getState(), SegmentState.Planned);
+      updateSegmentState(fabricator.getSegment().getState(), Segment.State.Planned);
       segmentDAO.revert(access, fabricator.getSegment().getId());
-    } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
+    } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException | FabricationException e) {
       didFailWhile("reverting and re-queueing segment", e);
     }
   }
 
   /**
    Finish work on Segment
-
-   @throws DAOFatalException      on failure to create record
-   @throws DAOPrivilegeException  on insufficient privileges
-   @throws DAOValidationException if record is invalid
-   @throws DAOExistenceException  if segment does not exist
    */
-  private void finishWork() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
-    updateSegmentState(SegmentState.Dubbing, SegmentState.Dubbed);
+  private void finishWork() throws FabricationException {
+    updateSegmentState(Segment.State.Dubbing, Segment.State.Dubbed);
     log.info("[segId={}] Worked for {} seconds", segmentId, fabricator.getElapsedSeconds());
   }
 
   /**
    Craft a Segment, or fail
 
-   @throws NexusException         on configuration failure
-   @throws CraftException         on craft failure
-   @throws DAOFatalException      on failure to create record
-   @throws DAOPrivilegeException  on insufficient privileges
-   @throws DAOValidationException if record is invalid
-   @throws DAOExistenceException  if segment does not exist
+   @throws NexusException on configuration failure
+   @throws CraftException on craft failure
    */
-  private void doCraftWork() throws NexusException, CraftException, DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
+  private void doCraftWork() throws NexusException, CraftException, FabricationException {
     long startAtMillis = Instant.now().toEpochMilli();
-    updateSegmentState(SegmentState.Planned, SegmentState.Crafting);
+    updateSegmentState(Segment.State.Planned, Segment.State.Crafting);
     craftFactory.macroMain(fabricator).doWork();
     craftFactory.rhythm(fabricator).doWork();
-    craftFactory.harmonicDetail(fabricator).doWork();
+    craftFactory.detail(fabricator).doWork();
     observeSeconds(CRAFT_DURATION, (double) (Instant.now().toEpochMilli() - startAtMillis) / MILLIS_PER_SECOND);
   }
 
   /**
    Dub a Segment, or fail
 
-   @throws CraftException         on craft failure
-   @throws DubException           on dub failure
-   @throws DAOFatalException      on failure to create record
-   @throws DAOPrivilegeException  on insufficient privileges
-   @throws DAOValidationException if record is invalid
-   @throws DAOExistenceException  if segment does not exist
+   @throws CraftException on craft failure
+   @throws DubException   on dub failure
    */
-  protected void doDubWork() throws CraftException, DubException, DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
+  protected void doDubWork() throws CraftException, DubException, FabricationException {
     long startAtMillis = Instant.now().toEpochMilli();
-    updateSegmentState(SegmentState.Crafting, SegmentState.Dubbing);
+    updateSegmentState(Segment.State.Crafting, Segment.State.Dubbing);
     dubFactory.master(fabricator).doWork();
     dubFactory.ship(fabricator).doWork();
     observeSeconds(DUB_DURATION, (double) (Instant.now().toEpochMilli() - startAtMillis) / MILLIS_PER_SECOND);
@@ -194,7 +178,11 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
    */
   protected void createSegmentErrorMessage(String body) {
     try {
-      segmentDAO.create(access, SegmentMessage.create(fabricator.getSegment(), MessageType.Error, body));
+      segmentDAO.create(access, SegmentMessage.newBuilder()
+        .setSegmentId(fabricator.getSegment().getId())
+        .setType(SegmentMessage.Type.Error)
+        .setBody(body)
+        .build());
     } catch (DAOValidationException | DAOPrivilegeException | DAOExistenceException | DAOFatalException e) {
       log.error("[segId={}] Could not create SegmentMessage, reason={}", segmentId, e.getMessage());
     }
@@ -205,16 +193,13 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
 
    @param fromState of existing segment
    @param toState   of new segment
-   @throws DAOFatalException      on failure to create record
-   @throws DAOPrivilegeException  on insufficient privileges
-   @throws DAOValidationException if record is invalid
-   @throws DAOExistenceException  if segment does not exist
+   @throws FabricationException if record is invalid
    */
-  private void updateSegmentState(SegmentState fromState, SegmentState toState) throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
+  private void updateSegmentState(Segment.State fromState, Segment.State toState) throws FabricationException {
     if (fromState != segment.getState())
-      throw new DAOValidationException(String.format("Segment[%s] %s requires Segment must be in %s state.", segmentId, toState, fromState));
-
-    segmentDAO.update(access, segment.getId(), segment.setStateEnum(toState));
+      throw new FabricationException(String.format("Segment[%s] %s requires Segment must be in %s state.", segmentId, toState, fromState));
+    fabricator.updateSegment(fabricator.getSegment().toBuilder().setState(toState).build());
+    segment = fabricator.getSegment();
     log.info("[segId={}] Segment transitioned to state {} OK", segmentId, toState);
   }
 

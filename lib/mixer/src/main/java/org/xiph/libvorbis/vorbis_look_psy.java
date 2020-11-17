@@ -2,7 +2,15 @@
 
 package org.xiph.libvorbis;
 
-import static org.xiph.libvorbis.vorbis_constants.integer_constants.*;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.EHMER_MAX;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.EHMER_OFFSET;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.MAX_ATH;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.NEGINF;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.NOISE_COMPAND_LEVELS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.P_BANDS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.P_LEVELS;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.P_LEVEL_0;
+import static org.xiph.libvorbis.vorbis_constants.integer_constants.P_NOISECURVES;
 
 class vorbis_look_psy {
 

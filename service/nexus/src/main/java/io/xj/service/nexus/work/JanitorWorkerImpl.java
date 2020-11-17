@@ -2,20 +2,21 @@ package io.xj.service.nexus.work;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.Entity;
+import io.xj.Segment;
+import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.telemetry.TelemetryProvider;
+import io.xj.lib.util.Value;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
-import io.xj.service.nexus.entity.Segment;
 import io.xj.service.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.UUID;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -53,8 +54,8 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
    */
   protected void doWork() throws Exception {
     long t = Instant.now().toEpochMilli();
-    Collection<UUID> segmentIdsToErase = getSegmentIdsToErase();
-    for (UUID segmentId : segmentIdsToErase)
+    Collection<String> segmentIdsToErase = getSegmentIdsToErase();
+    for (String segmentId : segmentIdsToErase)
       try {
         segmentDAO.destroy(access, segmentId);
       } catch (DAOExistenceException e) {
@@ -69,6 +70,18 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
     observeCount(SEGMENT_ERASED, segmentIdsToErase.size());
   }
 
+  /**
+   Whether this Segment is before a given threshold, first by end-at if available, else begin-at
+
+   @param eraseBefore threshold to filter before
+   @return true if segment is before threshold
+   */
+  protected boolean isBefore(Segment segment, Instant eraseBefore) {
+    return Value.isSet(segment.getEndAt()) ?
+      Instant.parse(segment.getEndAt()).isBefore(eraseBefore) :
+      Instant.parse(segment.getBeginAt()).isBefore(eraseBefore);
+  }
+
   @Override
   protected String getName() {
     return NAME;
@@ -79,12 +92,12 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
 
    @return list of IDs of Segments we ought to erase
    */
-  private Collection<UUID> getSegmentIdsToErase() throws EntityStoreException {
+  private Collection<String> getSegmentIdsToErase() throws EntityStoreException {
     Instant eraseBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);
     return store.getAll(Segment.class)
       .stream()
-      .filter(segment -> segment.isBefore(eraseBefore))
-      .map(Entity::getId)
+      .filter(segment -> isBefore(segment, eraseBefore))
+      .flatMap(Entities::flatMapIds)
       .collect(Collectors.toList());
   }
 }

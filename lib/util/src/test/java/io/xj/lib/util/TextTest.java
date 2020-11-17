@@ -5,6 +5,8 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 import org.junit.Test;
 
+import java.time.Instant;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -23,8 +25,8 @@ public class TextTest {
 
   @Test
   public void getSimpleName() {
-    assertEquals("MockEntity", Text.getSimpleName(new MockEntity()));
-    assertEquals("MockEntity", Text.getSimpleName(MockEntity.class));
+    assertEquals("Instant", Text.getSimpleName(Instant.now()));
+    assertEquals("Instant", Text.getSimpleName(Instant.class));
   }
 
   @Test

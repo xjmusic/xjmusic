@@ -10,30 +10,24 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Program;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChord;
+import io.xj.SegmentMeme;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.MemeEntity;
-import io.xj.lib.entity.common.ChordEntity;
-import io.xj.lib.mixer.OutputEncoder;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
-import io.xj.service.hub.entity.ProgramType;
 import io.xj.service.nexus.NexusApp;
-import io.xj.service.nexus.NexusHubContentFixtures;
+import io.xj.service.nexus.NexusIntegrationTestingFixtures;
 import io.xj.service.nexus.craft.CraftFactory;
-import io.xj.service.nexus.craft.exception.CraftException;
-import io.xj.service.nexus.entity.Chain;
-import io.xj.service.nexus.entity.ChainBinding;
-import io.xj.service.nexus.entity.ChainState;
-import io.xj.service.nexus.entity.ChainType;
-import io.xj.service.nexus.entity.Segment;
-import io.xj.service.nexus.entity.SegmentChoice;
-import io.xj.service.nexus.entity.SegmentChord;
-import io.xj.service.nexus.entity.SegmentMeme;
-import io.xj.service.nexus.entity.SegmentState;
-import io.xj.service.nexus.entity.SegmentType;
+import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.fabricator.FabricationException;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
@@ -51,9 +45,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static io.xj.lib.util.Assert.assertSameItems;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -63,7 +61,7 @@ public class CraftFoundationNextMainTest {
   private Injector injector;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
-  private NexusHubContentFixtures fake;
+  private NexusIntegrationTestingFixtures fake;
   private Chain chain1;
   private Segment segment1;
   private Segment segment2;
@@ -102,37 +100,69 @@ public class CraftFoundationNextMainTest {
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
-    fake = new NexusHubContentFixtures();
+    fake = new NexusIntegrationTestingFixtures();
     when(hubClient.ingest(any(), any(), any(), any()))
       .thenReturn(new HubContent(Streams.concat(
-        fake.setupFixtureB1(true).stream(),
+        fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream()
       ).collect(Collectors.toList())));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(Chain.create(fake.account1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    store.put(ChainBinding.create(chain1, fake.library2));
-    segment1 = store.put(Segment.create(chain1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120, "chains-1-segments-9f7s89d8a7892.wav"));
-    segment2 = store.put(Segment.create(chain1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120, "chains-1-segments-9f7s89d8a7892.wav"));
+    chain1 = store.put(buildChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    store.put(ChainBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setTargetId(fake.library2.getId())
+      .setType(ChainBinding.Type.Library)
+      .build());
+    segment1 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setOffset(0)
+      .setState(Segment.State.Dubbed)
+      .setBeginAt("2017-02-14T12:01:00.000001Z")
+      .setEndAt("2017-02-14T12:01:32.000001Z")
+      .setKey("D major")
+      .setTotal(64)
+      .setDensity(0.73)
+      .setTempo(120)
+      .setStorageKey("chains-1-segments-9f7s89d8a7892")
+      .setOutputEncoder("wav")
+      .build());
+    segment2 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setOffset(1)
+      .setState(Segment.State.Dubbing)
+      .setBeginAt("2017-02-14T12:01:32.000001Z")
+      .setEndAt("2017-02-14T12:02:04.000001Z")
+      .setKey("Db minor")
+      .setTotal(64)
+      .setDensity(0.85)
+      .setTempo(120)
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build());
 
     // Chain "Test Print #1" has this segment that was just crafted
-    segment3 = store.put(Segment.create()
+    segment3 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(2L)
-      .setStateEnum(SegmentState.Crafted)
+      .setState(Segment.State.Crafted)
       .setBeginAt("2017-02-14T12:02:04.000001Z")
       .setEndAt("2017-02-14T12:02:36.000001Z")
       .setKey("F Major")
-      .setTypeEnum(SegmentType.Continue)
+      .setType(Segment.Type.Continue)
       .setTotal(64)
       .setDensity(0.30)
       .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(SegmentChoice.create(segment3, ProgramType.Macro, fake.program4_sequence0_binding0, 3));
-    store.put(SegmentChoice.create(segment3, ProgramType.Main, fake.program5_sequence1_binding0, -4));
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build());
+    store.put(buildSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence0_binding0, 3));
+    store.put(buildSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence1_binding0, -4));
 
     // Chain "Test Print #1" has a planned segment
-    segment4 = store.put(Segment.create(chain1, 3L, SegmentState.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"), null, "C", 8, 0.8, 120, "chain-1-waveform-12345.wav"));
+    segment4 = store.put(buildSegment(chain1, 3, Segment.State.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"), null, "C", 8, 0.8, 120, "chain-1-waveform-12345", "wav"));
   }
 
   @After
@@ -147,33 +177,31 @@ public class CraftFoundationNextMainTest {
     craftFactory.macroMain(fabricator).doWork();
 
     Segment result = store.get(Segment.class, segment4.getId()).orElseThrow();
-    assertEquals(SegmentType.NextMain, result.getType());
-    assertEquals("2017-02-14T12:03:15.840157Z", result.getEndAt().toString());
-    assertEquals(Integer.valueOf(16), result.getTotal());
-    assertEquals(OutputEncoder.AAC, result.getOutputEncoder());
-    assertEquals(Double.valueOf(0.45), result.getDensity());
+    assertEquals(Segment.Type.NextMain, result.getType());
+    assertEquals("2017-02-14T12:03:15.840157Z", result.getEndAt());
+    assertEquals(16, result.getTotal());
+    assertEquals("AAC", result.getOutputEncoder());
+    assertEquals(0.45, result.getDensity(), 0.01);
     assertEquals("G minor", result.getKey());
-    assertEquals(Double.valueOf(125), result.getTempo());
+    assertEquals(125, result.getTempo(), 0.01);
     // assert memes
     assertSameItems(Lists.newArrayList("Hindsight", "Tropical", "Cozy", "Wild", "Regret"),
-      store.getAll(SegmentMeme.class, Segment.class, ImmutableList.of(result.getId()))
-        .stream().map(MemeEntity::getName).collect(Collectors.toList()));
+      Entities.namesOf(store.getAll(SegmentMeme.class, Segment.class, ImmutableList.of(result.getId()))));
     // assert chords
     assertSameItems(Lists.newArrayList("G minor", "Ab minor"),
-      store.getAll(SegmentChord.class, Segment.class, ImmutableList.of(result.getId()))
-        .stream().map(ChordEntity::getName).collect(Collectors.toList()));
+      Entities.namesOf(store.getAll(SegmentChord.class, Segment.class, ImmutableList.of(result.getId()))));
     // assert choices
     Collection<SegmentChoice> segmentChoices =
       store.getAll(SegmentChoice.class, Segment.class, ImmutableList.of(result.getId()));
     // assert macro choice
-    SegmentChoice macroChoice = SegmentChoice.findFirstOfType(segmentChoices, ProgramType.Macro);
+    SegmentChoice macroChoice = SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Macro);
     assertEquals(fake.program4_sequence1_binding0.getId(), macroChoice.getProgramSequenceBindingId());
-    assertEquals(Integer.valueOf(3), macroChoice.getTranspose());
+    assertEquals(3, macroChoice.getTranspose());
     assertEquals(Long.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
     // assert main choice
-    SegmentChoice mainChoice = SegmentChoice.findFirstOfType(segmentChoices, ProgramType.Main);
+    SegmentChoice mainChoice = SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Main);
     assertEquals(fake.program15_sequence0_binding0.getId(), mainChoice.getProgramSequenceBindingId());
-    assertEquals(Integer.valueOf(0), mainChoice.getTranspose());
+    assertEquals(0, mainChoice.getTranspose());
     assertEquals(Long.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
   }
 
@@ -183,7 +211,18 @@ public class CraftFoundationNextMainTest {
   @Test
   public void craftFoundationNextMain_revertsAndRequeuesOnFailure() throws Exception {
     // Chain "Test Print #1" has a dangling (preceded by another planned segment) planned segment
-    Segment segment5 = store.put(Segment.create(chain1, 4L, SegmentState.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"), null, "C", 8, 0.8, 120, "chain-1-waveform-12345.wav"));
+    Segment segment5 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setOffset(4L)
+      .setState(Segment.State.Planned)
+      .setBeginAt("2017-02-14T12:03:08.000001Z")
+      .setKey("C")
+      .setTotal(8)
+      .setDensity(0.8)
+      .setTempo(120)
+      .setStorageKey("chain-1-waveform-12345.wav")
+      .build());
 
     failure.expect(FabricationException.class);
 

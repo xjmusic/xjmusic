@@ -9,8 +9,6 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-import io.xj.lib.telemetry.TelemetryModule;
-import io.xj.lib.telemetry.TelemetryProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
