@@ -14,11 +14,9 @@
       "stopAt": null,
       "type": "Production",
       "embedKey": "test_print",
-      "createdAt": "2014-08-12T12:17:02.527142Z",
       "name": "Test Print #1",
       "state": "Fabricate",
       "startAt": "2014-08-12T12:17:02.527142Z",
-      "updatedAt": "2014-08-12T12:17:02.527142Z"
     }
   }
 }

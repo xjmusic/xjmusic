@@ -19,12 +19,10 @@
     "attributes": {
       "embedKey": "test_print",
       "stopAt": null,
-      "createdAt": "2014-08-12T12:17:02.527142Z",
       "name": "Test Print #1",
       "state": "Fabricate",
       "type": "Production",
-      "startAt": "2014-08-12T12:17:02.527142Z",
-      "updatedAt": "2014-08-12T12:17:02.527142Z"
+      "startAt": "2014-08-12T12:17:02.527142Z"
     }
   },
   "errors": [
