@@ -340,7 +340,7 @@ public class HubApp extends App {
   public void start() throws AppException {
     // start the underlying app
     super.start();
-    log.info("{} ({}) is up at {}}", getName(), platformRelease, getBaseURI());
+    log.info("{} ({}) is up and running at {}}", getName(), platformRelease, getBaseURI());
   }
 
   /**
