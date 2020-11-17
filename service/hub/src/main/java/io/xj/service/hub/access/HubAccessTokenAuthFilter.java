@@ -96,8 +96,7 @@ public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
     HubAccess hubAccess;
     try {
       hubAccess = hubAccessControlProvider.get(accessTokenCookie.getValue());
-    } catch (HubAccessException e) {
-      log.warn("Could not retrieve hub access token {}", accessTokenCookie.getValue(), e);
+    } catch (HubAccessException ignored) {
       if (Objects.nonNull(aPermitAll))
         return null; // allowed to supply bad hub access token for a permit-all route
       else
