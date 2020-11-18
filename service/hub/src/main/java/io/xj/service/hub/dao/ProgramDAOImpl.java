@@ -4,7 +4,7 @@ package io.xj.service.hub.dao;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite ;
 import com.typesafe.config.Config;
 import io.xj.Program;
 import io.xj.ProgramMeme;
@@ -169,12 +169,12 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<String> programIds) throws DAOException {
+  public <N extends MessageLite> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<String> programIds) throws DAOException {
     DSLContext db = dbProvider.getDSL();
 
     requireRead(db, hubAccess, programIds);
 
-    Collection<GeneratedMessageLite<?, ?>> entities = Lists.newArrayList();
+    Collection<MessageLite> entities = Lists.newArrayList();
     entities.addAll(modelsFrom(Program.class, db.selectFrom(PROGRAM).where(PROGRAM.ID.in(programIds)).fetch()));
     entities.addAll(modelsFrom(ProgramSequencePatternEvent.class, db.selectFrom(PROGRAM_SEQUENCE_PATTERN_EVENT).where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.in(programIds))));
     entities.addAll(modelsFrom(ProgramMeme.class, db.selectFrom(PROGRAM_MEME).where(PROGRAM_MEME.PROGRAM_ID.in(programIds))));

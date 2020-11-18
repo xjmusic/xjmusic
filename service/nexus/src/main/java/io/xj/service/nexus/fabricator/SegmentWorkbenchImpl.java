@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite ;
 import io.xj.Chain;
 import io.xj.Program;
 import io.xj.Segment;
@@ -186,7 +186,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> N add(N entity) throws FabricationException {
+  public <N extends MessageLite> N add(N entity) throws FabricationException {
     try {
       return store.put(entity);
     } catch (EntityStoreException e) {

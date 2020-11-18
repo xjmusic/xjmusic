@@ -2,7 +2,7 @@
 
 package io.xj.lib.entity;
 
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite ;
 
 import java.util.Collection;
 import java.util.Map;
@@ -47,7 +47,7 @@ public interface EntityFactory {
    @param type of entity to get an instance of
    @return instance of given type of entity
    */
-  <N extends GeneratedMessageLite<N, ?>> N getInstance(String type) throws EntityException;
+  <N extends MessageLite> N getInstance(String type) throws EntityException;
 
   /**
    Get an instance of a given type of entity
@@ -55,7 +55,7 @@ public interface EntityFactory {
    @param type of entity to get an instance of
    @return instance of given type of entity
    */
-  <N extends GeneratedMessageLite<N, ?>> N getInstance(Class<N> type) throws EntityException;
+  <N extends MessageLite> N getInstance(Class<N> type) throws EntityException;
 
   /**
    Get the belongs-to types for a given type of entity
@@ -138,7 +138,7 @@ public interface EntityFactory {
    @param <N>    type of entity
    @return clone of original entity
    */
-  <N extends GeneratedMessageLite<N, ?>> N clone(N entity) throws EntityException;
+  <N extends MessageLite> N clone(N entity) throws EntityException;
 
   /**
    Clone a collection of entities: their id, know attributes, and relationships,
@@ -148,5 +148,5 @@ public interface EntityFactory {
    @param <N>      type of entities
    @return clones of original entities
    */
-  <N extends GeneratedMessageLite<N, ?>> Collection<N> cloneAll(Collection<N> entities) throws EntityException;
+  <N extends MessageLite> Collection<N> cloneAll(Collection<N> entities) throws EntityException;
 }

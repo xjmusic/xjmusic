@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.fabricator;
 
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite ;
 import io.xj.Chain;
 import io.xj.Program;
 import io.xj.Segment;
@@ -114,5 +114,5 @@ public interface SegmentWorkbench {
    @return entity that was added
    @throws FabricationException on failure
    */
-  <N extends GeneratedMessageLite<N, ?>> N add(N entity) throws FabricationException;
+  <N extends MessageLite> N add(N entity) throws FabricationException;
 }

@@ -5,10 +5,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.HubException;
@@ -34,7 +33,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Singleton
-public class HubIntegrationTestProviderImpl<O extends GeneratedMessageLite<O, ?>> extends DAOImpl<O> implements HubIntegrationTestProvider {
+public class HubIntegrationTestProviderImpl<O extends MessageLite> extends DAOImpl<O> implements HubIntegrationTestProvider {
   private static final String SELECT_ALL_PATTERN = "*";
   final Logger log = LoggerFactory.getLogger(HubIntegrationTestProviderImpl.class);
   final Jedis redisConnection;
@@ -53,7 +52,7 @@ public class HubIntegrationTestProviderImpl<O extends GeneratedMessageLite<O, ?>
     PayloadFactory payloadFactory,
     EntityFactory entityFactory,
     Config config,
-    ApiUrlProvider apiUrlProvider, HubAccessControlProvider hubAccessControlProvider) {
+    HubAccessControlProvider hubAccessControlProvider) {
     super(payloadFactory, entityFactory);
     this.hubDatabaseProvider = hubDatabaseProvider;
     this.hubAccessControlProvider = hubAccessControlProvider;

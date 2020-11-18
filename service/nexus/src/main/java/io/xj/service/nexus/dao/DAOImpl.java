@@ -3,7 +3,7 @@
 package io.xj.service.nexus.dao;
 
 import com.google.inject.Inject;
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite ;
 import io.xj.UserRole;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.Value;
@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-public abstract class DAOImpl<E extends GeneratedMessageLite<E, ?>> implements DAO<E> {
+public abstract class DAOImpl<E extends MessageLite> implements DAO<E> {
   protected final EntityFactory entityFactory;
   protected final NexusEntityStore store;
 

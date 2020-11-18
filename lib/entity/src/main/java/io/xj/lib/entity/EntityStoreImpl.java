@@ -4,7 +4,7 @@ package io.xj.lib.entity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite ;
 import io.xj.lib.util.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class EntityStoreImpl implements EntityStore {
     try {
 
       // explicitly fail on attempt to store builder
-      if (entity instanceof GeneratedMessageLite.Builder)
+      if (entity instanceof MessageLite.Builder)
         throw new EntityStoreException(String.format("Can't store builder %s!",
           entity.getClass().getSimpleName()));
 

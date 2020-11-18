@@ -10,14 +10,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.InstantDeserializer;
 import io.xj.lib.entity.InstantSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -38,7 +36,6 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public class PayloadFactoryImpl implements PayloadFactory {
-  private static final Logger log = LoggerFactory.getLogger(PayloadFactoryImpl.class);
   private final EntityFactory entityFactory;
   private final ObjectMapper mapper = new ObjectMapper();
 
@@ -54,17 +51,17 @@ public class PayloadFactoryImpl implements PayloadFactory {
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> N consume(N target, Payload payload) throws JsonApiException {
+  public <N extends MessageLite> N consume(N target, Payload payload) throws JsonApiException {
     return consume(target, extractPrimaryObject(payload, Entities.toType(target)));
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> N consume(N instance, PayloadObject payloadObject) throws JsonApiException {
+  public <N extends MessageLite> N consume(N instance, PayloadObject payloadObject) throws JsonApiException {
     try {
       String targetType = Entities.toType(instance);
       if (!Objects.equals(payloadObject.getType(), targetType))
         throw new JsonApiException(String.format("Cannot set single %s-type entity create %s-type payload object!", targetType, payloadObject.getType()));
-      GeneratedMessageLite.Builder<N, ?> target = instance.toBuilder();
+      MessageLite.Builder target = instance.toBuilder();
 
       for (Map.Entry<String, Object> entry : payloadObject.getAttributes().entrySet())
         Entities.set(target, entry.getKey(), entry.getValue());
@@ -88,7 +85,8 @@ public class PayloadFactoryImpl implements PayloadFactory {
         // n/a -- objects can be created without ID
       }
 
-      return target.build();
+      //noinspection unchecked
+      return (N) target.build();
     } catch (EntityException e) {
       throw new JsonApiException(e);
     }
@@ -386,7 +384,7 @@ public class PayloadFactoryImpl implements PayloadFactory {
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> N toOne(PayloadObject payloadObject) throws JsonApiException {
+  public <N extends MessageLite> N toOne(PayloadObject payloadObject) throws JsonApiException {
     try {
       N defaultInstance = entityFactory.getInstance(payloadObject.getType());
       return consume(defaultInstance, payloadObject);
@@ -396,13 +394,13 @@ public class PayloadFactoryImpl implements PayloadFactory {
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> N toOne(Payload payload) throws JsonApiException {
+  public <N extends MessageLite> N toOne(Payload payload) throws JsonApiException {
     return toOne(payload.getDataOne().orElseThrow(() ->
       new JsonApiException("Can only create instance from data-one payload!")));
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> Collection<N> toMany(Payload payload) throws JsonApiException {
+  public <N extends MessageLite> Collection<N> toMany(Payload payload) throws JsonApiException {
     if (!PayloadDataType.Many.equals(payload.getDataType()))
       throw new JsonApiException("Can only create instances from data-many payload!");
     Collection<N> instances = Lists.newArrayList();
@@ -414,26 +412,26 @@ public class PayloadFactoryImpl implements PayloadFactory {
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> Payload from(N entity) throws JsonApiException {
+  public <N extends MessageLite> Payload from(N entity) throws JsonApiException {
     return newPayload()
       .setDataOne(toPayloadObject(entity));
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> Payload from(N entity, Collection<N> included) throws JsonApiException {
+  public <N extends MessageLite> Payload from(N entity, Collection<N> included) throws JsonApiException {
     return newPayload()
       .setDataOne(toPayloadObject(entity))
       .setIncluded(toPayloadObjects(included));
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> Payload from(Collection<N> entities) throws JsonApiException {
+  public <N extends MessageLite> Payload from(Collection<N> entities) throws JsonApiException {
     return newPayload()
       .setDataMany(toPayloadObjects(entities));
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> Payload from(Collection<N> entities, Collection<N> included) throws JsonApiException {
+  public <N extends MessageLite> Payload from(Collection<N> entities, Collection<N> included) throws JsonApiException {
     return newPayload()
       .setDataMany(toPayloadObjects(entities))
       .setIncluded(toPayloadObjects(included));

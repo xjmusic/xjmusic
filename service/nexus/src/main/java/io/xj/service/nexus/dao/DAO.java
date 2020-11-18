@@ -2,7 +2,7 @@
 
 package io.xj.service.nexus.dao;
 
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite ;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
@@ -17,7 +17,7 @@ import java.util.Collection;
  [#171553408] XJ Mk3 Distributed Architecture
  Chains, ChainBindings, ChainConfigs, Segments and all Segment content sub-entities persisted in memory
  */
-public interface DAO<E extends GeneratedMessageLite<E, ?>> {
+public interface DAO<E extends MessageLite> {
 
   /**
    Create a new Record

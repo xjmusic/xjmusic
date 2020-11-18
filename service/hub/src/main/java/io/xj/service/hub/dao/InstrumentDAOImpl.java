@@ -4,7 +4,7 @@ package io.xj.service.hub.dao;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
@@ -189,7 +189,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<String> instrumentIds) throws DAOException {
+  public <N extends MessageLite> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<String> instrumentIds) throws DAOException {
     DSLContext db = dbProvider.getDSL();
 
     if (!hubAccess.isTopLevel())
@@ -200,7 +200,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
           .and(LIBRARY.ACCOUNT_ID.in(hubAccess.getAccountIds()))
           .fetchOne(0, int.class));
 
-    Collection<GeneratedMessageLite<?, ?>> entities = Lists.newArrayList();
+    Collection<MessageLite> entities = Lists.newArrayList();
     entities.addAll(modelsFrom(Instrument.class,
       db.selectFrom(INSTRUMENT)
         .where(INSTRUMENT.ID.in(instrumentIds)).fetch()));

@@ -2,7 +2,7 @@
 
 package io.xj.lib.jsonapi;
 
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite ;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -36,7 +36,7 @@ public interface PayloadFactory {
    @return target Entity (for chaining methods)
    @throws JsonApiException on failure to consume payload
    */
-  <N extends GeneratedMessageLite<N, ?>> N consume(N target, Payload payload) throws JsonApiException;
+  <N extends MessageLite> N consume(N target, Payload payload) throws JsonApiException;
 
   /**
    Set all attributes of entity of a payload object
@@ -58,7 +58,7 @@ public interface PayloadFactory {
    @return target Entity (for chaining methods)
    @throws JsonApiException on failure to set
    */
-  <N extends GeneratedMessageLite<N, ?>> N consume(N target, PayloadObject payloadObject) throws JsonApiException;
+  <N extends MessageLite> N consume(N target, PayloadObject payloadObject) throws JsonApiException;
 
   /**
    Shortcut to build payload object with no child entities
@@ -278,7 +278,7 @@ public interface PayloadFactory {
 
    @param payloadObject to get instance of
    */
-  <N extends GeneratedMessageLite<N, ?>> N toOne(PayloadObject payloadObject) throws JsonApiException;
+  <N extends MessageLite> N toOne(PayloadObject payloadObject) throws JsonApiException;
 
   /**
    Get an instance of an entity from a payload object comprising it.
@@ -289,14 +289,14 @@ public interface PayloadFactory {
 
    @param payload to get instance of
    */
-  <N extends GeneratedMessageLite<N, ?>> N toOne(Payload payload) throws JsonApiException;
+  <N extends MessageLite> N toOne(Payload payload) throws JsonApiException;
 
   /**
    Get a set of instances of entities from a payload with data-many payload objects.
 
    @param payload to get collection of instances of payload objects of
    */
-  <N extends GeneratedMessageLite<N, ?>> Collection<N> toMany(Payload payload) throws JsonApiException;
+  <N extends MessageLite> Collection<N> toMany(Payload payload) throws JsonApiException;
 
   /**
    Get a data-one Payload from the given entity
@@ -305,7 +305,7 @@ public interface PayloadFactory {
    @param <N>    type of entity
    @return data-one Payload of given entity
    */
-  <N extends GeneratedMessageLite<N, ?>> Payload from(N entity) throws JsonApiException;
+  <N extends MessageLite> Payload from(N entity) throws JsonApiException;
 
   /**
    Get a data-one Payload from the given entity, including the given entities
@@ -315,7 +315,7 @@ public interface PayloadFactory {
    @param <N>      type of entity
    @return data-one Payload of given entity, including the given entities
    */
-  <N extends GeneratedMessageLite<N, ?>> Payload from(N entity, Collection<N> included) throws JsonApiException;
+  <N extends MessageLite> Payload from(N entity, Collection<N> included) throws JsonApiException;
 
   /**
    Get a data-many Payload from the given entities
@@ -324,7 +324,7 @@ public interface PayloadFactory {
    @param <N>      type of entities
    @return data-many Payload of given entities
    */
-  <N extends GeneratedMessageLite<N, ?>> Payload from(Collection<N> entities) throws JsonApiException;
+  <N extends MessageLite> Payload from(Collection<N> entities) throws JsonApiException;
 
   /**
    Get a data-many Payload from the given entities, including the given entities
@@ -334,5 +334,5 @@ public interface PayloadFactory {
    @param <N>      type of entities
    @return data-many Payload of given entities, including the given entities
    */
-  <N extends GeneratedMessageLite<N, ?>> Payload from(Collection<N> entities, Collection<N> included) throws JsonApiException;
+  <N extends MessageLite> Payload from(Collection<N> entities, Collection<N> included) throws JsonApiException;
 }

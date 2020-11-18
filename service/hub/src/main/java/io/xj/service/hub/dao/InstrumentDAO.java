@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.dao;
 
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite ;
 import io.xj.Instrument;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
@@ -117,5 +117,5 @@ public interface InstrumentDAO extends DAO<Instrument> {
    @param instrumentIds to read
    @return collection of entities
    */
-  <N extends GeneratedMessageLite<N, ?>> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<String> instrumentIds) throws DAOException;
+  <N extends MessageLite> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<String> instrumentIds) throws DAOException;
 }

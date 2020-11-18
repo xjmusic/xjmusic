@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
 import io.xj.Chain;
 import io.xj.Segment;
@@ -503,7 +503,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
    @param entity to validate
    @throws DAOValidationException if invalid
    */
-  public <N extends GeneratedMessageLite.Builder<?, ?>> void validate(GeneratedMessageLite.Builder<?, ?> entity) throws DAOValidationException {
+  public void validate(MessageLite.Builder entity) throws DAOValidationException {
     try {
       if (entity instanceof Segment.Builder)
         validateSegment((Segment.Builder) entity);

@@ -3,7 +3,7 @@ package io.xj.service.hub;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.Payload;
@@ -57,7 +57,7 @@ public class HubEndpoint {
    @param <N>     type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends GeneratedMessageLite<N, ?>> Response create(ContainerRequestContext crc, DAO<N> dao, Payload payload) {
+  public <N extends MessageLite> Response create(ContainerRequestContext crc, DAO<N> dao, Payload payload) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
       N createdEntity = dao.create(hubAccess, payloadFactory.consume(dao.newInstance(), payload));
@@ -80,7 +80,7 @@ public class HubEndpoint {
    @param <N> type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends GeneratedMessageLite<N, ?>> Response readOne(ContainerRequestContext crc, DAO<N> dao, Object id) {
+  public <N extends MessageLite> Response readOne(ContainerRequestContext crc, DAO<N> dao, Object id) {
     try {
       Object entity = dao.readOne(HubAccess.fromContext(crc), String.valueOf(id));
       Payload payload = new Payload();
@@ -104,7 +104,7 @@ public class HubEndpoint {
    @param <N>       type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends GeneratedMessageLite<N, ?>, O> Response readMany(ContainerRequestContext crc, DAO<N> dao, Collection<O> parentIds) {
+  public <N extends MessageLite, O> Response readMany(ContainerRequestContext crc, DAO<N> dao, Collection<O> parentIds) {
     try {
       Collection<N> entities = dao.readMany(HubAccess.fromContext(crc),
         parentIds.stream().map((Function<Object, String>) String::valueOf).collect(Collectors.toList()));
@@ -127,7 +127,7 @@ public class HubEndpoint {
    @param <N>      type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends GeneratedMessageLite<N, ?>> Response readMany(ContainerRequestContext crc, DAO<N> dao, String parentId) {
+  public <N extends MessageLite> Response readMany(ContainerRequestContext crc, DAO<N> dao, String parentId) {
     if (Objects.isNull(parentId))
       return response.notAcceptable("parent id is required");
 
@@ -144,13 +144,12 @@ public class HubEndpoint {
    @param <N>     type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends GeneratedMessageLite<N, ?>> Response update(ContainerRequestContext crc, DAO<N> dao, String id, Payload payload) {
+  public <N extends MessageLite> Response update(ContainerRequestContext crc, DAO<N> dao, String id, Payload payload) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      N current = dao.readOne(hubAccess, id);
-      payloadFactory.consume(current, payload);
-      dao.update(hubAccess, id, current);
-      return response.ok(new Payload().setDataOne(payloadFactory.toPayloadObject(current)));
+      N updated = payloadFactory.consume(dao.readOne(hubAccess, id), payload);
+      dao.update(hubAccess, id, updated);
+      return response.ok(new Payload().setDataOne(payloadFactory.toPayloadObject(updated)));
 
     } catch (Exception e) {
       return response.notAcceptable(e);
@@ -166,7 +165,7 @@ public class HubEndpoint {
    @param <N> type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends GeneratedMessageLite<N, ?>> Response delete(ContainerRequestContext crc, DAO<N> dao, String id) {
+  public <N extends MessageLite> Response delete(ContainerRequestContext crc, DAO<N> dao, String id) {
     try {
       dao.destroy(HubAccess.fromContext(crc), id);
       return response.noContent();

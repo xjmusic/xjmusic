@@ -6,7 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> N getInstance(String type) throws EntityException {
+  public <N extends MessageLite> N getInstance(String type) throws EntityException {
     String key = Entities.toType(type);
     ensureSchemaExists("get instance", key);
     @SuppressWarnings("unchecked") Supplier<N> creator = (Supplier<N>) schema.get(key).getCreator();
@@ -62,7 +62,7 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> N getInstance(Class<N> type) throws EntityException {
+  public <N extends MessageLite> N getInstance(Class<N> type) throws EntityException {
     return getInstance(Entities.toType(type));
   }
 
@@ -142,9 +142,9 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> N clone(N from) throws EntityException {
+  public <N extends MessageLite> N clone(N from) throws EntityException {
     String className = from.getClass().getSimpleName();
-    @SuppressWarnings("unchecked") GeneratedMessageLite.Builder<N, ?> builder = ((GeneratedMessageLite<N, ?>) getInstance(className)).toBuilder();
+    MessageLite.Builder builder = getInstance(className).toBuilder();
     Entities.setId(builder, Entities.getId(from));
     setAllAttributes(from, builder);
     for (String belongsTo : getBelongsTo(className)) {
@@ -152,11 +152,12 @@ public class EntityFactoryImpl implements EntityFactory {
       if (belongsToId.isPresent())
         Entities.set(builder, Entities.toIdAttribute(belongsTo), belongsToId.get());
     }
-    return builder.build();
+    //noinspection unchecked
+    return (N) builder.build();
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>> Collection<N> cloneAll(Collection<N> entities) throws EntityException {
+  public <N extends MessageLite> Collection<N> cloneAll(Collection<N> entities) throws EntityException {
     Collection<N> clones = Lists.newArrayList();
     for (N entity : entities) clones.add(clone(entity));
     return clones;

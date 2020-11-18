@@ -4,7 +4,7 @@ package io.xj.service.hub.dao;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite;
 import io.xj.UserRole;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 import static io.xj.service.hub.Tables.LIBRARY;
 import static io.xj.service.hub.Tables.PROGRAM;
 
-public abstract class DAOImpl<E extends GeneratedMessageLite<E, ?>> implements DAO<E> {
+public abstract class DAOImpl<E extends MessageLite> implements DAO<E> {
   private static final Logger log = LoggerFactory.getLogger(DAOImpl.class);
   private static final String KEY_ID = "id";
   protected final PayloadFactory payloadFactory;
@@ -401,14 +401,14 @@ public abstract class DAOImpl<E extends GeneratedMessageLite<E, ?>> implements D
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws DAOException {
+  public <N extends MessageLite, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws DAOException {
     Collection<N> models = Lists.newArrayList();
     for (R record : records) models.add(modelFrom(modelClass, record));
     return models;
   }
 
   @Override
-  public <N extends GeneratedMessageLite<N, ?>, R extends Record> N modelFrom(R record) throws DAOException {
+  public <N extends MessageLite, R extends Record> N modelFrom(R record) throws DAOException {
     if (!modelsForRecords.containsKey(record.getClass()))
       throw new DAOException(String.format("Unrecognized class of entity record: %s", record.getClass().getName()));
 
@@ -424,12 +424,12 @@ public abstract class DAOImpl<E extends GeneratedMessageLite<E, ?>> implements D
    @return entity after transmogrification
    @throws DAOException on failure to transmogrify
    */
-  protected <N extends GeneratedMessageLite<N, ?>, R extends Record> N modelFrom(Class<N> modelClass, R record) throws DAOException {
+  protected <N extends MessageLite, R extends Record> N modelFrom(Class<N> modelClass, R record) throws DAOException {
     if (Objects.isNull(modelClass))
       throw new DAOException("Will not transmogrify null modelClass");
 
     // new instance of model
-    GeneratedMessageLite.Builder<N, ?> model;
+    MessageLite.Builder model;
     try {
       model = entityFactory.getInstance(modelClass).toBuilder();
     } catch (Exception e) {
@@ -439,7 +439,8 @@ public abstract class DAOImpl<E extends GeneratedMessageLite<E, ?>> implements D
     // set all values
     modelSetTransmogrified(record, model);
 
-    return model.build();
+    // noinspection unchecked
+    return (N) model.build();
   }
 
   /**
@@ -475,7 +476,7 @@ public abstract class DAOImpl<E extends GeneratedMessageLite<E, ?>> implements D
    */
   protected <N> UpdatableRecord<?> recordFor(DSLContext db, N entity) throws DAOException, JsonApiException {
     Table<?> table = tablesInSchemaConstructionOrder.get(entity.getClass());
-    if (entity instanceof com.google.protobuf.GeneratedMessageLite.Builder)
+    if (entity instanceof MessageLite.Builder)
       throw new DAOException("Cannot create record from protobuf Builder");
     UpdatableRecord<?> record = (UpdatableRecord<?>) db.newRecord(table);
 

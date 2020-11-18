@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub.dao;
 
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite ;
 import io.xj.Program;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
@@ -138,5 +138,5 @@ public interface ProgramDAO extends DAO<Program> {
    @param programIds to read
    @return collection of entities
    */
-  <N extends GeneratedMessageLite<N, ?>> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<String> programIds) throws DAOException;
+  <N extends MessageLite> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<String> programIds) throws DAOException;
 }

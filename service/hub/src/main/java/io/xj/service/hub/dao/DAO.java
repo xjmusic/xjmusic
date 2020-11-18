@@ -3,7 +3,7 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.protobuf.GeneratedMessageLite;
+import com.google.protobuf.MessageLite ;
 import io.xj.Account;
 import io.xj.AccountUser;
 import io.xj.Instrument;
@@ -93,7 +93,7 @@ import static io.xj.service.hub.Tables.USER_AUTH_TOKEN;
 import static io.xj.service.hub.Tables.USER_ROLE;
 import static io.xj.service.hub.tables.Program.PROGRAM;
 
-public interface DAO<E extends GeneratedMessageLite<E, ?>> {
+public interface DAO<E extends MessageLite> {
   Map<Class<?>, Table<?>> tablesInSchemaConstructionOrder = ImmutableMap.<Class<?>, Table<?>>builder() // DELIBERATE ORDER
     .put(User.class, USER)
     .put(UserRole.class, USER_ROLE) // after user
@@ -228,7 +228,7 @@ public interface DAO<E extends GeneratedMessageLite<E, ?>> {
    @return entity after transmogrification
    @throws DAOException on failure to transmogrify
    */
-  <N extends GeneratedMessageLite<N, ?>, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws DAOException;
+  <N extends MessageLite, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws DAOException;
 
   /**
    Transmogrify the field-value pairs of a jOOQ record and set values on the corresponding POJO entity.
@@ -237,6 +237,6 @@ public interface DAO<E extends GeneratedMessageLite<E, ?>> {
    @return entity after transmogrification
    @throws DAOException on failure to transmogrify
    */
-  <N extends GeneratedMessageLite<N, ?>, R extends Record> N modelFrom(R record) throws DAOException;
+  <N extends MessageLite, R extends Record> N modelFrom(R record) throws DAOException;
 
 }
