@@ -23,7 +23,6 @@ import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.entity.common.MessageEntity;
 import io.xj.lib.util.CSV;
-import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
@@ -67,15 +66,6 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     playerBufferAheadSeconds = config.getInt("chain.playerBufferAheadSeconds");
     playerBufferDelaySeconds = config.getInt("chain.playerBufferDelaySeconds");
     limitSegmentReadSize = config.getInt("segment.limitReadSize");
-  }
-
-  /**
-   String Values
-
-   @return ImmutableList of string values
-   */
-  public static List<String> segmentStateStringValues() {
-    return Text.toStrings(Segment.State.values());
   }
 
   /**

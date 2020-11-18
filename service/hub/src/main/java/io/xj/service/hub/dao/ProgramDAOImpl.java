@@ -301,7 +301,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
       .where(PROGRAM_MEME.PROGRAM_ID.eq(id))
       .fetchOne(0, int.class));
 
-
     db.deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_ID.eq(id))
       .execute();

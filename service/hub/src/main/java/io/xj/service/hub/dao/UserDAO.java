@@ -19,15 +19,6 @@ import java.util.stream.Collectors;
 public interface UserDAO extends DAO<User> {
 
   /**
-   String Values
-
-   @return ImmutableList of string values
-   */
-  static List<String> userRoleTypeStringValues() {
-    return Text.toStrings(UserRole.Type.values());
-  }
-
-  /**
    cast string to enum
 
    @param value to cast to enum

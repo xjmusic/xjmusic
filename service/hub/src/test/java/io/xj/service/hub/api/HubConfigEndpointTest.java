@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response;
 
 import static io.xj.service.hub.client.HubClientAccess.CONTEXT_KEY;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -63,6 +64,9 @@ public class HubConfigEndpointTest {
     subject = injector.getInstance(HubConfigEndpoint.class);
   }
 
+  /**
+   [#175771083] Enums should not have unrecognized values
+   */
   @Test
   public void getConfig() throws JsonApiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
@@ -70,6 +74,7 @@ public class HubConfigEndpointTest {
     Response result = subject.getConfig(crc);
 
     assertEquals(200, result.getStatus());
+    assertFalse(String.valueOf(result.getEntity()).contains("UNRECOGNIZED"));
     assertTrue(result.hasEntity());
   }
 

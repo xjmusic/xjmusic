@@ -3,9 +3,6 @@ package io.xj.service.nexus.dao;
 
 import io.xj.Chain;
 import io.xj.Segment;
-import io.xj.lib.util.CSV;
-import io.xj.lib.util.Text;
-import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
@@ -14,65 +11,9 @@ import io.xj.service.nexus.dao.exception.DAOValidationException;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 public interface ChainDAO extends DAO<Chain> {
-
-  /**
-   String Values
-
-   @return ImmutableList of string values
-   */
-  static List<String> chainStateStringValues() {
-    return Text.toStrings(Chain.State.values());
-  }
-
-  /**
-   cast string to enum
-
-   @param value to cast to enum
-   @return enum
-   @throws ValueException on failure
-   */
-  static Chain.State validateChainState(String value) throws ValueException {
-    if (Objects.isNull(value))
-      return Chain.State.Draft;
-
-    try {
-      return Chain.State.valueOf(Text.toProperSlug(value));
-    } catch (Exception ignored) {
-      throw new ValueException("'" + value + "' is not a valid state (" + CSV.joinEnum(Chain.State.values()) + ").");
-    }
-  }
-
-  /**
-   String Values
-
-   @return ImmutableList of string values
-   */
-  static List<String> chainTypeStringValues() {
-    return Text.toStrings(Chain.Type.values());
-  }
-
-  /**
-   cast string to enum
-
-   @param value to cast to enum
-   @return enum
-   @throws ValueException on failure
-   */
-  static Chain.Type validateChainType(String value) throws ValueException {
-    if (Objects.isNull(value))
-      return Chain.Type.Preview;
-
-    try {
-      return Chain.Type.valueOf(Text.toProperSlug(value));
-    } catch (Exception ignored) {
-      throw new ValueException("'" + value + "' is not a valid type (" + CSV.joinEnum(Chain.Type.values()) + ").");
-    }
-  }
 
   /**
    [INTERNAL USE ONLY]

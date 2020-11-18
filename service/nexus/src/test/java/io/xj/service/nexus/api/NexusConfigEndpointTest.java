@@ -7,7 +7,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.Account;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.ApiUrlProvider;
@@ -28,6 +27,7 @@ import javax.ws.rs.core.Response;
 
 import static io.xj.service.hub.client.HubClientAccess.CONTEXT_KEY;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -40,9 +40,7 @@ public class NexusConfigEndpointTest {
   @Mock
   ApiUrlProvider apiUrlProvider;
 
-  private HubClientAccess access;
   private NexusConfigEndpoint subject;
-  private Account account25;
 
   @Before
   public void setUp() throws AppException, JsonApiException {
@@ -64,13 +62,17 @@ public class NexusConfigEndpointTest {
     subject = injector.getInstance(NexusConfigEndpoint.class);
   }
 
+  /**
+   [#175771083] Enums should not have unrecognized values
+   */
   @Test
-  public void getConfig() throws JsonApiException {
-    when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
+  public void getConfig() {
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(HubClientAccess.internal());
 
     Response result = subject.getConfig(crc);
 
     assertEquals(200, result.getStatus());
+    assertFalse(String.valueOf(result.getEntity()).contains("UNRECOGNIZED"));
     assertTrue(result.hasEntity());
   }
 

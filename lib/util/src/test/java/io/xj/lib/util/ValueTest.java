@@ -5,7 +5,9 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.util.UUID;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class ValueTest {
@@ -57,4 +59,29 @@ public class ValueTest {
     assertEquals("2014-08-12T12:17:02.527142Z",
       Value.formatIso8601UTC(Instant.parse("2014-08-12T12:17:02.527142Z")));
   }
+
+  @Test
+  public void without() {
+    assertArrayEquals(new String[]{"A", "B", "C"}, Value.without("D", new String[]{"A", "B", "C", "D"}));
+  }
+
+  @Test
+  public void without_fromObjects() {
+    UUID vA = UUID.randomUUID();
+    UUID vB = UUID.randomUUID();
+    UUID vC = UUID.randomUUID();
+    UUID vD = UUID.randomUUID();
+    assertArrayEquals(new UUID[]{
+      vA,
+      vB,
+      vC
+    }, Value.without(vD, new UUID[]{
+      vA,
+      vB,
+      vC,
+      vD
+    }));
+  }
+
+
 }

@@ -393,10 +393,13 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
 
     // First check all provided roles for validity.
     boolean foundValidRole = false;
-    for (String checkRole : newRoles) {
-      UserDAO.validateUserRoleType(checkRole);
-      foundValidRole = true;
-    }
+    for (String checkRole : newRoles)
+      try {
+        UserRole.Type.valueOf(UserRole.Type.class, checkRole);
+        foundValidRole = true;
+      } catch (NullPointerException | IllegalArgumentException e) {
+        throw new ValueException(e);
+      }
     require("Valid Role", foundValidRole);
 
     DSLContext db = dbProvider.getDSL();

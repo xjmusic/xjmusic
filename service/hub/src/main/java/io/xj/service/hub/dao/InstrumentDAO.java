@@ -15,63 +15,6 @@ import java.util.Objects;
 public interface InstrumentDAO extends DAO<Instrument> {
 
   /**
-   String Values
-
-   @return ImmutableList of string values
-   */
-  static List<String> instrumentTypeStringValues() {
-    return Text.toStrings(Instrument.Type.values());
-  }
-
-  /**
-   cast string to enum
-
-   @param value to cast to enum
-   @return enum
-   @throws ValueException on failure
-   */
-  static Instrument.Type validateInstrumentType(String value) throws ValueException {
-    if (Objects.isNull(value))
-      throw new ValueException("Type is required");
-
-    try {
-      return Instrument.Type.valueOf(Text.toProperSlug(value));
-    } catch (Exception e) {
-      throw new ValueException("'" + value + "' is not a valid type (" + CSV.joinEnum(Instrument.Type.values()) + ").", e);
-    }
-  }
-
-  /**
-   String Values
-
-   @return ImmutableList of string values
-   */
-  static List<String> instrumentStateStringValues() {
-    return Text.toStrings(Instrument.State.values());
-  }
-
-  /**
-   cast string to enum
-   <p>
-   Maybe in future: [#294] Instrument can be createdin draft state, then published
-   </p>
-
-   @param value to cast to enum
-   @return config state enum
-   @throws ValueException on failure
-   */
-  static Instrument.State validateInstrumentState(String value) throws ValueException {
-    if (Objects.isNull(value))
-      return Instrument.State.Published;
-
-    try {
-      return Instrument.State.valueOf(Text.toProperSlug(value));
-    } catch (Exception ignored) {
-      throw new ValueException("'" + value + "' is not a valid state (" + CSV.joinEnum(Instrument.State.values()) + ").");
-    }
-  }
-
-  /**
    Clone a Instrument into a new Instrument
    [#170290553] Clone sub-entities of instruments
 

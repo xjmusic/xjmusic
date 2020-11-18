@@ -15,63 +15,6 @@ import java.util.Objects;
 public interface ProgramDAO extends DAO<Program> {
 
   /**
-   String Values
-
-   @return ImmutableList of string values
-   */
-  static List<String> programTypeStringValues() {
-    return Text.toStrings(Program.Type.values());
-  }
-
-  /**
-   cast string to enum
-
-   @param value to cast to enum
-   @return enum
-   @throws ValueException on failure
-   */
-  static Program.Type validateProgramType(String value) throws ValueException {
-    if (Objects.isNull(value))
-      throw new ValueException("Type is required");
-
-    try {
-      return Program.Type.valueOf(Text.toProperSlug(value));
-    } catch (Exception e) {
-      throw new ValueException("'" + value + "' is not a valid type (" + CSV.joinEnum(Program.Type.values()) + ").", e);
-    }
-  }
-
-  /**
-   String Values
-
-   @return ImmutableList of string values
-   */
-  static List<String> programStateStringValues() {
-    return Text.toStrings(Program.State.values());
-  }
-
-  /**
-   cast string to enum
-   <p>
-   FUTURE: Sequence can be createdin draft state, then published
-   </p>
-
-   @param value to cast to enum
-   @return config state enum
-   @throws ValueException on failure
-   */
-  static Program.State validateProgramState(String value) throws ValueException {
-    if (Objects.isNull(value))
-      return Program.State.Published;
-
-    try {
-      return Program.State.valueOf(Text.toProperSlug(value));
-    } catch (Exception ignored) {
-      throw new ValueException("'" + value + "' is not a valid state (" + CSV.joinEnum(Program.State.values()) + ").");
-    }
-  }
-
-  /**
    Provide an entity containing some new properties, but otherwise clone everything of a source program, of new record, and return it.
    [#170290553] Clone sub-entities of program
 

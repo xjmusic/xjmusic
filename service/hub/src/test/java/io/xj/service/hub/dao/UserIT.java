@@ -414,7 +414,7 @@ public class UserIT {
       .build();
 
     failure.expect(ValueException.class);
-    failure.expectMessage("'Duke' is not a valid role");
+    failure.expectMessage("No enum constant io.xj.UserRole.Type.Duke");
 
     subjectDAO.updateUserRolesAndDestroyTokens(hubAccess, fake.user53.getId(), inputData);
 

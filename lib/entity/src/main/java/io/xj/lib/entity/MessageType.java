@@ -20,15 +20,6 @@ public enum MessageType {
   private static final String TYPE_KEY = "type";
 
   /**
-   String Values
-
-   @return ImmutableList of string values
-   */
-  public static List<String> stringValues() {
-    return Text.toStrings((Object[]) values());
-  }
-
-  /**
    cast string to enum
 
    @param value to cast to enum

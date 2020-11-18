@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public interface Value {
   String CHORD_SEPARATOR_DESCRIPTOR = ":";
@@ -224,5 +225,20 @@ public interface Value {
   static boolean isSet(Object value) {
     if (Objects.isNull(value)) return false;
     return !String.valueOf(value).isBlank();
+  }
+
+  /**
+   Filter a value out of an array of values
+
+   @param removed value to remove
+   @param values  to source and filter
+   @param <O>     type
+   @return values without removed value
+   */
+  static <O> O[] without(O removed, O[] values) {
+    //noinspection unchecked
+    return (O[]) Stream.of(values)
+      .filter(v -> !Objects.equals(v, removed))
+      .toArray();
   }
 }
