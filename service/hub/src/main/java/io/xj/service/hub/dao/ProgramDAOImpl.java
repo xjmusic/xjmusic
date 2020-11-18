@@ -4,7 +4,7 @@ package io.xj.service.hub.dao;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.google.protobuf.MessageLite ;
+import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
 import io.xj.Program;
 import io.xj.ProgramMeme;
@@ -320,6 +320,10 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
 
     db.deleteFrom(PROGRAM_SEQUENCE_CHORD)
       .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
+      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID.eq(id))
       .execute();
 
     db.deleteFrom(PROGRAM_SEQUENCE)

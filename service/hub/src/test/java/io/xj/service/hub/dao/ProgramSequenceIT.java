@@ -15,6 +15,7 @@ import io.xj.ProgramSequence;
 import io.xj.ProgramSequenceBinding;
 import io.xj.ProgramSequenceBindingMeme;
 import io.xj.ProgramSequenceChord;
+import io.xj.ProgramSequenceChordVoicing;
 import io.xj.ProgramSequencePattern;
 import io.xj.ProgramSequencePatternEvent;
 import io.xj.ProgramVoice;
@@ -79,7 +80,7 @@ public class ProgramSequenceIT {
       .setId(UUID.randomUUID().toString())
       .setName("bananas")
       .build());
-// John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
+    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     fake.user2 = test.insert(User.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("john")
@@ -494,16 +495,6 @@ public class ProgramSequenceIT {
   }
 
   @Test
-  public void destroy_failsIfHasChildEntity() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
-
-    failure.expect(DAOException.class);
-    failure.expectMessage("Found binding of Sequence to Program");
-
-    testDAO.destroy(hubAccess, fake.program3_sequence1.getId());
-  }
-
-  @Test
   public void destroy_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     fake.programSequence35 = test.insert(ProgramSequence.newBuilder()
@@ -566,11 +557,25 @@ public class ProgramSequenceIT {
   }
 
   /**
-   [#170390872] Delete a **Sequence** even if it has children, as long as it has no sequence bindings
+   [#175693261] Artist editing program should be able to delete sequences
+   <p>
+   DEPRECATES [#170390872] Delete a **Sequence** even if it has children, as long as it has no sequence bindings
    */
   @Test
-  public void destroy_failsIfHasBinding() throws Exception {
+  public void destroy_succeedsEvenWithChildren() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
+    ProgramVoice programVoice = test.insert(ProgramVoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program3.getId())
+      .setType(Instrument.Type.Percussive)
+      .setName("Drums")
+      .build());
+    ProgramVoiceTrack track = test.insert(ProgramVoiceTrack.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(programVoice.getProgramId())
+      .setProgramVoiceId(programVoice.getId())
+      .setName("KICK")
+      .build());
     ProgramSequence programSequence = test.insert(ProgramSequence.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program2.getId())
@@ -580,15 +585,51 @@ public class ProgramSequenceIT {
       .setKey("C#")
       .setTempo(120.0)
       .build());
-    test.insert(ProgramSequenceBinding.newBuilder()
+    ProgramSequenceBinding programSequenceBinding = test.insert(ProgramSequenceBinding.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(programSequence.getProgramId())
       .setProgramSequenceId(programSequence.getId())
       .setOffset(0)
       .build());
-
-    failure.expect(DAOException.class);
-    failure.expectMessage("Found binding of Sequence to Program");
+    test.insert(ProgramSequenceBindingMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(programSequenceBinding.getProgramId())
+      .setProgramSequenceBindingId(programSequenceBinding.getId())
+      .setName("chunk")
+      .build());
+    ProgramSequencePattern pattern = test.insert(ProgramSequencePattern.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(programSequence.getProgramId())
+      .setProgramSequenceId(programSequence.getId())
+      .setProgramVoiceId(fake.program2_voice1.getId())
+      .setType(ProgramSequencePattern.Type.Loop)
+      .setTotal(4)
+      .setName("Jam")
+      .build());
+    test.insert(ProgramSequencePatternEvent.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(pattern.getProgramId())
+      .setProgramSequencePatternId(pattern.getId())
+      .setProgramVoiceTrackId(track.getId())
+      .setPosition(0)
+      .setDuration(1)
+      .setNote("C")
+      .setVelocity(1)
+      .build());
+    ProgramSequenceChord programSequenceChord = test.insert(ProgramSequenceChord.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(programSequence.getProgramId())
+      .setProgramSequenceId(programSequence.getId())
+      .setPosition(0)
+      .setName("G")
+      .build());
+    test.insert(ProgramSequenceChordVoicing.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setType(Instrument.Type.Bass)
+      .setProgramId(programSequenceChord.getProgramId())
+      .setProgramSequenceChordId(programSequenceChord.getId())
+      .setNotes("C5, Eb5, G5")
+      .build());
 
     testDAO.destroy(hubAccess, programSequence.getId());
   }

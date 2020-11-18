@@ -29,6 +29,7 @@ import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
 import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_CHORD;
 import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
 import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.service.hub.tables.ProgramSequenceChordVoicing.PROGRAM_SEQUENCE_CHORD_VOICING;
 
 public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements ProgramSequenceDAO {
 
@@ -155,24 +156,43 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
     requireModification(db, hubAccess, rawId);
     UUID id = UUID.fromString(rawId);
 
-    requireNotExists("binding of Sequence to Program", db.selectCount().from(PROGRAM_SEQUENCE_BINDING)
-      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID.eq(id))
-      .fetchOne(0, int.class));
+    // Delete all ProgramSequenceBindingMeme
+    db.deleteFrom(PROGRAM_SEQUENCE_BINDING_MEME)
+      .where(PROGRAM_SEQUENCE_BINDING_MEME.PROGRAM_SEQUENCE_BINDING_ID.in(
+        db.select(PROGRAM_SEQUENCE_BINDING.ID).from(PROGRAM_SEQUENCE_BINDING)
+          .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID.eq(id))))
+      .execute();
 
+    // Delete all ProgramSequenceBinding
+    db.deleteFrom(PROGRAM_SEQUENCE_BINDING)
+      .where(PROGRAM_SEQUENCE_BINDING.PROGRAM_SEQUENCE_ID.eq(id))
+      .execute();
+
+    // Delete all ProgramSequenceChordVoicing
+    db.deleteFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
+      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_SEQUENCE_CHORD_ID.in(
+        db.select(PROGRAM_SEQUENCE_CHORD.ID).from(PROGRAM_SEQUENCE_CHORD)
+          .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID.eq(id))))
+      .execute();
+
+    // Delete all ProgramSequenceChord
     db.deleteFrom(PROGRAM_SEQUENCE_CHORD)
       .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_SEQUENCE_ID.eq(id))
       .execute();
 
+    // Delete all ProgramSequencePatternEvent
     db.deleteFrom(PROGRAM_SEQUENCE_PATTERN_EVENT)
       .where(PROGRAM_SEQUENCE_PATTERN_EVENT.PROGRAM_SEQUENCE_PATTERN_ID.in(
         db.select(PROGRAM_SEQUENCE_PATTERN.ID).from(PROGRAM_SEQUENCE_PATTERN)
           .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.eq(id))))
       .execute();
 
+    // Delete all ProgramSequencePattern
     db.deleteFrom(PROGRAM_SEQUENCE_PATTERN)
       .where(PROGRAM_SEQUENCE_PATTERN.PROGRAM_SEQUENCE_ID.eq(id))
       .execute();
 
+    // Delete all ProgramSequence
     db.deleteFrom(PROGRAM_SEQUENCE)
       .where(PROGRAM_SEQUENCE.ID.eq(id))
       .execute();
