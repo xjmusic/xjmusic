@@ -171,7 +171,7 @@ CREATE TABLE xj.instrument_audio (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     instrument_id uuid NOT NULL,
     name character varying(255) NOT NULL,
-    waveform_key character varying(2047) NOT NULL,
+    waveform_key character varying(2047),
     start real NOT NULL,
     length real NOT NULL,
     tempo real NOT NULL,
@@ -1042,6 +1042,7 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 42	43	delete created updated at columns	SQL	V43__delete_created_updated_at_columns.sql	2082510389	root	2020-11-17 20:11:47.524173	31	t
 43	44	updated at delete procedures	SQL	V44__updated_at_delete_procedures.sql	-845882979	root	2020-11-17 20:11:47.580165	12	t
 44	45	drop column program instrument user id	SQL	V45__drop_column_program_instrument_user_id.sql	1859235592	root	2020-11-17 20:11:47.602271	3	t
+45	46	instrument audio waveform key optional	SQL	V46__instrument_audio_waveform_key_optional.sql	298148594	root	2020-11-19 06:24:25.644148	8	t
 \.
 
 
