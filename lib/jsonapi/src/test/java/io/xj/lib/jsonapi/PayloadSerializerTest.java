@@ -91,6 +91,9 @@ public class PayloadSerializerTest {
       .belongsTo("Library", library.getId());
   }
 
+  /**
+   [#175792528] JSON:API serializer must not include relationship payload where there is none
+   */
   @Test
   public void serializeOne_withBelongsTo_empty() throws JsonApiException {
     entityFactory.register("Library");

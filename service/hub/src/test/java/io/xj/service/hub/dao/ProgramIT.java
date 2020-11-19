@@ -500,10 +500,12 @@ public class ProgramIT {
   }
 
   /**
-   [#170390872] prevent user from changing program type of a Rhythm program, when it has any Tracks and/or Voices.
+   [#175789099] Artist should always be able to change program type
+   <p>
+   DEPRECATES [#170390872] prevent user from changing program type of a Rhythm program, when it has any Tracks and/or Voices.
    */
   @Test
-  public void update_failsToChangeTypeOfRhythmProgramWithVoice() throws Exception {
+  public void update_artistCanAlwaysChangeType() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
     test.insert(ProgramVoice.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -521,9 +523,6 @@ public class ProgramIT {
       .setState(Program.State.Published)
       .setType(Program.Type.Main)
       .build();
-
-    failure.expect(DAOException.class);
-    failure.expectMessage("Found Voice in Program; Can't change type away from Rhythm");
 
     testDAO.update(hubAccess, fake.program2.getId(), subject);
   }

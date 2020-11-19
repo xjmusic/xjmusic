@@ -272,12 +272,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     Program existing = readOne(db, hubAccess, id);
     validateConfig(program);
 
-    // [#170390872] prevent user from changing program type of a Rhythm program, when it has any Tracks and/or Voices.
-    if (Program.Type.Rhythm.equals(existing.getType()) && !Program.Type.Rhythm.equals(program.getType()))
-      requireNotExists("Voice in Program; Can't change type away from Rhythm", db.selectCount().from(PROGRAM_VOICE)
-        .where(PROGRAM_VOICE.PROGRAM_ID.eq(UUID.fromString(id)))
-        .fetchOne(0, int.class));
-
     executeUpdate(db, PROGRAM, id, program);
   }
 
