@@ -73,7 +73,7 @@ public enum Entities {
           return Optional.of(new BigInteger(String.valueOf(value)));
 
         case "string":
-          return Optional.of(String.valueOf(value));
+          return String.valueOf(value).isBlank() ? Optional.empty() : Optional.of(String.valueOf(value));
 
         default:
           return Optional.of(value);
@@ -218,7 +218,6 @@ public enum Entities {
     for (Method method : target.getClass().getMethods())
       if (Objects.equals(getterName, method.getName())) {
         return get(target, method);
-
       }
 
     return Optional.empty();

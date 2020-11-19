@@ -26,8 +26,7 @@ public class PayloadSerializer extends StdSerializer<Payload> {
   }
 
   @Override
-  public void serialize(
-    Payload value, JsonGenerator json, SerializerProvider provider)
+  public void serialize(Payload value, JsonGenerator json, SerializerProvider provider)
     throws IOException {
 
     json.writeStartObject();

@@ -15,6 +15,8 @@ import org.junit.Test;
 
 import java.util.UUID;
 
+import static org.junit.Assert.assertFalse;
+
 /**
  Payload serializer test
  <p>
@@ -87,6 +89,23 @@ public class PayloadSerializerTest {
     AssertPayload.assertPayload(payloadFactory.deserialize(result))
       .hasDataOne("programs", program.getId())
       .belongsTo("Library", library.getId());
+  }
+
+  @Test
+  public void serializeOne_withBelongsTo_empty() throws JsonApiException {
+    entityFactory.register("Library");
+    entityFactory.register("Program").belongsTo("Library");
+    Payload payload = payloadFactory.newPayload();
+    Program program = Program.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setLibraryId("")
+      .setName("x")
+      .build();
+    payloadFactory.setDataEntity(payload, program);
+
+    String result = payloadFactory.serialize(payload);
+
+    assertFalse(result.contains("libraries"));
   }
 
   @Test
