@@ -148,7 +148,8 @@ public class NexusApp extends App {
     // SegmentChoice
     entityFactory.register(SegmentChoice.class)
       .createdBy(SegmentChoice::getDefaultInstance)
-      .withAttribute("type")
+      .withAttribute("programType")
+      .withAttribute("instrumentType")
       .withAttribute("transpose")
       .belongsTo(Segment.class)
       .belongsTo(Program.class)
