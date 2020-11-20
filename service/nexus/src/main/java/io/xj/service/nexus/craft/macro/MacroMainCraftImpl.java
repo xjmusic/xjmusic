@@ -131,8 +131,8 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         ? chooseMacroProgram(nextSequenceOfPreviousMacroProgram.get())
         : chooseMacroProgram();
       Long macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
-      ProgramSequenceBinding macroSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset);
-      ProgramSequence macroSequence = fabricator.getSourceMaterial().getProgramSequence(macroSequenceBinding);
+      var macroSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset);
+      var macroSequence = fabricator.getSourceMaterial().getProgramSequence(macroSequenceBinding);
       int macroTranspose = nextSequenceOfPreviousMacroProgram.isPresent()
         ? computeMacroTranspose(macroProgram, nextSequenceOfPreviousMacroProgram.get())
         : 0;
@@ -149,8 +149,8 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       // 2. Main
       Program mainProgram = chooseMainProgram();
       Long mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
-      ProgramSequenceBinding mainSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset);
-      ProgramSequence mainSequence = fabricator.getSourceMaterial().getProgramSequence(mainSequenceBinding);
+      var mainSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset);
+      var mainSequence = fabricator.getSourceMaterial().getProgramSequence(mainSequenceBinding);
       int mainTranspose = computeMainTranspose(macroProgram, macroTranspose, mainProgram, macroSequence);
       fabricator.add(
         SegmentChoice.newBuilder()

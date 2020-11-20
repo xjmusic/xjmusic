@@ -218,14 +218,14 @@ public class ProgramSequenceBindingIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramSequenceBinding subject = ProgramSequenceBinding.newBuilder()
+    var subject = ProgramSequenceBinding.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramSequenceId(fake.program3_sequence1.getId())
       .setOffset(4L)
       .build();
 
-    ProgramSequenceBinding result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, subject);
 
     assertNotNull(result);
@@ -241,14 +241,14 @@ public class ProgramSequenceBindingIT {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
-    ProgramSequenceBinding inputData = ProgramSequenceBinding.newBuilder()
+    var inputData = ProgramSequenceBinding.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramSequenceId(fake.program3_sequence1.getId())
       .setOffset(4L)
       .build();
 
-    ProgramSequenceBinding result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, inputData);
 
     assertNotNull(result);
@@ -261,7 +261,7 @@ public class ProgramSequenceBindingIT {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    ProgramSequenceBinding result = testDAO.readOne(hubAccess, sequenceBinding1a_0.getId());
+    var result = testDAO.readOne(hubAccess, sequenceBinding1a_0.getId());
 
     assertNotNull(result);
     assertEquals(sequenceBinding1a_0.getId(), result.getId());

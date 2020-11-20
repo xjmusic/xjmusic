@@ -15,6 +15,7 @@ import io.xj.ProgramSequence;
 import io.xj.ProgramSequenceBinding;
 import io.xj.ProgramSequenceBindingMeme;
 import io.xj.ProgramSequenceChord;
+import io.xj.ProgramSequenceChordVoicing;
 import io.xj.ProgramSequencePattern;
 import io.xj.ProgramSequencePatternEvent;
 import io.xj.ProgramVoice;
@@ -51,6 +52,7 @@ import static io.xj.service.hub.tables.ProgramSequence.PROGRAM_SEQUENCE;
 import static io.xj.service.hub.tables.ProgramSequenceBinding.PROGRAM_SEQUENCE_BINDING;
 import static io.xj.service.hub.tables.ProgramSequenceBindingMeme.PROGRAM_SEQUENCE_BINDING_MEME;
 import static io.xj.service.hub.tables.ProgramSequenceChord.PROGRAM_SEQUENCE_CHORD;
+import static io.xj.service.hub.tables.ProgramSequenceChordVoicing.PROGRAM_SEQUENCE_CHORD_VOICING;
 import static io.xj.service.hub.tables.ProgramSequencePattern.PROGRAM_SEQUENCE_PATTERN;
 import static io.xj.service.hub.tables.ProgramSequencePatternEvent.PROGRAM_SEQUENCE_PATTERN_EVENT;
 import static io.xj.service.hub.tables.ProgramVoice.PROGRAM_VOICE;
@@ -141,7 +143,7 @@ public class ProgramIT {
       .setKey("D minor")
       .setTempo(120.0)
       .build());
-    ProgramSequenceBinding sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.newBuilder()
+    var sequenceBinding1a_0 = test.insert(ProgramSequenceBinding.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program1_sequence1.getProgramId())
       .setProgramSequenceId(fake.program1_sequence1.getId())
@@ -277,6 +279,8 @@ public class ProgramIT {
 
   /**
    [#170290553] Clone sub-entities of program
+   <p>
+   [#175808105] Cloned Program should have same Voices and Chord Voicings
    */
   @Test
   public void clone_fromOriginal() throws Exception {
@@ -294,26 +298,32 @@ public class ProgramIT {
       .setProgramId(fake.program1.getId())
       .setName("cinnamon")
       .build());
-    ProgramVoice voice = test.insert(ProgramVoice.newBuilder()
+    var voice = test.insert(ProgramVoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program1.getId())
       .setType(Instrument.Type.Percussive)
       .setName("drums")
       .build());
-    ProgramVoiceTrack track = test.insert(ProgramVoiceTrack.newBuilder()
+    var track = test.insert(ProgramVoiceTrack.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(voice.getProgramId())
       .setProgramVoiceId(voice.getId())
       .setName("Kick")
       .build());
-    test.insert(ProgramSequenceChord.newBuilder()
+    var programSequenceChord = test.insert(ProgramSequenceChord.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program1_sequence1.getProgramId())
       .setProgramSequenceId(fake.program1_sequence1.getId())
       .setPosition(0)
       .setName("D")
       .build());
-    ProgramSequencePattern pattern = test.insert(ProgramSequencePattern.newBuilder()
+    test.insert(ProgramSequenceChordVoicing.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1_sequence1.getProgramId())
+      .setProgramSequenceChordId(programSequenceChord.getId())
+      .setNotes("D2,F#2,A2")
+      .build());
+    var pattern = test.insert(ProgramSequencePattern.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program1_sequence1.getProgramId())
       .setProgramVoiceId(voice.getId())
@@ -377,6 +387,13 @@ public class ProgramIT {
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_CHORD)
       .where(PROGRAM_SEQUENCE_CHORD.PROGRAM_ID.eq(UUID.fromString(result.getId())))
+      .fetchOne(0, int.class));
+    // Cloned ProgramSequenceChordVoicing belongs to ProgramSequenceChord
+    assertEquals(1, resultCloner.getChildClones().stream()
+      .filter(e -> ProgramSequenceChordVoicing.class.equals(e.getClass())).count());
+    assertEquals(Integer.valueOf(1), test.getDSL()
+      .selectCount().from(PROGRAM_SEQUENCE_CHORD_VOICING)
+      .where(PROGRAM_SEQUENCE_CHORD_VOICING.PROGRAM_ID.eq(UUID.fromString(result.getId())))
       .fetchOne(0, int.class));
     // Cloned ProgramSequenceBinding belongs to ProgramSequence
     assertEquals(1, resultCloner.getChildClones().stream()
@@ -650,7 +667,7 @@ public class ProgramIT {
       .setTempo(120.0)
       .setDensity(0.6)
       .build());
-    ProgramSequence programSequence = test.insert(ProgramSequence.newBuilder()
+    var programSequence = test.insert(ProgramSequence.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(program.getId())
       .setTotal(4)
@@ -665,13 +682,13 @@ public class ProgramIT {
       .setProgramSequenceId(programSequence.getId())
       .setOffset(0)
       .build());
-    ProgramVoice voice = test.insert(ProgramVoice.newBuilder()
+    var voice = test.insert(ProgramVoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(program.getId())
       .setType(Instrument.Type.Percussive)
       .setName("drums")
       .build());
-    ProgramVoiceTrack track = test.insert(ProgramVoiceTrack.newBuilder()
+    var track = test.insert(ProgramVoiceTrack.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(voice.getProgramId())
       .setProgramVoiceId(voice.getId())
@@ -684,7 +701,7 @@ public class ProgramIT {
       .setPosition(0)
       .setName("D")
       .build());
-    ProgramSequencePattern pattern = test.insert(ProgramSequencePattern.newBuilder()
+    var pattern = test.insert(ProgramSequencePattern.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(programSequence.getProgramId())
       .setProgramSequenceId(programSequence.getId())

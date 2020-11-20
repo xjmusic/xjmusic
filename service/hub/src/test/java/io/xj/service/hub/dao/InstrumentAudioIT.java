@@ -204,7 +204,7 @@ public class InstrumentAudioIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    InstrumentAudio inputData = InstrumentAudio.newBuilder()
+    var inputData = InstrumentAudio.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setInstrumentId(fake.instrument201.getId())
       .setName("maracas")
@@ -217,7 +217,7 @@ public class InstrumentAudioIT {
     when(fileStoreProvider.generateKey("instrument-2-audio"))
       .thenReturn("instrument-2-audio-h2a34j5s34fd987gaw3.wav");
 
-    InstrumentAudio result = testDAO.create(hubAccess, inputData);
+    var result = testDAO.create(hubAccess, inputData);
 
     verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio");
     assertNotNull(result);
@@ -232,7 +232,7 @@ public class InstrumentAudioIT {
 
   public void create_FailsWithoutInstrumentID() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    InstrumentAudio inputData = InstrumentAudio.newBuilder()
+    var inputData = InstrumentAudio.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("maracas")
       .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "maracas.wav")
@@ -255,7 +255,7 @@ public class InstrumentAudioIT {
   @Test
   public void create_SucceedsWithoutWaveformKey() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    InstrumentAudio inputData = InstrumentAudio.newBuilder()
+    var inputData = InstrumentAudio.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setInstrumentId(fake.instrument202.getId())
       .setName("maracas")
@@ -265,7 +265,7 @@ public class InstrumentAudioIT {
       .setTempo(80.5)
       .build();
 
-    InstrumentAudio result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, inputData);
 
     verify(fileStoreProvider, times(0)).generateKey("instrument-" + fake.instrument202.getId() + "-audio");
@@ -278,7 +278,7 @@ public class InstrumentAudioIT {
   @Test
   public void clone_fromOriginal() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    InstrumentAudio inputData = InstrumentAudio.newBuilder()
+    var inputData = InstrumentAudio.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setInstrumentId(fake.instrument202.getId())
       .setTempo(120.0)
@@ -296,7 +296,7 @@ public class InstrumentAudioIT {
       .setName("D minor")
       .build());
 
-    InstrumentAudio result = testDAO.clone(hubAccess, fake.audio1.getId(), inputData);
+    var result = testDAO.clone(hubAccess, fake.audio1.getId(), inputData);
 
     assertEquals("cannons fifty nine", result.getName());
     assertEquals(fake.instrument202.getId(), result.getInstrumentId());
@@ -320,7 +320,7 @@ public class InstrumentAudioIT {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
-    InstrumentAudio result = testDAO.readOne(hubAccess, fake.audio1.getId());
+    var result = testDAO.readOne(hubAccess, fake.audio1.getId());
 
     assertNotNull(result);
     assertEquals(fake.instrument202.getId(), result.getInstrumentId());
@@ -382,7 +382,7 @@ public class InstrumentAudioIT {
   @Test
   public void update_FailsWithoutInstrumentID() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    InstrumentAudio inputData = InstrumentAudio.newBuilder()
+    var inputData = InstrumentAudio.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("maracas")
       .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "maracas.wav")
@@ -401,7 +401,7 @@ public class InstrumentAudioIT {
   @Test
   public void update_FailsUpdatingToNonexistentInstrument() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    InstrumentAudio inputData = InstrumentAudio.newBuilder()
+    var inputData = InstrumentAudio.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setInstrumentId(UUID.randomUUID().toString())
       .setName("maracas")
@@ -419,7 +419,7 @@ public class InstrumentAudioIT {
       testDAO.update(hubAccess, fake.audio2.getId(), inputData);
 
     } catch (Exception e) {
-      InstrumentAudio result = testDAO.readOne(HubAccess.internal(), fake.audio2.getId());
+      var result = testDAO.readOne(HubAccess.internal(), fake.audio2.getId());
       assertNotNull(result);
       assertEquals("Test audio2", result.getName());
       assertEquals(fake.instrument202.getId(), result.getInstrumentId());
@@ -432,7 +432,7 @@ public class InstrumentAudioIT {
   @Test
   public void update() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    InstrumentAudio inputData = InstrumentAudio.newBuilder()
+    var inputData = InstrumentAudio.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setInstrumentId(fake.instrument201.getId())
       .setName("maracas")
@@ -444,7 +444,7 @@ public class InstrumentAudioIT {
 
     testDAO.update(hubAccess, fake.audio1.getId(), inputData);
 
-    InstrumentAudio result = testDAO.readOne(HubAccess.internal(), fake.audio1.getId());
+    var result = testDAO.readOne(HubAccess.internal(), fake.audio1.getId());
     assertNotNull(result);
     assertEquals(fake.instrument201.getId(), result.getInstrumentId());
     assertEquals("maracas", result.getName());
@@ -485,7 +485,7 @@ public class InstrumentAudioIT {
       testDAO.destroy(hubAccess, fake.audio1.getId());
 
     } catch (Exception e) {
-      InstrumentAudio result = testDAO.readOne(HubAccess.internal(), fake.audio1.getId());
+      var result = testDAO.readOne(HubAccess.internal(), fake.audio1.getId());
       assertNotNull(result);
       throw e;
     }

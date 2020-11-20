@@ -140,7 +140,7 @@ public class ProgramSequenceChordVoicingIT {
       .setProgramSequenceChordId(sequenceChord1a_0.getId())
       .setNotes("C5, Eb5, G5")
       .build());
-    ProgramSequenceChordVoicing sequenceChord1a_0_voicing1 = test.insert(ProgramSequenceChordVoicing.newBuilder()
+    var sequenceChord1a_0_voicing1 = test.insert(ProgramSequenceChordVoicing.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setType(Instrument.Type.Bass)
       .setProgramId(sequenceChord1a_0.getProgramId())
@@ -219,7 +219,7 @@ public class ProgramSequenceChordVoicingIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramSequenceChordVoicing subject = ProgramSequenceChordVoicing.newBuilder()
+    var subject = ProgramSequenceChordVoicing.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramSequenceChordId(fake.program3_chord1.getId())
@@ -227,7 +227,7 @@ public class ProgramSequenceChordVoicingIT {
       .setNotes("C5, Eb5, G5")
       .build();
 
-    ProgramSequenceChordVoicing result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, subject);
 
     assertNotNull(result);
@@ -244,7 +244,7 @@ public class ProgramSequenceChordVoicingIT {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
-    ProgramSequenceChordVoicing inputData = ProgramSequenceChordVoicing.newBuilder()
+    var inputData = ProgramSequenceChordVoicing.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramSequenceChordId(fake.program3_chord1.getId())
@@ -252,7 +252,7 @@ public class ProgramSequenceChordVoicingIT {
       .setNotes("C5, Eb5, G5")
       .build();
 
-    ProgramSequenceChordVoicing result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, inputData);
 
     assertNotNull(result);
@@ -266,7 +266,7 @@ public class ProgramSequenceChordVoicingIT {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    ProgramSequenceChordVoicing result = testDAO.readOne(hubAccess, sequenceChord1a_0_voicing0.getId());
+    var result = testDAO.readOne(hubAccess, sequenceChord1a_0_voicing0.getId());
 
     assertNotNull(result);
     assertEquals(sequenceChord1a_0_voicing0.getId(), result.getId());

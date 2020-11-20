@@ -231,20 +231,20 @@ public class CraftRhythm_LayeredVoicesTest {
     // A basic beat from scratch with layered voices
     program42 = Entities.add(entities, buildProgram(fake.library2, Program.Type.Rhythm, Program.State.Published, "Basic Beat", "C", 121, 0.6));
     Entities.add(entities, buildProgramMeme(program42, "Basic"));
-    ProgramVoice locomotion = Entities.add(entities, buildProgramVoice(program42, Instrument.Type.Percussive, "Locomotion"));
-    ProgramVoice kickSnare = Entities.add(entities, buildProgramVoice(program42, Instrument.Type.Percussive, "BoomBap"));
-    ProgramSequence sequence35a = Entities.add(entities, buildProgramSequence(program42, 16, "Base", 0.5, "C", 110.3));
+    var locomotion = Entities.add(entities, buildProgramVoice(program42, Instrument.Type.Percussive, "Locomotion"));
+    var kickSnare = Entities.add(entities, buildProgramVoice(program42, Instrument.Type.Percussive, "BoomBap"));
+    var sequence35a = Entities.add(entities, buildProgramSequence(program42, 16, "Base", 0.5, "C", 110.3));
     //
-    ProgramSequencePattern pattern35a1 = Entities.add(entities, buildProgramSequencePattern(sequence35a, locomotion, ProgramSequencePattern.Type.Loop, 1, "Hi-hat"));
-    ProgramVoiceTrack trackHihat = Entities.add(entities, buildProgramVoiceTrack(locomotion, "HIHAT"));
+    var pattern35a1 = Entities.add(entities, buildProgramSequencePattern(sequence35a, locomotion, ProgramSequencePattern.Type.Loop, 1, "Hi-hat"));
+    var trackHihat = Entities.add(entities, buildProgramVoiceTrack(locomotion, "HIHAT"));
     Entities.add(entities, buildProgramSequencePatternEvent(pattern35a1, trackHihat, 0.0, 1.0, "C2", 1.0));
     Entities.add(entities, buildProgramSequencePatternEvent(pattern35a1, trackHihat, 0.25, 1.0, "G5", 0.4));
     Entities.add(entities, buildProgramSequencePatternEvent(pattern35a1, trackHihat, 0.5, 1.0, "C2", 0.6));
     Entities.add(entities, buildProgramSequencePatternEvent(pattern35a1, trackHihat, 0.75, 1.0, "C2", 0.3));
     //
-    ProgramSequencePattern pattern35a2 = Entities.add(entities, buildProgramSequencePattern(sequence35a, kickSnare, ProgramSequencePattern.Type.Loop, 4, "Kick/Snare"));
-    ProgramVoiceTrack trackKick = Entities.add(entities, buildProgramVoiceTrack(kickSnare, "KICK"));
-    ProgramVoiceTrack trackSnare = Entities.add(entities, buildProgramVoiceTrack(kickSnare, "SNARE"));
+    var pattern35a2 = Entities.add(entities, buildProgramSequencePattern(sequence35a, kickSnare, ProgramSequencePattern.Type.Loop, 4, "Kick/Snare"));
+    var trackKick = Entities.add(entities, buildProgramVoiceTrack(kickSnare, "KICK"));
+    var trackSnare = Entities.add(entities, buildProgramVoiceTrack(kickSnare, "SNARE"));
     Entities.add(entities, buildProgramSequencePatternEvent(pattern35a2, trackKick, 0.0, 1.0, "B5", 0.9));
     Entities.add(entities, buildProgramSequencePatternEvent(pattern35a2, trackSnare, 1.0, 1.0, "D2", 1.0));
     Entities.add(entities, buildProgramSequencePatternEvent(pattern35a2, trackKick, 2.5, 1.0, "E4", 0.7));

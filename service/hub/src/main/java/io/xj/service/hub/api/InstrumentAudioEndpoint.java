@@ -73,7 +73,7 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
   public Response create(Payload payload, @Context ContainerRequestContext crc, @QueryParam("cloneId") String cloneId) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      InstrumentAudio instrumentAudio = payloadFactory.consume(dao().newInstance(), payload);
+      var instrumentAudio = payloadFactory.consume(dao().newInstance(), payload);
       InstrumentAudio created;
       if (Objects.nonNull(cloneId))
         created = dao().clone(hubAccess, cloneId, instrumentAudio);

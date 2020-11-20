@@ -176,7 +176,7 @@ public class InstrumentAudioEventIT {
   @Test
   public void update_Name() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    InstrumentAudioEvent updatedEntity = InstrumentAudioEvent.newBuilder()
+    var updatedEntity = InstrumentAudioEvent.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setInstrumentId(fake.audio1.getInstrumentId())
       .setInstrumentAudioId(fake.audio1.getId())
@@ -189,7 +189,7 @@ public class InstrumentAudioEventIT {
 
     testDAO.update(hubAccess, fake.audioEvent1.getId(), updatedEntity);
 
-    InstrumentAudioEvent result = testDAO.readOne(HubAccess.internal(), fake.audioEvent1.getId());
+    var result = testDAO.readOne(HubAccess.internal(), fake.audioEvent1.getId());
     assertNotNull(result);
     assertEquals("WHAM", result.getName());
   }

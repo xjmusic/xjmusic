@@ -36,7 +36,7 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
 
   @Override
   public ProgramVoice create(HubAccess hubAccess, ProgramVoice entity) throws DAOException, JsonApiException, ValueException {
-    ProgramVoice record = validate(entity.toBuilder()).build();
+    var record = validate(entity.toBuilder()).build();
     DSLContext db = dbProvider.getDSL();
     requireProgramModification(db, hubAccess, record.getProgramId());
     return modelFrom(ProgramVoice.class,
@@ -85,7 +85,7 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
 
   @Override
   public void update(HubAccess hubAccess, String id, ProgramVoice entity) throws DAOException, JsonApiException, ValueException {
-    ProgramVoice record = validate(entity.toBuilder()).build();
+    var record = validate(entity.toBuilder()).build();
     DSLContext db = dbProvider.getDSL();
 
     requireModification(db, hubAccess, id);

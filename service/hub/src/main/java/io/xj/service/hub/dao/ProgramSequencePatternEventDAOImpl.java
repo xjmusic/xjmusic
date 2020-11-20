@@ -32,7 +32,7 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
 
   @Override
   public ProgramSequencePatternEvent create(HubAccess hubAccess, ProgramSequencePatternEvent entity) throws DAOException, JsonApiException, ValueException {
-    ProgramSequencePatternEvent record = validate(entity.toBuilder()).build();
+    var record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
     return modelFrom(ProgramSequencePatternEvent.class,
       executeCreate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, record));
@@ -61,7 +61,7 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
 
   @Override
   public void update(HubAccess hubAccess, String id, ProgramSequencePatternEvent entity) throws DAOException, JsonApiException, ValueException {
-    ProgramSequencePatternEvent record = validate(entity.toBuilder()).build();
+    var record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
     executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, id, record);
   }

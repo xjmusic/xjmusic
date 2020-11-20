@@ -219,14 +219,14 @@ public class ProgramVoiceIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramVoice subject = ProgramVoice.newBuilder()
+    var subject = ProgramVoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setType(Instrument.Type.Harmonic)
       .setName("Jams")
       .build();
 
-    ProgramVoice result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, subject);
 
     assertNotNull(result);
@@ -241,14 +241,14 @@ public class ProgramVoiceIT {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
-    ProgramVoice inputData = ProgramVoice.newBuilder()
+    var inputData = ProgramVoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setType(Instrument.Type.Harmonic)
       .setName("Jams")
       .build();
 
-    ProgramVoice result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, inputData);
 
     assertNotNull(result);
@@ -260,7 +260,7 @@ public class ProgramVoiceIT {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    ProgramVoice result = testDAO.readOne(hubAccess, fake.program2_voice1.getId());
+    var result = testDAO.readOne(hubAccess, fake.program2_voice1.getId());
 
     assertNotNull(result);
     assertEquals(fake.program2_voice1.getId(), result.getId());

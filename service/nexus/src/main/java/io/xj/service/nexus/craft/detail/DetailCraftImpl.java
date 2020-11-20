@@ -79,7 +79,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
         // detail sequence is selected at random of the current program
         // FUTURE: [#166855956] Detail Program with multiple Sequences
-        ProgramSequence detailSequence = fabricator.getSequence(detailChoice);
+        var detailSequence = fabricator.getSequence(detailChoice);
 
         // voice arrangements
         for (ProgramVoice voice : fabricator.getSourceMaterial().getVoices(detailProgram))
@@ -488,7 +488,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
    */
   private void pickInstrumentAudio(Map<String, InstrumentAudio> previousInstrumentAudio, Instrument instrument, SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, int transpose, Double shiftPosition, Double chanceOfRandomChoice) throws CraftException {
     try {
-      InstrumentAudio audio = selectInstrumentAudio(previousInstrumentAudio, instrument, event, chanceOfRandomChoice);
+      var audio = selectInstrumentAudio(previousInstrumentAudio, instrument, event, chanceOfRandomChoice);
 
       // Morph & Point attributes are expressed in beats
       double position = event.getPosition() + shiftPosition;

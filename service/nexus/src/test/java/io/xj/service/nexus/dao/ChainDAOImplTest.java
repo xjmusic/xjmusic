@@ -100,8 +100,8 @@ public class ChainDAOImplTest {
     library2 = buildLibrary(account1, "test");
     User user3 = buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     Program program1 = buildProgram(library2, Program.Type.Rhythm, Program.State.Published, "fonds", "C#", 0.286, 0.6);
-    ProgramSequence sequence1 = buildProgramSequence(program1, 16, "epic beat part 1", 0.342, "C#", 0.286);
-    ProgramSequenceBinding binding1_0 = buildProgramSequenceBinding(sequence1, 0);
+    var sequence1 = buildProgramSequence(program1, 16, "epic beat part 1", 0.342, "C#", 0.286);
+    var binding1_0 = buildProgramSequenceBinding(sequence1, 0);
     hubContent = new HubContent(ImmutableSet.of(
       program1,
       sequence1,

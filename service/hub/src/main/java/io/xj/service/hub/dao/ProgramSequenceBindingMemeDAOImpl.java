@@ -37,7 +37,7 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   @Override
   public ProgramSequenceBindingMeme create(HubAccess hubAccess, ProgramSequenceBindingMeme rawMeme) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
-    ProgramSequenceBindingMeme meme = validate(rawMeme.toBuilder()).build();
+    var meme = validate(rawMeme.toBuilder()).build();
     requireArtist(hubAccess);
     requireProgramModification(db, hubAccess, meme.getProgramId());
 
@@ -87,7 +87,7 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   public void update(HubAccess hubAccess, String id, ProgramSequenceBindingMeme rawMeme) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     require("Same id", Objects.equals(id, rawMeme.getId()));
-    ProgramSequenceBindingMeme meme = validate(rawMeme.toBuilder()).build();
+    var meme = validate(rawMeme.toBuilder()).build();
     requireArtist(hubAccess);
     requireProgramModification(db, hubAccess, meme.getProgramId());
 

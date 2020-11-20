@@ -139,7 +139,7 @@ public class IntegrationTestingFixtures {
     test.insert(buildInstrumentAudioChord(instrument201_audio402, 16.0, "Ab7"));
     test.insert(buildInstrumentAudioChord(instrument201_audio402, 20.0, "Bb7"));
     //
-    InstrumentAudio audio401 = test.insert(buildInstrumentAudio(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440.0, 0.62));
+    var audio401 = test.insert(buildInstrumentAudio(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440.0, 0.62));
     test.insert(buildInstrumentAudioEvent(audio401, 0.0, 1.0, "KICK", "Eb", 1.0));
     test.insert(buildInstrumentAudioEvent(audio401, 1.0, 1.0, "SNARE", "Ab", 0.8));
     test.insert(buildInstrumentAudioEvent(audio401, 2.5, 1.0, "KICK", "C", 1.0));
@@ -152,18 +152,18 @@ public class IntegrationTestingFixtures {
     // Program 701, main-type, has sequence with chords, bound to many offsets
     program701 = test.insert(buildProgram(library10000001, Program.Type.Main, Program.State.Published, "leaves", "C#", 120.4, 0.6));
     program701_meme0 = test.insert(buildProgramMeme(program701, "Ants"));
-    ProgramSequence sequence902 = test.insert(buildProgramSequence(program701, 16, "decay", 0.25, "F#", 110.3));
+    var sequence902 = test.insert(buildProgramSequence(program701, 16, "decay", 0.25, "F#", 110.3));
     test.insert(buildProgramSequenceChord(sequence902, 0.0, "G minor"));
     test.insert(buildProgramSequenceChord(sequence902, 4.0, "C major"));
     test.insert(buildProgramSequenceChord(sequence902, 8.0, "F7"));
     test.insert(buildProgramSequenceChord(sequence902, 12.0, "G7"));
     test.insert(buildProgramSequenceChord(sequence902, 16.0, "F minor"));
     test.insert(buildProgramSequenceChord(sequence902, 20.0, "Bb major"));
-    ProgramSequenceBinding binding902_0 = test.insert(buildProgramSequenceBinding(sequence902, 0));
-    ProgramSequenceBinding binding902_1 = test.insert(buildProgramSequenceBinding(sequence902, 1));
-    ProgramSequenceBinding binding902_2 = test.insert(buildProgramSequenceBinding(sequence902, 2));
-    ProgramSequenceBinding binding902_3 = test.insert(buildProgramSequenceBinding(sequence902, 3));
-    ProgramSequenceBinding binding902_4 = test.insert(buildProgramSequenceBinding(sequence902, 4));
+    var binding902_0 = test.insert(buildProgramSequenceBinding(sequence902, 0));
+    var binding902_1 = test.insert(buildProgramSequenceBinding(sequence902, 1));
+    var binding902_2 = test.insert(buildProgramSequenceBinding(sequence902, 2));
+    var binding902_3 = test.insert(buildProgramSequenceBinding(sequence902, 3));
+    var binding902_4 = test.insert(buildProgramSequenceBinding(sequence902, 4));
     test.insert(buildProgramSequenceBinding(sequence902, 5));
     test.insert(buildProgramSequenceBindingMeme(binding902_0, "Gravel"));
     test.insert(buildProgramSequenceBindingMeme(binding902_1, "Gravel"));
@@ -178,10 +178,10 @@ public class IntegrationTestingFixtures {
     program702 = test.insert(buildProgram(library10000001, Program.Type.Rhythm, Program.State.Published, "coconuts", "F#", 110.3, 0.6));
     test.insert(buildProgramMeme(program702, "Ants"));
     program2_voice1 = test.insert(buildProgramVoice(program702, Instrument.Type.Percussive, "Drums"));
-    ProgramSequence sequence702a = test.insert(buildProgramSequence(program702, 16, "Base", 0.5, "C", 110.3));
-    ProgramSequencePattern pattern901 = test.insert(buildProgramSequencePattern(sequence702a, program2_voice1, ProgramSequencePattern.Type.Loop, 16, "growth"));
-    ProgramVoiceTrack trackBoom = test.insert(buildProgramVoiceTrack(program2_voice1, "BOOM"));
-    ProgramVoiceTrack trackSmack = test.insert(buildProgramVoiceTrack(program2_voice1, "BOOM"));
+    var sequence702a = test.insert(buildProgramSequence(program702, 16, "Base", 0.5, "C", 110.3));
+    var pattern901 = test.insert(buildProgramSequencePattern(sequence702a, program2_voice1, ProgramSequencePattern.Type.Loop, 16, "growth"));
+    var trackBoom = test.insert(buildProgramVoiceTrack(program2_voice1, "BOOM"));
+    var trackSmack = test.insert(buildProgramVoiceTrack(program2_voice1, "BOOM"));
     program702_pattern901_boomEvent = test.insert(buildProgramSequencePatternEvent(pattern901, trackBoom, 0.0, 1.0, "C", 1.0));
     test.insert(buildProgramSequencePatternEvent(pattern901, trackSmack, 1.0, 1.0, "G", 0.8));
     test.insert(buildProgramSequencePatternEvent(pattern901, trackBoom, 2.5, 1.0, "C", 0.6));
@@ -199,11 +199,11 @@ public class IntegrationTestingFixtures {
     //
     program751 = test.insert(buildProgram(library10000002, Program.Type.Rhythm, Program.State.Published, "coconuts", "F#", 110.3, 0.6));
     test.insert(buildProgramMeme(program751, "Ants"));
-    ProgramVoice voiceGarbage = test.insert(buildProgramVoice(program751, Instrument.Type.Percussive, "Garbage"));
-    ProgramSequence sequence751a = test.insert(buildProgramSequence(program751, 16, "Base", 0.5, "C", 110.3));
-    ProgramSequencePattern pattern951 = test.insert(buildProgramSequencePattern(sequence751a, voiceGarbage, ProgramSequencePattern.Type.Loop, 16, "Garbage"));
-    ProgramVoiceTrack trackGr = test.insert(buildProgramVoiceTrack(voiceGarbage, "GR"));
-    ProgramVoiceTrack trackBag = test.insert(buildProgramVoiceTrack(voiceGarbage, "BAG"));
+    var voiceGarbage = test.insert(buildProgramVoice(program751, Instrument.Type.Percussive, "Garbage"));
+    var sequence751a = test.insert(buildProgramSequence(program751, 16, "Base", 0.5, "C", 110.3));
+    var pattern951 = test.insert(buildProgramSequencePattern(sequence751a, voiceGarbage, ProgramSequencePattern.Type.Loop, 16, "Garbage"));
+    var trackGr = test.insert(buildProgramVoiceTrack(voiceGarbage, "GR"));
+    var trackBag = test.insert(buildProgramVoiceTrack(voiceGarbage, "BAG"));
     test.insert(buildProgramSequencePatternEvent(pattern951, trackGr, 0.0, 1.0, "C", 1.0));
     test.insert(buildProgramSequencePatternEvent(pattern951, trackBag, 1.0, 1.0, "G", 0.8));
     test.insert(buildProgramSequencePatternEvent(pattern951, trackGr, 2.5, 1.0, "C", 0.6));
@@ -269,7 +269,7 @@ public class IntegrationTestingFixtures {
     test.insert(buildInstrumentAudioEvent(audio401, 2.5, 1.0, "KICK", "C", 1.0));
     test.insert(buildInstrumentAudioEvent(audio401, 3.0, 1.0, "SNARE", "B", 0.8));
     //
-    InstrumentAudio audio402 = test.insert(buildInstrumentAudio(instrument201, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01, 2.123, 120.0, 440.0, 0.62));
+    var audio402 = test.insert(buildInstrumentAudio(instrument201, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01, 2.123, 120.0, 440.0, 0.62));
     test.insert(buildInstrumentAudioChord(audio402, 0.0, "E minor"));
     test.insert(buildInstrumentAudioChord(audio402, 4.0, "A major"));
     test.insert(buildInstrumentAudioChord(audio402, 8.0, "B minor"));

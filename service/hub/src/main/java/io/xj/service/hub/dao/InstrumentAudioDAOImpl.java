@@ -63,7 +63,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
 
   @Override
   public InstrumentAudio create(HubAccess hubAccess, InstrumentAudio rawAudio) throws DAOException, JsonApiException, ValueException {
-    InstrumentAudio audio = validate(rawAudio.toBuilder()).build();
+    var audio = validate(rawAudio.toBuilder()).build();
     requireArtist(hubAccess);
 
     DSLContext db = dbProvider.getDSL();
@@ -75,7 +75,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
 
   @Override
   public Map<String, String> authorizeUpload(HubAccess hubAccess, String id) throws DAOException, FileStoreException {
-    InstrumentAudio entity = readOne(dbProvider.getDSL(), hubAccess, id);
+    var entity = readOne(dbProvider.getDSL(), hubAccess, id);
 
     Map<String, String> uploadAuthorization = Maps.newConcurrentMap();
     S3UploadPolicy uploadPolicy = fileStoreProvider.generateAudioUploadPolicy();
@@ -118,7 +118,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
 
   @Override
   public void update(HubAccess hubAccess, String id, InstrumentAudio rawAudio) throws DAOException, JsonApiException, ValueException {
-    InstrumentAudio audio = validate(rawAudio.toBuilder()).build();
+    var audio = validate(rawAudio.toBuilder()).build();
     requireArtist(hubAccess);
 
     DSLContext db = dbProvider.getDSL();
@@ -165,7 +165,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
     dbProvider.getDSL().transaction(ctx -> {
       DSLContext db = DSL.using(ctx);
 
-      InstrumentAudio from = readOne(db, hubAccess, rawCloneId);
+      var from = readOne(db, hubAccess, rawCloneId);
       if (Objects.isNull(from))
         throw new DAOException("Can't clone nonexistent InstrumentAudio");
 
@@ -173,7 +173,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
       InstrumentAudio.Builder audioBuilder = rawAudio.toBuilder();
       if (Value.isEmpty(rawAudio.getWaveformKey())) audioBuilder.setWaveformKey(from.getWaveformKey());
       if (Value.isEmpty(rawAudio.getName())) audioBuilder.setName(from.getName());
-      InstrumentAudio audio = validate(audioBuilder).build();
+      var audio = validate(audioBuilder).build();
       requireParentExists(db, hubAccess, audio);
 
       result.set(modelFrom(InstrumentAudio.class, executeCreate(db, INSTRUMENT_AUDIO, audio)));

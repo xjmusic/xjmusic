@@ -406,7 +406,7 @@ public class InstrumentIT {
       .setState(Instrument.State.Published)
       .setName("sandwich")
       .build());
-    InstrumentAudio audio = test.insert(InstrumentAudio.newBuilder()
+    var audio = test.insert(InstrumentAudio.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setInstrumentId(instrument.getId())
       .setName("drums")

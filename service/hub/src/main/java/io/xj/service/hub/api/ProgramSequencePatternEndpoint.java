@@ -67,7 +67,7 @@ public class ProgramSequencePatternEndpoint extends HubEndpoint {
   ) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      ProgramSequencePattern programSequencePattern = payloadFactory.consume(dao().newInstance(), payload);
+      var programSequencePattern = payloadFactory.consume(dao().newInstance(), payload);
       Payload responsePayload = new Payload();
       if (Objects.nonNull(cloneId)) {
         DAOCloner<ProgramSequencePattern> cloner = dao().clone(hubAccess, cloneId, programSequencePattern);

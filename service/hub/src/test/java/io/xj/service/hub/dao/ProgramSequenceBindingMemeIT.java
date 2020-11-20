@@ -138,7 +138,7 @@ public class ProgramSequenceBindingMemeIT {
       .setProgramSequenceBindingId(sequenceBinding1a_0.getId())
       .setName("chunk")
       .build());
-    ProgramSequenceBindingMeme sequenceBinding1a_0_meme1 = test.insert(ProgramSequenceBindingMeme.newBuilder()
+    var sequenceBinding1a_0_meme1 = test.insert(ProgramSequenceBindingMeme.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(sequenceBinding1a_0.getProgramId())
       .setProgramSequenceBindingId(sequenceBinding1a_0.getId())
@@ -215,7 +215,7 @@ public class ProgramSequenceBindingMemeIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramSequenceBindingMeme subject = ProgramSequenceBindingMeme.newBuilder()
+    var subject = ProgramSequenceBindingMeme.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramId(fake.program3_binding1.getProgramId())
@@ -223,7 +223,7 @@ public class ProgramSequenceBindingMemeIT {
       .setName("Blue")
       .build();
 
-    ProgramSequenceBindingMeme result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, subject);
 
     assertNotNull(result);
@@ -239,7 +239,7 @@ public class ProgramSequenceBindingMemeIT {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
-    ProgramSequenceBindingMeme inputData = ProgramSequenceBindingMeme.newBuilder()
+    var inputData = ProgramSequenceBindingMeme.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramId(fake.program3_binding1.getProgramId())
@@ -247,7 +247,7 @@ public class ProgramSequenceBindingMemeIT {
       .setName("Blue")
       .build();
 
-    ProgramSequenceBindingMeme result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, inputData);
 
     assertNotNull(result);
@@ -260,7 +260,7 @@ public class ProgramSequenceBindingMemeIT {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    ProgramSequenceBindingMeme result = testDAO.readOne(hubAccess, sequenceBinding1a_0_meme0.getId());
+    var result = testDAO.readOne(hubAccess, sequenceBinding1a_0_meme0.getId());
 
     assertNotNull(result);
     assertEquals(sequenceBinding1a_0_meme0.getId(), result.getId());

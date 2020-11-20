@@ -34,11 +34,11 @@ public class ProgramVoiceIsometryTest {
   public void find() {
     VoiceIsometry result = VoiceIsometry.ofVoices(ImmutableList.of(programVoice1a, programVoice1b));
 
-    ProgramVoice find1 = result.find(ProgramVoice.newBuilder().setName("Sooper Kewl").build());
+    var find1 = result.find(ProgramVoice.newBuilder().setName("Sooper Kewl").build());
     assertNotNull(find1);
     assertEquals(programVoice1a.getId(), find1.getId());
 
-    ProgramVoice find2 = result.find(ProgramVoice.newBuilder().setName("Vury Anterestin").build());
+    var find2 = result.find(ProgramVoice.newBuilder().setName("Vury Anterestin").build());
     assertNotNull(find2);
     assertEquals(programVoice1b.getId(), find2.getId());
   }

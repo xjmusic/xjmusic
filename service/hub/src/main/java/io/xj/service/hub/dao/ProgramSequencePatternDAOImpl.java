@@ -57,7 +57,7 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
       DSLContext db = DSL.using(ctx);
       requireModification(db, hubAccess, cloneId);
 
-      ProgramSequencePattern from = readOne(db, hubAccess, cloneId);
+      var from = readOne(db, hubAccess, cloneId);
       if (Objects.isNull(from))
         throw new DAOException("Can't clone nonexistent ProgramSequencePattern");
 
@@ -69,7 +69,7 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
       if (Value.isEmpty(builder.getProgramId())) builder.setProgramId(from.getProgramId());
       if (Value.isEmpty(builder.getProgramSequenceId())) builder.setProgramSequenceId(from.getProgramSequenceId());
       if (Value.isEmpty(builder.getProgramVoiceId())) builder.setProgramId(from.getProgramVoiceId());
-      ProgramSequencePattern record = validate(builder).build();
+      var record = validate(builder).build();
       requireParentExists(db, hubAccess, record);
 
       // Create main entity

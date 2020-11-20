@@ -180,13 +180,13 @@ public class ProgramMemeIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramMeme subject = ProgramMeme.newBuilder()
+    var subject = ProgramMeme.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setName("cannons")
       .build();
 
-    ProgramMeme result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, subject);
 
     assertNotNull(result);
@@ -201,13 +201,13 @@ public class ProgramMemeIT {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
-    ProgramMeme inputData = ProgramMeme.newBuilder()
+    var inputData = ProgramMeme.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setName("cannons")
       .build();
 
-    ProgramMeme result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, inputData);
 
     assertNotNull(result);
@@ -220,7 +220,7 @@ public class ProgramMemeIT {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    ProgramMeme result = testDAO.readOne(hubAccess, fake.programMeme3.getId());
+    var result = testDAO.readOne(hubAccess, fake.programMeme3.getId());
 
     assertNotNull(result);
     assertEquals(fake.programMeme3.getId(), result.getId());
@@ -264,7 +264,7 @@ public class ProgramMemeIT {
   @Test
   public void update_cannotChangeProgram() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
-    ProgramMeme subject = ProgramMeme.newBuilder()
+    var subject = ProgramMeme.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("cannons")
       .setProgramId(UUID.randomUUID().toString())
@@ -272,7 +272,7 @@ public class ProgramMemeIT {
 
     testDAO.update(hubAccess, fake.programMeme3.getId(), subject);
 
-    ProgramMeme result = testDAO.readOne(HubAccess.internal(), fake.programMeme3.getId());
+    var result = testDAO.readOne(HubAccess.internal(), fake.programMeme3.getId());
     assertNotNull(result);
     assertEquals("CANNONS", result.getName());
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -281,7 +281,7 @@ public class ProgramMemeIT {
   @Test
   public void update_Name() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramMeme subject = ProgramMeme.newBuilder()
+    var subject = ProgramMeme.newBuilder()
       .setId(fake.programMeme3.getId())
       .setProgramId(fake.program3.getId())
       .setName("cannons")
@@ -289,7 +289,7 @@ public class ProgramMemeIT {
 
     testDAO.update(hubAccess, fake.programMeme3.getId(), subject);
 
-    ProgramMeme result = testDAO.readOne(HubAccess.internal(), fake.programMeme3.getId());
+    var result = testDAO.readOne(HubAccess.internal(), fake.programMeme3.getId());
     assertNotNull(result);
     assertEquals("CANNONS", result.getName());
     assertEquals(fake.program3.getId(), result.getProgramId());
@@ -303,7 +303,7 @@ public class ProgramMemeIT {
   public void update_Name_PreservesOriginalOwner() throws Exception {
     // John will edit a programMeme originally belonging to Jenny
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Admin");
-    ProgramMeme subject = ProgramMeme.newBuilder()
+    var subject = ProgramMeme.newBuilder()
       .setId(fake.programMeme3.getId())
       .setProgramId(fake.program3.getId())
       .setName("cannons")
@@ -311,7 +311,7 @@ public class ProgramMemeIT {
 
     testDAO.update(hubAccess, fake.programMeme3.getId(), subject);
 
-    ProgramMeme result = testDAO.readOne(HubAccess.internal(), fake.programMeme3.getId());
+    var result = testDAO.readOne(HubAccess.internal(), fake.programMeme3.getId());
     assertNotNull(result);
   }
 

@@ -854,7 +854,7 @@ public class NexusIntegrationTestingFixtures {
         .build());
       // audios of instrument
       for (int k = 0; k < N; k++) {
-        InstrumentAudio audio = add(entities, buildInstrumentAudio(instrument, Text.toProper(percussiveNames[k]), String.format("%s.wav", Text.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), random(100, 4000), 0.62));
+        var audio = add(entities, buildInstrumentAudio(instrument, Text.toProper(percussiveNames[k]), String.format("%s.wav", Text.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), random(100, 4000), 0.62));
         add(entities, buildInstrumentAudioEvent(audio, 0.0, 1.0, percussiveNames[k], "X", random(0.8, 1)));
       }
       //
@@ -880,8 +880,8 @@ public class NexusIntegrationTestingFixtures {
         .setName(minorMemeName)
         .build());
       // of offset 0
-      ProgramSequence sequence0 = add(entities, buildProgramSequence(program, 0, String.format("Start %s", majorMemeFromName), densityFrom, keyFrom, tempoFrom));
-      ProgramSequenceBinding binding0 = add(entities, ProgramSequenceBinding.newBuilder()
+      var sequence0 = add(entities, buildProgramSequence(program, 0, String.format("Start %s", majorMemeFromName), densityFrom, keyFrom, tempoFrom));
+      var binding0 = add(entities, ProgramSequenceBinding.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setProgramSequenceId(sequence0.getId())
         .setProgramId(sequence0.getProgramId())
@@ -896,8 +896,8 @@ public class NexusIntegrationTestingFixtures {
       // to offset 1
       double densityTo = random(0.3, 0.9);
       double tempoTo = random(803, 120);
-      ProgramSequence sequence1 = add(entities, buildProgramSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo, tempoTo));
-      ProgramSequenceBinding binding1 = add(entities, ProgramSequenceBinding.newBuilder()
+      var sequence1 = add(entities, buildProgramSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo, tempoTo));
+      var binding1 = add(entities, ProgramSequenceBinding.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setProgramSequenceId(sequence1.getId())
         .setProgramId(sequence1.getProgramId())
@@ -942,7 +942,7 @@ public class NexusIntegrationTestingFixtures {
       // sequence sequence binding
       for (int offset = 0; offset < N << 2; offset++) {
         int num = (int) StrictMath.floor(StrictMath.random() * N);
-        ProgramSequenceBinding binding = add(entities, ProgramSequenceBinding.newBuilder()
+        var binding = add(entities, ProgramSequenceBinding.newBuilder()
           .setId(UUID.randomUUID().toString())
           .setProgramSequenceId(sequences[num].getId())
           .setProgramId(sequences[num].getProgramId())
@@ -973,7 +973,7 @@ public class NexusIntegrationTestingFixtures {
       for (int iV = 0; iV < N; iV++) {
         voices[iV] = add(entities, buildProgramVoice(program, Instrument.Type.Percussive, String.format("%s %s", majorMemeName, percussiveNames[iV])));
       }
-      ProgramSequence sequenceBase = add(entities, buildProgramSequence(program, random(LoremIpsum.SEQUENCE_TOTALS), "Base", density, key, tempo));
+      var sequenceBase = add(entities, buildProgramSequence(program, random(LoremIpsum.SEQUENCE_TOTALS), "Base", density, key, tempo));
       // patterns of program
       for (int iP = 0; iP < N << 1; iP++) {
         Integer total = random(LoremIpsum.PATTERN_TOTALS);
@@ -981,7 +981,7 @@ public class NexusIntegrationTestingFixtures {
 
         // first pattern is always a Loop (because that's required) then the rest at random
         ProgramSequencePattern.Type type = 0 == iP ? ProgramSequencePattern.Type.Loop : randomRhythmPatternType();
-        ProgramSequencePattern pattern = add(entities, buildProgramSequencePattern(sequenceBase, voices[num], type, total, String.format("%s %s %s", majorMemeName, type.toString(), random(LoremIpsum.ELEMENTS))));
+        var pattern = add(entities, buildProgramSequencePattern(sequenceBase, voices[num], type, total, String.format("%s %s %s", majorMemeName, type.toString(), random(LoremIpsum.ELEMENTS))));
         for (int iPE = 0; iPE < N << 2; iPE++) {
           // always use first chord, then use more chords with more density
           if (0 == iPE || StrictMath.random() < density) {

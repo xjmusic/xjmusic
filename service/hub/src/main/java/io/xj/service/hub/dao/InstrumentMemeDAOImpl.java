@@ -32,7 +32,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
 
   @Override
   public InstrumentMeme create(HubAccess hubAccess, InstrumentMeme rawMeme) throws DAOException, JsonApiException, ValueException {
-    InstrumentMeme meme = validate(rawMeme.toBuilder()).build();
+    var meme = validate(rawMeme.toBuilder()).build();
     requireArtist(hubAccess);
     return modelFrom(InstrumentMeme.class,
       executeCreate(dbProvider.getDSL(), INSTRUMENT_MEME, meme));
@@ -60,7 +60,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
 
   @Override
   public void update(HubAccess hubAccess, String id, InstrumentMeme rawMeme) throws DAOException, JsonApiException, ValueException {
-    InstrumentMeme meme = validate(rawMeme.toBuilder()).build();
+    var meme = validate(rawMeme.toBuilder()).build();
     requireArtist(hubAccess);
     executeUpdate(dbProvider.getDSL(), INSTRUMENT_MEME, id, meme);
   }

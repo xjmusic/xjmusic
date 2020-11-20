@@ -79,7 +79,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
 
       // rhythm sequence is selected at random of the current program
       // FUTURE: [#166855956] Rhythm Program with multiple Sequences
-      ProgramSequence rhythmSequence = fabricator.getSequence(rhythmChoice);
+      var rhythmSequence = fabricator.getSequence(rhythmChoice);
 
       // voice arrangements
       for (ProgramVoice voice : fabricator.getSourceMaterial().getVoices(rhythmProgram))
@@ -489,7 +489,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    */
   private void pickInstrumentAudio(Map<String, InstrumentAudio> previousInstrumentAudio, Instrument instrument, SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent event, int transpose, Double shiftPosition, Double chanceOfRandomChoice) throws CraftException {
     try {
-      InstrumentAudio audio = selectInstrumentAudio(previousInstrumentAudio, instrument, event, chanceOfRandomChoice);
+      var audio = selectInstrumentAudio(previousInstrumentAudio, instrument, event, chanceOfRandomChoice);
 
       // Morph & Point attributes are expressed in beats
       double position = event.getPosition() + shiftPosition;

@@ -237,14 +237,14 @@ public class ProgramVoiceTrackIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramVoiceTrack subject = ProgramVoiceTrack.newBuilder()
+    var subject = ProgramVoiceTrack.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramVoiceId(fake.program2_voice1.getId())
       .setName("Jams")
       .build();
 
-    ProgramVoiceTrack result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, subject);
 
     assertNotNull(result);
@@ -260,14 +260,14 @@ public class ProgramVoiceTrackIT {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
-    ProgramVoiceTrack inputData = ProgramVoiceTrack.newBuilder()
+    var inputData = ProgramVoiceTrack.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramVoiceId(fake.program2_voice1.getId())
       .setName("Jams")
       .build();
 
-    ProgramVoiceTrack result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, inputData);
 
     assertNotNull(result);
@@ -280,7 +280,7 @@ public class ProgramVoiceTrackIT {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    ProgramVoiceTrack result = testDAO.readOne(hubAccess, voiceTrack1a_0.getId());
+    var result = testDAO.readOne(hubAccess, voiceTrack1a_0.getId());
 
     assertNotNull(result);
     assertEquals(voiceTrack1a_0.getId(), result.getId());
@@ -390,7 +390,7 @@ public class ProgramVoiceTrackIT {
 
     testDAO.update(hubAccess, voiceTrack1a_0.getId(), voiceTrack1a_0);
 
-    ProgramVoiceTrack result = testDAO.readOne(hubAccess, voiceTrack1a_0.getId());
+    var result = testDAO.readOne(hubAccess, voiceTrack1a_0.getId());
     assertEquals(fake.program2_voice2.getId(), result.getProgramVoiceId());
   }
 

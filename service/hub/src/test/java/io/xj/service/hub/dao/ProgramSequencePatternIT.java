@@ -128,13 +128,13 @@ public class ProgramSequencePatternIT {
       .setKey("D minor")
       .setTempo(120.0)
       .build());
-    ProgramVoice programVoice1 = test.insert(ProgramVoice.newBuilder()
+    var programVoice1 = test.insert(ProgramVoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program1.getId())
       .setType(Instrument.Type.Percussive)
       .setName("Drums")
       .build());
-    ProgramVoiceTrack programVoiceTrack1 = test.insert(ProgramVoiceTrack.newBuilder()
+    var programVoiceTrack1 = test.insert(ProgramVoiceTrack.newBuilder()
       .setProgramId(programVoice1.getProgramId())
       .setId(UUID.randomUUID().toString())
       .setProgramVoiceId(programVoice1.getId())
@@ -255,7 +255,7 @@ public class ProgramSequencePatternIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramSequencePattern subject = ProgramSequencePattern.newBuilder()
+    var subject = ProgramSequencePattern.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setType(ProgramSequencePattern.Type.Loop)
       .setTotal(4)
@@ -265,7 +265,7 @@ public class ProgramSequencePatternIT {
       .setName("Beat")
       .build();
 
-    ProgramSequencePattern result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, subject);
 
     assertNotNull(result);
@@ -281,7 +281,7 @@ public class ProgramSequencePatternIT {
   @Test
   public void cloneExisting() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramSequencePattern subject = ProgramSequencePattern.newBuilder()
+    var subject = ProgramSequencePattern.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setType(ProgramSequencePattern.Type.Loop)
       .setTotal(4)
@@ -308,7 +308,7 @@ public class ProgramSequencePatternIT {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
-    ProgramSequencePattern inputData = ProgramSequencePattern.newBuilder()
+    var inputData = ProgramSequencePattern.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setType(ProgramSequencePattern.Type.Loop)
       .setTotal(4)
@@ -318,7 +318,7 @@ public class ProgramSequencePatternIT {
       .setName("Beat")
       .build();
 
-    ProgramSequencePattern result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, inputData);
 
     assertNotNull(result);
@@ -331,7 +331,7 @@ public class ProgramSequencePatternIT {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    ProgramSequencePattern result = testDAO.readOne(hubAccess, fake.program2_sequence1_pattern1.getId());
+    var result = testDAO.readOne(hubAccess, fake.program2_sequence1_pattern1.getId());
 
     assertNotNull(result);
     assertEquals(fake.program2_sequence1_pattern1.getId(), result.getId());

@@ -38,7 +38,7 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
 
   @Override
   public ProgramVoiceTrack create(HubAccess hubAccess, ProgramVoiceTrack entity) throws DAOException, JsonApiException, ValueException {
-    ProgramVoiceTrack record = validate(entity.toBuilder()).build();
+    var record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
     requireProgramModification(db, hubAccess, record.getProgramId());
@@ -90,7 +90,7 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
 
   @Override
   public void update(HubAccess hubAccess, String id, ProgramVoiceTrack entity) throws DAOException, JsonApiException, ValueException {
-    ProgramVoiceTrack record = validate(entity.toBuilder()).build();
+    var record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
     requireModification(db, hubAccess, id);

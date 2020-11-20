@@ -298,7 +298,7 @@ class FabricatorImpl implements Fabricator {
   public Long getMaxAvailableSequenceBindingOffset(SegmentChoice choice) throws FabricationException {
     if (Value.isEmpty(choice.getProgramSequenceBindingId()))
       throw exception("Cannot determine whether choice with no SequenceBinding has two more available Sequence Pattern offsets");
-    ProgramSequenceBinding sequenceBinding = getSequenceBinding(choice);
+    var sequenceBinding = getSequenceBinding(choice);
 
     try {
       Optional<Long> max = sourceMaterial.getAvailableOffsets(sequenceBinding).stream().max(Long::compareTo);
@@ -419,7 +419,7 @@ class FabricatorImpl implements Fabricator {
       throw exception("Cannot determine next available SequenceBinding offset create choice with no SequenceBinding.");
 
     try {
-      ProgramSequenceBinding sequenceBinding = getSequenceBinding(choice);
+      var sequenceBinding = getSequenceBinding(choice);
       Long sequenceBindingOffset = getSequenceBindingOffsetForChoice(choice);
       Long offset = null;
       for (Long availableOffset : sourceMaterial.getAvailableOffsets(sequenceBinding))
@@ -772,7 +772,7 @@ class FabricatorImpl implements Fabricator {
     try {
       if (Value.isEmpty(choice.getProgramSequenceBindingId()))
         throw exception("Cannot determine whether choice with no SequenceBinding has one more available Sequence Pattern offset");
-      ProgramSequenceBinding sequenceBinding = getSequenceBinding(choice);
+      var sequenceBinding = getSequenceBinding(choice);
 
       Optional<Long> max = sourceMaterial.getAvailableOffsets(sequenceBinding).stream().max(Long::compareTo);
       return max.filter(aLong -> 0 <= aLong.compareTo(sequenceBinding.getOffset() + N)).isPresent();

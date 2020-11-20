@@ -203,7 +203,7 @@ public class ProgramSequenceChordIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    ProgramSequenceChord subject = ProgramSequenceChord.newBuilder()
+    var subject = ProgramSequenceChord.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramSequenceId(fake.program3_sequence1.getId())
       .setProgramId(fake.program3.getId())
@@ -211,7 +211,7 @@ public class ProgramSequenceChordIT {
       .setPosition(2.0)
       .build();
 
-    ProgramSequenceChord result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, subject);
 
     assertNotNull(result);
@@ -223,7 +223,7 @@ public class ProgramSequenceChordIT {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
-    ProgramSequenceChord inputData = ProgramSequenceChord.newBuilder()
+    var inputData = ProgramSequenceChord.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramSequenceId(fake.program3_sequence1.getId())
       .setProgramId(fake.program3.getId())
@@ -231,7 +231,7 @@ public class ProgramSequenceChordIT {
       .setPosition(2.0)
       .build();
 
-    ProgramSequenceChord result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, inputData);
 
     assertNotNull(result);
@@ -244,7 +244,7 @@ public class ProgramSequenceChordIT {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    ProgramSequenceChord result = testDAO.readOne(hubAccess, sequenceChord1a_0.getId());
+    var result = testDAO.readOne(hubAccess, sequenceChord1a_0.getId());
 
     assertNotNull(result);
     assertEquals(fake.program1.getId(), result.getProgramId());

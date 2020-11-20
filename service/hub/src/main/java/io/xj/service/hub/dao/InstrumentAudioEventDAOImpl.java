@@ -33,7 +33,7 @@ public class InstrumentAudioEventDAOImpl extends DAOImpl<InstrumentAudioEvent> i
 
   @Override
   public InstrumentAudioEvent create(HubAccess hubAccess, InstrumentAudioEvent entity) throws DAOException, JsonApiException, ValueException {
-    InstrumentAudioEvent record = validate(entity.toBuilder()).build();
+    var record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
     return modelFrom(InstrumentAudioEvent.class,
       executeCreate(dbProvider.getDSL(), INSTRUMENT_AUDIO_EVENT, record));
@@ -62,7 +62,7 @@ public class InstrumentAudioEventDAOImpl extends DAOImpl<InstrumentAudioEvent> i
 
   @Override
   public void update(HubAccess hubAccess, String id, InstrumentAudioEvent entity) throws DAOException, JsonApiException, ValueException {
-    InstrumentAudioEvent record = validate(entity.toBuilder()).build();
+    var record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
     executeUpdate(dbProvider.getDSL(), INSTRUMENT_AUDIO_EVENT, id, record);
   }
