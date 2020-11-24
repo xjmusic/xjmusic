@@ -83,7 +83,7 @@ public class JanitorWorkerImplTest {
   }
 
   @Test
-  public void fabricatesSegments() throws Exception {
+  public void deletesSegments() throws Exception {
     var account1 = store.put(Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("palm tree")

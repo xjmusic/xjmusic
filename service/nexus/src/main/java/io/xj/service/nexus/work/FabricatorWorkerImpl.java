@@ -117,7 +117,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
   private void revert() {
     try {
       updateSegmentState(fabricator.getSegment().getState(), Segment.State.Planned);
-      segmentDAO.revert(access, fabricator.getSegment().getId());
+      segmentDAO.revert(access, segment.getId());
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException | FabricationException e) {
       didFailWhile("reverting and re-queueing segment", e);
     }
@@ -179,7 +179,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
   protected void createSegmentErrorMessage(String body) {
     try {
       segmentDAO.create(access, SegmentMessage.newBuilder()
-        .setSegmentId(fabricator.getSegment().getId())
+        .setSegmentId(segment.getId())
         .setType(SegmentMessage.Type.Error)
         .setBody(body)
         .build());

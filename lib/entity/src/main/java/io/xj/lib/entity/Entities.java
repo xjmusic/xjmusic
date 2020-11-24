@@ -3,8 +3,6 @@
 package io.xj.lib.entity;
 
 import com.google.common.base.CaseFormat;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
@@ -80,11 +78,11 @@ public enum Entities {
       }
     } catch (InvocationTargetException e) {
       throw new EntityException(String.format("Failed to %s.%s(), reason: %s",
-        getSimpleName(target), getter.getName(), e.getTargetException().getMessage()));
+              getSimpleName(target), getter.getName(), e.getTargetException().getMessage()));
 
     } catch (IllegalAccessException e) {
       throw new EntityException(String.format("Could not access %s.%s(), reason: %s",
-        getSimpleName(target), getter.getName(), e.getMessage()));
+              getSimpleName(target), getter.getName(), e.getMessage()));
     }
   }
 
@@ -167,19 +165,19 @@ public enum Entities {
 
     } catch (InvocationTargetException e) {
       throw new EntityException(String.format("Failed to %s.%s(), reason: %s",
-        getSimpleName(target), setter.getName(), e.getTargetException().getMessage()));
+              getSimpleName(target), setter.getName(), e.getTargetException().getMessage()));
 
     } catch (IllegalAccessException e) {
       throw new EntityException(String.format("Could not access %s.%s(), reason: %s",
-        getSimpleName(target), setter.getName(), e.getMessage()));
+              getSimpleName(target), setter.getName(), e.getMessage()));
 
     } catch (IllegalArgumentException e) {
       throw new EntityException(String.format("Could not provide value for %s.%s(), reason: %s",
-        getSimpleName(target), setter.getName(), e.getMessage()));
+              getSimpleName(target), setter.getName(), e.getMessage()));
 
     } catch (NoSuchMethodException e) {
       throw new EntityException(String.format("No such method %s.%s(), reason: %s",
-        getSimpleName(target), setter.getName(), e.getMessage()));
+              getSimpleName(target), setter.getName(), e.getMessage()));
     }
   }
 
@@ -287,7 +285,7 @@ public enum Entities {
     if (entityClass.isInterface())
       return entityClass.getSimpleName();
     if (0 < entityClass.getInterfaces().length &&
-      "impl".equals(entityClass.getSimpleName().substring(entityClass.getSimpleName().length() - 4).toLowerCase()))
+            "impl".equals(entityClass.getSimpleName().substring(entityClass.getSimpleName().length() - 4).toLowerCase()))
       return entityClass.getInterfaces()[0].getSimpleName();
     else
       return entityClass.getSimpleName();
@@ -506,8 +504,8 @@ public enum Entities {
    */
   public static String toAttributeName(Method method) {
     return String.format("%s%s",
-      method.getName().substring(3, 4).toLowerCase(Locale.ENGLISH),
-      method.getName().substring(4));
+            method.getName().substring(3, 4).toLowerCase(Locale.ENGLISH),
+            method.getName().substring(4));
   }
 
   /**
@@ -521,8 +519,8 @@ public enum Entities {
    */
   public static String toSetterName(String attributeName) {
     return String.format("%s%s%s", "set",
-      attributeName.substring(0, 1).toUpperCase(Locale.ENGLISH),
-      attributeName.substring(1));
+            attributeName.substring(0, 1).toUpperCase(Locale.ENGLISH),
+            attributeName.substring(1));
   }
 
   /**
@@ -535,8 +533,8 @@ public enum Entities {
    */
   public static String toAttributeName(String name) {
     return String.format("%s%s",
-      name.substring(0, 1).toLowerCase(Locale.ENGLISH),
-      name.substring(1));
+            name.substring(0, 1).toLowerCase(Locale.ENGLISH),
+            name.substring(1));
   }
 
   /**
@@ -569,19 +567,8 @@ public enum Entities {
    */
   public static String toGetterName(String attributeName) {
     return String.format("%s%s%s", "get",
-      attributeName.substring(0, 1).toUpperCase(Locale.ENGLISH),
-      attributeName.substring(1));
-  }
-
-  /**
-   Get a string representation of an entity, comprising a key-value map of its properties
-
-   @param name       of entity
-   @param properties to map
-   @return string representation
-   */
-  public static String toKeyValueString(String name, ImmutableMap<String, String> properties) {
-    return String.format("%s{%s}", name, CSV.from(properties));
+            attributeName.substring(0, 1).toUpperCase(Locale.ENGLISH),
+            attributeName.substring(1));
   }
 
   /**
@@ -629,8 +616,8 @@ public enum Entities {
    */
   public static <N> Set<String> idsOf(Collection<N> entities) {
     return entities.stream()
-      .flatMap(Entities::flatMapIds)
-      .collect(Collectors.toSet());
+            .flatMap(Entities::flatMapIds)
+            .collect(Collectors.toSet());
   }
 
   /**
@@ -680,15 +667,16 @@ public enum Entities {
 
    @param child      to test for childhood
    @param parentType to test whether this entity belongs to
-   @param parentId   to test whether this entity belongs to
+   @param parentIds  to test whether this entity belongs to
    @return true if target belongs to the specified resource
    */
-  public static boolean isChild(Object child, Class<?> parentType, Collection<String> parentId) {
+  public static boolean isChild(Object child, Class<?> parentType, Collection<String> parentIds) {
     try {
-      String key = String.valueOf(get(child, toIdAttribute(parentType))
-        .orElseThrow(() -> new EntityException("N/A")));
-      if (Strings.isNullOrEmpty(key)) return false;
-      return parentId.contains(key);
+      var keyOpt = get(child, toIdAttribute(parentType));
+      if (keyOpt.isEmpty()) return false;
+      String key = String.valueOf(keyOpt.get());
+      if (key.isBlank()) return false;
+      return parentIds.contains(key);
     } catch (EntityException e) {
       return false;
     }
@@ -729,7 +717,7 @@ public enum Entities {
   public static boolean isSame(Object a, Object b) {
     try {
       return Objects.equals(Entities.getType(a), Entities.getType(b)) &&
-        Objects.equals(Entities.getId(a), Entities.getId(b));
+              Objects.equals(Entities.getId(a), Entities.getId(b));
     } catch (EntityException e) {
       return false;
     }
@@ -743,12 +731,12 @@ public enum Entities {
    */
   public static Collection<String> namesOf(Collection<?> memeEntities) {
     return memeEntities.stream()
-      .flatMap(e -> {
-        try {
-          return Stream.of(String.valueOf(get(e, NAME_KEY).orElseThrow()));
-        } catch (EntityException ignored) {
-          return Stream.empty();
-        }
-      }).collect(Collectors.toList());
+            .flatMap(e -> {
+              try {
+                return Stream.of(String.valueOf(get(e, NAME_KEY).orElseThrow()));
+              } catch (EntityException ignored) {
+                return Stream.empty();
+              }
+            }).collect(Collectors.toList());
   }
 }
