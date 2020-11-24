@@ -68,7 +68,7 @@ public class CraftSegmentOutputEncoderTest {
         })));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     craftFactory = injector.getInstance(CraftFactory.class);
-    EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
+    var entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
     NexusApp.buildApiTopology(entityFactory);
 

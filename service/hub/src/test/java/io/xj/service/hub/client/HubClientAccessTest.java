@@ -82,7 +82,7 @@ public class HubClientAccessTest {
     User user = User.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
-    Account account = Account.newBuilder()
+    var account = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
     HubClientAccess access = buildHubClientAccess(user, ImmutableList.of(account), "User,Artist");
@@ -93,13 +93,13 @@ public class HubClientAccessTest {
 
   @Test
   public void getAccountIds() {
-    Account account1 = Account.newBuilder()
+    var account1 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
-    Account account2 = Account.newBuilder()
+    var account2 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
-    Account account3 = Account.newBuilder()
+    var account3 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
     HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1, account2, account3), "User");
@@ -128,7 +128,7 @@ public class HubClientAccessTest {
     User user = User.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
-    Account account = Account.newBuilder()
+    var account = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
     HubClientAccess access = buildHubClientAccess(
@@ -148,7 +148,7 @@ public class HubClientAccessTest {
     User user = User.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
-    Account account = Account.newBuilder()
+    var account = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
     HubClientAccess access = buildHubClientAccess(

@@ -24,8 +24,8 @@ public class EntityStoreImplTest {
 
   @Before
   public void setUp() {
-    Injector injector = Guice.createInjector(new EntityModule());
-    EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
+    var injector = Guice.createInjector(new EntityModule());
+    var entityFactory = injector.getInstance(EntityFactory.class);
     subject = injector.getInstance(EntityStore.class);
 
     // Some topology

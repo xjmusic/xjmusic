@@ -34,7 +34,7 @@ public class GoogleHttpProviderImplTest extends Mockito {
   @Before
   public void setUp() throws Exception {
     Config config = HubTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(),
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(),
       new FileStoreModule()).with(
       new AbstractModule() {
         @Override

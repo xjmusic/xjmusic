@@ -65,7 +65,7 @@ public class HubAccessTokenAuthFilterImplTest {
     Config config = HubTestConfiguration.getDefault()
       .withValue("google.clientId", ConfigValueFactory.fromAnyRef("my-google-id"))
       .withValue("google.clientSecret", ConfigValueFactory.fromAnyRef("my-google-secret"));
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new FileStoreModule(), new JsonApiModule()).with(new AbstractModule() {
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new FileStoreModule(), new JsonApiModule()).with(new AbstractModule() {
       @Override
       protected void configure() {
         bind(HubAccessControlProvider.class).toInstance(hubAccessControlProvider);

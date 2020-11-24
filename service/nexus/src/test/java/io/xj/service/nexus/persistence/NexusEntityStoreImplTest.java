@@ -38,7 +38,7 @@ public class NexusEntityStoreImplTest {
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusEntityStoreModule()));
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusEntityStoreModule()));
     entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
     NexusApp.buildApiTopology(entityFactory);
@@ -101,7 +101,7 @@ public class NexusEntityStoreImplTest {
   @Test
   public void put_get_Chain() throws EntityStoreException {
     String accountId = UUID.randomUUID().toString();
-    Chain chain = Chain.newBuilder()
+    var chain = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(accountId)
       .setType(Chain.Type.Preview)
@@ -112,7 +112,7 @@ public class NexusEntityStoreImplTest {
       .build();
 
     subject.put(chain);
-    Chain result = subject.get(Chain.class, chain.getId()).orElseThrow();
+    var result = subject.get(Chain.class, chain.getId()).orElseThrow();
 
     assertEquals(chain.getId(), result.getId());
     assertEquals(accountId, result.getAccountId());
@@ -125,11 +125,11 @@ public class NexusEntityStoreImplTest {
 
   @Test
   public void putWithoutId_getHasNewId() throws EntityStoreException {
-    Account account1 = Account.newBuilder()
+    var account1 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("fish")
       .build();
-    Chain chain3 = Chain.newBuilder()
+    var chain3 = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
       .setName("Test Print #1")
@@ -169,12 +169,12 @@ public class NexusEntityStoreImplTest {
 
   @Test
   public void putAll_getAll() throws EntityStoreException {
-    Account account1 = Account.newBuilder()
+    var account1 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("fish")
       .build();
 
-    Chain chain2 = Chain.newBuilder()
+    var chain2 = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
       .setName("Test Print #2")
@@ -183,7 +183,7 @@ public class NexusEntityStoreImplTest {
       .setStartAt("2014-08-12T12:17:02.527142Z")
       .setStopAt("2014-09-11T12:17:01.047563Z")
       .build();
-    Chain chain3 = Chain.newBuilder()
+    var chain3 = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
       .setName("Test Print #3")

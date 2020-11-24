@@ -29,7 +29,7 @@ public class TelemetryProviderImplTest {
       .withValue("app.env", ConfigValueFactory.fromAnyRef("dev"))
       .withValue("aws.accessKeyID", ConfigValueFactory.fromAnyRef("AKIALKSFDJKGIOURTJ7H"))
       .withValue("aws.secretKey", ConfigValueFactory.fromAnyRef("jhfd897+jkhjHJJDKJF/908090JHKJJHhjhfg78h"));
-    Injector injector = Guice.createInjector(ImmutableSet.of(Modules.override(new TelemetryModule()).with(
+    var injector = Guice.createInjector(ImmutableSet.of(Modules.override(new TelemetryModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {

@@ -17,7 +17,7 @@ public class AppResourceConfigTest {
 
   @Before
   public void setUp() {
-    Injector injector = Guice.createInjector();
+    var injector = Guice.createInjector();
     subject = new AppResourceConfig(injector, ImmutableSet.of());
   }
 

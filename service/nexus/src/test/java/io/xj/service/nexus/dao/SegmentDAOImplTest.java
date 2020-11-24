@@ -66,7 +66,7 @@ public class SegmentDAOImplTest {
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault()
       .withValue("segment.limitReadSize", ConfigValueFactory.fromAnyRef(12));
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusDAOModule()));
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusDAOModule()));
     entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
     NexusApp.buildApiTopology(entityFactory);

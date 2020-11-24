@@ -33,7 +33,7 @@ public class HubIngestImplTest {
   @Test
   public void instantiateWithUUIDs() throws Exception {
     Config config = HubTestConfiguration.getDefault();
-    Injector injector = Guice.createInjector(new HubIngestModule(), new AbstractModule() {
+    var injector = Guice.createInjector(new HubIngestModule(), new AbstractModule() {
       @Override
       protected void configure() {
         bind(InstrumentDAO.class).toInstance(instrumentDAO);

@@ -52,7 +52,7 @@ public class AuthGoogleResourceTest {
       .withValue("app.port", ConfigValueFactory.fromAnyRef(1903))
       .withValue("app.baseUrl", ConfigValueFactory.fromAnyRef("https://xj.io/"))
       .withValue("app.apiUrl", ConfigValueFactory.fromAnyRef("api/69/"));
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule()));
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule()));
     app = new HubApp(injector);
     app.start();
 

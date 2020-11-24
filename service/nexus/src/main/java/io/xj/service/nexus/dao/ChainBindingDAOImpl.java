@@ -64,7 +64,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   @Override
   public ChainBinding readOne(HubClientAccess access, String id) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException {
     try {
-      ChainBinding chainBinding = store.get(ChainBinding.class, id)
+      var chainBinding = store.get(ChainBinding.class, id)
         .orElseThrow(() -> new DAOExistenceException(ChainBinding.class, id));
       requireChainAccountRole(access, chainBinding);
       return chainBinding;
@@ -102,7 +102,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   @Override
   public void destroy(HubClientAccess access, String id) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException {
     try {
-      ChainBinding chainBinding = store.get(ChainBinding.class, id)
+      var chainBinding = store.get(ChainBinding.class, id)
         .orElseThrow(() -> new DAOExistenceException(ChainBinding.class, id));
       requireChainAccountRole(access, chainBinding);
       store.delete(ChainBinding.class, id);
@@ -149,7 +149,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
    @throws DAOExistenceException if record does not exist
    */
   private void requireChainAccountRole(HubClientAccess access, String chainId) throws DAOExistenceException, DAOPrivilegeException, DAOFatalException {
-    Chain chain = chainDAO.readOne(access, chainId);
+    var chain = chainDAO.readOne(access, chainId);
     chainDAO.requireAccount(access, chain);
   }
 }

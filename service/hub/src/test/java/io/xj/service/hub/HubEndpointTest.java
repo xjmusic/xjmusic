@@ -51,13 +51,13 @@ public class HubEndpointTest {
   public void setUp() throws Exception {
     Config config = ConfigFactory.parseResources("test.conf")
       .withFallback(AppConfiguration.getDefault());
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new JsonApiModule(), new AbstractModule() {
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(new JsonApiModule(), new AbstractModule() {
       @Override
       protected void configure() {
       }
     }));
     payloadFactory = injector.getInstance(PayloadFactory.class);
-    EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
+    var entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
     subject = injector.getInstance(HubEndpoint.class);
   }
@@ -73,7 +73,7 @@ public class HubEndpointTest {
     when(dao.newInstance()).thenReturn(Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build());
-    Account createdAccount = Account.newBuilder()
+    var createdAccount = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("test5")
       .build();

@@ -2,19 +2,23 @@
 
 package io.xj.service.nexus.work;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.Account;
 import io.xj.Chain;
+import io.xj.Segment;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.telemetry.TelemetryProvider;
+import io.xj.lib.util.Value;
 import io.xj.service.hub.HubApp;
+import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.persistence.NexusEntityStore;
@@ -25,16 +29,18 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Instant;
 import java.util.UUID;
 
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
-public class NexusWorkImplTest {
+public class JanitorWorkerImplTest {
+  private static final int NUMBER_OF_SEGMENTS = 1000;
+  private static final int SEGMENT_LENGTH_SECONDS = 30;
+  private static final int PAST_SECONDS = 10000;
   private NexusEntityStore store;
-  private NexusWork subject;
+  private JanitorWorker subject;
   private static final int MILLIS_PER_SECOND = 1000;
   private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
   long startTime = System.currentTimeMillis();
@@ -44,19 +50,7 @@ public class NexusWorkImplTest {
   public FileStoreProvider fileStoreProvider;
 
   @Mock
-  public WorkerFactory workerFactory;
-
-  @Mock
-  private BossWorker fakeBossWorker;
-
-  @Mock
-  private JanitorWorker fakeJanitorWorker;
-
-  @Mock
-  private MedicWorker fakeMedicWorker;
-
-  @Mock
-  private ChainWorker fakeChainWorker;
+  public TelemetryProvider telemetryProvider;
 
   @Before
   public void setUp() throws AppException {
@@ -74,7 +68,7 @@ public class NexusWorkImplTest {
           @Override
           public void configure() {
             bind(Config.class).toInstance(config);
-            bind(WorkerFactory.class).toInstance(workerFactory);
+            bind(TelemetryProvider.class).toInstance(telemetryProvider);
             bind(FileStoreProvider.class).toInstance(fileStoreProvider);
           }
         })));
@@ -84,7 +78,8 @@ public class NexusWorkImplTest {
     NexusApp.buildApiTopology(entityFactory);
 
     segmentDAO = injector.getInstance(SegmentDAO.class);
-    subject = injector.getInstance(NexusWork.class);
+    var workerFactory = injector.getInstance(WorkerFactory.class);
+    subject = workerFactory.janitor();
   }
 
   @Test
@@ -93,29 +88,37 @@ public class NexusWorkImplTest {
       .setId(UUID.randomUUID().toString())
       .setName("palm tree")
       .build());
+    var now = Instant.now();
     var chain1 = store.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
       .setName("Test Print #1")
       .setType(Chain.Type.Production)
       .setState(Chain.State.Fabricate)
-      .setStartAt("2014-08-12T12:17:02.527142Z")
+      .setStartAt(Value.formatIso8601UTC(now.minusSeconds(PAST_SECONDS + SEGMENT_LENGTH_SECONDS * NUMBER_OF_SEGMENTS)))
       .build());
-
-    when(fileStoreProvider.generateKey(String.format("chains-%s-segments", chain1.getId())))
-      .thenReturn("chains-1-segments-12345.aac");
-    when(workerFactory.boss()).thenReturn(fakeBossWorker);
-    when(workerFactory.janitor()).thenReturn(fakeJanitorWorker);
-    when(workerFactory.medic()).thenReturn(fakeMedicWorker);
+    var segment = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setBeginAt(chain1.getStartAt())
+      .setEndAt(Value.formatIso8601UTC(Instant.parse(chain1.getStartAt()).plusSeconds(SEGMENT_LENGTH_SECONDS)))
+      .setState(Segment.State.Dubbed)
+      .build());
+    for (int i = 0; i < NUMBER_OF_SEGMENTS; i++)
+      segment = store.put(Segment.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setChainId(chain1.getId())
+        .setBeginAt(segment.getEndAt())
+        .setEndAt(Value.formatIso8601UTC(Instant.parse(segment.getEndAt()).plusSeconds(SEGMENT_LENGTH_SECONDS)))
+        .setState(Segment.State.Dubbed)
+        .build());
 
     // Start app, wait for work, stop app
-    subject.start();
-    Thread.sleep(10); // everybody's cycles are 1ms so 10ms should be enough to trigger everything once
-    subject.finish();
+    subject.run();
 
-    // assertions
-    verify(fakeBossWorker, atLeastOnce()).run();
-    verify(fakeJanitorWorker, atLeastOnce()).run();
-    verify(fakeMedicWorker, atLeastOnce()).run();
+    // Check segments actually deleted
+    var segments = segmentDAO.readMany(HubClientAccess.internal(), ImmutableList.of(chain1.getId()));
+    assertEquals(0, segments.size());
   }
+
 }

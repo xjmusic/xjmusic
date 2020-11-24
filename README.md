@@ -138,7 +138,7 @@ After logging in via Google, there will be a user created for you. It will have 
 `admin` user role, you'll connect directly to the database on `postgres01xj1` using the port forwarding from local 
 port 5400 (to Docker Postgres container port 5432):
 
-    psql -h localhost -p 5400 -u root
+    psql -h localhost -p 5400 -u postgres
 
 Even better than ^^^, there's a convenience script to easily connect to the Postgres database in the Docker container.
 

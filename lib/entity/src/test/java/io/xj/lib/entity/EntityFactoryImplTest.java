@@ -26,7 +26,7 @@ public class EntityFactoryImplTest {
 
   @Before
   public void setUp() {
-    Injector injector = Guice.createInjector(new EntityModule());
+    var injector = Guice.createInjector(new EntityModule());
     subject = injector.getInstance(EntityFactory.class);
   }
 

@@ -81,7 +81,7 @@ public class NexusApp extends App {
     work = injector.getInstance(NexusWork.class);
 
     // Setup Entity topology
-    EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
+    var entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
     buildApiTopology(entityFactory);
 

@@ -49,7 +49,7 @@ public class NexusConfigEndpointTest {
     doReturn("http://app.xj.io/").when(apiUrlProvider).getAppBaseUrl();
     doReturn("http://player.xj.io/").when(apiUrlProvider).getPlayerBaseUrl();
     doReturn("http://ship.xj.io/").when(apiUrlProvider).getSegmentBaseUrl();
-    Injector injector = Guice.createInjector(Modules.override(new JsonApiModule()).with(new AbstractModule() {
+    var injector = Guice.createInjector(Modules.override(new JsonApiModule()).with(new AbstractModule() {
       @Override
       protected void configure() {
         super.configure();

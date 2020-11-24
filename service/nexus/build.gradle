@@ -73,6 +73,8 @@ jar {
   }
 }
 
+applicationDefaultJvmArgs = ["-agentpath:/usr/local/YourKit-JavaProfiler-2020.9/bin/linux-x86-64/libyjpagent.so=port=10000,listen=all,logdir=/var/log/profiler"]
+
 application {
   mainClassName = 'io.xj.service.nexus.Main'
 }

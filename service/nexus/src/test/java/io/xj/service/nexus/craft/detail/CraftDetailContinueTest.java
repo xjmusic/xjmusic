@@ -65,7 +65,7 @@ public class CraftDetailContinueTest {
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config,
+    var injector = AppConfiguration.inject(config,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override
@@ -75,7 +75,7 @@ public class CraftDetailContinueTest {
         })));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     craftFactory = injector.getInstance(CraftFactory.class);
-    EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
+    var entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
     NexusApp.buildApiTopology(entityFactory);
 

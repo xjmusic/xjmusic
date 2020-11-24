@@ -47,7 +47,7 @@ public class AccountUserIT {
   @Before
   public void setUp() throws Exception {
     Config config = HubTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubIntegrationTestModule()));
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubIntegrationTestModule()));
     test = injector.getInstance(HubIntegrationTestProvider.class);
     fake = new IntegrationTestingFixtures(test);
 
@@ -113,12 +113,12 @@ public class AccountUserIT {
       .setEmail("jim@email.com")
       .setAvatarUrl("http://pictures.com/jim.gif")
       .build());
-    AccountUser inputData = AccountUser.newBuilder()
+    var inputData = AccountUser.newBuilder()
       .setAccountId(fake.account1.getId())
       .setUserId(fake.user5.getId())
       .build();
 
-    AccountUser result = testDAO.create(
+    var result = testDAO.create(
       hubAccess, inputData);
 
     assertNotNull(result);
@@ -129,7 +129,7 @@ public class AccountUserIT {
   @Test
   public void create_FailIfAlreadyExists() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    AccountUser inputData = AccountUser.newBuilder()
+    var inputData = AccountUser.newBuilder()
       .setAccountId(fake.account1.getId())
       .setUserId(fake.user2.getId())
       .build();
@@ -144,7 +144,7 @@ public class AccountUserIT {
   @Test
   public void create_FailIfNotAdmin() throws Exception {
     HubAccess hubAccess = HubAccess.create("User");
-    AccountUser inputData = AccountUser.newBuilder()
+    var inputData = AccountUser.newBuilder()
       .setAccountId(fake.account1.getId())
       .setUserId(fake.user2.getId())
       .build();
@@ -159,7 +159,7 @@ public class AccountUserIT {
   @Test
   public void create_FailsWithoutAccountID() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    AccountUser inputData = AccountUser.newBuilder()
+    var inputData = AccountUser.newBuilder()
       .setUserId(fake.user2.getId())
       .build();
 
@@ -173,7 +173,7 @@ public class AccountUserIT {
   @Test
   public void create_FailsWithoutUserId() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    AccountUser inputData = AccountUser.newBuilder()
+    var inputData = AccountUser.newBuilder()
       .setAccountId(fake.account1.getId())
       .build();
 
@@ -188,7 +188,7 @@ public class AccountUserIT {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
 
-    AccountUser result = testDAO.readOne(hubAccess, accountUser_1_2.getId());
+    var result = testDAO.readOne(hubAccess, accountUser_1_2.getId());
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getAccountId());

@@ -108,7 +108,7 @@ public class ChainEndpoint extends NexusEndpoint {
     try {
       HubClientAccess access = HubClientAccess.fromContext(crc);
       // if present, we will revive a prior chain, else create a new one
-      Chain chain = Objects.nonNull(reviveId) && !reviveId.isEmpty() ?
+      var chain = Objects.nonNull(reviveId) && !reviveId.isEmpty() ?
         dao.revive(access, reviveId, String.format("Requested by User[%s]", access.getUserId())) :
         dao.create(access, payloadFactory.consume(entityFactory.getInstance(Chain.class), payload));
 
@@ -190,7 +190,7 @@ public class ChainEndpoint extends NexusEndpoint {
         return response.notAcceptable("Chain ID is required!");
 
       // Consume input payload onto existing Chain record, then update
-      Chain chain = payloadFactory.consume(dao.readOne(access, id), payload);
+      var chain = payloadFactory.consume(dao.readOne(access, id), payload);
       dao.update(access, id, chain);
       return response.ok(payloadFactory.newPayload().setDataOne(payloadFactory.toPayloadObject(chain)));
 

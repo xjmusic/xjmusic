@@ -48,7 +48,7 @@ public class HubAccessControlIT {
   @Before
   public void setUp() throws Exception {
     Config config = HubTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new FileStoreModule(), new JsonApiModule(), new HubIntegrationTestModule()));
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new FileStoreModule(), new JsonApiModule(), new HubIntegrationTestModule()));
 
     test = injector.getInstance(HubIntegrationTestProvider.class);
 

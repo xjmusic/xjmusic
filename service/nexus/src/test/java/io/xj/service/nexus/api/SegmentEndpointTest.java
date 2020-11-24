@@ -64,7 +64,7 @@ public class SegmentEndpointTest {
   @Before
   public void setUp() throws AppException {
     Config config = NexusTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(new MixerModule(), new JsonApiModule()).with(
+    var injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(new MixerModule(), new JsonApiModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -73,7 +73,7 @@ public class SegmentEndpointTest {
       }))));
     HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
     NexusApp.buildApiTopology(injector.getInstance(EntityFactory.class));
-    Account account1 = Account.newBuilder()
+    var account1 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
     User user101 = User.newBuilder()

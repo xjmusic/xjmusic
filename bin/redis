@@ -3,7 +3,7 @@
 # Include common functions
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
-# Connect as root
+# Port
 REDIS_PORT=6300
 
 # Find Redis CLI executable

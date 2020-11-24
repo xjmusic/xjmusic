@@ -46,7 +46,7 @@ public class AccountIT {
   @Before
   public void setUp() throws Exception {
     Config config = HubTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubIntegrationTestModule()));
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubIntegrationTestModule()));
     test = injector.getInstance(HubIntegrationTestProvider.class);
     fake = new IntegrationTestingFixtures(test);
 
@@ -76,7 +76,7 @@ public class AccountIT {
   public void readOne_asSetToModel() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
 
-    Account result = testDAO.readOne(hubAccess, fake.account1.getId());
+    var result = testDAO.readOne(hubAccess, fake.account1.getId());
 
     assertNotNull(result);
     assertEquals(fake.account1.getId(), result.getId());
@@ -92,21 +92,21 @@ public class AccountIT {
     assertNotNull(results);
     assertEquals(1L, results.size());
 
-    Account result0 = results.iterator().next();
+    var result0 = results.iterator().next();
     assertEquals("bananas", result0.getName());
   }
 
   @Test
   public void update() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
-    Account entity = Account.newBuilder()
+    var entity = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("jammers")
       .build();
 
     testDAO.update(hubAccess, fake.account1.getId(), entity);
 
-    Account result = testDAO.readOne(HubAccess.internal(), fake.account1.getId());
+    var result = testDAO.readOne(HubAccess.internal(), fake.account1.getId());
     assertNotNull(result);
     assertEquals("jammers", result.getName());
   }
@@ -114,7 +114,7 @@ public class AccountIT {
   @Test
   public void update_failsIfNotAdmin() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
-    Account entity = Account.newBuilder()
+    var entity = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("jammers")
       .build();

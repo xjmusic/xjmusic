@@ -79,7 +79,7 @@ public class ComplexLibraryTest {
       .withValue("work.bossDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.chainDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.concurrency", ConfigValueFactory.fromAnyRef(1));
-    Injector injector = AppConfiguration.inject(config,
+    var injector = AppConfiguration.inject(config,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override
@@ -90,7 +90,7 @@ public class ComplexLibraryTest {
           }
         })));
     segmentDAO = injector.getInstance(SegmentDAO.class);
-    EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
+    var entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
     NexusApp.buildApiTopology(entityFactory);
 

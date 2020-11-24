@@ -45,7 +45,7 @@ public class VoiceIsometry extends Isometry {
    */
   @Nullable
   public ProgramVoice find(ProgramVoice needle) {
-    var result = null;
+    ProgramVoice result = null;
     double resultScore = 0;
 
     String targetStem = stem(needle.getName());

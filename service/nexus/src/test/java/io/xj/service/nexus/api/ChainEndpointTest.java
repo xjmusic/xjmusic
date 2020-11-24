@@ -67,7 +67,7 @@ public class ChainEndpointTest {
   @Before
   public void setUp() throws AppException {
     Config config = NexusTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(
+    var injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(
       new FileStoreModule(),
       new HubClientModule(),
       new MixerModule(),
@@ -128,10 +128,10 @@ public class ChainEndpointTest {
   @Test
   public void readOne() throws IOException, JsonApiException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
-    Account account25 = Account.newBuilder()
+    var account25 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
-    Chain chain17 = Chain.newBuilder()
+    var chain17 = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account25.getId())
       .setName("Test Print #1")
@@ -153,10 +153,10 @@ public class ChainEndpointTest {
   @Test
   public void delete() throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(access);
-    Account account25 = Account.newBuilder()
+    var account25 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
-    Chain chain17 = Chain.newBuilder()
+    var chain17 = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account25.getId())
       .setName("Test Print #1")

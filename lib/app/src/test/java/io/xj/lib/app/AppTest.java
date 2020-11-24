@@ -29,7 +29,7 @@ public class AppTest {
       .withValue("app.name", ConfigValueFactory.fromAnyRef("test"))
       .withValue("app.port", ConfigValueFactory.fromAnyRef(1903))
       .withValue("prometheus.enabled", ConfigValueFactory.fromAnyRef(true));
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of());
+    var injector = AppConfiguration.inject(config, ImmutableSet.of());
     subject = new App(injector, Collections.singleton("io.xj.lib.app"));
     subject.start();
   }

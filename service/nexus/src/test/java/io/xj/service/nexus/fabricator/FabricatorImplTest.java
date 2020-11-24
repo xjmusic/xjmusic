@@ -86,7 +86,7 @@ public class FabricatorImplTest {
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new FileStoreModule(), new NexusDAOModule(), new HubClientModule(), new NexusEntityStoreModule(), new MixerModule(), new JsonApiModule(), new NexusWorkModule(), new NexusFabricatorModule()).with(
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new FileStoreModule(), new NexusDAOModule(), new HubClientModule(), new NexusEntityStoreModule(), new MixerModule(), new JsonApiModule(), new NexusWorkModule(), new NexusFabricatorModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -100,7 +100,7 @@ public class FabricatorImplTest {
         }
       })));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
-    EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
+    var entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
     NexusApp.buildApiTopology(entityFactory);
 
@@ -123,7 +123,7 @@ public class FabricatorImplTest {
     Library library = Library.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
-    Chain chain = store.put(Chain.newBuilder()
+    var chain = store.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(UUID.randomUUID().toString())
       .setName("test")
@@ -187,7 +187,7 @@ public class FabricatorImplTest {
 
   @Test
   public void pick_returned_by_picks() throws Exception {
-    Chain chain = store.put(Chain.newBuilder()
+    var chain = store.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(UUID.randomUUID().toString())
       .setName("test")

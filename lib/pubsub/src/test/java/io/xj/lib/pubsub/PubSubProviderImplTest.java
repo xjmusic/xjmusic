@@ -23,7 +23,7 @@ public class PubSubProviderImplTest {
     Config config = ConfigFactory.parseResources("default.conf")
       .withValue("aws.accessKeyID", ConfigValueFactory.fromAnyRef("AKIALKSFDJKGIOURTJ7H"))
       .withValue("aws.secretKey", ConfigValueFactory.fromAnyRef("jhfd897+jkhjHJJDKJF/908090JHKJJHhjhfg78h"));
-    Injector injector = Guice.createInjector(ImmutableSet.of(Modules.override(new PubSubModule()).with(
+    var injector = Guice.createInjector(ImmutableSet.of(Modules.override(new PubSubModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {

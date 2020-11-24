@@ -8,8 +8,8 @@ error() {
   exit 1
 }
 
-# Connect as root
-SQL_USER="root"
+# Connect as postgres
+SQL_USER="postgres"
 SQL_PORT=5400
 SQL_HOST="127.0.0.1"
 

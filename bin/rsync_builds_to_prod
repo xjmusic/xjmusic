@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-for file in $(ls target/*.jar); do rsync --verbose --force ./$file ubuntu@3.208.3.48:~/xj/$file; done

@@ -24,7 +24,7 @@ public class TimeComputerTest {
   @Before
   public void setUp() throws AppException {
     Config config = NexusTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusWorkModule(), new NexusFabricatorModule()));
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusWorkModule(), new NexusFabricatorModule()));
     timeComputerFactory = injector.getInstance(TimeComputerFactory.class);
   }
 

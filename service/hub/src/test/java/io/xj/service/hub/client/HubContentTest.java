@@ -32,7 +32,7 @@ public class HubContentTest {
   @Before
   public void setUp() throws Exception {
     Config config = ConfigFactory.parseResources("test.conf");
-    Injector injector = Guice.createInjector(
+    var injector = Guice.createInjector(
       ImmutableSet.of(
         new HubClientModule(),
         new EntityModule(),

@@ -94,7 +94,7 @@ public class EntitiesTest extends TestTemplate {
 
   @Before
   public void setUp() {
-    Injector injector = Guice.createInjector(new EntityModule());
+    var injector = Guice.createInjector(new EntityModule());
     entityFactory = injector.getInstance(EntityFactory.class);
     entityFactory.register(Program.class)
       .withAttribute("name");

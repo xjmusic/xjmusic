@@ -63,7 +63,7 @@ public class CraftDetailInitialTest {
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config,
+    var injector = AppConfiguration.inject(config,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override
@@ -73,7 +73,7 @@ public class CraftDetailInitialTest {
         })));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     craftFactory = injector.getInstance(CraftFactory.class);
-    EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
+    var entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
     NexusApp.buildApiTopology(entityFactory);
 
@@ -92,7 +92,7 @@ public class CraftDetailInitialTest {
       ).collect(Collectors.toList())));
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
-    Chain chain2 = store.put(Chain.newBuilder()
+    var chain2 = store.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(fake.account1.getId())
       .setName("Print #2")

@@ -10,6 +10,8 @@ import io.xj.lib.util.Value;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
+import io.xj.service.nexus.dao.exception.DAOFatalException;
+import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,18 +55,21 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
    */
   protected void doWork() throws Exception {
     long t = Instant.now().toEpochMilli();
-    Collection<String> segmentIdsToErase = getSegmentIdsToErase();
-    for (String segmentId : segmentIdsToErase)
-      try {
-        segmentDAO.destroy(access, segmentId);
-      } catch (DAOExistenceException e) {
-        log.warn("Entity nonexistent while destroying Segment[{}]", segmentId, e);
-      }
-
+    var segmentIdsToErase = getSegmentIdsToErase();
     if (segmentIdsToErase.isEmpty())
       log.info("Found no segments to erase in {}ms OK", Instant.now().toEpochMilli() - t);
     else
-      log.info("Did erase {} segments in {}ms OK", segmentIdsToErase.size(), Instant.now().toEpochMilli() - t);
+      log.info("Found {} segments to erase in {}ms OK", segmentIdsToErase.size(), Instant.now().toEpochMilli() - t);
+
+    for (String segmentId : segmentIdsToErase) {
+      t = Instant.now().toEpochMilli();
+      try {
+        segmentDAO.destroy(access, segmentId);
+        log.info("Did erase Segment[{}] in {}ms OK", segmentId, Instant.now().toEpochMilli() - t);
+      } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException e) {
+        log.warn("Error while destroying Segment[{}] after {}ms", segmentId, Instant.now().toEpochMilli() - t, e);
+      }
+    }
 
     observeCount(SEGMENT_ERASED, segmentIdsToErase.size());
   }

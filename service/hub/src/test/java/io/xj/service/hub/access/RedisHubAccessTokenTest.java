@@ -66,7 +66,7 @@ public class RedisHubAccessTokenTest {
       .withValue("access.tokenMaxAgeSeconds", ConfigValueFactory.fromAnyRef(60))
       .withValue("access.tokenName", ConfigValueFactory.fromAnyRef("access_token_jammy"))
       .withValue("access.tokenPath", ConfigValueFactory.fromAnyRef("/deez"));
-    Injector injector = Guice.createInjector(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule()).with(
+    var injector = Guice.createInjector(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -94,10 +94,10 @@ public class RedisHubAccessTokenTest {
       .setId(UUID.randomUUID().toString())
       .build();
 
-    AccountUser accountUser1 = AccountUser.newBuilder()
+    var accountUser1 = AccountUser.newBuilder()
       .setAccountId(account1.getId())
       .build();
-    AccountUser accountUser2 = AccountUser.newBuilder()
+    var accountUser2 = AccountUser.newBuilder()
       .setAccountId(account2.getId())
       .build();
     accountUsers = List.of(accountUser1, accountUser2);

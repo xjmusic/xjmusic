@@ -33,13 +33,13 @@ public class PayloadTest {
 
   @Before
   public void setUp() {
-    Injector injector = Guice.createInjector(new JsonApiModule(), new AbstractModule() {
+    var injector = Guice.createInjector(new JsonApiModule(), new AbstractModule() {
       @Override
       protected void configure() {
         bind(Config.class).toInstance(ConfigFactory.empty());
       }
     });
-    EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
+    var entityFactory = injector.getInstance(EntityFactory.class);
     payloadFactory = injector.getInstance(PayloadFactory.class);
     entityFactory.register(Program.class);
     subject = payloadFactory.newPayload();

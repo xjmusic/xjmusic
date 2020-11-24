@@ -154,7 +154,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   @Override
   public Chain readOne(HubClientAccess access, String id) throws DAOPrivilegeException, DAOExistenceException, DAOFatalException {
     try {
-      Chain chain = store.get(Chain.class, id)
+      var chain = store.get(Chain.class, id)
         .orElseThrow(() -> new DAOExistenceException(Chain.class, id));
       requireAccount(access, chain);
       return chain;
@@ -209,7 +209,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException {
     try {
       // cache existing chain from-state
-      Chain existing = readOne(access, id);
+      var existing = readOne(access, id);
       Chain.State fromState = existing.getState();
       Chain.Builder builder = entity.toBuilder();
 
@@ -342,7 +342,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   @Override
   public void destroy(HubClientAccess access, String id) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException {
     try {
-      Chain chain = store.get(Chain.class, id)
+      var chain = store.get(Chain.class, id)
         .orElseThrow(() -> new DAOExistenceException(Chain.class, id));
       requireAccount(access, chain);
 
@@ -393,7 +393,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     builder.setEmbedKey(embedKey);
     // [#170273871] Revived chain should always start now
     builder.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(NOW_PLUS_SECONDS)));
-    Chain created = create(access, builder.build());
+    var created = create(access, builder.build());
 
     // Re-create all chain bindings of original chain
     for (ChainBinding chainBinding : chainBindingDAO.readMany(access, ImmutableList.of(priorChainId)))
@@ -448,7 +448,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   private void requireUniqueEmbedKey(HubClientAccess access, Chain.Builder chain) throws DAOValidationException, DAOFatalException {
     if (Value.isSet(chain.getEmbedKey()))
       try {
-        Chain existing = readOneByEmbedKey(access, chain.getEmbedKey());
+        var existing = readOneByEmbedKey(access, chain.getEmbedKey());
         if (!Objects.equals(chain.getId(), existing.getId()))
           throw new DAOValidationException(String.format("Chain already exists with embed key '%s'!", chain.getEmbedKey()));
       } catch (DAOExistenceException ignored) {

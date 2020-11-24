@@ -1,35 +1,35 @@
 # Based on official
 FROM ubuntu:18.04
 
-# Software Properties
+# Install Software Properties
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install software-properties-common
 
-# C Build Tools
+# Install C Build Tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install build-essential make
 
-# Snappy C Library
+# Install Snappy C Library
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install libsnappy-dev
 
-# Networking Tools
+# Install Networking Tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install net-tools
 
-# DNS Utilities
+# Install DNS Utilities
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install dnsutils
 
-# cURL
+# Install cURL
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install curl
 
-# FFI dev lib
+# Install FFI dev lib
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install libffi-dev
 
-# PhantomJS
+# Install PhantomJS
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install phantomjs
 
-# Python Build Tools
+# Install Python Build Tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install python-dev
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install python3-dev
 
-# Python PIP
+# Install Python PIP
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install python-pip
 
 # Install Java 11
@@ -44,37 +44,43 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install libfdk-a
 # Define working directory.
 WORKDIR /data
 
-# Tomcat 6
+# Install Tomcat 6
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install tomcat8
 
-# Less
+# Install Less
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install less
 
-# Tree
+# Install Tree
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install tree
 
-# Telnet
+# Install Telnet
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install telnet
 
-# Redis CLI
+# Install Redis CLI
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install redis-tools
 
-# Network tools
+# Install Network tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install net-tools
 
-# Postgres Client
+# Install Postgres Client
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install postgresql-client
+
+# Install wget
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install wget
+
+# Install unzip
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install unzip
+
+# YourKit Java Profiler
+RUN wget https://www.yourkit.com/download/docker/YourKit-JavaProfiler-2020.9-docker.zip -P /tmp/ && \
+  unzip /tmp/YourKit-JavaProfiler-2020.9-docker.zip -d /usr/local && \
+  rm /tmp/YourKit-JavaProfiler-2020.9-docker.zip
 
 ###
 ### App-specific content follows
 ###
-
-# 'hub'
-EXPOSE 3000
+RUN mkdir -p /var/log/profiler && chmod a+w /var/log/profiler
 RUN mkdir -p /var/log/hub && chmod a+w /var/log/hub
-
-# 'nexus'
-EXPOSE 3000
 RUN mkdir -p /var/log/nexus && chmod a+w /var/log/nexus
 RUN mkdir -p /var/cache/nexus && chmod a+w /var/cache/nexus
 

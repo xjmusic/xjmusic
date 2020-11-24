@@ -44,7 +44,7 @@ public class GoogleProviderImplTest extends Mockito {
       .withValue("google.clientSecret", ConfigValueFactory.fromAnyRef("abcdef"))
       .withValue("app.baseUrl", ConfigValueFactory.fromAnyRef("http://shammy/"))
       .withValue("app.apiUrl", ConfigValueFactory.fromAnyRef("api/69/"));
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(),
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(),
       new FileStoreModule()).with(
       new AbstractModule() {
         @Override

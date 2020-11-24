@@ -111,7 +111,7 @@ public class HubAppTest {
       .withValue("segment.baseUrl", ConfigValueFactory.fromAnyRef(""))
       .withValue("app.port", ConfigValueFactory.fromAnyRef(1903))
       .withValue("prometheus.enabled", ConfigValueFactory.fromAnyRef(true));
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new JsonApiModule(), new AbstractModule() {
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(new JsonApiModule(), new AbstractModule() {
       @Override
       protected void configure() {
         bind(HubDatabaseProvider.class).toInstance(hubDatabaseProvider);

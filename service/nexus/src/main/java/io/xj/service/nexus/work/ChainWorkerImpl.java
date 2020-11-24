@@ -70,7 +70,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
    */
   protected void doWork() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     try {
-      Chain chain = chainDAO.readOne(access, chainId);
+      var chain = chainDAO.readOne(access, chainId);
 
       if (Chain.State.Fabricate != chain.getState()) {
         log.error("Cannot fabricate Chain id:{} in non-Fabricate ({}) state!", chain.getId(), chain.getState());

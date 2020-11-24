@@ -64,7 +64,7 @@ public class ProgramEndpointTest {
   @Before
   public void setUp() throws AppException {
     Config config = HubTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule()).with(
+    var injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -72,7 +72,7 @@ public class ProgramEndpointTest {
         }
       }))));
     HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
-    Account account1 = Account.newBuilder()
+    var account1 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
     hubAccess = HubAccess.create(ImmutableList.of(account1), "User,Artist");

@@ -10,9 +10,9 @@
 -Daws.secretKey=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 -Ddb.postgres.database=xj_dev
 -Ddb.postgres.host=localhost
--Ddb.postgres.pass=
+-Ddb.postgres.pass=postgres
 -Ddb.postgres.port=5400
--Ddb.postgres.user=root
+-Ddb.postgres.user=postgres
 -Ddb.redis.host=localhost
 -Ddb.redis.port=6300
 -Dsegment.file.bucket=xj-dev-ship

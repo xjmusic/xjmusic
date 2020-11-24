@@ -72,7 +72,7 @@ public class InstrumentAudioIT {
   @Before
   public void setUp() throws Exception {
     Config config = HubTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubIntegrationTestModule()).with(
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule(), new HubIntegrationTestModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -566,7 +566,7 @@ fake.user2, fake.library1, Program.Type.Macro, Program.State.Published, "epic co
   public void setUp() throws Exception {
     reset();
 
-    Injector injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+    var injector = Guice.createInjector(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {

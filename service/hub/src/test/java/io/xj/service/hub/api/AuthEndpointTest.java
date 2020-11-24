@@ -52,7 +52,7 @@ public class AuthEndpointTest {
   @Before
   public void setUp() throws AppException {
     Config config = HubTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule()));
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule()));
     HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
     account1 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())

@@ -61,7 +61,7 @@ public class HubClientImplTest {
       .withValue("hub.baseUrl", ConfigValueFactory.fromAnyRef("http://localhost:8089/"))
       .withValue("hub.internalToken", ConfigValueFactory.fromAnyRef("internal_secret_456"));
 
-    Injector injector = Guice.createInjector(
+    var injector = Guice.createInjector(
       ImmutableSet.of(
         new HubClientModule(),
         new EntityModule(),
@@ -122,7 +122,7 @@ public class HubClientImplTest {
     User user1 = User.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
-    Account account1 = Account.newBuilder()
+    var account1 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
     UserAuth userAuth1 = UserAuth.newBuilder()

@@ -68,7 +68,7 @@ public class HubAccessTest {
   @Test
   public void serialize() throws AppException, JsonApiException {
     Config config = HubTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config, ImmutableSet.of(
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(
       new HubAccessControlModule(),
       new DAOModule(),
       new HubIngestModule(),
