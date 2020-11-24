@@ -149,7 +149,7 @@ public class CraftRhythmContinueTest {
     craftFactory.rhythm(fabricator).doWork();
     // assert choice of rhythm-type sequence
     Collection<SegmentChoice> segmentChoices =
-      store.getAll(SegmentChoice.class, Segment.class, ImmutableList.of(segment4.getId()));
+      store.getAll(segment4.getId(), SegmentChoice.class);
     assertNotNull(SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Rhythm));
   }
 
@@ -259,7 +259,7 @@ public class CraftRhythmContinueTest {
 
     // assert choice of rhythm-type sequence
     Collection<SegmentChoice> segmentChoices =
-      store.getAll(SegmentChoice.class, Segment.class, ImmutableList.of(segment4.getId()));
+      store.getAll(segment4.getId(), SegmentChoice.class);
     assertNotNull(SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Rhythm));
   }
 }

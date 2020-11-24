@@ -1,10 +1,10 @@
 package io.xj.service.nexus.work;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.Segment;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.Value;
 import io.xj.service.hub.client.HubClientAccess;
@@ -13,6 +13,7 @@ import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.persistence.NexusEntityStore;
+import io.xj.service.nexus.persistence.NexusEntityStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +35,10 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
 
   @Inject
   public JanitorWorkerImpl(
-    Config config,
-    NexusEntityStore store,
-    SegmentDAO segmentDAO,
-    TelemetryProvider telemetryProvider
+          Config config,
+          NexusEntityStore store,
+          SegmentDAO segmentDAO,
+          TelemetryProvider telemetryProvider
   ) {
     super(telemetryProvider);
     this.store = store;
@@ -82,8 +83,8 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
    */
   protected boolean isBefore(Segment segment, Instant eraseBefore) {
     return Value.isSet(segment.getEndAt()) ?
-      Instant.parse(segment.getEndAt()).isBefore(eraseBefore) :
-      Instant.parse(segment.getBeginAt()).isBefore(eraseBefore);
+            Instant.parse(segment.getEndAt()).isBefore(eraseBefore) :
+            Instant.parse(segment.getBeginAt()).isBefore(eraseBefore);
   }
 
   @Override
@@ -96,12 +97,18 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
 
    @return list of IDs of Segments we ought to erase
    */
-  private Collection<String> getSegmentIdsToErase() throws EntityStoreException {
+  private Collection<String> getSegmentIdsToErase() throws NexusEntityStoreException {
     Instant eraseBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);
-    return store.getAll(Segment.class)
-      .stream()
-      .filter(segment -> isBefore(segment, eraseBefore))
-      .flatMap(Entities::flatMapIds)
-      .collect(Collectors.toList());
+    Collection<String> segmentIds = Lists.newArrayList();
+    for (String chainId : store.getAllChains().stream()
+            .flatMap(Entities::flatMapIds)
+            .collect(Collectors.toList()))
+      store.getAllSegments(chainId)
+              .stream()
+              .filter(segment -> isBefore(segment, eraseBefore))
+              .flatMap(Entities::flatMapIds)
+              .forEach(segmentIds::add);
+    return segmentIds;
   }
+
 }

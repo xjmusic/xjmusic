@@ -3,7 +3,6 @@ package io.xj.service.nexus.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.Account;
 import io.xj.Chain;
@@ -11,8 +10,6 @@ import io.xj.ChainBinding;
 import io.xj.Instrument;
 import io.xj.Library;
 import io.xj.Program;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceBinding;
 import io.xj.Segment;
 import io.xj.User;
 import io.xj.lib.app.AppConfiguration;
@@ -943,11 +940,11 @@ public class ChainDAOImplTest {
   public void updateState_outOfDraft_BoundToSequence() throws Exception {
     HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
     user3 = buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    library2 = test.put(Library.newBuilder()
+    library2 = Library.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
       .setName("pajamas")
-      .build());
+      .build();
     Program program = buildProgram(library2, Program.Type.Rhythm, Program.State.Published, "fonds", "C#", 0.286, 0.6);
     var chain = test.put(buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
     test.put(ChainBinding.newBuilder()

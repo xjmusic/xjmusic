@@ -3,7 +3,7 @@ package io.xj.service.nexus;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.google.protobuf.MessageLite ;
+import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.Payload;

@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.Chain;
@@ -158,7 +157,7 @@ public class CraftRhythmInitialTest {
 
     // assert choice of rhythm-type sequence
     Collection<SegmentChoice> segmentChoices =
-      store.getAll(SegmentChoice.class, Segment.class, ImmutableList.of(segment6.getId()));
+      store.getAll(segment6.getId(), SegmentChoice.class);
     assertNotNull(SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Rhythm));
   }
 }

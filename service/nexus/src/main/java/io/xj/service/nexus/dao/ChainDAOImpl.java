@@ -8,14 +8,12 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
-import io.xj.Account;
 import io.xj.Chain;
 import io.xj.ChainBinding;
 import io.xj.Segment;
 import io.xj.UserRole;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.entity.MessageType;
 import io.xj.lib.pubsub.PubSubProvider;
 import io.xj.lib.util.CSV;
@@ -28,6 +26,7 @@ import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
 import io.xj.service.nexus.persistence.NexusEntityStore;
+import io.xj.service.nexus.persistence.NexusEntityStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,13 +61,13 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
   private static final long NOW_PLUS_SECONDS = 60;
   private static final Set<Chain.State> NOTIFY_ON_CHAIN_STATES = ImmutableSet.of(
-    Chain.State.Fabricate,
-    Chain.State.Failed
+          Chain.State.Fabricate,
+          Chain.State.Failed
   );
   private static final Set<Chain.State> REVIVE_FROM_STATES_ALLOWED = ImmutableSet.of(
-    Chain.State.Fabricate,
-    Chain.State.Complete,
-    Chain.State.Failed
+          Chain.State.Fabricate,
+          Chain.State.Complete,
+          Chain.State.Failed
   );
   private final ChainBindingDAO chainBindingDAO;
   private final Config config;
@@ -80,12 +79,12 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
   @Inject
   public ChainDAOImpl(
-    Config config,
-    EntityFactory entityFactory,
-    NexusEntityStore nexusEntityStore,
-    SegmentDAO segmentDAO,
-    ChainBindingDAO chainBindingDAO,
-    PubSubProvider pubSubProvider
+          Config config,
+          EntityFactory entityFactory,
+          NexusEntityStore nexusEntityStore,
+          SegmentDAO segmentDAO,
+          ChainBindingDAO chainBindingDAO,
+          PubSubProvider pubSubProvider
   ) {
     super(entityFactory, nexusEntityStore);
     this.config = config;
@@ -132,7 +131,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     } catch (ValueException e) {
       throw new DAOValidationException(e);
 
-    } catch (EntityStoreException e) {
+    } catch (NexusEntityStoreException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -154,12 +153,12 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   @Override
   public Chain readOne(HubClientAccess access, String id) throws DAOPrivilegeException, DAOExistenceException, DAOFatalException {
     try {
-      var chain = store.get(Chain.class, id)
-        .orElseThrow(() -> new DAOExistenceException(Chain.class, id));
+      var chain = store.getChain(id)
+              .orElseThrow(() -> new DAOExistenceException(Chain.class, id));
       requireAccount(access, chain);
       return chain;
 
-    } catch (EntityStoreException e) {
+    } catch (NexusEntityStoreException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -168,12 +167,12 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   public Chain readOneByEmbedKey(HubClientAccess access, String rawEmbedKey) throws DAOExistenceException, DAOFatalException {
     try {
       String key = Text.toEmbedKey(rawEmbedKey);
-      return store.getAll(Chain.class).stream()
-        .filter(c -> Objects.equals(key, c.getEmbedKey()))
-        .findFirst()
-        .orElseThrow(() -> new DAOExistenceException(Chain.class, rawEmbedKey));
+      return store.getAllChains().stream()
+              .filter(c -> Objects.equals(key, c.getEmbedKey()))
+              .findFirst()
+              .orElseThrow(() -> new DAOExistenceException(Chain.class, rawEmbedKey));
 
-    } catch (EntityStoreException e) {
+    } catch (NexusEntityStoreException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -182,9 +181,11 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   public Collection<Chain> readMany(HubClientAccess access, Collection<String> accountIds) throws DAOFatalException, DAOPrivilegeException {
     try {
       for (String accountId : accountIds) requireAccount(access, accountId);
-      return store.getAll(Chain.class, Account.class, accountIds);
+      return store.getAllChains().stream()
+              .filter(chain -> accountIds.contains(chain.getAccountId()))
+              .collect(Collectors.toList());
 
-    } catch (EntityStoreException e) {
+    } catch (NexusEntityStoreException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -192,21 +193,21 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   @Override
   public Collection<Chain> readManyInState(HubClientAccess access, Chain.State state) throws DAOFatalException, DAOPrivilegeException {
     try {
-      Collection<Chain> chains = store.getAll(Chain.class).stream()
-        .filter(chain -> state.equals(chain.getState()))
-        .collect(Collectors.toList());
+      Collection<Chain> chains = store.getAllChains().stream()
+              .filter(chain -> state.equals(chain.getState()))
+              .collect(Collectors.toList());
       for (Chain chain : chains)
         requireAccount(access, chain);
       return chains;
 
-    } catch (EntityStoreException e) {
+    } catch (NexusEntityStoreException e) {
       throw new DAOFatalException(e);
     }
   }
 
   @Override
   public void update(HubClientAccess access, String id, Chain entity)
-    throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException {
+          throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException {
     try {
       // cache existing chain from-state
       var existing = readOne(access, id);
@@ -220,8 +221,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       // [#174153691] Cannot change stop-at time or Embed Key of Preview chain
       if (Chain.Type.Preview == existing.getType())
         builder
-          .setStopAt(existing.getStopAt())
-          .setEmbedKey(existing.getEmbedKey());
+                .setStopAt(existing.getStopAt())
+                .setEmbedKey(existing.getEmbedKey());
 
       // override id (cannot be changed) from existing chain, and then validate
       builder.setId(id);
@@ -248,14 +249,14 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     } catch (ValueException e) {
       throw new DAOValidationException(e);
 
-    } catch (EntityStoreException e) {
+    } catch (NexusEntityStoreException e) {
       throw new DAOFatalException(e);
     }
   }
 
   @Override
   public void updateState(HubClientAccess access, String id, Chain.State state)
-    throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException {
+          throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException {
     try {
       Chain.Builder chain = readOne(access, id).toBuilder();
       Chain.State fromState = chain.getState();
@@ -273,7 +274,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         pubSub.publish(String.format("Updated Chain %s to state %s", chain.getId(), chain.getState()), MessageType.Info.toString());
       }
 
-    } catch (EntityStoreException e) {
+    } catch (NexusEntityStoreException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -284,10 +285,10 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     // If there's already a no-endAt-time-having Segment at the end of this Chain, get outta here
     if (segmentDAO.readMany(access, ImmutableSet.of(chain.getId()))
-      .stream()
-      .filter(s -> Value.isEmpty(s.getEndAt()))
-      .max(Comparator.comparing(Segment::getOffset))
-      .isPresent())
+            .stream()
+            .filter(s -> Value.isEmpty(s.getEndAt()))
+            .max(Comparator.comparing(Segment::getOffset))
+            .isPresent())
       return Optional.empty();
 
     // Get the last segment in the chain
@@ -297,13 +298,13 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       lastSegmentInChain = segmentDAO.readLastSegment(access, chain.getId());
     } catch (DAOExistenceException ignored2) {
       Segment pilotTemplate = Segment.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setChainId(chain.getId())
-        .setBeginAt(chain.getStartAt())
-        .setOffset(0L)
-        .setType(Segment.Type.Pending)
-        .setState(Segment.State.Planned)
-        .build();
+              .setId(UUID.randomUUID().toString())
+              .setChainId(chain.getId())
+              .setBeginAt(chain.getStartAt())
+              .setOffset(0L)
+              .setType(Segment.Type.Pending)
+              .setState(Segment.State.Planned)
+              .build();
       return Optional.of(pilotTemplate);
     }
 
@@ -313,14 +314,14 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     // [#204] Craft process updates Chain to COMPLETE state when the final segment is in dubbed state.
     if (Value.isSet(lastSegmentInChain.getEndAt()) &&
-      Value.isSet(chain.getStopAt()) &&
-      !Strings.isNullOrEmpty(lastSegmentInChain.getEndAt()) &&
-      Instant.parse(lastSegmentInChain.getEndAt())
-        .isAfter(Instant.parse(chain.getStopAt()))) {
+            Value.isSet(chain.getStopAt()) &&
+            !Strings.isNullOrEmpty(lastSegmentInChain.getEndAt()) &&
+            Instant.parse(lastSegmentInChain.getEndAt())
+                    .isAfter(Instant.parse(chain.getStopAt()))) {
       // this is where we check to see if the chain is ready to be COMPLETE.
       if (Instant.parse(chain.getStopAt()).isBefore(chainStopCompleteAfter)
-        // and [#122] require the last segment in the chain to be in state DUBBED.
-        && Segment.State.Dubbed.equals(lastSegmentInChain.getState())) {
+              // and [#122] require the last segment in the chain to be in state DUBBED.
+              && Segment.State.Dubbed.equals(lastSegmentInChain.getState())) {
         updateState(access, chain.getId(), Chain.State.Complete);
       }
       return Optional.empty();
@@ -329,21 +330,21 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     // Build the template of the segment that follows the last known one
     long pilotOffset = lastSegmentInChain.getOffset() + 1;
     Segment pilotTemplate = Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setBeginAt(lastSegmentInChain.getEndAt())
-      .setOffset(pilotOffset)
-      .setType(Segment.Type.Pending)
-      .setState(Segment.State.Planned)
-      .build();
+            .setId(UUID.randomUUID().toString())
+            .setChainId(chain.getId())
+            .setBeginAt(lastSegmentInChain.getEndAt())
+            .setOffset(pilotOffset)
+            .setType(Segment.Type.Pending)
+            .setState(Segment.State.Planned)
+            .build();
     return Optional.of(pilotTemplate);
   }
 
   @Override
   public void destroy(HubClientAccess access, String id) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException {
     try {
-      var chain = store.get(Chain.class, id)
-        .orElseThrow(() -> new DAOExistenceException(Chain.class, id));
+      var chain = store.getChain(id)
+              .orElseThrow(() -> new DAOExistenceException(Chain.class, id));
       requireAccount(access, chain);
 
       for (ChainBinding chainBinding : chainBindingDAO.readMany(access, ImmutableList.of()))
@@ -352,9 +353,9 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       for (Segment segment : segmentDAO.readMany(access, ImmutableList.of()))
         segmentDAO.destroy(access, segment.getId());
 
-      store.delete(Chain.class, id);
+      store.deleteChain(id);
 
-    } catch (EntityStoreException e) {
+    } catch (NexusEntityStoreException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -378,7 +379,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     if (!REVIVE_FROM_STATES_ALLOWED.contains(builder.getState()))
       throw new DAOPrivilegeException(String.format("Can't revive a Chain unless it's in %s state",
-        CSV.prettyFrom(REVIVE_FROM_STATES_ALLOWED, "or")));
+              CSV.prettyFrom(REVIVE_FROM_STATES_ALLOWED, "or")));
 
     // save the embed key to re-use on new chain
     String embedKey = builder.getEmbedKey();
@@ -398,9 +399,9 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     // Re-create all chain bindings of original chain
     for (ChainBinding chainBinding : chainBindingDAO.readMany(access, ImmutableList.of(priorChainId)))
       chainBindingDAO.create(access,
-        chainBinding.toBuilder()
-          .setChainId(created.getId())
-          .build());
+              chainBinding.toBuilder()
+                      .setChainId(created.getId())
+                      .build());
 
     // update new chain into ready, then fabricate, which begins the new work
     updateState(access, created.getId(), Chain.State.Ready);
@@ -504,7 +505,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         chain.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(NOW_PLUS_SECONDS)));
         if (Chain.Type.Preview.equals(chain.getType()))
           chain.setStopAt(Value.formatIso8601UTC(
-            Instant.parse(chain.getStartAt()).plus(previewLengthMaxHours, HOURS))); // [#174153691]
+                  Instant.parse(chain.getStartAt()).plus(previewLengthMaxHours, HOURS))); // [#174153691]
       case Complete:
       case Failed:
         // no op
@@ -527,6 +528,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       }
     }
     throw new DAOPrivilegeException(String.format("transition to %s not in allowed (%s)",
-      toState, CSV.join(allowedStateNames)));
+            toState, CSV.join(allowedStateNames)));
   }
 }

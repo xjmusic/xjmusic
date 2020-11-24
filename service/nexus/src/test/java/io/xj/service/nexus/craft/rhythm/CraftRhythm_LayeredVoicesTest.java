@@ -14,10 +14,7 @@ import io.xj.ChainBinding;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
 import io.xj.Program;
-import io.xj.ProgramSequence;
 import io.xj.ProgramSequencePattern;
-import io.xj.ProgramVoice;
-import io.xj.ProgramVoiceTrack;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangementPick;
@@ -264,8 +261,8 @@ public class CraftRhythm_LayeredVoicesTest {
 
     craftFactory.rhythm(fabricator).doWork();
 
-    Segment result = store.get(Segment.class, segment4.getId()).orElseThrow();
-    assertFalse(store.getAll(SegmentChoice.class, Segment.class, ImmutableList.of(result.getId())).isEmpty());
+    Segment result = store.getSegment(segment4.getId()).orElseThrow();
+    assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
     // test vector for [#154014731] persist Audio pick in memory
     int pickedKick = 0;
     int pickedSnare = 0;

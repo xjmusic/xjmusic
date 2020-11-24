@@ -5,10 +5,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.EntityStoreException;
-import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.persistence.NexusEntityStore;
+import io.xj.service.nexus.persistence.NexusEntityStoreException;
 import io.xj.service.nexus.work.NexusWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +26,10 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
    */
   @Inject
   NexusIntegrationTestProviderImpl(
-    NexusWork nexusWork,
-    EntityFactory entityFactory,
-    Config config,
-    ApiUrlProvider apiUrlProvider,
-    NexusEntityStore nexusEntityStore
+          NexusWork nexusWork,
+          EntityFactory entityFactory,
+          Config config,
+          NexusEntityStore nexusEntityStore
   ) {
     this.workManager = nexusWork;
     this.store = nexusEntityStore;
@@ -50,18 +48,18 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
   }
 
   @Override
-  public void setUp() {
+  public void setUp() throws NexusEntityStoreException {
     store.deleteAll();
   }
 
   @Override
-  public <N> N put(N entity) throws EntityStoreException {
+  public <N> N put(N entity) throws NexusEntityStoreException {
     store.put(entity);
     return entity;
   }
 
   @Override
-  public <E, I> E put(E entity, Collection<I> included) throws EntityStoreException {
+  public <E, I> E put(E entity, Collection<I> included) throws NexusEntityStoreException {
     store.put(entity);
     store.putAll(included);
     return entity;

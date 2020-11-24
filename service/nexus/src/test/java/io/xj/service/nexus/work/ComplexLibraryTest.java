@@ -3,7 +3,6 @@ package io.xj.service.nexus.work;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;

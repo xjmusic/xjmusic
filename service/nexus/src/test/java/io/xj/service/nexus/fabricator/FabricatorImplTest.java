@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.Chain;

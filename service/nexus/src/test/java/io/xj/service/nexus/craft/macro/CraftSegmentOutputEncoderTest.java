@@ -59,13 +59,13 @@ public class CraftSegmentOutputEncoderTest {
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
     injector = AppConfiguration.inject(config,
-      ImmutableSet.of(Modules.override(new NexusWorkModule())
-        .with(new AbstractModule() {
-          @Override
-          public void configure() {
-            bind(HubClient.class).toInstance(hubClient);
-          }
-        })));
+            ImmutableSet.of(Modules.override(new NexusWorkModule())
+                    .with(new AbstractModule() {
+                      @Override
+                      public void configure() {
+                        bind(HubClient.class).toInstance(hubClient);
+                      }
+                    })));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     craftFactory = injector.getInstance(CraftFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
@@ -79,38 +79,38 @@ public class CraftSegmentOutputEncoderTest {
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     when(hubClient.ingest(any(), any(), any(), any()))
-      .thenReturn(new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream()
-      ).collect(Collectors.toList())));
+            .thenReturn(new HubContent(Streams.concat(
+                    fake.setupFixtureB1().stream()
+            ).collect(Collectors.toList())));
 
     // Chain "Print #2" has 1 initial planned segment
     chain2 = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(fake.account1.getId())
-      .setName("Print #2")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2014-08-12T12:17:02.527142Z")
-      .setConfig("outputContainer=\"WAV\"")
-      .build());
+            .setId(UUID.randomUUID().toString())
+            .setAccountId(fake.account1.getId())
+            .setName("Print #2")
+            .setType(Chain.Type.Production)
+            .setState(Chain.State.Fabricate)
+            .setStartAt("2014-08-12T12:17:02.527142Z")
+            .setConfig("outputContainer=\"WAV\"")
+            .build());
     store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain2.getId())
-      .setTargetId(fake.library2.getId())
-      .setType(ChainBinding.Type.Library)
-      .build());
+            .setId(UUID.randomUUID().toString())
+            .setChainId(chain2.getId())
+            .setTargetId(fake.library2.getId())
+            .setType(ChainBinding.Type.Library)
+            .build());
     segment6 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain2.getId())
-      .setOffset(0L)
-      .setState(Segment.State.Planned)
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setKey("C")
-      .setTotal(8)
-      .setDensity(0.8)
-      .setTempo(120)
-      .setStorageKey("chain-1-waveform-12345.wav")
-      .build());
+            .setId(UUID.randomUUID().toString())
+            .setChainId(chain2.getId())
+            .setOffset(0L)
+            .setState(Segment.State.Planned)
+            .setBeginAt("2017-02-14T12:01:00.000001Z")
+            .setKey("C")
+            .setTotal(8)
+            .setDensity(0.8)
+            .setTempo(120)
+            .setStorageKey("chain-1-waveform-12345.wav")
+            .build());
   }
 
   @Test
@@ -119,7 +119,7 @@ public class CraftSegmentOutputEncoderTest {
 
     craftFactory.macroMain(fabricator).doWork();
 
-    Segment result = store.get(Segment.class, segment6.getId()).orElseThrow();
+    Segment result = store.getSegment(segment6.getId()).orElseThrow();
     assertEquals(segment6.getId(), result.getId());
     assertEquals("WAV", result.getOutputEncoder());
     assertEquals(Segment.Type.Initial, result.getType());

@@ -128,7 +128,7 @@ public class CraftFoundationInitialTest {
 
     craftFactory.macroMain(fabricator).doWork();
 
-    Segment result = store.get(Segment.class, segment6.getId()).orElseThrow();
+    Segment result = store.getSegment(segment6.getId()).orElseThrow();
     assertEquals(segment6.getId(), result.getId());
     assertEquals("AAC", result.getOutputEncoder());
     assertEquals(Segment.Type.Initial, result.getType());
@@ -140,13 +140,13 @@ public class CraftFoundationInitialTest {
     // assert memes
     assertSameItems(
       Lists.newArrayList("Tropical", "Wild", "Outlook", "Optimism"),
-      Entities.namesOf(store.getAll(SegmentMeme.class, Segment.class, ImmutableList.of(result.getId()))));
+      Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     // assert chords
     assertSameItems(Lists.newArrayList("G major", "Ab minor"),
-      Entities.namesOf(store.getAll(SegmentChord.class, Segment.class, ImmutableList.of(result.getId()))));
+      Entities.namesOf(store.getAll(result.getId(), SegmentChord.class)));
     // assert choices
     Collection<SegmentChoice> segmentChoices =
-      store.getAll(SegmentChoice.class, Segment.class, ImmutableList.of(result.getId()));
+      store.getAll(result.getId(), SegmentChoice.class);
     SegmentChoice macroChoice = SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Macro);
     assertEquals(fake.program4_sequence0_binding0.getId(), macroChoice.getProgramSequenceBindingId());
     assertEquals(0, macroChoice.getTranspose());

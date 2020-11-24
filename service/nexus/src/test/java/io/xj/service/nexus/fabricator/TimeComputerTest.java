@@ -3,7 +3,6 @@
 package io.xj.service.nexus.fabricator;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;

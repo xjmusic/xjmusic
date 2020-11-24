@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.protobuf.MessageLite ;
+import com.google.protobuf.MessageLite;
 import io.xj.Chain;
 import io.xj.Program;
 import io.xj.Segment;
@@ -55,12 +55,12 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
 
   @Inject
   public SegmentWorkbenchImpl(
-    @Assisted("access") HubClientAccess access,
-    @Assisted("chain") Chain chain,
-    @Assisted("segment") Segment segment,
-    SegmentDAO segmentDAO,
-    PayloadFactory payloadFactory,
-    EntityStore entityStore
+          @Assisted("access") HubClientAccess access,
+          @Assisted("chain") Chain chain,
+          @Assisted("segment") Segment segment,
+          SegmentDAO segmentDAO,
+          PayloadFactory payloadFactory,
+          EntityStore entityStore
   ) throws FabricationException {
     this.access = access;
     this.chain = chain;
@@ -174,10 +174,10 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
 
   @Override
   public Collection<SegmentChoice> getChoicesOfType(Program.Type type)
-    throws FabricationException {
+          throws FabricationException {
     return getSegmentChoices().stream()
-      .filter(c -> c.getProgramType().equals(type))
-      .collect(Collectors.toList());
+            .filter(c -> c.getProgramType().equals(type))
+            .collect(Collectors.toList());
   }
 
   @Override
@@ -200,11 +200,11 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   private void sendReportToSegmentMessage() throws JsonApiException, FabricationException {
     String reported = payloadFactory.serialize(report);
     add(SegmentMessage.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setType(SegmentMessage.Type.Info)
-      .setBody(reported)
-      .build());
+            .setId(UUID.randomUUID().toString())
+            .setSegmentId(segment.getId())
+            .setType(SegmentMessage.Type.Info)
+            .setBody(reported)
+            .build());
     report.clear();
   }
 

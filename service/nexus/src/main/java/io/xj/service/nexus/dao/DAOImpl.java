@@ -3,7 +3,7 @@
 package io.xj.service.nexus.dao;
 
 import com.google.inject.Inject;
-import com.google.protobuf.MessageLite ;
+import com.google.protobuf.MessageLite;
 import io.xj.UserRole;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.Value;

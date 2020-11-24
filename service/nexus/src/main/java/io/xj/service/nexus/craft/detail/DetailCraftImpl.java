@@ -56,8 +56,8 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
   @Inject
   public DetailCraftImpl(
-    @Assisted("basis") Fabricator fabricator
-    /*-*/) {
+          @Assisted("basis") Fabricator fabricator
+          /*-*/) {
     this.fabricator = fabricator;
   }
 
@@ -70,12 +70,12 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         // program
         Program detailProgram = chooseDetailProgram(voicingType);
         SegmentChoice detailChoice = fabricator.add(SegmentChoice.newBuilder()
-          .setId(UUID.randomUUID().toString())
-          .setSegmentId(fabricator.getSegment().getId())
-          .setProgramType(Program.Type.Detail)
-          .setProgramId(detailProgram.getId())
-          .setTranspose(computeDetailTranspose(detailProgram))
-          .build());
+                .setId(UUID.randomUUID().toString())
+                .setSegmentId(fabricator.getSegment().getId())
+                .setProgramType(Program.Type.Detail)
+                .setProgramId(detailProgram.getId())
+                .setTranspose(computeDetailTranspose(detailProgram))
+                .build());
 
         // detail sequence is selected at random of the current program
         // FUTURE: [#166855956] Detail Program with multiple Sequences
@@ -342,11 +342,14 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // if no previous instrument found, choose a fresh one
       SegmentChoiceArrangement arrangement = fabricator.add(SegmentChoiceArrangement.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentChoiceId(choice.getId())
-        .setProgramVoiceId(voice.getId())
-        .setInstrumentId(instrumentId.isPresent() ? instrumentId.get() : chooseFreshHarmonicInstrument(voice).getId())
-        .build());
+              .setId(UUID.randomUUID().toString())
+              .setSegmentId(choice.getSegmentId())
+              .setSegmentChoiceId(choice.getId())
+              .setProgramVoiceId(voice.getId())
+              .setInstrumentId(
+                      instrumentId.isPresent() ?
+                              instrumentId.get() : chooseFreshHarmonicInstrument(voice).getId())
+              .build());
 
       // choose intro pattern (if available)
       Optional<ProgramSequencePattern> introPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePattern.Type.Intro);
@@ -375,7 +378,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // "Go for it" more towards the end of a program (and only during the outro, when present)
       double goForItRatio = fabricator.getSequenceBindingOffsetForChoice(fabricator.getCurrentMainChoice()).doubleValue() /
-        fabricator.getMaxAvailableSequenceBindingOffset(fabricator.getCurrentMainChoice()).doubleValue();
+              fabricator.getMaxAvailableSequenceBindingOffset(fabricator.getCurrentMainChoice()).doubleValue();
 
       // if outro pattern, fabricate those voice event last
       // [#161466708] compute how much to go for it in the outro
@@ -384,7 +387,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
     } catch (FabricationException | EntityException e) {
       throw
-        exception(String.format("Failed to craft arrangement for detail voiceId=%s", voice.getId()), e);
+              exception(String.format("Failed to craft arrangement for detail voiceId=%s", voice.getId()), e);
     }
   }
 
@@ -433,8 +436,8 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // Score includes matching memes, previous segment to macro instrument first pattern
       score += SCORE_MATCHED_MEMES *
-        fabricator.getMemeIsometryOfSegment().score(
-          Entities.namesOf(fabricator.getSourceMaterial().getMemes(instrument)));
+              fabricator.getMemeIsometryOfSegment().score(
+                      Entities.namesOf(fabricator.getSourceMaterial().getMemes(instrument)));
 
       // [#174435421] Chain bindings specify Program & Instrument within Library
       if (fabricator.isDirectlyBound(instrument))
@@ -497,8 +500,8 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // The final note is transformed based on instrument type
       Note note = pickNote(
-        Note.of(event.getNote()).transpose(transpose),
-        chord, audio, instrument.getType());
+              Note.of(event.getNote()).transpose(transpose),
+              chord, audio, instrument.getType());
 
       // Pick attributes are expressed "rendered" as actual seconds
       double startSeconds = fabricator.computeSecondsAtPosition(position);
@@ -506,21 +509,21 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // of pick
       fabricator.add(SegmentChoiceArrangementPick.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(segmentChoiceArrangement.getSegmentId())
-        .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId())
-        .setInstrumentAudioId(audio.getId())
-        .setProgramSequencePatternEventId(event.getId())
-        .setName(getTrackName(event))
-        .setStart(startSeconds)
-        .setLength(lengthSeconds)
-        .setAmplitude(event.getVelocity())
-        .setPitch(fabricator.getPitch(note))
-        .build());
+              .setId(UUID.randomUUID().toString())
+              .setSegmentId(segmentChoiceArrangement.getSegmentId())
+              .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId())
+              .setInstrumentAudioId(audio.getId())
+              .setProgramSequencePatternEventId(event.getId())
+              .setName(getTrackName(event))
+              .setStart(startSeconds)
+              .setLength(lengthSeconds)
+              .setAmplitude(event.getVelocity())
+              .setPitch(fabricator.getPitch(note))
+              .build());
 
     } catch (FabricationException e) {
       throw exception(String.format("Could not pick audio for instrumentId=%s, arrangementId=%s, eventId=%s, transpose=%d, shiftPosition=%f, chanceOfRandomChoice=%f",
-        instrument.getId(), segmentChoiceArrangement.getId(), event.getId(), transpose, shiftPosition, chanceOfRandomChoice), e);
+              instrument.getId(), segmentChoiceArrangement.getId(), event.getId(), transpose, shiftPosition, chanceOfRandomChoice), e);
     }
   }
 
@@ -580,9 +583,9 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       // score each audio against the current voice event, with some variability
       for (InstrumentAudioEvent audioEvent : fabricator.getSourceMaterial().getFirstEventsOfAudiosOfInstrument(instrument))
         audioEntityRank.score(audioEvent.getInstrumentAudioId(),
-          Chance.normallyAround(
-            NameIsometry.similarity(getTrackName(event), audioEvent.getName()),
-            SCORE_INSTRUMENT_ENTROPY));
+                Chance.normallyAround(
+                        NameIsometry.similarity(getTrackName(event), audioEvent.getName()),
+                        SCORE_INSTRUMENT_ENTROPY));
 
       // final chosen audio event
       return audioEntityRank.getTop();
@@ -606,10 +609,10 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
   private Note pickNote(Note fromNote, Chord chord, InstrumentAudio audio, Instrument.Type instrumentType) {
     if (Instrument.Type.Harmonic == instrumentType) {
       return fabricator.getNoteAtPitch(audio.getPitch())
-        .conformedTo(chord);
+              .conformedTo(chord);
     } else {
       return fromNote
-        .conformedTo(chord);
+              .conformedTo(chord);
     }
   }
 }

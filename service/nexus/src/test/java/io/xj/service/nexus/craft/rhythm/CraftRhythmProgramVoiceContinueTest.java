@@ -22,7 +22,6 @@ import io.xj.SegmentMeme;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
@@ -33,6 +32,7 @@ import io.xj.service.nexus.craft.CraftFactory;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
+import io.xj.service.nexus.persistence.NexusEntityStoreException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.After;
@@ -181,8 +181,8 @@ public class CraftRhythmProgramVoiceContinueTest {
 
     craftFactory.rhythm(fabricator).doWork();
 
-    Segment result = store.get(Segment.class, segment4.getId()).orElseThrow();
-    assertFalse(store.getAll(SegmentChoice.class, Segment.class, ImmutableList.of(result.getId())).isEmpty());
+    Segment result = store.getSegment(segment4.getId()).orElseThrow();
+    assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
     // test vector for [#154014731] persist Audio pick in memory
     int pickedKick = 0;
     int pickedSnare = 0;
@@ -211,7 +211,7 @@ public class CraftRhythmProgramVoiceContinueTest {
 
    @param excludeRhythmChoiceForSegment3 if desired for the purpose of this test
    */
-  private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws EntityStoreException {
+  private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws NexusEntityStoreException {
     // segment just crafted
     // Testing entities for reference
     segment3 = store.put(Segment.newBuilder()

@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.Chain;
@@ -149,7 +148,7 @@ public class CraftDetailContinueTest {
     craftFactory.detail(fabricator).doWork();
     // assert choice of detail-type sequence
     Collection<SegmentChoice> segmentChoices =
-      store.getAll(SegmentChoice.class, Segment.class, ImmutableList.of(segment4.getId()));
+      store.getAll(segment4.getId(), SegmentChoice.class);
     assertNotNull(SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Detail));
   }
 
@@ -161,7 +160,7 @@ public class CraftDetailContinueTest {
 
     // assert choice of detail-type sequence
     Collection<SegmentChoice> segmentChoices =
-      store.getAll(SegmentChoice.class, Segment.class, ImmutableList.of(segment4.getId()));
+      store.getAll(segment4.getId(), SegmentChoice.class);
     assertNotNull(SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Detail));
   }
 

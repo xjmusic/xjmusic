@@ -17,7 +17,6 @@ import io.xj.SegmentMeme;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
@@ -29,6 +28,7 @@ import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
+import io.xj.service.nexus.persistence.NexusEntityStoreException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.After;
@@ -77,13 +77,13 @@ public class CraftSegmentPatternMemeTest {
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
     injector = AppConfiguration.inject(config,
-      ImmutableSet.of(Modules.override(new NexusWorkModule())
-        .with(new AbstractModule() {
-          @Override
-          public void configure() {
-            bind(HubClient.class).toInstance(hubClient);
-          }
-        })));
+            ImmutableSet.of(Modules.override(new NexusWorkModule())
+                    .with(new AbstractModule() {
+                      @Override
+                      public void configure() {
+                        bind(HubClient.class).toInstance(hubClient);
+                      }
+                    })));
     craftFactory = injector.getInstance(CraftFactory.class);
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
@@ -97,35 +97,35 @@ public class CraftSegmentPatternMemeTest {
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     when(hubClient.ingest(any(), any(), any(), any()))
-      .thenReturn(new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB2().stream()
-      ).collect(Collectors.toList())));
+            .thenReturn(new HubContent(Streams.concat(
+                    fake.setupFixtureB1().stream(),
+                    fake.setupFixtureB2().stream()
+            ).collect(Collectors.toList())));
 
 
     // Chain "Test Print #1" has 5 total segments
     chain1 = store.put(buildChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
     store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setTargetId(fake.library2.getId())
-      .setType(ChainBinding.Type.Library)
-      .build());
+            .setId(UUID.randomUUID().toString())
+            .setChainId(chain1.getId())
+            .setTargetId(fake.library2.getId())
+            .setType(ChainBinding.Type.Library)
+            .build());
 
     // Chain "Test Print #1" has this segment that was just crafted
     segment1 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setOffset(1L)
-      .setState(Segment.State.Crafted)
-      .setBeginAt("2017-02-14T12:02:04.000001Z")
-      .setEndAt("2017-02-14T12:02:36.000001Z")
-      .setKey("F Major")
-      .setTotal(64)
-      .setDensity(0.30)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .build());
+            .setId(UUID.randomUUID().toString())
+            .setChainId(chain1.getId())
+            .setOffset(1L)
+            .setState(Segment.State.Crafted)
+            .setBeginAt("2017-02-14T12:02:04.000001Z")
+            .setEndAt("2017-02-14T12:02:36.000001Z")
+            .setKey("F Major")
+            .setTotal(64)
+            .setDensity(0.30)
+            .setTempo(120.0)
+            .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+            .build());
     store.put(buildSegmentChoice(segment1, Program.Type.Macro, fake.program4_sequence1_binding0, 3));
     store.put(buildSegmentChoice(segment1, Program.Type.Main, fake.program5_sequence1_binding0, 5));
   }
@@ -147,19 +147,19 @@ public class CraftSegmentPatternMemeTest {
 
     assertEquals(Segment.Type.NextMacro, segment2.getType());
     assertSameItems(Lists.newArrayList("Regret", "Wild", "Hindsight", "Tropical"),
-      Entities.namesOf(store.getAll(SegmentMeme.class, Segment.class, ImmutableList.of(segment2.getId()))));
+            Entities.namesOf(store.getAll(segment2.getId(), SegmentMeme.class)));
 
     assertEquals(Segment.Type.Continue, segment3.getType());
     assertSameItems(Lists.newArrayList("Wild", "Hindsight", "Pride", "Shame", "Tropical"),
-      Entities.namesOf(store.getAll(SegmentMeme.class, Segment.class, ImmutableList.of(segment3.getId()))));
+            Entities.namesOf(store.getAll(segment3.getId(), SegmentMeme.class)));
 
     assertEquals(Segment.Type.Continue, segment3.getType());
     assertSameItems(Lists.newArrayList("Wild", "Cozy", "Optimism", "Outlook", "Tropical"),
-      Entities.namesOf(store.getAll(SegmentMeme.class, Segment.class, ImmutableList.of(segment4.getId()))));
+            Entities.namesOf(store.getAll(segment4.getId(), SegmentMeme.class)));
 
     assertEquals(Segment.Type.Continue, segment3.getType());
     assertSameItems(Lists.newArrayList("Wild", "Cozy", "Pessimism", "Outlook", "Tropical"),
-      Entities.namesOf(store.getAll(SegmentMeme.class, Segment.class, ImmutableList.of(segment5.getId()))));
+            Entities.namesOf(store.getAll(segment5.getId(), SegmentMeme.class)));
   }
 
   /**
@@ -178,7 +178,7 @@ public class CraftSegmentPatternMemeTest {
     Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), craftingSegment);
     craftFactory.macroMain(fabricator).doWork();
     updateState(segment.getId(), Segment.State.Crafted);
-    return store.get(Segment.class, segment.getId()).orElseThrow();
+    return store.getSegment(segment.getId()).orElseThrow();
   }
 
   /**
@@ -187,8 +187,8 @@ public class CraftSegmentPatternMemeTest {
    @param segmentId of Segment to update
    @param state     to update Segment to
    */
-  private void updateState(String segmentId, Segment.State state) throws EntityStoreException {
-    store.put(store.get(Segment.class, segmentId).orElseThrow().toBuilder().setState(state).build());
+  private void updateState(String segmentId, Segment.State state) throws NexusEntityStoreException {
+    store.put(store.getSegment(segmentId).orElseThrow().toBuilder().setState(state).build());
   }
 
 }

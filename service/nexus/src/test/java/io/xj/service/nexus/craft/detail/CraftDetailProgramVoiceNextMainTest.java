@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.Chain;
@@ -18,7 +17,6 @@ import io.xj.SegmentChord;
 import io.xj.SegmentMeme;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
@@ -29,6 +27,7 @@ import io.xj.service.nexus.craft.CraftFactory;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
+import io.xj.service.nexus.persistence.NexusEntityStoreException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.Before;
@@ -164,7 +163,7 @@ public class CraftDetailProgramVoiceNextMainTest {
 
    @param excludeDetailChoiceForSegment3 if desired for the purpose of this test
    */
-  private void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws EntityStoreException {
+  private void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws NexusEntityStoreException {
     // segment just crafted
     // Testing entities for reference
     Segment segment3 = store.put(Segment.newBuilder()

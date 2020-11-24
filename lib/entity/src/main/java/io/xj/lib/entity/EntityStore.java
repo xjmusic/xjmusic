@@ -1,6 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.entity;
 
+import com.google.protobuf.MessageLite;
+import io.xj.lib.util.Value;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -13,8 +16,7 @@ import java.util.Optional;
 public interface EntityStore {
 
   /**
-   Put a {@link N} into the record store.
-   Requires PayloadDataType.HasOne in order to infer the entity type and id, for computing the key
+   Put an entity into the store.
 
    @param <N>    types of entities
    @param entity to store
@@ -33,8 +35,7 @@ public interface EntityStore {
   <N> Collection<N> putAll(Collection<N> entities) throws EntityStoreException;
 
   /**
-   Get an entity by type and id from the record store in the form of a {@link N}
-   Will always have PayloadDataType.HasOne in order to have inferred the entity type and id
+   Get an entity by type and id from the store
 
    @param <N> types of entities
    @return N of given type and id
@@ -43,7 +44,7 @@ public interface EntityStore {
   <N> Optional<N> get(Class<N> type, String id) throws EntityStoreException;
 
   /**
-   Get all entities by type from the record store
+   Get all entities by type from the store
 
    @param <N>  types of entities
    @param type of entity
@@ -53,7 +54,7 @@ public interface EntityStore {
   <N> Collection<N> getAll(Class<N> type) throws EntityStoreException;
 
   /**
-   Get all entities by type and a belongs-to relationship from the record store
+   Get all entities by type and a belongs-to relationship from the store
 
    @param <N>           types of entities
    @param <B>           types of belongs-to entities

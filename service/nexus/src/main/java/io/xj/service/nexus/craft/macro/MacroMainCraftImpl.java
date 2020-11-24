@@ -9,7 +9,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.Program;
 import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceBinding;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChord;

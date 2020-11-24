@@ -4,7 +4,6 @@ package io.xj.service.nexus.work;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
@@ -89,10 +88,10 @@ public class NexusWorkImplTest {
 
   @Test
   public void fabricatesSegments() throws Exception {
-    var account1 = store.put(Account.newBuilder()
+    var account1 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("palm tree")
-      .build());
+      .build();
     var chain1 = store.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())

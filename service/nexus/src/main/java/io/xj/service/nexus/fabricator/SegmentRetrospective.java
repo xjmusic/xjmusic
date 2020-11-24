@@ -7,7 +7,7 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentMeme;
-import io.xj.lib.entity.EntityStoreException;
+import io.xj.service.nexus.persistence.NexusEntityStoreException;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -42,7 +42,7 @@ public interface SegmentRetrospective {
    @return choice of given type
    @throws FabricationException if no such choice type exists
    */
-  SegmentChoice getChoiceOfType(Segment segment, Program.Type type) throws FabricationException, EntityStoreException;
+  SegmentChoice getChoiceOfType(Segment segment, Program.Type type) throws FabricationException, NexusEntityStoreException;
 
   /**
    Get the arrangements for a given choice

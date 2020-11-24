@@ -84,10 +84,10 @@ public class JanitorWorkerImplTest {
 
   @Test
   public void deletesSegments() throws Exception {
-    var account1 = store.put(Account.newBuilder()
+    var account1 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("palm tree")
-      .build());
+      .build();
     var now = Instant.now();
     var chain1 = store.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())

@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.Chain;
@@ -19,7 +18,6 @@ import io.xj.SegmentMeme;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
@@ -30,6 +28,7 @@ import io.xj.service.nexus.craft.CraftFactory;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
+import io.xj.service.nexus.persistence.NexusEntityStoreException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.Before;
@@ -120,8 +119,8 @@ public class CraftRhythmProgramVoiceInitialTest {
 
     craftFactory.rhythm(fabricator).doWork();
 
-    Segment result = store.get(Segment.class, segment6.getId()).orElseThrow();
-    assertFalse(store.getAll(SegmentChoice.class, Segment.class, ImmutableList.of(result.getId())).isEmpty());
+    Segment result = store.getSegment(segment6.getId()).orElseThrow();
+    assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
     // test vector for [#154014731] persist Audio pick in memory
     int pickedKick = 0;
     int pickedSnare = 0;
@@ -155,7 +154,7 @@ public class CraftRhythmProgramVoiceInitialTest {
   /**
    Insert fixture segment 6, including the rhythm choice only if specified
    */
-  private void insertSegments() throws EntityStoreException {
+  private void insertSegments() throws NexusEntityStoreException {
     // segment crafted
     Segment segment5 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())

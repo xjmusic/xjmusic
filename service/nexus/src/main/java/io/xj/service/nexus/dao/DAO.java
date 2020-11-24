@@ -2,7 +2,7 @@
 
 package io.xj.service.nexus.dao;
 
-import com.google.protobuf.MessageLite ;
+import com.google.protobuf.MessageLite;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;

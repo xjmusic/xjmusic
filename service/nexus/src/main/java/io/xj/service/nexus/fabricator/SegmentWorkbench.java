@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.fabricator;
 
-import com.google.protobuf.MessageLite ;
+import com.google.protobuf.MessageLite;
 import io.xj.Chain;
 import io.xj.Program;
 import io.xj.Segment;

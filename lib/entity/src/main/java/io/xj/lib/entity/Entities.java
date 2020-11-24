@@ -541,13 +541,13 @@ public enum Entities {
    Get the belongsToId attribute value for a given target entity and key
 
    @param entity to get belongsToId attribute value from
-   @param key    of belong-to relationship to get
+   @param belongsToType    of belong-to relationship to get
    @param <R>    entity type
    @return Optional<String> value of belongsToId attribute from given entity
    @throws EntityException on failure to get relationship value
    */
-  public static <R> Optional<String> getBelongsToId(R entity, String key) throws EntityException {
-    Optional<Object> raw = get(entity, toIdAttribute(toBelongsTo(key)));
+  public static <R> Optional<String> getBelongsToId(R entity, String belongsToType) throws EntityException {
+    Optional<Object> raw = get(entity, toIdAttribute(toBelongsTo(belongsToType)));
     if (raw.isEmpty()) return Optional.empty();
     try {
       return Optional.of(String.valueOf(raw.get()));

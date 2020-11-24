@@ -74,13 +74,13 @@ public class DubDubMasterWaveformPrerollTest {
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
     var injector = AppConfiguration.inject(config,
-      ImmutableSet.of(Modules.override(new NexusWorkModule())
-        .with(new AbstractModule() {
-          @Override
-          public void configure() {
-            bind(HubClient.class).toInstance(hubClient);
-          }
-        })));
+            ImmutableSet.of(Modules.override(new NexusWorkModule())
+                    .with(new AbstractModule() {
+                      @Override
+                      public void configure() {
+                        bind(HubClient.class).toInstance(hubClient);
+                      }
+                    })));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     dubFactory = injector.getInstance(DubFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
@@ -94,26 +94,26 @@ public class DubDubMasterWaveformPrerollTest {
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     when(hubClient.ingest(any(), any(), any(), any()))
-      .thenReturn(new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB3().stream()
-      ).collect(Collectors.toList())));
+            .thenReturn(new HubContent(Streams.concat(
+                    fake.setupFixtureB1().stream(),
+                    fake.setupFixtureB3().stream()
+            ).collect(Collectors.toList())));
 
     // Chain "Print #2" has 1 initial segment in dubbing state - DubMaster is complete
     chain2 = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(fake.account1.getId())
-      .setName("Print #2")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2014-08-12T12:17:02.527142Z")
-      .build());
+            .setId(UUID.randomUUID().toString())
+            .setAccountId(fake.account1.getId())
+            .setName("Print #2")
+            .setType(Chain.Type.Production)
+            .setState(Chain.State.Fabricate)
+            .setStartAt("2014-08-12T12:17:02.527142Z")
+            .build());
     store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain2.getId())
-      .setTargetId(fake.library2.getId())
-      .setType(ChainBinding.Type.Library)
-      .build());
+            .setId(UUID.randomUUID().toString())
+            .setChainId(chain2.getId())
+            .setTargetId(fake.library2.getId())
+            .setType(ChainBinding.Type.Library)
+            .build());
 
     segment6 = store.put(buildSegment(chain2, 0, Segment.State.Dubbing, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:07.384616Z"), "C minor", 16, 0.55, 130, "chains-1-segments-9f7s89d8a7892", "wav"));
     store.put(buildSegmentChoice(segment6, Program.Type.Macro, fake.program4_sequence0_binding0, 0));
@@ -144,7 +144,7 @@ public class DubDubMasterWaveformPrerollTest {
 
     dubFactory.master(fabricator).doWork();
 
-    Segment resultSegment = store.get(Segment.class, segment6.getId()).orElseThrow();
+    Segment resultSegment = store.getSegment(segment6.getId()).orElseThrow();
     assertEquals(0.01, resultSegment.getWaveformPreroll(), 0.01);
     // future test: success of dub master continue test
   }
