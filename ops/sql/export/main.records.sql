@@ -5,7 +5,7 @@
 --
 
 -- Dumped from database version 11.6 (Debian 11.6-1.pgdg90+1)
--- Dumped by pg_dump version 13.0 (Ubuntu 13.0-1.pgdg18.04+1)
+-- Dumped by pg_dump version 13.1 (Ubuntu 13.1-1.pgdg20.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -19,7 +19,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Data for Name: flyway_schema_history; Type: TABLE DATA; Schema: public; Owner: root
+-- Data for Name: flyway_schema_history; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.flyway_schema_history (installed_rank, version, description, type, script, checksum, installed_by, installed_on, execution_time, success) FROM stdin;
@@ -27,7 +27,7 @@ COPY public.flyway_schema_history (installed_rank, version, description, type, s
 
 
 --
--- Data for Name: account; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: account; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.account (id, name) FROM stdin;
@@ -41,7 +41,7 @@ d9ab2ee6-a9ca-11ea-9cb5-47890209133b	Ian Hersey Sandbox
 
 
 --
--- Data for Name: user; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: user; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj."user" (id, name, email, avatar_url) FROM stdin;
@@ -98,7 +98,7 @@ COPY xj."user" (id, name, email, avatar_url) FROM stdin;
 
 
 --
--- Data for Name: account_user; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: account_user; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.account_user (id, user_id, account_id) FROM stdin;
@@ -123,7 +123,7 @@ dd314d8a-29e4-11eb-9bf6-abcffbc671ff	488ada38-16ea-11ea-88e3-573050fbaae5	14e468
 
 
 --
--- Data for Name: library; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: library; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.library (id, name, account_id) FROM stdin;
@@ -138,7 +138,7 @@ fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Cool Ambience™ Sandbox	14e58a74-16eb-11ea
 
 
 --
--- Data for Name: instrument; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: instrument; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.instrument (id, library_id, type, state, name, density, config) FROM stdin;
@@ -234,7 +234,7 @@ d4fd5280-1eef-11eb-8ac6-9bc4d83225a1	1509102a-16eb-11ea-8a37-4764c2a771db	Harmon
 
 
 --
--- Data for Name: instrument_audio; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: instrument_audio; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.instrument_audio (id, instrument_id, name, waveform_key, start, length, tempo, pitch, density) FROM stdin;
@@ -2619,7 +2619,7 @@ f8fd498c-2062-11eb-a29a-ab0d68c0e38a	92220d48-2061-11eb-a29a-9f2dfa197751	F3	ins
 
 
 --
--- Data for Name: instrument_audio_chord; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: instrument_audio_chord; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.instrument_audio_chord (id, instrument_id, instrument_audio_id, name, "position") FROM stdin;
@@ -2633,7 +2633,7 @@ COPY xj.instrument_audio_chord (id, instrument_id, instrument_audio_id, name, "p
 
 
 --
--- Data for Name: instrument_audio_event; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: instrument_audio_event; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.instrument_audio_event (id, instrument_id, instrument_audio_id, name, velocity, "position", duration, note) FROM stdin;
@@ -3321,6 +3321,7 @@ a692a971-4382-4115-b1b8-707a3defe4dc	06121a8e-60d4-11ea-ba4d-8786ea357f01	55b52d
 204a75bc-3655-4289-a1c9-75e5ca62ca20	06121a8e-60d4-11ea-ba4d-8786ea357f01	214d03e3-69a7-4960-bf02-5dd2e3dcbb17	HIHATOPEN	1	0	1	B8
 67eaa98e-5ccf-469c-b997-0197388946c4	06121a8e-60d4-11ea-ba4d-8786ea357f01	48dd37fc-e456-44da-857b-52e0b3b4b5d5	SNARE	1	0	1	E4
 d42192f9-e6c8-4c87-a704-231a8086e82b	06121a8e-60d4-11ea-ba4d-8786ea357f01	363af5f3-4705-4aa0-ba90-b7d37cdcb1e2	KICK	1	0	1	A2
+b688bb94-73ca-11ea-b3a4-07e269f1a441	d8de4aec-6317-11ea-a6db-9f44c189845f	c13c4b2e-635c-11ea-ad65-a7f22dedd819	TOM	1	0	1	X
 28178303-d141-417c-b07e-2ff0340c5fc2	06121a8e-60d4-11ea-ba4d-8786ea357f01	92774503-066f-430b-8714-d1bd1181f141	KICK	1	0	1	A1
 82e38145-f281-4e79-a070-542b2de290d8	06121a8e-60d4-11ea-ba4d-8786ea357f01	da564e23-d641-4f53-a415-5bc89cff9862	HIHAT	1	0	1	F#9
 c5d0ee68-23f5-42e3-acd6-caf7b7e81b4d	06121a8e-60d4-11ea-ba4d-8786ea357f01	6414d185-627d-40a1-a74f-b7040d5f377f	HIHATOPEN	1	0	1	D9
@@ -3624,6 +3625,7 @@ bd903b11-348f-4847-9270-c64897438554	30933234-60d4-11ea-b41e-af865edbb83e	7fe003
 c956548e-8679-46a0-92ee-b53fcaefb1a0	30933234-60d4-11ea-b41e-af865edbb83e	bd07744b-d491-47c4-900b-ab12e7c432ab	CRASH	1	0	1	F#4
 b8000ae9-67e3-4907-a956-5c84cc441eae	30933234-60d4-11ea-b41e-af865edbb83e	04aaf3cc-9eb4-44dc-9dc9-9eb90bdd9195	SNARE	1	0	1	B3
 e7dceb50-5060-47c3-ad20-6770c2643941	30933234-60d4-11ea-b41e-af865edbb83e	b40617d7-1fc0-47db-8fce-1b3874f216c4	TOM	1	0	1	D#6
+a9a1e805-05b5-4d3d-af7c-72fa4f39b273	af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	5ff577eb-7b24-4553-9095-cb0c59c8e8a4	PAD	1	0	7	A#4
 2bbdbdce-0d19-486d-b150-d324b3082d8f	30933234-60d4-11ea-b41e-af865edbb83e	054d5f54-002c-436e-ac54-93092d75fa4e	CRASH	1	0	1	B5
 438163b2-6561-4b7b-b5dd-c8413d4b08e5	30933234-60d4-11ea-b41e-af865edbb83e	3efdbaf8-15f1-489a-83cd-180a789c3d48	SNARE	1	0	1	X
 8902ef66-3e79-4fa2-aca9-e06e5962d2be	30933234-60d4-11ea-b41e-af865edbb83e	f09a1f3b-60a0-4c32-9189-56f197e6acaf	SNARE	1	0	1	B4
@@ -3702,7 +3704,6 @@ f1f99902-73c8-11ea-ac58-4f35bf9858e0	0c668776-64d5-11ea-acd9-c772fe2ee43d	2ea2be
 682f9cf6-73ca-11ea-b3a4-9beec5a5cdd6	d8de4aec-6317-11ea-a6db-9f44c189845f	6e564180-6357-11ea-98fc-bf17b6f8d96a	SNARE	1	0	1	X
 7e2adde0-73ca-11ea-b3a4-4f6713a7fb6a	d8de4aec-6317-11ea-a6db-9f44c189845f	771b301a-635b-11ea-9228-4b749ba0bb4b	TOM	1	0	1	X
 a59b2ea2-73ca-11ea-b3a4-2bcd0e31885b	d8de4aec-6317-11ea-a6db-9f44c189845f	4acd64f0-635c-11ea-ad65-278bf9ff3df6	TOM	1	0	1	X
-b688bb94-73ca-11ea-b3a4-07e269f1a441	d8de4aec-6317-11ea-a6db-9f44c189845f	c13c4b2e-635c-11ea-ad65-a7f22dedd819	TOM	1	0	1	X
 c13c3df4-73ca-11ea-b3a4-97ada94cf3cc	d8de4aec-6317-11ea-a6db-9f44c189845f	2b76e99a-635d-11ea-ad65-ff59031d2f42	KICK	1	0	1	X
 cac1042c-73ca-11ea-b3a4-8be0e8e0678b	d8de4aec-6317-11ea-a6db-9f44c189845f	58520814-635d-11ea-ad65-33ca5d99272f	KICK	1	0	1	X
 d9c396f6-73ca-11ea-b3a4-175e2cd3b447	d8de4aec-6317-11ea-a6db-9f44c189845f	97727c2c-635d-11ea-ad65-2b214edada1d	KICK	1	0	1	X
@@ -3935,7 +3936,6 @@ fcb47810-1bae-11eb-b5e8-5b1b432ead2c	35657db2-1ba5-11eb-a9a2-c3b8f00bc440	1f1e43
 65f1dec7-6018-4107-ac65-b998bb773043	af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	32a6201e-6a79-499f-9bce-ab456f678f58	PAD	1	0	7	B5
 bfecbd62-4cec-4289-b581-3f258c173605	af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	b1fa65bc-84c5-42fb-86b2-2162c2c5af6e	PAD	1	0	7	B6
 57d4e4d0-c4a2-435b-841a-0942ea257fae	af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	abf2f8ff-7e33-4a1c-ad65-9a45a6ce26c8	PAD	1	0	7	A#5
-a9a1e805-05b5-4d3d-af7c-72fa4f39b273	af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	5ff577eb-7b24-4553-9095-cb0c59c8e8a4	PAD	1	0	7	A#4
 a412aeca-b160-4520-aea9-012db8e5c331	af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	19cbee47-90ac-4228-b4dc-9922fb8c2381	PAD	1	0	7	A#6
 f0d49a7d-1777-4ace-9463-f8ecb155f1cb	af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	e1e8cb84-2218-45b5-9785-c04df238531d	PAD	1	0	7	A4
 c9d8ae72-61cd-466c-a511-659f5b33d4db	af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	d845f7dc-61be-4933-a54f-bc1ed44e588d	PAD	1	0	7	A5
@@ -5006,7 +5006,7 @@ fa8f9248-2065-11eb-8943-53ab2b9fab04	92220d48-2061-11eb-a29a-9f2dfa197751	6455fc
 
 
 --
--- Data for Name: instrument_meme; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: instrument_meme; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.instrument_meme (id, instrument_id, name) FROM stdin;
@@ -5182,7 +5182,7 @@ d511f446-2067-11eb-87d3-2fcb7784528a	92220d48-2061-11eb-a29a-9f2dfa197751	LARGE
 
 
 --
--- Data for Name: program; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: program; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.program (id, library_id, state, key, tempo, type, name, density, config) FROM stdin;
@@ -5294,7 +5294,7 @@ f7233daa-29fa-11eb-b911-13cde63bb537	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	
 
 
 --
--- Data for Name: program_meme; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: program_meme; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.program_meme (id, name, program_id) FROM stdin;
@@ -5424,7 +5424,7 @@ d39c071c-26fe-11eb-8489-87be39ad2b52	WIND	c58c59a6-26fe-11eb-8489-53ccc57e1aa4
 
 
 --
--- Data for Name: program_sequence; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: program_sequence; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.program_sequence (id, program_id, name, key, density, total, tempo) FROM stdin;
@@ -5621,7 +5621,7 @@ b4ac898c-2aa8-11eb-b64d-03bcd7a070e8	af626230-2aa8-11eb-b64d-37407d0cd07d	New Se
 
 
 --
--- Data for Name: program_sequence_binding; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: program_sequence_binding; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.program_sequence_binding (id, program_id, program_sequence_id, "offset") FROM stdin;
@@ -6332,7 +6332,7 @@ f81be05b-1eee-4dc9-b4a8-620c2e27d0b0	924638f2-246d-11eb-b5fe-7b5397769825	986a1c
 
 
 --
--- Data for Name: program_sequence_binding_meme; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: program_sequence_binding_meme; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.program_sequence_binding_meme (id, program_id, program_sequence_binding_id, name) FROM stdin;
@@ -7064,7 +7064,7 @@ e3829b26-fe04-467d-b07e-2f3d849da6b5	924638f2-246d-11eb-b5fe-7b5397769825	a5182f
 
 
 --
--- Data for Name: program_sequence_chord; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: program_sequence_chord; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.program_sequence_chord (id, program_id, program_sequence_id, name, "position") FROM stdin;
@@ -7447,7 +7447,7 @@ f655274e-2aa9-11eb-9080-6f8864f1df82	af626230-2aa8-11eb-b64d-37407d0cd07d	b4ac89
 
 
 --
--- Data for Name: program_sequence_chord_voicing; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: program_sequence_chord_voicing; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.program_sequence_chord_voicing (id, program_id, program_sequence_chord_id, type, notes) FROM stdin;
@@ -7474,7 +7474,7 @@ fb2a44d2-2dd5-11eb-a24f-cb0420357b1d	af626230-2aa8-11eb-b64d-37407d0cd07d	17bae5
 
 
 --
--- Data for Name: program_voice; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: program_voice; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.program_voice (id, program_id, type, name, "order") FROM stdin;
@@ -7568,7 +7568,7 @@ fa468cc0-2a0f-11eb-a844-6776123569e3	1ad8543e-16eb-11ea-8a37-d3089a6baf4d	Bass	N
 
 
 --
--- Data for Name: program_sequence_pattern; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: program_sequence_pattern; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.program_sequence_pattern (id, program_id, program_sequence_id, program_voice_id, name, type, total) FROM stdin;
@@ -7723,7 +7723,7 @@ bfb69148-2926-11eb-a429-2f010cb34a53	2338ba18-0de6-11eb-86d4-2b1a45296a57	29eae2
 
 
 --
--- Data for Name: program_voice_track; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: program_voice_track; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.program_voice_track (id, program_id, program_voice_id, name, "order") FROM stdin;
@@ -7849,7 +7849,7 @@ ff08b3f6-29fa-11eb-b911-53328dc386e3	f7233daa-29fa-11eb-b911-13cde63bb537	fe110a
 
 
 --
--- Data for Name: program_sequence_pattern_event; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: program_sequence_pattern_event; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.program_sequence_pattern_event (id, program_id, program_sequence_pattern_id, program_voice_track_id, velocity, "position", duration, note) FROM stdin;
@@ -8622,7 +8622,7 @@ b8a01cda-2700-11eb-a8c7-3b0d553564cb	c58c59a6-26fe-11eb-8489-53ccc57e1aa4	e3a52f
 
 
 --
--- Data for Name: user_auth; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: user_auth; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.user_auth (id, type, external_access_token, external_refresh_token, external_account, user_id) FROM stdin;
@@ -8637,7 +8637,7 @@ COPY xj.user_auth (id, type, external_access_token, external_refresh_token, exte
 
 
 --
--- Data for Name: user_auth_token; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: user_auth_token; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.user_auth_token (id, user_auth_id, user_id, access_token) FROM stdin;
@@ -8675,7 +8675,7 @@ e71428da-249f-11eb-b368-770a9ddc6f58	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8
 
 
 --
--- Data for Name: user_role; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: user_role; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.user_role (id, type, user_id) FROM stdin;

@@ -48,6 +48,7 @@ COPYRIGHT="Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved
 printf "\-\- ${COPYRIGHT}\n\n" > ${OUTPUT_SQL}
 
 # then append data from only the schema version table
+export PGPASSWORD=postgres
 pg_dump -a \
   --username=${SQL_USER} \
   --host=${SQL_HOST} \

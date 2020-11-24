@@ -5,7 +5,7 @@
 --
 
 -- Dumped from database version 11.6 (Debian 11.6-1.pgdg90+1)
--- Dumped by pg_dump version 13.0 (Ubuntu 13.0-1.pgdg18.04+1)
+-- Dumped by pg_dump version 13.1 (Ubuntu 13.1-1.pgdg20.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -19,13 +19,13 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: xj_dev; Type: DATABASE; Schema: -; Owner: root
+-- Name: xj_dev; Type: DATABASE; Schema: -; Owner: postgres
 --
 
 CREATE DATABASE xj_dev WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'en_US.utf8';
 
 
-ALTER DATABASE xj_dev OWNER TO root;
+ALTER DATABASE xj_dev OWNER TO postgres;
 
 \connect xj_dev
 
@@ -41,13 +41,13 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: xj; Type: SCHEMA; Schema: -; Owner: root
+-- Name: xj; Type: SCHEMA; Schema: -; Owner: postgres
 --
 
 CREATE SCHEMA xj;
 
 
-ALTER SCHEMA xj OWNER TO root;
+ALTER SCHEMA xj OWNER TO postgres;
 
 --
 -- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
@@ -64,7 +64,7 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 --
--- Name: updated_at_now(); Type: FUNCTION; Schema: xj; Owner: root
+-- Name: updated_at_now(); Type: FUNCTION; Schema: xj; Owner: postgres
 --
 
 CREATE FUNCTION xj.updated_at_now() RETURNS trigger
@@ -77,12 +77,12 @@ END;
 $$;
 
 
-ALTER FUNCTION xj.updated_at_now() OWNER TO root;
+ALTER FUNCTION xj.updated_at_now() OWNER TO postgres;
 
 SET default_tablespace = '';
 
 --
--- Name: flyway_schema_history; Type: TABLE; Schema: public; Owner: root
+-- Name: flyway_schema_history; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.flyway_schema_history (
@@ -99,10 +99,10 @@ CREATE TABLE public.flyway_schema_history (
 );
 
 
-ALTER TABLE public.flyway_schema_history OWNER TO root;
+ALTER TABLE public.flyway_schema_history OWNER TO postgres;
 
 --
--- Name: account; Type: TABLE; Schema: xj; Owner: root
+-- Name: account; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.account (
@@ -111,10 +111,10 @@ CREATE TABLE xj.account (
 );
 
 
-ALTER TABLE xj.account OWNER TO root;
+ALTER TABLE xj.account OWNER TO postgres;
 
 --
--- Name: account_user; Type: TABLE; Schema: xj; Owner: root
+-- Name: account_user; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.account_user (
@@ -124,10 +124,10 @@ CREATE TABLE xj.account_user (
 );
 
 
-ALTER TABLE xj.account_user OWNER TO root;
+ALTER TABLE xj.account_user OWNER TO postgres;
 
 --
--- Name: flyway_schema_history; Type: TABLE; Schema: xj; Owner: root
+-- Name: flyway_schema_history; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.flyway_schema_history (
@@ -144,10 +144,10 @@ CREATE TABLE xj.flyway_schema_history (
 );
 
 
-ALTER TABLE xj.flyway_schema_history OWNER TO root;
+ALTER TABLE xj.flyway_schema_history OWNER TO postgres;
 
 --
--- Name: instrument; Type: TABLE; Schema: xj; Owner: root
+-- Name: instrument; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.instrument (
@@ -161,10 +161,10 @@ CREATE TABLE xj.instrument (
 );
 
 
-ALTER TABLE xj.instrument OWNER TO root;
+ALTER TABLE xj.instrument OWNER TO postgres;
 
 --
--- Name: instrument_audio; Type: TABLE; Schema: xj; Owner: root
+-- Name: instrument_audio; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.instrument_audio (
@@ -180,10 +180,10 @@ CREATE TABLE xj.instrument_audio (
 );
 
 
-ALTER TABLE xj.instrument_audio OWNER TO root;
+ALTER TABLE xj.instrument_audio OWNER TO postgres;
 
 --
--- Name: instrument_audio_chord; Type: TABLE; Schema: xj; Owner: root
+-- Name: instrument_audio_chord; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.instrument_audio_chord (
@@ -195,10 +195,10 @@ CREATE TABLE xj.instrument_audio_chord (
 );
 
 
-ALTER TABLE xj.instrument_audio_chord OWNER TO root;
+ALTER TABLE xj.instrument_audio_chord OWNER TO postgres;
 
 --
--- Name: instrument_audio_event; Type: TABLE; Schema: xj; Owner: root
+-- Name: instrument_audio_event; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.instrument_audio_event (
@@ -213,10 +213,10 @@ CREATE TABLE xj.instrument_audio_event (
 );
 
 
-ALTER TABLE xj.instrument_audio_event OWNER TO root;
+ALTER TABLE xj.instrument_audio_event OWNER TO postgres;
 
 --
--- Name: instrument_meme; Type: TABLE; Schema: xj; Owner: root
+-- Name: instrument_meme; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.instrument_meme (
@@ -226,10 +226,10 @@ CREATE TABLE xj.instrument_meme (
 );
 
 
-ALTER TABLE xj.instrument_meme OWNER TO root;
+ALTER TABLE xj.instrument_meme OWNER TO postgres;
 
 --
--- Name: library; Type: TABLE; Schema: xj; Owner: root
+-- Name: library; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.library (
@@ -239,10 +239,10 @@ CREATE TABLE xj.library (
 );
 
 
-ALTER TABLE xj.library OWNER TO root;
+ALTER TABLE xj.library OWNER TO postgres;
 
 --
--- Name: program; Type: TABLE; Schema: xj; Owner: root
+-- Name: program; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.program (
@@ -258,10 +258,10 @@ CREATE TABLE xj.program (
 );
 
 
-ALTER TABLE xj.program OWNER TO root;
+ALTER TABLE xj.program OWNER TO postgres;
 
 --
--- Name: program_meme; Type: TABLE; Schema: xj; Owner: root
+-- Name: program_meme; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.program_meme (
@@ -271,10 +271,10 @@ CREATE TABLE xj.program_meme (
 );
 
 
-ALTER TABLE xj.program_meme OWNER TO root;
+ALTER TABLE xj.program_meme OWNER TO postgres;
 
 --
--- Name: program_sequence; Type: TABLE; Schema: xj; Owner: root
+-- Name: program_sequence; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.program_sequence (
@@ -288,10 +288,10 @@ CREATE TABLE xj.program_sequence (
 );
 
 
-ALTER TABLE xj.program_sequence OWNER TO root;
+ALTER TABLE xj.program_sequence OWNER TO postgres;
 
 --
--- Name: program_sequence_binding; Type: TABLE; Schema: xj; Owner: root
+-- Name: program_sequence_binding; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.program_sequence_binding (
@@ -302,10 +302,10 @@ CREATE TABLE xj.program_sequence_binding (
 );
 
 
-ALTER TABLE xj.program_sequence_binding OWNER TO root;
+ALTER TABLE xj.program_sequence_binding OWNER TO postgres;
 
 --
--- Name: program_sequence_binding_meme; Type: TABLE; Schema: xj; Owner: root
+-- Name: program_sequence_binding_meme; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.program_sequence_binding_meme (
@@ -316,10 +316,10 @@ CREATE TABLE xj.program_sequence_binding_meme (
 );
 
 
-ALTER TABLE xj.program_sequence_binding_meme OWNER TO root;
+ALTER TABLE xj.program_sequence_binding_meme OWNER TO postgres;
 
 --
--- Name: program_sequence_chord; Type: TABLE; Schema: xj; Owner: root
+-- Name: program_sequence_chord; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.program_sequence_chord (
@@ -331,10 +331,10 @@ CREATE TABLE xj.program_sequence_chord (
 );
 
 
-ALTER TABLE xj.program_sequence_chord OWNER TO root;
+ALTER TABLE xj.program_sequence_chord OWNER TO postgres;
 
 --
--- Name: program_sequence_chord_voicing; Type: TABLE; Schema: xj; Owner: root
+-- Name: program_sequence_chord_voicing; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.program_sequence_chord_voicing (
@@ -346,10 +346,10 @@ CREATE TABLE xj.program_sequence_chord_voicing (
 );
 
 
-ALTER TABLE xj.program_sequence_chord_voicing OWNER TO root;
+ALTER TABLE xj.program_sequence_chord_voicing OWNER TO postgres;
 
 --
--- Name: program_sequence_pattern; Type: TABLE; Schema: xj; Owner: root
+-- Name: program_sequence_pattern; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.program_sequence_pattern (
@@ -363,10 +363,10 @@ CREATE TABLE xj.program_sequence_pattern (
 );
 
 
-ALTER TABLE xj.program_sequence_pattern OWNER TO root;
+ALTER TABLE xj.program_sequence_pattern OWNER TO postgres;
 
 --
--- Name: program_sequence_pattern_event; Type: TABLE; Schema: xj; Owner: root
+-- Name: program_sequence_pattern_event; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.program_sequence_pattern_event (
@@ -381,10 +381,10 @@ CREATE TABLE xj.program_sequence_pattern_event (
 );
 
 
-ALTER TABLE xj.program_sequence_pattern_event OWNER TO root;
+ALTER TABLE xj.program_sequence_pattern_event OWNER TO postgres;
 
 --
--- Name: program_voice; Type: TABLE; Schema: xj; Owner: root
+-- Name: program_voice; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.program_voice (
@@ -396,10 +396,10 @@ CREATE TABLE xj.program_voice (
 );
 
 
-ALTER TABLE xj.program_voice OWNER TO root;
+ALTER TABLE xj.program_voice OWNER TO postgres;
 
 --
--- Name: program_voice_track; Type: TABLE; Schema: xj; Owner: root
+-- Name: program_voice_track; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.program_voice_track (
@@ -411,10 +411,10 @@ CREATE TABLE xj.program_voice_track (
 );
 
 
-ALTER TABLE xj.program_voice_track OWNER TO root;
+ALTER TABLE xj.program_voice_track OWNER TO postgres;
 
 --
--- Name: user; Type: TABLE; Schema: xj; Owner: root
+-- Name: user; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj."user" (
@@ -425,10 +425,10 @@ CREATE TABLE xj."user" (
 );
 
 
-ALTER TABLE xj."user" OWNER TO root;
+ALTER TABLE xj."user" OWNER TO postgres;
 
 --
--- Name: user_auth; Type: TABLE; Schema: xj; Owner: root
+-- Name: user_auth; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.user_auth (
@@ -441,10 +441,10 @@ CREATE TABLE xj.user_auth (
 );
 
 
-ALTER TABLE xj.user_auth OWNER TO root;
+ALTER TABLE xj.user_auth OWNER TO postgres;
 
 --
--- Name: user_auth_token; Type: TABLE; Schema: xj; Owner: root
+-- Name: user_auth_token; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.user_auth_token (
@@ -455,10 +455,10 @@ CREATE TABLE xj.user_auth_token (
 );
 
 
-ALTER TABLE xj.user_auth_token OWNER TO root;
+ALTER TABLE xj.user_auth_token OWNER TO postgres;
 
 --
--- Name: user_role; Type: TABLE; Schema: xj; Owner: root
+-- Name: user_role; Type: TABLE; Schema: xj; Owner: postgres
 --
 
 CREATE TABLE xj.user_role (
@@ -468,10 +468,10 @@ CREATE TABLE xj.user_role (
 );
 
 
-ALTER TABLE xj.user_role OWNER TO root;
+ALTER TABLE xj.user_role OWNER TO postgres;
 
 --
--- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: public; Owner: root
+-- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.flyway_schema_history
@@ -479,7 +479,7 @@ ALTER TABLE ONLY public.flyway_schema_history
 
 
 --
--- Name: account account_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: account account_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.account
@@ -487,7 +487,7 @@ ALTER TABLE ONLY xj.account
 
 
 --
--- Name: account_user account_user_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: account_user account_user_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.account_user
@@ -495,7 +495,7 @@ ALTER TABLE ONLY xj.account_user
 
 
 --
--- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.flyway_schema_history
@@ -503,7 +503,7 @@ ALTER TABLE ONLY xj.flyway_schema_history
 
 
 --
--- Name: instrument_audio_chord instrument_audio_chord_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: instrument_audio_chord instrument_audio_chord_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument_audio_chord
@@ -511,7 +511,7 @@ ALTER TABLE ONLY xj.instrument_audio_chord
 
 
 --
--- Name: instrument_audio_event instrument_audio_event_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: instrument_audio_event instrument_audio_event_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument_audio_event
@@ -519,7 +519,7 @@ ALTER TABLE ONLY xj.instrument_audio_event
 
 
 --
--- Name: instrument_audio instrument_audio_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: instrument_audio instrument_audio_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument_audio
@@ -527,7 +527,7 @@ ALTER TABLE ONLY xj.instrument_audio
 
 
 --
--- Name: instrument_meme instrument_meme_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: instrument_meme instrument_meme_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument_meme
@@ -535,7 +535,7 @@ ALTER TABLE ONLY xj.instrument_meme
 
 
 --
--- Name: instrument instrument_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: instrument instrument_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument
@@ -543,7 +543,7 @@ ALTER TABLE ONLY xj.instrument
 
 
 --
--- Name: library library_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: library library_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.library
@@ -551,7 +551,7 @@ ALTER TABLE ONLY xj.library
 
 
 --
--- Name: program_meme program_meme_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_meme program_meme_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_meme
@@ -559,7 +559,7 @@ ALTER TABLE ONLY xj.program_meme
 
 
 --
--- Name: program program_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: program program_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program
@@ -567,7 +567,7 @@ ALTER TABLE ONLY xj.program
 
 
 --
--- Name: program_sequence_binding_meme program_sequence_binding_meme_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_binding_meme program_sequence_binding_meme_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_binding_meme
@@ -575,7 +575,7 @@ ALTER TABLE ONLY xj.program_sequence_binding_meme
 
 
 --
--- Name: program_sequence_binding program_sequence_binding_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_binding program_sequence_binding_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_binding
@@ -583,7 +583,7 @@ ALTER TABLE ONLY xj.program_sequence_binding
 
 
 --
--- Name: program_sequence_chord program_sequence_chord_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_chord program_sequence_chord_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_chord
@@ -591,7 +591,7 @@ ALTER TABLE ONLY xj.program_sequence_chord
 
 
 --
--- Name: program_sequence_chord_voicing program_sequence_chord_voicing_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_chord_voicing program_sequence_chord_voicing_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_chord_voicing
@@ -599,7 +599,7 @@ ALTER TABLE ONLY xj.program_sequence_chord_voicing
 
 
 --
--- Name: program_sequence_pattern_event program_sequence_pattern_event_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_pattern_event program_sequence_pattern_event_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_pattern_event
@@ -607,7 +607,7 @@ ALTER TABLE ONLY xj.program_sequence_pattern_event
 
 
 --
--- Name: program_sequence_pattern program_sequence_pattern_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_pattern program_sequence_pattern_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_pattern
@@ -615,7 +615,7 @@ ALTER TABLE ONLY xj.program_sequence_pattern
 
 
 --
--- Name: program_sequence program_sequence_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence program_sequence_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence
@@ -623,7 +623,7 @@ ALTER TABLE ONLY xj.program_sequence
 
 
 --
--- Name: program_voice program_voice_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_voice program_voice_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_voice
@@ -631,7 +631,7 @@ ALTER TABLE ONLY xj.program_voice
 
 
 --
--- Name: program_voice_track program_voice_track_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_voice_track program_voice_track_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_voice_track
@@ -639,7 +639,7 @@ ALTER TABLE ONLY xj.program_voice_track
 
 
 --
--- Name: user_auth user_auth_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: user_auth user_auth_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.user_auth
@@ -647,7 +647,7 @@ ALTER TABLE ONLY xj.user_auth
 
 
 --
--- Name: user_auth_token user_auth_token_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: user_auth_token user_auth_token_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.user_auth_token
@@ -655,7 +655,7 @@ ALTER TABLE ONLY xj.user_auth_token
 
 
 --
--- Name: user user_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: user user_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj."user"
@@ -663,7 +663,7 @@ ALTER TABLE ONLY xj."user"
 
 
 --
--- Name: user_role user_role_pkey; Type: CONSTRAINT; Schema: xj; Owner: root
+-- Name: user_role user_role_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.user_role
@@ -671,35 +671,35 @@ ALTER TABLE ONLY xj.user_role
 
 
 --
--- Name: flyway_schema_history_s_idx; Type: INDEX; Schema: public; Owner: root
+-- Name: flyway_schema_history_s_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX flyway_schema_history_s_idx ON public.flyway_schema_history USING btree (success);
 
 
 --
--- Name: flyway_schema_history_s_idx; Type: INDEX; Schema: xj; Owner: root
+-- Name: flyway_schema_history_s_idx; Type: INDEX; Schema: xj; Owner: postgres
 --
 
 CREATE INDEX flyway_schema_history_s_idx ON xj.flyway_schema_history USING btree (success);
 
 
 --
--- Name: program_voice_order_idx; Type: INDEX; Schema: xj; Owner: root
+-- Name: program_voice_order_idx; Type: INDEX; Schema: xj; Owner: postgres
 --
 
 CREATE INDEX program_voice_order_idx ON xj.program_voice USING btree ("order");
 
 
 --
--- Name: program_voice_track_order_idx; Type: INDEX; Schema: xj; Owner: root
+-- Name: program_voice_track_order_idx; Type: INDEX; Schema: xj; Owner: postgres
 --
 
 CREATE INDEX program_voice_track_order_idx ON xj.program_voice_track USING btree ("order");
 
 
 --
--- Name: account_user account_user_account_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: account_user account_user_account_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.account_user
@@ -707,7 +707,7 @@ ALTER TABLE ONLY xj.account_user
 
 
 --
--- Name: account_user account_user_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: account_user account_user_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.account_user
@@ -715,7 +715,7 @@ ALTER TABLE ONLY xj.account_user
 
 
 --
--- Name: instrument_audio_chord instrument_audio_chord_instrument_audio_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: instrument_audio_chord instrument_audio_chord_instrument_audio_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument_audio_chord
@@ -723,7 +723,7 @@ ALTER TABLE ONLY xj.instrument_audio_chord
 
 
 --
--- Name: instrument_audio_chord instrument_audio_chord_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: instrument_audio_chord instrument_audio_chord_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument_audio_chord
@@ -731,7 +731,7 @@ ALTER TABLE ONLY xj.instrument_audio_chord
 
 
 --
--- Name: instrument_audio_event instrument_audio_event_instrument_audio_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: instrument_audio_event instrument_audio_event_instrument_audio_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument_audio_event
@@ -739,7 +739,7 @@ ALTER TABLE ONLY xj.instrument_audio_event
 
 
 --
--- Name: instrument_audio_event instrument_audio_event_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: instrument_audio_event instrument_audio_event_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument_audio_event
@@ -747,7 +747,7 @@ ALTER TABLE ONLY xj.instrument_audio_event
 
 
 --
--- Name: instrument_audio instrument_audio_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: instrument_audio instrument_audio_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument_audio
@@ -755,7 +755,7 @@ ALTER TABLE ONLY xj.instrument_audio
 
 
 --
--- Name: instrument instrument_library_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: instrument instrument_library_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument
@@ -763,7 +763,7 @@ ALTER TABLE ONLY xj.instrument
 
 
 --
--- Name: instrument_meme instrument_meme_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: instrument_meme instrument_meme_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.instrument_meme
@@ -771,7 +771,7 @@ ALTER TABLE ONLY xj.instrument_meme
 
 
 --
--- Name: library library_account_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: library library_account_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.library
@@ -779,7 +779,7 @@ ALTER TABLE ONLY xj.library
 
 
 --
--- Name: program program_library_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program program_library_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program
@@ -787,7 +787,7 @@ ALTER TABLE ONLY xj.program
 
 
 --
--- Name: program_meme program_meme_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_meme program_meme_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_meme
@@ -795,7 +795,7 @@ ALTER TABLE ONLY xj.program_meme
 
 
 --
--- Name: program_sequence_binding_meme program_sequence_binding_meme_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_binding_meme program_sequence_binding_meme_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_binding_meme
@@ -803,7 +803,7 @@ ALTER TABLE ONLY xj.program_sequence_binding_meme
 
 
 --
--- Name: program_sequence_binding_meme program_sequence_binding_meme_program_sequence_binding_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_binding_meme program_sequence_binding_meme_program_sequence_binding_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_binding_meme
@@ -811,7 +811,7 @@ ALTER TABLE ONLY xj.program_sequence_binding_meme
 
 
 --
--- Name: program_sequence_binding program_sequence_binding_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_binding program_sequence_binding_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_binding
@@ -819,7 +819,7 @@ ALTER TABLE ONLY xj.program_sequence_binding
 
 
 --
--- Name: program_sequence_binding program_sequence_binding_program_sequence_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_binding program_sequence_binding_program_sequence_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_binding
@@ -827,7 +827,7 @@ ALTER TABLE ONLY xj.program_sequence_binding
 
 
 --
--- Name: program_sequence_chord program_sequence_chord_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_chord program_sequence_chord_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_chord
@@ -835,7 +835,7 @@ ALTER TABLE ONLY xj.program_sequence_chord
 
 
 --
--- Name: program_sequence_chord program_sequence_chord_program_sequence_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_chord program_sequence_chord_program_sequence_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_chord
@@ -843,7 +843,7 @@ ALTER TABLE ONLY xj.program_sequence_chord
 
 
 --
--- Name: program_sequence_chord_voicing program_sequence_chord_voicing_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_chord_voicing program_sequence_chord_voicing_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_chord_voicing
@@ -851,7 +851,7 @@ ALTER TABLE ONLY xj.program_sequence_chord_voicing
 
 
 --
--- Name: program_sequence_chord_voicing program_sequence_chord_voicing_program_sequence_chord_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_chord_voicing program_sequence_chord_voicing_program_sequence_chord_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_chord_voicing
@@ -859,7 +859,7 @@ ALTER TABLE ONLY xj.program_sequence_chord_voicing
 
 
 --
--- Name: program_sequence_pattern_event program_sequence_pattern_event_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_pattern_event program_sequence_pattern_event_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_pattern_event
@@ -867,7 +867,7 @@ ALTER TABLE ONLY xj.program_sequence_pattern_event
 
 
 --
--- Name: program_sequence_pattern_event program_sequence_pattern_event_program_sequence_pattern_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_pattern_event program_sequence_pattern_event_program_sequence_pattern_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_pattern_event
@@ -875,7 +875,7 @@ ALTER TABLE ONLY xj.program_sequence_pattern_event
 
 
 --
--- Name: program_sequence_pattern_event program_sequence_pattern_event_program_voice_track_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_pattern_event program_sequence_pattern_event_program_voice_track_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_pattern_event
@@ -883,7 +883,7 @@ ALTER TABLE ONLY xj.program_sequence_pattern_event
 
 
 --
--- Name: program_sequence_pattern program_sequence_pattern_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_pattern program_sequence_pattern_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_pattern
@@ -891,7 +891,7 @@ ALTER TABLE ONLY xj.program_sequence_pattern
 
 
 --
--- Name: program_sequence_pattern program_sequence_pattern_program_sequence_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_pattern program_sequence_pattern_program_sequence_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_pattern
@@ -899,7 +899,7 @@ ALTER TABLE ONLY xj.program_sequence_pattern
 
 
 --
--- Name: program_sequence_pattern program_sequence_pattern_program_voice_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence_pattern program_sequence_pattern_program_voice_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence_pattern
@@ -907,7 +907,7 @@ ALTER TABLE ONLY xj.program_sequence_pattern
 
 
 --
--- Name: program_sequence program_sequence_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_sequence program_sequence_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_sequence
@@ -915,7 +915,7 @@ ALTER TABLE ONLY xj.program_sequence
 
 
 --
--- Name: program_voice program_voice_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_voice program_voice_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_voice
@@ -923,7 +923,7 @@ ALTER TABLE ONLY xj.program_voice
 
 
 --
--- Name: program_voice_track program_voice_track_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_voice_track program_voice_track_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_voice_track
@@ -931,7 +931,7 @@ ALTER TABLE ONLY xj.program_voice_track
 
 
 --
--- Name: program_voice_track program_voice_track_program_voice_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: program_voice_track program_voice_track_program_voice_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.program_voice_track
@@ -939,7 +939,7 @@ ALTER TABLE ONLY xj.program_voice_track
 
 
 --
--- Name: user_auth_token user_auth_token_user_auth_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: user_auth_token user_auth_token_user_auth_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.user_auth_token
@@ -947,7 +947,7 @@ ALTER TABLE ONLY xj.user_auth_token
 
 
 --
--- Name: user_auth_token user_auth_token_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: user_auth_token user_auth_token_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.user_auth_token
@@ -955,7 +955,7 @@ ALTER TABLE ONLY xj.user_auth_token
 
 
 --
--- Name: user_auth user_auth_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: user_auth user_auth_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.user_auth
@@ -963,7 +963,7 @@ ALTER TABLE ONLY xj.user_auth
 
 
 --
--- Name: user_role user_role_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: root
+-- Name: user_role user_role_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.user_role
@@ -979,7 +979,7 @@ ALTER TABLE ONLY xj.user_role
 --
 
 -- Dumped from database version 11.6 (Debian 11.6-1.pgdg90+1)
--- Dumped by pg_dump version 13.0 (Ubuntu 13.0-1.pgdg18.04+1)
+-- Dumped by pg_dump version 13.1 (Ubuntu 13.1-1.pgdg20.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -993,7 +993,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Data for Name: flyway_schema_history; Type: TABLE DATA; Schema: xj; Owner: root
+-- Data for Name: flyway_schema_history; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
 COPY xj.flyway_schema_history (installed_rank, version, description, type, script, checksum, installed_by, installed_on, execution_time, success) FROM stdin;

@@ -7,4 +7,5 @@
 SQL_USER="postgres"
 SQL_PORT=5400
 
+export PGPASSWORD=postgres
 psql --user=${SQL_USER} --host=127.0.0.1 --port=${SQL_PORT} "$@"

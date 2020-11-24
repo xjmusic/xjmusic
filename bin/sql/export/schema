@@ -15,6 +15,7 @@ SQL_DB="${3}"
 SQL_HOST="${4}"
 SQL_PORT="${5}"
 OUTPUT_SQL="${6}"
+export PGPASSWORD=postgres
 
 # Tables
 SCHEMA_VERSION_TABLE="xj.flyway_schema_history"
