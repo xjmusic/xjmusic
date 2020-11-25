@@ -2,6 +2,7 @@
 
 package io.xj.service.nexus.work;
 
+import com.amazonaws.services.cloudwatch.model.AmazonCloudWatchException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
@@ -33,14 +34,16 @@ import java.time.Instant;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JanitorWorkerImplTest {
+  private JanitorWorker subject;
   private static final int NUMBER_OF_SEGMENTS = 1000;
   private static final int SEGMENT_LENGTH_SECONDS = 30;
   private static final int PAST_SECONDS = 10000;
   private NexusEntityStore store;
-  private JanitorWorker subject;
   private static final int MILLIS_PER_SECOND = 1000;
   private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
   long startTime = System.currentTimeMillis();
@@ -119,6 +122,16 @@ public class JanitorWorkerImplTest {
     // Check segments actually deleted
     var segments = segmentDAO.readMany(HubClientAccess.internal(), ImmutableList.of(chain1.getId()));
     assertEquals(0, segments.size());
+  }
+
+  /**
+   * [#175899787] Worker should log warning but not crash when telemetry fails to send
+   */
+  @Test
+  public void warnsWithoutCrashingOnTelemetryFailure() {
+    doThrow(new AmazonCloudWatchException("Fails!")).when(telemetryProvider).send(any(), any(), any(), any());
+
+    subject.run();
   }
 
 }

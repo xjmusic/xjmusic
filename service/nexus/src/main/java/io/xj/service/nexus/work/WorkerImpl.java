@@ -1,5 +1,6 @@
 package io.xj.service.nexus.work;
 
+import com.amazonaws.services.cloudwatch.model.AmazonCloudWatchException;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import com.google.inject.Inject;
 import io.xj.lib.telemetry.TelemetryProvider;
@@ -72,7 +73,11 @@ public abstract class WorkerImpl implements Runnable {
    @param value of count-type datum
    */
   protected void observeCount(String name, double value) {
-    metrics.send(getMetricNamespace(), name, StandardUnit.Count, value);
+    try {
+      metrics.send(getMetricNamespace(), name, StandardUnit.Count, value);
+    } catch (AmazonCloudWatchException e) {
+      log.warn("Failed to send metrics to Amazon CloudWatch because {}", e.getMessage());
+    }
   }
 
   /**
@@ -82,6 +87,10 @@ public abstract class WorkerImpl implements Runnable {
    @param value of seconds-type datum
    */
   protected void observeSeconds(String name, double value) {
-    metrics.send(getMetricNamespace(), name, StandardUnit.Seconds, value);
+    try {
+      metrics.send(getMetricNamespace(), name, StandardUnit.Seconds, value);
+    } catch (AmazonCloudWatchException e) {
+      log.warn("Failed to send metrics to Amazon CloudWatch because {}", e.getMessage());
+    }
   }
 }
