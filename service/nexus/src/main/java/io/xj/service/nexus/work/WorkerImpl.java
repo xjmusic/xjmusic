@@ -76,7 +76,7 @@ public abstract class WorkerImpl implements Runnable {
     try {
       metrics.send(getMetricNamespace(), name, StandardUnit.Count, value);
     } catch (AmazonCloudWatchException e) {
-      log.warn("Failed to send metrics to Amazon CloudWatch because {}", e.getMessage());
+      log.warn("Failed to send metrics to Amazon CloudWatch because {}", e.toString());
     }
   }
 
@@ -90,7 +90,7 @@ public abstract class WorkerImpl implements Runnable {
     try {
       metrics.send(getMetricNamespace(), name, StandardUnit.Seconds, value);
     } catch (AmazonCloudWatchException e) {
-      log.warn("Failed to send metrics to Amazon CloudWatch because {}", e.getMessage());
+      log.warn("Failed to send metrics to Amazon CloudWatch because {}", e.toString());
     }
   }
 }
