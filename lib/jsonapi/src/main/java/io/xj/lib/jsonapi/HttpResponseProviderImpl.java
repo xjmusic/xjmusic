@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.Objects;
 
 @Singleton
 class HttpResponseProviderImpl implements HttpResponseProvider {
@@ -167,6 +168,8 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
 
   @Override
   public Response notAcceptable(Exception e) {
+    if (Objects.nonNull(e.getCause()) && !e.getCause().equals(e))
+      return notAcceptable(String.format("%s: %s", e.getMessage(), e.getCause().getMessage()));
     return notAcceptable(e.getMessage());
   }
 

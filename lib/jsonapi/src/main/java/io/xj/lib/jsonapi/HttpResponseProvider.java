@@ -118,6 +118,8 @@ public interface HttpResponseProvider {
 
   /**
    Return a response of an exception during a Create operation
+   <p>
+   [#175985762] 406 not-acceptable errors surface underlying causes
 
    @param e Exception
    @return Response

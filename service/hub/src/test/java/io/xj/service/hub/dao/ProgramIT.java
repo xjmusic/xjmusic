@@ -87,7 +87,7 @@ public class ProgramIT {
       .setId(UUID.randomUUID().toString())
       .setName("bananas")
       .build());
-// John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
+    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     fake.user2 = test.insert(User.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("john")
@@ -281,16 +281,14 @@ public class ProgramIT {
    [#170290553] Clone sub-entities of program
    <p>
    [#175808105] Cloned Program should have same Voices and Chord Voicings
+   <p>
+   [#175947247] Artist expects to be able to clone Program without error
    */
   @Test
   public void clone_fromOriginal() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
     Program inputData = Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
       .setLibraryId(fake.library2.getId())
-      .setDensity(0.583)
-      .setType(Program.Type.Main)
-      .setTempo(120.0)
       .setName("cannons fifty nine")
       .build();
     test.insert(ProgramMeme.newBuilder()
@@ -347,7 +345,7 @@ public class ProgramIT {
 
     Program result = resultCloner.getClone();
     assertNotNull(result);
-    assertEquals(0.583, result.getDensity(), 0.01);
+    assertEquals(0.6, result.getDensity(), 0.01);
     assertEquals("C#", result.getKey());
     assertEquals(fake.library2.getId(), result.getLibraryId());
     assertEquals("cannons fifty nine", result.getName());

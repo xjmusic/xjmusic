@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -113,6 +114,19 @@ public class HttpResponseProviderImplTest {
     Response result = subject.notAcceptable("at all");
 
     assertEquals(406, result.getStatus());
+  }
+
+  /**
+   [#175985762] 406 not-acceptable errors surface underlying causes
+   */
+  @Test
+  public void notAcceptable_surfacesUnderlyingCauses() {
+    var d = new IOException("I am the real cause");
+    var e = new JsonApiException("I am the outer cause", d);
+    Response result = subject.notAcceptable(e);
+
+    assertEquals(406, result.getStatus());
+    assertEquals("{\"errors\":[{\"code\":\"406\",\"title\":\"I am the outer cause: I am the real cause\"}]}", result.getEntity());
   }
 
   @Test

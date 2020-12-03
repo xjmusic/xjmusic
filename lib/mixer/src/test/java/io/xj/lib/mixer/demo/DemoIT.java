@@ -243,5 +243,4 @@ public class DemoIT {
     assertMixOutputEqualsReferenceAudio(OutputEncoder.AAC, AudioFormat.Encoding.PCM_SIGNED, 48000, 16, 2, "48000Hz_Signed_16bit_2ch.aac");
   }
 
-
 }

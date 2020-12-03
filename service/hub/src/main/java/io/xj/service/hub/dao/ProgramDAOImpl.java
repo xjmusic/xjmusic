@@ -19,6 +19,7 @@ import io.xj.ProgramVoice;
 import io.xj.ProgramVoiceTrack;
 import io.xj.UserRole;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.PayloadFactory;
@@ -32,6 +33,7 @@ import org.jooq.impl.DSL;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -85,9 +87,9 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
         throw new DAOException("Can't clone nonexistent Program");
 
       // Inherits state, type if none specified
-      Program.Builder programBuilder = rawProgram.toBuilder();
-      if (Value.isEmpty(rawProgram.getName())) programBuilder.setName(from.getName());
-      if (Value.isEmpty(rawProgram.getKey())) programBuilder.setKey(from.getKey());
+      Program.Builder programBuilder = from.toBuilder();
+      setIfProvided(programBuilder, rawProgram, "libraryId");
+      setIfProvided(programBuilder, rawProgram, "name");
       Program program = validate(programBuilder).build();
       requireParentExists(db, hubAccess, program);
       validateConfig(program);
@@ -269,7 +271,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     Program program = validate(rawProgram.toBuilder()).build();
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
-    Program existing = readOne(db, hubAccess, id);
+    readOne(db, hubAccess, id);
     validateConfig(program);
 
     executeUpdate(db, PROGRAM, id, program);
@@ -474,5 +476,23 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     }
   }
 
+  /**
+   Set a value on the builder if it's been provided in the source
+
+   @param builder to set values on
+   @param source  to check for source values
+   @param attr    name of attribute
+   @throws DAOException on failure
+   */
+  private void setIfProvided(MessageLite.Builder builder, MessageLite source, String attr) throws DAOException {
+    try {
+      Optional<Object> value = Entities.get(source, attr);
+      if (value.isPresent() && Value.isSet(value.get()))
+        Entities.set(builder, attr, value.get());
+
+    } catch (EntityException e) {
+      throw new DAOException(e);
+    }
+  }
 }
 
