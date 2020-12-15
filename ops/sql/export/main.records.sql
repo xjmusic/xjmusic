@@ -7415,7 +7415,6 @@ faea8356-816e-471f-a385-6cd4c730b865	a9175b1a-39c1-11eb-8f04-2f80c84d572c	466709
 1fb4aa70-16eb-11ea-8a37-5b4ad382c686	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fa50c14-16eb-11ea-8a37-8f071f3f3a6a	F-7	27.5
 1fb56852-16eb-11ea-8a37-530ec0bf76ae	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fa50c14-16eb-11ea-8a37-8f071f3f3a6a	G-7	8
 1fb63084-16eb-11ea-8a37-93fdd1b03570	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fa68b34-16eb-11ea-8a37-038ef86f9c46	Abmaj7/Bb	0
-1fec4ab6-16eb-11ea-8a37-77ec9598470b	1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1feaa38c-16eb-11ea-8a37-57d2cdb26466	Fsus4add3	0
 1fed184c-16eb-11ea-8a37-c7add4daf4ea	1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1feb788e-16eb-11ea-8a37-9b619cc86924	Fsus4/Gb	8
 1fede54c-16eb-11ea-8a37-7f113112aeab	1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1feaa38c-16eb-11ea-8a37-57d2cdb26466	C7sus4	8
 1feeac84-16eb-11ea-8a37-030579f50334	1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1feb788e-16eb-11ea-8a37-9b619cc86924	Ebmaj6/9	0
@@ -7466,6 +7465,7 @@ c84c40a6-1a61-11eb-a3a0-3fd337b6a38b	b0936660-1a61-11eb-9428-3f783cd2858b	b38b1c
 ffe3ce0e-1b05-11eb-bde4-5b07d9cb989e	f6a420be-1b05-11eb-bde4-fb2cf88cbbc9	fa555714-1b05-11eb-bde4-ab93c80ac13e	C7	0
 2034e5a8-1b06-11eb-ade2-c38b5729edbc	f6a420be-1b05-11eb-bde4-fb2cf88cbbc9	fa555714-1b05-11eb-bde4-ab93c80ac13e	G-	3
 489f0c22-1d85-11eb-bb04-6b8a80a1cb2d	1ddd768c-16eb-11ea-8a37-ab599777e83d	1de11102-16eb-11ea-8a37-57f184fd0e32	NC	3
+1fec4ab6-16eb-11ea-8a37-77ec9598470b	1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1feaa38c-16eb-11ea-8a37-57d2cdb26466	Fadd4	0
 0ae0750e-809f-4462-88c7-f19ce5124150	76dd7b98-246d-11eb-b5fe-2fc15479d711	ba856252-beef-45b7-90dc-da43e2be8c46	D-7add9	0
 f7ec0ea3-f988-43d5-9040-2beed520998f	924638f2-246d-11eb-b5fe-7b5397769825	3c72ccb3-39ad-4ff3-8778-9e9250cc2329	G-7	1.5
 f23b417d-8d72-431f-bdce-1b772b2eb9ff	924638f2-246d-11eb-b5fe-7b5397769825	3c72ccb3-39ad-4ff3-8778-9e9250cc2329	Fsus2/A	8
@@ -7622,8 +7622,8 @@ ea458fb0-39c3-11eb-ae26-83955ad5b7e7	8a271cfc-3928-11eb-8b82-63db8b0d3e83	1af580
 56a4e9c6-39c4-11eb-99ee-53709ce0fa93	a2f0be8c-3928-11eb-8b82-6b71023fc623	ceb8329c-0a83-41ba-9c5e-e899bfda7fef	Bass	D1, F1, G1, Bb1, C2, D2, F2, G2, Bb2, C3, D3, F3, G3
 83e411a8-3a7f-11eb-b1d0-e76821aa336e	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4ae8f8-16eb-11ea-8a37-33eb980e6cba	Bass	E1, G1, A1, B1, D2, E2, G2, A2, B2, D3, E3, G3
 c69bfe82-3a81-11eb-8247-0bf07e8bf245	1f27ae54-16eb-11ea-8a37-638aed0c1ccf	1f315e0e-16eb-11ea-8a37-8b9a2cec3664	Bass	C#1, D#1, F#1, G#1, A#1, C#2, F#2, G#2, A#2, C#3, D#3, F#3
-084adf9c-3a82-11eb-8247-e7ad45d71939	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7b5f40-16eb-11ea-8a37-bfbe84aa2ee4	Percussive	Db1, F1, Ab1, Bb1, Db2, Eb2, F2, Ab2, Bb2, Db3, Eb3, F3
-084c431e-3a82-11eb-8247-c3901c7ee4f0	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7c1796-16eb-11ea-8a37-872798db6eb4	Percussive	C1, Eb1, F1, Ab1, Bb1, C2, Eb2, F2, Ab2, Bb2, C3, Eb3, F3
+3b039e14-3b3c-11eb-ace8-bf11485f206e	b0936660-1a61-11eb-9428-3f783cd2858b	c84c40a6-1a61-11eb-a3a0-3fd337b6a38b	Common	Eb3, Gb3, Ab3, Bb3, Db4, Eb4, F4, Gb4, Ab4, Bb4, Db5
+3cac0c2e-3b3c-11eb-ace8-275c7acb1f3a	b0936660-1a61-11eb-9428-3f783cd2858b	c84c40a6-1a61-11eb-a3a0-3fd337b6a38b	Stripe	Db5, F5, Ab5, Bb5, Db6, F6, Ab6, Bb6, Eb7
 7c8478cc-3ab5-11eb-ada7-dfa7dac1513a	1aa1ad62-16eb-11ea-8a37-e3635cda90ac	1aab9926-16eb-11ea-8a37-9bc1e33fd847	Stripe	C5, D5, G5, A5, C6, D6, G6, A6, C7
 315e8032-3a82-11eb-8247-074ca6434cd9	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fb56852-16eb-11ea-8a37-530ec0bf76ae	Bass	D1, F1, G1, Bb1, C2, D2, F2, G2, Bb2, C3, D3, F3, G3
 316343ce-3a82-11eb-8247-dbd786386f17	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fae7290-16eb-11ea-8a37-e798bd293ccf	Bass	D1, F1, G1, Bb1, C2, D2, F2, G2, Bb2, C3, D3, F3, G3
@@ -7638,6 +7638,47 @@ c69bfe82-3a81-11eb-8247-0bf07e8bf245	1f27ae54-16eb-11ea-8a37-638aed0c1ccf	1f315e
 77326092-3ab9-11eb-930e-bf4706de9583	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be3def2-16eb-11ea-8a37-83c5079b3604	Common	F#3, G#3, C#4, E#4, F#4, G#4, C#5
 79c44f3c-3ab9-11eb-930e-cbc5ea19b36d	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be3def2-16eb-11ea-8a37-83c5079b3604	Stripe	C#5, F#5, G#5, C#6, F#6, G#6, C#7
 97b29cfa-3aba-11eb-a31f-db02340f9de0	1ba99e54-16eb-11ea-8a37-0753aaf26025	1bb474d2-16eb-11ea-8a37-57f06cc73db4	Common	E3, F#3, A3, B3, C#4, E4, F#4, A4
+46d13e04-3b32-11eb-bf88-f3e61c44cc15	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7d1468-16eb-11ea-8a37-cf99aa8c9c35	Stripe	(None)
+9493fcc6-3b32-11eb-bf88-4fd17a91024e	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc76820-16eb-11ea-8a37-43ec3bb1a5c2	Harmonic	D#3, F#3, G#3, B3, D#4, F#4, G#4, B4, D#5, F#5, G#5, B5
+96c9f464-3b32-11eb-bf88-23099f0a313c	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc10994-16eb-11ea-8a37-272c2db24f32	Stripe	F#5, G#5, B5, F#6, G#6, B6
+6c72f156-3b33-11eb-86d8-2b3f143e495d	87601888-1a61-11eb-9428-8748532aadff	957ceefa-1a61-11eb-9428-afbb1fe7d06c	Harmonic	E3, G#3, B3, C#4, E4, G#4, B4, C#5, E5, G#5, B5
+6d2dcb7a-3b33-11eb-8128-573f08024a63	87601888-1a61-11eb-9428-8748532aadff	957ceefa-1a61-11eb-9428-afbb1fe7d06c	Common	C#3, E3, F#3, G#3, B3, C#4, D#4, E4, F#4, G#4, B4, C#5
+6e3e8914-3b33-11eb-86d8-a76536c1ba53	87601888-1a61-11eb-9428-8748532aadff	957ceefa-1a61-11eb-9428-afbb1fe7d06c	Stripe	E5, F#5, G#5, B5, E6, F#6, G#6, B6, E7
+af3e67c2-3b33-11eb-86d8-c32db27e3b1b	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdfe7ba-16eb-11ea-8a37-fba620aa98ea	Common	Eb3, Ab3, Eb4, Ab4, Eb5
+b040a612-3b33-11eb-86d8-a33e4e0a5363	1cd6c720-16eb-11ea-8a37-772e7139de8e	1ce074a0-16eb-11ea-8a37-e784c6be6e66	Stripe	Eb5, Eb6
+084adf9c-3a82-11eb-8247-e7ad45d71939	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7b5f40-16eb-11ea-8a37-bfbe84aa2ee4	Bass	Db1, F1, Ab1, Bb1, Db2, Eb2, F2, Ab2, Bb2, Db3, Eb3, F3
+1a30061c-3b34-11eb-86d8-8375a0199fa8	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d11f732-16eb-11ea-8a37-836511e58d26	Harmonic	F#3, A#3, B3, D#4, F#4, A#4, D#5, F#5, A#5
+1a30d7fe-3b34-11eb-86d8-d373075a928f	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0e92a4-16eb-11ea-8a37-fb1197cb13e9	Harmonic	G#3, C#4, E#4, G#4, C#5, E#5, G#5
+1a322a96-3b34-11eb-86d8-27fbe82761b3	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d145590-16eb-11ea-8a37-17aff7bd8b5f	Harmonic	F#3, G#3, A#3, C#4, F#4, G#4, A#4, C#5, F#5, G#5, A#5
+1b3e1ea4-3b34-11eb-86d8-9b46421d253d	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d13233c-16eb-11ea-8a37-833234f3afe2	Common	G#3, C#4, D#4, G#4, C#5, D#5
+1d2b6a78-3b34-11eb-86d8-5fb14ae8a9a5	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0c456c-16eb-11ea-8a37-2b2149bf202f	Stripe	C#5, G#5, C#6, G#6, C#7
+084c431e-3a82-11eb-8247-c3901c7ee4f0	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7c1796-16eb-11ea-8a37-872798db6eb4	Bass	C1, Eb1, F1, Ab1, Bb1, C2, Eb2, F2, Ab2, Bb2, C3, Eb3, F3
+5f1e6f92-3b3a-11eb-9579-23087d03d22f	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea234a4-16eb-11ea-8a37-d3b668688cd4	Harmonic	E3, G3, B3, D4, E4, G4, B4, D5, E5, G5, B5
+5fdf0126-3b3a-11eb-9579-db0ea8850dd6	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea6b614-16eb-11ea-8a37-6bdf77b06bfc	Common	G3, A3, C4, D4, E4, G4, A4, C5
+60f2f4b4-3b3a-11eb-9579-234de269698a	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea6b614-16eb-11ea-8a37-6bdf77b06bfc	Stripe	D5, E5, G5, A5, D6, E6, G6, A6
+60f47262-3b3a-11eb-9579-27169b71ffdf	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea83048-16eb-11ea-8a37-43846ab39c6e	Stripe	D5, E5, G5, A5, D6, E6, G6, A6
+b5cdd418-3b3a-11eb-9579-3395329b6d2f	a9175b1a-39c1-11eb-8f04-2f80c84d572c	4deb761b-b969-43a5-ac42-01a32da6ccce	Harmonic	G3, C4, D4, G4, C5, D5, G5, C6
+b5ce8c50-3b3a-11eb-9579-137f88371de7	a9175b1a-39c1-11eb-8f04-2f80c84d572c	053d0bda-e09e-4b83-a064-f47b378a9a5d	Harmonic	F3, A3, C4, D4, F4, A4, C5, D5, F5, A5, C6
+b6b0009a-3b3a-11eb-9579-f373dea663de	a9175b1a-39c1-11eb-8f04-2f80c84d572c	faea8356-816e-471f-a385-6cd4c730b865	Common	B3, D4, E4, B4
+b6b16084-3b3a-11eb-9579-ebed5f8b98aa	a9175b1a-39c1-11eb-8f04-2f80c84d572c	053d0bda-e09e-4b83-a064-f47b378a9a5d	Common	B3, D4, E4, B4
+b7f0f3f6-3b3a-11eb-9579-57098f29b20c	a9175b1a-39c1-11eb-8f04-2f80c84d572c	a713763a-a25f-4d3d-bd3e-0e3a10865036	Stripe	E5, E6
+b7f1e9aa-3b3a-11eb-9579-c37804b182df	a9175b1a-39c1-11eb-8f04-2f80c84d572c	053d0bda-e09e-4b83-a064-f47b378a9a5d	Stripe	E5, E6
+f742400a-3b3a-11eb-9579-f718220cc1ad	1ed3893c-16eb-11ea-8a37-53c677a170ca	1edb1026-16eb-11ea-8a37-ff7b014fa28d	Harmonic	G3, B3, D4, G4, B4, D5, G5, B5
+f9691b1a-3b3a-11eb-9579-d39f76a55a8c	1ed3893c-16eb-11ea-8a37-53c677a170ca	1ed968a2-16eb-11ea-8a37-c7c15947c877	Stripe	E5, A5, E6, A6
+011dce22-3b3c-11eb-ace8-b727b92e3300	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7aa276-16eb-11ea-8a37-e78e84b81fca	Common	(None)
+3860f126-3b3b-11eb-9579-b7aaa7424f90	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f063990-16eb-11ea-8a37-03c26b70417d	Harmonic	E#3, G#3, B#4, E#4, G#4, B#5, E#5, G#5, B#6
+38617eac-3b3b-11eb-9579-f76890a4469c	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f07b3f6-16eb-11ea-8a37-dbc34b7afbc9	Harmonic	D#3, F#3, G#3, B3, D#4, F#4, G#4, B4, D#5, F#5, G#5, B5
+3997f27e-3b3b-11eb-9579-3fd0a5daaec1	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f091ed0-16eb-11ea-8a37-5742339937e5	Common	C#3, G#3, C#4, G#4, C#5
+399a6806-3b3b-11eb-9579-fb568c959107	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f0cb072-16eb-11ea-8a37-0f34d3bdc7b6	Common	C#3, G#3, C#4, G#4, C#5
+3c2cf660-3b3b-11eb-9579-5f4198c76b90	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f0a46a2-16eb-11ea-8a37-1f7a01a8a1a7	Stripe	G#5, G#6
+3a3dc40a-3b3c-11eb-ace8-93bb6772f28d	b0936660-1a61-11eb-9428-3f783cd2858b	c84c40a6-1a61-11eb-a3a0-3fd337b6a38b	Harmonic	Ab3, Bb3, Db4, F4, Gb4, Ab4, Db5, F5, Ab5, Bb5
+0040006a-3b3c-11eb-ace8-07ddbeaf1652	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7b5f40-16eb-11ea-8a37-bfbe84aa2ee4	Harmonic	F3, Ab3, Bb3, Db4, F4, Ab4, Bb4, Db5, F5, Ab5, Bb5
+00414718-3b3c-11eb-ace8-2336e14017f9	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7c1796-16eb-11ea-8a37-872798db6eb4	Harmonic	F3, Ab3, C4, Eb4, F4, Ab4, C5, Eb5, F5, Ab5, C6
+0277d86c-3b3c-11eb-ace8-3b7a3ce64757	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7d83ba-16eb-11ea-8a37-9fc8f5e07449	Stripe	Bb5, Bb6
+9b452676-3b3c-11eb-ace8-f7caca2ad9f7	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fb2dce0-16eb-11ea-8a37-a7bfce8b64f7	Harmonic	Eb3, G3, Bb3, D4, G4, Bb4, D5, G5, Bb5
+9c0bb3a4-3b3c-11eb-ace8-f78987b4b5b9	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fae7290-16eb-11ea-8a37-e798bd293ccf	Common	G3, Bb3, C4, F4, G4, Bb4, C5
+9c0ea7bc-3b3c-11eb-ace8-9f9ebe7841fd	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fb4aa70-16eb-11ea-8a37-5b4ad382c686	Common	G3, Bb3, C4, F4, G4, Bb4, C5
+9d46a422-3b3c-11eb-ace8-ffdd3d52c676	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fb56852-16eb-11ea-8a37-530ec0bf76ae	Stripe	F5, G5, Bb5, F6, G6, Bb6
 56a53c96-39c4-11eb-ae26-23a64158f68f	a2f0be8c-3928-11eb-8b82-6b71023fc623	ee80f093-ec4a-4e8c-af65-83ec13956850	Bass	Eb1, F1, G1, Bb1, C2, Eb2, F2, G2, Bb2, C3, Eb3, F3, G3
 4e145714-39c5-11eb-a0d0-8b03e296f704	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bddbd6a-16eb-11ea-8a37-1b3eb2e8ad4d	Bass	F#1, G#1, A#1, C#2, D#2, F#2, G#2, A#2, C#3, D#3, F#3
 ca0389d6-39c4-11eb-99ff-1b7f7c670f00	ff67b0f8-1a60-11eb-902b-039843691523	1767df5c-1a61-11eb-b572-0355870822b1	Bass	C1, D1, F1, G1, A1, C2, D2, F2, G2, A2, C3, D3, F3
@@ -7716,6 +7757,22 @@ d60253ea-3ab7-11eb-b2f7-538806fd7774	1b048734-16eb-11ea-8a37-eb0f9b6b1f89	1b1395
 3b1f422e-3ab8-11eb-b8fc-cf9718b8f125	a2f0be8c-3928-11eb-8b82-6b71023fc623	961527ea-20a8-4a4f-98c7-02161a2d7e1c	Stripe	C5, D5, F5, C6, D6, F6, C7
 757ffd2c-3ab9-11eb-8268-fff2d629c34e	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bdb72e4-16eb-11ea-8a37-6b538f17b81f	Harmonic	(None)
 7729916a-3ab9-11eb-8268-cf62df21635e	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be68760-16eb-11ea-8a37-17c44ba51c42	Common	(None)
+af3ccbf6-3b33-11eb-99f6-6bc96eff3259	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdbdb52-16eb-11ea-8a37-cba400cead62	Common	Eb3, Ab3, Eb4, Ab4, Eb5
+1b3d3fa2-3b34-11eb-99f6-a393609ce6db	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0e92a4-16eb-11ea-8a37-fb1197cb13e9	Common	G#3, C#4, D#4, G#4, C#5, D#5
+1d2b92d2-3b34-11eb-99f6-07defa59e2a6	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0e92a4-16eb-11ea-8a37-fb1197cb13e9	Stripe	C#5, G#5, C#6, G#6, C#7
+011dead8-3b3c-11eb-b2b4-7ff8af85409f	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7cc920-16eb-11ea-8a37-539e482f5826	Common	(None)
+b6addd9c-3b3a-11eb-aff4-fb3897e62651	a9175b1a-39c1-11eb-8f04-2f80c84d572c	4deb761b-b969-43a5-ac42-01a32da6ccce	Common	B3, D4, E4, B4
+b7efb1e4-3b3a-11eb-aff4-4361957ecddf	a9175b1a-39c1-11eb-8f04-2f80c84d572c	4deb761b-b969-43a5-ac42-01a32da6ccce	Stripe	E5, E6
+f7409a52-3b3a-11eb-aff4-c35a9735515f	1ed3893c-16eb-11ea-8a37-53c677a170ca	1ed801ce-16eb-11ea-8a37-1b77ac80dd1c	Harmonic	E3, A3, B3, C#4, E4, A4, B4, C#5, E5, A5, B5
+0278d19a-3b3c-11eb-b2b4-5745a625c0d0	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7c1796-16eb-11ea-8a37-872798db6eb4	Stripe	Bb5, Bb6
+3865ace8-3b3b-11eb-aff4-ebf58cb4b311	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f0b7ce8-16eb-11ea-8a37-133710e2245b	Harmonic	D#3, F#3, G#3, B3, D#4, F#4, G#4, B4, D#5, F#5, G#5, B5
+399c7e8e-3b3b-11eb-aff4-ab36c1269ce3	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f06f48e-16eb-11ea-8a37-f3ad9747e09d	Common	C#3, G#3, C#4, G#4, C#5
+3c2cd342-3b3b-11eb-aff4-732654b6d39d	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f07b3f6-16eb-11ea-8a37-dbc34b7afbc9	Stripe	G#5, G#6
+3c2be1a8-3b3b-11eb-aff4-27e55705ee51	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f0b7ce8-16eb-11ea-8a37-133710e2245b	Stripe	G#5, G#6
+9b44c5fa-3b3c-11eb-b2b4-e3d908387794	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fac2346-16eb-11ea-8a37-efbfea8a955a	Harmonic	Eb3, G3, Bb3, D4, G4, Bb4, D5, G5, Bb5
+9b43dff0-3b3c-11eb-b2b4-dba5f75878f3	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fa811de-16eb-11ea-8a37-67dcfc566c40	Harmonic	Eb3, G3, Ab3, C4, Eb4, G4, C5, Eb5, G5, C6
+9c0bab8e-3b3c-11eb-b2b4-fb6d68813d4d	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fa811de-16eb-11ea-8a37-67dcfc566c40	Common	G3, Bb3, C4, F4, G4, Bb4, C5
+9d46b2a0-3b3c-11eb-b2b4-af78e60786bf	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fb4aa70-16eb-11ea-8a37-5b4ad382c686	Stripe	F5, G5, Bb5, F6, G6, Bb6
 9457f3da-3a7d-11eb-ac7a-0f3838e02f03	87601888-1a61-11eb-9428-8748532aadff	957ceefa-1a61-11eb-9428-afbb1fe7d06c	Bass	C#1, E1, F#1, G#1, A1, B1, C#2, E2, F#2, G#2, A2, B2, C#3, E3
 bbe0aaf0-3a7d-11eb-8342-bbb5ee7f0158	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d798ece-16eb-11ea-8a37-43346351f71b	Bass	E1, G1, A1, C2, D2, E2, G2, A2, C3, D3, E3
 bbdf3d64-3a7d-11eb-bce4-afe8a4e929e7	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d78115c-16eb-11ea-8a37-fb1d8f58995a	Bass	C#1, E1, G1, Bb1, C#2, E2, G2, Bb2, C#3, E3
@@ -7723,8 +7780,6 @@ bbdf3d64-3a7d-11eb-bce4-afe8a4e929e7	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7811
 83e4a582-3a7f-11eb-8d60-5b0dbd275a3f	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d49d6b6-16eb-11ea-8a37-e722e8603a99	Bass	Db1, F1, Ab1, Db2, Eb2, F2, Ab2, Db3, Eb3, F3
 83e5faae-3a7f-11eb-a21a-13486a6e8dc7	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4e1f1e-16eb-11ea-8a37-6326532b1cc0	Bass	Db1, F1, Ab1, Db2, Eb2, F2, Ab2, Db3, Eb3, F3
 def6504a-3a81-11eb-9975-dfdf58bff66e	b0936660-1a61-11eb-9428-3f783cd2858b	c84c40a6-1a61-11eb-a3a0-3fd337b6a38b	Bass	Db1, Eb1, Gb1, Bb1, Db2, Eb2, Gb2, Ab2, Bb2, Db3, Eb3, F3, Gb3
-084c9026-3a82-11eb-9975-37ddc3b79c01	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7cc920-16eb-11ea-8a37-539e482f5826	Percussive	C1, Eb1, F1, Ab1, Bb1, C2, Eb2, F2, Ab2, Bb2, C3, Eb3, F3
-084ac1c4-3a82-11eb-9975-3f3c73b8b590	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7aa276-16eb-11ea-8a37-e78e84b81fca	Percussive	D1, F1, G1, Bb1, C2, D2, F2, G2, Bb2, C3, D3, F3, G3
 7c8594e6-3ab5-11eb-86aa-fbf7fc74594d	1aa1ad62-16eb-11ea-8a37-e3635cda90ac	1ab04f16-16eb-11ea-8a37-d798f00e1c76	Stripe	C5, D5, G5, A5, C6, D6, G6, A6, C7
 7c8505bc-3ab5-11eb-8610-0b138a6d3c52	1aa1ad62-16eb-11ea-8a37-e3635cda90ac	1ab364ee-16eb-11ea-8a37-d3aca8c58b86	Stripe	C5, D5, G5, A5, C6, D6, G6, A6, C7
 315e0f26-3a82-11eb-9975-b7bc3b292cff	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fac2346-16eb-11ea-8a37-efbfea8a955a	Bass	Eb1, F1, G1, Bb1, C2, Eb2, F2, G2, Bb2, C3, Eb3, F3, G3
@@ -7742,11 +7797,28 @@ b1c87390-3a82-11eb-9975-83dcec044498	208ccf18-16eb-11ea-8a37-cfe47cc0feee	2095a2
 3b1f062e-3ab8-11eb-844e-eba8f39f16ad	a2f0be8c-3928-11eb-8b82-6b71023fc623	cd67ca3f-4fca-43bb-8ff1-9d407f25d0ee	Stripe	C5, D5, F5, C6, D6, F6, C7
 7579bee4-3ab9-11eb-a15e-5fcfb58449fd	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be1ea48-16eb-11ea-8a37-2bcdfc100607	Harmonic	F#3, B3, C#4, F#4, B4, C#5, F#5, B5
 79c8c1a2-3ab9-11eb-a15e-07642158c7f8	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bdecdae-16eb-11ea-8a37-7f9d5fa8a2cb	Stripe	C#5, F#5, G#5, C#6, F#6, G#6, C#7
+a196166c-3b3b-11eb-b2b4-cf94ee09f005	1f27ae54-16eb-11ea-8a37-638aed0c1ccf	1f315e0e-16eb-11ea-8a37-8b9a2cec3664	Harmonic	D#3, F#3, A#3, C#4, D#4, F#4, A#4, C#5, D#5, F#5, A#5
+ae811988-3b33-11eb-bf88-4f135790546f	1cd6c720-16eb-11ea-8a37-772e7139de8e	1ce074a0-16eb-11ea-8a37-e784c6be6e66	Harmonic	F#3, A#3, B3, D#4, F#4, A#4, D#5, F#5, A#5
+b041263c-3b33-11eb-bf88-5bb79aa5402e	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdbdb52-16eb-11ea-8a37-cba400cead62	Stripe	Eb5, Eb6
+a2b68d38-3b3b-11eb-b2b4-ef13aaf12520	1f27ae54-16eb-11ea-8a37-638aed0c1ccf	1f315e0e-16eb-11ea-8a37-8b9a2cec3664	Common	F#3, G#3, C#4, D#4, F#4, G#4, C#5
+1a32bee8-3b34-11eb-bf88-b3dabc199301	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0ac7fa-16eb-11ea-8a37-0b26f8cc2e70	Harmonic	F#3, G#3, B3, D#4, F#4, G#4, B4, D#5, F#5, G#5, B5
+1b3d8a66-3b34-11eb-bf88-bf3f06a734b9	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0ac7fa-16eb-11ea-8a37-0b26f8cc2e70	Common	G#3, C#4, D#4, G#4, C#5, D#5
+1d2baf2e-3b34-11eb-bf88-cb2f529a8e57	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0ac7fa-16eb-11ea-8a37-0b26f8cc2e70	Stripe	C#5, G#5, C#6, G#6, C#7
+084c9026-3a82-11eb-9975-37ddc3b79c01	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7cc920-16eb-11ea-8a37-539e482f5826	Bass	C1, Eb1, F1, Ab1, Bb1, C2, Eb2, F2, Ab2, Bb2, C3, Eb3, F3
+084ac1c4-3a82-11eb-9975-3f3c73b8b590	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7aa276-16eb-11ea-8a37-e78e84b81fca	Bass	D1, F1, G1, Bb1, C2, D2, F2, G2, Bb2, C3, D3, F3, G3
+011dc1a2-3b3c-11eb-9579-13717bd6a1e7	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7d83ba-16eb-11ea-8a37-9fc8f5e07449	Common	(None)
+00412c10-3b3c-11eb-9579-e73f61e56a10	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7cc920-16eb-11ea-8a37-539e482f5826	Harmonic	F3, Ab3, C4, F4, Ab4, C5, F5, Ab5, C6
+0040006a-3b3c-11eb-9579-23942c58b9d4	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7d83ba-16eb-11ea-8a37-9fc8f5e07449	Harmonic	E3, G#3, B3, D#4, E4, G#4, B4, D#5, G#5, B5
+0278dfaa-3b3c-11eb-9579-ff1630e1d2ba	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7cc920-16eb-11ea-8a37-539e482f5826	Stripe	Bb5, Bb6
+9b454002-3b3c-11eb-9579-471f8efd0657	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fae7290-16eb-11ea-8a37-e798bd293ccf	Harmonic	F3, G3, Bb3, D4, F4, G4, Bb4, D5, F5, G5, Bb5
+9c0b8fa0-3b3c-11eb-9579-f3b6a89f43d1	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fb2dce0-16eb-11ea-8a37-a7bfce8b64f7	Common	G3, Bb3, C4, F4, G4, Bb4, C5
+9d470a16-3b3c-11eb-9579-8f5191f9da33	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fb2dce0-16eb-11ea-8a37-a7bfce8b64f7	Stripe	F5, G5, Bb5, F6, G6, Bb6
+9d467920-3b3c-11eb-9579-bb617cfad153	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fa811de-16eb-11ea-8a37-67dcfc566c40	Stripe	F5, G5, Bb5, F6, G6, Bb6
 bbe2911c-3a7d-11eb-8c0d-a7ec55619e20	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7f53e0-16eb-11ea-8a37-33b7002ffbf9	Bass	C1, D1, F1, G1, A1, C2, D2, F2, G2, A2, C3, D3, F3
 83e3c626-3a7f-11eb-a21a-0bd7f530d3dc	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4d048a-16eb-11ea-8a37-075f0d3d6ea8	Bass	Db1, F1, Bb1, Db2, Eb2, F2, Ab2, Bb2, Db3, Eb3, F3
 2d7c64b0-3a7e-11eb-8c0d-5ff2d11381b5	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da9e5b0-16eb-11ea-8a37-2b3aaec1a8e3	Bass	E1, F#1, A1, B1, C#2, E2, F#2, A2, B2, C#3, E3, F#3
-084c68b2-3a82-11eb-a245-0316e87670b0	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7d83ba-16eb-11ea-8a37-9fc8f5e07449	Percussive	E1, F#1, G#1, B1, C#2, E2, F#2, G#2, B2, C#3, E3
 316057fe-3a82-11eb-a245-77e03a6b780e	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fa811de-16eb-11ea-8a37-67dcfc566c40	Bass	C1, Eb1, F1, Ab1, Bb1, C2, Eb2, F2, Ab2, Bb2, C3, Eb3, F3
+a2b5c560-3b3b-11eb-9579-736b24473ebc	1f27ae54-16eb-11ea-8a37-638aed0c1ccf	1f2f4e02-16eb-11ea-8a37-dfbe8c874f27	Common	F#3, G#3, C#4, D#4, F#4, G#4, C#5
 91c15d3c-3a82-11eb-a245-8b9b7cc9a6f2	20203966-16eb-11ea-8a37-1f6f4f9c48ae	20303366-16eb-11ea-8a37-bb645a7de89a	Bass	D1, F1, G1, A1, C2, D2, F2, G2, A2, C3, D3
 b1c869c2-3a82-11eb-a245-1735aeba94aa	208ccf18-16eb-11ea-8a37-cfe47cc0feee	20941dae-16eb-11ea-8a37-632d74208f7b	Bass	Db1, Eb1, Gb1, Cb1, Db2, Eb2, Gb2, Cb2, Db3
 c8185862-3ab5-11eb-8610-afe11a28622c	76dd7b98-246d-11eb-b5fe-2fc15479d711	0ae0750e-809f-4462-88c7-f19ce5124150	Harmonic	F3, A3, C4, E4, F4, A4, C5, E5, F5, A5, C6
@@ -7763,6 +7835,20 @@ d80c7bae-3ab5-11eb-8610-f7953fb3b680	76dd7b98-246d-11eb-b5fe-2fc15479d711	0ae075
 757d018a-3ab9-11eb-9bdc-abeffe925fe9	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be3def2-16eb-11ea-8a37-83c5079b3604	Harmonic	F#3, G#3, A#3, C#4, F#4, G#4, A#4, C#5, F#5, G#5, A#5
 79c118bc-3ab9-11eb-9bdc-1399efb1f8df	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be1ea48-16eb-11ea-8a37-2bcdfc100607	Stripe	C#5, F#5, G#5, C#6, F#6, G#6, C#7
 c85ed4f4-3aba-11eb-939d-3f1e31907576	aff2109a-3928-11eb-8b82-b7e55087432d	f43847bc-8d94-41c5-8713-04b374c795ef	Common	A3, B3, D4, E4, F#4, A4, B4, D5
+ae7fd640-3b33-11eb-910b-b3d38d342b39	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdfe7ba-16eb-11ea-8a37-fba620aa98ea	Harmonic	E3, G#3, B3, D#4, E4, G#4, B4, D#5, G#5, B5
+af3e7744-3b33-11eb-910b-6f40192e80be	1cd6c720-16eb-11ea-8a37-772e7139de8e	1ce074a0-16eb-11ea-8a37-e784c6be6e66	Common	Eb3, Ab3, Eb4, Ab4, Eb5
+b040a612-3b33-11eb-910b-d33a2293e78f	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdf5674-16eb-11ea-8a37-b3c9f3081a1e	Stripe	Eb5, Eb6
+a3f543ba-3b3b-11eb-9579-ef261a232c10	1f27ae54-16eb-11ea-8a37-638aed0c1ccf	1f315e0e-16eb-11ea-8a37-8b9a2cec3664	Stripe	C#5, D#5, F#5, G#5, C#6, D#6, F#6, G#6
+1a30f2ac-3b34-11eb-910b-2bd1a1102be5	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d13233c-16eb-11ea-8a37-833234f3afe2	Harmonic	F#3, A#3, B3, D#4, F#4, A#4, D#5, F#5, A#5
+1b3e79c6-3b34-11eb-910b-5bd192c4f03f	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d10cb64-16eb-11ea-8a37-6bc4e6926e11	Common	G#3, C#4, D#4, G#4, C#5, D#5
+1d2d7174-3b34-11eb-910b-d3dda4377b22	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d145590-16eb-11ea-8a37-17aff7bd8b5f	Stripe	C#5, G#5, C#6, G#6, C#7
+084c68b2-3a82-11eb-a245-0316e87670b0	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7d83ba-16eb-11ea-8a37-9fc8f5e07449	Bass	E1, F#1, G#1, B1, C#2, E2, F#2, G#2, B2, C#3, E3
+011dd67e-3b3c-11eb-aff4-6b46adf41a4b	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7b5f40-16eb-11ea-8a37-bfbe84aa2ee4	Common	(None)
+00417580-3b3c-11eb-aff4-b77feda521b5	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7aa276-16eb-11ea-8a37-e78e84b81fca	Harmonic	F3, G3, Bb3, D4, F4, G4, Bb4, D5, F5, G5, Bb5
+0277d862-3b3c-11eb-aff4-0f7d5226e59a	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7b5f40-16eb-11ea-8a37-bfbe84aa2ee4	Stripe	Bb5, Bb6
+9b452676-3b3c-11eb-aff4-bfb54f7f4a9c	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fb56852-16eb-11ea-8a37-530ec0bf76ae	Harmonic	F3, G3, Bb3, D4, F4, G4, Bb4, D5, F5, G5, Bb5
+9c0cd446-3b3c-11eb-aff4-17e1886a4277	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fb56852-16eb-11ea-8a37-530ec0bf76ae	Common	G3, Bb3, C4, F4, G4, Bb4, C5
+9d46ce34-3b3c-11eb-aff4-a79db8a6c568	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fae7290-16eb-11ea-8a37-e798bd293ccf	Stripe	F5, G5, Bb5, F6, G6, Bb6
 bbe8843c-3a7d-11eb-ac7a-8f9cb7df9836	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d775622-16eb-11ea-8a37-23e6818ee1e3	Bass	E1, G1, A1, B1, D2, E2, G2, A2, B2, D3, E3, G3
 bbe46bd6-3a7d-11eb-ac7a-dff01301a3b7	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d76976e-16eb-11ea-8a37-e30d3b156418	Bass	E1, G1, A1, C2, D2, E2, G2, A2, C3, D3, E3
 2d7dfb54-3a7e-11eb-bce4-23b274e1fba2	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da8d2f6-16eb-11ea-8a37-2fdd16b9f6eb	Bass	E1, F#1, A1, B1, C#2, E2, F#2, A2, B2, C#3, E3, F#3
@@ -7798,6 +7884,18 @@ d54bf208-3ab7-11eb-9747-6749d1bb3f08	1b048734-16eb-11ea-8a37-eb0f9b6b1f89	1b0ef5
 77333bca-3ab9-11eb-b6df-8f6d54c19637	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be5a4da-16eb-11ea-8a37-df5eaedd2317	Common	F#3, G#3, C#4, E#4, F#4, G#4, C#5
 c77f9c94-3aba-11eb-97a0-a7e266911cca	aff2109a-3928-11eb-8b82-b7e55087432d	486f8f3e-3ee0-4514-a8e3-8d649a427035	Harmonic	D3, G3, B3, D4, G4, B4, D5, G5, B5
 c9bc590c-3aba-11eb-97a0-23f3da1197e8	aff2109a-3928-11eb-8b82-b7e55087432d	f43847bc-8d94-41c5-8713-04b374c795ef	Stripe	D5, E5, F#5, A5, D6, E6, F#6, A6
+ae7f3cbc-3b33-11eb-8128-1bfea020e31f	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdf5674-16eb-11ea-8a37-b3c9f3081a1e	Harmonic	E3, G#3, A3, C#4, E4, G#4, C#5, E5, G#5
+b0408c86-3b33-11eb-8128-8fe45c27e111	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdfe7ba-16eb-11ea-8a37-fba620aa98ea	Stripe	Eb5, Eb6
+011dab04-3b3c-11eb-9936-cb991510a6ad	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7c1796-16eb-11ea-8a37-872798db6eb4	Common	(None)
+1a32c2ee-3b34-11eb-8128-9bd59dba3307	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0dc7f2-16eb-11ea-8a37-3368eb0ad67c	Harmonic	F#3, G#3, B3, D#4, F#4, G#4, B4, D#5, F#5, G#5, B5
+1b3ca75e-3b34-11eb-8128-3b9852568226	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d11f732-16eb-11ea-8a37-836511e58d26	Common	G#3, C#4, D#4, G#4, C#5, D#5
+1b3ce5b6-3b34-11eb-8128-23f161bd9d99	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0dc7f2-16eb-11ea-8a37-3368eb0ad67c	Common	G#3, C#4, D#4, G#4, C#5, D#5
+1d2bc66c-3b34-11eb-8128-a3bae7de0d41	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d11f732-16eb-11ea-8a37-836511e58d26	Stripe	C#5, G#5, C#6, G#6, C#7
+a1962c74-3b3b-11eb-9936-0793f9e70970	1f27ae54-16eb-11ea-8a37-638aed0c1ccf	1f2f4e02-16eb-11ea-8a37-dfbe8c874f27	Harmonic	E3, G#3, B3, C#4, E4, G#4, B4, C#5, E5, G#5, B5
+02789928-3b3c-11eb-9936-575c2d267138	1f729be4-16eb-11ea-8a37-f7402b31f897	1f7aa276-16eb-11ea-8a37-e78e84b81fca	Stripe	Bb5, Bb6
+9b45afd8-3b3c-11eb-9936-df9f2a4e97e3	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fb4aa70-16eb-11ea-8a37-5b4ad382c686	Harmonic	F3, Ab3, C4, Eb4, F4, Ab4, C5, Eb5, F5, Ab5, C6
+9c0be194-3b3c-11eb-9936-d3088b3609a1	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fac2346-16eb-11ea-8a37-efbfea8a955a	Common	G3, Bb3, C4, F4, G4, Bb4, C5
+9d47e800-3b3c-11eb-9936-57d698a429d7	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fac2346-16eb-11ea-8a37-efbfea8a955a	Stripe	F5, G5, Bb5, F6, G6, Bb6
 2d7da2c6-3a7e-11eb-8f5c-07afd85efea6	1da04118-16eb-11ea-8a37-3f1dce9d6424	1dad1d02-16eb-11ea-8a37-87fafdade05d	Bass	C#1, E1, F#1, G#1, B1, C#2, E2, F#2, G#2, B2, C#3, E3
 bd0c7100-3a7f-11eb-b1d0-b74f32915603	69be1740-3928-11eb-8b82-135bf05efc6f	9e2717ba-0c77-4d89-b718-6fad2a13a233	Bass	Eb1, Gb1, Ab1, Bb1, Db2, Eb2, Gb2, Ab2, Bb2, Db3, Eb3, Gb3
 b1ca4242-3a82-11eb-ae6d-5f9fcd02099a	208ccf18-16eb-11ea-8a37-cfe47cc0feee	2094d852-16eb-11ea-8a37-03b067473d08	Bass	Gb1, Ab1, Bb1, Db2, Eb2, Gb2, Ab2, Bb2, Db3, Eb3
@@ -7818,6 +7916,33 @@ daa11f4c-3a82-11eb-ae6d-3b4c72b87b13	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206636
 79c40f36-3ab9-11eb-87da-578b12d6c0cd	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bdc999e-16eb-11ea-8a37-a786747a75d9	Stripe	C#5, F#5, G#5, C#6, F#6, G#6, C#7
 c85f0aa0-3aba-11eb-b6df-cbba7fd63b00	aff2109a-3928-11eb-8b82-b7e55087432d	2cedd833-aca2-4edf-ace0-ea6f72803982	Common	A3, B3, D4, E4, F#4, A4, B4, D5
 c9bbe81e-3aba-11eb-b6df-0b5084c3cf72	aff2109a-3928-11eb-8b82-b7e55087432d	2cedd833-aca2-4edf-ace0-ea6f72803982	Stripe	D5, E5, F#5, A5, D6, E6, F#6, A6
+ae7f603e-3b33-11eb-ac70-bbef2e37051e	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdbdb52-16eb-11ea-8a37-cba400cead62	Harmonic	Eb3, G3, Ab3, C4, Eb4, G4, C5, Eb5, G5, C6
+af3ebf1a-3b33-11eb-ac70-fbff1e7b720c	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdf5674-16eb-11ea-8a37-b3c9f3081a1e	Common	Eb3, Ab3, Eb4, Ab4, Eb5
+a3f4104e-3b3b-11eb-ace8-6fc61b74e2ec	1f27ae54-16eb-11ea-8a37-638aed0c1ccf	1f2f4e02-16eb-11ea-8a37-dfbe8c874f27	Stripe	C#5, D#5, F#5, G#5, C#6, D#6, F#6, G#6
+1a31ab7a-3b34-11eb-ac70-ebc696600f29	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0c456c-16eb-11ea-8a37-2b2149bf202f	Harmonic	E3, G#3, B3, D#4, E4, G#4, B4, D#5, G#5, B5
+1b3e01b2-3b34-11eb-ac70-ebc4ba15a05c	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d145590-16eb-11ea-8a37-17aff7bd8b5f	Common	G#3, C#4, D#4, G#4, C#5, D#5
+1d2acdac-3b34-11eb-ac70-c7a2aae4f76d	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d10cb64-16eb-11ea-8a37-6bc4e6926e11	Stripe	C#5, G#5, C#6, G#6, C#7
+1d2c208a-3b34-11eb-ac70-cff450b7918d	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0dc7f2-16eb-11ea-8a37-3368eb0ad67c	Stripe	C#5, G#5, C#6, G#6, C#7
+0ec12284-3b3e-11eb-8740-fbe0622165e1	1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1fec4ab6-16eb-11ea-8a37-77ec9598470b	Harmonic	F3, A3, Bb3, C4, F4, A4, Bb4, C5, F5, A5, Bb5, C6
+0ec22684-3b3e-11eb-8740-8f6d42041bbe	1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1fede54c-16eb-11ea-8a37-7f113112aeab	Harmonic	F3, G3, Bb3, C4, F4, G4, Bb4, C5, F5, G5, Bb5, C6
+0f6b5ae2-3b3e-11eb-8740-7b6e6d7e9abc	1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1fede54c-16eb-11ea-8a37-7f113112aeab	Common	Bb3, C4, F4, G4, Bb4, C5
+1070c724-3b3e-11eb-8740-c771a5d4ef73	1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1fec4ab6-16eb-11ea-8a37-77ec9598470b	Stripe	C5, A5, C6, A6, C7
+106fd7ce-3b3e-11eb-8740-470ba0c24780	1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1fede54c-16eb-11ea-8a37-7f113112aeab	Stripe	C5, A5, C6, A6, C7
+8236153a-3b3e-11eb-8740-438a7f230acb	20203966-16eb-11ea-8a37-1f6f4f9c48ae	203151f6-16eb-11ea-8a37-ffd536064779	Harmonic	D3, F3, A3, D4, F4, A4, D5, F5, A5
+83109408-3b3e-11eb-8740-3b49946c021f	20203966-16eb-11ea-8a37-1f6f4f9c48ae	203151f6-16eb-11ea-8a37-ffd536064779	Common	A3, C4, D4, F4, G4, A4, C5, D5
+83117a8a-3b3e-11eb-8740-afb504710cc3	20203966-16eb-11ea-8a37-1f6f4f9c48ae	202e06ae-16eb-11ea-8a37-4715a4e536d8	Common	A3, C4, D4, F4, G4, A4, C5, D5
+844c9f1a-3b3e-11eb-8740-ef6a654d15fe	20203966-16eb-11ea-8a37-1f6f4f9c48ae	203151f6-16eb-11ea-8a37-ffd536064779	Stripe	C5, G5, A5, C6, G6, A6
+c5ff8968-3b3e-11eb-8740-7fc7c28a801d	208ccf18-16eb-11ea-8a37-cfe47cc0feee	209361de-16eb-11ea-8a37-a7cb0235ef13	Harmonic	(None)
+c5fec8c0-3b3e-11eb-8740-8b12f15b55ef	208ccf18-16eb-11ea-8a37-cfe47cc0feee	20941dae-16eb-11ea-8a37-632d74208f7b	Harmonic	Gb3, Cb3, Db4, Gb4, Cb4, Db5, Gb5, Cb5
+c7006b70-3b3e-11eb-8740-1b192eeeaa37	208ccf18-16eb-11ea-8a37-cfe47cc0feee	2094d852-16eb-11ea-8a37-03b067473d08	Common	Bb3, Db4, Eb4, Gb4, Ab4, Bb4
+c83eb992-3b3e-11eb-8740-9b2835a6b05a	208ccf18-16eb-11ea-8a37-cfe47cc0feee	20925b86-16eb-11ea-8a37-b3e4ae99801a	Stripe	Db5, Ab5, Bb5, Db6, Ab6, Bb6
+10abb356-3b3f-11eb-8740-6f350a146727	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206985bc-16eb-11ea-8a37-8bbc6b058158	Harmonic	F3, Ab3, C4, Eb4, F4, Ab4, C5, Eb5, F5, Ab5, C5
+10ada314-3b3f-11eb-8740-6314a5fba87a	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206743ec-16eb-11ea-8a37-6fc45d6447e3	Harmonic	F3, G3, Bb3, C4, F4, G4, Bb4, C5, F5, G5, Bb5, C6
+1181f1aa-3b3f-11eb-8740-e7cc2e979f14	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206743ec-16eb-11ea-8a37-6fc45d6447e3	Common	Bb3, C4, F4, G4, Bb4, C5
+12aa2368-3b3f-11eb-8740-03e383477fba	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206743ec-16eb-11ea-8a37-6fc45d6447e3	Stripe	C5, F5, C6, F6, C7
+603f759c-3b3f-11eb-8740-5b52d26ab65a	20ba8084-16eb-11ea-8a37-cb38a312de67	20bdd6a8-16eb-11ea-8a37-6b8abd2e6a8c	Harmonic	F3, G3, C4, F4, G4, C5, F5, G5, C6
+610449ee-3b3f-11eb-8740-7b6a12d15dee	20ba8084-16eb-11ea-8a37-cb38a312de67	20bdd6a8-16eb-11ea-8a37-6b8abd2e6a8c	Common	F3, G3, A3, C4, F4, G4, A4, C5
+62268594-3b3f-11eb-8740-678fe4e3ffb0	20ba8084-16eb-11ea-8a37-cb38a312de67	20bfe7fe-16eb-11ea-8a37-8fe64e8703fd	Stripe	C5, E5, F5, G5, A5, C6, E6, F6, G6, A6, C7
 e9e0d90a-3a7f-11eb-8247-8fa544ae0d56	1df7d432-16eb-11ea-8a37-97c25b2a6298	1dfc0df4-16eb-11ea-8a37-ff6897d42092	Bass	E1, G1, A1, B1, D2, E2, G2, A2, B2, D3, E3, G3
 79a021a6-3a7e-11eb-b4cc-f37e6f5a8f9e	1cd6c720-16eb-11ea-8a37-772e7139de8e	1ce074a0-16eb-11ea-8a37-e784c6be6e66	Bass	D#1, F#1, B1, C#2, D#2, F#2, G#2, B2, C#3, D#3
 79a19928-3a7e-11eb-b4cc-536f94153dc1	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdfe7ba-16eb-11ea-8a37-fba620aa98ea	Bass	E1, F#1, G#1, B1, C#2, E2, F#2, G#2, B2, C#3, E3
@@ -7839,6 +7964,27 @@ a01e69b2-3a80-11eb-8247-0f36433e3be2	d26835c8-3928-11eb-8b82-1fab78084fbe	1e5ffe
 27e895be-3aba-11eb-bcae-7fd62d5acd8e	1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1b82c0c2-16eb-11ea-8a37-1bd052ba305a	Stripe	Db5, Db6, Db7
 c77f06bc-3aba-11eb-b228-273151a0e6de	aff2109a-3928-11eb-8b82-b7e55087432d	41012236-f3d4-4441-815c-c55079ee1fac	Harmonic	D3, G3, B3, D4, G4, B4, D5, G5, B5
 c9bc17da-3aba-11eb-b228-bbde3499966b	aff2109a-3928-11eb-8b82-b7e55087432d	41012236-f3d4-4441-815c-c55079ee1fac	Stripe	D5, E5, F#5, A5, D6, E6, F#6, A6
+1a326678-3b34-11eb-90d2-9374018a2cbd	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d10cb64-16eb-11ea-8a37-6bc4e6926e11	Harmonic	G#3, C#4, E#4, G#4, C#5, E#5, G#5
+1b3d505a-3b34-11eb-90d2-eb00ae2c3f0a	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0c456c-16eb-11ea-8a37-2b2149bf202f	Common	G#3, C#4, D#4, G#4, C#5, D#5
+1d2b4250-3b34-11eb-90d2-e3f103bb5cb5	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d13233c-16eb-11ea-8a37-833234f3afe2	Stripe	C#5, G#5, C#6, G#6, C#7
+0f6beba6-3b3e-11eb-920f-df9227f97433	1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1fec4ab6-16eb-11ea-8a37-77ec9598470b	Common	Bb3, C4, F4, G4, Bb4, C5
+82391762-3b3e-11eb-920f-23e4e8993f04	20203966-16eb-11ea-8a37-1f6f4f9c48ae	202e06ae-16eb-11ea-8a37-4715a4e536d8	Harmonic	D3, F3, A3, D4, F4, A4, D5, F5, A5
+82367958-3b3e-11eb-920f-cb7ce3856dac	20203966-16eb-11ea-8a37-1f6f4f9c48ae	20303366-16eb-11ea-8a37-bb645a7de89a	Harmonic	D3, F3, A3, D4, F4, A4, D5, F5, A5
+83117e04-3b3e-11eb-920f-ff529544987f	20203966-16eb-11ea-8a37-1f6f4f9c48ae	20303366-16eb-11ea-8a37-bb645a7de89a	Common	A3, C4, D4, F4, G4, A4, C5, D5
+844d8ab0-3b3e-11eb-920f-93b704d3308d	20203966-16eb-11ea-8a37-1f6f4f9c48ae	202e06ae-16eb-11ea-8a37-4715a4e536d8	Stripe	C5, G5, A5, C6, G6, A6
+844c9f1a-3b3e-11eb-920f-3b2b3eeb0ea1	20203966-16eb-11ea-8a37-1f6f4f9c48ae	20303366-16eb-11ea-8a37-bb645a7de89a	Stripe	C5, G5, A5, C6, G6, A6
+c70061f2-3b3e-11eb-920f-0f0f8411abd2	208ccf18-16eb-11ea-8a37-cfe47cc0feee	209361de-16eb-11ea-8a37-a7cb0235ef13	Common	(None)
+c5fedc5c-3b3e-11eb-920f-cb90f488f1be	208ccf18-16eb-11ea-8a37-cfe47cc0feee	20925b86-16eb-11ea-8a37-b3e4ae99801a	Harmonic	Gb3, Bb3, Db4, Gb4, Bb4, Db5, Gb5, Bb5
+c700cdd6-3b3e-11eb-920f-c7c71cf555b5	208ccf18-16eb-11ea-8a37-cfe47cc0feee	2095a2b4-16eb-11ea-8a37-bb8db2ed7980	Common	Bb3, Db4, Eb4, Gb4, Ab4, Bb4
+c701d712-3b3e-11eb-920f-6770d3d1a8e8	208ccf18-16eb-11ea-8a37-cfe47cc0feee	20941dae-16eb-11ea-8a37-632d74208f7b	Common	Bb3, Db4, Eb4, Gb4, Ab4, Bb4
+c83e8670-3b3e-11eb-920f-473fdc655e49	208ccf18-16eb-11ea-8a37-cfe47cc0feee	2094d852-16eb-11ea-8a37-03b067473d08	Stripe	Db5, Ab5, Bb5, Db6, Ab6, Bb6
+10add870-3b3f-11eb-920f-e7203ee52377	20630ebc-16eb-11ea-8a37-af1c14cc01bc	2068c596-16eb-11ea-8a37-ab852bcc7266	Harmonic	F3, C4, F4, C5, F5, C6
+118396b8-3b3f-11eb-920f-47de4305e20b	20630ebc-16eb-11ea-8a37-af1c14cc01bc	2068c596-16eb-11ea-8a37-ab852bcc7266	Common	Bb3, C4, F4, G4, Bb4, C5
+11823520-3b3f-11eb-920f-3b317faebf15	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206985bc-16eb-11ea-8a37-8bbc6b058158	Common	Bb3, C4, F4, G4, Bb4, C5
+12aa428a-3b3f-11eb-920f-abfe5d7859ae	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206985bc-16eb-11ea-8a37-8bbc6b058158	Stripe	C5, F5, C6, F6, C7
+603f63c2-3b3f-11eb-920f-274ddb516f9b	20ba8084-16eb-11ea-8a37-cb38a312de67	20bee3c2-16eb-11ea-8a37-bb9eb7c55516	Harmonic	F3, G3, C4, F4, G4, C5, F5, G5, C6
+6104d0bc-3b3f-11eb-920f-07818646afe0	20ba8084-16eb-11ea-8a37-cb38a312de67	20bee3c2-16eb-11ea-8a37-bb9eb7c55516	Common	F3, G3, A3, C4, F4, G4, A4, C5
+6226bac8-3b3f-11eb-920f-63f56b0fa1ed	20ba8084-16eb-11ea-8a37-cb38a312de67	20c0b012-16eb-11ea-8a37-a35f53f591aa	Stripe	C5, E5, F5, G5, A5, C6, E6, F6, G6, A6, C7
 79a04136-3a7e-11eb-bce4-93b35cd79ff8	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdbdb52-16eb-11ea-8a37-cba400cead62	Bass	Eb1, F1, Ab1, Bb1, C2, Eb2, F2, Ab2, Bb2, C3, Eb3
 b6766b08-3a7e-11eb-bce4-e334a3e14eb3	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0c456c-16eb-11ea-8a37-2b2149bf202f	Bass	E1, F#1, G#1, B1, C#2, E2, F#2, G#2, B2, C#3, E3
 341be622-3a80-11eb-9975-e35a4f4d2b4d	1e1d5928-16eb-11ea-8a37-9751a208273e	1e2243de-16eb-11ea-8a37-d3d49f71afa1	Bass	E1, G1, A1, B1, D2, E2, G2, A2, B2, D3, E3, G3
@@ -7859,6 +8005,18 @@ c7801462-3aba-11eb-b709-8bb6dd4a2e28	aff2109a-3928-11eb-8b82-b7e55087432d	b20685
 c85fa4ce-3aba-11eb-b709-8b21e4bce063	aff2109a-3928-11eb-8b82-b7e55087432d	41012236-f3d4-4441-815c-c55079ee1fac	Common	A3, B3, D4, E4, F#4, A4, B4, D5
 c85ec856-3aba-11eb-b709-576996945f9d	aff2109a-3928-11eb-8b82-b7e55087432d	b20685d5-598d-40a9-a30b-9456d1d388e3	Common	A3, B3, D4, E4, F#4, A4, B4, D5
 c9bbd856-3aba-11eb-b709-f3a9e61de076	aff2109a-3928-11eb-8b82-b7e55087432d	b20685d5-598d-40a9-a30b-9456d1d388e3	Stripe	D5, E5, F#5, A5, D6, E6, F#6, A6
+8cbd9d52-3b34-11eb-99f6-fb938d3254ed	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4ae8f8-16eb-11ea-8a37-33eb980e6cba	Common	(None)
+8bf69ca2-3b34-11eb-99f6-33cd30be3f5b	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4e1f1e-16eb-11ea-8a37-6326532b1cc0	Harmonic	F3, Ab3, Db4, F4, Ab4, Db5, F5, Ab5
+8bf6015c-3b34-11eb-99f6-d7d463d9b72b	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4ae8f8-16eb-11ea-8a37-33eb980e6cba	Harmonic	E3, G3, B3, E4, G4, B4, E5, G5, B5
+8e085e9a-3b34-11eb-99f6-fb3cda1158c6	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4ae8f8-16eb-11ea-8a37-33eb980e6cba	Stripe	G5, G6
+c83ebb72-3b3e-11eb-9b41-b3f35d287bc2	208ccf18-16eb-11ea-8a37-cfe47cc0feee	209361de-16eb-11ea-8a37-a7cb0235ef13	Stripe	(None)
+c5fdcf9c-3b3e-11eb-9b41-fb618036094d	208ccf18-16eb-11ea-8a37-cfe47cc0feee	2095a2b4-16eb-11ea-8a37-bb8db2ed7980	Harmonic	Eb3, Gb3, Bb3, Db4, Eb4, Gb4, Bb4, Db5, Eb5, Gb5, Bb5
+10add398-3b3f-11eb-9b41-6f32ce0016c1	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206804d0-16eb-11ea-8a37-f7ee0caee516	Harmonic	C3, F3, C4, F4, C5, F5, C6
+118305cc-3b3f-11eb-9b41-37ca8d624e6a	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206804d0-16eb-11ea-8a37-f7ee0caee516	Common	Bb3, C4, F4, G4, Bb4, C5
+12aa7188-3b3f-11eb-9b41-5f7c19f6a656	20630ebc-16eb-11ea-8a37-af1c14cc01bc	2068c596-16eb-11ea-8a37-ab852bcc7266	Stripe	C5, F5, C6, F6, C7
+603f669c-3b3f-11eb-9b41-5bb6582a7a3d	20ba8084-16eb-11ea-8a37-cb38a312de67	20c0b012-16eb-11ea-8a37-a35f53f591aa	Harmonic	F3, G3, C4, F4, G4, C5, F5, G5, C6
+6102e036-3b3f-11eb-9b41-5b4302cbe4dc	20ba8084-16eb-11ea-8a37-cb38a312de67	20bfe7fe-16eb-11ea-8a37-8fe64e8703fd	Common	F3, G3, A3, C4, F4, G4, A4, C5
+6226e98a-3b3f-11eb-9b41-bb06c6afee30	20ba8084-16eb-11ea-8a37-cb38a312de67	20bee3c2-16eb-11ea-8a37-bb9eb7c55516	Stripe	C5, E5, F5, G5, A5, C6, E6, F6, G6, A6, C7
 b6738096-3a7e-11eb-8f5c-c7a08baa5f9b	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d13233c-16eb-11ea-8a37-833234f3afe2	Bass	D#1, F#1, B1, C#2, D#2, F#2, G#2, B2, C#3, D#3
 b6758206-3a7e-11eb-8f5c-4f56c9098530	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0ac7fa-16eb-11ea-8a37-0b26f8cc2e70	Bass	E1, F#1, G#1, B1, C#2, E2, F#2, G#2, B2, C#3, E3
 72112d5c-3a80-11eb-b147-5fd7321b8d31	c37718ea-3928-11eb-8a9b-3f1b98464ff7	e0061a4b-a9d5-42b4-8b56-2444c948fb04	Bass	Db1, Gb1, Ab1, Bb1, Db2, Eb2, Gb2, Ab2, Bb2, Db3, Eb3, Gb3
@@ -7875,6 +8033,19 @@ b9438a1a-3ab4-11eb-b236-47d415927722	1aa1ad62-16eb-11ea-8a37-e3635cda90ac	1ab407
 27e80928-3aba-11eb-939d-2b820f755122	1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1b87ce3c-16eb-11ea-8a37-232d1283a383	Stripe	Db5, Db6, Db7
 c77b4018-3aba-11eb-a15e-9f1b5dd73970	aff2109a-3928-11eb-8b82-b7e55087432d	ffd4f191-3603-453d-a02d-ff337df5725c	Harmonic	F#3, B3, D4, F#4, B4, D5, F#5, B5
 c9bc23ec-3aba-11eb-a15e-a78d8d5d82af	aff2109a-3928-11eb-8b82-b7e55087432d	486f8f3e-3ee0-4514-a8e3-8d649a427035	Stripe	D5, E5, F#5, A5, D6, E6, F#6, A6
+8cbc9132-3b34-11eb-ac70-9f514d1975dd	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4b6e68-16eb-11ea-8a37-cbe1c68e69ad	Common	(None)
+8bf483ea-3b34-11eb-ac70-2779b10ed981	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4b6e68-16eb-11ea-8a37-cbe1c68e69ad	Harmonic	C3, Eb3, G3, C4, Eb4, G4, C5, Eb5, G5, C6
+8e07a9e6-3b34-11eb-ac70-abccfd8f0e8d	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4bf3ce-16eb-11ea-8a37-a34f119dfc4b	Stripe	G5, G6
+8e0891da-3b34-11eb-ac70-63a04e73c6fc	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d49d6b6-16eb-11ea-8a37-e722e8603a99	Stripe	G5, G6
+c5ff0312-3b3e-11eb-88b1-ab74b63240db	208ccf18-16eb-11ea-8a37-cfe47cc0feee	2094d852-16eb-11ea-8a37-03b067473d08	Harmonic	Db3, Gb3, Bb3, Db4, Gb4, Bb4, Db5, Gb5, Bb5
+c701d992-3b3e-11eb-88b1-83f59817af1b	208ccf18-16eb-11ea-8a37-cfe47cc0feee	20925b86-16eb-11ea-8a37-b3e4ae99801a	Common	Bb3, Db4, Eb4, Gb4, Ab4, Bb4
+c83e996c-3b3e-11eb-88b1-0fea03380db2	208ccf18-16eb-11ea-8a37-cfe47cc0feee	2095a2b4-16eb-11ea-8a37-bb8db2ed7980	Stripe	Db5, Ab5, Bb5, Db6, Ab6, Bb6
+c83ed4a4-3b3e-11eb-88b1-d3d2a58a0cc6	208ccf18-16eb-11ea-8a37-cfe47cc0feee	20941dae-16eb-11ea-8a37-632d74208f7b	Stripe	Db5, Ab5, Bb5, Db6, Ab6, Bb6
+10ae11f0-3b3f-11eb-88b1-bb1e91378aed	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206636a0-16eb-11ea-8a37-fb7ce97299eb	Harmonic	F3, C4, F4, C5, F5, C6
+1183ccb4-3b3f-11eb-88b1-db64787b1d51	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206636a0-16eb-11ea-8a37-fb7ce97299eb	Common	Bb3, C4, F4, G4, Bb4, C5
+12aa68d2-3b3f-11eb-88b1-53ec43e4c7b9	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206636a0-16eb-11ea-8a37-fb7ce97299eb	Stripe	C5, F5, C6, F6, C7
+6101c87c-3b3f-11eb-88b1-f7e372c86886	20ba8084-16eb-11ea-8a37-cb38a312de67	20c0b012-16eb-11ea-8a37-a35f53f591aa	Common	F3, G3, A3, C4, F4, G4, A4, C5
+6226d698-3b3f-11eb-88b1-0718f2e028d7	20ba8084-16eb-11ea-8a37-cb38a312de67	20bdd6a8-16eb-11ea-8a37-6b8abd2e6a8c	Stripe	C5, E5, F5, G5, A5, C6, E6, F6, G6, A6, C7
 72134bb4-3a80-11eb-a245-eb73ff105aa6	c37718ea-3928-11eb-8a9b-3f1b98464ff7	3f96790c-c592-49b4-94e2-204ba3d94e2a	Bass	Eb1, Gb1, Ab1, Bb1, Db2, Eb2, Gb2, Ab2, Bb2, Db3, Eb3
 b676922c-3a7e-11eb-8c0d-5f5d6bbaf810	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d10cb64-16eb-11ea-8a37-6bc4e6926e11	Bass	E#1, B1, C#2, E#2, G#2, B2, C#3, D#3, E#3
 b678da78-3a7e-11eb-8c0d-a727e278139e	1d054da2-16eb-11ea-8a37-e76bae68ab4e	1d0dc7f2-16eb-11ea-8a37-3368eb0ad67c	Bass	D#1, F#1, G#1, B1, C#2, D#2, F#2, G#2, B2, C#3, D#3
@@ -7894,6 +8065,12 @@ c77f9636-3aba-11eb-a31f-4b3c4620d931	aff2109a-3928-11eb-8b82-b7e55087432d	f43847
 c85ef5d8-3aba-11eb-a31f-ab4b5ebccae2	aff2109a-3928-11eb-8b82-b7e55087432d	ffd4f191-3603-453d-a02d-ff337df5725c	Common	A3, B3, D4, E4, F#4, A4, B4, D5
 c85fad84-3aba-11eb-a31f-7ff1b23ad0c1	aff2109a-3928-11eb-8b82-b7e55087432d	486f8f3e-3ee0-4514-a8e3-8d649a427035	Common	A3, B3, D4, E4, F#4, A4, B4, D5
 c9bc6c76-3aba-11eb-a31f-c79faae20823	aff2109a-3928-11eb-8b82-b7e55087432d	ffd4f191-3603-453d-a02d-ff337df5725c	Stripe	D5, E5, F#5, A5, D6, E6, F#6, A6
+8cbc9f6a-3b34-11eb-86d8-e730a7612938	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4bf3ce-16eb-11ea-8a37-a34f119dfc4b	Common	(None)
+8bf6ebbc-3b34-11eb-86d8-2f701da1e11c	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d49d6b6-16eb-11ea-8a37-e722e8603a99	Harmonic	F3, Ab3, Db4, F4, Ab4, Db5, F5, Ab5
+8e088442-3b34-11eb-86d8-4f9f70ba8338	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4d048a-16eb-11ea-8a37-075f0d3d6ea8	Stripe	G5, G6
+8e0919f2-3b34-11eb-86d8-b36b39f58207	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4b6e68-16eb-11ea-8a37-cbe1c68e69ad	Stripe	G5, G6
+12aac2f0-3b3f-11eb-950a-6f5417f20eda	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206804d0-16eb-11ea-8a37-f7ee0caee516	Stripe	C5, F5, C6, F6, C7
+603f27c2-3b3f-11eb-950a-2f084cbfb77e	20ba8084-16eb-11ea-8a37-cb38a312de67	20bfe7fe-16eb-11ea-8a37-8fe64e8703fd	Harmonic	F3, G3, C4, F4, G4, C5, F5, G5, C6
 6e4607aa-3a81-11eb-8247-0fe02c12bc28	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f06f48e-16eb-11ea-8a37-f3ad9747e09d	Bass	E1, F#1, G#1, B1, C#2, E2, F#2, G#2, B2, C#3, E3
 c3f30bfe-3a80-11eb-8247-6367da83d71a	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5b5768-16eb-11ea-8a37-9f2cb3c073f2	Bass	C1, F1, G1, A1, C2, F2, G2, A2, C3, F3
 6e40e2b6-3a81-11eb-8247-43acdd9bf0e0	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f0a46a2-16eb-11ea-8a37-1f7a01a8a1a7	Bass	C#1, D#1, E#1, G#1, A#1, C#2, D#2, E#2, G#2, A#2, C#3, D#3, E#3
@@ -7913,6 +8090,8 @@ efb8cc96-3ab8-11eb-b8fc-e36617718c27	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b6201
 f166d330-3ab8-11eb-b8fc-4baabdc5bae4	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b5bc81e-16eb-11ea-8a37-370cea456e6e	Stripe	F5, F6
 f1684ab2-3ab8-11eb-b8fc-57e9d280ccb6	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b647464-16eb-11ea-8a37-0336d9ad3c0b	Stripe	F5, F6
 f1694dfe-3ab8-11eb-b8fc-1332e7263053	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b5c8d9e-16eb-11ea-8a37-17e8e939c0e8	Stripe	F5, F6
+6011ef0e-3b31-11eb-b0a7-bf9fb767f1f2	1c46f5aa-16eb-11ea-8a37-d3b0641778a1	1c59074a-16eb-11ea-8a37-5b1429313a86	Stripe	E5, B5, E6, B6
+8cbc8444-3b34-11eb-910b-23cd2001ae76	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d49d6b6-16eb-11ea-8a37-e722e8603a99	Common	(None)
 c3f30bfe-3a80-11eb-b147-7f194062e9fa	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5c713e-16eb-11ea-8a37-1bf1d077b652	Bass	C1, F1, G1, A1, C2, F2, G2, A2, C3, F3
 b94504d0-3ab4-11eb-937c-b749f0d44231	1aa1ad62-16eb-11ea-8a37-e3635cda90ac	1ab364ee-16eb-11ea-8a37-d3aca8c58b86	Harmonic	G3, C4, D4, G4, C5, D5, G5, C6
 41e12f3e-3ab6-11eb-b8fc-97db8f8fb766	1ad8543e-16eb-11ea-8a37-d3089a6baf4d	1adfa1b2-16eb-11ea-8a37-df6537dcadaf	Common	G3, A3, C4, D4, E4, G4, A4, C5
@@ -7924,6 +8103,12 @@ f167e284-3ab8-11eb-8074-b3a367b26f43	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b60d0
 24e702a6-3aba-11eb-8268-37bf483f958e	1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1b84e532-16eb-11ea-8a37-ef16db6636a2	Harmonic	F3, Ab3, Db4, Eb4, F4, Ab4, Db5, Eb5, F5, Ab5
 262c7038-3aba-11eb-8268-5f978a7c5059	1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1b8a1d54-16eb-11ea-8a37-8be7e4bb3d7e	Common	Db4, Eb4, Bb4, Db5
 27e77260-3aba-11eb-8268-dfb5982e2de2	1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1b83cf26-16eb-11ea-8a37-63ac6388584b	Stripe	Db5, Db6, Db7
+5e06f1c8-3b31-11eb-bf40-432fc84bf432	1c46f5aa-16eb-11ea-8a37-d3b0641778a1	1c522948-16eb-11ea-8a37-5b0e587c5af9	Harmonic	D3, G3, B3, D4, G4, B4, D5, G5, B5
+5e0585d6-3b31-11eb-bf40-e3da91a29388	1c46f5aa-16eb-11ea-8a37-d3b0641778a1	1c53fb06-16eb-11ea-8a37-1398dfac8c81	Harmonic	E3, A3, C#4, E4, A4, C#5, E5, A5
+5ec753d2-3b31-11eb-bf40-dfb2c1fd846f	1c46f5aa-16eb-11ea-8a37-d3b0641778a1	1c59074a-16eb-11ea-8a37-5b1429313a86	Common	G3, B3, E4, F#4, G4, B4, E5
+5ec7bdae-3b31-11eb-bf40-1f97da4a02c5	1c46f5aa-16eb-11ea-8a37-d3b0641778a1	1c53fb06-16eb-11ea-8a37-1398dfac8c81	Common	G3, B3, E4, F#4, G4, B4, E5
+60136ff0-3b31-11eb-bf40-b7994df431bf	1c46f5aa-16eb-11ea-8a37-d3b0641778a1	1c53fb06-16eb-11ea-8a37-1398dfac8c81	Stripe	E5, B5, E6, B6
+8cbca44c-3b34-11eb-90d2-5b328b3f9cbf	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4d048a-16eb-11ea-8a37-075f0d3d6ea8	Common	(None)
 6e45fb5c-3a81-11eb-8d60-cfe768a75ce6	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f086d32-16eb-11ea-8a37-a3a8684dcff3	Bass	E1, F#1, A1, B1, C#2, E2, F#2, A2, B2, C#3, E3, F#3
 c3f35d34-3a80-11eb-8d60-b73bd8969b01	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5a3f72-16eb-11ea-8a37-a3855110ea6d	Bass	C1, D1, E1, G1, A1, C2, D2, E2, G2, A2, C3, D3, E3
 f21838ce-3a80-11eb-8d60-ab66c2730566	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea34880-16eb-11ea-8a37-1b7cfdf32080	Bass	(None)
@@ -7949,6 +8134,11 @@ f167671e-3ab8-11eb-915a-b300e8bfba65	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b5fa1
 262a25d0-3aba-11eb-b228-0fdf5ee90cda	1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1b86ffac-16eb-11ea-8a37-5f536a06b4ea	Common	Db4, Eb4, Bb4, Db5
 2629018c-3aba-11eb-b228-f343c2766b31	1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1b8b9968-16eb-11ea-8a37-8f9063116f2b	Common	Db4, Eb4, Bb4, Db5
 27e87354-3aba-11eb-b228-5725ff405dd9	1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1b89564e-16eb-11ea-8a37-d7a891b74a3c	Stripe	Db5, Db6, Db7
+5e073886-3b31-11eb-9445-e366f3a93d34	1c46f5aa-16eb-11ea-8a37-d3b0641778a1	1c59074a-16eb-11ea-8a37-5b1429313a86	Harmonic	E3, G3, B3, E4, G4, B4, E5, G5, B5
+5ec8179a-3b31-11eb-9445-5f5e93b61b8d	1c46f5aa-16eb-11ea-8a37-d3b0641778a1	1c522948-16eb-11ea-8a37-5b0e587c5af9	Common	G3, B3, E4, F#4, G4, B4, E5
+60131fb4-3b31-11eb-9445-47f11e9fce47	1c46f5aa-16eb-11ea-8a37-d3b0641778a1	1c522948-16eb-11ea-8a37-5b0e587c5af9	Stripe	E5, B5, E6, B6
+8cbd8740-3b34-11eb-bf88-c38aa9b14b30	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4e1f1e-16eb-11ea-8a37-6326532b1cc0	Common	(None)
+8bf5d3b2-3b34-11eb-bf88-c3d3f42adf82	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4d048a-16eb-11ea-8a37-075f0d3d6ea8	Harmonic	F3, Bb3, Db4, F4, Bb4, Db5, F5, Bb5
 c3f9298a-3a80-11eb-a245-97c016d8f3de	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5922fe-16eb-11ea-8a37-536a70a0e43b	Bass	C1, D1, F1, A1, C2, D2, F2, A2, C3, D3
 f2196730-3a80-11eb-a245-8bfdf0b6659f	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea234a4-16eb-11ea-8a37-d3b668688cd4	Bass	D1, G1, A1, B1, D2, E2, G2, A2, B2, D3, E3, G3
 1579014a-3a81-11eb-a245-e7bd06c2ef9d	a9175b1a-39c1-11eb-8f04-2f80c84d572c	4deb761b-b969-43a5-ac42-01a32da6ccce	Bass	E1, G1, C2, D2, E2, G2, C3, D3, E3
@@ -7966,6 +8156,23 @@ efb63080-3ab8-11eb-b2f7-6b525c3baff2	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b6474
 efb954e0-3ab8-11eb-b2f7-0b0238223d3d	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b5c8d9e-16eb-11ea-8a37-17e8e939c0e8	Common	F3, Bb3, C4, Db4, F4, Bb4, C5, Db5
 f16875f0-3ab8-11eb-b2f7-fb87bf92d34a	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b5afc04-16eb-11ea-8a37-ebb2620e2b02	Stripe	F5, F6
 f1699778-3ab8-11eb-b2f7-e3ab4563c00c	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b6588fe-16eb-11ea-8a37-97dd8e294dac	Stripe	F5, F6
+a3514bfc-3b31-11eb-86d8-d31472a77c5e	2ce4f69a-3928-11eb-9da2-9fd1cc2421bb	01e78db3-01a5-4b21-b074-938595e1f015	Harmonic	E3, G3, B3, E4, G4, B4, E5, G5, B5
+a35003be-3b31-11eb-86d8-d3e94187a674	2ce4f69a-3928-11eb-9da2-9fd1cc2421bb	6393495d-72dd-46aa-88f0-ca264aad00ce	Harmonic	E3, G3, C4, E4, G4, C5, E5, G5, C6
+a34f2d68-3b31-11eb-86d8-5be1cea7055c	2ce4f69a-3928-11eb-9da2-9fd1cc2421bb	860cfd8f-12c6-4353-8314-e7519b8b1f25	Harmonic	E3, A3, C4, E4, A4, C5, E5, A5, C6
+a41834d8-3b31-11eb-86d8-d3e0c36dfd88	2ce4f69a-3928-11eb-9da2-9fd1cc2421bb	6393495d-72dd-46aa-88f0-ca264aad00ce	Common	G3, A3, B3, D4, E4, F#4, G4, A4, B4
+a5b1dd80-3b31-11eb-86d8-ef9e0b6dd048	2ce4f69a-3928-11eb-9da2-9fd1cc2421bb	01e78db3-01a5-4b21-b074-938595e1f015	Stripe	D5, D6
+a5ae0a3e-3b31-11eb-86d8-bf99826e6760	2ce4f69a-3928-11eb-9da2-9fd1cc2421bb	6393495d-72dd-46aa-88f0-ca264aad00ce	Stripe	D5, D6
+a5b01108-3b31-11eb-86d8-9bb0692d0b01	2ce4f69a-3928-11eb-9da2-9fd1cc2421bb	860cfd8f-12c6-4353-8314-e7519b8b1f25	Stripe	D5, D6
+d7ab712a-3b31-11eb-86d8-4fa297250b2f	39afcae4-3928-11eb-8b82-2b1f43093e9a	e126b9a8-35e1-4f64-86e0-4ac701e36b25	Harmonic	F3, A3, C4, F4, A4, C5, F5, A5, C6
+d7aa2b80-3b31-11eb-86d8-e703477d03a0	39afcae4-3928-11eb-8b82-2b1f43093e9a	68131f43-4264-4e1d-9ec6-f21860c0f58e	Harmonic	E3, A3, C4, E4, A4, C5, E5, A5, C6
+d86acaa2-3b31-11eb-86d8-1b2db636c138	39afcae4-3928-11eb-8b82-2b1f43093e9a	e126b9a8-35e1-4f64-86e0-4ac701e36b25	Common	G3, A3, C4, D4, E4, G4, A4, C5
+d86fdbdc-3b31-11eb-86d8-0ffba417fc07	39afcae4-3928-11eb-8b82-2b1f43093e9a	5546a7c6-08a6-4413-8334-e4017c113cc7	Common	G3, A3, C4, D4, E4, G4, A4, C5
+d99ebdca-3b31-11eb-86d8-d3bf4ce4323c	39afcae4-3928-11eb-8b82-2b1f43093e9a	e126b9a8-35e1-4f64-86e0-4ac701e36b25	Stripe	C5, G5, C6, G6, C7
+8bf6c75e-3b34-11eb-8128-47786544e68c	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4bf3ce-16eb-11ea-8a37-a34f119dfc4b	Harmonic	C3, Eb3, G3, C4, Eb4, G4, C5, Eb5, G5, C6
+19010e96-3b32-11eb-86d8-1f38df38e10f	1c9163a6-16eb-11ea-8a37-f39bdf338693	1c95eeb2-16eb-11ea-8a37-2fa1463383a6	Common	(None)
+1a134682-3b32-11eb-86d8-3f6c26829c9a	1c9163a6-16eb-11ea-8a37-f39bdf338693	1c98824e-16eb-11ea-8a37-971a2fa70603	Stripe	(None)
+1829be28-3b32-11eb-86d8-13bf033f50af	1c9163a6-16eb-11ea-8a37-f39bdf338693	1c98824e-16eb-11ea-8a37-971a2fa70603	Harmonic	E3, G#3, B3, D#4, E4, G#4, B4, D#5, G#5, B5
+8e0817dc-3b34-11eb-8128-338129abefa2	1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1d4e1f1e-16eb-11ea-8a37-6326532b1cc0	Stripe	G5, G6
 f21909b6-3a80-11eb-9975-23e145a66fc7	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea6b614-16eb-11ea-8a37-6bdf77b06bfc	Bass	C1, E1, G1, A1, C2, D2, E2, G2, A2, C3, D3, E3
 157a85b0-3a81-11eb-9975-bf5e37da3b20	a9175b1a-39c1-11eb-8f04-2f80c84d572c	faea8356-816e-471f-a385-6cd4c730b865	Bass	E1, A1, B1, D2, E2, A2, B2, D3, E3
 4bcef272-3a81-11eb-9975-5347879cba4c	1ed3893c-16eb-11ea-8a37-53c677a170ca	1edb1026-16eb-11ea-8a37-ff7b014fa28d	Bass	C1, G1, B1, C2, D2, G2, B2, C3, D3, G3
@@ -7986,7 +8193,27 @@ f16968fc-3ab8-11eb-966f-cf57c498792f	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b6201
 24e9b37a-3aba-11eb-b6df-83eda04ae016	1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1b89564e-16eb-11ea-8a37-d7a891b74a3c	Harmonic	F3, G3, B3, C#4, F4, B4, C#5, F5
 263157a6-3aba-11eb-b6df-17a69d075939	1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1b87ce3c-16eb-11ea-8a37-232d1283a383	Common	Db4, Eb4, Bb4, Db5
 27e7848a-3aba-11eb-b6df-db2eb4ae6e03	1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1b86ffac-16eb-11ea-8a37-5f536a06b4ea	Stripe	Db5, Db6, Db7
+a41ab7ee-3b31-11eb-ac70-bb727481b2de	2ce4f69a-3928-11eb-9da2-9fd1cc2421bb	860cfd8f-12c6-4353-8314-e7519b8b1f25	Common	G3, A3, B3, D4, E4, F#4, G4, A4, B4
+d7abd84a-3b31-11eb-ac70-f3641b910ab3	39afcae4-3928-11eb-8b82-2b1f43093e9a	5546a7c6-08a6-4413-8334-e4017c113cc7	Harmonic	D3, F3, A3, D4, F4, A4, D5, F5, A5
+d868f66e-3b31-11eb-ac70-e71fbe7397f9	39afcae4-3928-11eb-8b82-2b1f43093e9a	68131f43-4264-4e1d-9ec6-f21860c0f58e	Common	G3, A3, C4, D4, E4, G4, A4, C5
+d99df2d2-3b31-11eb-ac70-0329c810117c	39afcae4-3928-11eb-8b82-2b1f43093e9a	5546a7c6-08a6-4413-8334-e4017c113cc7	Stripe	C5, G5, C6, G6, C7
+19002472-3b32-11eb-ac70-6f75d40eca7f	1c9163a6-16eb-11ea-8a37-f39bdf338693	1c97b878-16eb-11ea-8a37-2fe2fe485f3b	Common	(None)
+1900ff1e-3b32-11eb-ac70-23ce74c9eb20	1c9163a6-16eb-11ea-8a37-f39bdf338693	1c98824e-16eb-11ea-8a37-971a2fa70603	Common	(None)
+1a137e5e-3b32-11eb-ac70-73e888f6c8e3	1c9163a6-16eb-11ea-8a37-f39bdf338693	1c97b878-16eb-11ea-8a37-2fe2fe485f3b	Stripe	(None)
+1829f280-3b32-11eb-ac70-2bb0f3f0ab93	1c9163a6-16eb-11ea-8a37-f39bdf338693	1c9a0aa6-16eb-11ea-8a37-cb933c709de9	Harmonic	Eb3, G3, Ab3, C4, Eb4, G4, C5, Eb5, G5, C6
+445c491c-3b36-11eb-9d60-c3e6136cecec	69be1740-3928-11eb-8b82-135bf05efc6f	a21ee064-d729-4a00-8596-f8936ee4dd27	Harmonic	Eb3, Ab3, Cb3, Eb4, Ab4, Cb4, Eb5, Ab5, Cb5
+445db6da-3b36-11eb-9d60-cb2f7ddad3c1	69be1740-3928-11eb-8b82-135bf05efc6f	228da4e0-07b7-4709-a569-82154c996868	Harmonic	D#3, F#3, B3, D#4, F#4, B4, D#5, F#5, B5
+458d1b36-3b36-11eb-9d60-57a9e84572a0	69be1740-3928-11eb-8b82-135bf05efc6f	228da4e0-07b7-4709-a569-82154c996868	Common	Gb3, Bb3, Db4, Eb4, Gb4, Bb4, Db5, Eb5
+469eb12e-3b36-11eb-9d60-d39c23d1267c	69be1740-3928-11eb-8b82-135bf05efc6f	a21ee064-d729-4a00-8596-f8936ee4dd27	Stripe	Db5, Eb5, Gb5, Bb5, Db6, Eb6, Gb6, Bb6
+469fcabe-3b36-11eb-9d60-7b81a65122fb	69be1740-3928-11eb-8b82-135bf05efc6f	9e2717ba-0c77-4d89-b718-6fad2a13a233	Stripe	Db5, Eb5, Gb5, Bb5, Db6, Eb6, Gb6, Bb6
+8464282c-3b36-11eb-9d60-4f340c2d8e9d	5150b8ec-1a61-11eb-b572-0be5ef9bdb58	5a68848c-1a61-11eb-b572-83716fa8f02c	Stripe	D5, F5, G5, Bb5, D6, F6, G6, Bb6, D7
+b4caf32e-3b36-11eb-9d60-7f4142bfd630	1df7d432-16eb-11ea-8a37-97c25b2a6298	1dfc0df4-16eb-11ea-8a37-ff6897d42092	Harmonic	E3, G3, B3, D4, E4, G4, B4, D5, E5, G5, B5
+b4cdc3d8-3b36-11eb-9d60-eb2f0786923e	1df7d432-16eb-11ea-8a37-97c25b2a6298	1df9fdd4-16eb-11ea-8a37-63972360521c	Harmonic	F#3, G3, B3, D4, F#4, B4, D5, F#5, B5
+b580ea9e-3b36-11eb-9d60-2f1aa821a970	1df7d432-16eb-11ea-8a37-97c25b2a6298	1df9fdd4-16eb-11ea-8a37-63972360521c	Common	F#3, A3, B3, D4, E4, F#4, A4, B4
+b6b73d0a-3b36-11eb-9d60-9b8b75c32f18	1df7d432-16eb-11ea-8a37-97c25b2a6298	1dfc0df4-16eb-11ea-8a37-ff6897d42092	Stripe	E5, F#5, A5, B5, E6, F#6, A6, B6
+b6ba62d2-3b36-11eb-9d60-d37934a77236	1df7d432-16eb-11ea-8a37-97c25b2a6298	1dfd0cfe-16eb-11ea-8a37-c7c998dccbe4	Stripe	E5, F#5, A5, B5, E6, F#6, A6, B6
 c54822d8-3ab6-11eb-844e-77335758af42	1c07b16a-16eb-11ea-8a37-6bbfe3f0404e	1c0f9d94-16eb-11ea-8a37-3fd2242b0fe5	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
+a41b131a-3b31-11eb-90d2-97f6505fc3c6	2ce4f69a-3928-11eb-9da2-9fd1cc2421bb	01e78db3-01a5-4b21-b074-938595e1f015	Common	G3, A3, B3, D4, E4, F#4, G4, A4, B4
 007db05c-3ab7-11eb-844e-2bdf79d78da9	7f8fef4e-3928-11eb-8b82-675eeaf6e161	954ecb75-c21c-47dd-8944-4a6ab92a49de	Harmonic	F3, Bb3, Db4, F4, Bb4, Db5, F5, Bb5
 01b3a95e-3ab7-11eb-844e-336ff0f5bac1	7f8fef4e-3928-11eb-8b82-675eeaf6e161	d0c6627a-614a-49fe-9d93-325a6f6d2cf5	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
 03ab6eb8-3ab7-11eb-844e-07a0117db5e7	7f8fef4e-3928-11eb-8b82-675eeaf6e161	351a5e59-b536-496d-85db-499cbdba102e	Stripe	Db5, Eb5, F5, Ab5, Db6, Eb6, F6, Ab6
@@ -7996,6 +8223,18 @@ c54822d8-3ab6-11eb-844e-77335758af42	1c07b16a-16eb-11ea-8a37-6bbfe3f0404e	1c0f9d
 7575ec38-3ab9-11eb-a3e5-6766b000b703	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bdecdae-16eb-11ea-8a37-7f9d5fa8a2cb	Harmonic	F#3, A#3, C#4, F#4, A#4, C#5, F#5, A#5
 7731b39a-3ab9-11eb-a3e5-7b3cfd4e19cd	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bdc999e-16eb-11ea-8a37-a786747a75d9	Common	F#3, G#3, C#4, E#4, F#4, G#4, C#5
 772ae9d4-3ab9-11eb-a3e5-2baff835f749	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be88db2-16eb-11ea-8a37-6f546d1d6a47	Common	F#3, G#3, C#4, E#4, F#4, G#4, C#5
+d7ab44ca-3b31-11eb-90d2-3f7d6961bcf6	39afcae4-3928-11eb-8b82-2b1f43093e9a	75512bb7-fef6-43cf-bf2e-28616fe9694c	Harmonic	E3, G3, C4, E4, G4, C5, E5, G5, C6
+d86a316e-3b31-11eb-90d2-23d3eae642be	39afcae4-3928-11eb-8b82-2b1f43093e9a	75512bb7-fef6-43cf-bf2e-28616fe9694c	Common	G3, A3, C4, D4, E4, G4, A4, C5
+d99ee9b2-3b31-11eb-90d2-efdd0799c1c3	39afcae4-3928-11eb-8b82-2b1f43093e9a	68131f43-4264-4e1d-9ec6-f21860c0f58e	Stripe	C5, G5, C6, G6, C7
+458c1ed4-3b36-11eb-819b-67182bacf462	69be1740-3928-11eb-8b82-135bf05efc6f	a21ee064-d729-4a00-8596-f8936ee4dd27	Common	Gb3, Bb3, Db4, Eb4, Gb4, Bb4, Db5, Eb5
+19007abc-3b32-11eb-90d2-936e2691dd49	1c9163a6-16eb-11ea-8a37-f39bdf338693	1c9a0aa6-16eb-11ea-8a37-cb933c709de9	Common	(None)
+1a1422f0-3b32-11eb-90d2-8f14ba28daf7	1c9163a6-16eb-11ea-8a37-f39bdf338693	1c9a0aa6-16eb-11ea-8a37-cb933c709de9	Stripe	(None)
+1829e312-3b32-11eb-90d2-433b280d298c	1c9163a6-16eb-11ea-8a37-f39bdf338693	1c97b878-16eb-11ea-8a37-2fe2fe485f3b	Harmonic	E3, G3, B3, C4, E4, G4, B4, E5, G5, B5
+182a4b72-3b32-11eb-90d2-6b384510a694	1c9163a6-16eb-11ea-8a37-f39bdf338693	1c95eeb2-16eb-11ea-8a37-2fa1463383a6	Harmonic	E3, F3, A3, C4, E4, A4, C5, E5, A5, C6
+83449c1a-3b36-11eb-819b-4b5b7eacc84c	5150b8ec-1a61-11eb-b572-0be5ef9bdb58	5a68848c-1a61-11eb-b572-83716fa8f02c	Common	Eb3, F3, G3, Bb3, C4, D4, Eb4, F4, G4, Bb4, C5
+b4cacd5e-3b36-11eb-819b-efd0371f9d64	1df7d432-16eb-11ea-8a37-97c25b2a6298	1dfd0cfe-16eb-11ea-8a37-c7c998dccbe4	Harmonic	E3, G3, B3, C4, E4, G4, B4, E5, G5, B5
+b580f462-3b36-11eb-819b-1b77e05e05c2	1df7d432-16eb-11ea-8a37-97c25b2a6298	1dfd0cfe-16eb-11ea-8a37-c7c998dccbe4	Common	F#3, A3, B3, D4, E4, F#4, A4, B4
+b6b67a78-3b36-11eb-819b-8b635fedbc1c	1df7d432-16eb-11ea-8a37-97c25b2a6298	1dfa88b2-16eb-11ea-8a37-c7aaa2dbce35	Stripe	E5, F#5, A5, B5, E6, F#6, A6, B6
 757fa3d6-3ab9-11eb-b228-c396d7fcc2ec	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be7f870-16eb-11ea-8a37-eb41fe2ff0cd	Harmonic	(None)
 c666ad88-3ab6-11eb-b8fc-f74f49915665	1c07b16a-16eb-11ea-8a37-6bbfe3f0404e	1c17ad68-16eb-11ea-8a37-d770412ed6cd	Stripe	Db5, Eb5, F5, Ab5, Db6, Eb6, F6, Ab6
 01b40afc-3ab7-11eb-b8fc-c34f1cd00dc0	7f8fef4e-3928-11eb-8b82-675eeaf6e161	29e4df67-70f3-4a58-9faa-6c3a375d81b6	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
@@ -8004,12 +8243,63 @@ c666ad88-3ab6-11eb-b8fc-f74f49915665	1c07b16a-16eb-11ea-8a37-6bbfe3f0404e	1c17ad
 7729b42e-3ab9-11eb-b228-1378a5194c3b	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bd8f2da-16eb-11ea-8a37-03a41a05dc43	Common	F#3, G#3, C#4, E#4, F#4, G#4, C#5
 79c8555a-3ab9-11eb-b228-bfd261eef452	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be88db2-16eb-11ea-8a37-6f546d1d6a47	Stripe	C#5, F#5, G#5, C#6, F#6, G#6, C#7
 79c3bd38-3ab9-11eb-b228-ffec96551a01	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bddbd6a-16eb-11ea-8a37-1b3eb2e8ad4d	Stripe	C#5, F#5, G#5, C#6, F#6, G#6, C#7
+d99e3760-3b31-11eb-910b-ef7637bfa37b	39afcae4-3928-11eb-8b82-2b1f43093e9a	75512bb7-fef6-43cf-bf2e-28616fe9694c	Stripe	C5, G5, C6, G6, C7
+1a144ee2-3b32-11eb-910b-370d83742b92	1c9163a6-16eb-11ea-8a37-f39bdf338693	1c95eeb2-16eb-11ea-8a37-2fa1463383a6	Stripe	(None)
+445d4402-3b36-11eb-9fe7-47af2f6249d6	69be1740-3928-11eb-8b82-135bf05efc6f	9e2717ba-0c77-4d89-b718-6fad2a13a233	Harmonic	Eb3, Gb3, Bb3, Eb4, Gb4, Bb4, Eb5, Gb5, Bb5
+458c80e0-3b36-11eb-9fe7-73f51108fee7	69be1740-3928-11eb-8b82-135bf05efc6f	9e2717ba-0c77-4d89-b718-6fad2a13a233	Common	Gb3, Bb3, Db4, Eb4, Gb4, Bb4, Db5, Eb5
+469fcbcc-3b36-11eb-9fe7-5b3618510338	69be1740-3928-11eb-8b82-135bf05efc6f	228da4e0-07b7-4709-a569-82154c996868	Stripe	Db5, Eb5, Gb5, Bb5, Db6, Eb6, Gb6, Bb6
+8295b470-3b36-11eb-9fe7-fbc2518f4483	5150b8ec-1a61-11eb-b572-0be5ef9bdb58	5a68848c-1a61-11eb-b572-83716fa8f02c	Harmonic	Eb3, G3, Bb3, C4, Eb4, G4, Bb4, D5, G5, Bb5
+b4c89d22-3b36-11eb-9fe7-835db16b4982	1df7d432-16eb-11ea-8a37-97c25b2a6298	1dfa88b2-16eb-11ea-8a37-c7aaa2dbce35	Harmonic	F#3, A3, B3, D4, F#4, A4, B4, D5, F#5, A5, B5
+b57f883e-3b36-11eb-9fe7-2755ea819940	1df7d432-16eb-11ea-8a37-97c25b2a6298	1dfa88b2-16eb-11ea-8a37-c7aaa2dbce35	Common	F#3, A3, B3, D4, E4, F#4, A4, B4
+b580d734-3b36-11eb-9fe7-371a1e995db4	1df7d432-16eb-11ea-8a37-97c25b2a6298	1dfc0df4-16eb-11ea-8a37-ff6897d42092	Common	F#3, A3, B3, D4, E4, F#4, A4, B4
+b6b75eca-3b36-11eb-9fe7-077abd2c913d	1df7d432-16eb-11ea-8a37-97c25b2a6298	1df9fdd4-16eb-11ea-8a37-63972360521c	Stripe	E5, F#5, A5, B5, E6, F#6, A6, B6
+f25178a2-3b32-11eb-90d2-c3cc0b60f0e4	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da3770c-16eb-11ea-8a37-7732bf881909	Stripe	C#5, E5, F#5, B5, C#6, E6, F#6, B6
 007e2e9c-3ab7-11eb-8450-5b5e602ccd2e	7f8fef4e-3928-11eb-8b82-675eeaf6e161	98bd5f0c-61ce-4cc3-8fd3-2f870ea5cb9c	Harmonic	Db3, Gb3, Bb3, Db4, Gb4, Bb4, Db5, Gb5, Bb5
 01b39dec-3ab7-11eb-8450-7b84f50c3aef	7f8fef4e-3928-11eb-8b82-675eeaf6e161	70ccdb6c-90e1-4480-b6d1-0f9855ac7a74	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
 03ab969a-3ab7-11eb-8450-cfa5911d7c5f	7f8fef4e-3928-11eb-8b82-675eeaf6e161	70ccdb6c-90e1-4480-b6d1-0f9855ac7a74	Stripe	Db5, Eb5, F5, Ab5, Db6, Eb6, F6, Ab6
 757fdc02-3ab9-11eb-a31f-6f0e34de2980	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bda9e32-16eb-11ea-8a37-0f7b2f594094	Harmonic	F#3, A#3, C#4, F#4, A#4, C#5, F#5, A#5
 773be1da-3ab9-11eb-a31f-5b078d174200	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bde471c-16eb-11ea-8a37-37c61c8e7c13	Common	F#3, G#3, C#4, E#4, F#4, G#4, C#5
 79c3e16e-3ab9-11eb-a31f-e300a1f29650	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bda9e32-16eb-11ea-8a37-0f7b2f594094	Stripe	C#5, F#5, G#5, C#6, F#6, G#6, C#7
+f2553168-3b32-11eb-90d2-134d72bdf91a	1da04118-16eb-11ea-8a37-3f1dce9d6424	1dade782-16eb-11ea-8a37-637f5d9bf96e	Stripe	C#5, E5, F#5, B5, C#6, E6, F#6, B6
+4523b172-3b32-11eb-90d2-13d4ceddc204	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7d1468-16eb-11ea-8a37-cf99aa8c9c35	Common	(None)
+46cd8fde-3b32-11eb-90d2-cfedcf679a0c	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7ab858-16eb-11ea-8a37-67a1340ef4e9	Stripe	(None)
+441b8c64-3b32-11eb-90d2-ebefe55f24d0	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7e3ef6-16eb-11ea-8a37-63dc38680c8c	Harmonic	E3, F#3, A3, C#4, E4, F#4, A4, C#5, E5, F#5, A5
+9492ecf0-3b32-11eb-90d2-af5e4fa6c18e	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc5b2a0-16eb-11ea-8a37-9f1e4427ce56	Harmonic	E3, G#3, B3, E4, G#4, B4, E5, G#5, B5
+95987e4e-3b32-11eb-90d2-4b32a4339c3a	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc4dd80-16eb-11ea-8a37-3f993a2cdf53	Common	F#3, G#3, B3, C#4, E4, F#4, G#4, B4
+efaa35f8-3b32-11eb-90d2-af9f9abc4c1c	1da04118-16eb-11ea-8a37-3f1dce9d6424	1dad1d02-16eb-11ea-8a37-87fafdade05d	Harmonic	E3, G#3, B3, C#4, E4, G#4, B4, C#5, E5, G#5, B5
+f0e8f9ea-3b32-11eb-90d2-97f861f2d7a4	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da6675a-16eb-11ea-8a37-6bca201e8805	Common	E3, F#3, A3, B3, C#4, E4, F#4, A4, B4
+2227e648-3b37-11eb-9d60-43f728e5499f	1e1d5928-16eb-11ea-8a37-9751a208273e	1e2243de-16eb-11ea-8a37-d3d49f71afa1	Harmonic	E3, G3, B3, D4, E4, G4, B4, D5, E5, G5, B5
+22289778-3b37-11eb-819b-07f39381ac0a	1e1d5928-16eb-11ea-8a37-9751a208273e	1e219524-16eb-11ea-8a37-471f056e4e18	Harmonic	E3, F3, A3, C4, E4, A4, C5, E5, A5, C6
+232d5596-3b37-11eb-9d60-13516f717436	1e1d5928-16eb-11ea-8a37-9751a208273e	1e2243de-16eb-11ea-8a37-d3d49f71afa1	Common	E3, G3, A3, B3, D4, E4, G4, A4, B4
+232edb5a-3b37-11eb-9d60-4fa8fe5f2acc	1e1d5928-16eb-11ea-8a37-9751a208273e	1e219524-16eb-11ea-8a37-471f056e4e18	Common	E3, G3, A3, B3, D4, E4, G4, A4, B4
+2450266a-3b37-11eb-819b-f38cc6ed4665	1e1d5928-16eb-11ea-8a37-9751a208273e	1e2243de-16eb-11ea-8a37-d3d49f71afa1	Stripe	D5, G5, B5, D6, G6, B6
+8be62d06-3b37-11eb-9d60-c72650508a24	1e5b5f98-16eb-11ea-8a37-df0dc125933d	1e5f2efc-16eb-11ea-8a37-3f0bdaa04f5a	Common	F3, G3, C4, D4, F4, G4, C5
+8d090596-3b37-11eb-9d60-b75a50b2d54a	1e5b5f98-16eb-11ea-8a37-df0dc125933d	1e5f2efc-16eb-11ea-8a37-3f0bdaa04f5a	Stripe	C5, G5, C6, G6, C7
+bd0b4bf0-3b37-11eb-819b-3f00556bf2de	c37718ea-3928-11eb-8a9b-3f1b98464ff7	1df98945-e96a-451c-a4c5-fb88fff539d9	Harmonic	Eb3, Gb3, Bb3, Db4, Eb4, Gb4, Bb4, Db5, Eb5, Gb5, Bb5
+bd0a8454-3b37-11eb-9d60-c39d4acd637d	c37718ea-3928-11eb-8a9b-3f1b98464ff7	5679fc34-9243-430f-9e99-ab662bd1ff48	Harmonic	F3, Ab3, Bb3, Db4, F4, Ab4, Bb4, Db5, F5, Ab5, Bb5
+bd0b63b0-3b37-11eb-9d60-ebdf30669bf1	c37718ea-3928-11eb-8a9b-3f1b98464ff7	3f96790c-c592-49b4-94e2-204ba3d94e2a	Harmonic	Gb3, Bb3, Db4, F4, Bb4, Db5, F5, Bb5
+be009f60-3b37-11eb-819b-f33be067592f	c37718ea-3928-11eb-8a9b-3f1b98464ff7	d09236bd-60df-4876-b55e-ff0971b079b9	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
+be01a7fc-3b37-11eb-9d60-47da81e8e969	c37718ea-3928-11eb-8a9b-3f1b98464ff7	5679fc34-9243-430f-9e99-ab662bd1ff48	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
+be009f60-3b37-11eb-9d60-ef8dfe9bb42b	c37718ea-3928-11eb-8a9b-3f1b98464ff7	e0061a4b-a9d5-42b4-8b56-2444c948fb04	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
+bf4ced1a-3b37-11eb-9d60-3f471b687e4a	c37718ea-3928-11eb-8a9b-3f1b98464ff7	1df98945-e96a-451c-a4c5-fb88fff539d9	Stripe	Db5, Eb5, F5, Ab5, Bb5, Db6, Eb6, F6, Ab6, Bb6
+bf4cb4c6-3b37-11eb-819b-07bf6714c741	c37718ea-3928-11eb-8a9b-3f1b98464ff7	5679fc34-9243-430f-9e99-ab662bd1ff48	Stripe	Db5, Eb5, F5, Ab5, Bb5, Db6, Eb6, F6, Ab6, Bb6
+bf4bc6ce-3b37-11eb-819b-9b341ddddb66	c37718ea-3928-11eb-8a9b-3f1b98464ff7	3f96790c-c592-49b4-94e2-204ba3d94e2a	Stripe	Db5, Eb5, F5, Ab5, Bb5, Db6, Eb6, F6, Ab6, Bb6
+49ebcfa4-3b38-11eb-9d60-a35ca43b5c05	d26835c8-3928-11eb-8b82-1fab78084fbe	baeea2f1-c9de-4bf6-9dee-85b72f2657a3	Common	(None)
+49202a84-3b38-11eb-9d60-176c9439c33f	d26835c8-3928-11eb-8b82-1fab78084fbe	207bbc40-96e6-4810-9ecd-de616d74d2f9	Harmonic	F3, Ab3, C4, Db4, F4, Ab4, C5, F5, Ab5, C6
+4920bdc8-3b38-11eb-819b-8f026a651517	d26835c8-3928-11eb-8b82-1fab78084fbe	baeea2f1-c9de-4bf6-9dee-85b72f2657a3	Harmonic	F3, Gb3, Bb3, Db4, F4, Bb4, Db5, F5, Bb5
+4b219ca0-3b38-11eb-9d60-437c856517b7	d26835c8-3928-11eb-8b82-1fab78084fbe	207bbc40-96e6-4810-9ecd-de616d74d2f9	Stripe	C5, F5, C6, F6, C7
+4b21829c-3b38-11eb-819b-6bd8a988dc5d	d26835c8-3928-11eb-8b82-1fab78084fbe	1e5ffe67-2177-4c45-a534-7e80f320ad05	Stripe	C5, F5, C6, F6, C7
+49eb937c-3b38-11eb-819b-07740e62f4d7	d26835c8-3928-11eb-8b82-1fab78084fbe	458cec83-244f-45a0-8e91-15e4d2bb6236	Common	(none)
+fdd436dc-3b38-11eb-819b-435334fd3169	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5a3f72-16eb-11ea-8a37-a3855110ea6d	Harmonic	E3, G3, C4, E4, G4, C5, E5, G5, C6
+fdd5a7ba-3b38-11eb-9d60-1fb63d68a074	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5922fe-16eb-11ea-8a37-536a70a0e43b	Harmonic	F3, A3, D4, F4, A4, D5, F5, A5
+fdd594c8-3b38-11eb-819b-8b2c7335f4c9	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5c713e-16eb-11ea-8a37-1bf1d077b652	Harmonic	F3, A3, C4, F4, A4, C5, F5, A5, C6
+ff0ed7be-3b38-11eb-819b-4fc782a8f9e0	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5a3f72-16eb-11ea-8a37-a3855110ea6d	Common	G3, A3, C4, D4, E4, F4, G4, A4, C5
+ff0f8808-3b38-11eb-9d60-8b3e75fd4108	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5b5768-16eb-11ea-8a37-9f2cb3c073f2	Common	G3, A3, C4, D4, E4, F4, G4, A4, C5
+ff0e7102-3b38-11eb-819b-3bb6ca269085	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5922fe-16eb-11ea-8a37-536a70a0e43b	Common	G3, A3, C4, D4, E4, F4, G4, A4, C5
+ff0f73b8-3b38-11eb-819b-f7076d782270	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5c713e-16eb-11ea-8a37-1bf1d077b652	Common	G3, A3, C4, D4, E4, F4, G4, A4, C5
+002b839a-3b39-11eb-9d60-4f333bb83812	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5b5768-16eb-11ea-8a37-9f2cb3c073f2	Stripe	E5, G5, E6, G6
+002c50cc-3b39-11eb-819b-63a97b18741e	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5c713e-16eb-11ea-8a37-1bf1d077b652	Stripe	E5, G5, E6, G6
+f255bc00-3b32-11eb-ac70-5b943f4c7f9d	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da8d2f6-16eb-11ea-8a37-2fdd16b9f6eb	Stripe	C#5, E5, F#5, B5, C#6, E6, F#6, B6
 007c0658-3ab7-11eb-86aa-33c22cc3b619	7f8fef4e-3928-11eb-8b82-675eeaf6e161	59362af5-59c4-4658-ba95-e9347bede3c0	Harmonic	Eb3, Ab3, C4, Eb4, Ab4, C5, Eb5, Ab5, C6
 007d6b38-3ab7-11eb-86aa-df934157e9e3	7f8fef4e-3928-11eb-8b82-675eeaf6e161	d0c6627a-614a-49fe-9d93-325a6f6d2cf5	Harmonic	Eb3, Gb3, Bb3, Eb4, Gb4, Bb4, Eb5, Gb5, Bb5
 01b43a72-3ab7-11eb-86aa-bbf2a469a102	7f8fef4e-3928-11eb-8b82-675eeaf6e161	83240ae6-c3b9-490a-8c07-4361d59086bf	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
@@ -8017,16 +8307,65 @@ c666ad88-3ab6-11eb-b8fc-f74f49915665	1c07b16a-16eb-11ea-8a37-6bbfe3f0404e	1c17ad
 03ab7408-3ab7-11eb-86aa-7f3eaa05c2c2	7f8fef4e-3928-11eb-8b82-675eeaf6e161	29e4df67-70f3-4a58-9faa-6c3a375d81b6	Stripe	Db5, Eb5, F5, Ab5, Db6, Eb6, F6, Ab6
 03a942e6-3ab7-11eb-86aa-579d1a862456	7f8fef4e-3928-11eb-8b82-675eeaf6e161	59362af5-59c4-4658-ba95-e9347bede3c0	Stripe	Db5, Eb5, F5, Ab5, Db6, Eb6, F6, Ab6
 757dc8ae-3ab9-11eb-97a0-9b48150b2998	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be88db2-16eb-11ea-8a37-6f546d1d6a47	Harmonic	F#3, A#3, C#4, D#4, F#4, A#4, C#5, D#5, F#5, A#5
+451b43d4-3b32-11eb-ac70-035caf5ec66b	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d798ece-16eb-11ea-8a37-43346351f71b	Common	(None)
+451fc2f6-3b32-11eb-ac70-f7dcc5e68ef1	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d78ccc8-16eb-11ea-8a37-5320f5d2c7dc	Common	(None)
+46cd5eb0-3b32-11eb-ac70-df333247b795	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d78115c-16eb-11ea-8a37-fb1d8f58995a	Stripe	(None)
+441a7ffe-3b32-11eb-ac70-7bc0bf067b6c	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7d1468-16eb-11ea-8a37-cf99aa8c9c35	Harmonic	E3, G3, A3, C4, E4, G4, A4, C5, E5, G5, A5, C6
+44181534-3b32-11eb-ac70-eb2d2308dd1f	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d78ccc8-16eb-11ea-8a37-5320f5d2c7dc	Harmonic	F3, A3, C4, E4, F4, A4, C5, E5, F5, A5, C6
+4416407e-3b32-11eb-ac70-c3762aa0eb4b	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d76976e-16eb-11ea-8a37-e30d3b156418	Harmonic	E3, G3, A3, C4, E4, G4, A4, C5, E5, G5, A5, C6
+9493fa00-3b32-11eb-ac70-1b150add55a5	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc4dd80-16eb-11ea-8a37-3f993a2cdf53	Harmonic	E3, G#3, B3, E4, G#4, B4, E5, G#5, B5
+9594f526-3b32-11eb-ac70-27f1d9e5be48	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc76820-16eb-11ea-8a37-43ec3bb1a5c2	Common	F#3, G#3, B3, C#4, E4, F#4, G#4, B4
+96c8f442-3b32-11eb-ac70-e7072dcc08ab	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc4dd80-16eb-11ea-8a37-3f993a2cdf53	Stripe	F#5, G#5, B5, F#6, G#6, B6
+efaaf7fe-3b32-11eb-ac70-b7cfe271601e	1da04118-16eb-11ea-8a37-3f1dce9d6424	1daaef46-16eb-11ea-8a37-f77f541358bf	Harmonic	F#3, A3, B3, D4, F#4, A4, B4, D5, F#5, A5, B5
+f0e493f0-3b32-11eb-ac70-4f1fd755080e	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da8d2f6-16eb-11ea-8a37-2fdd16b9f6eb	Common	E3, F#3, A3, B3, C#4, E4, F#4, A4, B4
+f0e87f1a-3b32-11eb-ac70-d7f014cf98fb	1da04118-16eb-11ea-8a37-3f1dce9d6424	1dac078c-16eb-11ea-8a37-6b81d3bcf141	Common	E3, F#3, A3, B3, C#4, E4, F#4, A4, B4
+22285aa6-3b37-11eb-9fe7-2f37e82ceac9	1e1d5928-16eb-11ea-8a37-9751a208273e	1e2380e6-16eb-11ea-8a37-ebe189a30727	Harmonic	E3, G3, A3, C4, E4, G4, A4, C5, E5, G5, A5, C6
+232dbb80-3b37-11eb-9fe7-bfe830156935	1e1d5928-16eb-11ea-8a37-9751a208273e	1e2380e6-16eb-11ea-8a37-ebe189a30727	Common	E3, G3, A3, B3, D4, E4, G4, A4, B4
+24513852-3b37-11eb-9fe7-b3b33951ac16	1e1d5928-16eb-11ea-8a37-9751a208273e	1e219524-16eb-11ea-8a37-471f056e4e18	Stripe	D5, G5, B5, D6, G6, B6
+24502b1a-3b37-11eb-9fe7-1f1b2eea2154	1e1d5928-16eb-11ea-8a37-9751a208273e	1e2380e6-16eb-11ea-8a37-ebe189a30727	Stripe	D5, G5, B5, D6, G6, B6
+8b24b09a-3b37-11eb-9fe7-abc4079e23b1	1e5b5f98-16eb-11ea-8a37-df0dc125933d	1e5f2efc-16eb-11ea-8a37-3f0bdaa04f5a	Harmonic	E3, F3, A3, C4, E4, A4, C5, E5, A5, C6
+8b2555a4-3b37-11eb-9fe7-93b5b7d3a3a4	1e5b5f98-16eb-11ea-8a37-df0dc125933d	1e69b5ac-16eb-11ea-8a37-dbeb22a65069	Harmonic	E3, F3, A3, C4, E4, A4, C5, E5, A5, C6
+8be71946-3b37-11eb-9fe7-4fc91950f217	1e5b5f98-16eb-11ea-8a37-df0dc125933d	1e69b5ac-16eb-11ea-8a37-dbeb22a65069	Common	F3, G3, C4, D4, F4, G4, C5
+8d08c2d4-3b37-11eb-9fe7-b3ef68a77b7e	1e5b5f98-16eb-11ea-8a37-df0dc125933d	1e69b5ac-16eb-11ea-8a37-dbeb22a65069	Stripe	C5, G5, C6, G6, C7
+bd0a1ece-3b37-11eb-9fe7-0320c3b51a39	c37718ea-3928-11eb-8a9b-3f1b98464ff7	523915d0-8d1c-407e-81fa-b602c82cabbc	Harmonic	F3, Ab3, Bb3, Db4, F4, Ab4, Bb4, Db5, F5, Ab5, Bb5
+bd0abdca-3b37-11eb-9fe7-c3dbd6095977	c37718ea-3928-11eb-8a9b-3f1b98464ff7	d09236bd-60df-4876-b55e-ff0971b079b9	Harmonic	F3, Gb3, Bb3, Db4, F4, Bb4, Db5, F5, Bb5
+bd0be7cc-3b37-11eb-9fe7-3f570051e46e	c37718ea-3928-11eb-8a9b-3f1b98464ff7	e0061a4b-a9d5-42b4-8b56-2444c948fb04	Harmonic	F3, Gb3, Bb3, Db4, F4, Bb4, Db5, F5, Bb5
+bdfe4e68-3b37-11eb-9fe7-5fda3b2a5799	c37718ea-3928-11eb-8a9b-3f1b98464ff7	523915d0-8d1c-407e-81fa-b602c82cabbc	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
+bdff59ca-3b37-11eb-9fe7-37f28418adb3	c37718ea-3928-11eb-8a9b-3f1b98464ff7	1df98945-e96a-451c-a4c5-fb88fff539d9	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
+bf4f7184-3b37-11eb-9fe7-2f2027508a0a	c37718ea-3928-11eb-8a9b-3f1b98464ff7	523915d0-8d1c-407e-81fa-b602c82cabbc	Stripe	Db5, Eb5, F5, Ab5, Bb5, Db6, Eb6, F6, Ab6, Bb6
+bf4c709c-3b37-11eb-9fe7-ff3bf369cbb9	c37718ea-3928-11eb-8a9b-3f1b98464ff7	e0061a4b-a9d5-42b4-8b56-2444c948fb04	Stripe	Db5, Eb5, F5, Ab5, Bb5, Db6, Eb6, F6, Ab6, Bb6
+49ea4a3a-3b38-11eb-9fe7-1b26c1e532de	d26835c8-3928-11eb-8b82-1fab78084fbe	1e5ffe67-2177-4c45-a534-7e80f320ad05	Common	(None)
+4920061c-3b38-11eb-9fe7-6720cb183dcc	d26835c8-3928-11eb-8b82-1fab78084fbe	1e5ffe67-2177-4c45-a534-7e80f320ad05	Harmonic	F3, Ab3, Bb3, Db4, F4, Ab4, Bb4, Db5, F5, Ab5, Bb5
+4b21c018-3b38-11eb-9fe7-bb55884ec5ec	d26835c8-3928-11eb-8b82-1fab78084fbe	baeea2f1-c9de-4bf6-9dee-85b72f2657a3	Stripe	C5, F5, C6, F6, C7
+fdd53f6e-3b38-11eb-9fe7-8b08f97568d7	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5b5768-16eb-11ea-8a37-9f2cb3c073f2	Harmonic	F3, A3, C4, F4, A4, C5, F5, A5, C6
+002b71ca-3b39-11eb-9fe7-07b28c882975	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5922fe-16eb-11ea-8a37-536a70a0e43b	Stripe	E5, G5, E6, G6
 007e93a0-3ab7-11eb-9747-fbeeb89db426	7f8fef4e-3928-11eb-8b82-675eeaf6e161	70ccdb6c-90e1-4480-b6d1-0f9855ac7a74	Harmonic	Eb3, Gb3, Bb3, Eb4, Gb4, Bb4, Eb5, Gb5, Bb5
 01b418da-3ab7-11eb-9747-03232816eb54	7f8fef4e-3928-11eb-8b82-675eeaf6e161	351a5e59-b536-496d-85db-499cbdba102e	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
 01b4c442-3ab7-11eb-9747-038fc73c3d71	7f8fef4e-3928-11eb-8b82-675eeaf6e161	cd5fdde6-d4e6-4f7a-a552-18836e116f49	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
 03abe992-3ab7-11eb-9747-dbd8d517d9de	7f8fef4e-3928-11eb-8b82-675eeaf6e161	954ecb75-c21c-47dd-8944-4a6ab92a49de	Stripe	Db5, Eb5, F5, Ab5, Db6, Eb6, F6, Ab6
+f2556c82-3b32-11eb-910b-a7c9580edb51	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da6675a-16eb-11ea-8a37-6bca201e8805	Stripe	C#5, E5, F#5, B5, C#6, E6, F#6, B6
 75771c8e-3ab9-11eb-a8f4-1fca955c73f9	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bdd2d50-16eb-11ea-8a37-5f10a401977a	Harmonic	(None)
 77338346-3ab9-11eb-a8f4-135858d32c3b	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bda9e32-16eb-11ea-8a37-0f7b2f594094	Common	F#3, G#3, C#4, E#4, F#4, G#4, C#5
 79c42c0a-3ab9-11eb-a8f4-ef86e8f2a401	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bd9ce08-16eb-11ea-8a37-a316a610cf6f	Stripe	C#5, F#5, G#5, C#6, F#6, G#6, C#7
+4520494c-3b32-11eb-910b-07d3fb65e6d4	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d78115c-16eb-11ea-8a37-fb1d8f58995a	Common	(None)
+46c9deb6-3b32-11eb-910b-b35476655827	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d798ece-16eb-11ea-8a37-43346351f71b	Stripe	(None)
+441b3a3e-3b32-11eb-910b-0f9c5f132a11	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7ab858-16eb-11ea-8a37-67a1340ef4e9	Harmonic	Eb3, Gb3, Bb3, Db4, Eb4, Gb4, Bb4, Db5, Eb5, Gb5, Bb5
+9493731e-3b32-11eb-910b-777eee86e43a	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc7fd08-16eb-11ea-8a37-f3a00124615b	Harmonic	E3, F#3, B3, D#4, E4, F#4, B4, D#5, E5, F#5, B5
+95988a6a-3b32-11eb-910b-374592cf6e77	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc10994-16eb-11ea-8a37-272c2db24f32	Common	F#3, G#3, B3, C#4, E4, F#4, G#4, B4
+96c9a360-3b32-11eb-910b-637dc492529d	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc7fd08-16eb-11ea-8a37-f3a00124615b	Stripe	F#5, G#5, B5, F#6, G#6, B6
+be00f5dc-3b37-11eb-b951-6f8df62f2f1b	c37718ea-3928-11eb-8a9b-3f1b98464ff7	3f96790c-c592-49b4-94e2-204ba3d94e2a	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
+efac37ae-3b32-11eb-910b-6729f8dcedb0	1da04118-16eb-11ea-8a37-3f1dce9d6424	1dade782-16eb-11ea-8a37-637f5d9bf96e	Harmonic	F#3, G#3, B3, E4, F#4, G#4, B4, E5, F#5, G#5, B5
+f0e5c7ac-3b32-11eb-910b-cbc29080be60	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da9e5b0-16eb-11ea-8a37-2b3aaec1a8e3	Common	E3, F#3, A3, B3, C#4, E4, F#4, A4, B4
+bf4d2aaa-3b37-11eb-b951-4bf45336da92	c37718ea-3928-11eb-8a9b-3f1b98464ff7	d09236bd-60df-4876-b55e-ff0971b079b9	Stripe	Db5, Eb5, F5, Ab5, Bb5, Db6, Eb6, F6, Ab6, Bb6
+49eb6cee-3b38-11eb-b951-0b34a650eb49	d26835c8-3928-11eb-8b82-1fab78084fbe	207bbc40-96e6-4810-9ecd-de616d74d2f9	Common	(None)
+4925d59c-3b38-11eb-b951-2f2cbe46b43f	d26835c8-3928-11eb-8b82-1fab78084fbe	458cec83-244f-45a0-8e91-15e4d2bb6236	Harmonic	E3, F3, A3, C4, E4, A4, C5, E5, A5, C6
+4b219692-3b38-11eb-b951-cf6c4a7a758b	d26835c8-3928-11eb-8b82-1fab78084fbe	458cec83-244f-45a0-8e91-15e4d2bb6236	Stripe	C5, F5, C6, F6, C7
+002ba4e2-3b39-11eb-b951-f38974f0ee10	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5a3f72-16eb-11ea-8a37-a3855110ea6d	Stripe	E5, G5, E6, G6
+f252cba8-3b32-11eb-86d8-270e624d5599	1da04118-16eb-11ea-8a37-3f1dce9d6424	1daaef46-16eb-11ea-8a37-f77f541358bf	Stripe	C#5, E5, F#5, B5, C#6, E6, F#6, B6
 8fd9206a-3ab7-11eb-9bc8-e7e4a99b1cf3	8a271cfc-3928-11eb-8b82-63db8b0d3e83	1af5805f-67e4-45cb-b727-6377f241e974	Harmonic	Gb3, Ab3, Db4, Eb4, Gb4, Ab4, Db5, Eb5, Gb5, Ab5
 908efb06-3ab7-11eb-9bc8-9b73ca024947	8a271cfc-3928-11eb-8b82-63db8b0d3e83	1af5805f-67e4-45cb-b727-6377f241e974	Common	F3, Ab3, Bb3, Db4, Eb4, F4, Ab4, Bb4
 9224f182-3ab7-11eb-9bc8-1772e2b7ad47	8a271cfc-3928-11eb-8b82-63db8b0d3e83	1af5805f-67e4-45cb-b727-6377f241e974	Stripe	Eb5, F5, Ab5, Eb6, F6, Ab6
+f255990a-3b32-11eb-86d8-67d9d1a9196b	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da9e5b0-16eb-11ea-8a37-2b3aaec1a8e3	Stripe	C#5, E5, F#5, B5, C#6, E6, F#6, B6
 d4a697e0-3ab7-11eb-9bc8-8f3d771677fa	1b048734-16eb-11ea-8a37-eb0f9b6b1f89	1b0ef5fc-16eb-11ea-8a37-cf4edd9e58cc	Harmonic	C3, F3, Bb3, C4, F4, Bb4, C5, F5, Bb5, C6
 d5483a3c-3ab7-11eb-9bc8-73b9cc834633	1b048734-16eb-11ea-8a37-eb0f9b6b1f89	1b139508-16eb-11ea-8a37-a7873f22d42e	Common	F3, G3, A3, Bb3, C4, D4, F4, G4, C5
 d6025034-3ab7-11eb-9bc8-cba5ddbfce03	1b048734-16eb-11ea-8a37-eb0f9b6b1f89	1b0ef5fc-16eb-11ea-8a37-cf4edd9e58cc	Stripe	C5, D5, F5, C6, D6, F6, C7
@@ -8034,9 +8373,56 @@ d6025034-3ab7-11eb-9bc8-cba5ddbfce03	1b048734-16eb-11ea-8a37-eb0f9b6b1f89	1b0ef5
 79c39894-3ab9-11eb-b709-0bc87b414561	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bdd2d50-16eb-11ea-8a37-5f10a401977a	Stripe	(None)
 7732cc6c-3ab9-11eb-b709-fbe95c83d21f	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bddbd6a-16eb-11ea-8a37-1b3eb2e8ad4d	Common	F#3, G#3, C#4, E#4, F#4, G#4, C#5
 79bfffae-3ab9-11eb-b709-c3049f8a7d63	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bd8f2da-16eb-11ea-8a37-03a41a05dc43	Stripe	C#5, F#5, G#5, C#6, F#6, G#6, C#7
+451fd1d8-3b32-11eb-86d8-53b293144541	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d76976e-16eb-11ea-8a37-e30d3b156418	Common	(None)
+452579e4-3b32-11eb-86d8-e725fc928014	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7e3ef6-16eb-11ea-8a37-63dc38680c8c	Common	(None)
+46c87b98-3b32-11eb-86d8-8fc614629606	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d76976e-16eb-11ea-8a37-e30d3b156418	Stripe	(None)
+46cbe904-3b32-11eb-86d8-a744e1a76861	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d78ccc8-16eb-11ea-8a37-5320f5d2c7dc	Stripe	(None)
+46d0f75a-3b32-11eb-86d8-8306b99b561c	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7e3ef6-16eb-11ea-8a37-63dc38680c8c	Stripe	(None)
+4416f870-3b32-11eb-86d8-8f62d86389d1	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d798ece-16eb-11ea-8a37-43346351f71b	Harmonic	E3, G3, A3, C4, E4, G4, A4, C5, E5, G5, A5, C6
+44199c10-3b32-11eb-86d8-6f5d4e56c15b	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d78115c-16eb-11ea-8a37-fb1d8f58995a	Harmonic	E3, G3, Bb3, C#4, E4, G4, Bb4, C#5, E5, G5, Bb5
+94943b6e-3b32-11eb-86d8-2beb9277c307	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc10994-16eb-11ea-8a37-272c2db24f32	Harmonic	E3, G#3, B3, D#4, E4, G#4, B4, D#5, G#5, B5
+96c97386-3b32-11eb-86d8-cf90c5ce619d	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc76820-16eb-11ea-8a37-43ec3bb1a5c2	Stripe	F#5, G#5, B5, F#6, G#6, B6
+5f1d06ac-3b3a-11eb-b2b4-e7cf7549e34f	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea34880-16eb-11ea-8a37-1b7cfdf32080	Harmonic	(None)
+efac27c8-3b32-11eb-86d8-ab76284da13c	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da9e5b0-16eb-11ea-8a37-2b3aaec1a8e3	Harmonic	F#3, A3, C#4, F#4, A4, C#5, F#5, A5
+efa81fa2-3b32-11eb-86d8-f71cdfa051df	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da3770c-16eb-11ea-8a37-7732bf881909	Harmonic	F#3, A3, B3, D4, F#4, A4, B4, D5, F#5, A5, B5
+f0e5fa06-3b32-11eb-86d8-279c19d27b1d	1da04118-16eb-11ea-8a37-3f1dce9d6424	1daaef46-16eb-11ea-8a37-f77f541358bf	Common	E3, F#3, A3, B3, C#4, E4, F#4, A4, B4
+f0e7359c-3b32-11eb-86d8-171f93da2e04	1da04118-16eb-11ea-8a37-3f1dce9d6424	1dad1d02-16eb-11ea-8a37-87fafdade05d	Common	E3, F#3, A3, B3, C#4, E4, F#4, A4, B4
+5fded32c-3b3a-11eb-b2b4-fbf21ddfa02b	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea34880-16eb-11ea-8a37-1b7cfdf32080	Common	(None)
+60f4a21e-3b3a-11eb-b2b4-f30b13d66130	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea34880-16eb-11ea-8a37-1b7cfdf32080	Stripe	(None)
+5f213b82-3b3a-11eb-b2b4-9373cc5de790	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea10f5c-16eb-11ea-8a37-8b788ac91d7d	Harmonic	F3, A3, Bb3, D4, F4, A4, D5, F5, A5
+b5ce96a0-3b3a-11eb-b2b4-6f06aaf9b77b	a9175b1a-39c1-11eb-8f04-2f80c84d572c	a713763a-a25f-4d3d-bd3e-0e3a10865036	Harmonic	A3, B3, E4, A4, B4, E5, A5, B5
+b6b1437e-3b3a-11eb-b2b4-27fe3cc8e207	a9175b1a-39c1-11eb-8f04-2f80c84d572c	a713763a-a25f-4d3d-bd3e-0e3a10865036	Common	B3, D4, E4, B4
+b7f0f41e-3b3a-11eb-b2b4-d339cbdb7760	a9175b1a-39c1-11eb-8f04-2f80c84d572c	faea8356-816e-471f-a385-6cd4c730b865	Stripe	E5, E6
+f740c806-3b3a-11eb-b2b4-e7f04bb025e0	1ed3893c-16eb-11ea-8a37-53c677a170ca	1ed968a2-16eb-11ea-8a37-c7c15947c877	Harmonic	D3, F#3, A3, C#4, F#4, A4, C#5, F#5, A5
+f742400a-3b3a-11eb-b2b4-2b0a976038b9	1ed3893c-16eb-11ea-8a37-53c677a170ca	1ed9f998-16eb-11ea-8a37-3f0c7f5a82d6	Harmonic	F3, A3, C4, F4, A4, C5, F5, A5, C6
+f82eb534-3b3a-11eb-b2b4-538d523cdea2	1ed3893c-16eb-11ea-8a37-53c677a170ca	1ed968a2-16eb-11ea-8a37-c7c15947c877	Common	A3, E4, A4
+f82df694-3b3a-11eb-b2b4-e78ca51c3c6d	1ed3893c-16eb-11ea-8a37-53c677a170ca	1ed801ce-16eb-11ea-8a37-1b77ac80dd1c	Common	A3, E4, A4
+f83092dc-3b3a-11eb-b2b4-438cb0996958	1ed3893c-16eb-11ea-8a37-53c677a170ca	1edb1026-16eb-11ea-8a37-ff7b014fa28d	Common	A3, E4, A4
+f9690dd2-3b3a-11eb-b2b4-fbcf26378637	1ed3893c-16eb-11ea-8a37-53c677a170ca	1ed801ce-16eb-11ea-8a37-1b77ac80dd1c	Stripe	E5, A5, E6, A6
+f969caa6-3b3a-11eb-b2b4-c7b195b3e647	1ed3893c-16eb-11ea-8a37-53c677a170ca	1edb1026-16eb-11ea-8a37-ff7b014fa28d	Stripe	E5, A5, E6, A6
+3865810a-3b3b-11eb-b2b4-03dbfe936adc	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f086d32-16eb-11ea-8a37-a3a8684dcff3	Harmonic	E3, G#3, A3, C#4, E4, G#4, A4, C#5, E5, G#5, A5
+399a68b0-3b3b-11eb-b2b4-938bdb738bae	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f086d32-16eb-11ea-8a37-a3a8684dcff3	Common	C#3, G#3, C#4, G#4, C#5
+3c2e938a-3b3b-11eb-b2b4-e75ced80746e	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f06f48e-16eb-11ea-8a37-f3ad9747e09d	Stripe	G#5, G#6
 7589e51c-3ab9-11eb-bcae-2f78de173e8b	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bd8f2da-16eb-11ea-8a37-03a41a05dc43	Harmonic	F#3, B3, C#4, F#4, B4, C#5, F#5, B5
 77299160-3ab9-11eb-bcae-53bd5ac6d7f4	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be1ea48-16eb-11ea-8a37-2bcdfc100607	Common	F#3, G#3, C#4, E#4, F#4, G#4, C#5
 79c46364-3ab9-11eb-bcae-cb1fd1f9cb28	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bde471c-16eb-11ea-8a37-37c61c8e7c13	Stripe	C#5, F#5, G#5, C#6, F#6, G#6, C#7
+451e1d66-3b32-11eb-99f6-ab6879ad52b7	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d775622-16eb-11ea-8a37-23e6818ee1e3	Common	(None)
+4522a9a8-3b32-11eb-99f6-67cdafea5c8a	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7f53e0-16eb-11ea-8a37-33b7002ffbf9	Common	(None)
+46cd8138-3b32-11eb-99f6-5b27bbe9f75d	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d775622-16eb-11ea-8a37-23e6818ee1e3	Stripe	(None)
+441bda7a-3b32-11eb-99f6-b726129bec2b	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7f53e0-16eb-11ea-8a37-33b7002ffbf9	Harmonic	G3, A3, C4, E4, G4, A4, C5, E5, G5, A5, C6
+f255cd12-3b32-11eb-99f6-cfc0b5d6fed2	1da04118-16eb-11ea-8a37-3f1dce9d6424	1dad1d02-16eb-11ea-8a37-87fafdade05d	Stripe	C#5, E5, F#5, B5, C#6, E6, F#6, B6
+9598a2d4-3b32-11eb-99f6-4b354e059178	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc5b2a0-16eb-11ea-8a37-9f1e4427ce56	Common	F#3, G#3, B3, C#4, E4, F#4, G#4, B4
+96ca6c64-3b32-11eb-99f6-d3d89a3da806	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc5b2a0-16eb-11ea-8a37-9f1e4427ce56	Stripe	F#5, G#5, B5, F#6, G#6, B6
+efabf6a4-3b32-11eb-99f6-0face5fb1ab7	1da04118-16eb-11ea-8a37-3f1dce9d6424	1dac078c-16eb-11ea-8a37-6b81d3bcf141	Harmonic	F#3, G3, B3, D4, F#4, B4, D5, F#5, B5
+efb54eac-3b32-11eb-99f6-9f82188ea370	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da6675a-16eb-11ea-8a37-6bca201e8805	Harmonic	D3, F#3, A3, D4, F#4, A4, D5, F#5, A5
+f0e76418-3b32-11eb-99f6-a7928c71f822	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da3770c-16eb-11ea-8a37-7732bf881909	Common	E3, F#3, A3, B3, C#4, E4, F#4, A4, B4
+5fe01a52-3b3a-11eb-ace8-0b06090bfd14	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea83048-16eb-11ea-8a37-43846ab39c6e	Common	G3, A3, C4, D4, E4, G4, A4, C5
+60f461b4-3b3a-11eb-ace8-2b16be9936d0	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea234a4-16eb-11ea-8a37-d3b668688cd4	Stripe	D5, E5, G5, A5, D6, E6, G6, A6
+3864a30c-3b3b-11eb-ace8-5f55bb0a2d28	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f06f48e-16eb-11ea-8a37-f3ad9747e09d	Harmonic	F#3, G#3, B3, D#4, F#4, G#4, B4, D#5, F#5, G#5, B5
+399a206c-3b3b-11eb-ace8-0f24b831f04f	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f07b3f6-16eb-11ea-8a37-dbc34b7afbc9	Common	C#3, G#3, C#4, G#4, C#5
+399aa94c-3b3b-11eb-ace8-5b203fbcf87f	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f0b7ce8-16eb-11ea-8a37-133710e2245b	Common	C#3, G#3, C#4, G#4, C#5
+3c29e466-3b3b-11eb-ace8-0741905ec162	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f063990-16eb-11ea-8a37-03c26b70417d	Stripe	G#5, G#6
+3c2ceb0c-3b3b-11eb-ace8-efdd6335fa61	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f086d32-16eb-11ea-8a37-a3a8684dcff3	Stripe	G#5, G#6
 58e008a6-3a7d-11eb-ac7a-d789567c822a	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc7fd08-16eb-11ea-8a37-f3a00124615b	Bass	C#1, E1, F#1, G#1, B1, C#2, E2, F#2, G#2, B2, C#3, E3
 bbe0b45a-3a7d-11eb-8eae-13403e2257f4	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7e3ef6-16eb-11ea-8a37-63dc38680c8c	Bass	E1, F#1,  A1, B1, C#2, E2, F#2, A2, B2, C#3, E3, F#3
 2d7e19ae-3a7e-11eb-8eae-f7d3ec0b52ce	1da04118-16eb-11ea-8a37-3f1dce9d6424	1dade782-16eb-11ea-8a37-637f5d9bf96e	Bass	E1, F#1, G#1, B1, C#2, E2, F#2, G#2, B2, C#3, E3
@@ -8045,6 +8431,28 @@ bbe0b45a-3a7d-11eb-8eae-13403e2257f4	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7e3e
 758016e0-3ab9-11eb-939d-3ba83f3127f9	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bde471c-16eb-11ea-8a37-37c61c8e7c13	Harmonic	F#3, G#3, B3, D#4, F#4, G#4, B4, D#5, F#5, G#5, B5
 772b8a88-3ab9-11eb-939d-e3316e5142dc	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bdecdae-16eb-11ea-8a37-7f9d5fa8a2cb	Common	F#3, G#3, C#4, E#4, F#4, G#4, C#5
 79c87594-3ab9-11eb-939d-97c25899825c	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be5a4da-16eb-11ea-8a37-df5eaedd2317	Stripe	C#5, F#5, G#5, C#6, F#6, G#6, C#7
+451bd68c-3b32-11eb-8128-9f5369561dee	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7ab858-16eb-11ea-8a37-67a1340ef4e9	Common	(None)
+46cdce40-3b32-11eb-8128-ab7b555618bc	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d7f53e0-16eb-11ea-8a37-33b7002ffbf9	Stripe	(None)
+441c1c56-3b32-11eb-8128-63ba5334a76b	1d725d2a-16eb-11ea-8a37-7bccb481c597	1d775622-16eb-11ea-8a37-23e6818ee1e3	Harmonic	E3, G3, B3, D4, E4, G4, B4, D5, E5, G5, B5
+9594e66c-3b32-11eb-8128-4be2d55c86fd	1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1cc7fd08-16eb-11ea-8a37-f3a00124615b	Common	F#3, G#3, B3, C#4, E4, F#4, G#4, B4
+f2557ff6-3b32-11eb-8128-67ff8280f8bc	1da04118-16eb-11ea-8a37-3f1dce9d6424	1dac078c-16eb-11ea-8a37-6b81d3bcf141	Stripe	C#5, E5, F#5, B5, C#6, E6, F#6, B6
+efab89b2-3b32-11eb-8128-efde4b6a828f	1da04118-16eb-11ea-8a37-3f1dce9d6424	1da8d2f6-16eb-11ea-8a37-2fdd16b9f6eb	Harmonic	F#3, A3, C#4, F#4, A4, C#5, F#5, A5
+f0e74ea6-3b32-11eb-8128-7796f3224f94	1da04118-16eb-11ea-8a37-3f1dce9d6424	1dade782-16eb-11ea-8a37-637f5d9bf96e	Common	E3, F#3, A3, B3, C#4, E4, F#4, A4, B4
+5f1ecac8-3b3a-11eb-9936-73a2c5602b1e	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea6b614-16eb-11ea-8a37-6bdf77b06bfc	Harmonic	E3, G3, A3, C4, E4, G4, A4, C5, E5, G5, A5, C6
+5f1f1fdc-3b3a-11eb-9936-bb99790520e3	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea83048-16eb-11ea-8a37-43846ab39c6e	Harmonic	E3, F3, A3, C4, E4, A4, C5, E5, A5, C6
+5fdee970-3b3a-11eb-9936-6333ae2b44a3	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea10f5c-16eb-11ea-8a37-8b788ac91d7d	Common	G3, A3, C4, D4, E4, G4, A4, C5
+5fdfcd22-3b3a-11eb-9936-53cd7f8022f8	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea234a4-16eb-11ea-8a37-d3b668688cd4	Common	G3, A3, C4, D4, E4, G4, A4, C5
+60f4cdac-3b3a-11eb-9936-77b49618cca5	1e9a52e8-16eb-11ea-8a37-8357d918bfda	1ea10f5c-16eb-11ea-8a37-8b788ac91d7d	Stripe	D5, E5, G5, A5, D6, E6, G6, A6
+b5ced606-3b3a-11eb-9936-9f7175bc6fb4	a9175b1a-39c1-11eb-8f04-2f80c84d572c	faea8356-816e-471f-a385-6cd4c730b865	Harmonic	E3, A3, B3, E4, A4, B4, E5, A5, B5
+f83077fc-3b3a-11eb-9936-271c2b823334	1ed3893c-16eb-11ea-8a37-53c677a170ca	1ed9f998-16eb-11ea-8a37-3f0c7f5a82d6	Common	A3, E4, A4
+f968f806-3b3a-11eb-9936-37123f40b802	1ed3893c-16eb-11ea-8a37-53c677a170ca	1ed9f998-16eb-11ea-8a37-3f0c7f5a82d6	Stripe	E5, A5, E6, A6
+3860cde0-3b3b-11eb-9936-5ff751f7f329	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f0a46a2-16eb-11ea-8a37-1f7a01a8a1a7	Harmonic	E#3, G#3, B#4, E#4, G#4, B#5, E#5, G#5, B#6
+38599a16-3b3b-11eb-9936-ab0b908451c9	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f091ed0-16eb-11ea-8a37-5742339937e5	Harmonic	E3, G#3, A3, C#4, E4, G#4, C#5, E5, G#5
+3865810a-3b3b-11eb-9936-573bda8dd97f	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f0cb072-16eb-11ea-8a37-0f34d3bdc7b6	Harmonic	F#3, A3, B3, C#4, F#4, A4, B4, C#5, F#5, A5, B5
+39990704-3b3b-11eb-9936-2be54a5ddcd0	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f063990-16eb-11ea-8a37-03c26b70417d	Common	C#3, G#3, C#4, G#4, C#5
+399a9a92-3b3b-11eb-9936-8328f636bb50	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f0a46a2-16eb-11ea-8a37-1f7a01a8a1a7	Common	C#3, G#3, C#4, G#4, C#5
+3c29a8fc-3b3b-11eb-9936-ebb39410ca2c	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f091ed0-16eb-11ea-8a37-5742339937e5	Stripe	G#5, G#6
+3c2cc46a-3b3b-11eb-9936-3ff5c853a64d	1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1f0cb072-16eb-11ea-8a37-0f34d3bdc7b6	Stripe	G#5, G#6
 \.
 
 
@@ -9356,6 +9764,7 @@ f9417526-34f3-11eb-a256-0f73b2d2a081	488d266c-16ea-11ea-88e3-afea5aeef804	488ada
 8c32509e-351c-11eb-ba5b-1f388c355971	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1606968229073-c9fbc84d-1854-4bf3-aca3-b3291d3917a8-99938152806
 7664d4ca-36b2-11eb-8351-d3ef84eb8698	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1607142568261-36b3cb89-adc5-49bd-a660-70d3b8258b55-586180945562
 b75c0af4-37b9-11eb-9d58-bf1ede760b64	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1607255634926-46f3e753-7d6e-4ca4-9803-482fa51d5b59-027392312233311
+523a6a12-3b10-11eb-af0a-ebefdf842f38	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1607622684943-ce09501c-9e4e-4aa0-b1f2-260f89843d6d-02384838194
 \.
 
 
