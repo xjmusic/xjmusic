@@ -1,0 +1,40 @@
+{
+  "data": [
+    {
+      "type": "chains",
+      "relationships": {
+        "account": {
+          "data": {
+            "id": "14e58a74-16eb-11ea-8a37-27b15e9fd30c",
+            "type": "accounts"
+          }
+        }
+      },
+      "attributes": {
+        "embedKey": "coolambience",
+        "stopAt": null,
+        "name": "Cool Ambience™",
+        "state": "Fabricate",
+        "type": "Production",
+        "config": "mixerCompressAheadSeconds=0.05\nmixerCompressDecaySeconds=0.125\nmixerCompressRatioMax=10\nmixerCompressRatioMin=0.5\nmixerCompressToAmplitude=5\nmixerDspBufferSize=1024\nmixerHighpassThresholdHz=60\nmixerLowpassThresholdHz=6000\nmixerNormalizationMax=0.999\nmixerSampleAttackMicros=1000\nmixerSampleReleaseMicros=60000\noutputChannels=2\noutputContainer=\"AAC\"\noutputEncoding=\"PCM_SIGNED\"\noutputEncodingQuality=0.618\noutputFrameRate=48000\noutputSampleBits=16\nplayerBufferAheadSeconds=90\nplayerBufferDelaySeconds=5\nplayerCompressorAttack=0.02\nplayerCompressorKnee=40\nplayerCompressorRatio=4\nplayerCompressorRelease=0.06\nplayerCompressorThreshold=-20"
+      }
+    }
+  ],
+  "included": [
+    {
+      "type": "chain-bindings",
+      "relationships": {
+        "chain": {
+          "data": {
+            "id": "5ffe298b-e137-440c-85c6-dc27fc117ca7",
+            "type": "chains"
+          }
+        }
+      },
+      "attributes": {
+        "targetId": "1509102a-16eb-11ea-8a37-4764c2a771db",
+        "type": "Library"
+      }
+    }
+  ]
+}

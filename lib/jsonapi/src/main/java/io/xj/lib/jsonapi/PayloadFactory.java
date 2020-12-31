@@ -4,6 +4,7 @@ package io.xj.lib.jsonapi;
 
 import com.google.protobuf.MessageLite ;
 
+import java.io.BufferedReader;
 import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -259,6 +260,15 @@ public interface PayloadFactory {
    @throws JsonApiException on failure to deserialize
    */
   Payload deserialize(String json) throws JsonApiException;
+
+  /**
+   Parse some JSON text from a buffered reader, deserializing it into a {@link Payload}
+
+   @param bufferedReader to read from, and deserialize
+   @return {@link Payload} deserialized from JSON
+   @throws JsonApiException on failure to deserialize
+   */
+  Payload deserialize(BufferedReader bufferedReader) throws JsonApiException;
 
   /**
    Parse some JSON text, and deserialize it into the specified class

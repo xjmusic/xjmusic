@@ -126,7 +126,7 @@ public class CraftRhythmProgramVoiceInitialTest {
     int pickedSnare = 0;
     int pickedBleep = 0;
     int pickedToot = 0;
-    Collection<SegmentChoiceArrangementPick> picks = fabricator.getSegmentChoiceArrangementPicks();
+    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
     for (SegmentChoiceArrangementPick pick : picks) {
       if (pick.getInstrumentAudioId().equals(fake.instrument8_audio8kick.getId()))
         pickedKick++;

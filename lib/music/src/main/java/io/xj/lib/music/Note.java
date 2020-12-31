@@ -46,7 +46,7 @@ public class Note {
    @return note
    */
   public static Note of(String name) {
-    return new Note(name);
+    return new Note(name.trim());
   }
 
   /**

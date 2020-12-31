@@ -179,15 +179,15 @@ public class CraftRhythmProgramVoiceNextMacroTest {
     craftFactory.rhythm(fabricator).doWork();
 
     // assert rhythm choice
-    Collection<SegmentChoice> segmentChoices = fabricator.getSegmentChoices();
+    Collection<SegmentChoice> segmentChoices = fabricator.getChoices();
     SegmentChoice rhythmChoice = segmentChoices.stream()
       .filter(c -> c.getProgramType().equals(Program.Type.Rhythm)).findFirst().orElseThrow();
-    assertTrue(fabricator.getSegmentChoiceArrangements()
+    assertTrue(fabricator.getArrangements()
       .stream().anyMatch(a -> a.getSegmentChoiceId().equals(rhythmChoice.getId())));
     // test vector for [#154014731] persist Audio pick in memory
     int pickedKick = 0;
     int pickedSnare = 0;
-    Collection<SegmentChoiceArrangementPick> picks = fabricator.getSegmentChoiceArrangementPicks();
+    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
     for (SegmentChoiceArrangementPick pick : picks) {
       if (pick.getInstrumentAudioId().equals(audioKick.getId()))
         pickedKick++;

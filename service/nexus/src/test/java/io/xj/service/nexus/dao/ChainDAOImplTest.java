@@ -115,6 +115,35 @@ public class ChainDAOImplTest {
     subject = injector.getInstance(ChainDAO.class);
   }
 
+  /**
+   [#176285826] Nexus bootstraps Chains from JSON file on startup
+   */
+  @Test
+  public void bootstrap() throws Exception {
+    HubClientAccess access = buildHubClientAccess("Admin");
+    var input = Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(account1.getId())
+      .setName("coconuts")
+      .setState(Chain.State.Draft)
+      .setType(Chain.Type.Production)
+      .build();
+    var inputBinding = ChainBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain2.getId())
+      .setTargetId(library2.getId())
+      .setType(ChainBinding.Type.Library)
+      .build();
+
+    var result = subject.bootstrap(access, input, ImmutableList.of(inputBinding));
+
+    assertNotNull(result);
+    assertEquals(account1.getId(), result.getAccountId());
+    assertEquals("coconuts", result.getName());
+    assertEquals(Chain.State.Fabricate, result.getState());
+    assertEquals(Chain.Type.Production, result.getType());
+  }
+
   @Test
   public void create() throws Exception {
     HubClientAccess access = buildHubClientAccess("Admin");

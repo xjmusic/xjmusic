@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
   // XJ
-  implementation 'io.xj:protocol:v0.7'
+  implementation 'io.xj:protocol:v0.8'
   // intravendor
   implementation project(':lib:entity')
   implementation project(':lib:util')

@@ -13,8 +13,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class EntityRankTest {
-  private EntityRank<ProgramSequence> entityRank;
+public class EntityScorePickerTest {
+  private EntityScorePicker<ProgramSequence> entityScorePicker;
 
   private ProgramSequence sequenceB;
   private ProgramSequence sequenceC;
@@ -43,34 +43,34 @@ public class EntityRankTest {
       .setName("Good News")
       .build();
 
-    entityRank = new EntityRank<>();
+    entityScorePicker = new EntityScorePicker<>();
 
-    entityRank.add(sequenceB, 0.75);
-    entityRank.add(sequenceC, 0.25);
-    entityRank.add(sequenceD, 0.5);
+    entityScorePicker.add(sequenceB, 0.75);
+    entityScorePicker.add(sequenceC, 0.25);
+    entityScorePicker.add(sequenceD, 0.5);
   }
 
   @Test
   public void add() {
-    entityRank.add(sequenceE);
+    entityScorePicker.add(sequenceE);
 
-    assertTrue(entityRank.getAll().contains(sequenceE));
+    assertTrue(entityScorePicker.getAll().contains(sequenceE));
   }
 
   @Test
   public void addAll() {
-    EntityRank<ProgramSequence> result = new EntityRank<>();
+    EntityScorePicker<ProgramSequence> result = new EntityScorePicker<>();
     result.addAll(
       ImmutableList.of(sequenceB, sequenceC, sequenceD));
 
-    assertTrue(entityRank.getAll().contains(sequenceB));
-    assertTrue(entityRank.getAll().contains(sequenceC));
-    assertTrue(entityRank.getAll().contains(sequenceD));
+    assertTrue(entityScorePicker.getAll().contains(sequenceB));
+    assertTrue(entityScorePicker.getAll().contains(sequenceC));
+    assertTrue(entityScorePicker.getAll().contains(sequenceD));
   }
 
   @Test
   public void addWithScore() {
-    entityRank.add(sequenceE, 2.0);
+    entityScorePicker.add(sequenceE, 2.0);
 
     assertArrayEquals(
       new ProgramSequence[]{
@@ -79,13 +79,13 @@ public class EntityRankTest {
         sequenceD,
         sequenceE
       },
-      entityRank.getAll().toArray()
+      entityScorePicker.getAll().toArray()
     );
   }
 
   @Test
   public void score() {
-    entityRank.score(sequenceC, 2.0);
+    entityScorePicker.score(sequenceC, 2.0);
 
     assertArrayEquals(
       new ProgramSequence[]{
@@ -93,13 +93,13 @@ public class EntityRankTest {
         sequenceB,
         sequenceD
       },
-      entityRank.getAllScored().toArray()
+      entityScorePicker.getAllScored().toArray()
     );
   }
 
   @Test
   public void scoreById() {
-    entityRank.score(sequenceC.getId(), 2.0);
+    entityScorePicker.score(sequenceC.getId(), 2.0);
 
     assertArrayEquals(
       new ProgramSequence[]{
@@ -107,7 +107,7 @@ public class EntityRankTest {
         sequenceB,
         sequenceD
       },
-      entityRank.getAllScored().toArray()
+      entityScorePicker.getAllScored().toArray()
     );
   }
 
@@ -119,22 +119,22 @@ public class EntityRankTest {
         sequenceC,
         sequenceD
       },
-      entityRank.getAll().toArray()
+      entityScorePicker.getAll().toArray()
     );
   }
 
   @Test
   public void score_adjustExisting() {
-    entityRank.score(sequenceC, 2.0);
+    entityScorePicker.score(sequenceC, 2.0);
 
-    Map<String, Double> result = entityRank.getScores();
+    Map<String, Double> result = entityScorePicker.getScores();
     assertEquals(Double.valueOf(2.25), result.get(sequenceC.getId()));
   }
 
 
   @Test
   public void getScores() {
-    Map<String, Double> result = entityRank.getScores();
+    Map<String, Double> result = entityScorePicker.getScores();
 
     assertEquals(Double.valueOf(0.75), result.get(sequenceB.getId()));
     assertEquals(Double.valueOf(0.25), result.get(sequenceC.getId()));
@@ -143,7 +143,7 @@ public class EntityRankTest {
 
   @Test
   public void getTop() throws FabricationException {
-    assertEquals(sequenceB, entityRank.getTop());
+    assertEquals(sequenceB, entityScorePicker.getTop());
   }
 
   @Test
@@ -153,7 +153,7 @@ public class EntityRankTest {
         sequenceB,
         sequenceD
       },
-      entityRank.getScored(2).toArray()
+      entityScorePicker.getScored(2).toArray()
     );
   }
 
@@ -165,13 +165,13 @@ public class EntityRankTest {
         sequenceD,
         sequenceC
       },
-      entityRank.getAllScored().toArray()
+      entityScorePicker.getAllScored().toArray()
     );
   }
 
   @Test
   public void size() {
-    assertEquals(3L, entityRank.size());
+    assertEquals(3L, entityScorePicker.size());
   }
 
 }

@@ -18,22 +18,22 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- EntityRank is a collection of one type of Entity (e.g. Instrument or Program),
+ EntityScorePicker is a collection of one type of Entity (e.g. Instrument or Program),
  stored in a HashMap using its id as an index.
  <p>
  A separate quality-score (Q-score) index uses the entity id as an index
  for a double that represents that entity's score.
 
  @param <E>  */
-public class EntityRank<E> {
-  private static final Logger log = LoggerFactory.getLogger(EntityRank.class);
+public class EntityScorePicker<E> {
+  private static final Logger log = LoggerFactory.getLogger(EntityScorePicker.class);
   private final List<E> entities;
   private final HashMap<String, Double> scores;
 
   /**
    Constructor instantiates a new inner hash map
    */
-  public EntityRank() {
+  public EntityScorePicker() {
     entities = Lists.newArrayList();
     scores = Maps.newHashMap();
   }

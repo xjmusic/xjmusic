@@ -30,7 +30,7 @@ dependencies {
   implementation project(':lib:util')
   implementation project(':service:hub') // FUTURE: instead of depending on hub, we use the client it publishes
   //
-  implementation 'io.xj:protocol:v0.7'
+  implementation 'io.xj:protocol:v0.8'
   // vendor
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
   implementation 'org.logback-extensions:logback-ext-loggly:0.1.2'

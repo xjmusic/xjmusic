@@ -21,18 +21,33 @@ import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
+import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.TempFile;
 import io.xj.lib.util.Text;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.access.HubAccessLogFilter;
 import io.xj.service.hub.client.HubAccessTokenFilter;
 import io.xj.service.hub.client.HubClient;
+import io.xj.service.hub.client.HubClientAccess;
+import io.xj.service.nexus.dao.ChainDAO;
+import io.xj.service.nexus.dao.exception.DAOExistenceException;
+import io.xj.service.nexus.dao.exception.DAOFatalException;
+import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
+import io.xj.service.nexus.dao.exception.DAOValidationException;
 import io.xj.service.nexus.work.NexusWork;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  Base application for XJ services.
@@ -54,6 +69,11 @@ import java.util.Collections;
  - Add shutdown hook that calls application stop()
  */
 public class NexusApp extends App {
+  private static final String CONFIG_CHAIN_BOOTSTRAP_JSON_PATH = "chain.bootstrapJsonPath";
+  private static final String CONFIG_ACCESS_TOKEN_NAME = "access.tokenName";
+  private static final String ACCESS_LOG_FILE_NAME = "access.log";
+  private static final String CONFIG_ACCESS_LOG_FILE = "app.accessLogFile";
+  private static final String CONFIG_PLATFORM_RELEASE = "platform.release";
   private final org.slf4j.Logger log = LoggerFactory.getLogger(NexusApp.class);
   private final NexusWork work;
   private final String platformRelease;
@@ -72,7 +92,7 @@ public class NexusApp extends App {
     Config config = injector.getInstance(Config.class);
 
     // Configuration
-    platformRelease = config.getString("platform.release");
+    platformRelease = config.getString(CONFIG_PLATFORM_RELEASE);
 
     // non-static logger for this class, because app must init first
     log.info("{} configuration:\n{}", getName(), Text.toReport(config));
@@ -86,14 +106,61 @@ public class NexusApp extends App {
     buildApiTopology(entityFactory);
 
     // Register JAX-RS filter for access log only registers if file succeeds to open for writing
-    String pathToWriteAccessLog = config.hasPath("app.accessLogFile") ?
-      config.getString("app.accessLogFile") :
-      TempFile.getTempFilePathPrefix() + File.separator + "access.log";
+    String pathToWriteAccessLog = config.hasPath(CONFIG_ACCESS_LOG_FILE) ?
+      config.getString(CONFIG_ACCESS_LOG_FILE) :
+      TempFile.getTempFilePathPrefix() + File.separator + ACCESS_LOG_FILE_NAME;
     new HubAccessLogFilter(pathToWriteAccessLog).registerTo(getResourceConfig());
 
     // Register JAX-RS filter for reading access control token
     HubClient hubClient = injector.getInstance(HubClient.class);
-    getResourceConfig().register(new HubAccessTokenFilter(hubClient, config.getString("access.tokenName")));
+    getResourceConfig().register(new HubAccessTokenFilter(hubClient, config.getString(CONFIG_ACCESS_TOKEN_NAME)));
+
+    // [#176285826] Nexus bootstraps Chains from JSON file on startup
+    var payloadFactory = injector.getInstance(PayloadFactory.class);
+    var chainDAO = injector.getInstance(ChainDAO.class);
+    var access = HubClientAccess.internal();
+    if (config.hasPath(CONFIG_CHAIN_BOOTSTRAP_JSON_PATH))
+      bootstrapFromPath(config.getString(CONFIG_CHAIN_BOOTSTRAP_JSON_PATH),
+        payloadFactory, entityFactory, chainDAO, access);
+  }
+
+  private void bootstrapFromPath(String bootstrapJson, PayloadFactory payloadFactory, EntityFactory entityFactory, ChainDAO chainDAO, HubClientAccess access) {
+    try {
+      bootstrapFromPayload(payloadFactory.deserialize(new BufferedReader(new FileReader(bootstrapJson))), payloadFactory, entityFactory, chainDAO, access);
+    } catch (JsonApiException | FileNotFoundException e) {
+      log.error("Failed to read Chain bootstrap JSON file!", e);
+    }
+  }
+
+  private void bootstrapFromPayload(Payload bootstrapPayload, PayloadFactory payloadFactory, EntityFactory entityFactory, ChainDAO chainDAO, HubClientAccess access) {
+    bootstrapPayload.getDataMany().stream()
+      .filter(entity -> entity.isType(Chain.class))
+      .flatMap(entity -> {
+        try {
+          return Stream.of(payloadFactory.consume(entityFactory.getInstance(Chain.class), entity));
+        } catch (JsonApiException | EntityException e) {
+          log.error("Failed to bootstrap Chain!", e);
+          return Stream.empty();
+        }
+      })
+      .forEach(chain -> {
+        try {
+          chainDAO.bootstrap(access, chain,
+            bootstrapPayload.getIncluded().stream()
+              .filter(entity -> entity.isType(ChainBinding.class))
+              .flatMap(entity -> {
+                try {
+                  return Stream.of(payloadFactory.consume(entityFactory.getInstance(ChainBinding.class), entity));
+                } catch (JsonApiException | EntityException e) {
+                  log.error("Failed to bootstrap Chain!", e);
+                  return Stream.empty();
+                }
+              })
+              .collect(Collectors.toList()));
+        } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
+          log.error("Failed to add binding to bootstrap Chain!", e);
+        }
+      });
   }
 
   /**

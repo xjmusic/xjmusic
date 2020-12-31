@@ -267,7 +267,7 @@ public class CraftRhythm_LayeredVoicesTest {
     int pickedKick = 0;
     int pickedSnare = 0;
     int pickedHihat = 0;
-    Collection<SegmentChoiceArrangementPick> picks = fabricator.getSegmentChoiceArrangementPicks();
+    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
     for (SegmentChoiceArrangementPick pick : picks) {
       if (pick.getInstrumentAudioId().equals(audioKick.getId()))
         pickedKick++;

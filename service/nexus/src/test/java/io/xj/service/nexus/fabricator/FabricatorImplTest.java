@@ -277,7 +277,7 @@ public class FabricatorImplTest {
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
     subject = fabricatorFactory.fabricate(HubClientAccess.internal(), segment);
 
-    Collection<SegmentChoiceArrangementPick> result = subject.getSegmentPicks();
+    Collection<SegmentChoiceArrangementPick> result = subject.getPicks();
 
     SegmentChoiceArrangementPick resultPick = result.iterator().next();
     assertEquals(rhythmArrangement.getId(), resultPick.getSegmentChoiceArrangementId());

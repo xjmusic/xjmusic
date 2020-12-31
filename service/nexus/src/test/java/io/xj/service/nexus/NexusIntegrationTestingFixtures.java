@@ -419,23 +419,23 @@ public class NexusIntegrationTestingFixtures {
     program5_sequence0 = buildProgramSequence(program5, 16, "Intro", 0.5, "G major", 135.0);
     program5_sequence0_chord0 = buildProgramSequenceChord(program5_sequence0, 0.0, "G major");
 
-    program5_sequence0_chord0_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Harmonic, program5_sequence0_chord0, "G3, B3, D4");
+    program5_sequence0_chord0_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Bass, program5_sequence0_chord0, "G3, B3, D4");
     program5_sequence0_chord1 = buildProgramSequenceChord(program5_sequence0, 8.0, "Ab minor");
 
-    program5_sequence0_chord1_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Harmonic, program5_sequence0_chord1, "Ab3, Db3, F4");
+    program5_sequence0_chord1_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Bass, program5_sequence0_chord1, "Ab3, Db3, F4");
     program5_sequence0_chord2 = buildProgramSequenceChord(program5_sequence0, 75.0, "G-9"); // [#154090557] this ChordEntity should be ignored, because it's past the end of the main-pattern total
 
-    program5_sequence0_chord2_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Harmonic, program5_sequence0_chord2, "G3, Bb3, D4, A4");
+    program5_sequence0_chord2_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Bass, program5_sequence0_chord2, "G3, Bb3, D4, A4");
     program5_sequence0_binding0 = buildProgramSequenceBinding(program5_sequence0, 0);
     program5_sequence0_binding0_meme0 = buildProgramSequenceBindingMeme(program5_sequence0_binding0, "Optimism");
     //
     program5_sequence1 = buildProgramSequence(program5, 32, "Drop", 0.5, "G minor", 135.0);
     program5_sequence1_chord0 = buildProgramSequenceChord(program5_sequence1, 0.0, "C major");
 
-    program5_sequence1_chord0_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Harmonic, program5_sequence1_chord0, "Ab3, Db3, F4");
+    program5_sequence1_chord0_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Bass, program5_sequence1_chord0, "Ab3, Db3, F4");
     program5_sequence1_chord1 = buildProgramSequenceChord(program5_sequence1, 8.0, "Bb minor");
 
-    program5_sequence1_chord1_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Harmonic, program5_sequence1_chord1, "Ab3, Db3, F4");
+    program5_sequence1_chord1_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Bass, program5_sequence1_chord1, "Ab3, Db3, F4");
     program5_sequence1_binding0 = buildProgramSequenceBinding(program5_sequence1, 1);
     program5_sequence1_binding0_meme0 = buildProgramSequenceBindingMeme(program5_sequence1_binding0, "Pessimism");
 
@@ -547,17 +547,17 @@ public class NexusIntegrationTestingFixtures {
     //
     program15_sequence0 = buildProgramSequence(program15, 16, "Intro", 0.5, "G minor", 135.0);
     program15_sequence0_chord0 = buildProgramSequenceChord(program15_sequence0, 0.0, "G minor");
-    program15_sequence0_chord0_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Harmonic, program15_sequence0_chord0, "G3, Bb3, D4");
+    program15_sequence0_chord0_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Bass, program15_sequence0_chord0, "G3, Bb3, D4");
     program15_sequence0_chord1 = buildProgramSequenceChord(program15_sequence0, 8.0, "Ab minor");
-    program15_sequence0_chord1_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Harmonic, program15_sequence0_chord1, "Ab3, C3, Eb4");
+    program15_sequence0_chord1_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Bass, program15_sequence0_chord1, "Ab3, C3, Eb4");
     program15_sequence0_binding0 = buildProgramSequenceBinding(program15_sequence0, 0);
     program15_sequence0_binding0_meme0 = buildProgramSequenceBindingMeme(program15_sequence0_binding0, "Regret");
     //
     program15_sequence1 = buildProgramSequence(program15, 32, "Outro", 0.5, "A major", 135.0);
     program15_sequence1_chord0 = buildProgramSequenceChord(program15_sequence1, 0.0, "C major");
-    program15_sequence1_chord0_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Harmonic, program15_sequence0_chord0, "E3, G3, C4");
+    program15_sequence1_chord0_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Bass, program15_sequence0_chord0, "E3, G3, C4");
     program15_sequence1_chord1 = buildProgramSequenceChord(program15_sequence1, 8.0, "Bb major");
-    program15_sequence1_chord1_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Harmonic, program15_sequence0_chord1, "F3, Bb3, D4");
+    program15_sequence1_chord1_voicing = buildProgramSequenceChordVoicing(Instrument.Type.Bass, program15_sequence0_chord1, "F3, Bb3, D4");
     program15_sequence1_binding0 = buildProgramSequenceBinding(program15_sequence1, 1);
     program15_sequence1_binding0_meme0 = buildProgramSequenceBindingMeme(program15_sequence1_binding0, "Pride");
     program15_sequence1_binding0_meme1 = buildProgramSequenceBindingMeme(program15_sequence1_binding0, "Shame");
@@ -727,42 +727,42 @@ public class NexusIntegrationTestingFixtures {
    <p>
    [#154464276] Detail Craft v1
    */
-  public Collection<Object> setupFixtureB4_Detail() {
+  public Collection<Object> setupFixtureB4_DetailBass() {
     // A basic bass pattern
-    program10 = buildProgram(library2, Program.Type.Detail, Program.State.Published, "Basic Bass Detail Pattern", "C", 121, 0.6);
-    program10_meme0 = buildProgramMeme(program10, "Basic");
+    program10 = buildProgram(library2, Program.Type.Detail, Program.State.Published, "Earth Bass Detail Pattern", "C", 121, 0.6);
+    program10_meme0 = buildProgramMeme(program10, "EARTH");
     //
-    program10_voice0 = buildProgramVoice(program10, Instrument.Type.Harmonic, "Bassline");
-    program10_voice0_track0 = buildProgramVoiceTrack(program10_voice0, "BLEEP");
+    program10_voice0 = buildProgramVoice(program10, Instrument.Type.Bass, "Dirty Bass");
+    program10_voice0_track0 = buildProgramVoiceTrack(program10_voice0, "BUM");
     //
-    program10_sequence0 = buildProgramSequence(program10, 16, "Base", 0.5, "C", 110.3);
+    program10_sequence0 = buildProgramSequence(program10, 16, "Simple Walk", 0.5, "C", 110.3);
     //
     program10_sequence0_pattern0 = buildProgramSequencePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Intro, 4, "Intro");
     program10_sequence0_pattern0_event0 = buildProgramSequencePatternEvent(program10_sequence0_pattern0, program10_voice0_track0, 0, 1, "C2", 1.0);
     program10_sequence0_pattern0_event1 = buildProgramSequencePatternEvent(program10_sequence0_pattern0, program10_voice0_track0, 1, 1, "G5", 0.8);
-    program10_sequence0_pattern0_event2 = buildProgramSequencePatternEvent(program10_sequence0_pattern0, program10_voice0_track0, 2.5, 1, "C2", 0.6);
+    program10_sequence0_pattern0_event2 = buildProgramSequencePatternEvent(program10_sequence0_pattern0, program10_voice0_track0, 2, 1, "C2", 0.6);
     program10_sequence0_pattern0_event3 = buildProgramSequencePatternEvent(program10_sequence0_pattern0, program10_voice0_track0, 3, 1, "G5", 0.9);
     //
     program10_sequence0_pattern1 = buildProgramSequencePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop A");
     program10_sequence0_pattern1_event0 = buildProgramSequencePatternEvent(program10_sequence0_pattern1, program10_voice0_track0, 0, 1, "C2", 1.0);
     program10_sequence0_pattern1_event1 = buildProgramSequencePatternEvent(program10_sequence0_pattern1, program10_voice0_track0, 1, 1, "G5", 0.8);
-    program10_sequence0_pattern1_event2 = buildProgramSequencePatternEvent(program10_sequence0_pattern1, program10_voice0_track0, 2.5, 1, "C2", 0.6);
+    program10_sequence0_pattern1_event2 = buildProgramSequencePatternEvent(program10_sequence0_pattern1, program10_voice0_track0, 2, 1, "C2", 0.6);
     program10_sequence0_pattern1_event3 = buildProgramSequencePatternEvent(program10_sequence0_pattern1, program10_voice0_track0, 3, 1, "G5", 0.9);
     //
     program10_sequence0_pattern2 = buildProgramSequencePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop B");
     program10_sequence0_pattern2_event0 = buildProgramSequencePatternEvent(program10_sequence0_pattern2, program10_voice0_track0, 0, 1, "B5", 0.9);
     program10_sequence0_pattern2_event1 = buildProgramSequencePatternEvent(program10_sequence0_pattern2, program10_voice0_track0, 1, 1, "D2", 1.0);
-    program10_sequence0_pattern2_event2 = buildProgramSequencePatternEvent(program10_sequence0_pattern2, program10_voice0_track0, 2.5, 1, "E4", 0.7);
+    program10_sequence0_pattern2_event2 = buildProgramSequencePatternEvent(program10_sequence0_pattern2, program10_voice0_track0, 2, 1, "E4", 0.7);
     program10_sequence0_pattern2_event3 = buildProgramSequencePatternEvent(program10_sequence0_pattern2, program10_voice0_track0, 3, 1, "C3", 0.5);
     //
     program10_sequence0_pattern3 = buildProgramSequencePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Outro, 4, "Outro");
     program10_sequence0_pattern3_event0 = buildProgramSequencePatternEvent(program10_sequence0_pattern3, program10_voice0_track0, 0, 1, "C2", 1.0);
     program10_sequence0_pattern3_event1 = buildProgramSequencePatternEvent(program10_sequence0_pattern3, program10_voice0_track0, 1, 1, "G5", 0.8);
-    program10_sequence0_pattern3_event2 = buildProgramSequencePatternEvent(program10_sequence0_pattern3, program10_voice0_track0, 2.5, 1, "C2", 0.6);
+    program10_sequence0_pattern3_event2 = buildProgramSequencePatternEvent(program10_sequence0_pattern3, program10_voice0_track0, 2, 1, "C2", 0.6);
     program10_sequence0_pattern3_event3 = buildProgramSequencePatternEvent(program10_sequence0_pattern3, program10_voice0_track0, 3, 1, "G5", 0.9);
 
     // Instrument "Bass"
-    instrument9 = buildInstrument(library2, Instrument.Type.Harmonic, Instrument.State.Published, "Bass");
+    instrument9 = buildInstrument(library2, Instrument.Type.Bass, Instrument.State.Published, "Bass");
     instrument9_meme0 = buildInstrumentMeme(instrument9, "heavy");
     instrument9_audio8 = buildInstrumentAudio(instrument9, "bass", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440, 0.62);
     instrument9_audio8_event0 = buildInstrumentAudioEvent(instrument9_audio8, 0, 1, "BLOOP", "Eb", 1.0);

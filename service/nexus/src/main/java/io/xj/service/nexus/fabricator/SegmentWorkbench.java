@@ -9,6 +9,7 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -37,32 +38,37 @@ public interface SegmentWorkbench {
   void setSegment(Segment segment);
 
   /**
-   @return entity cache of SegmentChoiceArrangement
+   @return collection of all ChoiceArrangement in Segment
    */
   Collection<SegmentChoiceArrangement> getSegmentArrangements() throws FabricationException;
 
   /**
-   @return entity cache of SegmentChoice
+   @return collection of all Choice in Segment
    */
   Collection<SegmentChoice> getSegmentChoices() throws FabricationException;
 
   /**
-   @return entity cache of SegmentChord
+   @return collection of all Chord in Segment
    */
   Collection<SegmentChord> getSegmentChords() throws FabricationException;
 
   /**
-   @return entity cache of SegmentMeme
+   @return collection of all ChordVoicing in Segment
+   */
+  Collection<SegmentChordVoicing> getSegmentChordVoicings() throws FabricationException;
+
+  /**
+   @return collection of all Meme in Segment
    */
   Collection<SegmentMeme> getSegmentMemes() throws FabricationException;
 
   /**
-   @return entity cache of SegmentMessage
+   @return collection of all Message in Segment
    */
   Collection<SegmentMessage> getSegmentMessages() throws FabricationException;
 
   /**
-   @return entity cache of SegmentChoiceArrangementPick
+   @return collection of all ChoiceArrangementPick in Segment
    */
   Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() throws FabricationException;
 

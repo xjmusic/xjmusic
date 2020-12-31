@@ -44,9 +44,6 @@ public class JanitorWorkerImplTest {
   private static final int SEGMENT_LENGTH_SECONDS = 30;
   private static final int PAST_SECONDS = 10000;
   private NexusEntityStore store;
-  private static final int MILLIS_PER_SECOND = 1000;
-  private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
-  long startTime = System.currentTimeMillis();
   private SegmentDAO segmentDAO;
 
   @Mock
@@ -125,7 +122,7 @@ public class JanitorWorkerImplTest {
   }
 
   /**
-   * [#175899787] Worker should log warning but not crash when telemetry fails to send
+   [#175899787] Worker should log warning but not crash when telemetry fails to send
    */
   @Test
   public void warnsWithoutCrashingOnTelemetryFailure() {

@@ -47,16 +47,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FabricatorWorkerImplTest {
   private FabricatorWorker subject;
-  private static final int NUMBER_OF_SEGMENTS = 1000;
-  private static final int SEGMENT_LENGTH_SECONDS = 30;
-  private static final int PAST_SECONDS = 10000;
-  private static final int MILLIS_PER_SECOND = 1000;
-  private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
-  long startTime = System.currentTimeMillis();
-  private Segment segment0;
-  private Chain chainA;
-  private NexusIntegrationTestingFixtures fake;
-  private NexusEntityStore store;
 
   @Mock
   public FileStoreProvider mockFileStoreProvider;
@@ -93,15 +83,15 @@ public class FabricatorWorkerImplTest {
                       }
                     })));
     var entityFactory = injector.getInstance(EntityFactory.class);
-    store = injector.getInstance(NexusEntityStore.class);
+    NexusEntityStore store = injector.getInstance(NexusEntityStore.class);
     HubApp.buildApiTopology(entityFactory);
     NexusApp.buildApiTopology(entityFactory);
     var workerFactory = injector.getInstance(WorkerFactory.class);
 
     // Chain "Test Print #1" is fabricating segments
-    fake = new NexusIntegrationTestingFixtures();
+    NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
     fake.setupFixtureB1();
-    chainA = store.put(Chain.newBuilder()
+    Chain chainA = store.put(Chain.newBuilder()
             .setId(UUID.randomUUID().toString())
             .setAccountId(fake.account1.getId())
             .setName("Test Print #1")
@@ -115,7 +105,7 @@ public class FabricatorWorkerImplTest {
             .setTargetId(fake.library2.getId())
             .setType(ChainBinding.Type.Library)
             .build());
-    segment0 = store.put(Segment.newBuilder()
+    Segment segment0 = store.put(Segment.newBuilder()
             .setId(UUID.randomUUID().toString())
             .setChainId(chainA.getId())
             .setOffset(0)

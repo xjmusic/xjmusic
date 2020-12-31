@@ -13,6 +13,7 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
 import io.xj.lib.entity.EntityException;
@@ -230,6 +231,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       for (String sId : segmentIds) {
         entities.addAll(store.getAll(sId, SegmentMeme.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentChord.class, Segment.class, segmentIds));
+        entities.addAll(store.getAll(sId, SegmentChordVoicing.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentChoice.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentMessage.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentChoiceArrangement.class, Segment.class, segmentIds));

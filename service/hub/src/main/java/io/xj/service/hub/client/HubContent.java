@@ -506,6 +506,18 @@ public class HubContent {
   }
 
   /**
+   Get all ProgramSequenceChordVoicings for a given Sequence Chord
+
+   @param chord to get voicings for
+   @return chords of sequence
+   */
+  public Collection<ProgramSequenceChordVoicing> getVoicings(ProgramSequenceChord chord) throws HubClientException {
+    return getAllProgramSequenceChordVoicings().stream()
+      .filter(e -> e.getProgramSequenceChordId().equals(chord.getId()))
+      .collect(Collectors.toList());
+  }
+
+  /**
    Get all program sequence binding memes for program sequence binding
 
    @param programSequenceBinding to get memes for

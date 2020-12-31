@@ -9,10 +9,12 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.Chain;
 import io.xj.ChainBinding;
+import io.xj.Instrument;
 import io.xj.Program;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
@@ -88,7 +90,7 @@ public class CraftDetailContinueTest {
       .thenReturn(new HubContent(Streams.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream(),
-        fake.setupFixtureB4_Detail().stream()
+        fake.setupFixtureB4_DetailBass().stream()
       ).collect(Collectors.toList())));
 
     // Chain "Test Print #1" is fabricating segments
@@ -252,17 +254,31 @@ public class CraftDetailContinueTest {
         .setSegmentId(segment4.getId())
         .setName(memeName)
         .build());
-    store.put(SegmentChord.newBuilder()
+    SegmentChord chord0 = store.put(SegmentChord.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment4.getId())
       .setPosition(0.0)
       .setName("A minor")
       .build());
-    store.put(SegmentChord.newBuilder()
+    store.put(SegmentChordVoicing.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment4.getId())
+      .setSegmentChordId(chord0.getId())
+      .setType(Instrument.Type.Bass)
+      .setNotes("A2, C3, E3")
+      .build());
+    SegmentChord chord1 = store.put(SegmentChord.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment4.getId())
       .setPosition(8.0)
-      .setName("D Major")
+      .setName("D major")
+      .build());
+    store.put(SegmentChordVoicing.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment4.getId())
+      .setSegmentChordId(chord1.getId())
+      .setType(Instrument.Type.Bass)
+      .setNotes("D2, F#2, A2")
       .build());
   }
 }

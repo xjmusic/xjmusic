@@ -9,11 +9,13 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.Chain;
 import io.xj.ChainBinding;
+import io.xj.Instrument;
 import io.xj.Program;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.Entities;
@@ -92,7 +94,7 @@ public class CraftDetailProgramVoiceInitialTest {
       .thenReturn(new HubContent(Streams.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB3().stream(),
-        fake.setupFixtureB4_Detail().stream())
+        fake.setupFixtureB4_DetailBass().stream())
         .filter(entity -> !Entities.isSame(entity, fake.program35) && !Entities.isChild(entity, fake.program35))
         .collect(Collectors.toList())));
 
@@ -126,10 +128,10 @@ public class CraftDetailProgramVoiceInitialTest {
 
     craftFactory.detail(fabricator).doWork();
 
-    assertFalse(fabricator.getSegmentChoices().isEmpty());
+    assertFalse(fabricator.getChoices().isEmpty());
     // test vector for [#154014731] persist Audio pick in memory
     int pickedBloop = 0;
-    Collection<SegmentChoiceArrangementPick> picks = fabricator.getSegmentChoiceArrangementPicks();
+    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
     for (SegmentChoiceArrangementPick pick : picks) {
       if (pick.getInstrumentAudioId().equals(fake.instrument9_audio8.getId()))
         pickedBloop++;
@@ -219,14 +221,31 @@ public class CraftDetailProgramVoiceInitialTest {
         .setId(UUID.randomUUID().toString())
         .setSegmentId(segment6.getId()).setName(memeName)
         .build());
-
-    store.put(SegmentChord.newBuilder()
+    SegmentChord chord0 = store.put(SegmentChord.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment6.getId()).setPosition(0.0).setName("C minor")
+      .setSegmentId(segment6.getId())
+      .setPosition(0.0)
+      .setName("C minor")
       .build());
-    store.put(SegmentChord.newBuilder()
+    store.put(SegmentChordVoicing.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment6.getId()).setPosition(8.0).setName("Db minor")
+      .setSegmentId(segment6.getId())
+      .setSegmentChordId(chord0.getId())
+      .setType(Instrument.Type.Bass)
+      .setNotes("C2, Eb2, G2")
+      .build());
+    SegmentChord chord1 = store.put(SegmentChord.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment6.getId())
+      .setPosition(8.0)
+      .setName("Db minor")
+      .build());
+    store.put(SegmentChordVoicing.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment6.getId())
+      .setSegmentChordId(chord1.getId())
+      .setType(Instrument.Type.Bass)
+      .setNotes("Db2, E2, Ab2")
       .build());
   }
 

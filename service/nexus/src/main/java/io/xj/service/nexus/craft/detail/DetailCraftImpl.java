@@ -16,9 +16,10 @@ import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
-import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
 import io.xj.lib.util.Chance;
@@ -26,7 +27,7 @@ import io.xj.lib.util.Value;
 import io.xj.service.hub.client.HubClientException;
 import io.xj.service.nexus.craft.CraftImpl;
 import io.xj.service.nexus.craft.exception.CraftException;
-import io.xj.service.nexus.fabricator.EntityRank;
+import io.xj.service.nexus.fabricator.EntityScorePicker;
 import io.xj.service.nexus.fabricator.FabricationException;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.MemeIsometry;
@@ -40,6 +41,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  Detail craft for the current segment
@@ -56,8 +58,8 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
   @Inject
   public DetailCraftImpl(
-          @Assisted("basis") Fabricator fabricator
-          /*-*/) {
+    @Assisted("basis") Fabricator fabricator
+    /*-*/) {
     this.fabricator = fabricator;
   }
 
@@ -70,12 +72,12 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         // program
         Program detailProgram = chooseDetailProgram(voicingType);
         SegmentChoice detailChoice = fabricator.add(SegmentChoice.newBuilder()
-                .setId(UUID.randomUUID().toString())
-                .setSegmentId(fabricator.getSegment().getId())
-                .setProgramType(Program.Type.Detail)
-                .setProgramId(detailProgram.getId())
-                .setTranspose(computeDetailTranspose(detailProgram))
-                .build());
+          .setId(UUID.randomUUID().toString())
+          .setSegmentId(fabricator.getSegment().getId())
+          .setProgramType(Program.Type.Detail)
+          .setProgramId(detailProgram.getId())
+          .setTranspose(computeDetailTranspose(detailProgram))
+          .build());
 
         // detail sequence is selected at random of the current program
         // FUTURE: [#166855956] Detail Program with multiple Sequences
@@ -184,12 +186,12 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
     switch (type) {
       case Continue:
         Optional<Program> selectedPreviously = getDetailProgramSelectedPreviouslyForSegmentMemeConstellation(voicingType);
-        return selectedPreviously.isPresent() ? selectedPreviously.get() : chooseFreshDetail();
+        return selectedPreviously.isPresent() ? selectedPreviously.get() : chooseFreshDetail(voicingType);
 
       case Initial:
       case NextMain:
       case NextMacro:
-        return chooseFreshDetail();
+        return chooseFreshDetail(voicingType);
 
       default:
         throw exception(String.format("Cannot get Detail-type program for unknown fabricator type=%s", type));
@@ -211,14 +213,13 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
    */
   private Optional<Program> getDetailProgramSelectedPreviouslyForSegmentMemeConstellation(Instrument.Type voicingType) {
     try {
-      Map<String, String> constellationProgramIds = Maps.newHashMap();
+      var constellationProgramIds = Maps.<String, String>newHashMap();
       String con = fabricator.getMemeIsometryOfSegment().getConstellation();
-      if (fabricator.getMemeConstellationChoicesOfPreviousSegments().containsKey(con)) {
-        for (SegmentChoice choice : fabricator.getMemeConstellationChoicesOfPreviousSegments().get(con)) {
-          if (Program.Type.Detail == choice.getProgramType())
+      if (fabricator.getMemeConstellationChoicesOfPreviousSegments().containsKey(con))
+        for (SegmentChoice choice : fabricator.getMemeConstellationChoicesOfPreviousSegments().get(con))
+          if (Program.Type.Detail == choice.getProgramType() && voicingType == choice.getInstrumentType())
             constellationProgramIds.put(con, fabricator.getProgram(choice).getId());
-        }
-      }
+
       String constellation = MemeIsometry.ofMemes(Entities.namesOf(fabricator.getSegmentMemes())).getConstellation();
       return constellationProgramIds.containsKey(constellation) ? Optional.of(fabricator.getSourceMaterial().getProgram(constellationProgramIds.get(constellation))) : Optional.empty();
 
@@ -272,29 +273,41 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
    Choose a fresh detail based on a set of memes
    FUTURE [#150279436] Key of first Pattern of chosen Detail-Program must match the `minor` or `major` with the Key of the current Segment.
 
+   @param voicingType to choose a fresh detail program for-- meaning the detail program will have this type of voice
    @return detail-type Program
    @throws CraftException on failure
    <p>
    future: actually choose detail program
    */
-  private Program chooseFreshDetail() throws CraftException {
+  private Program chooseFreshDetail(Instrument.Type voicingType) throws CraftException {
     try {
-      EntityRank<Program> superEntityRank = new EntityRank<>();
+      EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
-      // (2) retrieve programs bound to chain
-      Collection<Program> sourcePrograms = fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Detail);
+      // Retrieve programs bound to chain having a voice of the specified type
+      Map<String/*ID*/, Program> programMap = fabricator.getSourceMaterial()
+        .getProgramsOfType(Program.Type.Detail).stream()
+        .collect(Collectors.toMap(Program::getId, program -> program));
+      Collection<Program> sourcePrograms = fabricator.getSourceMaterial()
+        .getAllProgramVoices().stream()
+        .filter(programVoice -> voicingType.equals(programVoice.getType()) &&
+          programMap.containsKey(programVoice.getProgramId()))
+        .map(ProgramVoice::getProgramId)
+        .distinct()
+        .map(programMap::get)
+        .collect(Collectors.toList());
 
       // (3) score each source program based on meme isometry
-      for (Program program : sourcePrograms) superEntityRank.add(program, scoreDetail(program));
+      for (Program program : sourcePrograms) superEntityScorePicker.add(program, scoreDetail(program));
 
       // report
-      fabricator.putReport("detailChoice", superEntityRank.report());
+      fabricator.putReport("detailChoice", superEntityScorePicker.report());
 
       // (4) return the top choice
-      return superEntityRank.getTop();
+      return superEntityScorePicker.getTop();
 
     } catch (FabricationException | HubClientException e) {
-      throw exception("Found no detail-type program bound to Chain!", e);
+      throw exception(String.format(
+        "Found no detail-type program with %s-type voice bound to Chain!", voicingType), e);
     }
   }
 
@@ -342,14 +355,14 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // if no previous instrument found, choose a fresh one
       SegmentChoiceArrangement arrangement = fabricator.add(SegmentChoiceArrangement.newBuilder()
-              .setId(UUID.randomUUID().toString())
-              .setSegmentId(choice.getSegmentId())
-              .setSegmentChoiceId(choice.getId())
-              .setProgramVoiceId(voice.getId())
-              .setInstrumentId(
-                      instrumentId.isPresent() ?
-                              instrumentId.get() : chooseFreshHarmonicInstrument(voice).getId())
-              .build());
+        .setId(UUID.randomUUID().toString())
+        .setSegmentId(choice.getSegmentId())
+        .setSegmentChoiceId(choice.getId())
+        .setProgramVoiceId(voice.getId())
+        .setInstrumentId(
+          instrumentId.isPresent() ?
+            instrumentId.get() : chooseFreshDetailInstrument(voice).getId())
+        .build());
 
       // choose intro pattern (if available)
       Optional<ProgramSequencePattern> introPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePattern.Type.Intro);
@@ -378,7 +391,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // "Go for it" more towards the end of a program (and only during the outro, when present)
       double goForItRatio = fabricator.getSequenceBindingOffsetForChoice(fabricator.getCurrentMainChoice()).doubleValue() /
-              fabricator.getMaxAvailableSequenceBindingOffset(fabricator.getCurrentMainChoice()).doubleValue();
+        fabricator.getMaxAvailableSequenceBindingOffset(fabricator.getCurrentMainChoice()).doubleValue();
 
       // if outro pattern, fabricate those voice event last
       // [#161466708] compute how much to go for it in the outro
@@ -387,57 +400,57 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
     } catch (FabricationException | EntityException e) {
       throw
-              exception(String.format("Failed to craft arrangement for detail voiceId=%s", voice.getId()), e);
+        exception(String.format("Failed to craft arrangement for detail voiceId=%s", voice.getId()), e);
     }
   }
 
   /**
-   Choose harmonic instrument
+   Choose detail instrument
    [#325] Possible to choose multiple instruments for different voices in the same program
 
    @param voice to choose instrument for
-   @return harmonic-type Instrument
+   @return detail-type Instrument
    @throws CraftException on failure
    */
-  private Instrument chooseFreshHarmonicInstrument(ProgramVoice voice) throws CraftException {
+  private Instrument chooseFreshDetailInstrument(ProgramVoice voice) throws CraftException {
     try {
-      EntityRank<Instrument> superEntityRank = new EntityRank<>();
+      EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
       // (2) retrieve instruments bound to chain
-      Collection<Instrument> sourceInstruments = fabricator.getSourceMaterial().getInstrumentsOfType(Instrument.Type.Harmonic);
+      Collection<Instrument> sourceInstruments = fabricator.getSourceMaterial().getInstrumentsOfType(voice.getType());
 
       // future: [#258] Instrument selection is based on Text Isometry between the voice name and the instrument name
       log.debug("[segId={}] not currently in use: {}", fabricator.getSegment().getId(), voice);
 
       // (3) score each source instrument based on meme isometry
       for (Instrument instrument : sourceInstruments)
-        superEntityRank.add(instrument, scoreHarmonic(instrument));
+        superEntityScorePicker.add(instrument, scoreDetail(instrument));
 
       // report
-      fabricator.putReport("harmonicChoice", superEntityRank.report());
+      fabricator.putReport("detailChoice", superEntityScorePicker.report());
 
       // (4) return the top choice
-      return superEntityRank.getTop();
+      return superEntityScorePicker.getTop();
 
     } catch (FabricationException | HubClientException e) {
-      throw exception("Found no harmonic-type instrument bound to Chain!", e);
+      throw exception("Found no detail-type instrument bound to Chain!", e);
     }
   }
 
   /**
-   Score a candidate for harmonic instrument, given current fabricator
+   Score a candidate for detail instrument, given current fabricator
 
    @param instrument to score
    @return score, including +/- entropy
    */
-  private double scoreHarmonic(Instrument instrument) throws CraftException {
+  private double scoreDetail(Instrument instrument) throws CraftException {
     try {
       double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
 
       // Score includes matching memes, previous segment to macro instrument first pattern
       score += SCORE_MATCHED_MEMES *
-              fabricator.getMemeIsometryOfSegment().score(
-                      Entities.namesOf(fabricator.getSourceMaterial().getMemes(instrument)));
+        fabricator.getMemeIsometryOfSegment().score(
+          Entities.namesOf(fabricator.getSourceMaterial().getMemes(instrument)));
 
       // [#174435421] Chain bindings specify Program & Instrument within Library
       if (fabricator.isDirectlyBound(instrument))
@@ -446,7 +459,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       return score;
 
     } catch (HubClientException | EntityException e) {
-      throw exception("score harmonic program", e);
+      throw exception("score detail program", e);
     }
   }
 
@@ -482,7 +495,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
   /**
    of a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
-   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement@param arrangement   to of pick within@param previousInstrumentAudio
+   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
 
    @param previousInstrumentAudio map of previous instrument audio of which to potentially select
    @param event                   to pick audio for
@@ -496,12 +509,17 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       // Morph & Point attributes are expressed in beats
       double position = event.getPosition() + shiftPosition;
       double duration = event.getDuration();
-      Chord chord = fabricator.getChordAt((int) Math.floor(position));
+      SegmentChord chord = fabricator.getChordAt((int) Math.floor(position))
+        .orElseThrow(() -> new FabricationException("No Segment Chord found!"));
+      SegmentChordVoicing voicing = fabricator.getVoicing(chord, instrument.getType())
+        .orElseThrow(() -> new FabricationException(String.format("No %s Segment Chord Voicing found!",
+          instrument.getType())));
 
-      // The final note is transformed based on instrument type
-      Note note = pickNote(
-              Note.of(event.getNote()).transpose(transpose),
-              chord, audio, instrument.getType());
+      // The final note is voiced
+      Note note = DetailCraftVoiceNotePicker.from(
+        fabricator.getKeyForArrangement(segmentChoiceArrangement),
+        Note.of(event.getNote()).transpose(transpose),
+        chord, voicing, audio, fabricator.getTuning()).pick();
 
       // Pick attributes are expressed "rendered" as actual seconds
       double startSeconds = fabricator.computeSecondsAtPosition(position);
@@ -509,21 +527,21 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // of pick
       fabricator.add(SegmentChoiceArrangementPick.newBuilder()
-              .setId(UUID.randomUUID().toString())
-              .setSegmentId(segmentChoiceArrangement.getSegmentId())
-              .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId())
-              .setInstrumentAudioId(audio.getId())
-              .setProgramSequencePatternEventId(event.getId())
-              .setName(getTrackName(event))
-              .setStart(startSeconds)
-              .setLength(lengthSeconds)
-              .setAmplitude(event.getVelocity())
-              .setPitch(fabricator.getPitch(note))
-              .build());
+        .setId(UUID.randomUUID().toString())
+        .setSegmentId(segmentChoiceArrangement.getSegmentId())
+        .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId())
+        .setInstrumentAudioId(audio.getId())
+        .setProgramSequencePatternEventId(event.getId())
+        .setName(getTrackName(event))
+        .setStart(startSeconds)
+        .setLength(lengthSeconds)
+        .setAmplitude(event.getVelocity())
+        .setPitch(fabricator.getPitch(note))
+        .build());
 
     } catch (FabricationException e) {
       throw exception(String.format("Could not pick audio for instrumentId=%s, arrangementId=%s, eventId=%s, transpose=%d, shiftPosition=%f, chanceOfRandomChoice=%f",
-              instrument.getId(), segmentChoiceArrangement.getId(), event.getId(), transpose, shiftPosition, chanceOfRandomChoice), e);
+        instrument.getId(), segmentChoiceArrangement.getId(), event.getId(), transpose, shiftPosition, chanceOfRandomChoice), e);
     }
   }
 
@@ -575,44 +593,23 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
    */
   private InstrumentAudio selectNewInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws CraftException {
     try {
-      EntityRank<InstrumentAudio> audioEntityRank = new EntityRank<>();
+      EntityScorePicker<InstrumentAudio> audioEntityScorePicker = new EntityScorePicker<>();
 
       // add all audio to chooser
-      audioEntityRank.addAll(fabricator.getSourceMaterial().getAudios(instrument));
+      audioEntityScorePicker.addAll(fabricator.getSourceMaterial().getAudios(instrument));
 
       // score each audio against the current voice event, with some variability
       for (InstrumentAudioEvent audioEvent : fabricator.getSourceMaterial().getFirstEventsOfAudiosOfInstrument(instrument))
-        audioEntityRank.score(audioEvent.getInstrumentAudioId(),
-                Chance.normallyAround(
-                        NameIsometry.similarity(getTrackName(event), audioEvent.getName()),
-                        SCORE_INSTRUMENT_ENTROPY));
+        audioEntityScorePicker.score(audioEvent.getInstrumentAudioId(),
+          Chance.normallyAround(
+            NameIsometry.similarity(getTrackName(event), audioEvent.getName()),
+            SCORE_INSTRUMENT_ENTROPY));
 
       // final chosen audio event
-      return audioEntityRank.getTop();
+      return audioEntityScorePicker.getTop();
 
     } catch (FabricationException | HubClientException e) {
       throw exception(String.format("No acceptable Audio found for instrumentId=%s, eventId=%s", instrument.getId(), event.getId()), e);
-    }
-  }
-
-  /**
-   Pick final note based on instrument type, voice event, transposition and current chord
-   <p>
-   [#295] Pitch of harmonic-type instrument audio is altered the least # semitones possible to conform to the current chord
-
-   @param fromNote       of voice event
-   @param chord          current
-   @param audio          that has been picked
-   @param instrumentType of instrument
-   @return final note
-   */
-  private Note pickNote(Note fromNote, Chord chord, InstrumentAudio audio, Instrument.Type instrumentType) {
-    if (Instrument.Type.Harmonic == instrumentType) {
-      return fabricator.getNoteAtPitch(audio.getPitch())
-              .conformedTo(chord);
-    } else {
-      return fromNote
-              .conformedTo(chord);
     }
   }
 }

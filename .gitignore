@@ -47,3 +47,9 @@ kafka.properties
 # YourKit Java Profiler
 *.hprof
 *.hprof.idom
+
+# Audio data
+data/
+
+# Bootstrap chains
+bootstrap-chains.json

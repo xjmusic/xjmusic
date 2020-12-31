@@ -139,7 +139,7 @@ public class DubMasterImpl implements DubMaster {
    */
   private double computePreroll() throws FabricationException {
     double maxPreroll = 0.0;
-    for (SegmentChoiceArrangementPick pick : fabricator.getSegmentPicks())
+    for (SegmentChoiceArrangementPick pick : fabricator.getPicks())
       try {
         maxPreroll = Math.max(maxPreroll, computeOffsetStart(pick) - pick.getStart());
       } catch (Exception e) {
@@ -157,7 +157,7 @@ public class DubMasterImpl implements DubMaster {
    @param preroll (seconds)
    */
   private void doMixerTargetSetting(Double preroll) throws FabricationException {
-    for (SegmentChoiceArrangementPick pick : fabricator.getSegmentPicks())
+    for (SegmentChoiceArrangementPick pick : fabricator.getPicks())
       try {
         setupTarget(preroll, pick);
       } catch (Exception e) {

@@ -13,6 +13,7 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
 import io.xj.lib.entity.EntityStore;
@@ -51,7 +52,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   private final PayloadFactory payloadFactory;
   private final HubClientAccess access;
   private final Map<String, Object> report = Maps.newConcurrentMap();
-  private final EntityStore store;
+  private final EntityStore bench;
 
   @Inject
   public SegmentWorkbenchImpl(
@@ -67,7 +68,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     this.segment = segment;
     this.segmentDAO = segmentDAO;
     this.payloadFactory = payloadFactory;
-    this.store = entityStore;
+    this.bench = entityStore;
 
     // fetch all sub entities of all segments and store the results in the corresponding entity cache
     try {
@@ -85,7 +86,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public Collection<SegmentChoiceArrangement> getSegmentArrangements() throws FabricationException {
     try {
-      return store.getAll(SegmentChoiceArrangement.class);
+      return bench.getAll(SegmentChoiceArrangement.class);
     } catch (EntityStoreException e) {
       throw new FabricationException(e);
     }
@@ -94,7 +95,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public Collection<SegmentChoice> getSegmentChoices() throws FabricationException {
     try {
-      return store.getAll(SegmentChoice.class);
+      return bench.getAll(SegmentChoice.class);
     } catch (EntityStoreException e) {
       throw new FabricationException(e);
     }
@@ -103,7 +104,17 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public Collection<SegmentChord> getSegmentChords() throws FabricationException {
     try {
-      return store.getAll(SegmentChord.class);
+      return bench.getAll(SegmentChord.class);
+    } catch (EntityStoreException e) {
+      throw new FabricationException(e);
+    }
+  }
+
+
+  @Override
+  public Collection<SegmentChordVoicing> getSegmentChordVoicings() throws FabricationException {
+    try {
+      return bench.getAll(SegmentChordVoicing.class);
     } catch (EntityStoreException e) {
       throw new FabricationException(e);
     }
@@ -112,7 +123,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public Collection<SegmentMeme> getSegmentMemes() throws FabricationException {
     try {
-      return store.getAll(SegmentMeme.class);
+      return bench.getAll(SegmentMeme.class);
     } catch (EntityStoreException e) {
       throw new FabricationException(e);
     }
@@ -121,7 +132,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public Collection<SegmentMessage> getSegmentMessages() throws FabricationException {
     try {
-      return store.getAll(SegmentMessage.class);
+      return bench.getAll(SegmentMessage.class);
     } catch (EntityStoreException e) {
       throw new FabricationException(e);
     }
@@ -130,7 +141,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() throws FabricationException {
     try {
-      return store.getAll(SegmentChoiceArrangementPick.class);
+      return bench.getAll(SegmentChoiceArrangementPick.class);
     } catch (EntityStoreException e) {
       throw new FabricationException(e);
     }
@@ -153,12 +164,13 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
 
       segmentDAO.update(access, getSegment().getId(), getSegment());
 
-      segmentDAO.createAllSubEntities(access, store.getAll(SegmentMessage.class));
-      segmentDAO.createAllSubEntities(access, store.getAll(SegmentMeme.class));
-      segmentDAO.createAllSubEntities(access, store.getAll(SegmentChord.class));
-      segmentDAO.createAllSubEntities(access, store.getAll(SegmentChoice.class));
-      segmentDAO.createAllSubEntities(access, store.getAll(SegmentChoiceArrangement.class)); // after choices
-      segmentDAO.createAllSubEntities(access, store.getAll(SegmentChoiceArrangementPick.class)); // after arrangements
+      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentMessage.class));
+      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentMeme.class));
+      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentChord.class));
+      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentChordVoicing.class));
+      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentChoice.class));
+      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentChoiceArrangement.class)); // after choices
+      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentChoiceArrangementPick.class)); // after arrangements
 
     } catch (JsonApiException | DAOFatalException | DAOExistenceException | DAOPrivilegeException | DAOValidationException | EntityStoreException e) {
       throw new FabricationException("Failed to build and update payload for Segment!", e);
@@ -188,7 +200,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public <N extends MessageLite> N add(N entity) throws FabricationException {
     try {
-      return store.put(entity);
+      return bench.put(entity);
     } catch (EntityStoreException e) {
       throw new FabricationException(e);
     }

@@ -13,6 +13,7 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
 import io.xj.lib.entity.Entities;
@@ -47,7 +48,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
     // fail to store builder
     if (entity instanceof MessageLite.Builder)
       throw new NexusEntityStoreException(String.format("Can't store builder %s!",
-              entity.getClass().getSimpleName()));
+        entity.getClass().getSimpleName()));
 
     // fail to store entity without id
     String id;
@@ -55,13 +56,13 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       id = Entities.getId(entity);
     } catch (EntityException e) {
       throw new NexusEntityStoreException(String.format("Can't get id of %s-type entity",
-              entity.getClass().getSimpleName()));
+        entity.getClass().getSimpleName()));
     }
 
     // fail to store entity with unset id
     if (!Value.isSet(id))
       throw new NexusEntityStoreException(String.format("Can't store %s with null id",
-              entity.getClass().getSimpleName()));
+        entity.getClass().getSimpleName()));
 
     if (entity instanceof Chain)
       chainMap.put(id, (Chain) entity);
@@ -73,15 +74,16 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       segmentMap.put(id, (Segment) entity);
 
     else if (entity instanceof SegmentMeme ||
-            entity instanceof SegmentChord ||
-            entity instanceof SegmentChoice ||
-            entity instanceof SegmentMessage ||
-            entity instanceof SegmentChoiceArrangement ||
-            entity instanceof SegmentChoiceArrangementPick)
+      entity instanceof SegmentChord ||
+      entity instanceof SegmentChordVoicing ||
+      entity instanceof SegmentChoice ||
+      entity instanceof SegmentMessage ||
+      entity instanceof SegmentChoiceArrangement ||
+      entity instanceof SegmentChoiceArrangementPick)
       try {
         String segmentId = String.valueOf(Entities.get(entity, SEGMENT_ID_ATTRIBUTE)
-                .orElseThrow(() -> new NexusEntityStoreException(String.format("Can't store %s without Segment ID!",
-                        entity.getClass().getSimpleName()))));
+          .orElseThrow(() -> new NexusEntityStoreException(String.format("Can't store %s without Segment ID!",
+            entity.getClass().getSimpleName()))));
         store.putIfAbsent(segmentId, Maps.newConcurrentMap());
         store.get(segmentId).putIfAbsent(entity.getClass(), Maps.newConcurrentMap());
         store.get(segmentId).get(entity.getClass()).put(id, entity);
@@ -179,8 +181,8 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
         return ImmutableList.of();
       //noinspection unchecked
       return (Collection<N>) store.get(segmentId).get(type).values().stream()
-              .filter(entity -> type.equals(entity.getClass()))
-              .collect(Collectors.toList());
+        .filter(entity -> type.equals(entity.getClass()))
+        .collect(Collectors.toList());
 
     } catch (Exception e) {
       throw new NexusEntityStoreException(e);
@@ -194,8 +196,8 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
         return ImmutableList.of();
       //noinspection unchecked
       return (Collection<N>) store.get(segmentId).get(type).values().stream()
-              .filter(entity -> Entities.isChild(entity, belongsToType, belongsToIds))
-              .collect(Collectors.toList());
+        .filter(entity -> Entities.isChild(entity, belongsToType, belongsToIds))
+        .collect(Collectors.toList());
 
     } catch (Exception e) {
       throw new NexusEntityStoreException(e);
@@ -210,15 +212,15 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   @Override
   public Collection<ChainBinding> getAllChainBindings(String chainId) {
     return chainBindingMap.values().stream()
-            .filter(segment -> chainId.equals(segment.getChainId()))
-            .collect(Collectors.toList());
+      .filter(segment -> chainId.equals(segment.getChainId()))
+      .collect(Collectors.toList());
   }
 
   @Override
   public Collection<Segment> getAllSegments(String chainId) {
     return segmentMap.values().stream()
-            .filter(segment -> chainId.equals(segment.getChainId()))
-            .collect(Collectors.toList());
+      .filter(segment -> chainId.equals(segment.getChainId()))
+      .collect(Collectors.toList());
   }
 
   @Override

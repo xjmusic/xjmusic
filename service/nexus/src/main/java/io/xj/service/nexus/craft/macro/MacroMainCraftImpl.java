@@ -12,6 +12,7 @@ import io.xj.ProgramSequence;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.music.Key;
@@ -21,7 +22,7 @@ import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientException;
 import io.xj.service.nexus.craft.CraftImpl;
 import io.xj.service.nexus.craft.exception.CraftException;
-import io.xj.service.nexus.fabricator.EntityRank;
+import io.xj.service.nexus.fabricator.EntityScorePicker;
 import io.xj.service.nexus.fabricator.FabricationException;
 import io.xj.service.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
@@ -161,7 +162,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
           .setProgramSequenceBindingId(mainSequenceBinding.getId())
           .build());
 
-      // 3. Chords
+      // 3. Chords and voicings
       fabricator.getSourceMaterial().getChords(mainSequence).forEach(sequenceChord -> {
         // [#154090557] don't of chord past end of Segment
         String name = "NaN";
@@ -170,12 +171,21 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
           name = new io.xj.lib.music.Chord(sequenceChord.getName())
             .transpose(mainTranspose).getFullDescription();
           // of the transposed chord
-          fabricator.add(SegmentChord.newBuilder()
+          SegmentChord chord = fabricator.add(SegmentChord.newBuilder()
             .setId(UUID.randomUUID().toString())
             .setSegmentId(fabricator.getSegment().getId())
             .setPosition(sequenceChord.getPosition())
             .setName(name)
             .build());
+          for (var voicing : fabricator.getSourceMaterial().getVoicings(sequenceChord))
+            fabricator.add(SegmentChordVoicing.newBuilder()
+              .setId(UUID.randomUUID().toString())
+              .setSegmentId(fabricator.getSegment().getId())
+              .setSegmentChordId(chord.getId())
+              .setType(voicing.getType())
+              .setNotes(voicing.getNotes())
+              .build());
+
 
         } catch (Exception e) {
           log.warn("failed to create transposed segment chord {}@{}",
@@ -351,13 +361,13 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     }
 
     // will rank all possibilities, and choose the next macro program
-    EntityRank<Program> superEntityRank = new EntityRank<>();
+    EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
     // (1) retrieve programs bound to chain and
     // (3) score each source program
     try {
       for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Macro))
-        superEntityRank.add(program, scoreMacro(program, macroNextSequence));
+        superEntityScorePicker.add(program, scoreMacro(program, macroNextSequence));
     } catch (Exception e) {
       log.warn("while scoring macro programs", e);
     }
@@ -365,17 +375,17 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
     // (3b) Avoid previous macro program
     if (!fabricator.isInitialSegment())
       try {
-        superEntityRank.score(fabricator.getProgram(fabricator.getPreviousMacroChoice()).getId(), SCORE_AVOID_PREVIOUS);
+        superEntityScorePicker.score(fabricator.getProgram(fabricator.getPreviousMacroChoice()).getId(), SCORE_AVOID_PREVIOUS);
       } catch (FabricationException e) {
         throw exception("Failed to get program create previous Macro choice, in order to choose next Macro", e);
       }
 
     // report
-    fabricator.putReport("macroChoice", superEntityRank.report());
+    fabricator.putReport("macroChoice", superEntityScorePicker.report());
 
     // (4) return the top choice
     try {
-      return superEntityRank.getTop();
+      return superEntityScorePicker.getTop();
     } catch (FabricationException e) {
       throw exception("Found no macro-type program bound to Chain!", e);
     }
@@ -388,24 +398,24 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @throws CraftException on failure
    */
   private Program chooseMacroProgram() throws CraftException {
-    EntityRank<Program> superEntityRank = new EntityRank<>();
+    EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
     try {
       for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Macro))
-        superEntityRank.add(program, Chance.normallyAround(0, SCORE_MACRO_ENTROPY));
+        superEntityScorePicker.add(program, Chance.normallyAround(0, SCORE_MACRO_ENTROPY));
     } catch (HubClientException e) {
       throw exception("score macro entropy", e);
     }
 
     // (3b) Avoid previous macro program
     if (!fabricator.isInitialSegment()) try {
-      superEntityRank.score(fabricator.getProgram(fabricator.getPreviousMacroChoice()).getId(), SCORE_AVOID_PREVIOUS);
+      superEntityScorePicker.score(fabricator.getProgram(fabricator.getPreviousMacroChoice()).getId(), SCORE_AVOID_PREVIOUS);
     } catch (FabricationException e) {
       throw exception("Failed to get program create previous Macro choice, in order to choose next Macro", e);
     }
 
     try {
-      return superEntityRank.getTop();
+      return superEntityScorePicker.getTop();
     } catch (FabricationException e) {
       throw exception("Found no macro-type program bound to Chain!", e);
     }
@@ -432,23 +442,23 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     // will rank all possibilities, and choose the next main program
     // future: only choose major programs for major keys, minor for minor! [#223] Key of first Pattern of chosen Main-Program must match the `minor` or `major` with the Key of the current Segment.
-    EntityRank<Program> superEntityRank = new EntityRank<>();
+    EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve programs bound to chain and
     // (3) score each source program based on meme isometry
     try {
       for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Main))
-        superEntityRank.add(program, scoreMain(program));
+        superEntityScorePicker.add(program, scoreMain(program));
     } catch (Exception e) {
       log.warn("while scoring main programs", e);
     }
 
     // report
-    fabricator.putReport("mainChoice", superEntityRank.report());
+    fabricator.putReport("mainChoice", superEntityScorePicker.report());
 
     // (4) return the top choice
     try {
-      return superEntityRank.getTop();
+      return superEntityScorePicker.getTop();
     } catch (FabricationException e) {
       throw exception("Found no main-type program bound to Chain!", e);
     }
@@ -511,7 +521,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
       // Score includes matching mode, previous segment to macro program first pattern (major/minor)
       try {
-        if (Key.isSameMode(fabricator.getKeyForChoice(fabricator.getPreviousMainChoice()), program.getKey())) {
+        if (Key.isSameMode(fabricator.getKeyForChoice(fabricator.getPreviousMainChoice()), Key.of(program.getKey()))) {
           score += SCORE_MATCHED_KEY_MODE;
         }
       } catch (FabricationException e) {
@@ -543,7 +553,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    */
   private Collection<SegmentMeme> segmentMemes() throws FabricationException {
     Multiset<String> uniqueResults = ConcurrentHashMultiset.create();
-    for (SegmentChoice choice : fabricator.getSegmentChoices()) {
+    for (SegmentChoice choice : fabricator.getChoices()) {
       try {
         for (SegmentMeme meme : fabricator.getMemesOfChoice(choice)) {
           uniqueResults.add(meme.getName());

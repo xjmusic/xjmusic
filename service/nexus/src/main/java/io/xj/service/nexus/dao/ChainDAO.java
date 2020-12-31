@@ -2,6 +2,7 @@
 package io.xj.service.nexus.dao;
 
 import io.xj.Chain;
+import io.xj.ChainBinding;
 import io.xj.Segment;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
@@ -26,6 +27,23 @@ public interface ChainDAO extends DAO<Chain> {
    @throws DAOPrivilegeException if access is prohibited
    */
   Collection<Chain> readManyInState(HubClientAccess access, Chain.State state) throws DAOFatalException, DAOPrivilegeException;
+
+  /**
+   [#176285826] Nexus bootstraps Chains from JSON file on startup
+
+   @return newly bootstrapped Chain
+   @throws DAOFatalException      on failure
+   @throws DAOPrivilegeException  if access is prohibited
+   @throws DAOValidationException on invalid data
+   @param access   control
+   @param chain    to bootstrap
+   @param bindings to bind to chain
+   */
+  Chain bootstrap(
+    HubClientAccess access,
+    Chain chain,
+    Collection<ChainBinding> bindings
+  ) throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException;
 
   /**
    [#150279540] Unauthenticated or specifically-authenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.

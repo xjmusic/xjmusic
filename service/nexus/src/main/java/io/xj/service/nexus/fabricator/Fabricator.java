@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.fabricator;
 
+import com.google.protobuf.MessageLite;
 import io.xj.Chain;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
@@ -14,10 +15,12 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
-import io.xj.lib.music.Chord;
+import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
+import io.xj.lib.music.Tuning;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
@@ -35,52 +38,12 @@ import java.util.Optional;
 public interface Fabricator {
 
   /**
-   Add a new Arrangement
+   Add a new Entity
 
-   @param arrangement to of
-   @return arrangement with assigned next id (unique for this segment)
+   @param entity to add
+   @return entity added
    */
-  SegmentChoiceArrangement add(SegmentChoiceArrangement arrangement) throws FabricationException;
-
-  /**
-   Add a new Choice
-
-   @param choice to of
-   @return choice with assigned next id (unique for this segment)
-   */
-  SegmentChoice add(SegmentChoice choice) throws FabricationException;
-
-  /**
-   Add a new Pick
-
-   @param pick to add
-   @return pick with assigned next id (unique for this segment)
-   */
-  SegmentChoiceArrangementPick add(SegmentChoiceArrangementPick pick) throws FabricationException;
-
-  /**
-   Add a new SegmentChord
-
-   @param segmentChord to of
-   @return segmentChord with assigned next id (unique for this segment)
-   */
-  SegmentChord add(SegmentChord segmentChord) throws FabricationException;
-
-  /**
-   Add a new SegmentMeme
-
-   @param segmentMeme to of
-   @return segmentMeme with assigned next id (unique for this segment)
-   */
-  SegmentMeme add(SegmentMeme segmentMeme) throws FabricationException;
-
-  /**
-   Add a new SegmentMessage
-
-   @param segmentMessage to of
-   @return segmentMessage with assigned next id (unique for this segment)
-   */
-  SegmentMessage add(SegmentMessage segmentMessage) throws FabricationException;
+  <N extends MessageLite> N add(N entity) throws FabricationException;
 
   /**
    Compute using an integral
@@ -140,7 +103,7 @@ public interface Fabricator {
    @param position in segment
    @return ChordEntity
    */
-  Chord getChordAt(int position) throws FabricationException;
+  Optional<SegmentChord> getChordAt(int position) throws FabricationException;
 
   /**
    Get the Messages for the current segment in the chain
@@ -194,7 +157,16 @@ public interface Fabricator {
    @return key of specified sequence/program via choice
    @throws FabricationException if unable to determine key of choice
    */
-  String getKeyForChoice(SegmentChoice choice) throws FabricationException;
+  Key getKeyForChoice(SegmentChoice choice) throws FabricationException;
+
+  /**
+   Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
+
+   @param arrangement to get key for
+   @return key of specified sequence/program via choice
+   @throws FabricationException if unable to determine key of choice
+   */
+  Key getKeyForArrangement(SegmentChoiceArrangement arrangement) throws FabricationException;
 
   /**
    Get max available sequence pattern offset for a given choice
@@ -276,13 +248,6 @@ public interface Fabricator {
    @throws FabricationException on attempt to get next SequenceBinding offset of choice with no SequenceBinding
    */
   Long getNextSequenceBindingOffset(SegmentChoice choice) throws FabricationException;
-
-  /**
-   Note, for any pitch in Hz
-
-   @param pitch to get octave of
-   */
-  Note getNoteAtPitch(Double pitch);
 
   /**
    Output Audio Format
@@ -488,32 +453,33 @@ public interface Fabricator {
   ProgramSequence randomlySelectSequence(Program program) throws FabricationException;
 
   /**
-   Get picks for segment
-
-   @return picks for segment
-   */
-  Collection<SegmentChoiceArrangementPick> getSegmentPicks() throws FabricationException;
-
-  /**
    Get choices for segment
 
    @return choices for segment
    */
-  Collection<SegmentChoice> getSegmentChoices() throws FabricationException;
+  Collection<SegmentChoice> getChoices() throws FabricationException;
+
+  /**
+   Get Choice for arrangement
+
+   @param arrangement for which to get choice
+   @return choice for arrangement
+   */
+  Optional<SegmentChoice> getChoice(SegmentChoiceArrangement arrangement) throws FabricationException;
 
   /**
    Get arrangements for segment
 
    @return arrangements for segment
    */
-  Collection<SegmentChoiceArrangement> getSegmentChoiceArrangements() throws FabricationException;
+  Collection<SegmentChoiceArrangement> getArrangements() throws FabricationException;
 
   /**
    Get arrangement picks for segment
 
    @return arrangement picks for segment
    */
-  Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() throws FabricationException;
+  Collection<SegmentChoiceArrangementPick> getPicks() throws FabricationException;
 
   /**
    Get segment arrangements for a given choice
@@ -522,6 +488,14 @@ public interface Fabricator {
    @return segments arrangements for the given segment choice
    */
   Collection<SegmentChoiceArrangement> getArrangements(Collection<SegmentChoice> choices) throws FabricationException;
+
+  /**
+   Get segment chord voicing for a given chord
+
+   @param chord to get voicing for
+   @return chord voicing for chord
+   */
+  Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, Instrument.Type type) throws FabricationException;
 
   /**
    Get memes for segment
@@ -592,5 +566,11 @@ public interface Fabricator {
    @return list of voicing (instrument) types
    */
   List<Instrument.Type> getDistinctChordVoicingTypes() throws FabricationException;
+
+  /**
+   Get the current Tuning
+   @return Tuning
+   */
+  Tuning getTuning();
 
 }

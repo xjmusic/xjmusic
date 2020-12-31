@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
+import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
 import io.xj.Chain;
 import io.xj.ChainBinding;
@@ -23,6 +24,7 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
 import io.xj.lib.entity.Entities;
@@ -30,7 +32,7 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.PayloadFactory;
-import io.xj.lib.music.Chord;
+import io.xj.lib.music.Key;
 import io.xj.lib.music.MusicalException;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.Tuning;
@@ -169,33 +171,8 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public SegmentChoiceArrangement add(SegmentChoiceArrangement arrangement) throws FabricationException {
-    return workbench.add(arrangement);
-  }
-
-  @Override
-  public SegmentChoice add(SegmentChoice choice) throws FabricationException {
-    return workbench.add(choice);
-  }
-
-  @Override
-  public SegmentChoiceArrangementPick add(SegmentChoiceArrangementPick pick) throws FabricationException {
-    return workbench.add(pick);
-  }
-
-  @Override
-  public SegmentChord add(SegmentChord segmentChord) throws FabricationException {
-    return workbench.add(segmentChord);
-  }
-
-  @Override
-  public SegmentMeme add(SegmentMeme segmentMeme) throws FabricationException {
-    return workbench.add(segmentMeme);
-  }
-
-  @Override
-  public SegmentMessage add(SegmentMessage segmentMessage) throws FabricationException {
-    return workbench.add(segmentMessage);
+  public <N extends MessageLite> N add(N entity) throws FabricationException {
+    return workbench.add(entity);
   }
 
   @Override
@@ -237,9 +214,8 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Chord getChordAt(int position) throws FabricationException {
-    // default to returning a chord based on the segment key, if nothing else is found
-    String foundChordText = workbench.getSegment().getKey();
+  public Optional<SegmentChord> getChordAt(int position) throws FabricationException {
+    Optional<SegmentChord> foundChord = Optional.empty();
     Double foundPosition = null;
 
     // we assume that these entities are in order of position ascending
@@ -248,11 +224,11 @@ class FabricatorImpl implements Fabricator {
       if (Objects.isNull(foundPosition) ||
         segmentChord.getPosition() > foundPosition && segmentChord.getPosition() < position) {
         foundPosition = segmentChord.getPosition();
-        foundChordText = segmentChord.getName();
+        foundChord = Optional.of(segmentChord);
       }
     }
 
-    return Chord.of(foundChordText);
+    return foundChord;
   }
 
   @Override
@@ -286,12 +262,18 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getKeyForChoice(SegmentChoice choice) throws FabricationException {
+  public Key getKeyForChoice(SegmentChoice choice) throws FabricationException {
     Program program = getProgram(choice);
     if (Value.isSet(choice.getProgramSequenceBindingId())) {
-      return getSequence(choice).getKey();
+      return Key.of(getSequence(choice).getKey());
     }
-    return program.getKey();
+    return Key.of(program.getKey());
+  }
+
+  @Override
+  public Key getKeyForArrangement(SegmentChoiceArrangement arrangement) throws FabricationException {
+    return getKeyForChoice(getChoice(arrangement).orElseThrow(() ->
+      new FabricationException(String.format("No key found for Arrangement[%s]", arrangement.getId()))));
   }
 
   @Override
@@ -434,11 +416,6 @@ class FabricatorImpl implements Fabricator {
     } catch (HubClientException e) {
       throw new FabricationException(e);
     }
-  }
-
-  @Override
-  public Note getNoteAtPitch(Double pitch) {
-    return tuning.note(pitch);
   }
 
   @Override
@@ -621,11 +598,11 @@ class FabricatorImpl implements Fabricator {
   @Override
   public ProgramSequenceBinding randomlySelectSequenceBindingAtOffset(Program program, Long offset) throws FabricationException {
     try {
-      EntityRank<ProgramSequenceBinding> entityRank = new EntityRank<>();
+      EntityScorePicker<ProgramSequenceBinding> entityScorePicker = new EntityScorePicker<>();
       for (ProgramSequenceBinding sequenceBinding : sourceMaterial.getProgramSequenceBindingsAtOffset(program, offset)) {
-        entityRank.add(sequenceBinding, Chance.normallyAround(0.0, 1.0));
+        entityScorePicker.add(sequenceBinding, Chance.normallyAround(0.0, 1.0));
       }
-      return entityRank.getTop();
+      return entityScorePicker.getTop();
 
     } catch (HubClientException e) {
       throw new FabricationException(e);
@@ -635,11 +612,11 @@ class FabricatorImpl implements Fabricator {
   @Override
   public ProgramSequence randomlySelectSequence(Program program) throws FabricationException {
     try {
-      EntityRank<ProgramSequence> entityRank = new EntityRank<>();
+      EntityScorePicker<ProgramSequence> entityScorePicker = new EntityScorePicker<>();
       sourceMaterial.getAllProgramSequences().stream()
         .filter(s -> s.getProgramId().equals(program.getId()))
-        .forEach(sequence -> entityRank.add(sequence, Chance.normallyAround(0.0, 1.0)));
-      return entityRank.getTop();
+        .forEach(sequence -> entityScorePicker.add(sequence, Chance.normallyAround(0.0, 1.0)));
+      return entityScorePicker.getTop();
 
     } catch (HubClientException e) {
       throw new FabricationException(e);
@@ -649,7 +626,7 @@ class FabricatorImpl implements Fabricator {
   @Override
   public Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(ProgramSequence sequence, ProgramVoice voice, ProgramSequencePattern.Type patternType) throws FabricationException {
     try {
-      EntityRank<ProgramSequencePattern> rank = new EntityRank<>();
+      EntityScorePicker<ProgramSequencePattern> rank = new EntityScorePicker<>();
       sourceMaterial.getAllProgramSequencePatterns().stream()
         .filter(pattern -> pattern.getProgramSequenceId().equals(sequence.getId()))
         .filter(pattern -> pattern.getProgramVoiceId().equals(voice.getId()))
@@ -716,8 +693,8 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangementPick> getSegmentPicks() throws FabricationException {
-    return workbench.getSegmentChoiceArrangementPicks();
+  public Tuning getTuning() {
+    return tuning;
   }
 
   @Override
@@ -726,26 +703,42 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<SegmentChoice> getSegmentChoices() throws FabricationException {
+  public Collection<SegmentChoice> getChoices() throws FabricationException {
     return workbench.getSegmentChoices();
   }
 
   @Override
-  public Collection<SegmentChoiceArrangement> getSegmentChoiceArrangements() throws FabricationException {
+  public Optional<SegmentChoice> getChoice(SegmentChoiceArrangement arrangement) throws FabricationException {
+    return workbench.getSegmentChoices().stream()
+      .filter(choice -> arrangement.getSegmentChoiceId().equals(choice.getId()))
+      .findFirst();
+  }
+
+  @Override
+  public Collection<SegmentChoiceArrangement> getArrangements() throws FabricationException {
     return workbench.getSegmentArrangements();
   }
 
   @Override
-  public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() throws FabricationException {
+  public Collection<SegmentChoiceArrangementPick> getPicks() throws FabricationException {
     return workbench.getSegmentChoiceArrangementPicks();
   }
 
   @Override
   public Collection<SegmentChoiceArrangement> getArrangements(Collection<SegmentChoice> choices) throws FabricationException {
     Collection<String> choiceIds = Entities.idsOf(choices);
-    return getSegmentChoiceArrangements().stream()
+    return getArrangements().stream()
       .filter(arrangement -> choiceIds.contains(String.valueOf(arrangement.getSegmentChoiceId())))
       .collect(Collectors.toList());
+  }
+
+  @Override
+  public Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, Instrument.Type type) throws FabricationException {
+    Collection<SegmentChordVoicing> voicings = workbench.getSegmentChordVoicings();
+    return voicings.stream()
+      .filter(voicing -> type.equals(voicing.getType()))
+      .filter(voicing -> Objects.equals(chord.getId(), voicing.getSegmentChordId()))
+      .findAny();
   }
 
   /**

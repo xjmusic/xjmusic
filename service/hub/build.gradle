@@ -55,7 +55,7 @@ dependencies {
   implementation project(':lib:jsonapi')
   implementation project(':lib:util')
   //
-  implementation 'io.xj:protocol:v0.7'
+  implementation 'io.xj:protocol:v0.8'
   // jOOq vendor
   jooqRuntime group: 'org.postgresql', name: 'postgresql', version: '42.2.10'
   jooqRuntime group: 'org.postgresql', name: 'postgresql', version: '42.2.10'

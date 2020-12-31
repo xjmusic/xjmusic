@@ -65,9 +65,21 @@ public class Key extends IntervalPitchGroup {
    @return increased score if match, else 0
    */
   public static Boolean isSameMode(String key1, String key2) {
+    return Objects.nonNull(key1) && isSameMode(Key.of(key1), Key.of(key2));
+  }
+
+  /**
+   Increased score for a matching adjustment symbol,
+   only if one is provided.
+
+   @param key1 to match, or null if none matters
+   @param key2 to match adjustment symbol of
+   @return increased score if match, else 0
+   */
+  public static Boolean isSameMode(Key key1, Key key2) {
     return Objects.nonNull(key1) &&
-      of(key2).getMode().equals(
-        of(key1).getMode());
+      key2.getMode().equals(
+        key1.getMode());
   }
 
   /**

@@ -17,6 +17,7 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.InstantDeserializer;
 import io.xj.lib.entity.InstantSerializer;
 
+import java.io.BufferedReader;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -371,6 +372,12 @@ public class PayloadFactoryImpl implements PayloadFactory {
 
   @Override
   public Payload deserialize(String payloadAsJSON) throws JsonApiException {
+    return deserialize(Payload.class, payloadAsJSON);
+  }
+
+  @Override
+  public Payload deserialize(BufferedReader payloadReader) throws JsonApiException {
+    String payloadAsJSON = payloadReader.lines().collect(Collectors.joining());
     return deserialize(Payload.class, payloadAsJSON);
   }
 
