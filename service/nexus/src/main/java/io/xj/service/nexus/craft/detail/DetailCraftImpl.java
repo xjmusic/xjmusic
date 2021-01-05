@@ -4,20 +4,7 @@ package io.xj.service.nexus.craft.detail;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.InstrumentAudioEvent;
-import io.xj.Program;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequencePattern;
-import io.xj.ProgramSequencePatternEvent;
-import io.xj.ProgramVoice;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
+import io.xj.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.music.Key;
@@ -27,20 +14,12 @@ import io.xj.lib.util.Value;
 import io.xj.service.hub.client.HubClientException;
 import io.xj.service.nexus.craft.CraftImpl;
 import io.xj.service.nexus.craft.exception.CraftException;
-import io.xj.service.nexus.fabricator.EntityScorePicker;
-import io.xj.service.nexus.fabricator.FabricationException;
-import io.xj.service.nexus.fabricator.Fabricator;
-import io.xj.service.nexus.fabricator.MemeIsometry;
-import io.xj.service.nexus.fabricator.NameIsometry;
+import io.xj.service.nexus.fabricator.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -67,26 +46,35 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
   public void doWork() throws CraftException {
     Map<String, InstrumentAudio> previousInstrumentAudio = getPreviousInstrumentAudio();
     try {
-      // for each unique voicing (instrument) types present in the chord voicings
-      for (Instrument.Type voicingType : fabricator.getDistinctChordVoicingTypes()) {
-        // program
-        Program detailProgram = chooseDetailProgram(voicingType);
-        SegmentChoice detailChoice = fabricator.add(SegmentChoice.newBuilder()
-          .setId(UUID.randomUUID().toString())
-          .setSegmentId(fabricator.getSegment().getId())
-          .setProgramType(Program.Type.Detail)
-          .setProgramId(detailProgram.getId())
-          .setTranspose(computeDetailTranspose(detailProgram))
-          .build());
+      // for each unique voicing (instrument) types present in the chord voicings of the current main choice
+      var voicingTypes = fabricator.getDistinctChordVoicingTypes();
+      if (voicingTypes.isEmpty())
+        log.info("Found no chord voicing types in Main-choice Program[{}]",
+          fabricator.getCurrentMainChoice().getId());
+      else
+        for (Instrument.Type voicingType : voicingTypes) {
+          // program
+          Program detailProgram = chooseDetailProgram(voicingType);
+          SegmentChoice detailChoice = fabricator.add(SegmentChoice.newBuilder()
+            .setId(UUID.randomUUID().toString())
+            .setSegmentId(fabricator.getSegment().getId())
+            .setProgramType(Program.Type.Detail)
+            .setProgramId(detailProgram.getId())
+            .setTranspose(computeDetailTranspose(detailProgram))
+            .build());
 
-        // detail sequence is selected at random of the current program
-        // FUTURE: [#166855956] Detail Program with multiple Sequences
-        var detailSequence = fabricator.getSequence(detailChoice);
+          // detail sequence is selected at random of the current program
+          // FUTURE: [#166855956] Detail Program with multiple Sequences
+          var detailSequence = fabricator.getSequence(detailChoice);
 
-        // voice arrangements
-        for (ProgramVoice voice : fabricator.getSourceMaterial().getVoices(detailProgram))
-          craftArrangementForDetailVoice(detailSequence, detailChoice, voice, previousInstrumentAudio);
-      }
+          // voice arrangements
+          var voices = fabricator.getSourceMaterial().getVoices(detailProgram);
+          if (voices.isEmpty())
+            log.info("Found no voices in Detail-choice Program[{}]",
+              detailProgram.getId());
+          for (ProgramVoice voice : voices)
+            craftArrangementForDetailVoice(detailSequence, detailChoice, voice, previousInstrumentAudio);
+        }
 
       // Finally, update the segment with the crafted content
       fabricator.done();
