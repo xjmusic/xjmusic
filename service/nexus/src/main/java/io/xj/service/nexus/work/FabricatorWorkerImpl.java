@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import static org.joda.time.DateTimeConstants.MILLIS_PER_SECOND;
 
@@ -179,10 +180,12 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
   protected void createSegmentErrorMessage(String body) {
     try {
       segmentDAO.create(access, SegmentMessage.newBuilder()
+        .setId(UUID.randomUUID().toString())
         .setSegmentId(segment.getId())
         .setType(SegmentMessage.Type.Error)
         .setBody(body)
         .build());
+
     } catch (DAOValidationException | DAOPrivilegeException | DAOExistenceException | DAOFatalException e) {
       log.error("[segId={}] Could not create SegmentMessage, reason={}", segmentId, e.getMessage());
     }

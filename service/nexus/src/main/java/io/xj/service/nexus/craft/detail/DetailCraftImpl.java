@@ -659,6 +659,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
   private void reportMissing(Class<?> type, String detail) {
     try {
       fabricator.add(SegmentMessage.newBuilder()
+        .setId(UUID.randomUUID().toString())
         .setSegmentId(fabricator.getSegment().getId())
         .setType(SegmentMessage.Type.Warning)
         .setBody(String.format("%s not found %s", type.getSimpleName(), detail))

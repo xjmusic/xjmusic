@@ -25,6 +25,7 @@ import java.io.BufferedInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -281,6 +282,7 @@ public class DubMasterImpl implements DubMaster {
       }
 
       fabricator.add(SegmentMessage.newBuilder()
+        .setId(UUID.randomUUID().toString())
         .setSegmentId(fabricator.getSegment().getId())
         .setType(SegmentMessage.Type.Warning)
         .setBody(body.toString())
