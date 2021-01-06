@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
-import java.util.UUID;
 
 @Singleton
 class DubAudioCacheImpl implements DubAudioCache {
@@ -108,7 +107,7 @@ class DubAudioCacheImpl implements DubAudioCache {
    @return computed item
    */
   private DubAudioCacheItem fetchAndWrite(String key) throws IOException, FileStoreException {
-    String path = String.format("%s%s.data", pathPrefix, UUID.randomUUID().toString());
+    String path = String.format("%s%s", pathPrefix, key);
     DubAudioCacheItem item = new DubAudioCacheItem(key, path);
     InputStream stream = fileStoreProvider.streamS3Object(audioFileBucket, key);
     item.writeFrom(stream);

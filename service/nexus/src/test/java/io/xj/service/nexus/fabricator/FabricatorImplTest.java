@@ -8,14 +8,7 @@ import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Library;
-import io.xj.Program;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
+import io.xj.*;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreModule;
@@ -43,6 +36,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -287,4 +281,80 @@ public class FabricatorImplTest {
     assertEquals(0.8, resultPick.getAmplitude(), 0.1);
     assertEquals(432.0, resultPick.getPitch(), 0.1);
   }
+
+
+  @Test
+  public void getDistinctChordVoicingTypes() throws Exception {
+    var chain = store.put(Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(UUID.randomUUID().toString())
+      .setName("test")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2017-12-12T01:00:08.000000Z")
+      .setConfig("outputEncoding=\"PCM_SIGNED\"")
+      .build());
+    Segment previousSegment = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain.getId())
+      .setOffset(1)
+      .setState(Segment.State.Crafted)
+      .setBeginAt("2017-12-12T01:00:08.000000Z")
+      .setEndAt("2017-12-12T01:00:16.000000Z")
+      .setKey("F major")
+      .setTotal(8)
+      .setDensity(0.6)
+      .setTempo(120)
+      .setStorageKey("seg123.ogg")
+      .build());
+    Segment segment = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain.getId())
+      .setOffset(2)
+      .setState(Segment.State.Crafting)
+      .setBeginAt("2017-12-12T01:00:16.000000Z")
+      .setEndAt("2017-12-12T01:00:22.000000Z")
+      .setKey("G major")
+      .setTotal(8)
+      .setDensity(0.6)
+      .setTempo(240)
+      .setStorageKey("seg123.ogg")
+      .build());
+    store.put(ChainBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain.getId())
+      .setTargetId(fake.library2.getId())
+      .setType(ChainBinding.Type.Library)
+      .build());
+    SegmentChoice mainChoice = store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment.getId())
+      .setProgramType(Program.Type.Main)
+      .setProgramId(fake.program5.getId())
+      .setTranspose(4)
+      .build());
+    when(mockTimeComputerFactory.create(anyDouble(), anyDouble(), anyDouble()))
+      .thenReturn(mockTimeComputer);
+    when(mockTimeComputer.getSecondsAtPosition(anyDouble()))
+      .thenReturn(Double.valueOf(0));
+    when(mockSegmentRetrospectiveFactory.workOn(any(), any(), any()))
+      .thenReturn(mockSegmentRetrospective);
+    when(mockSegmentWorkbenchFactory.workOn(any(), any(), any()))
+      .thenReturn(mockSegmentWorkbench);
+    when(mockSegmentWorkbench.getSegment())
+      .thenReturn(segment);
+    when(mockSegmentWorkbench.getChoiceOfType(Program.Type.Main))
+      .thenReturn(mainChoice);
+    when(mockSegmentRetrospective.getPreviousSegment())
+      .thenReturn(java.util.Optional.ofNullable(previousSegment));
+    subject = fabricatorFactory.fabricate(HubClientAccess.internal(), segment);
+
+    List<Instrument.Type> result = subject.getDistinctChordVoicingTypes();
+
+    assertEquals(ImmutableList.of(
+      Instrument.Type.Bass
+    ), result);
+  }
+
+
 }

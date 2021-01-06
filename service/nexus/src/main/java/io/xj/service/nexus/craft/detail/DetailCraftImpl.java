@@ -49,8 +49,9 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       // for each unique voicing (instrument) types present in the chord voicings of the current main choice
       var voicingTypes = fabricator.getDistinctChordVoicingTypes();
       if (voicingTypes.isEmpty())
-        log.info("Found no chord voicing types in Main-choice Program[{}]",
-          fabricator.getCurrentMainChoice().getProgramId());
+        log.info("Found no chord voicing types in Main-choice Program[{}] however there were {} voicings",
+          fabricator.getCurrentMainChoice().getProgramId(),
+          fabricator.getSourceMaterial().getAllProgramSequenceChordVoicings().size());
       else
         for (Instrument.Type voicingType : voicingTypes) {
           // program

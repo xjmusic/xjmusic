@@ -61,7 +61,6 @@ class HubIngestImpl implements HubIngest {
       for (Object o : programDAO.readManyWithChildEntities(hubAccess, programIds))
         store.put(o);
 
-
       // ingest instruments
       for (Object n : instrumentDAO.readManyWithChildEntities(hubAccess, instrumentIds))
         store.put(n);

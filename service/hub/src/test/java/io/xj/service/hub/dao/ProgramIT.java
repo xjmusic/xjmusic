@@ -3,7 +3,7 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Injector;
+import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
 import io.xj.Account;
 import io.xj.AccountUser;
@@ -449,16 +449,95 @@ public class ProgramIT {
 
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
 
+  /**
+   [#176372189] Fabricator should get distinct Chord Voicing Types
+   */
   @Test
-  public void readMany() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+  public void readManyWithChildEntities() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    Program inputData = Program.newBuilder()
+      .setLibraryId(fake.library2.getId())
+      .setName("cannons fifty nine")
+      .build();
+    test.insert(ProgramMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1.getId())
+      .setName("cinnamon")
+      .build());
+    var voice = test.insert(ProgramVoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1.getId())
+      .setType(Instrument.Type.Percussive)
+      .setName("drums")
+      .build());
+    var track = test.insert(ProgramVoiceTrack.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(voice.getProgramId())
+      .setProgramVoiceId(voice.getId())
+      .setName("Kick")
+      .build());
+    var programSequenceChord = test.insert(ProgramSequenceChord.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1_sequence1.getProgramId())
+      .setProgramSequenceId(fake.program1_sequence1.getId())
+      .setPosition(0)
+      .setName("D")
+      .build());
+    test.insert(ProgramSequenceChordVoicing.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1_sequence1.getProgramId())
+      .setProgramSequenceChordId(programSequenceChord.getId())
+      .setNotes("D2,F#2,A2")
+      .build());
+    var pattern = test.insert(ProgramSequencePattern.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program1_sequence1.getProgramId())
+      .setProgramVoiceId(voice.getId())
+      .setProgramSequenceId(fake.program1_sequence1.getId())
+      .setType(ProgramSequencePattern.Type.Loop)
+      .setTotal(8)
+      .setName("jam")
+      .build());
+    test.insert(ProgramSequencePatternEvent.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(pattern.getProgramId())
+      .setProgramSequencePatternId(pattern.getId())
+      .setProgramVoiceTrackId(track.getId())
+      .setPosition(0)
+      .setDuration(1)
+      .setNote("C")
+      .setVelocity(1)
+      .build());
 
-    Collection<Program> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.library1.getId()));
+    Collection<MessageLite> results = testDAO.readManyWithChildEntities(hubAccess, ImmutableList.of(fake.program1.getId()));
 
-    assertEquals(2L, result.size());
-    Iterator<Program> resultIt = result.iterator();
-    assertEquals("fonds", resultIt.next().getName());
-    assertEquals("nuts", resultIt.next().getName());
+    assertEquals(12, results.size());
+    assertContains(Program.class, 1, results);
+    assertContains(ProgramMeme.class, 1, results);
+    assertContains(ProgramVoice.class, 1, results);
+    assertContains(ProgramVoiceTrack.class, 1, results);
+    assertContains(ProgramSequence.class, 1, results);
+    assertContains(ProgramSequenceBinding.class, 1, results);
+    assertContains(ProgramSequenceBindingMeme.class, 2, results);
+    assertContains(ProgramSequencePattern.class, 1, results);
+    assertContains(ProgramSequencePatternEvent.class, 1, results);
+    assertContains(ProgramSequenceChord.class, 1, results);
+    assertContains(ProgramSequenceChordVoicing.class, 1, results);
+  }
+
+  /**
+   Assert that the results contain an exact count of classes in the results
+
+   @param type    of class to search for
+   @param total   count of instances to assert
+   @param results to search within
+   @param <N>     type of entity
+   */
+  private <N extends MessageLite> void assertContains(Class<N> type, int total, Collection<MessageLite> results) {
+    assertEquals(String.format("Exactly %s count of %s class in results",
+      total, type.getSimpleName()), total, results.stream()
+      .filter(r -> type.isAssignableFrom(r.getClass()))
+      .count());
   }
 
   @Test
@@ -726,5 +805,18 @@ public class ProgramIT {
       .where(PROGRAM.ID.eq(UUID.fromString(program.getId())))
       .fetchOne(0, int.class));
   }
+
+  @Test
+  public void readMany() throws Exception {
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+
+    Collection<Program> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.library1.getId()));
+
+    assertEquals(2L, result.size());
+    Iterator<Program> resultIt = result.iterator();
+    assertEquals("fonds", resultIt.next().getName());
+    assertEquals("nuts", resultIt.next().getName());
+  }
+
 }
 

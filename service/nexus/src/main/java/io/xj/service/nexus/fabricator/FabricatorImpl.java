@@ -9,24 +9,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.Program;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceBinding;
-import io.xj.ProgramSequenceChordVoicing;
-import io.xj.ProgramSequencePattern;
-import io.xj.ProgramVoice;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMeme;
-import io.xj.SegmentMessage;
+import io.xj.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -61,13 +44,7 @@ import javax.sound.sampled.AudioFormat;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -682,7 +659,9 @@ class FabricatorImpl implements Fabricator {
   @Override
   public List<Instrument.Type> getDistinctChordVoicingTypes() throws FabricationException {
     try {
-      return getSourceMaterial().getProgramSequenceChordVoicings(getCurrentMainChoice().getProgramId()).stream()
+      var voicings = sourceMaterial
+        .getProgramSequenceChordVoicings(getCurrentMainChoice().getProgramId());
+      return voicings.stream()
         .map(ProgramSequenceChordVoicing::getType)
         .distinct()
         .collect(Collectors.toList());

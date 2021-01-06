@@ -112,6 +112,7 @@ public class HubClientImplTest {
     assertEquals(5, result.getAllProgramSequenceBindings().size());
     assertEquals(6, result.getAllProgramSequenceBindingMemes().size());
     assertEquals(5, result.getAllProgramSequenceChords().size());
+    assertEquals(3, result.getAllProgramSequenceChordVoicings().size());
     assertEquals(6, result.getAllProgramSequences().size());
     assertEquals(4, result.getAllProgramVoiceTracks().size());
     assertEquals(1, result.getAllProgramVoices().size());

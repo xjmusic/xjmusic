@@ -628,8 +628,9 @@ public class HubContent {
    @return sequence chord voicings for program
    */
   public List<ProgramSequenceChordVoicing> getProgramSequenceChordVoicings(String programId) throws HubClientException {
-    return getAllProgramSequenceChordVoicings().stream()
-      .filter(psb -> psb.getProgramId().equals(programId))
+    var voicings = getAllProgramSequenceChordVoicings();
+    return voicings.stream()
+      .filter(voicing -> voicing.getProgramId().equals(programId))
       .collect(Collectors.toList());
   }
 
