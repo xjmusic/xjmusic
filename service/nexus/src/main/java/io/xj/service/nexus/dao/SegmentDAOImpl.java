@@ -228,8 +228,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     try {
       requireTopLevel(access);
       Collection<Object> entities = Lists.newArrayList();
-      for (String sId : segmentIds) {
-        entities.addAll(store.getAll(sId, SegmentMeme.class, Segment.class, segmentIds));
+      for (String sId : segmentIds) {        entities.addAll(store.getAll(sId, SegmentMeme.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentChord.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentChordVoicing.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentChoice.class, Segment.class, segmentIds));

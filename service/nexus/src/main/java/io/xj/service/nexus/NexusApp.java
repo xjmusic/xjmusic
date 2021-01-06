@@ -17,6 +17,7 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
 import io.xj.lib.app.App;
@@ -209,6 +210,7 @@ public class NexusApp extends App {
       .hasMany(SegmentChoice.class)
       .hasMany(SegmentChoiceArrangementPick.class)
       .hasMany(SegmentChord.class)
+      .hasMany(SegmentChordVoicing.class)
       .hasMany(SegmentMeme.class)
       .hasMany(SegmentMessage.class);
 
