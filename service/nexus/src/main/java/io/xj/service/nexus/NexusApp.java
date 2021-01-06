@@ -251,7 +251,16 @@ public class NexusApp extends App {
       .createdBy(SegmentChord::getDefaultInstance)
       .withAttribute("name")
       .withAttribute("position")
+      .hasMany(SegmentChordVoicing.class)
       .belongsTo(Segment.class);
+
+    // SegmentChordVoicing
+    entityFactory.register(SegmentChordVoicing.class)
+      .createdBy(SegmentChord::getDefaultInstance)
+      .withAttribute("notes")
+      .withAttribute("type")
+      .belongsTo(Segment.class)
+      .belongsTo(SegmentChord.class);
 
     // SegmentMeme
     entityFactory.register(SegmentMeme.class)
