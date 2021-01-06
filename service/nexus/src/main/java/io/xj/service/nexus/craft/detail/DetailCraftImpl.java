@@ -431,7 +431,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
   }
 
   /**
-   Choose detail instrument having similar name as voice (??? why)
+   Choose detail instrument
    [#325] Possible to choose multiple instruments for different voices in the same program
 
    @param voice to choose instrument for
@@ -444,9 +444,6 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
 
       // (2) retrieve instruments bound to chain
       Collection<Instrument> sourceInstruments = fabricator.getSourceMaterial().getInstrumentsOfType(voice.getType());
-
-      // future: [#258] Instrument selection is based on Text Isometry between the voice name and the instrument name
-      log.debug("[segId={}] not currently in use: {}", fabricator.getSegment().getId(), voice);
 
       // (3) score each source instrument based on meme isometry
       for (Instrument instrument : sourceInstruments)
