@@ -4,7 +4,21 @@ package io.xj.service.nexus.craft.detail;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.*;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.InstrumentAudioEvent;
+import io.xj.Program;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequencePattern;
+import io.xj.ProgramSequencePatternEvent;
+import io.xj.ProgramVoice;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
+import io.xj.SegmentMessage;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.music.Key;
@@ -14,12 +28,20 @@ import io.xj.lib.util.Value;
 import io.xj.service.hub.client.HubClientException;
 import io.xj.service.nexus.craft.CraftImpl;
 import io.xj.service.nexus.craft.exception.CraftException;
-import io.xj.service.nexus.fabricator.*;
+import io.xj.service.nexus.fabricator.EntityScorePicker;
+import io.xj.service.nexus.fabricator.FabricationException;
+import io.xj.service.nexus.fabricator.Fabricator;
+import io.xj.service.nexus.fabricator.MemeIsometry;
+import io.xj.service.nexus.fabricator.NameIsometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -55,13 +77,20 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       else
         for (Instrument.Type voicingType : voicingTypes) {
           // program
-          Program detailProgram = chooseDetailProgram(voicingType);
+          Optional<Program> detailProgram = chooseDetailProgram(voicingType);
+
+          // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
+          if (detailProgram.isEmpty()) {
+            reportMissing(Program.class, String.format("Detail-type with voicing-type %s", voicingType));
+            continue;
+          }
+
           SegmentChoice detailChoice = fabricator.add(SegmentChoice.newBuilder()
             .setId(UUID.randomUUID().toString())
             .setSegmentId(fabricator.getSegment().getId())
             .setProgramType(Program.Type.Detail)
-            .setProgramId(detailProgram.getId())
-            .setTranspose(computeDetailTranspose(detailProgram))
+            .setProgramId(detailProgram.get().getId())
+            .setTranspose(computeDetailTranspose(detailProgram.get()))
             .build());
 
           // detail sequence is selected at random of the current program
@@ -69,10 +98,10 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
           var detailSequence = fabricator.getSequence(detailChoice);
 
           // voice arrangements
-          var voices = fabricator.getSourceMaterial().getVoices(detailProgram);
+          var voices = fabricator.getSourceMaterial().getVoices(detailProgram.get());
           if (voices.isEmpty())
             log.info("Found no voices in Detail-choice Program[{}]",
-              detailProgram.getId());
+              detailProgram.get().getId());
           for (ProgramVoice voice : voices)
             craftArrangementForDetailVoice(detailSequence, detailChoice, voice, previousInstrumentAudio);
         }
@@ -164,7 +193,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
    @param voicingType of voicing to choose detail program for
    @return Chosen Detail Program
    */
-  private Program chooseDetailProgram(Instrument.Type voicingType) throws CraftException {
+  private Optional<Program> chooseDetailProgram(Instrument.Type voicingType) throws CraftException {
     Segment.Type type;
     try {
       type = fabricator.getType();
@@ -175,7 +204,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
     switch (type) {
       case Continue:
         Optional<Program> selectedPreviously = getDetailProgramSelectedPreviouslyForSegmentMemeConstellation(voicingType);
-        return selectedPreviously.isPresent() ? selectedPreviously.get() : chooseFreshDetail(voicingType);
+        return selectedPreviously.isPresent() ? selectedPreviously : chooseFreshDetail(voicingType);
 
       case Initial:
       case NextMain:
@@ -268,7 +297,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
    <p>
    future: actually choose detail program
    */
-  private Program chooseFreshDetail(Instrument.Type voicingType) throws CraftException {
+  private Optional<Program> chooseFreshDetail(Instrument.Type voicingType) throws CraftException {
     try {
       EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
@@ -292,11 +321,11 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       fabricator.putReport("detailChoice", superEntityScorePicker.report());
 
       // (4) return the top choice
-      return superEntityScorePicker.getTop();
+      return Optional.of(superEntityScorePicker.getTop());
 
     } catch (FabricationException | HubClientException e) {
-      throw exception(String.format(
-        "Found no detail-type program with %s-type voice bound to Chain!", voicingType), e);
+      reportMissing(Program.class, String.format("detail-type with %s-type voice bound to Chain!", voicingType));
+      return Optional.empty();
     }
   }
 
@@ -343,6 +372,14 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       Optional<String> instrumentId = getPreviousVoiceInstrumentId(constellation, voice.getId());
 
       // if no previous instrument found, choose a fresh one
+      var instrument = chooseFreshDetailInstrument(voice);
+
+      // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
+      if (instrument.isEmpty()) {
+        reportMissing(Instrument.class, String.format("Detail-type like %s", voice.getName()));
+        return;
+      }
+
       SegmentChoiceArrangement arrangement = fabricator.add(SegmentChoiceArrangement.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(choice.getSegmentId())
@@ -350,7 +387,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         .setProgramVoiceId(voice.getId())
         .setInstrumentId(
           instrumentId.isPresent() ?
-            instrumentId.get() : chooseFreshDetailInstrument(voice).getId())
+            instrumentId.get() : chooseFreshDetailInstrument(voice).orElseThrow().getId())
         .build());
 
       // choose intro pattern (if available)
@@ -394,14 +431,14 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
   }
 
   /**
-   Choose detail instrument
+   Choose detail instrument having similar name as voice (??? why)
    [#325] Possible to choose multiple instruments for different voices in the same program
 
    @param voice to choose instrument for
    @return detail-type Instrument
    @throws CraftException on failure
    */
-  private Instrument chooseFreshDetailInstrument(ProgramVoice voice) throws CraftException {
+  private Optional<Instrument> chooseFreshDetailInstrument(ProgramVoice voice) throws CraftException {
     try {
       EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
@@ -419,10 +456,11 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       fabricator.putReport("detailChoice", superEntityScorePicker.report());
 
       // (4) return the top choice
-      return superEntityScorePicker.getTop();
+      return Optional.of(superEntityScorePicker.getTop());
 
     } catch (FabricationException | HubClientException e) {
-      throw exception("Found no detail-type instrument bound to Chain!", e);
+      reportMissing(Instrument.class, "detail-type bound to Chain!");
+      return Optional.empty();
     }
   }
 
@@ -495,6 +533,12 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
     try {
       var audio = selectInstrumentAudio(previousInstrumentAudio, instrument, event, chanceOfRandomChoice);
 
+      // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
+      if (audio.isEmpty()) {
+        reportMissing(InstrumentAudio.class, String.format("like ProgramSequencePatternEvent[%s]", event.getId()));
+        return;
+      }
+
       // Morph & Point attributes are expressed in beats
       double position = event.getPosition() + shiftPosition;
       double duration = event.getDuration();
@@ -508,7 +552,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       Note note = DetailCraftVoiceNotePicker.from(
         fabricator.getKeyForArrangement(segmentChoiceArrangement),
         Note.of(event.getNote()).transpose(transpose),
-        chord, voicing, audio, fabricator.getTuning()).pick();
+        chord, voicing, audio.get(), fabricator.getTuning()).pick();
 
       // Pick attributes are expressed "rendered" as actual seconds
       double startSeconds = fabricator.computeSecondsAtPosition(position);
@@ -519,7 +563,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         .setId(UUID.randomUUID().toString())
         .setSegmentId(segmentChoiceArrangement.getSegmentId())
         .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId())
-        .setInstrumentAudioId(audio.getId())
+        .setInstrumentAudioId(audio.get().getId())
         .setProgramSequencePatternEventId(event.getId())
         .setName(getTrackName(event))
         .setStart(startSeconds)
@@ -545,7 +589,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
    @return matched new audio
    @throws CraftException on failure
    */
-  private InstrumentAudio selectInstrumentAudio(Map<String, InstrumentAudio> previousInstrumentAudio, Instrument instrument, ProgramSequencePatternEvent event, Double chanceOfRandomChoice) throws CraftException {
+  private Optional<InstrumentAudio> selectInstrumentAudio(Map<String, InstrumentAudio> previousInstrumentAudio, Instrument instrument, ProgramSequencePatternEvent event, Double chanceOfRandomChoice) throws CraftException {
     if (0 < chanceOfRandomChoice && random.nextDouble() <= chanceOfRandomChoice) {
       return selectNewInstrumentAudio(instrument, event);
     } else {
@@ -565,11 +609,14 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
    @return matched new audio
    @throws CraftException on failure
    */
-  private InstrumentAudio selectPreviousInstrumentAudio(Map<String, InstrumentAudio> previousInstrumentAudio, Instrument instrument, ProgramSequencePatternEvent event) throws CraftException {
+  private Optional<InstrumentAudio> selectPreviousInstrumentAudio(Map<String, InstrumentAudio> previousInstrumentAudio, Instrument instrument, ProgramSequencePatternEvent event) throws CraftException {
     String key = eventKey(event);
     if (!previousInstrumentAudio.containsKey(key))
-      previousInstrumentAudio.put(key, selectNewInstrumentAudio(instrument, event));
-    return previousInstrumentAudio.get(key);
+      selectNewInstrumentAudio(instrument, event)
+        .ifPresent(audio -> previousInstrumentAudio.put(key, audio));
+
+    return previousInstrumentAudio.containsKey(key) ?
+      Optional.of(previousInstrumentAudio.get(key)) : Optional.empty();
   }
 
   /**
@@ -580,7 +627,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
    @return matched new audio
    @throws CraftException on failure
    */
-  private InstrumentAudio selectNewInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws CraftException {
+  private Optional<InstrumentAudio> selectNewInstrumentAudio(Instrument instrument, ProgramSequencePatternEvent event) throws CraftException {
     try {
       EntityScorePicker<InstrumentAudio> audioEntityScorePicker = new EntityScorePicker<>();
 
@@ -595,10 +642,30 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
             SCORE_INSTRUMENT_ENTROPY));
 
       // final chosen audio event
-      return audioEntityScorePicker.getTop();
+      return Optional.of(audioEntityScorePicker.getTop());
 
     } catch (FabricationException | HubClientException e) {
-      throw exception(String.format("No acceptable Audio found for instrumentId=%s, eventId=%s", instrument.getId(), event.getId()), e);
+      reportMissing(InstrumentAudio.class, String.format("for instrumentId=%s, eventId=%s", instrument.getId(), event.getId()));
+      return Optional.empty();
+    }
+  }
+
+  /**
+   Report a missing entity as a segment message
+
+   @param type   of class that is missing
+   @param detail of how missing entity was searched for
+   */
+  private void reportMissing(Class<?> type, String detail) {
+    try {
+      fabricator.add(SegmentMessage.newBuilder()
+        .setSegmentId(fabricator.getSegment().getId())
+        .setType(SegmentMessage.Type.Warning)
+        .setBody(String.format("%s not found %s", type.getSimpleName(), detail))
+        .build());
+
+    } catch (Exception e) {
+      log.warn("Failed to create SegmentMessage", e);
     }
   }
 }
