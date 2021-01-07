@@ -2,10 +2,10 @@ package io.xj.service.nexus.work;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.newrelic.api.agent.NewRelic;
 import com.typesafe.config.Config;
 import io.xj.Segment;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.Value;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.SegmentDAO;
@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
   private static final String NAME = "Janitor";
   private static final String SEGMENT_ERASED = "SegmentErased";
+  private static final String TELEMETRY_JANITOR_NAME = "JanitorWorker";
   private final Logger log = LoggerFactory.getLogger(JanitorWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final NexusEntityStore store;
@@ -35,12 +36,10 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
 
   @Inject
   public JanitorWorkerImpl(
-          Config config,
-          NexusEntityStore store,
-          SegmentDAO segmentDAO,
-          TelemetryProvider telemetryProvider
+    Config config,
+    NexusEntityStore store,
+    SegmentDAO segmentDAO
   ) {
-    super(telemetryProvider);
     this.store = store;
     this.segmentDAO = segmentDAO;
 
@@ -55,24 +54,23 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
    @throws Exception on failure
    */
   protected void doWork() throws Exception {
-    long t = Instant.now().toEpochMilli();
+    var t = NewRelic.getAgent().getTransaction().startSegment(TELEMETRY_JANITOR_NAME);
     var segmentIdsToErase = getSegmentIdsToErase();
     if (segmentIdsToErase.isEmpty())
-      log.info("Found no segments to erase in {}ms OK", Instant.now().toEpochMilli() - t);
+      log.info("Found no segments to erase");
     else
-      log.info("Found {} segments to erase in {}ms OK", segmentIdsToErase.size(), Instant.now().toEpochMilli() - t);
+      log.info("Found {} segments to erase", segmentIdsToErase.size());
 
     for (String segmentId : segmentIdsToErase) {
-      t = Instant.now().toEpochMilli();
       try {
         segmentDAO.destroy(access, segmentId);
-        log.info("Did erase Segment[{}] in {}ms OK", segmentId, Instant.now().toEpochMilli() - t);
+        log.info("Did erase Segment[{}]", segmentId);
       } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException e) {
-        log.warn("Error while destroying Segment[{}] after {}ms", segmentId, Instant.now().toEpochMilli() - t, e);
+        log.warn("Error while destroying Segment[{}]", segmentId);
       }
     }
 
-    observeCount(SEGMENT_ERASED, segmentIdsToErase.size());
+    NewRelic.incrementCounter(SEGMENT_ERASED, segmentIdsToErase.size());
   }
 
   /**
@@ -83,8 +81,8 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
    */
   protected boolean isBefore(Segment segment, Instant eraseBefore) {
     return Value.isSet(segment.getEndAt()) ?
-            Instant.parse(segment.getEndAt()).isBefore(eraseBefore) :
-            Instant.parse(segment.getBeginAt()).isBefore(eraseBefore);
+      Instant.parse(segment.getEndAt()).isBefore(eraseBefore) :
+      Instant.parse(segment.getBeginAt()).isBefore(eraseBefore);
   }
 
   @Override
@@ -101,13 +99,13 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
     Instant eraseBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);
     Collection<String> segmentIds = Lists.newArrayList();
     for (String chainId : store.getAllChains().stream()
-            .flatMap(Entities::flatMapIds)
-            .collect(Collectors.toList()))
+      .flatMap(Entities::flatMapIds)
+      .collect(Collectors.toList()))
       store.getAllSegments(chainId)
-              .stream()
-              .filter(segment -> isBefore(segment, eraseBefore))
-              .flatMap(Entities::flatMapIds)
-              .forEach(segmentIds::add);
+        .stream()
+        .filter(segment -> isBefore(segment, eraseBefore))
+        .flatMap(Entities::flatMapIds)
+        .forEach(segmentIds::add);
     return segmentIds;
   }
 

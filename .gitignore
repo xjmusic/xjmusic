@@ -53,3 +53,6 @@ data/
 
 # Bootstrap chains
 bootstrap-chains.json
+
+# New Relic Agent
+newrelic.yml

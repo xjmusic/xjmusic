@@ -3,7 +3,6 @@ package io.xj.service.nexus.work;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import io.xj.lib.telemetry.TelemetryModule;
 import io.xj.service.hub.client.HubClientModule;
 import io.xj.service.nexus.craft.CraftModule;
 import io.xj.service.nexus.dao.NexusDAOModule;
@@ -18,7 +17,6 @@ public class NexusWorkModule extends AbstractModule {
     install(new HubClientModule());
     install(new NexusDAOModule());
     install(new NexusFabricatorModule());
-    install(new TelemetryModule());
     bind(NexusWork.class).to(NexusWorkImpl.class);
     install(new FactoryModuleBuilder()
       .implement(BossWorker.class, BossWorkerImpl.class)

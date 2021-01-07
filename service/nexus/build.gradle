@@ -26,12 +26,12 @@ dependencies {
   implementation project(':lib:mixer')
   implementation project(':lib:music')
   implementation project(':lib:pubsub')
-  implementation project(':lib:telemetry')
   implementation project(':lib:util')
   implementation project(':service:hub') // FUTURE: instead of depending on hub, we use the client it publishes
   //
   implementation 'io.xj:protocol:v0.8'
   // vendor
+  implementation group: 'com.newrelic.agent.java', name: 'newrelic-api', version: '6.3.0'
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
   implementation 'org.logback-extensions:logback-ext-loggly:0.1.2'
   implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.119'
@@ -75,7 +75,8 @@ jar {
 
 applicationDefaultJvmArgs = [
   "-agentpath:/usr/local/YourKit-JavaProfiler-2020.9/bin/linux-x86-64/libyjpagent.so=port=10000,listen=all,logdir=/var/log/profiler",
-  "-Xmx1500m"
+  "-javaagent:/usr/local/newrelic/newrelic.jar",
+  "-Xmx2000m"
 ]
 
 application {

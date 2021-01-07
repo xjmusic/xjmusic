@@ -2,10 +2,10 @@ package io.xj.service.nexus.work;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.newrelic.api.agent.NewRelic;
 import com.typesafe.config.Config;
 import io.xj.Chain;
 import io.xj.Segment;
-import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.SegmentDAO;
@@ -40,10 +40,8 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
     Config config,
     SegmentDAO segmentDAO,
     ChainDAO chainDAO,
-    WorkerFactory workerFactory,
-    TelemetryProvider telemetryProvider
+    WorkerFactory workerFactory
   ) {
-    super(telemetryProvider);
     this.chainId = chainId;
     this.chainDAO = chainDAO;
     this.segmentDAO = segmentDAO;
@@ -85,7 +83,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
       if (segment.isEmpty()) return;
       Segment createdSegment = segmentDAO.create(access, segment.get());
       log.info("Created Segment {}", createdSegment);
-      observeCount(SEGMENT_CREATED, 1.0);
+      NewRelic.incrementCounter(SEGMENT_CREATED);
 
       // FUTURE: fork/join thread possible for this sub-runnable of the fabrication worker
       workers.segment(createdSegment.getId()).run();

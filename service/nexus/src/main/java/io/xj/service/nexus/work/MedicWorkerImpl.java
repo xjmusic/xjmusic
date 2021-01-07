@@ -2,9 +2,9 @@ package io.xj.service.nexus.work;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+import com.newrelic.api.agent.NewRelic;
 import com.typesafe.config.Config;
 import io.xj.Chain;
-import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.SegmentDAO;
@@ -35,10 +35,8 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
   public MedicWorkerImpl(
     Config config,
     ChainDAO chainDAO,
-    SegmentDAO segmentDAO,
-    TelemetryProvider telemetryProvider
+    SegmentDAO segmentDAO
   ) {
-    super(telemetryProvider);
     this.chainDAO = chainDAO;
     this.segmentDAO = segmentDAO;
 
@@ -111,6 +109,6 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
       chainDAO.destroy(access, stalledChainId);
     }
 
-    observeCount(CHAIN_REVIVED, stalledChainIds.size());
+    NewRelic.incrementCounter(CHAIN_REVIVED, stalledChainIds.size());
   }
 }

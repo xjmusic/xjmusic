@@ -76,6 +76,11 @@ RUN wget https://www.yourkit.com/download/docker/YourKit-JavaProfiler-2020.9-doc
   unzip /tmp/YourKit-JavaProfiler-2020.9-docker.zip -d /usr/local && \
   rm /tmp/YourKit-JavaProfiler-2020.9-docker.zip
 
+# New Relic Agent
+RUN wget https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip -P /tmp/ && \
+  unzip /tmp/newrelic-java.zip -d /usr/local && \
+  rm /tmp/newrelic-java.zip
+
 ###
 ### App-specific content follows
 ###

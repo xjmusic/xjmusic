@@ -1,9 +1,9 @@
 package io.xj.service.nexus.work;
 
 import com.google.inject.Inject;
+import com.newrelic.api.agent.NewRelic;
 import io.xj.Chain;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
@@ -31,10 +31,8 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
   @Inject
   public BossWorkerImpl(
     NexusWork work,
-    ChainDAO chainDAO,
-    TelemetryProvider telemetryProvider
+    ChainDAO chainDAO
   ) {
-    super(telemetryProvider);
     this.work = work;
     this.chainDAO = chainDAO;
 
@@ -78,14 +76,14 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
    @param activeIds to avoid cancellation
    */
   private void cancelInactiveChains(Collection<String> activeIds) {
-    long chainsCanceled = 0;
+    int chainsCanceled = 0;
     for (String id : work.getChainWorkingIds())
       if (!activeIds.contains(id)) {
         work.cancelChainWork(id);
         log.info("Did cancel work on Chain[{}]", id);
         chainsCanceled++;
       }
-    observeCount(CHAIN_CANCELLED, chainsCanceled);
+    NewRelic.incrementCounter(CHAIN_CANCELLED, chainsCanceled);
   }
 
   /**
@@ -94,13 +92,13 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
    @param activeIds to start if not already active
    */
   private void startActiveChains(Collection<String> activeIds) {
-    long chainsStarted = 0;
+    int chainsStarted = 0;
     for (String id : activeIds)
       if (!work.isWorkingOnChain(id)) {
         work.beginChainWork(id);
         log.info("Did start work on Chain[{}]", id);
         chainsStarted++;
       }
-    observeCount(CHAIN_STARTED, chainsStarted);
+    NewRelic.incrementCounter(CHAIN_STARTED, chainsStarted);
   }
 }

@@ -2,9 +2,9 @@ package io.xj.service.nexus.work;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.newrelic.api.agent.NewRelic;
 import io.xj.Segment;
 import io.xj.SegmentMessage;
-import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.craft.CraftFactory;
@@ -22,10 +22,7 @@ import io.xj.service.nexus.fabricator.FabricatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.UUID;
-
-import static org.joda.time.DateTimeConstants.MILLIS_PER_SECOND;
 
 /**
  Fabricator Worker implementation
@@ -33,8 +30,8 @@ import static org.joda.time.DateTimeConstants.MILLIS_PER_SECOND;
 public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker {
   private static final String NAME = "Fabricator";
   private static final Logger log = LoggerFactory.getLogger(FabricatorWorker.class);
-  private static final String CRAFT_DURATION = "CraftDuration";
-  private static final String DUB_DURATION = "DubDuration";
+  private static final String TELEMETRY_CRAFT_NAME = "CraftWorker";
+  private static final String TELEMETRY_DUB_NAME = "DubWorker";
   private final SegmentDAO segmentDAO;
   private final String segmentId;
   private final FabricatorFactory fabricatorFactory;
@@ -50,10 +47,8 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
     CraftFactory craftFactory,
     FabricatorFactory fabricatorFactory,
     SegmentDAO segmentDAO,
-    DubFactory dubFactory,
-    TelemetryProvider telemetryProvider
+    DubFactory dubFactory
   ) {
-    super(telemetryProvider);
     this.segmentId = segmentId;
     this.craftFactory = craftFactory;
     this.fabricatorFactory = fabricatorFactory;
@@ -139,12 +134,12 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
    @throws CraftException on craft failure
    */
   private void doCraftWork() throws NexusException, CraftException, FabricationException {
-    long startAtMillis = Instant.now().toEpochMilli();
+    var t = NewRelic.getAgent().getTransaction().startSegment(TELEMETRY_CRAFT_NAME);
     updateSegmentState(Segment.State.Planned, Segment.State.Crafting);
     craftFactory.macroMain(fabricator).doWork();
     craftFactory.rhythm(fabricator).doWork();
     craftFactory.detail(fabricator).doWork();
-    observeSeconds(CRAFT_DURATION, (double) (Instant.now().toEpochMilli() - startAtMillis) / MILLIS_PER_SECOND);
+    t.end();
   }
 
   /**
@@ -154,11 +149,11 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
    @throws DubException   on dub failure
    */
   protected void doDubWork() throws CraftException, DubException, FabricationException {
-    long startAtMillis = Instant.now().toEpochMilli();
+    var t = NewRelic.getAgent().getTransaction().startSegment(TELEMETRY_DUB_NAME);
     updateSegmentState(Segment.State.Crafting, Segment.State.Dubbing);
     dubFactory.master(fabricator).doWork();
     dubFactory.ship(fabricator).doWork();
-    observeSeconds(DUB_DURATION, (double) (Instant.now().toEpochMilli() - startAtMillis) / MILLIS_PER_SECOND);
+    t.end();
   }
 
   /**

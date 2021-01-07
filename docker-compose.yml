@@ -11,6 +11,7 @@ services:
       - .:/var/app/current
       - ./log:/var/log
       - ./service/hub/build/distributions/hub-1.0.tar:/var/app/hub-1.0.tar
+      - ./newrelic.yml:/usr/local/newrelic/newrelic.yml
     environment:
       APP_NAME: hub
       APP_VERSION: 1.0
@@ -34,6 +35,7 @@ services:
       - .:/var/app/current
       - ./log:/var/log
       - ./service/nexus/build/distributions/nexus-1.0.tar:/var/app/nexus-1.0.tar
+      - ./newrelic.yml:/usr/local/newrelic/newrelic.yml
     environment:
       APP_NAME: nexus
       APP_VERSION: 1.0

@@ -2,7 +2,6 @@
 
 package io.xj.service.nexus.work;
 
-import com.amazonaws.services.cloudwatch.model.AmazonCloudWatchException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
@@ -16,7 +15,6 @@ import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.Value;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClientAccess;
@@ -34,8 +32,6 @@ import java.time.Instant;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JanitorWorkerImplTest {
@@ -48,9 +44,6 @@ public class JanitorWorkerImplTest {
 
   @Mock
   public FileStoreProvider fileStoreProvider;
-
-  @Mock
-  public TelemetryProvider telemetryProvider;
 
   @Before
   public void setUp() throws AppException {
@@ -68,7 +61,6 @@ public class JanitorWorkerImplTest {
           @Override
           public void configure() {
             bind(Config.class).toInstance(config);
-            bind(TelemetryProvider.class).toInstance(telemetryProvider);
             bind(FileStoreProvider.class).toInstance(fileStoreProvider);
           }
         })));
@@ -119,16 +111,6 @@ public class JanitorWorkerImplTest {
     // Check segments actually deleted
     var segments = segmentDAO.readMany(HubClientAccess.internal(), ImmutableList.of(chain1.getId()));
     assertEquals(0, segments.size());
-  }
-
-  /**
-   [#175899787] Worker should log warning but not crash when telemetry fails to send
-   */
-  @Test
-  public void warnsWithoutCrashingOnTelemetryFailure() {
-    doThrow(new AmazonCloudWatchException("Fails!")).when(telemetryProvider).send(any(), any(), any(), any());
-
-    subject.run();
   }
 
 }

@@ -11,7 +11,6 @@ import io.xj.ChainBinding;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.Value;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
@@ -67,9 +66,6 @@ public class ComplexLibraryTest {
   @Mock
   public FileStoreProvider fileStoreProvider;
 
-  @Mock
-  private TelemetryProvider telemetryProvider;
-
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault()
@@ -84,7 +80,6 @@ public class ComplexLibraryTest {
           @Override
           public void configure() {
             bind(FileStoreProvider.class).toInstance(fileStoreProvider);
-            bind(TelemetryProvider.class).toInstance(telemetryProvider);
             bind(HubClient.class).toInstance(hubClient);
           }
         })));
