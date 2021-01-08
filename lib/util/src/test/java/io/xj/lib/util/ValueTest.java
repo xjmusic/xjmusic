@@ -7,8 +7,7 @@ import org.junit.Test;
 import java.time.Instant;
 import java.util.UUID;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class ValueTest {
   @Test
@@ -83,5 +82,26 @@ public class ValueTest {
     }));
   }
 
+  @Test
+  public void isSet() {
+    assertTrue(Value.isSet(true));
+    assertTrue(Value.isSet(1));
+    assertTrue(Value.isSet("yes"));
+    assertTrue(Value.isSet(7.2));
+    assertTrue(Value.isSet(0));
+    assertFalse(Value.isSet(""));
+    assertFalse(Value.isSet(null));
+  }
+
+  @Test
+  public void isUnset() {
+    assertTrue(Value.isUnset(""));
+    assertTrue(Value.isUnset(null));
+    assertFalse(Value.isUnset(true));
+    assertFalse(Value.isUnset(1));
+    assertFalse(Value.isUnset("yes"));
+    assertFalse(Value.isUnset(7.2));
+    assertFalse(Value.isUnset(0));
+  }
 
 }

@@ -20,11 +20,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.service.hub.Tables.LIBRARY;
-import static io.xj.service.hub.Tables.PROGRAM;
-import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE;
-import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
-import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.service.hub.Tables.*;
 
 public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePattern> implements ProgramSequencePatternDAO {
 
@@ -63,12 +59,12 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
 
       // Inherits parents, attributes if none specified
       ProgramSequencePattern.Builder builder = entity.toBuilder();
-      if (Value.isEmpty(builder.getTotal())) builder.setTotal(from.getTotal());
-      if (Value.isEmpty(builder.getName())) builder.setName(from.getName());
-      if (Value.isEmpty(builder.getType())) builder.setType(from.getType());
-      if (Value.isEmpty(builder.getProgramId())) builder.setProgramId(from.getProgramId());
-      if (Value.isEmpty(builder.getProgramSequenceId())) builder.setProgramSequenceId(from.getProgramSequenceId());
-      if (Value.isEmpty(builder.getProgramVoiceId())) builder.setProgramId(from.getProgramVoiceId());
+      if (Value.isUnset(builder.getTotal())) builder.setTotal(from.getTotal());
+      if (Value.isUnset(builder.getName())) builder.setName(from.getName());
+      if (Value.isUnset(builder.getType())) builder.setType(from.getType());
+      if (Value.isUnset(builder.getProgramId())) builder.setProgramId(from.getProgramId());
+      if (Value.isUnset(builder.getProgramSequenceId())) builder.setProgramSequenceId(from.getProgramSequenceId());
+      if (Value.isUnset(builder.getProgramVoiceId())) builder.setProgramVoiceId(from.getProgramVoiceId());
       var record = validate(builder).build();
       requireParentExists(db, hubAccess, record);
 

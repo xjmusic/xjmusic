@@ -1,6 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
+import com.google.common.base.Strings;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -225,6 +227,17 @@ public interface Value {
   static boolean isSet(Object value) {
     if (Objects.isNull(value)) return false;
     return !String.valueOf(value).isBlank();
+  }
+
+  /**
+   Whether a value is null or empty
+
+   @param value to test
+   @return true if non-null and non-empty
+   */
+  static boolean isUnset(Object value) {
+    if (Objects.isNull(value)) return true;
+    return Strings.isNullOrEmpty(String.valueOf(value));
   }
 
   /**

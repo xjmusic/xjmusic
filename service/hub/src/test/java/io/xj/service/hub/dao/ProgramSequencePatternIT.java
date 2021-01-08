@@ -50,7 +50,7 @@ import static org.junit.Assert.assertNotNull;
 public class ProgramSequencePatternIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
-  private ProgramSequencePatternDAO testDAO;
+  private ProgramSequencePatternDAO subjectDAO;
 
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
@@ -244,7 +244,7 @@ public class ProgramSequencePatternIT {
       .build());
 
     // Instantiate the test subject
-    testDAO = injector.getInstance(ProgramSequencePatternDAO.class);
+    subjectDAO = injector.getInstance(ProgramSequencePatternDAO.class);
   }
 
   @After
@@ -265,7 +265,7 @@ public class ProgramSequencePatternIT {
       .setName("Beat")
       .build();
 
-    var result = testDAO.create(
+    var result = subjectDAO.create(
       hubAccess, subject);
 
     assertNotNull(result);
@@ -281,7 +281,7 @@ public class ProgramSequencePatternIT {
   @Test
   public void cloneExisting() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    var subject = ProgramSequencePattern.newBuilder()
+    var input = ProgramSequencePattern.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setType(ProgramSequencePattern.Type.Loop)
       .setTotal(4)
@@ -291,7 +291,7 @@ public class ProgramSequencePatternIT {
       .setName("Beat")
       .build();
 
-    DAOCloner<ProgramSequencePattern> result = testDAO.clone(hubAccess, fake.program2_sequence1_pattern1.getId(), subject);
+    DAOCloner<ProgramSequencePattern> result = subjectDAO.clone(hubAccess, fake.program2_sequence1_pattern1.getId(), input);
 
     assertNotNull(result);
     assertEquals(ProgramSequencePattern.Type.Loop, result.getClone().getType());
@@ -299,6 +299,20 @@ public class ProgramSequencePatternIT {
     assertEquals(2, injector.getInstance(ProgramSequencePatternEventDAO.class)
       .readMany(HubAccess.internal(), ImmutableSet.of(result.getClone().getId()))
       .size());
+  }
+
+  /**
+   [#176352798] Clone API for Artist editing a Program can clone a pattern including its events
+   */
+  @Test
+  public void cloneExisting_noModifications() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    var input = ProgramSequencePattern.newBuilder()
+      .build();
+
+    DAOCloner<ProgramSequencePattern> result = subjectDAO.clone(hubAccess, fake.program2_sequence1_pattern1.getId(), input);
+
+    assertNotNull(result);
   }
 
   /**
@@ -318,7 +332,7 @@ public class ProgramSequencePatternIT {
       .setName("Beat")
       .build();
 
-    var result = testDAO.create(
+    var result = subjectDAO.create(
       hubAccess, inputData);
 
     assertNotNull(result);
@@ -331,7 +345,7 @@ public class ProgramSequencePatternIT {
   public void readOne() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
 
-    var result = testDAO.readOne(hubAccess, fake.program2_sequence1_pattern1.getId());
+    var result = subjectDAO.readOne(hubAccess, fake.program2_sequence1_pattern1.getId());
 
     assertNotNull(result);
     assertEquals(fake.program2_sequence1_pattern1.getId(), result.getId());
@@ -346,7 +360,7 @@ public class ProgramSequencePatternIT {
     failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.readOne(hubAccess, fake.program2_sequence1_pattern1.getId());
+    subjectDAO.readOne(hubAccess, fake.program2_sequence1_pattern1.getId());
   }
 
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
@@ -355,7 +369,7 @@ public class ProgramSequencePatternIT {
   public void readMany() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
 
-    Collection<ProgramSequencePattern> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program1_sequence1.getId()));
+    Collection<ProgramSequencePattern> result = subjectDAO.readMany(hubAccess, ImmutableList.of(fake.program1_sequence1.getId()));
 
     assertEquals(1L, result.size());
     Iterator<ProgramSequencePattern> resultIt = result.iterator();
@@ -367,7 +381,7 @@ public class ProgramSequencePatternIT {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(Account.newBuilder()
       .setId(UUID.randomUUID().toString()).build()), "User, Artist");
 
-    Collection<ProgramSequencePattern> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program3_sequence1.getId()));
+    Collection<ProgramSequencePattern> result = subjectDAO.readMany(hubAccess, ImmutableList.of(fake.program3_sequence1.getId()));
 
     assertEquals(0L, result.size());
   }
@@ -379,7 +393,7 @@ public class ProgramSequencePatternIT {
   public void destroy_okWithChildEntities() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
 
-    testDAO.destroy(hubAccess, fake.program2_sequence1_pattern1.getId());
+    subjectDAO.destroy(hubAccess, fake.program2_sequence1_pattern1.getId());
   }
 
 
@@ -389,7 +403,7 @@ public class ProgramSequencePatternIT {
     injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event0.getId());
     injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), fake.program2_sequence1_pattern1_event1.getId());
 
-    testDAO.destroy(hubAccess, fake.program2_sequence1_pattern1.getId());
+    subjectDAO.destroy(hubAccess, fake.program2_sequence1_pattern1.getId());
 
     assertEquals(Integer.valueOf(0), test.getDSL()
       .selectCount().from(PROGRAM_SEQUENCE_PATTERN)
@@ -409,7 +423,7 @@ public class ProgramSequencePatternIT {
     failure.expect(DAOException.class);
     failure.expectMessage("Sequence Pattern in Program in Account you have hubAccess to does not exist");
 
-    testDAO.destroy(hubAccess, fake.program2_sequence1_pattern1.getId());
+    subjectDAO.destroy(hubAccess, fake.program2_sequence1_pattern1.getId());
   }
 
 }

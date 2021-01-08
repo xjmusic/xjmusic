@@ -1,7 +1,10 @@
-name: "pull request"
+name: "Integration"
 
 on:
-  [push, pull_request]
+  push:
+    branches:
+      - main
+      - dev
 
 jobs:
   Gradle:
