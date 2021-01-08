@@ -3,10 +3,7 @@ package io.xj.service.hub.api;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.lib.jsonapi.HttpResponseProvider;
-import io.xj.lib.jsonapi.MediaType;
-import io.xj.lib.jsonapi.Payload;
-import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.*;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.dao.ProgramSequenceChordVoicingDAO;
 
@@ -54,6 +51,8 @@ public class ProgramSequenceChordVoicingEndpoint extends HubEndpoint {
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ARTIST})
   public Response create(Payload payload, @Context ContainerRequestContext crc) {
+    if (PayloadDataType.Many == payload.getDataType())
+      return updateMany(crc, dao(), payload);
     return create(crc, dao(), payload);
   }
 

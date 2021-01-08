@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class HubEndpoint {
   public static final String ADMIN = "Admin";
   public static final String ARTIST = "Artist";
-  public static final String BANNED = "Banned";
+  //  public static final String BANNED = "Banned";
   public static final String ENGINEER = "Engineer";
   public static final String INTERNAL = "Internal";
   public static final String USER = "User";
@@ -150,6 +150,31 @@ public class HubEndpoint {
       N updated = payloadFactory.consume(dao.readOne(hubAccess, id), payload);
       dao.update(hubAccess, id, updated);
       return response.ok(new Payload().setDataOne(payloadFactory.toPayloadObject(updated)));
+
+    } catch (Exception e) {
+      return response.notAcceptable(e);
+    }
+  }
+
+  /**
+   Update many Entities via a DAO given a JSON:API payload request
+
+   @param crc     request context
+   @param dao     via which to read one Entity
+   @param payload of data to update, type:many
+   @param <N>     type of Entity
+   @return HTTP response comprising JSON:API payload
+   */
+  public <N extends MessageLite> Response updateMany(ContainerRequestContext crc, DAO<N> dao, Payload payload) {
+    try {
+      HubAccess hubAccess = HubAccess.fromContext(crc);
+      var result = new Payload().setDataType(PayloadDataType.Many);
+      for (var toUpdate : payload.getDataMany()) {
+        N updated = payloadFactory.consume(dao.readOne(hubAccess, toUpdate.getId()), toUpdate);
+        dao.update(hubAccess, toUpdate.getId(), updated);
+        result.addData(payloadFactory.toPayloadObject(updated));
+      }
+      return response.ok(result);
 
     } catch (Exception e) {
       return response.notAcceptable(e);
