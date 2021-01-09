@@ -47,6 +47,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Collections;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -120,9 +123,14 @@ public class NexusApp extends App {
     var payloadFactory = injector.getInstance(PayloadFactory.class);
     var chainDAO = injector.getInstance(ChainDAO.class);
     var access = HubClientAccess.internal();
-    if (config.hasPath(CONFIG_CHAIN_BOOTSTRAP_JSON_PATH))
-      bootstrapFromPath(config.getString(CONFIG_CHAIN_BOOTSTRAP_JSON_PATH),
-        payloadFactory, entityFactory, chainDAO, access);
+
+    //[#176374643] Chains bootstrapped by Nexus are delayed by N seconds
+    if (config.hasPath(CONFIG_CHAIN_BOOTSTRAP_JSON_PATH)) {
+      int bootstrapDelaySeconds = config.getInt("chain.bootstrapDelaySeconds");
+      ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+      executorService.schedule(() ->
+        bootstrapFromPath(config.getString(CONFIG_CHAIN_BOOTSTRAP_JSON_PATH), payloadFactory, entityFactory, chainDAO, access), bootstrapDelaySeconds, TimeUnit.SECONDS);
+    }
   }
 
   private void bootstrapFromPath(String bootstrapJson, PayloadFactory payloadFactory, EntityFactory entityFactory, ChainDAO chainDAO, HubClientAccess access) {

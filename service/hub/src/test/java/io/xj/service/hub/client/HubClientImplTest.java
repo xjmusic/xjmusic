@@ -2,14 +2,16 @@
 
 package io.xj.service.hub.client;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -37,6 +39,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -45,6 +48,8 @@ import static org.junit.Assert.assertEquals;
  HubClient** allows a service that depends on Hub (e.g. Nexus) to connect to the Hub REST API via an HTTP client and deserialize results into usable entities
  */
 public class HubClientImplTest {
+  private static final String INGEST_RETRY_SCENARIO = "Ingest Retry";
+  private static final String SECOND_ATTEMPT_STATE = "Second Attempt";
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(8089); // No-args constructor defaults to port 8080
 
@@ -116,6 +121,45 @@ public class HubClientImplTest {
     assertEquals(6, result.getAllProgramSequences().size());
     assertEquals(4, result.getAllProgramVoiceTracks().size());
     assertEquals(1, result.getAllProgramVoices().size());
+  }
+
+  @Test
+  public void ingest_retriesIfUnavailable() throws JsonApiException, HubClientException {
+    String hubContentBody = payloadFactory.serialize(payloadFactory.newPayload()
+      .setDataMany(payloadFactory.toPayloadObjects(hubEntities)));
+    var hubQueryParams = ImmutableMap.<String, StringValuePattern>of(
+      "libraryIds", new EqualToPattern(content.library2.getId()),
+      "programIds", new EqualToPattern(""),
+      "instrumentIds", new EqualToPattern("")
+    );
+    HubClientAccess access = HubContentFixtures
+      .buildHubClientAccess(content.user2, ImmutableList.of(content.account1), "Artist")
+      .setToken("secret_token_123");
+
+    // first attempt fails
+    stubFor(WireMock.get(urlPathEqualTo("/ingest"))
+      .withQueryParams(hubQueryParams)
+      .withHeader("Cookie", equalTo("access_token=internal_secret_456"))
+      .inScenario(INGEST_RETRY_SCENARIO)
+      .whenScenarioStateIs(STARTED)
+      .willSetStateTo(SECOND_ATTEMPT_STATE)
+      .willReturn(aResponse()
+        .withFault(Fault.CONNECTION_RESET_BY_PEER)));
+
+    // second attempt succeeds
+    stubFor(WireMock.get(urlPathEqualTo("/ingest"))
+      .withQueryParams(hubQueryParams)
+      .withHeader("Cookie", equalTo("access_token=internal_secret_456"))
+      .inScenario(INGEST_RETRY_SCENARIO)
+      .whenScenarioStateIs(SECOND_ATTEMPT_STATE)
+      .willReturn(aResponse()
+        .withStatus(200)
+        .withHeader("Content-Type", MediaType.APPLICATION_JSON)
+        .withBody(hubContentBody)));
+
+    HubContent result = subject.ingest(access, ImmutableSet.of(content.library2.getId()), ImmutableSet.of(), ImmutableSet.of());
+
+    assertEquals(48, result.getAll().size());
   }
 
   @Test

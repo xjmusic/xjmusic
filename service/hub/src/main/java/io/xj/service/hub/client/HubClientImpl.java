@@ -66,7 +66,7 @@ public class HubClientImpl implements HubClient {
       setAccessCookie(request, internalToken);
       CloseableHttpResponse response = httpClient.execute(request);
 
-      // return content if successful
+      // return content if successful.
       if (Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
         String entity = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
         Payload payload = payloadFactory.deserialize(entity);
