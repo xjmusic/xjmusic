@@ -125,11 +125,21 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   @Override
   public void doWork() throws CraftException {
     try {
-      // 1. Macro
+      // 1. Macro Program chosen based on previous if possible
+      // [#176375076] MacroMainCraft should tolerate and retry zero entities
+      // When these conditions are encountered, log the error in a Segment Message, and broaden the query parameters. Worst case, pick completely at random from the library.
       Optional<ProgramSequence> nextSequenceOfPreviousMacroProgram = chooseNextSequenceOfPreviousMacroProgram();
-      Program macroProgram = nextSequenceOfPreviousMacroProgram.isPresent()
-        ? chooseMacroProgram(nextSequenceOfPreviousMacroProgram.get())
-        : chooseMacroProgram();
+      Program macroProgram;
+      if (nextSequenceOfPreviousMacroProgram.isEmpty())
+        macroProgram = chooseMacroProgram();
+      else try {
+        macroProgram = chooseMacroProgram(nextSequenceOfPreviousMacroProgram.get());
+      } catch (CraftException e) {
+        reportMissing(Program.class,
+          String.format("Macro-type failed to choose based on previous because %s", e.getMessage()));
+        macroProgram = chooseMacroProgram();
+      }
+
       Long macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
       var macroSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset);
       var macroSequence = fabricator.getSourceMaterial().getProgramSequence(macroSequenceBinding);
@@ -598,5 +608,4 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   private Instant segmentEndInstant(ProgramSequence mainSequence) throws CraftException {
     return Instant.parse(fabricator.getSegment().getBeginAt()).plusNanos(segmentLengthNanos(mainSequence));
   }
-
 }

@@ -646,24 +646,4 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
       return Optional.empty();
     }
   }
-
-  /**
-   Report a missing entity as a segment message
-
-   @param type   of class that is missing
-   @param detail of how missing entity was searched for
-   */
-  private void reportMissing(Class<?> type, String detail) {
-    try {
-      fabricator.add(SegmentMessage.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(fabricator.getSegment().getId())
-        .setType(SegmentMessage.Type.Warning)
-        .setBody(String.format("%s not found %s", type.getSimpleName(), detail))
-        .build());
-
-    } catch (Exception e) {
-      log.warn("Failed to create SegmentMessage", e);
-    }
-  }
 }
