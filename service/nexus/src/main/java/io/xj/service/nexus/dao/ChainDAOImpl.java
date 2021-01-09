@@ -59,7 +59,6 @@ import static java.time.temporal.ChronoUnit.HOURS;
 @Singleton
 public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
-  private static final long NOW_PLUS_SECONDS = 60;
   private static final Set<Chain.State> NOTIFY_ON_CHAIN_STATES = ImmutableSet.of(
     Chain.State.Fabricate,
     Chain.State.Failed
@@ -77,6 +76,9 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   private final int previewEmbedKeyLength;
   private final SecureRandom secureRandom = new SecureRandom();
 
+  // [#176375238] Chains should N seconds into the future (default 120)
+  private final int chainStartInFutureSeconds;
+
   @Inject
   public ChainDAOImpl(
     Config config,
@@ -93,6 +95,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     previewLengthMaxHours = config.getInt("fabrication.previewLengthMaxHours");
     previewEmbedKeyLength = config.getInt("fabrication.previewEmbedKeyLength");
+    chainStartInFutureSeconds = config.getInt("chain.startInFutureSeconds");
     this.chainBindingDAO = chainBindingDAO;
   }
 
@@ -108,7 +111,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       // Chains are always bootstrapped in FABRICATED state and PRODUCTION type
       builder.setState(Chain.State.Fabricate);
       builder.setType(Chain.Type.Production);
-      builder.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(NOW_PLUS_SECONDS)));
+      builder.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
       requireAccount(access, builder.getAccountId(), UserRole.Type.Engineer);
       requireUniqueEmbedKey(access, builder);
 
@@ -437,7 +440,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     builder.setId(UUID.randomUUID().toString()); // new id
     builder.setEmbedKey(embedKey);
     // [#170273871] Revived chain should always start now
-    builder.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(NOW_PLUS_SECONDS)));
+    builder.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
     var created = create(access, builder.build());
 
     // Re-create all chain bindings of original chain
@@ -546,7 +549,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       case Draft:
       case Ready:
       case Fabricate:
-        chain.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(NOW_PLUS_SECONDS)));
+        chain.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
         if (Chain.Type.Preview.equals(chain.getType()))
           chain.setStopAt(Value.formatIso8601UTC(
             Instant.parse(chain.getStartAt()).plus(previewLengthMaxHours, HOURS))); // [#174153691]
