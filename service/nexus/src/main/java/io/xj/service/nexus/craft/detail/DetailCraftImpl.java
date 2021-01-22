@@ -87,6 +87,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
             .setId(UUID.randomUUID().toString())
             .setSegmentId(fabricator.getSegment().getId())
             .setProgramType(Program.Type.Detail)
+            .setInstrumentType(voicingType)
             .setProgramId(detailProgram.get().getId())
             .setTranspose(computeDetailTranspose(detailProgram.get()))
             .build());

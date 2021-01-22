@@ -136,8 +136,12 @@ public class NexusApp extends App {
   private void bootstrapFromPath(String bootstrapJson, PayloadFactory payloadFactory, EntityFactory entityFactory, ChainDAO chainDAO, HubClientAccess access) {
     try {
       bootstrapFromPayload(payloadFactory.deserialize(new BufferedReader(new FileReader(bootstrapJson))), payloadFactory, entityFactory, chainDAO, access);
-    } catch (JsonApiException | FileNotFoundException e) {
-      log.error("Failed to read Chain bootstrap JSON file!", e);
+
+    } catch (FileNotFoundException e) {
+      log.info("No Chain bootstrap JSON file found.");
+
+    } catch (JsonApiException e) {
+      log.warn("Failed to read Chain bootstrap JSON file!", e);
     }
   }
 
