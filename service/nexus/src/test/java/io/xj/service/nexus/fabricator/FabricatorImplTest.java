@@ -356,5 +356,6 @@ public class FabricatorImplTest {
     ), result);
   }
 
+  // FUTURE: test getChoicesOfPreviousSegments
 
 }

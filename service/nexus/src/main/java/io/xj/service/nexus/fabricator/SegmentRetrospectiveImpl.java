@@ -71,7 +71,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangementPick> getSegmentPicks(Segment segment) throws FabricationException {
+  public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks(Segment segment) throws FabricationException {
     try {
       return store.getAll(SegmentChoiceArrangementPick.class).stream().filter(e ->
               e.getSegmentId().equals(segment.getId()))
@@ -87,6 +87,17 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       return store.getAll(SegmentChoice.class).stream().filter(e ->
               e.getSegmentId().equals(segment.getId()))
               .collect(Collectors.toList());
+    } catch (EntityStoreException e) {
+      throw new FabricationException(e);
+    }
+  }
+
+  @Override
+  public Collection<SegmentChoiceArrangement> getSegmentChoiceArrangements(Segment segment) throws FabricationException {
+    try {
+      return store.getAll(SegmentChoiceArrangement.class).stream().filter(e ->
+        e.getSegmentId().equals(segment.getId()))
+        .collect(Collectors.toList());
     } catch (EntityStoreException e) {
       throw new FabricationException(e);
     }

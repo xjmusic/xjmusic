@@ -9,6 +9,7 @@ import io.xj.Program;
 import io.xj.ProgramSequence;
 import io.xj.ProgramSequenceBinding;
 import io.xj.ProgramSequencePattern;
+import io.xj.ProgramSequencePatternEvent;
 import io.xj.ProgramVoice;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
@@ -187,13 +188,31 @@ public interface Fabricator {
   Map<String, Collection<SegmentChoiceArrangement>> getMemeConstellationArrangementsOfPreviousSegments() throws FabricationException;
 
   /**
-   Compute the pattern-meme constellations of any previous segments which selected the same main sequence
+   Get the arrangements of any previous segments which selected the same main sequence
    <p>
-   [#161736024] to compute unique constellations for prior segments with the same main sequence
+   [#176468964] Rhythm and Detail choices are kept for an entire Main Program
+
+   @return map of all previous segment meme constellations (as keys) to a collection of arrangements made
+   */
+  Collection<SegmentChoiceArrangement> getChoiceArrangementsOfPreviousSegments() throws FabricationException;
+
+  /**
+   Compute the pattern-meme constellations of any previous segments which selected the same main program
+   <p>
+   [#161736024] to compute unique constellations for prior segments with the same main program
 
    @return map of all previous segment meme constellations (as keys) to a collection of choices made
    */
   Map<String, Collection<SegmentChoice>> getMemeConstellationChoicesOfPreviousSegments() throws FabricationException;
+
+  /**
+   Get the choices of any previous segments which selected the same main sequence
+   <p>
+   [#176468964] Rhythm and Detail choices are kept for an entire Main Program
+
+   @return map of all previous segment meme constellations (as keys) to a collection of choices made
+   */
+  Collection<SegmentChoice> getChoicesOfPreviousSegments() throws FabricationException;
 
   /**
    Get any sequence by id
@@ -204,6 +223,58 @@ public interface Fabricator {
    @return map of all previous segment meme constellations (as keys) to a collection of picks extracted of their content JSON
    */
   Map<String, Collection<SegmentChoiceArrangementPick>> getMemeConstellationPicksOfPreviousSegments() throws FabricationException;
+
+  /**
+   Get the choiceArrangementPicks of any previous segments which selected the same main sequence
+   <p>
+   [#176468964] Rhythm and Detail choiceArrangementPicks are kept for an entire Main Program
+
+   @return map of all previous segment meme constellations (as keys) to a collection of choiceArrangementPicks made
+   */
+  Collection<SegmentChoiceArrangementPick> getChoiceArrangementPicksOfPreviousSegments() throws FabricationException;
+
+  /**
+   Get previously chosen (for previous segments with same main program) instrument audio
+
+   @return map of previous chosen instrument audio
+   @throws FabricationException on failure to build map
+   */
+  Map<String, InstrumentAudio> getPreviousInstrumentAudio() throws FabricationException;
+
+  /**
+   Key for any pick designed to collide at same voice id + name
+
+   @param pick to get key of
+   @return unique key for pattern event
+   */
+  String eventKey(SegmentChoiceArrangementPick pick) throws FabricationException;
+
+  /**
+   Key for any pattern event designed to collide at same voice id + name
+
+   @param event to get key of
+   @return unique key for pattern event
+   */
+  String eventKey(ProgramSequencePatternEvent event) throws FabricationException;
+
+  /**
+   Get the Voice ID of a given event
+
+   @param event to get voice String of
+   @return Track name
+   */
+  String getTrackName(ProgramSequencePatternEvent event) throws FabricationException;
+
+  /**
+   Determine if an arrangement has been previously crafted
+   in one of the previous segments of the current main sequence
+   wherein the current pattern of the selected main sequence
+   <p>
+   [#176468964] Rhythm and Detail choices are kept for an entire Main Program
+
+   @return rhythm sequence if previously selected, or null if none is found
+   */
+  Optional<String> getPreviousVoiceInstrumentId(String voiceId);
 
   /**
    Get meme isometry for the current offset in this macro-choice
@@ -569,6 +640,7 @@ public interface Fabricator {
 
   /**
    Get the current Tuning
+
    @return Tuning
    */
   Tuning getTuning();

@@ -9,7 +9,25 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
-import io.xj.*;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.Program;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequenceChordVoicing;
+import io.xj.ProgramSequencePattern;
+import io.xj.ProgramSequencePatternEvent;
+import io.xj.ProgramVoice;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
+import io.xj.SegmentMeme;
+import io.xj.SegmentMessage;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -44,7 +62,13 @@ import javax.sound.sampled.AudioFormat;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -53,6 +77,7 @@ import java.util.stream.Collectors;
 class FabricatorImpl implements Fabricator {
   private static final double MICROS_PER_SECOND = 1000000.0F;
   private static final double NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
+  private static final String KEY_VOICE_NAME_TEMPLATE = "%s_%s";
   private static final String EXTENSION_SEPARATOR = ".";
   private static final String EXTENSION_JSON = "json";
   private static final String NAME_SEPARATOR = "-";
@@ -287,6 +312,22 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public Collection<SegmentChoiceArrangement> getChoiceArrangementsOfPreviousSegments() throws FabricationException {
+    Collection<SegmentChoiceArrangement> out = Lists.newArrayList();
+    for (Segment seg : getPreviousSegmentsWithSameMainProgram())
+      out.addAll(retrospective.getSegmentChoiceArrangements(seg));
+    return out;
+  }
+
+  @Override
+  public Collection<SegmentChoiceArrangementPick> getChoiceArrangementPicksOfPreviousSegments() throws FabricationException {
+    Collection<SegmentChoiceArrangementPick> out = Lists.newArrayList();
+    for (Segment seg : getPreviousSegmentsWithSameMainProgram())
+      out.addAll(retrospective.getSegmentChoiceArrangementPicks(seg));
+    return out;
+  }
+
+  @Override
   public Map<String, Collection<SegmentChoice>> getMemeConstellationChoicesOfPreviousSegments() throws FabricationException {
     try {
       Map<String, Collection<SegmentChoice>> out = Maps.newHashMap();
@@ -304,6 +345,14 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public Collection<SegmentChoice> getChoicesOfPreviousSegments() throws FabricationException {
+    Collection<SegmentChoice> out = Lists.newArrayList();
+    for (Segment seg : getPreviousSegmentsWithSameMainProgram())
+      out.addAll(retrospective.getSegmentChoices(seg));
+    return out;
+  }
+
+  @Override
   public Map<String, Collection<SegmentChoiceArrangementPick>> getMemeConstellationPicksOfPreviousSegments() throws FabricationException {
     try {
       Map<String, Collection<SegmentChoiceArrangementPick>> out = Maps.newHashMap();
@@ -311,7 +360,7 @@ class FabricatorImpl implements Fabricator {
         Isometry iso = MemeIsometry.ofMemes(Entities.namesOf(retrospective.getSegmentMemes(seg)));
         String con = iso.getConstellation();
         if (!out.containsKey(con)) out.put(con, Lists.newArrayList());
-        out.get(con).addAll(retrospective.getSegmentPicks(seg));
+        out.get(con).addAll(retrospective.getSegmentChoiceArrangementPicks(seg));
       }
       return out;
 
@@ -319,6 +368,65 @@ class FabricatorImpl implements Fabricator {
       throw new FabricationException(e);
     }
   }
+
+  @Override
+  public Map<String, InstrumentAudio> getPreviousInstrumentAudio() throws FabricationException {
+    try {
+      Map<String, InstrumentAudio> previousInstrumentAudio = Maps.newHashMap();
+      for (SegmentChoiceArrangementPick pick : getChoiceArrangementPicksOfPreviousSegments())
+        previousInstrumentAudio.put(eventKey(pick),
+          getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()));
+      return previousInstrumentAudio;
+
+    } catch (FabricationException | HubClientException e) {
+      throw exception("Unable to build map create previous instrument audio", e);
+    }
+  }
+
+
+  @Override
+  public String eventKey(SegmentChoiceArrangementPick pick) throws FabricationException {
+    try {
+      return String.format(KEY_VOICE_NAME_TEMPLATE, getSourceMaterial().getVoice(getSourceMaterial().getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId())).getId(), pick.getName());
+
+    } catch (HubClientException e) {
+      throw exception("unique key for arrangement pick", e);
+    }
+  }
+
+  @Override
+  public String eventKey(ProgramSequencePatternEvent event) throws FabricationException {
+    try {
+      return String.format(KEY_VOICE_NAME_TEMPLATE, getSourceMaterial().getVoice(event).getId(), getTrackName(event));
+    } catch (Exception e) {
+      throw exception("unique key for pattern event", e);
+    }
+  }
+
+  @Override
+  public String getTrackName(ProgramSequencePatternEvent event) throws FabricationException {
+    try {
+      return getSourceMaterial().getTrack(event).getName();
+    } catch (Exception e) {
+      throw exception("track name for event event", e);
+    }
+  }
+
+  @Override
+  public Optional<String> getPreviousVoiceInstrumentId(String voiceId) {
+    try {
+      return getChoiceArrangementsOfPreviousSegments()
+        .stream()
+        .filter(arrangement -> voiceId.equals(arrangement.getProgramVoiceId()))
+        .map(SegmentChoiceArrangement::getInstrumentId)
+        .findFirst();
+
+    } catch (FabricationException e) {
+      log.warn(formatLog(String.format("Could not get previous voice instrumentId for voiceId=%s", voiceId)), e);
+    }
+    return Optional.empty();
+  }
+
 
   @Override
   public MemeIsometry getMemeIsometryOfCurrentMacro() throws FabricationException {

@@ -17,7 +17,6 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.EntityException;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
@@ -30,7 +29,6 @@ import io.xj.service.nexus.craft.exception.CraftException;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
 import io.xj.service.nexus.fabricator.FabricationException;
 import io.xj.service.nexus.fabricator.Fabricator;
-import io.xj.service.nexus.fabricator.MemeIsometry;
 import io.xj.service.nexus.fabricator.NameIsometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +39,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  Rhythm craft for the current segment
@@ -51,7 +50,6 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
   private static final double SCORE_MATCHED_MEMES = 5;
   private static final double SCORE_RHYTHM_ENTROPY = 0.5;
   private static final double SCORE_DIRECTLY_BOUND = 100;
-  private static final String KEY_VOICE_NAME_TEMPLATE = "%s_%s";
   private final Logger log = LoggerFactory.getLogger(RhythmCraftImpl.class);
   private final SecureRandom random = new SecureRandom();
 
@@ -97,70 +95,22 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
   }
 
   /**
-   Key for any pick designed to collide at same voice id + name
-
-   @param pick to get key of
-   @return unique key for pattern event
-   */
-  private String eventKey(SegmentChoiceArrangementPick pick) throws CraftException {
-    try {
-      return String.format(KEY_VOICE_NAME_TEMPLATE, fabricator.getSourceMaterial().getVoice(fabricator.getSourceMaterial().getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId())).getId(), pick.getName());
-    } catch (Exception e) {
-      throw exception("unique key for arrangement pick", e);
-    }
-  }
-
-  /**
-   Key for any pattern event designed to collide at same voice id + name
-
-   @param event to get key of
-   @return unique key for pattern event
-   */
-  private String eventKey(ProgramSequencePatternEvent event) throws CraftException {
-    try {
-      return String.format(KEY_VOICE_NAME_TEMPLATE, fabricator.getSourceMaterial().getVoice(event).getId(), getTrackName(event));
-    } catch (Exception e) {
-      throw exception("unique key for pattern event", e);
-    }
-  }
-
-  /**
-   Get the Voice ID of a given event
-
-   @param event to get voice String of
-   @return Track name
-   */
-  private String getTrackName(ProgramSequencePatternEvent event) throws CraftException {
-    try {
-      return fabricator.getSourceMaterial().getTrack(event).getName();
-    } catch (Exception e) {
-      throw exception("track name for event event", e);
-    }
-  }
-
-  /**
-   Get previously chosen (for previous segments with same main program and meme constellation) instrument audio
+   Get previously chosen (for previous segments with same main program) instrument audio
 
    @return map of previous chosen instrument audio
    @throws CraftException on failure to build map
    */
   private Map<String, InstrumentAudio> getPreviousInstrumentAudio() throws CraftException {
-    Map<String, InstrumentAudio> previousInstrumentAudio = Maps.newHashMap();
     try {
-      String con = fabricator.getMemeIsometryOfSegment().getConstellation();
-      if (fabricator.getMemeConstellationPicksOfPreviousSegments().containsKey(con)) {
-        Collection<SegmentChoiceArrangementPick> picks = fabricator.getMemeConstellationPicksOfPreviousSegments().get(con);
-        log.info("[segId={}] previous meme constellation picks {}", fabricator.getSegment().getId(), picks.size());
-        for (SegmentChoiceArrangementPick pick : picks) {
-          String key = eventKey(pick);
-          previousInstrumentAudio.put(key, fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()));
-        }
-      }
+      Map<String, InstrumentAudio> previousInstrumentAudio = Maps.newHashMap();
+      for (SegmentChoiceArrangementPick pick : fabricator.getChoiceArrangementPicksOfPreviousSegments())
+        previousInstrumentAudio.put(fabricator.eventKey(pick),
+          fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()));
+      return previousInstrumentAudio;
 
     } catch (FabricationException | HubClientException e) {
-      throw new CraftException("Unable to build map create previous instrument audio", e);
+      throw exception("Unable to build map create previous instrument audio", e);
     }
-    return previousInstrumentAudio;
   }
 
   /**
@@ -178,7 +128,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
 
     switch (type) {
       case Continue:
-        Optional<Program> selectedPreviously = getRhythmProgramSelectedPreviouslyForSegmentMemeConstellation();
+        Optional<Program> selectedPreviously = getRhythmProgramSelectedPreviouslyForMainProgram();
         return selectedPreviously.isPresent() ? selectedPreviously.get() : chooseFreshRhythm();
 
       case Initial:
@@ -194,62 +144,30 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
   /**
    Determine if a rhythm program has been previously selected
    in one of the previous segments of the current main program
-   wherein the current pattern of the selected main program
-   has a non-unique (previously encountered) meme constellation
    <p>
-   Compute the pattern-meme constellations of any previous segments which selected the same main program
-   <p>
-   [#161736024] for each unique program-pattern-meme constellation within the main program
+   [#176468964] Rhythm and Detail choices are kept for an entire Main Program
 
    @return rhythm program if previously selected, or null if none is found
    */
-  private Optional<Program> getRhythmProgramSelectedPreviouslyForSegmentMemeConstellation() {
+  private Optional<Program> getRhythmProgramSelectedPreviouslyForMainProgram() {
     try {
-      Map<String, String> constellationProgramIds = Maps.newHashMap();
-      String con = fabricator.getMemeIsometryOfSegment().getConstellation();
-      if (fabricator.getMemeConstellationChoicesOfPreviousSegments().containsKey(con)) {
-        for (SegmentChoice choice : fabricator.getMemeConstellationChoicesOfPreviousSegments().get(con)) {
-          if (Program.Type.Rhythm == choice.getProgramType())
-            constellationProgramIds.put(con, fabricator.getProgram(choice).getId());
-        }
-      }
-      String constellation = MemeIsometry.ofMemes(
-        Entities.namesOf(fabricator.getSegmentMemes())).getConstellation();
-      return constellationProgramIds.containsKey(constellation) ? Optional.of(fabricator.getSourceMaterial().getProgram(constellationProgramIds.get(constellation))) : Optional.empty();
-
-    } catch (FabricationException | HubClientException | EntityException e) {
-      log.warn(formatLog("Could not get rhythm program selected previously for segment meme constellation"), e);
-      return Optional.empty();
-    }
-  }
-
-  /**
-   Determine if an arrangement has been previously crafted
-   in one of the previous segments of the current main sequence
-   wherein the current pattern of the selected main sequence
-   has a non-unique (previously encountered) meme constellation
-   and a voice we have encountered for that meme constellation
-   <p>
-   Compute the pattern-meme constellations of any previous segments which selected the same main sequence
-   <p>
-   [#161736024] for each unique sequence-pattern-meme constellation within the main sequence
-
-   @return rhythm sequence if previously selected, or null if none is found
-   */
-  private Optional<String> getPreviousVoiceInstrumentId(String segmentMemeConstellation, String voiceId) {
-    try {
-      for (String constellation : fabricator.getMemeConstellationArrangementsOfPreviousSegments().keySet()) {
-        if (Objects.equals(segmentMemeConstellation, constellation))
-          for (SegmentChoiceArrangement arrangement : fabricator.getMemeConstellationArrangementsOfPreviousSegments().get(constellation)) {
-            if (Objects.equals(voiceId, arrangement.getProgramVoiceId()))
-              return Optional.of(arrangement.getInstrumentId());
+      return fabricator.getChoicesOfPreviousSegments()
+        .stream()
+        .filter(choice -> Program.Type.Rhythm == choice.getProgramType())
+        .flatMap(choice -> {
+          try {
+            return Stream.of(fabricator.getSourceMaterial().getProgram(choice.getProgramId()));
+          } catch (HubClientException e) {
+            log.warn("Failed to locate program for choice", e);
+            return Stream.empty();
           }
-      }
+        })
+        .findFirst();
 
     } catch (FabricationException e) {
-      log.warn(formatLog(String.format("Could not get previous voice instrumentId for segmentMemeConstellation=%s, voiceId=%s", segmentMemeConstellation, voiceId)), e);
+      log.warn(formatLog("Could not get rhythm program selected previously for main program"), e);
+      return Optional.empty();
     }
-    return Optional.empty();
   }
 
   /**
@@ -327,16 +245,14 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
 
   /**
    craft segment events for one rhythm voice
-   [#161736024] if segment meme constellation already encountered, use that instrument-voice
+   [#176468964] Rhythm and Detail choices are kept for an entire Main Program
 
    @param voice to craft events for
    @throws CraftException on failure
    */
   private void craftArrangementForRhythmVoice(ProgramSequence sequence, SegmentChoice choice, ProgramVoice voice, Map<String, InstrumentAudio> previousInstrumentAudio) throws CraftException {
     try {
-      String constellation = MemeIsometry.ofMemes(
-        Entities.namesOf(fabricator.getSegmentMemes())).getConstellation();
-      Optional<String> instrumentId = getPreviousVoiceInstrumentId(constellation, voice.getId());
+      Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentId(voice.getId());
 
       // if no previous instrument found, choose a fresh one
       SegmentChoiceArrangement arrangement = fabricator.add(SegmentChoiceArrangement.newBuilder()
@@ -384,7 +300,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
       if (outroPattern.isPresent())
         craftRhythmPatternEvents(previousInstrumentAudio, choice, arrangement, outroPattern.get(), curPos, loopOutPos, goForItRatio);
 
-    } catch (FabricationException | EntityException e) {
+    } catch (FabricationException e) {
       throw
         exception(String.format("Failed to craft arrangement for rhythm voiceId=%s", voice.getId()), e);
     }
@@ -521,7 +437,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
         .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId())
         .setInstrumentAudioId(audio.getId())
         .setProgramSequencePatternEventId(event.getId())
-        .setName(getTrackName(event))
+        .setName(fabricator.getTrackName(event))
         .setStart(startSeconds)
         .setLength(lengthSeconds)
         .setAmplitude(event.getVelocity())
@@ -566,7 +482,12 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
    @throws CraftException on failure
    */
   private InstrumentAudio selectPreviousInstrumentAudio(Map<String, InstrumentAudio> previousInstrumentAudio, Instrument instrument, ProgramSequencePatternEvent event) throws CraftException {
-    String key = eventKey(event);
+    String key;
+    try {
+      key = fabricator.eventKey(event);
+    } catch (FabricationException e) {
+      throw new CraftException(e);
+    }
     if (!previousInstrumentAudio.containsKey(key))
       previousInstrumentAudio.put(key, selectNewInstrumentAudio(instrument, event));
     return previousInstrumentAudio.get(key);
@@ -591,7 +512,7 @@ public class RhythmCraftImpl extends CraftImpl implements RhythmCraft {
       for (InstrumentAudioEvent audioEvent : fabricator.getSourceMaterial().getFirstEventsOfAudiosOfInstrument(instrument))
         audioEntityScorePicker.score(audioEvent.getInstrumentAudioId(),
           Chance.normallyAround(
-            NameIsometry.similarity(getTrackName(event), audioEvent.getName()),
+            NameIsometry.similarity(fabricator.getTrackName(event), audioEvent.getName()),
             SCORE_INSTRUMENT_ENTROPY));
 
       // final chosen audio event

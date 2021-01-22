@@ -18,12 +18,17 @@ public interface SegmentRetrospective {
    @param segment to get picks for
    @return entity cache of SegmentChoiceArrangementPick
    */
-  Collection<SegmentChoiceArrangementPick> getSegmentPicks(Segment segment) throws FabricationException;
+  Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks(Segment segment) throws FabricationException;
 
   /**
    @return entity cache of SegmentChoice
    */
   Collection<SegmentChoice> getSegmentChoices(Segment segment) throws FabricationException;
+
+  /**
+   @return entity cache of SegmentChoiceArrangement
+   */
+  Collection<SegmentChoiceArrangement> getSegmentChoiceArrangements(Segment segment) throws FabricationException;
 
   /**
    @return entity cache of SegmentMeme
