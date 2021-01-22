@@ -402,7 +402,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   Choose first macro program, completely at random\
+   Choose first macro program, completely at random
 
    @return macro-type program
    @throws CraftException on failure
@@ -434,7 +434,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   /**
    Choose main program
    <p>
-   ONLY CHOOSES ONCE, then returns that choice every time.**
+   ONLY CHOOSES ONCE, then returns that choice every time
 
    @return main-type Program
    @throws CraftException on failure

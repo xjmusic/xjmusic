@@ -3,7 +3,6 @@
 package io.xj.service.hub;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import io.xj.Account;
 import io.xj.AccountUser;
 import io.xj.Instrument;
@@ -43,9 +42,6 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings("SameParameterValue")
 public class HubContentFixtures {
-  private static final double RANDOM_VALUE_FROM = 0.3;
-  private static final double RANDOM_VALUE_TO = 0.8;
-
   // These are fully exposed (no getters/setters) for ease of use in testing
   public Account account1;
   public Account account2;
@@ -171,58 +167,10 @@ public class HubContentFixtures {
   public ProgramVoiceTrack program9_voice0_track7;
   public ProgramVoiceTrack program9_voice0_track8;
   public ProgramVoiceTrack program9_voice0_track9;
-  public User user1;
   public User user2;
   public User user3;
   public UserRole userRole2a;
   public UserRole userRole3a;
-
-  /**
-   Random type of rhythm pattern
-
-   @return randomly selected rhythm pattern type
-   */
-  protected static ProgramSequencePattern.Type randomRhythmPatternType() {
-    return new ProgramSequencePattern.Type[]{
-      ProgramSequencePattern.Type.Intro,
-      ProgramSequencePattern.Type.Loop,
-      ProgramSequencePattern.Type.Outro
-    }[(int) StrictMath.floor(StrictMath.random() * 3)];
-  }
-
-  /**
-   List of N random values
-
-   @param N number of values
-   @return list of values
-   */
-  protected static Double[] listOfRandomValues(int N) {
-    Double[] result = new Double[N];
-    for (int i = 0; i < N; i++) {
-      result[i] = random(RANDOM_VALUE_FROM, RANDOM_VALUE_TO);
-    }
-    return result;
-  }
-
-  /**
-   Create a N-magnitude list of unique Strings at random of a source list of Strings
-
-   @param N           size of list
-   @param sourceItems source Strings
-   @return list of unique random Strings
-   */
-  protected static String[] listOfUniqueRandom(long N, String[] sourceItems) {
-    long count = 0;
-    Collection<String> items = Lists.newArrayList();
-    while (count < N) {
-      String p = random(sourceItems);
-      if (!items.contains(p)) {
-        items.add(p);
-        count++;
-      }
-    }
-    return items.toArray(new String[0]);
-  }
 
   /**
    Random value between A and B
@@ -397,11 +345,11 @@ public class HubContentFixtures {
     //
     program5_sequence0 = IntegrationTestingFixtures.buildProgramSequence(program5, 16, "Intro", 0.5, "G major", 135.0);
     program5_sequence0_chord0 = IntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence0, 0.0, "G major");
-    program5_sequence0_chord0_voicing = IntegrationTestingFixtures.buildProgramSequenceChordVoicing(Instrument.Type.Harmonic, program5_sequence0_chord0, "G3, B3, D4");
+    program5_sequence0_chord0_voicing = IntegrationTestingFixtures.buildProgramSequenceChordVoicing(Instrument.Type.Pad, program5_sequence0_chord0, "G3, B3, D4");
     program5_sequence0_chord1 = IntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence0, 8.0, "Ab minor");
-    program5_sequence0_chord1_voicing = IntegrationTestingFixtures.buildProgramSequenceChordVoicing(Instrument.Type.Harmonic, program5_sequence0_chord1, "Ab3, Db3, F4");
+    program5_sequence0_chord1_voicing = IntegrationTestingFixtures.buildProgramSequenceChordVoicing(Instrument.Type.Pad, program5_sequence0_chord1, "Ab3, Db3, F4");
     program5_sequence0_chord2 = IntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence0, 75.0, "G-9"); // [#154090557] this ChordEntity should be ignored, because it's past the end of the main-pattern total
-    program5_sequence0_chord2_voicing = IntegrationTestingFixtures.buildProgramSequenceChordVoicing(Instrument.Type.Harmonic, program5_sequence0_chord2, "G3, Bb3, D4, A4");
+    program5_sequence0_chord2_voicing = IntegrationTestingFixtures.buildProgramSequenceChordVoicing(Instrument.Type.Pad, program5_sequence0_chord2, "G3, Bb3, D4, A4");
     program5_sequence0_binding0 = IntegrationTestingFixtures.buildProgramSequenceBinding(program5_sequence0, 0);
     program5_sequence0_binding0_meme0 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program5_sequence0_binding0, "Optimism");
     //

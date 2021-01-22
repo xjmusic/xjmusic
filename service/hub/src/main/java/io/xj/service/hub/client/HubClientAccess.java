@@ -61,7 +61,7 @@ public class HubClientAccess {
    @return access control
    */
   public static HubClientAccess internal() {
-    // TODO how does Hub plan on authenticating a request made with this "credential?"
+    // FUTURE how does Hub plan on authenticating a request made with this "credential?"
     return new HubClientAccess(ImmutableList.of(UserRole.Type.Internal));
   }
 

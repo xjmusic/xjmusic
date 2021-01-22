@@ -29,7 +29,7 @@ dependencies {
   implementation project(':lib:util')
   implementation project(':service:hub') // FUTURE: instead of depending on hub, we use the client it publishes
   //
-  implementation 'io.xj:protocol:v0.8'
+  implementation 'io.xj:protocol:v0.9'
   // vendor
   implementation group: 'com.newrelic.agent.java', name: 'newrelic-api', version: '6.3.0'
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'

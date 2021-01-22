@@ -222,7 +222,7 @@ public class ProgramVoiceIT {
     var subject = ProgramVoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
-      .setType(Instrument.Type.Harmonic)
+      .setType(Instrument.Type.Pad)
       .setName("Jams")
       .build();
 
@@ -244,7 +244,7 @@ public class ProgramVoiceIT {
     var inputData = ProgramVoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
-      .setType(Instrument.Type.Harmonic)
+      .setType(Instrument.Type.Pad)
       .setName("Jams")
       .build();
 

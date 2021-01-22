@@ -54,10 +54,8 @@ public class SegmentDAOImplTest {
   private Chain chain3;
   private Segment segment1;
   private Segment segment2;
-  private Segment segment3;
   private Segment segment4;
   private Segment segment5;
-  private Segment segment6;
   private Chain chain5;
   private EntityFactory entityFactory;
 
@@ -116,7 +114,7 @@ public class SegmentDAOImplTest {
       .setWaveformPreroll(1.523)
       .setEndAt("2017-02-14T12:02:04.000001Z")
       .build());
-    segment3 = store.put(Segment.newBuilder()
+    store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain3.getId())
       .setOffset(2L)
@@ -884,12 +882,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void destroy() throws Exception {
-/*
-// TODO use Mockito to provide content that would have been ingested from Hub, and assert results
-    test.getDSL().update(CHAIN)
-      .set(CHAIN.STATE, "Erase")
-      .execute();
-*/
+    // FUTURE use Mockito to provide content that would have been ingested from Hub, and assert results
 
     testDAO.destroy(HubClientAccess.internal(), segment1.getId());
 
@@ -927,6 +920,6 @@ public class SegmentDAOImplTest {
     }
   }
 
-  // TODO test revert deletes all related entities
+  // FUTURE test revert deletes all related entities
 
 }

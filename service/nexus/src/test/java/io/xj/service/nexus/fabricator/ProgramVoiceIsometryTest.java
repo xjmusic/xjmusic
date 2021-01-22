@@ -19,8 +19,8 @@ public class ProgramVoiceIsometryTest {
   @Before
   public void setUp() {
     Program program1 = Program.newBuilder().build();
-    programVoice1a = buildProgramVoice(program1, Instrument.Type.Harmonic, "Super Cool");
-    programVoice1b = buildProgramVoice(program1, Instrument.Type.Harmonic, "Very Interesting");
+    programVoice1a = buildProgramVoice(program1, Instrument.Type.Pad, "Super Cool");
+    programVoice1b = buildProgramVoice(program1, Instrument.Type.Pad, "Very Interesting");
   }
 
   @Test

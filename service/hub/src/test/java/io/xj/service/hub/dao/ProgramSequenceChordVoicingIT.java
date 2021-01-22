@@ -223,7 +223,7 @@ public class ProgramSequenceChordVoicingIT {
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program3.getId())
       .setProgramSequenceChordId(fake.program3_chord1.getId())
-      .setType(Instrument.Type.Harmonic)
+      .setType(Instrument.Type.Pad)
       .setNotes("C5, Eb5, G5")
       .build();
 
@@ -233,7 +233,7 @@ public class ProgramSequenceChordVoicingIT {
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals(fake.program3_chord1.getId(), result.getProgramSequenceChordId());
-    assertEquals(Instrument.Type.Harmonic, result.getType());
+    assertEquals(Instrument.Type.Pad, result.getType());
     assertEquals("C5, Eb5, G5", result.getNotes());
   }
 

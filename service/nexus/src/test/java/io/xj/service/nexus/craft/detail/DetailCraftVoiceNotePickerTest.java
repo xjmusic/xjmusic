@@ -44,7 +44,7 @@ public class DetailCraftVoiceNotePickerTest {
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segmentId)
       .setSegmentChordId(chord.getId())
-      .setType(Instrument.Type.Harmonic)
+      .setType(Instrument.Type.Pad)
       .setNotes("A4, C5, E5, G5, A5, C6, G6, E6")
       .build();
     Note note = Note.of("Bb4");

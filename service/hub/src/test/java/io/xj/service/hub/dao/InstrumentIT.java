@@ -114,7 +114,7 @@ public class InstrumentIT {
     fake.instrument201 = test.insert(Instrument.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setLibraryId(fake.library1.getId())
-      .setType(Instrument.Type.Harmonic)
+      .setType(Instrument.Type.Pad)
       .setState(Instrument.State.Published)
       .setName("buns")
       .build());
@@ -231,7 +231,7 @@ public class InstrumentIT {
     Instrument result = testDAO.readOne(hubAccess, fake.instrument201.getId());
 
     assertNotNull(result);
-    assertEquals(Instrument.Type.Harmonic, result.getType());
+    assertEquals(Instrument.Type.Pad, result.getType());
     assertEquals(Instrument.State.Published, result.getState());
     assertEquals(fake.instrument201.getId(), result.getId());
     assertEquals(fake.library1.getId(), result.getLibraryId());
@@ -348,7 +348,7 @@ public class InstrumentIT {
     fake.instrument251 = test.insert(Instrument.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setLibraryId(fake.library1.getId())
-      .setType(Instrument.Type.Harmonic)
+      .setType(Instrument.Type.Pad)
       .setState(Instrument.State.Published)
       .setName("jub")
       .build());
@@ -372,7 +372,7 @@ public class InstrumentIT {
     Instrument instrument = test.insert(Instrument.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setLibraryId(fake.library1.getId())
-      .setType(Instrument.Type.Harmonic)
+      .setType(Instrument.Type.Pad)
       .setState(Instrument.State.Published)
       .setName("sandwich")
       .build());
@@ -402,7 +402,7 @@ public class InstrumentIT {
     Instrument instrument = test.insert(Instrument.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setLibraryId(fake.library1.getId())
-      .setType(Instrument.Type.Harmonic)
+      .setType(Instrument.Type.Pad)
       .setState(Instrument.State.Published)
       .setName("sandwich")
       .build());

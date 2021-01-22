@@ -1014,7 +1014,7 @@ public class ChainDAOImplTest {
     user3 = buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     var chain = test.put(buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
     library2 = buildLibrary(account1, "pajamas");
-    test.put(buildChainBinding(chain, buildInstrument(library2, Instrument.Type.Harmonic, Instrument.State.Published, "fonds")));
+    test.put(buildChainBinding(chain, buildInstrument(library2, Instrument.Type.Pad, Instrument.State.Published, "fonds")));
 
     subject.updateState(access, chain.getId(), Chain.State.Ready);
 
@@ -1158,7 +1158,7 @@ public class ChainDAOImplTest {
     test.put(buildChainBinding(chain, buildProgram(library1, Program.Type.Macro, Program.State.Published, "trees A to B", "D#", 120.0, 0.6)));
     test.put(buildChainBinding(chain, buildProgram(library1, Program.Type.Macro, Program.State.Published, "trees B to A", "F", 120.0, 0.6)));
     test.put(buildChainBinding(chain, buildProgram(library1, Program.Type.Rhythm, Program.State.Published, "beets", "C", 120.0, 0.6)));
-    test.put(buildChainBinding(chain, buildInstrument(library1, Instrument.Type.Harmonic, Instrument.State.Published, "fonds")));
+    test.put(buildChainBinding(chain, buildInstrument(library1, Instrument.Type.Pad, Instrument.State.Published, "fonds")));
 
     var result = subject.revive(access, chain.getId(), "Testing");
 

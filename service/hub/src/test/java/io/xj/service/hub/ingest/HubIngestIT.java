@@ -160,14 +160,14 @@ public class HubIngestIT {
     test.insert(Instrument.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setLibraryId(fake.library10000001.getId())
-      .setType(Instrument.Type.Harmonic)
+      .setType(Instrument.Type.Pad)
       .setState(Instrument.State.Published)
       .setName("Dreamy")
       .build());
     HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), ImmutableSet.of(fake.library10000001.getId()), ImmutableSet.of(), ImmutableSet.of());
 
     assertEquals(2, ingest.getInstrumentsOfType(Instrument.Type.Percussive).size());
-    assertEquals(1, ingest.getInstrumentsOfType(Instrument.Type.Harmonic).size());
+    assertEquals(1, ingest.getInstrumentsOfType(Instrument.Type.Pad).size());
   }
 
   @Test

@@ -130,7 +130,7 @@ public class InstrumentAudioIT {
     fake.instrument201 = test.insert(Instrument.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setLibraryId(fake.library1.getId())
-      .setType(Instrument.Type.Harmonic)
+      .setType(Instrument.Type.Pad)
       .setState(Instrument.State.Published)
       .setName("buns")
       .build());

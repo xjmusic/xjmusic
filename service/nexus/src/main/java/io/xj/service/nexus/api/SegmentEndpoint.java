@@ -141,7 +141,7 @@ public class SegmentEndpoint extends NexusEndpoint {
   /**
    Read all segments by Chain Embed Key, optionally of offset or seconds UTC
    <p>
-   TODO pass access down through here-- child processes need to know not to require access for embed-key based things
+   FUTURE pass access down through here-- child processes need to know not to require access for embed-key based things
    See: [#173806398] Must be able to read chain elements publicly by embed key
 
    @param embedKey       to read segments for

@@ -279,7 +279,7 @@ public class ProgramSequenceChordIT {
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program1.getId())
       .setProgramSequenceChordId(sequenceChord1a_0.getId())
-      .setType(Instrument.Type.Harmonic)
+      .setType(Instrument.Type.Pad)
       .setNotes("C5, Eb5, G5")
       .build());
 
