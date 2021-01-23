@@ -34,11 +34,11 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
 
   @Inject
   public SegmentRetrospectiveImpl(
-          @Assisted("access") HubClientAccess access,
-          @Assisted("currentSegment") Segment segment,
-          @Assisted("sourceMaterial") HubContent sourceMaterial,
-          SegmentDAO segmentDAO,
-          EntityStore entityStore
+    @Assisted("access") HubClientAccess access,
+    @Assisted("currentSegment") Segment segment,
+    @Assisted("sourceMaterial") HubContent sourceMaterial,
+    SegmentDAO segmentDAO,
+    EntityStore entityStore
   ) throws FabricationException {
     this.store = entityStore;
     try {
@@ -47,13 +47,14 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       // the previous segment is the first one cached here. we may cache even further back segments below if found
       if (segment.getOffset() <= 0) return;
       previousSegment = store.put(segmentDAO.readOneAtChainOffset(access,
-              segment.getChainId(), segment.getOffset() - 1));
+        segment.getChainId(), segment.getOffset() - 1));
       store.putAll(segmentDAO.readManySubEntities(access, ImmutableList.of(previousSegment.getId()), true));
 
       // previous segment must have a main choice to continue past here.
       SegmentChoice previousSegmentMainChoice = store.getAll(SegmentChoice.class).stream()
-              .filter(segmentChoice -> Program.Type.Main.equals(segmentChoice.getProgramType()))
-              .findFirst().orElseThrow(() -> new FabricationException("No main choice!"));
+        .filter(segmentChoice -> Program.Type.Main.equals(segmentChoice.getProgramType()))
+        .findFirst()
+        .orElseThrow(() -> new FabricationException("No main choice!"));
 
       // if relevant populate the retrospective with the previous segments with the same main sequence as this one
       long sequenceBindingOffset = sourceMaterial.getProgramSequenceBinding(previousSegmentMainChoice.getProgramSequenceBindingId()).getOffset();
@@ -74,8 +75,8 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks(Segment segment) throws FabricationException {
     try {
       return store.getAll(SegmentChoiceArrangementPick.class).stream().filter(e ->
-              e.getSegmentId().equals(segment.getId()))
-              .collect(Collectors.toList());
+        e.getSegmentId().equals(segment.getId()))
+        .collect(Collectors.toList());
     } catch (EntityStoreException e) {
       throw new FabricationException(e);
     }
@@ -85,8 +86,8 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   public Collection<SegmentChoice> getSegmentChoices(Segment segment) throws FabricationException {
     try {
       return store.getAll(SegmentChoice.class).stream().filter(e ->
-              e.getSegmentId().equals(segment.getId()))
-              .collect(Collectors.toList());
+        e.getSegmentId().equals(segment.getId()))
+        .collect(Collectors.toList());
     } catch (EntityStoreException e) {
       throw new FabricationException(e);
     }
@@ -107,8 +108,8 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   public Collection<SegmentMeme> getSegmentMemes(Segment segment) throws FabricationException {
     try {
       return store.getAll(SegmentMeme.class).stream().filter(e ->
-              e.getSegmentId().equals(segment.getId()))
-              .collect(Collectors.toList());
+        e.getSegmentId().equals(segment.getId()))
+        .collect(Collectors.toList());
 
     } catch (EntityStoreException e) {
       throw new FabricationException(e);
@@ -129,9 +130,9 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   public SegmentChoice getChoiceOfType(Segment segment, Program.Type type) throws FabricationException {
     try {
       Optional<SegmentChoice> choice =
-              store.getAll(SegmentChoice.class).stream().filter(c ->
-                      c.getSegmentId().equals(segment.getId()) &&
-                              c.getProgramType().equals(type)).findFirst();
+        store.getAll(SegmentChoice.class).stream().filter(c ->
+          c.getSegmentId().equals(segment.getId()) &&
+            c.getProgramType().equals(type)).findFirst();
       if (choice.isEmpty())
         throw new FabricationException(String.format("No %s-type choice in retrospective %s", type, segment));
       return choice.get();
@@ -145,8 +146,8 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice segmentChoice) throws FabricationException {
     try {
       return store.getAll(SegmentChoiceArrangement.class).stream().filter(a ->
-              a.getSegmentChoiceId().equals(segmentChoice.getId()))
-              .collect(Collectors.toList());
+        a.getSegmentChoiceId().equals(segmentChoice.getId()))
+        .collect(Collectors.toList());
 
     } catch (EntityStoreException e) {
       throw new FabricationException(e);

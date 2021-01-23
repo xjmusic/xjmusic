@@ -90,7 +90,6 @@ class FabricatorImpl implements Fabricator {
   private final Map<SegmentChoice, ProgramSequence> sequenceForChoice = Maps.newHashMap();
   private final SegmentWorkbench workbench;
   private final SegmentRetrospective retrospective;
-  private final TimeComputerFactory timeComputerFactory;
   private final Tuning tuning;
   private final double tuningRootPitch;
   private final String tuningRootNote;
@@ -103,6 +102,7 @@ class FabricatorImpl implements Fabricator {
   private final PayloadFactory payloadFactory;
   private final ChainConfig chainConfig;
   private final SegmentDAO segmentDAO;
+  private final FabricatorFactory fabricatorFactory;
 
   @AssistedInject
   public FabricatorImpl(
@@ -112,10 +112,8 @@ class FabricatorImpl implements Fabricator {
     HubClient hubClient,
     ChainDAO chainDAO,
     ChainBindingDAO chainBindingDAO,
-    TimeComputerFactory timeComputerFactory,
-    SegmentWorkbenchFactory segmentWorkbenchFactory,
     FileStoreProvider fileStoreProvider,
-    SegmentRetrospectiveFactory retrospectiveFactory,
+    FabricatorFactory fabricatorFactory,
     PayloadFactory payloadFactory,
     SegmentDAO segmentDAO
   ) throws FabricationException {
@@ -126,8 +124,8 @@ class FabricatorImpl implements Fabricator {
       log.info("[segId={}] HubClientAccess {}", segment.getId(), access);
 
       this.fileStoreProvider = fileStoreProvider;
-      this.timeComputerFactory = timeComputerFactory;
       this.payloadFactory = payloadFactory;
+      this.fabricatorFactory = fabricatorFactory;
 
       this.config = config;
       tuningRootPitch = config.getDouble("tuning.rootPitchHz");
@@ -159,10 +157,10 @@ class FabricatorImpl implements Fabricator {
       log.info("[segId={}] SourceMaterial loaded {} entities", segment.getId(), sourceMaterial.size());
 
       // setup the segment retrospective
-      retrospective = retrospectiveFactory.workOn(access, segment, sourceMaterial);
+      retrospective = fabricatorFactory.loadRetrospective(access, segment, sourceMaterial);
 
       // get the current segment on the workbench
-      workbench = segmentWorkbenchFactory.workOn(access, chain, segment);
+      workbench = fabricatorFactory.setupWorkbench(access, chain, segment);
 
       // final pre-flight check
       ensureStorageKey();
@@ -994,7 +992,7 @@ class FabricatorImpl implements Fabricator {
     if (0 == totalBeats) throw new FabricationException("Can't instantiate time computer with zero total beats!");
     if (0 == fromTempo) throw new FabricationException("Can't instantiate time computer from zero tempo!");
     if (0 == toTempo) throw new FabricationException("Can't instantiate time computer to zero tempo!");
-    return timeComputerFactory.create(totalBeats, fromTempo, toTempo);
+    return fabricatorFactory.createTimeComputer(totalBeats, fromTempo, toTempo);
   }
 
   /**

@@ -18,18 +18,18 @@ import static org.junit.Assert.assertEquals;
  */
 public class TimeComputerTest {
   TimeComputer subject;
-  private TimeComputerFactory timeComputerFactory;
+  private FabricatorFactory fabricatorFactory;
 
   @Before
   public void setUp() throws AppException {
     Config config = NexusTestConfiguration.getDefault();
     var injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusWorkModule(), new NexusFabricatorModule()));
-    timeComputerFactory = injector.getInstance(TimeComputerFactory.class);
+    fabricatorFactory = injector.getInstance(FabricatorFactory.class);
   }
 
   @Test
   public void getSecondsAtPosition() {
-    subject = timeComputerFactory.create(16, 60, 60);
+    subject = fabricatorFactory.createTimeComputer(16, 60, 60);
 
     assertEquals(-1, subject.getSecondsAtPosition(-1), 0.000001); // before start of segment
     assertEquals(0, subject.getSecondsAtPosition(0), 0.000001); // start of segment
@@ -41,7 +41,7 @@ public class TimeComputerTest {
 
   @Test
   public void getSecondsAtPosition_tempoAccelerating() {
-    subject = timeComputerFactory.create(16, 60, 120);
+    subject = fabricatorFactory.createTimeComputer(16, 60, 120);
 
     assertEquals(-1, subject.getSecondsAtPosition(-1), 0.000001); // before start of segment
     assertEquals(0, subject.getSecondsAtPosition(0), 0.000001); // start of segment
@@ -53,7 +53,7 @@ public class TimeComputerTest {
 
   @Test
   public void getSecondsAtPosition_tempoDecelerating() {
-    subject = timeComputerFactory.create(16, 60, 30);
+    subject = fabricatorFactory.createTimeComputer(16, 60, 30);
 
     assertEquals(-1, subject.getSecondsAtPosition(-1), 0.000001); // before start of segment
     assertEquals(0, subject.getSecondsAtPosition(0), 0.000001); // start of segment

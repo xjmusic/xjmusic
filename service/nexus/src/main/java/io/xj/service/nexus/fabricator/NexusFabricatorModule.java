@@ -7,25 +7,11 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 public class NexusFabricatorModule extends AbstractModule {
   @Override
   protected void configure() {
-
-    // Fabricator
     install(new FactoryModuleBuilder()
       .implement(Fabricator.class, FabricatorImpl.class)
-      .build(FabricatorFactory.class));
-
-    // Time Computer
-    install(new FactoryModuleBuilder()
-      .implement(TimeComputer.class, TimeComputerImpl.class)
-      .build(TimeComputerFactory.class));
-
-    // Segment Workbench
-    install(new FactoryModuleBuilder()
       .implement(SegmentWorkbench.class, SegmentWorkbenchImpl.class)
-      .build(SegmentWorkbenchFactory.class));
-
-    // Segment Retrospective
-    install(new FactoryModuleBuilder()
       .implement(SegmentRetrospective.class, SegmentRetrospectiveImpl.class)
-      .build(SegmentRetrospectiveFactory.class));
+      .implement(TimeComputer.class, TimeComputerImpl.class)
+      .build(FabricatorFactory.class));
   }
 }

@@ -8,11 +8,21 @@ import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.*;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Instrument;
+import io.xj.Library;
+import io.xj.Program;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.music.Tuning;
 import io.xj.service.hub.HubApp;
@@ -22,7 +32,10 @@ import io.xj.service.hub.client.HubClientModule;
 import io.xj.service.hub.client.HubContent;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.NexusIntegrationTestingFixtures;
+import io.xj.service.nexus.dao.ChainBindingDAO;
+import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.NexusDAOModule;
+import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.persistence.NexusEntityStore;
 import io.xj.service.nexus.persistence.NexusEntityStoreModule;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
@@ -43,6 +56,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -51,48 +65,62 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FabricatorImplTest {
+  private FabricatorImpl subject;
+  private NexusEntityStore store;
+  private NexusIntegrationTestingFixtures fake;
+  private Config config;
 
   @Rule
   public ExpectedException failure = ExpectedException.none();
+
   @Mock
-  public TimeComputerFactory mockTimeComputerFactory;
+  public FabricatorFactory mockFabricatorFactory;
+
   @Mock
   public TimeComputer mockTimeComputer;
-  @Mock
-  public SegmentWorkbenchFactory mockSegmentWorkbenchFactory;
+
   @Mock
   public SegmentWorkbench mockSegmentWorkbench;
-  @Mock
-  public SegmentRetrospectiveFactory mockSegmentRetrospectiveFactory;
+
   @Mock
   public SegmentRetrospective mockSegmentRetrospective;
+
   @Mock
-  public Tuning tuning;
+  public Tuning mockTuning;
+
   @Mock
-  public HubClient hubClient;
-  //
-  private Fabricator subject;
-  private FabricatorFactory fabricatorFactory;
-  private NexusEntityStore store;
-  private NexusIntegrationTestingFixtures fake;
+  public HubClient mockHubClient;
+
+  @Mock
+  public ChainDAO mockChainDAO;
+
+  @Mock
+  public ChainBindingDAO mockChainBindingDAO;
+
+  @Mock
+  public SegmentDAO mockSegmentDAO;
+
+  @Mock
+  public PayloadFactory mockPayloadFactory;
+
+  @Mock
+  public FileStoreProvider mockFileStoreProvider;
 
   @Before
   public void setUp() throws Exception {
-    Config config = NexusTestConfiguration.getDefault();
-    var injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new FileStoreModule(), new NexusDAOModule(), new HubClientModule(), new NexusEntityStoreModule(), new MixerModule(), new JsonApiModule(), new NexusWorkModule(), new NexusFabricatorModule()).with(
+    config = NexusTestConfiguration.getDefault();
+    var injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new FileStoreModule(), new NexusDAOModule(), new HubClientModule(), new NexusEntityStoreModule(), new MixerModule(), new JsonApiModule(), new NexusWorkModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
-          bind(Tuning.class).toInstance(tuning);
-          bind(TimeComputerFactory.class).toInstance(mockTimeComputerFactory);
-          bind(HubClient.class).toInstance(hubClient);
-          bind(SegmentWorkbenchFactory.class).toInstance(mockSegmentWorkbenchFactory);
-          bind(SegmentRetrospectiveFactory.class).toInstance(mockSegmentRetrospectiveFactory);
+          bind(Tuning.class).toInstance(mockTuning);
+          bind(HubClient.class).toInstance(mockHubClient);
+          bind(FabricatorFactory.class).toInstance(mockFabricatorFactory);
+          bind(TimeComputer.class).toInstance(mockTimeComputer);
           bind(SegmentWorkbench.class).toInstance(mockSegmentWorkbench);
           bind(SegmentRetrospective.class).toInstance(mockSegmentRetrospective);
         }
       })));
-    fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
     HubApp.buildApiTopology(entityFactory);
     NexusApp.buildApiTopology(entityFactory);
@@ -103,7 +131,7 @@ public class FabricatorImplTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    when(hubClient.ingest(any(), any(), any(), any()))
+    when(mockHubClient.ingest(any(), any(), any(), any()))
       .thenReturn(new HubContent(Streams.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream(),
@@ -157,24 +185,26 @@ public class FabricatorImplTest {
       .setType(ChainBinding.Type.Library)
       .setTargetId(library.getId())
       .build());
-    when(mockTimeComputerFactory.create(anyDouble(), anyDouble(), anyDouble()))
+    when(mockFabricatorFactory.createTimeComputer(anyDouble(), anyDouble(), anyDouble()))
       .thenReturn(mockTimeComputer);
     when(mockTimeComputer.getSecondsAtPosition(anyDouble()))
       .thenReturn(Double.valueOf(0));
-    when(mockSegmentRetrospectiveFactory.workOn(any(), any(), any()))
+    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
       .thenReturn(mockSegmentRetrospective);
-    when(mockSegmentWorkbenchFactory.workOn(any(), any(), any()))
+    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
       .thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
     when(mockSegmentRetrospective.getPreviousSegment())
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
-    subject = fabricatorFactory.fabricate(HubClientAccess.internal(), segment);
+    var access = HubClientAccess.internal();
+    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockPayloadFactory, mockSegmentDAO);
 
     Double result = subject.computeSecondsAtPosition(0); // instantiates a time computer; see expectation above
 
     assertEquals(Double.valueOf(0), result);
-    verify(mockTimeComputerFactory).create(8.0, 120, 240.0);
+    verify(mockFabricatorFactory).createTimeComputer(8.0, 120, 240.0);
   }
 
 
@@ -255,13 +285,13 @@ public class FabricatorImplTest {
         .setAmplitude(0.8)
         .setPitch(432.0)
         .build());
-    when(mockTimeComputerFactory.create(anyDouble(), anyDouble(), anyDouble()))
+    when(mockFabricatorFactory.createTimeComputer(anyDouble(), anyDouble(), anyDouble()))
       .thenReturn(mockTimeComputer);
     when(mockTimeComputer.getSecondsAtPosition(anyDouble()))
       .thenReturn(Double.valueOf(0));
-    when(mockSegmentRetrospectiveFactory.workOn(any(), any(), any()))
+    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
       .thenReturn(mockSegmentRetrospective);
-    when(mockSegmentWorkbenchFactory.workOn(any(), any(), any()))
+    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
       .thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
@@ -269,7 +299,9 @@ public class FabricatorImplTest {
       .thenReturn(ImmutableList.of(rhythmPick));
     when(mockSegmentRetrospective.getPreviousSegment())
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
-    subject = fabricatorFactory.fabricate(HubClientAccess.internal(), segment);
+    var access = HubClientAccess.internal();
+    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockPayloadFactory, mockSegmentDAO);
 
     Collection<SegmentChoiceArrangementPick> result = subject.getPicks();
 
@@ -333,13 +365,13 @@ public class FabricatorImplTest {
       .setProgramId(fake.program5.getId())
       .setTranspose(4)
       .build());
-    when(mockTimeComputerFactory.create(anyDouble(), anyDouble(), anyDouble()))
+    when(mockFabricatorFactory.createTimeComputer(anyDouble(), anyDouble(), anyDouble()))
       .thenReturn(mockTimeComputer);
     when(mockTimeComputer.getSecondsAtPosition(anyDouble()))
       .thenReturn(Double.valueOf(0));
-    when(mockSegmentRetrospectiveFactory.workOn(any(), any(), any()))
+    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
       .thenReturn(mockSegmentRetrospective);
-    when(mockSegmentWorkbenchFactory.workOn(any(), any(), any()))
+    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
       .thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
@@ -347,7 +379,9 @@ public class FabricatorImplTest {
       .thenReturn(mainChoice);
     when(mockSegmentRetrospective.getPreviousSegment())
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
-    subject = fabricatorFactory.fabricate(HubClientAccess.internal(), segment);
+    var access = HubClientAccess.internal();
+    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockPayloadFactory, mockSegmentDAO);
 
     List<Instrument.Type> result = subject.getDistinctChordVoicingTypes();
 
