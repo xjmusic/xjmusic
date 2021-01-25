@@ -28,7 +28,9 @@ import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -53,15 +55,16 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   private final HubClientAccess access;
   private final Map<String, Object> report = Maps.newConcurrentMap();
   private final EntityStore bench;
+  private Collection<SegmentChord> segmentChords;
 
   @Inject
   public SegmentWorkbenchImpl(
-          @Assisted("access") HubClientAccess access,
-          @Assisted("chain") Chain chain,
-          @Assisted("segment") Segment segment,
-          SegmentDAO segmentDAO,
-          PayloadFactory payloadFactory,
-          EntityStore entityStore
+    @Assisted("access") HubClientAccess access,
+    @Assisted("chain") Chain chain,
+    @Assisted("segment") Segment segment,
+    SegmentDAO segmentDAO,
+    PayloadFactory payloadFactory,
+    EntityStore entityStore
   ) throws FabricationException {
     this.access = access;
     this.chain = chain;
@@ -103,11 +106,17 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
 
   @Override
   public Collection<SegmentChord> getSegmentChords() throws FabricationException {
-    try {
-      return bench.getAll(SegmentChord.class);
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
+    if (Objects.isNull(segmentChords))
+      try {
+        segmentChords = bench.getAll(SegmentChord.class)
+          .stream()
+          .sorted(Comparator.comparing((SegmentChord::getPosition)))
+          .collect(Collectors.toList());
+      } catch (EntityStoreException e) {
+        throw new FabricationException(e);
+      }
+
+    return segmentChords;
   }
 
 
@@ -186,10 +195,10 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
 
   @Override
   public Collection<SegmentChoice> getChoicesOfType(Program.Type type)
-          throws FabricationException {
+    throws FabricationException {
     return getSegmentChoices().stream()
-            .filter(c -> c.getProgramType().equals(type))
-            .collect(Collectors.toList());
+      .filter(c -> c.getProgramType().equals(type))
+      .collect(Collectors.toList());
   }
 
   @Override
@@ -212,11 +221,11 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   private void sendReportToSegmentMessage() throws JsonApiException, FabricationException {
     String reported = payloadFactory.serialize(report);
     add(SegmentMessage.newBuilder()
-            .setId(UUID.randomUUID().toString())
-            .setSegmentId(segment.getId())
-            .setType(SegmentMessage.Type.Info)
-            .setBody(reported)
-            .build());
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment.getId())
+      .setType(SegmentMessage.Type.Info)
+      .setBody(reported)
+      .build());
     report.clear();
   }
 

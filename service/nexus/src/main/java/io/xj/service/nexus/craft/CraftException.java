@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.service.nexus.craft.exception;
+package io.xj.service.nexus.craft;
 
 import io.xj.lib.util.Text;
 

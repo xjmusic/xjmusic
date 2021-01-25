@@ -2,7 +2,7 @@
 package io.xj.service.nexus.craft.detail;
 
 import io.xj.service.nexus.NexusException;
-import io.xj.service.nexus.craft.exception.CraftException;
+import io.xj.service.nexus.craft.CraftException;
 
 /**
  Structure craft for the current segment includes all kinds of Detail

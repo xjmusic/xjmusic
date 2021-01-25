@@ -5,8 +5,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import io.xj.service.nexus.craft.detail.DetailCraft;
 import io.xj.service.nexus.craft.detail.DetailCraftImpl;
-import io.xj.service.nexus.craft.macro.MacroMainCraft;
-import io.xj.service.nexus.craft.macro.MacroMainCraftImpl;
+import io.xj.service.nexus.craft.macro_main.MacroMainCraft;
+import io.xj.service.nexus.craft.macro_main.MacroMainCraftImpl;
 import io.xj.service.nexus.craft.rhythm.RhythmCraft;
 import io.xj.service.nexus.craft.rhythm.RhythmCraftImpl;
 

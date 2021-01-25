@@ -1,17 +1,19 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.service.nexus.craft;
+package io.xj.service.nexus.fabricator;
 
 import io.xj.SegmentMessage;
-import io.xj.service.nexus.craft.exception.CraftException;
-import io.xj.service.nexus.fabricator.Fabricator;
+import io.xj.service.nexus.craft.CraftException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
-public class CraftImpl {
-  private final Logger log = LoggerFactory.getLogger(CraftImpl.class);
+/**
+ Fabrication wrapper is a common foundation for all craft
+ */
+public class FabricationWrapperImpl {
+  private final Logger log = LoggerFactory.getLogger(FabricationWrapperImpl.class);
   protected Fabricator fabricator;
 
   /**

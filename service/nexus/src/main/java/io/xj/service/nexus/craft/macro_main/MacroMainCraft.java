@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.service.nexus.craft.macro;
+package io.xj.service.nexus.craft.macro_main;
 
-import io.xj.service.nexus.craft.exception.CraftException;
+import io.xj.service.nexus.craft.CraftException;
 
 /**
  [#138] Foundation craft for Initial Segment of a Chain

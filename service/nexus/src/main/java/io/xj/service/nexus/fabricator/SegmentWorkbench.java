@@ -48,7 +48,7 @@ public interface SegmentWorkbench {
   Collection<SegmentChoice> getSegmentChoices() throws FabricationException;
 
   /**
-   @return collection of all Chord in Segment
+   @return collection of all Chord in Segment, guaranteed to be in order of position ascending
    */
   Collection<SegmentChord> getSegmentChords() throws FabricationException;
 

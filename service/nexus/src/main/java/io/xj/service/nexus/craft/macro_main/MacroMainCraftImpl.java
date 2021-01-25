@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.service.nexus.craft.macro;
+package io.xj.service.nexus.craft.macro_main;
 
 import com.google.common.collect.ConcurrentHashMultiset;
 import com.google.common.collect.ImmutableList;
@@ -20,10 +20,10 @@ import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientException;
-import io.xj.service.nexus.craft.CraftImpl;
-import io.xj.service.nexus.craft.exception.CraftException;
+import io.xj.service.nexus.craft.CraftException;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
 import io.xj.service.nexus.fabricator.FabricationException;
+import io.xj.service.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.service.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ import java.util.UUID;
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
-public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
+public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroMainCraft {
   private static final double SCORE_MATCHED_KEY_MODE = 2;
   private static final double SCORE_MATCHED_MEMES = 10;
   private static final double SCORE_AVOID_PREVIOUS = -5;
@@ -228,7 +228,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       fabricator.done();
 
     } catch (FabricationException e) {
-      throw exception(String.format("Failed to do Macro-Main-Craft Work because %s", e.getMessage()));
+      throw exception("Failed to do Macro-Main-Craft Work", e);
 
     } catch (Exception e) {
       throw exception("Bad failure", e);

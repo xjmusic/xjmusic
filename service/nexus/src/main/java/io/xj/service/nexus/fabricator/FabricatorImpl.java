@@ -818,6 +818,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public Collection<SegmentChord> getSegmentChords() throws FabricationException {
+    return workbench.getSegmentChords();
+  }
+
+  @Override
   public Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, Instrument.Type type) throws FabricationException {
     Collection<SegmentChordVoicing> voicings = workbench.getSegmentChordVoicings();
     return voicings.stream()

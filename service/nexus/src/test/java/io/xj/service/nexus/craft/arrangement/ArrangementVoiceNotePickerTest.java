@@ -1,4 +1,4 @@
-package io.xj.service.nexus.craft.detail;
+package io.xj.service.nexus.craft.arrangement;
 
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
@@ -9,6 +9,7 @@ import io.xj.lib.music.MusicalException;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.PitchClass;
 import io.xj.lib.music.Tuning;
+import io.xj.service.nexus.craft.arrangement.ArrangementVoiceNotePicker;
 import io.xj.service.nexus.fabricator.FabricationException;
 import org.junit.Test;
 
@@ -16,7 +17,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
-public class DetailCraftVoiceNotePickerTest {
+public class ArrangementVoiceNotePickerTest {
 
   @Test
   public void pick() throws MusicalException, FabricationException {
@@ -50,7 +51,7 @@ public class DetailCraftVoiceNotePickerTest {
     Note note = Note.of("Bb4");
     Key key = Key.of("G minor");
 
-    DetailCraftVoiceNotePicker subject = new DetailCraftVoiceNotePicker(key, note, chord, voicing, audio, tuning);
+    ArrangementVoiceNotePicker subject = new ArrangementVoiceNotePicker(key, note, chord, voicing, audio, tuning);
 
     Note result = subject.pick();
     assertEquals(PitchClass.C, result.getPitchClass());

@@ -8,7 +8,7 @@ import io.xj.SegmentMessage;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.craft.CraftFactory;
-import io.xj.service.nexus.craft.exception.CraftException;
+import io.xj.service.nexus.craft.CraftException;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;

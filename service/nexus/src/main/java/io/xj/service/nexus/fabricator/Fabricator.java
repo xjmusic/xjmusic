@@ -561,6 +561,12 @@ public interface Fabricator {
   Collection<SegmentChoiceArrangement> getArrangements(Collection<SegmentChoice> choices) throws FabricationException;
 
   /**
+   Get all segment chords, guaranteed to be in order of position ascending
+   @return segment chords
+   */
+  Collection<SegmentChord> getSegmentChords() throws FabricationException;
+
+  /**
    Get segment chord voicing for a given chord
 
    @param chord to get voicing for
@@ -644,5 +650,4 @@ public interface Fabricator {
    @return Tuning
    */
   Tuning getTuning();
-
 }

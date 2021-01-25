@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.dub;
 
-import io.xj.service.nexus.craft.exception.CraftException;
+import io.xj.service.nexus.craft.CraftException;
 
 /**
  [#141] Dub process Segment mix final output of instrument-audio-arrangements

@@ -1,4 +1,4 @@
-package io.xj.service.nexus.craft.detail;
+package io.xj.service.nexus.craft.arrangement;
 
 import io.xj.InstrumentAudio;
 import io.xj.SegmentChord;
@@ -17,8 +17,8 @@ import java.util.Comparator;
 /**
  [#154464276] Detail Craft v1
  */
-public class DetailCraftVoiceNotePicker {
-  private static final Logger log = LoggerFactory.getLogger(DetailCraftVoiceNotePicker.class);
+public class ArrangementVoiceNotePicker {
+  private static final Logger log = LoggerFactory.getLogger(ArrangementVoiceNotePicker.class);
   private final Key fromKey;
   private final Note fromNote;
   private final SegmentChord segmentChord;
@@ -36,7 +36,7 @@ public class DetailCraftVoiceNotePicker {
    @param instrumentAudio     to pick from
    @param tuning              to pick from
    */
-  public DetailCraftVoiceNotePicker(
+  public ArrangementVoiceNotePicker(
     Key fromKey,
     Note fromNote,
     SegmentChord segmentChord,
@@ -63,8 +63,8 @@ public class DetailCraftVoiceNotePicker {
    @param audio    that has been picked
    @return final note
    */
-  public static DetailCraftVoiceNotePicker from(Key fromKey, Note fromNote, SegmentChord chord, SegmentChordVoicing voicing, InstrumentAudio audio, Tuning tuning) {
-    return new DetailCraftVoiceNotePicker(fromKey, fromNote, chord, voicing, audio, tuning);
+  public static ArrangementVoiceNotePicker from(Key fromKey, Note fromNote, SegmentChord chord, SegmentChordVoicing voicing, InstrumentAudio audio, Tuning tuning) {
+    return new ArrangementVoiceNotePicker(fromKey, fromNote, chord, voicing, audio, tuning);
   }
 
   /**
