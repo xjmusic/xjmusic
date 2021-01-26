@@ -19,7 +19,7 @@ public abstract class WorkerImpl implements Runnable {
    This is a wrapper to perform common tasks around threaded work execution
    */
   @Override
-  @Trace(metricName = "work", nameTransaction = true, dispatcher = true)
+  @Trace(metricName = "Work", dispatcher = true)
   public void run() {
     final Thread currentThread = Thread.currentThread();
     final String _ogThreadName = currentThread.getName();

@@ -60,7 +60,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
    @throws DAOValidationException on failure
    @throws DAOExistenceException  on failure
    */
-  @Trace(metricName = "work/medic", nameTransaction = true, dispatcher = true)
+  @Trace(metricName = "Work/Medic", dispatcher = true)
   protected void doWork() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     long t = Instant.now().toEpochMilli();
     checkAndReviveAll();

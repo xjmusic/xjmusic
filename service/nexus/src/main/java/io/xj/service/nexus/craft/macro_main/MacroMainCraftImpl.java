@@ -57,7 +57,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   }
 
   @Override
-  @Trace(metricName = "work/fabricate/craft/macro-main", nameTransaction = true, dispatcher = true)
+  @Trace(metricName = "Work/Fabricate/Craft/MacroMain", dispatcher = true)
   public void doWork() throws CraftException {
     try {
       // 1. Macro Program chosen based on previous if possible

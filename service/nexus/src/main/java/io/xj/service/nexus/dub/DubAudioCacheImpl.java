@@ -107,7 +107,7 @@ class DubAudioCacheImpl implements DubAudioCache {
    @param key to compute value for
    @return computed item
    */
-  @Trace(metricName = "work/fabricate/dub/cache/fetch-and-write", nameTransaction = true, dispatcher = true)
+  @Trace(metricName = "Work/Fabricate/Dub/Cache/FetchAndWrite", dispatcher = true)
   private DubAudioCacheItem fetchAndWrite(String key) throws IOException, FileStoreException {
     String path = String.format("%s%s", pathPrefix, key);
     DubAudioCacheItem item = new DubAudioCacheItem(key, path);

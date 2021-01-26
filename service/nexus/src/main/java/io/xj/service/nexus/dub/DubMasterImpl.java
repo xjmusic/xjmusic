@@ -89,7 +89,7 @@ public class DubMasterImpl implements DubMaster {
   }
 
   @Override
-  @Trace(metricName = "work/fabricate/dub/master", nameTransaction = true, dispatcher = true)
+  @Trace(metricName = "Work/Fabricate/Dub/Master", dispatcher = true)
   public void doWork() throws DubException {
     Segment.Type type = null;
     try {

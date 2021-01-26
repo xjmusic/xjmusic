@@ -67,7 +67,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
    @throws DAOValidationException on failure
    @throws DAOExistenceException  on failure
    */
-  @Trace(metricName = "work/chain", nameTransaction = true, dispatcher = true)
+  @Trace(metricName = "Work/Chain", dispatcher = true)
   protected void doWork() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     try {
       var chain = chainDAO.readOne(access, chainId);

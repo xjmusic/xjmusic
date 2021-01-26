@@ -32,7 +32,7 @@ public class DubShipImpl implements DubShip {
   }
 
   @Override
-  @Trace(metricName = "work/fabricate/dub/ship", nameTransaction = true, dispatcher = true)
+  @Trace(metricName = "Work/Fabricate/Dub/Ship", dispatcher = true)
   public void doWork() throws DubException {
     Segment.Type type = null;
     try {

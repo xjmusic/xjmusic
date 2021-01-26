@@ -67,7 +67,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
   /**
    Do the work-- this is called by the underlying WorkerImpl run() hook
    */
-  @Trace(metricName = "work/fabricate", nameTransaction = true, dispatcher = true)
+  @Trace(metricName = "Work/Fabricate", dispatcher = true)
   protected void doWork() {
     try {
       log.info("[segId={}] will read Segment for fabrication", segmentId);

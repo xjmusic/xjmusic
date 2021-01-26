@@ -50,7 +50,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   }
 
   @Override
-  @Trace(metricName = "work/fabricate/craft/detail", nameTransaction = true, dispatcher = true)
+  @Trace(metricName = "Work/Fabricate/Craft/Detail", dispatcher = true)
   public void doWork() throws CraftException {
     try {
       // for each unique voicing (instrument) types present in the chord voicings of the current main choice

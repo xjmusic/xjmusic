@@ -49,7 +49,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
   }
 
   @Override
-  @Trace(metricName = "work/fabricate/craft/rhythm", nameTransaction = true, dispatcher = true)
+  @Trace(metricName = "Work/Fabricate/Craft/Rhythm", dispatcher = true)
   public void doWork() throws CraftException {
     try {
 

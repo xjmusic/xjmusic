@@ -54,7 +54,7 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
 
    @throws Exception on failure
    */
-  @Trace(metricName = "work/janitor", nameTransaction = true, dispatcher = true)
+  @Trace(metricName = "Work/Janitor", dispatcher = true)
   protected void doWork() throws Exception {
     var t = NewRelic.getAgent().getTransaction().startSegment(TELEMETRY_JANITOR_NAME);
     var segmentIdsToErase = getSegmentIdsToErase();

@@ -44,7 +44,7 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
    @throws DAOPrivilegeException on access failure
    @throws DAOFatalException     on internal failure
    */
-  @Trace(metricName = "work/boss", nameTransaction = true, dispatcher = true)
+  @Trace(metricName = "Work/Boss", dispatcher = true)
   protected void doWork() throws DAOPrivilegeException, DAOFatalException {
     Collection<String> activeIds = getActiveChainIds();
     startActiveChains(activeIds);
