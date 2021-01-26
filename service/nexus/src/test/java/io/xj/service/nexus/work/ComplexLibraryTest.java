@@ -69,7 +69,6 @@ public class ComplexLibraryTest {
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault()
-      .withValue("prometheus.enabled", ConfigValueFactory.fromAnyRef(false))
       .withValue("app.port", ConfigValueFactory.fromAnyRef(9043))
       .withValue("work.bossDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.chainDelayMillis", ConfigValueFactory.fromAnyRef(1))

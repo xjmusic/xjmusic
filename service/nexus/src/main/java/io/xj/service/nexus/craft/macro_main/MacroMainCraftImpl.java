@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.newrelic.api.agent.Trace;
 import io.xj.Program;
 import io.xj.ProgramSequence;
 import io.xj.Segment;
@@ -55,74 +56,8 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     this.fabricator = fabricator;
   }
 
-  /**
-   compute Transpose Main-Program to the transposed key of the current macro pattern
-   <p>
-   [#175548549] Program and Instrument parameters to turn off transposition and tonality.
-
-   @param macroProgram   of which to compute transpose of main program
-   @param macroTranspose of which to compute transpose of main program
-   @param mainProgram    of which to compute transpose
-   @param macroSequence  of which to compute transpose
-   @return mainTranspose
-   */
-  private Integer computeMainTranspose(Program macroProgram, int macroTranspose, Program mainProgram, ProgramSequence macroSequence) {
-    try {
-      return
-        fabricator.getProgramConfig(mainProgram).doTranspose() ?
-          Key.delta(mainProgram.getKey(),
-            Value.eitherOr(macroSequence.getKey(), macroProgram.getKey()),
-            macroTranspose) :
-          0;
-
-    } catch (ValueException e) {
-      log.error("Failed to compute main transpose; will skip transposition.", e);
-    }
-    return 0;
-  }
-
-  /**
-   Compute the final key of the current segment
-   Segment Key is the transposed key of the current main pattern
-
-   @param mainSequence  of which to compute key
-   @param mainTranspose semitones
-   @return key
-   */
-  private static String computeSegmentKey(ProgramSequence mainSequence, int mainTranspose) {
-    String mainKey = mainSequence.getKey();
-    if (null == mainKey || mainKey.isEmpty()) {
-      mainKey = mainSequence.getKey();
-    }
-    return Key.of(mainKey).transpose(mainTranspose).getFullDescription();
-  }
-
-  /**
-   Compute the final tempo of the current segment
-
-   @param macroSequence of which to compute segment tempo
-   @param mainSequence  of which to compute segment tempo
-   @return tempo
-   */
-  private static double computeSegmentTempo(ProgramSequence macroSequence, ProgramSequence mainSequence) {
-    return (Value.eitherOr(macroSequence.getTempo(), macroSequence.getTempo()) +
-      Value.eitherOr(mainSequence.getTempo(), mainSequence.getTempo())) / 2;
-  }
-
-  /**
-   Compute the final density of the current segment
-   future: Segment Density = average of macro and main-sequence patterns
-
-   @param macroSequence of which to compute segment tempo
-   @param mainSequence  of which to compute segment tempo
-   @return density
-   */
-  private static Double computeSegmentDensity(ProgramSequence macroSequence, ProgramSequence mainSequence) {
-    return (Value.eitherOr(macroSequence.getDensity(), macroSequence.getDensity()) +
-      Value.eitherOr(mainSequence.getDensity(), mainSequence.getDensity())) / 2;
-  }
-
   @Override
+  @Trace(metricName = "work/fabricate/craft/macro-main", nameTransaction = true, dispatcher = true)
   public void doWork() throws CraftException {
     try {
       // 1. Macro Program chosen based on previous if possible
@@ -236,6 +171,73 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   }
 
   /**
+   compute Transpose Main-Program to the transposed key of the current macro pattern
+   <p>
+   [#175548549] Program and Instrument parameters to turn off transposition and tonality.
+
+   @param macroProgram   of which to compute transpose of main program
+   @param macroTranspose of which to compute transpose of main program
+   @param mainProgram    of which to compute transpose
+   @param macroSequence  of which to compute transpose
+   @return mainTranspose
+   */
+  private Integer computeMainTranspose(Program macroProgram, int macroTranspose, Program mainProgram, ProgramSequence macroSequence) {
+    try {
+      return
+        fabricator.getProgramConfig(mainProgram).doTranspose() ?
+          Key.delta(mainProgram.getKey(),
+            Value.eitherOr(macroSequence.getKey(), macroProgram.getKey()),
+            macroTranspose) :
+          0;
+
+    } catch (ValueException e) {
+      log.error("Failed to compute main transpose; will skip transposition.", e);
+    }
+    return 0;
+  }
+
+  /**
+   Compute the final key of the current segment
+   Segment Key is the transposed key of the current main pattern
+
+   @param mainSequence  of which to compute key
+   @param mainTranspose semitones
+   @return key
+   */
+  private static String computeSegmentKey(ProgramSequence mainSequence, int mainTranspose) {
+    String mainKey = mainSequence.getKey();
+    if (null == mainKey || mainKey.isEmpty()) {
+      mainKey = mainSequence.getKey();
+    }
+    return Key.of(mainKey).transpose(mainTranspose).getFullDescription();
+  }
+
+  /**
+   Compute the final tempo of the current segment
+
+   @param macroSequence of which to compute segment tempo
+   @param mainSequence  of which to compute segment tempo
+   @return tempo
+   */
+  private static double computeSegmentTempo(ProgramSequence macroSequence, ProgramSequence mainSequence) {
+    return (Value.eitherOr(macroSequence.getTempo(), macroSequence.getTempo()) +
+      Value.eitherOr(mainSequence.getTempo(), mainSequence.getTempo())) / 2;
+  }
+
+  /**
+   Compute the final density of the current segment
+   future: Segment Density = average of macro and main-sequence patterns
+
+   @param macroSequence of which to compute segment tempo
+   @param mainSequence  of which to compute segment tempo
+   @return density
+   */
+  private static Double computeSegmentDensity(ProgramSequence macroSequence, ProgramSequence mainSequence) {
+    return (Value.eitherOr(macroSequence.getDensity(), macroSequence.getDensity()) +
+      Value.eitherOr(mainSequence.getDensity(), mainSequence.getDensity())) / 2;
+  }
+
+  /**
    compute the macroTranspose
    <p>
    [#175548549] Program and Instrument parameters to turn off transposition and tonality.
@@ -244,6 +246,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @param macroNextSequence to base choice on (never actually used, because next macro first sequence overlaps it)
    @return macroTranspose
    */
+  @Trace
   private Integer computeMacroTranspose(Program macroProgram, ProgramSequence macroNextSequence) throws CraftException {
     try {
       if (!fabricator.getProgramConfig(macroProgram).doTranspose()) return 0;
@@ -285,6 +288,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return macroSequenceBindingOffset
    */
+  @Trace
   private Long computeMacroProgramSequenceBindingOffset() throws CraftException {
     try {
       switch (fabricator.getType()) {
@@ -313,6 +317,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return mainSequenceBindingOffset
    */
+  @Trace
   private Long computeMainProgramSequenceBindingOffset() throws CraftException {
     try {
       switch (fabricator.getType()) {
@@ -339,6 +344,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return next sequence in previous segment's macro choice, or null if none exists
    */
+  @Trace
   private Optional<ProgramSequence> chooseNextSequenceOfPreviousMacroProgram() {
     try {
       SegmentChoice previousMacroChoice = fabricator.getPreviousMacroChoice();
@@ -361,6 +367,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return macro-type program
    @throws CraftException on failure
    */
+  @Trace
   private Program chooseMacroProgram(ProgramSequence macroNextSequence) throws CraftException {
     // if continuing the macro program, use the same one
     try {
@@ -407,6 +414,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return macro-type program
    @throws CraftException on failure
    */
+  @Trace
   private Program chooseMacroProgram() throws CraftException {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
@@ -441,6 +449,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    <p>
    future: don't we need to pass in the current pattern of the macro program?
    */
+  @Trace
   private Program chooseMainProgram() throws CraftException {
     // if continuing the macro program, use the same one
     try {
@@ -482,6 +491,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return score, including +/- entropy
    @throws CraftException on failure
    */
+  @Trace
   private double scoreMacro(Program program, ProgramSequence macroNextSequence) throws CraftException {
     double score = Chance.normallyAround(0, SCORE_MACRO_ENTROPY);
 
@@ -515,6 +525,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return score, including +/- entropy
    @throws CraftException on failure
    */
+  @Trace
   private double scoreMain(Program program) throws CraftException {
     double score = Chance.normallyAround(0, SCORE_MAIN_ENTROPY);
 
@@ -561,6 +572,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return map of meme name to SegmentMeme entity
    */
+  @Trace
   private Collection<SegmentMeme> segmentMemes() throws FabricationException {
     Multiset<String> uniqueResults = ConcurrentHashMultiset.create();
     for (SegmentChoice choice : fabricator.getChoices()) {

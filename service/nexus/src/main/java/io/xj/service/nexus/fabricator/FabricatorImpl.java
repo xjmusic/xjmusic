@@ -77,7 +77,8 @@ import java.util.stream.Collectors;
 class FabricatorImpl implements Fabricator {
   private static final double MICROS_PER_SECOND = 1000000.0F;
   private static final double NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
-  private static final String KEY_VOICE_NAME_TEMPLATE = "%s_%s";
+  private static final String KEY_VOICE_TRACK_TEMPLATE = "voice-%s_track-%s";
+  private static final String KEY_VOICE_NOTE_TEMPLATE = "voice-%s_note-%s";
   private static final String EXTENSION_SEPARATOR = ".";
   private static final String EXTENSION_JSON = "json";
   private static final String NAME_SEPARATOR = "-";
@@ -103,6 +104,7 @@ class FabricatorImpl implements Fabricator {
   private final ChainConfig chainConfig;
   private final SegmentDAO segmentDAO;
   private final FabricatorFactory fabricatorFactory;
+  private Map<String, InstrumentAudio> previousInstrumentAudio;
 
   @AssistedInject
   public FabricatorImpl(
@@ -369,23 +371,25 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Map<String, InstrumentAudio> getPreviousInstrumentAudio() throws FabricationException {
+    if (Objects.isNull(previousInstrumentAudio))
     try {
-      Map<String, InstrumentAudio> previousInstrumentAudio = Maps.newHashMap();
+      previousInstrumentAudio = Maps.newHashMap();
       for (SegmentChoiceArrangementPick pick : getChoiceArrangementPicksOfPreviousSegments())
-        previousInstrumentAudio.put(eventKey(pick),
+        previousInstrumentAudio.put(keyByVoiceTrack(pick),
           getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()));
-      return previousInstrumentAudio;
 
     } catch (FabricationException | HubClientException e) {
       throw exception("Unable to build map create previous instrument audio", e);
     }
+
+    return previousInstrumentAudio;
   }
 
 
   @Override
-  public String eventKey(SegmentChoiceArrangementPick pick) throws FabricationException {
+  public String keyByVoiceTrack(SegmentChoiceArrangementPick pick) throws FabricationException {
     try {
-      return String.format(KEY_VOICE_NAME_TEMPLATE, getSourceMaterial().getVoice(getSourceMaterial().getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId())).getId(), pick.getName());
+      return String.format(KEY_VOICE_TRACK_TEMPLATE, getSourceMaterial().getVoice(getSourceMaterial().getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId())).getId(), pick.getName());
 
     } catch (HubClientException e) {
       throw exception("unique key for arrangement pick", e);
@@ -393,11 +397,20 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String eventKey(ProgramSequencePatternEvent event) throws FabricationException {
+  public String keyByVoiceTrack(ProgramSequencePatternEvent event) throws FabricationException {
     try {
-      return String.format(KEY_VOICE_NAME_TEMPLATE, getSourceMaterial().getVoice(event).getId(), getTrackName(event));
+      return String.format(KEY_VOICE_TRACK_TEMPLATE, getSourceMaterial().getVoice(event).getId(), getTrackName(event));
     } catch (Exception e) {
-      throw exception("unique key for pattern event", e);
+      throw exception("unique voice-track key for pattern event", e);
+    }
+  }
+
+  @Override
+  public String keyByVoiceNote(ProgramSequencePatternEvent event) throws FabricationException {
+    try {
+      return String.format(KEY_VOICE_NOTE_TEMPLATE, getSourceMaterial().getVoice(event).getId(), event.getNote());
+    } catch (Exception e) {
+      throw exception("unique voice-note key for pattern event", e);
     }
   }
 

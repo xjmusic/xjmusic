@@ -2,6 +2,7 @@ package io.xj.service.nexus.work;
 
 import com.google.inject.Inject;
 import com.newrelic.api.agent.NewRelic;
+import com.newrelic.api.agent.Trace;
 import io.xj.Chain;
 import io.xj.lib.entity.Entities;
 import io.xj.service.hub.client.HubClientAccess;
@@ -16,8 +17,6 @@ import java.util.stream.Collectors;
 
 /**
  Boss Worker implementation
- <p>
- [#171919183] Prometheus metrics reported by Java apps and consumed by CloudWatch
  */
 public class BossWorkerImpl extends WorkerImpl implements BossWorker {
   private static final String NAME = "Boss";
@@ -45,6 +44,7 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
    @throws DAOPrivilegeException on access failure
    @throws DAOFatalException     on internal failure
    */
+  @Trace(metricName = "work/boss", nameTransaction = true, dispatcher = true)
   protected void doWork() throws DAOPrivilegeException, DAOFatalException {
     Collection<String> activeIds = getActiveChainIds();
     startActiveChains(activeIds);

@@ -3,6 +3,7 @@ package io.xj.service.nexus.work;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.newrelic.api.agent.NewRelic;
+import com.newrelic.api.agent.Trace;
 import com.typesafe.config.Config;
 import io.xj.Chain;
 import io.xj.service.hub.client.HubClientAccess;
@@ -59,6 +60,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
    @throws DAOValidationException on failure
    @throws DAOExistenceException  on failure
    */
+  @Trace(metricName = "work/medic", nameTransaction = true, dispatcher = true)
   protected void doWork() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     long t = Instant.now().toEpochMilli();
     checkAndReviveAll();
@@ -74,6 +76,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
    @throws DAOValidationException on failure
    @throws DAOExistenceException  on failure
    */
+  @Trace
   public void checkAndReviveAll() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionStartedBeforeSeconds);
     Instant thresholdChainSegmentsDubbedPast = Instant.now().plusSeconds(reviveChainSegmentsDubbedPastSeconds);

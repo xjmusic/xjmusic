@@ -2,6 +2,7 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import com.newrelic.api.agent.Trace;
 import io.xj.InstrumentAudioEvent;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.EventEntity;
@@ -32,6 +33,7 @@ public class InstrumentAudioEventDAOImpl extends DAOImpl<InstrumentAudioEvent> i
   }
 
   @Override
+  @Trace
   public InstrumentAudioEvent create(HubAccess hubAccess, InstrumentAudioEvent entity) throws DAOException, JsonApiException, ValueException {
     var record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
@@ -41,6 +43,7 @@ public class InstrumentAudioEventDAOImpl extends DAOImpl<InstrumentAudioEvent> i
   }
 
   @Override
+  @Trace
   @Nullable
   public InstrumentAudioEvent readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
@@ -51,6 +54,7 @@ public class InstrumentAudioEventDAOImpl extends DAOImpl<InstrumentAudioEvent> i
   }
 
   @Override
+  @Trace
   @Nullable
   public Collection<InstrumentAudioEvent> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
@@ -61,6 +65,7 @@ public class InstrumentAudioEventDAOImpl extends DAOImpl<InstrumentAudioEvent> i
   }
 
   @Override
+  @Trace
   public void update(HubAccess hubAccess, String id, InstrumentAudioEvent entity) throws DAOException, JsonApiException, ValueException {
     var record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
@@ -68,6 +73,7 @@ public class InstrumentAudioEventDAOImpl extends DAOImpl<InstrumentAudioEvent> i
   }
 
   @Override
+  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     dbProvider.getDSL().deleteFrom(INSTRUMENT_AUDIO_EVENT)
@@ -76,6 +82,7 @@ public class InstrumentAudioEventDAOImpl extends DAOImpl<InstrumentAudioEvent> i
   }
 
   @Override
+  @Trace
   public InstrumentAudioEvent newInstance() {
     return InstrumentAudioEvent.getDefaultInstance();
   }

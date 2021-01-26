@@ -3,6 +3,7 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import com.newrelic.api.agent.Trace;
 import io.xj.ProgramSequencePattern;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -35,6 +36,7 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
   }
 
   @Override
+  @Trace
   public ProgramSequencePattern create(HubAccess hubAccess, ProgramSequencePattern entity) throws DAOException, JsonApiException, ValueException {
     ProgramSequencePattern.Builder builder = validate(entity.toBuilder());
     DSLContext db = dbProvider.getDSL();
@@ -45,6 +47,7 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
   }
 
   @Override
+  @Trace
   public DAOCloner<ProgramSequencePattern> clone(HubAccess hubAccess, String cloneId, ProgramSequencePattern entity) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<ProgramSequencePattern> result = new AtomicReference<>();
@@ -85,12 +88,14 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
   }
 
   @Override
+  @Trace
   @Nullable
   public ProgramSequencePattern readOne(HubAccess hubAccess, String id) throws DAOException {
     return readOne(dbProvider.getDSL(), hubAccess, id);
   }
 
   @Override
+  @Trace
   @Nullable
   public Collection<ProgramSequencePattern> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
@@ -111,6 +116,7 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
   }
 
   @Override
+  @Trace
   public void update(HubAccess hubAccess, String id, ProgramSequencePattern entity) throws DAOException, JsonApiException, ValueException {
     ProgramSequencePattern.Builder builder = validate(entity.toBuilder());
     requireArtist(hubAccess);
@@ -120,6 +126,7 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
   }
 
   @Override
+  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
@@ -135,6 +142,7 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
   }
 
   @Override
+  @Trace
   public ProgramSequencePattern newInstance() {
     return ProgramSequencePattern.getDefaultInstance();
   }

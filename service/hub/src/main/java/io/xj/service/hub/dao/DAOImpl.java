@@ -5,6 +5,7 @@ import com.google.common.base.CaseFormat;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.protobuf.MessageLite;
+import com.newrelic.api.agent.Trace;
 import io.xj.UserRole;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -401,6 +402,7 @@ public abstract class DAOImpl<E extends MessageLite> implements DAO<E> {
   }
 
   @Override
+  @Trace
   public <N extends MessageLite, R extends Record> Collection<N> modelsFrom(Class<N> modelClass, Iterable<R> records) throws DAOException {
     Collection<N> models = Lists.newArrayList();
     for (R record : records) models.add(modelFrom(modelClass, record));
@@ -408,6 +410,7 @@ public abstract class DAOImpl<E extends MessageLite> implements DAO<E> {
   }
 
   @Override
+  @Trace
   public <N extends MessageLite, R extends Record> N modelFrom(R record) throws DAOException {
     if (!modelsForRecords.containsKey(record.getClass()))
       throw new DAOException(String.format("Unrecognized class of entity record: %s", record.getClass().getName()));

@@ -15,13 +15,11 @@ repositories {
 }
 
 dependencies {
+  implementation group: 'com.newrelic.agent.java', name: 'newrelic-api', version: '6.3.0'
   implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.10.2.1'
   implementation 'com.google.guava:guava:28.2-jre'
   implementation 'com.google.inject:guice:4.2.2'
   implementation 'com.typesafe:config:1.4.0'
-  implementation 'io.prometheus:simpleclient:0.8.1'
-  implementation 'io.prometheus:simpleclient_hotspot:0.8.1'
-  implementation 'io.prometheus:simpleclient_httpserver:0.8.1'
   implementation 'org.eclipse.jetty:jetty-server:9.4.26.v20200117'
   implementation 'org.eclipse.jetty:jetty-servlet:9.4.26.v20200117'
   implementation 'org.glassfish.jersey.inject:jersey-hk2:2.30'

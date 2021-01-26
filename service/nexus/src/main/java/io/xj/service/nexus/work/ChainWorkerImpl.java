@@ -3,6 +3,7 @@ package io.xj.service.nexus.work;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.newrelic.api.agent.NewRelic;
+import com.newrelic.api.agent.Trace;
 import com.typesafe.config.Config;
 import io.xj.Chain;
 import io.xj.Segment;
@@ -66,6 +67,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
    @throws DAOValidationException on failure
    @throws DAOExistenceException  on failure
    */
+  @Trace(metricName = "work/chain", nameTransaction = true, dispatcher = true)
   protected void doWork() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     try {
       var chain = chainDAO.readOne(access, chainId);

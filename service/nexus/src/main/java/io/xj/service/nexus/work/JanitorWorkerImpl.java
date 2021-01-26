@@ -3,6 +3,7 @@ package io.xj.service.nexus.work;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.newrelic.api.agent.NewRelic;
+import com.newrelic.api.agent.Trace;
 import com.typesafe.config.Config;
 import io.xj.Segment;
 import io.xj.lib.entity.Entities;
@@ -53,6 +54,7 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
 
    @throws Exception on failure
    */
+  @Trace(metricName = "work/janitor", nameTransaction = true, dispatcher = true)
   protected void doWork() throws Exception {
     var t = NewRelic.getAgent().getTransaction().startSegment(TELEMETRY_JANITOR_NAME);
     var segmentIdsToErase = getSegmentIdsToErase();
@@ -95,6 +97,7 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
 
    @return list of IDs of Segments we ought to erase
    */
+  @Trace
   private Collection<String> getSegmentIdsToErase() throws NexusEntityStoreException {
     Instant eraseBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);
     Collection<String> segmentIds = Lists.newArrayList();

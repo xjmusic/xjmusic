@@ -2,6 +2,7 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import com.newrelic.api.agent.Trace;
 import io.xj.InstrumentMeme;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -31,6 +32,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   }
 
   @Override
+  @Trace
   public InstrumentMeme create(HubAccess hubAccess, InstrumentMeme rawMeme) throws DAOException, JsonApiException, ValueException {
     var meme = validate(rawMeme.toBuilder()).build();
     requireArtist(hubAccess);
@@ -39,6 +41,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   }
 
   @Override
+  @Trace
   @Nullable
   public InstrumentMeme readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
@@ -49,6 +52,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   }
 
   @Override
+  @Trace
   @Nullable
   public Collection<InstrumentMeme> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
@@ -59,6 +63,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   }
 
   @Override
+  @Trace
   public void update(HubAccess hubAccess, String id, InstrumentMeme rawMeme) throws DAOException, JsonApiException, ValueException {
     var meme = validate(rawMeme.toBuilder()).build();
     requireArtist(hubAccess);
@@ -66,6 +71,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   }
 
   @Override
+  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     dbProvider.getDSL().deleteFrom(INSTRUMENT_MEME)
@@ -74,6 +80,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   }
 
   @Override
+  @Trace
   public InstrumentMeme newInstance() {
     return InstrumentMeme.getDefaultInstance();
   }

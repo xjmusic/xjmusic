@@ -2,6 +2,7 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import com.newrelic.api.agent.Trace;
 import io.xj.ProgramSequenceBinding;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -34,6 +35,7 @@ public class ProgramSequenceBindingDAOImpl extends DAOImpl<ProgramSequenceBindin
   }
 
   @Override
+  @Trace
   public ProgramSequenceBinding create(HubAccess hubAccess, ProgramSequenceBinding entity) throws DAOException, JsonApiException, ValueException {
     validate(entity);
     requireArtist(hubAccess);
@@ -45,6 +47,7 @@ public class ProgramSequenceBindingDAOImpl extends DAOImpl<ProgramSequenceBindin
   }
 
   @Override
+  @Trace
   @Nullable
   public ProgramSequenceBinding readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
@@ -64,6 +67,7 @@ public class ProgramSequenceBindingDAOImpl extends DAOImpl<ProgramSequenceBindin
   }
 
   @Override
+  @Trace
   @Nullable
   public Collection<ProgramSequenceBinding> readMany(HubAccess hubAccess, Collection<String> programIds) throws DAOException {
     requireArtist(hubAccess);
@@ -83,6 +87,7 @@ public class ProgramSequenceBindingDAOImpl extends DAOImpl<ProgramSequenceBindin
   }
 
   @Override
+  @Trace
   public void update(HubAccess hubAccess, String id, ProgramSequenceBinding entity) throws DAOException, JsonApiException, ValueException {
     validate(entity);
     DSLContext db = dbProvider.getDSL();
@@ -91,6 +96,7 @@ public class ProgramSequenceBindingDAOImpl extends DAOImpl<ProgramSequenceBindin
   }
 
   @Override
+  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
@@ -106,6 +112,7 @@ public class ProgramSequenceBindingDAOImpl extends DAOImpl<ProgramSequenceBindin
   }
 
   @Override
+  @Trace
   public ProgramSequenceBinding newInstance() {
     return ProgramSequenceBinding.getDefaultInstance();
   }

@@ -2,6 +2,7 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import com.newrelic.api.agent.Trace;
 import io.xj.InstrumentAudioChord;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
@@ -31,6 +32,7 @@ public class InstrumentAudioChordDAOImpl extends DAOImpl<InstrumentAudioChord> i
   }
 
   @Override
+  @Trace
   public InstrumentAudioChord create(HubAccess hubAccess, InstrumentAudioChord entity) throws DAOException, JsonApiException, ValueException {
     validate(entity);
     requireArtist(hubAccess);
@@ -40,6 +42,7 @@ public class InstrumentAudioChordDAOImpl extends DAOImpl<InstrumentAudioChord> i
   }
 
   @Override
+  @Trace
   @Nullable
   public InstrumentAudioChord readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
@@ -50,6 +53,7 @@ public class InstrumentAudioChordDAOImpl extends DAOImpl<InstrumentAudioChord> i
   }
 
   @Override
+  @Trace
   @Nullable
   public Collection<InstrumentAudioChord> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
@@ -60,6 +64,7 @@ public class InstrumentAudioChordDAOImpl extends DAOImpl<InstrumentAudioChord> i
   }
 
   @Override
+  @Trace
   public void update(HubAccess hubAccess, String id, InstrumentAudioChord entity) throws DAOException, JsonApiException, ValueException {
     validate(entity);
     requireArtist(hubAccess);
@@ -67,6 +72,7 @@ public class InstrumentAudioChordDAOImpl extends DAOImpl<InstrumentAudioChord> i
   }
 
   @Override
+  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     dbProvider.getDSL().deleteFrom(INSTRUMENT_AUDIO_CHORD)
@@ -75,6 +81,7 @@ public class InstrumentAudioChordDAOImpl extends DAOImpl<InstrumentAudioChord> i
   }
 
   @Override
+  @Trace
   public InstrumentAudioChord newInstance() {
     return InstrumentAudioChord.getDefaultInstance();
   }

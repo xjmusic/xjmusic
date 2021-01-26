@@ -1,5 +1,6 @@
 package io.xj.service.nexus.craft.arrangement;
 
+import com.newrelic.api.agent.Trace;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
 import io.xj.InstrumentAudioEvent;
@@ -26,7 +27,6 @@ import io.xj.service.nexus.fabricator.NameIsometry;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,18 +40,17 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   /**
    Craft events for a section of one detail voice
 
-   @param previousInstrumentAudio to use for selection of instrument audio
-   @param chord                   (optional) to use for fabrication
-   @param sequence                from which to craft events
-   @param choice                  of program
-   @param arrangement             of instrument
-   @param voice                   within program
-   @param fromPos                 position (in beats)
-   @param maxPos                  position (in beats)
+   @param chord       (optional) to use for fabrication
+   @param sequence    from which to craft events
+   @param choice      of program
+   @param arrangement of instrument
+   @param voice       within program
+   @param fromPos     position (in beats)
+   @param maxPos      position (in beats)
    @throws CraftException on failure
    */
+  @Trace
   protected void craftArrangementForVoiceSection(
-    Map<String, InstrumentAudio> previousInstrumentAudio,
     @Nullable SegmentChord chord,
     ProgramSequence sequence,
     SegmentChoice choice,
@@ -75,13 +74,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
       // if intro pattern, fabricate those voice event first
       if (introPattern.isPresent())
-        curPos += craftPatternEvents(previousInstrumentAudio, chord, choice, arrangement, introPattern.get(), curPos, loopOutPos);
+        curPos += craftPatternEvents(chord, choice, arrangement, introPattern.get(), curPos, loopOutPos);
 
       // choose loop patterns until arrive at the out point or end of segment
       while (curPos < loopOutPos) {
         Optional<ProgramSequencePattern> loopPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePattern.Type.Loop);
         if (loopPattern.isPresent())
-          curPos += craftPatternEvents(previousInstrumentAudio, chord, choice, arrangement, loopPattern.get(), curPos, loopOutPos);
+          curPos += craftPatternEvents(chord, choice, arrangement, loopPattern.get(), curPos, loopOutPos);
         else
           curPos = loopOutPos;
       }
@@ -89,7 +88,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       // if outro pattern, fabricate those voice event last
       // [#161466708] compute how much to go for it in the outro
       if (outroPattern.isPresent())
-        craftPatternEvents(previousInstrumentAudio, chord, choice, arrangement, outroPattern.get(), curPos, loopOutPos);
+        craftPatternEvents(chord, choice, arrangement, outroPattern.get(), curPos, loopOutPos);
 
     } catch (FabricationException e) {
       throw
@@ -101,17 +100,16 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    Craft the voice events of a single pattern.
    [#161601279] Artist during craft audio selection wants randomness of outro audio selection to gently ramp of zero to N over the course of the outro.
 
-   @param previousInstrumentAudio map of previous instrument audio of which to potentially select
-   @param chord                   (optional) to use for fabrication
-   @param choice                  to craft pattern events for
-   @param arrangement             to craft pattern events for
-   @param pattern                 to source events
-   @param fromPos                 to write events to segment
-   @param maxPos                  to write events to segment
+   @param chord       (optional) to use for fabrication
+   @param choice      to craft pattern events for
+   @param arrangement to craft pattern events for
+   @param pattern     to source events
+   @param fromPos     to write events to segment
+   @param maxPos      to write events to segment
    @return deltaPos of start, after crafting this batch of pattern events
    */
+  @Trace
   protected double craftPatternEvents(
-    Map<String, InstrumentAudio> previousInstrumentAudio,
     @Nullable SegmentChord chord,
     SegmentChoice choice,
     SegmentChoiceArrangement arrangement,
@@ -125,7 +123,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       Collection<ProgramSequencePatternEvent> events = fabricator.getSourceMaterial().getEvents(pattern);
       Instrument instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId());
       for (ProgramSequencePatternEvent event : events)
-        pickInstrumentAudio(previousInstrumentAudio, chord, instrument, arrangement, event, choice.getTranspose(), fromPos);
+        pickInstrumentAudio(chord, instrument, arrangement, event, choice.getTranspose(), fromPos);
       return Math.min(totalPos, pattern.getTotal());
 
     } catch (HubClientException e) {
@@ -135,15 +133,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
   /**
    of a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
-   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
+   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement@param chord                   (optional) to use for fabrication
 
-   @param previousInstrumentAudio map of previous instrument audio of which to potentially select
-   @param chord                   (optional) to use for fabrication
-   @param event                   to pick audio for
-   @param shiftPosition           offset voice event zero within current segment
+   @param event         to pick audio for
+   @param shiftPosition offset voice event zero within current segment
    */
+  @Trace
   protected void pickInstrumentAudio(
-    Map<String, InstrumentAudio> previousInstrumentAudio,
     @Nullable SegmentChord chord, Instrument instrument,
     SegmentChoiceArrangement segmentChoiceArrangement,
     ProgramSequencePatternEvent event,
@@ -151,7 +147,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     Double shiftPosition
   ) throws CraftException {
     try {
-      var audio = selectInstrumentAudio(previousInstrumentAudio, instrument, event);
+      var audio =
+        fabricator.getInstrumentConfig(instrument).isMultiPhonic() ?
+          selectMultiphonicInstrumentAudio(instrument, event) :
+          selectInstrumentAudio(instrument, event);
 
       // [#176373977] Should gracefully skip voicing type if unfulfilled by program
       if (audio.isEmpty()) {
@@ -201,7 +200,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         .build());
 
     } catch (FabricationException | ValueException e) {
-      throw exception(String.format("Could not pick audio for instrumentId=%s, arrangementId=%s, eventId=%s, transpose=%d, shiftPosition=%f",
+      throw exception(String.format("Could not pick audio for Instrument[%s] arrangementId=%s, eventId=%s, transpose=%d, shiftPosition=%f",
         instrument.getId(), segmentChoiceArrangement.getId(), event.getId(), transpose, shiftPosition), e);
     }
   }
@@ -228,32 +227,64 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   Select the cached (already selected for this segment+drum name)
-   instrument audio based on a pattern event.
+   Select audio from a multiphonic instrument
    <p>
-   If never encountered, default to new selection and cache that.
+   [#176649593] Sampler obeys isMultiPhonic from Instrument config
 
-   @param previousInstrumentAudio map of previous instrument audio of which to potentially select
-   @param instrument              of which to score available audios, and make a selection
-   @param event                   to match
+   @param instrument of which to score available audios, and make a selection
+   @param event      to match
    selection)
    @return matched new audio
    @throws CraftException on failure
    */
-  protected Optional<InstrumentAudio> selectInstrumentAudio(
-    Map<String, InstrumentAudio> previousInstrumentAudio,
+  @Trace
+  protected Optional<InstrumentAudio> selectMultiphonicInstrumentAudio(
     Instrument instrument,
     ProgramSequencePatternEvent event
   ) throws CraftException {
     try {
-      String key = fabricator.eventKey(event);
+      String key = fabricator.keyByVoiceNote(event);
 
-      if (!previousInstrumentAudio.containsKey(key))
-        selectNewInstrumentAudio(instrument, event)
-          .ifPresent(audio -> previousInstrumentAudio.put(key, audio));
+      if (!fabricator.getPreviousInstrumentAudio().containsKey(key)) {
+        var audio = selectNewMultiphonicInstrumentAudio(instrument, event);
+        if (audio.isPresent()) fabricator.getPreviousInstrumentAudio().put(key, audio.get());
+      }
 
-      return previousInstrumentAudio.containsKey(key) ?
-        Optional.of(previousInstrumentAudio.get(key)) : Optional.empty();
+      return fabricator.getPreviousInstrumentAudio().containsKey(key) ?
+        Optional.of(fabricator.getPreviousInstrumentAudio().get(key)) : Optional.empty();
+
+    } catch (FabricationException e) {
+      throw new CraftException(e);
+    }
+  }
+
+  /**
+   Select the cached (already selected for this voice + track name)
+   instrument audio based on a pattern event.
+   <p>
+   If never encountered, default to new selection and cache that.
+
+   @param instrument of which to score available audios, and make a selection
+   @param event      to match
+   selection)
+   @return matched new audio
+   @throws CraftException on failure
+   */
+  @Trace
+  protected Optional<InstrumentAudio> selectInstrumentAudio(
+    Instrument instrument,
+    ProgramSequencePatternEvent event
+  ) throws CraftException {
+    try {
+      String key = fabricator.keyByVoiceTrack(event);
+
+      if (!fabricator.getPreviousInstrumentAudio().containsKey(key)) {
+        var audio = selectNewInstrumentAudio(instrument, event);
+        if (audio.isPresent()) fabricator.getPreviousInstrumentAudio().put(key, audio.get());
+      }
+
+      return fabricator.getPreviousInstrumentAudio().containsKey(key) ?
+        Optional.of(fabricator.getPreviousInstrumentAudio().get(key)) : Optional.empty();
 
     } catch (FabricationException e) {
       throw new CraftException(e);
@@ -267,6 +298,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param event      to match
    @return matched new audio
    */
+  @Trace
   protected Optional<InstrumentAudio> selectNewInstrumentAudio(
     Instrument instrument,
     ProgramSequencePatternEvent event
@@ -288,7 +320,42 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       return Optional.of(audioEntityScorePicker.getTop());
 
     } catch (FabricationException | HubClientException e) {
-      reportMissing(InstrumentAudio.class, String.format("for instrumentId=%s, eventId=%s", instrument.getId(), event.getId()));
+      reportMissing(InstrumentAudio.class, String.format("for Instrument[%s] eventId=%s", instrument.getId(), event.getId()));
+      return Optional.empty();
+    }
+  }
+
+  /**
+   Select a new random instrument audio based on a pattern event
+   <p>
+   [#176649593] Sampler obeys isMultiPhonic from Instrument config
+
+   @param instrument of which to score available audios, and make a selection
+   @param event      to match
+   @return matched new audio
+   */
+  @Trace
+  protected Optional<InstrumentAudio> selectNewMultiphonicInstrumentAudio(
+    Instrument instrument,
+    ProgramSequencePatternEvent event
+  ) {
+    var targetNote = Note.of(event.getNote());
+    try {
+      var audioEvent = fabricator.getSourceMaterial().getFirstEventsOfAudiosOfInstrument(instrument)
+        .stream()
+        .filter(instrumentAudioEvent ->
+          Note.of(instrumentAudioEvent.getNote()).equals(targetNote))
+        .findAny();
+
+      if (audioEvent.isEmpty()) {
+        reportMissing(InstrumentAudio.class, String.format("from Instrument[%s] for %s", instrument.getId(), targetNote));
+        return Optional.empty();
+      }
+
+      return Optional.of(fabricator.getSourceMaterial().getInstrumentAudio(audioEvent.get().getInstrumentAudioId()));
+
+    } catch (HubClientException e) {
+      reportMissing(InstrumentAudio.class, String.format("from Instrument[%s] for %s", instrument.getId(), targetNote));
       return Optional.empty();
     }
   }

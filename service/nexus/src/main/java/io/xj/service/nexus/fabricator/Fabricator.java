@@ -247,15 +247,25 @@ public interface Fabricator {
    @param pick to get key of
    @return unique key for pattern event
    */
-  String eventKey(SegmentChoiceArrangementPick pick) throws FabricationException;
+  String keyByVoiceTrack(SegmentChoiceArrangementPick pick) throws FabricationException;
 
   /**
-   Key for any pattern event designed to collide at same voice id + name
+   Key for any pattern event designed to collide at same voice id + track name
 
    @param event to get key of
    @return unique key for pattern event
    */
-  String eventKey(ProgramSequencePatternEvent event) throws FabricationException;
+  String keyByVoiceTrack(ProgramSequencePatternEvent event) throws FabricationException;
+
+  /**
+   Key for any pattern event designed to collide at same voice id + note
+   <p>
+   [#176649593] Sampler obeys isMultiPhonic from Instrument config
+
+   @param event to get key of
+   @return unique key for pattern event
+   */
+  String keyByVoiceNote(ProgramSequencePatternEvent event) throws FabricationException;
 
   /**
    Get the Voice ID of a given event

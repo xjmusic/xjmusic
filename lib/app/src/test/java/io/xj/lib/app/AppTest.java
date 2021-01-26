@@ -3,7 +3,6 @@
 package io.xj.lib.app;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import org.eclipse.jetty.client.HttpClient;
@@ -27,8 +26,7 @@ public class AppTest {
   public void setUp() throws Exception {
     Config config = AppConfiguration.getDefault()
       .withValue("app.name", ConfigValueFactory.fromAnyRef("test"))
-      .withValue("app.port", ConfigValueFactory.fromAnyRef(1903))
-      .withValue("prometheus.enabled", ConfigValueFactory.fromAnyRef(true));
+      .withValue("app.port", ConfigValueFactory.fromAnyRef(1903));
     var injector = AppConfiguration.inject(config, ImmutableSet.of());
     subject = new App(injector, Collections.singleton("io.xj.lib.app"));
     subject.start();

@@ -2,6 +2,7 @@ package io.xj.service.nexus.work;
 
 import com.google.inject.Inject;
 import com.newrelic.api.agent.NewRelic;
+import com.newrelic.api.agent.Trace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,7 @@ public abstract class WorkerImpl implements Runnable {
    This is a wrapper to perform common tasks around threaded work execution
    */
   @Override
+  @Trace(metricName = "work", nameTransaction = true, dispatcher = true)
   public void run() {
     final Thread currentThread = Thread.currentThread();
     final String _ogThreadName = currentThread.getName();

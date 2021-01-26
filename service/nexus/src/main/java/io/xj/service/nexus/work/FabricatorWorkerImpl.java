@@ -3,6 +3,7 @@ package io.xj.service.nexus.work;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.newrelic.api.agent.NewRelic;
+import com.newrelic.api.agent.Trace;
 import io.xj.Segment;
 import io.xj.SegmentMessage;
 import io.xj.service.hub.client.HubClientAccess;
@@ -66,6 +67,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
   /**
    Do the work-- this is called by the underlying WorkerImpl run() hook
    */
+  @Trace(metricName = "work/fabricate", nameTransaction = true, dispatcher = true)
   protected void doWork() {
     try {
       log.info("[segId={}] will read Segment for fabrication", segmentId);
@@ -110,6 +112,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
    [#158610991] Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance
    [#171553408] Remove all Queue mechanics in favor of a cycle happening in Main class for as long as the application is alive, that does nothing but search for active chains, search for segments that need work, and work on them. Zero need for a work queue-- that's what the Chain-Segment state machine is!
    */
+  @Trace
   private void revert() {
     try {
       updateSegmentState(fabricator.getSegment().getState(), Segment.State.Planned);
@@ -122,6 +125,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
   /**
    Finish work on Segment
    */
+  @Trace
   private void finishWork() throws FabricationException {
     updateSegmentState(Segment.State.Dubbing, Segment.State.Dubbed);
     log.info("[segId={}] Worked for {} seconds", segmentId, fabricator.getElapsedSeconds());
@@ -133,6 +137,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
    @throws NexusException on configuration failure
    @throws CraftException on craft failure
    */
+  @Trace
   private void doCraftWork() throws NexusException, CraftException, FabricationException {
     var t = NewRelic.getAgent().getTransaction().startSegment(TELEMETRY_CRAFT_NAME);
     updateSegmentState(Segment.State.Planned, Segment.State.Crafting);
@@ -148,6 +153,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
    @throws CraftException on craft failure
    @throws DubException   on dub failure
    */
+  @Trace
   protected void doDubWork() throws CraftException, DubException, FabricationException {
     var t = NewRelic.getAgent().getTransaction().startSegment(TELEMETRY_DUB_NAME);
     updateSegmentState(Segment.State.Crafting, Segment.State.Dubbing);
@@ -162,6 +168,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
    @param message phrased like "Doing work"
    @param e       exception (optional)
    */
+  @Trace
   private void didFailWhile(String message, Exception e) {
     createSegmentErrorMessage(String.format("Failed while %s for Segment #%s:\n\n%s", message, segmentId, e.getMessage()));
     log.error("[segId={}] Failed while {}", segmentId, message, e);
@@ -172,6 +179,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
 
    @param body of message
    */
+  @Trace
   protected void createSegmentErrorMessage(String body) {
     try {
       segmentDAO.create(access, SegmentMessage.newBuilder()
@@ -193,6 +201,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
    @param toState   of new segment
    @throws FabricationException if record is invalid
    */
+  @Trace
   private void updateSegmentState(Segment.State fromState, Segment.State toState) throws FabricationException {
     if (fromState != segment.getState())
       throw new FabricationException(String.format("Segment[%s] %s requires Segment must be in %s state.", segmentId, toState, fromState));

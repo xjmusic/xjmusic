@@ -2,6 +2,7 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import com.newrelic.api.agent.Trace;
 import io.xj.AccountUser;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -29,6 +30,7 @@ public class AccountUserDAOImpl extends DAOImpl<AccountUser> implements AccountU
   }
 
   @Override
+  @Trace
   public AccountUser create(HubAccess hubAccess, AccountUser entity) throws DAOException, JsonApiException, ValueException {
     validate(entity);
     requireTopLevel(hubAccess);
@@ -43,6 +45,7 @@ public class AccountUserDAOImpl extends DAOImpl<AccountUser> implements AccountU
   }
 
   @Override
+  @Trace
   public AccountUser readOne(HubAccess hubAccess, String id) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelFrom(AccountUser.class, dbProvider.getDSL().selectFrom(ACCOUNT_USER)
@@ -56,6 +59,7 @@ public class AccountUserDAOImpl extends DAOImpl<AccountUser> implements AccountU
   }
 
   @Override
+  @Trace
   public Collection<AccountUser> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(AccountUser.class, dbProvider.getDSL().selectFrom(ACCOUNT_USER)
@@ -69,11 +73,13 @@ public class AccountUserDAOImpl extends DAOImpl<AccountUser> implements AccountU
   }
 
   @Override
+  @Trace
   public void update(HubAccess hubAccess, String id, AccountUser entity) throws DAOException {
     throw new DAOException("Not allowed to update AccountUser record.");
   }
 
   @Override
+  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     requireTopLevel(hubAccess);
     dbProvider.getDSL().deleteFrom(ACCOUNT_USER)
@@ -82,6 +88,7 @@ public class AccountUserDAOImpl extends DAOImpl<AccountUser> implements AccountU
   }
 
   @Override
+  @Trace
   public AccountUser newInstance() {
     return AccountUser.getDefaultInstance();
   }

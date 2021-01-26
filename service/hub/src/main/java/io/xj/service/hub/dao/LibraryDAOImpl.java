@@ -2,6 +2,7 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import com.newrelic.api.agent.Trace;
 import io.xj.Library;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -37,6 +38,7 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
   }
 
   @Override
+  @Trace
   public Library create(HubAccess hubAccess, Library entity) throws DAOException, JsonApiException, ValueException {
     Library.Builder record = validate(entity.toBuilder());
 
@@ -50,6 +52,7 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
   }
 
   @Override
+  @Trace
   @Nullable
   public Library readOne(HubAccess hubAccess, String id) throws DAOException {
     if (hubAccess.isTopLevel())
@@ -66,6 +69,7 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
   }
 
   @Override
+  @Trace
   public Collection<Library> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
       if (hubAccess.isTopLevel())
@@ -94,6 +98,7 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
   }
 
   @Override
+  @Trace
   public void update(HubAccess hubAccess, String id, Library entity) throws DAOException, JsonApiException, ValueException {
     Library.Builder record = validate(entity.toBuilder());
     try {
@@ -117,6 +122,7 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
   }
 
   @Override
+  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     DSLContext db = dbProvider.getDSL();
     requireTopLevel(hubAccess);
@@ -147,6 +153,7 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
   }
 
   @Override
+  @Trace
   public Library newInstance() {
     return Library.getDefaultInstance();
   }

@@ -2,6 +2,7 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import com.newrelic.api.agent.Trace;
 import io.xj.ProgramVoice;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -35,6 +36,7 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
   }
 
   @Override
+  @Trace
   public ProgramVoice create(HubAccess hubAccess, ProgramVoice entity) throws DAOException, JsonApiException, ValueException {
     var record = validate(entity.toBuilder()).build();
     DSLContext db = dbProvider.getDSL();
@@ -44,6 +46,7 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
   }
 
   @Override
+  @Trace
   @Nullable
   public ProgramVoice readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
@@ -63,6 +66,7 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
   }
 
   @Override
+  @Trace
   @Nullable
   public Collection<ProgramVoice> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
@@ -84,6 +88,7 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
   }
 
   @Override
+  @Trace
   public void update(HubAccess hubAccess, String id, ProgramVoice entity) throws DAOException, JsonApiException, ValueException {
     var record = validate(entity.toBuilder()).build();
     DSLContext db = dbProvider.getDSL();
@@ -94,6 +99,7 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
   }
 
   @Override
+  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     DSLContext db = dbProvider.getDSL();
 
@@ -109,6 +115,7 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
   }
 
   @Override
+  @Trace
   public ProgramVoice newInstance() {
     return ProgramVoice.getDefaultInstance();
   }

@@ -1,24 +1,22 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.craft.rhythm;
 
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.newrelic.api.agent.Trace;
 import io.xj.Instrument;
-import io.xj.InstrumentAudio;
 import io.xj.Program;
 import io.xj.ProgramSequence;
 import io.xj.ProgramVoice;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.music.Key;
 import io.xj.lib.util.Chance;
 import io.xj.service.hub.client.HubClientException;
-import io.xj.service.nexus.craft.detail.DetailCraftImpl;
 import io.xj.service.nexus.craft.CraftException;
+import io.xj.service.nexus.craft.detail.DetailCraftImpl;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
 import io.xj.service.nexus.fabricator.FabricationException;
 import io.xj.service.nexus.fabricator.Fabricator;
@@ -26,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -52,8 +49,8 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
   }
 
   @Override
+  @Trace(metricName = "work/fabricate/craft/rhythm", nameTransaction = true, dispatcher = true)
   public void doWork() throws CraftException {
-    Map<String, InstrumentAudio> previousInstrumentAudio = getPreviousInstrumentAudio();
     try {
 
       // program
@@ -73,7 +70,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
       // voice arrangements
       for (ProgramVoice voice : fabricator.getSourceMaterial().getVoices(rhythmProgram))
-        craftArrangementForRhythmVoice(rhythmSequence, rhythmChoice, voice, previousInstrumentAudio);
+        craftArrangementForRhythmVoice(rhythmSequence, rhythmChoice, voice);
 
       // Finally, update the segment with the crafted content
       fabricator.done();
@@ -87,29 +84,11 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
   }
 
   /**
-   Get previously chosen (for previous segments with same main program) instrument audio
-
-   @return map of previous chosen instrument audio
-   @throws CraftException on failure to build map
-   */
-  private Map<String, InstrumentAudio> getPreviousInstrumentAudio() throws CraftException {
-    try {
-      Map<String, InstrumentAudio> previousInstrumentAudio = Maps.newHashMap();
-      for (SegmentChoiceArrangementPick pick : fabricator.getChoiceArrangementPicksOfPreviousSegments())
-        previousInstrumentAudio.put(fabricator.eventKey(pick),
-          fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()));
-      return previousInstrumentAudio;
-
-    } catch (FabricationException | HubClientException e) {
-      throw exception("Unable to build map create previous instrument audio", e);
-    }
-  }
-
-  /**
    compute (and cache) the mainProgram
 
    @return mainProgram
    */
+  @Trace
   private Program chooseRhythmProgram() throws CraftException {
     Segment.Type type;
     try {
@@ -141,6 +120,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
    @return rhythm program if previously selected, or null if none is found
    */
+  @Trace
   private Optional<Program> getRhythmProgramSelectedPreviouslyForMainProgram() {
     try {
       return fabricator.getChoicesOfPreviousSegments()
@@ -182,6 +162,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    <p>
    future: actually choose rhythm program
    */
+  @Trace
   private Program chooseFreshRhythm() throws CraftException {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
@@ -215,6 +196,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @param program to score
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
+  @Trace
   private Double scoreRhythm(Program program) throws CraftException {
     try {
       double score = 0;
@@ -242,7 +224,8 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @param voice to craft events for
    @throws CraftException on failure
    */
-  private void craftArrangementForRhythmVoice(ProgramSequence sequence, SegmentChoice choice, ProgramVoice voice, Map<String, InstrumentAudio> previousInstrumentAudio) throws CraftException {
+  @Trace
+  private void craftArrangementForRhythmVoice(ProgramSequence sequence, SegmentChoice choice, ProgramVoice voice) throws CraftException {
     try {
       Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentId(voice.getId());
 
@@ -257,7 +240,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
             instrumentId.get() : chooseFreshPercussiveInstrument(voice).getId())
         .build());
 
-      craftArrangementForVoiceSection(previousInstrumentAudio, null, sequence, choice, arrangement, voice, 0, fabricator.getSegment().getTotal());
+      craftArrangementForVoiceSection(null, sequence, choice, arrangement, voice, 0, fabricator.getSegment().getTotal());
 
     } catch (FabricationException e) {
       throw
@@ -273,6 +256,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @return percussive-type Instrument
    @throws CraftException on failure
    */
+  @Trace
   private Instrument chooseFreshPercussiveInstrument(ProgramVoice voice) throws CraftException {
     try {
       EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
@@ -304,6 +288,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @param instrument to score
    @return score, including +/- entropy
    */
+  @Trace
   private double scorePercussive(Instrument instrument) throws CraftException {
     try {
       double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);

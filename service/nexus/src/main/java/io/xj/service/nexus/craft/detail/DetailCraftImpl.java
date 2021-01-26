@@ -3,10 +3,11 @@ package io.xj.service.nexus.craft.detail;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.newrelic.api.agent.Trace;
 import io.xj.Instrument;
-import io.xj.InstrumentAudio;
 import io.xj.Program;
 import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceChordVoicing;
 import io.xj.ProgramVoice;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
@@ -23,8 +24,6 @@ import io.xj.service.nexus.craft.arrangement.ArrangementCraftImpl;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
 import io.xj.service.nexus.fabricator.FabricationException;
 import io.xj.service.nexus.fabricator.Fabricator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
@@ -42,7 +41,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   private static final double SCORE_MATCHED_MEMES = 5;
   private static final double SCORE_DETAIL_ENTROPY = 0.5;
   private static final double SCORE_DIRECTLY_BOUND = 100;
-  private final Logger log = LoggerFactory.getLogger(DetailCraftImpl.class);
 
   @Inject
   public DetailCraftImpl(
@@ -52,16 +50,14 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   }
 
   @Override
+  @Trace(metricName = "work/fabricate/craft/detail", nameTransaction = true, dispatcher = true)
   public void doWork() throws CraftException {
     try {
-      Map<String, InstrumentAudio> previousInstrumentAudio = fabricator.getPreviousInstrumentAudio();
-
       // for each unique voicing (instrument) types present in the chord voicings of the current main choice
       var voicingTypes = fabricator.getDistinctChordVoicingTypes();
       if (voicingTypes.isEmpty())
-        log.info("Found no chord voicing types in Main-choice Program[{}] however there were {} voicings",
-          fabricator.getCurrentMainChoice().getProgramId(),
-          fabricator.getSourceMaterial().getAllProgramSequenceChordVoicings().size());
+        reportMissing(ProgramSequenceChordVoicing.class,
+          String.format("in Main-choice Program[%s]", fabricator.getCurrentMainChoice().getProgramId()));
       else
         for (Instrument.Type voicingType : voicingTypes) {
           // program
@@ -89,10 +85,10 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
           // voice arrangements
           var voices = fabricator.getSourceMaterial().getVoices(detailProgram.get());
           if (voices.isEmpty())
-            log.info("Found no voices in Detail-choice Program[{}]",
-              detailProgram.get().getId());
+            reportMissing(ProgramVoice.class,
+              String.format("in Detail-choice Program[%s]", detailProgram.get().getId()));
           for (ProgramVoice voice : voices)
-            craftArrangementForDetailVoice(previousInstrumentAudio, detailSequence, detailChoice, voice);
+            craftArrangementForDetailVoice(detailSequence, detailChoice, voice);
         }
 
       // Finally, update the segment with the crafted content
@@ -112,6 +108,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param voicingType of voicing to choose detail program for
    @return Chosen Detail Program
    */
+  @Trace
   private Optional<Program> chooseDetailProgram(Instrument.Type voicingType) throws CraftException {
     Segment.Type type;
     try {
@@ -145,6 +142,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param voicingType to get detail program for
    @return detail program if previously selected, or null if none is found
    */
+  @Trace
   private Optional<Program> getDetailProgramSelectedPreviouslyForSegmentMainProgram(Instrument.Type voicingType) {
     try {
       return fabricator.getChoicesOfPreviousSegments()
@@ -156,14 +154,14 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
           try {
             return Stream.of(fabricator.getSourceMaterial().getProgram(choice.getProgramId()));
           } catch (HubClientException e) {
-            log.warn("Failed to locate program for choice", e);
+            reportMissing(Program.class, String.format("detail previously selected for %s-type Instrument and main program because hub client exception %s", voicingType, e.getMessage()));
             return Stream.empty();
           }
         })
         .findFirst();
 
     } catch (FabricationException e) {
-      log.warn(formatLog("Could not get detail program selected previously for main program"), e);
+      reportMissing(Program.class, String.format("detail previously selected for %s-type Instrument and main program because fabrication exception %s", voicingType, e.getMessage()));
       return Optional.empty();
     }
   }
@@ -176,14 +174,14 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    <p>
    [#176468993] Detail programs can be made to repeat every chord change
 
-   @param previousInstrumentAudio to use for selection of instrument audio
-   @param sequence                from which to craft events
-   @param choice                  of program
-   @param voice                   within program
+   @param sequence from which to craft events
+   @param choice   of program
+   @param voice    within program
    @throws CraftException on failure to craft
    */
+  @Trace
   private void craftArrangementForDetailVoice(
-    Map<String, InstrumentAudio> previousInstrumentAudio, ProgramSequence sequence,
+    ProgramSequence sequence,
     SegmentChoice choice,
     ProgramVoice voice
   ) throws CraftException {
@@ -211,9 +209,9 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
       var programConfig = fabricator.getProgramConfig(fabricator.getProgram(choice));
       if (programConfig.doPatternRestartOnChord() && 0 < fabricator.getSegmentChords().size())
-        craftArrangementForDetailVoicePerEachChord(previousInstrumentAudio, sequence, choice, arrangement, voice);
+        craftArrangementForDetailVoicePerEachChord(sequence, choice, arrangement, voice);
       else
-        craftArrangementForVoiceSection(previousInstrumentAudio, null, sequence, choice, arrangement, voice, 0, fabricator.getSegment().getTotal());
+        craftArrangementForVoiceSection(null, sequence, choice, arrangement, voice, 0, fabricator.getSegment().getTotal());
 
     } catch (FabricationException | ValueException e) {
       throw
@@ -231,6 +229,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    <p>
    future: actually choose detail program
    */
+  @Trace
   private Optional<Program> chooseFreshDetailProgram(Instrument.Type voicingType) throws CraftException {
     try {
       EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
@@ -271,6 +270,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @return detail-type Instrument
    @throws CraftException on failure
    */
+  @Trace
   protected Optional<Instrument> chooseFreshDetailInstrument(ProgramVoice voice) throws CraftException {
     try {
       EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
@@ -300,6 +300,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param instrument to score
    @return score, including +/- entropy
    */
+  @Trace
   protected double scoreDetail(Instrument instrument) throws CraftException {
     try {
       double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
@@ -330,6 +331,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param program to score
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
+  @Trace
   private Double scoreDetail(Program program) throws CraftException {
     try {
       double score = 0;
@@ -364,15 +366,14 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    <p>
    [#176468993] Detail programs can be made to repeat every chord change
 
-   @param previousInstrumentAudio to use for selection of instrument audio
-   @param sequence                from which to craft events
-   @param choice                  of program
-   @param arrangement             of instrument
-   @param voice                   within program
+   @param sequence    from which to craft events
+   @param choice      of program
+   @param arrangement of instrument
+   @param voice       within program
    @throws CraftException on failure
    */
+  @Trace
   private void craftArrangementForDetailVoicePerEachChord(
-    Map<String, InstrumentAudio> previousInstrumentAudio,
     ProgramSequence sequence,
     SegmentChoice choice,
     SegmentChoiceArrangement arrangement,
@@ -396,7 +397,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
           fabricator.getSegment().getTotal();
       }
       for (var section : sections)
-        craftArrangementForVoiceSection(previousInstrumentAudio, section.chord, sequence, choice, arrangement, voice, section.fromPos, section.toPos);
+        craftArrangementForVoiceSection(section.chord, sequence, choice, arrangement, voice, section.fromPos, section.toPos);
 
     } catch (FabricationException e) {
       throw

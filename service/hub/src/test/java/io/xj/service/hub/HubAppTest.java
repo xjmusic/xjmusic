@@ -109,8 +109,7 @@ public class HubAppTest {
     Config config = AppConfiguration.getDefault()
       .withValue("audio.baseUrl", ConfigValueFactory.fromAnyRef(""))
       .withValue("segment.baseUrl", ConfigValueFactory.fromAnyRef(""))
-      .withValue("app.port", ConfigValueFactory.fromAnyRef(1903))
-      .withValue("prometheus.enabled", ConfigValueFactory.fromAnyRef(true));
+      .withValue("app.port", ConfigValueFactory.fromAnyRef(1903));
     var injector = AppConfiguration.inject(config, ImmutableSet.of(new JsonApiModule(), new AbstractModule() {
       @Override
       protected void configure() {

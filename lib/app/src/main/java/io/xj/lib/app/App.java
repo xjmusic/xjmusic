@@ -3,9 +3,8 @@ package io.xj.lib.app;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
+import com.newrelic.api.agent.NewRelic;
 import com.typesafe.config.Config;
-import io.prometheus.client.exporter.HTTPServer;
-import io.prometheus.client.hotspot.DefaultExports;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -14,7 +13,6 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
@@ -47,15 +45,11 @@ import java.util.stream.Collectors;
  */
 public class App {
   private static final Logger log = LoggerFactory.getLogger(App.class);
-  //
-  private final boolean prometheusEnabled;
-  private final int prometheusPort;
 
   private final ResourceConfig resourceConfig;
 
   private final String name;
   private final String restHostname;
-  private HTTPServer statServer;
   private int restPort;
   private Server resourceServer;
   private boolean started = false;
@@ -67,14 +61,10 @@ public class App {
 
     // Configuration from typesafe config
     Config config = injector.getInstance(Config.class);
-    prometheusPort = config.getInt("prometheus.port");
-    prometheusEnabled = config.getBoolean("prometheus.enabled");
     restHostname = fallback(System.getenv("FULL_HOSTNAME"), () -> getInetHostname(config.getString("app.hostname")));
     restPort = config.getInt("app.port");
     name = config.getString("app.name");
-
-    // Exposes JVM stats to Prometheus
-    DefaultExports.initialize();
+    NewRelic.addCustomParameter("app", name);
 
     // non-static logger for this class, because app must init first
     log.info("{} configured with\n{}", name, toReport(config));
@@ -193,33 +183,12 @@ public class App {
   }
 
   /**
-   Register Prometheus exporters and export metrics to a Prometheus HTTPServer.
-   See: https://prometheus.io/
-
-   @return Prometheus HTTP Server
-   */
-  private HTTPServer startStatServer() throws AppException {
-    HTTPServer server;
-    try {
-      server = new HTTPServer(prometheusPort, true);
-    } catch (IOException e) {
-      throw new AppException("Failed to start stat server", e);
-    }
-    log.info("{} prometheus metrics available on port {}", name, prometheusPort);
-    return server;
-  }
-
-  /**
    Starts Jetty HTTP server
    exposing JAX-RS resources defined in this app.
    */
   public void start() throws AppException {
     log.info("{} will start", name);
     started = true;
-
-    // Prometheus stats
-    if (prometheusEnabled)
-      statServer = startStatServer();
 
     // Jetty
     resourceServer = startResourceServer();
@@ -238,10 +207,6 @@ public class App {
       resourceServer.destroy();
     } catch (Exception e) {
       log.error("{} failed to stop resource server", name, e);
-    }
-
-    if (Objects.nonNull(statServer)) {
-      statServer.stop();
     }
 
     log.info("{} did stop", name);

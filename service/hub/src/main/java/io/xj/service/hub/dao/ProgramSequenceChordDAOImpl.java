@@ -2,6 +2,7 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
+import com.newrelic.api.agent.Trace;
 import io.xj.ProgramSequenceChord;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
@@ -32,6 +33,7 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   }
 
   @Override
+  @Trace
   public ProgramSequenceChord create(HubAccess hubAccess, ProgramSequenceChord entity) throws DAOException, JsonApiException, ValueException {
     validate(entity);
     requireArtist(hubAccess);
@@ -41,6 +43,7 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   }
 
   @Override
+  @Trace
   @Nullable
   public ProgramSequenceChord readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
@@ -51,6 +54,7 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   }
 
   @Override
+  @Trace
   @Nullable
   public Collection<ProgramSequenceChord> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
@@ -61,6 +65,7 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   }
 
   @Override
+  @Trace
   public void update(HubAccess hubAccess, String id, ProgramSequenceChord entity) throws DAOException, JsonApiException, ValueException {
     validate(entity);
     requireArtist(hubAccess);
@@ -68,6 +73,7 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   }
 
   @Override
+  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     dbProvider.getDSL().deleteFrom(PROGRAM_SEQUENCE_CHORD_VOICING)
@@ -79,6 +85,7 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   }
 
   @Override
+  @Trace
   public ProgramSequenceChord newInstance() {
     return ProgramSequenceChord.getDefaultInstance();
   }
