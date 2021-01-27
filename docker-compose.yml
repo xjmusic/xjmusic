@@ -16,6 +16,8 @@ services:
       APP_VERSION: 1.0
       DD_AGENT_HOST: ddagent01xj1
       DD_TRACE_AGENT_PORT: 8126
+      DD_SERVICE: hub
+      DD_ENV: ${ENVIRONMENT}
     container_name: hub01xj1
     ports:
       - "3001:3000"
@@ -42,6 +44,8 @@ services:
       APP_VERSION: 1.0
       DD_AGENT_HOST: ddagent01xj1
       DD_TRACE_AGENT_PORT: 8126
+      DD_SERVICE: nexus
+      DD_ENV: ${ENVIRONMENT}
     container_name: nexus01xj1
     ports:
       - "3002:3000"
