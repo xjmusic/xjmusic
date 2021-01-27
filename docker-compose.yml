@@ -51,6 +51,7 @@ services:
       - "3002:3000"
       - "10002:10000"
     depends_on:
+      - hub
       - ddagent
       - postgres
       - redis
