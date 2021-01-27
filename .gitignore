@@ -53,6 +53,3 @@ data/
 
 # Bootstrap chains
 bootstrap-chains.json
-
-# Datadog Config
-datadog.yaml
