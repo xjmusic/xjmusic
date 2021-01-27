@@ -193,19 +193,13 @@ d9dd91c6-c6c9-11ea-a21e-0bcae3c78831	1509102a-16eb-11ea-8a37-4764c2a771db	Percus
 3bbcc300-c6c8-11ea-9c5b-3fabd1ae6028	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Water Small 2 Kit	0.600000024	
 09e94f98-c6c7-11ea-b647-8766c0d05d20	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Water Small 1 Kit	0.600000024	
 3e55da8a-bb55-11ea-bec8-83d3620b01db	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Wind Large 1 Kit	0.600000024	
-c285e3a8-1ba0-11eb-aab8-1f13fdf1284f	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Earth Large Bass	0.600000024	isMultiPhonic=false\nisTonal=true
-17c32bc4-1bb4-11eb-9d42-ab105d1d2821	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Earth Small Bass	0.600000024	isTonal=true
-e26c67f4-1bb5-11eb-92b0-8bc1117eadc7	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Fire Large Bass	0.600000024	isTonal=true
-c2eb3bea-1bb9-11eb-8d30-3bee4bcc082d	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Fire Small Bass	0.600000024	isTonal=true
-0acbe1d8-1bbc-11eb-ba62-876a9ec11059	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Water Large Bass	0.600000024	isTonal=true
-1ee1a7f0-1bbe-11eb-8d9a-7bc94346144d	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Water Small Bass	0.600000024	isTonal=true
-e694d3ac-1bbf-11eb-a4ae-afa8e30b1947	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Wind Large Bass	0.600000024	isTonal=true
-c806a4fe-1bc1-11eb-aba2-53552d52758d	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Wind Small Bass	0.600000024	isTonal=true
+c285e3a8-1ba0-11eb-aab8-1f13fdf1284f	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Earth Large Bass	0.600000024	isMultiPhonic=true\nisTonal=true
+17c32bc4-1bb4-11eb-9d42-ab105d1d2821	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Earth Small Bass	0.600000024	isTonal=true\nisMultiphonic=true
+e26c67f4-1bb5-11eb-92b0-8bc1117eadc7	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Fire Large Bass	0.600000024	isMultiphonic=true\nisTonal=true
 15162544-16eb-11ea-8a37-5f8791ecc0c1	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Fire String Hits	0.600000024	
 151b16ee-16eb-11ea-8a37-7755b75f4dfb	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Water Sitar Harmony	0.600000024	
 15204e7a-16eb-11ea-8a37-7f93cb6b74b4	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Water Whale Harmony	0.600000024	
 1525acd0-16eb-11ea-8a37-cfc6f82ffb5d	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Wind Flute Note	0.600000024	
-150bc66c-16eb-11ea-8a37-83d91cc4d60b	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Earth Bass Harmony	0.600000024	isTonal=true
 c0c58ade-0b31-11eb-a297-d313824ce482	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Earth Small Pad	0.600000024	isTonal=true
 be236c0e-205f-11eb-85b7-07de329489e7	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Wind Small Sticky	0.600000024	isTonal=true
 af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Fire Large Pad	0.600000024	isTonal=true
@@ -221,7 +215,6 @@ faf05330-1efd-11eb-90fb-c334b746da1c	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Pu
 ae01c97a-1bd6-11eb-8fc1-bb9e8af14f4c	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Water Small Pad	0.600000024	isTonal=true
 5664b972-1d7d-11eb-97b8-bf1fe264fa42	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Water Small Stab	0.600000024	isTonal=true
 1efc6726-1efb-11eb-aec8-83fff6175034	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Earth Small Sticky	0.600000024	isTonal=true
-35657db2-1ba5-11eb-a9a2-c3b8f00bc440	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Earth Large Pad	0.600000024	isTonal=true
 4646f998-1caa-11eb-9a3f-c798c68ee101	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Earth Large Stab	0.600000024	isTonal=true
 7de67650-1ef6-11eb-8df3-bf5a46b7b953	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Earth Large Sticky	0.600000024	isTonal=true
 b65f643e-1eff-11eb-90fb-8b0472d1d3ed	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Water Small Sticky	0.600000024	isTonal=true
@@ -230,6 +223,13 @@ b65f643e-1eff-11eb-90fb-8b0472d1d3ed	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Pu
 090c7776-205e-11eb-bd64-431b46a4aa7b	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Wind Large Sticky	0.600000024	isTonal=true
 391b1c64-1bdc-11eb-b0f8-c72c947963aa	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Wind Small Pad	0.600000024	isTonal=true
 d4fd5280-1eef-11eb-8ac6-9bc4d83225a1	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Wind Small Stab	0.600000024	isTonal=true
+c2eb3bea-1bb9-11eb-8d30-3bee4bcc082d	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Fire Small Bass	0.600000024	isTonal=true\nisMultiphonic=true\n
+0acbe1d8-1bbc-11eb-ba62-876a9ec11059	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Water Large Bass	0.600000024	isTonal=true\nisMultiphonic=true\n
+1ee1a7f0-1bbe-11eb-8d9a-7bc94346144d	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Water Small Bass	0.600000024	isTonal=true\nisMultiphonic=true\n
+c806a4fe-1bc1-11eb-aba2-53552d52758d	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Wind Small Bass	0.600000024	isTonal=true\nisMultiphonic=true\n
+e694d3ac-1bbf-11eb-a4ae-afa8e30b1947	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Wind Large Bass	0.600000024	isTonal=true\nisMultiphonic=true\n
+150bc66c-16eb-11ea-8a37-83d91cc4d60b	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Earth Bass Harmony	0.600000024	isTonal=true\nisMultiphonic=true\n
+35657db2-1ba5-11eb-a9a2-c3b8f00bc440	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Earth Large Pad	0.600000024	isTonal=true\nisMultiphonic=true\n
 \.
 
 
