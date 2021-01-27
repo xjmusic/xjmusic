@@ -72,6 +72,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      DD_ENV: ${ENVIRONMENT}
     restart: always
     networks:
       - xj_network
@@ -83,6 +84,8 @@ services:
       - ddagent
     ports:
       - "6300:6379"
+    environment:
+      DD_ENV: ${ENVIRONMENT}
     restart: always
     networks:
       - xj_network
@@ -94,6 +97,7 @@ services:
       DD_API_KEY: ${DD_API_KEY}
       DD_SITE: datadoghq.com
       DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
+      DD_ENV: ${ENVIRONMENT}
     ports:
       - 8125:8125/udp
       - 8126:8126/udp
