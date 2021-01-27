@@ -71,7 +71,7 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
       }
     }
 
-    telemetryProvider.getStatsDClient().incrementCounter("xj.segment.erased", segmentIdsToErase.size());
+    telemetryProvider.getStatsDClient().incrementCounter("segment.erased", segmentIdsToErase.size());
   }
 
   /**

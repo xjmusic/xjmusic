@@ -87,7 +87,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
       if (segment.isEmpty()) return;
       Segment createdSegment = segmentDAO.create(access, segment.get());
       log.info("Created Segment {}", createdSegment);
-      telemetryProvider.getStatsDClient().incrementCounter("xj.segment.created");
+      telemetryProvider.getStatsDClient().incrementCounter("segment.created");
 
       // FUTURE: fork/join thread possible for this sub-runnable of the fabrication worker
       workers.segment(createdSegment.getId()).run();

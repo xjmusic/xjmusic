@@ -84,7 +84,7 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
         log.info("Did cancel work on Chain[{}]", id);
         chainsCanceled++;
       }
-    telemetryProvider.getStatsDClient().incrementCounter("xj.chain.cancelled", chainsCanceled);
+    telemetryProvider.getStatsDClient().incrementCounter("chain.cancelled", chainsCanceled);
   }
 
   /**
@@ -100,6 +100,6 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
         log.info("Did start work on Chain[{}]", id);
         chainsStarted++;
       }
-    telemetryProvider.getStatsDClient().incrementCounter("xj.chain.started", chainsStarted);
+    telemetryProvider.getStatsDClient().incrementCounter("chain.started", chainsStarted);
   }
 }

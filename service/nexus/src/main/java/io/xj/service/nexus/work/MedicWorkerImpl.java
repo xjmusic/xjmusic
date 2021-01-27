@@ -114,6 +114,6 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
       chainDAO.destroy(access, stalledChainId);
     }
 
-    telemetryProvider.getStatsDClient().incrementCounter("xj.chain.revived", stalledChainIds.size());
+    telemetryProvider.getStatsDClient().incrementCounter("chain.revived", stalledChainIds.size());
   }
 }
