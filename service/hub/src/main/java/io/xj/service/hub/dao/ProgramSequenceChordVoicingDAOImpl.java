@@ -2,7 +2,7 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import io.xj.ProgramSequenceChordVoicing;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -35,7 +35,6 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
   }
 
   @Override
-  @Trace
   public ProgramSequenceChordVoicing create(HubAccess hubAccess, ProgramSequenceChordVoicing entity) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     validate(entity);
@@ -47,7 +46,6 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
   }
 
   @Override
-  @Trace
   @Nullable
   public ProgramSequenceChordVoicing readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
@@ -67,7 +65,6 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
   }
 
   @Override
-  @Trace
   @Nullable
   public Collection<ProgramSequenceChordVoicing> readMany(HubAccess hubAccess, Collection<String> programIds) throws DAOException {
     requireArtist(hubAccess);
@@ -87,7 +84,6 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
   }
 
   @Override
-  @Trace
   public void update(HubAccess hubAccess, String id, ProgramSequenceChordVoicing entity) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     require("Same id", Objects.equals(id, entity.getId()));
@@ -99,7 +95,6 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
   }
 
   @Override
-  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     DSLContext db = dbProvider.getDSL();
     requireArtist(hubAccess);
@@ -119,7 +114,6 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
   }
 
   @Override
-  @Trace
   public ProgramSequenceChordVoicing newInstance() {
     return ProgramSequenceChordVoicing.getDefaultInstance();
   }

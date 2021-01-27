@@ -2,10 +2,10 @@ package io.xj.service.nexus.work;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import com.newrelic.api.agent.NewRelic;
-import com.newrelic.api.agent.Trace;
 import com.typesafe.config.Config;
+import datadog.trace.api.Trace;
 import io.xj.Chain;
+import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.SegmentDAO;
@@ -24,11 +24,11 @@ import java.util.Map;
  */
 public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
   private static final String NAME = "Medic";
-  private static final String CHAIN_REVIVED = "ChainRevived";
   private final Logger log = LoggerFactory.getLogger(MedicWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final ChainDAO chainDAO;
   private final int reviveChainProductionStartedBeforeSeconds;
+  private final TelemetryProvider telemetryProvider;
   private final SegmentDAO segmentDAO;
   private final int reviveChainSegmentsDubbedPastSeconds;
 
@@ -36,10 +36,12 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
   public MedicWorkerImpl(
     Config config,
     ChainDAO chainDAO,
-    SegmentDAO segmentDAO
+    SegmentDAO segmentDAO,
+    TelemetryProvider telemetryProvider
   ) {
     this.chainDAO = chainDAO;
     this.segmentDAO = segmentDAO;
+    this.telemetryProvider = telemetryProvider;
 
     reviveChainSegmentsDubbedPastSeconds = config.getInt("fabrication.reviveChainSegmentsDubbedPastSeconds");
     reviveChainProductionStartedBeforeSeconds = config.getInt("fabrication.reviveChainProductionStartedBeforeSeconds");
@@ -60,7 +62,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
    @throws DAOValidationException on failure
    @throws DAOExistenceException  on failure
    */
-  @Trace(metricName = "Work/Medic", dispatcher = true)
+  @Trace(resourceName = "nexus/medic", operationName = "doWork")
   protected void doWork() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     long t = Instant.now().toEpochMilli();
     checkAndReviveAll();
@@ -76,7 +78,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
    @throws DAOValidationException on failure
    @throws DAOExistenceException  on failure
    */
-  @Trace
+  @Trace(resourceName = "nexus/medic", operationName = "checkAndReviveAll")
   public void checkAndReviveAll() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionStartedBeforeSeconds);
     Instant thresholdChainSegmentsDubbedPast = Instant.now().plusSeconds(reviveChainSegmentsDubbedPastSeconds);
@@ -112,6 +114,6 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
       chainDAO.destroy(access, stalledChainId);
     }
 
-    NewRelic.incrementCounter(CHAIN_REVIVED, stalledChainIds.size());
+    telemetryProvider.getStatsDClient().incrementCounter("xj.chain.revived", stalledChainIds.size());
   }
 }

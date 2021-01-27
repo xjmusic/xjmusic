@@ -2,7 +2,7 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import io.xj.Account;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -33,7 +33,6 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
   }
 
   @Override
-  @Trace
   public Account create(HubAccess hubAccess, Account entity) throws DAOException, JsonApiException, ValueException {
     validate(entity);
     requireTopLevel(hubAccess);
@@ -43,7 +42,6 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
   }
 
   @Override
-  @Trace
   public Account readOne(HubAccess hubAccess, String id) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelFrom(Account.class,
@@ -60,7 +58,6 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
   }
 
   @Override
-  @Trace
   public Collection<Account> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Account.class,
@@ -74,7 +71,6 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
   }
 
   @Override
-  @Trace
   public void update(HubAccess hubAccess, String id, Account entity) throws DAOException, JsonApiException, ValueException {
     requireTopLevel(hubAccess);
     validate(entity);
@@ -82,7 +78,6 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
   }
 
   @Override
-  @Trace
   public void destroy(HubAccess hubAccess, String rawId) throws DAOException {
     DSLContext db = dbProvider.getDSL();
     UUID id = UUID.fromString(rawId);
@@ -113,7 +108,6 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
   }
 
   @Override
-  @Trace
   public Account newInstance() {
     return Account.getDefaultInstance();
   }

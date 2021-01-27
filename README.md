@@ -376,6 +376,14 @@ A **Chord** is any harmonic set of three or more notes that is heard as if sound
 A **Scale** is any set of musical notes ordered by fundamental frequency or pitch.
 
 
+## Telemetry
+
+Contained in the `lib/telemetry` module.
+
+Requires:
+  - `datadog.apiKey` set in **env.conf**
+  - Real **datadog.yaml** based on **datadog.example.yaml** 
+
 ## Services
 
 Contained in the [service](service/) folder.

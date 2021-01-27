@@ -2,7 +2,7 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import io.xj.ProgramSequenceBindingMeme;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -36,7 +36,6 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   }
 
   @Override
-  @Trace
   public ProgramSequenceBindingMeme create(HubAccess hubAccess, ProgramSequenceBindingMeme rawMeme) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     var meme = validate(rawMeme.toBuilder()).build();
@@ -48,7 +47,6 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   }
 
   @Override
-  @Trace
   @Nullable
   public ProgramSequenceBindingMeme readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
@@ -68,7 +66,6 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   }
 
   @Override
-  @Trace
   @Nullable
   public Collection<ProgramSequenceBindingMeme> readMany(HubAccess hubAccess, Collection<String> programIds) throws DAOException {
     requireArtist(hubAccess);
@@ -88,7 +85,6 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   }
 
   @Override
-  @Trace
   public void update(HubAccess hubAccess, String id, ProgramSequenceBindingMeme rawMeme) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     require("Same id", Objects.equals(id, rawMeme.getId()));
@@ -100,7 +96,6 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   }
 
   @Override
-  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     DSLContext db = dbProvider.getDSL();
     requireArtist(hubAccess);
@@ -120,7 +115,6 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
   }
 
   @Override
-  @Trace
   public ProgramSequenceBindingMeme newInstance() {
     return ProgramSequenceBindingMeme.getDefaultInstance();
   }

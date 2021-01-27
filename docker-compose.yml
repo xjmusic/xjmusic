@@ -11,10 +11,11 @@ services:
       - .:/var/app/current
       - ./log:/var/log
       - ./service/hub/build/distributions/hub-1.0.tar:/var/app/hub-1.0.tar
-      - ./newrelic.yml:/usr/local/newrelic/newrelic.yml
     environment:
       APP_NAME: hub
       APP_VERSION: 1.0
+      DD_AGENT_HOST: ddagent01xj1
+      DD_TRACE_AGENT_PORT: 8126
     container_name: hub01xj1
     ports:
       - "3001:3000"
@@ -35,10 +36,12 @@ services:
       - .:/var/app/current
       - ./log:/var/log
       - ./service/nexus/build/distributions/nexus-1.0.tar:/var/app/nexus-1.0.tar
-      - ./newrelic.yml:/usr/local/newrelic/newrelic.yml
+      - ./datadog.yaml:/etc/datadog-agent/datadog.yaml
     environment:
       APP_NAME: nexus
       APP_VERSION: 1.0
+      DD_AGENT_HOST: ddagent01xj1
+      DD_TRACE_AGENT_PORT: 8126
     container_name: nexus01xj1
     ports:
       - "3002:3000"
@@ -60,8 +63,8 @@ services:
     ports:
       - "5400:5432"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     restart: always
     networks:
       - xj_network
@@ -71,6 +74,24 @@ services:
     image: redis:3.0.7
     ports:
       - "6300:6379"
+    restart: always
+    networks:
+      - xj_network
+
+  ddagent:
+    container_name: ddagent01xj1
+    image: gcr.io/datadoghq/agent:7
+    environment:
+      DD_API_KEY: ffe6de0162d7b2903a673a33139e6604
+      DD_SITE: datadoghq.com
+      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
+    ports:
+      - 8125:8125/udp
+      - 8126:8126/udp
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
     restart: always
     networks:
       - xj_network

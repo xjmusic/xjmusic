@@ -3,7 +3,7 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import io.xj.ProgramSequence;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -45,7 +45,6 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
   }
 
   @Override
-  @Trace
   public ProgramSequence create(HubAccess hubAccess, ProgramSequence entity) throws DAOException, JsonApiException, ValueException {
     ProgramSequence.Builder builder = validate(entity.toBuilder());
     DSLContext db = dbProvider.getDSL();
@@ -55,7 +54,6 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
   }
 
   @Override
-  @Trace
   public DAOCloner<ProgramSequence> clone(HubAccess hubAccess, String rawCloneId, ProgramSequence rawEntity) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<ProgramSequence> result = new AtomicReference<>();
@@ -120,7 +118,6 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
   }
 
   @Override
-  @Trace
   @Nullable
   public ProgramSequence readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
@@ -128,7 +125,6 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
   }
 
   @Override
-  @Trace
   @Nullable
   public Collection<ProgramSequence> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
@@ -148,7 +144,6 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
   }
 
   @Override
-  @Trace
   public void update(HubAccess hubAccess, String id, ProgramSequence entity) throws DAOException, JsonApiException, ValueException {
     ProgramSequence.Builder builder = validate(entity.toBuilder());
     DSLContext db = dbProvider.getDSL();
@@ -157,7 +152,6 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
   }
 
   @Override
-  @Trace
   public void destroy(HubAccess hubAccess, String rawId) throws DAOException {
     DSLContext db = dbProvider.getDSL();
     requireModification(db, hubAccess, rawId);
@@ -206,7 +200,6 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
   }
 
   @Override
-  @Trace
   public ProgramSequence newInstance() {
     return ProgramSequence.getDefaultInstance();
   }

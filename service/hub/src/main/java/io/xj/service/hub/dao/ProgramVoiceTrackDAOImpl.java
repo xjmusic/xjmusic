@@ -2,7 +2,7 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import io.xj.ProgramVoiceTrack;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -38,7 +38,6 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   }
 
   @Override
-  @Trace
   public ProgramVoiceTrack create(HubAccess hubAccess, ProgramVoiceTrack entity) throws DAOException, JsonApiException, ValueException {
     var record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
@@ -49,7 +48,6 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   }
 
   @Override
-  @Trace
   @Nullable
   public ProgramVoiceTrack readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
@@ -70,7 +68,6 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   }
 
   @Override
-  @Trace
   @Nullable
   public Collection<ProgramVoiceTrack> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
@@ -93,7 +90,6 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   }
 
   @Override
-  @Trace
   public void update(HubAccess hubAccess, String id, ProgramVoiceTrack entity) throws DAOException, JsonApiException, ValueException {
     var record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
@@ -103,7 +99,6 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   }
 
   @Override
-  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
@@ -117,7 +112,6 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   }
 
   @Override
-  @Trace
   public ProgramVoiceTrack newInstance() {
     return ProgramVoiceTrack.getDefaultInstance();
   }

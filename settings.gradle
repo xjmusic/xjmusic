@@ -5,6 +5,7 @@ rootProject.name = 'xj-platform'
 include('lib:app')
 include('lib:entity')
 include('lib:filestore')
+include('lib:telemetry')
 include('lib:jsonapi')
 include('lib:mixer')
 include('lib:music')

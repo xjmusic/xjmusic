@@ -2,7 +2,6 @@
 package io.xj.service.hub.access;
 
 import com.google.inject.Inject;
-import com.newrelic.api.agent.NewRelic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,12 +108,6 @@ public class HubAccessTokenAuthFilter implements ContainerRequestFilter {
         return null; // allowed to have invalid hub access for a permit-all route
       else
         return "invalid hub access token";
-
-    // set the user name to associate with the RUM JavaScript footer
-    // for the current web transaction
-    NewRelic.setUserName(hubAccess.getUserId());
-    // add a key/value pair to the current transaction
-    NewRelic.addCustomParameter("userId", hubAccess.getUserId());
 
     if (!hubAccess.isTopLevel() && Objects.isNull(aPermitAll) && !hubAccess.isAllowed(aRolesAllowed.value()))
       return "user has no accessible role";

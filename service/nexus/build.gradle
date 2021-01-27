@@ -22,6 +22,7 @@ dependencies {
   implementation project(':lib:app')
   implementation project(':lib:entity')
   implementation project(':lib:filestore')
+  implementation project(':lib:telemetry')
   implementation project(':lib:jsonapi')
   implementation project(':lib:mixer')
   implementation project(':lib:music')
@@ -31,7 +32,7 @@ dependencies {
   //
   implementation 'io.xj:protocol:v0.9'
   // vendor
-  implementation group: 'com.newrelic.agent.java', name: 'newrelic-api', version: '6.3.0'
+  compile group: 'com.datadoghq', name: 'dd-java-agent', version: '0.72.0'
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
   implementation 'org.logback-extensions:logback-ext-loggly:0.1.2'
   implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.119'
@@ -75,7 +76,7 @@ jar {
 
 applicationDefaultJvmArgs = [
   "-agentpath:/usr/local/YourKit-JavaProfiler-2020.9/bin/linux-x86-64/libyjpagent.so=port=10000,listen=all,logdir=/var/log/profiler",
-  "-javaagent:/usr/local/newrelic/newrelic.jar",
+  "-javaagent:/usr/local/dd-java-agent.jar",
   "-Xmx2000m"
 ]
 

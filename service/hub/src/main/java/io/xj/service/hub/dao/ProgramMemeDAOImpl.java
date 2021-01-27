@@ -2,7 +2,7 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import io.xj.ProgramMeme;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -35,7 +35,6 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
   }
 
   @Override
-  @Trace
   public ProgramMeme create(HubAccess hubAccess, ProgramMeme rawMeme) throws DAOException, JsonApiException, ValueException {
     var meme = validate(rawMeme.toBuilder()).build();
     requireArtist(hubAccess);
@@ -47,7 +46,6 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
   }
 
   @Override
-  @Trace
   @Nullable
   public ProgramMeme readOne(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
@@ -56,7 +54,6 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
   }
 
   @Override
-  @Trace
   @Nullable
   public Collection<ProgramMeme> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
@@ -76,7 +73,6 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
   }
 
   @Override
-  @Trace
   public void update(HubAccess hubAccess, String id, ProgramMeme rawMeme) throws DAOException, JsonApiException, ValueException {
     var meme = validate(rawMeme.toBuilder()).build();
     requireArtist(hubAccess);
@@ -88,7 +84,6 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
   }
 
   @Override
-  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
@@ -99,7 +94,6 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
   }
 
   @Override
-  @Trace
   public ProgramMeme newInstance() {
     return ProgramMeme.getDefaultInstance();
   }

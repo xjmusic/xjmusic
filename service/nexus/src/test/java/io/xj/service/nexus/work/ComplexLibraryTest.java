@@ -70,6 +70,7 @@ public class ComplexLibraryTest {
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault()
       .withValue("app.port", ConfigValueFactory.fromAnyRef(9043))
+      .withValue("datadog.statsd.hostname", ConfigValueFactory.fromAnyRef("localhost"))
       .withValue("work.bossDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.chainDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.concurrency", ConfigValueFactory.fromAnyRef(1));

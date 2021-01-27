@@ -3,7 +3,7 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import io.xj.AccountUser;
 import io.xj.User;
 import io.xj.UserAuth;
@@ -225,7 +225,6 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   }
 
   @Override
-  @Trace
   public String authenticate(UserAuth.Type authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws DAOException {
     DSLContext db = dbProvider.getDSL();
     Collection<AccountUser> accounts;
@@ -265,14 +264,12 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   }
 
   @Override
-  @Trace
   public User create(HubAccess hubAccess, User entity) throws DAOException {
     throw new DAOException("Not allowed to create a User record (must implement 'authenticate' method).");
 
   }
 
   @Override
-  @Trace
   public User readOne(HubAccess hubAccess, String id) throws DAOException {
     DSLContext db = dbProvider.getDSL();
     if (hubAccess.isTopLevel()) {
@@ -306,7 +303,6 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   }
 
   @Override
-  @Trace
   @Nullable
   public Collection<User> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     DSLContext db = dbProvider.getDSL();
@@ -335,7 +331,6 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   }
 
   @Override
-  @Trace
   public void update(HubAccess access, String id, User entity) throws DAOException {
     try {
       updateUserRolesAndDestroyTokens(access, id, entity);
@@ -345,19 +340,16 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   }
 
   @Override
-  @Trace
   public void destroy(HubAccess hubAccess, String id) throws DAOException {
     throw new DAOException("Not allowed to destroy User record.");
   }
 
   @Override
-  @Trace
   public User newInstance() {
     return User.getDefaultInstance();
   }
 
   @Override
-  @Trace
   public UserAuthToken readOneAuthToken(HubAccess hubAccess, String accessToken) throws DAOException {
     requireTopLevel(hubAccess);
 
@@ -368,7 +360,6 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   }
 
   @Override
-  @Trace
   public UserAuth readOneAuth(HubAccess hubAccess, String userAuthId) throws DAOException {
     requireTopLevel(hubAccess);
 
@@ -379,7 +370,6 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   }
 
   @Override
-  @Trace
   public UserRole readOneRole(HubAccess hubAccess, String userId, UserRole.Type type) throws DAOException {
     requireTopLevel(hubAccess);
 
@@ -391,13 +381,11 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   }
 
   @Override
-  @Trace
   public void destroyAllTokens(String userId) throws DAOException {
     destroyAllTokens(dbProvider.getDSL(), userId);
   }
 
   @Override
-  @Trace
   public void updateUserRolesAndDestroyTokens(HubAccess hubAccess, String userId, User entity) throws DAOException, ValueException {
     // FUTURE figure out how to make this all a rollback-able transaction in the new getDataSource() context: dataSource.commit(); and dataSource.setAutoCommit(false);
     requireTopLevel(hubAccess);

@@ -7,7 +7,7 @@ import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import com.typesafe.config.Config;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -107,7 +107,7 @@ class DubAudioCacheImpl implements DubAudioCache {
    @param key to compute value for
    @return computed item
    */
-  @Trace(metricName = "Work/Fabricate/Dub/Cache/FetchAndWrite", dispatcher = true)
+  @Trace(resourceName = "nexus/dub/cache", operationName = "fetchAndWrite")
   private DubAudioCacheItem fetchAndWrite(String key) throws IOException, FileStoreException {
     String path = String.format("%s%s", pathPrefix, key);
     DubAudioCacheItem item = new DubAudioCacheItem(key, path);

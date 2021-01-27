@@ -3,8 +3,8 @@ package io.xj.service.nexus.dub;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.newrelic.api.agent.Trace;
 import com.typesafe.config.Config;
+import datadog.trace.api.Trace;
 import io.xj.Segment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -32,7 +32,7 @@ public class DubShipImpl implements DubShip {
   }
 
   @Override
-  @Trace(metricName = "Work/Fabricate/Dub/Ship", dispatcher = true)
+  @Trace(resourceName = "nexus/dub/ship", operationName = "doWork")
   public void doWork() throws DubException {
     Segment.Type type = null;
     try {
@@ -50,7 +50,7 @@ public class DubShipImpl implements DubShip {
   /**
    DubShip the final audio
    */
-  @Trace
+  @Trace(resourceName = "nexus/dub/ship", operationName = "shipFinalAudio")
   private void shipFinalAudio() throws FabricationException, FileStoreException {
     fileStore.putS3ObjectFromTempFile(
       fabricator.getFullQualityAudioOutputFilePath(),
@@ -61,7 +61,7 @@ public class DubShipImpl implements DubShip {
   /**
    DubShip the final metadata
    */
-  @Trace
+  @Trace(resourceName = "nexus/dub/ship", operationName = "shipFinalMetadata")
   private void shipFinalMetadata() throws FabricationException, FileStoreException {
     fileStore.putS3ObjectFromString(
       fabricator.getResultMetadataJson(),

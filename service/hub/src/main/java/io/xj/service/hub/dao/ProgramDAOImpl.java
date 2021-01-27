@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.protobuf.MessageLite;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import com.typesafe.config.Config;
 import io.xj.Program;
 import io.xj.ProgramMeme;
@@ -68,7 +68,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  @Trace
   public Program create(HubAccess hubAccess, Program rawProgram) throws DAOException, JsonApiException, ValueException {
     Program program = validate(rawProgram.toBuilder()).build();
     requireArtist(hubAccess);
@@ -77,7 +76,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  @Trace
   public DAOCloner<Program> clone(HubAccess hubAccess, String rawCloneId, Program rawProgram) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<Program> result = new AtomicReference<>();
@@ -153,13 +151,11 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  @Trace
   public Program readOne(HubAccess hubAccess, String id) throws DAOException {
     return readOne(dbProvider.getDSL(), hubAccess, id);
   }
 
   @Override
-  @Trace
   public Collection<Program> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
@@ -176,7 +172,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  @Trace
   public <N extends MessageLite> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<String> programIds) throws DAOException {
     DSLContext db = dbProvider.getDSL();
 
@@ -199,7 +194,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  @Trace
   public Collection<Object> readChildEntities(HubAccess hubAccess, Collection<String> programIds, Collection<String> types) throws DAOException {
     DSLContext db = dbProvider.getDSL();
 
@@ -261,7 +255,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  @Trace
   public Collection<Program> readMany(HubAccess hubAccess) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
@@ -276,7 +269,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  @Trace
   public void update(HubAccess hubAccess, String id, Program rawProgram) throws DAOException, JsonApiException, ValueException {
     Program program = validate(rawProgram.toBuilder()).build();
     requireArtist(hubAccess);
@@ -288,7 +280,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  @Trace
   public void destroy(HubAccess hubAccess, String rawId) throws DAOException {
     DSLContext db = dbProvider.getDSL();
     UUID id = UUID.fromString(rawId);
@@ -350,13 +341,11 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  @Trace
   public Program newInstance() {
     return Program.getDefaultInstance();
   }
 
   @Override
-  @Trace
   public Collection<Program> readManyInAccount(HubAccess hubAccess, String accountId) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields()).from(PROGRAM)
@@ -374,7 +363,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  @Trace
   public Collection<Program> readManyInState(HubAccess hubAccess, Program.State state) throws DAOException {
     require(hubAccess, UserRole.Type.Admin, UserRole.Type.Engineer);
     // FUTURE: engineer should only see programs in account?
@@ -387,7 +375,6 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  @Trace
   public Collection<String> readIdsInLibraries(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
     return DAO.idsFrom(dbProvider.getDSL().select(PROGRAM.ID)

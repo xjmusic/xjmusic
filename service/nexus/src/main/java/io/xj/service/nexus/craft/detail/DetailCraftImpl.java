@@ -3,7 +3,7 @@ package io.xj.service.nexus.craft.detail;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import io.xj.Instrument;
 import io.xj.Program;
 import io.xj.ProgramSequence;
@@ -50,7 +50,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   }
 
   @Override
-  @Trace(metricName = "Work/Fabricate/Craft/Detail", dispatcher = true)
+  @Trace(resourceName = "nexus/craft/detail", operationName = "doWork")
   public void doWork() throws CraftException {
     try {
       // for each unique voicing (instrument) types present in the chord voicings of the current main choice
@@ -108,7 +108,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param voicingType of voicing to choose detail program for
    @return Chosen Detail Program
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/detail", operationName = "chooseDetailProgram")
   private Optional<Program> chooseDetailProgram(Instrument.Type voicingType) throws CraftException {
     Segment.Type type;
     try {
@@ -142,7 +142,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param voicingType to get detail program for
    @return detail program if previously selected, or null if none is found
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/detail", operationName = "getDetailProgramSelectedPreviouslyForSegmentMainProgram")
   private Optional<Program> getDetailProgramSelectedPreviouslyForSegmentMainProgram(Instrument.Type voicingType) {
     try {
       return fabricator.getChoicesOfPreviousSegments()
@@ -179,7 +179,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param voice    within program
    @throws CraftException on failure to craft
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/detail", operationName = "craftArrangementForDetailVoice")
   private void craftArrangementForDetailVoice(
     ProgramSequence sequence,
     SegmentChoice choice,
@@ -229,7 +229,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    <p>
    future: actually choose detail program
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/detail", operationName = "chooseFreshDetailProgram")
   private Optional<Program> chooseFreshDetailProgram(Instrument.Type voicingType) throws CraftException {
     try {
       EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
@@ -270,7 +270,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @return detail-type Instrument
    @throws CraftException on failure
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/detail", operationName = "chooseFreshDetailInstrument")
   protected Optional<Instrument> chooseFreshDetailInstrument(ProgramVoice voice) throws CraftException {
     try {
       EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
@@ -300,7 +300,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param instrument to score
    @return score, including +/- entropy
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/detail", operationName = "scoreDetail")
   protected double scoreDetail(Instrument instrument) throws CraftException {
     try {
       double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
@@ -331,7 +331,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param program to score
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/detail", operationName = "scoreDetail")
   private Double scoreDetail(Program program) throws CraftException {
     try {
       double score = 0;
@@ -372,7 +372,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param voice       within program
    @throws CraftException on failure
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/detail", operationName = "craftArrangementForDetailVoicePerEachChord")
   private void craftArrangementForDetailVoicePerEachChord(
     ProgramSequence sequence,
     SegmentChoice choice,

@@ -49,6 +49,7 @@ public class JanitorWorkerImplTest {
   public void setUp() throws AppException {
     Config config = NexusTestConfiguration.getDefault()
       .withValue("app.port", ConfigValueFactory.fromAnyRef(9043))
+      .withValue("datadog.statsd.hostname", ConfigValueFactory.fromAnyRef("localhost"))
       .withValue("work.bossDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.janitorDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.medicDelayMillis", ConfigValueFactory.fromAnyRef(1))

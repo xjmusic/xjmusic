@@ -5,7 +5,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import com.typesafe.config.Config;
 import io.xj.InstrumentAudio;
 import io.xj.lib.entity.EntityFactory;
@@ -63,7 +63,6 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   }
 
   @Override
-  @Trace
   public InstrumentAudio create(HubAccess hubAccess, InstrumentAudio rawAudio) throws DAOException, JsonApiException, ValueException {
     var audio = validate(rawAudio.toBuilder()).build();
     requireArtist(hubAccess);
@@ -76,7 +75,6 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   }
 
   @Override
-  @Trace
   public Map<String, String> authorizeUpload(HubAccess hubAccess, String id) throws DAOException, FileStoreException {
     var entity = readOne(dbProvider.getDSL(), hubAccess, id);
 
@@ -94,14 +92,12 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   }
 
   @Override
-  @Trace
   @Nullable
   public InstrumentAudio readOne(HubAccess hubAccess, String id) throws DAOException {
     return readOne(dbProvider.getDSL(), hubAccess, id);
   }
 
   @Override
-  @Trace
   @Nullable
   public Collection<InstrumentAudio> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
@@ -122,7 +118,6 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   }
 
   @Override
-  @Trace
   public void update(HubAccess hubAccess, String id, InstrumentAudio rawAudio) throws DAOException, JsonApiException, ValueException {
     var audio = validate(rawAudio.toBuilder()).build();
     requireArtist(hubAccess);
@@ -140,7 +135,6 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   }
 
   @Override
-  @Trace
   public void destroy(HubAccess hubAccess, String rawId) throws DAOException {
     UUID id = UUID.fromString(rawId);
     DSLContext db = dbProvider.getDSL();
@@ -161,13 +155,11 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   }
 
   @Override
-  @Trace
   public InstrumentAudio newInstance() {
     return InstrumentAudio.getDefaultInstance();
   }
 
   @Override
-  @Trace
   public InstrumentAudio clone(HubAccess hubAccess, String rawCloneId, InstrumentAudio rawAudio) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<InstrumentAudio> result = new AtomicReference<>();

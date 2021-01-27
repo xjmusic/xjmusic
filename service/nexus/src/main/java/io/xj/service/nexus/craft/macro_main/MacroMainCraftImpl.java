@@ -7,7 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import io.xj.Program;
 import io.xj.ProgramSequence;
 import io.xj.Segment;
@@ -57,7 +57,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   }
 
   @Override
-  @Trace(metricName = "Work/Fabricate/Craft/MacroMain", dispatcher = true)
+  @Trace(resourceName = "nexus/craft/macro_main", operationName = "doWork")
   public void doWork() throws CraftException {
     try {
       // 1. Macro Program chosen based on previous if possible
@@ -246,7 +246,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @param macroNextSequence to base choice on (never actually used, because next macro first sequence overlaps it)
    @return macroTranspose
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/macro_main", operationName = "computeMacroTranspose")
   private Integer computeMacroTranspose(Program macroProgram, ProgramSequence macroNextSequence) throws CraftException {
     try {
       if (!fabricator.getProgramConfig(macroProgram).doTranspose()) return 0;
@@ -288,7 +288,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return macroSequenceBindingOffset
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/macro_main", operationName = "computeMacroProgramSequenceBindingOffset")
   private Long computeMacroProgramSequenceBindingOffset() throws CraftException {
     try {
       switch (fabricator.getType()) {
@@ -317,7 +317,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return mainSequenceBindingOffset
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/macro_main", operationName = "computeMainProgramSequenceBindingOffset")
   private Long computeMainProgramSequenceBindingOffset() throws CraftException {
     try {
       switch (fabricator.getType()) {
@@ -344,7 +344,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return next sequence in previous segment's macro choice, or null if none exists
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/macro_main", operationName = "chooseNextSequenceOfPreviousMacroProgram")
   private Optional<ProgramSequence> chooseNextSequenceOfPreviousMacroProgram() {
     try {
       SegmentChoice previousMacroChoice = fabricator.getPreviousMacroChoice();
@@ -367,7 +367,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return macro-type program
    @throws CraftException on failure
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/macro_main", operationName = "chooseMacroProgram")
   private Program chooseMacroProgram(ProgramSequence macroNextSequence) throws CraftException {
     // if continuing the macro program, use the same one
     try {
@@ -414,7 +414,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return macro-type program
    @throws CraftException on failure
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/macro_main", operationName = "chooseMacroProgram")
   private Program chooseMacroProgram() throws CraftException {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
@@ -449,7 +449,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    <p>
    future: don't we need to pass in the current pattern of the macro program?
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/macro_main", operationName = "chooseMainProgram")
   private Program chooseMainProgram() throws CraftException {
     // if continuing the macro program, use the same one
     try {
@@ -491,7 +491,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return score, including +/- entropy
    @throws CraftException on failure
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/macro_main", operationName = "scoreMacro")
   private double scoreMacro(Program program, ProgramSequence macroNextSequence) throws CraftException {
     double score = Chance.normallyAround(0, SCORE_MACRO_ENTROPY);
 
@@ -525,7 +525,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return score, including +/- entropy
    @throws CraftException on failure
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/macro_main", operationName = "scoreMain")
   private double scoreMain(Program program) throws CraftException {
     double score = Chance.normallyAround(0, SCORE_MAIN_ENTROPY);
 
@@ -572,7 +572,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return map of meme name to SegmentMeme entity
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/macro_main", operationName = "segmentMemes")
   private Collection<SegmentMeme> segmentMemes() throws FabricationException {
     Multiset<String> uniqueResults = ConcurrentHashMultiset.create();
     for (SegmentChoice choice : fabricator.getChoices()) {

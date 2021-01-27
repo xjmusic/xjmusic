@@ -2,11 +2,11 @@ package io.xj.service.nexus.work;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.newrelic.api.agent.NewRelic;
-import com.newrelic.api.agent.Trace;
 import com.typesafe.config.Config;
+import datadog.trace.api.Trace;
 import io.xj.Segment;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.Value;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.SegmentDAO;
@@ -27,24 +27,24 @@ import java.util.stream.Collectors;
  */
 public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
   private static final String NAME = "Janitor";
-  private static final String SEGMENT_ERASED = "SegmentErased";
-  private static final String TELEMETRY_JANITOR_NAME = "JanitorWorker";
   private final Logger log = LoggerFactory.getLogger(JanitorWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final NexusEntityStore store;
   private final SegmentDAO segmentDAO;
   private final int eraseSegmentsOlderThanSeconds;
+  private final TelemetryProvider telemetryProvider;
 
   @Inject
   public JanitorWorkerImpl(
     Config config,
     NexusEntityStore store,
-    SegmentDAO segmentDAO
-  ) {
+    SegmentDAO segmentDAO,
+    TelemetryProvider telemetryProvider) {
     this.store = store;
     this.segmentDAO = segmentDAO;
 
     eraseSegmentsOlderThanSeconds = config.getInt("work.eraseSegmentsOlderThanSeconds");
+    this.telemetryProvider = telemetryProvider;
 
     log.info("Instantiated OK");
   }
@@ -54,9 +54,8 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
 
    @throws Exception on failure
    */
-  @Trace(metricName = "Work/Janitor", dispatcher = true)
+  @Trace(resourceName = "nexus/janitor", operationName = "doWork")
   protected void doWork() throws Exception {
-    var t = NewRelic.getAgent().getTransaction().startSegment(TELEMETRY_JANITOR_NAME);
     var segmentIdsToErase = getSegmentIdsToErase();
     if (segmentIdsToErase.isEmpty())
       log.info("Found no segments to erase");
@@ -72,7 +71,7 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
       }
     }
 
-    NewRelic.incrementCounter(SEGMENT_ERASED, segmentIdsToErase.size());
+    telemetryProvider.getStatsDClient().incrementCounter("xj.segment.erased", segmentIdsToErase.size());
   }
 
   /**
@@ -97,7 +96,7 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
 
    @return list of IDs of Segments we ought to erase
    */
-  @Trace
+  @Trace(resourceName = "nexus/janitor", operationName = "getSegmentIdsToErase")
   private Collection<String> getSegmentIdsToErase() throws NexusEntityStoreException {
     Instant eraseBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);
     Collection<String> segmentIds = Lists.newArrayList();

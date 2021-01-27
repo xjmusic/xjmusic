@@ -3,7 +3,7 @@ package io.xj.service.nexus.craft.rhythm;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import io.xj.Instrument;
 import io.xj.Program;
 import io.xj.ProgramSequence;
@@ -49,7 +49,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
   }
 
   @Override
-  @Trace(metricName = "Work/Fabricate/Craft/Rhythm", dispatcher = true)
+  @Trace(resourceName = "nexus/craft/rhythm", operationName = "doWork")
   public void doWork() throws CraftException {
     try {
 
@@ -88,7 +88,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
    @return mainProgram
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/rhythm", operationName = "chooseRhythmProgram")
   private Program chooseRhythmProgram() throws CraftException {
     Segment.Type type;
     try {
@@ -120,7 +120,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
    @return rhythm program if previously selected, or null if none is found
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/rhythm", operationName = "getRhythmProgramSelectedPreviouslyForMainProgram")
   private Optional<Program> getRhythmProgramSelectedPreviouslyForMainProgram() {
     try {
       return fabricator.getChoicesOfPreviousSegments()
@@ -162,7 +162,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    <p>
    future: actually choose rhythm program
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/rhythm", operationName = "chooseFreshRhythm")
   private Program chooseFreshRhythm() throws CraftException {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
@@ -196,7 +196,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @param program to score
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/rhythm", operationName = "scoreRhythm")
   private Double scoreRhythm(Program program) throws CraftException {
     try {
       double score = 0;
@@ -224,7 +224,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @param voice to craft events for
    @throws CraftException on failure
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/rhythm", operationName = "craftArrangementForRhythmVoice")
   private void craftArrangementForRhythmVoice(ProgramSequence sequence, SegmentChoice choice, ProgramVoice voice) throws CraftException {
     try {
       Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentId(voice.getId());
@@ -256,7 +256,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @return percussive-type Instrument
    @throws CraftException on failure
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/rhythm", operationName = "chooseFreshPercussiveInstrument")
   private Instrument chooseFreshPercussiveInstrument(ProgramVoice voice) throws CraftException {
     try {
       EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
@@ -288,7 +288,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @param instrument to score
    @return score, including +/- entropy
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/rhythm", operationName = "scorePercussive")
   private double scorePercussive(Instrument instrument) throws CraftException {
     try {
       double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);

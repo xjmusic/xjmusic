@@ -3,7 +3,6 @@ package io.xj.lib.app;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
-import com.newrelic.api.agent.NewRelic;
 import com.typesafe.config.Config;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -64,7 +63,6 @@ public class App {
     restHostname = fallback(System.getenv("FULL_HOSTNAME"), () -> getInetHostname(config.getString("app.hostname")));
     restPort = config.getInt("app.port");
     name = config.getString("app.name");
-    NewRelic.addCustomParameter("app", name);
 
     // non-static logger for this class, because app must init first
     log.info("{} configured with\n{}", name, toReport(config));

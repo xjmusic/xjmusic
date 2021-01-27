@@ -1,10 +1,10 @@
 package io.xj.service.nexus.work;
 
 import com.google.inject.Inject;
-import com.newrelic.api.agent.NewRelic;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import io.xj.Chain;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
@@ -20,20 +20,21 @@ import java.util.stream.Collectors;
  */
 public class BossWorkerImpl extends WorkerImpl implements BossWorker {
   private static final String NAME = "Boss";
-  private static final String CHAIN_STARTED = "ChainStarted";
-  private static final String CHAIN_CANCELLED = "ChainCancelled";
   private final Logger log = LoggerFactory.getLogger(BossWorkerImpl.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final NexusWork work;
   private final ChainDAO chainDAO;
+  private final TelemetryProvider telemetryProvider;
 
   @Inject
   public BossWorkerImpl(
     NexusWork work,
-    ChainDAO chainDAO
+    ChainDAO chainDAO,
+    TelemetryProvider telemetryProvider
   ) {
     this.work = work;
     this.chainDAO = chainDAO;
+    this.telemetryProvider = telemetryProvider;
 
     log.info("Instantiated OK");
   }
@@ -44,7 +45,7 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
    @throws DAOPrivilegeException on access failure
    @throws DAOFatalException     on internal failure
    */
-  @Trace(metricName = "Work/Boss", dispatcher = true)
+  @Trace(resourceName = "nexus/boss", operationName = "doWork")
   protected void doWork() throws DAOPrivilegeException, DAOFatalException {
     Collection<String> activeIds = getActiveChainIds();
     startActiveChains(activeIds);
@@ -83,7 +84,7 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
         log.info("Did cancel work on Chain[{}]", id);
         chainsCanceled++;
       }
-    NewRelic.incrementCounter(CHAIN_CANCELLED, chainsCanceled);
+    telemetryProvider.getStatsDClient().incrementCounter("xj.chain.cancelled", chainsCanceled);
   }
 
   /**
@@ -99,6 +100,6 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
         log.info("Did start work on Chain[{}]", id);
         chainsStarted++;
       }
-    NewRelic.incrementCounter(CHAIN_STARTED, chainsStarted);
+    telemetryProvider.getStatsDClient().incrementCounter("xj.chain.started", chainsStarted);
   }
 }

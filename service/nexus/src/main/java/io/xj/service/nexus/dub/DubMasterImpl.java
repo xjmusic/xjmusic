@@ -5,8 +5,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.newrelic.api.agent.Trace;
 import com.typesafe.config.Config;
+import datadog.trace.api.Trace;
 import io.xj.InstrumentAudio;
 import io.xj.Segment;
 import io.xj.SegmentChoiceArrangementPick;
@@ -89,7 +89,7 @@ public class DubMasterImpl implements DubMaster {
   }
 
   @Override
-  @Trace(metricName = "Work/Fabricate/Dub/Master", dispatcher = true)
+  @Trace(resourceName = "nexus/dub/master", operationName = "doWork")
   public void doWork() throws DubException {
     Segment.Type type = null;
     try {
@@ -116,7 +116,7 @@ public class DubMasterImpl implements DubMaster {
   /**
    @throws Exception if failed to stream data of item of cache
    */
-  @Trace
+  @Trace(resourceName = "nexus/dub/master", operationName = "doMixerSourceLoading")
   private void doMixerSourceLoading() throws Exception {
     for (InstrumentAudio audio : fabricator.getPickedAudios()) {
       String key = audio.getWaveformKey();
@@ -141,7 +141,7 @@ public class DubMasterImpl implements DubMaster {
 
    @return computed preroll (in seconds)
    */
-  @Trace
+  @Trace(resourceName = "nexus/dub/master", operationName = "computePreroll")
   private double computePreroll() throws FabricationException {
     double maxPreroll = 0.0;
     for (SegmentChoiceArrangementPick pick : fabricator.getPicks())
@@ -161,7 +161,7 @@ public class DubMasterImpl implements DubMaster {
 
    @param preroll (seconds)
    */
-  @Trace
+  @Trace(resourceName = "nexus/dub/master", operationName = "doMixerTargetSetting")
   private void doMixerTargetSetting(Double preroll) throws FabricationException {
     for (SegmentChoiceArrangementPick pick : fabricator.getPicks())
       try {
@@ -183,7 +183,7 @@ public class DubMasterImpl implements DubMaster {
    @param preroll (seconds)
    @param pick    to set playback for
    */
-  @Trace
+  @Trace(resourceName = "nexus/dub/master", operationName = "setupTarget")
   private void setupTarget(Double preroll, SegmentChoiceArrangementPick pick) throws Exception {
     mixer().put(pick.getInstrumentAudioId(),
       toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
@@ -206,7 +206,7 @@ public class DubMasterImpl implements DubMaster {
    @param pick to get pitch ratio for
    @return pitch ratio, or cached result
    */
-  @Trace
+  @Trace(resourceName = "nexus/dub/master", operationName = "computePitchRatio")
   private Double computePitchRatio(SegmentChoiceArrangementPick pick) throws DubException {
     try {
       if (!pickPitchRatio.containsKey(pick.getId()))
@@ -224,7 +224,7 @@ public class DubMasterImpl implements DubMaster {
    @param pick to get offset start for
    @return offset start, or cached result
    */
-  @Trace
+  @Trace(resourceName = "nexus/dub/master", operationName = "computeOffsetStart")
   private Double computeOffsetStart(SegmentChoiceArrangementPick pick) throws DubException {
     try {
       if (!pickOffsetStart.containsKey(pick.getId()))
@@ -239,7 +239,7 @@ public class DubMasterImpl implements DubMaster {
   /**
    MasterDub implements Mixer module to mix final output to waveform streamed directly to Amazon S3@param preroll
    */
-  @Trace
+  @Trace(resourceName = "nexus/dub/master", operationName = "doMix")
   private void doMix() throws Exception {
     float quality = (float) fabricator.getChainConfig().getOutputEncodingQuality();
     mixer().mixToFile(OutputEncoder.parse(fabricator.getChainConfig().getOutputContainer()), fabricator.getFullQualityAudioOutputFilePath(), quality);
@@ -251,7 +251,6 @@ public class DubMasterImpl implements DubMaster {
 
    @return mixer
    */
-  @Trace
   private Mixer mixer() throws Exception {
     if (Objects.isNull(_mixer)) {
       MixerConfig config = new MixerConfig(fabricator.getOutputAudioFormat(), fabricator.getSegmentTotalLength().plusSeconds(OUTPUT_LENGTH_EXTRA_SECONDS))

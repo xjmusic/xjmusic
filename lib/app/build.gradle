@@ -15,7 +15,6 @@ repositories {
 }
 
 dependencies {
-  implementation group: 'com.newrelic.agent.java', name: 'newrelic-api', version: '6.3.0'
   implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.10.2.1'
   implementation 'com.google.guava:guava:28.2-jre'
   implementation 'com.google.inject:guice:4.2.2'

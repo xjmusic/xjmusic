@@ -1,14 +1,11 @@
 package io.xj.service.nexus.work;
 
 import com.google.inject.Inject;
-import com.newrelic.api.agent.NewRelic;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class WorkerImpl implements Runnable {
-  private static final String JOB_DURATION = "JobDuration";
-  private static final String TELEMETRY_WORKER_NAME = "Worker";
   private final Logger log = LoggerFactory.getLogger(WorkerImpl.class);
 
   @Inject
@@ -19,15 +16,12 @@ public abstract class WorkerImpl implements Runnable {
    This is a wrapper to perform common tasks around threaded work execution
    */
   @Override
-  @Trace(metricName = "Work", dispatcher = true)
   public void run() {
     final Thread currentThread = Thread.currentThread();
     final String _ogThreadName = currentThread.getName();
     currentThread.setName(String.format("%s-%s", _ogThreadName, getName()));
     try {
-      var t = NewRelic.getAgent().getTransaction().startSegment(TELEMETRY_WORKER_NAME);
       doWork();
-      t.end();
       log.info("Completed {}", getName());
 
     } catch (Throwable e) {

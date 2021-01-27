@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.protobuf.MessageLite;
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import com.typesafe.config.Config;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
@@ -53,7 +53,6 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  @Trace
   public Instrument create(HubAccess hubAccess, Instrument rawInstrument) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     Instrument instrument = validate(rawInstrument.toBuilder()).build();
@@ -64,7 +63,6 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  @Trace
   public Instrument clone(HubAccess hubAccess, String rawCloneId, Instrument rawInstrument) throws DAOException {
     requireArtist(hubAccess);
     AtomicReference<Instrument> result = new AtomicReference<>();
@@ -107,14 +105,12 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  @Trace
   @Nullable
   public Instrument readOne(HubAccess hubAccess, String id) throws DAOException {
     return readOne(dbProvider.getDSL(), hubAccess, id);
   }
 
   @Override
-  @Trace
   public void destroy(HubAccess hubAccess, String rawId) throws DAOException {
     DSLContext db = dbProvider.getDSL();
     UUID id = UUID.fromString(rawId);
@@ -152,13 +148,11 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  @Trace
   public Instrument newInstance() {
     return Instrument.getDefaultInstance();
   }
 
   @Override
-  @Trace
   public Collection<Instrument> readManyInAccount(HubAccess hubAccess, String accountId) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
@@ -178,7 +172,6 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  @Trace
   public Collection<Instrument> readMany(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
@@ -197,7 +190,6 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  @Trace
   public <N extends MessageLite> Collection<N> readManyWithChildEntities(HubAccess hubAccess, Collection<String> instrumentIds) throws DAOException {
     DSLContext db = dbProvider.getDSL();
 
@@ -230,7 +222,6 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  @Trace
   public Collection<Instrument> readMany(HubAccess hubAccess) throws DAOException {
     if (hubAccess.isTopLevel())
       return modelsFrom(Instrument.class, dbProvider.getDSL().select(INSTRUMENT.fields())
@@ -247,7 +238,6 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  @Trace
   public Collection<String> readIdsInLibraries(HubAccess hubAccess, Collection<String> parentIds) throws DAOException {
     requireArtist(hubAccess);
     return DAO.idsFrom(dbProvider.getDSL().select(INSTRUMENT.ID)
@@ -258,7 +248,6 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  @Trace
   public void update(HubAccess hubAccess, String id, Instrument rawInstrument) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     Instrument.Builder instrumentBuilder = rawInstrument.toBuilder();

@@ -1,6 +1,6 @@
 package io.xj.service.nexus.craft.arrangement;
 
-import com.newrelic.api.agent.Trace;
+import datadog.trace.api.Trace;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
 import io.xj.InstrumentAudioEvent;
@@ -49,7 +49,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param maxPos      position (in beats)
    @throws CraftException on failure
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/arrangement", operationName = "craftArrangementForVoiceSection")
   protected void craftArrangementForVoiceSection(
     @Nullable SegmentChord chord,
     ProgramSequence sequence,
@@ -108,7 +108,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param maxPos      to write events to segment
    @return deltaPos of start, after crafting this batch of pattern events
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/arrangement", operationName = "craftPatternEvents")
   protected double craftPatternEvents(
     @Nullable SegmentChord chord,
     SegmentChoice choice,
@@ -138,7 +138,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param event         to pick audio for
    @param shiftPosition offset voice event zero within current segment
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/arrangement", operationName = "pickInstrumentAudio")
   protected void pickInstrumentAudio(
     @Nullable SegmentChord chord, Instrument instrument,
     SegmentChoiceArrangement segmentChoiceArrangement,
@@ -237,7 +237,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @return matched new audio
    @throws CraftException on failure
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/arrangement", operationName = "selectMultiphonicInstrumentAudio")
   protected Optional<InstrumentAudio> selectMultiphonicInstrumentAudio(
     Instrument instrument,
     ProgramSequencePatternEvent event
@@ -270,7 +270,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @return matched new audio
    @throws CraftException on failure
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/arrangement", operationName = "selectInstrumentAudio")
   protected Optional<InstrumentAudio> selectInstrumentAudio(
     Instrument instrument,
     ProgramSequencePatternEvent event
@@ -298,7 +298,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param event      to match
    @return matched new audio
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/arrangement", operationName = "selectNewInstrumentAudio")
   protected Optional<InstrumentAudio> selectNewInstrumentAudio(
     Instrument instrument,
     ProgramSequencePatternEvent event
@@ -334,7 +334,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param event      to match
    @return matched new audio
    */
-  @Trace
+  @Trace(resourceName = "nexus/craft/arrangement", operationName = "selectNewMultiphonicInstrumentAudio")
   protected Optional<InstrumentAudio> selectNewMultiphonicInstrumentAudio(
     Instrument instrument,
     ProgramSequencePatternEvent event

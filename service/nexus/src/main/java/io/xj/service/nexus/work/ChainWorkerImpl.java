@@ -2,11 +2,11 @@ package io.xj.service.nexus.work;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.newrelic.api.agent.NewRelic;
-import com.newrelic.api.agent.Trace;
 import com.typesafe.config.Config;
+import datadog.trace.api.Trace;
 import io.xj.Chain;
 import io.xj.Segment;
+import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.SegmentDAO;
@@ -25,7 +25,6 @@ import java.util.Optional;
  */
 public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
   private static final String NAME = "Chain";
-  private static final String SEGMENT_CREATED = "SegmentCreated";
   private final Logger log = LoggerFactory.getLogger(ChainWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final int bufferProductionSeconds;
@@ -34,6 +33,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
   private final ChainDAO chainDAO;
   private final SegmentDAO segmentDAO;
   private final WorkerFactory workers;
+  private final TelemetryProvider telemetryProvider;
 
   @Inject
   public ChainWorkerImpl(
@@ -41,12 +41,14 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
     Config config,
     SegmentDAO segmentDAO,
     ChainDAO chainDAO,
-    WorkerFactory workerFactory
+    WorkerFactory workerFactory,
+    TelemetryProvider telemetryProvider
   ) {
     this.chainId = chainId;
     this.chainDAO = chainDAO;
     this.segmentDAO = segmentDAO;
     this.workers = workerFactory;
+    this.telemetryProvider = telemetryProvider;
 
     bufferProductionSeconds = config.getInt("work.bufferProductionSeconds");
     bufferPreviewSeconds = config.getInt("work.bufferPreviewSeconds");
@@ -67,7 +69,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
    @throws DAOValidationException on failure
    @throws DAOExistenceException  on failure
    */
-  @Trace(metricName = "Work/Chain", dispatcher = true)
+  @Trace(resourceName = "nexus/chain", operationName = "doWork")
   protected void doWork() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     try {
       var chain = chainDAO.readOne(access, chainId);
@@ -85,7 +87,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
       if (segment.isEmpty()) return;
       Segment createdSegment = segmentDAO.create(access, segment.get());
       log.info("Created Segment {}", createdSegment);
-      NewRelic.incrementCounter(SEGMENT_CREATED);
+      telemetryProvider.getStatsDClient().incrementCounter("xj.segment.created");
 
       // FUTURE: fork/join thread possible for this sub-runnable of the fabrication worker
       workers.segment(createdSegment.getId()).run();

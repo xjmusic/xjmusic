@@ -95,9 +95,6 @@ touch ${ACCESS_LOG}
 chmod +w ${ACCESS_LOG}
 
 #
-NEW_RELIC_PROCESS_HOST_DISPLAY_NAME=${APP_NAME}
-
-#
 printf "[$(date)]\n"
 printf "Starting ${APP_PATH}/bin/${APP_NAME}\n"
 printf "       config: ${CONFIG_PATH}\n"
