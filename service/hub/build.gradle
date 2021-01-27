@@ -159,6 +159,7 @@ application {
 applicationDefaultJvmArgs = [
   "-agentpath:/usr/local/YourKit-JavaProfiler-2020.9/bin/linux-x86-64/libyjpagent.so=port=10000,listen=all,logdir=/var/log/profiler",
   "-javaagent:/usr/local/dd-java-agent.jar",
+  "-Ddd.service=hub",
   "-Xmx1500m"
 ]
 
