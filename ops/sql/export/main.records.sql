@@ -142,64 +142,64 @@ fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Cool Ambience™ Sandbox	14e58a74-16eb-11ea
 --
 
 COPY xj.instrument (id, library_id, type, state, name, density, config) FROM stdin;
-152fbc70-16eb-11ea-8a37-2f91c79f438d	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Acoustic	0.600000024
-158a6738-16eb-11ea-8a37-3706e5d25249	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Earth A (legacy)	0.600000024
-15cd8374-16eb-11ea-8a37-8f22eedc54b2	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Earth B (legacy)	0.600000024
-166815c4-16eb-11ea-8a37-634bb3ccef01	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Electronic	0.600000024
-169ea38c-16eb-11ea-8a37-b799503ae436	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Fire A  (legacy)	0.600000024
-17af4286-16eb-11ea-8a37-7f9963e0dfa2	1509b610-16eb-11ea-8a37-731d17ba5549	Percussive	Published	Flammy Clap	0.600000024
-17b34ca0-16eb-11ea-8a37-6b86e3816409	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Earth Large	0.600000024
-17e50f74-16eb-11ea-8a37-e3561e92fad1	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Pots & Pans	0.600000024
-1860788a-16eb-11ea-8a37-87eb83753fe4	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Water B (legacy)	0.600000024
-1884dbb2-16eb-11ea-8a37-077ec33cd155	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Water Basic X	0
-193a8eee-16eb-11ea-8a37-4f72c68eb48d	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Wind A (legacy)	0.600000024
-196d485c-16eb-11ea-8a37-3b9fc50a2c86	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Wind B (legacy)	0.600000024
-40766298-60de-11ea-a612-43b1bb19e32a	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Draft	Earth Large Kit A	0.600000024
-19138e3e-16eb-11ea-8a37-0b2895a9ceb9	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Water Small (Legacy)	0.600000024
-18860e06-16eb-11ea-8a37-1fe3e47ff5a8	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Water Large (Legacy)	0.600000024
-1787297c-16eb-11ea-8a37-6f3014c0a6fc	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Fire Small (Legacy)	0.600000024
-16c8d008-16eb-11ea-8a37-dbdfe140dd35	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Fire Large (Legacy)	0.600000024
-1637e066-16eb-11ea-8a37-c7f42ae039d6	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Earth Small (Legacy)	0.600000024
-06121a8e-60d4-11ea-ba4d-8786ea357f01	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Earth Large (Archive)	0.600000024
-234c30f8-60d4-11ea-b41e-3fc9fed63772	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Earth Small (Archive)	0.600000024
-2616bad8-60d4-11ea-b41e-0f5122693b78	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Fire Large (Archive)	0.600000024
-290c072a-60d4-11ea-b41e-9f5b206a8b5e	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Fire Small (Archive)	0.600000024
-2b9945b6-60d4-11ea-b41e-db0695b1e9a0	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Water Large (Archive)	0.600000024
-2e0447e2-60d4-11ea-b41e-8bb683db6049	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Water Small (Archive)	0.600000024
-30933234-60d4-11ea-b41e-af865edbb83e	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Wind Large (Archive)	0.600000024
-337d06d2-60d4-11ea-b41e-4fbf8d13a55a	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Wind Small (Archive)	0.600000024
-15f4f92c-16eb-11ea-8a37-2f529693f38a	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Earth Large (Legacy)	0.600000024
-0c668776-64d5-11ea-acd9-c772fe2ee43d	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Fire Large	0.600000024
-28806cbc-64ec-11ea-acb5-7f27befb1aad	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Fire Small	0.600000024
-199a5e8c-16eb-11ea-8a37-0f841ec0351d	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Wind Large (Legacy)	0.600000024
-19ea21a6-16eb-11ea-8a37-cb712a6674d9	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Wind Small (Legacy)	0.600000024
-34c05028-696f-11ea-b45e-6b770285d799	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Wind Small	0.600000024
-d8de4aec-6317-11ea-a6db-9f44c189845f	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Water Large	0.600000024
-55d46a34-6360-11ea-8872-97bb23901000	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Water Small	0.600000024
-c7699edc-bb51-11ea-9785-2f49dfce551e	5b300b6a-ab94-11ea-8655-67738fabcb32	Percussive	Draft	Wind Large 1	1
-eacd388c-c6b6-11ea-ac95-d3dfd467468b	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Wind Large 2 Kit	0.600000024
-00d18760-c6bb-11ea-bf1e-db7a46faf8c4	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Earth Small 1 Kit	0.600000024
-054f4b0e-c6bd-11ea-8d9b-d3bfd03b9b0f	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Earth Small 2 Kit	0.600000024
-3d18232e-c6bf-11ea-8d9b-03b3b304f97b	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Earth Large 2 Kit	0.600000024
-e3183eaa-c6bd-11ea-9c82-57f1aff96cac	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Earth Large 1 Kit	0.600000024
-d247d096-c6c1-11ea-a4db-538e1ac4667f	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Fire Large 2 Kit	0.600000024
-430097b4-c6b8-11ea-bf1e-5f5392f83f6a	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Wind Small 2 Kit	0.600000024
-bd273c54-c6b9-11ea-bf1e-6f4a50ee66c3	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Wind Small 1 Kit	0.600000024
-a940a2c8-c6c0-11ea-a4db-27c57fde98ce	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Fire Large 1 Kit	0.600000024
-8e5f051e-c6c3-11ea-a4db-cfa29022f878	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Fire Small 1 Kit	0.600000024
-f61b228a-c6c5-11ea-b647-03bc49b60069	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Fire Small 2 Kit	0.600000024
-e73c6d52-c6c8-11ea-a21e-570912a399b6	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Water Large 1 Kit	0.600000024
-d9dd91c6-c6c9-11ea-a21e-0bcae3c78831	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Water Large 2 Kit	0.600000024
-3bbcc300-c6c8-11ea-9c5b-3fabd1ae6028	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Water Small 2 Kit	0.600000024
-09e94f98-c6c7-11ea-b647-8766c0d05d20	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Water Small 1 Kit	0.600000024
-3e55da8a-bb55-11ea-bec8-83d3620b01db	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Wind Large 1 Kit	0.600000024
+152fbc70-16eb-11ea-8a37-2f91c79f438d	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Acoustic	0.600000024	isTonal=false
+158a6738-16eb-11ea-8a37-3706e5d25249	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Earth A (legacy)	0.600000024	isTonal=false
+15cd8374-16eb-11ea-8a37-8f22eedc54b2	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Earth B (legacy)	0.600000024	isTonal=false
+166815c4-16eb-11ea-8a37-634bb3ccef01	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Electronic	0.600000024	isTonal=false
+169ea38c-16eb-11ea-8a37-b799503ae436	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Fire A  (legacy)	0.600000024	isTonal=false
+17af4286-16eb-11ea-8a37-7f9963e0dfa2	1509b610-16eb-11ea-8a37-731d17ba5549	Percussive	Published	Flammy Clap	0.600000024	isTonal=false
+17b34ca0-16eb-11ea-8a37-6b86e3816409	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Earth Large	0.600000024	isTonal=false
+17e50f74-16eb-11ea-8a37-e3561e92fad1	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Pots & Pans	0.600000024	isTonal=false
+1860788a-16eb-11ea-8a37-87eb83753fe4	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Water B (legacy)	0.600000024	isTonal=false
+1884dbb2-16eb-11ea-8a37-077ec33cd155	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Water Basic X	0	isTonal=false
+193a8eee-16eb-11ea-8a37-4f72c68eb48d	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Wind A (legacy)	0.600000024	isTonal=false
+196d485c-16eb-11ea-8a37-3b9fc50a2c86	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Published	Wind B (legacy)	0.600000024	isTonal=false
+40766298-60de-11ea-a612-43b1bb19e32a	15085f36-16eb-11ea-8a37-57a336f886a8	Percussive	Draft	Earth Large Kit A	0.600000024	isTonal=false
+19138e3e-16eb-11ea-8a37-0b2895a9ceb9	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Water Small (Legacy)	0.600000024	isTonal=false
+18860e06-16eb-11ea-8a37-1fe3e47ff5a8	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Water Large (Legacy)	0.600000024	isTonal=false
+1787297c-16eb-11ea-8a37-6f3014c0a6fc	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Fire Small (Legacy)	0.600000024	isTonal=false
+16c8d008-16eb-11ea-8a37-dbdfe140dd35	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Fire Large (Legacy)	0.600000024	isTonal=false
+1637e066-16eb-11ea-8a37-c7f42ae039d6	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Earth Small (Legacy)	0.600000024	isTonal=false
+06121a8e-60d4-11ea-ba4d-8786ea357f01	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Earth Large (Archive)	0.600000024	isTonal=false
+234c30f8-60d4-11ea-b41e-3fc9fed63772	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Earth Small (Archive)	0.600000024	isTonal=false
+2616bad8-60d4-11ea-b41e-0f5122693b78	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Fire Large (Archive)	0.600000024	isTonal=false
+290c072a-60d4-11ea-b41e-9f5b206a8b5e	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Fire Small (Archive)	0.600000024	isTonal=false
+2b9945b6-60d4-11ea-b41e-db0695b1e9a0	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Water Large (Archive)	0.600000024	isTonal=false
+2e0447e2-60d4-11ea-b41e-8bb683db6049	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Water Small (Archive)	0.600000024	isTonal=false
+30933234-60d4-11ea-b41e-af865edbb83e	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Wind Large (Archive)	0.600000024	isTonal=false
+337d06d2-60d4-11ea-b41e-4fbf8d13a55a	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Wind Small (Archive)	0.600000024	isTonal=false
+15f4f92c-16eb-11ea-8a37-2f529693f38a	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Earth Large (Legacy)	0.600000024	isTonal=false
+0c668776-64d5-11ea-acd9-c772fe2ee43d	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Fire Large	0.600000024	isTonal=false
+28806cbc-64ec-11ea-acb5-7f27befb1aad	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Fire Small	0.600000024	isTonal=false
+199a5e8c-16eb-11ea-8a37-0f841ec0351d	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Wind Large (Legacy)	0.600000024	isTonal=false
+19ea21a6-16eb-11ea-8a37-cb712a6674d9	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Wind Small (Legacy)	0.600000024	isTonal=false
+34c05028-696f-11ea-b45e-6b770285d799	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Wind Small	0.600000024	isTonal=false
+d8de4aec-6317-11ea-a6db-9f44c189845f	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Water Large	0.600000024	isTonal=false
+55d46a34-6360-11ea-8872-97bb23901000	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Water Small	0.600000024	isTonal=false
+c7699edc-bb51-11ea-9785-2f49dfce551e	5b300b6a-ab94-11ea-8655-67738fabcb32	Percussive	Draft	Wind Large 1	1	isTonal=false
+eacd388c-c6b6-11ea-ac95-d3dfd467468b	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Wind Large 2 Kit	0.600000024	isTonal=false
+00d18760-c6bb-11ea-bf1e-db7a46faf8c4	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Earth Small 1 Kit	0.600000024	isTonal=false
+054f4b0e-c6bd-11ea-8d9b-d3bfd03b9b0f	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Earth Small 2 Kit	0.600000024	isTonal=false
+3d18232e-c6bf-11ea-8d9b-03b3b304f97b	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Earth Large 2 Kit	0.600000024	isTonal=false
+e3183eaa-c6bd-11ea-9c82-57f1aff96cac	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Earth Large 1 Kit	0.600000024	isTonal=false
+d247d096-c6c1-11ea-a4db-538e1ac4667f	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Fire Large 2 Kit	0.600000024	isTonal=false
+430097b4-c6b8-11ea-bf1e-5f5392f83f6a	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Wind Small 2 Kit	0.600000024	isTonal=false
+bd273c54-c6b9-11ea-bf1e-6f4a50ee66c3	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Wind Small 1 Kit	0.600000024	isTonal=false
+a940a2c8-c6c0-11ea-a4db-27c57fde98ce	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Fire Large 1 Kit	0.600000024	isTonal=false
+8e5f051e-c6c3-11ea-a4db-cfa29022f878	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Fire Small 1 Kit	0.600000024	isTonal=false
+f61b228a-c6c5-11ea-b647-03bc49b60069	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Fire Small 2 Kit	0.600000024	isTonal=false
+e73c6d52-c6c8-11ea-a21e-570912a399b6	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Water Large 1 Kit	0.600000024	isTonal=false
+d9dd91c6-c6c9-11ea-a21e-0bcae3c78831	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Water Large 2 Kit	0.600000024	isTonal=false
+3bbcc300-c6c8-11ea-9c5b-3fabd1ae6028	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Water Small 2 Kit	0.600000024	isTonal=false
+09e94f98-c6c7-11ea-b647-8766c0d05d20	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Water Small 1 Kit	0.600000024	isTonal=false
+3e55da8a-bb55-11ea-bec8-83d3620b01db	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	Wind Large 1 Kit	0.600000024	isTonal=false
 c285e3a8-1ba0-11eb-aab8-1f13fdf1284f	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Earth Large Bass	0.600000024	isMultiphonic=true\nisTonal=true
 17c32bc4-1bb4-11eb-9d42-ab105d1d2821	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Earth Small Bass	0.600000024	isTonal=true\nisMultiphonic=true
 e26c67f4-1bb5-11eb-92b0-8bc1117eadc7	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Fire Large Bass	0.600000024	isMultiphonic=true\nisTonal=true
-15162544-16eb-11ea-8a37-5f8791ecc0c1	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Fire String Hits	0.600000024
-151b16ee-16eb-11ea-8a37-7755b75f4dfb	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Water Sitar Harmony	0.600000024
-15204e7a-16eb-11ea-8a37-7f93cb6b74b4	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Water Whale Harmony	0.600000024
-1525acd0-16eb-11ea-8a37-cfc6f82ffb5d	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Wind Flute Note	0.600000024
+15162544-16eb-11ea-8a37-5f8791ecc0c1	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Fire String Hits	0.600000024	isTonal=true
+151b16ee-16eb-11ea-8a37-7755b75f4dfb	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Water Sitar Harmony	0.600000024	isTonal=true
+15204e7a-16eb-11ea-8a37-7f93cb6b74b4	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Water Whale Harmony	0.600000024	isTonal=true
+1525acd0-16eb-11ea-8a37-cfc6f82ffb5d	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Wind Flute Note	0.600000024	isTonal=true
 c0c58ade-0b31-11eb-a297-d313824ce482	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Earth Small Pad	0.600000024	isTonal=true
 be236c0e-205f-11eb-85b7-07de329489e7	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Wind Small Sticky	0.600000024	isTonal=true
 af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Fire Large Pad	0.600000024	isTonal=true
@@ -5186,119 +5186,119 @@ d511f446-2067-11eb-87d3-2fcb7784528a	92220d48-2061-11eb-a29a-9f2dfa197751	LARGE
 --
 
 COPY xj.program (id, library_id, state, key, tempo, type, name, density, config) FROM stdin;
-1a21695e-16eb-11ea-8a37-471123a2fa62	15085f36-16eb-11ea-8a37-57a336f886a8	Published	G minor	130	Macro	Deep, from Cool to Hot	0
-1a2b79da-16eb-11ea-8a37-83af2bc21c26	15085f36-16eb-11ea-8a37-57a336f886a8	Published	C	130	Macro	Deep, from Hot to Cool	0
-2298444a-16eb-11ea-8a37-5389fe5c6d7c	15085f36-16eb-11ea-8a37-57a336f886a8	Published	C	130	Rhythm	2-Step Shuffle Beat	0
-b97a467e-adb8-11ea-bbbf-cb98d9349728	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	Cm	120	Rhythm	Test Harmonic Detail	0.600000024
-8e09d454-4e91-11ea-b949-5bb81903f1a1	4d439966-4d45-11ea-bc7b-1fe29a7f7cd5	Published	C	123	Rhythm	House Beat Prototype	0
-e5153ede-0901-11eb-b8a3-a3ea52d7a535	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	C	120	Detail	Test Detail	0.600000024
-f4f21566-c6cb-11ea-b6c0-cb45bfcd2c4b	5b300b6a-ab94-11ea-8655-67738fabcb32	Draft	c	130	Rhythm	Testers	0.600000024
-1a36a1ca-16eb-11ea-8a37-536b94a6f3ff	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Ebm	120	Macro	Earth to Fire	0
-1a40808c-16eb-11ea-8a37-cb54f3323275	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Gm	120	Macro	Earth to Water	0
-1a46a2be-16eb-11ea-8a37-7396524c6a27	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Cm	120	Macro	Earth to Wind	0
-1a4c0f74-16eb-11ea-8a37-c7d65a03364a	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Macro	Fire to Earth	0
-1a533b1e-16eb-11ea-8a37-1b89f02a00e8	1509102a-16eb-11ea-8a37-4764c2a771db	Published	E	120	Macro	Fire to Water	0
-1a5e97e8-16eb-11ea-8a37-1327bf2f94a0	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Macro	Fire to Wind	0
-1a696574-16eb-11ea-8a37-0b820d50edf4	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Macro	Water to Earth	0
-1a741e1a-16eb-11ea-8a37-bfcc21e2cd33	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Macro	Water to Fire	0
-1a7f128e-16eb-11ea-8a37-f7bc27184026	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Macro	Water to Wind	0
-1a93d8ea-16eb-11ea-8a37-07702a221e45	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Bm	120	Macro	Wind to Fire	0
-1a9a8ff0-16eb-11ea-8a37-5736573db704	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Ebm	120	Macro	Wind to Water	0
-1aa1ad62-16eb-11ea-8a37-e3635cda90ac	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	120	Main	Earth 3	0.600000024
-1ad8543e-16eb-11ea-8a37-d3089a6baf4d	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Main	Earth Earth	0.600000024
-1b048734-16eb-11ea-8a37-eb0f9b6b1f89	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Bb	120	Main	Earth First	0.600000024
-1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Bb-	120	Main	Earth Knyght	0.600000024
-1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Db	120	Main	Earth Mert	0.600000024
-1ba99e54-16eb-11ea-8a37-0753aaf26025	1509102a-16eb-11ea-8a37-4764c2a771db	Published	D	120	Main	Earth Rudy	0.600000024
-1bd515ac-16eb-11ea-8a37-2711b44f5abc	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F#	120	Main	Earth'm	0.600000024
-1df7d432-16eb-11ea-8a37-97c25b2a6298	1509102a-16eb-11ea-8a37-4764c2a771db	Published	B-	121	Main	Water Bun	0.600000024
-1e1d5928-16eb-11ea-8a37-9751a208273e	1509102a-16eb-11ea-8a37-4764c2a771db	Published	E-	121	Main	Water Galq	0.600000024
-1e5b5f98-16eb-11ea-8a37-df0dc125933d	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	121	Main	Water Me Up	0.600000024
-1e9a52e8-16eb-11ea-8a37-8357d918bfda	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	121	Main	Water Probe	0.600000024
-1f729be4-16eb-11ea-8a37-f7402b31f897	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F-	122	Main	Wind 88	0.600000024
-1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Eb	122	Main	Wind Bagz	0.600000024
-1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	122	Main	Wind Mole	0.600000024
-20203966-16eb-11ea-8a37-1f6f4f9c48ae	1509102a-16eb-11ea-8a37-4764c2a771db	Published	D-	122	Main	Wind Terb	0.600000024
-20630ebc-16eb-11ea-8a37-af1c14cc01bc	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	122	Main	Wind Wind	0.600000024
-208ccf18-16eb-11ea-8a37-cfe47cc0feee	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Eb-	122	Main	Windu Kush	0.600000024
-1c46f5aa-16eb-11ea-8a37-d3b0641778a1	1509102a-16eb-11ea-8a37-4764c2a771db	Published	E-	123	Main	Fire Babes	0.600000024
-1c9163a6-16eb-11ea-8a37-f39bdf338693	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	123	Main	Fire Camp	0.600000024
-1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C#-	123	Main	Fire Fire	0.600000024
-1cd6c720-16eb-11ea-8a37-772e7139de8e	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Ab	123	Main	Fire NBD	0.600000024
-1d054da2-16eb-11ea-8a37-e76bae68ab4e	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Eb-	123	Main	Fire Pal	0.600000024
-1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C-	123	Main	Fire Tom Perez	0.600000024
-1d725d2a-16eb-11ea-8a37-7bccb481c597	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	123	Main	Fired	0.600000024
-1da04118-16eb-11ea-8a37-3f1dce9d6424	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F#-	123	Main	Fireggio	0.600000024
-7ff9e534-ab98-11ea-aeee-133657b44529	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	Eb	120	Rhythm	Check 1-2	1
-9e0ab8e6-ab70-11ea-87d0-cb03e8df1e44	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	120	Rhythm	Earth to XJ	1
-7a001d1a-b75a-11ea-98ba-47fa6707ff76	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	x	120	Rhythm	Blank Example	1
-1a88b7da-16eb-11ea-8a37-6b20c565ae15	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Ebm	120	Macro	Wind to Earth	0
-ef799b66-c4bb-11ea-a6dc-ff18af2544a3	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Rhythm	Fire Fire	1
-39fadb7c-bfb8-11ea-8ab8-679371f0fd1a	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Rhythm	88 Wind	0
-a7365dbc-c858-11ea-b84b-73b9ff2e930e	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	c	120	Rhythm	Check	0.600000024
-e4b5408e-d381-11ea-b4dd-8304deea5ed4	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Rhythm	Janky Fire	1
-8b73aa9e-ca38-11ea-bdcf-67c8042da422	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Rhythm	Water Water	1
-1ed3893c-16eb-11ea-8a37-53c677a170ca	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F#-	121	Main	Water Rotcher	0.600000024
-1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C#	121	Main	Water Water	0.600000024
-1f27ae54-16eb-11ea-8a37-638aed0c1ccf	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C#-	121	Main	Water Wibs	0.600000024
-1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	121	Main	Waternity	0.600000024
-20d07cc2-16eb-11ea-8a37-c32a94270435	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	123	Rhythm	Breakdown Prototype	0
-ff67b0f8-1a60-11eb-902b-039843691523	1509102a-16eb-11ea-8a37-4764c2a771db	Published	D-	120	Main	Earth Home	0.5
-5150b8ec-1a61-11eb-b572-0be5ef9bdb58	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C-	120	Main	Water Home	0.5
-d395eede-b900-11ea-934d-db757ed200f1	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	1 Stab	0.5
-e113e57e-ea75-11ea-a9de-df325fd374a7	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	2	0.5
-e0a5a4e8-ea74-11ea-917f-0713db69370b	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	0.5	Detail	3	120
-a464a3ac-b901-11ea-934d-6b904d1e2fda	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Bass House 8ths	0.5
-b4cd84b6-b906-11ea-a9f2-7bc1b817dd93	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave bossa	0.5
-e2bf5514-b980-11ea-b36f-cb6a028611bb	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave cascara	0.5
-96daa580-b981-11ea-b36f-4bac0e54cfb6	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave dotted 8ths 1	0.5
-68438ee0-b98a-11ea-aff8-e31f8897b999	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave dotted 8ths 2	0.5
-0300fe02-b906-11ea-9399-676ca2170d8d	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave rhumba 2-3	0.5
-61784896-b906-11ea-9399-9fad978f03b8	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave rhumba 3-2	0.5
-aa47dd76-b905-11ea-9399-eb7fddb3dfed	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave son 2-3	0.5
-02778e98-b905-11ea-9399-dfe5c23c5e0e	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave Son 3-2	0.5
-0fad1830-b900-11ea-934d-33a9a744d8fc	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Footballs	0.5
-87601888-1a61-11eb-9428-8748532aadff	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C#-	120	Main	Fire Home	0.5
-2078ee76-16eb-11ea-8a37-b7162aa1ef0f	1509102a-16eb-11ea-8a37-4764c2a771db	Published	NC	122	Main	Wind X	0.600000024
-20ba8084-16eb-11ea-8a37-cb38a312de67	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	122	Main	Windy Baby Hey	0.600000024
-b0936660-1a61-11eb-9428-3f783cd2858b	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Eb-	120	Main	Wind Home	0.5
-76a97f4e-1b05-11eb-95f7-e7d79c3460ae	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	c	125	Rhythm	Testy	6
-47de6e0c-0810-11eb-8696-b750b1583f1c	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	120	Rhythm	Plent	1
-f6a420be-1b05-11eb-bde4-fb2cf88cbbc9	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	125	Main	Testy2	6
+1a21695e-16eb-11ea-8a37-471123a2fa62	15085f36-16eb-11ea-8a37-57a336f886a8	Published	G minor	130	Macro	Deep, from Cool to Hot	0	doTranspose=false
+1a2b79da-16eb-11ea-8a37-83af2bc21c26	15085f36-16eb-11ea-8a37-57a336f886a8	Published	C	130	Macro	Deep, from Hot to Cool	0	doTranspose=false
+2298444a-16eb-11ea-8a37-5389fe5c6d7c	15085f36-16eb-11ea-8a37-57a336f886a8	Published	C	130	Rhythm	2-Step Shuffle Beat	0	doTranspose=false
+b97a467e-adb8-11ea-bbbf-cb98d9349728	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	Cm	120	Rhythm	Test Harmonic Detail	0.600000024	doTranspose=false
+8e09d454-4e91-11ea-b949-5bb81903f1a1	4d439966-4d45-11ea-bc7b-1fe29a7f7cd5	Published	C	123	Rhythm	House Beat Prototype	0	doTranspose=false
+e5153ede-0901-11eb-b8a3-a3ea52d7a535	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	C	120	Detail	Test Detail	0.600000024	doTranspose=false
+f4f21566-c6cb-11ea-b6c0-cb45bfcd2c4b	5b300b6a-ab94-11ea-8655-67738fabcb32	Draft	c	130	Rhythm	Testers	0.600000024	doTranspose=false
+1a36a1ca-16eb-11ea-8a37-536b94a6f3ff	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Ebm	120	Macro	Earth to Fire	0	doTranspose=false
+1a40808c-16eb-11ea-8a37-cb54f3323275	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Gm	120	Macro	Earth to Water	0	doTranspose=false
+1a46a2be-16eb-11ea-8a37-7396524c6a27	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Cm	120	Macro	Earth to Wind	0	doTranspose=false
+1a4c0f74-16eb-11ea-8a37-c7d65a03364a	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Macro	Fire to Earth	0	doTranspose=false
+1a533b1e-16eb-11ea-8a37-1b89f02a00e8	1509102a-16eb-11ea-8a37-4764c2a771db	Published	E	120	Macro	Fire to Water	0	doTranspose=false
+1a5e97e8-16eb-11ea-8a37-1327bf2f94a0	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Macro	Fire to Wind	0	doTranspose=false
+1a696574-16eb-11ea-8a37-0b820d50edf4	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Macro	Water to Earth	0	doTranspose=false
+1a741e1a-16eb-11ea-8a37-bfcc21e2cd33	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Macro	Water to Fire	0	doTranspose=false
+1a7f128e-16eb-11ea-8a37-f7bc27184026	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Macro	Water to Wind	0	doTranspose=false
+1a93d8ea-16eb-11ea-8a37-07702a221e45	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Bm	120	Macro	Wind to Fire	0	doTranspose=false
+1a9a8ff0-16eb-11ea-8a37-5736573db704	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Ebm	120	Macro	Wind to Water	0	doTranspose=false
+1aa1ad62-16eb-11ea-8a37-e3635cda90ac	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	120	Main	Earth 3	0.600000024	doTranspose=false
+1ad8543e-16eb-11ea-8a37-d3089a6baf4d	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Main	Earth Earth	0.600000024	doTranspose=false
+1b048734-16eb-11ea-8a37-eb0f9b6b1f89	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Bb	120	Main	Earth First	0.600000024	doTranspose=false
+1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Bb-	120	Main	Earth Knyght	0.600000024	doTranspose=false
+1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Db	120	Main	Earth Mert	0.600000024	doTranspose=false
+1ba99e54-16eb-11ea-8a37-0753aaf26025	1509102a-16eb-11ea-8a37-4764c2a771db	Published	D	120	Main	Earth Rudy	0.600000024	doTranspose=false
+1bd515ac-16eb-11ea-8a37-2711b44f5abc	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F#	120	Main	Earth'm	0.600000024	doTranspose=false
+1df7d432-16eb-11ea-8a37-97c25b2a6298	1509102a-16eb-11ea-8a37-4764c2a771db	Published	B-	121	Main	Water Bun	0.600000024	doTranspose=false
+1e1d5928-16eb-11ea-8a37-9751a208273e	1509102a-16eb-11ea-8a37-4764c2a771db	Published	E-	121	Main	Water Galq	0.600000024	doTranspose=false
+1e5b5f98-16eb-11ea-8a37-df0dc125933d	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	121	Main	Water Me Up	0.600000024	doTranspose=false
+1e9a52e8-16eb-11ea-8a37-8357d918bfda	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	121	Main	Water Probe	0.600000024	doTranspose=false
+1f729be4-16eb-11ea-8a37-f7402b31f897	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F-	122	Main	Wind 88	0.600000024	doTranspose=false
+1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Eb	122	Main	Wind Bagz	0.600000024	doTranspose=false
+1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	122	Main	Wind Mole	0.600000024	doTranspose=false
+20203966-16eb-11ea-8a37-1f6f4f9c48ae	1509102a-16eb-11ea-8a37-4764c2a771db	Published	D-	122	Main	Wind Terb	0.600000024	doTranspose=false
+20630ebc-16eb-11ea-8a37-af1c14cc01bc	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	122	Main	Wind Wind	0.600000024	doTranspose=false
+208ccf18-16eb-11ea-8a37-cfe47cc0feee	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Eb-	122	Main	Windu Kush	0.600000024	doTranspose=false
+1c46f5aa-16eb-11ea-8a37-d3b0641778a1	1509102a-16eb-11ea-8a37-4764c2a771db	Published	E-	123	Main	Fire Babes	0.600000024	doTranspose=false
+1c9163a6-16eb-11ea-8a37-f39bdf338693	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	123	Main	Fire Camp	0.600000024	doTranspose=false
+1cbe69aa-16eb-11ea-8a37-ef5eb37dc525	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C#-	123	Main	Fire Fire	0.600000024	doTranspose=false
+1cd6c720-16eb-11ea-8a37-772e7139de8e	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Ab	123	Main	Fire NBD	0.600000024	doTranspose=false
+1d054da2-16eb-11ea-8a37-e76bae68ab4e	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Eb-	123	Main	Fire Pal	0.600000024	doTranspose=false
+1d44afe2-16eb-11ea-8a37-abee7f9bcb41	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C-	123	Main	Fire Tom Perez	0.600000024	doTranspose=false
+1d725d2a-16eb-11ea-8a37-7bccb481c597	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	123	Main	Fired	0.600000024	doTranspose=false
+1da04118-16eb-11ea-8a37-3f1dce9d6424	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F#-	123	Main	Fireggio	0.600000024	doTranspose=false
+7ff9e534-ab98-11ea-aeee-133657b44529	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	Eb	120	Rhythm	Check 1-2	1	doTranspose=false
+9e0ab8e6-ab70-11ea-87d0-cb03e8df1e44	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	120	Rhythm	Earth to XJ	1	doTranspose=false
+7a001d1a-b75a-11ea-98ba-47fa6707ff76	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	x	120	Rhythm	Blank Example	1	doTranspose=false
+1a88b7da-16eb-11ea-8a37-6b20c565ae15	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Ebm	120	Macro	Wind to Earth	0	doTranspose=false
+ef799b66-c4bb-11ea-a6dc-ff18af2544a3	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Rhythm	Fire Fire	1	doTranspose=false
+39fadb7c-bfb8-11ea-8ab8-679371f0fd1a	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Rhythm	88 Wind	0	doTranspose=false
+a7365dbc-c858-11ea-b84b-73b9ff2e930e	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	c	120	Rhythm	Check	0.600000024	doTranspose=false
+e4b5408e-d381-11ea-b4dd-8304deea5ed4	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Rhythm	Janky Fire	1	doTranspose=false
+8b73aa9e-ca38-11ea-bdcf-67c8042da422	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Rhythm	Water Water	1	doTranspose=false
+1ed3893c-16eb-11ea-8a37-53c677a170ca	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F#-	121	Main	Water Rotcher	0.600000024	doTranspose=false
+1f0408aa-16eb-11ea-8a37-7b1a7c680b6b	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C#	121	Main	Water Water	0.600000024	doTranspose=false
+1f27ae54-16eb-11ea-8a37-638aed0c1ccf	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C#-	121	Main	Water Wibs	0.600000024	doTranspose=false
+1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	121	Main	Waternity	0.600000024	doTranspose=false
+20d07cc2-16eb-11ea-8a37-c32a94270435	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	123	Rhythm	Breakdown Prototype	0	doTranspose=false
+ff67b0f8-1a60-11eb-902b-039843691523	1509102a-16eb-11ea-8a37-4764c2a771db	Published	D-	120	Main	Earth Home	0.5	doTranspose=false
+5150b8ec-1a61-11eb-b572-0be5ef9bdb58	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C-	120	Main	Water Home	0.5	doTranspose=false
+d395eede-b900-11ea-934d-db757ed200f1	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	1 Stab	0.5	doTranspose=false
+e113e57e-ea75-11ea-a9de-df325fd374a7	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	2	0.5	doTranspose=false
+e0a5a4e8-ea74-11ea-917f-0713db69370b	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	0.5	Detail	3	120	doTranspose=false
+a464a3ac-b901-11ea-934d-6b904d1e2fda	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Bass House 8ths	0.5	doTranspose=false
+b4cd84b6-b906-11ea-a9f2-7bc1b817dd93	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave bossa	0.5	doTranspose=false
+e2bf5514-b980-11ea-b36f-cb6a028611bb	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave cascara	0.5	doTranspose=false
+96daa580-b981-11ea-b36f-4bac0e54cfb6	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave dotted 8ths 1	0.5	doTranspose=false
+68438ee0-b98a-11ea-aff8-e31f8897b999	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave dotted 8ths 2	0.5	doTranspose=false
+0300fe02-b906-11ea-9399-676ca2170d8d	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave rhumba 2-3	0.5	doTranspose=false
+61784896-b906-11ea-9399-9fad978f03b8	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave rhumba 3-2	0.5	doTranspose=false
+aa47dd76-b905-11ea-9399-eb7fddb3dfed	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave son 2-3	0.5	doTranspose=false
+02778e98-b905-11ea-9399-dfe5c23c5e0e	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Clave Son 3-2	0.5	doTranspose=false
+0fad1830-b900-11ea-934d-33a9a744d8fc	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	Footballs	0.5	doTranspose=false
+87601888-1a61-11eb-9428-8748532aadff	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C#-	120	Main	Fire Home	0.5	doTranspose=false
+2078ee76-16eb-11ea-8a37-b7162aa1ef0f	1509102a-16eb-11ea-8a37-4764c2a771db	Published	NC	122	Main	Wind X	0.600000024	doTranspose=false
+20ba8084-16eb-11ea-8a37-cb38a312de67	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	122	Main	Windy Baby Hey	0.600000024	doTranspose=false
+b0936660-1a61-11eb-9428-3f783cd2858b	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Eb-	120	Main	Wind Home	0.5	doTranspose=false
+76a97f4e-1b05-11eb-95f7-e7d79c3460ae	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	c	125	Rhythm	Testy	6	doTranspose=false
+47de6e0c-0810-11eb-8696-b750b1583f1c	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	120	Rhythm	Plent	1	doTranspose=false
+f6a420be-1b05-11eb-bde4-fb2cf88cbbc9	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	125	Main	Testy2	6	doTranspose=false
 70721360-26fa-11eb-a066-5701a59bd81b	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 7	0.5	doPatternRestartOnChord=false\ndoTranspose=false
-76dd7b98-246d-11eb-b5fe-2fc15479d711	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	120	Main	Earth 4	0.600000024
-924638f2-246d-11eb-b5fe-7b5397769825	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	120	Main	Earth 5	0.600000024
+76dd7b98-246d-11eb-b5fe-2fc15479d711	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	120	Main	Earth 4	0.600000024	doTranspose=false
+924638f2-246d-11eb-b5fe-7b5397769825	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	120	Main	Earth 5	0.600000024	doTranspose=false
 4efb0d0a-257d-11eb-948e-07541d23f179	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 2	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 9bee08e6-257e-11eb-bc4c-bb316668c277	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 3	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 22adf91e-26f5-11eb-a16c-031183782853	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 4	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 9750f3f2-26f5-11eb-ad83-db721fa965da	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 4.0	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 f230ce96-26f5-11eb-9b78-c3ac8217f771	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 5	0.5	doPatternRestartOnChord=false\ndoTranspose=false
-4d6fcf8c-26fb-11eb-b5f0-43c943805089	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 7.0	0.5
+4d6fcf8c-26fb-11eb-b5f0-43c943805089	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 7.0	0.5	doTranspose=false
 a3593a3e-2550-11eb-ab18-033a09f5590b	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 1	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 ae59066a-26f6-11eb-924d-2f92f82f1b64	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 6	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 32668b16-26fd-11eb-a506-effe41200fac	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 8	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 c58c59a6-26fe-11eb-8489-53ccc57e1aa4	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 9	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 0aea65ba-2aab-11eb-bc2a-371df12e13e5	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Draft	C	120	Detail	6	0.5	doPatternRestartOnChord=false\ndoTranspose=false
-1ddd768c-16eb-11ea-8a37-ab599777e83d	15085f36-16eb-11ea-8a37-57a336f886a8	Published	C	130	Main	I'll House You	0.550000012
+1ddd768c-16eb-11ea-8a37-ab599777e83d	15085f36-16eb-11ea-8a37-57a336f886a8	Published	C	130	Main	I'll House You	0.550000012	doTranspose=false
 af626230-2aa8-11eb-b64d-37407d0cd07d	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Draft	A	120	Main	GHEIOPD	0.5	doPatternRestartOnChord=false\ndoTranspose=false
-2338ba18-0de6-11eb-86d4-2b1a45296a57	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Draft	C	120	Detail	Test Bass2	0.600000024
+2338ba18-0de6-11eb-86d4-2b1a45296a57	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Draft	C	120	Detail	Test Bass2	0.600000024	doTranspose=false
 f7233daa-29fa-11eb-b911-13cde63bb537	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	120	Detail	Shremmec	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 5cf4ac38-2f8f-11eb-90c1-df7b987518c5	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 10	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 277fad9c-2f9d-11eb-9636-ef2c12e1d833	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Draft	A	120	Main	Bappis	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 6c53f9c2-2f9e-11eb-9636-8337183e0acb	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	C	120	Main	Test for clonability	0.600000024	doPatternRestartOnChord=false\ndoTranspose=false
 ba53c80e-351c-11eb-9993-07b38c152208	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Draft	A	120	Main	GHEIOPD cloned like a marg	0.5	doPatternRestartOnChord=false\ndoTranspose=false
-2ce4f69a-3928-11eb-9da2-9fd1cc2421bb	1509102a-16eb-11ea-8a37-4764c2a771db	Published	E-	123	Main	Fire Babes 2	0.600000024
-39afcae4-3928-11eb-8b82-2b1f43093e9a	1509102a-16eb-11ea-8a37-4764c2a771db	Published	E-	123	Main	Fire Babes 3	0.600000024
-69be1740-3928-11eb-8b82-135bf05efc6f	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C-	123	Main	Fire Tom Perez Twice	0.600000024
-7f8fef4e-3928-11eb-8b82-675eeaf6e161	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Db	120	Main	Earthen Satay 2	0.600000024
-8a271cfc-3928-11eb-8b82-63db8b0d3e83	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Db	120	Main	Earthen Satay 3	0.600000024
-a2f0be8c-3928-11eb-8b82-6b71023fc623	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Bb	120	Main	Earth First 2	0.600000024
-aff2109a-3928-11eb-8b82-b7e55087432d	1509102a-16eb-11ea-8a37-4764c2a771db	Published	D	120	Main	Earth Rudy 2	0.600000024
-c37718ea-3928-11eb-8a9b-3f1b98464ff7	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	121	Main	Water Me Up Again	0.600000024
-d26835c8-3928-11eb-8b82-1fab78084fbe	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	121	Main	Water Me Up One Last Time	0.600000024
-a9175b1a-39c1-11eb-8f04-2f80c84d572c	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	121	Main	Water Probe 2	0.600000024
+2ce4f69a-3928-11eb-9da2-9fd1cc2421bb	1509102a-16eb-11ea-8a37-4764c2a771db	Published	E-	123	Main	Fire Babes 2	0.600000024	doTranspose=false
+39afcae4-3928-11eb-8b82-2b1f43093e9a	1509102a-16eb-11ea-8a37-4764c2a771db	Published	E-	123	Main	Fire Babes 3	0.600000024	doTranspose=false
+69be1740-3928-11eb-8b82-135bf05efc6f	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C-	123	Main	Fire Tom Perez Twice	0.600000024	doTranspose=false
+7f8fef4e-3928-11eb-8b82-675eeaf6e161	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Db	120	Main	Earthen Satay 2	0.600000024	doTranspose=false
+8a271cfc-3928-11eb-8b82-63db8b0d3e83	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Db	120	Main	Earthen Satay 3	0.600000024	doTranspose=false
+a2f0be8c-3928-11eb-8b82-6b71023fc623	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Bb	120	Main	Earth First 2	0.600000024	doTranspose=false
+aff2109a-3928-11eb-8b82-b7e55087432d	1509102a-16eb-11ea-8a37-4764c2a771db	Published	D	120	Main	Earth Rudy 2	0.600000024	doTranspose=false
+c37718ea-3928-11eb-8a9b-3f1b98464ff7	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	121	Main	Water Me Up Again	0.600000024	doTranspose=false
+d26835c8-3928-11eb-8b82-1fab78084fbe	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F	121	Main	Water Me Up One Last Time	0.600000024	doTranspose=false
+a9175b1a-39c1-11eb-8f04-2f80c84d572c	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	121	Main	Water Probe 2	0.600000024	doTranspose=false
 face932a-3f29-11eb-8fb3-0fbea4c502d5	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	c	120	Main	06	0.5	doPatternRestartOnChord=false\ndoTranspose=false
-6ca1a83e-ea75-11ea-917f-f3d22c5871ef	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	1	0.5
+6ca1a83e-ea75-11ea-917f-f3d22c5871ef	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	1	0.5	doTranspose=false
 539fbcfc-3383-11eb-8700-fbf5939ca257	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	10	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 6e77a7a8-3138-11eb-9959-d3334864d283	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	4	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 c36d0fc8-3381-11eb-8700-77dfd9761506	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	5	0.5	doPatternRestartOnChord=false\ndoTranspose=false
@@ -5307,32 +5307,32 @@ c36d0fc8-3381-11eb-8700-77dfd9761506	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	
 f0f59ff4-3382-11eb-8700-6397ceed05f4	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	8	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 240983d8-3383-11eb-8700-07677db3087d	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	9	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 bedff09c-3138-11eb-9598-c7ded300472d	150a5700-16eb-11ea-8a37-7bbb0a3ef1d4	Draft	C	120	Detail	All	0.5	doPatternRestartOnChord=false\ndoTranspose=false
-6afa2cf6-40c7-11eb-92cb-1f86965ca117	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave dotted 8ths 1	0.5
-82976b8a-40c7-11eb-92cb-734144473006	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave rhumba 3-2	0.5
-074e868e-40c7-11eb-9fce-5325b0f5b05e	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave 2	0.5
-10682f72-40c7-11eb-9fce-3b0d1da923f4	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	0.5	Detail	Clave 3	120
+6afa2cf6-40c7-11eb-92cb-1f86965ca117	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave dotted 8ths 1	0.5	doTranspose=false
+82976b8a-40c7-11eb-92cb-734144473006	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave rhumba 3-2	0.5	doTranspose=false
+074e868e-40c7-11eb-9fce-5325b0f5b05e	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave 2	0.5	doTranspose=false
+10682f72-40c7-11eb-9fce-3b0d1da923f4	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	0.5	Detail	Clave 3	120	doTranspose=false
 18f94428-40c7-11eb-9fce-d728ca78cbad	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave 4	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 21eb5616-40c7-11eb-9fce-5fed6546ac21	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave 5	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 2ce45ac2-40c7-11eb-9fce-c7d1e5c4f919	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave 6	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 33c746ec-40c7-11eb-9fce-c75a1a365f1a	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave 7	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 3c876b72-40c7-11eb-9fce-4bbec063cf6a	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave 8	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 44b7f7b2-40c7-11eb-92cb-cbcbd4cee68d	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave 9	0.5	doPatternRestartOnChord=false\ndoTranspose=false
-b9adee8a-59ca-11ea-84cb-77344de568df	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	123	Rhythm	2-Step Beat Prototype	0
+b9adee8a-59ca-11ea-84cb-77344de568df	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	123	Rhythm	2-Step Beat Prototype	0	doTranspose=false
 8418039a-2086-11eb-ae1f-e370e0b297f7	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Rhythm	Windy Cheeks	1	doPatternRestartOnChord=false\ndoTranspose=false
 f0d3fba8-2f8e-11eb-8407-f7dd07c90258	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass Footballs	0.5	doPatternRestartOnChord=true\ndoTranspose=false
-215f31b0-16eb-11ea-8a37-4359224b0012	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	123	Rhythm	House Beat Prototype	0
-ad00552a-1e3b-11eb-85ab-c3e5c9ce91dd	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Bass House 8ths	0.5
-595d744e-40c7-11eb-9fce-ef8324518a4f	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave bossa	0.5
-62adb392-40c7-11eb-9fce-038c572b9bb9	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave cascara	0.5
-72b257ca-40c7-11eb-9fce-eba860b6e346	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave dotted 8ths 2	0.5
-7b272bf6-40c7-11eb-9fce-8712c5c57fb2	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave rhumba 2-3	0.5
-8a3676ec-40c7-11eb-9fce-337f963757e5	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave son 2-3	0.5
-91bcfec2-40c7-11eb-9fce-b77b825f365d	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave Son 3-2	0.5
+215f31b0-16eb-11ea-8a37-4359224b0012	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	123	Rhythm	House Beat Prototype	0	doTranspose=false
+ad00552a-1e3b-11eb-85ab-c3e5c9ce91dd	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Bass House 8ths	0.5	doTranspose=false
+595d744e-40c7-11eb-9fce-ef8324518a4f	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave bossa	0.5	doTranspose=false
+62adb392-40c7-11eb-9fce-038c572b9bb9	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave cascara	0.5	doTranspose=false
+72b257ca-40c7-11eb-9fce-eba860b6e346	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave dotted 8ths 2	0.5	doTranspose=false
+7b272bf6-40c7-11eb-9fce-8712c5c57fb2	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave rhumba 2-3	0.5	doTranspose=false
+8a3676ec-40c7-11eb-9fce-337f963757e5	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave son 2-3	0.5	doTranspose=false
+91bcfec2-40c7-11eb-9fce-b77b825f365d	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave Son 3-2	0.5	doTranspose=false
 159ff83a-4b1c-11eb-a2fd-b743b8a357d6	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Draft	C	120	Rhythm	Test Windy Cheeks	0.600000024	doPatternRestartOnChord=false\ndoTranspose=false
 3a2862fc-5aba-11eb-a279-07d814b276ab	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass 14.1	0.5	doPatternRestartOnChord=false\ndoTranspose=false
-d7fffd72-40c6-11eb-92cb-7b403ff63651	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave 1	0.5
+d7fffd72-40c6-11eb-92cb-7b403ff63651	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave 1	0.5	doTranspose=false
 e2bbcbd8-40c6-11eb-92cb-8f74763afefd	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave 10	0.5	doPatternRestartOnChord=false\ndoTranspose=false
-1c07b16a-16eb-11ea-8a37-6bbfe3f0404e	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Bb-	120	Main	Earthen Satay	0.600000024
+1c07b16a-16eb-11ea-8a37-6bbfe3f0404e	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Bb-	120	Main	Earthen Satay	0.600000024	doTranspose=false
 4e9b8708-40c7-11eb-9fce-a35bd3f4e7f7	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	Clave - All	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 60c90b92-3381-11eb-ae86-2b36c07884a8	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Detail	Bass short 8ths	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 a2e7ec8a-5499-11eb-b5d7-930382ad8522	1509102a-16eb-11ea-8a37-4764c2a771db	Published	D-	120	Detail	4-note pad	0	doPatternRestartOnChord=true\ndoTranspose=false
