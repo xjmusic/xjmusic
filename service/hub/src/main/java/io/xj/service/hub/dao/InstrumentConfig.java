@@ -30,7 +30,7 @@ public class InstrumentConfig {
         defaultConfig :
         ConfigFactory.parseString(String.format("instrument {\n%s\n}", instrument.getConfig()))
           .withFallback(defaultConfig);
-      multiphonic = config.getBoolean("instrument.isMultiPhonic");
+      multiphonic = config.getBoolean("instrument.isMultiphonic");
       atonal = config.getBoolean("instrument.isTonal");
 
     } catch (ConfigException e) {
@@ -41,7 +41,7 @@ public class InstrumentConfig {
   /**
    @return whether this instrument ios multiphonic
    */
-  public boolean isMultiPhonic() {
+  public boolean isMultiphonic() {
     return multiphonic;
   }
 

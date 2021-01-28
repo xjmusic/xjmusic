@@ -148,7 +148,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   ) throws CraftException {
     try {
       var audio =
-        fabricator.getInstrumentConfig(instrument).isMultiPhonic() ?
+        fabricator.getInstrumentConfig(instrument).isMultiphonic() ?
           selectMultiphonicInstrumentAudio(instrument, event) :
           selectInstrumentAudio(instrument, event);
 
@@ -229,7 +229,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   /**
    Select audio from a multiphonic instrument
    <p>
-   [#176649593] Sampler obeys isMultiPhonic from Instrument config
+   [#176649593] Sampler obeys isMultiphonic from Instrument config
 
    @param instrument of which to score available audios, and make a selection
    @param event      to match
@@ -328,7 +328,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   /**
    Select a new random instrument audio based on a pattern event
    <p>
-   [#176649593] Sampler obeys isMultiPhonic from Instrument config
+   [#176649593] Sampler obeys isMultiphonic from Instrument config
 
    @param instrument of which to score available audios, and make a selection
    @param event      to match
