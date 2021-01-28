@@ -260,7 +260,7 @@ public interface Fabricator {
   /**
    Key for any pattern event designed to collide at same voice id + note
    <p>
-   [#176649593] Sampler obeys isMultiphonic from Instrument config
+   [#176649593] Sampler obeys isMultiPhonic from Instrument config
 
    @param event to get key of
    @return unique key for pattern event
