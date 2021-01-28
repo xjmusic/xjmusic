@@ -57,6 +57,7 @@ public class ProgramSequencePatternIT {
 
   private Injector injector;
   private ProgramVoice programVoice3;
+  private ProgramVoice programVoice1;
 
   @Before
   public void setUp() throws Exception {
@@ -128,7 +129,7 @@ public class ProgramSequencePatternIT {
       .setKey("D minor")
       .setTempo(120.0)
       .build());
-    var programVoice1 = test.insert(ProgramVoice.newBuilder()
+    programVoice1 = test.insert(ProgramVoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program1.getId())
       .setType(Instrument.Type.Percussive)
@@ -302,6 +303,35 @@ public class ProgramSequencePatternIT {
   }
 
   /**
+   FIX [#176352798] Clone API for Artist editing a Program can clone a pattern including its events
+   due to constraints of serializing and deserializing the empty JSON payload for cloning an object
+   without setting values (we will do this better in the future)--
+   when cloning a pattern, `type` and `total` will always be set from the source pattern, and cannot be overridden.
+   */
+  @Test
+  public void cloneExisting_allModifications() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    var input = ProgramSequencePattern.newBuilder()
+      .setProgramId(fake.program3.getId())
+      .setProgramVoiceId(programVoice3.getId())
+      .setProgramSequenceId(fake.program3_sequence1.getId())
+      .setType(ProgramSequencePattern.Type.Intro) // cannot be modified while cloning
+      .setTotal(16) // cannot be modified while cloning
+      .setName("Jamming")
+      .build();
+
+    DAOCloner<ProgramSequencePattern> result = subjectDAO.clone(hubAccess, fake.program2_sequence1_pattern1.getId(), input);
+
+    assertNotNull(result);
+    assertEquals(fake.program3.getId(), result.getClone().getProgramId());
+    assertEquals(programVoice3.getId(), result.getClone().getProgramVoiceId());
+    assertEquals(fake.program3_sequence1.getId(), result.getClone().getProgramSequenceId());
+    assertEquals("Jamming", result.getClone().getName());
+    assertEquals(ProgramSequencePattern.Type.Loop, result.getClone().getType()); // cannot be modified while cloning
+    assertEquals(4, result.getClone().getTotal()); // cannot be modified while cloning
+  }
+
+  /**
    [#176352798] Clone API for Artist editing a Program can clone a pattern including its events
    */
   @Test
@@ -313,6 +343,12 @@ public class ProgramSequencePatternIT {
     DAOCloner<ProgramSequencePattern> result = subjectDAO.clone(hubAccess, fake.program2_sequence1_pattern1.getId(), input);
 
     assertNotNull(result);
+    assertEquals(fake.program1_sequence1.getProgramId(), result.getClone().getProgramId());
+    assertEquals(fake.program1_sequence1.getId(), result.getClone().getProgramSequenceId());
+    assertEquals(programVoice1.getId(), result.getClone().getProgramVoiceId());
+    assertEquals(ProgramSequencePattern.Type.Loop, result.getClone().getType());
+    assertEquals(4, result.getClone().getTotal());
+    assertEquals("Beat", result.getClone().getName());
   }
 
   /**

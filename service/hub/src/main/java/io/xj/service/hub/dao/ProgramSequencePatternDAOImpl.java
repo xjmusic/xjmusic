@@ -60,9 +60,9 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
 
       // Inherits parents, attributes if none specified
       ProgramSequencePattern.Builder builder = entity.toBuilder();
-      if (Value.isUnset(builder.getTotal())) builder.setTotal(from.getTotal());
+      builder.setTotal(from.getTotal());
+      builder.setType(from.getType());
       if (Value.isUnset(builder.getName())) builder.setName(from.getName());
-      if (Value.isUnset(builder.getType())) builder.setType(from.getType());
       if (Value.isUnset(builder.getProgramId())) builder.setProgramId(from.getProgramId());
       if (Value.isUnset(builder.getProgramSequenceId())) builder.setProgramSequenceId(from.getProgramSequenceId());
       if (Value.isUnset(builder.getProgramVoiceId())) builder.setProgramVoiceId(from.getProgramVoiceId());
