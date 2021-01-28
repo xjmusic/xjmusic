@@ -409,14 +409,16 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         .findAny();
 
       if (audioEvent.isEmpty()) {
-        reportMissing(InstrumentAudio.class, String.format("from Instrument[%s] for %s", instrument.getId(), note));
+        reportMissing(InstrumentAudio.class, String.format("from Instrument[%s] for %s", instrument.getId(),
+          note.toString(AdjSymbol.Sharp)));
         return Optional.empty();
       }
 
       return Optional.of(fabricator.getSourceMaterial().getInstrumentAudio(audioEvent.get().getInstrumentAudioId()));
 
     } catch (HubClientException e) {
-      reportMissing(InstrumentAudio.class, String.format("from Instrument[%s] for %s", instrument.getId(), note));
+      reportMissing(InstrumentAudio.class, String.format("from Instrument[%s] for %s", instrument.getId(),
+        note.toString(AdjSymbol.Sharp)));
       return Optional.empty();
     }
   }
