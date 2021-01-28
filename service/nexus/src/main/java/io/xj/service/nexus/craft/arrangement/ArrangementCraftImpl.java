@@ -14,6 +14,7 @@ import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
+import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.PitchClass;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
@@ -211,25 +212,30 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    [#176695166] XJ should choose correct instrument note based on detail program note
 
    @param segmentChoiceArrangement chosen program for reference of transpose
-   @param programNote              of program to pick instrument note for
+   @param sourceNote               of program to pick instrument note for
    @param voicingChord             to use for interpreting the voicing
    @param voicingNotes             to choose a note from
    @return note picked from the available voicing
    */
   private Note pickInstrumentNote(
     SegmentChoiceArrangement segmentChoiceArrangement,
-    Note programNote,
+    Note sourceNote,
     Chord voicingChord,
     Collection<Note> voicingNotes
   ) throws FabricationException {
-    if (PitchClass.None.equals(programNote.getPitchClass()))
+    if (PitchClass.None.equals(sourceNote.getPitchClass()))
       return pickRandomInstrumentNote(voicingNotes);
 
     var choice = fabricator.getChoice(segmentChoiceArrangement)
       .orElseThrow(() -> new FabricationException("Could not find choice!"));
 
-    var programKey = fabricator.getKeyForArrangement(segmentChoiceArrangement);
-    var targetNote = programNote.transpose(programKey.getRootPitchClass().delta(voicingChord.getRootPitchClass()));
+    var sourceKey = fabricator.getKeyForArrangement(segmentChoiceArrangement);
+    var sourceRange = fabricator.getRangeForArrangement(segmentChoiceArrangement);
+    var targetTransposeSemitones = sourceKey.getRootPitchClass().delta(voicingChord.getRootPitchClass());
+    var voicingType = fabricator.getInstrument(segmentChoiceArrangement).getType();
+    var targetRange = fabricator.getVoicingNoteRange(voicingType);
+    var targetRangeTransposeOctaves = computeRangeTransposeOctaves(sourceRange, targetRange);
+    var targetNote = sourceNote.transpose(targetTransposeSemitones + 12 * targetRangeTransposeOctaves);
 
     return voicingNotes
       .stream()
@@ -239,6 +245,21 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       .orElseThrow(() -> new FabricationException("Failed to pick!"))
       .getNote()
       .transpose(choice.getTranspose());
+  }
+
+  /**
+   [#176696738] Detail craft transposes source program events into the target range
+   <p>
+   via average of delta from source low to target low, and from source high to target high, rounded to octave
+
+   @param sourceRange to compute from
+   @param targetRange to compute required # of octaves to transpose into
+   @return +/- octaves required to transpose from source to target range
+   */
+  public int computeRangeTransposeOctaves(NoteRange sourceRange, NoteRange targetRange) {
+    int dLow = sourceRange.getLow().delta(targetRange.getLow());
+    int dHigh = sourceRange.getHigh().delta(targetRange.getHigh());
+    return (int) Math.round((dLow + dHigh) / 2.0);
   }
 
   /**

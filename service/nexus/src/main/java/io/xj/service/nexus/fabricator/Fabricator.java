@@ -21,6 +21,7 @@ import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
 import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
+import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.Tuning;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
@@ -367,8 +368,18 @@ public interface Fabricator {
 
    @param choice to get program for
    @return Program for the specified choice
+   @throws FabricationException on failure
    */
   Program getProgram(SegmentChoice choice) throws FabricationException;
+
+  /**
+   Get Program for any given arrangement
+
+   @param arrangement to get program for
+   @return program for arrangement
+   @throws FabricationException on failure
+   */
+  Program getProgram(SegmentChoiceArrangement arrangement) throws FabricationException;
 
   /**
    fetch the macro-type choice for the previous segment in the chain
@@ -607,6 +618,15 @@ public interface Fabricator {
   Instrument getInstrument(SegmentChoiceArrangementPick pick) throws FabricationException;
 
   /**
+   Get instrument for a given arrangement
+
+   @param arrangement to get instrument for
+   @return instrument for pick
+   @throws FabricationException on failure
+   */
+  Instrument getInstrument(SegmentChoiceArrangement arrangement) throws FabricationException;
+
+  /**
    Get memes for segment
 
    @return memes for segment
@@ -692,4 +712,29 @@ public interface Fabricator {
    @return amplitude of instrument type
    */
   double getAmplitudeForInstrumentType(SegmentChoiceArrangementPick pick) throws FabricationException;
+
+  /**
+   Get the lowest note present in any voicing of all the segment chord voicings for this segment and instrument type
+
+   @param type to get voicing threshold low of
+   @return low voicing threshold
+   */
+  NoteRange getVoicingNoteRange(Instrument.Type type) throws FabricationException;
+
+  /**
+   Get the Notes from a Voicing
+
+   @param voicing to get notes of
+   @return notes from voicing
+   @throws FabricationException on failure
+   */
+  Collection<Note> getNotes(SegmentChordVoicing voicing) throws FabricationException;
+
+  /**
+   Get the note range for an arrangement based on all the events in its program
+
+   @param segmentChoiceArrangement to get range of
+   @return Note range of arrangement
+   */
+  NoteRange getRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws FabricationException;
 }

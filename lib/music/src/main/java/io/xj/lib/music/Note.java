@@ -67,7 +67,7 @@ public class Note {
    @return string representation of Note
    */
   public String toString(AdjSymbol adjSymbol) {
-    return pitchClass.toString(adjSymbol) + String.valueOf(octave);
+    return pitchClass.toString(adjSymbol) + octave;
   }
 
   /**
@@ -204,4 +204,16 @@ public class Note {
   }
 
 
+  /**
+   Compare two notes
+
+   @param target to compare to
+   @return comparison result
+   */
+  public int compareTo(Note target) {
+    var delta = delta(target);
+    if (0 == delta) return 0;
+    if (0 > delta) return 1;
+    return -1;
+  }
 }

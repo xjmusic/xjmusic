@@ -33,9 +33,11 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Key;
 import io.xj.lib.music.MusicalException;
 import io.xj.lib.music.Note;
+import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.Tuning;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
@@ -106,6 +108,7 @@ class FabricatorImpl implements Fabricator {
   private final FabricatorFactory fabricatorFactory;
   private Map<String, InstrumentAudio> previousInstrumentAudio;
   private final Map<String, Collection<Note>> voicingNotesForSegmentChordInstrumentType = Maps.newHashMap();
+  private final Map<Instrument.Type, NoteRange> voicingNoteRange = Maps.newHashMap();
 
   @AssistedInject
   public FabricatorImpl(
@@ -411,7 +414,7 @@ class FabricatorImpl implements Fabricator {
   @Override
   public String keyByTrackNote(String track, Note note) throws FabricationException {
     try {
-      return String.format(KEY_VOICE_NOTE_TEMPLATE, track, note.toString());
+      return String.format(KEY_VOICE_NOTE_TEMPLATE, track, note.toString(AdjSymbol.Sharp));
     } catch (Exception e) {
       throw exception("unique track-note key", e);
     }
@@ -552,6 +555,12 @@ class FabricatorImpl implements Fabricator {
     } catch (HubClientException e) {
       throw new FabricationException(e);
     }
+  }
+
+  @Override
+  public Program getProgram(SegmentChoiceArrangement arrangement) throws FabricationException {
+    return getProgram(getChoice(arrangement)
+      .orElseThrow(() -> new FabricationException("Can't find program for arrangement!")));
   }
 
   @Override
@@ -820,11 +829,33 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public NoteRange getVoicingNoteRange(Instrument.Type type) throws FabricationException {
+    if (!voicingNoteRange.containsKey(type)) {
+      var voicings = workbench.getSegmentChordVoicings();
+      voicingNoteRange.put(type, new NoteRange(voicings.stream()
+        .flatMap(segmentChordVoicing -> getNotes(segmentChordVoicing).stream())
+        .collect(Collectors.toList())));
+    }
+
+    return voicingNoteRange.get(type);
+  }
+
+  @Override
   public Instrument getInstrument(SegmentChoiceArrangementPick pick) throws FabricationException {
     try {
       return sourceMaterial.getInstrument(
         sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId())
           .getInstrumentId());
+
+    } catch (HubClientException e) {
+      throw new FabricationException(e);
+    }
+  }
+
+  @Override
+  public Instrument getInstrument(SegmentChoiceArrangement arrangement) throws FabricationException {
+    try {
+      return sourceMaterial.getInstrument(arrangement.getInstrumentId());
 
     } catch (HubClientException e) {
       throw new FabricationException(e);
@@ -887,13 +918,38 @@ class FabricatorImpl implements Fabricator {
     if (!voicingNotesForSegmentChordInstrumentType.containsKey(key)) {
       var voicing = getVoicing(chord, type);
       if (voicing.isPresent())
-        voicingNotesForSegmentChordInstrumentType.put(key,
-          CSV.split(voicing.get().getNotes()).stream().map(Note::of).collect(Collectors.toList()));
+        voicingNotesForSegmentChordInstrumentType.put(key, getNotes(voicing.get()));
       else
         voicingNotesForSegmentChordInstrumentType.put(key, ImmutableList.of());
     }
 
     return voicingNotesForSegmentChordInstrumentType.get(key);
+  }
+
+  @Override
+  public Collection<Note> getNotes(SegmentChordVoicing voicing) {
+    return CSV.split(voicing.getNotes()).stream().map(Note::of).collect(Collectors.toList());
+  }
+
+  @Override
+  public NoteRange getRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws FabricationException {
+    try {
+      return new NoteRange(sourceMaterial.getEvents(getProgram(segmentChoiceArrangement))
+        .stream()
+        .filter(programSequencePatternEvent -> {
+          try {
+            return programSequencePatternEvent.getProgramVoiceTrackId().equals(
+              sourceMaterial.getTrack(programSequencePatternEvent).getId());
+          } catch (HubClientException e) {
+            return false;
+          }
+        })
+        .map(programSequencePatternEvent -> Note.of(programSequencePatternEvent.getNote()))
+        .collect(Collectors.toList()));
+
+    } catch (HubClientException e) {
+      throw new FabricationException("Could not get note range for arrangement!", e);
+    }
   }
 
   /**
