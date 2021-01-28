@@ -591,11 +591,20 @@ public interface Fabricator {
    <p>
    Cache this lookup and transformation for optimal performance fabricating many notes from repeated voicings
 
-   @param chord   to get voicing notes for
-   @param type to get voicing notes for
+   @param chord to get voicing notes for
+   @param type  to get voicing notes for
    @return voicing notes
    */
   Collection<Note> getVoicingNotes(SegmentChord chord, Instrument.Type type) throws FabricationException;
+
+  /**
+   Get instrument for a given segment pick
+
+   @param pick to get instrument for
+   @return instrument for pick
+   @throws FabricationException on failure
+   */
+  Instrument getInstrument(SegmentChoiceArrangementPick pick) throws FabricationException;
 
   /**
    Get memes for segment
@@ -673,4 +682,14 @@ public interface Fabricator {
    @return Tuning
    */
   Tuning getTuning();
+
+  /**
+   Get the mix amplitude (ratio) for the instrument type of a given pick, based on chain config
+   <p>
+   [#176651700] Chain config includes proprietary mix % modifiers for different instrument types
+
+   @param pick to get amplitude of
+   @return amplitude of instrument type
+   */
+  double getAmplitudeForInstrumentType(SegmentChoiceArrangementPick pick) throws FabricationException;
 }

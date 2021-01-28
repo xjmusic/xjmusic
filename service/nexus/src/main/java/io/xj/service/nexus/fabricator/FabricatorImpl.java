@@ -799,6 +799,39 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public double getAmplitudeForInstrumentType(SegmentChoiceArrangementPick pick) throws FabricationException {
+    switch (getInstrument(pick).getType()) {
+      case Percussive:
+        return chainConfig.getDubMasterVolumeInstrumentTypePercussive();
+      case Bass:
+        return chainConfig.getDubMasterVolumeInstrumentTypeBass();
+      case Pad:
+        return chainConfig.getDubMasterVolumeInstrumentTypePad();
+      case Sticky:
+        return chainConfig.getDubMasterVolumeInstrumentTypeSticky();
+      case Stripe:
+        return chainConfig.getDubMasterVolumeInstrumentTypeStripe();
+      case Stab:
+        return chainConfig.getDubMasterVolumeInstrumentTypeStab();
+      case UNRECOGNIZED:
+      default:
+        return 1.0;
+    }
+  }
+
+  @Override
+  public Instrument getInstrument(SegmentChoiceArrangementPick pick) throws FabricationException {
+    try {
+      return sourceMaterial.getInstrument(
+        sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId())
+          .getInstrumentId());
+
+    } catch (HubClientException e) {
+      throw new FabricationException(e);
+    }
+  }
+
+  @Override
   public Collection<SegmentMeme> getSegmentMemes() throws FabricationException {
     return workbench.getSegmentMemes();
   }

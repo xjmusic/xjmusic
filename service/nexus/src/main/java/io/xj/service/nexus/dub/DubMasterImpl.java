@@ -190,7 +190,7 @@ public class DubMasterImpl implements DubMaster {
       toMicros(preroll + pick.getStart() + pick.getLength()) + audioReleaseMicros,
       audioAttackMicros,
       audioReleaseMicros,
-      pick.getAmplitude(),
+      pick.getAmplitude() * fabricator.getAmplitudeForInstrumentType(pick),
       computePitchRatio(pick),
       0);
   }

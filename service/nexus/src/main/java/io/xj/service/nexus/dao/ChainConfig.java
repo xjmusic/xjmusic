@@ -21,6 +21,12 @@ public class ChainConfig {
   private final double outputEncodingQuality;
   private final int outputFrameRate;
   private final int outputSampleBits;
+  private final double dubMasterVolumeInstrumentTypePercussive;
+  private final double dubMasterVolumeInstrumentTypeBass;
+  private final double dubMasterVolumeInstrumentTypePad;
+  private final double dubMasterVolumeInstrumentTypeSticky;
+  private final double dubMasterVolumeInstrumentTypeStripe;
+  private final double dubMasterVolumeInstrumentTypeStab;
 
   /**
    Instantiate a Chain configuration from a string of typesafe config.
@@ -42,6 +48,12 @@ public class ChainConfig {
       outputEncodingQuality = config.getDouble("chain.outputEncodingQuality");
       outputFrameRate = config.getInt("chain.outputFrameRate");
       outputSampleBits = config.getInt("chain.outputSampleBits");
+      dubMasterVolumeInstrumentTypePercussive = config.getDouble("chain.dubMasterVolumeInstrumentTypePercussive");
+      dubMasterVolumeInstrumentTypeBass = config.getDouble("chain.dubMasterVolumeInstrumentTypeBass");
+      dubMasterVolumeInstrumentTypePad = config.getDouble("chain.dubMasterVolumeInstrumentTypePad");
+      dubMasterVolumeInstrumentTypeSticky = config.getDouble("chain.dubMasterVolumeInstrumentTypeSticky");
+      dubMasterVolumeInstrumentTypeStripe = config.getDouble("chain.dubMasterVolumeInstrumentTypeStripe");
+      dubMasterVolumeInstrumentTypeStab = config.getDouble("chain.dubMasterVolumeInstrumentTypeStab");
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
@@ -88,5 +100,47 @@ public class ChainConfig {
    */
   public int getOutputChannels() {
     return outputChannels;
+  }
+
+  /**
+   @return ratio of amplitude to dub audio for Percussive-type instruments
+   */
+  public double getDubMasterVolumeInstrumentTypePercussive() {
+    return dubMasterVolumeInstrumentTypePercussive;
+  }
+
+  /**
+   @return ratio of amplitude to dub audio for Bass-type instruments
+   */
+  public double getDubMasterVolumeInstrumentTypeBass() {
+    return dubMasterVolumeInstrumentTypeBass;
+  }
+
+  /**
+   @return ratio of amplitude to dub audio for Pad-type instruments
+   */
+  public double getDubMasterVolumeInstrumentTypePad() {
+    return dubMasterVolumeInstrumentTypePad;
+  }
+
+  /**
+   @return ratio of amplitude to dub audio for Stick-type instruments
+   */
+  public double getDubMasterVolumeInstrumentTypeSticky() {
+    return dubMasterVolumeInstrumentTypeSticky;
+  }
+
+  /**
+   @return ratio of amplitude to dub audio for Strip-type instruments
+   */
+  public double getDubMasterVolumeInstrumentTypeStripe() {
+    return dubMasterVolumeInstrumentTypeStripe;
+  }
+
+  /**
+   @return ratio of amplitude to dub audio for Stab-type instruments
+   */
+  public double getDubMasterVolumeInstrumentTypeStab() {
+    return dubMasterVolumeInstrumentTypeStab;
   }
 }
