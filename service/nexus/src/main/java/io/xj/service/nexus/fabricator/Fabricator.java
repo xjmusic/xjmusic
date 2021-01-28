@@ -262,10 +262,11 @@ public interface Fabricator {
    <p>
    [#176649593] Sampler obeys isMultiphonic from Instrument config
 
-   @param event to get key of
+   @param track to get key of
+   @param note
    @return unique key for pattern event
    */
-  String keyByVoiceNote(ProgramSequencePatternEvent event) throws FabricationException;
+  String keyByTrackNote(String track, Note note) throws FabricationException;
 
   /**
    Get the Voice ID of a given event
@@ -572,6 +573,7 @@ public interface Fabricator {
 
   /**
    Get all segment chords, guaranteed to be in order of position ascending
+
    @return segment chords
    */
   Collection<SegmentChord> getSegmentChords() throws FabricationException;
@@ -583,6 +585,17 @@ public interface Fabricator {
    @return chord voicing for chord
    */
   Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, Instrument.Type type) throws FabricationException;
+
+  /**
+   Get voicing notes for a given segment chord
+   <p>
+   Cache this lookup and transformation for optimal performance fabricating many notes from repeated voicings
+
+   @param chord   to get voicing notes for
+   @param type to get voicing notes for
+   @return voicing notes
+   */
+  Collection<Note> getVoicingNotes(SegmentChord chord, Instrument.Type type) throws FabricationException;
 
   /**
    Get memes for segment

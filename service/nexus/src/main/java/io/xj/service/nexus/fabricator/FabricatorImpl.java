@@ -105,6 +105,7 @@ class FabricatorImpl implements Fabricator {
   private final SegmentDAO segmentDAO;
   private final FabricatorFactory fabricatorFactory;
   private Map<String, InstrumentAudio> previousInstrumentAudio;
+  private final Map<String, Collection<Note>> voicingNotesForSegmentChordInstrumentType = Maps.newHashMap();
 
   @AssistedInject
   public FabricatorImpl(
@@ -371,16 +372,18 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Map<String, InstrumentAudio> getPreviousInstrumentAudio() throws FabricationException {
+    // this map is built once from the retrospective, and from then on is modified by its accessors--
+    // FUTURE it's not great ^^ that we are modifying this map externally
     if (Objects.isNull(previousInstrumentAudio))
-    try {
-      previousInstrumentAudio = Maps.newHashMap();
-      for (SegmentChoiceArrangementPick pick : getChoiceArrangementPicksOfPreviousSegments())
-        previousInstrumentAudio.put(keyByVoiceTrack(pick),
-          getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()));
+      try {
+        previousInstrumentAudio = Maps.newHashMap();
+        for (SegmentChoiceArrangementPick pick : getChoiceArrangementPicksOfPreviousSegments())
+          previousInstrumentAudio.put(keyByVoiceTrack(pick),
+            getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()));
 
-    } catch (FabricationException | HubClientException e) {
-      throw exception("Unable to build map create previous instrument audio", e);
-    }
+      } catch (FabricationException | HubClientException e) {
+        throw exception("Unable to build map create previous instrument audio", e);
+      }
 
     return previousInstrumentAudio;
   }
@@ -406,11 +409,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String keyByVoiceNote(ProgramSequencePatternEvent event) throws FabricationException {
+  public String keyByTrackNote(String track, Note note) throws FabricationException {
     try {
-      return String.format(KEY_VOICE_NOTE_TEMPLATE, getSourceMaterial().getVoice(event).getId(), event.getNote());
+      return String.format(KEY_VOICE_NOTE_TEMPLATE, track, note.toString());
     } catch (Exception e) {
-      throw exception("unique voice-note key for pattern event", e);
+      throw exception("unique track-note key", e);
     }
   }
 
@@ -842,6 +845,22 @@ class FabricatorImpl implements Fabricator {
       .filter(voicing -> type.equals(voicing.getType()))
       .filter(voicing -> Objects.equals(chord.getId(), voicing.getSegmentChordId()))
       .findAny();
+  }
+
+  @Override
+  public Collection<Note> getVoicingNotes(SegmentChord chord, Instrument.Type type) throws FabricationException {
+    var key = String.format("%s__%s", chord.getId(), type);
+
+    if (!voicingNotesForSegmentChordInstrumentType.containsKey(key)) {
+      var voicing = getVoicing(chord, type);
+      if (voicing.isPresent())
+        voicingNotesForSegmentChordInstrumentType.put(key,
+          CSV.split(voicing.get().getNotes()).stream().map(Note::of).collect(Collectors.toList()));
+      else
+        voicingNotesForSegmentChordInstrumentType.put(key, ImmutableList.of());
+    }
+
+    return voicingNotesForSegmentChordInstrumentType.get(key);
   }
 
   /**
