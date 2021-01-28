@@ -264,7 +264,7 @@ public interface Fabricator {
    [#176649593] Sampler obeys isMultiphonic from Instrument config
 
    @param track to get key of
-   @param note
+   @param note to get key of
    @return unique key for pattern event
    */
   String keyByTrackNote(String track, Note note) throws FabricationException;

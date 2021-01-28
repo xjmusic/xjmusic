@@ -12,6 +12,7 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
+import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
@@ -176,9 +177,15 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
           selectMultiphonicInstrumentAudio(instrument, event, note) :
           selectInstrumentAudio(instrument, event);
 
-      // [#176373977] Should gracefully skip voicing type if unfulfilled by program
+      // [#176373977] Should gracefully skip audio in unfulfilled by instrument
       if (audio.isEmpty()) {
-        reportMissing(InstrumentAudio.class, String.format("like ProgramSequencePatternEvent[%s]", event.getId()));
+        if (fabricator.getInstrumentConfig(instrument).isMultiphonic())
+          reportMissing(InstrumentAudio.class,
+            String.format("from Instrument[%s] for note %s", instrument.getId(), note.toString(AdjSymbol.Sharp)));
+        else
+          reportMissing(InstrumentAudio.class,
+            String.format("from Instrument[%s] for event %s", instrument.getId(), fabricator.getTrackName(event)));
+
         return;
       }
 
