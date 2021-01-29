@@ -207,7 +207,7 @@ public class EntitiesTest extends TestTemplate {
 
   @Test
   public void csvOf() {
-    assertEquals("4872f737-3526-4532-bb9f-358e3503db7e,333d6284-d7b9-4654-b79c-cafaf9330b6a",
+    assertEquals("4872f737-3526-4532-bb9f-358e3503db7e, 333d6284-d7b9-4654-b79c-cafaf9330b6a",
       Entities.csvOf(ImmutableList.of(
         "4872f737-3526-4532-bb9f-358e3503db7e",
         "333d6284-d7b9-4654-b79c-cafaf9330b6a"

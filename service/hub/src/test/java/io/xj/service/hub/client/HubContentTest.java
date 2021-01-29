@@ -10,6 +10,7 @@ import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.xj.Instrument;
+import io.xj.InstrumentAudioEvent;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityModule;
 import io.xj.lib.jsonapi.JsonApiModule;
@@ -274,8 +275,11 @@ public class HubContentTest {
   }
 
   @Test
-  public void getFirstEventsOfAudiosOfInstrument() {
-    // FUTURE Collection<Object> result = subject.getFirstEventsOfAudiosOfInstrument();
+  public void getFirstEventsOfAudiosOfInstrument() throws HubClientException {
+    Collection<InstrumentAudioEvent> result = subject.getFirstEventsOfAudiosOfInstrument(fake.instrument8);
+
+    Collection<String> resultNotes = result.stream().map(InstrumentAudioEvent::getNote).collect(Collectors.toList());
+    assertEquals(4, resultNotes.size());
   }
 
   @Test

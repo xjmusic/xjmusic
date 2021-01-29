@@ -88,7 +88,7 @@ public class HubClientAccessTest {
     HubClientAccess access = buildHubClientAccess(user, ImmutableList.of(account), "User,Artist");
 
     String result = new ObjectMapper().writeValueAsString(access);
-    assertEquals(String.format("{\"roleTypes\":[\"User\",\"Artist\"],\"accountIds\":[\"%s\"],\"token\":null,\"userId\":\"%s\",\"userAuthId\":null,\"roles\":\"User,Artist\"}", account.getId(), user.getId()), result);
+    assertEquals(String.format("{\"roleTypes\":[\"User\",\"Artist\"],\"accountIds\":[\"%s\"],\"token\":null,\"userId\":\"%s\",\"userAuthId\":null,\"roles\":\"User, Artist\"}", account.getId(), user.getId()), result);
   }
 
   @Test

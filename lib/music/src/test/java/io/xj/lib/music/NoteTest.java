@@ -1,7 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.music;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
+
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -26,7 +29,7 @@ public class NoteTest {
   }
 
   @Test
-  public void sameAs() throws Exception {
+  public void sameAs() {
     assertTrue(Note.of("C5").sameAs(Note.of("C5")));
     assertTrue(Note.of("C#5").sameAs(Note.of("Db5")));
     assertFalse(Note.of("C#5").sameAs(Note.of("Db6")));
@@ -148,4 +151,28 @@ public class NoteTest {
     assertEquals(PitchClass.C, note.getPitchClass());
   }
 
+  @Test
+  public void compareTo() {
+    assertEquals(
+      "C1,D1,D#1,E1,F#1,C2,D2,D#2,E2,F#2,C3,D3,D#3,E3",
+      ImmutableList.of(Note.of("C1"),
+        Note.of("F#1"),
+        Note.of("E1"),
+        Note.of("C3"),
+        Note.of("D#3"),
+        Note.of("D1"),
+        Note.of("D2"),
+        Note.of("D3"),
+        Note.of("E2"),
+        Note.of("C2"),
+        Note.of("D#2"),
+        Note.of("E3"),
+        Note.of("D#1"),
+        Note.of("F#2"))
+        .stream()
+        .sorted(Note::compareTo)
+        .map(note -> note.toString(AdjSymbol.Sharp))
+        .collect(Collectors.joining(","))
+    );
+  }
 }

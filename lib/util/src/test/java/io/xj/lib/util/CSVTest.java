@@ -26,13 +26,13 @@ public class CSVTest {
   @Test
   public void join() {
     assertEquals(
-      "one,two,three",
+      "one, two, three",
       CSV.join(Arrays.asList("one", "two", "three")));
   }
 
   @Test
   public void from_keyValuePairs() {
-    assertEquals("one=1,two=2,three=3",
+    assertEquals("one=1, two=2, three=3",
       CSV.from(ImmutableMap.of("one", "1", "two", "2", "three", "3")));
   }
 

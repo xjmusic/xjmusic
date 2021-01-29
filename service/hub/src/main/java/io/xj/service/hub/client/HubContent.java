@@ -28,10 +28,12 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Text;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  [#154350346] to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments)
@@ -570,20 +572,19 @@ public class HubContent {
    @return audio events
    */
   public Collection<InstrumentAudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) throws HubClientException {
-    Map<String, InstrumentAudioEvent> result = Maps.newHashMap();
-    for (InstrumentAudio audio : getAudios(instrument)) {
-      getEvents(audio).stream().filter(search -> search.getInstrumentAudioId().equals(audio.getId())).forEach(audioEvent -> {
-        String key = audioEvent.getInstrumentAudioId();
-        if (result.containsKey(key)) {
-          if (audioEvent.getPosition() < result.get(key).getPosition()) {
-            result.put(key, audioEvent);
-          }
-        } else {
-          result.put(key, audioEvent);
+    return getAudios(instrument)
+      .stream()
+      .flatMap(instrumentAudio -> {
+        try {
+          return Stream.of(getEvents(instrumentAudio).stream()
+            .filter(search -> search.getInstrumentAudioId().equals(instrumentAudio.getId()))
+            .min(Comparator.comparing(InstrumentAudioEvent::getPosition))
+            .orElseThrow());
+        } catch (HubClientException e) {
+          return Stream.empty();
         }
-      });
-    }
-    return result.values();
+      })
+      .collect(Collectors.toList());
   }
 
   /**

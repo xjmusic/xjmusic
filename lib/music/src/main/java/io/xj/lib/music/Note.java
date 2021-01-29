@@ -199,10 +199,9 @@ public class Note {
    @param target note to compare to
    @return true if same pitch class and octave
    */
-  boolean sameAs(Note target) {
+  public boolean sameAs(Note target) {
     return this.octave.equals(target.octave) && this.pitchClass.equals(target.pitchClass);
   }
-
 
   /**
    Compare two notes
@@ -211,9 +210,9 @@ public class Note {
    @return comparison result
    */
   public int compareTo(Note target) {
-    var delta = delta(target);
-    if (0 == delta) return 0;
-    if (0 > delta) return 1;
-    return -1;
+    if (octave > target.octave) return 1;
+    if (octave < target.octave) return -1;
+    if (pitchClass.equals(target.pitchClass)) return 0;
+    return pitchClass.compareTo(target.pitchClass);
   }
 }

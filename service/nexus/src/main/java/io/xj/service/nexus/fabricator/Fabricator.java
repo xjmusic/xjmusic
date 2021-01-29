@@ -5,6 +5,7 @@ import com.google.protobuf.MessageLite;
 import io.xj.Chain;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
+import io.xj.InstrumentAudioEvent;
 import io.xj.Program;
 import io.xj.ProgramSequence;
 import io.xj.ProgramSequenceBinding;
@@ -25,6 +26,7 @@ import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.Tuning;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
+import io.xj.service.hub.client.HubClientException;
 import io.xj.service.hub.client.HubContent;
 import io.xj.service.hub.dao.InstrumentConfig;
 import io.xj.service.hub.dao.ProgramConfig;
@@ -264,7 +266,7 @@ public interface Fabricator {
    [#176649593] Sampler obeys isMultiphonic from Instrument config
 
    @param track to get key of
-   @param note to get key of
+   @param note  to get key of
    @return unique key for pattern event
    */
   String keyByTrackNote(String track, Note note) throws FabricationException;
@@ -737,4 +739,12 @@ public interface Fabricator {
    @return Note range of arrangement
    */
   NoteRange getRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws FabricationException;
+
+  /**
+   Get the first event of each audio in the instrument
+
+   @param instrument to get first audio events of
+   @return first event of each audio from the instrument
+   */
+  Collection<InstrumentAudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) throws HubClientException;
 }

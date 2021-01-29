@@ -13,6 +13,7 @@ import io.xj.Chain;
 import io.xj.ChainBinding;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
+import io.xj.InstrumentAudioEvent;
 import io.xj.Program;
 import io.xj.ProgramSequence;
 import io.xj.ProgramSequenceBinding;
@@ -109,6 +110,7 @@ class FabricatorImpl implements Fabricator {
   private Map<String, InstrumentAudio> previousInstrumentAudio;
   private final Map<String, Collection<Note>> voicingNotesForSegmentChordInstrumentType = Maps.newHashMap();
   private final Map<Instrument.Type, NoteRange> voicingNoteRange = Maps.newHashMap();
+  private final Map<String, Collection<InstrumentAudioEvent>> firstEventsOfAudiosOfInstrument = Maps.newHashMap();
 
   @AssistedInject
   public FabricatorImpl(
@@ -950,6 +952,15 @@ class FabricatorImpl implements Fabricator {
     } catch (HubClientException e) {
       throw new FabricationException("Could not get note range for arrangement!", e);
     }
+  }
+
+  @Override
+  public Collection<InstrumentAudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) throws HubClientException {
+    if (!firstEventsOfAudiosOfInstrument.containsKey(instrument.getId()))
+      firstEventsOfAudiosOfInstrument.put(instrument.getId(),
+        getSourceMaterial().getFirstEventsOfAudiosOfInstrument(instrument));
+
+    return firstEventsOfAudiosOfInstrument.get(instrument.getId());
   }
 
   /**

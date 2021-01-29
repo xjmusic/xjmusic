@@ -1,5 +1,6 @@
 package io.xj.service.nexus.craft.arrangement;
 
+import com.google.common.collect.ImmutableMap;
 import datadog.trace.api.Trace;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
@@ -17,6 +18,7 @@ import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.PitchClass;
+import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
@@ -34,6 +36,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  Arrangement of Segment Events is a common foundation for both Detail and Rhythm craft
@@ -178,16 +181,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
           selectInstrumentAudio(instrument, event);
 
       // [#176373977] Should gracefully skip audio in unfulfilled by instrument
-      if (audio.isEmpty()) {
-        if (fabricator.getInstrumentConfig(instrument).isMultiphonic())
-          reportMissing(InstrumentAudio.class,
-            String.format("from Instrument[%s] for note %s", instrument.getId(), note.toString(AdjSymbol.Sharp)));
-        else
-          reportMissing(InstrumentAudio.class,
-            String.format("from Instrument[%s] for event %s", instrument.getId(), fabricator.getTrackName(event)));
-
-        return;
-      }
+      if (audio.isEmpty()) return;
 
       // Audio pitch is not modified for atonal instruments
       double pitch = fabricator.getInstrumentConfig(instrument).isTonal() ?
@@ -382,7 +376,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       return Optional.of(audioEntityScorePicker.getTop());
 
     } catch (FabricationException | HubClientException e) {
-      reportMissing(InstrumentAudio.class, String.format("for Instrument[%s] eventId=%s", instrument.getId(), event.getId()));
+      reportMissing(InstrumentAudio.class, "attempting to pickInstrumentAudio", ImmutableMap.of(
+        "instrumentId", instrument.getId(),
+        "trackName", trackNameOrUnknown(event)
+      ));
       return Optional.empty();
     }
   }
@@ -402,23 +399,30 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     Note note
   ) {
     try {
-      var audioEvent = fabricator.getSourceMaterial().getFirstEventsOfAudiosOfInstrument(instrument)
+      var audioEvent = fabricator.getFirstEventsOfAudiosOfInstrument(instrument)
         .stream()
         .filter(instrumentAudioEvent ->
-          Note.of(instrumentAudioEvent.getNote()).equals(note))
+          Note.of(instrumentAudioEvent.getNote()).sameAs(note))
         .findAny();
 
       if (audioEvent.isEmpty()) {
-        reportMissing(InstrumentAudio.class, String.format("from Instrument[%s] for %s", instrument.getId(),
-          note.toString(AdjSymbol.Sharp)));
+        reportMissing(InstrumentAudio.class, "attempting to pickInstrumentAudio", ImmutableMap.of(
+          "instrumentId", instrument.getId(),
+          "searchForNote", note.toString(AdjSymbol.Sharp),
+          "availableNotes", CSV.from(fabricator.getFirstEventsOfAudiosOfInstrument(instrument)
+            .stream()
+            .map(InstrumentAudioEvent::getNote)
+            .map(Note::of)
+            .sorted(Note::compareTo)
+            .map(n -> n.toString(AdjSymbol.Sharp))
+            .collect(Collectors.toList()))
+        ));
         return Optional.empty();
       }
 
       return Optional.of(fabricator.getSourceMaterial().getInstrumentAudio(audioEvent.get().getInstrumentAudioId()));
 
     } catch (HubClientException e) {
-      reportMissing(InstrumentAudio.class, String.format("from Instrument[%s] for %s", instrument.getId(),
-        note.toString(AdjSymbol.Sharp)));
       return Optional.empty();
     }
   }

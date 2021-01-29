@@ -2,18 +2,18 @@
 package io.xj.lib.util;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public interface CSV {
-  char COMMA = ',';
+  String COMMA = ", ";
   char SPACE = ' ';
 
   static Collection<String> split(String csv) {
@@ -28,7 +28,7 @@ public interface CSV {
   }
 
   static String join(Collection<String> parts) {
-    return String.join(",", parts);
+    return String.join(COMMA, parts);
   }
 
   @SafeVarargs
@@ -51,7 +51,7 @@ public interface CSV {
     Iterator<T> it = ids.iterator();
     StringBuilder result = new StringBuilder(it.next().toString());
     while (it.hasNext()) {
-      result.append(COMMA).append(SPACE);
+      result.append(COMMA);
       String item = it.next().toString();
       if (!it.hasNext())
         result.append(beforeFinalItem).append(SPACE);
@@ -66,10 +66,20 @@ public interface CSV {
    @param properties key=value
    @return CSV string
    */
-  static String from(ImmutableMap<String, String> properties) {
+  static String from(Map<String, String> properties) {
     Collection<String> pieces = Lists.newArrayList();
     properties.forEach((key, value) -> pieces.add(String.format("%s=%s", key, value)));
     return join(pieces);
+  }
+
+  /**
+   Get a CSV string of key=value properties
+
+   @param properties key=value
+   @return CSV string
+   */
+  static String from(Collection<?> properties) {
+    return join(properties.stream().map(Objects::toString).collect(Collectors.toList()));
   }
 
 }
