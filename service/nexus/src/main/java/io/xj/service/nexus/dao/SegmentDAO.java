@@ -206,11 +206,11 @@ public interface SegmentDAO extends DAO<Segment> {
   /**
    Read the last segment in a Chain, Segments sorted by offset ascending
 
+   @return Last Segment in Chain
    @param access  control
    @param chainId of chain
-   @return Last Segment in Chain
    */
-  Segment readLastSegment(HubClientAccess access, String chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
+  Optional<Segment> readLastSegment(HubClientAccess access, String chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
 
   /**
    Read the last dubbed-state segment in a Chain, Segments sorted by offset ascending
@@ -219,5 +219,5 @@ public interface SegmentDAO extends DAO<Segment> {
    @param chainId of chain
    @return Last Dubbed-state Segment in Chain
    */
-  Segment readLastDubbedSegment(HubClientAccess access, String chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
+  Optional<Segment> readLastDubbedSegment(HubClientAccess access, String chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
 }

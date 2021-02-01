@@ -91,8 +91,10 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
           Instant.parse(chain.getStartAt()).isBefore(thresholdChainProductionStartedBefore))
       .forEach(chain -> {
         try {
-          Instant chainDubbedUntil = Instant.parse(
-            segmentDAO.readLastDubbedSegment(access, chain.getId()).getEndAt());
+          var lastDubbedSegment = segmentDAO.readLastDubbedSegment(access, chain.getId());
+          Instant chainDubbedUntil = lastDubbedSegment.isPresent() ?
+            Instant.parse(lastDubbedSegment.get().getEndAt()) :
+            Instant.parse(chain.getStartAt());
           log.info("Chain[{}] dubbed until {} -- required until {}",
             chain.getId(), chainDubbedUntil, thresholdChainSegmentsDubbedPast);
           if (chainDubbedUntil.isBefore(thresholdChainSegmentsDubbedPast)) {
@@ -102,6 +104,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
                 chainDubbedUntil, thresholdChainSegmentsDubbedPast, thresholdChainProductionStartedBefore));
           }
         } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException e) {
+
           log.warn("Failure while checking for Chains to revive!", e);
           e.printStackTrace();
         }

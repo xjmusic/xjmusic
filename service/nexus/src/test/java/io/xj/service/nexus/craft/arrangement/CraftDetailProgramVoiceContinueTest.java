@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.service.nexus.craft.detail;
+package io.xj.service.nexus.craft.arrangement;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;

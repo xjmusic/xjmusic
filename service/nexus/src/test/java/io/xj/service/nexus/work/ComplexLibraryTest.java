@@ -175,7 +175,9 @@ public class ComplexLibraryTest {
    */
   private boolean hasSegmentsDubbedPastMinimumOffset(String chainId) {
     try {
-      return MARATHON_NUMBER_OF_SEGMENTS <= segmentDAO.readLastDubbedSegment(HubClientAccess.internal(), chainId).getOffset();
+      return segmentDAO.readLastDubbedSegment(HubClientAccess.internal(), chainId)
+        .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getOffset()).isPresent();
+
     } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException ignored) {
       return false;
     }

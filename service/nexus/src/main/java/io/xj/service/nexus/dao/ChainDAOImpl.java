@@ -340,20 +340,17 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     // Get the last segment in the chain
     // If the chain had no last segment, it must be empty; return a template for its first segment
-    Segment lastSegmentInChain;
-    try {
-      lastSegmentInChain = segmentDAO.readLastSegment(access, chain.getId());
-    } catch (DAOExistenceException ignored2) {
-      Segment pilotTemplate = Segment.newBuilder()
+    var maybeLastSegmentInChain = segmentDAO.readLastSegment(access, chain.getId());
+    if (maybeLastSegmentInChain.isEmpty())
+      return Optional.of(Segment.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setChainId(chain.getId())
         .setBeginAt(chain.getStartAt())
         .setOffset(0L)
         .setType(Segment.Type.Pending)
         .setState(Segment.State.Planned)
-        .build();
-      return Optional.of(pilotTemplate);
-    }
+        .build());
+    var lastSegmentInChain = maybeLastSegmentInChain.get();
 
     // If the last segment begins after our boundary, we're here early; get outta here.
     if (Instant.parse(lastSegmentInChain.getBeginAt()).isAfter(segmentBeginBefore))

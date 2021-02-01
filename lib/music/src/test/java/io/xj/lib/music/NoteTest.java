@@ -16,14 +16,14 @@ public class NoteTest {
    [#303] Craft calculates percussive audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
    */
   @Test
-  public void setOctaveNearest() throws Exception {
+  public void setOctaveNearest() {
     assertEquals(Integer.valueOf(3), Note.of("C7").setOctaveNearest(Note.of("B2")).getOctave());
     assertEquals(Integer.valueOf(2), Note.of("F7").setOctaveNearest(Note.of("B2")).getOctave());
     assertEquals(Integer.valueOf(3), Note.of("E7").setOctaveNearest(Note.of("B2")).getOctave());
   }
 
   @Test
-  public void noteToString() throws Exception {
+  public void noteToString() {
     assertEquals("C#5", Note.of("C#5").toString(AdjSymbol.Sharp));
     assertEquals("Db5", Note.of("C#5").toString(AdjSymbol.Flat));
   }
@@ -38,7 +38,7 @@ public class NoteTest {
 
 
   @Test
-  public void delta() throws Exception {
+  public void delta() {
     // run from -20 to +20
     assertEquals(Integer.valueOf(-20), Note.of("C5").delta(Note.of("E3")));
     assertEquals(Integer.valueOf(-19), Note.of("C5").delta(Note.of("F3")));
@@ -89,7 +89,7 @@ public class NoteTest {
    [#308] When conforming a Note to a Chord, find the absolute closest Note that conforms to the Chord's pitch classes
    */
   @Test
-  public void conformedTo() throws Exception {
+  public void conformedTo() {
     assertNote("E3", Note.of("E3").conformedTo(Chord.of("C major 7")));
     assertNote("E3", Note.of("F3").conformedTo(Chord.of("C major 7")));
     assertNote("G3", Note.of("Gb3").conformedTo(Chord.of("C major 7")));
