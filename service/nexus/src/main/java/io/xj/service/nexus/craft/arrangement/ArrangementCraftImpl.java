@@ -120,19 +120,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     double fromPos,
     double maxPos
   ) throws CraftException {
-    try {
-      if (Objects.isNull(pattern)) throw exception("Cannot craft create null pattern");
-      double totalPos = maxPos - fromPos;
-      Collection<ProgramSequencePatternEvent> events = fabricator.getSourceMaterial().getEvents(pattern);
-      var instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId())
-        .orElseThrow(() -> exception("Failed to retrieve instrument"));
-      for (ProgramSequencePatternEvent event : events)
-        pickInstrumentAudio(chord, instrument, arrangement, event, fromPos);
-      return Math.min(totalPos, pattern.getTotal());
-
-    } catch (HubClientException e) {
-      throw exception("craft pattern events", e);
-    }
+    if (Objects.isNull(pattern)) throw exception("Cannot craft create null pattern");
+    double totalPos = maxPos - fromPos;
+    Collection<ProgramSequencePatternEvent> events = fabricator.getSourceMaterial().getEvents(pattern);
+    var instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId())
+      .orElseThrow(() -> exception("Failed to retrieve instrument"));
+    for (ProgramSequencePatternEvent event : events)
+      pickInstrumentAudio(chord, instrument, arrangement, event, fromPos);
+    return Math.min(totalPos, pattern.getTotal());
   }
 
   /**

@@ -17,7 +17,6 @@ import io.xj.SegmentMeme;
 import io.xj.lib.music.Key;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
-import io.xj.service.hub.client.HubClientException;
 import io.xj.service.nexus.craft.CraftException;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
 import io.xj.service.nexus.fabricator.FabricationException;
@@ -342,10 +341,9 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @param program to score
    @return score, including +/- entropy
-   @throws CraftException on failure
    */
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "scoreMacro")
-  private double scoreMacro(Program program) throws CraftException {
+  private double scoreMacro(Program program) {
     double score = Chance.normallyAround(0, SCORE_MACRO_ENTROPY);
 
     if (fabricator.isInitialSegment()) {
@@ -353,12 +351,8 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     }
 
     // Score includes matching memes to previous segment's macro-program's next pattern
-    try {
-      score += fabricator.getMemeIsometryOfNextSequenceInPreviousMacro()
-        .score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCH;
-    } catch (HubClientException e) {
-      throw exception("Failed to get source material for scoring Macro", e);
-    }
+    score += fabricator.getMemeIsometryOfNextSequenceInPreviousMacro()
+      .score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCH;
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
@@ -372,10 +366,9 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @param program to score
    @return score, including +/- entropy
-   @throws CraftException on failure
    */
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "scoreMain")
-  private double scoreMain(Program program) throws CraftException {
+  private double scoreMain(Program program) {
     double score = Chance.normallyAround(0, SCORE_MAIN_ENTROPY);
 
     if (!fabricator.isInitialSegment()) {
@@ -396,13 +389,8 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
       score += SCORE_DIRECT;
 
     // Score includes matching memes, previous segment to macro program first pattern
-    try {
-      score += fabricator.getMemeIsometryOfCurrentMacro()
-        .score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCH;
-
-    } catch (HubClientException e) {
-      throw exception("Failed to get memes at beginning create program, in order to score next Main choice", e);
-    }
+    score += fabricator.getMemeIsometryOfCurrentMacro()
+      .score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCH;
 
     return score;
   }

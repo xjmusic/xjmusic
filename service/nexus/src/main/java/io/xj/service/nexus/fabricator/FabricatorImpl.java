@@ -456,36 +456,25 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Collection<SegmentMeme> getMemesOfChoice(SegmentChoice choice) {
-    try {
-      Collection<SegmentMeme> result = Lists.newArrayList();
-      var program = getProgram(choice);
-      if (program.isEmpty())
-        return ImmutableList.of();
-      sourceMaterial.getMemes(program.get())
+    Collection<SegmentMeme> result = Lists.newArrayList();
+    var program = getProgram(choice);
+    if (program.isEmpty())
+      return ImmutableList.of();
+    sourceMaterial.getMemes(program.get())
+      .forEach(meme -> result.add(SegmentMeme.newBuilder()
+        .setName(meme.getName())
+        .setSegmentId(choice.getSegmentId())
+        .build()));
+    if (Value.isSet(choice.getProgramSequenceBindingId())) {
+      var sequenceBinding = getSequenceBinding(choice);
+      sequenceBinding.ifPresent(programSequenceBinding -> sourceMaterial.getMemes(programSequenceBinding)
         .forEach(meme -> result.add(SegmentMeme.newBuilder()
           .setName(meme.getName())
           .setSegmentId(choice.getSegmentId())
-          .build()));
-      if (Value.isSet(choice.getProgramSequenceBindingId())) {
-        var sequenceBinding = getSequenceBinding(choice);
-        if (sequenceBinding.isPresent())
-          sourceMaterial.getMemes(sequenceBinding.get())
-            .forEach(meme -> result.add(SegmentMeme.newBuilder()
-              .setName(meme.getName())
-              .setSegmentId(choice.getSegmentId())
-              .build()));
-      }
-      return result;
-
-    } catch (HubClientException e) {
-      log.error("Failed to get memes of SegmentChoice(id={},segId={},programType={},instrumentType={})",
-        choice.getId(),
-        choice.getSegmentId(),
-        choice.getProgramType(),
-        choice.getProgramType(),
-        e);
-      return ImmutableList.of();
+          .build())));
     }
+    return result;
+
   }
 
   @Override
@@ -891,21 +880,17 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public NoteRange getRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws FabricationException {
-    try {
-      var program = getProgram(segmentChoiceArrangement);
-      if (program.isEmpty())
-        throw new FabricationException("Can't get note range for nonexistent program!");
-      return new NoteRange(sourceMaterial.getEvents(program.get())
-        .stream()
-        .filter(programSequencePatternEvent -> sourceMaterial.getTrack(programSequencePatternEvent)
-          .map(track -> programSequencePatternEvent.getProgramVoiceTrackId().equals(track.getId()))
-          .orElse(false))
-        .map(programSequencePatternEvent -> Note.of(programSequencePatternEvent.getNote()))
-        .collect(Collectors.toList()));
+    var program = getProgram(segmentChoiceArrangement);
+    if (program.isEmpty())
+      throw new FabricationException("Can't get note range for nonexistent program!");
+    return new NoteRange(sourceMaterial.getEvents(program.get())
+      .stream()
+      .filter(programSequencePatternEvent -> sourceMaterial.getTrack(programSequencePatternEvent)
+        .map(track -> programSequencePatternEvent.getProgramVoiceTrackId().equals(track.getId()))
+        .orElse(false))
+      .map(programSequencePatternEvent -> Note.of(programSequencePatternEvent.getNote()))
+      .collect(Collectors.toList()));
 
-    } catch (HubClientException e) {
-      throw new FabricationException("Could not get note range for arrangement!", e);
-    }
   }
 
   @Override
@@ -963,7 +948,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Collection Strings from colleciton of of Segment Memes
+   Collection Strings from collection of of Segment Memes
 
    @param memes to get strings of
    @return strings

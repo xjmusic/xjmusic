@@ -13,7 +13,6 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
-import io.xj.service.hub.client.HubClientException;
 import io.xj.service.nexus.craft.CraftException;
 import io.xj.service.nexus.craft.detail.DetailCraftImpl;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
@@ -169,6 +168,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @param program to score
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
+  @SuppressWarnings("DuplicatedCode")
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "scoreRhythm")
   private Double scoreRhythm(Program program) throws CraftException {
     try {
@@ -234,29 +234,23 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    */
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "chooseFreshPercussiveInstrument")
   private Optional<Instrument> chooseFreshPercussiveInstrument(ProgramVoice voice) throws CraftException {
-    try {
-      EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
+    EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
-      // (2) retrieve instruments bound to chain
-      Collection<Instrument> sourceInstruments = fabricator.getSourceMaterial().getInstrumentsOfType(Instrument.Type.Percussive);
+    // (2) retrieve instruments bound to chain
+    Collection<Instrument> sourceInstruments = fabricator.getSourceMaterial().getInstrumentsOfType(Instrument.Type.Percussive);
 
-      // future: [#258] Instrument selection is based on Text Isometry between the voice name and the instrument name
-      log.debug("[segId={}] not currently in use: {}", fabricator.getSegment().getId(), voice);
+    // future: [#258] Instrument selection is based on Text Isometry between the voice name and the instrument name
+    log.debug("[segId={}] not currently in use: {}", fabricator.getSegment().getId(), voice);
 
-      // (3) score each source instrument based on meme isometry
-      for (Instrument instrument : sourceInstruments)
-        superEntityScorePicker.add(instrument, scorePercussive(instrument));
+    // (3) score each source instrument based on meme isometry
+    for (Instrument instrument : sourceInstruments)
+      superEntityScorePicker.add(instrument, scorePercussive(instrument));
 
-      // report
-      fabricator.putReport("percussiveChoice", superEntityScorePicker.report());
+    // report
+    fabricator.putReport("percussiveChoice", superEntityScorePicker.report());
 
-      // (4) return the top choice
-      return superEntityScorePicker.getTop();
-
-    } catch (HubClientException e) {
-      reportMissing(Instrument.class, "percussive-type bound to Chain");
-      return Optional.empty();
-    }
+    // (4) return the top choice
+    return superEntityScorePicker.getTop();
   }
 
   /**

@@ -15,7 +15,6 @@ import io.xj.SegmentChord;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.ValueException;
-import io.xj.service.hub.client.HubClientException;
 import io.xj.service.nexus.craft.CraftException;
 import io.xj.service.nexus.craft.arrangement.ArrangementCraftImpl;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
@@ -186,8 +185,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
         .setSegmentChoiceId(choice.getId())
         .setProgramVoiceId(voice.getId())
         .setInstrumentId(
-          instrumentId.isPresent() ?
-            instrumentId.get() : chooseFreshDetailInstrument(voice).orElseThrow().getId())
+          instrumentId.orElseGet(() -> chooseFreshDetailInstrument(voice).orElseThrow().getId()))
         .build());
 
       var program = fabricator.getProgram(choice);
@@ -210,12 +208,9 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
    @param voicingType to choose a fresh detail program for-- meaning the detail program will have this type of voice
    @return detail-type Program
-   @throws CraftException on failure
-   <p>
-   future: actually choose detail program
    */
   @Trace(resourceName = "nexus/craft/detail", operationName = "chooseFreshDetailProgram")
-  private Optional<Program> chooseFreshDetailProgram(Instrument.Type voicingType) throws CraftException {
+  private Optional<Program> chooseFreshDetailProgram(Instrument.Type voicingType) {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
     // Retrieve programs bound to chain having a voice of the specified type
@@ -248,30 +243,24 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
    @param voice to choose instrument for
    @return detail-type Instrument
-   @throws CraftException on failure
    */
   @Trace(resourceName = "nexus/craft/detail", operationName = "chooseFreshDetailInstrument")
-  protected Optional<Instrument> chooseFreshDetailInstrument(ProgramVoice voice) throws CraftException {
-    try {
-      EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
+  protected Optional<Instrument> chooseFreshDetailInstrument(ProgramVoice voice) {
+    EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
-      // (2) retrieve instruments bound to chain
-      Collection<Instrument> sourceInstruments = fabricator.getSourceMaterial().getInstrumentsOfType(voice.getType());
+    // (2) retrieve instruments bound to chain
+    Collection<Instrument> sourceInstruments = fabricator.getSourceMaterial().getInstrumentsOfType(voice.getType());
 
-      // (3) score each source instrument based on meme isometry
-      for (Instrument instrument : sourceInstruments)
-        superEntityScorePicker.add(instrument, scoreDetail(instrument));
+    // (3) score each source instrument based on meme isometry
+    for (Instrument instrument : sourceInstruments)
+      superEntityScorePicker.add(instrument, scoreDetail(instrument));
 
-      // report
-      fabricator.putReport("detailChoice", superEntityScorePicker.report());
+    // report
+    fabricator.putReport("detailChoice", superEntityScorePicker.report());
 
-      // (4) return the top choice
-      return superEntityScorePicker.getTop();
+    // (4) return the top choice
+    return superEntityScorePicker.getTop();
 
-    } catch (HubClientException e) {
-      reportMissing(Instrument.class, "detail-type bound to Chain!");
-      return Optional.empty();
-    }
   }
 
   /**
@@ -281,24 +270,20 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @return score, including +/- entropy
    */
   @Trace(resourceName = "nexus/craft/detail", operationName = "scoreDetail")
-  protected double scoreDetail(Instrument instrument) throws CraftException {
-    try {
-      double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
+  protected double scoreDetail(Instrument instrument) {
+    double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
 
-      // Score includes matching memes, previous segment to macro instrument first pattern
-      score += SCORE_MATCHED_MEMES *
-        fabricator.getMemeIsometryOfSegment().score(
-          Entities.namesOf(fabricator.getSourceMaterial().getMemes(instrument)));
+    // Score includes matching memes, previous segment to macro instrument first pattern
+    score += SCORE_MATCHED_MEMES *
+      fabricator.getMemeIsometryOfSegment().score(
+        Entities.namesOf(fabricator.getSourceMaterial().getMemes(instrument)));
 
-      // [#174435421] Chain bindings specify Program & Instrument within Library
-      if (fabricator.isDirectlyBound(instrument))
-        score += SCORE_DIRECTLY_BOUND;
+    // [#174435421] Chain bindings specify Program & Instrument within Library
+    if (fabricator.isDirectlyBound(instrument))
+      score += SCORE_DIRECTLY_BOUND;
 
-      return score;
+    return score;
 
-    } catch (HubClientException e) {
-      throw exception("score detail program", e);
-    }
   }
 
   /**
@@ -311,24 +296,21 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param program to score
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
+  @SuppressWarnings("DuplicatedCode")
   @Trace(resourceName = "nexus/craft/detail", operationName = "scoreDetail")
-  private Double scoreDetail(Program program) throws CraftException {
-    try {
-      double score = 0;
-      Collection<String> memes = fabricator.getSourceMaterial().getMemesAtBeginning(program);
-      if (!memes.isEmpty())
-        score += fabricator.getMemeIsometryOfSegment().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_DETAIL_ENTROPY);
+  private Double scoreDetail(Program program) {
+    double score = 0;
+    Collection<String> memes = fabricator.getSourceMaterial().getMemesAtBeginning(program);
+    if (!memes.isEmpty())
+      score += fabricator.getMemeIsometryOfSegment().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_DETAIL_ENTROPY);
 
-      // [#174435421] Chain bindings specify Program & Instrument within Library
-      if (fabricator.isDirectlyBound(program))
-        score += SCORE_DIRECTLY_BOUND;
+    // [#174435421] Chain bindings specify Program & Instrument within Library
+    if (fabricator.isDirectlyBound(program))
+      score += SCORE_DIRECTLY_BOUND;
 
-      // score is above zero, else empty
-      return score;
+    // score is above zero, else empty
+    return score;
 
-    } catch (HubClientException e) {
-      throw exception("score detail program", e);
-    }
   }
 
   /**

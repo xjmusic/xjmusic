@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  [#154350346] to ingest any combination of Programs, Instruments, or Libraries (with their Programs and Instruments)
@@ -355,7 +354,7 @@ public class HubContent {
 
    @return cached ProgramVoices
    */
-  public Collection<ProgramVoice> getAllProgramVoices()  {
+  public Collection<ProgramVoice> getAllProgramVoices() {
     return getAll(ProgramVoice.class);
   }
 
@@ -373,7 +372,7 @@ public class HubContent {
 
    @return collection of sequences
    */
-  public Collection<Program> getProgramsOfType(Program.Type type)  {
+  public Collection<Program> getProgramsOfType(Program.Type type) {
     return getAllPrograms().stream()
       .filter(program -> program.getType().equals(type))
       .collect(Collectors.toList());
@@ -384,7 +383,7 @@ public class HubContent {
 
    @return collection of instruments
    */
-  public Collection<Instrument> getInstrumentsOfType(Instrument.Type type) throws HubClientException {
+  public Collection<Instrument> getInstrumentsOfType(Instrument.Type type) {
     return getAllInstruments().stream()
       .filter(instrument -> instrument.getType().equals(type))
       .collect(Collectors.toList());
@@ -409,7 +408,7 @@ public class HubContent {
    @param program to get memes for
    @return memes of program
    */
-  public Collection<ProgramMeme> getMemes(Program program) throws HubClientException {
+  public Collection<ProgramMeme> getMemes(Program program) {
     return getAllProgramMemes().stream()
       .filter(m -> m.getProgramId().equals(program.getId()))
       .collect(Collectors.toList());
@@ -421,7 +420,7 @@ public class HubContent {
    @param program to get events for
    @return events for given program
    */
-  public Collection<ProgramSequencePatternEvent> getEvents(Program program) throws HubClientException {
+  public Collection<ProgramSequencePatternEvent> getEvents(Program program) {
     return getAllProgramSequencePatternEvents().stream()
       .filter(m -> m.getProgramId().equals(program.getId()))
       .collect(Collectors.toList());
@@ -433,7 +432,7 @@ public class HubContent {
    @param programPattern to get events for
    @return events for given program pattern
    */
-  public Collection<ProgramSequencePatternEvent> getEvents(ProgramSequencePattern programPattern) throws HubClientException {
+  public Collection<ProgramSequencePatternEvent> getEvents(ProgramSequencePattern programPattern) {
     return getAllProgramSequencePatternEvents().stream()
       .filter(m -> m.getProgramSequencePatternId().equals(programPattern.getId()))
       .collect(Collectors.toList());
@@ -445,7 +444,7 @@ public class HubContent {
    @param instrument to get memes for
    @return memes of instrument
    */
-  public Collection<InstrumentMeme> getMemes(Instrument instrument) throws HubClientException {
+  public Collection<InstrumentMeme> getMemes(Instrument instrument) {
     return getAllInstrumentMemes().stream()
       .filter(m -> m.getInstrumentId().equals(instrument.getId()))
       .collect(Collectors.toList());
@@ -479,7 +478,7 @@ public class HubContent {
    @param audio to get events for
    @return events of audio
    */
-  public Collection<InstrumentAudioEvent> getEvents(InstrumentAudio audio) throws HubClientException {
+  public Collection<InstrumentAudioEvent> getEvents(InstrumentAudio audio) {
     return getAllInstrumentAudioEvents().stream()
       .filter(e -> e.getInstrumentAudioId().equals(audio.getId()))
       .collect(Collectors.toList());
@@ -527,7 +526,7 @@ public class HubContent {
    @param programSequenceBinding to get memes for
    @return memes
    */
-  public Collection<ProgramSequenceBindingMeme> getMemes(ProgramSequenceBinding programSequenceBinding) throws HubClientException {
+  public Collection<ProgramSequenceBindingMeme> getMemes(ProgramSequenceBinding programSequenceBinding) {
     return getAllProgramSequenceBindingMemes().stream()
       .filter(m -> m.getProgramSequenceBindingId().equals(programSequenceBinding.getId()))
       .collect(Collectors.toList());
@@ -576,16 +575,10 @@ public class HubContent {
   public Collection<InstrumentAudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) {
     return getAudios(instrument)
       .stream()
-      .flatMap(instrumentAudio -> {
-        try {
-          return Stream.of(getEvents(instrumentAudio).stream()
-            .filter(search -> search.getInstrumentAudioId().equals(instrumentAudio.getId()))
-            .min(Comparator.comparing(InstrumentAudioEvent::getPosition))
-            .orElseThrow());
-        } catch (HubClientException e) {
-          return Stream.empty();
-        }
-      })
+      .flatMap(instrumentAudio -> getEvents(instrumentAudio).stream()
+        .filter(search -> search.getInstrumentAudioId().equals(instrumentAudio.getId()))
+        .min(Comparator.comparing(InstrumentAudioEvent::getPosition))
+        .stream())
       .collect(Collectors.toList());
   }
 
@@ -594,7 +587,7 @@ public class HubContent {
 
    @return collection of sequence memes
    */
-  public Collection<String> getMemesAtBeginning(Program program) throws HubClientException {
+  public Collection<String> getMemesAtBeginning(Program program) {
     Map<String, Boolean> memes = Maps.newHashMap();
 
     // add sequence memes
@@ -643,7 +636,7 @@ public class HubContent {
    @param event to get program voice of
    @return Program voice for the given program event
    */
-  public Optional<ProgramVoice> getVoice(ProgramSequencePatternEvent event)  {
+  public Optional<ProgramVoice> getVoice(ProgramSequencePatternEvent event) {
     var track = getTrack(event);
     if (track.isEmpty()) return Optional.empty();
     return getProgramVoice(track.get().getProgramVoiceId());
@@ -665,7 +658,7 @@ public class HubContent {
    @param program to get program voices for
    @return program voices for the given program
    */
-  public Collection<ProgramVoice> getVoices(Program program)  {
+  public Collection<ProgramVoice> getVoices(Program program) {
     return getAllProgramVoices().stream()
       .filter(m -> m.getProgramId().equals(program.getId()))
       .collect(Collectors.toList());
