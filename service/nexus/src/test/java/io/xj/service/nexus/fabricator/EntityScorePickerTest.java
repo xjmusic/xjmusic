@@ -142,8 +142,8 @@ public class EntityScorePickerTest {
   }
 
   @Test
-  public void getTop() throws FabricationException {
-    assertEquals(sequenceB, entityScorePicker.getTop());
+  public void getTop() {
+    assertEquals(sequenceB, entityScorePicker.getTop().orElseThrow());
   }
 
   @Test

@@ -74,16 +74,15 @@ public interface Fabricator {
    id of all audio picked for current segment
 
    @return list of audio ids
-   @throws FabricationException on failure
    */
-  Collection<InstrumentAudio> getPickedAudios() throws FabricationException;
+  Collection<InstrumentAudio> getPickedAudios();
 
   /**
    Get the Chain
 
    @return Chain
    */
-  Chain getChain() throws FabricationException;
+  Chain getChain();
 
   /**
    Chain configuration, by type
@@ -91,7 +90,7 @@ public interface Fabricator {
 
    @return chain configuration
    */
-  ChainConfig getChainConfig() throws FabricationException;
+  ChainConfig getChainConfig();
 
   /**
    Chain id, of segment
@@ -107,47 +106,42 @@ public interface Fabricator {
    @param position in segment
    @return ChordEntity
    */
-  Optional<SegmentChord> getChordAt(int position) throws FabricationException;
+  Optional<SegmentChord> getChordAt(int position);
 
   /**
    Get the Messages for the current segment in the chain
 
    @return Segment Messages
-   @throws FabricationException on failure
    */
-  Collection<SegmentMessage> getSegmentMessages() throws FabricationException;
+  Collection<SegmentMessage> getSegmentMessages();
 
   /**
    fetch the macro-type choice for the current segment in the chain
 
    @return macro-type segment choice
-   @throws FabricationException on failure
    */
-  SegmentChoice getCurrentMacroChoice() throws FabricationException;
+  Optional<SegmentChoice> getCurrentMacroChoice();
 
   /**
    fetch the main-type choice for the current segment in the chain
 
    @return main-type segment choice
-   @throws FabricationException on failure
    */
-  SegmentChoice getCurrentMainChoice() throws FabricationException;
+  Optional<SegmentChoice> getCurrentMainChoice();
 
   /**
    fetch the rhythm-type choice for the current segment in the chain
 
    @return rhythm-type segment choice
-   @throws FabricationException on failure
    */
-  SegmentChoice getCurrentRhythmChoice() throws FabricationException;
+  Optional<SegmentChoice> getCurrentRhythmChoice();
 
   /**
    fetch the detail-type choice for the current segment in the chain
 
    @return detail-type segment choice
-   @throws FabricationException on failure
    */
-  Collection<SegmentChoice> getCurrentDetailChoices() throws FabricationException;
+  Collection<SegmentChoice> getCurrentDetailChoices();
 
   /**
    @return Seconds elapsed since fabricator was instantiated
@@ -296,7 +290,7 @@ public interface Fabricator {
    @return MemeIsometry for macro-choice
    @throws FabricationException on failure
    */
-  MemeIsometry getMemeIsometryOfCurrentMacro() throws FabricationException;
+  MemeIsometry getMemeIsometryOfCurrentMacro();
 
   /**
    Get meme isometry for the next offset in the previous segment's macro-choice
@@ -304,7 +298,7 @@ public interface Fabricator {
    @return MemeIsometry for previous macro-choice
    @throws FabricationException on failure
    */
-  MemeIsometry getMemeIsometryOfNextSequenceInPreviousMacro() throws FabricationException;
+  MemeIsometry getMemeIsometryOfNextSequenceInPreviousMacro();
 
   /**
    Get meme isometry for the current segment
@@ -330,9 +324,8 @@ public interface Fabricator {
 
    @param choice having a SequenceBinding
    @return next available SequenceBinding offset of the chosen sequence, or zero (if past the end of the available SequenceBinding offsets)
-   @throws FabricationException on attempt to get next SequenceBinding offset of choice with no SequenceBinding
    */
-  Long getNextSequenceBindingOffset(SegmentChoice choice) throws FabricationException;
+  Long getNextSequenceBindingOffset(SegmentChoice choice);
 
   /**
    Output Audio Format
@@ -363,41 +356,37 @@ public interface Fabricator {
 
    @return previous segments with ame main program
    */
-  Collection<Segment> getPreviousSegmentsWithSameMainProgram() throws FabricationException;
+  Collection<Segment> getPreviousSegmentsWithSameMainProgram();
 
   /**
    Get Program for any given choice
 
    @param choice to get program for
    @return Program for the specified choice
-   @throws FabricationException on failure
    */
-  Program getProgram(SegmentChoice choice) throws FabricationException;
+  Optional<Program> getProgram(SegmentChoice choice);
 
   /**
    Get Program for any given arrangement
 
    @param arrangement to get program for
    @return program for arrangement
-   @throws FabricationException on failure
    */
-  Program getProgram(SegmentChoiceArrangement arrangement) throws FabricationException;
+  Optional<Program> getProgram(SegmentChoiceArrangement arrangement);
 
   /**
    fetch the macro-type choice for the previous segment in the chain
 
    @return macro-type segment choice, null if none found
-   @throws FabricationException on failure
    */
-  SegmentChoice getPreviousMacroChoice() throws FabricationException;
+  Optional<SegmentChoice> getPreviousMacroChoice();
 
   /**
    fetch the main-type choice for the previous segment in the chain
 
    @return main-type segment choice, null if none found
-   @throws FabricationException on failure
    */
-  SegmentChoice getPreviousMainChoice() throws FabricationException;
+  Optional<SegmentChoice> getPreviousMainChoice();
 
   /**
    fetch the previous segment in the chain
@@ -461,16 +450,15 @@ public interface Fabricator {
    @return Sequence for choice
    @throws FabricationException on failure
    */
-  ProgramSequence getSequence(SegmentChoice choice) throws FabricationException;
+  Optional<ProgramSequence> getSequence(SegmentChoice choice) throws FabricationException;
 
   /**
    Get the sequence pattern offset of a given Choice
 
    @param choice having a SequenceBinding
    @return sequence pattern offset
-   @throws FabricationException on attempt to get next SequenceBinding offset of choice with no SequenceBinding
    */
-  Long getSequenceBindingOffsetForChoice(SegmentChoice choice) throws FabricationException;
+  Long getSequenceBindingOffsetForChoice(SegmentChoice choice);
 
   /**
    Get the ingested source material for fabrication
@@ -484,7 +472,7 @@ public interface Fabricator {
 
    @return macro-craft type
    */
-  Segment.Type getType() throws FabricationException;
+  Segment.Type getType();
 
   /**
    Whether the current Segment Choice has one or more sequence pattern offsets
@@ -492,9 +480,8 @@ public interface Fabricator {
 
    @param choice for which to check
    @return true if it has at least one more sequence pattern offset
-   @throws FabricationException on attempt to get next SequenceBinding offset of choice with no SequenceBinding
    */
-  boolean hasOneMoreSequenceBindingOffset(SegmentChoice choice) throws FabricationException;
+  boolean hasOneMoreSequenceBindingOffset(SegmentChoice choice);
 
   /**
    Whether the current Segment Choice has two or more sequence pattern offsets
@@ -502,9 +489,8 @@ public interface Fabricator {
 
    @param choice for which to check
    @return true if it has at least two more sequence pattern offsets
-   @throws FabricationException on attempt to get next SequenceBinding offset of choice with no SequenceBinding
    */
-  boolean hasTwoMoreSequenceBindingOffsets(SegmentChoice choice) throws FabricationException;
+  boolean hasTwoMoreSequenceBindingOffsets(SegmentChoice choice);
 
   /**
    is initial segment?
@@ -535,24 +521,22 @@ public interface Fabricator {
 
    @param offset to get sequence binding at
    @return randomly selected sequence binding
-   @throws FabricationException on failure to select a sequence binding
    */
-  ProgramSequenceBinding randomlySelectSequenceBindingAtOffset(Program program, Long offset) throws FabricationException;
+  Optional<ProgramSequenceBinding> randomlySelectSequenceBindingAtOffset(Program program, Long offset);
 
   /**
    Randomly select any sequence
 
    @return randomly selected sequence
-   @throws FabricationException if failure to select a sequence
    */
-  ProgramSequence randomlySelectSequence(Program program) throws FabricationException;
+  Optional<ProgramSequence> randomlySelectSequence(Program program);
 
   /**
    Get choices for segment
 
    @return choices for segment
    */
-  Collection<SegmentChoice> getChoices() throws FabricationException;
+  Collection<SegmentChoice> getChoices();
 
   /**
    Get Choice for arrangement
@@ -560,21 +544,21 @@ public interface Fabricator {
    @param arrangement for which to get choice
    @return choice for arrangement
    */
-  Optional<SegmentChoice> getChoice(SegmentChoiceArrangement arrangement) throws FabricationException;
+  Optional<SegmentChoice> getChoice(SegmentChoiceArrangement arrangement);
 
   /**
    Get arrangements for segment
 
    @return arrangements for segment
    */
-  Collection<SegmentChoiceArrangement> getArrangements() throws FabricationException;
+  Collection<SegmentChoiceArrangement> getArrangements();
 
   /**
    Get arrangement picks for segment
 
    @return arrangement picks for segment
    */
-  Collection<SegmentChoiceArrangementPick> getPicks() throws FabricationException;
+  Collection<SegmentChoiceArrangementPick> getPicks();
 
   /**
    Get segment arrangements for a given choice
@@ -582,14 +566,14 @@ public interface Fabricator {
    @param choices to get segment arrangements for
    @return segments arrangements for the given segment choice
    */
-  Collection<SegmentChoiceArrangement> getArrangements(Collection<SegmentChoice> choices) throws FabricationException;
+  Collection<SegmentChoiceArrangement> getArrangements(Collection<SegmentChoice> choices);
 
   /**
    Get all segment chords, guaranteed to be in order of position ascending
 
    @return segment chords
    */
-  Collection<SegmentChord> getSegmentChords() throws FabricationException;
+  Collection<SegmentChord> getSegmentChords();
 
   /**
    Get segment chord voicing for a given chord
@@ -597,7 +581,7 @@ public interface Fabricator {
    @param chord to get voicing for
    @return chord voicing for chord
    */
-  Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, Instrument.Type type) throws FabricationException;
+  Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, Instrument.Type type);
 
   /**
    Get voicing notes for a given segment chord
@@ -608,7 +592,7 @@ public interface Fabricator {
    @param type  to get voicing notes for
    @return voicing notes
    */
-  Collection<Note> getVoicingNotes(SegmentChord chord, Instrument.Type type) throws FabricationException;
+  Collection<Note> getVoicingNotes(SegmentChord chord, Instrument.Type type);
 
   /**
    Get instrument for a given segment pick
@@ -617,7 +601,7 @@ public interface Fabricator {
    @return instrument for pick
    @throws FabricationException on failure
    */
-  Instrument getInstrument(SegmentChoiceArrangementPick pick) throws FabricationException;
+  Optional<Instrument> getInstrument(SegmentChoiceArrangementPick pick) throws FabricationException;
 
   /**
    Get instrument for a given arrangement
@@ -626,14 +610,14 @@ public interface Fabricator {
    @return instrument for pick
    @throws FabricationException on failure
    */
-  Instrument getInstrument(SegmentChoiceArrangement arrangement) throws FabricationException;
+  Optional<Instrument> getInstrument(SegmentChoiceArrangement arrangement) throws FabricationException;
 
   /**
    Get memes for segment
 
    @return memes for segment
    */
-  Collection<SegmentMeme> getSegmentMemes() throws FabricationException;
+  Collection<SegmentMeme> getSegmentMemes();
 
   /**
    [#165954619] Selects one (at random) of all available patterns of a given type within a sequence.
@@ -747,4 +731,27 @@ public interface Fabricator {
    @return first event of each audio from the instrument
    */
   Collection<InstrumentAudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) throws HubClientException;
+
+  /**
+   Whether this type of segment continues the same macro-program from the previous segment
+
+   @return true if this segment continues the same macro-program
+   */
+  boolean continuesMacroProgram();
+
+  /**
+   Does the program of the specified Choice have at least N more sequence binding offsets available?
+
+   @param choice of which to check the program for next available sequence binding offsets
+   @param N      more sequence offsets to check for
+   @return true if N more sequence binding offsets are available
+   */
+  boolean hasMoreSequenceBindingOffsets(SegmentChoice choice, int N);
+
+  /**
+   Determine the type of fabricator
+
+   @return type of fabricator
+   */
+  Segment.Type determineType();
 }

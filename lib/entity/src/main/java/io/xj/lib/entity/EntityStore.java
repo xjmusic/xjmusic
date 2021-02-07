@@ -49,9 +49,8 @@ public interface EntityStore {
    @param <N>  types of entities
    @param type of entity
    @return collection of given type
-   @throws EntityStoreException on failure to retrieve the requested key
    */
-  <N> Collection<N> getAll(Class<N> type) throws EntityStoreException;
+  <N> Collection<N> getAll(Class<N> type);
 
   /**
    Get all entities by type and a belongs-to relationship from the store

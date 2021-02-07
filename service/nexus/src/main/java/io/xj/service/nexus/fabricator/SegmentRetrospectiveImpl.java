@@ -14,7 +14,6 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.client.HubClientAccess;
-import io.xj.service.hub.client.HubClientException;
 import io.xj.service.hub.client.HubContent;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
@@ -57,7 +56,10 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
         .orElseThrow(() -> new FabricationException("No main choice!"));
 
       // if relevant populate the retrospective with the previous segments with the same main sequence as this one
-      long sequenceBindingOffset = sourceMaterial.getProgramSequenceBinding(previousSegmentMainChoice.getProgramSequenceBindingId()).getOffset();
+      long sequenceBindingOffset = sourceMaterial
+        .getProgramSequenceBinding(previousSegmentMainChoice.getProgramSequenceBindingId())
+        .orElseThrow(() -> new DAOExistenceException("Cannot find sequence binding"))
+        .getOffset();
       if (0 >= sequenceBindingOffset) return;
       long oF = segment.getOffset() - sequenceBindingOffset;
       long oT = segment.getOffset() - 1;
@@ -66,92 +68,60 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       store.putAll(previousMany);
       store.putAll(segmentDAO.readManySubEntities(access, Entities.idsOf(previousMany), true));
 
-    } catch (DAOExistenceException | DAOFatalException | DAOPrivilegeException | HubClientException | EntityStoreException e) {
+    } catch (DAOExistenceException | DAOFatalException | DAOPrivilegeException | EntityStoreException e) {
       throw new FabricationException(e);
     }
   }
 
   @Override
-  public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks(Segment segment) throws FabricationException {
-    try {
-      return store.getAll(SegmentChoiceArrangementPick.class).stream().filter(e ->
-        e.getSegmentId().equals(segment.getId()))
-        .collect(Collectors.toList());
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
+  public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks(Segment segment) {
+    return store.getAll(SegmentChoiceArrangementPick.class).stream().filter(e ->
+      e.getSegmentId().equals(segment.getId()))
+      .collect(Collectors.toList());
   }
 
   @Override
-  public Collection<SegmentChoice> getSegmentChoices(Segment segment) throws FabricationException {
-    try {
-      return store.getAll(SegmentChoice.class).stream().filter(e ->
-        e.getSegmentId().equals(segment.getId()))
-        .collect(Collectors.toList());
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
+  public Collection<SegmentChoice> getSegmentChoices(Segment segment) {
+    return store.getAll(SegmentChoice.class).stream().filter(e ->
+      e.getSegmentId().equals(segment.getId()))
+      .collect(Collectors.toList());
   }
 
   @Override
-  public Collection<SegmentChoiceArrangement> getSegmentChoiceArrangements(Segment segment) throws FabricationException {
-    try {
-      return store.getAll(SegmentChoiceArrangement.class).stream().filter(e ->
-        e.getSegmentId().equals(segment.getId()))
-        .collect(Collectors.toList());
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
+  public Collection<SegmentChoiceArrangement> getSegmentChoiceArrangements(Segment segment) {
+    return store.getAll(SegmentChoiceArrangement.class).stream().filter(e ->
+      e.getSegmentId().equals(segment.getId()))
+      .collect(Collectors.toList());
   }
 
   @Override
-  public Collection<SegmentMeme> getSegmentMemes(Segment segment) throws FabricationException {
-    try {
-      return store.getAll(SegmentMeme.class).stream().filter(e ->
-        e.getSegmentId().equals(segment.getId()))
-        .collect(Collectors.toList());
+  public Collection<SegmentMeme> getSegmentMemes(Segment segment) {
+    return store.getAll(SegmentMeme.class).stream().filter(e ->
+      e.getSegmentId().equals(segment.getId()))
+      .collect(Collectors.toList());
 
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
   }
 
   @Override
-  public Collection<Segment> getSegments() throws FabricationException {
-    try {
-      return store.getAll(Segment.class);
+  public Collection<Segment> getSegments() {
+    return store.getAll(Segment.class);
 
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
   }
 
   @Override
-  public SegmentChoice getChoiceOfType(Segment segment, Program.Type type) throws FabricationException {
-    try {
-      Optional<SegmentChoice> choice =
-        store.getAll(SegmentChoice.class).stream().filter(c ->
-          c.getSegmentId().equals(segment.getId()) &&
-            c.getProgramType().equals(type)).findFirst();
-      if (choice.isEmpty())
-        throw new FabricationException(String.format("No %s-type choice in retrospective %s", type, segment));
-      return choice.get();
+  public Optional<SegmentChoice> getChoiceOfType(Segment segment, Program.Type type) {
+    return
+      store.getAll(SegmentChoice.class).stream().filter(c ->
+        c.getSegmentId().equals(segment.getId()) &&
+          c.getProgramType().equals(type)).findFirst();
 
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
   }
 
   @Override
-  public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice segmentChoice) throws FabricationException {
-    try {
-      return store.getAll(SegmentChoiceArrangement.class).stream().filter(a ->
-        a.getSegmentChoiceId().equals(segmentChoice.getId()))
-        .collect(Collectors.toList());
-
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
+  public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice segmentChoice) {
+    return store.getAll(SegmentChoiceArrangement.class).stream().filter(a ->
+      a.getSegmentChoiceId().equals(segmentChoice.getId()))
+      .collect(Collectors.toList());
   }
 
   @Override
@@ -160,9 +130,9 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public SegmentChoice getPreviousChoiceOfType(Program.Type type) throws FabricationException {
+  public Optional<SegmentChoice> getPreviousChoiceOfType(Program.Type type) {
     Optional<Segment> seg = getPreviousSegment();
-    if (seg.isEmpty()) throw new FabricationException("Cannot get previous segment to get choice create");
+    if (seg.isEmpty()) return Optional.empty();
     return getChoiceOfType(seg.get(), type);
   }
 

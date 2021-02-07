@@ -16,6 +16,7 @@ import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface SegmentWorkbench {
 
@@ -40,37 +41,37 @@ public interface SegmentWorkbench {
   /**
    @return collection of all ChoiceArrangement in Segment
    */
-  Collection<SegmentChoiceArrangement> getSegmentArrangements() throws FabricationException;
+  Collection<SegmentChoiceArrangement> getSegmentArrangements() ;
 
   /**
    @return collection of all Choice in Segment
    */
-  Collection<SegmentChoice> getSegmentChoices() throws FabricationException;
+  Collection<SegmentChoice> getSegmentChoices();
 
   /**
    @return collection of all Chord in Segment, guaranteed to be in order of position ascending
    */
-  Collection<SegmentChord> getSegmentChords() throws FabricationException;
+  Collection<SegmentChord> getSegmentChords();
 
   /**
    @return collection of all ChordVoicing in Segment
    */
-  Collection<SegmentChordVoicing> getSegmentChordVoicings() throws FabricationException;
+  Collection<SegmentChordVoicing> getSegmentChordVoicings() ;
 
   /**
    @return collection of all Meme in Segment
    */
-  Collection<SegmentMeme> getSegmentMemes() throws FabricationException;
+  Collection<SegmentMeme> getSegmentMemes();
 
   /**
    @return collection of all Message in Segment
    */
-  Collection<SegmentMessage> getSegmentMessages() throws FabricationException;
+  Collection<SegmentMessage> getSegmentMessages();
 
   /**
    @return collection of all ChoiceArrangementPick in Segment
    */
-  Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() throws FabricationException;
+  Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() ;
 
   /**
    Put a key-value pair into the report
@@ -90,20 +91,18 @@ public interface SegmentWorkbench {
   /**
    Get the choice of a given type
 
-   @param type of choice to get
    @return choice of given type
-   @throws FabricationException if no such choice type exists
+   @param type of choice to get
    */
-  SegmentChoice getChoiceOfType(Program.Type type) throws FabricationException;
+  Optional<SegmentChoice> getChoiceOfType(Program.Type type);
 
   /**
    Get the choices of a given program and instrument type
 
    @param type of choice to get
    @return choices of a given type
-   @throws FabricationException if no such choice type exists
    */
-  Collection<SegmentChoice> getChoicesOfType(Program.Type type) throws FabricationException;
+  Collection<SegmentChoice> getChoicesOfType(Program.Type type) ;
 
   /**
    Get the Chain this Segment Workbench is working within

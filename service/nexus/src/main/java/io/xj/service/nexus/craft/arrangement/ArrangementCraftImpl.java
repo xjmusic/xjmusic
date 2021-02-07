@@ -9,7 +9,6 @@ import io.xj.ProgramSequence;
 import io.xj.ProgramSequencePattern;
 import io.xj.ProgramSequencePatternEvent;
 import io.xj.ProgramVoice;
-import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
@@ -50,7 +49,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
    @param chord       (optional) to use for fabrication
    @param sequence    from which to craft events
-   @param choice      of program
    @param arrangement of instrument
    @param voice       within program
    @param fromPos     position (in beats)
@@ -61,7 +59,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   protected void craftArrangementForVoiceSection(
     @Nullable SegmentChord chord,
     ProgramSequence sequence,
-    SegmentChoice choice,
     SegmentChoiceArrangement arrangement,
     ProgramVoice voice,
     double fromPos,
@@ -82,13 +79,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
       // if intro pattern, fabricate those voice event first
       if (introPattern.isPresent())
-        curPos += craftPatternEvents(chord, choice, arrangement, introPattern.get(), curPos, loopOutPos);
+        curPos += craftPatternEvents(chord, arrangement, introPattern.get(), curPos, loopOutPos);
 
       // choose loop patterns until arrive at the out point or end of segment
       while (curPos < loopOutPos) {
         Optional<ProgramSequencePattern> loopPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePattern.Type.Loop);
         if (loopPattern.isPresent())
-          curPos += craftPatternEvents(chord, choice, arrangement, loopPattern.get(), curPos, loopOutPos);
+          curPos += craftPatternEvents(chord, arrangement, loopPattern.get(), curPos, loopOutPos);
         else
           curPos = loopOutPos;
       }
@@ -96,7 +93,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       // if outro pattern, fabricate those voice event last
       // [#161466708] compute how much to go for it in the outro
       if (outroPattern.isPresent())
-        craftPatternEvents(chord, choice, arrangement, outroPattern.get(), curPos, loopOutPos);
+        craftPatternEvents(chord, arrangement, outroPattern.get(), curPos, loopOutPos);
 
     } catch (FabricationException e) {
       throw
@@ -109,7 +106,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    [#161601279] Artist during craft audio selection wants randomness of outro audio selection to gently ramp of zero to N over the course of the outro.
 
    @param chord       (optional) to use for fabrication
-   @param choice      to craft pattern events for
    @param arrangement to craft pattern events for
    @param pattern     to source events
    @param fromPos     to write events to segment
@@ -119,7 +115,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   @Trace(resourceName = "nexus/craft/arrangement", operationName = "craftPatternEvents")
   protected double craftPatternEvents(
     @Nullable SegmentChord chord,
-    SegmentChoice choice,
     SegmentChoiceArrangement arrangement,
     ProgramSequencePattern pattern,
     double fromPos,
@@ -129,9 +124,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       if (Objects.isNull(pattern)) throw exception("Cannot craft create null pattern");
       double totalPos = maxPos - fromPos;
       Collection<ProgramSequencePatternEvent> events = fabricator.getSourceMaterial().getEvents(pattern);
-      Instrument instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId());
+      var instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId())
+        .orElseThrow(() -> exception("Failed to retrieve instrument"));
       for (ProgramSequencePatternEvent event : events)
-        pickInstrumentAudio(chord, instrument, arrangement, event, choice.getTranspose(), fromPos);
+        pickInstrumentAudio(chord, instrument, arrangement, event, fromPos);
       return Math.min(totalPos, pattern.getTotal());
 
     } catch (HubClientException e) {
@@ -141,9 +137,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
   /**
    of a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
-   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement@param chord                   (optional) to use for fabrication
+   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement@param chord                   (optional) to use for fabrication@param event         to pick audio for
 
-   @param event         to pick audio for
    @param shiftPosition offset voice event zero within current segment
    */
   @Trace(resourceName = "nexus/craft/arrangement", operationName = "pickInstrumentAudio")
@@ -152,7 +147,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     Instrument instrument,
     SegmentChoiceArrangement segmentChoiceArrangement,
     ProgramSequencePatternEvent event,
-    int transpose,
     Double shiftPosition
   ) throws CraftException {
     try {
@@ -166,10 +160,11 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
       // The final note is voiced from the chord voicing (if found) or else the default is used
       Collection<Note> voicingNotes = fabricator.getVoicingNotes(realChord, instrument.getType());
-      Note note = 0 < voicingNotes.size() ?
+      Optional<Note> note = 0 < voicingNotes.size() ?
         pickInstrumentNote(segmentChoiceArrangement,
           Note.of(event.getNote()), Chord.of(realChord.getName()), voicingNotes) :
-        Note.of(event.getNote());
+        Optional.of(Note.of(event.getNote()));
+      if (note.isEmpty()) return;
 
       // Pick attributes are expressed "rendered" as actual seconds
       double startSeconds = fabricator.computeSecondsAtPosition(position);
@@ -177,7 +172,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
       var audio =
         fabricator.getInstrumentConfig(instrument).isMultiphonic() ?
-          selectMultiphonicInstrumentAudio(instrument, event, note) :
+          selectMultiphonicInstrumentAudio(instrument, event, note.get()) :
           selectInstrumentAudio(instrument, event);
 
       // [#176373977] Should gracefully skip audio in unfulfilled by instrument
@@ -185,7 +180,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
       // Audio pitch is not modified for atonal instruments
       double pitch = fabricator.getInstrumentConfig(instrument).isTonal() ?
-        fabricator.getPitch(note) : audio.get().getPitch();
+        fabricator.getPitch(note.get()) : audio.get().getPitch();
 
       // of pick
       fabricator.add(SegmentChoiceArrangementPick.newBuilder()
@@ -202,8 +197,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         .build());
 
     } catch (FabricationException | ValueException e) {
-      throw exception(String.format("Could not pick audio for Instrument[%s] arrangementId=%s, eventId=%s, transpose=%d, shiftPosition=%f",
-        instrument.getId(), segmentChoiceArrangement.getId(), event.getId(), transpose, shiftPosition), e);
+      throw exception(String.format("Could not pick audio for Instrument[%s] arrangementId=%s, eventId=%s, shiftPosition=%f",
+        instrument.getId(), segmentChoiceArrangement.getId(), event.getId(), shiftPosition), e);
     }
   }
 
@@ -212,13 +207,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    <p>
    [#176695166] XJ should choose correct instrument note based on detail program note
 
-   @param segmentChoiceArrangement chosen program for reference of transpose
+   @param segmentChoiceArrangement chosen program for reference
    @param sourceNote               of program to pick instrument note for
    @param voicingChord             to use for interpreting the voicing
    @param voicingNotes             to choose a note from
    @return note picked from the available voicing
    */
-  private Note pickInstrumentNote(
+  private Optional<Note> pickInstrumentNote(
     SegmentChoiceArrangement segmentChoiceArrangement,
     Note sourceNote,
     Chord voicingChord,
@@ -227,37 +222,34 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     if (PitchClass.None.equals(sourceNote.getPitchClass()))
       return pickRandomInstrumentNote(voicingNotes);
 
-    var choice = fabricator.getChoice(segmentChoiceArrangement)
-      .orElseThrow(() -> new FabricationException("Could not find choice!"));
-
+    var instrument = fabricator.getInstrument(segmentChoiceArrangement);
+    if (instrument.isEmpty()) return Optional.empty();
     var sourceKey = fabricator.getKeyForArrangement(segmentChoiceArrangement);
     var sourceRange = fabricator.getRangeForArrangement(segmentChoiceArrangement);
-    var targetTransposeSemitones = sourceKey.getRootPitchClass().delta(voicingChord.getRootPitchClass());
-    var voicingType = fabricator.getInstrument(segmentChoiceArrangement).getType();
+    var targetShiftSemitones = sourceKey.getRootPitchClass().delta(voicingChord.getRootPitchClass());
+    var voicingType = instrument.get().getType();
     var targetRange = fabricator.getVoicingNoteRange(voicingType);
-    var targetRangeTransposeOctaves = computeRangeTransposeOctaves(sourceRange, targetRange);
-    var targetNote = sourceNote.transpose(targetTransposeSemitones + 12 * targetRangeTransposeOctaves);
+    var targetRangeShiftOctaves = computeRangeShiftOctaves(sourceRange, targetRange);
+    var targetNote = sourceNote.shift(targetShiftSemitones + 12 * targetRangeShiftOctaves);
 
     return voicingNotes
       .stream()
       .map(note -> new RankedNote(note,
         Math.abs(note.delta(targetNote))))
       .min(Comparator.comparing(RankedNote::getDelta))
-      .orElseThrow(() -> new FabricationException("Failed to pick!"))
-      .getNote()
-      .transpose(choice.getTranspose());
+      .map(RankedNote::getNote);
   }
 
   /**
-   [#176696738] Detail craft transposes source program events into the target range
+   [#176696738] Detail craft shifts source program events into the target range
    <p>
    via average of delta from source low to target low, and from source high to target high, rounded to octave
 
    @param sourceRange to compute from
-   @param targetRange to compute required # of octaves to transpose into
-   @return +/- octaves required to transpose from source to target range
+   @param targetRange to compute required # of octaves to shift into
+   @return +/- octaves required to shift from source to target range
    */
-  public int computeRangeTransposeOctaves(NoteRange sourceRange, NoteRange targetRange) {
+  public int computeRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) {
     int dLow = sourceRange.getLow().delta(targetRange.getLow());
     int dHigh = sourceRange.getHigh().delta(targetRange.getHigh());
     return (int) Math.round((dLow + dHigh) / 2.0);
@@ -270,14 +262,12 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
    @param voicingNotes to pick from
    @return a random note from the voicing
-   @throws FabricationException on failure
    */
-  private Note pickRandomInstrumentNote(Collection<Note> voicingNotes) throws FabricationException {
+  private Optional<Note> pickRandomInstrumentNote(Collection<Note> voicingNotes) {
     return voicingNotes
       .stream()
       .sorted(Comparator.comparing((s) -> random.nextFloat()))
-      .findAny()
-      .orElseThrow(() -> new FabricationException("Voicing contains no notes to pick from!"));
+      .findAny();
   }
 
   /**
@@ -373,9 +363,9 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
             SCORE_ARRANGEMENT_ENTROPY));
 
       // final chosen audio event
-      return Optional.of(audioEntityScorePicker.getTop());
+      return audioEntityScorePicker.getTop();
 
-    } catch (FabricationException | HubClientException e) {
+    } catch (FabricationException e) {
       reportMissing(InstrumentAudio.class, "attempting to pickInstrumentAudio", ImmutableMap.of(
         "instrumentId", instrument.getId(),
         "trackName", trackNameOrUnknown(event)
@@ -420,7 +410,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         return Optional.empty();
       }
 
-      return Optional.of(fabricator.getSourceMaterial().getInstrumentAudio(audioEvent.get().getInstrumentAudioId()));
+      return fabricator.getSourceMaterial().getInstrumentAudio(audioEvent.get().getInstrumentAudioId());
 
     } catch (HubClientException e) {
       return Optional.empty();

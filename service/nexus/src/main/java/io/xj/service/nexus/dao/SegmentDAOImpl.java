@@ -552,7 +552,6 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     Value.require(record.getSegmentId(), "Segment ID");
     Value.require(record.getProgramId(), "Program ID");
     Value.require(record.getProgramType(), "Program Type");
-    if (Value.isEmpty(record.getTranspose())) record.setTranspose(0);
   }
 
   private void validateSegment(Segment.Builder record) throws ValueException {

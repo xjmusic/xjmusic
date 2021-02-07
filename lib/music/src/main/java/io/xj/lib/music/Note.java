@@ -76,7 +76,7 @@ public class Note {
    @param inc +/- semitones to transpose
    @return Note
    */
-  public Note transpose(int inc) {
+  public Note shift(int inc) {
     Step step = pitchClass.step(inc);
     return this.copy()
       .setOctave(octave + step.getDeltaOctave())
@@ -127,9 +127,9 @@ public class Note {
     if (fromNote.getPitchClass().equals(PitchClass.None))
       return this;
 
-    Note toNote = fromNote.transpose(-6);
+    Note toNote = fromNote.shift(-6);
     while (!toNote.pitchClass.equals(pitchClass))
-      toNote = toNote.transpose(1);
+      toNote = toNote.shift(1);
 
     this.setOctave(toNote.octave);
     return this;
@@ -154,11 +154,11 @@ public class Note {
     while (delta < MAX_DELTA_SEMITONES) {
       delta++;
 
-      noteDown = noteDown.transpose(-1);
+      noteDown = noteDown.shift(-1);
       if (chord.getPitchClasses().values().contains(noteDown.getPitchClass()))
         return noteDown;
 
-      noteUp = noteUp.transpose(1);
+      noteUp = noteUp.shift(1);
       if (chord.getPitchClasses().values().contains(noteUp.getPitchClass()))
         return noteUp;
     }
@@ -182,11 +182,11 @@ public class Note {
     while (delta < MAX_DELTA_SEMITONES) {
       delta++;
 
-      noteUp = noteUp.transpose(1);
+      noteUp = noteUp.shift(1);
       if (noteUp.sameAs(target))
         return delta;
 
-      noteDown = noteDown.transpose(-1);
+      noteDown = noteDown.shift(-1);
       if (noteDown.sameAs(target))
         return -delta;
     }

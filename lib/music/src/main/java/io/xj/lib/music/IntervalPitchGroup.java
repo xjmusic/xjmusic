@@ -93,7 +93,7 @@ public abstract class IntervalPitchGroup {
     List<Note> notes = Lists.newArrayList();
     Note rootNote = Note.of(root, octave);
     tones.forEach((interval, offsetSemitones) ->
-      notes.add(rootNote.transpose(offsetSemitones)));
+      notes.add(rootNote.shift(offsetSemitones)));
     return notes;
   }
 

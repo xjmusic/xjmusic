@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  EntityScorePicker is a collection of one type of Entity (e.g. Instrument or Program),
@@ -114,12 +115,12 @@ public class EntityScorePicker<E> {
 
    @return T
    */
-  public E getTop() throws FabricationException {
+  public Optional<E> getTop() {
     List<E> allScored = getAllScored();
     if (Objects.nonNull(allScored) && 1 <= allScored.size())
-      return allScored.get(0);
+      return Optional.of(allScored.get(0));
 
-    throw new FabricationException("Cannot rank zero entities");
+    return Optional.empty();
   }
 
   /**
@@ -174,5 +175,14 @@ public class EntityScorePicker<E> {
     List<String> reports = Lists.newArrayList();
     scores.forEach((id, score) -> reports.add(String.format("%s:%f", id, score)));
     return "(" + name + ") " + String.join(", ", reports);
+  }
+
+  /**
+   Whether the entity picker is empty
+
+   @return true if empty
+   */
+  public boolean isEmpty() {
+    return entities.isEmpty();
   }
 }

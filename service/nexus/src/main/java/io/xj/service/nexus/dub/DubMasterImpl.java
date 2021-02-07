@@ -16,8 +16,6 @@ import io.xj.lib.mixer.MixerConfig;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.util.Text;
-import io.xj.service.hub.client.HubClientException;
-import io.xj.service.nexus.fabricator.FabricationException;
 import io.xj.service.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,7 +140,7 @@ public class DubMasterImpl implements DubMaster {
    @return computed preroll (in seconds)
    */
   @Trace(resourceName = "nexus/dub/master", operationName = "computePreroll")
-  private double computePreroll() throws FabricationException {
+  private double computePreroll() {
     double maxPreroll = 0.0;
     for (SegmentChoiceArrangementPick pick : fabricator.getPicks())
       try {
@@ -162,7 +160,7 @@ public class DubMasterImpl implements DubMaster {
    @param preroll (seconds)
    */
   @Trace(resourceName = "nexus/dub/master", operationName = "doMixerTargetSetting")
-  private void doMixerTargetSetting(Double preroll) throws FabricationException {
+  private void doMixerTargetSetting(Double preroll) {
     for (SegmentChoiceArrangementPick pick : fabricator.getPicks())
       try {
         setupTarget(preroll, pick);
@@ -208,14 +206,12 @@ public class DubMasterImpl implements DubMaster {
    */
   @Trace(resourceName = "nexus/dub/master", operationName = "computePitchRatio")
   private Double computePitchRatio(SegmentChoiceArrangementPick pick) throws DubException {
-    try {
-      if (!pickPitchRatio.containsKey(pick.getId()))
-        pickPitchRatio.put(pick.getId(), fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()).getPitch() / pick.getPitch());
-      return pickPitchRatio.get(pick.getId());
-
-    } catch (HubClientException e) {
-      throw new DubException("compute pitch ratio");
-    }
+    if (!pickPitchRatio.containsKey(pick.getId()))
+      pickPitchRatio.put(pick.getId(),
+        fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
+          .orElseThrow(() -> new DubException("compute pitch ratio"))
+          .getPitch() / pick.getPitch());
+    return pickPitchRatio.get(pick.getId());
   }
 
   /**
@@ -226,14 +222,12 @@ public class DubMasterImpl implements DubMaster {
    */
   @Trace(resourceName = "nexus/dub/master", operationName = "computeOffsetStart")
   private Double computeOffsetStart(SegmentChoiceArrangementPick pick) throws DubException {
-    try {
-      if (!pickOffsetStart.containsKey(pick.getId()))
-        pickOffsetStart.put(pick.getId(), fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId()).getStart() / computePitchRatio(pick));
-      return pickOffsetStart.get(pick.getId());
-
-    } catch (HubClientException e) {
-      throw new DubException("compute offset start");
-    }
+    if (!pickOffsetStart.containsKey(pick.getId()))
+      pickOffsetStart.put(pick.getId(),
+        fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
+          .orElseThrow(() -> new DubException("compute offset start"))
+          .getStart() / computePitchRatio(pick));
+    return pickOffsetStart.get(pick.getId());
   }
 
   /**

@@ -20,7 +20,7 @@ public class MemeIsometry extends Isometry {
    @param sourceMemes to compare of
    @return MemeIsometry ready for comparison to target Memes
    */
-  public static MemeIsometry ofMemes(Collection<String> sourceMemes) throws EntityException {
+  public static MemeIsometry ofMemes(Collection<String> sourceMemes) {
     MemeIsometry result = new MemeIsometry();
     for (String meme : sourceMemes)
       result.addStem(meme);
@@ -42,7 +42,7 @@ public class MemeIsometry extends Isometry {
    @param targetMemes comma-separated values to score against source meme names
    @return score is between 0 (no matches) and 1 (all memes match)
    */
-  public double score(Iterable<String> targetMemes) throws EntityException {
+  public double score(Iterable<String> targetMemes) {
     double tally = 0;
 
     // tally each match of source & target stem
@@ -60,8 +60,10 @@ public class MemeIsometry extends Isometry {
   /**
    Add a meme for isometry comparison
    */
-  public <R> void add(R meme) throws EntityException {
-    addStem(stem(String.valueOf(Entities.get(meme, KEY_NAME)
-      .orElseThrow(() -> new EntityException("has no name attribute")))));
+  public <R> void add(R meme) {
+    try {
+      Entities.get(meme, KEY_NAME).ifPresent(name -> addStem(stem(String.valueOf(name))));
+    } catch (EntityException ignored) {
+    }
   }
 }

@@ -171,16 +171,14 @@ public class CraftDetailProgramVoiceInitialTest {
       .setProgramId(fake.program4.getId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-      .setTranspose(0)
-      .build());
+            .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment5.getId())
       .setProgramId(fake.program5.getId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
-      .setTranspose(-6)
-      .build());
+            .build());
 
     // segment crafting
     segment6 = store.put(Segment.newBuilder()
@@ -204,8 +202,7 @@ public class CraftDetailProgramVoiceInitialTest {
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-      .setTranspose(0)
-      .build());
+            .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment6.getId())
@@ -214,8 +211,7 @@ public class CraftDetailProgramVoiceInitialTest {
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
-      .setTranspose(-6)
-      .build());
+            .build());
     for (String memeName : ImmutableList.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(SegmentMeme.newBuilder()
         .setId(UUID.randomUUID().toString())

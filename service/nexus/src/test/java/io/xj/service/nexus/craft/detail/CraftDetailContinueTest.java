@@ -194,7 +194,6 @@ public class CraftDetailContinueTest {
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-      .setTranspose(3)
       .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -203,7 +202,6 @@ public class CraftDetailContinueTest {
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
-      .setTranspose(5)
       .build());
     if (!excludeDetailChoiceForSegment3)
       store.put(SegmentChoice.newBuilder()
@@ -211,7 +209,6 @@ public class CraftDetailContinueTest {
         .setSegmentId(segment3.getId())
         .setProgramId(fake.program10.getId())
         .setProgramType(Program.Type.Detail)
-        .setTranspose(5)
         .build());
 
     // segment crafting
@@ -236,7 +233,6 @@ public class CraftDetailContinueTest {
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-      .setTranspose(3)
       .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -245,7 +241,6 @@ public class CraftDetailContinueTest {
       .setProgramId(fake.program5_sequence1_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
       .setProgramType(Program.Type.Main)
-      .setTranspose(-5)
       .build());
     for (String memeName : ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(SegmentMeme.newBuilder()

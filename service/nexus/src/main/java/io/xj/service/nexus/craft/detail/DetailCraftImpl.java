@@ -7,15 +7,12 @@ import datadog.trace.api.Trace;
 import io.xj.Instrument;
 import io.xj.Program;
 import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceChordVoicing;
 import io.xj.ProgramVoice;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChord;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.EntityException;
-import io.xj.lib.music.Key;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientException;
@@ -30,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  Detail craft for the current segment
@@ -55,41 +51,39 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     try {
       // for each unique voicing (instrument) types present in the chord voicings of the current main choice
       var voicingTypes = fabricator.getDistinctChordVoicingTypes();
-      if (voicingTypes.isEmpty())
-        reportMissing(ProgramSequenceChordVoicing.class,
-          String.format("in Main-choice Program[%s]", fabricator.getCurrentMainChoice().getProgramId()));
-      else
-        for (Instrument.Type voicingType : voicingTypes) {
-          // program
-          Optional<Program> detailProgram = chooseDetailProgram(voicingType);
 
-          // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
-          if (detailProgram.isEmpty()) {
-            reportMissing(Program.class, String.format("Detail-type with voicing-type %s", voicingType));
-            continue;
-          }
+      for (Instrument.Type voicingType : voicingTypes) {
+        // program
+        Optional<Program> detailProgram = chooseDetailProgram(voicingType);
 
-          SegmentChoice detailChoice = fabricator.add(SegmentChoice.newBuilder()
-            .setId(UUID.randomUUID().toString())
-            .setSegmentId(fabricator.getSegment().getId())
-            .setProgramType(Program.Type.Detail)
-            .setInstrumentType(voicingType)
-            .setProgramId(detailProgram.get().getId())
-            .setTranspose(computeDetailTranspose(detailProgram.get()))
-            .build());
+        // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
+        if (detailProgram.isEmpty()) {
+          reportMissing(Program.class, String.format("Detail-type with voicing-type %s", voicingType));
+          continue;
+        }
 
-          // detail sequence is selected at random of the current program
-          // FUTURE: [#166855956] Detail Program with multiple Sequences
-          var detailSequence = fabricator.getSequence(detailChoice);
+        SegmentChoice detailChoice = fabricator.add(SegmentChoice.newBuilder()
+          .setId(UUID.randomUUID().toString())
+          .setSegmentId(fabricator.getSegment().getId())
+          .setProgramType(Program.Type.Detail)
+          .setInstrumentType(voicingType)
+          .setProgramId(detailProgram.get().getId())
+          .build());
 
-          // voice arrangements
+        // detail sequence is selected at random of the current program
+        // FUTURE: [#166855956] Detail Program with multiple Sequences
+        var detailSequence = fabricator.getSequence(detailChoice);
+
+        // voice arrangements
+        if (detailSequence.isPresent()) {
           var voices = fabricator.getSourceMaterial().getVoices(detailProgram.get());
           if (voices.isEmpty())
             reportMissing(ProgramVoice.class,
               String.format("in Detail-choice Program[%s]", detailProgram.get().getId()));
           for (ProgramVoice voice : voices)
-            craftArrangementForDetailVoice(detailSequence, detailChoice, voice);
+            craftArrangementForDetailVoice(detailSequence.get(), detailChoice, voice);
         }
+      }
 
       // Finally, update the segment with the crafted content
       fabricator.done();
@@ -111,11 +105,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   @Trace(resourceName = "nexus/craft/detail", operationName = "chooseDetailProgram")
   private Optional<Program> chooseDetailProgram(Instrument.Type voicingType) throws CraftException {
     Segment.Type type;
-    try {
-      type = fabricator.getType();
-    } catch (FabricationException e) {
-      throw exception("Cannot get fabricator type, in order to choose detail program", e);
-    }
+    type = fabricator.getType();
 
     switch (type) {
       case Continue:
@@ -150,14 +140,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
         .filter(choice ->
           Program.Type.Detail == choice.getProgramType()
             && voicingType == choice.getInstrumentType())
-        .flatMap(choice -> {
-          try {
-            return Stream.of(fabricator.getSourceMaterial().getProgram(choice.getProgramId()));
-          } catch (HubClientException e) {
-            reportMissing(Program.class, String.format("detail previously selected for %s-type Instrument and main program because hub client exception %s", voicingType, e.getMessage()));
-            return Stream.empty();
-          }
-        })
+        .flatMap(choice -> fabricator.getSourceMaterial().getProgram(choice.getProgramId()).stream())
         .findFirst();
 
     } catch (FabricationException e) {
@@ -207,11 +190,13 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
             instrumentId.get() : chooseFreshDetailInstrument(voice).orElseThrow().getId())
         .build());
 
-      var programConfig = fabricator.getProgramConfig(fabricator.getProgram(choice));
+      var program = fabricator.getProgram(choice);
+      if (program.isEmpty()) return;
+      var programConfig = fabricator.getProgramConfig(program.get());
       if (programConfig.doPatternRestartOnChord() && 0 < fabricator.getSegmentChords().size())
-        craftArrangementForDetailVoicePerEachChord(sequence, choice, arrangement, voice);
+        craftArrangementForDetailVoicePerEachChord(sequence, arrangement, voice);
       else
-        craftArrangementForVoiceSection(null, sequence, choice, arrangement, voice, 0, fabricator.getSegment().getTotal());
+        craftArrangementForVoiceSection(null, sequence, arrangement, voice, 0, fabricator.getSegment().getTotal());
 
     } catch (FabricationException | ValueException e) {
       throw
@@ -231,35 +216,30 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    */
   @Trace(resourceName = "nexus/craft/detail", operationName = "chooseFreshDetailProgram")
   private Optional<Program> chooseFreshDetailProgram(Instrument.Type voicingType) throws CraftException {
-    try {
-      EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
+    EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
-      // Retrieve programs bound to chain having a voice of the specified type
-      Map<String/*ID*/, Program> programMap = fabricator.getSourceMaterial()
-        .getProgramsOfType(Program.Type.Detail).stream()
-        .collect(Collectors.toMap(Program::getId, program -> program));
-      Collection<Program> sourcePrograms = fabricator.getSourceMaterial()
-        .getAllProgramVoices().stream()
-        .filter(programVoice -> voicingType.equals(programVoice.getType()) &&
-          programMap.containsKey(programVoice.getProgramId()))
-        .map(ProgramVoice::getProgramId)
-        .distinct()
-        .map(programMap::get)
-        .collect(Collectors.toList());
+    // Retrieve programs bound to chain having a voice of the specified type
+    Map<String/*ID*/, Program> programMap = fabricator.getSourceMaterial()
+      .getProgramsOfType(Program.Type.Detail).stream()
+      .collect(Collectors.toMap(Program::getId, program -> program));
+    Collection<Program> sourcePrograms = fabricator.getSourceMaterial()
+      .getAllProgramVoices().stream()
+      .filter(programVoice -> voicingType.equals(programVoice.getType()) &&
+        programMap.containsKey(programVoice.getProgramId()))
+      .map(ProgramVoice::getProgramId)
+      .distinct()
+      .map(programMap::get)
+      .collect(Collectors.toList());
 
-      // (3) score each source program based on meme isometry
-      for (Program program : sourcePrograms) superEntityScorePicker.add(program, scoreDetail(program));
+    // (3) score each source program based on meme isometry
+    for (Program program : sourcePrograms) superEntityScorePicker.add(program, scoreDetail(program));
 
-      // report
-      fabricator.putReport("detailChoice", superEntityScorePicker.report());
+    // report
+    fabricator.putReport("detailChoice", superEntityScorePicker.report());
 
-      // (4) return the top choice
-      return Optional.of(superEntityScorePicker.getTop());
+    // (4) return the top choice
+    return superEntityScorePicker.getTop();
 
-    } catch (FabricationException | HubClientException e) {
-      reportMissing(Program.class, String.format("detail-type with %s-type voice bound to Chain!", voicingType));
-      return Optional.empty();
-    }
   }
 
   /**
@@ -286,9 +266,9 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       fabricator.putReport("detailChoice", superEntityScorePicker.report());
 
       // (4) return the top choice
-      return Optional.of(superEntityScorePicker.getTop());
+      return superEntityScorePicker.getTop();
 
-    } catch (FabricationException | HubClientException e) {
+    } catch (HubClientException e) {
       reportMissing(Instrument.class, "detail-type bound to Chain!");
       return Optional.empty();
     }
@@ -316,7 +296,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
       return score;
 
-    } catch (HubClientException | EntityException e) {
+    } catch (HubClientException e) {
       throw exception("score detail program", e);
     }
   }
@@ -346,19 +326,9 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       // score is above zero, else empty
       return score;
 
-    } catch (HubClientException | EntityException e) {
+    } catch (HubClientException e) {
       throw exception("score detail program", e);
     }
-  }
-
-  /**
-   Transposition for detail-type sequence choice for segment
-
-   @param detailProgram to get transpose of
-   @return +/- semitones transposition of detail-type sequence choice
-   */
-  private Integer computeDetailTranspose(Program detailProgram) {
-    return Key.delta(detailProgram.getKey(), fabricator.getSegment().getKey(), 0);
   }
 
   /**
@@ -367,7 +337,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    [#176468993] Detail programs can be made to repeat every chord change
 
    @param sequence    from which to craft events
-   @param choice      of program
    @param arrangement of instrument
    @param voice       within program
    @throws CraftException on failure
@@ -375,7 +344,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   @Trace(resourceName = "nexus/craft/detail", operationName = "craftArrangementForDetailVoicePerEachChord")
   private void craftArrangementForDetailVoicePerEachChord(
     ProgramSequence sequence,
-    SegmentChoice choice,
     SegmentChoiceArrangement arrangement,
     ProgramVoice voice
   ) throws CraftException {
@@ -397,7 +365,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
           fabricator.getSegment().getTotal();
       }
       for (var section : sections)
-        craftArrangementForVoiceSection(section.chord, sequence, choice, arrangement, voice, section.fromPos, section.toPos);
+        craftArrangementForVoiceSection(section.chord, sequence, arrangement, voice, section.fromPos, section.toPos);
 
     } catch (FabricationException e) {
       throw

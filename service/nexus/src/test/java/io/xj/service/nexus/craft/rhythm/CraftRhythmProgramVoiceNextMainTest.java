@@ -227,7 +227,7 @@ public class CraftRhythmProgramVoiceNextMainTest {
 
     craftFactory.rhythm(fabricator).doWork();
 
-    assertNotNull(fabricator.getArrangements(ImmutableList.of(fabricator.getCurrentRhythmChoice())));
+    assertNotNull(fabricator.getArrangements(ImmutableList.of(fabricator.getCurrentRhythmChoice().orElseThrow())));
 
     // test vector for [#154014731] persist Audio pick in memory
     int pickedKick = 0;
@@ -280,7 +280,6 @@ public class CraftRhythmProgramVoiceNextMainTest {
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-      .setTranspose(3)
       .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -289,7 +288,6 @@ public class CraftRhythmProgramVoiceNextMainTest {
       .setProgramId(fake.program15_sequence1_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program15_sequence1_binding0.getId())
       .setProgramType(Program.Type.Main)
-      .setTranspose(-4)
       .build());
     if (!excludeRhythmChoiceForSegment3)
       store.put(SegmentChoice.newBuilder()
@@ -297,7 +295,6 @@ public class CraftRhythmProgramVoiceNextMainTest {
         .setSegmentId(segment3.getId())
         .setProgramId(fake.program35.getId())
         .setProgramType(Program.Type.Rhythm)
-        .setTranspose(-5)
         .build());
 
     // segment crafting
@@ -321,7 +318,6 @@ public class CraftRhythmProgramVoiceNextMainTest {
       .setProgramId(fake.program4_sequence1_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
       .setProgramType(Program.Type.Macro)
-      .setTranspose(3)
       .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -330,7 +326,6 @@ public class CraftRhythmProgramVoiceNextMainTest {
       .setProgramId(fake.program15_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program15_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
-      .setTranspose(0)
       .build());
     for (String memeName : ImmutableList.of("Regret", "Sky", "Hindsight", "Tropical"))
       store.put(SegmentMeme.newBuilder()

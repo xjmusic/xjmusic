@@ -7,7 +7,6 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentMeme;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -18,36 +17,35 @@ public interface SegmentRetrospective {
    @param segment to get picks for
    @return entity cache of SegmentChoiceArrangementPick
    */
-  Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks(Segment segment) throws FabricationException;
+  Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks(Segment segment);
 
   /**
    @return entity cache of SegmentChoice
    */
-  Collection<SegmentChoice> getSegmentChoices(Segment segment) throws FabricationException;
+  Collection<SegmentChoice> getSegmentChoices(Segment segment);
 
   /**
    @return entity cache of SegmentChoiceArrangement
    */
-  Collection<SegmentChoiceArrangement> getSegmentChoiceArrangements(Segment segment) throws FabricationException;
+  Collection<SegmentChoiceArrangement> getSegmentChoiceArrangements(Segment segment);
 
   /**
    @return entity cache of SegmentMeme
    */
-  Collection<SegmentMeme> getSegmentMemes(Segment segment) throws FabricationException;
+  Collection<SegmentMeme> getSegmentMemes(Segment segment);
 
   /**
    @return all cached segments
    */
-  Collection<Segment> getSegments() throws FabricationException;
+  Collection<Segment> getSegments();
 
   /**
    Get the choice of a given type
 
    @param type of choice to get
    @return choice of given type
-   @throws FabricationException if no such choice type exists
    */
-  SegmentChoice getChoiceOfType(Segment segment, Program.Type type) throws FabricationException, NexusEntityStoreException;
+  Optional<SegmentChoice> getChoiceOfType(Segment segment, Program.Type type);
 
   /**
    Get the arrangements for a given choice
@@ -55,7 +53,7 @@ public interface SegmentRetrospective {
    @param segmentChoice to get arrangements for
    @return arrangements for choice
    */
-  Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice segmentChoice) throws FabricationException;
+  Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice segmentChoice);
 
   /**
    Get the segment immediately previous to the current segment
@@ -69,9 +67,8 @@ public interface SegmentRetrospective {
 
    @param type of choice to get
    @return choice of given type
-   @throws FabricationException if no such choice type exists
    */
-  SegmentChoice getPreviousChoiceOfType(Program.Type type) throws FabricationException;
+  Optional<SegmentChoice> getPreviousChoiceOfType(Program.Type type);
 
   /**
    Add an Entity

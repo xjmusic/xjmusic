@@ -111,9 +111,9 @@ public class DubDubMasterInitialTest {
       .build());
 
     segment6 = store.put(buildSegment(chain2, 0, Segment.State.Dubbing, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:07.384616Z"), "C minor", 16, 0.55, 130, "chains-1-segments-9f7s89d8a7892", "wav"));
-    store.put(buildSegmentChoice(segment6, Program.Type.Macro, fake.program4_sequence0_binding0, 0));
-    store.put(buildSegmentChoice(segment6, Program.Type.Main, fake.program5_sequence0_binding0, 0));
-    SegmentChoice choice1 = store.put(buildSegmentChoice(segment6, Program.Type.Rhythm, fake.program35, 0));
+    store.put(buildSegmentChoice(segment6, Program.Type.Macro, fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(segment6, Program.Type.Main, fake.program5_sequence0_binding0));
+    SegmentChoice choice1 = store.put(buildSegmentChoice(segment6, Program.Type.Rhythm, fake.program35));
     store.put(buildSegmentMeme(segment6, "Special"));
     store.put(buildSegmentMeme(segment6, "Wild"));
     store.put(buildSegmentMeme(segment6, "Pessimism"));

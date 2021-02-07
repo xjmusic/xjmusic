@@ -157,8 +157,8 @@ public class CraftFoundationNextMainTest {
             .setTempo(120.0)
             .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
             .build());
-    store.put(buildSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence0_binding0, 3));
-    store.put(buildSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence1_binding0, -4));
+    store.put(buildSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence1_binding0));
 
     // Chain "Test Print #1" has a planned segment
     segment4 = store.put(buildSegment(chain1, 3, Segment.State.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"), null, "C", 8, 0.8, 120, "chain-1-waveform-12345", "wav"));
@@ -195,13 +195,11 @@ public class CraftFoundationNextMainTest {
     // assert macro choice
     SegmentChoice macroChoice = SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Macro);
     assertEquals(fake.program4_sequence1_binding0.getId(), macroChoice.getProgramSequenceBindingId());
-    assertEquals(3, macroChoice.getTranspose());
-    assertEquals(Long.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
+        assertEquals(Long.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
     // assert main choice
     SegmentChoice mainChoice = SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Main);
     assertEquals(fake.program15_sequence0_binding0.getId(), mainChoice.getProgramSequenceBindingId());
-    assertEquals(0, mainChoice.getTranspose());
-    assertEquals(Long.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
+        assertEquals(Long.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
   }
 
   /**

@@ -234,8 +234,7 @@ public class CraftRhythmProgramVoiceContinueTest {
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-      .setTranspose(3)
-      .build());
+            .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment3.getId())
@@ -243,16 +242,14 @@ public class CraftRhythmProgramVoiceContinueTest {
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
-      .setTranspose(5)
-      .build());
+            .build());
     if (!excludeRhythmChoiceForSegment3)
       store.put(SegmentChoice.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(segment3.getId())
         .setProgramId(fake.program35.getId())
         .setProgramType(Program.Type.Rhythm)
-        .setTranspose(5)
-        .build());
+                .build());
 
     // segment crafting
     segment4 = store.put(Segment.newBuilder()
@@ -275,8 +272,7 @@ public class CraftRhythmProgramVoiceContinueTest {
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-      .setTranspose(3)
-      .build());
+            .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment4.getId())
@@ -284,8 +280,7 @@ public class CraftRhythmProgramVoiceContinueTest {
       .setProgramId(fake.program5_sequence1_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
       .setProgramType(Program.Type.Main)
-      .setTranspose(-5)
-      .build());
+            .build());
     for (String memeName : ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(SegmentMeme.newBuilder()
         .setId(UUID.randomUUID().toString())

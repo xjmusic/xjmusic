@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import datadog.trace.api.Trace;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
 import io.xj.InstrumentAudioChord;
@@ -82,60 +81,56 @@ class HubIngestImpl implements HubIngest {
   }
 
   @Override
-  public Collection<Program> getAllPrograms() throws HubIngestException {
+  public Collection<Program> getAllPrograms() {
     return getAll(Program.class);
   }
 
   @Override
-  public Collection<InstrumentAudioChord> getAllInstrumentAudioChords() throws HubIngestException {
+  public Collection<InstrumentAudioChord> getAllInstrumentAudioChords() {
     return getAll(InstrumentAudioChord.class);
   }
 
   @Override
-  public Collection<InstrumentMeme> getAllInstrumentMemes() throws HubIngestException {
+  public Collection<InstrumentMeme> getAllInstrumentMemes() {
     return getAll(InstrumentMeme.class);
   }
 
-  private <N> Collection<N> getAll(Class<N> type) throws HubIngestException {
-    try {
-      return store.getAll(type);
-    } catch (EntityStoreException e) {
-      throw new HubIngestException(e);
-    }
+  private <N> Collection<N> getAll(Class<N> type) {
+    return store.getAll(type);
   }
 
   @Override
-  public Collection<ProgramMeme> getAllProgramMemes() throws HubIngestException {
+  public Collection<ProgramMeme> getAllProgramMemes() {
     return getAll(ProgramMeme.class);
   }
 
   @Override
-  public Collection<ProgramSequence> getAllProgramSequences() throws HubIngestException {
+  public Collection<ProgramSequence> getAllProgramSequences() {
     return getAll(ProgramSequence.class);
   }
 
   @Override
-  public Collection<ProgramSequenceBinding> getAllProgramSequenceBindings() throws HubIngestException {
+  public Collection<ProgramSequenceBinding> getAllProgramSequenceBindings() {
     return getAll(ProgramSequenceBinding.class);
   }
 
   @Override
-  public Collection<ProgramSequenceBindingMeme> getAllProgramSequenceBindingMemes() throws HubIngestException {
+  public Collection<ProgramSequenceBindingMeme> getAllProgramSequenceBindingMemes() {
     return getAll(ProgramSequenceBindingMeme.class);
   }
 
   @Override
-  public Collection<ProgramSequenceChord> getAllProgramSequenceChords() throws HubIngestException {
+  public Collection<ProgramSequenceChord> getAllProgramSequenceChords() {
     return getAll(ProgramSequenceChord.class);
   }
 
   @Override
-  public Collection<Instrument> getAllInstruments() throws HubIngestException {
+  public Collection<Instrument> getAllInstruments() {
     return getAll(Instrument.class);
   }
 
   @Override
-  public Collection<Program> getProgramsOfType(Program.Type type) throws HubIngestException {
+  public Collection<Program> getProgramsOfType(Program.Type type) {
     return getAllPrograms().stream()
       .filter(program -> program.getType().equals(type))
       .collect(Collectors.toList());
@@ -147,7 +142,7 @@ class HubIngestImpl implements HubIngest {
   }
 
   @Override
-  public Collection<Instrument> getInstrumentsOfType(Instrument.Type type) throws HubIngestException {
+  public Collection<Instrument> getInstrumentsOfType(Instrument.Type type) {
     return getAllInstruments().stream()
       .filter(instrument -> instrument.getType().equals(type))
       .collect(Collectors.toList());
@@ -173,14 +168,14 @@ class HubIngestImpl implements HubIngest {
   }
 
   @Override
-  public Collection<InstrumentAudioChord> getChords(InstrumentAudio audio) throws HubIngestException {
+  public Collection<InstrumentAudioChord> getChords(InstrumentAudio audio) {
     return getAllInstrumentAudioChords().stream()
       .filter(e -> e.getInstrumentAudioId().equals(audio.getId()))
       .collect(Collectors.toList());
   }
 
   @Override
-  public Collection<ProgramSequenceChord> getChords(ProgramSequence sequence) throws HubIngestException {
+  public Collection<ProgramSequenceChord> getChords(ProgramSequence sequence) {
     return getAllProgramSequenceChords().stream()
       .filter(e -> e.getProgramSequenceId().equals(sequence.getId()))
       .collect(Collectors.toList());
@@ -193,14 +188,14 @@ class HubIngestImpl implements HubIngest {
   }
 
   @Override
-  public Collection<ProgramSequenceBinding> getSequenceBindings(Program program) throws HubIngestException {
+  public Collection<ProgramSequenceBinding> getSequenceBindings(Program program) {
     return getAllProgramSequenceBindings().stream()
       .filter(m -> m.getProgramId().equals(program.getId()))
       .collect(Collectors.toList());
   }
 
   @Override
-  public Collection<ProgramSequence> getSequences(Program program) throws HubIngestException {
+  public Collection<ProgramSequence> getSequences(Program program) {
     return getAllProgramSequences().stream()
       .filter(m -> m.getProgramId().equals(program.getId()))
       .collect(Collectors.toList());

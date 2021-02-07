@@ -87,73 +87,46 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangement> getSegmentArrangements() throws FabricationException {
-    try {
-      return bench.getAll(SegmentChoiceArrangement.class);
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
+  public Collection<SegmentChoiceArrangement> getSegmentArrangements() {
+    return bench.getAll(SegmentChoiceArrangement.class);
   }
 
   @Override
-  public Collection<SegmentChoice> getSegmentChoices() throws FabricationException {
-    try {
-      return bench.getAll(SegmentChoice.class);
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
+  public Collection<SegmentChoice> getSegmentChoices() {
+    return bench.getAll(SegmentChoice.class);
   }
 
   @Override
-  public Collection<SegmentChord> getSegmentChords() throws FabricationException {
-    if (Objects.isNull(segmentChords))
-      try {
-        segmentChords = bench.getAll(SegmentChord.class)
-          .stream()
-          .sorted(Comparator.comparing((SegmentChord::getPosition)))
-          .collect(Collectors.toList());
-      } catch (EntityStoreException e) {
-        throw new FabricationException(e);
-      }
+  public Collection<SegmentChord> getSegmentChords() {
+    if (Objects.isNull(segmentChords)) {
+      segmentChords = bench.getAll(SegmentChord.class)
+        .stream()
+        .sorted(Comparator.comparing((SegmentChord::getPosition)))
+        .collect(Collectors.toList());
+    }
 
     return segmentChords;
   }
 
 
   @Override
-  public Collection<SegmentChordVoicing> getSegmentChordVoicings() throws FabricationException {
-    try {
-      return bench.getAll(SegmentChordVoicing.class);
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
+  public Collection<SegmentChordVoicing> getSegmentChordVoicings() {
+    return bench.getAll(SegmentChordVoicing.class);
   }
 
   @Override
-  public Collection<SegmentMeme> getSegmentMemes() throws FabricationException {
-    try {
-      return bench.getAll(SegmentMeme.class);
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
+  public Collection<SegmentMeme> getSegmentMemes() {
+    return bench.getAll(SegmentMeme.class);
   }
 
   @Override
-  public Collection<SegmentMessage> getSegmentMessages() throws FabricationException {
-    try {
-      return bench.getAll(SegmentMessage.class);
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
+  public Collection<SegmentMessage> getSegmentMessages() {
+    return bench.getAll(SegmentMessage.class);
   }
 
   @Override
-  public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() throws FabricationException {
-    try {
-      return bench.getAll(SegmentChoiceArrangementPick.class);
-    } catch (EntityStoreException e) {
-      throw new FabricationException(e);
-    }
+  public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() {
+    return bench.getAll(SegmentChoiceArrangementPick.class);
   }
 
   @Override
@@ -181,21 +154,19 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
       segmentDAO.createAllSubEntities(access, bench.getAll(SegmentChoiceArrangement.class)); // after choices
       segmentDAO.createAllSubEntities(access, bench.getAll(SegmentChoiceArrangementPick.class)); // after arrangements
 
-    } catch (JsonApiException | DAOFatalException | DAOExistenceException | DAOPrivilegeException | DAOValidationException | EntityStoreException e) {
+    } catch (JsonApiException | DAOFatalException | DAOExistenceException | DAOPrivilegeException | DAOValidationException e) {
       throw new FabricationException("Failed to build and update payload for Segment!", e);
     }
   }
 
   @Override
-  public SegmentChoice getChoiceOfType(Program.Type type) throws FabricationException {
-    Optional<SegmentChoice> choice = getSegmentChoices().stream().filter(c -> c.getProgramType().equals(type)).findFirst();
-    if (choice.isEmpty()) throw new FabricationException(String.format("No %s-type choice in workbench segment", type));
-    return choice.get();
+  public Optional<SegmentChoice> getChoiceOfType(Program.Type type) {
+    return getSegmentChoices().stream()
+      .filter(c -> c.getProgramType().equals(type)).findFirst();
   }
 
   @Override
-  public Collection<SegmentChoice> getChoicesOfType(Program.Type type)
-    throws FabricationException {
+  public Collection<SegmentChoice> getChoicesOfType(Program.Type type) {
     return getSegmentChoices().stream()
       .filter(c -> c.getProgramType().equals(type))
       .collect(Collectors.toList());

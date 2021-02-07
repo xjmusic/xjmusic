@@ -154,8 +154,8 @@ public class CraftFoundationNextMacroTest {
             .setTempo(120.0)
             .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
             .build());
-    store.put(buildSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence2_binding0, 3));
-    store.put(buildSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence1_binding0, 1));
+    store.put(buildSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence2_binding0));
+    store.put(buildSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence1_binding0));
 
     // Chain "Test Print #1" has a planned segment
     segment4 = store.put(buildSegment(chain1, 3, Segment.State.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"), null, "C", 8, 0.8, 120, "chain-1-waveform-12345", "wav"));
@@ -173,14 +173,14 @@ public class CraftFoundationNextMacroTest {
     assertEquals(16, result.getTotal());
     assertEquals("AAC", result.getOutputEncoder());
     assertEquals(0.45, result.getDensity(), 0.01);
-    assertEquals("Db minor", result.getKey());
+    assertEquals("G minor", result.getKey());
     assertEquals(125, result.getTempo(), 0.01);
     // assert memes
     assertSameItems(
             Lists.newArrayList("Regret", "Chunky", "Hindsight", "Tangy"),
             Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     // assert chords
-    assertSameItems(Lists.newArrayList("Db minor", "D minor"),
+    assertSameItems(Lists.newArrayList("Ab minor", "G minor"),
             Entities.namesOf(store.getAll(result.getId(), SegmentChord.class)));
     // assert choices
     Collection<SegmentChoice> segmentChoices =
@@ -188,13 +188,11 @@ public class CraftFoundationNextMacroTest {
     // assert macro choice
     SegmentChoice macroChoice = SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Macro);
     assertEquals(fake.program3_sequence0_binding0.getId(), macroChoice.getProgramSequenceBindingId());
-    assertEquals(0, macroChoice.getTranspose());
-    assertEquals(Long.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
+        assertEquals(Long.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
     // assert main choice
     SegmentChoice mainChoice = SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Main);
     assertEquals(fake.program15_sequence0_binding0.getId(), mainChoice.getProgramSequenceBindingId());
-    assertEquals(-6, mainChoice.getTranspose());
-    assertEquals(Long.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
+        assertEquals(Long.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
   }
 
 }

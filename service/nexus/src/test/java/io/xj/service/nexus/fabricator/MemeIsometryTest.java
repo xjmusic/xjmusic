@@ -14,7 +14,7 @@ import static org.junit.Assert.assertArrayEquals;
 public class MemeIsometryTest {
 
   @Test
-  public void of_List() throws EntityException {
+  public void of_List() {
     MemeIsometry result = MemeIsometry.ofMemes(ImmutableList.of(
       "Smooth",
       "Catlike"
@@ -24,7 +24,7 @@ public class MemeIsometryTest {
   }
 
   @Test
-  public void add() throws EntityException {
+  public void add() {
     MemeIsometry result = MemeIsometry.ofMemes(ImmutableList.of(
       "Smooth"
     ));
@@ -34,7 +34,7 @@ public class MemeIsometryTest {
   }
 
   @Test
-  public void getSourceStems() throws EntityException {
+  public void getSourceStems() {
     List<String> result = MemeIsometry.ofMemes(ImmutableList.of(
       "Intensity",
       "Cool",

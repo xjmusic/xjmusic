@@ -176,9 +176,9 @@ public class CraftRhythm_LayeredVoicesTest {
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .build());
-    store.put(buildSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence0_binding0, 3));
-    store.put(buildSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence0_binding0, 5));
-    store.put(buildSegmentChoice(segment3, Program.Type.Rhythm, program42, 5));
+    store.put(buildSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence0_binding0));
+    store.put(buildSegmentChoice(segment3, Program.Type.Rhythm, program42));
 
     // segment crafting
     segment4 = store.put(Segment.newBuilder()
@@ -194,8 +194,8 @@ public class CraftRhythm_LayeredVoicesTest {
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .build());
-    store.put(buildSegmentChoice(segment4, Program.Type.Macro, fake.program4_sequence0_binding0, 3));
-    store.put(buildSegmentChoice(segment4, Program.Type.Main, fake.program5_sequence1_binding0, -5));
+    store.put(buildSegmentChoice(segment4, Program.Type.Macro, fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(segment4, Program.Type.Main, fake.program5_sequence1_binding0));
 
     for (String memeName : ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(buildSegmentMeme(segment4, memeName));

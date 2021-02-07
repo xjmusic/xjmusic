@@ -191,8 +191,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
       .setProgramId(fake.program4_sequence2_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence2_binding0.getId())
       .setProgramType(Program.Type.Macro)
-      .setTranspose(3)
-      .build());
+            .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment3.getId())
@@ -200,16 +199,14 @@ public class CraftDetailProgramVoiceNextMacroTest {
       .setProgramId(fake.program5_sequence1_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
       .setProgramType(Program.Type.Main)
-      .setTranspose(1)
-      .build());
+            .build());
     if (!excludeDetailChoiceForSegment3)
       store.put(SegmentChoice.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(segment3.getId())
         .setProgramId(fake.program10.getId())
         .setProgramType(Program.Type.Detail)
-        .setTranspose(-4)
-        .build());
+                .build());
 
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store.put(Segment.newBuilder()
@@ -232,8 +229,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-      .setTranspose(4)
-      .build());
+            .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment4.getId())
@@ -241,8 +237,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
       .setProgramId(fake.program15_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program15_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
-      .setTranspose(-2)
-      .build());
+            .build());
     for (String memeName : ImmutableList.of("Hindsight", "Chunky", "Regret", "Tangy")) {
       store.put(SegmentMeme.newBuilder()
         .setId(UUID.randomUUID().toString())

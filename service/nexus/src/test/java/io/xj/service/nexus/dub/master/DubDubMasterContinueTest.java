@@ -161,22 +161,20 @@ public class DubDubMasterContinueTest {
       .setProgramType(Program.Type.Macro)
       .setProgramId(fake.program4_sequence1_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
-      .setTranspose(3)
-      .build());
+            .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment3.getId())
       .setProgramType(Program.Type.Main)
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
-      .setTranspose(5)
-      .build());
+            .build());
 
     // Chain "Test Print #1" has this segment dubbing - Structure is complete
     segment4 = store.put(buildSegment(chain1, 3, Segment.State.Dubbing, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:03:15.836735Z"), "D Major", 16, 0.45, 120.0, "chains-1-segments-9f7s89d8a7892", "wav"));
-    store.put(buildSegmentChoice(segment4, Program.Type.Macro, fake.program4_sequence1_binding0, 3));
-    store.put(buildSegmentChoice(segment4, Program.Type.Main, fake.program5_sequence1_binding0, -5));
-    SegmentChoice choice1 = store.put(buildSegmentChoice(segment4, Program.Type.Rhythm, fake.program35, 3));
+    store.put(buildSegmentChoice(segment4, Program.Type.Macro, fake.program4_sequence1_binding0));
+    store.put(buildSegmentChoice(segment4, Program.Type.Main, fake.program5_sequence1_binding0));
+    SegmentChoice choice1 = store.put(buildSegmentChoice(segment4, Program.Type.Rhythm, fake.program35));
     store.put(buildSegmentMeme(segment4, "Cozy"));
     store.put(buildSegmentMeme(segment4, "Classic"));
     store.put(buildSegmentMeme(segment4, "Outlook"));

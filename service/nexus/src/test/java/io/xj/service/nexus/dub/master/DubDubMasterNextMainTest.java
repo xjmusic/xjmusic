@@ -134,14 +134,14 @@ public class DubDubMasterNextMainTest {
 
     // Chain "Test Print #1" has this segment that was just dubbed
     segment3 = store.put(buildSegment(chain1, 2, Segment.State.Dubbed, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "F Major", 64, 0.30, 120.0, "chains-1-segments-9f7s89d8a7892", "wav"));
-    store.put(buildSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence0_binding0, 3));
-    store.put(buildSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence1_binding0, -4));
+    store.put(buildSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence1_binding0));
 
     // Chain "Test Print #1" has this segment dubbing - Structure is complete
     segment4 = store.put(buildSegment(chain1, 3, Segment.State.Dubbing, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:03:15.836735Z"), "G minor", 16, 0.45, 120.0, "chains-1-segments-9f7s89d8a7892", "wav"));
-    store.put(buildSegmentChoice(segment4, Program.Type.Macro, fake.program4_sequence1_binding0, 3));
-    store.put(buildSegmentChoice(segment4, Program.Type.Main, fake.program15_sequence0_binding0, -5));
-    SegmentChoice choice1 = store.put(buildSegmentChoice(segment4, Program.Type.Rhythm, fake.program35, -5));
+    store.put(buildSegmentChoice(segment4, Program.Type.Macro, fake.program4_sequence1_binding0));
+    store.put(buildSegmentChoice(segment4, Program.Type.Main, fake.program15_sequence0_binding0));
+    SegmentChoice choice1 = store.put(buildSegmentChoice(segment4, Program.Type.Rhythm, fake.program35));
     store.put(buildSegmentMeme(segment4, "Regret"));
     store.put(buildSegmentMeme(segment4, "Sky"));
     store.put(buildSegmentMeme(segment4, "Hindsight"));

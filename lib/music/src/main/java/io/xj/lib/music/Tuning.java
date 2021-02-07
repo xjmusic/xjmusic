@@ -78,7 +78,7 @@ public class Tuning {
   public Note getNote(Double pitch) {
     if (!_pitchNotes.containsKey(pitch))
       _pitchNotes.put(pitch,
-        rootNote.transpose(deltaFromRootPitch(pitch)));
+        rootNote.shift(deltaFromRootPitch(pitch)));
 
     return _pitchNotes.get(pitch);
   }

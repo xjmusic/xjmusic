@@ -181,8 +181,7 @@ public class NexusEntityStoreImplTest {
             .setProgramId(UUID.randomUUID().toString())
             .setProgramSequenceBindingId(UUID.randomUUID().toString())
             .setProgramType(Program.Type.Macro)
-            .setTranspose(3)
-            .build());
+                        .build());
   }
 
   @Test
@@ -241,8 +240,7 @@ public class NexusEntityStoreImplTest {
             .setProgramId(UUID.randomUUID().toString())
             .setProgramSequenceBindingId(UUID.randomUUID().toString())
             .setProgramType(Program.Type.Macro)
-            .setTranspose(3)
-            .build());
+                        .build());
     // not in the above chain, won't be retrieved with it
     subject.put(Segment.newBuilder()
             .setId(UUID.randomUUID().toString())

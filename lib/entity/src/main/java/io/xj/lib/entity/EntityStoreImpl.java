@@ -28,7 +28,7 @@ public class EntityStoreImpl implements EntityStore {
     // fail to store builder
     if (entity instanceof MessageLite.Builder)
       throw new EntityStoreException(String.format("Can't store builder %s!",
-              entity.getClass().getSimpleName()));
+        entity.getClass().getSimpleName()));
 
     // fail to store entity without id
     String id;
@@ -36,13 +36,13 @@ public class EntityStoreImpl implements EntityStore {
       id = Entities.getId(entity);
     } catch (EntityException e) {
       throw new EntityStoreException(String.format("Can't get id of %s-type entity",
-              entity.getClass().getSimpleName()));
+        entity.getClass().getSimpleName()));
     }
 
     // fail to store entity with unset id
     if (!Value.isSet(id))
       throw new EntityStoreException(String.format("Can't store %s with null id",
-              entity.getClass().getSimpleName()));
+        entity.getClass().getSimpleName()));
 
     store.putIfAbsent(entity.getClass(), Maps.newConcurrentMap());
     store.get(entity.getClass()).put(id, entity);
@@ -67,15 +67,10 @@ public class EntityStoreImpl implements EntityStore {
     }
   }
 
-  public <N> Collection<N> getAll(Class<N> type) throws EntityStoreException {
-    try {
-      if (!store.containsKey(type)) return ImmutableList.of();
-      //noinspection unchecked
-      return (Collection<N>) store.get(type).values();
-
-    } catch (Exception e) {
-      throw new EntityStoreException(e);
-    }
+  public <N> Collection<N> getAll(Class<N> type) {
+    if (!store.containsKey(type)) return ImmutableList.of();
+    //noinspection unchecked
+    return (Collection<N>) store.get(type).values();
   }
 
   public <N, B> Collection<N> getAll(Class<N> type, Class<B> belongsToType, Collection<String> belongsToIds) throws EntityStoreException {
@@ -83,8 +78,8 @@ public class EntityStoreImpl implements EntityStore {
       if (!store.containsKey(type)) return ImmutableList.of();
       //noinspection unchecked
       return (Collection<N>) store.get(type).values().stream()
-              .filter(entity -> Entities.isChild(entity, belongsToType, belongsToIds))
-              .collect(Collectors.toList());
+        .filter(entity -> Entities.isChild(entity, belongsToType, belongsToIds))
+        .collect(Collectors.toList());
 
     } catch (Exception e) {
       throw new EntityStoreException(e);
@@ -119,7 +114,7 @@ public class EntityStoreImpl implements EntityStore {
   @Override
   public Collection<Object> getAll() {
     return store.values().stream()
-            .flatMap(map -> map.values().stream()).collect(Collectors.toList());
+      .flatMap(map -> map.values().stream()).collect(Collectors.toList());
   }
 
   @Override
