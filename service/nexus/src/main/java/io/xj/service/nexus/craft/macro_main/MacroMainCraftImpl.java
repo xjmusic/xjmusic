@@ -36,10 +36,9 @@ import java.util.UUID;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroMainCraft {
-  private static final double SCORE_MATCHED_KEY_MODE = 2;
-  private static final double SCORE_MATCHED_MEMES = 10;
-  private static final double SCORE_AVOID_PREVIOUS = -20; // must exceed SCORE_MATCHED_MEMES
-  private static final double SCORE_DIRECTLY_BOUND = 100;
+  private static final double SCORE_MATCH = 100;
+  private static final double SCORE_AVOID = -SCORE_MATCH;
+  private static final double SCORE_DIRECT = 10 * SCORE_MATCH;
   private static final double SCORE_MACRO_ENTROPY = 0.5;
   private static final double SCORE_MAIN_ENTROPY = 0.5;
   private static final long NANOS_PER_SECOND = 1_000_000_000;
@@ -56,31 +55,18 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "doWork")
   public void doWork() throws CraftException {
     try {
-      // 1. Macro Program chosen based on previous if possible
-      // [#176375076] MacroMainCraft should tolerate and retry zero entities
-      // When these conditions are encountered, log the error in a Segment Message, and broaden the query parameters. Worst case, pick completely at random from the library.
-      Optional<ProgramSequence> nextSequenceOfPreviousMacroProgram = chooseNextSequenceOfPreviousMacroProgram();
-
-      Optional<Program> macroProgram =
-        nextSequenceOfPreviousMacroProgram.isPresent() ?
-          chooseNextMacroProgram(nextSequenceOfPreviousMacroProgram.get()) :
-          chooseNextMacroProgram();
-
-      if (macroProgram.isEmpty())
-        macroProgram = chooseNextMacroProgram();
-
-      if (macroProgram.isEmpty())
-        throw exception("Failed to choose a Macro-program by any means!");
+      var macroProgram = chooseNextMacroProgram()
+        .orElseThrow(() -> exception("Failed to choose a Macro-program by any means!"));
 
       Long macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
-      var macroSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(macroProgram.get(), macroSequenceBindingOffset)
+      var macroSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
         .orElseThrow(() -> exception("Unable to determine macro sequence binding"));
       var macroSequence = fabricator.getSourceMaterial().getProgramSequence(macroSequenceBinding);
       fabricator.add(
         SegmentChoice.newBuilder()
           .setId(UUID.randomUUID().toString())
           .setSegmentId(fabricator.getSegment().getId())
-          .setProgramId(macroProgram.get().getId())
+          .setProgramId(macroProgram.getId())
           .setProgramType(Program.Type.Macro)
           .setProgramSequenceBindingId(macroSequenceBinding.getId())
           .build());
@@ -263,35 +249,14 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   }
 
   /**
-   Choose the next sequence for the previous segment's macro choice, which we use to base the current macro choice on
-
-   @return next sequence in previous segment's macro choice, or null if none exists
-   */
-  @Trace(resourceName = "nexus/craft/macro_main", operationName = "chooseNextSequenceOfPreviousMacroProgram")
-  private Optional<ProgramSequence> chooseNextSequenceOfPreviousMacroProgram() {
-    var previousMacroChoice = fabricator.getPreviousMacroChoice();
-    if (previousMacroChoice.isEmpty()) return Optional.empty();
-    Optional<Program> previousMacroProgram = fabricator.getProgram(previousMacroChoice.get());
-    if (previousMacroProgram.isEmpty())
-      return Optional.empty();
-    var psb = fabricator.randomlySelectSequenceBindingAtOffset(
-      previousMacroProgram.get(),
-      fabricator.getNextSequenceBindingOffset(previousMacroChoice.get()));
-    if (psb.isPresent() && fabricator.hasOneMoreSequenceBindingOffset(previousMacroChoice.get())) {
-      return fabricator.getSourceMaterial().getProgramSequence(psb.get());
-    }
-
-    return Optional.empty();
-  }
-
-  /**
    Choose macro program
 
-   @param macroNextSequence to base choice on (never actually used, because next macro first sequence overlaps it)
    @return macro-type program
    */
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "chooseMacroProgram")
-  public Optional<Program> chooseNextMacroProgram(ProgramSequence macroNextSequence) {
+  public Optional<Program> chooseNextMacroProgram() {
+    if (fabricator.isInitialSegment()) return chooseRandomMacroProgram();
+
     // if continuing the macro program, use the same one
     var previousMacroChoice = fabricator.getPreviousMacroChoice();
     if (fabricator.continuesMacroProgram() && previousMacroChoice.isPresent())
@@ -304,17 +269,15 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // (3) score each source program
     try {
       for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Macro))
-        superEntityScorePicker.add(program, scoreMacro(program, macroNextSequence));
+        superEntityScorePicker.add(program, scoreMacro(program));
     } catch (Exception e) {
       log.warn("while scoring macro programs", e);
     }
 
     // (3b) Avoid previous macro program
-    if (!fabricator.isInitialSegment()) {
-      if (previousMacroChoice.isPresent()) {
-        var program = fabricator.getProgram(previousMacroChoice.get());
-        program.ifPresent(value -> superEntityScorePicker.score(value.getId(), SCORE_AVOID_PREVIOUS));
-      }
+    if (previousMacroChoice.isPresent()) {
+      var program = fabricator.getProgram(previousMacroChoice.get());
+      program.ifPresent(value -> superEntityScorePicker.score(value.getId(), SCORE_AVOID));
     }
 
     // report
@@ -330,20 +293,11 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return macro-type program
    */
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "chooseMacroProgram")
-  public Optional<Program> chooseNextMacroProgram() {
+  public Optional<Program> chooseRandomMacroProgram() {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
     for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Macro))
       superEntityScorePicker.add(program, Chance.normallyAround(0, SCORE_MACRO_ENTROPY));
-
-    // (3b) Avoid previous macro program
-    if (!fabricator.isInitialSegment()) {
-      var previousMacroChoice = fabricator.getPreviousMacroChoice();
-      if (previousMacroChoice.isPresent()) {
-        var program = fabricator.getProgram(previousMacroChoice.get());
-        program.ifPresent(value -> superEntityScorePicker.score(value.getId(), SCORE_AVOID_PREVIOUS));
-      }
-    }
 
     return superEntityScorePicker.getTop();
   }
@@ -386,13 +340,12 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   /**
    Score a candidate for next macro program, given current fabricator
 
-   @param program           to score
-   @param macroNextSequence to base choice on (never actually used, because next macro first sequence overlaps it)
+   @param program to score
    @return score, including +/- entropy
    @throws CraftException on failure
    */
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "scoreMacro")
-  private double scoreMacro(Program program, ProgramSequence macroNextSequence) throws CraftException {
+  private double scoreMacro(Program program) throws CraftException {
     double score = Chance.normallyAround(0, SCORE_MACRO_ENTROPY);
 
     if (fabricator.isInitialSegment()) {
@@ -402,18 +355,14 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // Score includes matching memes to previous segment's macro-program's next pattern
     try {
       score += fabricator.getMemeIsometryOfNextSequenceInPreviousMacro()
-        .score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCHED_MEMES;
+        .score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCH;
     } catch (HubClientException e) {
       throw exception("Failed to get source material for scoring Macro", e);
     }
 
-    // Score includes matching mode (major/minor) to previous segment's macro-program's next pattern
-    if (Objects.nonNull(macroNextSequence) && Key.isSameMode(macroNextSequence.getKey(), program.getKey()))
-      score += SCORE_MATCHED_KEY_MODE;
-
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
-      score += SCORE_DIRECTLY_BOUND;
+      score += SCORE_DIRECT;
 
     return score;
   }
@@ -429,7 +378,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   private double scoreMain(Program program) throws CraftException {
     double score = Chance.normallyAround(0, SCORE_MAIN_ENTROPY);
 
-    if (!fabricator.isInitialSegment()) try {
+    if (!fabricator.isInitialSegment()) {
       var previousMainChoice = fabricator.getPreviousMainChoice();
 
       // Avoid previous main program
@@ -437,26 +386,19 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
         var previousMainProgram = fabricator.getProgram(previousMainChoice.get());
         if (previousMainProgram.isPresent())
           if (Objects.equals(program.getId(), previousMainProgram.get().getId()))
-            score += SCORE_AVOID_PREVIOUS;
+            score += SCORE_AVOID;
       }
 
-      // Score includes matching mode, previous segment to macro program first pattern (major/minor)
-      if (previousMainChoice.isPresent() &&
-        Key.isSameMode(fabricator.getKeyForChoice(previousMainChoice.get()), Key.of(program.getKey())))
-        score += SCORE_MATCHED_KEY_MODE;
-
-    } catch (FabricationException e) {
-      throw exception("Failed to get current macro offset, in order to score next Main choice", e);
     }
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
-      score += SCORE_DIRECTLY_BOUND;
+      score += SCORE_DIRECT;
 
     // Score includes matching memes, previous segment to macro program first pattern
     try {
       score += fabricator.getMemeIsometryOfCurrentMacro()
-        .score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCHED_MEMES;
+        .score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCH;
 
     } catch (HubClientException e) {
       throw exception("Failed to get memes at beginning create program, in order to score next Main choice", e);
