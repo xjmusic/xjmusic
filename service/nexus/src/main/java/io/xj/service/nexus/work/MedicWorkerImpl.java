@@ -31,6 +31,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
   private final TelemetryProvider telemetryProvider;
   private final SegmentDAO segmentDAO;
   private final int reviveChainSegmentsDubbedPastSeconds;
+  private final boolean medicEnabled;
 
   @Inject
   public MedicWorkerImpl(
@@ -43,6 +44,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
     this.segmentDAO = segmentDAO;
     this.telemetryProvider = telemetryProvider;
 
+    medicEnabled = config.getBoolean("fabrication.medicEnabled");
     reviveChainSegmentsDubbedPastSeconds = config.getInt("fabrication.reviveChainSegmentsDubbedPastSeconds");
     reviveChainProductionStartedBeforeSeconds = config.getInt("fabrication.reviveChainProductionStartedBeforeSeconds");
 
@@ -64,9 +66,11 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
    */
   @Trace(resourceName = "nexus/medic", operationName = "doWork")
   protected void doWork() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
-    long t = Instant.now().toEpochMilli();
-    checkAndReviveAll();
-    log.info("Did run in {}ms OK", Instant.now().toEpochMilli() - t);
+    if (medicEnabled) {
+      long t = Instant.now().toEpochMilli();
+      checkAndReviveAll();
+      log.info("Did run in {}ms OK", Instant.now().toEpochMilli() - t);
+    }
   }
 
   /**
