@@ -76,15 +76,15 @@ public class SegmentEndpoint extends NexusEndpoint {
         uuidId = null;
       }
 
-      // Prepare payload
-      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
-
       // chain is either by uuid or embed key
       Collection<Segment> segments;
       if (Value.isNonNull(uuidId))
         segments = readManySegmentsByChainId(HubClientAccess.fromContext(crc), uuidId, fromOffset, fromSecondsUTC); // uuid
       else
         segments = readManySegmentsByChainEmbedKey(chainIdentifier, fromOffset, fromSecondsUTC); // embed key
+
+      // Prepare payload
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
 
       // add segments as plural data in payload
       for (Segment segment : segments) jsonapiPayload.addData(payloadFactory.toPayloadObject(segment));

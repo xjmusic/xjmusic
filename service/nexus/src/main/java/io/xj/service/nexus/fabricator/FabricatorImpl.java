@@ -33,6 +33,8 @@ import io.xj.SegmentMessage;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Key;
@@ -572,17 +574,30 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public String getSegmentOutputWaveformKey() {
-    return getStorageKey(getSegment().getOutputEncoder().toLowerCase(Locale.ENGLISH));
+    return getSegmentStorageKey(getSegment().getOutputEncoder().toLowerCase(Locale.ENGLISH));
   }
 
   @Override
   public String getSegmentOutputMetadataKey() {
-    return getStorageKey(EXTENSION_JSON);
+    return getSegmentStorageKey(EXTENSION_JSON);
   }
 
   @Override
-  public String getStorageKey(String extension) {
+  public String getChainOutputMetadataKey() {
+    return getChainStorageKey(EXTENSION_JSON);
+  }
+
+  @Override
+  public String getSegmentStorageKey(String extension) {
     return String.format("%s%s%s", getSegment().getStorageKey(), EXTENSION_SEPARATOR, extension);
+  }
+
+  @Override
+  public String getChainStorageKey(String extension) {
+    String chainKey = Strings.isNullOrEmpty(getChain().getEmbedKey()) ?
+      String.format("chain-%s", getChainId())
+      : getChain().getEmbedKey();
+    return String.format("%s%s%s", chainKey, EXTENSION_SEPARATOR, extension);
   }
 
   @Override
@@ -712,7 +727,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getResultMetadataJson() throws FabricationException {
+  public String getSegmentMetadataJson() throws FabricationException {
     try {
       return payloadFactory.serialize(payloadFactory.newJsonapiPayload()
         .setDataOne(payloadFactory.toPayloadObject(workbench.getSegment()))
@@ -724,6 +739,31 @@ class FabricatorImpl implements Fabricator {
         .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChoiceArrangementPicks())));
 
     } catch (JsonApiException e) {
+      throw new FabricationException(e);
+    }
+  }
+
+  @Override
+  public String getChainMetadataJson() throws FabricationException {
+    try {
+      Collection<Segment> segments =
+        segmentDAO.readManyFromSecondsUTC(access, getChainId(), Instant.now().getEpochSecond());
+
+      // Prepare payload
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
+
+      // add segments as plural data in payload
+      for (Segment segment : segments) jsonapiPayload.addData(payloadFactory.toPayloadObject(segment));
+
+      // seek and add sub-entities to payload --
+      // use internal access because we already cleared these segment ids from access control,
+      // and there is no access object when reading chain by embed key
+      for (Object entity : segmentDAO.readManySubEntities(HubClientAccess.internal(), Entities.idsOf(segments), false))
+        jsonapiPayload.getIncluded().add(payloadFactory.toPayloadObject(entity));
+
+      return payloadFactory.serialize(jsonapiPayload);
+
+    } catch (JsonApiException | DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
       throw new FabricationException(e);
     }
   }

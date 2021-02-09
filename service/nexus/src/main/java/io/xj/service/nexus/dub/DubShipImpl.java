@@ -37,8 +37,9 @@ public class DubShipImpl implements DubShip {
     Segment.Type type = null;
     try {
       type = fabricator.getType();
-      shipFinalMetadata();
-      shipFinalAudio();
+      shipChainMetadata();
+      shipSegmentMetadata();
+      shipSegmentAudio();
 
     } catch (FabricationException | FileStoreException e) {
       throw new DubException(String.format("Failed to do %s-type ShipDub for segment #%s",
@@ -51,7 +52,7 @@ public class DubShipImpl implements DubShip {
    DubShip the final audio
    */
   @Trace(resourceName = "nexus/dub/ship", operationName = "shipFinalAudio")
-  private void shipFinalAudio() throws FabricationException, FileStoreException {
+  private void shipSegmentAudio() throws FabricationException, FileStoreException {
     fileStore.putS3ObjectFromTempFile(
       fabricator.getFullQualityAudioOutputFilePath(),
       segmentFileBucket,
@@ -62,11 +63,22 @@ public class DubShipImpl implements DubShip {
    DubShip the final metadata
    */
   @Trace(resourceName = "nexus/dub/ship", operationName = "shipFinalMetadata")
-  private void shipFinalMetadata() throws FabricationException, FileStoreException {
+  private void shipSegmentMetadata() throws FabricationException, FileStoreException {
     fileStore.putS3ObjectFromString(
-      fabricator.getResultMetadataJson(),
+      fabricator.getSegmentMetadataJson(),
       segmentFileBucket,
       fabricator.getSegmentOutputMetadataKey());
+  }
+
+  /**
+   DubShip the final metadata
+   */
+  @Trace(resourceName = "nexus/dub/ship", operationName = "shipFinalMetadata")
+  private void shipChainMetadata() throws FabricationException, FileStoreException {
+    fileStore.putS3ObjectFromString(
+      fabricator.getChainMetadataJson(),
+      segmentFileBucket,
+      fabricator.getChainOutputMetadataKey());
   }
 
 }

@@ -430,7 +430,21 @@ public interface Fabricator {
 
    @return Output Metadata Key
    */
-  String getStorageKey(String extension);
+  String getChainOutputMetadataKey();
+
+  /**
+   Returns the segment storage key concatenated with a specified extension
+
+   @return Output Metadata Key
+   */
+  String getSegmentStorageKey(String extension);
+
+  /**
+   Returns the chain storage key concatenated with a specified extension
+
+   @return Output Metadata Key
+   */
+  String getChainStorageKey(String extension);
 
   /**
    Total length of segment of beginning to end
@@ -639,7 +653,14 @@ public interface Fabricator {
 
    @return JSON:API payload of the entire result of Segment Fabrication
    */
-  String getResultMetadataJson() throws FabricationException;
+  String getSegmentMetadataJson() throws FabricationException;
+
+  /**
+   Get a JSON:API payload of the entire result of Chain Fabrication
+
+   @return JSON:API payload of the entire result of Chain Fabrication
+   */
+  String getChainMetadataJson() throws FabricationException;
 
   /**
    Whether a given Program is directly bound to the Chain,
