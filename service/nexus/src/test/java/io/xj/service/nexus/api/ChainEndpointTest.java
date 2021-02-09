@@ -16,7 +16,7 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClientAccess;
@@ -120,7 +120,7 @@ public class ChainEndpointTest {
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
-    assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class))
+    assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
       .hasDataMany("chains", ImmutableList.of(chain1.getId(), chain2.getId()));
   }
 
@@ -145,7 +145,7 @@ public class ChainEndpointTest {
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
-    assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class))
+    assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
       .hasDataOne("chains", chain17.getId());
   }
 

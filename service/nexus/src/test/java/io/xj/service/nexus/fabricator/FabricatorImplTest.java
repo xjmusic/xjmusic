@@ -204,7 +204,7 @@ public class FabricatorImplTest {
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockPayloadFactory, mockSegmentDAO);
+    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
 
     Double result = subject.computeSecondsAtPosition(0); // instantiates a time computer; see expectation above
 
@@ -304,7 +304,7 @@ public class FabricatorImplTest {
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockPayloadFactory, mockSegmentDAO);
+    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
 
     Collection<SegmentChoiceArrangementPick> result = subject.getPicks();
 
@@ -383,7 +383,7 @@ public class FabricatorImplTest {
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockPayloadFactory, mockSegmentDAO);
+    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
 
     List<Instrument.Type> result = subject.getDistinctChordVoicingTypes();
 
@@ -468,7 +468,7 @@ public class FabricatorImplTest {
       .thenReturn(Optional.of(previousMacroChoice));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockPayloadFactory, mockSegmentDAO);
+    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
 
     var result = subject.determineType();
 

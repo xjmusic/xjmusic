@@ -25,9 +25,9 @@ import java.util.Optional;
  Much of the complexity of serializing and deserializing stems of the fact that
  the JSON:API standard uses a data object for One record, and a data array for Many records.
  */
-@JsonDeserialize(using = PayloadObjectDeserializer.class)
-@JsonSerialize(using = PayloadObjectSerializer.class)
-public class PayloadObject {
+@JsonDeserialize(using = JsonapiPayloadObjectDeserializer.class)
+@JsonSerialize(using = JsonapiPayloadObjectSerializer.class)
+public class JsonapiPayloadObject {
   public static final String KEY_LINKS = "links";
   public static final String KEY_RELATIONSHIPS = "relationships";
   public static final String KEY_ATTRIBUTES = "attributes";
@@ -35,7 +35,7 @@ public class PayloadObject {
   public static final String KEY_TYPE = "type";
   private final Map<String, Object> attributes = Maps.newHashMap();
   private final Map<String, String> links = Maps.newHashMap();
-  private final Map<String, Payload> relationships = Maps.newHashMap();
+  private final Map<String, JsonapiPayload> relationships = Maps.newHashMap();
   private String type;
   private String id;
 
@@ -43,11 +43,11 @@ public class PayloadObject {
    Add a relationship object to this resource object
 
    @param relationshipName for which object will be added
-   @param payload          to add
+   @param jsonapiPayload          to add
    @return this PayloadObject (for chaining methods)
    */
-  public PayloadObject add(String relationshipName, Payload payload) {
-    relationships.put(relationshipName, payload);
+  public JsonapiPayloadObject add(String relationshipName, JsonapiPayload jsonapiPayload) {
+    relationships.put(relationshipName, jsonapiPayload);
     return this;
   }
 
@@ -78,7 +78,7 @@ public class PayloadObject {
    @param attributes to set
    @return this PayloadObject (for chaining methods)
    */
-  public PayloadObject setAttributes(Map<String, Object> attributes) {
+  public JsonapiPayloadObject setAttributes(Map<String, Object> attributes) {
     this.attributes.clear();
     this.attributes.putAll(attributes);
     return this;
@@ -99,7 +99,7 @@ public class PayloadObject {
    @param id to set
    @return this PayloadObject (for chaining methods)
    */
-  public PayloadObject setId(String id) {
+  public JsonapiPayloadObject setId(String id) {
     this.id = id;
     return this;
   }
@@ -119,7 +119,7 @@ public class PayloadObject {
    @param links to set
    @return this PayloadObject (for chaining methods)
    */
-  public PayloadObject setLinks(Map<String, String> links) {
+  public JsonapiPayloadObject setLinks(Map<String, String> links) {
     this.links.clear();
     this.links.putAll(links);
     return this;
@@ -131,7 +131,7 @@ public class PayloadObject {
    @param relationshipName to get payload for, and extract one payload resource object
    @return (optional) payload resource object if found, or empty
    */
-  public Optional<PayloadObject> getRelationshipDataOne(String relationshipName) {
+  public Optional<JsonapiPayloadObject> getRelationshipDataOne(String relationshipName) {
     if (!getRelationships().containsKey(relationshipName))
       return Optional.empty();
 
@@ -147,7 +147,7 @@ public class PayloadObject {
    @param relationshipName to get payload for, and extract many payload resource object
    @return (optional) payload resource object if found, or empty
    */
-  public Collection<PayloadObject> getRelationshipDataMany(String relationshipName) {
+  public Collection<JsonapiPayloadObject> getRelationshipDataMany(String relationshipName) {
     if (!getRelationships().containsKey(relationshipName))
       return Lists.newArrayList();
 
@@ -159,7 +159,7 @@ public class PayloadObject {
 
    @return Relationships
    */
-  public Map<String, Payload> getRelationships() {
+  public Map<String, JsonapiPayload> getRelationships() {
     return relationships;
   }
 
@@ -169,7 +169,7 @@ public class PayloadObject {
    @param payloadMap to set
    @return this PayloadObject (for chaining methods)
    */
-  public PayloadObject setRelationships(Map<String, Payload> payloadMap) {
+  public JsonapiPayloadObject setRelationships(Map<String, JsonapiPayload> payloadMap) {
     relationships.clear();
     relationships.putAll(payloadMap);
     return this;
@@ -190,7 +190,7 @@ public class PayloadObject {
    @param type to set
    @return this PayloadObject (for chaining methods)
    */
-  public PayloadObject setType(String type) {
+  public JsonapiPayloadObject setType(String type) {
     this.type = Entities.toType(type);
     return this;
   }
@@ -201,7 +201,7 @@ public class PayloadObject {
    @param type class of type to set
    @return this PayloadObject (for chaining methods)
    */
-  public PayloadObject setType(Class<?> type) {
+  public JsonapiPayloadObject setType(Class<?> type) {
     this.type = Entities.toType(type);
     return this;
   }
@@ -213,7 +213,7 @@ public class PayloadObject {
    @param value to set
    @return this PayloadObject (for chaining methods)
    */
-  public PayloadObject setAttribute(String name, Object value) {
+  public JsonapiPayloadObject setAttribute(String name, Object value) {
     this.attributes.put(name, value);
     return this;
   }
@@ -240,8 +240,8 @@ public class PayloadObject {
 
    @return minimal payload object
    */
-  public PayloadObject toMinimal() {
-    return new PayloadObject()
+  public JsonapiPayloadObject toMinimal() {
+    return new JsonapiPayloadObject()
       .setType(type)
       .setId(id);
   }

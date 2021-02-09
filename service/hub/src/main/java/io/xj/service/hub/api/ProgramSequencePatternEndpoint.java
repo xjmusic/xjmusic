@@ -6,9 +6,9 @@ import com.typesafe.config.Config;
 import io.xj.ProgramSequencePattern;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
-import io.xj.lib.jsonapi.PayloadObject;
+import io.xj.lib.jsonapi.JsonapiPayloadObject;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.HubAccess;
 import io.xj.service.hub.dao.DAOCloner;
@@ -54,35 +54,35 @@ public class ProgramSequencePatternEndpoint extends HubEndpoint {
   /**
    Create new programSequencePattern binding
 
-   @param payload with which to of ProgramSequencePattern Binding
+   @param jsonapiPayload with which to of ProgramSequencePattern Binding
    @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ARTIST})
   public Response create(
-    Payload payload,
+    JsonapiPayload jsonapiPayload,
     @Context ContainerRequestContext crc,
     @QueryParam("cloneId") String cloneId
   ) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      var programSequencePattern = payloadFactory.consume(dao().newInstance(), payload);
-      Payload responsePayload = new Payload();
+      var programSequencePattern = payloadFactory.consume(dao().newInstance(), jsonapiPayload);
+      JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
         DAOCloner<ProgramSequencePattern> cloner = dao().clone(hubAccess, cloneId, programSequencePattern);
-        responsePayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
-        List<PayloadObject> list = new ArrayList<>();
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
+        List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
-          PayloadObject payloadObject = payloadFactory.toPayloadObject(entity);
-          list.add(payloadObject);
+          JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
+          list.add(jsonapiPayloadObject);
         }
-        responsePayload.setIncluded(list);
+        responseJsonapiPayload.setIncluded(list);
       } else {
-        responsePayload.setDataOne(payloadFactory.toPayloadObject(dao().create(hubAccess, programSequencePattern)));
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(dao().create(hubAccess, programSequencePattern)));
       }
 
-      return response.create(responsePayload);
+      return response.create(responseJsonapiPayload);
 
     } catch (Exception e) {
       return response.notAcceptable(e);
@@ -115,15 +115,15 @@ public class ProgramSequencePatternEndpoint extends HubEndpoint {
   /**
    Update one ProgramSequencePattern
 
-   @param payload with which to update record.
+   @param jsonapiPayload with which to update record.
    @return Response
    */
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, payload);
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+    return update(crc, dao(), id, jsonapiPayload);
   }
 
   /**

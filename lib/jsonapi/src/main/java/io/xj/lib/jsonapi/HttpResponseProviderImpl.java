@@ -40,22 +40,22 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
   }
 
   @Override
-  public Response create(Payload payload) {
+  public Response create(JsonapiPayload jsonapiPayload) {
     try {
-      return payload.getSelfURI().isPresent() ?
+      return jsonapiPayload.getSelfURI().isPresent() ?
         Response
-          .created(payload.getSelfURI().get())
-          .entity(payloadFactory.serialize(payload))
+          .created(jsonapiPayload.getSelfURI().get())
+          .entity(payloadFactory.serialize(jsonapiPayload))
           .type(MediaType.APPLICATION_JSON)
           .build() :
         Response
           .created(apiUrlProvider.getApiURI(""))
-          .entity(payloadFactory.serialize(payload))
+          .entity(payloadFactory.serialize(jsonapiPayload))
           .type(MediaType.APPLICATION_JSON)
           .build();
 
     } catch (JsonApiException e) {
-      log.error("Failed to create {}", payload, e);
+      log.error("Failed to create {}", jsonapiPayload, e);
       return notAcceptable(e);
     }
   }
@@ -82,7 +82,7 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
 
   @Override
   public Response unauthorized(Class<?> type, Object identifier, Throwable cause) {
-    Payload payload = new Payload()
+    JsonapiPayload jsonapiPayload = new JsonapiPayload()
       .setDataType(PayloadDataType.One)
       .addError(new PayloadError()
         .setCode(String.format("%s Unauthorized", type.getSimpleName()))
@@ -91,14 +91,14 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
 
     return Response
       .status(HttpStatus.SC_UNAUTHORIZED)
-      .entity(payload)
+      .entity(jsonapiPayload)
       .type(MediaType.APPLICATION_JSON)
       .build();
   }
 
   @Override
   public Response notFound(String type, Object identifier) {
-    Payload payload = new Payload()
+    JsonapiPayload jsonapiPayload = new JsonapiPayload()
       .setDataType(PayloadDataType.One)
       .addError(new PayloadError()
         .setCode(String.format("%sNotFound", type))
@@ -107,7 +107,7 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
 
     return Response
       .status(HttpStatus.SC_NOT_FOUND)
-      .entity(payload)
+      .entity(jsonapiPayload)
       .type(MediaType.APPLICATION_JSON)
       .build();
   }
@@ -150,14 +150,14 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
 
   @Override
   public Response failure(Response.Status status, PayloadError error) {
-    Payload payload = new Payload()
+    JsonapiPayload jsonapiPayload = new JsonapiPayload()
       .setDataType(PayloadDataType.One)
       .addError(error);
 
     try {
       return Response
         .status(status)
-        .entity(payloadFactory.serialize(payload))
+        .entity(payloadFactory.serialize(jsonapiPayload))
         .build();
 
     } catch (JsonApiException e2) {
@@ -179,15 +179,15 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
   }
 
   @Override
-  public Response ok(Payload payload) {
+  public Response ok(JsonapiPayload jsonapiPayload) {
     try {
       return Response
-        .ok(payloadFactory.serialize(payload))
+        .ok(payloadFactory.serialize(jsonapiPayload))
         .type(MediaType.APPLICATION_JSON)
         .build();
 
     } catch (JsonApiException e) {
-      log.error("Failed to serialize payload {}", payload, e);
+      log.error("Failed to serialize payload {}", jsonapiPayload, e);
       return failure(e);
     }
   }

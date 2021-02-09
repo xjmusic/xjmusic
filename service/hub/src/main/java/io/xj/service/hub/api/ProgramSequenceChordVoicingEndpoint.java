@@ -44,16 +44,16 @@ public class ProgramSequenceChordVoicingEndpoint extends HubEndpoint {
   /**
    Create new programSequence chordVoicing
 
-   @param payload with which to of ProgramSequence ChordVoicing
+   @param jsonapiPayload with which to of ProgramSequence ChordVoicing
    @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ARTIST})
-  public Response create(Payload payload, @Context ContainerRequestContext crc) {
-    if (PayloadDataType.Many == payload.getDataType())
-      return updateMany(crc, dao(), payload);
-    return create(crc, dao(), payload);
+  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
+    if (PayloadDataType.Many == jsonapiPayload.getDataType())
+      return updateMany(crc, dao(), jsonapiPayload);
+    return create(crc, dao(), jsonapiPayload);
   }
 
   /**
@@ -82,15 +82,15 @@ public class ProgramSequenceChordVoicingEndpoint extends HubEndpoint {
   /**
    Update one ProgramSequenceChordVoicing
 
-   @param payload with which to update record.
+   @param jsonapiPayload with which to update record.
    @return Response
    */
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, payload);
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+    return update(crc, dao(), id, jsonapiPayload);
   }
 
   /**

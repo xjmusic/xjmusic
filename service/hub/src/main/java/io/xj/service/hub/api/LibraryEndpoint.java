@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.HubAccess;
@@ -63,14 +63,14 @@ public class LibraryEndpoint extends HubEndpoint {
   /**
    Create new library
 
-   @param payload with which to update Library record.
+   @param jsonapiPayload with which to update Library record.
    @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ADMIN, ENGINEER})
-  public Response create(Payload payload, @Context ContainerRequestContext crc) {
-    return create(crc, dao(), payload);
+  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
+    return create(crc, dao(), jsonapiPayload);
   }
 
   /**
@@ -88,15 +88,15 @@ public class LibraryEndpoint extends HubEndpoint {
   /**
    Update one library
 
-   @param payload with which to update Library record.
+   @param jsonapiPayload with which to update Library record.
    @return Response
    */
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ADMIN, ENGINEER})
-  public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, payload);
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+    return update(crc, dao(), id, jsonapiPayload);
   }
 
   /**

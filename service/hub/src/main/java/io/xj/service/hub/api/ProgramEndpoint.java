@@ -8,10 +8,10 @@ import io.xj.Program;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.jsonapi.PayloadFactory;
-import io.xj.lib.jsonapi.PayloadObject;
+import io.xj.lib.jsonapi.JsonapiPayloadObject;
 import io.xj.lib.util.CSV;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.access.HubAccess;
@@ -84,7 +84,7 @@ public class ProgramEndpoint extends HubEndpoint {
   ) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      Payload payload = new Payload().setDataType(PayloadDataType.Many);
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
       Collection<Program> programs;
 
       // how we source programs depends on the query parameters
@@ -96,20 +96,20 @@ public class ProgramEndpoint extends HubEndpoint {
         programs = dao().readMany(hubAccess);
 
       // add programs as plural data in payload
-      for (Program program : programs) payload.addData(payloadFactory.toPayloadObject(program));
+      for (Program program : programs) jsonapiPayload.addData(payloadFactory.toPayloadObject(program));
       Set<String> programIds = Entities.idsOf(programs);
 
       // if detailed, add Program Memes
       if (Objects.nonNull(detailed) && detailed)
-        payload.addAllToIncluded(payloadFactory.toPayloadObjects(
+        jsonapiPayload.addAllToIncluded(payloadFactory.toPayloadObjects(
           programMemeDAO.readMany(hubAccess, programIds)));
 
       // if detailed, add Program Sequence Binding Memes
       if (Objects.nonNull(detailed) && detailed)
-        payload.addAllToIncluded(payloadFactory.toPayloadObjects(
+        jsonapiPayload.addAllToIncluded(payloadFactory.toPayloadObjects(
           programSequenceBindingMemeDAO.readMany(hubAccess, programIds)));
 
-      return response.ok(payload);
+      return response.ok(jsonapiPayload);
 
     } catch (Exception e) {
       return response.failure(e);
@@ -119,36 +119,36 @@ public class ProgramEndpoint extends HubEndpoint {
   /**
    Create new program
 
-   @param payload with which to update Program record.
+   @param jsonapiPayload with which to update Program record.
    @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
   public Response create(
-    Payload payload,
+    JsonapiPayload jsonapiPayload,
     @Context ContainerRequestContext crc,
     @QueryParam("cloneId") String cloneId
   ) {
 
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      Program program = payloadFactory.consume(dao().newInstance(), payload);
-      Payload responsePayload = new Payload();
+      Program program = payloadFactory.consume(dao().newInstance(), jsonapiPayload);
+      JsonapiPayload responseJsonapiPayload = new JsonapiPayload();
       if (Objects.nonNull(cloneId)) {
         DAOCloner<Program> cloner = dao().clone(hubAccess, cloneId, program);
-        responsePayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
-        List<PayloadObject> list = new ArrayList<>();
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(cloner.getClone()));
+        List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : cloner.getChildClones()) {
-          PayloadObject payloadObject = payloadFactory.toPayloadObject(entity);
-          list.add(payloadObject);
+          JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
+          list.add(jsonapiPayloadObject);
         }
-        responsePayload.setIncluded(list);
+        responseJsonapiPayload.setIncluded(list);
       } else {
-        responsePayload.setDataOne(payloadFactory.toPayloadObject(dao().create(hubAccess, program)));
+        responseJsonapiPayload.setDataOne(payloadFactory.toPayloadObject(dao().create(hubAccess, program)));
       }
 
-      return response.create(responsePayload);
+      return response.create(responseJsonapiPayload);
 
     } catch (Exception e) {
       return response.notAcceptable(e);
@@ -168,20 +168,20 @@ public class ProgramEndpoint extends HubEndpoint {
       HubAccess hubAccess = HubAccess.fromContext(crc);
       String uuid = String.valueOf(id);
 
-      Payload payload = new Payload().setDataOne(payloadFactory.toPayloadObject(dao().readOne(hubAccess, uuid)));
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(dao().readOne(hubAccess, uuid)));
 
       // optionally specify a CSV of included types to read
       if (Objects.nonNull(include)) {
-        List<PayloadObject> list = new ArrayList<>();
+        List<JsonapiPayloadObject> list = new ArrayList<>();
         for (Object entity : dao().readChildEntities(hubAccess, ImmutableList.of(uuid), CSV.split(include))) {
-          PayloadObject payloadObject = payloadFactory.toPayloadObject(entity);
-          list.add(payloadObject);
+          JsonapiPayloadObject jsonapiPayloadObject = payloadFactory.toPayloadObject(entity);
+          list.add(jsonapiPayloadObject);
         }
-        payload.setIncluded(
+        jsonapiPayload.setIncluded(
           list);
       }
 
-      return response.ok(payload);
+      return response.ok(jsonapiPayload);
 
     } catch (DAOException ignored) {
       return response.notFound(dao.newInstance().getClass(), String.valueOf(id));
@@ -194,15 +194,15 @@ public class ProgramEndpoint extends HubEndpoint {
   /**
    Update one program
 
-   @param payload with which to update Program record.
+   @param jsonapiPayload with which to update Program record.
    @return Response
    */
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, payload);
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+    return update(crc, dao(), id, jsonapiPayload);
   }
 
   /**

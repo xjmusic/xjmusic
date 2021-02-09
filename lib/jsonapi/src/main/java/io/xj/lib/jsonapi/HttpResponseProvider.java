@@ -16,10 +16,10 @@ public interface HttpResponseProvider {
   /**
    Return a response having read successfully
 
-   @param payload of content that was read
+   @param jsonapiPayload of content that was read
    @return response
    */
-  Response create(Payload payload);
+  Response create(JsonapiPayload jsonapiPayload);
 
   /**
    Respond with a temporary redirect.
@@ -137,10 +137,10 @@ public interface HttpResponseProvider {
   /**
    Return a response having read successfully
 
-   @param payload of content that was read
+   @param jsonapiPayload of content that was read
    @return response
    */
-  Response ok(Payload payload);
+  Response ok(JsonapiPayload jsonapiPayload);
 
   /**
    Return a response having read successfully

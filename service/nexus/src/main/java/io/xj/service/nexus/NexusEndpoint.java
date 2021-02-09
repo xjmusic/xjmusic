@@ -6,7 +6,7 @@ import com.google.inject.Inject;
 import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
 import io.xj.lib.jsonapi.HttpResponseProvider;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.client.HubClientAccess;
@@ -55,16 +55,16 @@ public class NexusEndpoint {
 
    @param crc     request context
    @param dao     via which to of Entity
-   @param payload of data to of Entity
+   @param jsonapiPayload of data to of Entity
    @param <N>     type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends MessageLite> Response create(ContainerRequestContext crc, DAO<N> dao, Payload payload) {
+  public <N extends MessageLite> Response create(ContainerRequestContext crc, DAO<N> dao, JsonapiPayload jsonapiPayload) {
     try {
       HubClientAccess hubClientAccess = HubClientAccess.fromContext(crc);
-      N createdEntity = dao.create(hubClientAccess, payloadFactory.consume(dao.newInstance(), payload));
+      N createdEntity = dao.create(hubClientAccess, payloadFactory.consume(dao.newInstance(), jsonapiPayload));
 
-      Payload responseData = new Payload();
+      JsonapiPayload responseData = new JsonapiPayload();
       responseData.setDataOne(payloadFactory.toPayloadObject(createdEntity));
       return response.create(responseData);
 
@@ -85,9 +85,9 @@ public class NexusEndpoint {
   public <N extends MessageLite> Response readOne(ContainerRequestContext crc, DAO<N> dao, Object id) {
     try {
       Object entity = dao.readOne(HubClientAccess.fromContext(crc), String.valueOf(id));
-      Payload payload = new Payload();
-      payload.setDataOne(payloadFactory.toPayloadObject(entity));
-      return response.ok(payload);
+      JsonapiPayload jsonapiPayload = new JsonapiPayload();
+      jsonapiPayload.setDataOne(payloadFactory.toPayloadObject(entity));
+      return response.ok(jsonapiPayload);
 
     } catch (DAOExistenceException | DAOFatalException | DAOPrivilegeException ignored) {
       return response.notFound(dao.newInstance().getClass(), String.valueOf(id));
@@ -109,10 +109,10 @@ public class NexusEndpoint {
   public <N extends MessageLite, O> Response readMany(ContainerRequestContext crc, DAO<N> dao, Collection<O> parentIds) {
     try {
       Collection<N> entities = dao.readMany(HubClientAccess.fromContext(crc), parentIds.stream().map((Function<Object, String>) String::valueOf).collect(Collectors.toList()));
-      Payload payload = new Payload();
-      payload.setDataType(PayloadDataType.Many);
-      for (N entity : entities) payload.addData(payloadFactory.toPayloadObject(entity));
-      return response.ok(payload);
+      JsonapiPayload jsonapiPayload = new JsonapiPayload();
+      jsonapiPayload.setDataType(PayloadDataType.Many);
+      for (N entity : entities) jsonapiPayload.addData(payloadFactory.toPayloadObject(entity));
+      return response.ok(jsonapiPayload);
 
     } catch (Exception e) {
       return response.failure(e);
@@ -141,17 +141,17 @@ public class NexusEndpoint {
    @param crc     request context
    @param dao     via which to read one Entity
    @param id      of Entity to read
-   @param payload of data to update
+   @param jsonapiPayload of data to update
    @param <N>     type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends MessageLite> Response update(ContainerRequestContext crc, DAO<N> dao, String id, Payload payload) {
+  public <N extends MessageLite> Response update(ContainerRequestContext crc, DAO<N> dao, String id, JsonapiPayload jsonapiPayload) {
     try {
       HubClientAccess hubClientAccess = HubClientAccess.fromContext(crc);
       N current = dao.readOne(hubClientAccess, id);
-      payloadFactory.consume(current, payload);
+      payloadFactory.consume(current, jsonapiPayload);
       dao.update(hubClientAccess, id, current);
-      return response.ok(new Payload().setDataOne(payloadFactory.toPayloadObject(current)));
+      return response.ok(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(current)));
 
     } catch (Exception e) {
       return response.notAcceptable(e);

@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.JsonApiException;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
@@ -63,20 +63,20 @@ public class IngestEndpoint extends HubEndpoint {
   ) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      Payload payload = payloadFactory.newPayload();
+      JsonapiPayload jsonapiPayload = payloadFactory.newJsonapiPayload();
       HubIngest ingest = ingestFactory.ingest(hubAccess, libraryIds, programIds, instrumentIds);
-      payload.setDataType(PayloadDataType.Many);
+      jsonapiPayload.setDataType(PayloadDataType.Many);
       ingest.getAllEntities().forEach(entity -> {
         try {
-          payload.addData(payloadFactory.toPayloadObject(entity));
+          jsonapiPayload.addData(payloadFactory.toPayloadObject(entity));
         } catch (JsonApiException e) {
           log.error("Failed to ingest entity: {}", entity, e);
-          payload.addError(payloadFactory.newPayloadError()
+          jsonapiPayload.addError(payloadFactory.newPayloadError()
             .setCode("IngestFailure").setTitle("Failed to ingest entity").setDetail(e.getMessage()));
         }
       });
 
-      return response.ok(payload);
+      return response.ok(jsonapiPayload);
     } catch (Exception e) {
       return response.failure(e);
     }

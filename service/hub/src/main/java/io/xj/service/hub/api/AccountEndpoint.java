@@ -6,7 +6,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.dao.AccountDAO;
@@ -58,14 +58,14 @@ public class AccountEndpoint extends HubEndpoint {
   /**
    Create new account
 
-   @param payload comprising new entities
+   @param jsonapiPayload comprising new entities
    @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ADMIN)
-  public Response create(Payload payload, @Context ContainerRequestContext crc) {
-    return create(crc, dao(), payload);
+  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
+    return create(crc, dao(), jsonapiPayload);
   }
 
   /**
@@ -83,15 +83,15 @@ public class AccountEndpoint extends HubEndpoint {
   /**
    Update one account
 
-   @param payload comprising updated entities
+   @param jsonapiPayload comprising updated entities
    @return Response
    */
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ADMIN)
-  public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, payload);
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+    return update(crc, dao(), id, jsonapiPayload);
   }
 
   /**

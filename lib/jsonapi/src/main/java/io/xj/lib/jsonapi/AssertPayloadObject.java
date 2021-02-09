@@ -18,26 +18,26 @@ import static io.xj.lib.util.Assert.assertTrue;
  Created by Charney Kaye on 2020/03/05
  */
 public class AssertPayloadObject {
-  private final PayloadObject payloadObject;
+  private final JsonapiPayloadObject jsonapiPayloadObject;
 
   /**
    of instance of payloadObject assertion utility object
 
-   @param payloadObject to make assertions on
+   @param jsonapiPayloadObject to make assertions on
    */
-  public AssertPayloadObject(PayloadObject payloadObject) {
-    this.payloadObject = payloadObject;
+  public AssertPayloadObject(JsonapiPayloadObject jsonapiPayloadObject) {
+    this.jsonapiPayloadObject = jsonapiPayloadObject;
   }
 
   /**
    of instance of payloadObject assertion utility object of JSON string
 
-   @param payloadObject to parse
+   @param jsonapiPayloadObject to parse
    @return payloadObject assertion utility
    @throws IOException on failure to parse JSON
    */
-  public static AssertPayloadObject assertPayloadObject(PayloadObject payloadObject) throws IOException {
-    return new AssertPayloadObject(payloadObject);
+  public static AssertPayloadObject assertPayloadObject(JsonapiPayloadObject jsonapiPayloadObject) throws IOException {
+    return new AssertPayloadObject(jsonapiPayloadObject);
   }
 
   /**
@@ -50,8 +50,8 @@ public class AssertPayloadObject {
    */
   public AssertPayloadObject belongsTo(Class<?> type, String id) throws JsonApiException, ValueException {
     String key = Entities.toBelongsTo(type);
-    assertTrue(String.format("Belongs to %s id=%s", type, id), payloadObject.getRelationships().containsKey(key));
-    new AssertPayload(payloadObject.getRelationships().get(key))
+    assertTrue(String.format("Belongs to %s id=%s", type, id), jsonapiPayloadObject.getRelationships().containsKey(key));
+    new AssertPayload(jsonapiPayloadObject.getRelationships().get(key))
       .hasDataOne(Entities.toType(type), id);
     return this;
   }
@@ -67,8 +67,8 @@ public class AssertPayloadObject {
   public AssertPayloadObject belongsTo(String type, String id) throws JsonApiException {
     try {
       String key = Entities.toBelongsTo(type);
-      assertTrue(String.format("Belongs to %s id=%s", type, id), payloadObject.getRelationships().containsKey(key));
-      new AssertPayload(payloadObject.getRelationships().get(key))
+      assertTrue(String.format("Belongs to %s id=%s", type, id), jsonapiPayloadObject.getRelationships().containsKey(key));
+      new AssertPayload(jsonapiPayloadObject.getRelationships().get(key))
         .hasDataOne(Entities.toType(type), id);
       return this;
 
@@ -86,8 +86,8 @@ public class AssertPayloadObject {
   public <N> AssertPayloadObject belongsTo(N resource) throws JsonApiException {
     try {
       String key = Entities.toBelongsTo(resource);
-      assertTrue(String.format("Belongs to %s id=%s", Entities.toType(resource), Entities.getId(resource)), payloadObject.getRelationships().containsKey(key));
-      new AssertPayload(payloadObject.getRelationships().get(key))
+      assertTrue(String.format("Belongs to %s id=%s", Entities.toType(resource), Entities.getId(resource)), jsonapiPayloadObject.getRelationships().containsKey(key));
+      new AssertPayload(jsonapiPayloadObject.getRelationships().get(key))
         .hasDataOne(resource);
       return this;
 
@@ -117,13 +117,13 @@ public class AssertPayloadObject {
   public <N> AssertPayloadObject hasMany(String type, Collection<N> resources) throws JsonApiException {
     try {
       String key = Entities.toHasMany(type);
-      assertTrue(String.format("Has relationship %s", key), payloadObject.getRelationships().containsKey(key));
+      assertTrue(String.format("Has relationship %s", key), jsonapiPayloadObject.getRelationships().containsKey(key));
       List<String> list = new ArrayList<>();
       for (N resource : resources) {
         String resourceId = Entities.getId(resource);
         list.add(resourceId);
       }
-      new AssertPayload(payloadObject.getRelationships().get(key))
+      new AssertPayload(jsonapiPayloadObject.getRelationships().get(key))
         .hasDataMany(Entities.toType(type), list);
       return this;
 

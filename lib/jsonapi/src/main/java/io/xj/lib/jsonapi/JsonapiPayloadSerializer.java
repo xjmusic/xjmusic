@@ -15,48 +15,48 @@ import java.io.IOException;
  Much of the complexity of serializing and deserializing stems of the fact that
  the JSON:API standard uses a data object for One record, and a data array for Many records.
  */
-public class PayloadSerializer extends StdSerializer<Payload> {
+public class JsonapiPayloadSerializer extends StdSerializer<JsonapiPayload> {
 
-  public PayloadSerializer() {
+  public JsonapiPayloadSerializer() {
     this(null);
   }
 
-  public PayloadSerializer(Class<Payload> t) {
+  public JsonapiPayloadSerializer(Class<JsonapiPayload> t) {
     super(t);
   }
 
   @Override
-  public void serialize(Payload value, JsonGenerator json, SerializerProvider provider)
+  public void serialize(JsonapiPayload value, JsonGenerator json, SerializerProvider provider)
     throws IOException {
 
     json.writeStartObject();
 
     // Add data (one or many) if present
     if (PayloadDataType.One == value.getDataType() && value.getDataOne().isPresent())
-      json.writeObjectField(Payload.KEY_DATA, value.getDataOne().get());
+      json.writeObjectField(JsonapiPayload.KEY_DATA, value.getDataOne().get());
 
     if (PayloadDataType.Many == value.getDataType()) {
-      json.writeArrayFieldStart(Payload.KEY_DATA);
-      for (PayloadObject dataItem : value.getDataMany())
+      json.writeArrayFieldStart(JsonapiPayload.KEY_DATA);
+      for (JsonapiPayloadObject dataItem : value.getDataMany())
         json.writeObject(dataItem);
       json.writeEndArray();
     }
 
     // Add links if present
     if (!value.getLinks().isEmpty())
-      json.writeObjectField(Payload.KEY_LINKS, value.getLinks());
+      json.writeObjectField(JsonapiPayload.KEY_LINKS, value.getLinks());
 
     // Add included if present
     if (!value.getIncluded().isEmpty()) {
-      json.writeArrayFieldStart(Payload.KEY_INCLUDED);
-      for (PayloadObject dataItem : value.getIncluded())
+      json.writeArrayFieldStart(JsonapiPayload.KEY_INCLUDED);
+      for (JsonapiPayloadObject dataItem : value.getIncluded())
         json.writeObject(dataItem);
       json.writeEndArray();
     }
 
     // Add error if present
     if (!value.getErrors().isEmpty()) {
-      json.writeArrayFieldStart(Payload.KEY_ERRORS);
+      json.writeArrayFieldStart(JsonapiPayload.KEY_ERRORS);
       for (PayloadError dataItem : value.getErrors())
         json.writeObject(dataItem);
       json.writeEndArray();

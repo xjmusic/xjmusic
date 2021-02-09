@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.xj.ProgramSequence;
@@ -26,7 +25,7 @@ import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
  <p>
  Created by Charney Kaye on 2020/03/09
  */
-public class PayloadDeserializerTest {
+public class JsonapiJsonapiPayloadDeserializerTest {
   private PayloadFactory payloadFactory;
 
   @Before
@@ -42,7 +41,7 @@ public class PayloadDeserializerTest {
 
   @Test
   public void deserializeOneIncludingEmbeddedEntities() throws IOException, JsonApiException {
-    Payload result = payloadFactory.deserialize(readResourceFile("payload/deserializeOneIncludingEmbeddedEntities.json"));
+    JsonapiPayload result = payloadFactory.deserialize(readResourceFile("payload/deserializeOneIncludingEmbeddedEntities.json"));
 
     assertPayload(result)
       .hasDataOne("programs", "805cf759-4e94-4275-a82d-5255c9e69347")
@@ -52,7 +51,7 @@ public class PayloadDeserializerTest {
 
   @Test
   public void deserializeOneWithRelationship() throws IOException, JsonApiException {
-    Payload result = null;
+    JsonapiPayload result = null;
     try {
       result = payloadFactory.deserialize(readResourceFile("payload/deserializeOneWithRelationship.json"));
     } catch (JsonApiException e) {
@@ -66,7 +65,7 @@ public class PayloadDeserializerTest {
 
   @Test
   public void deserializeOne() throws IOException, JsonApiException {
-    Payload result = null;
+    JsonapiPayload result = null;
     try {
       result = payloadFactory.deserialize(readResourceFile("payload/deserializeOne.json"));
     } catch (JsonApiException e) {
@@ -79,7 +78,7 @@ public class PayloadDeserializerTest {
 
   @Test
   public void deserializeErrors() throws IOException, JsonApiException {
-    Payload result = null;
+    JsonapiPayload result = null;
     try {
       result = payloadFactory.deserialize(readResourceFile("payload/deserializeErrors.json"));
     } catch (JsonApiException e) {
@@ -92,7 +91,7 @@ public class PayloadDeserializerTest {
 
   @Test
   public void deserializeOneWithNullAttributeValue() throws IOException, JsonApiException {
-    Payload result = null;
+    JsonapiPayload result = null;
     try {
       result = payloadFactory.deserialize(readResourceFile("payload/deserializeOneWithNullAttributeValue.json"));
     } catch (JsonApiException e) {
@@ -105,7 +104,7 @@ public class PayloadDeserializerTest {
 
   @Test
   public void deserializeMany() throws IOException, JsonApiException {
-    Payload result = null;
+    JsonapiPayload result = null;
     try {
       result = payloadFactory.deserialize(readResourceFile("payload/deserializeMany.json"));
     } catch (JsonApiException e) {
@@ -120,7 +119,7 @@ public class PayloadDeserializerTest {
   public void deserializeMany_emptyTypeHasMany() throws JsonApiException {
     String json = "{\"data\":[]}";
 
-    Payload result = null;
+    JsonapiPayload result = null;
     try {
       result = payloadFactory.deserialize(json);
     } catch (JsonApiException e) {
@@ -135,7 +134,7 @@ public class PayloadDeserializerTest {
   public void deserializeOne_nullDataSetsTypeToHasOne() throws JsonApiException {
     String json = "{\"data\":null}";
 
-    Payload result = null;
+    JsonapiPayload result = null;
     try {
       result = payloadFactory.deserialize(json);
     } catch (JsonApiException e) {
@@ -170,7 +169,7 @@ public class PayloadDeserializerTest {
    @throws FileNotFoundException if resource does not exist
    */
   private File resourceFile(String filePath) throws FileNotFoundException {
-    ClassLoader classLoader = PayloadDeserializerTest.class.getClassLoader();
+    ClassLoader classLoader = JsonapiJsonapiPayloadDeserializerTest.class.getClassLoader();
     URL resource = classLoader.getResource(filePath);
     if (Objects.isNull(resource))
       throw new FileNotFoundException(String.format("Failed to load resource: %s", filePath));

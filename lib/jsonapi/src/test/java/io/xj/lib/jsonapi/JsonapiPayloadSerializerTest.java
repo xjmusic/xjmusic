@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.xj.Program;
@@ -22,7 +21,7 @@ import static org.junit.Assert.assertFalse;
  <p>
  Created by Charney Kaye on 2020/03/09
  */
-public class PayloadSerializerTest {
+public class JsonapiPayloadSerializerTest {
   private PayloadFactory payloadFactory;
   private EntityFactory entityFactory;
 
@@ -45,9 +44,9 @@ public class PayloadSerializerTest {
       .setId(UUID.randomUUID().toString())
       .setName("test_print")
       .build();
-    Payload payload = payloadFactory.setDataEntity(payloadFactory.newPayload(), program);
+    JsonapiPayload jsonapiPayload = payloadFactory.setDataEntity(payloadFactory.newJsonapiPayload(), program);
 
-    String result = payloadFactory.serialize(payload);
+    String result = payloadFactory.serialize(jsonapiPayload);
 
     AssertPayload.assertPayload(payloadFactory.deserialize(result))
       .hasDataOne("programs", program.getId());
@@ -55,14 +54,14 @@ public class PayloadSerializerTest {
 
   @Test
   public void serializeOne() throws JsonApiException {
-    Payload payload = payloadFactory.newPayload();
+    JsonapiPayload jsonapiPayload = payloadFactory.newJsonapiPayload();
     Program library = Program.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("Test Program")
       .build();
-    payloadFactory.setDataEntity(payload, library);
+    payloadFactory.setDataEntity(jsonapiPayload, library);
 
-    String result = payloadFactory.serialize(payload);
+    String result = payloadFactory.serialize(jsonapiPayload);
 
     AssertPayload.assertPayload(payloadFactory.deserialize(result))
       .hasDataOne("programs", library.getId());
@@ -72,7 +71,7 @@ public class PayloadSerializerTest {
   public void serializeOne_withBelongsTo() throws JsonApiException {
     entityFactory.register("Library");
     entityFactory.register("Program").belongsTo("Library");
-    Payload payload = payloadFactory.newPayload();
+    JsonapiPayload jsonapiPayload = payloadFactory.newJsonapiPayload();
     Program library = Program.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("y")
@@ -82,9 +81,9 @@ public class PayloadSerializerTest {
       .setLibraryId(library.getId())
       .setName("x")
       .build();
-    payloadFactory.setDataEntity(payload, program);
+    payloadFactory.setDataEntity(jsonapiPayload, program);
 
-    String result = payloadFactory.serialize(payload);
+    String result = payloadFactory.serialize(jsonapiPayload);
 
     AssertPayload.assertPayload(payloadFactory.deserialize(result))
       .hasDataOne("programs", program.getId())
@@ -98,15 +97,15 @@ public class PayloadSerializerTest {
   public void serializeOne_withBelongsTo_empty() throws JsonApiException {
     entityFactory.register("Library");
     entityFactory.register("Program").belongsTo("Library");
-    Payload payload = payloadFactory.newPayload();
+    JsonapiPayload jsonapiPayload = payloadFactory.newJsonapiPayload();
     Program program = Program.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setLibraryId("")
       .setName("x")
       .build();
-    payloadFactory.setDataEntity(payload, program);
+    payloadFactory.setDataEntity(jsonapiPayload, program);
 
-    String result = payloadFactory.serialize(payload);
+    String result = payloadFactory.serialize(jsonapiPayload);
 
     assertFalse(result.contains("libraries"));
   }
@@ -133,22 +132,22 @@ public class PayloadSerializerTest {
       .setLibraryId(program1.getId())
       .setName("c")
       .build();
-    PayloadObject mainObj = payloadFactory.toPayloadObject(program1, ImmutableSet.of(program2, program3));
-    Payload payload = payloadFactory.newPayload().setDataOne(mainObj);
-    payloadFactory.addIncluded(payload, payloadFactory.toPayloadObject(program2));
-    payloadFactory.addIncluded(payload, payloadFactory.toPayloadObject(program3));
+    JsonapiPayloadObject mainObj = payloadFactory.toPayloadObject(program1, ImmutableSet.of(program2, program3));
+    JsonapiPayload jsonapiPayload = payloadFactory.newJsonapiPayload().setDataOne(mainObj);
+    payloadFactory.addIncluded(jsonapiPayload, payloadFactory.toPayloadObject(program2));
+    payloadFactory.addIncluded(jsonapiPayload, payloadFactory.toPayloadObject(program3));
 
-    String result = payloadFactory.serialize(payload);
+    String result = payloadFactory.serialize(jsonapiPayload);
 
-    Payload resultPayload = payloadFactory.deserialize(result);
-    AssertPayload.assertPayload(resultPayload)
+    JsonapiPayload resultJsonapiPayload = payloadFactory.deserialize(result);
+    AssertPayload.assertPayload(resultJsonapiPayload)
       .hasIncluded("programs", ImmutableList.of(program2, program3))
       .hasDataOne("programs", program1.getId());
   }
 
   @Test
   public void serializeMany() throws JsonApiException {
-    Payload payload = payloadFactory.newPayload();
+    JsonapiPayload jsonapiPayload = payloadFactory.newJsonapiPayload();
     Program accountA = Program.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("Test Program A")
@@ -161,9 +160,9 @@ public class PayloadSerializerTest {
       .setId(UUID.randomUUID().toString())
       .setName("Test Program C")
       .build();
-    payloadFactory.setDataEntities(payload, ImmutableList.of(accountA, accountB, accountC));
+    payloadFactory.setDataEntities(jsonapiPayload, ImmutableList.of(accountA, accountB, accountC));
 
-    String result = payloadFactory.serialize(payload);
+    String result = payloadFactory.serialize(jsonapiPayload);
 
     AssertPayload.assertPayload(payloadFactory.deserialize(result))
       .hasDataMany("programs", ImmutableList.of(

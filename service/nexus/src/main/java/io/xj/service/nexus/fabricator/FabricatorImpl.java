@@ -106,7 +106,6 @@ class FabricatorImpl implements Fabricator {
   private Segment.Type type;
   private final String workTempFilePathPrefix;
   private final DecimalFormat segmentNameFormat;
-  private final PayloadFactory payloadFactory;
   private final ChainConfig chainConfig;
   private final SegmentDAO segmentDAO;
   private final FabricatorFactory fabricatorFactory;
@@ -114,6 +113,7 @@ class FabricatorImpl implements Fabricator {
   private final Map<String, Collection<Note>> voicingNotesForSegmentChordInstrumentType = Maps.newHashMap();
   private final Map<Instrument.Type, NoteRange> voicingNoteRange = Maps.newHashMap();
   private final Map<String, Collection<InstrumentAudioEvent>> firstEventsOfAudiosOfInstrument = Maps.newHashMap();
+  private final PayloadFactory payloadFactory;
 
   @AssistedInject
   public FabricatorImpl(
@@ -125,17 +125,17 @@ class FabricatorImpl implements Fabricator {
     ChainBindingDAO chainBindingDAO,
     FileStoreProvider fileStoreProvider,
     FabricatorFactory fabricatorFactory,
-    PayloadFactory payloadFactory,
-    SegmentDAO segmentDAO
+    SegmentDAO segmentDAO,
+    PayloadFactory payloadFactory
   ) throws FabricationException {
     this.segmentDAO = segmentDAO;
+    this.payloadFactory = payloadFactory;
     try {
       // FUTURE: [#165815496] Chain fabrication access control
       this.access = access;
       log.info("[segId={}] HubClientAccess {}", segment.getId(), access);
 
       this.fileStoreProvider = fileStoreProvider;
-      this.payloadFactory = payloadFactory;
       this.fabricatorFactory = fabricatorFactory;
 
       this.config = config;
@@ -714,7 +714,7 @@ class FabricatorImpl implements Fabricator {
   @Override
   public String getResultMetadataJson() throws FabricationException {
     try {
-      return payloadFactory.serialize(payloadFactory.newPayload()
+      return payloadFactory.serialize(payloadFactory.newJsonapiPayload()
         .setDataOne(payloadFactory.toPayloadObject(workbench.getSegment()))
         .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentArrangements()))
         .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChoices()))

@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
 import io.xj.service.hub.dao.ProgramSequenceBindingDAO;
@@ -47,14 +47,14 @@ public class ProgramSequenceBindingEndpoint extends HubEndpoint {
   /**
    Create new programSequence binding
 
-   @param payload with which to of ProgramSequence Binding
+   @param jsonapiPayload with which to of ProgramSequence Binding
    @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ARTIST})
-  public Response create(Payload payload, @Context ContainerRequestContext crc) {
-    return create(crc, dao(), payload);
+  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
+    return create(crc, dao(), jsonapiPayload);
   }
 
   /**
@@ -83,15 +83,15 @@ public class ProgramSequenceBindingEndpoint extends HubEndpoint {
   /**
    Update one ProgramSequenceBinding
 
-   @param payload with which to update record.
+   @param jsonapiPayload with which to update record.
    @return Response
    */
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, payload);
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+    return update(crc, dao(), id, jsonapiPayload);
   }
 
   /**

@@ -8,7 +8,7 @@ import io.xj.InstrumentAudio;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.HubEndpoint;
@@ -64,23 +64,23 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
   /**
    Create new instrumentAudio binding
 
-   @param payload with which to of InstrumentAudio Binding
+   @param jsonapiPayload with which to of InstrumentAudio Binding
    @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ARTIST})
-  public Response create(Payload payload, @Context ContainerRequestContext crc, @QueryParam("cloneId") String cloneId) {
+  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @QueryParam("cloneId") String cloneId) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      var instrumentAudio = payloadFactory.consume(dao().newInstance(), payload);
+      var instrumentAudio = payloadFactory.consume(dao().newInstance(), jsonapiPayload);
       InstrumentAudio created;
       if (Objects.nonNull(cloneId))
         created = dao().clone(hubAccess, cloneId, instrumentAudio);
       else
         created = dao().create(hubAccess, instrumentAudio);
 
-      return response.create(new Payload().setDataOne(payloadFactory.toPayloadObject(created)));
+      return response.create(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(created)));
 
     } catch (Exception e) {
       return response.notAcceptable(e);
@@ -140,26 +140,26 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
   ) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      Payload payload = new Payload().setDataType(PayloadDataType.Many);
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
       Collection<InstrumentAudio> instrumentAudios = dao.readMany(HubAccess.fromContext(crc), ImmutableList.of(instrumentId));
       Set<String> instrumentAudioIds = Entities.idsOf(instrumentAudios);
 
       // add instrumentAudios as plural data in payload
       for (InstrumentAudio instrumentAudio : instrumentAudios)
-        payload.addData(payloadFactory.toPayloadObject(instrumentAudio));
+        jsonapiPayload.addData(payloadFactory.toPayloadObject(instrumentAudio));
 
       // if included, seek and add events to payload
       if (Objects.nonNull(detailed) && detailed)
-        payload.addAllToIncluded(payloadFactory.toPayloadObjects(
+        jsonapiPayload.addAllToIncluded(payloadFactory.toPayloadObjects(
           instrumentAudioEventDAO.readMany(hubAccess, instrumentAudioIds)));
 
       // if included, seek and add chords to payload
       if (Objects.nonNull(detailed) && detailed)
-        payload.addAllToIncluded(payloadFactory.toPayloadObjects(
+        jsonapiPayload.addAllToIncluded(payloadFactory.toPayloadObjects(
           instrumentAudioChordDAO.readMany(hubAccess, instrumentAudioIds)));
 
       // ok
-      return response.ok(payload);
+      return response.ok(jsonapiPayload);
 
     } catch (Exception e) {
       return response.failure(e);
@@ -169,15 +169,15 @@ public class InstrumentAudioEndpoint extends HubEndpoint {
   /**
    Update one instrumentAudio
 
-   @param payload with which to update InstrumentAudio record.
+   @param jsonapiPayload with which to update InstrumentAudio record.
    @return Response
    */
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return update(crc, dao(), id, payload);
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+    return update(crc, dao(), id, jsonapiPayload);
   }
 
   /**

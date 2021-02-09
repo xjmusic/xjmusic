@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.xj.Program;
@@ -27,8 +26,8 @@ import static org.junit.Assert.assertTrue;
  <p>
  Created by Charney Kaye on 2020/03/09
  */
-public class PayloadTest {
-  private Payload subject;
+public class JsonapiPayloadTest {
+  private JsonapiPayload subject;
   private PayloadFactory payloadFactory;
 
   @Before
@@ -42,7 +41,7 @@ public class PayloadTest {
     var entityFactory = injector.getInstance(EntityFactory.class);
     payloadFactory = injector.getInstance(PayloadFactory.class);
     entityFactory.register(Program.class);
-    subject = payloadFactory.newPayload();
+    subject = payloadFactory.newJsonapiPayload();
   }
 
   @Test
@@ -73,12 +72,12 @@ public class PayloadTest {
 
   @Test
   public void isEmpty_falseAfterSetData_one() {
-    assertFalse(subject.setDataOne(new PayloadObject()).isEmpty());
+    assertFalse(subject.setDataOne(new JsonapiPayloadObject()).isEmpty());
   }
 
   @Test
   public void isEmpty_falseAfterSetData_many() {
-    assertFalse(subject.setDataMany(ImmutableList.of(new PayloadObject())).isEmpty());
+    assertFalse(subject.setDataMany(ImmutableList.of(new JsonapiPayloadObject())).isEmpty());
   }
 
   @Test
@@ -88,7 +87,7 @@ public class PayloadTest {
 
   @Test
   public void isEmpty_falseAfterAddData() {
-    assertFalse(subject.addData(new PayloadObject()).isEmpty());
+    assertFalse(subject.addData(new JsonapiPayloadObject()).isEmpty());
   }
 
   @Test
@@ -116,17 +115,17 @@ public class PayloadTest {
 
   @Test
   public void type_hasOne_afterSetData_one() {
-    assertEquals(PayloadDataType.One, subject.setDataOne(new PayloadObject()).getDataType());
+    assertEquals(PayloadDataType.One, subject.setDataOne(new JsonapiPayloadObject()).getDataType());
   }
 
   @Test
   public void type_hasMany_afterSetData_many() {
-    assertEquals(PayloadDataType.Many, subject.setDataMany(ImmutableList.of(new PayloadObject())).getDataType());
+    assertEquals(PayloadDataType.Many, subject.setDataMany(ImmutableList.of(new JsonapiPayloadObject())).getDataType());
   }
 
   @Test
   public void type_hasMany_afterAddData() {
-    assertEquals(PayloadDataType.Many, subject.addData(new PayloadObject()).getDataType());
+    assertEquals(PayloadDataType.Many, subject.addData(new JsonapiPayloadObject()).getDataType());
   }
 
   @Test
@@ -136,22 +135,22 @@ public class PayloadTest {
 
   @Test
   public void addIncluded() throws JsonApiException {
-    assertEquals(1, payloadFactory.addIncluded(subject, new PayloadObject()).getIncluded().size());
+    assertEquals(1, payloadFactory.addIncluded(subject, new JsonapiPayloadObject()).getIncluded().size());
   }
 
   @Test
   public void setIncluded() {
-    assertEquals(1, subject.setIncluded(ImmutableList.of(new PayloadObject())).getIncluded().size());
+    assertEquals(1, subject.setIncluded(ImmutableList.of(new JsonapiPayloadObject())).getIncluded().size());
   }
 
   @Test
   public void addToIncluded() {
-    assertEquals(1, subject.addToIncluded(new PayloadObject()).getIncluded().size());
+    assertEquals(1, subject.addToIncluded(new JsonapiPayloadObject()).getIncluded().size());
   }
 
   @Test
   public void addAllToIncluded() {
-    assertEquals(2, subject.addAllToIncluded(ImmutableList.of(new PayloadObject(), new PayloadObject())).getIncluded().size());
+    assertEquals(2, subject.addAllToIncluded(ImmutableList.of(new JsonapiPayloadObject(), new JsonapiPayloadObject())).getIncluded().size());
   }
 
   /**

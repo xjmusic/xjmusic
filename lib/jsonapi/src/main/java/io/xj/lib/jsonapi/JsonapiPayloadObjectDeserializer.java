@@ -23,34 +23,34 @@ import java.util.Objects;
  Much of the complexity of serializing and deserializing stems of the fact that
  the JSON:API standard uses a data object for One record, and a data array for Many records.
  */
-public class PayloadObjectDeserializer extends StdDeserializer<PayloadObject> {
-  final Logger log = LoggerFactory.getLogger(PayloadObjectDeserializer.class);
+public class JsonapiPayloadObjectDeserializer extends StdDeserializer<JsonapiPayloadObject> {
+  final Logger log = LoggerFactory.getLogger(JsonapiPayloadObjectDeserializer.class);
 
-  public PayloadObjectDeserializer() {
+  public JsonapiPayloadObjectDeserializer() {
     this(null);
   }
 
-  public PayloadObjectDeserializer(Class<?> vc) {
+  public JsonapiPayloadObjectDeserializer(Class<?> vc) {
     super(vc);
   }
 
   @Override
-  public PayloadObject deserialize(JsonParser jp, DeserializationContext ctxt)
+  public JsonapiPayloadObject deserialize(JsonParser jp, DeserializationContext ctxt)
     throws IOException {
     JsonNode node = jp.getCodec().readTree(jp);
-    PayloadObject obj = new PayloadObject();
+    JsonapiPayloadObject obj = new JsonapiPayloadObject();
     ObjectMapper mapper = new ObjectMapper();
 
 
-    JsonNode id = node.get(PayloadObject.KEY_ID);
+    JsonNode id = node.get(JsonapiPayloadObject.KEY_ID);
     if (Objects.nonNull(id))
       obj.setId(id.asText());
 
-    JsonNode type = node.get(PayloadObject.KEY_TYPE);
+    JsonNode type = node.get(JsonapiPayloadObject.KEY_TYPE);
     if (Objects.nonNull(type))
       obj.setType(type.asText());
 
-    JsonNode links = node.get(PayloadObject.KEY_LINKS);
+    JsonNode links = node.get(JsonapiPayloadObject.KEY_LINKS);
     if (Objects.nonNull(links) && JsonNodeType.OBJECT == links.getNodeType())
       links.forEach(includeNode -> {
         try {
@@ -60,7 +60,7 @@ public class PayloadObjectDeserializer extends StdDeserializer<PayloadObject> {
         }
       });
 
-    JsonNode attributes = node.get(PayloadObject.KEY_ATTRIBUTES);
+    JsonNode attributes = node.get(JsonapiPayloadObject.KEY_ATTRIBUTES);
     if (Objects.nonNull(attributes) && JsonNodeType.OBJECT == attributes.getNodeType())
       attributes.forEach(includeNode -> {
         try {
@@ -70,9 +70,9 @@ public class PayloadObjectDeserializer extends StdDeserializer<PayloadObject> {
         }
       });
 
-    JsonNode relationships = node.get(PayloadObject.KEY_RELATIONSHIPS);
+    JsonNode relationships = node.get(JsonapiPayloadObject.KEY_RELATIONSHIPS);
     if (Objects.nonNull(relationships) && JsonNodeType.OBJECT == relationships.getNodeType()) {
-      TypeReference<Map<String, Payload>> typeRef = new TypeReference<>() {
+      TypeReference<Map<String, JsonapiPayload>> typeRef = new TypeReference<>() {
       };
       obj.getRelationships().putAll(relationships.traverse(jp.getCodec()).readValueAs(typeRef));
     }

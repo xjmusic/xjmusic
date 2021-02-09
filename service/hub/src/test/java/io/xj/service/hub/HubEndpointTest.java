@@ -4,7 +4,6 @@ package io.xj.service.hub;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.xj.Account;
@@ -13,7 +12,7 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.AssertPayload;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.access.HubAccess;
@@ -65,7 +64,7 @@ public class HubEndpointTest {
   @Test
   public void create() throws JsonApiException, ValueException, DAOException {
     HubAccess hubAccess = HubAccess.internal();
-    Payload payload = payloadFactory.newPayload()
+    JsonapiPayload jsonapiPayload = payloadFactory.newJsonapiPayload()
       .setDataOne(payloadFactory.newPayloadObject()
         .setType(Account.class)
         .setAttribute("name", "test5"));
@@ -79,11 +78,11 @@ public class HubEndpointTest {
       .build();
     when(dao.create(same(hubAccess), any(Account.class))).thenReturn(createdAccount);
 
-    Response result = subject.create(crc, dao, payload);
+    Response result = subject.create(crc, dao, jsonapiPayload);
 
     verify(dao, times(1)).create(same(hubAccess), any(Account.class));
     assertEquals(201, result.getStatus());
-    Payload resultPayload = payloadFactory.deserialize(String.valueOf(result.getEntity()));
-    (new AssertPayload(resultPayload)).hasDataOne(createdAccount);
+    JsonapiPayload resultJsonapiPayload = payloadFactory.deserialize(String.valueOf(result.getEntity()));
+    (new AssertPayload(resultJsonapiPayload)).hasDataOne(createdAccount);
   }
 }

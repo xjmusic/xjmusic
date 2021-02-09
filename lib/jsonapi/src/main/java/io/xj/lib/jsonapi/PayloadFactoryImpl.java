@@ -2,9 +2,6 @@
 
 package io.xj.lib.jsonapi;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -14,11 +11,8 @@ import com.google.protobuf.MessageLite;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.InstantDeserializer;
-import io.xj.lib.entity.InstantSerializer;
 
 import java.io.BufferedReader;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -31,45 +25,42 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- Implementation of Payload Factory
+ Implementation of JSON:API
+ and a wrapper for all generic JSON ser/des
+ FUTURE: deprecate all JSON:API in favor of only generic JSON
  <p>
  Created by Charney Kaye on 2020/03/09
  */
 @Singleton
 public class PayloadFactoryImpl implements PayloadFactory {
   private final EntityFactory entityFactory;
-  private final ObjectMapper mapper = new ObjectMapper();
 
   @Inject
   PayloadFactoryImpl(
     EntityFactory entityFactory
   ) {
     this.entityFactory = entityFactory;
-    SimpleModule module = new SimpleModule();
-    module.addSerializer(Instant.class, new InstantSerializer());
-    module.addDeserializer(Instant.class, new InstantDeserializer());
-    mapper.registerModule(module);
   }
 
   @Override
-  public <N extends MessageLite> N consume(N target, Payload payload) throws JsonApiException {
-    return consume(target, extractPrimaryObject(payload, Entities.toType(target)));
+  public <N extends MessageLite> N consume(N target, JsonapiPayload jsonapiPayload) throws JsonApiException {
+    return consume(target, extractPrimaryObject(jsonapiPayload, Entities.toType(target)));
   }
 
   @Override
-  public <N extends MessageLite> N consume(N instance, PayloadObject payloadObject) throws JsonApiException {
+  public <N extends MessageLite> N consume(N instance, JsonapiPayloadObject jsonapiPayloadObject) throws JsonApiException {
     try {
       String targetType = Entities.toType(instance);
-      if (!Objects.equals(payloadObject.getType(), targetType))
-        throw new JsonApiException(String.format("Cannot set single %s-type entity create %s-type payload object!", targetType, payloadObject.getType()));
+      if (!Objects.equals(jsonapiPayloadObject.getType(), targetType))
+        throw new JsonApiException(String.format("Cannot set single %s-type entity create %s-type payload object!", targetType, jsonapiPayloadObject.getType()));
       MessageLite.Builder target = instance.toBuilder();
 
-      for (Map.Entry<String, Object> entry : payloadObject.getAttributes().entrySet())
+      for (Map.Entry<String, Object> entry : jsonapiPayloadObject.getAttributes().entrySet())
         Entities.set(target, entry.getKey(), entry.getValue());
 
       // consume all belongs-to relationships
       entityFactory.getBelongsTo(targetType).forEach(key -> {
-        Optional<PayloadObject> obj = payloadObject.getRelationshipDataOne(key);
+        Optional<JsonapiPayloadObject> obj = jsonapiPayloadObject.getRelationshipDataOne(key);
         obj.ifPresent(object -> {
           try {
             Entities.set(target, Entities.toIdAttribute(key), object.getId());
@@ -80,8 +71,8 @@ public class PayloadFactoryImpl implements PayloadFactory {
       });
 
       // consume if if set
-      if (Objects.nonNull(payloadObject.getId())) try {
-        Entities.set(target, "id", payloadObject.getId());
+      if (Objects.nonNull(jsonapiPayloadObject.getId())) try {
+        Entities.set(target, "id", jsonapiPayloadObject.getId());
       } catch (IllegalArgumentException ignored) {
         // n/a -- objects can be created without ID
       }
@@ -94,29 +85,29 @@ public class PayloadFactoryImpl implements PayloadFactory {
   }
 
   @Override
-  public <N> PayloadObject toPayloadObject(N target) throws JsonApiException {
+  public <N> JsonapiPayloadObject toPayloadObject(N target) throws JsonApiException {
     return toPayloadObject(target, ImmutableList.of());
   }
 
   @Override
-  public <N> Collection<PayloadObject> toPayloadObjects(Collection<N> targets) throws JsonApiException {
-    List<PayloadObject> list = new ArrayList<>();
+  public <N> Collection<JsonapiPayloadObject> toPayloadObjects(Collection<N> targets) throws JsonApiException {
+    List<JsonapiPayloadObject> list = new ArrayList<>();
     for (N target : targets) list.add(toPayloadObject(target));
     return list;
   }
 
   @Override
-  public <N> PayloadObject toPayloadObject(N target, Collection<N> childResources) throws JsonApiException {
+  public <N> JsonapiPayloadObject toPayloadObject(N target, Collection<N> childResources) throws JsonApiException {
     try {
       String targetType = Entities.toType(target);
-      PayloadObject obj = toPayloadReferenceObject(target);
+      JsonapiPayloadObject obj = toPayloadReferenceObject(target);
       obj.setAttributes(entityFactory.getResourceAttributes(target));
 
       // add belongs-to
       for (String s : entityFactory.getBelongsTo(targetType)) {
         Optional<Object> value = Entities.get(target, Entities.toIdAttribute(s));
         value.ifPresent(id -> obj.add(Entities.toBelongsTo(s),
-          new Payload().setDataReference(Entities.toType(s), String.valueOf(id))));
+          new JsonapiPayload().setDataReference(Entities.toType(s), String.valueOf(id))));
       }
 
       // add has-many
@@ -130,7 +121,7 @@ public class PayloadFactoryImpl implements PayloadFactory {
         String type = Entities.toType(key);
         if (hasMany.containsKey(type) && !hasMany.get(type).isEmpty())
           obj.add(Entities.toHasMany(key),
-            setDataReferences(newPayload(), hasMany.containsKey(type) ?
+            setDataReferences(newJsonapiPayload(), hasMany.containsKey(type) ?
               hasMany.get(type).stream().filter(r -> belongsTo(r, target)).collect(Collectors.toList()) :
               ImmutableList.of()));
       }
@@ -142,13 +133,13 @@ public class PayloadFactoryImpl implements PayloadFactory {
   }
 
   @Override
-  public Payload newPayload() {
-    return new Payload();
+  public JsonapiPayload newJsonapiPayload() {
+    return new JsonapiPayload();
   }
 
   @Override
-  public PayloadObject newPayloadObject() {
-    return new PayloadObject();
+  public JsonapiPayloadObject newPayloadObject() {
+    return new JsonapiPayloadObject();
   }
 
   @Override
@@ -157,45 +148,45 @@ public class PayloadFactoryImpl implements PayloadFactory {
   }
 
   @Override
-  public <N> PayloadObject toPayloadReferenceObject(N target) throws JsonApiException {
-    return new PayloadObject()
+  public <N> JsonapiPayloadObject toPayloadReferenceObject(N target) throws JsonApiException {
+    return new JsonapiPayloadObject()
       .setId(getResourceId(target))
       .setType(Entities.toType(target));
   }
 
   @Override
-  public <N> Payload addIncluded(Payload payload, Collection<N> resources) throws JsonApiException {
+  public <N> JsonapiPayload addIncluded(JsonapiPayload jsonapiPayload, Collection<N> resources) throws JsonApiException {
     for (N resource : resources) {
-      PayloadObject payloadObject = toPayloadObject(resource, resources);
-      addIncluded(payload, payloadObject);
+      JsonapiPayloadObject jsonapiPayloadObject = toPayloadObject(resource, resources);
+      addIncluded(jsonapiPayload, jsonapiPayloadObject);
     }
-    return payload;
+    return jsonapiPayload;
   }
 
   @Override
-  public Payload addIncluded(Payload payload, PayloadObject payloadObject) throws JsonApiException {
-    switch (payload.getDataType()) {
+  public JsonapiPayload addIncluded(JsonapiPayload jsonapiPayload, JsonapiPayloadObject jsonapiPayloadObject) throws JsonApiException {
+    switch (jsonapiPayload.getDataType()) {
       case Many:
-        for (PayloadObject obj : payload.getDataMany())
-          addIfRelated(obj, payloadObject);
+        for (JsonapiPayloadObject obj : jsonapiPayload.getDataMany())
+          addIfRelated(obj, jsonapiPayloadObject);
         break;
       case One:
-        if (payload.getDataOne().isPresent())
-          addIfRelated(payload.getDataOne().get(), payloadObject);
+        if (jsonapiPayload.getDataOne().isPresent())
+          addIfRelated(jsonapiPayload.getDataOne().get(), jsonapiPayloadObject);
         break;
       case Ambiguous:
         break;
     }
-    payload.getIncluded().add(payloadObject);
-    return payload;
+    jsonapiPayload.getIncluded().add(jsonapiPayloadObject);
+    return jsonapiPayload;
   }
 
   @Override
-  public void addIfRelated(PayloadObject obj, PayloadObject rel) throws JsonApiException {
+  public void addIfRelated(JsonapiPayloadObject obj, JsonapiPayloadObject rel) throws JsonApiException {
     String hasMany = Entities.toHasManyFromType(rel.getType());
     String belongsTo = Entities.toBelongsToFromType(obj.getType());
     if (rel.getRelationships().containsKey(belongsTo)) {
-      Optional<PayloadObject> search = rel.getRelationships().get(belongsTo).getDataOne();
+      Optional<JsonapiPayloadObject> search = rel.getRelationships().get(belongsTo).getDataOne();
       if (search.isPresent()
         && search.get().getType().equals(obj.getType())
         && search.get().getId().equals(obj.getId())) {
@@ -206,56 +197,56 @@ public class PayloadFactoryImpl implements PayloadFactory {
 
 
   @Override
-  public <N> Payload setDataEntities(Payload payload, Collection<N> entities) throws JsonApiException {
-    payload.clear();
-    payload.setDataType(PayloadDataType.Many);
+  public <N> JsonapiPayload setDataEntities(JsonapiPayload jsonapiPayload, Collection<N> entities) throws JsonApiException {
+    jsonapiPayload.clear();
+    jsonapiPayload.setDataType(PayloadDataType.Many);
     for (N entity : entities)
-      payload.addData(toPayloadObject(entity));
-    return payload;
+      jsonapiPayload.addData(toPayloadObject(entity));
+    return jsonapiPayload;
   }
 
   @Override
-  public <N> Payload setDataEntity(Payload payload, N entity) throws JsonApiException {
-    payload.clear();
-    payload.setDataOne(toPayloadObject(entity));
-    return payload;
+  public <N> JsonapiPayload setDataEntity(JsonapiPayload jsonapiPayload, N entity) throws JsonApiException {
+    jsonapiPayload.clear();
+    jsonapiPayload.setDataOne(toPayloadObject(entity));
+    return jsonapiPayload;
   }
 
   @Override
-  public <N> Payload setDataReferences(Payload payload, Collection<N> entities) throws JsonApiException {
-    payload.setDataType(PayloadDataType.Many);
+  public <N> JsonapiPayload setDataReferences(JsonapiPayload jsonapiPayload, Collection<N> entities) throws JsonApiException {
+    jsonapiPayload.setDataType(PayloadDataType.Many);
     for (N resource : entities) {
-      PayloadObject payloadObject = toPayloadReferenceObject(resource);
-      payload.addData(payloadObject);
+      JsonapiPayloadObject jsonapiPayloadObject = toPayloadReferenceObject(resource);
+      jsonapiPayload.addData(jsonapiPayloadObject);
     }
-    return payload;
+    return jsonapiPayload;
   }
 
   @Override
-  public PayloadObject add(PayloadObject obj, String relationshipName, PayloadObject payloadObject) throws JsonApiException {
+  public JsonapiPayloadObject add(JsonapiPayloadObject obj, String relationshipName, JsonapiPayloadObject jsonapiPayloadObject) throws JsonApiException {
     if (!obj.getRelationships().containsKey(relationshipName))
-      obj.getRelationships().put(relationshipName, setDataReferences(newPayload(), ImmutableList.of()));
-    obj.getRelationships().get(relationshipName).addToDataMany(payloadObject);
+      obj.getRelationships().put(relationshipName, setDataReferences(newJsonapiPayload(), ImmutableList.of()));
+    obj.getRelationships().get(relationshipName).addToDataMany(jsonapiPayloadObject);
     return obj;
   }
 
   @Override
-  public Payload filter(Payload payload, Class<?> type, Predicate<? super PayloadObject> condition) throws JsonApiException {
-    switch (payload.getDataType()) {
+  public JsonapiPayload filter(JsonapiPayload jsonapiPayload, Class<?> type, Predicate<? super JsonapiPayloadObject> condition) throws JsonApiException {
+    switch (jsonapiPayload.getDataType()) {
 
       case Many:
-        Collection<PayloadObject> hasMany =
-          payload.getDataMany().stream()
+        Collection<JsonapiPayloadObject> hasMany =
+          jsonapiPayload.getDataMany().stream()
             .filter(condition)
             .collect(Collectors.toList());
-        Collection<PayloadObject> included =
-          payload.getIncluded().stream()
+        Collection<JsonapiPayloadObject> included =
+          jsonapiPayload.getIncluded().stream()
             .filter(obj -> obj.belongsTo(type, hasMany.stream()
               .filter(par -> par.isType(type))
-              .map(PayloadObject::getId)
+              .map(JsonapiPayloadObject::getId)
               .collect(Collectors.joining())))
             .collect(Collectors.toList());
-        return newPayload()
+        return newJsonapiPayload()
           .setDataMany(hasMany)
           .setIncluded(included);
 
@@ -267,21 +258,21 @@ public class PayloadFactoryImpl implements PayloadFactory {
   }
 
   @Override
-  public Payload filterIncluded(Payload payload, Predicate<? super PayloadObject> condition) throws JsonApiException {
-    switch (payload.getDataType()) {
+  public JsonapiPayload filterIncluded(JsonapiPayload jsonapiPayload, Predicate<? super JsonapiPayloadObject> condition) throws JsonApiException {
+    switch (jsonapiPayload.getDataType()) {
 
       case One:
-        return newPayload()
-          .setDataOne(payload.getDataOne().orElseThrow(() ->
+        return newJsonapiPayload()
+          .setDataOne(jsonapiPayload.getDataOne().orElseThrow(() ->
             new JsonApiException("cannot filter included entities of empty data-one payload!")))
-          .setIncluded(payload.getIncluded().stream()
+          .setIncluded(jsonapiPayload.getIncluded().stream()
             .filter(condition)
             .collect(Collectors.toList()));
 
       case Many:
-        return newPayload()
-          .setDataMany(payload.getDataMany())
-          .setIncluded(payload.getIncluded().stream()
+        return newJsonapiPayload()
+          .setDataMany(jsonapiPayload.getDataMany())
+          .setIncluded(jsonapiPayload.getIncluded().stream()
             .filter(condition)
             .collect(Collectors.toList()));
 
@@ -292,22 +283,22 @@ public class PayloadFactoryImpl implements PayloadFactory {
   }
 
   @Override
-  public Payload sort(Payload payload, Class<?> type, Function<? super PayloadObject, Long> keyExtractor) throws JsonApiException {
-    switch (payload.getDataType()) {
+  public JsonapiPayload sort(JsonapiPayload jsonapiPayload, Class<?> type, Function<? super JsonapiPayloadObject, Long> keyExtractor) throws JsonApiException {
+    switch (jsonapiPayload.getDataType()) {
 
       case Many:
-        Collection<PayloadObject> hasMany =
-          payload.getDataMany().stream()
+        Collection<JsonapiPayloadObject> hasMany =
+          jsonapiPayload.getDataMany().stream()
             .sorted(Comparator.comparing(keyExtractor))
             .collect(Collectors.toList());
-        Collection<PayloadObject> included =
-          payload.getIncluded().stream()
+        Collection<JsonapiPayloadObject> included =
+          jsonapiPayload.getIncluded().stream()
             .filter(obj -> obj.belongsTo(type, hasMany.stream()
               .filter(par -> par.isType(type))
-              .map(PayloadObject::getId)
+              .map(JsonapiPayloadObject::getId)
               .collect(Collectors.joining())))
             .collect(Collectors.toList());
-        return newPayload()
+        return newJsonapiPayload()
           .setDataMany(hasMany)
           .setIncluded(included);
 
@@ -319,22 +310,22 @@ public class PayloadFactoryImpl implements PayloadFactory {
   }
 
   @Override
-  public Payload limit(Payload payload, Class<?> type, long limit) throws JsonApiException {
-    switch (payload.getDataType()) {
+  public JsonapiPayload limit(JsonapiPayload jsonapiPayload, Class<?> type, long limit) throws JsonApiException {
+    switch (jsonapiPayload.getDataType()) {
 
       case Many:
-        Collection<PayloadObject> hasMany =
-          payload.getDataMany().stream()
+        Collection<JsonapiPayloadObject> hasMany =
+          jsonapiPayload.getDataMany().stream()
             .limit(limit)
             .collect(Collectors.toList());
-        Collection<PayloadObject> included =
-          payload.getIncluded().stream()
+        Collection<JsonapiPayloadObject> included =
+          jsonapiPayload.getIncluded().stream()
             .filter(obj -> obj.belongsTo(type, hasMany.stream()
               .filter(par -> par.isType(type))
-              .map(PayloadObject::getId)
+              .map(JsonapiPayloadObject::getId)
               .collect(Collectors.joining())))
             .collect(Collectors.toList());
-        return newPayload()
+        return newJsonapiPayload()
           .setDataMany(hasMany)
           .setIncluded(included);
 
@@ -346,20 +337,20 @@ public class PayloadFactoryImpl implements PayloadFactory {
   }
 
   @Override
-  public Payload find(Payload payload, Class<?> type, Predicate<? super PayloadObject> condition) throws JsonApiException {
-    switch (payload.getDataType()) {
+  public JsonapiPayload find(JsonapiPayload jsonapiPayload, Class<?> type, Predicate<? super JsonapiPayloadObject> condition) throws JsonApiException {
+    switch (jsonapiPayload.getDataType()) {
 
       case Many:
-        PayloadObject one =
-          payload.getDataMany().stream()
+        JsonapiPayloadObject one =
+          jsonapiPayload.getDataMany().stream()
             .filter(condition)
             .findFirst()
             .orElseThrow();
-        Collection<PayloadObject> included =
-          payload.getIncluded().stream()
+        Collection<JsonapiPayloadObject> included =
+          jsonapiPayload.getIncluded().stream()
             .filter(obj -> obj.belongsTo(type, ImmutableList.of(one.getId())))
             .collect(Collectors.toList());
-        return newPayload()
+        return newJsonapiPayload()
           .setDataOne(one)
           .setIncluded(included);
 
@@ -371,97 +362,96 @@ public class PayloadFactoryImpl implements PayloadFactory {
   }
 
   @Override
-  public Payload deserialize(String payloadAsJSON) throws JsonApiException {
-    return deserialize(Payload.class, payloadAsJSON);
-  }
-
-  @Override
-  public Payload deserialize(BufferedReader payloadReader) throws JsonApiException {
-    String payloadAsJSON = payloadReader.lines().collect(Collectors.joining());
-    return deserialize(Payload.class, payloadAsJSON);
-  }
-
-  @Override
-  public <N> N deserialize(Class<N> valueType, String json) throws JsonApiException {
+  public JsonapiPayload deserialize(String payloadAsJSON) throws JsonApiException {
     try {
-      return mapper.readValue(String.valueOf(json), valueType);
-    } catch (JsonProcessingException e) {
-      throw new JsonApiException("Failed to deserialize JSON", e);
-    }
-  }
-
-  @Override
-  public <N extends MessageLite> N toOne(PayloadObject payloadObject) throws JsonApiException {
-    try {
-      N defaultInstance = entityFactory.getInstance(payloadObject.getType());
-      return consume(defaultInstance, payloadObject);
+      return entityFactory.deserialize(JsonapiPayload.class, payloadAsJSON);
     } catch (EntityException e) {
       throw new JsonApiException(e);
     }
   }
 
   @Override
-  public <N extends MessageLite> N toOne(Payload payload) throws JsonApiException {
-    return toOne(payload.getDataOne().orElseThrow(() ->
-      new JsonApiException("Can only create instance from data-one payload!")));
-  }
-
-  @Override
-  public <N extends MessageLite> Collection<N> toMany(Payload payload) throws JsonApiException {
-    if (!PayloadDataType.Many.equals(payload.getDataType()))
-      throw new JsonApiException("Can only create instances from data-many payload!");
-    Collection<N> instances = Lists.newArrayList();
-    for (PayloadObject payloadObject : payload.getDataMany())
-      instances.add(toOne(payloadObject));
-    for (PayloadObject payloadObject : payload.getIncluded())
-      instances.add(toOne(payloadObject));
-    return instances;
-  }
-
-  @Override
-  public <N extends MessageLite> Payload from(N entity) throws JsonApiException {
-    return newPayload()
-      .setDataOne(toPayloadObject(entity));
-  }
-
-  @Override
-  public <N extends MessageLite> Payload from(N entity, Collection<N> included) throws JsonApiException {
-    return newPayload()
-      .setDataOne(toPayloadObject(entity))
-      .setIncluded(toPayloadObjects(included));
-  }
-
-  @Override
-  public <N extends MessageLite> Payload from(Collection<N> entities) throws JsonApiException {
-    return newPayload()
-      .setDataMany(toPayloadObjects(entities));
-  }
-
-  @Override
-  public <N extends MessageLite> Payload from(Collection<N> entities, Collection<N> included) throws JsonApiException {
-    return newPayload()
-      .setDataMany(toPayloadObjects(entities))
-      .setIncluded(toPayloadObjects(included));
+  public JsonapiPayload deserialize(BufferedReader payloadReader) throws JsonApiException {
+    String payloadAsJSON = payloadReader.lines().collect(Collectors.joining());
+    try {
+      return entityFactory.deserialize(JsonapiPayload.class, payloadAsJSON);
+    } catch (EntityException e) {
+      throw new JsonApiException(e);
+    }
   }
 
   @Override
   public String serialize(Object obj) throws JsonApiException {
     try {
-      return mapper.writeValueAsString(obj);
-    } catch (JsonProcessingException e) {
+      return entityFactory.serialize(obj);
+    } catch (EntityException e) {
       throw new JsonApiException("Failed to serialize JSON", e);
     }
+  }
+
+  @Override
+  public <N extends MessageLite> N toOne(JsonapiPayloadObject jsonapiPayloadObject) throws JsonApiException {
+    try {
+      N defaultInstance = entityFactory.getInstance(jsonapiPayloadObject.getType());
+      return consume(defaultInstance, jsonapiPayloadObject);
+    } catch (EntityException e) {
+      throw new JsonApiException(e);
+    }
+  }
+
+  @Override
+  public <N extends MessageLite> N toOne(JsonapiPayload jsonapiPayload) throws JsonApiException {
+    return toOne(jsonapiPayload.getDataOne().orElseThrow(() ->
+      new JsonApiException("Can only create instance from data-one payload!")));
+  }
+
+  @Override
+  public <N extends MessageLite> Collection<N> toMany(JsonapiPayload jsonapiPayload) throws JsonApiException {
+    if (!PayloadDataType.Many.equals(jsonapiPayload.getDataType()))
+      throw new JsonApiException("Can only create instances from data-many payload!");
+    Collection<N> instances = Lists.newArrayList();
+    for (JsonapiPayloadObject jsonapiPayloadObject : jsonapiPayload.getDataMany())
+      instances.add(toOne(jsonapiPayloadObject));
+    for (JsonapiPayloadObject jsonapiPayloadObject : jsonapiPayload.getIncluded())
+      instances.add(toOne(jsonapiPayloadObject));
+    return instances;
+  }
+
+  @Override
+  public <N extends MessageLite> JsonapiPayload from(N entity) throws JsonApiException {
+    return newJsonapiPayload()
+      .setDataOne(toPayloadObject(entity));
+  }
+
+  @Override
+  public <N extends MessageLite> JsonapiPayload from(N entity, Collection<N> included) throws JsonApiException {
+    return newJsonapiPayload()
+      .setDataOne(toPayloadObject(entity))
+      .setIncluded(toPayloadObjects(included));
+  }
+
+  @Override
+  public <N extends MessageLite> JsonapiPayload from(Collection<N> entities) throws JsonApiException {
+    return newJsonapiPayload()
+      .setDataMany(toPayloadObjects(entities));
+  }
+
+  @Override
+  public <N extends MessageLite> JsonapiPayload from(Collection<N> entities, Collection<N> included) throws JsonApiException {
+    return newJsonapiPayload()
+      .setDataMany(toPayloadObjects(entities))
+      .setIncluded(toPayloadObjects(included));
   }
 
   /**
    Require a payload to have one resource object of a specified type
 
-   @param payload      to inspect
-   @param resourceType to require a primary object of
+   @param jsonapiPayload to inspect
+   @param resourceType   to require a primary object of
    @throws JsonApiException if there exists NO primary object of the specified type
    */
-  private PayloadObject extractPrimaryObject(Payload payload, String resourceType) throws JsonApiException {
-    Optional<PayloadObject> obj = payload.getDataOne();
+  private JsonapiPayloadObject extractPrimaryObject(JsonapiPayload jsonapiPayload, String resourceType) throws JsonApiException {
+    Optional<JsonapiPayloadObject> obj = jsonapiPayload.getDataOne();
     if (obj.isEmpty())
       throw new JsonApiException("Cannot deserialize single entity create payload without singular data!");
     if (!Objects.equals(resourceType, obj.get().getType()))
@@ -492,7 +482,7 @@ public class PayloadFactoryImpl implements PayloadFactory {
    */
   private <N> String getResourceId(N target) throws JsonApiException {
     try {
-      Optional<Object> id = Entities.get(target, PayloadObject.KEY_ID);
+      Optional<Object> id = Entities.get(target, JsonapiPayloadObject.KEY_ID);
       if (id.isEmpty()) throw new JsonApiException("Has no id");
       return (id.get().toString());
     } catch (EntityException e) {

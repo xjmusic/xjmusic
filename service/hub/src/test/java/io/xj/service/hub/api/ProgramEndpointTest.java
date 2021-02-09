@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.Account;
@@ -18,7 +17,7 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.access.HubAccess;
@@ -118,7 +117,7 @@ public class ProgramEndpointTest {
     verify(programDAO).readMany(same(hubAccess), eq(ImmutableList.of(library25.getId())));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
-    assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class))
+    assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
       .hasDataMany("programs", ImmutableList.of(program1.getId(), program2.getId()));
   }
 
@@ -141,8 +140,8 @@ public class ProgramEndpointTest {
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
-    Payload resultPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class);
-    assertPayload(resultPayload)
+    JsonapiPayload resultJsonapiPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class);
+    assertPayload(resultJsonapiPayload)
       .hasDataOne("programs", program1.getId());
   }
 }

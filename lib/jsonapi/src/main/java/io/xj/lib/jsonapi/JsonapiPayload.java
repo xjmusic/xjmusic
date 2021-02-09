@@ -28,22 +28,22 @@ import java.util.stream.Collectors;
  Much of the complexity of serializing and deserializing stems of the fact that
  the JSON:API standard uses a data object for One record, and a data array for Many records.
  */
-@JsonDeserialize(using = PayloadDeserializer.class)
-@JsonSerialize(using = PayloadSerializer.class)
-public class Payload {
+@JsonDeserialize(using = JsonapiPayloadDeserializer.class)
+@JsonSerialize(using = JsonapiPayloadSerializer.class)
+public class JsonapiPayload {
   public static final String KEY_DATA = "data";
   public static final String KEY_INCLUDED = "included";
   public static final String KEY_LINKS = "links";
   public static final String KEY_ERRORS = "errors";
   public static final String KEY_SELF = "self";
   private final Map<String, String> links = Maps.newHashMap();
-  private final Collection<PayloadObject> dataMany = Lists.newArrayList();
+  private final Collection<JsonapiPayloadObject> dataMany = Lists.newArrayList();
   private final Collection<PayloadError> errors = Lists.newArrayList();
-  private final Collection<PayloadObject> included = Lists.newArrayList();
+  private final Collection<JsonapiPayloadObject> included = Lists.newArrayList();
   private PayloadDataType dataType = PayloadDataType.Ambiguous;
 
   @Nullable
-  private PayloadObject dataOne;
+  private JsonapiPayloadObject dataOne;
 
 
   /**
@@ -52,7 +52,7 @@ public class Payload {
    @param resourceObject to add
    @return this Payload (for chaining methods)
    */
-  public <N extends PayloadObject> Payload addData(N resourceObject) {
+  public <N extends JsonapiPayloadObject> JsonapiPayload addData(N resourceObject) {
     dataMany.add(resourceObject);
     dataType = PayloadDataType.Many;
     return this;
@@ -63,7 +63,7 @@ public class Payload {
 
    @return this Payload (for chaining methods)
    */
-  public <N extends PayloadError> Payload addError(N payloadError) {
+  public <N extends PayloadError> JsonapiPayload addError(N payloadError) {
     errors.add(payloadError);
     return this;
   }
@@ -73,7 +73,7 @@ public class Payload {
 
    @return this DataContainer (for chaining methods)
    */
-  public Payload clear() {
+  public JsonapiPayload clear() {
     dataOne = null;
     dataMany.clear();
     included.clear();
@@ -86,7 +86,7 @@ public class Payload {
 
    @return collection of many data resource objects
    */
-  public Collection<PayloadObject> getDataMany() {
+  public Collection<JsonapiPayloadObject> getDataMany() {
     return dataMany;
   }
 
@@ -96,7 +96,7 @@ public class Payload {
    @param payloadObjects to set
    @return this Payload (for chaining methods)
    */
-  public <N extends PayloadObject> Payload setDataMany(Collection<N> payloadObjects) {
+  public <N extends JsonapiPayloadObject> JsonapiPayload setDataMany(Collection<N> payloadObjects) {
     this.setDataType(PayloadDataType.Many);
     payloadObjects.forEach(this::addData);
     return this;
@@ -107,7 +107,7 @@ public class Payload {
 
    @return one data resource object
    */
-  public Optional<PayloadObject> getDataOne() {
+  public Optional<JsonapiPayloadObject> getDataOne() {
     if (!PayloadDataType.One.equals(dataType)) return Optional.empty();
     if (Objects.isNull(dataOne)) return Optional.empty();
     return Optional.of(dataOne);
@@ -119,7 +119,7 @@ public class Payload {
    @param payloadObject to set
    @return this Payload (for chaining methods)
    */
-  public <N extends PayloadObject> Payload setDataOne(N payloadObject) {
+  public <N extends JsonapiPayloadObject> JsonapiPayload setDataOne(N payloadObject) {
     dataOne = payloadObject;
     dataType = PayloadDataType.One;
     return this;
@@ -140,7 +140,7 @@ public class Payload {
    @param dataType to set
    @return this Payload (for chaining methods)
    */
-  public Payload setDataType(PayloadDataType dataType) {
+  public JsonapiPayload setDataType(PayloadDataType dataType) {
     this.dataType = dataType;
     return this;
   }
@@ -159,7 +159,7 @@ public class Payload {
 
    @return included resource objects
    */
-  public Collection<PayloadObject> getIncluded() {
+  public Collection<JsonapiPayloadObject> getIncluded() {
     return included;
   }
 
@@ -169,7 +169,7 @@ public class Payload {
    @param included to set
    @return this Payload (for chaining methods)
    */
-  public Payload setIncluded(Collection<PayloadObject> included) {
+  public JsonapiPayload setIncluded(Collection<JsonapiPayloadObject> included) {
     this.included.clear();
     this.included.addAll(included);
     return this;
@@ -180,7 +180,7 @@ public class Payload {
 
    @return included resource objects matching specified type
    */
-  public Collection<PayloadObject> getIncludedOfType(String resourceType) {
+  public Collection<JsonapiPayloadObject> getIncludedOfType(String resourceType) {
     return included.stream()
       .filter(obj -> Objects.equals(resourceType, obj.getType()))
       .collect(Collectors.toList());
@@ -201,7 +201,7 @@ public class Payload {
    @param links to set
    @return this Payload (for chaining methods)
    */
-  public Payload setLinks(Map<String, String> links) {
+  public JsonapiPayload setLinks(Map<String, String> links) {
     this.links.clear();
     this.links.putAll(links);
     return this;
@@ -224,7 +224,7 @@ public class Payload {
    @param uri link to set
    @return this Payload (for chaining methods)
    */
-  public Payload setSelfURI(URI uri) {
+  public JsonapiPayload setSelfURI(URI uri) {
     links.put(KEY_SELF, uri.toString());
     return this;
   }
@@ -248,8 +248,8 @@ public class Payload {
    @param id   to reference
    @return this Payload (for chaining methods)
    */
-  public Payload setDataReference(String type, String id) {
-    return setDataOne(new PayloadObject().setType(type).setId(id));
+  public JsonapiPayload setDataReference(String type, String id) {
+    return setDataOne(new JsonapiPayloadObject().setType(type).setId(id));
   }
 
   /**
@@ -258,7 +258,7 @@ public class Payload {
    @param included to add
    @return this Payload (for chaining methods)
    */
-  public Payload addToIncluded(PayloadObject included) {
+  public JsonapiPayload addToIncluded(JsonapiPayloadObject included) {
     this.included.add(included);
     return this;
   }
@@ -269,7 +269,7 @@ public class Payload {
    @param included to add
    @return this Payload (for chaining methods)
    */
-  public Payload addAllToIncluded(Collection<PayloadObject> included) {
+  public JsonapiPayload addAllToIncluded(Collection<JsonapiPayloadObject> included) {
     this.included.addAll(included);
     return this;
   }
@@ -277,12 +277,12 @@ public class Payload {
   /**
    Add a payload object to the data many
 
-   @param payloadObject to add
+   @param jsonapiPayloadObject to add
    @return this Payload (for chaining methods)
    */
-  public Payload addToDataMany(PayloadObject payloadObject) {
+  public JsonapiPayload addToDataMany(JsonapiPayloadObject jsonapiPayloadObject) {
     setDataType(PayloadDataType.Many);
-    dataMany.add(payloadObject);
+    dataMany.add(jsonapiPayloadObject);
     return this;
   }
 
@@ -297,11 +297,11 @@ public class Payload {
     if (!PayloadDataType.Many.equals(dataType)) return false;
     if (!Objects.equals(resourceIds.size(), dataMany.size())) return false;
     Collection<String> foundIds = Lists.newArrayList();
-    for (PayloadObject payloadObject : dataMany) {
-      if (foundIds.contains(payloadObject.getId())) return false;
-      if (!Objects.equals(resourceType, payloadObject.getType())) return false;
-      if (!resourceIds.contains(payloadObject.getId())) return false;
-      foundIds.add(payloadObject.getId());
+    for (JsonapiPayloadObject jsonapiPayloadObject : dataMany) {
+      if (foundIds.contains(jsonapiPayloadObject.getId())) return false;
+      if (!Objects.equals(resourceType, jsonapiPayloadObject.getType())) return false;
+      if (!resourceIds.contains(jsonapiPayloadObject.getId())) return false;
+      foundIds.add(jsonapiPayloadObject.getId());
     }
     return true;
   }
@@ -325,7 +325,7 @@ public class Payload {
    */
   public boolean hasDataOne(String resourceType, String resourceId) {
     if (!PayloadDataType.One.equals(dataType)) return false;
-    Optional<PayloadObject> dataOne = getDataOne();
+    Optional<JsonapiPayloadObject> dataOne = getDataOne();
     if (dataOne.isEmpty()) return false;
     if (!Objects.equals(resourceType, dataOne.get().getType())) return false;
     return Objects.equals(resourceId, dataOne.get().getId());
@@ -340,7 +340,7 @@ public class Payload {
    */
   public boolean hasDataOne(String resourceType, Collection<String> resourceIds) {
     if (!PayloadDataType.One.equals(dataType)) return false;
-    Optional<PayloadObject> dataOne = getDataOne();
+    Optional<JsonapiPayloadObject> dataOne = getDataOne();
     if (dataOne.isEmpty()) return false;
     if (!Objects.equals(resourceType, dataOne.get().getType())) return false;
     return resourceIds.contains(dataOne.get().getId());
@@ -354,7 +354,7 @@ public class Payload {
    */
   public <N> boolean hasDataOne(N resource) {
     if (!PayloadDataType.One.equals(dataType)) return false;
-    Optional<PayloadObject> dataOne = getDataOne();
+    Optional<JsonapiPayloadObject> dataOne = getDataOne();
     return dataOne.map(payloadObject -> payloadObject.isSame(resource)).orElse(false);
   }
 
@@ -365,7 +365,7 @@ public class Payload {
    */
   public boolean hasDataOneEmpty() {
     if (!PayloadDataType.One.equals(dataType)) return false;
-    Optional<PayloadObject> dataOne = getDataOne();
+    Optional<JsonapiPayloadObject> dataOne = getDataOne();
     return dataOne.isEmpty();
   }
 
@@ -387,7 +387,7 @@ public class Payload {
    @return true if has included entity, and return a payload object testion utility to make testions about it
    */
   public <N> boolean hasIncluded(N resource) {
-    Optional<PayloadObject> payloadObject = getIncluded().stream().filter(obj -> obj.isSame(resource)).findFirst();
+    Optional<JsonapiPayloadObject> payloadObject = getIncluded().stream().filter(obj -> obj.isSame(resource)).findFirst();
     return payloadObject.isPresent();
   }
 
@@ -400,17 +400,17 @@ public class Payload {
    */
   public <N> boolean hasIncluded(String resourceType, ImmutableList<N> resources) {
     try {
-      Collection<PayloadObject> included = getIncludedOfType(resourceType);
+      Collection<JsonapiPayloadObject> included = getIncludedOfType(resourceType);
       if (!Objects.equals(resources.size(), included.size())) return false;
       Collection<String> foundIds = Lists.newArrayList();
       Collection<String> resourceIds = new ArrayList<>();
       for (N resource : resources) {
         String resourceId = Entities.getId(resource);
-        for (PayloadObject payloadObject : included) {
-          if (foundIds.contains(payloadObject.getId())) return false;
-          if (!Objects.equals(resourceType, payloadObject.getType())) return false;
-          if (!resourceIds.contains(payloadObject.getId())) return false;
-          foundIds.add(payloadObject.getId());
+        for (JsonapiPayloadObject jsonapiPayloadObject : included) {
+          if (foundIds.contains(jsonapiPayloadObject.getId())) return false;
+          if (!Objects.equals(resourceType, jsonapiPayloadObject.getType())) return false;
+          if (!resourceIds.contains(jsonapiPayloadObject.getId())) return false;
+          foundIds.add(jsonapiPayloadObject.getId());
         }
         resourceIds.add(resourceId);
       }

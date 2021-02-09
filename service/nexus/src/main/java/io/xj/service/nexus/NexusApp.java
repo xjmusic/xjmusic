@@ -25,7 +25,7 @@ import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.TempFile;
 import io.xj.lib.util.Text;
@@ -145,8 +145,8 @@ public class NexusApp extends App {
     }
   }
 
-  private void bootstrapFromPayload(Payload bootstrapPayload, PayloadFactory payloadFactory, EntityFactory entityFactory, ChainDAO chainDAO, HubClientAccess access) {
-    bootstrapPayload.getDataMany().stream()
+  private void bootstrapFromPayload(JsonapiPayload bootstrapJsonapiPayload, PayloadFactory payloadFactory, EntityFactory entityFactory, ChainDAO chainDAO, HubClientAccess access) {
+    bootstrapJsonapiPayload.getDataMany().stream()
       .filter(entity -> entity.isType(Chain.class))
       .flatMap(entity -> {
         try {
@@ -159,7 +159,7 @@ public class NexusApp extends App {
       .forEach(chain -> {
         try {
           chainDAO.bootstrap(access, chain,
-            bootstrapPayload.getIncluded().stream()
+            bootstrapJsonapiPayload.getIncluded().stream()
               .filter(entity -> entity.isType(ChainBinding.class))
               .flatMap(entity -> {
                 try {

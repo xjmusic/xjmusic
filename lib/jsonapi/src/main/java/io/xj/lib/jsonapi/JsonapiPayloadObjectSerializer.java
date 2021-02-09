@@ -16,42 +16,42 @@ import java.util.Objects;
  Much of the complexity of serializing and deserializing stems of the fact that
  the JSON:API standard uses a data object for One record, and a data array for Many records.
  */
-public class PayloadObjectSerializer extends StdSerializer<PayloadObject> {
+public class JsonapiPayloadObjectSerializer extends StdSerializer<JsonapiPayloadObject> {
 
-  public PayloadObjectSerializer() {
+  public JsonapiPayloadObjectSerializer() {
     this(null);
   }
 
-  public PayloadObjectSerializer(Class<PayloadObject> t) {
+  public JsonapiPayloadObjectSerializer(Class<JsonapiPayloadObject> t) {
     super(t);
   }
 
   @Override
   public void serialize(
-    PayloadObject value, JsonGenerator json, SerializerProvider provider)
+          JsonapiPayloadObject value, JsonGenerator json, SerializerProvider provider)
     throws IOException {
 
     json.writeStartObject();
 
     // Add id if present
     if (Objects.nonNull(value.getId()) && !value.getId().isEmpty())
-      json.writeStringField(PayloadObject.KEY_ID, value.getId());
+      json.writeStringField(JsonapiPayloadObject.KEY_ID, value.getId());
 
     // Add type if present
     if (Objects.nonNull(value.getType()) && !value.getType().isEmpty())
-      json.writeStringField(PayloadObject.KEY_TYPE, value.getType());
+      json.writeStringField(JsonapiPayloadObject.KEY_TYPE, value.getType());
 
     // Add links if present
     if (!value.getLinks().isEmpty())
-      json.writeObjectField(PayloadObject.KEY_LINKS, value.getLinks());
+      json.writeObjectField(JsonapiPayloadObject.KEY_LINKS, value.getLinks());
 
     // Add relationships if present
     if (!value.getRelationships().isEmpty())
-      json.writeObjectField(PayloadObject.KEY_RELATIONSHIPS, value.getRelationships());
+      json.writeObjectField(JsonapiPayloadObject.KEY_RELATIONSHIPS, value.getRelationships());
 
     // Add attributes if present
     if (!value.getAttributes().isEmpty())
-      json.writeObjectField(PayloadObject.KEY_ATTRIBUTES, value.getAttributes());
+      json.writeObjectField(JsonapiPayloadObject.KEY_ATTRIBUTES, value.getAttributes());
 
     json.writeEndObject();
   }

@@ -11,7 +11,7 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.MediaType;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubClientException;
@@ -79,7 +79,7 @@ public class ChainEndpoint extends NexusEndpoint {
         return response.notAcceptable("Account ID is required!");
 
       // read chain either by uuid (private) or string (public embed key) identifier
-      return response.ok(payloadFactory.newPayload().setDataMany(
+      return response.ok(payloadFactory.newJsonapiPayload().setDataMany(
         payloadFactory.toPayloadObjects(dao.readMany(access, ImmutableList.of(accountId)))));
 
     } catch (DAOExistenceException e) {
@@ -98,22 +98,22 @@ public class ChainEndpoint extends NexusEndpoint {
    -or-
    [#160299309] Engineer wants a *revived* action for a live production chain
 
-   @param payload with which to update Chain record.
+   @param jsonapiPayload with which to update Chain record.
    @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response create(Payload payload, @Context ContainerRequestContext crc, @QueryParam("reviveId") String reviveId) {
+  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @QueryParam("reviveId") String reviveId) {
     try {
       HubClientAccess access = HubClientAccess.fromContext(crc);
       // if present, we will revive a prior chain, else create a new one
       var chain = Objects.nonNull(reviveId) && !reviveId.isEmpty() ?
         dao.revive(access, reviveId, String.format("Requested by User[%s]", access.getUserId())) :
-        dao.create(access, payloadFactory.consume(entityFactory.getInstance(Chain.class), payload));
+        dao.create(access, payloadFactory.consume(entityFactory.getInstance(Chain.class), jsonapiPayload));
 
       // create either a new chain, or a chain revived from an existing prior chain
-      return response.create(payloadFactory.newPayload().setDataOne(payloadFactory.toPayloadObject(chain)));
+      return response.create(payloadFactory.newJsonapiPayload().setDataOne(payloadFactory.toPayloadObject(chain)));
 
     } catch (DAOPrivilegeException e) {
       return Objects.nonNull(reviveId) ?
@@ -154,7 +154,7 @@ public class ChainEndpoint extends NexusEndpoint {
       }
 
       // read chain either by uuid (private) or string (public embed key) identifier
-      return response.ok(payloadFactory.newPayload().setDataOne(
+      return response.ok(payloadFactory.newJsonapiPayload().setDataOne(
         payloadFactory.toPayloadObject(
           Objects.nonNull(uuidId) ?
             dao.readOne(access, uuidId) :
@@ -174,14 +174,14 @@ public class ChainEndpoint extends NexusEndpoint {
   /**
    Update one chain
 
-   @param payload with which to update Chain record.
+   @param jsonapiPayload with which to update Chain record.
    @return Response
    */
   @PATCH
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed(ARTIST)
-  public Response update(Payload payload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
+  public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     try {
       HubClientAccess access = HubClientAccess.fromContext(crc);
 
@@ -190,9 +190,9 @@ public class ChainEndpoint extends NexusEndpoint {
         return response.notAcceptable("Chain ID is required!");
 
       // Consume input payload onto existing Chain record, then update
-      var chain = payloadFactory.consume(dao.readOne(access, id), payload);
+      var chain = payloadFactory.consume(dao.readOne(access, id), jsonapiPayload);
       dao.update(access, id, chain);
-      return response.ok(payloadFactory.newPayload().setDataOne(payloadFactory.toPayloadObject(chain)));
+      return response.ok(payloadFactory.newJsonapiPayload().setDataOne(payloadFactory.toPayloadObject(chain)));
 
     } catch (DAOValidationException e) {
       return response.notAcceptable(e.getMessage());

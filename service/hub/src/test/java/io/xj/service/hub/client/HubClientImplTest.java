@@ -86,7 +86,7 @@ public class HubClientImplTest {
 
   @Test
   public void ingest() throws JsonApiException, HubClientException {
-    String hubContentBody = payloadFactory.serialize(payloadFactory.newPayload()
+    String hubContentBody = payloadFactory.serialize(payloadFactory.newJsonapiPayload()
       .setDataMany(payloadFactory.toPayloadObjects(hubEntities)));
     stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/ingest"))
       .withQueryParams(ImmutableMap.of(
@@ -125,7 +125,7 @@ public class HubClientImplTest {
 
   @Test
   public void ingest_retriesIfUnavailable() throws JsonApiException, HubClientException {
-    String hubContentBody = payloadFactory.serialize(payloadFactory.newPayload()
+    String hubContentBody = payloadFactory.serialize(payloadFactory.newJsonapiPayload()
       .setDataMany(payloadFactory.toPayloadObjects(hubEntities)));
     var hubQueryParams = ImmutableMap.<String, StringValuePattern>of(
       "libraryIds", new EqualToPattern(content.library2.getId()),

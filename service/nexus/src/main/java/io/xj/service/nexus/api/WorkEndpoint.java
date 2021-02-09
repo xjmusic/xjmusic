@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.Chain;
 import io.xj.lib.jsonapi.HttpResponseProvider;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.nexus.NexusEndpoint;
@@ -48,12 +48,12 @@ public class WorkEndpoint extends NexusEndpoint {
   @RolesAllowed({ADMIN, ENGINEER})
   public Response readMany(@Context ContainerRequestContext crc) {
     try {
-      Payload payload = new Payload().setDataType(PayloadDataType.Many);
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
       for (String id : nexusWork.getChainWorkingIds())
-        payload.addData(payloadFactory.newPayloadObject()
+        jsonapiPayload.addData(payloadFactory.newPayloadObject()
           .setType(Chain.class)
           .setId(id.toString()));
-      return response.ok(payload);
+      return response.ok(jsonapiPayload);
 
     } catch (Exception e) {
       return response.failure(e);

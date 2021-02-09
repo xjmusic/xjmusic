@@ -18,7 +18,7 @@ import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClientAccess;
@@ -136,10 +136,10 @@ public class SegmentEndpointTest {
     verify(segmentDAO).readManySubEntities(any(), eq(ImmutableSet.of(segment6.getId(), segment5.getId())), eq(false));
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
-    Payload payloadResult = new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class);
-    assertPayload(payloadResult)
+    JsonapiPayload jsonapiPayloadResult = new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class);
+    assertPayload(jsonapiPayloadResult)
       .hasDataMany("segments", ImmutableSet.of(segment5.getId(), segment6.getId()));
-    assertPayload(payloadResult)
+    assertPayload(jsonapiPayloadResult)
       .hasIncluded("segment-memes", ImmutableList.of(segment5meme, segment6meme));
   }
 
@@ -165,8 +165,8 @@ public class SegmentEndpointTest {
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
-    Payload resultPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), Payload.class);
-    assertPayload(resultPayload)
+    JsonapiPayload resultJsonapiPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class);
+    assertPayload(resultJsonapiPayload)
       .hasDataOne("segments", segment1.getId());
   }
 

@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.nexus.NexusEndpoint;
 import io.xj.service.nexus.dao.ChainBindingDAO;
@@ -57,14 +57,14 @@ public class ChainBindingEndpoint extends NexusEndpoint {
   /**
    Create new chain binding
 
-   @param payload with which to of Chain Binding
+   @param jsonapiPayload with which to of Chain Binding
    @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
   @RolesAllowed({ARTIST, ENGINEER})
-  public Response create(Payload payload, @Context ContainerRequestContext crc) {
-    return create(crc, dao(), payload);
+  public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
+    return create(crc, dao(), jsonapiPayload);
   }
 
   /**

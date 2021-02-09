@@ -7,7 +7,7 @@ import com.typesafe.config.Config;
 import io.xj.Segment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.jsonapi.HttpResponseProvider;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.Value;
@@ -77,7 +77,7 @@ public class SegmentEndpoint extends NexusEndpoint {
       }
 
       // Prepare payload
-      Payload payload = new Payload().setDataType(PayloadDataType.Many);
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
 
       // chain is either by uuid or embed key
       Collection<Segment> segments;
@@ -87,17 +87,17 @@ public class SegmentEndpoint extends NexusEndpoint {
         segments = readManySegmentsByChainEmbedKey(chainIdentifier, fromOffset, fromSecondsUTC); // embed key
 
       // add segments as plural data in payload
-      for (Segment segment : segments) payload.addData(payloadFactory.toPayloadObject(segment));
+      for (Segment segment : segments) jsonapiPayload.addData(payloadFactory.toPayloadObject(segment));
 
       // seek and add sub-entities to payload --
       // use internal access because we already cleared these segment ids from access control,
       // and there is no access object when reading chain by embed key
       if (Objects.nonNull(detailed) && detailed)
         for (Object entity : dao().readManySubEntities(HubClientAccess.internal(), Entities.idsOf(segments), false))
-          payload.getIncluded().add(payloadFactory.toPayloadObject(entity));
+          jsonapiPayload.getIncluded().add(payloadFactory.toPayloadObject(entity));
 
       // done
-      return response.ok(payload);
+      return response.ok(jsonapiPayload);
 
     } catch (Exception e) {
       return response.failure(e);

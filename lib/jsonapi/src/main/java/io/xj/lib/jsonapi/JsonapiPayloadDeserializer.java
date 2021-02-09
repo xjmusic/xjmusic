@@ -23,31 +23,31 @@ import java.util.Objects;
  Much of the complexity of serializing and deserializing stems of the fact that
  the JSON:API standard uses a data object for One record, and a data array for Many records.
  */
-public class PayloadDeserializer extends StdDeserializer<Payload> {
-  final Logger log = LoggerFactory.getLogger(PayloadDeserializer.class);
+public class JsonapiPayloadDeserializer extends StdDeserializer<JsonapiPayload> {
+  final Logger log = LoggerFactory.getLogger(JsonapiPayloadDeserializer.class);
 
-  public PayloadDeserializer() {
+  public JsonapiPayloadDeserializer() {
     this(null);
   }
 
-  public PayloadDeserializer(Class<?> vc) {
+  public JsonapiPayloadDeserializer(Class<?> vc) {
     super(vc);
   }
 
   @Override
-  public Payload deserialize(JsonParser jp, DeserializationContext ctxt)
+  public JsonapiPayload deserialize(JsonParser jp, DeserializationContext ctxt)
     throws IOException {
     JsonNode node = jp.getCodec().readTree(jp);
-    Payload payload = new Payload();
+    JsonapiPayload jsonapiPayload = new JsonapiPayload();
 
-    JsonNode data = node.get(Payload.KEY_DATA);
+    JsonNode data = node.get(JsonapiPayload.KEY_DATA);
     switch (data.getNodeType()) {
       //
       case ARRAY:
-        payload.setDataType(PayloadDataType.Many);
+        jsonapiPayload.setDataType(PayloadDataType.Many);
         data.forEach(dataNode -> {
           try {
-            payload.addData(dataNode.traverse(jp.getCodec()).readValueAs(PayloadObject.class));
+            jsonapiPayload.addData(dataNode.traverse(jp.getCodec()).readValueAs(JsonapiPayloadObject.class));
           } catch (IOException e) {
             log.warn("Unable to add resource object create node!", e);
           }
@@ -55,16 +55,16 @@ public class PayloadDeserializer extends StdDeserializer<Payload> {
         break;
       //
       case OBJECT:
-        payload.setDataType(PayloadDataType.One);
+        jsonapiPayload.setDataType(PayloadDataType.One);
         try {
-          payload.setDataOne(data.traverse(jp.getCodec()).readValueAs(PayloadObject.class));
+          jsonapiPayload.setDataOne(data.traverse(jp.getCodec()).readValueAs(JsonapiPayloadObject.class));
         } catch (IOException e) {
           log.warn("Unable to set resource object create node!", e);
         }
         break;
       //
       case NULL:
-        payload.setDataType(PayloadDataType.One);
+        jsonapiPayload.setDataType(PayloadDataType.One);
         break;
       //
       case BINARY:
@@ -77,36 +77,36 @@ public class PayloadDeserializer extends StdDeserializer<Payload> {
         break;
     }
 
-    JsonNode included = node.get(Payload.KEY_INCLUDED);
+    JsonNode included = node.get(JsonapiPayload.KEY_INCLUDED);
     if (Objects.nonNull(included) && JsonNodeType.ARRAY == included.getNodeType())
       included.forEach(includeNode -> {
         try {
-          payload.getIncluded().add(includeNode.traverse(jp.getCodec()).readValueAs(PayloadObject.class));
+          jsonapiPayload.getIncluded().add(includeNode.traverse(jp.getCodec()).readValueAs(JsonapiPayloadObject.class));
         } catch (IOException e) {
           log.warn("Unable to add included resource object create node!", e);
         }
       });
 
-    JsonNode links = node.get(Payload.KEY_LINKS);
+    JsonNode links = node.get(JsonapiPayload.KEY_LINKS);
     if (Objects.nonNull(links) && JsonNodeType.OBJECT == links.getNodeType())
       links.forEach(includeNode -> {
         try {
-          payload.getLinks().putAll(includeNode.traverse(jp.getCodec()).readValueAs(Map.class));
+          jsonapiPayload.getLinks().putAll(includeNode.traverse(jp.getCodec()).readValueAs(Map.class));
         } catch (IOException e) {
           log.warn("Unable to put link create node!", e);
         }
       });
 
-    JsonNode errors = node.get(Payload.KEY_ERRORS);
+    JsonNode errors = node.get(JsonapiPayload.KEY_ERRORS);
     if (Objects.nonNull(errors) && JsonNodeType.ARRAY == errors.getNodeType())
       errors.forEach(includeNode -> {
         try {
-          payload.getErrors().add(includeNode.traverse(jp.getCodec()).readValueAs(PayloadError.class));
+          jsonapiPayload.getErrors().add(includeNode.traverse(jp.getCodec()).readValueAs(PayloadError.class));
         } catch (IOException e) {
           log.warn("Unable to put error create node!", e);
         }
       });
 
-    return payload;
+    return jsonapiPayload;
   }
 }

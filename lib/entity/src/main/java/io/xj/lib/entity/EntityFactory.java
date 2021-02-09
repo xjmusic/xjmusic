@@ -2,7 +2,7 @@
 
 package io.xj.lib.entity;
 
-import com.google.protobuf.MessageLite ;
+import com.google.protobuf.MessageLite;
 
 import java.util.Collection;
 import java.util.Map;
@@ -149,4 +149,24 @@ public interface EntityFactory {
    @return clones of original entities
    */
   <N extends MessageLite> Collection<N> cloneAll(Collection<N> entities) throws EntityException;
+
+  /**
+   Parse some JSON text, and deserialize it into the specified class
+
+   @param <N>       class of entity
+   @param valueType class which deserialization will result in
+   @param json      to deserialize
+   @return {@link Object} deserialized from JSON
+   @throws EntityException on failure to deserialize
+   */
+  <N> N deserialize(Class<N> valueType, String json) throws EntityException;
+
+  /**
+   Serialize an object  into JSON string
+
+   @param obj to serialize
+   @return Payload serialized as JSON text
+   @throws EntityException on failure to serialize
+   */
+  String serialize(Object obj) throws EntityException;
 }

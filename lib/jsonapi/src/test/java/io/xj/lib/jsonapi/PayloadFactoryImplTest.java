@@ -5,7 +5,6 @@ package io.xj.lib.jsonapi;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.xj.Program;
@@ -41,14 +40,14 @@ public class PayloadFactoryImplTest {
   @Test
   public void serialize() throws JsonApiException {
     entityFactory.register("Program").createdBy(Program::getDefaultInstance).withAttribute("name");
-    Payload payload = subject.newPayload();
-    payload.setDataOne(subject.toPayloadObject(
+    JsonapiPayload jsonapiPayload = subject.newJsonapiPayload();
+    jsonapiPayload.setDataOne(subject.toPayloadObject(
       Program.newBuilder()
         .setId("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7")
         .setName("Jams")
         .build()));
 
-    String result = subject.serialize(payload);
+    String result = subject.serialize(jsonapiPayload);
 
     assertEquals("{\"data\":{\"id\":\"6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7\",\"type\":\"programs\",\"attributes\":{\"name\":\"Jams\"}}}", result);
   }
@@ -56,13 +55,13 @@ public class PayloadFactoryImplTest {
   @Test
   public void deserialize() throws JsonApiException {
     entityFactory.register("Program").createdBy(Program::getDefaultInstance).withAttribute("name");
-    Payload payload = subject.newPayload();
-    payload.setDataOne(subject.toPayloadObject(Program.newBuilder()
+    JsonapiPayload jsonapiPayload = subject.newJsonapiPayload();
+    jsonapiPayload.setDataOne(subject.toPayloadObject(Program.newBuilder()
       .setId("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7")
       .setName("Jams")
       .build()));
 
-    Payload result = subject.deserialize("{\"data\":{\"id\":\"6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7\",\"type\":\"programs\",\"attributes\":{\"name\":\"Jams\"}}}");
+    JsonapiPayload result = subject.deserialize("{\"data\":{\"id\":\"6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7\",\"type\":\"programs\",\"attributes\":{\"name\":\"Jams\"}}}");
 
     assertTrue(result.getDataOne().isPresent());
     assertTrue(result.getDataOne().get().getAttribute("name").isPresent());
@@ -72,11 +71,11 @@ public class PayloadFactoryImplTest {
   @Test
   public void toMany_withIncluded() throws JsonApiException {
     entityFactory.register("Program").createdBy(Program::getDefaultInstance).withAttribute("name");
-    Payload payload = subject.newPayload();
-    payload.setDataMany(ImmutableList.of(subject.toPayloadObject(Program.newBuilder().setId("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7").setName("Jams").build())));
-    payload.setIncluded(ImmutableList.of(subject.toPayloadObject(Program.newBuilder().setId("9ec331cc-f987-4682-9975-f569949680a1").setName("Stones").build())));
+    JsonapiPayload jsonapiPayload = subject.newJsonapiPayload();
+    jsonapiPayload.setDataMany(ImmutableList.of(subject.toPayloadObject(Program.newBuilder().setId("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7").setName("Jams").build())));
+    jsonapiPayload.setIncluded(ImmutableList.of(subject.toPayloadObject(Program.newBuilder().setId("9ec331cc-f987-4682-9975-f569949680a1").setName("Stones").build())));
 
-    Collection<?> result = subject.toMany(payload);
+    Collection<?> result = subject.toMany(jsonapiPayload);
 
     assertEquals(2, result.size());
   }
@@ -84,8 +83,8 @@ public class PayloadFactoryImplTest {
   @Test
   public void deserialize_failsWithBadJson() throws JsonApiException {
     entityFactory.register("Program").createdBy(Program::getDefaultInstance).withAttribute("name");
-    Payload payload = subject.newPayload();
-    payload.setDataOne(subject.toPayloadObject(
+    JsonapiPayload jsonapiPayload = subject.newJsonapiPayload();
+    jsonapiPayload.setDataOne(subject.toPayloadObject(
       Program.newBuilder()
         .setId("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7")
         .setName("Jams")
@@ -102,13 +101,13 @@ public class PayloadFactoryImplTest {
     entityFactory.register(Program.class)
       .createdBy(Program::getDefaultInstance)
       .withAttribute("name");
-    PayloadObject payloadObject = subject.toPayloadObject(
+    JsonapiPayloadObject jsonapiPayloadObject = subject.toPayloadObject(
       Program.newBuilder()
         .setId("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7")
         .setName("Jams")
         .build());
 
-    Program result = subject.toOne(payloadObject);
+    Program result = subject.toOne(jsonapiPayloadObject);
 
     assertEquals("Jams", result.getName());
   }
@@ -117,7 +116,7 @@ public class PayloadFactoryImplTest {
   public void toInstance_failsWithNoInstanceProvider() throws JsonApiException {
     entityFactory.register(Program.class)
       .withAttribute("name");
-    PayloadObject payloadObject = subject.toPayloadObject(
+    JsonapiPayloadObject jsonapiPayloadObject = subject.toPayloadObject(
       Program.newBuilder()
         .setId("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7")
         .setName("Jams")
@@ -126,7 +125,7 @@ public class PayloadFactoryImplTest {
     failure.expect(JsonApiException.class);
     failure.expectMessage("Failed to locate instance provider for programs");
 
-    subject.toOne(payloadObject);
+    subject.toOne(jsonapiPayloadObject);
   }
 
 }

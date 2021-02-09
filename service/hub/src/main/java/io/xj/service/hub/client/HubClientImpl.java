@@ -8,7 +8,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.jsonapi.JsonApiException;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -69,8 +69,8 @@ public class HubClientImpl implements HubClient {
       // return content if successful.
       if (Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
         String entity = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
-        Payload payload = payloadFactory.deserialize(entity);
-        return new HubContent(payloadFactory.toMany(payload));
+        JsonapiPayload jsonapiPayload = payloadFactory.deserialize(entity);
+        return new HubContent(payloadFactory.toMany(jsonapiPayload));
       }
 
       // if we got here, it's a failure

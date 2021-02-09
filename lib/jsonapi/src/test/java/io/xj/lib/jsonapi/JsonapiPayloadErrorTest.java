@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class PayloadErrorTest {
+public class JsonapiPayloadErrorTest {
   PayloadFactory payloadFactory;
   PayloadError subject;
 

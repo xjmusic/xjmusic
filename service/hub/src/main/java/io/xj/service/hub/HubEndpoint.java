@@ -6,7 +6,7 @@ import com.google.inject.Inject;
 import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
 import io.xj.lib.jsonapi.HttpResponseProvider;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.access.HubAccess;
@@ -53,16 +53,16 @@ public class HubEndpoint {
 
    @param crc     request context
    @param dao     via which to of Entity
-   @param payload of data to of Entity
+   @param jsonapiPayload of data to of Entity
    @param <N>     type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends MessageLite> Response create(ContainerRequestContext crc, DAO<N> dao, Payload payload) {
+  public <N extends MessageLite> Response create(ContainerRequestContext crc, DAO<N> dao, JsonapiPayload jsonapiPayload) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      N createdEntity = dao.create(hubAccess, payloadFactory.consume(dao.newInstance(), payload));
+      N createdEntity = dao.create(hubAccess, payloadFactory.consume(dao.newInstance(), jsonapiPayload));
 
-      Payload responseData = new Payload();
+      JsonapiPayload responseData = new JsonapiPayload();
       responseData.setDataOne(payloadFactory.toPayloadObject(createdEntity));
       return response.create(responseData);
 
@@ -83,9 +83,9 @@ public class HubEndpoint {
   public <N extends MessageLite> Response readOne(ContainerRequestContext crc, DAO<N> dao, Object id) {
     try {
       Object entity = dao.readOne(HubAccess.fromContext(crc), String.valueOf(id));
-      Payload payload = new Payload();
-      payload.setDataOne(payloadFactory.toPayloadObject(entity));
-      return response.ok(payload);
+      JsonapiPayload jsonapiPayload = new JsonapiPayload();
+      jsonapiPayload.setDataOne(payloadFactory.toPayloadObject(entity));
+      return response.ok(jsonapiPayload);
 
     } catch (DAOException ignored) {
       return response.notFound(dao.newInstance().getClass(), String.valueOf(id));
@@ -108,10 +108,10 @@ public class HubEndpoint {
     try {
       Collection<N> entities = dao.readMany(HubAccess.fromContext(crc),
         parentIds.stream().map((Function<Object, String>) String::valueOf).collect(Collectors.toList()));
-      Payload payload = new Payload().setDataType(PayloadDataType.Many);
-      payload.setDataType(PayloadDataType.Many);
-      for (N entity : entities) payload.addData(payloadFactory.toPayloadObject(entity));
-      return response.ok(payload);
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
+      jsonapiPayload.setDataType(PayloadDataType.Many);
+      for (N entity : entities) jsonapiPayload.addData(payloadFactory.toPayloadObject(entity));
+      return response.ok(jsonapiPayload);
 
     } catch (Exception e) {
       return response.failure(e);
@@ -140,16 +140,16 @@ public class HubEndpoint {
    @param crc     request context
    @param dao     via which to read one Entity
    @param id      of Entity to read
-   @param payload of data to update
+   @param jsonapiPayload of data to update
    @param <N>     type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends MessageLite> Response update(ContainerRequestContext crc, DAO<N> dao, String id, Payload payload) {
+  public <N extends MessageLite> Response update(ContainerRequestContext crc, DAO<N> dao, String id, JsonapiPayload jsonapiPayload) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      N updated = payloadFactory.consume(dao.readOne(hubAccess, id), payload);
+      N updated = payloadFactory.consume(dao.readOne(hubAccess, id), jsonapiPayload);
       dao.update(hubAccess, id, updated);
-      return response.ok(new Payload().setDataOne(payloadFactory.toPayloadObject(updated)));
+      return response.ok(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(updated)));
 
     } catch (Exception e) {
       return response.notAcceptable(e);
@@ -161,15 +161,15 @@ public class HubEndpoint {
 
    @param crc     request context
    @param dao     via which to read one Entity
-   @param payload of data to update, type:many
+   @param jsonapiPayload of data to update, type:many
    @param <N>     type of Entity
    @return HTTP response comprising JSON:API payload
    */
-  public <N extends MessageLite> Response updateMany(ContainerRequestContext crc, DAO<N> dao, Payload payload) {
+  public <N extends MessageLite> Response updateMany(ContainerRequestContext crc, DAO<N> dao, JsonapiPayload jsonapiPayload) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      var result = new Payload().setDataType(PayloadDataType.Many);
-      for (var toUpdate : payload.getDataMany()) {
+      var result = new JsonapiPayload().setDataType(PayloadDataType.Many);
+      for (var toUpdate : jsonapiPayload.getDataMany()) {
         N updated = payloadFactory.consume(dao.readOne(hubAccess, toUpdate.getId()), toUpdate);
         dao.update(hubAccess, toUpdate.getId(), updated);
         result.addData(payloadFactory.toPayloadObject(updated));

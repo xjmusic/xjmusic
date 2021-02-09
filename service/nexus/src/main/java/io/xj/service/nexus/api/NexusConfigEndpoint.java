@@ -12,9 +12,9 @@ import io.xj.Segment;
 import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.JsonApiException;
-import io.xj.lib.jsonapi.Payload;
+import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
-import io.xj.lib.jsonapi.PayloadObject;
+import io.xj.lib.jsonapi.JsonapiPayloadObject;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
 import io.xj.service.nexus.NexusEndpoint;
@@ -78,7 +78,7 @@ public class NexusConfigEndpoint extends NexusEndpoint {
   @PermitAll
   public Response getConfig(@Context ContainerRequestContext crc) {
     return response.ok(
-      new Payload().setDataOne(
-        new PayloadObject().setAttributes(configMap)));
+      new JsonapiPayload().setDataOne(
+        new JsonapiPayloadObject().setAttributes(configMap)));
   }
 }
