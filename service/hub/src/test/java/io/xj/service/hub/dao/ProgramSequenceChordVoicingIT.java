@@ -3,7 +3,6 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.Account;
 import io.xj.AccountUser;
@@ -40,6 +39,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
+import static io.xj.Instrument.Type.Sticky;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -140,7 +140,7 @@ public class ProgramSequenceChordVoicingIT {
       .setProgramSequenceChordId(sequenceChord1a_0.getId())
       .setNotes("C5, Eb5, G5")
       .build());
-    var sequenceChord1a_0_voicing1 = test.insert(ProgramSequenceChordVoicing.newBuilder()
+    test.insert(ProgramSequenceChordVoicing.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setType(Instrument.Type.Bass)
       .setProgramId(sequenceChord1a_0.getProgramId())
@@ -235,6 +235,26 @@ public class ProgramSequenceChordVoicingIT {
     assertEquals(fake.program3_chord1.getId(), result.getProgramSequenceChordId());
     assertEquals(Instrument.Type.Pad, result.getType());
     assertEquals("C5, Eb5, G5", result.getNotes());
+  }
+
+  /**
+   [#176162975] Endpoint to batch update ProgramSequenceChordVoicing
+   */
+  @Test
+  public void update() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+
+    testDAO.update(hubAccess, sequenceChord1a_0_voicing0.getId(),
+      sequenceChord1a_0_voicing0.toBuilder()
+        .setType(Sticky)
+        .setNotes("G1,G2,G3")
+        .build());
+
+    var result = testDAO.readOne(hubAccess, sequenceChord1a_0_voicing0.getId());
+    assertNotNull(result);
+    assertEquals(sequenceChord1a_0_voicing0.getId(), result.getId());
+    assertEquals(Sticky, result.getType());
+    assertEquals("G1,G2,G3", result.getNotes());
   }
 
   /**

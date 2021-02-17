@@ -135,6 +135,4 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
       throw new DAOException(e);
     }
   }
-
-
 }
