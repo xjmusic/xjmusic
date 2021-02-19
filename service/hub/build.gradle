@@ -47,13 +47,7 @@ flyway {
 
 dependencies {
   // intravendor
-  implementation project(':lib:app')
-  implementation project(':lib:entity')
-  implementation project(':lib:filestore')
-  implementation project(':lib:mixer')
-  implementation project(':lib:music')
-  implementation project(':lib:jsonapi')
-  implementation project(':lib:util')
+  implementation project(':lib')
   //
   implementation 'io.xj:protocol:v0.10'
   // jOOq vendor

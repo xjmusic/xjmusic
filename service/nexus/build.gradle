@@ -19,15 +19,7 @@ repositories {
 
 dependencies {
   // intravendor
-  implementation project(':lib:app')
-  implementation project(':lib:entity')
-  implementation project(':lib:filestore')
-  implementation project(':lib:telemetry')
-  implementation project(':lib:jsonapi')
-  implementation project(':lib:mixer')
-  implementation project(':lib:music')
-  implementation project(':lib:pubsub')
-  implementation project(':lib:util')
+  implementation project(':lib')
   implementation project(':service:hub') // FUTURE: instead of depending on hub, we use the client it publishes
   //
   implementation 'io.xj:protocol:v0.10'

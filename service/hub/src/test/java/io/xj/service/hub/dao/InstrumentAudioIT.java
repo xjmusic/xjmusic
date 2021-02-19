@@ -4,7 +4,6 @@ package io.xj.service.hub.dao;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.Account;
@@ -235,7 +234,7 @@ public class InstrumentAudioIT {
     var inputData = InstrumentAudio.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("maracas")
-      .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "maracas.wav")
+      .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav")
       .setStart(0.009)
       .setLength(0.21)
       .setPitch(1567.0)
@@ -385,7 +384,7 @@ public class InstrumentAudioIT {
     var inputData = InstrumentAudio.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("maracas")
-      .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "maracas.wav")
+      .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav")
       .setStart(0.009)
       .setLength(0.21)
       .setPitch(1567.0)
@@ -405,7 +404,7 @@ public class InstrumentAudioIT {
       .setId(UUID.randomUUID().toString())
       .setInstrumentId(UUID.randomUUID().toString())
       .setName("maracas")
-      .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "maracas.wav")
+      .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav")
       .setStart(0.009)
       .setLength(0.21)
       .setPitch(1567.0)
