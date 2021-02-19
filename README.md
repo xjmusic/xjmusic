@@ -332,7 +332,7 @@ Also remember, it is necessary to send an authentication cookie in the header of
     curl -b Access-Token
 
 
-## Audio File Uploading
+## Shipping final audio & JSON to Amazon S3
 
 Note that after an audio file is uploaded, it can be played back (on a GNU/Linux system) like:
 
@@ -344,6 +344,10 @@ Here are the public-facing Amazon CloudFront-backed URLs for audio files, and th
   * [https://audio.stage.xj.io](https://audio.stage.xj.io) is the staging URL, backed by [https://xj-stage-audio.s3.amazonaws.com](https://xj-stage-audio.s3.amazonaws.com)
   * [https://audio.dev.xj.io](https://audio.dev.xj.io) is the development URL, backed by [https://xj-dev-audio.s3.amazonaws.com](https://xj-dev-audio.s3.amazonaws.com)
 
+**NOTE** that our CloudFront configuration defines two tiers of caching behavior:
+
+  * Files containing NO hyphen will have a short TTL, e.g. **coolambience.json** (this is the chain manifest that is updated frequently)
+  * Files containing a hyphen will have a long TTL, e.g. **coolambience-000012598722847.aac** (this is a segment file that never changes)
 
 ## Amazon S3
 
