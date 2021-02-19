@@ -175,7 +175,7 @@ This means you can never change the contents of any of your hubMigration .sql fi
 
 You may ask Gradle to migrate the Hub service's Postgres database at any time like this:
 
-    gradle :service:hub:flywayMigrate --info  
+    gradle :hub:flywayMigrate --info  
 
 It is NOT necessary to have any local Postgres server running. The build process will use your Docker `postgres01xj1`, 
 or more specifically (for cross-platform compatibility) it will use port 5400 which Docker maps to `postgres01xj1` 
@@ -508,16 +508,16 @@ GitHub Open Issue: https://github.com/docker/for-mac/issues/155
 If you see an error having to do with destroying the build artifacts:
 
 ```text
-> Task :service:hub:clean FAILED
+> Task :hub:clean FAILED
 
 FAILURE: Build failed with an exception.
 
 * What went wrong:
-Execution failed for task ':service:hub:clean'.
-> java.io.IOException: Unable to delete directory '/home/charney/xj/alpha-platform/service/hub/build'
+Execution failed for task ':hub:clean'.
+> java.io.IOException: Unable to delete directory '/home/charney/xj/alpha-platform/hub/build'
     Failed to delete some children. This might happen because a process has files open or has its working directory set in the target directory.
-    - /home/charney/xj/alpha-platform/service/hub/build/distributions/hub-1.0.tar
-    - /home/charney/xj/alpha-platform/service/hub/build/distributions
+    - /home/charney/xj/alpha-platform/hub/build/distributions/hub-1.0.tar
+    - /home/charney/xj/alpha-platform/hub/build/distributions
 ```
 
 It may be necessary to change all the permissions so your user owns the working tree:

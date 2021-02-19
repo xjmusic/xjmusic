@@ -19,8 +19,8 @@ repositories {
 
 dependencies {
   // intravendor
-  implementation project(':lib')
-  implementation project(':service:hub') // FUTURE: instead of depending on hub, we use the client it publishes
+  implementation project(':common')
+  implementation project(':hub') // FUTURE: instead of depending on hub, we use the client it publishes
   //
   implementation 'io.xj:protocol:v0.10'
   // vendor

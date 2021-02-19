@@ -2,7 +2,6 @@
 
 rootProject.name = 'xj-platform'
 
-include('lib')
-include('service:hub')
-include('service:nexus')
-include('service:pulse')
+include('common')
+include('hub')
+include('nexus')
