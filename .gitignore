@@ -8,9 +8,6 @@ target/
 */target/
 classes/
 
-# Gradle folder.. i just don't get it
-gradle/
-
 # container logs and data
 log/
 */log/
