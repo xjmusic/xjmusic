@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-aws s3 sync s3://xj-prod-audio/ ./data/
+aws s3 sync s3://xj-prod-audio/ ./nexus/data/
