@@ -37,7 +37,7 @@ import java.util.Set;
 /**
  InstrumentAudio endpoint
  */
-@Path("instrument-audios")
+@Path("api/1/instrument-audios")
 public class InstrumentAudioEndpoint extends HubEndpoint {
   private final InstrumentAudioEventDAO instrumentAudioEventDAO;
   private final InstrumentAudioChordDAO instrumentAudioChordDAO;

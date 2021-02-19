@@ -9,7 +9,6 @@ import java.net.URI;
 
 @Singleton
 class ApiUrlProviderImpl implements ApiUrlProvider {
-  private String apiPath;
   private String appBaseUrl;
   private String appHost;
   private String appHostname;
@@ -24,7 +23,6 @@ class ApiUrlProviderImpl implements ApiUrlProvider {
 
   @Inject
   public ApiUrlProviderImpl(Config config) {
-    this.apiPath = config.getString("app.apiUrl");
     this.appBaseUrl = config.getString("app.baseUrl");
     this.appHost = config.getString("app.host");
     this.appHostname = config.getString("app.hostname");
@@ -37,18 +35,13 @@ class ApiUrlProviderImpl implements ApiUrlProvider {
   }
 
   @Override
-  public String getApiPath() {
-    return apiPath;
-  }
-
-  @Override
   public URI getApiURI(String path) {
     return URI.create(getApiUrlString(path));
   }
 
   @Override
   public String getApiUrlString(String path) {
-    return getAppBaseUrl() + getApiPath() + path;
+    return getAppBaseUrl() + path;
   }
 
   @Override
@@ -95,12 +88,6 @@ class ApiUrlProviderImpl implements ApiUrlProvider {
   @Override
   public String getAppPathWelcome() {
     return appPathWelcome;
-  }
-
-  @Override
-  public ApiUrlProvider setApiPath(String apiPath) {
-    this.apiPath = apiPath;
-    return this;
   }
 
   @Override

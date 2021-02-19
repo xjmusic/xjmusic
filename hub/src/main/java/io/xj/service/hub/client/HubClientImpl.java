@@ -32,7 +32,7 @@ import java.util.Set;
  Implementation of a Hub Client for connecting to Hub and accessing contents
  */
 public class HubClientImpl implements HubClient {
-  private static final String API_PATH_INGEST = "ingest";
+  private static final String API_PATH_INGEST = "api/1/ingest";
   private static final String API_PATH_AUTH = "auth";
   private static final String HEADER_COOKIE = "Cookie";
   private final CloseableHttpClient httpClient;

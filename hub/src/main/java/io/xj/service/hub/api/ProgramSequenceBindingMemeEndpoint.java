@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 /**
  ProgramSequenceBindingMeme endpoint
  */
-@Path("program-sequence-binding-memes")
+@Path("api/1/program-sequence-binding-memes")
 public class ProgramSequenceBindingMemeEndpoint extends HubEndpoint {
   private final ProgramSequenceBindingMemeDAO dao;
 

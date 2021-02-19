@@ -42,7 +42,7 @@ import java.util.Set;
 /**
  Programs
  */
-@Path("programs")
+@Path("api/1/programs")
 public class ProgramEndpoint extends HubEndpoint {
   private final ProgramSequenceBindingMemeDAO programSequenceBindingMemeDAO;
   private final ProgramDAO dao;

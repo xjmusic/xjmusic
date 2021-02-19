@@ -42,8 +42,7 @@ public class GoogleProviderImplTest extends Mockito {
     Config config = HubTestConfiguration.getDefault()
       .withValue("google.clientId", ConfigValueFactory.fromAnyRef("12345"))
       .withValue("google.clientSecret", ConfigValueFactory.fromAnyRef("abcdef"))
-      .withValue("app.baseUrl", ConfigValueFactory.fromAnyRef("http://shammy/"))
-      .withValue("app.apiUrl", ConfigValueFactory.fromAnyRef("api/69/"));
+      .withValue("app.baseUrl", ConfigValueFactory.fromAnyRef("http://shammy/"));
     var injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(),
       new FileStoreModule()).with(
       new AbstractModule() {
@@ -62,7 +61,7 @@ public class GoogleProviderImplTest extends Mockito {
     String url = googleProvider.getAuthCodeRequestUrl();
     assertEquals("https://accounts.google.com/o/oauth2/auth" +
       "?client_id=12345" +
-      "&redirect_uri=http://shammy/api/69/auth/google/callback" +
+      "&redirect_uri=http://shammy/auth/google/callback" +
       "&response_type=code" +
       "&scope=profile%20email" +
       "&state=xj-music", url);

@@ -42,7 +42,7 @@ public class AppTest {
     HttpClient client = new HttpClient();
     client.start();
 
-    ContentResponse res = client.GET("http://localhost:1903/-/health");
+    ContentResponse res = client.GET("http://localhost:1903/api/1/-/health");
 
     assertEquals(200, res.getStatus());
     client.stop();

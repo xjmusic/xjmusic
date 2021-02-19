@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 /**
  ProgramVoiceTrack endpoint
  */
-@Path("program-voice-tracks")
+@Path("api/1/program-voice-tracks")
 public class ProgramVoiceTrackEndpoint extends HubEndpoint {
   private final ProgramVoiceTrackDAO dao;
 

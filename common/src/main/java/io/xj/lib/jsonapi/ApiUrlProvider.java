@@ -9,11 +9,6 @@ import java.net.URI;
 public interface ApiUrlProvider {
 
   /**
-   @return API path
-   */
-  String getApiPath();
-
-  /**
    Get URI object for a path within the API
 
    @param path within API
@@ -73,14 +68,6 @@ public interface ApiUrlProvider {
    @return path for unauthorized redirect
    */
   String getAppPathWelcome();
-
-  /**
-   Set ApiPath
-
-   @param apiPath to set
-   @return this ApiUrlProvider (for chaining methods)
-   */
-  ApiUrlProvider setApiPath(String apiPath);
 
   /**
    Set AppBaseUrl

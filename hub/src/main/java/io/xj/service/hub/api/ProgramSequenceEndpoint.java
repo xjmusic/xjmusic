@@ -33,7 +33,7 @@ import java.util.Objects;
 /**
  ProgramSequence endpoint
  */
-@Path("program-sequences")
+@Path("api/1/program-sequences")
 public class ProgramSequenceEndpoint extends HubEndpoint {
   private final ProgramSequenceDAO dao;
 

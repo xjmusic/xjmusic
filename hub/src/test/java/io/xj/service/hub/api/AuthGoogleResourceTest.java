@@ -50,8 +50,7 @@ public class AuthGoogleResourceTest {
       .withValue("google.clientId", ConfigValueFactory.fromAnyRef("12345"))
       .withValue("google.clientSecret", ConfigValueFactory.fromAnyRef("abcdef"))
       .withValue("app.port", ConfigValueFactory.fromAnyRef(1903))
-      .withValue("app.baseUrl", ConfigValueFactory.fromAnyRef("https://xj.io/"))
-      .withValue("app.apiUrl", ConfigValueFactory.fromAnyRef("api/69/"));
+      .withValue("app.baseUrl", ConfigValueFactory.fromAnyRef("https://xj.io/"));
     var injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule()));
     app = new HubApp(injector);
     app.start();
@@ -83,7 +82,7 @@ public class AuthGoogleResourceTest {
     assertEquals(
       "https://accounts.google.com/o/oauth2/auth" +
         "?client_id=12345" +
-        "&redirect_uri=https://xj.io/api/69/auth/google/callback" +
+        "&redirect_uri=https://xj.io/auth/google/callback" +
         "&response_type=code" +
         "&scope=profile%20email" +
         "&state=xj-music",

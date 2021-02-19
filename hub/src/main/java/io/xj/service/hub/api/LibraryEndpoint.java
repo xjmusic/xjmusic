@@ -28,7 +28,7 @@ import java.util.Objects;
 /**
  Libraries
  */
-@Path("libraries")
+@Path("api/1/libraries")
 public class LibraryEndpoint extends HubEndpoint {
   private final LibraryDAO dao;
 

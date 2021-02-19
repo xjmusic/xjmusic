@@ -25,7 +25,7 @@ import javax.ws.rs.core.Response;
 /**
  Chain record
  */
-@Path("chain-bindings")
+@Path("api/1/chain-bindings")
 public class ChainBindingEndpoint extends NexusEndpoint {
   private final ChainBindingDAO dao;
 

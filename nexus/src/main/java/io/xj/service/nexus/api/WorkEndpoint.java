@@ -21,7 +21,7 @@ import javax.ws.rs.core.Response;
 /**
  Works
  */
-@Path("works")
+@Path("api/1/works")
 public class WorkEndpoint extends NexusEndpoint {
   private final NexusWork nexusWork;
 

@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 /**
  InstrumentAudioEvent endpoint
  */
-@Path("instrument-audio-events")
+@Path("api/1/instrument-audio-events")
 public class InstrumentAudioEventEndpoint extends HubEndpoint {
   private final InstrumentAudioEventDAO dao;
 

@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 /**
  InstrumentMeme endpoint
  */
-@Path("instrument-memes")
+@Path("api/1/instrument-memes")
 public class InstrumentMemeEndpoint extends HubEndpoint {
   private final InstrumentMemeDAO dao;
 

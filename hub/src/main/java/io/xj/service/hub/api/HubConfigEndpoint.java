@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  Current platform configuration
  */
-@Path("hub/config")
+@Path("api/1/hub/config")
 public class HubConfigEndpoint extends HubEndpoint {
   private static final String UNRECOGNIZED_VALUE = "UNRECOGNIZED";
   private final ApiUrlProvider apiUrlProvider;
@@ -52,7 +52,7 @@ public class HubConfigEndpoint extends HubEndpoint {
     defaultInstrumentConfig = Text.format(config.getConfig("instrument"));
 
     configMap = ImmutableMap.<String, Object>builder()
-      .put("apiBaseUrl", apiUrlProvider.getAppBaseUrl() + apiUrlProvider.getApiPath())
+      .put("apiBaseUrl", apiUrlProvider.getAppBaseUrl())
       .put("audioBaseUrl", apiUrlProvider.getAudioBaseUrl())
       .put("baseUrl", apiUrlProvider.getAppBaseUrl())
       .put("choiceTypes", Value.without(Program.Type.UNRECOGNIZED, Program.Type.values()))

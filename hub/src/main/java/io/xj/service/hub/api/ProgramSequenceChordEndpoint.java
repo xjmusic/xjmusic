@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 /**
  ProgramSequenceChord endpoint
  */
-@Path("program-sequence-chords")
+@Path("api/1/program-sequence-chords")
 public class ProgramSequenceChordEndpoint extends HubEndpoint {
   private final ProgramSequenceChordDAO dao;
 

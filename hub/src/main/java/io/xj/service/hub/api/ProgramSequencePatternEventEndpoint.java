@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 /**
  ProgramSequencePatternEvent endpoint
  */
-@Path("program-sequence-pattern-events")
+@Path("api/1/program-sequence-pattern-events")
 public class ProgramSequencePatternEventEndpoint extends HubEndpoint {
   private final ProgramSequencePatternEventDAO dao;
 

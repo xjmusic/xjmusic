@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 /**
  ProgramMeme endpoint
  */
-@Path("program-memes")
+@Path("api/1/program-memes")
 public class ProgramMemeEndpoint extends HubEndpoint {
   private final ProgramMemeDAO dao;
 

@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 /**
  ProgramSequenceBinding endpoint
  */
-@Path("program-sequence-bindings")
+@Path("api/1/program-sequence-bindings")
 public class ProgramSequenceBindingEndpoint extends HubEndpoint {
   private final ProgramSequenceBindingDAO dao;
 

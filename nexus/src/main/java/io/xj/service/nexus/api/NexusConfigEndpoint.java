@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  Current platform configuration
  */
-@Path("nexus/config")
+@Path("api/1/nexus/config")
 public class NexusConfigEndpoint extends NexusEndpoint {
   private final Map<String, Object> configMap;
 
@@ -48,7 +48,7 @@ public class NexusConfigEndpoint extends NexusEndpoint {
     String defaultChainConfig = Text.format(config.getConfig("chain"));
 
     configMap = ImmutableMap.<String, Object>builder()
-      .put("apiBaseUrl", apiUrlProvider.getAppBaseUrl() + apiUrlProvider.getApiPath())
+      .put("apiBaseUrl", apiUrlProvider.getAppBaseUrl())
       .put("audioBaseUrl", apiUrlProvider.getAudioBaseUrl())
       .put("baseUrl", apiUrlProvider.getAppBaseUrl())
       .put("chainStates", Value.without(Chain.State.UNRECOGNIZED, Chain.State.values()))

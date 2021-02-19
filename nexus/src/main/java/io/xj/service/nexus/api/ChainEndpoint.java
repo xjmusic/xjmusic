@@ -42,7 +42,7 @@ import java.util.UUID;
 /**
  Chains
  */
-@Path("chains")
+@Path("api/1/chains")
 public class ChainEndpoint extends NexusEndpoint {
   private final ChainDAO dao;
   private final EntityFactory entityFactory;

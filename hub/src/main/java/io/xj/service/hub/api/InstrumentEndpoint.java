@@ -35,7 +35,7 @@ import java.util.Set;
 /**
  Instruments
  */
-@Path("instruments")
+@Path("api/1/instruments")
 public class InstrumentEndpoint extends HubEndpoint {
   private final InstrumentDAO dao;
   private final InstrumentMemeDAO instrumentMemeDAO;

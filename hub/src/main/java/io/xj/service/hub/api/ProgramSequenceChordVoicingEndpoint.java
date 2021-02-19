@@ -23,7 +23,7 @@ import javax.ws.rs.core.Response;
 /**
  ProgramSequenceChordVoicing endpoint
  */
-@Path("program-sequence-chord-voicings")
+@Path("api/1/program-sequence-chord-voicings")
 public class ProgramSequenceChordVoicingEndpoint extends HubEndpoint {
   private final ProgramSequenceChordVoicingDAO dao;
 

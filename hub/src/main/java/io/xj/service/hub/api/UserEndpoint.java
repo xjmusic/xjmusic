@@ -27,7 +27,7 @@ import java.util.Objects;
 /**
  Current user
  */
-@Path("users")
+@Path("api/1/users")
 public class UserEndpoint extends HubEndpoint {
   private final UserDAO dao;
 

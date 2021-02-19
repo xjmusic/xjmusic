@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 /**
  InstrumentAudioChord endpoint
  */
-@Path("instrument-audio-chords")
+@Path("api/1/instrument-audio-chords")
 public class InstrumentAudioChordEndpoint extends HubEndpoint {
   private final InstrumentAudioChordDAO dao;
 

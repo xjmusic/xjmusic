@@ -4,7 +4,6 @@ package io.xj.service.hub.api;
 import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -41,7 +40,6 @@ public class AuthEndpoint extends HubEndpoint {
   private final HubAccessControlProvider hubAccessControlProvider;
   private final GoogleProvider authGoogleProvider;
   private final ApiUrlProvider apiUrlProvider;
-  private final EntityFactory entityFactory;
   private final HttpResponseProvider httpResponseProvider;
 
   /**
@@ -56,7 +54,6 @@ public class AuthEndpoint extends HubEndpoint {
     HubAccessControlProvider hubAccessControlProvider,
     GoogleProvider authGoogleProvider,
     ApiUrlProvider apiUrlProvider,
-    EntityFactory entityFactory,
     HttpResponseProvider httpResponseProvider
   ) {
     super(response, config, payloadFactory);
@@ -64,7 +61,6 @@ public class AuthEndpoint extends HubEndpoint {
     this.hubAccessControlProvider = hubAccessControlProvider;
     this.authGoogleProvider = authGoogleProvider;
     this.apiUrlProvider = apiUrlProvider;
-    this.entityFactory = entityFactory;
     this.httpResponseProvider = httpResponseProvider;
   }
 
@@ -135,6 +131,7 @@ public class AuthEndpoint extends HubEndpoint {
 
    @return Response temporary redirection to auth URL
    */
+  @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
   @GET
   @Path("google/callback")
   @PermitAll

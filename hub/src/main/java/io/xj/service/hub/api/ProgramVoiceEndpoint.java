@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 /**
  ProgramVoice endpoint
  */
-@Path("program-voices")
+@Path("api/1/program-voices")
 public class ProgramVoiceEndpoint extends HubEndpoint {
   private final ProgramVoiceDAO dao;
 

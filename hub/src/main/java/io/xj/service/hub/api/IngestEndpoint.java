@@ -29,7 +29,7 @@ import java.util.Set;
  <p>
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  */
-@Path("ingest")
+@Path("api/1/ingest")
 public class IngestEndpoint extends HubEndpoint {
   private final Logger log = LoggerFactory.getLogger(IngestEndpoint.class);
   private final HubIngestFactory ingestFactory;

@@ -88,7 +88,7 @@ public class HubClientImplTest {
   public void ingest() throws JsonApiException, HubClientException {
     String hubContentBody = payloadFactory.serialize(payloadFactory.newJsonapiPayload()
       .setDataMany(payloadFactory.toPayloadObjects(hubEntities)));
-    stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/ingest"))
+    stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/api/1/ingest"))
       .withQueryParams(ImmutableMap.of(
         "libraryIds", new EqualToPattern(content.library2.getId()),
         "programIds", new EqualToPattern(""),
@@ -137,7 +137,7 @@ public class HubClientImplTest {
       .setToken("secret_token_123");
 
     // first attempt fails
-    stubFor(WireMock.get(urlPathEqualTo("/ingest"))
+    stubFor(WireMock.get(urlPathEqualTo("/api/1/ingest"))
       .withQueryParams(hubQueryParams)
       .withHeader("Cookie", equalTo("access_token=internal_secret_456"))
       .inScenario(INGEST_RETRY_SCENARIO)
@@ -147,7 +147,7 @@ public class HubClientImplTest {
         .withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
     // second attempt succeeds
-    stubFor(WireMock.get(urlPathEqualTo("/ingest"))
+    stubFor(WireMock.get(urlPathEqualTo("/api/1/ingest"))
       .withQueryParams(hubQueryParams)
       .withHeader("Cookie", equalTo("access_token=internal_secret_456"))
       .inScenario(INGEST_RETRY_SCENARIO)

@@ -25,7 +25,7 @@ import javax.ws.rs.core.Response;
 /**
  Account record
  */
-@Path("account-users")
+@Path("api/1/account-users")
 public class AccountUserEndpoint extends HubEndpoint {
   private AccountUserDAO dao;
 
