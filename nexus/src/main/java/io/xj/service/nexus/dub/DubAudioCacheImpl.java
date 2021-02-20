@@ -7,8 +7,8 @@ import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import datadog.trace.api.Trace;
 import com.typesafe.config.Config;
+import datadog.trace.api.Trace;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.util.TempFile;
@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 
 @Singleton
 class DubAudioCacheImpl implements DubAudioCache {
@@ -111,19 +110,9 @@ class DubAudioCacheImpl implements DubAudioCache {
   private DubAudioCacheItem fetchAndWrite(String key) throws IOException, FileStoreException {
     String path = String.format("%s%s", pathPrefix, key);
     DubAudioCacheItem item = new DubAudioCacheItem(key, path);
-    InputStream stream = fileStoreProvider.streamS3Object(audioFileBucket, key);
-    item.writeFrom(stream);
-    if (Objects.nonNull(stream)) stream.close(); // FUTURE when does this ever happen?
+    try (InputStream stream = fileStoreProvider.streamS3Object(audioFileBucket, key)) {
+      item.writeFrom(stream);
+    }
     return item;
   }
-
-  /*
-   FUTURE Garbage collection routine
-   *
-  public static void cleanup() {
-    // future: for each contents of cache, sorted by last used date, most recent to most stale, tally up sum of total bytes stored
-    // future: when contents of cache is greater or equal to max cache file storage space, delete all remaining contents and delete corresponding stored files
-  }
-   */
-
 }
