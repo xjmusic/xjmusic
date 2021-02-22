@@ -34,7 +34,6 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
-import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Key;
@@ -105,6 +104,7 @@ class FabricatorImpl implements Fabricator {
   private final Set<String> boundProgramIds;
   private final Set<String> boundInstrumentIds;
   private final Config config;
+  private final Collection<ChainBinding> chainBindings;
   private Segment.Type type;
   private final String workTempFilePathPrefix;
   private final DecimalFormat segmentNameFormat;
@@ -157,7 +157,7 @@ class FabricatorImpl implements Fabricator {
       // read the chain, configs, and bindings
       chain = chainDAO.readOne(access, segment.getChainId());
       chainConfig = new ChainConfig(chain, config);
-      Collection<ChainBinding> chainBindings = chainBindingDAO.readMany(access, ImmutableList.of(chain.getId()));
+      chainBindings = chainBindingDAO.readMany(access, ImmutableList.of(chain.getId()));
       Set<String> boundLibraryIds = targetIdsOfType(chainBindings, ChainBinding.Type.Library);
       boundProgramIds = targetIdsOfType(chainBindings, ChainBinding.Type.Program);
       boundInstrumentIds = targetIdsOfType(chainBindings, ChainBinding.Type.Instrument);
@@ -746,21 +746,12 @@ class FabricatorImpl implements Fabricator {
   @Override
   public String getChainMetadataJson() throws FabricationException {
     try {
-      Collection<Segment> segments =
-        segmentDAO.readManyFromSecondsUTC(access, getChainId(), Instant.now().getEpochSecond());
-
-      // Prepare payload
-      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
-
-      // add segments as plural data in payload
-      for (Segment segment : segments) jsonapiPayload.addData(payloadFactory.toPayloadObject(segment));
-
-      // seek and add sub-entities to payload --
-      // use internal access because we already cleared these segment ids from access control,
-      // and there is no access object when reading chain by embed key
-      for (Object entity : segmentDAO.readManySubEntities(HubClientAccess.internal(), Entities.idsOf(segments), false))
-        jsonapiPayload.getIncluded().add(payloadFactory.toPayloadObject(entity));
-
+      JsonapiPayload jsonapiPayload = new JsonapiPayload();
+      jsonapiPayload.setDataOne(payloadFactory.toPayloadObject(chain));
+      for (ChainBinding binding : chainBindings)
+        jsonapiPayload.addToIncluded(payloadFactory.toPayloadObject(binding));
+      for (Segment segment : segmentDAO.readManyFromSecondsUTC(access, getChainId(), Instant.now().getEpochSecond()))
+        jsonapiPayload.addToIncluded(payloadFactory.toPayloadObject(segment));
       return payloadFactory.serialize(jsonapiPayload);
 
     } catch (JsonApiException | DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
