@@ -20,7 +20,6 @@ import io.xj.service.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -120,9 +119,7 @@ public class DubMasterImpl implements DubMaster {
       String key = audio.getWaveformKey();
 
       if (!mixer().hasLoadedSource(audio.getId())) try {
-        BufferedInputStream stream = dubAudioCache.get(key).stream();
-        mixer().loadSource(audio.getId(), stream);
-        stream.close();
+        mixer().loadSource(audio.getId(), dubAudioCache.get(key));
 
       } catch (Exception e) {
         dubAudioCache.refresh(key);

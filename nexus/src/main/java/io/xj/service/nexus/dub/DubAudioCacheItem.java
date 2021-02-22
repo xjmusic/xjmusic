@@ -1,12 +1,18 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.dub;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import com.typesafe.config.Config;
+import io.xj.lib.filestore.FileStoreException;
+import io.xj.lib.filestore.FileStoreProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,19 +23,42 @@ public class DubAudioCacheItem {
   final Logger log = LoggerFactory.getLogger(DubAudioCacheItem.class);
   private final String key;
   private final String path;
-  private int _bytes; // in bytes
+  private int size; // # of bytes
+  private final byte[] bytes;
 
   /**
-   of DubAudioCacheItem
-   Compute path to cached file on disk.
+   Load audio from disk to memory, or if necessary, from S3 to disk (for future caching), then to memory.
    <p>
-   [#153228109] During Dubbing, when the audio cache refreshes an item, filenames should be unique in order to avoid deletion-collision
+   [#176642679] Advanced audio caching during fabrication
+   <p>
+   Original DubAudioCacheItem should not be implemented with Caffeine-- this is the mechanism we use only for downloading files not already present to disk.
+   <p>
+   Implement Caffeine after loading the audio data from disk into memory-- the real speed lift here is from keeping the audio in memory
 
-   @param key of item to cache
+   @param config            from app
+   @param fileStoreProvider from which to load files
+   @param key               ot this item
+   @param path              to this item's waveform data on disk
    */
-  public DubAudioCacheItem(String key, String path) {
+  @Inject
+  public DubAudioCacheItem(
+    Config config,
+    FileStoreProvider fileStoreProvider,
+    @Assisted("key") String key,
+    @Assisted("path") String path
+  ) throws FileStoreException, IOException, DubException {
     this.key = key;
     this.path = path;
+    String audioFileBucket = config.getString("audio.fileBucket");
+    if (!existsOnDisk())
+      try (InputStream stream = fileStoreProvider.streamS3Object(audioFileBucket, key)) {
+        writeFrom(stream);
+      }
+
+    try (BufferedInputStream stream = new BufferedInputStream(FileUtils.openInputStream(new File(path)))) {
+      bytes = new byte[stream.available()];
+      size = stream.read(bytes);
+    }
   }
 
   /**
@@ -42,12 +71,10 @@ public class DubAudioCacheItem {
   }
 
   /**
-   stream content of stored data of file
-
-   @return content
+   @return true if this dub audio cache item exists (as audio waveform data) on disk
    */
-  public BufferedInputStream stream() throws IOException {
-    return new BufferedInputStream(FileUtils.openInputStream(new File(path)));
+  private boolean existsOnDisk() {
+    return new File(path).exists();
   }
 
   /**
@@ -56,47 +83,34 @@ public class DubAudioCacheItem {
    @param data to save to file
    @throws IOException on failure
    */
-  public void writeFrom(InputStream data) throws IOException {
-    if (Objects.nonNull(data)) {
-      OutputStream toFile = FileUtils.openOutputStream(new File(path));
-      _bytes = IOUtils.copy(data, toFile);
-      toFile.close();
-      log.info("Did write media item to disk cache: {} ({} bytes)", path, _bytes);
-    } else {
-      log.warn("Will not write 0 bytes to disk cache: {}", path);
-    }
+  public void writeFrom(InputStream data) throws IOException, DubException {
+    if (Objects.isNull(data))
+      throw new DubException(String.format("Unable to write bytes to disk cache: %s", path));
+
+    OutputStream toFile = FileUtils.openOutputStream(new File(path));
+    size = IOUtils.copy(data, toFile); // stores number of bytes copied
+    toFile.close();
+    log.info("Did write media item to disk cache: {} ({} bytes)", path, size);
   }
 
   /**
-   this item has been removed
-   */
-  public void remove() {
-    File file = new File(path);
-    if (file.exists()) try {
-      FileUtils.forceDelete(file);
-      log.info("Deleted: {}", path);
-
-    } catch (IOException e) {
-      log.error("Failed to delete media item create disk cache: {}", path, e);
-    }
-  }
-
-  /**
-   path to stored data file
-
-   @return path
+   @return path to stored data file
    */
   public String path() {
     return path;
   }
 
   /**
-   size of media item
-
-   @return size in bytes
+   @return size in # of bytes, of waveform audio loaded from disk into memory
    */
   public int size() {
-    return _bytes;
+    return size;
   }
 
+  /**
+   @return bytes of waveform audio loaded from disk into memory
+   */
+  public BufferedInputStream getBytes() {
+    return new BufferedInputStream(new ByteArrayInputStream(bytes));
+  }
 }

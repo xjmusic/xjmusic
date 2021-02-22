@@ -3,15 +3,23 @@ package io.xj.service.nexus.dub;
 
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 
+import java.io.BufferedInputStream;
+
 public interface DubAudioCache {
 
   /**
-   Get value for a particular key
+   Get bytes of audio for a particular key
+   <p>
+   [#176642679] Advanced audio caching during fabrication
+   <p>
+   Original DubAudioCacheItem should not be implemented with Caffeine-- this is the mechanism we use only for downloading files not already present to disk.
+   <p>
+   Implement Caffeine after loading the audio data from disk into memory-- the real speed lift here is from keeping the audio in memory
 
-   @param key to retrieve
    @return stream if cached; null if not
+   @param key to retrieve
    */
-  DubAudioCacheItem get(String key);
+  BufferedInputStream get(String key);
 
   /**
    Refresh the cache for a particular key

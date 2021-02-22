@@ -14,6 +14,9 @@ public class DubModule extends AbstractModule {
       .implement(DubMaster.class, DubMasterImpl.class)
       .implement(DubShip.class, DubShipImpl.class)
       .build(DubFactory.class));
+    install(new FactoryModuleBuilder()
+      .implement(DubAudioCacheItem.class, DubAudioCacheItem.class)
+      .build(DubAudioCacheItemFactory.class));
   }
 
 }
