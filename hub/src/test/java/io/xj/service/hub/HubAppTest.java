@@ -151,7 +151,7 @@ public class HubAppTest {
 
   @Test
   public void checkApp() throws Exception {
-    HttpGet request = new HttpGet(new URI("http://localhost:1903/api/1/-/health"));
+    HttpGet request = new HttpGet(new URI("http://localhost:1903/-/health"));
     CloseableHttpResponse result = httpClient.execute(request);
 
     assertEquals(200, result.getStatusLine().getStatusCode());

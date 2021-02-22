@@ -11,7 +11,7 @@ import javax.ws.rs.Path;
 /**
  Health resource.
  */
-@Path("api/1/-/health")
+@Path("-/health")
 @Singleton
 public class TestAppHealthEndpoint {
 
