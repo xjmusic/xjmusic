@@ -21,6 +21,7 @@ import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.service.hub.client.HubClientAccess;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
@@ -65,7 +66,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     SegmentDAO segmentDAO,
     PayloadFactory payloadFactory,
     EntityStore entityStore
-  ) throws FabricationException {
+  ) throws NexusException {
     this.access = access;
     this.chain = chain;
     this.segment = segment;
@@ -77,7 +78,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     try {
       entityStore.putAll(segmentDAO.readManySubEntities(access, ImmutableList.of(segment.getId()), true));
     } catch (DAOFatalException | DAOPrivilegeException | EntityStoreException e) {
-      throw new FabricationException("Failed to load Segment for Workbench!", e);
+      throw new NexusException("Failed to load Segment for Workbench!", e);
     }
   }
 
@@ -140,7 +141,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public void done() throws FabricationException {
+  public void done() throws NexusException {
     try {
       sendReportToSegmentMessage();
 
@@ -155,7 +156,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
       segmentDAO.createAllSubEntities(access, bench.getAll(SegmentChoiceArrangementPick.class)); // after arrangements
 
     } catch (JsonApiException | DAOFatalException | DAOExistenceException | DAOPrivilegeException | DAOValidationException e) {
-      throw new FabricationException("Failed to build and update payload for Segment!", e);
+      throw new NexusException("Failed to build and update payload for Segment!", e);
     }
   }
 
@@ -178,18 +179,18 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public <N extends MessageLite> N add(N entity) throws FabricationException {
+  public <N extends MessageLite> N add(N entity) throws NexusException {
     try {
       return bench.put(entity);
     } catch (EntityStoreException e) {
-      throw new FabricationException(e);
+      throw new NexusException(e);
     }
   }
 
   /**
    Returns the current report map as json, and clears the report so it'll only be reported once
    */
-  private void sendReportToSegmentMessage() throws JsonApiException, FabricationException {
+  private void sendReportToSegmentMessage() throws JsonApiException, NexusException {
     String reported = payloadFactory.serialize(report);
     add(SegmentMessage.newBuilder()
       .setId(UUID.randomUUID().toString())

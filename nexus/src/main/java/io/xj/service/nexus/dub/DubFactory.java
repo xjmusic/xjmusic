@@ -2,6 +2,7 @@
 package io.xj.service.nexus.dub;
 
 import com.google.inject.assistedinject.Assisted;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.Fabricator;
 
 /**
@@ -20,11 +21,11 @@ public interface DubFactory {
 
    @param fabricator of dub
    @return MasterDub
-   @throws DubException on failure
+   @throws NexusException on failure
    */
   DubMaster master(
     @Assisted("basis") Fabricator fabricator
-  ) throws DubException;
+  ) throws NexusException;
 
   /**
    Create DubShip Dub instance for a particular segment
@@ -32,10 +33,10 @@ public interface DubFactory {
 
    @param fabricator of dub
    @return ShipDub
-   @throws DubException on failure
+   @throws NexusException on failure
    */
   DubShip ship(
     @Assisted("basis") Fabricator fabricator
-  ) throws DubException;
+  ) throws NexusException;
 
 }

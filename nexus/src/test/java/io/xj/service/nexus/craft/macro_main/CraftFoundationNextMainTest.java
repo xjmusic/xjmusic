@@ -27,7 +27,7 @@ import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.NexusIntegrationTestingFixtures;
 import io.xj.service.nexus.craft.CraftFactory;
 import io.xj.service.nexus.dao.SegmentDAO;
-import io.xj.service.nexus.fabricator.FabricationException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
@@ -221,7 +221,7 @@ public class CraftFoundationNextMainTest {
             .setStorageKey("chain-1-waveform-12345.wav")
             .build());
 
-    failure.expect(FabricationException.class);
+    failure.expect(NexusException.class);
 
     fabricatorFactory.fabricate(HubClientAccess.internal(), segment5);
   }

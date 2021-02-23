@@ -2,7 +2,7 @@
 package io.xj.service.nexus.craft.detail;
 
 import io.xj.service.nexus.NexusException;
-import io.xj.service.nexus.craft.CraftException;
+import io.xj.service.nexus.NexusException;
 
 /**
  Structure craft for the current segment includes all kinds of Detail
@@ -14,6 +14,6 @@ public interface DetailCraft {
   /**
    perform craft for the current segment
    */
-  void doWork() throws NexusException, CraftException;
+  void doWork() throws NexusException, NexusException;
 
 }

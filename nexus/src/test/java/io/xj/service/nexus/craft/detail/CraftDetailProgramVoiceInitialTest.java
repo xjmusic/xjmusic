@@ -30,7 +30,7 @@ import io.xj.service.nexus.craft.CraftFactory;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.After;
@@ -150,7 +150,7 @@ public class CraftDetailProgramVoiceInitialTest {
   /**
    Insert fixture segment 6, including the detail choice only if specified
    */
-  private void insertSegments() throws NexusEntityStoreException {
+  private void insertSegments() throws NexusException {
     // segment crafted
     Segment segment5 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())

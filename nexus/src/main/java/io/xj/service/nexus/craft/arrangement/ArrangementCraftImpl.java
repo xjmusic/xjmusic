@@ -22,9 +22,9 @@ import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientException;
-import io.xj.service.nexus.craft.CraftException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
-import io.xj.service.nexus.fabricator.FabricationException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.service.nexus.fabricator.NameIsometry;
 
@@ -53,7 +53,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param voice       within program
    @param fromPos     position (in beats)
    @param maxPos      position (in beats)
-   @throws CraftException on failure
+   @throws NexusException on failure
    */
   @Trace(resourceName = "nexus/craft/arrangement", operationName = "craftArrangementForVoiceSection")
   protected void craftArrangementForVoiceSection(
@@ -63,7 +63,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     ProgramVoice voice,
     double fromPos,
     double maxPos
-  ) throws CraftException, FabricationException {
+  ) throws NexusException, NexusException {
     try {
       // choose intro pattern (if available)
       Optional<ProgramSequencePattern> introPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePattern.Type.Intro);
@@ -95,7 +95,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       if (outroPattern.isPresent())
         craftPatternEvents(chord, arrangement, outroPattern.get(), curPos, loopOutPos);
 
-    } catch (FabricationException e) {
+    } catch (NexusException e) {
       throw
         exception(String.format("Failed to craft section of arrangement for voiceId=%s from %f to %f", voice.getId(), fromPos, maxPos), e);
     }
@@ -119,7 +119,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     ProgramSequencePattern pattern,
     double fromPos,
     double maxPos
-  ) throws CraftException {
+  ) throws NexusException {
     if (Objects.isNull(pattern)) throw exception("Cannot craft create null pattern");
     double totalPos = maxPos - fromPos;
     Collection<ProgramSequencePatternEvent> events = fabricator.getSourceMaterial().getEvents(pattern);
@@ -143,14 +143,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     SegmentChoiceArrangement segmentChoiceArrangement,
     ProgramSequencePatternEvent event,
     Double shiftPosition
-  ) throws CraftException {
+  ) throws NexusException {
     try {
       // Morph & Point attributes are expressed in beats
       double position = event.getPosition() + shiftPosition;
       double duration = event.getDuration();
       SegmentChord realChord = Value.isNonNull(chord) ? chord :
         fabricator.getChordAt((int) Math.floor(position))
-          .orElseThrow(() -> new FabricationException("No Segment Chord found!"));
+          .orElseThrow(() -> new NexusException("No Segment Chord found!"));
       assert realChord != null;
 
       // The final note is voiced from the chord voicing (if found) or else the default is used
@@ -191,7 +191,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         .setPitch(pitch)
         .build());
 
-    } catch (FabricationException | ValueException e) {
+    } catch (NexusException | ValueException e) {
       throw exception(String.format("Could not pick audio for Instrument[%s] arrangementId=%s, eventId=%s, shiftPosition=%f",
         instrument.getId(), segmentChoiceArrangement.getId(), event.getId(), shiftPosition), e);
     }
@@ -213,7 +213,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     Note sourceNote,
     Chord voicingChord,
     Collection<Note> voicingNotes
-  ) throws FabricationException {
+  ) throws NexusException {
     if (PitchClass.None.equals(sourceNote.getPitchClass()))
       return pickRandomInstrumentNote(voicingNotes);
 
@@ -275,14 +275,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param note       to match
    selection)
    @return matched new audio
-   @throws CraftException on failure
+   @throws NexusException on failure
    */
   @Trace(resourceName = "nexus/craft/arrangement", operationName = "selectMultiphonicInstrumentAudio")
   protected Optional<InstrumentAudio> selectMultiphonicInstrumentAudio(
     Instrument instrument,
     ProgramSequencePatternEvent event,
     Note note
-  ) throws CraftException {
+  ) throws NexusException {
     try {
       String key = fabricator.keyByTrackNote(event.getProgramVoiceTrackId(), note);
 
@@ -294,8 +294,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       return fabricator.getPreviousInstrumentAudio().containsKey(key) ?
         Optional.of(fabricator.getPreviousInstrumentAudio().get(key)) : Optional.empty();
 
-    } catch (FabricationException e) {
-      throw new CraftException(e);
+    } catch (NexusException e) {
+      throw new NexusException(e);
     }
   }
 
@@ -309,13 +309,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param event      to match
    selection)
    @return matched new audio
-   @throws CraftException on failure
+   @throws NexusException on failure
    */
   @Trace(resourceName = "nexus/craft/arrangement", operationName = "selectInstrumentAudio")
   protected Optional<InstrumentAudio> selectInstrumentAudio(
     Instrument instrument,
     ProgramSequencePatternEvent event
-  ) throws CraftException {
+  ) throws NexusException {
     try {
       String key = fabricator.keyByVoiceTrack(event);
 
@@ -327,8 +327,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       return fabricator.getPreviousInstrumentAudio().containsKey(key) ?
         Optional.of(fabricator.getPreviousInstrumentAudio().get(key)) : Optional.empty();
 
-    } catch (FabricationException e) {
-      throw new CraftException(e);
+    } catch (NexusException e) {
+      throw new NexusException(e);
     }
   }
 
@@ -360,7 +360,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       // final chosen audio event
       return audioEntityScorePicker.getTop();
 
-    } catch (FabricationException e) {
+    } catch (NexusException e) {
       reportMissing(InstrumentAudio.class, "attempting to pickInstrumentAudio", ImmutableMap.of(
         "instrumentId", instrument.getId(),
         "trackName", trackNameOrUnknown(event)

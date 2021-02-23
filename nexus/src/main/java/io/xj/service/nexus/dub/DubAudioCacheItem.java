@@ -6,6 +6,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.typesafe.config.Config;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.service.nexus.NexusException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public class DubAudioCacheItem {
     FileStoreProvider fileStoreProvider,
     @Assisted("key") String key,
     @Assisted("path") String path
-  ) throws FileStoreException, IOException, DubException {
+  ) throws FileStoreException, IOException, NexusException {
     this.key = key;
     this.path = path;
     String audioFileBucket = config.getString("audio.fileBucket");
@@ -84,9 +85,9 @@ public class DubAudioCacheItem {
    @param data to save to file
    @throws IOException on failure
    */
-  public void writeFrom(InputStream data) throws IOException, DubException {
+  public void writeFrom(InputStream data) throws IOException, NexusException {
     if (Objects.isNull(data))
-      throw new DubException(String.format("Unable to write bytes to disk cache: %s", path));
+      throw new NexusException(String.format("Unable to write bytes to disk cache: %s", path));
 
     OutputStream toFile = FileUtils.openOutputStream(new File(path));
     size = IOUtils.copy(data, toFile); // stores number of bytes copied

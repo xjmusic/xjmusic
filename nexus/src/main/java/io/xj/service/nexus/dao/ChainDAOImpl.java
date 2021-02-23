@@ -26,7 +26,7 @@ import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
+import io.xj.service.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +138,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     } catch (ValueException e) {
       throw new DAOValidationException(e);
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -178,7 +178,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     } catch (ValueException e) {
       throw new DAOValidationException(e);
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -205,7 +205,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       requireAccount(access, chain);
       return chain;
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -219,7 +219,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         .findFirst()
         .orElseThrow(() -> new DAOExistenceException(Chain.class, rawEmbedKey));
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -232,7 +232,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         .filter(chain -> accountIds.contains(chain.getAccountId()))
         .collect(Collectors.toList());
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -247,7 +247,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         requireAccount(access, chain);
       return chains;
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -296,7 +296,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     } catch (ValueException e) {
       throw new DAOValidationException(e);
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -321,7 +321,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         pubSub.publish(String.format("Updated Chain %s to state %s", chain.getId(), chain.getState()), MessageType.Info.toString());
       }
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -399,7 +399,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
       store.deleteChain(id);
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }

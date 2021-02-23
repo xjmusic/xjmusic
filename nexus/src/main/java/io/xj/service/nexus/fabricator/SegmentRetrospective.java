@@ -7,6 +7,7 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentMeme;
+import io.xj.service.nexus.NexusException;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -76,7 +77,7 @@ public interface SegmentRetrospective {
    @param entity to add
    @param <N>    type of Entity
    @return entity that was added
-   @throws FabricationException on failure
+   @throws NexusException on failure
    */
-  <N> N add(N entity) throws FabricationException;
+  <N> N add(N entity) throws NexusException;
 }

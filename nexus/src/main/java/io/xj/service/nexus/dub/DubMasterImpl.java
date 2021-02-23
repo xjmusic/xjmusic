@@ -16,6 +16,7 @@ import io.xj.lib.mixer.MixerConfig;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.util.Text;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +88,7 @@ public class DubMasterImpl implements DubMaster {
 
   @Override
   @Trace(resourceName = "nexus/dub/master", operationName = "doWork")
-  public void doWork() throws DubException {
+  public void doWork() throws NexusException {
     Segment.Type type = null;
     try {
       type = fabricator.getType();
@@ -104,7 +105,7 @@ public class DubMasterImpl implements DubMaster {
       fabricator.done();
 
     } catch (Exception e) {
-      throw new DubException(
+      throw new NexusException(
         String.format("Failed to do %s-type MasterDub for segment #%s",
           type, fabricator.getSegment().getId()), e);
     }
@@ -202,11 +203,11 @@ public class DubMasterImpl implements DubMaster {
    @return pitch ratio, or cached result
    */
   @Trace(resourceName = "nexus/dub/master", operationName = "computePitchRatio")
-  private Double computePitchRatio(SegmentChoiceArrangementPick pick) throws DubException {
+  private Double computePitchRatio(SegmentChoiceArrangementPick pick) throws NexusException {
     if (!pickPitchRatio.containsKey(pick.getId()))
       pickPitchRatio.put(pick.getId(),
         fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
-          .orElseThrow(() -> new DubException("compute pitch ratio"))
+          .orElseThrow(() -> new NexusException("compute pitch ratio"))
           .getPitch() / pick.getPitch());
     return pickPitchRatio.get(pick.getId());
   }
@@ -218,11 +219,11 @@ public class DubMasterImpl implements DubMaster {
    @return offset start, or cached result
    */
   @Trace(resourceName = "nexus/dub/master", operationName = "computeOffsetStart")
-  private Double computeOffsetStart(SegmentChoiceArrangementPick pick) throws DubException {
+  private Double computeOffsetStart(SegmentChoiceArrangementPick pick) throws NexusException {
     if (!pickOffsetStart.containsKey(pick.getId()))
       pickOffsetStart.put(pick.getId(),
         fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
-          .orElseThrow(() -> new DubException("compute offset start"))
+          .orElseThrow(() -> new NexusException("compute offset start"))
           .getStart() / computePitchRatio(pick));
     return pickOffsetStart.get(pick.getId());
   }

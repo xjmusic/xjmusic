@@ -30,6 +30,7 @@ import io.xj.service.hub.client.HubClientException;
 import io.xj.service.hub.client.HubContent;
 import io.xj.service.hub.dao.InstrumentConfig;
 import io.xj.service.hub.dao.ProgramConfig;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.dao.ChainConfig;
 
 import javax.sound.sampled.AudioFormat;
@@ -47,7 +48,7 @@ public interface Fabricator {
    @param entity to add
    @return entity added
    */
-  <N extends MessageLite> N add(N entity) throws FabricationException;
+  <N extends MessageLite> N add(N entity) throws NexusException;
 
   /**
    Compute using an integral
@@ -60,15 +61,15 @@ public interface Fabricator {
    @param p position in beats
    @return seconds of start
    */
-  Double computeSecondsAtPosition(double p) throws FabricationException;
+  Double computeSecondsAtPosition(double p) throws NexusException;
 
   /**
    FUTURE: [#165815496] Chain fabrication access control
 
    @return HubClientAccess control
-   @throws FabricationException on failure to establish access
+   @throws NexusException on failure to establish access
    */
-  HubClientAccess getAccess() throws FabricationException;
+  HubClientAccess getAccess() throws NexusException;
 
   /**
    id of all audio picked for current segment
@@ -153,27 +154,27 @@ public interface Fabricator {
 
    @param choice to get key for
    @return key of specified sequence/program via choice
-   @throws FabricationException if unable to determine key of choice
+   @throws NexusException if unable to determine key of choice
    */
-  Key getKeyForChoice(SegmentChoice choice) throws FabricationException;
+  Key getKeyForChoice(SegmentChoice choice) throws NexusException;
 
   /**
    Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
 
    @param arrangement to get key for
    @return key of specified sequence/program via choice
-   @throws FabricationException if unable to determine key of choice
+   @throws NexusException if unable to determine key of choice
    */
-  Key getKeyForArrangement(SegmentChoiceArrangement arrangement) throws FabricationException;
+  Key getKeyForArrangement(SegmentChoiceArrangement arrangement) throws NexusException;
 
   /**
    Get max available sequence pattern offset for a given choice
 
    @param choice for which to check
    @return max available sequence pattern offset
-   @throws FabricationException on attempt to get max available SequenceBinding offset of choice with no SequenceBinding
+   @throws NexusException on attempt to get max available SequenceBinding offset of choice with no SequenceBinding
    */
-  Long getMaxAvailableSequenceBindingOffset(SegmentChoice choice) throws FabricationException;
+  Long getMaxAvailableSequenceBindingOffset(SegmentChoice choice) throws NexusException;
 
   /**
    Compute the pattern-meme constellations of any previous segments which selected the same main sequence
@@ -182,7 +183,7 @@ public interface Fabricator {
 
    @return map of all previous segment meme constellations (as keys) to a collection of arrangements made
    */
-  Map<String, Collection<SegmentChoiceArrangement>> getMemeConstellationArrangementsOfPreviousSegments() throws FabricationException;
+  Map<String, Collection<SegmentChoiceArrangement>> getMemeConstellationArrangementsOfPreviousSegments() throws NexusException;
 
   /**
    Get the arrangements of any previous segments which selected the same main sequence
@@ -191,7 +192,7 @@ public interface Fabricator {
 
    @return map of all previous segment meme constellations (as keys) to a collection of arrangements made
    */
-  Collection<SegmentChoiceArrangement> getChoiceArrangementsOfPreviousSegments() throws FabricationException;
+  Collection<SegmentChoiceArrangement> getChoiceArrangementsOfPreviousSegments() throws NexusException;
 
   /**
    Compute the pattern-meme constellations of any previous segments which selected the same main program
@@ -200,7 +201,7 @@ public interface Fabricator {
 
    @return map of all previous segment meme constellations (as keys) to a collection of choices made
    */
-  Map<String, Collection<SegmentChoice>> getMemeConstellationChoicesOfPreviousSegments() throws FabricationException;
+  Map<String, Collection<SegmentChoice>> getMemeConstellationChoicesOfPreviousSegments() throws NexusException;
 
   /**
    Get the choices of any previous segments which selected the same main sequence
@@ -209,7 +210,7 @@ public interface Fabricator {
 
    @return map of all previous segment meme constellations (as keys) to a collection of choices made
    */
-  Collection<SegmentChoice> getChoicesOfPreviousSegments() throws FabricationException;
+  Collection<SegmentChoice> getChoicesOfPreviousSegments() throws NexusException;
 
   /**
    Get any sequence by id
@@ -219,7 +220,7 @@ public interface Fabricator {
 
    @return map of all previous segment meme constellations (as keys) to a collection of picks extracted of their content JSON
    */
-  Map<String, Collection<SegmentChoiceArrangementPick>> getMemeConstellationPicksOfPreviousSegments() throws FabricationException;
+  Map<String, Collection<SegmentChoiceArrangementPick>> getMemeConstellationPicksOfPreviousSegments() throws NexusException;
 
   /**
    Get the choiceArrangementPicks of any previous segments which selected the same main sequence
@@ -228,15 +229,15 @@ public interface Fabricator {
 
    @return map of all previous segment meme constellations (as keys) to a collection of choiceArrangementPicks made
    */
-  Collection<SegmentChoiceArrangementPick> getChoiceArrangementPicksOfPreviousSegments() throws FabricationException;
+  Collection<SegmentChoiceArrangementPick> getChoiceArrangementPicksOfPreviousSegments() throws NexusException;
 
   /**
    Get previously chosen (for previous segments with same main program) instrument audio
 
    @return map of previous chosen instrument audio
-   @throws FabricationException on failure to build map
+   @throws NexusException on failure to build map
    */
-  Map<String, InstrumentAudio> getPreviousInstrumentAudio() throws FabricationException;
+  Map<String, InstrumentAudio> getPreviousInstrumentAudio() throws NexusException;
 
   /**
    Key for any pick designed to collide at same voice id + name
@@ -244,7 +245,7 @@ public interface Fabricator {
    @param pick to get key of
    @return unique key for pattern event
    */
-  String keyByVoiceTrack(SegmentChoiceArrangementPick pick) throws FabricationException;
+  String keyByVoiceTrack(SegmentChoiceArrangementPick pick) throws NexusException;
 
   /**
    Key for any pattern event designed to collide at same voice id + track name
@@ -252,7 +253,7 @@ public interface Fabricator {
    @param event to get key of
    @return unique key for pattern event
    */
-  String keyByVoiceTrack(ProgramSequencePatternEvent event) throws FabricationException;
+  String keyByVoiceTrack(ProgramSequencePatternEvent event) throws NexusException;
 
   /**
    Key for any pattern event designed to collide at same voice id + note
@@ -263,7 +264,7 @@ public interface Fabricator {
    @param note  to get key of
    @return unique key for pattern event
    */
-  String keyByTrackNote(String track, Note note) throws FabricationException;
+  String keyByTrackNote(String track, Note note) throws NexusException;
 
   /**
    Get the Voice ID of a given event
@@ -271,7 +272,7 @@ public interface Fabricator {
    @param event to get voice String of
    @return Track name
    */
-  String getTrackName(ProgramSequencePatternEvent event) throws FabricationException;
+  String getTrackName(ProgramSequencePatternEvent event) throws NexusException;
 
   /**
    Determine if an arrangement has been previously crafted
@@ -288,7 +289,7 @@ public interface Fabricator {
    Get meme isometry for the current offset in this macro-choice
 
    @return MemeIsometry for macro-choice
-   @throws FabricationException on failure
+   @throws NexusException on failure
    */
   MemeIsometry getMemeIsometryOfCurrentMacro();
 
@@ -296,7 +297,7 @@ public interface Fabricator {
    Get meme isometry for the next offset in the previous segment's macro-choice
 
    @return MemeIsometry for previous macro-choice
-   @throws FabricationException on failure
+   @throws NexusException on failure
    */
   MemeIsometry getMemeIsometryOfNextSequenceInPreviousMacro();
 
@@ -313,9 +314,9 @@ public interface Fabricator {
 
    @param choice to get memes for
    @return memes for choice
-   @throws FabricationException on failure
+   @throws NexusException on failure
    */
-  Collection<SegmentMeme> getMemesOfChoice(SegmentChoice choice) throws FabricationException;
+  Collection<SegmentMeme> getMemesOfChoice(SegmentChoice choice) throws NexusException;
 
   /**
    Given a Choice having a SequenceBinding,
@@ -332,14 +333,14 @@ public interface Fabricator {
 
    @return output audio format
    */
-  AudioFormat getOutputAudioFormat() throws FabricationException;
+  AudioFormat getOutputAudioFormat() throws NexusException;
 
   /**
    Output file path for a High-quality Audio output file
 
    @return High-quality Audio output file path
    */
-  String getFullQualityAudioOutputFilePath() throws FabricationException;
+  String getFullQualityAudioOutputFilePath() throws NexusException;
 
   /**
    Pitch for any Note, in Hz
@@ -393,7 +394,7 @@ public interface Fabricator {
 
    @return previousSegment
    */
-  Segment getPreviousSegment() throws FabricationException;
+  Segment getPreviousSegment() throws NexusException;
 
   /**
    The segment being fabricated
@@ -409,7 +410,7 @@ public interface Fabricator {
 
    @param segment to set
    */
-  void updateSegment(Segment segment) throws FabricationException;
+  void updateSegment(Segment segment) throws NexusException;
 
   /**
    Returns the storage key concatenated with the output encoder as its file extension
@@ -450,9 +451,9 @@ public interface Fabricator {
    Total length of segment of beginning to end
 
    @return total length
-   @throws FabricationException if unable to compute
+   @throws NexusException if unable to compute
    */
-  Duration getSegmentTotalLength() throws FabricationException;
+  Duration getSegmentTotalLength() throws NexusException;
 
   /**
    [#165954619] Get the sequence for a Choice either directly (rhythm- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences)
@@ -462,9 +463,9 @@ public interface Fabricator {
 
    @param choice to get sequence for
    @return Sequence for choice
-   @throws FabricationException on failure
+   @throws NexusException on failure
    */
-  Optional<ProgramSequence> getSequence(SegmentChoice choice) throws FabricationException;
+  Optional<ProgramSequence> getSequence(SegmentChoice choice) throws NexusException;
 
   /**
    Get the sequence pattern offset of a given Choice
@@ -528,7 +529,7 @@ public interface Fabricator {
    [#162361525] ALWAYS persist Segment content as JSON when work is performed
    [#162361534] musical evolution depends on segments that continue the use of a main sequence
    */
-  void done() throws FabricationException;
+  void done() throws NexusException;
 
   /**
    Randomly select any sequence binding at the given offset
@@ -613,18 +614,18 @@ public interface Fabricator {
 
    @param pick to get instrument for
    @return instrument for pick
-   @throws FabricationException on failure
+   @throws NexusException on failure
    */
-  Optional<Instrument> getInstrument(SegmentChoiceArrangementPick pick) throws FabricationException;
+  Optional<Instrument> getInstrument(SegmentChoiceArrangementPick pick) throws NexusException;
 
   /**
    Get instrument for a given arrangement
 
    @param arrangement to get instrument for
    @return instrument for pick
-   @throws FabricationException on failure
+   @throws NexusException on failure
    */
-  Optional<Instrument> getInstrument(SegmentChoiceArrangement arrangement) throws FabricationException;
+  Optional<Instrument> getInstrument(SegmentChoiceArrangement arrangement) throws NexusException;
 
   /**
    Get memes for segment
@@ -644,23 +645,23 @@ public interface Fabricator {
    @param voice       of which to select
    @param patternType to select
    @return Pattern model, or null if no pattern of this type is found
-   @throws FabricationException on failure
+   @throws NexusException on failure
    */
-  Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(ProgramSequence sequence, ProgramVoice voice, ProgramSequencePattern.Type patternType) throws FabricationException;
+  Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(ProgramSequence sequence, ProgramVoice voice, ProgramSequencePattern.Type patternType) throws NexusException;
 
   /**
    Get a JSON:API payload of the entire result of Segment Fabrication
 
    @return JSON:API payload of the entire result of Segment Fabrication
    */
-  String getSegmentMetadataJson() throws FabricationException;
+  String getSegmentMetadataJson() throws NexusException;
 
   /**
    Get a JSON:API payload of the entire result of Chain Fabrication
 
    @return JSON:API payload of the entire result of Chain Fabrication
    */
-  String getChainMetadataJson() throws FabricationException;
+  String getChainMetadataJson() throws NexusException;
 
   /**
    Whether a given Program is directly bound to the Chain,
@@ -701,7 +702,7 @@ public interface Fabricator {
 
    @return list of voicing (instrument) types
    */
-  List<Instrument.Type> getDistinctChordVoicingTypes() throws FabricationException;
+  List<Instrument.Type> getDistinctChordVoicingTypes() throws NexusException;
 
   /**
    Get the current Tuning
@@ -718,7 +719,7 @@ public interface Fabricator {
    @param pick to get amplitude of
    @return amplitude of instrument type
    */
-  double getAmplitudeForInstrumentType(SegmentChoiceArrangementPick pick) throws FabricationException;
+  double getAmplitudeForInstrumentType(SegmentChoiceArrangementPick pick) throws NexusException;
 
   /**
    Get the lowest note present in any voicing of all the segment chord voicings for this segment and instrument type
@@ -726,16 +727,16 @@ public interface Fabricator {
    @param type to get voicing threshold low of
    @return low voicing threshold
    */
-  NoteRange getVoicingNoteRange(Instrument.Type type) throws FabricationException;
+  NoteRange getVoicingNoteRange(Instrument.Type type) throws NexusException;
 
   /**
    Get the Notes from a Voicing
 
    @param voicing to get notes of
    @return notes from voicing
-   @throws FabricationException on failure
+   @throws NexusException on failure
    */
-  Collection<Note> getNotes(SegmentChordVoicing voicing) throws FabricationException;
+  Collection<Note> getNotes(SegmentChordVoicing voicing) throws NexusException;
 
   /**
    Get the note range for an arrangement based on all the events in its program
@@ -743,7 +744,7 @@ public interface Fabricator {
    @param segmentChoiceArrangement to get range of
    @return Note range of arrangement
    */
-  NoteRange getRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws FabricationException;
+  NoteRange getRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws NexusException;
 
   /**
    Get the first event of each audio in the instrument

@@ -6,6 +6,7 @@ import io.xj.Chain;
 import io.xj.Segment;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
+import io.xj.service.nexus.NexusException;
 
 /**
  Fabricator content = contentFactory.fabricate(segment);
@@ -21,12 +22,12 @@ public interface FabricatorFactory {
    @param access  control
    @param segment Segment to be worked on
    @return Fabricator
-   @throws FabricationException on failure
+   @throws NexusException on failure
    */
   Fabricator fabricate(
     @Assisted("access") HubClientAccess access,
     @Assisted("segment") Segment segment
-  ) throws FabricationException;
+  ) throws NexusException;
 
   /**
    Create a retrospective to fabricate a particular segment
@@ -39,13 +40,13 @@ public interface FabricatorFactory {
    @param currentSegment Segment that's on the workbench
    @param sourceMaterial to get answers about the segment content
    @return SegmentRetrospective
-   @throws FabricationException on failure
+   @throws NexusException on failure
    */
   SegmentRetrospective loadRetrospective(
     @Assisted("access") HubClientAccess access,
     @Assisted("currentSegment") Segment currentSegment,
     @Assisted("sourceMaterial") HubContent sourceMaterial
-  ) throws FabricationException;
+  ) throws NexusException;
 
   /**
    Configure a TimeComputer instance for a segment
@@ -69,11 +70,11 @@ public interface FabricatorFactory {
    @param access  control
    @param segment Segment to be worked on
    @return SegmentWorkbench
-   @throws FabricationException on failure
+   @throws NexusException on failure
    */
   SegmentWorkbench setupWorkbench(
     @Assisted("access") HubClientAccess access,
     @Assisted("chain") Chain chain,
     @Assisted("segment") Segment segment
-  ) throws FabricationException;
+  ) throws NexusException;
 }

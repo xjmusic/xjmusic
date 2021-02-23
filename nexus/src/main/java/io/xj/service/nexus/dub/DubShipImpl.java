@@ -8,7 +8,8 @@ import datadog.trace.api.Trace;
 import io.xj.Segment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.service.nexus.fabricator.FabricationException;
+import io.xj.service.nexus.NexusException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.Fabricator;
 
 /**
@@ -33,7 +34,7 @@ public class DubShipImpl implements DubShip {
 
   @Override
   @Trace(resourceName = "nexus/dub/ship", operationName = "doWork")
-  public void doWork() throws DubException {
+  public void doWork() throws NexusException {
     Segment.Type type = null;
     try {
       type = fabricator.getType();
@@ -41,8 +42,8 @@ public class DubShipImpl implements DubShip {
       shipSegmentMetadata();
       shipSegmentAudio();
 
-    } catch (FabricationException | FileStoreException e) {
-      throw new DubException(String.format("Failed to do %s-type ShipDub for segment #%s",
+    } catch (NexusException | FileStoreException e) {
+      throw new NexusException(String.format("Failed to do %s-type ShipDub for segment #%s",
         type, fabricator.getSegment().getId()), e);
     }
   }
@@ -52,7 +53,7 @@ public class DubShipImpl implements DubShip {
    DubShip the final audio
    */
   @Trace(resourceName = "nexus/dub/ship", operationName = "shipFinalAudio")
-  private void shipSegmentAudio() throws FabricationException, FileStoreException {
+  private void shipSegmentAudio() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromTempFile(
       fabricator.getFullQualityAudioOutputFilePath(),
       segmentFileBucket,
@@ -63,7 +64,7 @@ public class DubShipImpl implements DubShip {
    DubShip the final metadata
    */
   @Trace(resourceName = "nexus/dub/ship", operationName = "shipFinalMetadata")
-  private void shipSegmentMetadata() throws FabricationException, FileStoreException {
+  private void shipSegmentMetadata() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromString(
       fabricator.getSegmentMetadataJson(),
       segmentFileBucket,
@@ -74,7 +75,7 @@ public class DubShipImpl implements DubShip {
    DubShip the final metadata
    */
   @Trace(resourceName = "nexus/dub/ship", operationName = "shipFinalMetadata")
-  private void shipChainMetadata() throws FabricationException, FileStoreException {
+  private void shipChainMetadata() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromString(
       fabricator.getChainMetadataJson(),
       segmentFileBucket,

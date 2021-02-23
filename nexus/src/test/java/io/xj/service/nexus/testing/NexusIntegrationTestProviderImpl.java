@@ -7,7 +7,7 @@ import com.typesafe.config.Config;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.work.NexusWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,18 +48,18 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
   }
 
   @Override
-  public void setUp() throws NexusEntityStoreException {
+  public void setUp() throws NexusException {
     store.deleteAll();
   }
 
   @Override
-  public <N> N put(N entity) throws NexusEntityStoreException {
+  public <N> N put(N entity) throws NexusException {
     store.put(entity);
     return entity;
   }
 
   @Override
-  public <E, I> E put(E entity, Collection<I> included) throws NexusEntityStoreException {
+  public <E, I> E put(E entity, Collection<I> included) throws NexusException {
     store.put(entity);
     store.putAll(included);
     return entity;

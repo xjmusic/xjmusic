@@ -51,6 +51,7 @@ import io.xj.service.hub.client.HubClientException;
 import io.xj.service.hub.client.HubContent;
 import io.xj.service.hub.dao.InstrumentConfig;
 import io.xj.service.hub.dao.ProgramConfig;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.dao.ChainBindingDAO;
 import io.xj.service.nexus.dao.ChainConfig;
 import io.xj.service.nexus.dao.ChainDAO;
@@ -129,7 +130,7 @@ class FabricatorImpl implements Fabricator {
     FabricatorFactory fabricatorFactory,
     SegmentDAO segmentDAO,
     PayloadFactory payloadFactory
-  ) throws FabricationException {
+  ) throws NexusException {
     this.segmentDAO = segmentDAO;
     this.payloadFactory = payloadFactory;
     try {
@@ -179,17 +180,17 @@ class FabricatorImpl implements Fabricator {
       ensureStorageKey();
 
     } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException | HubClientException | ValueException e) {
-      throw new FabricationException("Failed to instantiate Fabricator!", e);
+      throw new NexusException("Failed to instantiate Fabricator!", e);
     }
   }
 
   @Override
-  public <N extends MessageLite> N add(N entity) throws FabricationException {
+  public <N extends MessageLite> N add(N entity) throws NexusException {
     return workbench.add(entity);
   }
 
   @Override
-  public Double computeSecondsAtPosition(double p) throws FabricationException {
+  public Double computeSecondsAtPosition(double p) throws NexusException {
     return getTimeComputer().getSecondsAtPosition(p);
   }
 
@@ -271,7 +272,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Key getKeyForChoice(SegmentChoice choice) throws FabricationException {
+  public Key getKeyForChoice(SegmentChoice choice) throws NexusException {
     Optional<Program> program = getProgram(choice);
     if (Value.isSet(choice.getProgramSequenceBindingId())) {
       var sequence = getSequence(choice);
@@ -280,18 +281,18 @@ class FabricatorImpl implements Fabricator {
     }
 
     return Key.of(program
-      .orElseThrow(() -> new FabricationException("Cannot get key for nonexistent choice!"))
+      .orElseThrow(() -> new NexusException("Cannot get key for nonexistent choice!"))
       .getKey());
   }
 
   @Override
-  public Key getKeyForArrangement(SegmentChoiceArrangement arrangement) throws FabricationException {
+  public Key getKeyForArrangement(SegmentChoiceArrangement arrangement) throws NexusException {
     return getKeyForChoice(getChoice(arrangement).orElseThrow(() ->
-      new FabricationException(String.format("No key found for Arrangement[%s]", arrangement.getId()))));
+      new NexusException(String.format("No key found for Arrangement[%s]", arrangement.getId()))));
   }
 
   @Override
-  public Long getMaxAvailableSequenceBindingOffset(SegmentChoice choice) throws FabricationException {
+  public Long getMaxAvailableSequenceBindingOffset(SegmentChoice choice) throws NexusException {
     if (Value.isEmpty(choice.getProgramSequenceBindingId()))
       throw exception("Cannot determine whether choice with no SequenceBinding has two more available Sequence Pattern offsets");
     var sequenceBinding = getSequenceBinding(choice);
@@ -321,7 +322,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangement> getChoiceArrangementsOfPreviousSegments() throws FabricationException {
+  public Collection<SegmentChoiceArrangement> getChoiceArrangementsOfPreviousSegments() throws NexusException {
     Collection<SegmentChoiceArrangement> out = Lists.newArrayList();
     for (Segment seg : getPreviousSegmentsWithSameMainProgram())
       out.addAll(retrospective.getSegmentChoiceArrangements(seg));
@@ -329,7 +330,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangementPick> getChoiceArrangementPicksOfPreviousSegments() throws FabricationException {
+  public Collection<SegmentChoiceArrangementPick> getChoiceArrangementPicksOfPreviousSegments() throws NexusException {
     Collection<SegmentChoiceArrangementPick> out = Lists.newArrayList();
     for (Segment seg : getPreviousSegmentsWithSameMainProgram())
       out.addAll(retrospective.getSegmentChoiceArrangementPicks(seg));
@@ -380,7 +381,7 @@ class FabricatorImpl implements Fabricator {
             .ifPresent(audio -> previousInstrumentAudio.put(keyByVoiceTrack(pick), audio));
         }
 
-      } catch (FabricationException e) {
+      } catch (NexusException e) {
         log.error("Unable to build map create previous instrument audio", e);
       }
 
@@ -431,7 +432,7 @@ class FabricatorImpl implements Fabricator {
         .map(SegmentChoiceArrangement::getInstrumentId)
         .findFirst();
 
-    } catch (FabricationException e) {
+    } catch (NexusException e) {
       log.warn(formatLog(String.format("Could not get previous voice instrumentId for voiceId=%s", voiceId)), e);
     }
     return Optional.empty();
@@ -549,7 +550,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Segment getPreviousSegment() throws FabricationException {
+  public Segment getPreviousSegment() throws NexusException {
     if (isInitialSegment() || retrospective.getPreviousSegment().isEmpty())
       throw exception("Initial Segment has no previous Segment");
 
@@ -601,7 +602,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Duration getSegmentTotalLength() throws FabricationException {
+  public Duration getSegmentTotalLength() throws NexusException {
     if (Value.isEmpty(workbench.getSegment().getEndAt()))
       throw exception("Cannot compute total length create segment with no end!");
 
@@ -669,13 +670,13 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public void done() throws FabricationException {
+  public void done() throws NexusException {
     try {
       workbench.setSegment(workbench.getSegment().toBuilder()
         .setType(getType())
         .build());
       workbench.done();
-    } catch (FabricationException | JsonApiException | ValueException e) {
+    } catch (NexusException | JsonApiException | ValueException e) {
       throw exception("Could not complete Segment fabrication", e);
     }
     switch (getType()) {
@@ -727,7 +728,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getSegmentMetadataJson() throws FabricationException {
+  public String getSegmentMetadataJson() throws NexusException {
     try {
       return payloadFactory.serialize(payloadFactory.newJsonapiPayload()
         .setDataOne(payloadFactory.toPayloadObject(workbench.getSegment()))
@@ -739,12 +740,12 @@ class FabricatorImpl implements Fabricator {
         .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChoiceArrangementPicks())));
 
     } catch (JsonApiException e) {
-      throw new FabricationException(e);
+      throw new NexusException(e);
     }
   }
 
   @Override
-  public String getChainMetadataJson() throws FabricationException {
+  public String getChainMetadataJson() throws NexusException {
     try {
       JsonapiPayload jsonapiPayload = new JsonapiPayload();
       jsonapiPayload.setDataOne(payloadFactory.toPayloadObject(chain));
@@ -755,7 +756,7 @@ class FabricatorImpl implements Fabricator {
       return payloadFactory.serialize(jsonapiPayload);
 
     } catch (JsonApiException | DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
-      throw new FabricationException(e);
+      throw new NexusException(e);
     }
   }
 
@@ -910,10 +911,10 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public NoteRange getRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws FabricationException {
+  public NoteRange getRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws NexusException {
     var program = getProgram(segmentChoiceArrangement);
     if (program.isEmpty())
-      throw new FabricationException("Can't get note range for nonexistent program!");
+      throw new NexusException("Can't get note range for nonexistent program!");
     return new NoteRange(sourceMaterial.getEvents(program.get())
       .stream()
       .filter(programSequencePatternEvent -> sourceMaterial.getTrack(programSequencePatternEvent)
@@ -1028,7 +1029,7 @@ class FabricatorImpl implements Fabricator {
   /**
    [#255] Tuning based on root note configured in environment parameters.
    */
-  private Tuning computeTuning() throws FabricationException {
+  private Tuning computeTuning() throws NexusException {
     try {
       return Tuning.at(
         Note.of(tuningRootNote),
@@ -1044,8 +1045,8 @@ class FabricatorImpl implements Fabricator {
    @param message to include in exception
    @return CoreException to throw
    */
-  private FabricationException exception(String message) {
-    return new FabricationException(formatLog(message));
+  private NexusException exception(String message) {
+    return new NexusException(formatLog(message));
   }
 
   /**
@@ -1055,8 +1056,8 @@ class FabricatorImpl implements Fabricator {
    @param e       Exception to include in exception
    @return CoreException to throw
    */
-  private FabricationException exception(String message, Exception e) {
-    return new FabricationException(formatLog(message), e);
+  private NexusException exception(String message, Exception e) {
+    return new NexusException(formatLog(message), e);
   }
 
   /**
@@ -1075,7 +1076,7 @@ class FabricatorImpl implements Fabricator {
 
    @return Time Computer
    */
-  private TimeComputer getTimeComputer() throws FabricationException {
+  private TimeComputer getTimeComputer() throws NexusException {
     double toTempo = workbench.getSegment().getTempo(); // velocity at current segment tempo
     double fromTempo;
     try {
@@ -1089,9 +1090,9 @@ class FabricatorImpl implements Fabricator {
     putReport("totalBeats", totalBeats);
     putReport("fromTempo", fromTempo);
     putReport("toTempo", toTempo);
-    if (0 == totalBeats) throw new FabricationException("Can't instantiate time computer with zero total beats!");
-    if (0 == fromTempo) throw new FabricationException("Can't instantiate time computer from zero tempo!");
-    if (0 == toTempo) throw new FabricationException("Can't instantiate time computer to zero tempo!");
+    if (0 == totalBeats) throw new NexusException("Can't instantiate time computer with zero total beats!");
+    if (0 == fromTempo) throw new NexusException("Can't instantiate time computer from zero tempo!");
+    if (0 == toTempo) throw new NexusException("Can't instantiate time computer to zero tempo!");
     return fabricatorFactory.createTimeComputer(totalBeats, fromTempo, toTempo);
   }
 

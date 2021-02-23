@@ -14,7 +14,7 @@ import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
+import io.xj.service.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +97,7 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
    @return list of IDs of Segments we ought to erase
    */
   @Trace(resourceName = "nexus/janitor", operationName = "getSegmentIdsToErase")
-  private Collection<String> getSegmentIdsToErase() throws NexusEntityStoreException {
+  private Collection<String> getSegmentIdsToErase() throws NexusException {
     Instant eraseBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);
     Collection<String> segmentIds = Lists.newArrayList();
     for (String chainId : store.getAllChains().stream()

@@ -29,7 +29,7 @@ import io.xj.service.nexus.craft.CraftFactory;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.Before;
@@ -169,7 +169,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
 
    @param excludeDetailChoiceForSegment3 if desired for the purpose of this test
    */
-  private void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws NexusEntityStoreException {
+  private void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws NexusException {
     // Chain "Test Print #1" has this segment that was just crafted
     Segment segment3 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())

@@ -15,6 +15,7 @@ import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
@@ -38,7 +39,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     @Assisted("sourceMaterial") HubContent sourceMaterial,
     SegmentDAO segmentDAO,
     EntityStore entityStore
-  ) throws FabricationException {
+  ) throws NexusException {
     this.store = entityStore;
     try {
       // begin by getting the previous segment
@@ -53,7 +54,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       SegmentChoice previousSegmentMainChoice = store.getAll(SegmentChoice.class).stream()
         .filter(segmentChoice -> Program.Type.Main.equals(segmentChoice.getProgramType()))
         .findFirst()
-        .orElseThrow(() -> new FabricationException("No main choice!"));
+        .orElseThrow(() -> new NexusException("No main choice!"));
 
       // if relevant populate the retrospective with the previous segments with the same main sequence as this one
       long sequenceBindingOffset = sourceMaterial
@@ -69,7 +70,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       store.putAll(segmentDAO.readManySubEntities(access, Entities.idsOf(previousMany), true));
 
     } catch (DAOExistenceException | DAOFatalException | DAOPrivilegeException | EntityStoreException e) {
-      throw new FabricationException(e);
+      throw new NexusException(e);
     }
   }
 
@@ -137,11 +138,11 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public <N> N add(N entity) throws FabricationException {
+  public <N> N add(N entity) throws NexusException {
     try {
       return store.put(entity);
     } catch (EntityStoreException e) {
-      throw new FabricationException(e);
+      throw new NexusException(e);
     }
   }
 

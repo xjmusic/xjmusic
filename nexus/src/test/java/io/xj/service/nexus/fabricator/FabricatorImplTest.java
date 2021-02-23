@@ -30,6 +30,7 @@ import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubClientModule;
 import io.xj.service.hub.client.HubContent;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.NexusApp;
 import io.xj.service.nexus.NexusIntegrationTestingFixtures;
 import io.xj.service.nexus.dao.ChainBindingDAO;
@@ -40,7 +41,7 @@ import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.persistence.NexusEntityStoreModule;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
@@ -396,7 +397,7 @@ public class FabricatorImplTest {
    [#176728582] Choose next Macro program based on the memes of the last sequence from the previous Macro program
    */
   @Test
-  public void determineType() throws NexusEntityStoreException, FabricationException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public void determineType() throws NexusException, NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     var chain = store.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(UUID.randomUUID().toString())

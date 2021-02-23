@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus.craft.macro_main;
 
-import io.xj.service.nexus.craft.CraftException;
+import io.xj.service.nexus.NexusException;
 
 /**
  [#138] Foundation craft for Initial Segment of a Chain
@@ -13,6 +13,6 @@ public interface MacroMainCraft {
   /**
    perform macro craft for the current segment
    */
-  void doWork() throws CraftException;
+  void doWork() throws NexusException;
 
 }

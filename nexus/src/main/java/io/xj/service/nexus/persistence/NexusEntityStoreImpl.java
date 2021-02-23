@@ -20,6 +20,7 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.util.Value;
+import io.xj.service.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +45,10 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   private final Map<String/*SegID*/, Map<Class<?>/*Type*/, Map<String/*ID*/, Object>>> store = Maps.newConcurrentMap();
 
   @Override
-  public <N> N put(N entity) throws NexusEntityStoreException {
+  public <N> N put(N entity) throws NexusException {
     // fail to store builder
     if (entity instanceof MessageLite.Builder)
-      throw new NexusEntityStoreException(String.format("Can't store builder %s!",
+      throw new NexusException(String.format("Can't store builder %s!",
         entity.getClass().getSimpleName()));
 
     // fail to store entity without id
@@ -55,13 +56,13 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
     try {
       id = Entities.getId(entity);
     } catch (EntityException e) {
-      throw new NexusEntityStoreException(String.format("Can't get id of %s-type entity",
+      throw new NexusException(String.format("Can't get id of %s-type entity",
         entity.getClass().getSimpleName()));
     }
 
     // fail to store entity with unset id
     if (!Value.isSet(id))
-      throw new NexusEntityStoreException(String.format("Can't store %s with null id",
+      throw new NexusException(String.format("Can't store %s with null id",
         entity.getClass().getSimpleName()));
 
     if (entity instanceof Chain)
@@ -82,21 +83,21 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       entity instanceof SegmentChoiceArrangementPick)
       try {
         String segmentId = String.valueOf(Entities.get(entity, SEGMENT_ID_ATTRIBUTE)
-          .orElseThrow(() -> new NexusEntityStoreException(String.format("Can't store %s without Segment ID!",
+          .orElseThrow(() -> new NexusException(String.format("Can't store %s without Segment ID!",
             entity.getClass().getSimpleName()))));
         store.putIfAbsent(segmentId, Maps.newConcurrentMap());
         store.get(segmentId).putIfAbsent(entity.getClass(), Maps.newConcurrentMap());
         store.get(segmentId).get(entity.getClass()).put(id, entity);
       } catch (EntityException e) {
-        throw new NexusEntityStoreException(e);
+        throw new NexusException(e);
       }
 
-    else throw new NexusEntityStoreException(String.format("Can't store %s!", entity.getClass().getSimpleName()));
+    else throw new NexusException(String.format("Can't store %s!", entity.getClass().getSimpleName()));
     return entity;
   }
 
   @Override
-  public <N> Collection<N> putAll(Collection<N> entities) throws NexusEntityStoreException {
+  public <N> Collection<N> putAll(Collection<N> entities) throws NexusException {
     for (N entity : entities) put(entity);
     return entities;
   }
@@ -124,12 +125,12 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public <N> void deleteAll(String segmentId, Class<N> type) throws NexusEntityStoreException {
+  public <N> void deleteAll(String segmentId, Class<N> type) throws NexusException {
     for (N entity : getAll(segmentId, type)) {
       try {
         delete(segmentId, type, Entities.getId(entity));
       } catch (EntityException e) {
-        throw new NexusEntityStoreException(e);
+        throw new NexusException(e);
       }
     }
   }
@@ -162,7 +163,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public <N> Optional<N> get(String segmentId, Class<N> type, String id) throws NexusEntityStoreException {
+  public <N> Optional<N> get(String segmentId, Class<N> type, String id) throws NexusException {
     try {
       if (!store.containsKey(segmentId) || !store.get(segmentId).containsKey(type))
         if (!store.get(segmentId).get(type).containsKey(id)) return Optional.empty();
@@ -170,12 +171,12 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
       return (Optional<N>) Optional.of(store.get(segmentId).get(type).get(id));
 
     } catch (Exception e) {
-      throw new NexusEntityStoreException(e);
+      throw new NexusException(e);
     }
   }
 
   @Override
-  public <N> Collection<N> getAll(String segmentId, Class<N> type) throws NexusEntityStoreException {
+  public <N> Collection<N> getAll(String segmentId, Class<N> type) throws NexusException {
     try {
       if (!store.containsKey(segmentId) || !store.get(segmentId).containsKey(type))
         return ImmutableList.of();
@@ -185,12 +186,12 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
         .collect(Collectors.toList());
 
     } catch (Exception e) {
-      throw new NexusEntityStoreException(e);
+      throw new NexusException(e);
     }
   }
 
   @Override
-  public <N, B> Collection<N> getAll(String segmentId, Class<N> type, Class<B> belongsToType, Collection<String> belongsToIds) throws NexusEntityStoreException {
+  public <N, B> Collection<N> getAll(String segmentId, Class<N> type, Class<B> belongsToType, Collection<String> belongsToIds) throws NexusException {
     try {
       if (!store.containsKey(segmentId) || !store.get(segmentId).containsKey(type))
         return ImmutableList.of();
@@ -200,7 +201,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
         .collect(Collectors.toList());
 
     } catch (Exception e) {
-      throw new NexusEntityStoreException(e);
+      throw new NexusException(e);
     }
   }
 

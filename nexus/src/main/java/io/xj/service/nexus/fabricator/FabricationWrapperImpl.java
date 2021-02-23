@@ -5,7 +5,8 @@ package io.xj.service.nexus.fabricator;
 import io.xj.ProgramSequencePatternEvent;
 import io.xj.SegmentMessage;
 import io.xj.lib.util.CSV;
-import io.xj.service.nexus.craft.CraftException;
+import io.xj.service.nexus.NexusException;
+import io.xj.service.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,24 +22,24 @@ public class FabricationWrapperImpl {
   protected Fabricator fabricator;
 
   /**
-   Create a new CraftException prefixed with a segment id
+   Create a new NexusException prefixed with a segment id
 
    @param message to include in exception
-   @return CraftException to throw
+   @return NexusException to throw
    */
-  public CraftException exception(String message) {
-    return new CraftException(formatLog(message));
+  public NexusException exception(String message) {
+    return new NexusException(formatLog(message));
   }
 
   /**
-   Create a new CraftException prefixed with a segment id, including sub-exception
+   Create a new NexusException prefixed with a segment id, including sub-exception
 
    @param message to include in exception
    @param e       Exception to include in exception
-   @return CraftException to throw
+   @return NexusException to throw
    */
-  public CraftException exception(String message, Exception e) {
-    return new CraftException(formatLog(message), e);
+  public NexusException exception(String message, Exception e) {
+    return new NexusException(formatLog(message), e);
   }
 
   /**
@@ -102,7 +103,7 @@ public class FabricationWrapperImpl {
   protected String trackNameOrUnknown(ProgramSequencePatternEvent event) {
     try {
       return fabricator.getTrackName(event);
-    } catch (FabricationException e) {
+    } catch (NexusException e) {
       return UNKNOWN_TRACK_NAME;
     }
   }

@@ -15,10 +15,10 @@ import io.xj.SegmentChord;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.ValueException;
-import io.xj.service.nexus.craft.CraftException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.craft.arrangement.ArrangementCraftImpl;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
-import io.xj.service.nexus.fabricator.FabricationException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.Fabricator;
 
 import java.util.Collection;
@@ -46,7 +46,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
   @Override
   @Trace(resourceName = "nexus/craft/detail", operationName = "doWork")
-  public void doWork() throws CraftException {
+  public void doWork() throws NexusException {
     try {
       // for each unique voicing (instrument) types present in the chord voicings of the current main choice
       var voicingTypes = fabricator.getDistinctChordVoicingTypes();
@@ -87,7 +87,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       // Finally, update the segment with the crafted content
       fabricator.done();
 
-    } catch (FabricationException e) {
+    } catch (NexusException e) {
       throw exception(String.format("Failed to do Detail-Craft Work because %s", e.getMessage()));
 
     } catch (Exception e) {
@@ -102,7 +102,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @return Chosen Detail Program
    */
   @Trace(resourceName = "nexus/craft/detail", operationName = "chooseDetailProgram")
-  private Optional<Program> chooseDetailProgram(Instrument.Type voicingType) throws CraftException {
+  private Optional<Program> chooseDetailProgram(Instrument.Type voicingType) throws NexusException {
     Segment.Type type;
     type = fabricator.getType();
 
@@ -142,7 +142,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
         .flatMap(choice -> fabricator.getSourceMaterial().getProgram(choice.getProgramId()).stream())
         .findFirst();
 
-    } catch (FabricationException e) {
+    } catch (NexusException e) {
       reportMissing(Program.class, String.format("detail previously selected for %s-type Instrument and main program because fabrication exception %s", voicingType, e.getMessage()));
       return Optional.empty();
     }
@@ -159,14 +159,14 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param sequence from which to craft events
    @param choice   of program
    @param voice    within program
-   @throws CraftException on failure to craft
+   @throws NexusException on failure to craft
    */
   @Trace(resourceName = "nexus/craft/detail", operationName = "craftArrangementForDetailVoice")
   private void craftArrangementForDetailVoice(
     ProgramSequence sequence,
     SegmentChoice choice,
     ProgramVoice voice
-  ) throws CraftException {
+  ) throws NexusException {
     try {
       Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentId(voice.getId());
 
@@ -196,7 +196,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       else
         craftArrangementForVoiceSection(null, sequence, arrangement, voice, 0, fabricator.getSegment().getTotal());
 
-    } catch (FabricationException | ValueException e) {
+    } catch (NexusException | ValueException e) {
       throw
         exception(String.format("Failed to craft arrangement for detail voiceId=%s", voice.getId()), e);
     }
@@ -321,14 +321,14 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param sequence    from which to craft events
    @param arrangement of instrument
    @param voice       within program
-   @throws CraftException on failure
+   @throws NexusException on failure
    */
   @Trace(resourceName = "nexus/craft/detail", operationName = "craftArrangementForDetailVoicePerEachChord")
   private void craftArrangementForDetailVoicePerEachChord(
     ProgramSequence sequence,
     SegmentChoiceArrangement arrangement,
     ProgramVoice voice
-  ) throws CraftException {
+  ) throws NexusException {
     try {
       // guaranteed to be in order of position ascending
       SegmentChord[] chords = new SegmentChord[fabricator.getSegmentChords().size()];
@@ -349,7 +349,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       for (var section : sections)
         craftArrangementForVoiceSection(section.chord, sequence, arrangement, voice, section.fromPos, section.toPos);
 
-    } catch (FabricationException e) {
+    } catch (NexusException e) {
       throw
         exception(String.format("Failed to craft arrangement for detail voiceId=%s per each chord", voice.getId()), e);
     }

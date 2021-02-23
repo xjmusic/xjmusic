@@ -14,6 +14,7 @@ import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.util.ValueException;
+import io.xj.service.nexus.NexusException;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -86,7 +87,7 @@ public interface SegmentWorkbench {
    Called at the end of Segment fabrication.
    Sends added records to segmentDAO batch insert method
    */
-  void done() throws FabricationException, JsonApiException, ValueException;
+  void done() throws NexusException, JsonApiException, ValueException;
 
   /**
    Get the choice of a given type
@@ -117,7 +118,7 @@ public interface SegmentWorkbench {
    @param entity to add
    @param <N>    type of Entity
    @return entity that was added
-   @throws FabricationException on failure
+   @throws NexusException on failure
    */
-  <N extends MessageLite> N add(N entity) throws FabricationException;
+  <N extends MessageLite> N add(N entity) throws NexusException;
 }

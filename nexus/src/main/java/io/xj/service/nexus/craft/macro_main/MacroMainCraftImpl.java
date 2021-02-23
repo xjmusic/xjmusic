@@ -17,9 +17,9 @@ import io.xj.SegmentMeme;
 import io.xj.lib.music.Key;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
-import io.xj.service.nexus.craft.CraftException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
-import io.xj.service.nexus.fabricator.FabricationException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.service.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
@@ -52,7 +52,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
   @Override
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "doWork")
-  public void doWork() throws CraftException {
+  public void doWork() throws NexusException {
     try {
       var macroProgram = chooseNextMacroProgram()
         .orElseThrow(() -> exception("Failed to choose a Macro-program by any means!"));
@@ -146,7 +146,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
       // done
       fabricator.done();
 
-    } catch (FabricationException e) {
+    } catch (NexusException e) {
       throw exception("Failed to do Macro-Main-Craft Work", e);
 
     } catch (Exception e) {
@@ -200,7 +200,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return macroSequenceBindingOffset
    */
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "computeMacroProgramSequenceBindingOffset")
-  private Long computeMacroProgramSequenceBindingOffset() throws CraftException {
+  private Long computeMacroProgramSequenceBindingOffset() throws NexusException {
     var previousMacroChoice = fabricator.getPreviousMacroChoice();
     switch (fabricator.getType()) {
 
@@ -227,7 +227,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return mainSequenceBindingOffset
    */
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "computeMainProgramSequenceBindingOffset")
-  private Long computeMainProgramSequenceBindingOffset() throws CraftException {
+  private Long computeMainProgramSequenceBindingOffset() throws NexusException {
     switch (fabricator.getType()) {
 
       case Initial:
@@ -402,14 +402,14 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return map of meme name to SegmentMeme entity
    */
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "segmentMemes")
-  private Collection<SegmentMeme> segmentMemes() throws FabricationException {
+  private Collection<SegmentMeme> segmentMemes() throws NexusException {
     Multiset<String> uniqueResults = ConcurrentHashMultiset.create();
     for (SegmentChoice choice : fabricator.getChoices()) {
       try {
         for (SegmentMeme meme : fabricator.getMemesOfChoice(choice)) {
           uniqueResults.add(meme.getName());
         }
-      } catch (FabricationException e) {
+      } catch (NexusException e) {
         log.warn("Failed to get memes create choice: {}", choice);
       }
     }
@@ -428,12 +428,12 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @param mainSequence the end of which marks the end of the segment
    @return segment length, in nanoseconds
-   @throws CraftException on failure
+   @throws NexusException on failure
    */
-  private long segmentLengthNanos(ProgramSequence mainSequence) throws CraftException {
+  private long segmentLengthNanos(ProgramSequence mainSequence) throws NexusException {
     try {
       return (long) (fabricator.computeSecondsAtPosition(mainSequence.getTotal()) * NANOS_PER_SECOND);
-    } catch (FabricationException e) {
+    } catch (NexusException e) {
       throw exception("Failed to compute seconds at position", e);
     }
   }
@@ -444,9 +444,9 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @param mainSequence of which to compute segment length
    @return end timestamp
-   @throws CraftException on failure
+   @throws NexusException on failure
    */
-  private Instant segmentEndInstant(ProgramSequence mainSequence) throws CraftException {
+  private Instant segmentEndInstant(ProgramSequence mainSequence) throws NexusException {
     return Instant.parse(fabricator.getSegment().getBeginAt()).plusNanos(segmentLengthNanos(mainSequence));
   }
 }

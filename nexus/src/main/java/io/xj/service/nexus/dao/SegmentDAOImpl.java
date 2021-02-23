@@ -29,7 +29,7 @@ import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
+import io.xj.service.nexus.NexusException;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -144,7 +144,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
 
       return store.put(segment.build());
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -157,7 +157,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       validate(builder);
       return store.put(builder.build());
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -170,7 +170,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       requireChainAccount(access, segment.getChainId());
       return segment;
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -186,7 +186,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
         .findFirst()
         .orElseThrow(() -> new DAOExistenceException(String.format("Found no Segment@%d in Chain[%s]!", offset, chainId)));
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -204,7 +204,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
         .findFirst()
         .orElseThrow(() -> new DAOExistenceException(String.format("Found no Segment[state=%s] in Chain[%s]!", segmentState, chainId)));
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -219,7 +219,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
         .limit(limitSegmentReadSize)
         .collect(Collectors.toList());
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -242,7 +242,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       //noinspection unchecked
       return (Collection<N>) entities;
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -253,7 +253,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       requireTopLevel(access);
       store.putAll(entities);
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -270,7 +270,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
           .forEach(segments::add);
       return segments;
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -293,7 +293,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
           .limit(limitSegmentReadSize)
           .collect(Collectors.toList());
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -310,7 +310,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
           .limit(limitSegmentReadSize)
           .collect(Collectors.toList());
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -339,7 +339,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
         .limit(limitSegmentReadSize)
         .collect(Collectors.toList());
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -380,7 +380,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       // save segment
       store.put(builder.build());
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
 
     } catch (ValueException e) {
@@ -405,7 +405,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
 
       update(access, id, segment);
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -418,7 +418,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
         .stream()
         .max(Comparator.comparing(Segment::getOffset));
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -432,7 +432,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
         .filter(segment -> Segment.State.Dubbed == segment.getState())
         .max(Comparator.comparing(Segment::getOffset));
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -445,7 +445,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       // Delete Segment
       store.deleteSegment(id);
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }
@@ -477,7 +477,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
           .orElseThrow(() -> new DAOExistenceException(Chain.class, chainId)));
       return chainId;
 
-    } catch (NexusEntityStoreException e) {
+    } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
   }

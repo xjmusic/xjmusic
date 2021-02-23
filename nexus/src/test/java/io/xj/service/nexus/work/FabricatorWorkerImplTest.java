@@ -24,10 +24,10 @@ import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
-import io.xj.service.nexus.fabricator.FabricationException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.persistence.NexusEntityStoreException;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +57,7 @@ public class FabricatorWorkerImplTest {
   public SegmentDAO mockSegmentDAO;
 
   @Before
-  public void setUp() throws AppException, NexusEntityStoreException, DAOPrivilegeException, DAOFatalException, DAOExistenceException, EntityException {
+  public void setUp() throws AppException, NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException, EntityException {
     Config mockConfig = NexusTestConfiguration.getDefault()
       .withValue("app.port", ConfigValueFactory.fromAnyRef(9043))
       .withValue("work.bossDelayMillis", ConfigValueFactory.fromAnyRef(1))
@@ -124,9 +124,9 @@ public class FabricatorWorkerImplTest {
    [#175879632] Segment error message should not have NPE
    */
   @Test
-  public void createSegmentErrorMessage() throws FabricationException, DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
+  public void createSegmentErrorMessage() throws NexusException, DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     when(mockFabricatorFactory.fabricate(any(), any()))
-      .thenThrow(new FabricationException("Error!"));
+      .thenThrow(new NexusException("Error!"));
 
     subject.run();
 

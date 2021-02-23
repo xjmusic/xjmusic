@@ -15,6 +15,7 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.service.hub.HubApp;
 import io.xj.service.nexus.NexusApp;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
@@ -64,7 +65,7 @@ public class NexusEntityStoreImplTest {
 
 
   @Test
-  public void put_get_Segment() throws NexusEntityStoreException {
+  public void put_get_Segment() throws NexusException {
     String chainId = UUID.randomUUID().toString();
     Segment segment = Segment.newBuilder()
             .setId(UUID.randomUUID().toString())
@@ -99,7 +100,7 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void put_get_Chain() throws NexusEntityStoreException {
+  public void put_get_Chain() throws NexusException {
     String accountId = UUID.randomUUID().toString();
     var chain = Chain.newBuilder()
             .setId(UUID.randomUUID().toString())
@@ -124,7 +125,7 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void put() throws NexusEntityStoreException {
+  public void put() throws NexusException {
     subject.put(Segment.newBuilder()
             .setId(UUID.randomUUID().toString())
             .setChainId(UUID.randomUUID().toString())
@@ -141,8 +142,8 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void put_failsIfNotNexusEntity() throws NexusEntityStoreException {
-    failure.expect(NexusEntityStoreException.class);
+  public void put_failsIfNotNexusEntity() throws NexusException {
+    failure.expect(NexusException.class);
     failure.expectMessage("Can't store Library");
 
     subject.put(Library.newBuilder()
@@ -153,8 +154,8 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void put_failsWithoutId() throws NexusEntityStoreException {
-    failure.expect(NexusEntityStoreException.class);
+  public void put_failsWithoutId() throws NexusException {
+    failure.expect(NexusException.class);
     failure.expectMessage("Can't store Segment with null id");
 
     subject.put(Segment.newBuilder()
@@ -172,8 +173,8 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void put_subEntityFailsWithoutSegmentId() throws NexusEntityStoreException {
-    failure.expect(NexusEntityStoreException.class);
+  public void put_subEntityFailsWithoutSegmentId() throws NexusException {
+    failure.expect(NexusException.class);
     failure.expectMessage("Can't store SegmentChoice without Segment ID");
 
     subject.put(SegmentChoice.newBuilder()
@@ -185,7 +186,7 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void putAll_getAll() throws NexusEntityStoreException {
+  public void putAll_getAll() throws NexusException {
     var account1 = Account.newBuilder()
             .setId(UUID.randomUUID().toString())
             .setName("fish")
