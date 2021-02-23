@@ -46,7 +46,7 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
     eraseSegmentsOlderThanSeconds = config.getInt("work.eraseSegmentsOlderThanSeconds");
     this.telemetryProvider = telemetryProvider;
 
-    log.info("Instantiated OK");
+    log.debug("Instantiated OK");
   }
 
   /**
@@ -58,14 +58,14 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
   protected void doWork() throws Exception {
     var segmentIdsToErase = getSegmentIdsToErase();
     if (segmentIdsToErase.isEmpty())
-      log.info("Found no segments to erase");
+      log.debug("Found no segments to erase");
     else
-      log.info("Found {} segments to erase", segmentIdsToErase.size());
+      log.debug("Found {} segments to erase", segmentIdsToErase.size());
 
     for (String segmentId : segmentIdsToErase) {
       try {
         segmentDAO.destroy(access, segmentId);
-        log.info("Did erase Segment[{}]", segmentId);
+        log.debug("Did erase Segment[{}]", segmentId);
       } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException e) {
         log.warn("Error while destroying Segment[{}]", segmentId);
       }

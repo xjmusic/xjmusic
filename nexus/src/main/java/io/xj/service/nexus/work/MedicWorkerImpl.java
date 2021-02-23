@@ -48,7 +48,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
     reviveChainSegmentsDubbedPastSeconds = config.getInt("fabrication.reviveChainSegmentsDubbedPastSeconds");
     reviveChainProductionStartedBeforeSeconds = config.getInt("fabrication.reviveChainProductionStartedBeforeSeconds");
 
-    log.info("Instantiated OK");
+    log.debug("Instantiated OK");
   }
 
   @Override
@@ -69,7 +69,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
     if (medicEnabled) {
       long t = Instant.now().toEpochMilli();
       checkAndReviveAll();
-      log.info("Did run in {}ms OK", Instant.now().toEpochMilli() - t);
+      log.debug("Did run in {}ms OK", Instant.now().toEpochMilli() - t);
     }
   }
 

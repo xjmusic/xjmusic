@@ -46,7 +46,7 @@ class SourceImpl implements Source {
     inputLengthMicros = (long) (microsInASecond * stream.getActualFrames() / frameRate);
 
     state = READY;
-    log.info("Did load source {}", sourceId);
+    log.debug("Did load source {}", sourceId);
   }
 
   /**

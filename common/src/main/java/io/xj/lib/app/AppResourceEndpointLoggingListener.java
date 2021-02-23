@@ -130,9 +130,7 @@ public class AppResourceEndpointLoggingListener implements ApplicationEventListe
 
     private void log() {
       StringBuilder sb = new StringBuilder("\nAll endpoints for Jersey application\n");
-      logLines.stream().forEach((line) -> {
-        sb.append(line).append("\n");
-      });
+      logLines.forEach((line) -> sb.append(line).append("\n"));
       logger.info(sb.toString());
     }
 

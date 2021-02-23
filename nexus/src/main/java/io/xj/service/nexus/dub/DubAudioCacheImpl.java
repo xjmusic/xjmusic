@@ -43,7 +43,7 @@ class DubAudioCacheImpl implements DubAudioCache {
       if (!dir.exists()) {
         FileUtils.forceMkdir(dir);
       }
-      log.info("Initialized audio cache directory: {}", pathPrefix);
+      log.debug("Initialized audio cache directory: {}", pathPrefix);
 
     } catch (IOException e) {
       log.error("Failed to initialize audio cache directory: {}", pathPrefix, e);
@@ -55,7 +55,7 @@ class DubAudioCacheImpl implements DubAudioCache {
         .maximumWeight(allocateBytes)
         .weigher((String key, DubAudioCacheItem item) -> item.size())
         .build(this::load);
-      log.info("Initialized Caffeine cache, allocated {} bytes", allocateBytes);
+      log.debug("Initialized Caffeine cache, allocated {} bytes", allocateBytes);
 
     } catch (Exception e) {
       log.error("Failed to initialize Caffeine cache", e);

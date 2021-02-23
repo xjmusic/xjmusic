@@ -91,7 +91,7 @@ public class DubAudioCacheItem {
     OutputStream toFile = FileUtils.openOutputStream(new File(path));
     size = IOUtils.copy(data, toFile); // stores number of bytes copied
     toFile.close();
-    log.info("Did write media item to disk cache: {} ({} bytes)", path, size);
+    log.debug("Did write media item to disk cache: {} ({} bytes)", path, size);
   }
 
   /**

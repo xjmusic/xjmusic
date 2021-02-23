@@ -36,7 +36,7 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
     this.chainDAO = chainDAO;
     this.telemetryProvider = telemetryProvider;
 
-    log.info("Instantiated OK");
+    log.debug("Instantiated OK");
   }
 
   /**

@@ -2,12 +2,16 @@
 
 <configuration>
 
-  <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-  </appender>
-
   <appender name="JSON_TCP" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
     <remoteHost>intake.logs.datadoghq.com</remoteHost>
+<!--
+TODO clean up
+    <service>nexus</service>
+    <host>${HOSTNAME}</host>
+-->
+
+    <KeyValuePair key="service" value="nexus3" />
+
     <port>10514</port>
     <keepAliveDuration>20 seconds</keepAliveDuration>
     <encoder class="net.logstash.logback.encoder.LogstashEncoder">
@@ -27,7 +31,6 @@
 
   <root level="info">
     <appender-ref ref="JSON_TCP"/>
-    <appender-ref ref="JSON"/>
     <appender-ref ref="STDOUT"/>
   </root>
 

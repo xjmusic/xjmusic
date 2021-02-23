@@ -24,6 +24,8 @@ import java.util.Optional;
  Chain Worker implementation
  */
 public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
+  private static final float MICRO_PER_SECOND = 1000000;
+  private static final float NANOS_PER_SECOND = 1000 * MICRO_PER_SECOND;
   private static final String NAME = "Chain";
   private final Logger log = LoggerFactory.getLogger(ChainWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
@@ -53,7 +55,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
     bufferProductionSeconds = config.getInt("work.bufferProductionSeconds");
     bufferPreviewSeconds = config.getInt("work.bufferPreviewSeconds");
 
-    log.info("Instantiated OK");
+    log.debug("Instantiated OK");
   }
 
   @Override
@@ -72,6 +74,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
   protected void doWork() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     try {
+      long startedAt = System.nanoTime();
       var chain = chainDAO.readOne(access, chainId);
 
       if (Chain.State.Fabricate != chain.getState()) {
@@ -86,12 +89,13 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
         Instant.now().minusSeconds(workBufferSeconds));
       if (segment.isEmpty()) return;
       Segment createdSegment = segmentDAO.create(access, segment.get());
-      log.info("Created Segment {}", createdSegment);
+      log.debug("Created Segment {}", createdSegment);
       telemetryProvider.getStatsDClient().incrementCounter("segment.created");
 
       // FUTURE: fork/join thread possible for this sub-runnable of the fabrication worker
       workers.segment(createdSegment.getId()).run();
-      log.info("Fabricated Segment, id:{}, chainId:{}, offset:{}",
+      log.info("Fabricated Segment in {}s, id:{}, chainId:{}, offset:{}",
+        (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND,
         createdSegment.getId(), createdSegment.getChainId(), createdSegment.getOffset());
 
     } catch (Throwable e) {

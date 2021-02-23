@@ -1,6 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.status.OnConsoleStatusListener;
+import ch.qos.logback.core.status.StatusManager;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.Account;
@@ -118,6 +121,15 @@ public class NexusApp extends App {
     // Register JAX-RS filter for reading access control token
     HubClient hubClient = injector.getInstance(HubClient.class);
     getResourceConfig().register(new HubAccessTokenFilter(hubClient, config.getString(CONFIG_ACCESS_TOKEN_NAME)));
+
+    // Add Context to logs
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.setPackagingDataEnabled(true);
+//    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+//    lc.setName("nexus123");
+//    StatusManager statusManager = lc.getStatusManager();
+//    OnConsoleStatusListener onConsoleListener = new OnConsoleStatusListener();
+//    statusManager.add(onConsoleListener);
 
     // [#176285826] Nexus bootstraps Chains from JSON file on startup
     var payloadFactory = injector.getInstance(PayloadFactory.class);
@@ -293,7 +305,7 @@ public class NexusApp extends App {
    exposing JAX-RS resources defined in this app.
    */
   public void start() throws AppException {
-    log.info("{} will start work management before resource servers", getName());
+    log.debug("{} will start work management before resource servers", getName());
     work.start();
     //
     super.start();
@@ -314,7 +326,7 @@ public class NexusApp extends App {
    stop App Server
    */
   public void finish() {
-    log.info("{} will stop worker pool before resource servers", getName());
+    log.debug("{} will stop worker pool before resource servers", getName());
     work.finish();
     //
     super.finish();

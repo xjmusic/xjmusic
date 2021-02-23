@@ -122,10 +122,10 @@ class FileStoreProviderImpl implements FileStoreProvider {
   public void putS3ObjectFromTempFile(String filePath, String bucket, String key) throws FileStoreException {
     try {
       long startedAt = System.nanoTime();
-      log.info("Will ship {} to {}/{}", filePath, bucket, key);
+      log.debug("Will ship {} to {}/{}", filePath, bucket, key);
       s3Client().putObject(new PutObjectRequest(
         bucket, key, new File(filePath)));
-      log.info("Did ship {} to {}/{} OK in {}s", filePath, bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
+      log.debug("Did ship {} to {}/{} OK in {}s", filePath, bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
     } catch (Exception e) {
       throw new FileStoreException("Failed to put S3 object", e);
@@ -136,11 +136,11 @@ class FileStoreProviderImpl implements FileStoreProvider {
   public void putS3ObjectFromString(String content, String bucket, String key) throws FileStoreException {
     try {
       long startedAt = System.nanoTime();
-      log.info("Will ship {} bytes of content to {}/{}", content.length(), bucket, key);
+      log.debug("Will ship {} bytes of content to {}/{}", content.length(), bucket, key);
       ObjectMetadata metadata = new ObjectMetadata();
       metadata.setContentLength(content.length());
       s3Client().putObject(new PutObjectRequest(bucket, key, new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), metadata));
-      log.info("Did ship {} bytes to {}/{} OK in {}s", content.length(), bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
+      log.debug("Did ship {} bytes to {}/{} OK in {}s", content.length(), bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
     } catch (Exception e) {
       throw new FileStoreException("Failed to put S3 object", e);

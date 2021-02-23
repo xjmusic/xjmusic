@@ -2,10 +2,6 @@
 
 <configuration>
 
-  <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-  </appender>
-
   <appender name="JSON_TCP" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
     <remoteHost>intake.logs.datadoghq.com</remoteHost>
     <port>10514</port>
@@ -27,7 +23,6 @@
 
   <root level="info">
     <appender-ref ref="JSON_TCP"/>
-    <appender-ref ref="JSON"/>
     <appender-ref ref="STDOUT"/>
   </root>
 

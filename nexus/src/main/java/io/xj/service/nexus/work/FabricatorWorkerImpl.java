@@ -53,7 +53,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
     this.segmentDAO = segmentDAO;
     this.dubFactory = dubFactory;
 
-    log.info("Instantiated OK");
+    log.debug("Instantiated OK");
   }
 
   @Override
@@ -67,7 +67,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
   @Trace(resourceName = "nexus/fabricate", operationName = "doWork")
   protected void doWork() {
     try {
-      log.info("[segId={}] will read Segment for fabrication", segmentId);
+      log.debug("[segId={}] will read Segment for fabrication", segmentId);
       segment = segmentDAO.readOne(access, segmentId);
     } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException e) {
       didFailWhile("retrieving", e);
@@ -75,7 +75,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
     }
 
     try {
-      log.info("[segId={}] will prepare fabricator", segmentId);
+      log.debug("[segId={}] will prepare fabricator", segmentId);
       fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment);
     } catch (FabricationException e) {
       didFailWhile("creating fabricator", e);
@@ -83,7 +83,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
     }
 
     try {
-      log.info("[segId={}] will do craft work", segmentId);
+      log.debug("[segId={}] will do craft work", segmentId);
       doCraftWork();
     } catch (Exception e) {
       didFailWhile("doing Craft work", e);
@@ -125,7 +125,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
   @Trace(resourceName = "nexus/fabricate", operationName = "finishWork")
   private void finishWork() throws FabricationException {
     updateSegmentState(Segment.State.Dubbing, Segment.State.Dubbed);
-    log.info("[segId={}] Worked for {} seconds", segmentId, fabricator.getElapsedSeconds());
+    log.debug("[segId={}] Worked for {} seconds", segmentId, fabricator.getElapsedSeconds());
   }
 
   /**
@@ -200,7 +200,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
       throw new FabricationException(String.format("Segment[%s] %s requires Segment must be in %s state.", segmentId, toState, fromState));
     fabricator.updateSegment(fabricator.getSegment().toBuilder().setState(toState).build());
     segment = fabricator.getSegment();
-    log.info("[segId={}] Segment transitioned to state {} OK", segmentId, toState);
+    log.debug("[segId={}] Segment transitioned to state {} OK", segmentId, toState);
   }
 
 }

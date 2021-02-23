@@ -22,7 +22,7 @@ public abstract class WorkerImpl implements Runnable {
     currentThread.setName(String.format("%s-%s", _ogThreadName, getName()));
     try {
       doWork();
-      log.info("Completed {}", getName());
+      log.debug("Completed {}", getName());
 
     } catch (Throwable e) {
       log.error("Failed!", e);

@@ -15,8 +15,8 @@ import java.util.Objects;
 
 class MixerImpl implements Mixer {
   private static final Logger log = LoggerFactory.getLogger(MixerImpl.class);
-  private static final float microsInASecond = 1000000;
-  private static final float nanosInASecond = 1000 * microsInASecond;
+  private static final float MICRO_PER_SECOND = 1000000;
+  private static final float NANOS_PER_SECOND = 1000 * MICRO_PER_SECOND;
   // fields: output file
   private final double totalSeconds;
   private final float microsPerFrame;
@@ -81,13 +81,13 @@ class MixerImpl implements Mixer {
       MathUtil.enforceMax(2, "output audio channels", outputChannels);
       outputFrameRate = config.getOutputFormat().getFrameRate();
       outputFrameSize = config.getOutputFormat().getFrameSize();
-      microsPerFrame = microsInASecond / outputFrameRate;
-      totalSeconds = config.getOutputLength().toNanos() / nanosInASecond;
+      microsPerFrame = MICRO_PER_SECOND / outputFrameRate;
+      totalSeconds = config.getOutputLength().toNanos() / NANOS_PER_SECOND;
       totalFrames = (int) Math.floor(totalSeconds * outputFrameRate);
       totalBytes = totalFrames * outputFrameSize;
       buf = new double[totalFrames][outputChannels];
 
-      log.info(config.getLogPrefix() +
+      log.debug(config.getLogPrefix() +
           "Did initialize mixer with " +
           "outputChannels: {}, " +
           "outputFrameRate: {}, " +
@@ -128,9 +128,9 @@ class MixerImpl implements Mixer {
   public void mixToFile(OutputEncoder outputEncoder, String outputFilePath, Float quality) throws Exception {
     mix();
     long startedAt = System.nanoTime();
-    log.info(config.getLogPrefix() + "Will write {} bytes of output audio", totalBytes);
+    log.debug(config.getLogPrefix() + "Will write {} bytes of output audio", totalBytes);
     new AudioStreamWriter(buf, quality).writeToFile(outputFilePath, config.getOutputFormat(), outputEncoder, totalFrames);
-    log.info(config.getLogPrefix() + "Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
+    log.debug(config.getLogPrefix() + "Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
   }
 
   @Override
@@ -224,7 +224,7 @@ class MixerImpl implements Mixer {
     // start the mixer
     state = MixerState.Mixing;
     long startedAt = System.nanoTime();
-    log.info(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate", String.format("%.9f", totalSeconds), outputFrameRate);
+    log.debug(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate", String.format("%.9f", totalSeconds), outputFrameRate);
 
     // Start with original sources summed up verbatim
     applySources();
@@ -245,7 +245,7 @@ class MixerImpl implements Mixer {
 
     //
     state = MixerState.Done;
-    log.info(config.getLogPrefix() + "Did mix {} frames in {}s", totalFrames, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
+    log.debug(config.getLogPrefix() + "Did mix {} seconds of output audio at {} Hz in {}s", String.format("%.9f", totalSeconds), outputFrameRate,  String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
   }
 
   /**
@@ -438,7 +438,7 @@ class MixerImpl implements Mixer {
    @return microseconds
    */
   private long getMicros(long frameOffset) {
-    return (long) Math.floor(microsInASecond * frameOffset / outputFrameRate);
+    return (long) Math.floor(MICRO_PER_SECOND * frameOffset / outputFrameRate);
   }
 
   /**

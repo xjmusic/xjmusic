@@ -135,7 +135,7 @@ class FabricatorImpl implements Fabricator {
     try {
       // FUTURE: [#165815496] Chain fabrication access control
       this.access = access;
-      log.info("[segId={}] HubClientAccess {}", segment.getId(), access);
+      log.debug("[segId={}] HubClientAccess {}", segment.getId(), access);
 
       this.fileStoreProvider = fileStoreProvider;
       this.fabricatorFactory = fabricatorFactory;
@@ -148,11 +148,11 @@ class FabricatorImpl implements Fabricator {
 
       // tuning
       tuning = computeTuning();
-      log.info("[segId={}] Tuning {}", segment.getId(), tuning);
+      log.debug("[segId={}] Tuning {}", segment.getId(), tuning);
 
       // time
       startTime = System.nanoTime();
-      log.info("[segId={}] StartTime {}ns since epoch zulu", segment.getId(), startTime);
+      log.debug("[segId={}] StartTime {}ns since epoch zulu", segment.getId(), startTime);
 
       // read the chain, configs, and bindings
       chain = chainDAO.readOne(access, segment.getChainId());
@@ -161,13 +161,13 @@ class FabricatorImpl implements Fabricator {
       Set<String> boundLibraryIds = targetIdsOfType(chainBindings, ChainBinding.Type.Library);
       boundProgramIds = targetIdsOfType(chainBindings, ChainBinding.Type.Program);
       boundInstrumentIds = targetIdsOfType(chainBindings, ChainBinding.Type.Instrument);
-      log.info("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(),
+      log.debug("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(),
         chainConfig,
         CSV.prettyFrom(chainBindings, "and"));
 
       // read the source material
       sourceMaterial = hubClient.ingest(access, boundLibraryIds, boundProgramIds, boundInstrumentIds);
-      log.info("[segId={}] SourceMaterial loaded {} entities", segment.getId(), sourceMaterial.size());
+      log.debug("[segId={}] SourceMaterial loaded {} entities", segment.getId(), sourceMaterial.size());
 
       // setup the segment retrospective
       retrospective = fabricatorFactory.loadRetrospective(access, segment, sourceMaterial);
@@ -681,7 +681,7 @@ class FabricatorImpl implements Fabricator {
     switch (getType()) {
       case Continue:
         // transitions only once, of empty to non-empty
-        log.info("[segId={}] continues main sequence create previous segments: {}",
+        log.debug("[segId={}] continues main sequence create previous segments: {}",
           workbench.getSegment().getId(),
           Entities.csvIdsOf(getPreviousSegmentsWithSameMainProgram()));
         break;
@@ -1104,7 +1104,7 @@ class FabricatorImpl implements Fabricator {
         workbench.getSegment().toBuilder()
           .setStorageKey(generateStorageKey(workbench.getChain(), workbench.getSegment()))
           .build());
-      log.info("[segId={}] Generated storage key {}", workbench.getSegment().getId(), workbench.getSegment().getStorageKey());
+      log.debug("[segId={}] Generated storage key {}", workbench.getSegment().getId(), workbench.getSegment().getStorageKey());
     }
   }
 

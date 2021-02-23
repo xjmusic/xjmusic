@@ -349,7 +349,7 @@ public class HubApp extends App {
 
     // shutdown SQL database connection pool
     hubDatabaseProvider.shutdown();
-    log.info("{} SQL database connection pool did shutdown OK", getName());
+    log.debug("{} SQL database connection pool did shutdown OK", getName());
   }
 
   /**
@@ -369,7 +369,7 @@ public class HubApp extends App {
     try {
       injector.getInstance(HubMigration.class).migrate();
     } catch (HubPersistenceException e) {
-      System.out.println(String.format("Migrations failed! HubApp will not start. %s: %s\n%s", e.getClass().getSimpleName(), e.getMessage(), Text.formatStackTrace(e)));
+      System.out.printf("Migrations failed! HubApp will not start. %s: %s\n%s%n", e.getClass().getSimpleName(), e.getMessage(), Text.formatStackTrace(e));
       System.exit(1);
     }
   }
