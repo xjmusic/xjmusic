@@ -294,12 +294,12 @@ class FabricatorImpl implements Fabricator {
   @Override
   public Long getMaxAvailableSequenceBindingOffset(SegmentChoice choice) throws NexusException {
     if (Value.isEmpty(choice.getProgramSequenceBindingId()))
-      throw exception("Cannot determine whether choice with no SequenceBinding has two more available Sequence Pattern offsets");
+      throw new NexusException("Cannot determine whether choice with no SequenceBinding has two more available Sequence Pattern offsets");
     var sequenceBinding = getSequenceBinding(choice);
     if (sequenceBinding.isEmpty()) return 0L;
 
     Optional<Long> max = sourceMaterial.getAvailableOffsets(sequenceBinding.get()).stream().max(Long::compareTo);
-    if (max.isEmpty()) throw exception("Cannot determine max available sequence binding offset");
+    if (max.isEmpty()) throw new NexusException("Cannot determine max available sequence binding offset");
     return max.get();
 
   }
@@ -552,7 +552,7 @@ class FabricatorImpl implements Fabricator {
   @Override
   public Segment getPreviousSegment() throws NexusException {
     if (isInitialSegment() || retrospective.getPreviousSegment().isEmpty())
-      throw exception("Initial Segment has no previous Segment");
+      throw new NexusException("Initial Segment has no previous Segment");
 
     return retrospective.getPreviousSegment().get();
   }
@@ -604,7 +604,7 @@ class FabricatorImpl implements Fabricator {
   @Override
   public Duration getSegmentTotalLength() throws NexusException {
     if (Value.isEmpty(workbench.getSegment().getEndAt()))
-      throw exception("Cannot compute total length create segment with no end!");
+      throw new NexusException("Cannot compute total length create segment with no end!");
 
     return Duration.between(
       Instant.parse(workbench.getSegment().getBeginAt()),
@@ -676,8 +676,8 @@ class FabricatorImpl implements Fabricator {
         .setType(getType())
         .build());
       workbench.done();
-    } catch (NexusException | JsonApiException | ValueException e) {
-      throw exception("Could not complete Segment fabrication", e);
+    } catch (JsonApiException | ValueException e) {
+      throw new NexusException("Could not complete Segment fabrication", e);
     }
     switch (getType()) {
       case Continue:
@@ -771,13 +771,21 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public ProgramConfig getProgramConfig(Program program) throws ValueException {
-    return new ProgramConfig(program, config);
+  public ProgramConfig getProgramConfig(Program program) throws NexusException {
+    try {
+      return new ProgramConfig(program, config);
+    } catch (ValueException e) {
+      throw new NexusException(e);
+    }
   }
 
   @Override
-  public InstrumentConfig getInstrumentConfig(Instrument instrument) throws ValueException {
-    return new InstrumentConfig(instrument, config);
+  public InstrumentConfig getInstrumentConfig(Instrument instrument) throws NexusException {
+    try {
+      return new InstrumentConfig(instrument, config);
+    } catch (ValueException e) {
+      throw new NexusException(e);
+    }
   }
 
   @Override
@@ -787,6 +795,7 @@ class FabricatorImpl implements Fabricator {
     var voicings = sourceMaterial
       .getProgramSequenceChordVoicings(mainChoice.get().getProgramId());
     return voicings.stream()
+
       .map(ProgramSequenceChordVoicing::getType)
       .distinct()
       .collect(Collectors.toList());
@@ -1035,29 +1044,8 @@ class FabricatorImpl implements Fabricator {
         Note.of(tuningRootNote),
         tuningRootPitch);
     } catch (MusicalException e) {
-      throw exception("Could not tune XJ!", e);
+      throw new NexusException("Could not tune XJ!", e);
     }
-  }
-
-  /**
-   Create a new CoreException prefixed with a segment id
-
-   @param message to include in exception
-   @return CoreException to throw
-   */
-  private NexusException exception(String message) {
-    return new NexusException(formatLog(message));
-  }
-
-  /**
-   Create a new CoreException prefixed with a segment id, including sub-exception
-
-   @param message to include in exception
-   @param e       Exception to include in exception
-   @return CoreException to throw
-   */
-  private NexusException exception(String message, Exception e) {
-    return new NexusException(formatLog(message), e);
   }
 
   /**

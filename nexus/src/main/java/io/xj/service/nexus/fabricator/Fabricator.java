@@ -24,9 +24,7 @@ import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.Tuning;
-import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
-import io.xj.service.hub.client.HubClientException;
 import io.xj.service.hub.client.HubContent;
 import io.xj.service.hub.dao.InstrumentConfig;
 import io.xj.service.hub.dao.ProgramConfig;
@@ -687,7 +685,7 @@ public interface Fabricator {
    @param program to get config of
    @return ProgramConfig from a given program, with fallback values
    */
-  ProgramConfig getProgramConfig(Program program) throws ValueException;
+  ProgramConfig getProgramConfig(Program program) throws NexusException;
 
   /**
    Get the InstrumentConfig from a given instrument, with fallback to instrument section of guice-injected config values
@@ -695,7 +693,7 @@ public interface Fabricator {
    @param instrument to get config of
    @return InstrumentConfig from a given instrument, with fallback values
    */
-  InstrumentConfig getInstrumentConfig(Instrument instrument) throws ValueException;
+  InstrumentConfig getInstrumentConfig(Instrument instrument) throws NexusException;
 
   /**
    Get a list of unique voicing (instrument) types present in the voicings of the current main program's chords.
@@ -752,7 +750,7 @@ public interface Fabricator {
    @param instrument to get first audio events of
    @return first event of each audio from the instrument
    */
-  Collection<InstrumentAudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) throws HubClientException;
+  Collection<InstrumentAudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) throws NexusException;
 
   /**
    Whether this type of segment continues the same macro-program from the previous segment

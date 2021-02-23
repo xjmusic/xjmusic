@@ -16,7 +16,6 @@ import io.xj.lib.util.Chance;
 import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.craft.detail.DetailCraftImpl;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
-import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,37 +47,28 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
   @Override
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "doWork")
   public void doWork() throws NexusException {
-    try {
+    // program
+    Optional<Program> rhythmProgram = chooseRhythmProgram();
+    if (rhythmProgram.isEmpty()) return;
+    SegmentChoice rhythmChoice = fabricator.add(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(fabricator.getSegment().getId())
+      .setProgramType(Program.Type.Rhythm)
+      .setInstrumentType(Instrument.Type.Percussive)
+      .setProgramId(rhythmProgram.get().getId())
+      .build());
 
-      // program
-      Optional<Program> rhythmProgram = chooseRhythmProgram();
-      if (rhythmProgram.isEmpty()) return;
-      SegmentChoice rhythmChoice = fabricator.add(SegmentChoice.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(fabricator.getSegment().getId())
-        .setProgramType(Program.Type.Rhythm)
-        .setInstrumentType(Instrument.Type.Percussive)
-        .setProgramId(rhythmProgram.get().getId())
-        .build());
+    // rhythm sequence is selected at random of the current program
+    // FUTURE: [#166855956] Rhythm Program with multiple Sequences
+    var rhythmSequence = fabricator.getSequence(rhythmChoice);
 
-      // rhythm sequence is selected at random of the current program
-      // FUTURE: [#166855956] Rhythm Program with multiple Sequences
-      var rhythmSequence = fabricator.getSequence(rhythmChoice);
+    // voice arrangements
+    if (rhythmSequence.isPresent())
+      for (ProgramVoice voice : fabricator.getSourceMaterial().getVoices(rhythmProgram.get()))
+        craftArrangementForRhythmVoice(rhythmSequence.get(), rhythmChoice, voice);
 
-      // voice arrangements
-      if (rhythmSequence.isPresent())
-        for (ProgramVoice voice : fabricator.getSourceMaterial().getVoices(rhythmProgram.get()))
-          craftArrangementForRhythmVoice(rhythmSequence.get(), rhythmChoice, voice);
-
-      // Finally, update the segment with the crafted content
-      fabricator.done();
-
-    } catch (NexusException e) {
-      throw exception(String.format("Failed to do Rhythm-Craft Work because %s", e.getMessage()));
-
-    } catch (Exception e) {
-      throw exception("Bad failure", e);
-    }
+    // Finally, update the segment with the crafted content
+    fabricator.done();
   }
 
   /**
@@ -102,7 +92,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
         return chooseFreshRhythm();
 
       default:
-        throw exception(String.format("Cannot get Rhythm-type program for unknown fabricator type=%s", type));
+        throw new NexusException(String.format("Cannot get Rhythm-type program for unknown fabricator type=%s", type));
     }
   }
 
@@ -115,18 +105,12 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @return rhythm program if previously selected, or null if none is found
    */
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "getRhythmProgramSelectedPreviouslyForMainProgram")
-  private Optional<Program> getRhythmProgramSelectedPreviouslyForMainProgram() {
-    try {
-      return fabricator.getChoicesOfPreviousSegments()
-        .stream()
-        .filter(choice -> Program.Type.Rhythm == choice.getProgramType())
-        .flatMap(choice -> fabricator.getSourceMaterial().getProgram(choice.getProgramId()).stream())
-        .findFirst();
-
-    } catch (NexusException e) {
-      log.warn(formatLog("Could not get rhythm program selected previously for main program"), e);
-      return Optional.empty();
-    }
+  private Optional<Program> getRhythmProgramSelectedPreviouslyForMainProgram() throws NexusException {
+    return fabricator.getChoicesOfPreviousSegments()
+      .stream()
+      .filter(choice -> Program.Type.Rhythm == choice.getProgramType())
+      .flatMap(choice -> fabricator.getSourceMaterial().getProgram(choice.getProgramId()).stream())
+      .findFirst();
   }
 
   /**
@@ -134,22 +118,15 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    FUTURE [#150279436] Key of first Pattern of chosen Rhythm-Program must match the `minor` or `major` with the Key of the current Segment.
 
    @return rhythm-type Program
-   @throws NexusException on failure
-   <p>
-   future: actually choose rhythm program
    */
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "chooseFreshRhythm")
-  private Optional<Program> chooseFreshRhythm() throws NexusException {
+  private Optional<Program> chooseFreshRhythm() {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve programs bound to chain and
     // (3) score each source program based on meme isometry
-    try {
-      for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Rhythm))
-        superEntityScorePicker.add(program, scoreRhythm(program));
-    } catch (Exception e) {
-      throw exception("retrieve programs bound to chain", e);
-    }
+    for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Rhythm))
+      superEntityScorePicker.add(program, scoreRhythm(program));
 
     // report
     fabricator.putReport("rhythmChoice", superEntityScorePicker.report());
@@ -170,23 +147,18 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    */
   @SuppressWarnings("DuplicatedCode")
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "scoreRhythm")
-  private Double scoreRhythm(Program program) throws NexusException {
-    try {
-      double score = 0;
-      Collection<String> memes = fabricator.getSourceMaterial().getMemesAtBeginning(program);
-      if (!memes.isEmpty())
-        score += fabricator.getMemeIsometryOfSegment().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_RHYTHM_ENTROPY);
+  private Double scoreRhythm(Program program) {
+    double score = 0;
+    Collection<String> memes = fabricator.getSourceMaterial().getMemesAtBeginning(program);
+    if (!memes.isEmpty())
+      score += fabricator.getMemeIsometryOfSegment().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_RHYTHM_ENTROPY);
 
-      // [#174435421] Chain bindings specify Program & Instrument within Library
-      if (fabricator.isDirectlyBound(program))
-        score += SCORE_DIRECTLY_BOUND;
+    // [#174435421] Chain bindings specify Program & Instrument within Library
+    if (fabricator.isDirectlyBound(program))
+      score += SCORE_DIRECTLY_BOUND;
 
-      // score is above zero, else empty
-      return score;
-
-    } catch (Exception e) {
-      throw exception("score rhythm", e);
-    }
+    // score is above zero, else empty
+    return score;
   }
 
 
@@ -199,29 +171,23 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    */
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "craftArrangementForRhythmVoice")
   private void craftArrangementForRhythmVoice(ProgramSequence sequence, SegmentChoice choice, ProgramVoice voice) throws NexusException {
-    try {
-      Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentId(voice.getId());
-      if (instrumentId.isEmpty()) {
-        var instrument = chooseFreshPercussiveInstrument(voice);
-        if (instrument.isEmpty()) return;
-        instrumentId = Optional.of(instrument.get().getId());
-      }
-
-      // if no previous instrument found, choose a fresh one
-      SegmentChoiceArrangement arrangement = fabricator.add(SegmentChoiceArrangement.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(choice.getSegmentId())
-        .setSegmentChoiceId(choice.getId())
-        .setProgramVoiceId(voice.getId())
-        .setInstrumentId(instrumentId.get())
-        .build());
-
-      craftArrangementForVoiceSection(null, sequence, arrangement, voice, 0, fabricator.getSegment().getTotal());
-
-    } catch (NexusException e) {
-      throw
-        exception(String.format("Failed to craft arrangement for rhythm voiceId=%s", voice.getId()), e);
+    Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentId(voice.getId());
+    if (instrumentId.isEmpty()) {
+      var instrument = chooseFreshPercussiveInstrument(voice);
+      if (instrument.isEmpty()) return;
+      instrumentId = Optional.of(instrument.get().getId());
     }
+
+    // if no previous instrument found, choose a fresh one
+    SegmentChoiceArrangement arrangement = fabricator.add(SegmentChoiceArrangement.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(choice.getSegmentId())
+      .setSegmentChoiceId(choice.getId())
+      .setProgramVoiceId(voice.getId())
+      .setInstrumentId(instrumentId.get())
+      .build());
+
+    craftArrangementForVoiceSection(null, sequence, arrangement, voice, 0, fabricator.getSegment().getTotal());
   }
 
   /**
@@ -230,10 +196,9 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
    @param voice to choose instrument for
    @return percussive-type Instrument
-   @throws NexusException on failure
    */
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "chooseFreshPercussiveInstrument")
-  private Optional<Instrument> chooseFreshPercussiveInstrument(ProgramVoice voice) throws NexusException {
+  private Optional<Instrument> chooseFreshPercussiveInstrument(ProgramVoice voice) {
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve instruments bound to chain
@@ -260,24 +225,19 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @return score, including +/- entropy
    */
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "scorePercussive")
-  private double scorePercussive(Instrument instrument) throws NexusException {
-    try {
-      double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
+  private double scorePercussive(Instrument instrument) {
+    double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
 
-      // Score includes matching memes, previous segment to macro instrument first pattern
-      score += SCORE_MATCHED_MEMES *
-        fabricator.getMemeIsometryOfSegment().score(
-          Entities.namesOf(fabricator.getSourceMaterial().getMemes(instrument)));
+    // Score includes matching memes, previous segment to macro instrument first pattern
+    score += SCORE_MATCHED_MEMES *
+      fabricator.getMemeIsometryOfSegment().score(
+        Entities.namesOf(fabricator.getSourceMaterial().getMemes(instrument)));
 
-      // [#174435421] Chain bindings specify Program & Instrument within Library
-      if (fabricator.isDirectlyBound(instrument))
-        score += SCORE_DIRECTLY_BOUND;
+    // [#174435421] Chain bindings specify Program & Instrument within Library
+    if (fabricator.isDirectlyBound(instrument))
+      score += SCORE_DIRECTLY_BOUND;
 
-      return score;
-
-    } catch (Exception e) {
-      throw exception("score percussive", e);
-    }
+    return score;
   }
 
 }

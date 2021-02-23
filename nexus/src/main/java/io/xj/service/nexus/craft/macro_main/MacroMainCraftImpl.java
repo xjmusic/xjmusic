@@ -9,17 +9,18 @@ import com.google.inject.assistedinject.Assisted;
 import datadog.trace.api.Trace;
 import io.xj.Program;
 import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceChord;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChord;
 import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
+import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
 import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
-import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.service.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
@@ -53,105 +54,86 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   @Override
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "doWork")
   public void doWork() throws NexusException {
-    try {
-      var macroProgram = chooseNextMacroProgram()
-        .orElseThrow(() -> exception("Failed to choose a Macro-program by any means!"));
+    var macroProgram = chooseNextMacroProgram()
+      .orElseThrow(() -> new NexusException("Failed to choose a Macro-program by any means!"));
 
-      Long macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
-      var macroSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
-        .orElseThrow(() -> exception("Unable to determine macro sequence binding"));
-      var macroSequence = fabricator.getSourceMaterial().getProgramSequence(macroSequenceBinding);
-      fabricator.add(
-        SegmentChoice.newBuilder()
-          .setId(UUID.randomUUID().toString())
-          .setSegmentId(fabricator.getSegment().getId())
-          .setProgramId(macroProgram.getId())
-          .setProgramType(Program.Type.Macro)
-          .setProgramSequenceBindingId(macroSequenceBinding.getId())
-          .build());
+    Long macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
+    var macroSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
+      .orElseThrow(() -> new NexusException("Unable to determine macro sequence binding"));
+    var macroSequence = fabricator.getSourceMaterial().getProgramSequence(macroSequenceBinding);
+    fabricator.add(
+      SegmentChoice.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setSegmentId(fabricator.getSegment().getId())
+        .setProgramId(macroProgram.getId())
+        .setProgramType(Program.Type.Macro)
+        .setProgramSequenceBindingId(macroSequenceBinding.getId())
+        .build());
 
-      // 2. Main
-      Program mainProgram = chooseMainProgram()
-        .orElseThrow(() -> exception("Unable to choose main program"));
-      Long mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
-      var mainSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
-        .orElseThrow(() -> exception("Unable to determine main sequence binding offset"));
-      var mainSequence = fabricator.getSourceMaterial().getProgramSequence(mainSequenceBinding);
-      fabricator.add(
-        SegmentChoice.newBuilder()
-          .setId(UUID.randomUUID().toString())
-          .setSegmentId(fabricator.getSegment().getId())
-          .setProgramId(mainProgram.getId())
-          .setProgramType(Program.Type.Main)
-          .setProgramSequenceBindingId(mainSequenceBinding.getId())
-          .build());
+    // 2. Main
+    Program mainProgram = chooseMainProgram()
+      .orElseThrow(() -> new NexusException("Unable to choose main program"));
+    Long mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
+    var mainSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
+      .orElseThrow(() -> new NexusException("Unable to determine main sequence binding offset"));
+    var mainSequence = fabricator.getSourceMaterial().getProgramSequence(mainSequenceBinding);
+    fabricator.add(
+      SegmentChoice.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setSegmentId(fabricator.getSegment().getId())
+        .setProgramId(mainProgram.getId())
+        .setProgramType(Program.Type.Main)
+        .setProgramSequenceBindingId(mainSequenceBinding.getId())
+        .build());
 
-      // 3. Chords and voicings
-      mainSequence.ifPresent(programSequence ->
-        fabricator.getSourceMaterial().getChords(programSequence).forEach(sequenceChord -> {
-          // [#154090557] don't of chord past end of Segment
-          String name = "NaN";
-          if (sequenceChord.getPosition() < programSequence.getTotal()) try {
-            // delta the chord name
-            name = new io.xj.lib.music.Chord(sequenceChord.getName()).getFullDescription();
-            // of the final chord
-            SegmentChord chord = fabricator.add(SegmentChord.newBuilder()
+    // 3. Chords and voicings
+    if (mainSequence.isPresent())
+      for (ProgramSequenceChord sequenceChord : fabricator.getSourceMaterial().getChords(mainSequence.get())) {
+        // [#154090557] don't of chord past end of Segment
+        String name = "NaN";
+        if (sequenceChord.getPosition() < mainSequence.get().getTotal()) {
+          // delta the chord name
+          name = new Chord(sequenceChord.getName()).getFullDescription();
+          // of the final chord
+          SegmentChord chord = fabricator.add(SegmentChord.newBuilder()
+            .setId(UUID.randomUUID().toString())
+            .setSegmentId(fabricator.getSegment().getId())
+            .setPosition(sequenceChord.getPosition())
+            .setName(name)
+            .build());
+          for (var voicing : fabricator.getSourceMaterial().getVoicings(sequenceChord))
+            fabricator.add(SegmentChordVoicing.newBuilder()
               .setId(UUID.randomUUID().toString())
               .setSegmentId(fabricator.getSegment().getId())
-              .setPosition(sequenceChord.getPosition())
-              .setName(name)
+              .setSegmentChordId(chord.getId())
+              .setType(voicing.getType())
+              .setNotes(voicing.getNotes())
               .build());
-            for (var voicing : fabricator.getSourceMaterial().getVoicings(sequenceChord))
-              fabricator.add(SegmentChordVoicing.newBuilder()
-                .setId(UUID.randomUUID().toString())
-                .setSegmentId(fabricator.getSegment().getId())
-                .setSegmentChordId(chord.getId())
-                .setType(voicing.getType())
-                .setNotes(voicing.getNotes())
-                .build());
-
-
-          } catch (Exception e) {
-            log.warn("failed to create segment chord {}@{}",
-              name, sequenceChord.getPosition(), e);
-          }
-        }));
-
-      // 4. Memes
-      segmentMemes().forEach((segmentMeme) -> {
-        try {
-          fabricator.add(segmentMeme);
-
-        } catch (Exception e) {
-          log.warn("Could not create segment meme {}", segmentMeme.getName(), e);
         }
-      });
+      }
 
-      // Update the segment with fabricated content
-      if (macroSequence.isPresent() && mainSequence.isPresent())
-        fabricator.updateSegment(fabricator.getSegment().toBuilder()
-          .setOutputEncoder(fabricator.getChainConfig().getOutputContainer())
-          .setDensity(computeSegmentDensity(macroSequence.get(), mainSequence.get()))
-          .setTempo(computeSegmentTempo(macroSequence.get(), mainSequence.get()))
-          .setKey(computeSegmentKey(mainSequence.get()))
-          .setTotal(mainSequence.get().getTotal())
-          .build());
+    // 4. Memes
+    for (SegmentMeme segmentMeme : segmentMemes())
+      fabricator.add(segmentMeme);
 
-      // then, set the end-at time.
-      if (mainSequence.isPresent())
-        fabricator.updateSegment(fabricator.getSegment().toBuilder()
-          .setEndAt(Value.formatIso8601UTC(segmentEndInstant(mainSequence.get())))
-          .build());
+    // Update the segment with fabricated content
+    if (macroSequence.isPresent() && mainSequence.isPresent())
+      fabricator.updateSegment(fabricator.getSegment().toBuilder()
+        .setOutputEncoder(fabricator.getChainConfig().getOutputContainer())
+        .setDensity(computeSegmentDensity(macroSequence.get(), mainSequence.get()))
+        .setTempo(computeSegmentTempo(macroSequence.get(), mainSequence.get()))
+        .setKey(computeSegmentKey(mainSequence.get()))
+        .setTotal(mainSequence.get().getTotal())
+        .build());
 
-      // done
-      fabricator.done();
+    // then, set the end-at time.
+    if (mainSequence.isPresent())
+      fabricator.updateSegment(fabricator.getSegment().toBuilder()
+        .setEndAt(Value.formatIso8601UTC(segmentEndInstant(mainSequence.get())))
+        .build());
 
-    } catch (NexusException e) {
-      throw exception("Failed to do Macro-Main-Craft Work", e);
-
-    } catch (Exception e) {
-      throw exception("Bad failure", e);
-    }
+    // done
+    fabricator.done();
   }
 
   /**
@@ -217,7 +199,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
           fabricator.getNextSequenceBindingOffset(previousMacroChoice.get()) : 0L;
 
       default:
-        throw exception(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
+        throw new NexusException(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
     }
   }
 
@@ -238,11 +220,11 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
       case Continue:
         var previousMainChoice = fabricator.getPreviousMainChoice();
         if (previousMainChoice.isEmpty())
-          throw exception("Cannot get retrieve previous main choice");
+          throw new NexusException("Cannot get retrieve previous main choice");
         return fabricator.getNextSequenceBindingOffset(previousMainChoice.get());
 
       default:
-        throw exception(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
+        throw new NexusException(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
     }
 
   }
@@ -266,12 +248,8 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
     // (1) retrieve programs bound to chain and
     // (3) score each source program
-    try {
-      for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Macro))
-        superEntityScorePicker.add(program, scoreMacro(program));
-    } catch (Exception e) {
-      log.warn("while scoring macro programs", e);
-    }
+    for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Macro))
+      superEntityScorePicker.add(program, scoreMacro(program));
 
     // (3b) Avoid previous macro program
     if (previousMacroChoice.isPresent()) {
@@ -322,12 +300,8 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
     // (2) retrieve programs bound to chain and
     // (3) score each source program based on meme isometry
-    try {
-      for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Main))
-        superEntityScorePicker.add(program, scoreMain(program));
-    } catch (Exception e) {
-      log.warn("while scoring main programs", e);
-    }
+    for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Main))
+      superEntityScorePicker.add(program, scoreMain(program));
 
     // report
     fabricator.putReport("mainChoice", superEntityScorePicker.report());
@@ -404,15 +378,9 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "segmentMemes")
   private Collection<SegmentMeme> segmentMemes() throws NexusException {
     Multiset<String> uniqueResults = ConcurrentHashMultiset.create();
-    for (SegmentChoice choice : fabricator.getChoices()) {
-      try {
-        for (SegmentMeme meme : fabricator.getMemesOfChoice(choice)) {
-          uniqueResults.add(meme.getName());
-        }
-      } catch (NexusException e) {
-        log.warn("Failed to get memes create choice: {}", choice);
-      }
-    }
+    for (SegmentChoice choice : fabricator.getChoices())
+      for (SegmentMeme meme : fabricator.getMemesOfChoice(choice))
+        uniqueResults.add(meme.getName());
     Collection<SegmentMeme> result = Lists.newArrayList();
     uniqueResults.elementSet().forEach(memeName -> result.add(
       SegmentMeme.newBuilder()
@@ -431,11 +399,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @throws NexusException on failure
    */
   private long segmentLengthNanos(ProgramSequence mainSequence) throws NexusException {
-    try {
-      return (long) (fabricator.computeSecondsAtPosition(mainSequence.getTotal()) * NANOS_PER_SECOND);
-    } catch (NexusException e) {
-      throw exception("Failed to compute seconds at position", e);
-    }
+    return (long) (fabricator.computeSecondsAtPosition(mainSequence.getTotal()) * NANOS_PER_SECOND);
   }
 
   /**

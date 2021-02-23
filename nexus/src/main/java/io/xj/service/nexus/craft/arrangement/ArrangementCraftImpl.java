@@ -20,11 +20,8 @@ import io.xj.lib.music.PitchClass;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
-import io.xj.lib.util.ValueException;
-import io.xj.service.hub.client.HubClientException;
 import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
-import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.service.nexus.fabricator.NameIsometry;
 
@@ -63,42 +60,36 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     ProgramVoice voice,
     double fromPos,
     double maxPos
-  ) throws NexusException, NexusException {
-    try {
-      // choose intro pattern (if available)
-      Optional<ProgramSequencePattern> introPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePattern.Type.Intro);
+  ) throws NexusException {
+    // choose intro pattern (if available)
+    Optional<ProgramSequencePattern> introPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePattern.Type.Intro);
 
-      // choose outro pattern (if available)
-      Optional<ProgramSequencePattern> outroPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePattern.Type.Outro);
+    // choose outro pattern (if available)
+    Optional<ProgramSequencePattern> outroPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePattern.Type.Outro);
 
-      // compute in and out points, and length # beats for which loop patterns will be required
-      long loopOutPos = (int) maxPos - (outroPattern.map(ProgramSequencePattern::getTotal).orElse(0));
+    // compute in and out points, and length # beats for which loop patterns will be required
+    long loopOutPos = (int) maxPos - (outroPattern.map(ProgramSequencePattern::getTotal).orElse(0));
 
-      // begin at the beginning and fabricate events for the segment of beginning to end
-      double curPos = fromPos;
+    // begin at the beginning and fabricate events for the segment of beginning to end
+    double curPos = fromPos;
 
-      // if intro pattern, fabricate those voice event first
-      if (introPattern.isPresent())
-        curPos += craftPatternEvents(chord, arrangement, introPattern.get(), curPos, loopOutPos);
+    // if intro pattern, fabricate those voice event first
+    if (introPattern.isPresent())
+      curPos += craftPatternEvents(chord, arrangement, introPattern.get(), curPos, loopOutPos);
 
-      // choose loop patterns until arrive at the out point or end of segment
-      while (curPos < loopOutPos) {
-        Optional<ProgramSequencePattern> loopPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePattern.Type.Loop);
-        if (loopPattern.isPresent())
-          curPos += craftPatternEvents(chord, arrangement, loopPattern.get(), curPos, loopOutPos);
-        else
-          curPos = loopOutPos;
-      }
-
-      // if outro pattern, fabricate those voice event last
-      // [#161466708] compute how much to go for it in the outro
-      if (outroPattern.isPresent())
-        craftPatternEvents(chord, arrangement, outroPattern.get(), curPos, loopOutPos);
-
-    } catch (NexusException e) {
-      throw
-        exception(String.format("Failed to craft section of arrangement for voiceId=%s from %f to %f", voice.getId(), fromPos, maxPos), e);
+    // choose loop patterns until arrive at the out point or end of segment
+    while (curPos < loopOutPos) {
+      Optional<ProgramSequencePattern> loopPattern = fabricator.randomlySelectPatternOfSequenceByVoiceAndType(sequence, voice, ProgramSequencePattern.Type.Loop);
+      if (loopPattern.isPresent())
+        curPos += craftPatternEvents(chord, arrangement, loopPattern.get(), curPos, loopOutPos);
+      else
+        curPos = loopOutPos;
     }
+
+    // if outro pattern, fabricate those voice event last
+    // [#161466708] compute how much to go for it in the outro
+    if (outroPattern.isPresent())
+      craftPatternEvents(chord, arrangement, outroPattern.get(), curPos, loopOutPos);
   }
 
   /**
@@ -120,11 +111,11 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     double fromPos,
     double maxPos
   ) throws NexusException {
-    if (Objects.isNull(pattern)) throw exception("Cannot craft create null pattern");
+    if (Objects.isNull(pattern)) throw new NexusException("Cannot craft create null pattern");
     double totalPos = maxPos - fromPos;
     Collection<ProgramSequencePatternEvent> events = fabricator.getSourceMaterial().getEvents(pattern);
     var instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId())
-      .orElseThrow(() -> exception("Failed to retrieve instrument"));
+      .orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
     for (ProgramSequencePatternEvent event : events)
       pickInstrumentAudio(chord, instrument, arrangement, event, fromPos);
     return Math.min(totalPos, pattern.getTotal());
@@ -144,57 +135,51 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     ProgramSequencePatternEvent event,
     Double shiftPosition
   ) throws NexusException {
-    try {
-      // Morph & Point attributes are expressed in beats
-      double position = event.getPosition() + shiftPosition;
-      double duration = event.getDuration();
-      SegmentChord realChord = Value.isNonNull(chord) ? chord :
-        fabricator.getChordAt((int) Math.floor(position))
-          .orElseThrow(() -> new NexusException("No Segment Chord found!"));
-      assert realChord != null;
+    // Morph & Point attributes are expressed in beats
+    double position = event.getPosition() + shiftPosition;
+    double duration = event.getDuration();
+    SegmentChord realChord = Value.isNonNull(chord) ? chord :
+      fabricator.getChordAt((int) Math.floor(position))
+        .orElseThrow(() -> new NexusException("No Segment Chord found!"));
+    assert realChord != null;
 
-      // The final note is voiced from the chord voicing (if found) or else the default is used
-      Collection<Note> voicingNotes = fabricator.getVoicingNotes(realChord, instrument.getType());
-      Optional<Note> note = 0 < voicingNotes.size() ?
-        pickInstrumentNote(segmentChoiceArrangement,
-          Note.of(event.getNote()), Chord.of(realChord.getName()), voicingNotes) :
-        Optional.of(Note.of(event.getNote()));
-      if (note.isEmpty()) return;
+    // The final note is voiced from the chord voicing (if found) or else the default is used
+    Collection<Note> voicingNotes = fabricator.getVoicingNotes(realChord, instrument.getType());
+    Optional<Note> note = 0 < voicingNotes.size() ?
+      pickInstrumentNote(segmentChoiceArrangement,
+        Note.of(event.getNote()), Chord.of(realChord.getName()), voicingNotes) :
+      Optional.of(Note.of(event.getNote()));
+    if (note.isEmpty()) return;
 
-      // Pick attributes are expressed "rendered" as actual seconds
-      double startSeconds = fabricator.computeSecondsAtPosition(position);
-      double lengthSeconds = fabricator.computeSecondsAtPosition(position + duration) - startSeconds;
+    // Pick attributes are expressed "rendered" as actual seconds
+    double startSeconds = fabricator.computeSecondsAtPosition(position);
+    double lengthSeconds = fabricator.computeSecondsAtPosition(position + duration) - startSeconds;
 
-      var audio =
-        fabricator.getInstrumentConfig(instrument).isMultiphonic() ?
-          selectMultiphonicInstrumentAudio(instrument, event, note.get()) :
-          selectInstrumentAudio(instrument, event);
+    var audio =
+      fabricator.getInstrumentConfig(instrument).isMultiphonic() ?
+        selectMultiphonicInstrumentAudio(instrument, event, note.get()) :
+        selectInstrumentAudio(instrument, event);
 
-      // [#176373977] Should gracefully skip audio in unfulfilled by instrument
-      if (audio.isEmpty()) return;
+    // [#176373977] Should gracefully skip audio in unfulfilled by instrument
+    if (audio.isEmpty()) return;
 
-      // Audio pitch is not modified for atonal instruments
-      double pitch = fabricator.getInstrumentConfig(instrument).isTonal() ?
-        fabricator.getPitch(note.get()) : audio.get().getPitch();
+    // Audio pitch is not modified for atonal instruments
+    double pitch = fabricator.getInstrumentConfig(instrument).isTonal() ?
+      fabricator.getPitch(note.get()) : audio.get().getPitch();
 
-      // of pick
-      fabricator.add(SegmentChoiceArrangementPick.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(segmentChoiceArrangement.getSegmentId())
-        .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId())
-        .setInstrumentAudioId(audio.get().getId())
-        .setProgramSequencePatternEventId(event.getId())
-        .setName(fabricator.getTrackName(event))
-        .setStart(startSeconds)
-        .setLength(lengthSeconds)
-        .setAmplitude(event.getVelocity())
-        .setPitch(pitch)
-        .build());
-
-    } catch (NexusException | ValueException e) {
-      throw exception(String.format("Could not pick audio for Instrument[%s] arrangementId=%s, eventId=%s, shiftPosition=%f",
-        instrument.getId(), segmentChoiceArrangement.getId(), event.getId(), shiftPosition), e);
-    }
+    // of pick
+    fabricator.add(SegmentChoiceArrangementPick.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segmentChoiceArrangement.getSegmentId())
+      .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId())
+      .setInstrumentAudioId(audio.get().getId())
+      .setProgramSequencePatternEventId(event.getId())
+      .setName(fabricator.getTrackName(event))
+      .setStart(startSeconds)
+      .setLength(lengthSeconds)
+      .setAmplitude(event.getVelocity())
+      .setPitch(pitch)
+      .build());
   }
 
   /**
@@ -283,20 +268,15 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     ProgramSequencePatternEvent event,
     Note note
   ) throws NexusException {
-    try {
-      String key = fabricator.keyByTrackNote(event.getProgramVoiceTrackId(), note);
+    String key = fabricator.keyByTrackNote(event.getProgramVoiceTrackId(), note);
 
-      if (!fabricator.getPreviousInstrumentAudio().containsKey(key)) {
-        var audio = selectNewMultiphonicInstrumentAudio(instrument, note);
-        if (audio.isPresent()) fabricator.getPreviousInstrumentAudio().put(key, audio.get());
-      }
-
-      return fabricator.getPreviousInstrumentAudio().containsKey(key) ?
-        Optional.of(fabricator.getPreviousInstrumentAudio().get(key)) : Optional.empty();
-
-    } catch (NexusException e) {
-      throw new NexusException(e);
+    if (!fabricator.getPreviousInstrumentAudio().containsKey(key)) {
+      var audio = selectNewMultiphonicInstrumentAudio(instrument, note);
+      if (audio.isPresent()) fabricator.getPreviousInstrumentAudio().put(key, audio.get());
     }
+
+    return fabricator.getPreviousInstrumentAudio().containsKey(key) ?
+      Optional.of(fabricator.getPreviousInstrumentAudio().get(key)) : Optional.empty();
   }
 
   /**
@@ -316,20 +296,15 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     Instrument instrument,
     ProgramSequencePatternEvent event
   ) throws NexusException {
-    try {
-      String key = fabricator.keyByVoiceTrack(event);
+    String key = fabricator.keyByVoiceTrack(event);
 
-      if (!fabricator.getPreviousInstrumentAudio().containsKey(key)) {
-        var audio = selectNewInstrumentAudio(instrument, event);
-        if (audio.isPresent()) fabricator.getPreviousInstrumentAudio().put(key, audio.get());
-      }
-
-      return fabricator.getPreviousInstrumentAudio().containsKey(key) ?
-        Optional.of(fabricator.getPreviousInstrumentAudio().get(key)) : Optional.empty();
-
-    } catch (NexusException e) {
-      throw new NexusException(e);
+    if (!fabricator.getPreviousInstrumentAudio().containsKey(key)) {
+      var audio = selectNewInstrumentAudio(instrument, event);
+      if (audio.isPresent()) fabricator.getPreviousInstrumentAudio().put(key, audio.get());
     }
+
+    return fabricator.getPreviousInstrumentAudio().containsKey(key) ?
+      Optional.of(fabricator.getPreviousInstrumentAudio().get(key)) : Optional.empty();
   }
 
   /**
@@ -343,30 +318,21 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   protected Optional<InstrumentAudio> selectNewInstrumentAudio(
     Instrument instrument,
     ProgramSequencePatternEvent event
-  ) {
-    try {
-      EntityScorePicker<InstrumentAudio> audioEntityScorePicker = new EntityScorePicker<>();
+  ) throws NexusException {
+    EntityScorePicker<InstrumentAudio> audioEntityScorePicker = new EntityScorePicker<>();
 
-      // add all audio to chooser
-      audioEntityScorePicker.addAll(fabricator.getSourceMaterial().getAudios(instrument));
+    // add all audio to chooser
+    audioEntityScorePicker.addAll(fabricator.getSourceMaterial().getAudios(instrument));
 
-      // score each audio against the current voice event, with some variability
-      for (InstrumentAudioEvent audioEvent : fabricator.getSourceMaterial().getFirstEventsOfAudiosOfInstrument(instrument))
-        audioEntityScorePicker.score(audioEvent.getInstrumentAudioId(),
-          Chance.normallyAround(
-            NameIsometry.similarity(fabricator.getTrackName(event), audioEvent.getName()),
-            SCORE_ARRANGEMENT_ENTROPY));
+    // score each audio against the current voice event, with some variability
+    for (InstrumentAudioEvent audioEvent : fabricator.getSourceMaterial().getFirstEventsOfAudiosOfInstrument(instrument))
+      audioEntityScorePicker.score(audioEvent.getInstrumentAudioId(),
+        Chance.normallyAround(
+          NameIsometry.similarity(fabricator.getTrackName(event), audioEvent.getName()),
+          SCORE_ARRANGEMENT_ENTROPY));
 
-      // final chosen audio event
-      return audioEntityScorePicker.getTop();
-
-    } catch (NexusException e) {
-      reportMissing(InstrumentAudio.class, "attempting to pickInstrumentAudio", ImmutableMap.of(
-        "instrumentId", instrument.getId(),
-        "trackName", trackNameOrUnknown(event)
-      ));
-      return Optional.empty();
-    }
+    // final chosen audio event
+    return audioEntityScorePicker.getTop();
   }
 
   /**
@@ -382,33 +348,29 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   protected Optional<InstrumentAudio> selectNewMultiphonicInstrumentAudio(
     Instrument instrument,
     Note note
-  ) {
-    try {
-      var audioEvent = fabricator.getFirstEventsOfAudiosOfInstrument(instrument)
-        .stream()
-        .filter(instrumentAudioEvent ->
-          Note.of(instrumentAudioEvent.getNote()).sameAs(note))
-        .findAny();
+  ) throws NexusException {
+    var audioEvent = fabricator.getFirstEventsOfAudiosOfInstrument(instrument)
+      .stream()
+      .filter(instrumentAudioEvent ->
+        Note.of(instrumentAudioEvent.getNote()).sameAs(note))
+      .findAny();
 
-      if (audioEvent.isEmpty()) {
-        reportMissing(InstrumentAudio.class, "attempting to pickInstrumentAudio", ImmutableMap.of(
-          "instrumentId", instrument.getId(),
-          "searchForNote", note.toString(AdjSymbol.Sharp),
-          "availableNotes", CSV.from(fabricator.getFirstEventsOfAudiosOfInstrument(instrument)
-            .stream()
-            .map(InstrumentAudioEvent::getNote)
-            .map(Note::of)
-            .sorted(Note::compareTo)
-            .map(n -> n.toString(AdjSymbol.Sharp))
-            .collect(Collectors.toList()))
-        ));
-        return Optional.empty();
-      }
-
-      return fabricator.getSourceMaterial().getInstrumentAudio(audioEvent.get().getInstrumentAudioId());
-
-    } catch (HubClientException e) {
+    if (audioEvent.isEmpty()) {
+      reportMissing(InstrumentAudio.class, "attempting to pickInstrumentAudio", ImmutableMap.of(
+        "instrumentId", instrument.getId(),
+        "searchForNote", note.toString(AdjSymbol.Sharp),
+        "availableNotes", CSV.from(fabricator.getFirstEventsOfAudiosOfInstrument(instrument)
+          .stream()
+          .map(InstrumentAudioEvent::getNote)
+          .map(Note::of)
+          .sorted(Note::compareTo)
+          .map(n -> n.toString(AdjSymbol.Sharp))
+          .collect(Collectors.toList()))
+      ));
       return Optional.empty();
     }
+
+    return fabricator.getSourceMaterial().getInstrumentAudio(audioEvent.get().getInstrumentAudioId());
+
   }
 }
