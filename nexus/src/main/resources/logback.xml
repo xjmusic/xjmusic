@@ -1,19 +1,37 @@
 <!-- Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved. -->
 
 <configuration>
-  <appender name="loggly" class="ch.qos.logback.ext.loggly.LogglyAppender">
-    <endpointUrl>https://logs-01.loggly.com/inputs/8aed0f0a-396d-4deb-9d11-e40765bb2a39/tag/logback</endpointUrl>
-    <pattern>%d{"ISO8601", UTC} %p %t %c{0}.%M - %m%n</pattern>
+
+  <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
   </appender>
+
+  <appender name="JSON_TCP" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+    <remoteHost>intake.logs.datadoghq.com</remoteHost>
+    <port>10514</port>
+    <keepAliveDuration>20 seconds</keepAliveDuration>
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+      <prefix class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+          <pattern>ffe6de0162d7b2903a673a33139e6604 %mdc{keyThatDoesNotExist}</pattern>
+        </layout>
+      </prefix>
+    </encoder>
+  </appender>
+
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%d{ISO8601} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
-  <logger name="deng" level="INFO"/>
+
   <root level="info">
-    <appender-ref ref="loggly"/>
+    <appender-ref ref="JSON_TCP"/>
+    <appender-ref ref="JSON"/>
     <appender-ref ref="STDOUT"/>
   </root>
+
+  <logger name="deng" level="INFO"/>
+
 </configuration>
 
