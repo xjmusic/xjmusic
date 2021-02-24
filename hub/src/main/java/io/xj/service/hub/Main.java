@@ -48,13 +48,6 @@ public interface Main {
   @SuppressWarnings("DuplicatedCode")
   static void main(String[] args) throws AppException, UnknownHostException {
 
-    // Add context to logs
-    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-    lc.setPackagingDataEnabled(true);
-    lc.putProperty("service", "hub");
-    lc.putProperty("host", InetAddress.getLocalHost().getHostName());
-    lc.putProperty("source", "java");
-
     // Get default configuration
     Config defaults = ConfigFactory.parseResources(DEFAULT_CONFIGURATION_RESOURCE_FILENAME)
       .withFallback(AppConfiguration.getDefault())
@@ -62,6 +55,14 @@ public interface Main {
 
     // Read configuration from arguments to program, with default fallbacks
     Config config = AppConfiguration.parseArgs(args, defaults);
+
+    // Add context to logs
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.setPackagingDataEnabled(true);
+    lc.putProperty("source", "java");
+    lc.putProperty("service", "hub");
+    lc.putProperty("host", config.getString("app.hostname"));
+    lc.putProperty("env", config.getString("app.env"));
 
     // Instantiate app
     HubApp app = new HubApp(AppConfiguration.inject(config, injectorModules));

@@ -50,19 +50,20 @@ public interface Main {
   @SuppressWarnings("DuplicatedCode")
   static void main(String[] args) throws AppException, UnknownHostException {
 
-    // Add context to logs
-    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-    lc.setPackagingDataEnabled(true);
-    lc.putProperty("service", "nexus");
-    lc.putProperty("host", InetAddress.getLocalHost().getHostName());
-    lc.putProperty("source", "java");
-
     // Get default configuration
     Config defaults = AppConfiguration.getDefault()
       .withValue("app.port", ConfigValueFactory.fromAnyRef(defaultPort));
 
     // Read configuration from arguments to program, with default fallbacks
     Config config = AppConfiguration.parseArgs(args, defaults);
+
+    // Add context to logs
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.setPackagingDataEnabled(true);
+    lc.putProperty("source", "java");
+    lc.putProperty("service", "nexus");
+    lc.putProperty("host", config.getString("app.hostname"));
+    lc.putProperty("env", config.getString("app.env"));
 
     // Instantiate app
     NexusApp app = new NexusApp(AppConfiguration.inject(config, injectorModules));
