@@ -122,13 +122,6 @@ public class NexusApp extends App {
     HubClient hubClient = injector.getInstance(HubClient.class);
     getResourceConfig().register(new HubAccessTokenFilter(hubClient, config.getString(CONFIG_ACCESS_TOKEN_NAME)));
 
-    // Add Context to logs
-    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-    lc.setPackagingDataEnabled(true);
-    lc.putProperty("service", config.getString("app.name"));
-    lc.putProperty("host", config.getString("app.hostname"));
-    lc.putProperty("env", config.getString("app.env"));
-
     // [#176285826] Nexus bootstraps Chains from JSON file on startup
     var payloadFactory = injector.getInstance(PayloadFactory.class);
     var chainDAO = injector.getInstance(ChainDAO.class);

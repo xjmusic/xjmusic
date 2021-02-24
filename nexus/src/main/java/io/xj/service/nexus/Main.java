@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus;
 
+import ch.qos.logback.classic.LoggerContext;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
 import com.typesafe.config.Config;
@@ -17,7 +18,10 @@ import io.xj.service.nexus.dub.DubModule;
 import io.xj.service.nexus.fabricator.NexusFabricatorModule;
 import io.xj.service.nexus.persistence.NexusEntityStoreModule;
 import io.xj.service.nexus.work.NexusWorkModule;
+import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Set;
 
 /**
@@ -36,7 +40,6 @@ public interface Main {
     new NexusEntityStoreModule(),
     new NexusWorkModule()
   );
-  Set<String> resourcePackages = ImmutableSet.of("io.xj.service.nexus.api");
   int defaultPort = 3000;
 
   /**
@@ -44,13 +47,21 @@ public interface Main {
 
    @param args arguments-- the first argument must be the path to the configuration file
    */
-  static void main(String[] args) throws AppException {
+  @SuppressWarnings("DuplicatedCode")
+  static void main(String[] args) throws AppException, UnknownHostException {
     // Get default configuration
     Config defaults = AppConfiguration.getDefault()
       .withValue("app.port", ConfigValueFactory.fromAnyRef(defaultPort));
 
     // Read configuration from arguments to program, with default fallbacks
     Config config = AppConfiguration.parseArgs(args, defaults);
+
+    // Add context to logs
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.setPackagingDataEnabled(true);
+    lc.putProperty("service", config.getString("nexus"));
+    lc.putProperty("host", config.getString(InetAddress.getLocalHost().getHostName()));
+    lc.putProperty("source", config.getString("java"));
 
     // Instantiate app
     NexusApp app = new NexusApp(AppConfiguration.inject(config, injectorModules));

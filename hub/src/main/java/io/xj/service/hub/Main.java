@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub;
 
+import ch.qos.logback.classic.LoggerContext;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
 import com.typesafe.config.Config;
@@ -16,7 +17,10 @@ import io.xj.service.hub.access.HubAccessControlModule;
 import io.xj.service.hub.dao.DAOModule;
 import io.xj.service.hub.ingest.HubIngestModule;
 import io.xj.service.hub.persistence.HubPersistenceModule;
+import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Set;
 
 /**
@@ -34,7 +38,6 @@ public interface Main {
     new HubIngestModule(),
     new HubPersistenceModule()
   );
-  Set<String> resourcePackages = ImmutableSet.of("io.xj.service.hub");
   int defaultPort = 3000;
 
   /**
@@ -42,7 +45,8 @@ public interface Main {
 
    @param args arguments-- the first argument must be the path to the configuration file
    */
-  static void main(String[] args) throws AppException {
+  @SuppressWarnings("DuplicatedCode")
+  static void main(String[] args) throws AppException, UnknownHostException {
 
     // Get default configuration
     Config defaults = ConfigFactory.parseResources(DEFAULT_CONFIGURATION_RESOURCE_FILENAME)
@@ -51,6 +55,13 @@ public interface Main {
 
     // Read configuration from arguments to program, with default fallbacks
     Config config = AppConfiguration.parseArgs(args, defaults);
+
+    // Add context to logs
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.setPackagingDataEnabled(true);
+    lc.putProperty("service", config.getString("hub"));
+    lc.putProperty("host", config.getString(InetAddress.getLocalHost().getHostName()));
+    lc.putProperty("source", config.getString("java"));
 
     // Instantiate app
     HubApp app = new HubApp(AppConfiguration.inject(config, injectorModules));
