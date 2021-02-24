@@ -857,7 +857,7 @@ public class NexusIntegrationTestingFixtures {
         add(entities, buildInstrumentAudioEvent(audio, 0.0, 1.0, percussiveNames[k], "X", random(0.8, 1)));
       }
       //
-      log.info("Generated Percussive-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
+      log.debug("Generated Percussive-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
     }
 
     // Generate N*2 total Macro-type programs, each transitioning of one MemeEntity to another
@@ -909,7 +909,7 @@ public class NexusIntegrationTestingFixtures {
         .setName(majorMemeToName)
         .build());
       //
-      log.info("Generated Macro-type Program id={}, minorMeme={}, majorMemeFrom={}, majorMemeTo={}", program.getId(), minorMemeName, majorMemeFromName, majorMemeToName);
+      log.debug("Generated Macro-type Program id={}, minorMeme={}, majorMemeFrom={}, majorMemeTo={}", program.getId(), minorMemeName, majorMemeFromName, majorMemeToName);
     }
 
     // Generate N*4 total Main-type Programs, each having N patterns comprised of ~N*2 chords, bound to N*4 sequence patterns
@@ -949,7 +949,7 @@ public class NexusIntegrationTestingFixtures {
           .build());
         add(entities, buildProgramSequenceBindingMeme(binding, random(minorMemeNames)));
       }
-      log.info("Generated Main-type Program id={}, majorMeme={} with {} sequences bound {} times", program.getId(), majorMemeName, N, N << 2);
+      log.debug("Generated Main-type Program id={}, majorMeme={} with {} sequences bound {} times", program.getId(), majorMemeName, N, N << 2);
     }
 
     // Generate N total Rhythm-type Sequences, each having N voices, and N*2 patterns comprised of N*8 events
@@ -991,7 +991,7 @@ public class NexusIntegrationTestingFixtures {
           }
         }
       }
-      log.info("Generated Rhythm-type Program id={}, majorMeme={} with {} patterns", program.getId(), majorMemeName, N);
+      log.debug("Generated Rhythm-type Program id={}, majorMeme={} with {} patterns", program.getId(), majorMemeName, N);
     }
 
     return entities;

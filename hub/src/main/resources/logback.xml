@@ -27,6 +27,7 @@
   </root>
 
   <logger name="deng" level="INFO"/>
+  <logger name="com.zaxxer.hikari" level="WARN"/>
 
 </configuration>
 

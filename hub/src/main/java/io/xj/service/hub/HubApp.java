@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.hub;
 
+import ch.qos.logback.classic.LoggerContext;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.Account;
@@ -89,6 +90,13 @@ public class HubApp extends App {
 
     // Non-static logger for this class, because app must init first
     log.info("{} configuration:\n{}", getName(), Text.toReport(config));
+
+    // Add context to logs
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.setPackagingDataEnabled(true);
+    lc.putProperty("service", config.getString("app.name"));
+    lc.putProperty("host", config.getString("app.hostname"));
+    lc.putProperty("env", config.getString("app.env"));
 
     // Setup Entity topology
     buildApiTopology(injector.getInstance(EntityFactory.class));

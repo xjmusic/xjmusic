@@ -53,7 +53,7 @@ public class HubAccessLogFilter {
     try {
       setup(pathToWriteAccessLog);
       resourceConfig.register(instance);
-      log.info("Writing access log to {}", pathToWriteAccessLog);
+      log.info("Will write access log to {}", pathToWriteAccessLog);
     } catch (IOException e) {
       log.warn("Failed to registerTo access log writer!", e);
     }

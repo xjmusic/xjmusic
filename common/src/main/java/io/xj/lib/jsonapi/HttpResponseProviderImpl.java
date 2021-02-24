@@ -31,7 +31,7 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
 
     appUrl = apiUrlProvider.getAppBaseUrl();
     this.apiUrlProvider = apiUrlProvider;
-    log.info("HTTP Responses will have Base URL {}", appUrl);
+    log.debug("HTTP Responses will have Base URL {}", appUrl);
   }
 
   @Override

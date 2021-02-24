@@ -603,17 +603,29 @@ public class HubContent {
   }
 
   /**
-   Get sequence bindings at a specified offset
+   Get sequence bindings at a specified offset.
+   If the target offset is not found in the chosen Main Program,
+   we'll find the nearest matching offset, and return all bindings at that offset.
+   <p>
+   [#177052278] Chain should always be able to determine main sequence binding offset
 
    @param program to get sequence bindings for
    @param offset  to get sequence bindings at
    @return sequence bindings at offset
    */
   public Collection<ProgramSequenceBinding> getProgramSequenceBindingsAtOffset(Program program, Long offset) {
+    var candidates = getAllProgramSequenceBindings().stream()
+      .filter(psb -> Objects.equals(psb.getProgramId(), program.getId()))
+      .collect(Collectors.toList());
+    var actualOffset = candidates.stream()
+      .map(ProgramSequenceBinding::getOffset)
+      .min(Comparator.comparing(psbOffset -> Math.abs(psbOffset - offset)));
+    if (actualOffset.isEmpty())
+      return ImmutableList.of();
     return getAllProgramSequenceBindings().stream()
       .filter(psb ->
         Objects.equals(psb.getProgramId(), program.getId()) &&
-          Objects.equals(psb.getOffset(), offset))
+          Objects.equals(psb.getOffset(), actualOffset.get()))
       .collect(Collectors.toList());
   }
 

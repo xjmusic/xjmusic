@@ -141,7 +141,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
     segmentMap.clear();
     chainBindingMap.clear();
     chainMap.clear();
-    log.info("Did delete all records in store");
+    log.debug("Did delete all records in store");
   }
 
   @Override

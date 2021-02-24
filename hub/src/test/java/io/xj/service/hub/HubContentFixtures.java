@@ -91,7 +91,7 @@ public class HubContentFixtures {
   public ProgramSequenceBinding program4_sequence1_binding0;
   public ProgramSequenceBinding program4_sequence2_binding0;
   public ProgramSequenceBinding program5_sequence0_binding0;
-  public ProgramSequenceBinding program5_sequence1_binding0;
+  public ProgramSequenceBinding program5_sequence1_binding1;
   public ProgramSequenceBindingMeme program15_sequence0_binding0_meme0;
   public ProgramSequenceBindingMeme program15_sequence1_binding0_meme0;
   public ProgramSequenceBindingMeme program15_sequence1_binding0_meme1;
@@ -102,7 +102,7 @@ public class HubContentFixtures {
   public ProgramSequenceBindingMeme program4_sequence1_binding0_meme1;
   public ProgramSequenceBindingMeme program4_sequence2_binding0_meme0;
   public ProgramSequenceBindingMeme program5_sequence0_binding0_meme0;
-  public ProgramSequenceBindingMeme program5_sequence1_binding0_meme0;
+  public ProgramSequenceBindingMeme program5_sequence1_binding1_meme0;
   public ProgramSequenceChord program15_sequence0_chord0;
   public ProgramSequenceChord program15_sequence0_chord1;
   public ProgramSequenceChord program15_sequence1_chord0;
@@ -356,8 +356,8 @@ public class HubContentFixtures {
     program5_sequence1 = IntegrationTestingFixtures.buildProgramSequence(program5, 32, "Drop", 0.5, "G minor", 135.0);
     program5_sequence1_chord0 = IntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence1, 0.0, "C major");
     program5_sequence1_chord1 = IntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence1, 8.0, "Bb minor");
-    program5_sequence1_binding0 = IntegrationTestingFixtures.buildProgramSequenceBinding(program5_sequence1, 1);
-    program5_sequence1_binding0_meme0 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program5_sequence1_binding0, "Pessimism");
+    program5_sequence1_binding1 = IntegrationTestingFixtures.buildProgramSequenceBinding(program5_sequence1, 1);
+    program5_sequence1_binding1_meme0 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program5_sequence1_binding1, "Pessimism");
 
     // A basic beat
     program35 = IntegrationTestingFixtures.buildProgram(library2, Program.Type.Rhythm, Program.State.Published, "Basic Beat", "C", 121, 0.6);
@@ -442,8 +442,8 @@ public class HubContentFixtures {
       program5_sequence0_chord2,
       program5_sequence0_chord2_voicing,
       program5_sequence1,
-      program5_sequence1_binding0,
-      program5_sequence1_binding0_meme0,
+      program5_sequence1_binding1,
+      program5_sequence1_binding1_meme0,
       program5_sequence1_chord0,
       program5_sequence1_chord1,
       program6,

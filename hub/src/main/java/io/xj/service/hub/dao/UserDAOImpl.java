@@ -106,7 +106,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
       throw new DAOException("Failed to create new UserAuthToken record.");
     }
 
-    log.info("Created new UserAuthToken, id:{}, userId:{}, userAuthId:{}, accessToken:{}", userAccessToken.getId(), userAccessToken.getUserId(), userAccessToken.getUserAuthId(), userAccessToken.getAccessToken());
+    log.info("Created new userAuthTokenId={}, userId={}, userAuthId={}, accessToken={}", userAccessToken.getId(), userAccessToken.getUserId(), userAccessToken.getUserAuthId(), userAccessToken.getAccessToken());
   }
 
   /**
@@ -130,7 +130,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
       throw new DAOException("Failed to create new User record.");
     }
 
-    log.info("Created new User, id:{}, name:{}, email:{}", user.getId(), user.getName(), user.getEmail());
+    log.info("Created new User, id={}, name={}, email={}", user.getId(), user.getName(), user.getEmail());
     return user;
   }
 
@@ -193,7 +193,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
       throw new DAOException("Failed to create new UserRole record.");
     }
 
-    log.info("Created new UserRole, id:{}, userId:{}, type:{}", userRole1.getId(), userRole1.getUserId(), userRole1.getType());
+    log.info("Created new UserRole, id={}, userId={}, type={}", userRole1.getId(), userRole1.getUserId(), userRole1.getType());
     Collection<UserRole> roles = Lists.newArrayList();
     roles.add(modelFrom(UserRole.class, userRole1));
     return roles;
@@ -220,7 +220,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
       throw new DAOException("Failed to create new UserAuth record.");
     }
 
-    log.info("Created new UserAuth, id:{}, userId:{}, type:{}, account:{}", userAuth.getId(), userAuth.getUserId(), userAuth.getType(), userAuth.getExternalAccount());
+    log.info("Created new UserAuth, id={}, userId={}, type={}, account={}", userAuth.getId(), userAuth.getUserId(), userAuth.getType(), userAuth.getExternalAccount());
     return modelFrom(UserAuth.class, userAuth);
   }
 
@@ -454,7 +454,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
       db.deleteFrom(USER_AUTH_TOKEN)
         .where(USER_AUTH_TOKEN.ID.eq(userAccessToken.getId()))
         .execute();
-      log.info("Deleted UserAuthToken, id:{}, userId:{}, userAuthId:{}, accessToken:{}", userAccessToken.getId(), userAccessToken.getUserId(), userAccessToken.getUserAuthId(), userAccessToken.getAccessToken());
+      log.info("Deleted UserAuthToken, id={}, userId={}, userAuthId={}, accessToken={}", userAccessToken.getId(), userAccessToken.getUserId(), userAccessToken.getUserAuthId(), userAccessToken.getAccessToken());
     } catch (HubAccessException e) {
       throw new DAOException("Cannot destroy token!", e);
     }

@@ -93,7 +93,7 @@ public class EntityStoreImpl implements EntityStore {
 
   public void deleteAll() {
     store.clear();
-    log.info("Did delete all records in store");
+    log.debug("Did delete all records in store");
   }
 
   public <N, B> void deleteAll(Class<N> type, Class<B> belongsToType, String belongsToId) throws EntityStoreException {

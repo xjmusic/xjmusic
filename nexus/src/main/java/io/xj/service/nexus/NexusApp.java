@@ -125,11 +125,9 @@ public class NexusApp extends App {
     // Add Context to logs
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
     lc.setPackagingDataEnabled(true);
-//    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-//    lc.setName("nexus123");
-//    StatusManager statusManager = lc.getStatusManager();
-//    OnConsoleStatusListener onConsoleListener = new OnConsoleStatusListener();
-//    statusManager.add(onConsoleListener);
+    lc.putProperty("service", config.getString("app.name"));
+    lc.putProperty("host", config.getString("app.hostname"));
+    lc.putProperty("env", config.getString("app.env"));
 
     // [#176285826] Nexus bootstraps Chains from JSON file on startup
     var payloadFactory = injector.getInstance(PayloadFactory.class);

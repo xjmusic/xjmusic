@@ -64,7 +64,7 @@ public class AuthGoogleResourceTest {
     // --
     // c.configuration().enable(new org.glassfish.jersey.media.json.JsonJaxbFeature());
     subject = client.target(app.getBaseURI());
-    log.info("[TEST] subject baseURI: {}", app.getBaseURI());
+    log.debug("[TEST] subject baseURI: {}", app.getBaseURI());
   }
 
   @After

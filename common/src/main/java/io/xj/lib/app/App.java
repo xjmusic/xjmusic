@@ -185,7 +185,7 @@ public class App {
    exposing JAX-RS resources defined in this app.
    */
   public void start() throws AppException {
-    log.info("{} will start", name);
+    log.debug("{} will start", name);
     started = true;
 
     // Jetty
@@ -198,7 +198,7 @@ public class App {
    stop App Server
    */
   public void finish() {
-    log.info("{} will stop", name);
+    log.debug("{} will stop", name);
 
     try {
       resourceServer.stop();

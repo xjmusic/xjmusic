@@ -99,7 +99,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
           Instant chainDubbedUntil = lastDubbedSegment.isPresent() ?
             Instant.parse(lastDubbedSegment.get().getEndAt()) :
             Instant.parse(chain.getStartAt());
-          log.info("Chain[{}] dubbed until {} -- required until {}",
+          log.debug("Chain[{}] dubbed until {} -- required until {}",
             chain.getId(), chainDubbedUntil, thresholdChainSegmentsDubbedPast);
           if (chainDubbedUntil.isBefore(thresholdChainSegmentsDubbedPast)) {
             log.warn("Chain {} is stalled!", chain.getId());

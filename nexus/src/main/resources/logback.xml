@@ -2,39 +2,33 @@
 
 <configuration>
 
-  <appender name="JSON_TCP" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-    <remoteHost>intake.logs.datadoghq.com</remoteHost>
-<!--
-TODO clean up
-    <service>nexus</service>
-    <host>${HOSTNAME}</host>
--->
+    <appender name="JSON_TCP" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <remoteHost>intake.logs.datadoghq.com</remoteHost>
+        <KeyValuePair key="service" value="nexus3"/>
 
-    <KeyValuePair key="service" value="nexus3" />
+        <port>10514</port>
+        <keepAliveDuration>20 seconds</keepAliveDuration>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <prefix class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+                <layout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>ffe6de0162d7b2903a673a33139e6604 %mdc{keyThatDoesNotExist}</pattern>
+                </layout>
+            </prefix>
+        </encoder>
+    </appender>
 
-    <port>10514</port>
-    <keepAliveDuration>20 seconds</keepAliveDuration>
-    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-      <prefix class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-        <layout class="ch.qos.logback.classic.PatternLayout">
-          <pattern>ffe6de0162d7b2903a673a33139e6604 %mdc{keyThatDoesNotExist}</pattern>
-        </layout>
-      </prefix>
-    </encoder>
-  </appender>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{ISO8601} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
 
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%d{ISO8601} [%thread] %-5level %logger{36} - %msg%n</pattern>
-    </encoder>
-  </appender>
+    <root level="info">
+        <appender-ref ref="JSON_TCP"/>
+        <appender-ref ref="STDOUT"/>
+    </root>
 
-  <root level="info">
-    <appender-ref ref="JSON_TCP"/>
-    <appender-ref ref="STDOUT"/>
-  </root>
-
-  <logger name="deng" level="INFO"/>
+    <logger name="deng" level="INFO"/>
 
 </configuration>
 

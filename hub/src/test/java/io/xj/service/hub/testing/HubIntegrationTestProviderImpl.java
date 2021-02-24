@@ -64,7 +64,7 @@ public class HubIntegrationTestProviderImpl<O extends MessageLite> extends DAOIm
     config.getString("app.name");
 
     // Begin database prep
-    log.info("Will prepare integration database.");
+    log.debug("Will prepare integration database.");
 
     // Migrate the test database
     try {
@@ -84,7 +84,7 @@ public class HubIntegrationTestProviderImpl<O extends MessageLite> extends DAOIm
     }
 
     // Prepared
-    log.info("Did open master connection and prepare integration database.");
+    log.debug("Did open master connection and prepare integration database.");
   }
 
   @Override
@@ -100,7 +100,7 @@ public class HubIntegrationTestProviderImpl<O extends MessageLite> extends DAOIm
       log.error(e.getClass().getName(), e);
       throw new HubException(e.getClass().getName(), e);
     }
-    log.info("Did delete all records create integration database.");
+    log.debug("Did delete all records create integration database.");
   }
 
   @Override
@@ -145,7 +145,7 @@ public class HubIntegrationTestProviderImpl<O extends MessageLite> extends DAOIm
       log.error("Failed to shutdown SQL connection", e);
     }
     redisConnection.close();
-    log.info("Did close master connection to integration database.");
+    log.debug("Did close master connection to integration database.");
 
     System.clearProperty("work.queue.name");
   }
@@ -209,7 +209,7 @@ public class HubIntegrationTestProviderImpl<O extends MessageLite> extends DAOIm
    */
   private void redisDeleteAllKeysMatching(String pattern) {
     redisConnection.keys(pattern).forEach(redisConnection::del);
-    log.info("Did delete all redis keys matching: {}", pattern);
+    log.debug("Did delete all redis keys matching: {}", pattern);
   }
 
 }

@@ -55,7 +55,7 @@ public class HubContentTest {
   }
 
   @Test
-  public void getAvailableOffsets() throws HubClientException {
+  public void getAvailableOffsets() {
     List<Long> result = Lists.newArrayList(subject.getAvailableOffsets(fake.program4_sequence1_binding0));
     Collections.sort(result);
 
@@ -67,159 +67,44 @@ public class HubContentTest {
     assertEquals("1 Instrument, 4 InstrumentAudio, 4 InstrumentAudioEvent, 1 InstrumentMeme, 8 Program, 6 ProgramMeme, 11 ProgramSequence, 9 ProgramSequenceBinding, 11 ProgramSequenceBindingMeme, 9 ProgramSequenceChord, 3 ProgramSequenceChordVoicing, 6 ProgramSequencePattern, 24 ProgramSequencePatternEvent, 2 ProgramVoice, 20 ProgramVoiceTrack", subject.toString());
   }
 
+  /**
+   [#177052278] Chain should always be able to determine main sequence binding offset
+   */
   @Test
-  public void getInstrumentAudioChord() {
-    // FUTURE Collection<Object> result = subject.getInstrumentAudioChord();
+  public void getProgramSequenceBindingsAtOffset() {
+    var result = subject.getProgramSequenceBindingsAtOffset(fake.program5, 0L);
+
+    assertEquals(fake.program5_sequence0_binding0.getId(), result.iterator().next().getId());
   }
 
+  /**
+   [#177052278] Chain should always be able to determine main sequence binding offset
+   */
   @Test
-  public void getInstrumentAudio() {
-    // FUTURE Collection<Object> result = subject.getInstrumentAudio();
+  public void getProgramSequenceBindingsAtOffset_second() {
+    var result = subject.getProgramSequenceBindingsAtOffset(fake.program5, 1L);
+
+    assertEquals(fake.program5_sequence1_binding1.getId(), result.iterator().next().getId());
   }
 
+  /**
+   [#177052278] Chain should always be able to determine main sequence binding offset
+   */
   @Test
-  public void getInstrumentAudioEvent() {
-    // FUTURE Collection<Object> result = subject.getInstrumentAudioEvent();
+  public void getProgramSequenceBindingsAtOffset_nearestAvailableBeforeZero() {
+    var result = subject.getProgramSequenceBindingsAtOffset(fake.program5, -1L);
+
+    assertEquals(fake.program5_sequence0_binding0.getId(), result.iterator().next().getId());
   }
 
+  /**
+   [#177052278] Chain should always be able to determine main sequence binding offset
+   */
   @Test
-  public void getInstrument() {
-    // FUTURE Collection<Object> result = subject.getInstrument();
-  }
+  public void getProgramSequenceBindingsAtOffset_nearestAvailablePastEnd() {
+    var result = subject.getProgramSequenceBindingsAtOffset(fake.program5, 3L);
 
-  @Test
-  public void getInstrumentMeme() {
-    // FUTURE Collection<Object> result = subject.getInstrumentMeme();
-  }
-
-  @Test
-  public void getProgram() {
-    // FUTURE Collection<Object> result = subject.getProgram();
-  }
-
-  @Test
-  public void getProgramEvent() {
-    // FUTURE Collection<Object> result = subject.getProgramEvent();
-  }
-
-  @Test
-  public void getProgramMeme() {
-    // FUTURE Collection<Object> result = subject.getProgramMeme();
-  }
-
-  @Test
-  public void getProgramPattern() {
-    // FUTURE Collection<Object> result = subject.getProgramPattern();
-  }
-
-  @Test
-  public void getProgramSequenceBinding() {
-    // FUTURE Collection<Object> result = subject.getProgramSequenceBinding();
-  }
-
-  @Test
-  public void getProgramSequenceBindingMeme() {
-    // FUTURE Collection<Object> result = subject.getProgramSequenceBindingMeme();
-  }
-
-  @Test
-  public void getProgramSequenceChord() {
-    // FUTURE Collection<Object> result = subject.getProgramSequenceChord();
-  }
-
-  @Test
-  public void getProgramSequence() {
-    // FUTURE Collection<Object> result = subject.getProgramSequence();
-  }
-
-  @Test
-  public void getProgramTrack() {
-    // FUTURE Collection<Object> result = subject.getProgramTrack();
-  }
-
-  @Test
-  public void getProgramVoice() {
-    // FUTURE Collection<Object> result = subject.getProgramVoice();
-  }
-
-  @Test
-  public void getAllPrograms() {
-    // FUTURE Collection<Object> result = subject.getAllPrograms();
-  }
-
-  @Test
-  public void getAllInstrumentAudios() {
-    // FUTURE Collection<Object> result = subject.getAllInstrumentAudios();
-  }
-
-  @Test
-  public void getAllInstrumentAudioChords() {
-    // FUTURE Collection<Object> result = subject.getAllInstrumentAudioChords();
-  }
-
-  @Test
-  public void getAllInstrumentAudioEvents() {
-    // FUTURE Collection<Object> result = subject.getAllInstrumentAudioEvents();
-  }
-
-  @Test
-  public void getAllInstrumentMemes() {
-    // FUTURE Collection<Object> result = subject.getAllInstrumentMemes();
-  }
-
-  @Test
-  public void getAllProgramSequencePatternEvents() {
-    // FUTURE Collection<Object> result = subject.getAllProgramSequencePatternEvents();
-  }
-
-  @Test
-  public void getAllProgramMemes() {
-    // FUTURE Collection<Object> result = subject.getAllProgramMemes();
-  }
-
-  @Test
-  public void getAllProgramSequencePatterns() {
-    // FUTURE Collection<Object> result = subject.getAllProgramSequencePatterns();
-  }
-
-  @Test
-  public void getAllProgramSequences() {
-    // FUTURE Collection<Object> result = subject.getAllProgramSequences();
-  }
-
-  @Test
-  public void getAllProgramSequenceBindings() {
-    // FUTURE Collection<Object> result = subject.getAllProgramSequenceBindings();
-  }
-
-  @Test
-  public void getAllProgramSequenceBindingMemes() {
-    // FUTURE Collection<Object> result = subject.getAllProgramSequenceBindingMemes();
-  }
-
-  @Test
-  public void getAllProgramSequenceChords() {
-    // FUTURE Collection<Object> result = subject.getAllProgramSequenceChords();
-  }
-
-  @Test
-  public void getAllProgramTracks() {
-    // FUTURE Collection<Object> result = subject.getAllProgramTracks();
-  }
-
-  @Test
-  public void getAllProgramVoices() {
-    // FUTURE Collection<Object> result = subject.getAllProgramVoices();
-  }
-
-  @Test
-  public void getAllInstruments() {
-    // FUTURE Collection<Object> result = subject.getAllInstruments();
-  }
-
-  @Test
-  public void getProgramsOfType() {
-    // FUTURE Collection<Object> result = subject.getProgramsOfType();
+    assertEquals(fake.program5_sequence1_binding1.getId(), result.iterator().next().getId());
   }
 
   @Test
@@ -230,81 +115,11 @@ public class HubContentTest {
   }
 
   @Test
-  public void getAllEntities() {
-    // FUTURE Collection<Object> result = subject.getAllEntities();
-  }
-
-  @Test
-  public void getMemes() {
-    // FUTURE Collection<Object> result = subject.getMemes();
-  }
-
-  @Test
-  public void getEvents() {
-    // FUTURE Collection<Object> result = subject.getEvents();
-  }
-
-  @Test
-  public void getAudiosForInstrumentId() {
-    // FUTURE Collection<Object> result = subject.getAudiosForInstrumentId();
-  }
-
-  @Test
-  public void getAudios() {
-    // FUTURE Collection<Object> result = subject.getAudios();
-  }
-
-  @Test
-  public void getChords() {
-    // FUTURE Collection<Object> result = subject.getChords();
-  }
-
-  @Test
-  public void getSequenceBindings() {
-    // FUTURE Collection<Object> result = subject.getSequenceBindings();
-  }
-
-  @Test
-  public void getSequences() {
-    // FUTURE Collection<Object> result = subject.getSequences();
-  }
-
-  @Test
-  public void getSequence() {
-    // FUTURE Collection<Object> result = subject.getSequence();
-  }
-
-  @Test
   public void getFirstEventsOfAudiosOfInstrument() throws HubClientException {
     Collection<InstrumentAudioEvent> result = subject.getFirstEventsOfAudiosOfInstrument(fake.instrument8);
 
     Collection<String> resultNotes = result.stream().map(InstrumentAudioEvent::getNote).collect(Collectors.toList());
     assertEquals(4, resultNotes.size());
-  }
-
-  @Test
-  public void getMemesAtBeginning() {
-    // FUTURE Collection<Object> result = subject.getMemesAtBeginning();
-  }
-
-  @Test
-  public void getProgramSequenceBindingsAtOffset() {
-    // FUTURE Collection<Object> result = subject.getProgramSequenceBindingsAtOffset();
-  }
-
-  @Test
-  public void getVoice() {
-    // FUTURE Collection<Object> result = subject.getVoice();
-  }
-
-  @Test
-  public void getTrack() {
-    // FUTURE Collection<Object> result = subject.getTrack();
-  }
-
-  @Test
-  public void getVoices() {
-    // FUTURE Collection<Object> result = subject.getVoices();
   }
 
   @Test

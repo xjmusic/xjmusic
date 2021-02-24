@@ -41,10 +41,10 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
     config.getString("app.name");
 
     // Begin database prep
-    log.info("Will prepare integration database.");
+    log.debug("Will prepare integration database.");
 
     // Prepared
-    log.info("Did open master connection and prepare integration database.");
+    log.debug("Did open master connection and prepare integration database.");
   }
 
   @Override

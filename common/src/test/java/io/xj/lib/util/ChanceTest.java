@@ -24,7 +24,7 @@ public class ChanceTest {
         ]++;
 
     for (int count = 0; 11 > count; count++)
-      log.info("# create values between {} and {}: {}", count, count + 1, floorCounts[count]);
+      log.debug("# create values between {} and {}: {}", count, count + 1, floorCounts[count]);
 
     // Assert that no value has exceeded 10
     assertEquals(0L, floorCounts[10]);

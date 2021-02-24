@@ -47,7 +47,7 @@ public class HubMigrationImpl implements HubMigration {
       .dataSource(hubDatabaseProvider.getDataSource())
       .schemas(hubDatabaseProvider.getSchemas())
       .load();
-    log.info("Will configure Flyway");
+    log.debug("Will configure Flyway");
     return flyway;
   }
 

@@ -73,7 +73,7 @@ public class NexusWorkImpl implements NexusWork {
     scheduler.shutdown();
     try {
       if (scheduler.awaitTermination(1, TimeUnit.MINUTES))
-        log.info("Executor service did terminate OK");
+        log.debug("Executor service did terminate OK");
       else
         log.error("Executor service failed to terminate!");
     } catch (InterruptedException e) {

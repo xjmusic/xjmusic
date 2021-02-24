@@ -85,3 +85,6 @@ jobs:
         id: test
         run: "./gradlew --info --no-daemon build test"
         continue-on-error: false
+
+      - name: Nothing left TODO
+        run: bin/nothing_left_todo.sh

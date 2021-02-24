@@ -40,7 +40,7 @@ class HubDatabaseProviderImpl implements HubDatabaseProvider {
     dataSource.setPassword(pass);
     dataSource.setMaximumPoolSize(config.getInt("postgres.poolSizeMax"));
 
-    log.info("HikariDataSource created for {}", url);
+    log.debug("HikariDataSource created for {}", url);
   }
 
   @Override
