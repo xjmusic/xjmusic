@@ -114,11 +114,10 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
    */
   private float computeFabricationLatencySeconds(Chain chain) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     var lastDubbedSegment = segmentDAO.readLastDubbedSegment(access, chain.getId());
-    if (lastDubbedSegment.isEmpty()) return 0.0f;
-    return (
-      Instant.parse(lastDubbedSegment.get().getEndAt()).getNano() -
-      Instant.parse(chain.getStartAt()).getNano()
-    ) / NANOS_PER_SECOND;
+    var dubbedUntil = lastDubbedSegment.isPresent() ?
+      Instant.parse(lastDubbedSegment.get().getEndAt()) :
+      Instant.parse(chain.getStartAt());
+    return (dubbedUntil.getNano() - Instant.now().getNano()) / NANOS_PER_SECOND;
   }
 
   /**
