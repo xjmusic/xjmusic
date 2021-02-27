@@ -24,8 +24,9 @@ import java.util.Optional;
  Chain Worker implementation
  */
 public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
-  private static final float MICRO_PER_SECOND = 1000000;
-  private static final float NANOS_PER_SECOND = 1000 * MICRO_PER_SECOND;
+  private static final float MILLI = 1000;
+  private static final float MILLIS_PER_SECOND = MILLI;
+  private static final float NANOS_PER_SECOND = MILLI * MILLI * MILLI;
   private static final String NAME = "Chain";
   private static final String METRIC_SEGMENT_CREATED = "segment.created";
   private static final String METRIC_CHAIN_FABRICATION_LATENCY = "chain.fabrication.latency";
@@ -121,7 +122,8 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
     var dubbedUntil = lastDubbedSegment.isPresent() ?
       Instant.parse(lastDubbedSegment.get().getEndAt()) :
       Instant.parse(chain.getStartAt());
-    return (dubbedUntil.getNano() - Instant.now().getNano()) / NANOS_PER_SECOND;
+    var now = Instant.now();
+    return (dubbedUntil.toEpochMilli() - now.toEpochMilli()) / MILLIS_PER_SECOND;
   }
 
   /**
