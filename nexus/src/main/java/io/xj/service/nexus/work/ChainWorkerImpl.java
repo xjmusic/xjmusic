@@ -105,7 +105,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
       var fabricatedAheadSeconds = computefabricatedAheadSeconds(chain);
       telemetryProvider.getStatsDClient().gauge(METRIC_CHAIN_FABRICATION_LATENCY, fabricatedAheadSeconds);
       chainDAO.update(access, chain.getId(), chain.toBuilder()
-        .setfabricatedAheadSeconds(fabricatedAheadSeconds)
+        .setFabricatedAheadSeconds(fabricatedAheadSeconds)
         .build());
 
     } catch (Throwable e) {

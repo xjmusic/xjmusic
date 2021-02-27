@@ -91,11 +91,11 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
         Chain.Type.Production.equals(chain.getType()) &&
           Instant.parse(chain.getStartAt()).isBefore(thresholdChainProductionStartedBefore))
       .forEach(chain -> {
-        if (chain.getfabricatedAheadSeconds() < -reviveChainSegmentsDubbedPastSeconds) {
+        if (chain.getFabricatedAheadSeconds() < -reviveChainSegmentsDubbedPastSeconds) {
           log.warn("Chain {} is stalled, fabricatedAheadSeconds={}",
-            chain.getId(), chain.getfabricatedAheadSeconds());
+            chain.getId(), chain.getFabricatedAheadSeconds());
           stalledChainIds.put(chain.getId(),
-            String.format("fabricatedAheadSeconds=%s", chain.getfabricatedAheadSeconds()));
+            String.format("fabricatedAheadSeconds=%s", chain.getFabricatedAheadSeconds()));
         }
       });
 
