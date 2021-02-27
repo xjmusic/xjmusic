@@ -29,7 +29,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
   private static final float MILLIS_PER_SECOND = MILLI;
   private static final float NANOS_PER_SECOND = MILLI * MILLI * MILLI;
   private static final String NAME = "Chain";
-  private static final String METRIC_SEGMENT_CREATED = "segment.created";
+  private static final String METRIC_SEGMENT_CREATED = "segment_created";
   private static final String METRIC_CHAIN_FORMAT = "chain.%s.%s";
   private static final String METRIC_FABRICATED_AHEAD_SECONDS = "fabricated_ahead_seconds";
   private static final String DEFAULT_NAME_PREVIEW = "preview";
