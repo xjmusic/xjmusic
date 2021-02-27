@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
   // XJ
-  implementation 'io.xj:protocol:v0.10'
+  implementation 'io.xj:protocol:v0.11'
   // vendor
   compile 'com.datadoghq:dd-java-agent:0.72.0'
   compile 'com.datadoghq:java-dogstatsd-client:2.11.0'

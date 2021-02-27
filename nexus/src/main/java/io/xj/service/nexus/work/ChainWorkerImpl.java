@@ -98,10 +98,27 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
         (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND,
         createdSegment.getId(), createdSegment.getChainId(), createdSegment.getOffset());
 
+      // bums
+      chainDAO.update(access, chain.getId(), chain.toBuilder()
+        .setFabricationLatencySeconds(computeFabricationLatencySeconds(chain))
+        .build());
+
     } catch (Throwable e) {
       log.error("Failed to created Segment in chainId={}, reason={}", chainId, e.getMessage());
       throw e;
     }
+  }
+
+  /**
+   [#177072936] Mk1 UI each chain shows current fabrication latency@param chain
+   */
+  private float computeFabricationLatencySeconds(Chain chain) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+    var lastDubbedSegment = segmentDAO.readLastDubbedSegment(access, chain.getId());
+    if (lastDubbedSegment.isEmpty()) return 0.0f;
+    return (
+      Instant.parse(lastDubbedSegment.get().getEndAt()).getNano() -
+      Instant.parse(chain.getStartAt()).getNano()
+    ) / NANOS_PER_SECOND;
   }
 
   /**

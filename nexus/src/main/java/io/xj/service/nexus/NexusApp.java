@@ -195,6 +195,7 @@ public class NexusApp extends App {
       .withAttribute("startAt")
       .withAttribute("stopAt")
       .withAttribute("embedKey")
+      .withAttribute("fabricationLatencySeconds")
       .belongsTo(Account.class)
       .hasMany(ChainBinding.class);
 

@@ -8,7 +8,6 @@ import io.xj.Chain;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
-import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
@@ -29,7 +28,6 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
   private final ChainDAO chainDAO;
   private final int reviveChainProductionStartedBeforeSeconds;
   private final TelemetryProvider telemetryProvider;
-  private final SegmentDAO segmentDAO;
   private final int reviveChainSegmentsDubbedPastSeconds;
   private final boolean medicEnabled;
 
@@ -37,11 +35,9 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
   public MedicWorkerImpl(
     Config config,
     ChainDAO chainDAO,
-    SegmentDAO segmentDAO,
     TelemetryProvider telemetryProvider
   ) {
     this.chainDAO = chainDAO;
-    this.segmentDAO = segmentDAO;
     this.telemetryProvider = telemetryProvider;
 
     medicEnabled = config.getBoolean("fabrication.medicEnabled");
@@ -76,6 +72,8 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
   /**
    [#158897383] Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
    and if found, *revive* it in order to ensure the Chain remains in an operable state.
+   <p>
+   [#177021797] Medic relies on precomputed  telemetry of fabrication latency
 
    @throws DAOFatalException      on failure
    @throws DAOPrivilegeException  on failure
@@ -85,7 +83,6 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
   @Trace(resourceName = "nexus/medic", operationName = "checkAndReviveAll")
   public void checkAndReviveAll() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionStartedBeforeSeconds);
-    Instant thresholdChainSegmentsDubbedPast = Instant.now().plusSeconds(reviveChainSegmentsDubbedPastSeconds);
 
     Map<String, String> stalledChainIds = Maps.newHashMap();
     chainDAO.readManyInState(access, Chain.State.Fabricate)
@@ -94,23 +91,11 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
         Chain.Type.Production.equals(chain.getType()) &&
           Instant.parse(chain.getStartAt()).isBefore(thresholdChainProductionStartedBefore))
       .forEach(chain -> {
-        try {
-          var lastDubbedSegment = segmentDAO.readLastDubbedSegment(access, chain.getId());
-          Instant chainDubbedUntil = lastDubbedSegment.isPresent() ?
-            Instant.parse(lastDubbedSegment.get().getEndAt()) :
-            Instant.parse(chain.getStartAt());
-          log.debug("Chain[{}] dubbed until {} -- required until {}",
-            chain.getId(), chainDubbedUntil, thresholdChainSegmentsDubbedPast);
-          if (chainDubbedUntil.isBefore(thresholdChainSegmentsDubbedPast)) {
-            log.warn("Chain {} is stalled!", chain.getId());
-            stalledChainIds.put(chain.getId(),
-              String.format("Segments dubbed until %s but are required to be dubbed until %s in production Chain started before %s",
-                chainDubbedUntil, thresholdChainSegmentsDubbedPast, thresholdChainProductionStartedBefore));
-          }
-        } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException e) {
-
-          log.warn("Failure while checking for Chains to revive!", e);
-          e.printStackTrace();
+        if (chain.getFabricationLatencySeconds() < -reviveChainSegmentsDubbedPastSeconds) {
+          log.warn("Chain {} is stalled, fabricationLatencySeconds={}",
+            chain.getId(), chain.getFabricationLatencySeconds());
+          stalledChainIds.put(chain.getId(),
+            String.format("fabricationLatencySeconds=%s", chain.getFabricationLatencySeconds()));
         }
       });
 
