@@ -102,10 +102,10 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
         createdSegment.getId(), createdSegment.getChainId(), createdSegment.getOffset());
 
       // bums
-      var fabricationLatencySeconds = computeFabricationLatencySeconds(chain);
-      telemetryProvider.getStatsDClient().gauge(METRIC_CHAIN_FABRICATION_LATENCY, fabricationLatencySeconds);
+      var fabricatedAheadSeconds = computefabricatedAheadSeconds(chain);
+      telemetryProvider.getStatsDClient().gauge(METRIC_CHAIN_FABRICATION_LATENCY, fabricatedAheadSeconds);
       chainDAO.update(access, chain.getId(), chain.toBuilder()
-        .setFabricationLatencySeconds(fabricationLatencySeconds)
+        .setfabricatedAheadSeconds(fabricatedAheadSeconds)
         .build());
 
     } catch (Throwable e) {
@@ -117,7 +117,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
   /**
    [#177072936] Mk1 UI each chain shows current fabrication latency@param chain
    */
-  private float computeFabricationLatencySeconds(Chain chain) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  private float computefabricatedAheadSeconds(Chain chain) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     var lastDubbedSegment = segmentDAO.readLastDubbedSegment(access, chain.getId());
     var dubbedUntil = lastDubbedSegment.isPresent() ?
       Instant.parse(lastDubbedSegment.get().getEndAt()) :
