@@ -1,5 +1,6 @@
 package io.xj.service.nexus.work;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.typesafe.config.Config;
@@ -29,7 +30,10 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
   private static final float NANOS_PER_SECOND = MILLI * MILLI * MILLI;
   private static final String NAME = "Chain";
   private static final String METRIC_SEGMENT_CREATED = "segment.created";
-  private static final String METRIC_CHAIN_FABRICATION_LATENCY = "chain.fabrication.latency";
+  private static final String METRIC_CHAIN_FORMAT = "chain.%s.%s";
+  private static final String METRIC_FABRICATION_LATENCY = "fabrication.latency";
+  private static final String DEFAULT_NAME_PREVIEW = "preview";
+  private static final String DEFAULT_NAME_PRODUCTION = "production";
   private final Logger log = LoggerFactory.getLogger(ChainWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final int bufferProductionSeconds;
@@ -93,7 +97,8 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
       if (segment.isEmpty()) return;
       Segment createdSegment = segmentDAO.create(access, segment.get());
       log.debug("Created Segment {}", createdSegment);
-      telemetryProvider.getStatsDClient().incrementCounter(METRIC_SEGMENT_CREATED);
+      telemetryProvider.getStatsDClient().
+        incrementCounter(getChainMetricName(chain, METRIC_SEGMENT_CREATED));
 
       // FUTURE: fork/join thread possible for this sub-runnable of the fabrication worker
       workers.segment(createdSegment.getId()).run();
@@ -103,7 +108,8 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
 
       // bums
       var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
-      telemetryProvider.getStatsDClient().gauge(METRIC_CHAIN_FABRICATION_LATENCY, fabricatedAheadSeconds);
+      telemetryProvider.getStatsDClient()
+        .gauge(getChainMetricName(chain, METRIC_FABRICATION_LATENCY), fabricatedAheadSeconds);
       chainDAO.update(access, chain.getId(), chain.toBuilder()
         .setFabricatedAheadSeconds(fabricatedAheadSeconds)
         .build());
@@ -140,5 +146,28 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
       case Preview:
         return bufferPreviewSeconds;
     }
+  }
+
+  /**
+   Get the name for a given chain and metric
+
+   @param chain      to get name for
+   @param metricName to get get name for
+   @return name for the given chain and metric
+   */
+  private String getChainMetricName(Chain chain, String metricName) {
+    return String.format(METRIC_CHAIN_FORMAT, getChainName(chain), metricName);
+  }
+
+  /**
+   Get the name for a given chain
+
+   @param chain to get name for
+   @return name for the given chain
+   */
+  private String getChainName(Chain chain) {
+    return Chain.Type.Production.equals(chain.getType()) ?
+      (!Strings.isNullOrEmpty(chain.getEmbedKey()) ? chain.getEmbedKey() : DEFAULT_NAME_PRODUCTION) :
+      DEFAULT_NAME_PREVIEW;
   }
 }
