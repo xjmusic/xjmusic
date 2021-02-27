@@ -31,7 +31,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
   private static final String NAME = "Chain";
   private static final String METRIC_SEGMENT_CREATED = "segment.created";
   private static final String METRIC_CHAIN_FORMAT = "chain.%s.%s";
-  private static final String METRIC_FABRICATION_LATENCY = "fabrication.latency";
+  private static final String METRIC_FABRICATED_AHEAD_SECONDS = "fabricated_ahead_seconds";
   private static final String DEFAULT_NAME_PREVIEW = "preview";
   private static final String DEFAULT_NAME_PRODUCTION = "production";
   private final Logger log = LoggerFactory.getLogger(ChainWorker.class);
@@ -109,7 +109,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
       // bums
       var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
       telemetryProvider.getStatsDClient()
-        .gauge(getChainMetricName(chain, METRIC_FABRICATION_LATENCY), fabricatedAheadSeconds);
+        .gauge(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), fabricatedAheadSeconds);
       chainDAO.update(access, chain.getId(), chain.toBuilder()
         .setFabricatedAheadSeconds(fabricatedAheadSeconds)
         .build());
