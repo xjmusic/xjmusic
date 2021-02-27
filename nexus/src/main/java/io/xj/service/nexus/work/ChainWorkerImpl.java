@@ -27,6 +27,8 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
   private static final float MICRO_PER_SECOND = 1000000;
   private static final float NANOS_PER_SECOND = 1000 * MICRO_PER_SECOND;
   private static final String NAME = "Chain";
+  private static final String METRIC_SEGMENT_CREATED = "segment.created";
+  private static final String METRIC_CHAIN_FABRICATION_LATENCY = "chain.fabrication.latency";
   private final Logger log = LoggerFactory.getLogger(ChainWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final int bufferProductionSeconds;
@@ -90,7 +92,7 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
       if (segment.isEmpty()) return;
       Segment createdSegment = segmentDAO.create(access, segment.get());
       log.debug("Created Segment {}", createdSegment);
-      telemetryProvider.getStatsDClient().incrementCounter("segment.created");
+      telemetryProvider.getStatsDClient().incrementCounter(METRIC_SEGMENT_CREATED);
 
       // FUTURE: fork/join thread possible for this sub-runnable of the fabrication worker
       workers.segment(createdSegment.getId()).run();
@@ -99,8 +101,10 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
         createdSegment.getId(), createdSegment.getChainId(), createdSegment.getOffset());
 
       // bums
+      var fabricationLatencySeconds = computeFabricationLatencySeconds(chain);
+      telemetryProvider.getStatsDClient().gauge(METRIC_CHAIN_FABRICATION_LATENCY, fabricationLatencySeconds);
       chainDAO.update(access, chain.getId(), chain.toBuilder()
-        .setFabricationLatencySeconds(computeFabricationLatencySeconds(chain))
+        .setFabricationLatencySeconds(fabricationLatencySeconds)
         .build());
 
     } catch (Throwable e) {
