@@ -1,11 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.service.nexus.api;
+package io.xj.service.hub.api;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
+import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.ApiUrlProvider;
@@ -13,8 +14,6 @@ import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClientAccess;
-import io.xj.service.nexus.NexusApp;
-import io.xj.service.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,18 +31,18 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class NexusConfigEndpointTest {
+public class ConfigEndpointTest {
   @Mock
   ContainerRequestContext crc;
 
   @Mock
   ApiUrlProvider apiUrlProvider;
 
-  private NexusConfigEndpoint subject;
+  private ConfigEndpoint subject;
 
   @Before
   public void setUp() throws AppException, JsonApiException {
-    Config config = NexusTestConfiguration.getDefault();
+    Config config = AppConfiguration.getDefault();
     doReturn("http://audio.xj.io/").when(apiUrlProvider).getAudioBaseUrl();
     doReturn("http://app.xj.io/").when(apiUrlProvider).getAppBaseUrl();
     doReturn("http://player.xj.io/").when(apiUrlProvider).getPlayerBaseUrl();
@@ -57,8 +56,7 @@ public class NexusConfigEndpointTest {
       }
     }));
     HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
-    NexusApp.buildApiTopology(injector.getInstance(EntityFactory.class));
-    subject = injector.getInstance(NexusConfigEndpoint.class);
+    subject = injector.getInstance(ConfigEndpoint.class);
   }
 
   /**

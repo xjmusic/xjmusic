@@ -4,15 +4,17 @@ package io.xj.service.hub.api;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import io.xj.Chain;
 import io.xj.Instrument;
 import io.xj.Program;
 import io.xj.ProgramSequencePattern;
+import io.xj.Segment;
 import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.jsonapi.HttpResponseProvider;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
-import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadObject;
+import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
 import io.xj.service.hub.HubEndpoint;
@@ -28,34 +30,33 @@ import java.util.Map;
 /**
  Current platform configuration
  */
-@Path("api/1/hub/config")
-public class HubConfigEndpoint extends HubEndpoint {
-  private static final String UNRECOGNIZED_VALUE = "UNRECOGNIZED";
-  private final ApiUrlProvider apiUrlProvider;
-  private final String defaultProgramConfig;
-  private final String defaultInstrumentConfig;
+@Path("config")
+public class ConfigEndpoint extends HubEndpoint {
   private final Map<String, Object> configMap;
 
   /**
    Constructor
    */
   @Inject
-  public HubConfigEndpoint(
+  public ConfigEndpoint(
     HttpResponseProvider response,
     Config config,
     PayloadFactory payloadFactory,
     ApiUrlProvider apiUrlProvider
   ) throws JsonApiException {
     super(response, config, payloadFactory);
-    this.apiUrlProvider = apiUrlProvider;
-    defaultProgramConfig = Text.format(config.getConfig("program"));
-    defaultInstrumentConfig = Text.format(config.getConfig("instrument"));
+    String defaultProgramConfig = Text.format(config.getConfig("program"));
+    String defaultInstrumentConfig = Text.format(config.getConfig("instrument"));
+    String defaultChainConfig = Text.format(config.getConfig("chain"));
 
     configMap = ImmutableMap.<String, Object>builder()
       .put("apiBaseUrl", apiUrlProvider.getAppBaseUrl())
       .put("audioBaseUrl", apiUrlProvider.getAudioBaseUrl())
       .put("baseUrl", apiUrlProvider.getAppBaseUrl())
+      .put("chainStates", Value.without(Chain.State.UNRECOGNIZED, Chain.State.values()))
+      .put("chainTypes", Value.without(Chain.Type.UNRECOGNIZED, Chain.Type.values()))
       .put("choiceTypes", Value.without(Program.Type.UNRECOGNIZED, Program.Type.values()))
+      .put("defaultChainConfig", defaultChainConfig)
       .put("defaultInstrumentConfig", defaultInstrumentConfig)
       .put("defaultProgramConfig", defaultProgramConfig)
       .put("instrumentStates", Value.without(Instrument.State.UNRECOGNIZED, Instrument.State.values()))
@@ -66,6 +67,8 @@ public class HubConfigEndpoint extends HubEndpoint {
       .put("programStates", Value.without(Program.State.UNRECOGNIZED, Program.State.values()))
       .put("programTypes", Value.without(Program.Type.UNRECOGNIZED, Program.Type.values()))
       .put("segmentBaseUrl", apiUrlProvider.getSegmentBaseUrl())
+      .put("segmentStates", Value.without(Segment.State.UNRECOGNIZED, Segment.State.values()))
+      .put("segmentTypes", Value.without(Segment.Type.UNRECOGNIZED, Segment.Type.values()))
       .put("voiceTypes", Value.without(Instrument.Type.UNRECOGNIZED, Instrument.Type.values()))
       .build();
   }
