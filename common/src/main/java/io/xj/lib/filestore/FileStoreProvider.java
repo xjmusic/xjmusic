@@ -88,13 +88,13 @@ public interface FileStoreProvider {
 
   /**
    Put an object to S3 from a string
-   [#162223929] Ship Segment data JSON with audio
+   [#162223929] Ship Segment data JSON with audio@param content path to file for upload
 
-   @param content path to file for upload
-   @param bucket  to put file to
-   @param key     to put file at
+   @param bucket      to put file to
+   @param key         to put file at
+   @param contentType header for file
    */
-  void putS3ObjectFromString(String content, String bucket, String key) throws FileStoreException;
+  void putS3ObjectFromString(String content, String bucket, String key, String contentType) throws FileStoreException;
 
   /**
    Delete an object of S3

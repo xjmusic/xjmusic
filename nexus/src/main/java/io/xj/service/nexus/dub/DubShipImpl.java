@@ -8,7 +8,7 @@ import datadog.trace.api.Trace;
 import io.xj.Segment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.service.nexus.NexusException;
+import io.xj.lib.jsonapi.MediaType;
 import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.Fabricator;
 
@@ -68,7 +68,8 @@ public class DubShipImpl implements DubShip {
     fileStore.putS3ObjectFromString(
       fabricator.getSegmentMetadataJson(),
       segmentFileBucket,
-      fabricator.getSegmentOutputMetadataKey());
+      fabricator.getSegmentOutputMetadataKey(),
+      MediaType.APPLICATION_JSONAPI);
   }
 
   /**
@@ -79,7 +80,8 @@ public class DubShipImpl implements DubShip {
     fileStore.putS3ObjectFromString(
       fabricator.getChainMetadataJson(),
       segmentFileBucket,
-      fabricator.getChainOutputMetadataKey());
+      fabricator.getChainOutputMetadataKey(),
+      MediaType.APPLICATION_JSONAPI);
   }
 
 }
