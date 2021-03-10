@@ -76,7 +76,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   private final int previewEmbedKeyLength;
   private final SecureRandom secureRandom = new SecureRandom();
 
-  // [#176375238] Chains should N seconds into the future (default 120)
+  // [#176375238] Chains should N seconds into the future
   private final int chainStartInFutureSeconds;
 
   @Inject

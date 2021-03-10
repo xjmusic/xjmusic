@@ -26,9 +26,9 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
   private final Logger log = LoggerFactory.getLogger(MedicWorker.class);
   private final HubClientAccess access = HubClientAccess.internal();
   private final ChainDAO chainDAO;
-  private final int reviveChainProductionStartedBeforeSeconds;
+  private final int reviveChainProductionGraceSeconds;
   private final TelemetryProvider telemetryProvider;
-  private final int reviveChainSegmentsDubbedPastSeconds;
+  private final int reviveChainFabricatedBehindSeconds;
   private final boolean medicEnabled;
 
   @Inject
@@ -41,8 +41,8 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
     this.telemetryProvider = telemetryProvider;
 
     medicEnabled = config.getBoolean("fabrication.medicEnabled");
-    reviveChainSegmentsDubbedPastSeconds = config.getInt("fabrication.reviveChainSegmentsDubbedPastSeconds");
-    reviveChainProductionStartedBeforeSeconds = config.getInt("fabrication.reviveChainProductionStartedBeforeSeconds");
+    reviveChainFabricatedBehindSeconds = config.getInt("fabrication.reviveChainFabricatedBehindSeconds");
+    reviveChainProductionGraceSeconds = config.getInt("fabrication.reviveChainProductionGraceSeconds");
 
     log.debug("Instantiated OK");
   }
@@ -82,7 +82,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
    */
   @Trace(resourceName = "nexus/medic", operationName = "checkAndReviveAll")
   public void checkAndReviveAll() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
-    Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionStartedBeforeSeconds);
+    Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionGraceSeconds);
 
     Map<String, String> stalledChainIds = Maps.newHashMap();
     chainDAO.readManyInState(access, Chain.State.Fabricate)
@@ -91,7 +91,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
         Chain.Type.Production.equals(chain.getType()) &&
           Instant.parse(chain.getStartAt()).isBefore(thresholdChainProductionStartedBefore))
       .forEach(chain -> {
-        if (chain.getFabricatedAheadSeconds() < -reviveChainSegmentsDubbedPastSeconds) {
+        if (chain.getFabricatedAheadSeconds() < -reviveChainFabricatedBehindSeconds) {
           log.warn("Chain {} is stalled, fabricatedAheadSeconds={}",
             chain.getId(), chain.getFabricatedAheadSeconds());
           stalledChainIds.put(chain.getId(),
