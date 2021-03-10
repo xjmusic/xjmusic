@@ -438,6 +438,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     builder.setEmbedKey(embedKey);
     // [#170273871] Revived chain should always start now
     builder.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
+    // [#177191499] When chain is revived, reset its fabricatedAheadSeconds value
+    builder.setFabricatedAheadSeconds(0);
     var created = create(access, builder.build());
 
     // Re-create all chain bindings of original chain
