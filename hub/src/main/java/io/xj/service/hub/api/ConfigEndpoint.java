@@ -48,7 +48,7 @@ public class ConfigEndpoint extends HubEndpoint {
     var defaultChainConfig = Text.format(config.getConfig("chain"));
     var defaultInstrumentConfig = Text.format(config.getConfig("instrument"));
     var defaultProgramConfig = Text.format(config.getConfig("program"));
-    var segmentTimeDisplayAdjustSeconds = config.getDouble("segmentTimeDisplayAdjustSeconds");
+    var segmentTimeDisplayAdjustSeconds = config.getDouble("segment.timeDisplayAdjustSeconds");
 
     configMap = ImmutableMap.<String, Object>builder()
       .put("apiBaseUrl", apiUrlProvider.getAppBaseUrl())
