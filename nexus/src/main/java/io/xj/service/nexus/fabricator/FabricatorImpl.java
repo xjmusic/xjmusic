@@ -736,8 +736,7 @@ class FabricatorImpl implements Fabricator {
         .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChoices()))
         .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChords()))
         .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentMemes()))
-        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentMessages()))
-        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChoiceArrangementPicks())));
+        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentMessages())));
 
     } catch (JsonApiException e) {
       throw new NexusException(e);
