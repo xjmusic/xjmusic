@@ -18,74 +18,76 @@ import java.util.Map;
  if the `config` value contains only `previewLengthMaxHours = 8`
  */
 public class ChainConfig {
+  private static final String KEY_PREFIX = "chain.";
+
   private final int outputChannels;
-  private final String KEY_OUTPUT_CHANNELS = "chain.outputChannels";
+  private final String KEY_OUTPUT_CHANNELS = "outputChannels";
 
   private final String outputContainer;
-  private final String KEY_OUTPUT_CONTAINER = "chain.outputContainer";
+  private final String KEY_OUTPUT_CONTAINER = "outputContainer";
 
   private final AudioFormat.Encoding outputEncoding;
-  private final String KEY_OUTPUT_ENCODING = "chain.outputEncoding";
+  private final String KEY_OUTPUT_ENCODING = "outputEncoding";
 
   private final double outputEncodingQuality;
-  private final String KEY_OUTPUT_ENCODING_QUALITY = "chain.outputEncodingQuality";
+  private final String KEY_OUTPUT_ENCODING_QUALITY = "outputEncodingQuality";
 
   private final int outputFrameRate;
-  private final String KEY_OUTPUT_FRAME_RATE = "chain.outputFrameRate";
+  private final String KEY_OUTPUT_FRAME_RATE = "outputFrameRate";
 
   private final int outputSampleBits;
-  private final String KEY_OUTPUT_SAMPLE_BITS = "chain.outputSampleBits";
+  private final String KEY_OUTPUT_SAMPLE_BITS = "outputSampleBits";
 
   private final double mixerCompressAheadSeconds;
-  private final String KEY_MIXER_COMPRESS_AHEAD_SECONDS = "chain.mixerCompressAheadSeconds";
+  private final String KEY_MIXER_COMPRESS_AHEAD_SECONDS = "mixerCompressAheadSeconds";
 
   private final double mixerCompressDecaySeconds;
-  private final String KEY_MIXER_COMPRESS_DECAY_SECONDS = "chain.mixerCompressDecaySeconds";
+  private final String KEY_MIXER_COMPRESS_DECAY_SECONDS = "mixerCompressDecaySeconds";
 
   private final double mixerCompressRatioMax;
-  private final String KEY_MIXER_COMPRESS_RATIO_MAX = "chain.mixerCompressRatioMax";
+  private final String KEY_MIXER_COMPRESS_RATIO_MAX = "mixerCompressRatioMax";
 
   private final double mixerCompressRatioMin;
-  private final String KEY_MIXER_COMPRESS_RATIO_MIN = "chain.mixerCompressRatioMin";
+  private final String KEY_MIXER_COMPRESS_RATIO_MIN = "mixerCompressRatioMin";
 
   private final double mixerCompressToAmplitude;
-  private final String KEY_MIXER_COMPRESS_TO_AMPLITUDE = "chain.mixerCompressToAmplitude";
+  private final String KEY_MIXER_COMPRESS_TO_AMPLITUDE = "mixerCompressToAmplitude";
 
   private final int mixerDspBufferSize;
-  private final String KEY_MIXER_DSP_BUFFER_SIZE = "chain.mixerDspBufferSize";
+  private final String KEY_MIXER_DSP_BUFFER_SIZE = "mixerDspBufferSize";
 
   private final double mixerHighpassThresholdHz;
-  private final String KEY_MIXER_HIGHPASS_THRESHOLD_HZ = "chain.mixerHighpassThresholdHz";
+  private final String KEY_MIXER_HIGHPASS_THRESHOLD_HZ = "mixerHighpassThresholdHz";
 
   private final double mixerLowpassThresholdHz;
-  private final String KEY_MIXER_LOWPASS_THRESHOLD_HZ = "chain.mixerLowpassThresholdHz";
+  private final String KEY_MIXER_LOWPASS_THRESHOLD_HZ = "mixerLowpassThresholdHz";
 
   private final double mixerNormalizationMax;
-  private final String KEY_MIXER_NORMALIZATION_MAX = "chain.mixerNormalizationMax";
+  private final String KEY_MIXER_NORMALIZATION_MAX = "mixerNormalizationMax";
 
   private final long mixerSampleAttackMicros;
-  private final String KEY_MIXER_SAMPLE_ATTACK_MICROS = "chain.mixerSampleAttackMicros";
+  private final String KEY_MIXER_SAMPLE_ATTACK_MICROS = "mixerSampleAttackMicros";
 
   private final long mixerSampleReleaseMicros;
-  private final String KEY_MIXER_SAMPLE_RELEASE_MICROS = "chain.mixerSampleReleaseMicros";
+  private final String KEY_MIXER_SAMPLE_RELEASE_MICROS = "mixerSampleReleaseMicros";
 
   private final double dubMasterVolumeInstrumentTypePercussive;
-  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE = "chain.dubMasterVolumeInstrumentTypePercussive";
+  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE = "dubMasterVolumeInstrumentTypePercussive";
 
   private final double dubMasterVolumeInstrumentTypeBass;
-  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS = "chain.dubMasterVolumeInstrumentTypeBass";
+  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS = "dubMasterVolumeInstrumentTypeBass";
 
   private final double dubMasterVolumeInstrumentTypePad;
-  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD = "chain.dubMasterVolumeInstrumentTypePad";
+  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD = "dubMasterVolumeInstrumentTypePad";
 
   private final double dubMasterVolumeInstrumentTypeSticky;
-  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY = "chain.dubMasterVolumeInstrumentTypeSticky";
+  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY = "dubMasterVolumeInstrumentTypeSticky";
 
   private final double dubMasterVolumeInstrumentTypeStripe;
-  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE = "chain.dubMasterVolumeInstrumentTypeStripe";
+  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE = "dubMasterVolumeInstrumentTypeStripe";
 
   private final double dubMasterVolumeInstrumentTypeStab;
-  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB = "chain.dubMasterVolumeInstrumentTypeStab";
+  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB = "dubMasterVolumeInstrumentTypeStab";
 
 
   /**
@@ -102,33 +104,43 @@ public class ChainConfig {
         defaultConfig :
         ConfigFactory.parseString(String.format("chain {\n%s\n}", chain.getConfig()))
           .withFallback(defaultConfig);
-      outputChannels = config.getInt(KEY_OUTPUT_CHANNELS);
-      outputContainer = config.getString(KEY_OUTPUT_CONTAINER);
-      outputEncoding = new AudioFormat.Encoding(config.getString(KEY_OUTPUT_ENCODING));
-      outputEncodingQuality = config.getDouble(KEY_OUTPUT_ENCODING_QUALITY);
-      outputFrameRate = config.getInt(KEY_OUTPUT_FRAME_RATE);
-      outputSampleBits = config.getInt(KEY_OUTPUT_SAMPLE_BITS);
-      mixerCompressAheadSeconds = config.getDouble(KEY_MIXER_COMPRESS_AHEAD_SECONDS);
-      mixerCompressDecaySeconds = config.getDouble(KEY_MIXER_COMPRESS_DECAY_SECONDS);
-      mixerCompressRatioMax = config.getDouble(KEY_MIXER_COMPRESS_RATIO_MAX);
-      mixerCompressRatioMin = config.getDouble(KEY_MIXER_COMPRESS_RATIO_MIN);
-      mixerCompressToAmplitude = config.getDouble(KEY_MIXER_COMPRESS_TO_AMPLITUDE);
-      mixerDspBufferSize = config.getInt(KEY_MIXER_DSP_BUFFER_SIZE);
-      mixerHighpassThresholdHz = config.getDouble(KEY_MIXER_HIGHPASS_THRESHOLD_HZ);
-      mixerLowpassThresholdHz = config.getDouble(KEY_MIXER_LOWPASS_THRESHOLD_HZ);
-      mixerNormalizationMax = config.getDouble(KEY_MIXER_NORMALIZATION_MAX);
-      mixerSampleAttackMicros = config.getLong(KEY_MIXER_SAMPLE_ATTACK_MICROS);
-      mixerSampleReleaseMicros = config.getLong(KEY_MIXER_SAMPLE_RELEASE_MICROS);
-      dubMasterVolumeInstrumentTypePercussive = config.getDouble(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE);
-      dubMasterVolumeInstrumentTypeBass = config.getDouble(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS);
-      dubMasterVolumeInstrumentTypePad = config.getDouble(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD);
-      dubMasterVolumeInstrumentTypeSticky = config.getDouble(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY);
-      dubMasterVolumeInstrumentTypeStripe = config.getDouble(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE);
-      dubMasterVolumeInstrumentTypeStab = config.getDouble(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB);
+      outputChannels = config.getInt(cp(KEY_OUTPUT_CHANNELS));
+      outputContainer = config.getString(cp(KEY_OUTPUT_CONTAINER));
+      outputEncoding = new AudioFormat.Encoding(config.getString(cp(KEY_OUTPUT_ENCODING)));
+      outputEncodingQuality = config.getDouble(cp(KEY_OUTPUT_ENCODING_QUALITY));
+      outputFrameRate = config.getInt(cp(KEY_OUTPUT_FRAME_RATE));
+      outputSampleBits = config.getInt(cp(KEY_OUTPUT_SAMPLE_BITS));
+      mixerCompressAheadSeconds = config.getDouble(cp(KEY_MIXER_COMPRESS_AHEAD_SECONDS));
+      mixerCompressDecaySeconds = config.getDouble(cp(KEY_MIXER_COMPRESS_DECAY_SECONDS));
+      mixerCompressRatioMax = config.getDouble(cp(KEY_MIXER_COMPRESS_RATIO_MAX));
+      mixerCompressRatioMin = config.getDouble(cp(KEY_MIXER_COMPRESS_RATIO_MIN));
+      mixerCompressToAmplitude = config.getDouble(cp(KEY_MIXER_COMPRESS_TO_AMPLITUDE));
+      mixerDspBufferSize = config.getInt(cp(KEY_MIXER_DSP_BUFFER_SIZE));
+      mixerHighpassThresholdHz = config.getDouble(cp(KEY_MIXER_HIGHPASS_THRESHOLD_HZ));
+      mixerLowpassThresholdHz = config.getDouble(cp(KEY_MIXER_LOWPASS_THRESHOLD_HZ));
+      mixerNormalizationMax = config.getDouble(cp(KEY_MIXER_NORMALIZATION_MAX));
+      mixerSampleAttackMicros = config.getLong(cp(KEY_MIXER_SAMPLE_ATTACK_MICROS));
+      mixerSampleReleaseMicros = config.getLong(cp(KEY_MIXER_SAMPLE_RELEASE_MICROS));
+      dubMasterVolumeInstrumentTypePercussive = config.getDouble(cp(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE));
+      dubMasterVolumeInstrumentTypeBass = config.getDouble(cp(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS));
+      dubMasterVolumeInstrumentTypePad = config.getDouble(cp(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD));
+      dubMasterVolumeInstrumentTypeSticky = config.getDouble(cp(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY));
+      dubMasterVolumeInstrumentTypeStripe = config.getDouble(cp(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE));
+      dubMasterVolumeInstrumentTypeStab = config.getDouble(cp(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB));
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
     }
+  }
+
+  /**
+   Chain-prefixed version of a key
+
+   @param key to prefix
+   @return chain-prefixed key
+   */
+  private String cp(String key) {
+    return String.format("%s%s", KEY_PREFIX, key);
   }
 
   @SuppressWarnings("DuplicatedCode")
