@@ -16,6 +16,8 @@ import java.util.Map;
  Parse a TypeSafe `config` value for a Chain's configuration, overriding values from top-level default.conf--
  e.g.
  if the `config` value contains only `previewLengthMaxHours = 8`
+ <p>
+ [#177355683] Artist saves Chain config, validate & combine with defaults.
  */
 public class ChainConfig {
   private static final String KEY_PREFIX = "chain.";
@@ -88,7 +90,6 @@ public class ChainConfig {
 
   private final double dubMasterVolumeInstrumentTypeStab;
   private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB = "dubMasterVolumeInstrumentTypeStab";
-
 
   /**
    Instantiate a Chain configuration from a string of typesafe config.
@@ -171,6 +172,7 @@ public class ChainConfig {
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE, String.valueOf(dubMasterVolumeInstrumentTypeStripe));
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB, String.valueOf(dubMasterVolumeInstrumentTypeStab));
     return Text.formatMultiline(config.entrySet().stream()
+      .sorted(Map.Entry.comparingByKey())
       .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
       .toArray());
   }
