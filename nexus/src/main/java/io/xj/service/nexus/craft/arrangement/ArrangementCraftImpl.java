@@ -1,6 +1,8 @@
 package io.xj.service.nexus.craft.arrangement;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import datadog.trace.api.Trace;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
@@ -24,11 +26,14 @@ import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
 import io.xj.service.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.service.nexus.fabricator.NameIsometry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,6 +44,7 @@ import java.util.stream.Collectors;
  */
 public class ArrangementCraftImpl extends FabricationWrapperImpl {
   private static final double SCORE_ARRANGEMENT_ENTROPY = 0.5;
+  private static final Logger log = LoggerFactory.getLogger(ArrangementCraftImpl.class);
   private final SecureRandom random = new SecureRandom();
 
   /**
@@ -117,18 +123,20 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId())
       .orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
     for (ProgramSequencePatternEvent event : events)
-      pickInstrumentAudio(chord, instrument, arrangement, event, fromPos);
+      pickInstrumentAudios(chord, instrument, arrangement, event, fromPos);
     return Math.min(totalPos, pattern.getTotal());
   }
 
   /**
    of a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
-   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement@param chord                   (optional) to use for fabrication@param event         to pick audio for
+   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
 
+   @param chord         (optional) to use for fabrication
+   @param event         to pick audio for
    @param shiftPosition offset voice event zero within current segment
    */
   @Trace(resourceName = "nexus/craft/arrangement", operationName = "pickInstrumentAudio")
-  protected void pickInstrumentAudio(
+  protected void pickInstrumentAudios(
     @Nullable SegmentChord chord,
     Instrument instrument,
     SegmentChoiceArrangement segmentChoiceArrangement,
@@ -145,19 +153,47 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // The final note is voiced from the chord voicing (if found) or else the default is used
     Collection<Note> voicingNotes = fabricator.getVoicingNotes(realChord, instrument.getType());
-    Optional<Note> note = 0 < voicingNotes.size() ?
-      pickInstrumentNote(segmentChoiceArrangement,
-        Note.of(event.getNote()), Chord.of(realChord.getName()), voicingNotes) :
-      Optional.of(Note.of(event.getNote()));
-    if (note.isEmpty()) return;
+    List<Note> notes = 0 < voicingNotes.size() ?
+      getNotes(segmentChoiceArrangement, event, Chord.of(realChord.getName()), voicingNotes) :
+      ImmutableList.of(Note.of(event.getNote()));
+    if (notes.isEmpty()) return;
 
     // Pick attributes are expressed "rendered" as actual seconds
     double startSeconds = fabricator.computeSecondsAtPosition(position);
     double lengthSeconds = fabricator.computeSecondsAtPosition(position + duration) - startSeconds;
 
+    // pick an audio for each note
+    for (var note : notes)
+      pickInstrumentAudio(note, instrument, event, segmentChoiceArrangement, startSeconds, lengthSeconds);
+  }
+
+  /**
+   [#176696738] XJ has a serviceable voicing algorithm
+   <p>
+   [#176474113] Artist can edit comma-separated notes into detail program events
+   <p>
+   of a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
+   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
+
+   @param note                     to pick audio for
+   @param instrument               from which to pick audio
+   @param event                    to pick audio for
+   @param segmentChoiceArrangement arranging this instrument for a program
+   @param startSeconds             of audio
+   @param lengthSeconds            of audio
+   @throws NexusException on failure
+   */
+  private void pickInstrumentAudio(
+    Note note,
+    Instrument instrument,
+    ProgramSequencePatternEvent event,
+    SegmentChoiceArrangement segmentChoiceArrangement,
+    double startSeconds,
+    double lengthSeconds
+  ) throws NexusException {
     var audio =
       fabricator.getInstrumentConfig(instrument).isMultiphonic() ?
-        selectMultiphonicInstrumentAudio(instrument, event, note.get()) :
+        selectMultiphonicInstrumentAudio(instrument, event, note) :
         selectInstrumentAudio(instrument, event);
 
     // [#176373977] Should gracefully skip audio in unfulfilled by instrument
@@ -165,7 +201,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // Audio pitch is not modified for atonal instruments
     double pitch = fabricator.getInstrumentConfig(instrument).isTonal() ?
-      fabricator.getPitch(note.get()) : audio.get().getPitch();
+      fabricator.getPitch(note) : audio.get().getPitch();
 
     // of pick
     fabricator.add(SegmentChoiceArrangementPick.newBuilder()
@@ -188,36 +224,47 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    [#176695166] XJ should choose correct instrument note based on detail program note
 
    @param segmentChoiceArrangement chosen program for reference
-   @param sourceNote               of program to pick instrument note for
+   @param sourceEvent              of program to pick instrument note for
    @param voicingChord             to use for interpreting the voicing
    @param voicingNotes             to choose a note from
    @return note picked from the available voicing
    */
-  private Optional<Note> pickInstrumentNote(
+  private List<Note> getNotes(
     SegmentChoiceArrangement segmentChoiceArrangement,
-    Note sourceNote,
+    ProgramSequencePatternEvent sourceEvent,
     Chord voicingChord,
     Collection<Note> voicingNotes
-  ) throws NexusException {
-    if (PitchClass.None.equals(sourceNote.getPitchClass()))
-      return pickRandomInstrumentNote(voicingNotes);
+  ) {
+    List<Note> notes = Lists.newArrayList();
 
-    var instrument = fabricator.getInstrument(segmentChoiceArrangement);
-    if (instrument.isEmpty()) return Optional.empty();
-    var sourceKey = fabricator.getKeyForArrangement(segmentChoiceArrangement);
-    var sourceRange = fabricator.getRangeForArrangement(segmentChoiceArrangement);
-    var targetShiftSemitones = sourceKey.getRootPitchClass().delta(voicingChord.getRootPitchClass());
-    var voicingType = instrument.get().getType();
-    var targetRange = fabricator.getVoicingNoteRange(voicingType);
-    var targetRangeShiftOctaves = computeRangeShiftOctaves(sourceRange, targetRange);
-    var targetNote = sourceNote.shift(targetShiftSemitones + 12 * targetRangeShiftOctaves);
+    for (var note : CSV.split(sourceEvent.getNote()).stream().map(Note::of).collect(Collectors.toList()))
+      if (PitchClass.None.equals(note.getPitchClass()))
+        pickRandomInstrumentNote(voicingNotes).ifPresent(notes::add);
+      else
+        try {
+          Optional<Instrument> instrument = fabricator.getInstrument(segmentChoiceArrangement);
+          if (instrument.isEmpty()) continue;
+          var sourceKey = fabricator.getKeyForArrangement(segmentChoiceArrangement);
+          var sourceRange = fabricator.getRangeForArrangement(segmentChoiceArrangement);
+          var targetShiftSemitones = sourceKey.getRootPitchClass().delta(voicingChord.getRootPitchClass());
+          var voicingType = instrument.get().getType();
+          var targetRange = fabricator.getVoicingNoteRange(voicingType);
+          var targetRangeShiftOctaves = computeRangeShiftOctaves(sourceRange, targetRange);
+          var targetNote = note.shift(targetShiftSemitones + 12 * targetRangeShiftOctaves);
 
-    return voicingNotes
-      .stream()
-      .map(note -> new RankedNote(note,
-        Math.abs(note.delta(targetNote))))
-      .min(Comparator.comparing(RankedNote::getDelta))
-      .map(RankedNote::getNote);
+          notes.add(voicingNotes
+            .stream()
+            .map(n -> new RankedNote(n,
+              Math.abs(n.delta(targetNote))))
+            .min(Comparator.comparing(RankedNote::getDelta))
+            .map(RankedNote::getNote)
+            .orElseThrow(() -> new NexusException("Note not found")));
+
+        } catch (NexusException e) {
+          log.warn("Failed to pick note", e);
+        }
+
+    return notes;
   }
 
   /**

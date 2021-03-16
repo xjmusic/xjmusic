@@ -24,14 +24,14 @@ class FileStoreProviderImpl implements FileStoreProvider {
   private static final float MICROS_PER_SECOND = 1000000.0F;
   private static final float NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
   private static final String NAME_SEPARATOR = "-";
-  private String awsDefaultRegion;
-  private String audioUploadUrl;
-  private String awsAccessKeyId;
-  private String awsSecretKey;
-  private String audioFileBucket;
-  private int awsFileUploadExpireMinutes;
-  private String fileUploadACL;
-  private int awsS3RetryLimit;
+  private final String awsDefaultRegion;
+  private final String audioUploadUrl;
+  private final String awsAccessKeyId;
+  private final String awsSecretKey;
+  private final String audioFileBucket;
+  private final int awsFileUploadExpireMinutes;
+  private final String fileUploadACL;
+  private final int awsS3RetryLimit;
 
   @Inject
   public FileStoreProviderImpl(
@@ -61,7 +61,7 @@ class FileStoreProviderImpl implements FileStoreProvider {
   }
 
   @Override
-  public S3UploadPolicy generateAudioUploadPolicy() throws FileStoreException {
+  public S3UploadPolicy generateAudioUploadPolicy() {
     return new S3UploadPolicy(getCredentialId(), getCredentialSecret(), getAudioUploadACL(), getAudioBucketName(), "", getAudioUploadExpireInMinutes());
   }
 
@@ -71,22 +71,22 @@ class FileStoreProviderImpl implements FileStoreProvider {
   }
 
   @Override
-  public String getUploadURL() throws FileStoreException {
+  public String getUploadURL() {
     return audioUploadUrl;
   }
 
   @Override
-  public String getCredentialId() throws FileStoreException {
+  public String getCredentialId() {
     return awsAccessKeyId;
   }
 
   @Override
-  public String getCredentialSecret() throws FileStoreException {
+  public String getCredentialSecret() {
     return awsSecretKey;
   }
 
   @Override
-  public String getAudioBucketName() throws FileStoreException {
+  public String getAudioBucketName() {
     return audioFileBucket;
   }
 
@@ -105,14 +105,13 @@ class FileStoreProviderImpl implements FileStoreProvider {
     AmazonS3 client = s3Client();
     GetObjectRequest request = new GetObjectRequest(bucketName, key);
     int count = 0;
-    int maxTries = awsS3RetryLimit;
     while (true) {
       try {
         return client.getObject(request).getObjectContent();
 
       } catch (Exception e) {
         ++count;
-        if (count == maxTries)
+        if (count == awsS3RetryLimit)
           throw new FileStoreException("Failed to stream S3 object", e);
       }
     }
