@@ -154,7 +154,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // The final note is voiced from the chord voicing (if found) or else the default is used
     Collection<Note> voicingNotes = fabricator.getVoicingNotes(realChord, instrument.getType());
     List<Note> notes = 0 < voicingNotes.size() ?
-      getNotes(segmentChoiceArrangement, event, Chord.of(realChord.getName()), voicingNotes) :
+      getNotes(instrument, segmentChoiceArrangement, event, Chord.of(realChord.getName()), voicingNotes) :
       ImmutableList.of(Note.of(event.getNote()));
     if (notes.isEmpty()) return;
 
@@ -223,6 +223,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    <p>
    [#176695166] XJ should choose correct instrument note based on detail program note
 
+   @param instrument               comprising audios
    @param segmentChoiceArrangement chosen program for reference
    @param sourceEvent              of program to pick instrument note for
    @param voicingChord             to use for interpreting the voicing
@@ -230,7 +231,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @return note picked from the available voicing
    */
   private List<Note> getNotes(
-    SegmentChoiceArrangement segmentChoiceArrangement,
+    Instrument instrument, SegmentChoiceArrangement segmentChoiceArrangement,
     ProgramSequencePatternEvent sourceEvent,
     Chord voicingChord,
     Collection<Note> voicingNotes
@@ -242,14 +243,11 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         pickRandomInstrumentNote(voicingNotes).ifPresent(notes::add);
       else
         try {
-          Optional<Instrument> instrument = fabricator.getInstrument(segmentChoiceArrangement);
-          if (instrument.isEmpty()) continue;
           var sourceKey = fabricator.getKeyForArrangement(segmentChoiceArrangement);
           var sourceRange = fabricator.getRangeForArrangement(segmentChoiceArrangement);
           var targetShiftSemitones = sourceKey.getRootPitchClass().delta(voicingChord.getRootPitchClass());
-          var voicingType = instrument.get().getType();
-          var targetRange = fabricator.getVoicingNoteRange(voicingType);
-          var targetRangeShiftOctaves = computeRangeShiftOctaves(sourceRange, targetRange);
+          var targetRange = fabricator.getVoicingNoteRange(instrument.getType());
+          var targetRangeShiftOctaves = computeRangeShiftOctaves(instrument.getType(), sourceRange, targetRange);
           var targetNote = note.shift(targetShiftSemitones + 12 * targetRangeShiftOctaves);
 
           notes.add(voicingNotes
@@ -272,14 +270,38 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    <p>
    via average of delta from source low to target low, and from source high to target high, rounded to octave
 
+   @param type        of instrument
    @param sourceRange to compute from
    @param targetRange to compute required # of octaves to shift into
    @return +/- octaves required to shift from source to target range
    */
-  public int computeRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) {
-    int dLow = sourceRange.getLow().delta(targetRange.getLow());
-    int dHigh = sourceRange.getHigh().delta(targetRange.getHigh());
-    return (int) Math.round((dLow + dHigh) / 2.0);
+  public int computeRangeShiftOctaves(Instrument.Type type, NoteRange sourceRange, NoteRange targetRange) {
+    switch (type) {
+
+      case Bass:
+        var shiftOctave = 0; // search for optimal value
+        var baselineDelta = 100; // optimal is lowest possible integer zero or above
+        for (var o = -10; o <= 10; o++) {
+          int d = sourceRange.getLow()
+            .shiftOctave(o)
+            .delta(targetRange.getLow());
+          if (0 <= d && d < baselineDelta) {
+            baselineDelta = d;
+            shiftOctave = o;
+          }
+        }
+        return shiftOctave;
+
+      case Percussive:
+      case Pad:
+      case Sticky:
+      case Stripe:
+      case Stab:
+      default:
+        int dLow = sourceRange.getLow().delta(targetRange.getLow());
+        int dHigh = sourceRange.getHigh().delta(targetRange.getHigh());
+        return (int) Math.round((dLow + dHigh) / 2.0);
+    }
   }
 
   /**

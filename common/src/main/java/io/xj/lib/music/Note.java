@@ -84,6 +84,16 @@ public class Note {
   }
 
   /**
+   Note stepped +/- octaves to a new Note
+
+   @param inc +/- octaves to transpose
+   @return Note
+   */
+  public Note shiftOctave(int inc) {
+    return shift(12 * inc);
+  }
+
+  /**
    Copies this object to a new Note
 
    @return new note
