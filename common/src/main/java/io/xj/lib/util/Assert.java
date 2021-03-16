@@ -37,8 +37,8 @@ public enum Assert {
 
     // for each found segment chord, assert that we were expecting it, assert that it hasn't been found yet, then mark that it's been found
     for (Object item : actual) {
-      assertTrue(String.format("Not expecting item %s", Text.toSingleQuoted(item.toString())), found.containsKey(item));
-      assertFalse(String.format("Already encountered %s and can't have a duplicate", Text.toSingleQuoted(item.toString())), found.get(item));
+      assertTrue(String.format("Not expecting item %s", Text.singleQuoted(item.toString())), found.containsKey(item));
+      assertFalse(String.format("Already encountered %s and can't have a duplicate", Text.singleQuoted(item.toString())), found.get(item));
       found.put(item, true);
     }
   }
@@ -95,9 +95,9 @@ public enum Assert {
     for (Map.Entry<String, ?> entry : actual.entrySet()) {
       String key = entry.getKey();
       Object value = entry.getValue();
-      assertTrue(String.format("Not expecting key %s", Text.toSingleQuoted(key)), found.containsKey(key));
-      assertFalse(String.format("Already encountered %s and can't have a duplicate", Text.toSingleQuoted(key)), found.get(key));
-      assertEquals(String.format("Values equal for key %s", Text.toSingleQuoted(key)), expect.get(key), actual.get(key));
+      assertTrue(String.format("Not expecting key %s", Text.singleQuoted(key)), found.containsKey(key));
+      assertFalse(String.format("Already encountered %s and can't have a duplicate", Text.singleQuoted(key)), found.get(key));
+      assertEquals(String.format("Values equal for key %s", Text.singleQuoted(key)), expect.get(key), actual.get(key));
       found.put(key, true);
     }
   }

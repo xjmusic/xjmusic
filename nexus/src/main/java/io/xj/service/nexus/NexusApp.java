@@ -76,7 +76,7 @@ import java.util.stream.Stream;
  - Add shutdown hook that calls application stop()
  */
 public class NexusApp extends App {
-  private static final String CONFIG_CHAIN_BOOTSTRAP_JSON_PATH = "chain.bootstrapJsonPath";
+  private static final String CONFIG_CHAIN_BOOTSTRAP_JSON_PATH = "nexus.bootstrapJsonPath";
   private static final String CONFIG_ACCESS_TOKEN_NAME = "access.tokenName";
   private static final String ACCESS_LOG_FILE_NAME = "access.log";
   private static final String CONFIG_ACCESS_LOG_FILE = "app.accessLogFile";
@@ -129,7 +129,7 @@ public class NexusApp extends App {
 
     //[#176374643] Chains bootstrapped by Nexus are delayed by N seconds
     if (config.hasPath(CONFIG_CHAIN_BOOTSTRAP_JSON_PATH)) {
-      int bootstrapDelaySeconds = config.getInt("chain.bootstrapDelaySeconds");
+      int bootstrapDelaySeconds = config.getInt("nexus.bootstrapDelaySeconds");
       ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
       executorService.schedule(() ->
         bootstrapFromPath(config.getString(CONFIG_CHAIN_BOOTSTRAP_JSON_PATH), payloadFactory, entityFactory, chainDAO, access), bootstrapDelaySeconds, TimeUnit.SECONDS);

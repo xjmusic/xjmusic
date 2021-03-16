@@ -34,6 +34,7 @@ public interface Text {
   String UNDERSCORE = "_";
   String NOTHING = "";
   char SINGLE_QUOTE = '\'';
+  char DOUBLE_QUOTE = '"';
 
   /**
    Format a stack trace in carriage-return-separated lines
@@ -337,8 +338,18 @@ public interface Text {
    @param value to single-quote
    @return single-quoted value
    */
-  static String toSingleQuoted(String value) {
+  static String singleQuoted(String value) {
     return String.format("%s%s%s", SINGLE_QUOTE, value, SINGLE_QUOTE);
+  }
+
+  /**
+   Return double-quoted version of string
+
+   @param value to single-quote
+   @return single-quoted value
+   */
+  static String doubleQuoted(String value) {
+    return String.format("%s%s%s", DOUBLE_QUOTE, value, DOUBLE_QUOTE);
   }
 
   /**

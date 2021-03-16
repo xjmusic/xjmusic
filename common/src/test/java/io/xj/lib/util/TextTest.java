@@ -151,10 +151,14 @@ public class TextTest {
   }
 
   @Test
-  public void toSingleQuoted() {
-    assertEquals("'stones'", Text.toSingleQuoted("stones"));
+  public void singleQuoted() {
+    assertEquals("'stones'", Text.singleQuoted("stones"));
   }
 
+  @Test
+  public void doubleQuoted() {
+    assertEquals("\"stones\"", Text.doubleQuoted("stones"));
+  }
 
   @Test
   public void toSlug() {

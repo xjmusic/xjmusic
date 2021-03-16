@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.typesafe.config.Config;
 import datadog.trace.api.Trace;
 import io.xj.InstrumentAudio;
 import io.xj.Segment;
@@ -39,41 +38,17 @@ public class DubMasterImpl implements DubMaster {
   private final Map<String, Double> pickOffsetStart = Maps.newHashMap();
   private final Map<String, Double> pickPitchRatio = Maps.newHashMap();
   private final DubAudioCache dubAudioCache;
-  private final long audioAttackMicros;
-  private final long audioReleaseMicros;
   private Mixer _mixer;
-  private final double normalizationMax;
-  private final int dspBufferSize;
-  private final double compressRatioMax;
-  private final double compressRatioMin;
-  private final double highpassThresholdHz;
-  private final double lowpassThresholdHz;
-  private final double compressToAmplitude;
-  private final double compressAheadSeconds;
-  private final double compressDecaySeconds;
 
   @Inject
   public DubMasterImpl(
     @Assisted("basis") Fabricator fabricator,
     DubAudioCache dubAudioCache,
-    MixerFactory mixerFactory,
-    Config config
+    MixerFactory mixerFactory
     /*-*/) {
     this.dubAudioCache = dubAudioCache;
     this.fabricator = fabricator;
     this.mixerFactory = mixerFactory;
-
-    audioAttackMicros = config.getInt("chain.mixerSampleAttackMicros");
-    audioReleaseMicros = config.getInt("chain.mixerSampleReleaseMicros");
-    normalizationMax = config.getDouble("chain.mixerNormalizationMax");
-    dspBufferSize = config.getInt("chain.mixerDspBufferSize");
-    compressRatioMax = config.getDouble("chain.mixerCompressRatioMax");
-    compressRatioMin = config.getDouble("chain.mixerCompressRatioMin");
-    highpassThresholdHz = config.getDouble("chain.mixerHighpassThresholdHz");
-    lowpassThresholdHz = config.getDouble("chain.mixerLowpassThresholdHz");
-    compressToAmplitude = config.getDouble("chain.mixerCompressToAmplitude");
-    compressAheadSeconds = config.getDouble("chain.mixerCompressAheadSeconds");
-    compressDecaySeconds = config.getDouble("chain.mixerCompressDecaySeconds");
   }
 
   /**
@@ -183,9 +158,10 @@ public class DubMasterImpl implements DubMaster {
   private void setupTarget(Double preroll, SegmentChoiceArrangementPick pick) throws Exception {
     mixer().put(pick.getInstrumentAudioId(),
       toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
-      toMicros(preroll + pick.getStart() + pick.getLength()) + audioReleaseMicros,
-      audioAttackMicros,
-      audioReleaseMicros,
+      toMicros(preroll + pick.getStart() + pick.getLength()) +
+        fabricator.getChainConfig().getMixerSampleReleaseMicros(),
+      fabricator.getChainConfig().getMixerSampleAttackMicros(),
+      fabricator.getChainConfig().getMixerSampleReleaseMicros(),
       pick.getAmplitude() * fabricator.getAmplitudeForInstrumentType(pick),
       computePitchRatio(pick),
       0);
@@ -247,15 +223,15 @@ public class DubMasterImpl implements DubMaster {
     if (Objects.isNull(_mixer)) {
       MixerConfig config = new MixerConfig(fabricator.getOutputAudioFormat(), fabricator.getSegmentTotalLength().plusSeconds(OUTPUT_LENGTH_EXTRA_SECONDS))
         .setLogPrefix(String.format("[segId=%s] ", fabricator.getSegment().getId()))
-        .setNormalizationMax(normalizationMax)
-        .setDSPBufferSize(dspBufferSize)
-        .setCompressRatioMax(compressRatioMax)
-        .setCompressRatioMin(compressRatioMin)
-        .setHighpassThresholdHz(highpassThresholdHz)
-        .setLowpassThresholdHz(lowpassThresholdHz)
-        .setCompressToAmplitude(compressToAmplitude)
-        .setCompressAheadSeconds(compressAheadSeconds)
-        .setCompressDecaySeconds(compressDecaySeconds);
+        .setNormalizationMax(fabricator.getChainConfig().getMixerNormalizationMax())
+        .setDSPBufferSize(fabricator.getChainConfig().getMixerDspBufferSize())
+        .setCompressRatioMax(fabricator.getChainConfig().getMixerCompressRatioMax())
+        .setCompressRatioMin(fabricator.getChainConfig().getMixerCompressRatioMin())
+        .setHighpassThresholdHz(fabricator.getChainConfig().getMixerHighpassThresholdHz())
+        .setLowpassThresholdHz(fabricator.getChainConfig().getMixerLowpassThresholdHz())
+        .setCompressToAmplitude(fabricator.getChainConfig().getMixerCompressToAmplitude())
+        .setCompressAheadSeconds(fabricator.getChainConfig().getMixerCompressAheadSeconds())
+        .setCompressDecaySeconds(fabricator.getChainConfig().getMixerCompressDecaySeconds());
 
       _mixer = mixerFactory.createMixer(config);
     }

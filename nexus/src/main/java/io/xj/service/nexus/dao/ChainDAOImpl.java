@@ -95,7 +95,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     previewLengthMaxHours = config.getInt("fabrication.previewLengthMaxHours");
     previewEmbedKeyLength = config.getInt("fabrication.previewEmbedKeyLength");
-    chainStartInFutureSeconds = config.getInt("chain.startInFutureSeconds");
+    chainStartInFutureSeconds = config.getInt("nexus.chainStartInFutureSeconds");
     this.chainBindingDAO = chainBindingDAO;
   }
 
@@ -170,7 +170,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       validate(chain);
 
       // [#175347578] validate TypeSafe chain config
-      new ChainConfig(chain.build(), config);
+      // [#177355683] Artist saves Chain config, validate & combine with defaults.
+      chain.setConfig(new ChainConfig(chain.build(), config).toString());
 
       // store and return sanitized payload comprising only the valid Chain
       return store.put(chain.build());
@@ -276,7 +277,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       validate(builder);
 
       // [#175347578] validate TypeSafe chain config
-      new ChainConfig(builder.build(), config);
+      // [#177355683] Artist saves Chain config, validate & combine with defaults.
+      builder.setConfig(new ChainConfig(builder.build(), config).toString());
 
       // If we have an embed key, it must not belong to another chain
       requireUniqueEmbedKey(access, builder);
