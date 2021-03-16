@@ -409,8 +409,18 @@ public class HubContent {
    @return memes of program
    */
   public Collection<ProgramMeme> getMemes(Program program) {
+    return getProgramMemes(program.getId());
+  }
+
+  /**
+   Get memes of program
+
+   @param programId to get memes for
+   @return memes of program
+   */
+  public Collection<ProgramMeme> getProgramMemes(String programId) {
     return getAllProgramMemes().stream()
-      .filter(m -> m.getProgramId().equals(program.getId()))
+      .filter(m -> m.getProgramId().equals(programId))
       .collect(Collectors.toList());
   }
 
@@ -614,8 +624,23 @@ public class HubContent {
    @return sequence bindings at offset
    */
   public Collection<ProgramSequenceBinding> getProgramSequenceBindingsAtOffset(Program program, Long offset) {
+    return getSequenceBindingsAtProgramOffset(program.getId(), offset);
+  }
+
+  /**
+   Get sequence bindings at a specified offset.
+   If the target offset is not found in the chosen Main Program,
+   we'll find the nearest matching offset, and return all bindings at that offset.
+   <p>
+   [#177052278] Chain should always be able to determine main sequence binding offset
+
+   @param programId to get sequence bindings for
+   @param offset    to get sequence bindings at
+   @return sequence bindings at offset
+   */
+  public Collection<ProgramSequenceBinding> getSequenceBindingsAtProgramOffset(String programId, Long offset) {
     var candidates = getAllProgramSequenceBindings().stream()
-      .filter(psb -> Objects.equals(psb.getProgramId(), program.getId()))
+      .filter(psb -> Objects.equals(psb.getProgramId(), programId))
       .collect(Collectors.toList());
     var actualOffset = candidates.stream()
       .map(ProgramSequenceBinding::getOffset)
@@ -624,7 +649,7 @@ public class HubContent {
       return ImmutableList.of();
     return getAllProgramSequenceBindings().stream()
       .filter(psb ->
-        Objects.equals(psb.getProgramId(), program.getId()) &&
+        Objects.equals(psb.getProgramId(), programId) &&
           Objects.equals(psb.getOffset(), actualOffset.get()))
       .collect(Collectors.toList());
   }

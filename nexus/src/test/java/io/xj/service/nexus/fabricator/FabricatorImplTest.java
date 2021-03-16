@@ -30,8 +30,8 @@ import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubClientModule;
 import io.xj.service.hub.client.HubContent;
-import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.NexusApp;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.NexusIntegrationTestingFixtures;
 import io.xj.service.nexus.dao.ChainBindingDAO;
 import io.xj.service.nexus.dao.ChainDAO;
@@ -41,7 +41,6 @@ import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.persistence.NexusEntityStoreModule;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
@@ -477,5 +476,85 @@ public class FabricatorImplTest {
   }
 
   // FUTURE: test getChoicesOfPreviousSegments
+
+  @Test
+  public void getMemeIsometryOfNextSequenceInPreviousMacro() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+    var chain = store.put(Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(UUID.randomUUID().toString())
+      .setName("test")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2017-12-12T01:00:08.000000Z")
+      .setConfig("outputEncoding=\"PCM_SIGNED\"")
+      .build());
+    store.put(ChainBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain.getId())
+      .setTargetId(fake.library2.getId())
+      .setType(ChainBinding.Type.Library)
+      .build());
+    Segment previousSegment = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain.getId())
+      .setOffset(1)
+      .setState(Segment.State.Crafted)
+      .setBeginAt("2017-12-12T01:00:08.000000Z")
+      .setEndAt("2017-12-12T01:00:16.000000Z")
+      .setKey("F major")
+      .setTotal(8)
+      .setDensity(0.6)
+      .setTempo(120)
+      .setStorageKey("seg123.ogg")
+      .build());
+    var previousMacroChoice = // second-to-last sequence of macro program
+      store.put(SegmentChoice.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setSegmentId(previousSegment.getId())
+        .setProgramType(Program.Type.Macro)
+        .setProgramId(fake.program4.getId())
+        .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
+        .build());
+    var previousMainChoice = // last sequence of main program
+      store.put(SegmentChoice.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setSegmentId(previousSegment.getId())
+        .setProgramType(Program.Type.Main)
+        .setProgramId(fake.program5.getId())
+        .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
+        .build());
+    Segment segment = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain.getId())
+      .setOffset(2)
+      .setState(Segment.State.Crafting)
+      .setBeginAt("2017-12-12T01:00:16.000000Z")
+      .setEndAt("2017-12-12T01:00:22.000000Z")
+      .setKey("G major")
+      .setTotal(8)
+      .setDensity(0.6)
+      .setTempo(240)
+      .setStorageKey("seg123.ogg")
+      .build());
+    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
+      .thenReturn(mockSegmentRetrospective);
+    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
+      .thenReturn(mockSegmentWorkbench);
+    when(mockSegmentWorkbench.getSegment())
+      .thenReturn(segment);
+    when(mockSegmentRetrospective.getPreviousSegment())
+      .thenReturn(Optional.of(previousSegment));
+    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Main))
+      .thenReturn(Optional.of(previousMainChoice));
+    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Macro))
+      .thenReturn(Optional.of(previousMacroChoice));
+    var access = HubClientAccess.internal();
+    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
+
+    var result = subject.getMemeIsometryOfNextSequenceInPreviousMacro();
+
+    assertEquals(ImmutableList.of("tropic", "cozi"), result.getSources());
+  }
 
 }

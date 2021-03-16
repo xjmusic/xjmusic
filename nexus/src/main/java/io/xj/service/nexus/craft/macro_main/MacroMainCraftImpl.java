@@ -42,7 +42,6 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   private static final double SCORE_MACRO_ENTROPY = 0.5;
   private static final double SCORE_MAIN_ENTROPY = 0.5;
   private static final long NANOS_PER_SECOND = 1_000_000_000;
-  private final Logger log = LoggerFactory.getLogger(MacroMainCraftImpl.class);
 
   @Inject
   public MacroMainCraftImpl(

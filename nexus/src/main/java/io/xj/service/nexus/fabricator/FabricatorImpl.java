@@ -447,9 +447,31 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public MemeIsometry getMemeIsometryOfNextSequenceInPreviousMacro() {
-    var previousMacroChoice = getPreviousMacroChoice();
-    if (previousMacroChoice.isEmpty()) return MemeIsometry.none();
-    return MemeIsometry.ofMemes(toStrings(getMemesOfChoice(previousMacroChoice.get())));
+    try {
+      var previousMacroChoice =
+        getPreviousMacroChoice()
+          .orElseThrow(NexusException::new);
+      var previousSequenceBinding =
+        getSourceMaterial()
+          .getProgramSequenceBinding(previousMacroChoice.getProgramSequenceBindingId())
+          .orElseThrow(NexusException::new);
+
+      var nextSequenceBinding =
+        getSourceMaterial().getSequenceBindingsAtProgramOffset(
+          previousMacroChoice.getProgramId(),
+          previousSequenceBinding.getOffset() + 1);
+
+      Collection<String> result = Lists.newArrayList();
+      sourceMaterial.getProgramMemes(previousMacroChoice.getProgramId())
+        .forEach(meme -> result.add(meme.getName()));
+      nextSequenceBinding.forEach(programSequenceBinding -> sourceMaterial.getMemes(programSequenceBinding)
+        .forEach(meme -> result.add(meme.getName())));
+      return MemeIsometry.ofMemes(result);
+
+    } catch (NexusException e) {
+      log.warn("Could not get meme isometry of next sequence in previous macro", e);
+      return MemeIsometry.none();
+    }
   }
 
   @Override
@@ -477,7 +499,6 @@ class FabricatorImpl implements Fabricator {
           .build())));
     }
     return result;
-
   }
 
   @Override

@@ -16,4 +16,8 @@ public class NexusException extends Exception {
   public NexusException(Throwable targetException) {
     super(String.format("%s\n%s", targetException.getMessage(), Text.formatStackTrace(targetException)));
   }
+
+  public NexusException() {
+    super();
+  }
 }
