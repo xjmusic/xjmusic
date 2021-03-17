@@ -126,7 +126,7 @@ public class DubDubMasterWaveformPrerollTest {
     store.put(buildSegmentChord(segment6, 0.0, "A minor"));
     store.put(buildSegmentChord(segment6, 8.0, "D major"));
     SegmentChoiceArrangement arr1 = store.put(buildSegmentChoiceArrangement(choice1, fake.program35_voice0, fake.instrument8));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoiceArrangementPick(arr1, fake.program35_sequence0_pattern0_event0, fake.instrument8_audio8kick, 0.0, 1.0, 1.0, 440.0, "BOOM"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChoiceArrangementPick(arr1, fake.program35_sequence0_pattern0_event0, fake.instrument8_audio8kick, 0.0, 1.0, 1.0, "A4", "BOOM"));
 
     // future: insert arrangement of choice1
     // future: insert 8 picks of audio 1

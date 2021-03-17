@@ -356,7 +356,7 @@ public class NexusIntegrationTestingFixtures {
       .build();
   }
 
-  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent programSequencePatternEvent, InstrumentAudio instrumentAudio, double position, double duration, double velocity, double pitch, String name) {
+  public static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent programSequencePatternEvent, InstrumentAudio instrumentAudio, double position, double duration, double velocity, String note, String name) {
     return SegmentChoiceArrangementPick.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segmentChoiceArrangement.getSegmentId())
@@ -366,7 +366,7 @@ public class NexusIntegrationTestingFixtures {
       .setStart(position)
       .setLength(duration)
       .setAmplitude(velocity)
-      .setPitch(pitch)
+      .setNote(note)
       .setName(name)
       .build();
   }

@@ -29,4 +29,10 @@ public class NoteRangeTest {
   public void getHigh() {
     assertEquals("F6", subject.getHigh().toString(AdjSymbol.None));
   }
+
+  @Test
+  public void outputToString() {
+    assertEquals("C3-F6", subject.toString(AdjSymbol.None));
+  }
+
 }

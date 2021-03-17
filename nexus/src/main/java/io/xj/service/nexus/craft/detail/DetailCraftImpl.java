@@ -38,8 +38,8 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   @Inject
   public DetailCraftImpl(
     @Assisted("basis") Fabricator fabricator
-    /*-*/) {
-    this.fabricator = fabricator;
+  ) {
+    super(fabricator);
   }
 
   @Override
@@ -83,7 +83,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
     // Finally, update the segment with the crafted content
     fabricator.done();
-
   }
 
   /**
@@ -111,28 +110,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
         throw new NexusException(String.format("Cannot get Detail-type program for unknown fabricator type=%s", type));
     }
   }
-
-  /**
-   Determine if a detail program has been previously selected
-   in one of the previous segments of the current main program
-   wherein the current pattern of the selected main program
-   <p>
-   [#176468964] Rhythm and Detail choices are kept for an entire Main Program
-
-   @param voicingType to get detail program for
-   @return detail program if previously selected, or null if none is found
-   */
-  @Trace(resourceName = "nexus/craft/detail", operationName = "getDetailProgramSelectedPreviouslyForSegmentMainProgram")
-  private Optional<Program> getDetailProgramSelectedPreviouslyForSegmentMainProgram(Instrument.Type voicingType) throws NexusException {
-    return fabricator.getChoicesOfPreviousSegments()
-      .stream()
-      .filter(choice ->
-        Program.Type.Detail == choice.getProgramType()
-          && voicingType == choice.getInstrumentType())
-      .flatMap(choice -> fabricator.getSourceMaterial().getProgram(choice.getProgramId()).stream())
-      .findFirst();
-  }
-
 
   /**
    craft segment events for one detail voice
@@ -179,7 +156,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       craftArrangementForDetailVoicePerEachChord(sequence, arrangement, voice);
     else
       craftArrangementForVoiceSection(null, sequence, arrangement, voice, 0, fabricator.getSegment().getTotal());
-
   }
 
   /**
@@ -336,6 +312,30 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     public SegmentChord chord;
     public double fromPos;
     public double toPos;
+  }
+
+  /**
+   Determine if a detail program has been previously selected
+   in one of the previous segments of the current main program
+   wherein the current pattern of the selected main program
+   <p>
+   [#176468964] Rhythm and Detail choices are kept for an entire Main Program
+
+   @param voicingType to get detail program for
+   @return detail program if previously selected, or null if none is found
+   */
+  @Trace(resourceName = "nexus/craft/detail", operationName = "getDetailProgramSelectedPreviouslyForSegmentMainProgram")
+  private Optional<Program> getDetailProgramSelectedPreviouslyForSegmentMainProgram(Instrument.Type voicingType) {
+    try {
+      return fabricator.getPreviouslyChosenProgramIds(Program.Type.Detail, voicingType)
+        .stream()
+        .flatMap(choice -> fabricator.getSourceMaterial().getProgram(choice).stream())
+        .findFirst();
+
+    } catch (NexusException e) {
+      reportMissing(Program.class, String.format("detail previously selected for %s-type Instrument and main program because fabrication exception %s", voicingType, e.getMessage()));
+      return Optional.empty();
+    }
   }
 
 }

@@ -36,6 +36,7 @@ import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.music.AdjSymbol;
+import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.music.MusicalException;
 import io.xj.lib.music.Note;
@@ -117,6 +118,11 @@ class FabricatorImpl implements Fabricator {
   private final Map<Instrument.Type, NoteRange> voicingNoteRange = Maps.newHashMap();
   private final Map<String, Collection<InstrumentAudioEvent>> firstEventsOfAudiosOfInstrument = Maps.newHashMap();
   private final PayloadFactory payloadFactory;
+  private final Map<String, NoteRange> rangeForArrangement = Maps.newHashMap();
+  private final Map<String, Integer> rangeShiftOctave = Maps.newHashMap();
+  private final Map<String, Integer> targetShift = Maps.newHashMap();
+  private final Map<Program.Type, Map<Instrument.Type, List<String>>> previouslyChosenProgramIds;
+  private final Map<String, List<String>> previouslyPickedNotes;
 
   @AssistedInject
   public FabricatorImpl(
@@ -173,6 +179,12 @@ class FabricatorImpl implements Fabricator {
       // setup the segment retrospective
       retrospective = fabricatorFactory.loadRetrospective(access, segment, sourceMaterial);
 
+      // digest previous choices
+      previouslyChosenProgramIds = digestPreviouslyChosenProgramIds();
+
+      // digest previous picks
+      previouslyPickedNotes = digestPreviouslyPickedNotes();
+
       // get the current segment on the workbench
       workbench = fabricatorFactory.setupWorkbench(access, chain, segment);
 
@@ -182,6 +194,44 @@ class FabricatorImpl implements Fabricator {
     } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException | HubClientException | ValueException e) {
       throw new NexusException("Failed to instantiate Fabricator!", e);
     }
+  }
+
+  /**
+   Digest all previously chosen programs for the same main program
+
+   @return map of program types to instrument types to list of programs chosen
+   */
+  private Map<Program.Type, Map<Instrument.Type, List<String>>> digestPreviouslyChosenProgramIds() {
+    Map<Program.Type, Map<Instrument.Type, List<String>>> programIds = Maps.newHashMap();
+
+    getChoicesOfPreviousSegmentsWithSameMainProgram().forEach(choice -> {
+      if (!programIds.containsKey(choice.getProgramType()))
+        programIds.put(choice.getProgramType(), Maps.newHashMap());
+      if (!programIds.get(choice.getProgramType()).containsKey(choice.getInstrumentType()))
+        programIds.get(choice.getProgramType()).put(choice.getInstrumentType(), Lists.newArrayList());
+      programIds.get(choice.getProgramType()).get(choice.getInstrumentType())
+        .add(choice.getProgramId());
+    });
+
+    return programIds;
+  }
+
+  /**
+   Digest all previously picked events for the same main program
+
+   @return map of program types to instrument types to list of programs chosen
+   */
+  private Map<String, List<String>> digestPreviouslyPickedNotes() {
+    Map<String, List<String>> notes = Maps.newHashMap();
+
+    getPicksOfPreviousSegmentsWithSameMainProgram().forEach(pick -> {
+      if (!notes.containsKey(pick.getProgramSequencePatternEventId()))
+        notes.put(pick.getProgramSequencePatternEventId(), Lists.newArrayList());
+      if (!notes.get(pick.getProgramSequencePatternEventId()).contains(pick.getNote()))
+        notes.get(pick.getProgramSequencePatternEventId()).add(pick.getNote());
+    });
+
+    return notes;
   }
 
   @Override
@@ -350,10 +400,18 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<SegmentChoice> getChoicesOfPreviousSegments() {
+  public Collection<SegmentChoice> getChoicesOfPreviousSegmentsWithSameMainProgram() {
     Collection<SegmentChoice> out = Lists.newArrayList();
     for (Segment seg : getPreviousSegmentsWithSameMainProgram())
       out.addAll(retrospective.getSegmentChoices(seg));
+    return out;
+  }
+
+  @Override
+  public Collection<SegmentChoiceArrangementPick> getPicksOfPreviousSegmentsWithSameMainProgram() {
+    Collection<SegmentChoiceArrangementPick> out = Lists.newArrayList();
+    for (Segment seg : getPreviousSegmentsWithSameMainProgram())
+      out.addAll(retrospective.getSegmentChoiceArrangementPicks(seg));
     return out;
   }
 
@@ -821,6 +879,40 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public List<String> getPreviouslyChosenProgramIds(Program.Type programType, Instrument.Type instrumentType) {
+    if (previouslyChosenProgramIds.containsKey(programType) &&
+      previouslyChosenProgramIds.get(programType).containsKey(instrumentType))
+      return previouslyChosenProgramIds.get(programType).get(instrumentType);
+
+    else return ImmutableList.of();
+  }
+
+  @Override
+  public Boolean hasPreviouslyPickedNotes(String programSequencePatternEventId) {
+    return previouslyPickedNotes.containsKey(programSequencePatternEventId);
+  }
+
+  @Override
+  public List<Note> getPreviouslyPickedNotes(String programSequencePatternEventId) {
+    if (previouslyPickedNotes.containsKey(programSequencePatternEventId))
+      return previouslyPickedNotes.get(programSequencePatternEventId)
+        .stream()
+        .map(Note::of)
+        .collect(Collectors.toList());
+
+    else return ImmutableList.of();
+  }
+
+  @Override
+  public List<Note> rememberPickedNotes(String programSequencePatternEventId, List<Note> notes) {
+    previouslyPickedNotes.put(programSequencePatternEventId,
+      notes.stream()
+        .map(note -> note.toString(AdjSymbol.None))
+        .collect(Collectors.toList()));
+    return notes;
+  }
+
+  @Override
   public Tuning getTuning() {
     return tuning;
   }
@@ -847,7 +939,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public NoteRange getVoicingNoteRange(Instrument.Type type) {
+  public NoteRange computeVoicingNoteRange(Instrument.Type type) {
     if (!voicingNoteRange.containsKey(type)) {
       var voicings = workbench.getSegmentChordVoicings();
       voicingNoteRange.put(type, new NoteRange(voicings.stream()
@@ -939,18 +1031,22 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public NoteRange getRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws NexusException {
-    var program = getProgram(segmentChoiceArrangement);
-    if (program.isEmpty())
-      throw new NexusException("Can't get note range for nonexistent program!");
-    return new NoteRange(sourceMaterial.getEvents(program.get())
-      .stream()
-      .filter(programSequencePatternEvent -> sourceMaterial.getTrack(programSequencePatternEvent)
-        .map(track -> programSequencePatternEvent.getProgramVoiceTrackId().equals(track.getId()))
-        .orElse(false))
-      .map(programSequencePatternEvent -> Note.of(programSequencePatternEvent.getNote()))
-      .collect(Collectors.toList()));
+  public NoteRange computeRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws NexusException {
+    if (!rangeForArrangement.containsKey(segmentChoiceArrangement.getId())) {
 
+      var program = getProgram(segmentChoiceArrangement);
+      if (program.isEmpty())
+        throw new NexusException("Can't get note range for nonexistent program!");
+      rangeForArrangement.put(segmentChoiceArrangement.getId(), new NoteRange(sourceMaterial.getEvents(program.get())
+        .stream()
+        .filter(programSequencePatternEvent -> sourceMaterial.getTrack(programSequencePatternEvent)
+          .map(track -> programSequencePatternEvent.getProgramVoiceTrackId().equals(track.getId()))
+          .orElse(false))
+        .map(programSequencePatternEvent -> Note.of(programSequencePatternEvent.getNote()))
+        .collect(Collectors.toList())));
+    }
+
+    return rangeForArrangement.get(segmentChoiceArrangement.getId());
   }
 
   @Override
@@ -1005,6 +1101,53 @@ class FabricatorImpl implements Fabricator {
       return Segment.Type.NextMain;
 
     return Segment.Type.NextMacro;
+  }
+
+  @Override
+  public int computeRangeShiftOctaves(Instrument.Type type, NoteRange sourceRange, NoteRange targetRange) {
+    var key = String.format("%s__%s__%s", type,
+      sourceRange.toString(AdjSymbol.None), targetRange.toString(AdjSymbol.None));
+
+    if (!rangeShiftOctave.containsKey(key))
+      switch (type) {
+
+        case Bass:
+          var shiftOctave = 0; // search for optimal value
+          var baselineDelta = 100; // optimal is lowest possible integer zero or above
+          for (var o = -10; o <= 10; o++) {
+            int d = sourceRange.getLow()
+              .shiftOctave(o)
+              .delta(targetRange.getLow());
+            if (0 <= d && d < baselineDelta) {
+              baselineDelta = d;
+              shiftOctave = o;
+            }
+          }
+          rangeShiftOctave.put(key, shiftOctave);
+          break;
+
+        case Percussive:
+        case Pad:
+        case Sticky:
+        case Stripe:
+        case Stab:
+        default:
+          int dLow = sourceRange.getLow().delta(targetRange.getLow());
+          int dHigh = sourceRange.getHigh().delta(targetRange.getHigh());
+          rangeShiftOctave.put(key, (int) Math.round((dLow + dHigh) / 2.0));
+          break;
+      }
+
+    return rangeShiftOctave.get(key);
+  }
+
+  @Override
+  public int computeTargetShift(Key fromKey, Chord toChord) {
+    var key = String.format("%s__%s", fromKey.toString(), toChord.toString());
+    if (!targetShift.containsKey(key))
+      targetShift.put(key, fromKey.getRootPitchClass().delta(toChord.getRootPitchClass()));
+
+    return targetShift.get(key);
   }
 
   /**

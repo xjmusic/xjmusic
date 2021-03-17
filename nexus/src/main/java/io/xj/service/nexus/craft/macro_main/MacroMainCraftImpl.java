@@ -23,8 +23,6 @@ import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
 import io.xj.service.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.service.nexus.fabricator.Fabricator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -46,8 +44,8 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   @Inject
   public MacroMainCraftImpl(
     @Assisted("basis") Fabricator fabricator
-    /*-*/) {
-    this.fabricator = fabricator;
+  ) {
+    super(fabricator);
   }
 
   @Override
@@ -89,7 +87,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     if (mainSequence.isPresent())
       for (ProgramSequenceChord sequenceChord : fabricator.getSourceMaterial().getChords(mainSequence.get())) {
         // [#154090557] don't of chord past end of Segment
-        String name = "NaN";
+        String name;
         if (sequenceChord.getPosition() < mainSequence.get().getTotal()) {
           // delta the chord name
           name = new Chord(sequenceChord.getName()).getFullDescription();

@@ -16,7 +16,7 @@ public class PutImplTest {
 
   @Before
   public void setUp() throws Exception {
-    testPut = mixerFactory.createPut("bun1", 1000000, 2000000, 10000, 50000, 1.0, 1.0, 0);
+    testPut = mixerFactory.createPut("bun1", 1000000, 2000000, 10000, 50000, 1.0, 0);
   }
 
   @Test
@@ -124,11 +124,6 @@ public class PutImplTest {
   @Test
   public void getVelocity() {
     assertEquals(1.0, testPut.getVelocity(), 0);
-  }
-
-  @Test
-  public void getPitchRatio() {
-    assertEquals(1.0, testPut.getPitchRatio(), 0);
   }
 
   @Test

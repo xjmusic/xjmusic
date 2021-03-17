@@ -2,10 +2,9 @@
 
 package io.xj.service.nexus.fabricator;
 
-import io.xj.ProgramSequencePatternEvent;
+import com.google.inject.Inject;
 import io.xj.SegmentMessage;
 import io.xj.lib.util.CSV;
-import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +15,19 @@ import java.util.UUID;
 /**
  Fabrication wrapper is a common foundation for all craft
  */
-public class FabricationWrapperImpl {
-  private static final String UNKNOWN_TRACK_NAME = "(unknown)";
+public abstract class FabricationWrapperImpl {
   private final Logger log = LoggerFactory.getLogger(FabricationWrapperImpl.class);
   protected Fabricator fabricator;
+
+  /**
+   Must extend this class and inject
+
+   @param fabricator internal
+   */
+  @Inject
+  public FabricationWrapperImpl(Fabricator fabricator) {
+    this.fabricator = fabricator;
+  }
 
   /**
    Create a new NexusException prefixed with a segment id
@@ -74,37 +82,19 @@ public class FabricationWrapperImpl {
   }
 
   /**
-   Report a missing entity as a segment message
-
-   @param type   of class that is missing
-   @param detail of how missing entity was searched for
-   @param traces of how missing entity was searched for
+   Report a missing entity as a segment message@param traces of how missing entity was searched for
    */
-  protected void reportMissing(Class<?> type, String detail, Map<String, String> traces) {
+  protected void reportMissing(Map<String, String> traces) {
     try {
       fabricator.add(SegmentMessage.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(fabricator.getSegment().getId())
         .setType(SegmentMessage.Type.Warning)
-        .setBody(String.format("%s not found! %s", type.getSimpleName(), CSV.from(traces)))
+        .setBody(String.format("%s not found! %s", io.xj.InstrumentAudio.class.getSimpleName(), CSV.from(traces)))
         .build());
 
     } catch (Exception e) {
       log.warn("Failed to create SegmentMessage", e);
-    }
-  }
-
-  /**
-   Get the track name or an unknown marker
-
-   @param event to get name of
-   @return track name
-   */
-  protected String trackNameOrUnknown(ProgramSequencePatternEvent event) {
-    try {
-      return fabricator.getTrackName(event);
-    } catch (NexusException e) {
-      return UNKNOWN_TRACK_NAME;
     }
   }
 }

@@ -12,9 +12,9 @@ import java.io.IOException;
  (NOTE: the audio file format specifies the final output length)
  <p>
  ALL time in the `mix` module is measured in microseconds as `long` primitive.
- Sources are set, each with a time, velocity and pitch ratio.
+ Sources are set, each with a time and velocity
  <p>
- A source is loaded then used many times with different velocity and pitch.
+ A source is loaded then used many times with different velocity.
  Each usage of a source is known as a Put.
  <p>
  Finally, the output audio is pulled out of the mixer. The final number of output
@@ -31,21 +31,20 @@ import java.io.IOException;
 public interface Mixer {
 
   /**
-   Put a source audio into the mix at a specified time, velocity and pitch ratio.
+   Put a source audio into the mix at a specified time and velocity.
    <p>
    the Put only has a reference to the source--
    so the Mixer has to use that reference source id along with other variables from the Put,
-   in order to arrive at the final source output value at any given microsecond@param sourceId      under which the audio is stored
-
-   @param startAtMicros duration from beginning of mix
+   in order to arrive at the final source output value at any given microsecond@param sourceId      under which the audio is stored@param startAtMicros duration from beginning of mix
    @param stopAtMicros  duration from beginning of mix
    @param attackMicros  length of attack in microseconds
    @param releaseMicros length of release in microseconds
    @param velocity      0 to 1
-   @param pitchRatio    relative speed multiplier, e.g. original = 1.0
    @param pan           -1 (left) to +1 (right)
+
+
    */
-  void put(String sourceId, long startAtMicros, long stopAtMicros, long attackMicros, long releaseMicros, double velocity, double pitchRatio, double pan) throws PutException;
+  void put(String sourceId, long startAtMicros, long stopAtMicros, long attackMicros, long releaseMicros, double velocity, double pan) throws PutException;
 
   /**
    Load a source audio from input stream and cache it in memory under an alias.

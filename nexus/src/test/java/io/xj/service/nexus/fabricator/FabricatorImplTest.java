@@ -286,7 +286,7 @@ public class FabricatorImplTest {
         .setStart(0.273)
         .setLength(1.571)
         .setAmplitude(0.8)
-        .setPitch(432.0)
+        .setNote("A4")
         .build());
     when(mockFabricatorFactory.createTimeComputer(anyDouble(), anyDouble(), anyDouble()))
       .thenReturn(mockTimeComputer);
@@ -314,7 +314,7 @@ public class FabricatorImplTest {
     assertEquals(0.273, resultPick.getStart(), 0.001);
     assertEquals(1.571, resultPick.getLength(), 0.001);
     assertEquals(0.8, resultPick.getAmplitude(), 0.1);
-    assertEquals(432.0, resultPick.getPitch(), 0.1);
+    assertEquals("A4", resultPick.getNote());
   }
 
 
@@ -396,7 +396,7 @@ public class FabricatorImplTest {
    [#176728582] Choose next Macro program based on the memes of the last sequence from the previous Macro program
    */
   @Test
-  public void determineType() throws NexusException, NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public void determineType() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     var chain = store.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(UUID.randomUUID().toString())

@@ -110,8 +110,8 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public void put(String sourceId, long startAtMicros, long stopAtMicros, long attackMicros, long releaseMicros, double velocity, double pitchRatio, double pan) throws PutException {
-    readyPuts.put(nextPutId(), factory.createPut(sourceId, startAtMicros, stopAtMicros, attackMicros, releaseMicros, velocity, pitchRatio, pan));
+  public void put(String sourceId, long startAtMicros, long stopAtMicros, long attackMicros, long releaseMicros, double velocity, double pan) throws PutException {
+    readyPuts.put(nextPutId(), factory.createPut(sourceId, startAtMicros, stopAtMicros, attackMicros, releaseMicros, velocity, pan));
   }
 
   @Override
@@ -224,7 +224,14 @@ class MixerImpl implements Mixer {
     // start the mixer
     state = MixerState.Mixing;
     long startedAt = System.nanoTime();
-    log.debug(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate", String.format("%.9f", totalSeconds), outputFrameRate);
+    var numInstances = readyPuts.size();
+    var numSources = sources.size();
+    log.debug(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate from {} instances of {} sources",
+      String.format("%.9f", totalSeconds),
+      outputFrameRate,
+      readyPuts.size(),
+      numInstances,
+      numSources);
 
     // Start with original sources summed up verbatim
     applySources();
@@ -245,7 +252,12 @@ class MixerImpl implements Mixer {
 
     //
     state = MixerState.Done;
-    log.debug(config.getLogPrefix() + "Did mix {} seconds of output audio at {} Hz in {}s", String.format("%.9f", totalSeconds), outputFrameRate,  String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
+    log.debug(config.getLogPrefix() + "Did mix {} seconds of output audio at {} Hz from {} instances of {} sources in {}s",
+      String.format("%.9f", totalSeconds),
+      outputFrameRate,
+      numInstances,
+      numSources,
+      String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
   }
 
   /**

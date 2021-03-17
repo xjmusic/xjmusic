@@ -106,10 +106,9 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    */
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "getRhythmProgramSelectedPreviouslyForMainProgram")
   private Optional<Program> getRhythmProgramSelectedPreviouslyForMainProgram() throws NexusException {
-    return fabricator.getChoicesOfPreviousSegments()
+    return fabricator.getPreviouslyChosenProgramIds(Program.Type.Rhythm, Instrument.Type.Percussive)
       .stream()
-      .filter(choice -> Program.Type.Rhythm == choice.getProgramType())
-      .flatMap(choice -> fabricator.getSourceMaterial().getProgram(choice.getProgramId()).stream())
+      .flatMap(choice -> fabricator.getSourceMaterial().getProgram(choice).stream())
       .findFirst();
   }
 

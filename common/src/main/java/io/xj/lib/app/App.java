@@ -164,7 +164,7 @@ public class App {
     ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
     context.setContextPath("/");
 
-    ServletHolder jerseyServlet = new ServletHolder(new ServletContainer(resourceConfig));
+    var jerseyServlet = new ServletHolder(new ServletContainer(resourceConfig));
 
     Server server = new Server(getRestPort());
     server.setHandler(context);

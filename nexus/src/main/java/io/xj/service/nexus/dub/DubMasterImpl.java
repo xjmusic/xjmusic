@@ -36,7 +36,6 @@ public class DubMasterImpl implements DubMaster {
   private final MixerFactory mixerFactory;
   private final List<String> warnings = Lists.newArrayList();
   private final Map<String, Double> pickOffsetStart = Maps.newHashMap();
-  private final Map<String, Double> pickPitchRatio = Maps.newHashMap();
   private final DubAudioCache dubAudioCache;
   private Mixer _mixer;
 
@@ -163,29 +162,7 @@ public class DubMasterImpl implements DubMaster {
       fabricator.getChainConfig().getMixerSampleAttackMicros(),
       fabricator.getChainConfig().getMixerSampleReleaseMicros(),
       pick.getAmplitude() * fabricator.getAmplitudeForInstrumentType(pick),
-      computePitchRatio(pick),
       0);
-  }
-
-  /**
-   Compute the pitch ratio for a pick, and cache results
-   <p>
-   If the picked audio is at higher pitch than the original source material, the ratio will be < 1.0 --
-   meaning that the audio is to be played back at a slower speed (lower pitch).
-   <p>
-   A ratio > 1.0 means the audio is to be played back at a faster speed (higher pitch).
-
-   @param pick to get pitch ratio for
-   @return pitch ratio, or cached result
-   */
-  @Trace(resourceName = "nexus/dub/master", operationName = "computePitchRatio")
-  private Double computePitchRatio(SegmentChoiceArrangementPick pick) throws NexusException {
-    if (!pickPitchRatio.containsKey(pick.getId()))
-      pickPitchRatio.put(pick.getId(),
-        fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
-          .orElseThrow(() -> new NexusException("compute pitch ratio"))
-          .getPitch() / pick.getPitch());
-    return pickPitchRatio.get(pick.getId());
   }
 
   /**
@@ -200,7 +177,7 @@ public class DubMasterImpl implements DubMaster {
       pickOffsetStart.put(pick.getId(),
         fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
           .orElseThrow(() -> new NexusException("compute offset start"))
-          .getStart() / computePitchRatio(pick));
+          .getStart());
     return pickOffsetStart.get(pick.getId());
   }
 

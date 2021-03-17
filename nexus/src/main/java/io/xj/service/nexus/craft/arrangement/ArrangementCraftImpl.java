@@ -3,6 +3,7 @@ package io.xj.service.nexus.craft.arrangement;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import datadog.trace.api.Trace;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
@@ -17,7 +18,6 @@ import io.xj.SegmentChord;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
-import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.PitchClass;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
@@ -25,9 +25,8 @@ import io.xj.lib.util.Value;
 import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
 import io.xj.service.nexus.fabricator.FabricationWrapperImpl;
+import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.NameIsometry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.security.SecureRandom;
@@ -42,10 +41,20 @@ import java.util.stream.Collectors;
 /**
  Arrangement of Segment Events is a common foundation for both Detail and Rhythm craft
  */
-public class ArrangementCraftImpl extends FabricationWrapperImpl {
+public abstract class ArrangementCraftImpl extends FabricationWrapperImpl {
   private static final double SCORE_ARRANGEMENT_ENTROPY = 0.5;
-  private static final Logger log = LoggerFactory.getLogger(ArrangementCraftImpl.class);
+  private static final String ATONAL_NOTE = "X";
   private final SecureRandom random = new SecureRandom();
+
+  /**
+   Must extend this class and inject
+
+   @param fabricator internal
+   */
+  @Inject
+  public ArrangementCraftImpl(Fabricator fabricator) {
+    super(fabricator);
+  }
 
   /**
    Craft events for a section of one detail voice
@@ -123,7 +132,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId())
       .orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
     for (ProgramSequencePatternEvent event : events)
-      pickInstrumentAudios(chord, instrument, arrangement, event, fromPos);
+      pickNotesAndInstrumentAudio(chord, instrument, arrangement, event, fromPos);
     return Math.min(totalPos, pattern.getTotal());
   }
 
@@ -136,7 +145,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param shiftPosition offset voice event zero within current segment
    */
   @Trace(resourceName = "nexus/craft/arrangement", operationName = "pickInstrumentAudio")
-  protected void pickInstrumentAudios(
+  protected void pickNotesAndInstrumentAudio(
     @Nullable SegmentChord chord,
     Instrument instrument,
     SegmentChoiceArrangement segmentChoiceArrangement,
@@ -154,7 +163,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // The final note is voiced from the chord voicing (if found) or else the default is used
     Collection<Note> voicingNotes = fabricator.getVoicingNotes(realChord, instrument.getType());
     List<Note> notes = 0 < voicingNotes.size() ?
-      getNotes(instrument, segmentChoiceArrangement, event, Chord.of(realChord.getName()), voicingNotes) :
+      pickNotes(instrument, segmentChoiceArrangement, event, Chord.of(realChord.getName()), voicingNotes) :
       ImmutableList.of(Note.of(event.getNote()));
     if (notes.isEmpty()) return;
 
@@ -199,10 +208,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // [#176373977] Should gracefully skip audio in unfulfilled by instrument
     if (audio.isEmpty()) return;
 
-    // Audio pitch is not modified for atonal instruments
-    double pitch = fabricator.getInstrumentConfig(instrument).isTonal() ?
-      fabricator.getPitch(note) : audio.get().getPitch();
-
     // of pick
     fabricator.add(SegmentChoiceArrangementPick.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -214,7 +219,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       .setStart(startSeconds)
       .setLength(lengthSeconds)
       .setAmplitude(event.getVelocity())
-      .setPitch(pitch)
+      .setNote(fabricator.getInstrumentConfig(instrument).isTonal() ?
+        note.toString(AdjSymbol.None) : ATONAL_NOTE)
       .build());
   }
 
@@ -230,78 +236,37 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param voicingNotes             to choose a note from
    @return note picked from the available voicing
    */
-  private List<Note> getNotes(
-    Instrument instrument, SegmentChoiceArrangement segmentChoiceArrangement,
+  private List<Note> pickNotes(
+    Instrument instrument,
+    SegmentChoiceArrangement segmentChoiceArrangement,
     ProgramSequencePatternEvent sourceEvent,
     Chord voicingChord,
     Collection<Note> voicingNotes
-  ) {
+  ) throws NexusException {
+    if (fabricator.hasPreviouslyPickedNotes(sourceEvent.getId()))
+      return fabricator.getPreviouslyPickedNotes(sourceEvent.getId());
+
     List<Note> notes = Lists.newArrayList();
+
+    var sourceKey = fabricator.getKeyForArrangement(segmentChoiceArrangement);
+    var sourceRange = fabricator.computeRangeForArrangement(segmentChoiceArrangement);
+    var targetShiftSemitones = fabricator.computeTargetShift(sourceKey, voicingChord);
+    var targetRange = fabricator.computeVoicingNoteRange(instrument.getType());
+    var targetRangeShiftOctaves = fabricator.computeRangeShiftOctaves(instrument.getType(), sourceRange, targetRange);
 
     for (var note : CSV.split(sourceEvent.getNote()).stream().map(Note::of).collect(Collectors.toList()))
       if (PitchClass.None.equals(note.getPitchClass()))
         pickRandomInstrumentNote(voicingNotes).ifPresent(notes::add);
       else
-        try {
-          var sourceKey = fabricator.getKeyForArrangement(segmentChoiceArrangement);
-          var sourceRange = fabricator.getRangeForArrangement(segmentChoiceArrangement);
-          var targetShiftSemitones = sourceKey.getRootPitchClass().delta(voicingChord.getRootPitchClass());
-          var targetRange = fabricator.getVoicingNoteRange(instrument.getType());
-          var targetRangeShiftOctaves = computeRangeShiftOctaves(instrument.getType(), sourceRange, targetRange);
-          var targetNote = note.shift(targetShiftSemitones + 12 * targetRangeShiftOctaves);
+        voicingNotes
+          .stream()
+          .map(n -> new RankedNote(n,
+            Math.abs(n.delta(note.shift(targetShiftSemitones + 12 * targetRangeShiftOctaves)))))
+          .min(Comparator.comparing(RankedNote::getDelta))
+          .map(RankedNote::getNote)
+          .ifPresent(notes::add);
 
-          notes.add(voicingNotes
-            .stream()
-            .map(n -> new RankedNote(n,
-              Math.abs(n.delta(targetNote))))
-            .min(Comparator.comparing(RankedNote::getDelta))
-            .map(RankedNote::getNote)
-            .orElseThrow(() -> new NexusException("Note not found")));
-
-        } catch (NexusException e) {
-          log.warn("Failed to pick note", e);
-        }
-
-    return notes;
-  }
-
-  /**
-   [#176696738] Detail craft shifts source program events into the target range
-   <p>
-   via average of delta from source low to target low, and from source high to target high, rounded to octave
-
-   @param type        of instrument
-   @param sourceRange to compute from
-   @param targetRange to compute required # of octaves to shift into
-   @return +/- octaves required to shift from source to target range
-   */
-  public int computeRangeShiftOctaves(Instrument.Type type, NoteRange sourceRange, NoteRange targetRange) {
-    switch (type) {
-
-      case Bass:
-        var shiftOctave = 0; // search for optimal value
-        var baselineDelta = 100; // optimal is lowest possible integer zero or above
-        for (var o = -10; o <= 10; o++) {
-          int d = sourceRange.getLow()
-            .shiftOctave(o)
-            .delta(targetRange.getLow());
-          if (0 <= d && d < baselineDelta) {
-            baselineDelta = d;
-            shiftOctave = o;
-          }
-        }
-        return shiftOctave;
-
-      case Percussive:
-      case Pad:
-      case Sticky:
-      case Stripe:
-      case Stab:
-      default:
-        int dLow = sourceRange.getLow().delta(targetRange.getLow());
-        int dHigh = sourceRange.getHigh().delta(targetRange.getHigh());
-        return (int) Math.round((dLow + dHigh) / 2.0);
-    }
+    return fabricator.rememberPickedNotes(sourceEvent.getId(), notes);
   }
 
   /**
@@ -425,7 +390,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       .findAny();
 
     if (audioEvent.isEmpty()) {
-      reportMissing(InstrumentAudio.class, "attempting to pickInstrumentAudio", ImmutableMap.of(
+      reportMissing(ImmutableMap.of(
         "instrumentId", instrument.getId(),
         "searchForNote", note.toString(AdjSymbol.Sharp),
         "availableNotes", CSV.from(fabricator.getFirstEventsOfAudiosOfInstrument(instrument)

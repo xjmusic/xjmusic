@@ -537,8 +537,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     Value.requireMinimum(LENGTH_MINIMUM, record.getLength(), "Length");
     Value.require(record.getAmplitude(), "Amplitude");
     Value.requireMinimum(AMPLITUDE_MINIMUM, record.getAmplitude(), "Amplitude");
-    Value.require(record.getPitch(), "Pitch");
-    Value.requireMinimum(PITCH_MINIMUM, record.getPitch(), "Pitch");
+    Value.require(record.getNote(), "Note");
   }
 
   private void validateSegmentChoiceArrangement(SegmentChoiceArrangement.Builder record) throws ValueException {

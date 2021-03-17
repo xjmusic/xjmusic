@@ -16,7 +16,6 @@ class PutImpl implements Put {
   private final long attackMicros;
   private final long releaseMicros;
   private final double velocity;
-  private final double pitchRatio;
   private final double pan;
   private String state;
 
@@ -28,14 +27,12 @@ class PutImpl implements Put {
     @Assisted("attackMicros") long attackMicros,
     @Assisted("releaseMicros") long releaseMicros,
     @Assisted("velocity") double velocity,
-    @Assisted("pitchRatio") double pitchRatio,
     @Assisted("pan") double pan
   ) {
     this.sourceId = sourceId;
     this.startAtMicros = startAtMicros;
     this.stopAtMicros = stopAtMicros;
     this.velocity = velocity;
-    this.pitchRatio = pitchRatio;
     this.pan = pan;
     this.attackMicros = attackMicros;
     this.releaseMicros = releaseMicros;
@@ -54,12 +51,9 @@ class PutImpl implements Put {
       case PLAY:
         if (atMixOffsetMicros > stopAtMicros)
           state = DONE;
-        // [#273] Mixer can put source at a ratio of its original pitch
-        return (long) ((atMixOffsetMicros - (double) startAtMicros) / pitchRatio);
+        return (long) (atMixOffsetMicros - (double) startAtMicros);
 
       case DONE:
-        return 0;
-
       default:
         return 0;
     }
@@ -105,11 +99,6 @@ class PutImpl implements Put {
   @Override
   public double getVelocity() {
     return velocity;
-  }
-
-  @Override
-  public double getPitchRatio() {
-    return pitchRatio;
   }
 
   @Override

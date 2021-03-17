@@ -78,13 +78,6 @@ public interface Put {
   double getVelocity();
 
   /**
-   get Pitch Ratio
-
-   @return Pitch Ratio
-   */
-  double getPitchRatio();
-
-  /**
    get Pan
 
    @return Pan

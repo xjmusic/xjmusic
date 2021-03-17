@@ -20,6 +20,7 @@ import io.xj.SegmentChord;
 import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
+import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
@@ -208,7 +209,16 @@ public interface Fabricator {
 
    @return map of all previous segment meme constellations (as keys) to a collection of choices made
    */
-  Collection<SegmentChoice> getChoicesOfPreviousSegments() throws NexusException;
+  Collection<SegmentChoice> getChoicesOfPreviousSegmentsWithSameMainProgram() throws NexusException;
+
+  /**
+   Get the picks of any previous segments which selected the same main sequence
+   <p>
+   [#175947230] Artist writing detail program expects 'X' note value to result in random part creation from available Voicings
+
+   @return map of all previous segment meme constellations (as keys) to a collection of choices made
+   */
+  Collection<SegmentChoiceArrangementPick> getPicksOfPreviousSegmentsWithSameMainProgram();
 
   /**
    Get any sequence by id
@@ -287,7 +297,6 @@ public interface Fabricator {
    Get meme isometry for the current offset in this macro-choice
 
    @return MemeIsometry for macro-choice
-   @throws NexusException on failure
    */
   MemeIsometry getMemeIsometryOfCurrentMacro();
 
@@ -295,7 +304,6 @@ public interface Fabricator {
    Get meme isometry for the next offset in the previous segment's macro-choice
 
    @return MemeIsometry for previous macro-choice
-   @throws NexusException on failure
    */
   MemeIsometry getMemeIsometryOfNextSequenceInPreviousMacro();
 
@@ -703,6 +711,44 @@ public interface Fabricator {
   List<Instrument.Type> getDistinctChordVoicingTypes() throws NexusException;
 
   /**
+   Determine if program has been previously selected
+   in one of the previous segments of the current main program
+   wherein the current pattern of the selected main program
+   <p>
+   [#176468964] Rhythm and Detail choices are kept for an entire Main Program
+
+   @param programType    to get previously chosen program of
+   @param instrumentType to get previously chosen program of
+   @return detail program if previously selected, or null if none is found
+   */
+  List<String> getPreviouslyChosenProgramIds(Program.Type programType, Instrument.Type instrumentType) throws NexusException;
+
+  /**
+   Determine whether we have previously picked notes for this event in e same main program
+
+   @param programSequencePatternEventId to test for previously picked notes of
+   @return true if we have previously picked notes for this event
+   */
+  Boolean hasPreviouslyPickedNotes(String programSequencePatternEventId);
+
+  /**
+   Get the notes previously picked for this event, for the same main program
+
+   @param programSequencePatternEventId to get previous notes picked for
+   @return notes picked previously for event
+   */
+  List<Note> getPreviouslyPickedNotes(String programSequencePatternEventId);
+
+  /**
+   Remember which notes were picked for a given event
+
+   @param programSequencePatternEventId to remember notes picked for
+   @param notes                         to remember were picked
+   @return notes to pass  through for chaining method calls
+   */
+  List<Note> rememberPickedNotes(String programSequencePatternEventId, List<Note> notes);
+
+  /**
    Get the current Tuning
 
    @return Tuning
@@ -725,7 +771,7 @@ public interface Fabricator {
    @param type to get voicing threshold low of
    @return low voicing threshold
    */
-  NoteRange getVoicingNoteRange(Instrument.Type type) throws NexusException;
+  NoteRange computeVoicingNoteRange(Instrument.Type type) throws NexusException;
 
   /**
    Get the Notes from a Voicing
@@ -742,7 +788,7 @@ public interface Fabricator {
    @param segmentChoiceArrangement to get range of
    @return Note range of arrangement
    */
-  NoteRange getRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws NexusException;
+  NoteRange computeRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws NexusException;
 
   /**
    Get the first event of each audio in the instrument
@@ -774,4 +820,25 @@ public interface Fabricator {
    @return type of fabricator
    */
   Segment.Type determineType();
+
+  /**
+   [#176696738] Detail craft shifts source program events into the target range
+   <p>
+   via average of delta from source low to target low, and from source high to target high, rounded to octave
+
+   @param type        of instrument
+   @param sourceRange to compute from
+   @param targetRange to compute required # of octaves to shift into
+   @return +/- octaves required to shift from source to target range
+   */
+  int computeRangeShiftOctaves(Instrument.Type type, NoteRange sourceRange, NoteRange targetRange);
+
+  /**
+   Compute the target shift from a key toward a chord
+
+   @param fromKey to compute shift from
+   @param toChord to compute shift toward
+   @return computed target shift
+   */
+  int computeTargetShift(Key fromKey, Chord toChord);
 }

@@ -23,4 +23,8 @@ public class NoteRange {
   public Note getHigh() {
     return high;
   }
+
+  public String toString(AdjSymbol adjSymbol) {
+    return String.format("%s-%s", low.toString(adjSymbol), high.toString(adjSymbol));
+  }
 }

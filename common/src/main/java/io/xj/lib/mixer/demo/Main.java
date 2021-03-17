@@ -103,7 +103,7 @@ public interface Main {
     int iL = demoSequence.length;
     for (int n = 0; loopTimes > n; n++) {
       for (int i = 0; i < iL; i++) {
-        demoMixer.put(demoSequence[i], atMicros(n, i), atMicros(n, i + 3), attackMicros, releaseMicros, 1.0, 1.0, 0);
+        demoMixer.put(demoSequence[i], atMicros(n, i), atMicros(n, i + 3), attackMicros, releaseMicros, 1.0, 0);
       }
     }
 
