@@ -349,16 +349,6 @@ public interface Fabricator {
   String getFullQualityAudioOutputFilePath() throws NexusException;
 
   /**
-   Pitch for any Note, in Hz
-   <p>
-   [#255] Note pitch is calculated at 32-bit floating point precision, based on root note configured in environment parameters.
-
-   @param note to get pitch for
-   @return pitch of note, in Hz
-   */
-  Double getPitch(Note note);
-
-  /**
    Get all previous segments with same main program
 
    @return previous segments with ame main program
@@ -747,13 +737,6 @@ public interface Fabricator {
    @return notes to pass  through for chaining method calls
    */
   List<Note> rememberPickedNotes(String programSequencePatternEventId, List<Note> notes);
-
-  /**
-   Get the current Tuning
-
-   @return Tuning
-   */
-  Tuning getTuning();
 
   /**
    Get the mix amplitude (ratio) for the instrument type of a given pick, based on chain config

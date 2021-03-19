@@ -582,13 +582,13 @@ public class HubContentFixtures {
     // Instrument "808"
     instrument8 = IntegrationTestingFixtures.buildInstrument(library2, Instrument.Type.Percussive, Instrument.State.Published, "808 Drums");
     instrument8_meme0 = IntegrationTestingFixtures.buildInstrumentMeme(instrument8, "heavy");
-    instrument8_audio8kick = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440, 0.62);
+    instrument8_audio8kick = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62);
     instrument8_audio8kick_event0 = IntegrationTestingFixtures.buildInstrumentAudioEvent(instrument8_audio8kick, 0, 1, "KICK", "Eb1", 1.0);
-    instrument8_audio8snare = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01, 1.5, 120.0, 1200, 0.62);
+    instrument8_audio8snare = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01, 1.5, 120.0, 0.62);
     instrument8_audio8snare_event0 = IntegrationTestingFixtures.buildInstrumentAudioEvent(instrument8_audio8snare, 0, 1, "SNARE", "Ab1", 0.8);
-    instrument8_audio8bleep = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Bleep", "17350afghjkjhaskjdfjhk9758981980.wav", 0.01, 1.5, 120.0, 1200, 0.62);
+    instrument8_audio8bleep = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Bleep", "17350afghjkjhaskjdfjhk9758981980.wav", 0.01, 1.5, 120.0, 0.62);
     instrument8_audio8bleep_event0 = IntegrationTestingFixtures.buildInstrumentAudioEvent(instrument8_audio8bleep, 0, 1, "BLEEP", "Ab2", 0.8);
-    instrument8_audio8toot = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Toot", "askjdfjhk975898198017350afghjkjh.wav", 0.01, 1.5, 120.0, 1200, 0.62);
+    instrument8_audio8toot = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Toot", "askjdfjhk975898198017350afghjkjh.wav", 0.01, 1.5, 120.0, 0.62);
     instrument8_audio8toot_event0 = IntegrationTestingFixtures.buildInstrumentAudioEvent(instrument8_audio8toot, 0, 1, "TOOT", "Ab3", 0.8);
 
     // return them all

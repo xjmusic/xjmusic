@@ -3,7 +3,6 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.Account;
 import io.xj.AccountUser;
@@ -129,7 +128,6 @@ public class InstrumentAudioEventIT {
       .setStart(0)
       .setLength(2)
       .setTempo(120)
-      .setPitch(300)
       .setDensity(0.5)
       .build());
     fake.audioEvent1 = test.insert(InstrumentAudioEvent.newBuilder()
@@ -150,7 +148,6 @@ public class InstrumentAudioEventIT {
       .setStart(0)
       .setLength(2)
       .setTempo(120)
-      .setPitch(300)
       .setDensity(0.5)
       .build());
     fake.audioEvent2 = test.insert(InstrumentAudioEvent.newBuilder()

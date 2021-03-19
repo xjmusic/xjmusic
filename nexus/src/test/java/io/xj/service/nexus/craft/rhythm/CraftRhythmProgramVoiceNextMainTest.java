@@ -28,14 +28,13 @@ import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
-import io.xj.service.hub.dao.ProgramDAO;
 import io.xj.service.nexus.NexusApp;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.NexusIntegrationTestingFixtures;
 import io.xj.service.nexus.craft.CraftFactory;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.Before;
@@ -57,31 +56,26 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftRhythmProgramVoiceNextMainTest {
-  private Injector injector;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
-  private ProgramDAO programDAO;
   private NexusIntegrationTestingFixtures fake;
   private Chain chain1;
-  private Segment segment1;
-  private Segment segment2;
-  private Segment segment3;
   private Segment segment4;
   private NexusEntityStore store;
 
+  @SuppressWarnings("deprecation")
   @Rule
   public ExpectedException failure = ExpectedException.none();
 
   @Mock
   public HubClient hubClient;
-  private Instrument instrument1;
   private InstrumentAudio audioKick;
   private InstrumentAudio audioSnare;
 
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
-    injector = AppConfiguration.inject(config,
+    Injector injector = AppConfiguration.inject(config,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override
@@ -122,7 +116,7 @@ public class CraftRhythmProgramVoiceNextMainTest {
       .setChainId(chain1.getId())
       .setTargetId(fake.library2.getId())
       .build());
-    segment1 = store.put(Segment.newBuilder()
+    store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(0)
@@ -136,7 +130,7 @@ public class CraftRhythmProgramVoiceNextMainTest {
       .setStorageKey("chains-1-segments-9f7s89d8a7892")
       .setOutputEncoder("wav")
       .build());
-    segment2 = store.put(Segment.newBuilder()
+    store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(1)
@@ -160,7 +154,7 @@ public class CraftRhythmProgramVoiceNextMainTest {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    instrument1 = Entities.add(entities, Instrument.newBuilder()
+    Instrument instrument1 = Entities.add(entities, Instrument.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setLibraryId(fake.library2.getId())
       .setType(Instrument.Type.Percussive)
@@ -181,7 +175,6 @@ public class CraftRhythmProgramVoiceNextMainTest {
       .setStart(0.01)
       .setLength(2.123)
       .setTempo(120.0)
-      .setPitch(440)
       .setDensity(0.6)
       .build());
     Entities.add(entities, InstrumentAudioEvent.newBuilder()
@@ -203,7 +196,6 @@ public class CraftRhythmProgramVoiceNextMainTest {
       .setStart(0.01)
       .setLength(1.5)
       .setTempo(120.0)
-      .setPitch(1200)
       .setDensity(0.6)
       .build());
     Entities.add(entities, InstrumentAudioEvent.newBuilder()
@@ -259,7 +251,7 @@ public class CraftRhythmProgramVoiceNextMainTest {
   private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws NexusException {
     // segment just crafted
     // Testing entities for reference
-    segment3 = store.put(Segment.newBuilder()
+    Segment segment3 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(2L)

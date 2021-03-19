@@ -1041,7 +1041,6 @@ public class NexusIntegrationTestingFixtures {
       .setWaveformKey(waveformKey)
       .setStart(start)
       .setLength(length)
-      .setPitch(pitch)
       .setTempo(tempo)
       .setDensity(density)
       .build();

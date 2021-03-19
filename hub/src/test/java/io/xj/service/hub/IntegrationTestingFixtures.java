@@ -131,7 +131,7 @@ public class IntegrationTestingFixtures {
     test.insert(buildInstrumentMeme(instrument201, "Ants"));
     test.insert(buildInstrumentMeme(instrument201, "Mold"));
     //
-    instrument201_audio402 = test.insert(buildInstrumentAudio(instrument201, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01, 2.123, 120.0, 440.0, 0.62));
+    instrument201_audio402 = test.insert(buildInstrumentAudio(instrument201, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01, 2.123, 120.0, 0.62));
     test.insert(buildInstrumentAudioChord(instrument201_audio402, 0.0, "E minor"));
     test.insert(buildInstrumentAudioChord(instrument201_audio402, 4.0, "A major"));
     test.insert(buildInstrumentAudioChord(instrument201_audio402, 8.0, "B minor"));
@@ -139,7 +139,7 @@ public class IntegrationTestingFixtures {
     test.insert(buildInstrumentAudioChord(instrument201_audio402, 16.0, "Ab7"));
     test.insert(buildInstrumentAudioChord(instrument201_audio402, 20.0, "Bb7"));
     //
-    var audio401 = test.insert(buildInstrumentAudio(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440.0, 0.62));
+    var audio401 = test.insert(buildInstrumentAudio(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62));
     test.insert(buildInstrumentAudioEvent(audio401, 0.0, 1.0, "KICK", "Eb", 1.0));
     test.insert(buildInstrumentAudioEvent(audio401, 1.0, 1.0, "SNARE", "Ab", 0.8));
     test.insert(buildInstrumentAudioEvent(audio401, 2.5, 1.0, "KICK", "C", 1.0));
@@ -263,13 +263,13 @@ public class IntegrationTestingFixtures {
     test.insert(buildInstrumentMeme(instrument201, "Ants"));
     test.insert(buildInstrumentMeme(instrument201, "Mold"));
     //
-    audio401 = test.insert(buildInstrumentAudio(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440.0, 0.62));
+    audio401 = test.insert(buildInstrumentAudio(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62));
     audioEvent401a = test.insert(buildInstrumentAudioEvent(audio401, 0.0, 1.0, "KICK", "Eb", 1.0));
     test.insert(buildInstrumentAudioEvent(audio401, 1.0, 1.0, "SNARE", "Ab", 0.8));
     test.insert(buildInstrumentAudioEvent(audio401, 2.5, 1.0, "KICK", "C", 1.0));
     test.insert(buildInstrumentAudioEvent(audio401, 3.0, 1.0, "SNARE", "B", 0.8));
     //
-    var audio402 = test.insert(buildInstrumentAudio(instrument201, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01, 2.123, 120.0, 440.0, 0.62));
+    var audio402 = test.insert(buildInstrumentAudio(instrument201, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01, 2.123, 120.0, 0.62));
     test.insert(buildInstrumentAudioChord(audio402, 0.0, "E minor"));
     test.insert(buildInstrumentAudioChord(audio402, 4.0, "A major"));
     test.insert(buildInstrumentAudioChord(audio402, 8.0, "B minor"));
@@ -317,7 +317,7 @@ public class IntegrationTestingFixtures {
       .build();
   }
 
-  public static InstrumentAudio buildInstrumentAudio(Instrument instrument, String name, String waveformKey, double start, double length, double tempo, double pitch, double density) {
+  public static InstrumentAudio buildInstrumentAudio(Instrument instrument, String name, String waveformKey, double start, double length, double tempo, double density) {
     return InstrumentAudio.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setInstrumentId(instrument.getId())
@@ -325,7 +325,6 @@ public class IntegrationTestingFixtures {
       .setWaveformKey(waveformKey)
       .setStart(start)
       .setLength(length)
-      .setPitch(pitch)
       .setTempo(tempo)
       .setDensity(density)
       .build();

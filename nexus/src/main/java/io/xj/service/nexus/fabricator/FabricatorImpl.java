@@ -38,10 +38,8 @@ import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
-import io.xj.lib.music.MusicalException;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
-import io.xj.lib.music.Tuning;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
@@ -100,9 +98,6 @@ class FabricatorImpl implements Fabricator {
   private final Map<SegmentChoice, ProgramSequence> sequenceForChoice = Maps.newHashMap();
   private final SegmentWorkbench workbench;
   private final SegmentRetrospective retrospective;
-  private final Tuning tuning;
-  private final double tuningRootPitch;
-  private final String tuningRootNote;
   private final Set<String> boundProgramIds;
   private final Set<String> boundInstrumentIds;
   private final Config config;
@@ -148,14 +143,8 @@ class FabricatorImpl implements Fabricator {
       this.fabricatorFactory = fabricatorFactory;
 
       this.config = config;
-      tuningRootPitch = config.getDouble("tuning.rootPitchHz");
-      tuningRootNote = config.getString("tuning.rootNote");
       workTempFilePathPrefix = config.getString("work.tempFilePathPrefix");
       segmentNameFormat = new DecimalFormat(config.getString("work.segmentNameFormat"));
-
-      // tuning
-      tuning = computeTuning();
-      log.debug("[segId={}] Tuning {}", segment.getId(), tuning);
 
       // time
       startTime = System.nanoTime();
@@ -597,11 +586,6 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Double getPitch(Note note) {
-    return tuning.pitch(note);
-  }
-
-  @Override
   public Collection<Segment> getPreviousSegmentsWithSameMainProgram() {
     return retrospective.getSegments();
   }
@@ -913,11 +897,6 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Tuning getTuning() {
-    return tuning;
-  }
-
-  @Override
   public double getAmplitudeForInstrumentType(SegmentChoiceArrangementPick pick) {
     switch (getInstrument(pick).map(Instrument::getType).orElse(UNRECOGNIZED)) {
       case Percussive:
@@ -1195,19 +1174,6 @@ class FabricatorImpl implements Fabricator {
    */
   private Optional<ProgramSequenceBinding> getSequenceBinding(SegmentChoice choice) {
     return sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
-  }
-
-  /**
-   [#255] Tuning based on root note configured in environment parameters.
-   */
-  private Tuning computeTuning() throws NexusException {
-    try {
-      return Tuning.at(
-        Note.of(tuningRootNote),
-        tuningRootPitch);
-    } catch (MusicalException e) {
-      throw new NexusException("Could not tune XJ!", e);
-    }
   }
 
   /**

@@ -22,7 +22,7 @@ dependencies {
   implementation project(':common')
   implementation project(':hub') // FUTURE: instead of depending on hub, we use the client it publishes
   //
-  implementation 'io.xj:protocol:v0.14'
+  implementation 'io.xj:protocol:v0.15'
   // vendor
   implementation 'com.datadoghq:dd-java-agent:0.72.0'
   implementation 'ch.qos.logback:logback-classic:1.2.3'

@@ -3,7 +3,6 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.Account;
 import io.xj.AccountUser;
@@ -138,7 +137,6 @@ public class InstrumentIT {
       .setStart(0)
       .setLength(2)
       .setTempo(120)
-      .setPitch(300)
       .setDensity(0.5)
       .build());
 
@@ -329,7 +327,6 @@ public class InstrumentIT {
       .setStart(0)
       .setLength(2)
       .setTempo(120)
-      .setPitch(300)
       .setDensity(0.42)
       .build());
 
@@ -414,7 +411,6 @@ public class InstrumentIT {
       .setStart(0)
       .setLength(1)
       .setTempo(120)
-      .setPitch(300)
       .setDensity(0.6)
       .build());
     test.insert(InstrumentAudioChord.newBuilder()

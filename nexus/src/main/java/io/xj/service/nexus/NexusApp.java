@@ -1,9 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.service.nexus;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.core.status.OnConsoleStatusListener;
-import ch.qos.logback.core.status.StatusManager;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.Account;
@@ -255,7 +252,6 @@ public class NexusApp extends App {
       .withAttribute("start")
       .withAttribute("length")
       .withAttribute("amplitude")
-      .withAttribute("pitch")
       .withAttribute("name")
       .belongsTo(Segment.class)
       .belongsTo(SegmentChoiceArrangement.class)

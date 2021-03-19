@@ -24,12 +24,12 @@ import io.xj.lib.util.CSV;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.NexusException;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -51,7 +51,6 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   private final int limitSegmentReadSize;
   public static final Double LENGTH_MINIMUM = 0.01; //
   public static final Double AMPLITUDE_MINIMUM = 0.0; //
-  public static final Double PITCH_MINIMUM = 1.0; //
 
   @Inject
   public SegmentDAOImpl(

@@ -153,7 +153,6 @@ public class InstrumentAudioIT {
       .setStart(0)
       .setLength(2)
       .setTempo(120)
-      .setPitch(300)
       .setDensity(0.5)
       .build());
     fake.audioEvent1 = test.insert(InstrumentAudioEvent.newBuilder()
@@ -174,7 +173,6 @@ public class InstrumentAudioIT {
       .setStart(0)
       .setLength(2)
       .setTempo(120)
-      .setPitch(300)
       .setDensity(0.5)
       .build());
     fake.audioEvent2 = test.insert(InstrumentAudioEvent.newBuilder()
@@ -209,7 +207,6 @@ public class InstrumentAudioIT {
       .setName("maracas")
       .setStart(0.009)
       .setLength(0.21)
-      .setPitch(1567.0)
       .setTempo(80.5)
       .build();
 
@@ -226,7 +223,6 @@ public class InstrumentAudioIT {
     assertEquals(0.009, result.getStart(), 0.01);
     assertEquals(0.21, result.getLength(), 0.01);
     assertEquals(80.5, result.getTempo(), 0.01);
-    assertEquals(1567.0, result.getPitch(), 0.01);
   }
 
   public void create_FailsWithoutInstrumentID() throws Exception {
@@ -237,7 +233,6 @@ public class InstrumentAudioIT {
       .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav")
       .setStart(0.009)
       .setLength(0.21)
-      .setPitch(1567.0)
       .setTempo(80.5)
       .build();
 
@@ -260,7 +255,6 @@ public class InstrumentAudioIT {
       .setName("maracas")
       .setStart(0.009)
       .setLength(0.21)
-      .setPitch(1567.0)
       .setTempo(80.5)
       .build();
 
@@ -284,7 +278,6 @@ public class InstrumentAudioIT {
       .setDensity(0.6)
       .setStart(0.01)
       .setLength(2.0)
-      .setPitch(300.0)
       .setName("cannons fifty nine")
       .build();
     fake.audioChord1 = test.insert(InstrumentAudioChord.newBuilder()
@@ -304,7 +297,6 @@ public class InstrumentAudioIT {
     assertEquals(0.01, result.getStart(), 0.01);
     assertEquals(2.0, result.getLength(), 0.01);
     assertEquals(120.0, result.getTempo(), 0.01);
-    assertEquals(300.0, result.getPitch(), 0.01);
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(INSTRUMENT_AUDIO_EVENT)
       .where(INSTRUMENT_AUDIO_EVENT.INSTRUMENT_AUDIO_ID.eq(UUID.fromString(result.getId())))
@@ -328,7 +320,6 @@ public class InstrumentAudioIT {
     assertEquals(0.0, result.getStart(), 0.01);
     assertEquals(2.0, result.getLength(), 0.01);
     assertEquals(120.0, result.getTempo(), 0.01);
-    assertEquals(300.0, result.getPitch(), 0.01);
   }
 
   @Test
@@ -387,7 +378,6 @@ public class InstrumentAudioIT {
       .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav")
       .setStart(0.009)
       .setLength(0.21)
-      .setPitch(1567.0)
       .setTempo(80.5)
       .build();
 
@@ -407,7 +397,6 @@ public class InstrumentAudioIT {
       .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav")
       .setStart(0.009)
       .setLength(0.21)
-      .setPitch(1567.0)
       .setTempo(80.5)
       .build();
 
@@ -437,7 +426,6 @@ public class InstrumentAudioIT {
       .setName("maracas")
       .setStart(0.009)
       .setLength(0.21)
-      .setPitch(1567.0)
       .setTempo(80.5)
       .build();
 
@@ -451,7 +439,6 @@ public class InstrumentAudioIT {
     assertEquals(0.009, result.getStart(), 0.001);
     assertEquals(0.21, result.getLength(), 0.001);
     assertEquals(80.5, result.getTempo(), 0.001);
-    assertEquals(1567.0, result.getPitch(), 0.001);
   }
 
   // FUTURE test: DAO cannot update Sequence to a User or Library not owned by current session

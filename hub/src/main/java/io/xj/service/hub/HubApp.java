@@ -146,7 +146,6 @@ public class HubApp extends App {
       .withAttribute("start")
       .withAttribute("length")
       .withAttribute("tempo")
-      .withAttribute("pitch")
       .withAttribute("density")
       .belongsTo(Instrument.class)
       .hasMany(InstrumentAudioChord.class)

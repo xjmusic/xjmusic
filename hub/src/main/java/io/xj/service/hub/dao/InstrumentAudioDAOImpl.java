@@ -276,9 +276,6 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
       Value.require(builder.getTempo(), "Tempo");
       Value.requireNonZero(builder.getTempo(), "Tempo");
 
-      Value.require(builder.getPitch(), "Pitch");
-      Value.requireNonZero(builder.getPitch(), "Pitch");
-
       return builder;
 
     } catch (ValueException e) {
