@@ -175,7 +175,6 @@ CREATE TABLE xj.instrument_audio (
     start real NOT NULL,
     length real NOT NULL,
     tempo real NOT NULL,
-    pitch real NOT NULL,
     density real NOT NULL
 );
 
@@ -1044,6 +1043,7 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 44	45	drop column program instrument user id	SQL	V45__drop_column_program_instrument_user_id.sql	1859235592	root	2020-11-17 20:11:47.602271	3	t
 45	46	instrument audio waveform key optional	SQL	V46__instrument_audio_waveform_key_optional.sql	298148594	root	2020-11-19 06:24:25.644148	8	t
 46	47	update instrument types	SQL	V47__update_instrument_types.sql	-438215389	postgres	2021-01-22 03:13:34.422717	62	t
+47	48	remove pitch	SQL	V48__remove_pitch.sql	-2076774207	postgres	2021-03-19 04:10:28.345175	20	t
 \.
 
 
