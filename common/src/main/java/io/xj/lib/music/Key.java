@@ -190,4 +190,12 @@ public class Key extends IntervalPitchGroup {
     this.name = name;
     return this;
   }
+
+  /**
+   Whether this Key is null
+   @return true if non-null
+   */
+  public boolean isPresent() {
+    return Objects.nonNull(root);
+  }
 }

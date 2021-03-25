@@ -49,11 +49,11 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildInstrument;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildInstrumentAudio;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildInstrumentAudioEvent;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChain;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeInstrument;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeAudio;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeEvent;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeMeme;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
@@ -112,7 +112,7 @@ public class CraftRhythmProgramVoiceContinueTest {
       ).collect(Collectors.toList())));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(buildChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    chain1 = store.put(makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
     store.put(ChainBinding.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
@@ -157,14 +157,14 @@ public class CraftRhythmProgramVoiceContinueTest {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    instrument1 = Entities.add(entities, buildInstrument(fake.library2, Instrument.Type.Percussive, Instrument.State.Published, "808 Drums"));
-    Entities.add(entities, buildInstrumentMeme(instrument1, "heavy"));
+    instrument1 = Entities.add(entities, makeInstrument(fake.library2, Instrument.Type.Percussive, Instrument.State.Published, "808 Drums"));
+    Entities.add(entities, makeMeme(instrument1, "heavy"));
     //
-    audioKick = Entities.add(entities, buildInstrumentAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440, 0.6));
-    Entities.add(entities, buildInstrumentAudioEvent(audioKick, 0, 1, "KICK", "Eb", 1.0));
+    audioKick = Entities.add(entities, makeAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.6));
+    Entities.add(entities, makeEvent(audioKick, 0, 1, "KICK", "Eb", 1.0));
     //
-    audioSnare = Entities.add(entities, buildInstrumentAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01, 1.5, 120.0, 1200, 0.6));
-    Entities.add(entities, buildInstrumentAudioEvent(audioSnare, 1, 1, "SNARE", "Ab", 1.0));
+    audioSnare = Entities.add(entities, makeAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01, 1.5, 120.0, 0.6));
+    Entities.add(entities, makeEvent(audioSnare, 1, 1, "SNARE", "Ab", 1.0));
 
     return entities;
   }

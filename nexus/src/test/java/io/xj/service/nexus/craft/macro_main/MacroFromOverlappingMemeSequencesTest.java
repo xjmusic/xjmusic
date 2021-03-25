@@ -25,6 +25,7 @@ import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
 import io.xj.service.nexus.NexusApp;
+import io.xj.service.nexus.NexusIntegrationTestingFixtures;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import io.xj.service.nexus.persistence.NexusEntityStore;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
@@ -40,18 +41,18 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.time.Instant;
 import java.util.UUID;
 
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildAccount;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildAccountUser;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildLibrary;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildProgram;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildProgramMeme;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildProgramSequence;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildProgramSequenceBinding;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildProgramSequenceBindingMeme;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildUser;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildUserRole;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeAccount;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeAccountUser;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChain;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeLibrary;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeProgram;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeMeme;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeSequence;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeBinding;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeMeme;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChoice;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeUser;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -98,43 +99,43 @@ public class MacroFromOverlappingMemeSequencesTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     // Account "bananas"
-    Account account1 = buildAccount("bananas");
-    Library library2 = buildLibrary(account1, "house");
-    User user2 = buildUser("john", "john@email.com", "http://pictures.com/john.gif");
-    UserRole userRole2a = buildUserRole(user2, UserRole.Type.Admin);
-    User user3 = buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    UserRole userRole3a = buildUserRole(user3, UserRole.Type.User);
-    AccountUser accountUser1a = buildAccountUser(account1, user3);
+    Account account1 = NexusIntegrationTestingFixtures.makeAccount("bananas");
+    Library library2 = makeLibrary(account1, "house");
+    User user2 = makeUser("john", "john@email.com", "http://pictures.com/john.gif");
+    UserRole userRole2a = makeUserRole(user2, UserRole.Type.Admin);
+    User user3 = makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    UserRole userRole3a = makeUserRole(user3, UserRole.Type.User);
+    AccountUser accountUser1a = makeAccountUser(account1, user3);
 
     // Macro Program already chosen for previous segment
-    var macro1 = buildProgram(library2, Program.Type.Macro, Program.State.Published, "Chosen Macro", "C", 120.0, 0.6);
-    var macro1_meme = buildProgramMeme(macro1, "Tropical");
-    var macro1_sequenceA = buildProgramSequence(macro1, 0, "Start Wild", 0.6, "C", 125.0);
-    var macro1_sequenceA_binding = buildProgramSequenceBinding(macro1_sequenceA, 0);
-    var macro1_sequenceA_bindingMeme = buildProgramSequenceBindingMeme(macro1_sequenceA_binding, "Red");
-    macro1_sequenceB = buildProgramSequence(macro1, 0, "Intermediate", 0.4, "Bb minor", 115.0);
-    var macro1_sequenceB_binding = buildProgramSequenceBinding(macro1_sequenceB, 1);
-    var macro1_sequenceB_bindingMeme = buildProgramSequenceBindingMeme(macro1_sequenceB_binding, "Green");
+    var macro1 = makeProgram(library2, Program.Type.Macro, Program.State.Published, "Chosen Macro", "C", 120.0, 0.6);
+    var macro1_meme = NexusIntegrationTestingFixtures.makeMeme(macro1, "Tropical");
+    var macro1_sequenceA = makeSequence(macro1, 0, "Start Wild", 0.6, "C", 125.0);
+    var macro1_sequenceA_binding = makeBinding(macro1_sequenceA, 0);
+    var macro1_sequenceA_bindingMeme = makeMeme(macro1_sequenceA_binding, "Red");
+    macro1_sequenceB = makeSequence(macro1, 0, "Intermediate", 0.4, "Bb minor", 115.0);
+    var macro1_sequenceB_binding = makeBinding(macro1_sequenceB, 1);
+    var macro1_sequenceB_bindingMeme = makeMeme(macro1_sequenceB_binding, "Green");
 
     // Main Program already chosen for previous segment
-    var main5 = buildProgram(library2, Program.Type.Main, Program.State.Published, "Chosen Main", "C", 120.0, 0.6);
-    var main5_meme = buildProgramMeme(main5, "Tropical");
-    var main5_sequenceA = buildProgramSequence(main5, 0, "Start Wild", 0.6, "C", 125.0);
-    ProgramSequenceBinding main5_sequenceA_binding = buildProgramSequenceBinding(main5_sequenceA, 0);
+    var main5 = makeProgram(library2, Program.Type.Main, Program.State.Published, "Chosen Main", "C", 120.0, 0.6);
+    var main5_meme = NexusIntegrationTestingFixtures.makeMeme(main5, "Tropical");
+    var main5_sequenceA = makeSequence(main5, 0, "Start Wild", 0.6, "C", 125.0);
+    ProgramSequenceBinding main5_sequenceA_binding = makeBinding(main5_sequenceA, 0);
 
     // Macro Program will be chosen because of matching meme
-    macro2a = buildProgram(library2, Program.Type.Macro, Program.State.Published, "Always Chosen", "C", 120.0, 0.6);
-    var macro2a_meme = buildProgramMeme(macro2a, "Tropical");
-    var macro2a_sequenceA = buildProgramSequence(macro2a, 0, "Start Wild", 0.6, "C", 125.0);
-    var macro2a_sequenceA_binding = buildProgramSequenceBinding(macro2a_sequenceA, 0);
-    var macro2a_sequenceA_bindingMeme = buildProgramSequenceBindingMeme(macro2a_sequenceA_binding, "Green");
+    macro2a = makeProgram(library2, Program.Type.Macro, Program.State.Published, "Always Chosen", "C", 120.0, 0.6);
+    var macro2a_meme = NexusIntegrationTestingFixtures.makeMeme(macro2a, "Tropical");
+    var macro2a_sequenceA = makeSequence(macro2a, 0, "Start Wild", 0.6, "C", 125.0);
+    var macro2a_sequenceA_binding = makeBinding(macro2a_sequenceA, 0);
+    var macro2a_sequenceA_bindingMeme = makeMeme(macro2a_sequenceA_binding, "Green");
 
     // Macro Program will NEVER be chosen because of non-matching meme
-    var macro2b = buildProgram(library2, Program.Type.Macro, Program.State.Published, "Never Chosen", "C", 120.0, 0.6);
-    var macro2b_meme = buildProgramMeme(macro2a, "Tropical");
-    var macro2b_sequenceA = buildProgramSequence(macro2a, 0, "Start Wild", 0.6, "C", 125.0);
-    var macro2b_sequenceA_binding = buildProgramSequenceBinding(macro2b_sequenceA, 0);
-    var macro2b_sequenceA_bindingMeme = buildProgramSequenceBindingMeme(macro2b_sequenceA_binding, "Purple");
+    var macro2b = makeProgram(library2, Program.Type.Macro, Program.State.Published, "Never Chosen", "C", 120.0, 0.6);
+    var macro2b_meme = NexusIntegrationTestingFixtures.makeMeme(macro2a, "Tropical");
+    var macro2b_sequenceA = makeSequence(macro2a, 0, "Start Wild", 0.6, "C", 125.0);
+    var macro2b_sequenceA_binding = makeBinding(macro2b_sequenceA, 0);
+    var macro2b_sequenceA_bindingMeme = makeMeme(macro2b_sequenceA_binding, "Purple");
 
     when(hubClient.ingest(any(), any(), any(), any())).thenReturn(new HubContent(ImmutableList.of(
       account1,
@@ -169,7 +170,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     )));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(buildChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    Chain chain1 = store.put(makeChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
     store.put(ChainBinding.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
@@ -190,8 +191,8 @@ public class MacroFromOverlappingMemeSequencesTest {
       .setStorageKey("chains-1-segments-9f7s89d8a7892")
       .setOutputEncoder("wav")
       .build());
-    store.put(buildSegmentChoice(segment1, Program.Type.Macro, macro1_sequenceA_binding));
-    store.put(buildSegmentChoice(segment1, Program.Type.Main, main5_sequenceA_binding));
+    store.put(NexusIntegrationTestingFixtures.makeChoice(segment1, Program.Type.Macro, macro1_sequenceA_binding));
+    store.put(NexusIntegrationTestingFixtures.makeChoice(segment1, Program.Type.Main, main5_sequenceA_binding));
 
     Segment segment2 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())

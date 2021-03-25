@@ -22,6 +22,7 @@ import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubClientModule;
 import io.xj.service.nexus.NexusApp;
+import io.xj.service.nexus.NexusIntegrationTestingFixtures;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.NexusDAOModule;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
@@ -43,7 +44,7 @@ import java.util.UUID;
 
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static io.xj.service.hub.client.HubClientAccess.CONTEXT_KEY;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildHubClientAccess;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeHubClientAccess;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -86,7 +87,7 @@ public class ChainEndpointTest {
     account25 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
-    access = buildHubClientAccess(ImmutableList.of(account25), "User,Artist");
+    access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account25), "User,Artist");
     subject = injector.getInstance(ChainEndpoint.class);
     injector.injectMembers(subject);
   }

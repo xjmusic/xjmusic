@@ -24,7 +24,6 @@ import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
-import io.xj.lib.music.Tuning;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
 import io.xj.service.hub.dao.InstrumentConfig;
@@ -106,7 +105,7 @@ public interface Fabricator {
    @param position in segment
    @return ChordEntity
    */
-  Optional<SegmentChord> getChordAt(int position);
+  Optional<SegmentChord> getChordAt(double position);
 
   /**
    Get the Messages for the current segment in the chain
@@ -150,6 +149,8 @@ public interface Fabricator {
 
   /**
    Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
+   <p>
+   [#176474164] If Sequence has no key/tempo/density inherit from Program
 
    @param choice to get key for
    @return key of specified sequence/program via choice
@@ -714,29 +715,32 @@ public interface Fabricator {
   List<String> getPreviouslyChosenProgramIds(Program.Type programType, Instrument.Type instrumentType) throws NexusException;
 
   /**
-   Determine whether we have previously picked notes for this event in e same main program
+   Determine whether we have previously picked notes for this event and chord in the same main program
 
    @param programSequencePatternEventId to test for previously picked notes of
+   @param chordName to test for previously picked notes of
    @return true if we have previously picked notes for this event
    */
-  Boolean hasPreviouslyPickedNotes(String programSequencePatternEventId);
+  Boolean hasPreviouslyPickedNotes(String programSequencePatternEventId, String chordName);
 
   /**
    Get the notes previously picked for this event, for the same main program
 
    @param programSequencePatternEventId to get previous notes picked for
+   @param segmentChordName to test for previously picked notes of
    @return notes picked previously for event
    */
-  List<Note> getPreviouslyPickedNotes(String programSequencePatternEventId);
+  List<Note> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName);
 
   /**
    Remember which notes were picked for a given event
 
    @param programSequencePatternEventId to remember notes picked for
+   @param chordName                to remember notes picked for
    @param notes                         to remember were picked
    @return notes to pass  through for chaining method calls
    */
-  List<Note> rememberPickedNotes(String programSequencePatternEventId, List<Note> notes);
+  List<Note> rememberPickedNotes(String programSequencePatternEventId, String chordName, List<Note> notes);
 
   /**
    Get the mix amplitude (ratio) for the instrument type of a given pick, based on chain config

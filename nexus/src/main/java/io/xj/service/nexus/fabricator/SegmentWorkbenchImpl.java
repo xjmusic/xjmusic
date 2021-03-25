@@ -109,7 +109,6 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     return segmentChords;
   }
 
-
   @Override
   public Collection<SegmentChordVoicing> getSegmentChordVoicings() {
     return bench.getAll(SegmentChordVoicing.class);

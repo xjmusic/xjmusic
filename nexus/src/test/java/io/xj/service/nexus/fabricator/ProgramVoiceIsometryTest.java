@@ -8,7 +8,7 @@ import io.xj.ProgramVoice;
 import org.junit.Before;
 import org.junit.Test;
 
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildProgramVoice;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeVoice;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -19,8 +19,8 @@ public class ProgramVoiceIsometryTest {
   @Before
   public void setUp() {
     Program program1 = Program.newBuilder().build();
-    programVoice1a = buildProgramVoice(program1, Instrument.Type.Pad, "Super Cool");
-    programVoice1b = buildProgramVoice(program1, Instrument.Type.Pad, "Very Interesting");
+    programVoice1a = makeVoice(program1, Instrument.Type.Pad, "Super Cool");
+    programVoice1b = makeVoice(program1, Instrument.Type.Pad, "Very Interesting");
   }
 
   @Test

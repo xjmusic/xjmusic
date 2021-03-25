@@ -42,7 +42,7 @@ public interface SegmentWorkbench {
   /**
    @return collection of all ChoiceArrangement in Segment
    */
-  Collection<SegmentChoiceArrangement> getSegmentArrangements() ;
+  Collection<SegmentChoiceArrangement> getSegmentArrangements();
 
   /**
    @return collection of all Choice in Segment
@@ -57,7 +57,7 @@ public interface SegmentWorkbench {
   /**
    @return collection of all ChordVoicing in Segment
    */
-  Collection<SegmentChordVoicing> getSegmentChordVoicings() ;
+  Collection<SegmentChordVoicing> getSegmentChordVoicings();
 
   /**
    @return collection of all Meme in Segment
@@ -72,7 +72,7 @@ public interface SegmentWorkbench {
   /**
    @return collection of all ChoiceArrangementPick in Segment
    */
-  Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() ;
+  Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks();
 
   /**
    Put a key-value pair into the report
@@ -92,8 +92,8 @@ public interface SegmentWorkbench {
   /**
    Get the choice of a given type
 
-   @return choice of given type
    @param type of choice to get
+   @return choice of given type
    */
   Optional<SegmentChoice> getChoiceOfType(Program.Type type);
 
@@ -103,7 +103,7 @@ public interface SegmentWorkbench {
    @param type of choice to get
    @return choices of a given type
    */
-  Collection<SegmentChoice> getChoicesOfType(Program.Type type) ;
+  Collection<SegmentChoice> getChoicesOfType(Program.Type type);
 
   /**
    Get the Chain this Segment Workbench is working within

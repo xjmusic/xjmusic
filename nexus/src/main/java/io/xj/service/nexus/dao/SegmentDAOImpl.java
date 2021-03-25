@@ -528,6 +528,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
 
   private void validateSegmentChoiceArrangementPick(SegmentChoiceArrangementPick.Builder record) throws ValueException {
     Value.require(record.getSegmentId(), "Segment ID");
+    Value.require(record.getSegmentChordName(), "Segment Chord Name");
     Value.require(record.getSegmentChoiceArrangementId(), "Arrangement ID");
     Value.require(record.getProgramSequencePatternEventId(), "Pattern Event ID");
     Value.require(record.getInstrumentAudioId(), "Audio ID");

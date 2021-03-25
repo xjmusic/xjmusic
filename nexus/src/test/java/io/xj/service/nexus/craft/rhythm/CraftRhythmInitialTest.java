@@ -40,8 +40,8 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChord;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeMeme;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -136,10 +136,10 @@ public class CraftRhythmInitialTest {
       .setProgramType(Program.Type.Main)
             .build());
     for (String memeName : ImmutableList.of("Special", "Wild", "Pessimism", "Outlook"))
-      store.put(buildSegmentMeme(segment6, memeName));
+      store.put(makeMeme(segment6, memeName));
 
-    store.put(buildSegmentChord(segment6, 0.0, "C minor"));
-    store.put(buildSegmentChord(segment6, 8.0, "Db minor"));
+    store.put(makeChord(segment6, 0.0, "C minor"));
+    store.put(makeChord(segment6, 8.0, "Db minor"));
   }
 
   @After

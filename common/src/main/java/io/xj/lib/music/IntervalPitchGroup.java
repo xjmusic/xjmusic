@@ -173,4 +173,5 @@ public abstract class IntervalPitchGroup {
     }
     return offsetStrings;
   }
+
 }

@@ -65,7 +65,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // voice arrangements
     if (rhythmSequence.isPresent())
       for (ProgramVoice voice : fabricator.getSourceMaterial().getVoices(rhythmProgram.get()))
-        craftArrangementForRhythmVoice(rhythmSequence.get(), rhythmChoice, voice);
+        craftArrangementForRhythmVoice(rhythmProgram.get(), rhythmSequence.get(), rhythmChoice, voice);
 
     // Finally, update the segment with the crafted content
     fabricator.done();
@@ -165,11 +165,12 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    craft segment events for one rhythm voice
    [#176468964] Rhythm and Detail choices are kept for an entire Main Program
 
-   @param voice to craft events for
+   @param program whose events to craft from
+   @param voice   to craft events for
    @throws NexusException on failure
    */
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "craftArrangementForRhythmVoice")
-  private void craftArrangementForRhythmVoice(ProgramSequence sequence, SegmentChoice choice, ProgramVoice voice) throws NexusException {
+  private void craftArrangementForRhythmVoice(Program program, ProgramSequence sequence, SegmentChoice choice, ProgramVoice voice) throws NexusException {
     Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentId(voice.getId());
     if (instrumentId.isEmpty()) {
       var instrument = chooseFreshPercussiveInstrument(voice);
@@ -186,7 +187,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
       .setInstrumentId(instrumentId.get())
       .build());
 
-    craftArrangementForVoiceSection(null, sequence, arrangement, voice, 0, fabricator.getSegment().getTotal());
+    craftArrangementForVoice(program, sequence, voice, arrangement);
   }
 
   /**

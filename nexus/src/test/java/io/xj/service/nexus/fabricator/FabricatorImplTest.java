@@ -17,6 +17,7 @@ import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreModule;
@@ -256,6 +257,12 @@ public class FabricatorImplTest {
       .setTargetId(fake.library2.getId())
       .setType(ChainBinding.Type.Library)
       .build());
+    var chord0 = store.put(SegmentChord.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment.getId())
+      .setName("A")
+      .setPosition(0)
+      .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment.getId())
@@ -279,6 +286,7 @@ public class FabricatorImplTest {
       SegmentChoiceArrangementPick.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(rhythmArrangement.getSegmentId())
+        .setSegmentChordName(chord0.getName())
         .setSegmentChoiceArrangementId(rhythmArrangement.getId())
         .setProgramSequencePatternEventId(fake.program35_sequence0_pattern0_event0.getId())
         .setInstrumentAudioId(fake.instrument8_audio8kick.getId())
@@ -555,6 +563,71 @@ public class FabricatorImplTest {
     var result = subject.getMemeIsometryOfNextSequenceInPreviousMacro();
 
     assertEquals(ImmutableList.of("tropic", "cozi"), result.getSources());
+  }
+
+  @Test
+  public void getChordAt() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+    var chain = store.put(Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(UUID.randomUUID().toString())
+      .setName("test")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2017-12-12T01:00:08.000000Z")
+      .setConfig("outputEncoding=\"PCM_SIGNED\"")
+      .build());
+    Segment segment = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain.getId())
+      .setOffset(2)
+      .setState(Segment.State.Crafting)
+      .setBeginAt("2017-12-12T01:00:16.000000Z")
+      .setEndAt("2017-12-12T01:00:22.000000Z")
+      .setKey("G major")
+      .setTotal(8)
+      .setDensity(0.6)
+      .setTempo(240)
+      .setStorageKey("seg123.ogg")
+      .build());
+    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
+      .thenReturn(mockSegmentRetrospective);
+    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
+      .thenReturn(mockSegmentWorkbench);
+    when(mockSegmentWorkbench.getSegmentChords())
+      .thenReturn(ImmutableList.of(
+        SegmentChord.newBuilder()
+          .setId(UUID.randomUUID().toString())
+          .setSegmentId(segment.getId())
+          .setName("C")
+          .setPosition(0)
+          .build(),
+        SegmentChord.newBuilder()
+          .setId(UUID.randomUUID().toString())
+          .setSegmentId(segment.getId())
+          .setName("F")
+          .setPosition(2)
+          .build(),
+        SegmentChord.newBuilder()
+          .setId(UUID.randomUUID().toString())
+          .setSegmentId(segment.getId())
+          .setName("Gm")
+          .setPosition(5.5)
+          .build()
+      ));
+    var access = HubClientAccess.internal();
+    when(mockSegmentWorkbench.getSegment())
+      .thenReturn(segment);
+    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
+
+    assertEquals("C", subject.getChordAt(0).orElseThrow().getName());
+    assertEquals("C", subject.getChordAt(1).orElseThrow().getName());
+    assertEquals("F", subject.getChordAt(2).orElseThrow().getName());
+    assertEquals("F", subject.getChordAt(3).orElseThrow().getName());
+    assertEquals("F", subject.getChordAt(5).orElseThrow().getName());
+    assertEquals("Gm", subject.getChordAt(5.5).orElseThrow().getName());
+    assertEquals("Gm", subject.getChordAt(6).orElseThrow().getName());
+    assertEquals("Gm", subject.getChordAt(7.5).orElseThrow().getName());
   }
 
 }

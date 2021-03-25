@@ -20,6 +20,7 @@ import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
 import io.xj.service.nexus.NexusApp;
+import io.xj.service.nexus.NexusIntegrationTestingFixtures;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
@@ -39,17 +40,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildAccount;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildChainBinding;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildHubClientAccess;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildInstrument;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildLibrary;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildProgram;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildProgramSequence;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildProgramSequenceBinding;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildUser;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeAccount;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChain;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeBinding;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeHubClientAccess;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeInstrument;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeLibrary;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeProgram;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeSequence;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeBinding;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeSegment;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeUser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -93,12 +94,12 @@ public class ChainDAOImplTest {
       .setId(UUID.randomUUID().toString())
       .setName("fish")
       .build();
-    library1 = buildLibrary(account1, "test");
-    library2 = buildLibrary(account1, "test");
-    User user3 = buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    Program program1 = buildProgram(library2, Program.Type.Rhythm, Program.State.Published, "fonds", "C#", 0.286, 0.6);
-    var sequence1 = buildProgramSequence(program1, 16, "epic beat part 1", 0.342, "C#", 0.286);
-    var binding1_0 = buildProgramSequenceBinding(sequence1, 0);
+    library1 = makeLibrary(account1, "test");
+    library2 = makeLibrary(account1, "test");
+    User user3 = makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    Program program1 = makeProgram(library2, Program.Type.Rhythm, Program.State.Published, "fonds", "C#", 0.286, 0.6);
+    var sequence1 = makeSequence(program1, 16, "epic beat part 1", 0.342, "C#", 0.286);
+    var binding1_0 = makeBinding(sequence1, 0);
     hubContent = new HubContent(ImmutableSet.of(
       program1,
       sequence1,
@@ -106,9 +107,9 @@ public class ChainDAOImplTest {
     ));
 
     // Payload comprising Nexus entities
-    chain1 = test.put(buildChain(account1, "school", Chain.Type.Production, Chain.State.Ready,
+    chain1 = test.put(makeChain(account1, "school", Chain.Type.Production, Chain.State.Ready,
       Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
-    chain2 = test.put(buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Fabricate,
+    chain2 = test.put(makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Fabricate,
       Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null));
 
     // Instantiate the test subject
@@ -120,7 +121,7 @@ public class ChainDAOImplTest {
    */
   @Test
   public void bootstrap() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -146,7 +147,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void create() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -170,7 +171,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void create_failsWithInvalidConfig() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -190,7 +191,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void create_withEmbedKey() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -216,11 +217,11 @@ public class ChainDAOImplTest {
 
   @Test
   public void create_withEmbedKey_failsIfEmbedKeyAlreadyExists() throws Exception {
-    var first = buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "my_favorite_things");
-    var second = buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "my_favorite_things");
+    var first = makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "my_favorite_things");
+    var second = makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "my_favorite_things");
     when(hubClient.ingest(any(), eq(ImmutableSet.of(library2.getId())), eq(ImmutableSet.of()), eq(ImmutableSet.of())))
       .thenReturn(hubContent);
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     subject.create(access, first);
 
     failure.expect(DAOValidationException.class);
@@ -231,7 +232,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void create_PreviewType() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -255,7 +256,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void create_PreviewType_asArtist() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "Artist");
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "Artist");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -277,7 +278,7 @@ public class ChainDAOImplTest {
   @Test
   // [#126] Chains are always readMany in DRAFT state
   public void create_createdInDraftState() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -301,7 +302,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void create_WithoutStopAt() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -324,7 +325,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void create_WithEmptyStopAt() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -347,7 +348,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void create_FailsWithoutAccountID() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setName("coconuts")
       .setState(Chain.State.Draft)
@@ -364,7 +365,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(Account.newBuilder()
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build()), "User");
     failure.expect(DAOPrivilegeException.class);
@@ -375,7 +376,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     var result = subject.readOne(access, chain2.getId());
 
@@ -394,7 +395,7 @@ public class ChainDAOImplTest {
    */
   @Test
   public void readOne_byEmbedKey_unauthenticatedOk() throws Exception {
-    var chain = subject.create(HubClientAccess.internal(), buildChain(account1, "cats test", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "cats"));
+    var chain = subject.create(HubClientAccess.internal(), makeChain(account1, "cats test", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "cats"));
     HubClientAccess access = HubClientAccess.unauthenticated();
 
     var result = subject.readOneByEmbedKey(access, "cats");
@@ -412,7 +413,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void readOneJSONObject_FailsWhenUserIsNotInAccount() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(Account.newBuilder()
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build()), "User");
     failure.expect(DAOPrivilegeException.class);
@@ -423,7 +424,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void readMany() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Artist");
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Artist");
 
     Collection<Chain> result = subject.readMany(access, ImmutableList.of(account1.getId()));
 
@@ -432,8 +433,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void readMany_excludesChainsInFabricateState() throws Exception {
-    buildChain(account1, "sham", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null);
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User");
+    makeChain(account1, "sham", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null);
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User");
 
     Collection<Chain> result = subject.readMany(access, ImmutableList.of(account1.getId()));
 
@@ -453,7 +454,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(Account.newBuilder()
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build()), "User");
 
@@ -465,7 +466,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void update() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -490,7 +491,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_cantChangeEndOfPreviewChain() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var previewChain = test.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -524,7 +525,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_addEmbedKey() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -551,8 +552,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_removeEmbedKey() throws Exception {
-    var chain3 = test.put(buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "twenty_four_hours"));
-    HubClientAccess access = buildHubClientAccess("Admin");
+    var chain3 = test.put(makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "twenty_four_hours"));
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -579,8 +580,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_addEmbedKey_failsIfEmbedKeyAlreadyExists() throws Exception {
-    test.put(buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "twenty_four_hours"));
-    HubClientAccess access = buildHubClientAccess("Admin");
+    test.put(makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "twenty_four_hours"));
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -600,8 +601,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_okayWithEmbedKey() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
-    var chain = test.put(buildChain(account1, "school", Chain.Type.Production, Chain.State.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
+    HubClientAccess access = makeHubClientAccess("Admin");
+    var chain = test.put(makeChain(account1, "school", Chain.Type.Production, Chain.State.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -629,7 +630,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_cannotChangeType() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -648,19 +649,19 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_outOfDraft_failsWithNoBindings() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "Admin");
-    var chain = test.put(buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "Admin");
+    var chain = test.put(makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
 
     failure.expect(DAOValidationException.class);
     failure.expectMessage("Chain must be bound to at least one Library, Sequence, or Instrument");
 
-    subject.update(access, chain.getId(), buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Ready, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
+    subject.update(access, chain.getId(), makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Ready, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
   }
 
   @Test
   public void updateState_outOfDraft_failsWithNoBindings() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
-    var chain = test.put(buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
+    var chain = test.put(makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
 
     failure.expect(DAOValidationException.class);
     failure.expectMessage("Chain must be bound to at least one Library, Sequence, or Instrument");
@@ -670,7 +671,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_failsToChangeStartAt_whenChainsHasSegment() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     test.put(ChainBinding.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain2.getId())
@@ -708,7 +709,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_canChangeName_whenChainsHasSegment() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     test.put(ChainBinding.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain2.getId())
@@ -753,7 +754,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_RemoveStopAt() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -777,7 +778,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_FailsWithoutAccountID() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setName("coconuts")
       .setState(Chain.State.Fabricate)
@@ -794,7 +795,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_FailsWithoutName() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -812,7 +813,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_failsWithInvalidConfig() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -832,7 +833,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_withValidConfig() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -849,7 +850,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_CannotChangeAccount() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -869,7 +870,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void updateState() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
+    HubClientAccess access = makeHubClientAccess("Internal");
 
     subject.updateState(access, chain2.getId(), Chain.State.Complete);
 
@@ -880,7 +881,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void updateState_WithoutAccountAccess_Fails() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(Account.newBuilder()
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build()), "User");
 
@@ -892,7 +893,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void updateState_WithAccountAccess() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     subject.updateState(access, chain2.getId(), Chain.State.Complete);
 
@@ -903,7 +904,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void updateState_WithAccountAccess_FailsWithoutEngineerRole_ForProductionChain() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User");
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User");
 
     failure.expect(DAOPrivilegeException.class);
     failure.expectMessage("Engineer role is required");
@@ -913,8 +914,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void updateState_WithAccountAccess_FailsWithoutArtistOrEngineerRole_ForPreviewChain() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User");
-    var chain3 = test.put(buildChain(account1, "bucket", Chain.Type.Preview, Chain.State.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null));
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User");
+    var chain3 = test.put(makeChain(account1, "bucket", Chain.Type.Preview, Chain.State.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null));
 
     failure.expect(DAOPrivilegeException.class);
     failure.expectMessage("Engineer/Artist role is required");
@@ -924,8 +925,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void update_outOfDraft_WithoutEntitiesBound_Fails() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
-    var chain3 = test.put(buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null)).toBuilder()
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
+    var chain3 = test.put(makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null)).toBuilder()
       .setState(Chain.State.Ready)
       .build();
 
@@ -937,8 +938,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void updateState_outOfDraft_WithoutEntitiesBound_Fails() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
-    var chain3 = test.put(buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
+    var chain3 = test.put(makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
 
     failure.expect(DAOValidationException.class);
     failure.expectMessage("Chain must be bound to at least one Library, Sequence, or Instrument");
@@ -948,9 +949,9 @@ public class ChainDAOImplTest {
 
   @Test
   public void updateState_outOfDraft_BoundToLibrary() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
-    var chain = test.put(buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
-    library2 = buildLibrary(account1, "pajamas");
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
+    var chain = test.put(makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
+    library2 = makeLibrary(account1, "pajamas");
     test.put(ChainBinding.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain.getId())
@@ -967,15 +968,15 @@ public class ChainDAOImplTest {
 
   @Test
   public void updateState_outOfDraft_BoundToSequence() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
-    user3 = buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
+    user3 = makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     library2 = Library.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
       .setName("pajamas")
       .build();
-    Program program = buildProgram(library2, Program.Type.Rhythm, Program.State.Published, "fonds", "C#", 0.286, 0.6);
-    var chain = test.put(buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
+    Program program = makeProgram(library2, Program.Type.Rhythm, Program.State.Published, "fonds", "C#", 0.286, 0.6);
+    var chain = test.put(makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
     test.put(ChainBinding.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain.getId())
@@ -992,14 +993,14 @@ public class ChainDAOImplTest {
 
   @Test
   public void updateState_outOfDraft_BoundToMultipleSequences() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
-    user3 = buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    library2 = buildLibrary(account1, "pajamas");
-    var chain = test.put(buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
-    test.put(buildChainBinding(chain, buildProgram(library2, Program.Type.Main, Program.State.Published, "fonds", "C#", 120.0, 0.6)));
-    test.put(buildChainBinding(chain, buildProgram(library2, Program.Type.Macro, Program.State.Published, "trees A to B", "D#", 120.0, 0.6)));
-    test.put(buildChainBinding(chain, buildProgram(library2, Program.Type.Macro, Program.State.Published, "trees B to A", "F", 120.0, 0.6)));
-    test.put(buildChainBinding(chain, buildProgram(library2, Program.Type.Rhythm, Program.State.Published, "beets", "C", 120.0, 0.6)));
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
+    user3 = makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    library2 = makeLibrary(account1, "pajamas");
+    var chain = test.put(makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeProgram(library2, Program.Type.Main, Program.State.Published, "fonds", "C#", 120.0, 0.6)));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeProgram(library2, Program.Type.Macro, Program.State.Published, "trees A to B", "D#", 120.0, 0.6)));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeProgram(library2, Program.Type.Macro, Program.State.Published, "trees B to A", "F", 120.0, 0.6)));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeProgram(library2, Program.Type.Rhythm, Program.State.Published, "beets", "C", 120.0, 0.6)));
 
     subject.updateState(access, chain.getId(), Chain.State.Ready);
 
@@ -1010,11 +1011,11 @@ public class ChainDAOImplTest {
 
   @Test
   public void updateState_outOfDraft_BoundToInstrument() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
-    user3 = buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    var chain = test.put(buildChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
-    library2 = buildLibrary(account1, "pajamas");
-    test.put(buildChainBinding(chain, buildInstrument(library2, Instrument.Type.Pad, Instrument.State.Published, "fonds")));
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
+    user3 = makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    var chain = test.put(makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
+    library2 = makeLibrary(account1, "pajamas");
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeInstrument(library2, Instrument.Type.Pad, Instrument.State.Published, "fonds")));
 
     subject.updateState(access, chain.getId(), Chain.State.Ready);
 
@@ -1029,11 +1030,11 @@ public class ChainDAOImplTest {
    */
   @Test
   public void revive() throws Exception {
-    var account2 = buildAccount();
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1, account2), "User,Admin,Artist,Engineer");
+    var account2 = makeAccount();
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1, account2), "User,Admin,Artist,Engineer");
 
-    var chain = test.put(buildChain(account1, "school", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
-    test.put(buildChainBinding(chain, buildLibrary(account1, "pajamas")));
+    var chain = test.put(makeChain(account1, "school", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeLibrary(account1, "pajamas")));
 
     var result = subject.revive(access, chain.getId(), "Testing");
 
@@ -1057,7 +1058,7 @@ public class ChainDAOImplTest {
    */
   @Test
   public void revive_failsIfNotExistPriorChain() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
     failure.expect(DAOExistenceException.class);
     failure.expectMessage("does not exist");
 
@@ -1070,9 +1071,9 @@ public class ChainDAOImplTest {
    */
   @Test
   public void revive_okOfAnyType() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
-    var chain = test.put(buildChain(account1, "school", Chain.Type.Preview, Chain.State.Failed, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
-    test.put(buildChainBinding(chain, buildLibrary(account1, "pajamas")));
+    HubClientAccess access = makeHubClientAccess("Admin");
+    var chain = test.put(makeChain(account1, "school", Chain.Type.Preview, Chain.State.Failed, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeLibrary(account1, "pajamas")));
 
     subject.revive(access, chain.getId(), "Testing");
   }
@@ -1083,9 +1084,9 @@ public class ChainDAOImplTest {
    */
   @Test
   public void revive_failsInDraftState() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
-    var chain = test.put(buildChain(account1, "school", Chain.Type.Preview, Chain.State.Draft, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
-    test.put(buildChainBinding(chain, buildLibrary(account1, "pajamas")));
+    HubClientAccess access = makeHubClientAccess("Admin");
+    var chain = test.put(makeChain(account1, "school", Chain.Type.Preview, Chain.State.Draft, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeLibrary(account1, "pajamas")));
 
     failure.expect(DAOPrivilegeException.class);
     failure.expectMessage("Can't revive a Chain unless it's in Fabricate, Complete, or Failed state");
@@ -1099,9 +1100,9 @@ public class ChainDAOImplTest {
    */
   @Test
   public void revive_failsInReadyState() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
-    var chain = test.put(buildChain(account1, "school", Chain.Type.Preview, Chain.State.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
-    test.put(buildChainBinding(chain, buildLibrary(account1, "pajamas")));
+    HubClientAccess access = makeHubClientAccess("Admin");
+    var chain = test.put(makeChain(account1, "school", Chain.Type.Preview, Chain.State.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeLibrary(account1, "pajamas")));
 
     failure.expect(DAOPrivilegeException.class);
     failure.expectMessage("Can't revive a Chain unless it's in Fabricate, Complete, or Failed state");
@@ -1114,9 +1115,9 @@ public class ChainDAOImplTest {
    */
   @Test
   public void revive_okayWithEngineerAccess() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "Engineer");
-    var chain = test.put(buildChain(account1, "school", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
-    test.put(buildChainBinding(chain, buildLibrary(account1, "pajamas")));
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "Engineer");
+    var chain = test.put(makeChain(account1, "school", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeLibrary(account1, "pajamas")));
 
     var result = subject.revive(access, chain.getId(), "Testing");
 
@@ -1133,9 +1134,9 @@ public class ChainDAOImplTest {
    */
   @Test
   public void revive_failsWithArtistAccess() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Artist");
-    var chain = test.put(buildChain(account1, "school", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
-    test.put(buildChainBinding(chain, buildLibrary(account1, "pajamas")));
+    HubClientAccess access = makeHubClientAccess("Artist");
+    var chain = test.put(makeChain(account1, "school", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeLibrary(account1, "pajamas")));
 
     failure.expect(DAOPrivilegeException.class);
     failure.expectMessage("Account access is required");
@@ -1148,17 +1149,17 @@ public class ChainDAOImplTest {
    */
   @Test
   public void revive_duplicatesAllChainBindings() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "Engineer");
-    user3 = buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    var chain = test.put(buildChain(account1, "school", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky").toBuilder()
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "Engineer");
+    user3 = makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    var chain = test.put(makeChain(account1, "school", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky").toBuilder()
       .setConfig("outputFrameRate=35\noutputChannels=4")
       .build());
-    test.put(buildChainBinding(chain, buildLibrary(account1, "pajamas")));
-    test.put(buildChainBinding(chain, buildProgram(library1, Program.Type.Main, Program.State.Published, "fonds", "C#", 120.0, 0.6)));
-    test.put(buildChainBinding(chain, buildProgram(library1, Program.Type.Macro, Program.State.Published, "trees A to B", "D#", 120.0, 0.6)));
-    test.put(buildChainBinding(chain, buildProgram(library1, Program.Type.Macro, Program.State.Published, "trees B to A", "F", 120.0, 0.6)));
-    test.put(buildChainBinding(chain, buildProgram(library1, Program.Type.Rhythm, Program.State.Published, "beets", "C", 120.0, 0.6)));
-    test.put(buildChainBinding(chain, buildInstrument(library1, Instrument.Type.Pad, Instrument.State.Published, "fonds")));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeLibrary(account1, "pajamas")));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeProgram(library1, Program.Type.Main, Program.State.Published, "fonds", "C#", 120.0, 0.6)));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeProgram(library1, Program.Type.Macro, Program.State.Published, "trees A to B", "D#", 120.0, 0.6)));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeProgram(library1, Program.Type.Macro, Program.State.Published, "trees B to A", "F", 120.0, 0.6)));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeProgram(library1, Program.Type.Rhythm, Program.State.Published, "beets", "C", 120.0, 0.6)));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain, makeInstrument(library1, Instrument.Type.Pad, Instrument.State.Published, "fonds")));
 
     var result = subject.revive(access, chain.getId(), "Testing");
 
@@ -1171,8 +1172,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    chain1 = test.put(buildChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
+    HubClientAccess access = makeHubClientAccess("Internal");
+    chain1 = test.put(makeChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
     test.put(ChainBinding.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
@@ -1204,8 +1205,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment_butChainIsAlreadyFull_butNotSoLongEnoughToBeComplete() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    chain1 = test.put(buildChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
+    HubClientAccess access = makeHubClientAccess("Internal");
+    chain1 = test.put(makeChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
     test.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
@@ -1231,8 +1232,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment_butChainIsAlreadyFull_butLastSegmentNotDubbedSoChainNotComplete() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    chain1 = test.put(buildChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
+    HubClientAccess access = makeHubClientAccess("Internal");
+    chain1 = test.put(makeChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
     test.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
@@ -1258,9 +1259,9 @@ public class ChainDAOImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment_butChainIsAlreadyFull_andGetsUpdatedToComplete() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    chain1 = test.put(buildChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
-    test.put(buildChainBinding(chain1, library1));
+    HubClientAccess access = makeHubClientAccess("Internal");
+    chain1 = test.put(makeChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
+    test.put(NexusIntegrationTestingFixtures.makeBinding(chain1, library1));
     test.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
@@ -1286,8 +1287,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment_butChainIsAlreadyFull_butCantKnowBecauseBoundsProvidedAreNull() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    chain1 = test.put(buildChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
+    HubClientAccess access = makeHubClientAccess("Internal");
+    chain1 = test.put(makeChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
     test.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
@@ -1313,8 +1314,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_chainWithSegmentsAlreadyHasNextSegment() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    chain1 = test.put(buildChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
+    HubClientAccess access = makeHubClientAccess("Internal");
+    chain1 = test.put(makeChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
     test.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
@@ -1337,9 +1338,9 @@ public class ChainDAOImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_chainEndingInCraftedSegment() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    var fromChain = test.put(buildChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
-    test.put(buildSegment(fromChain, 5, Segment.State.Crafted, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-08-12T14:03:38.000001Z"), "A major", 64, 0.52, 120.0, "chains-1-segments-9f7s89d8a7892.wav", "AAC"));
+    HubClientAccess access = makeHubClientAccess("Internal");
+    var fromChain = test.put(makeChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
+    test.put(NexusIntegrationTestingFixtures.makeSegment(fromChain, 5, Segment.State.Crafted, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-08-12T14:03:38.000001Z"), "A major", 64, 0.52, 120.0, "chains-1-segments-9f7s89d8a7892.wav", "AAC"));
 
     Segment result = subject.buildNextSegmentOrCompleteTheChain(access, fromChain, Instant.parse("2014-08-12T14:03:38.000001Z"), Instant.parse("2014-08-12T13:53:38.000001Z")).orElseThrow();
 
@@ -1350,8 +1351,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void buildNextSegmentOrComplete_newEmptyChain() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Internal");
-    test.put(buildChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    HubClientAccess access = makeHubClientAccess("Internal");
+    test.put(makeChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
     var fromChain = test.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setType(Chain.Type.Production)
@@ -1367,7 +1368,7 @@ public class ChainDAOImplTest {
 
   @Test
   public void destroy() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
+    HubClientAccess access = makeHubClientAccess("Admin");
 
     subject.destroy(access, chain1.getId());
 
@@ -1381,8 +1382,8 @@ public class ChainDAOImplTest {
 
   @Test
   public void destroy_SucceedsEvenWithChildren() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
-    buildLibrary(account1, "nerds");
+    HubClientAccess access = makeHubClientAccess("Admin");
+    makeLibrary(account1, "nerds");
 
     try {
       subject.destroy(access, chain1.getId());

@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.service.nexus.craft.arrangement;
+package io.xj.service.nexus.craft.detail;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -46,7 +46,7 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChain;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
@@ -98,7 +98,7 @@ public class CraftDetailProgramVoiceContinueTest {
             ).collect(Collectors.toList())));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(buildChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    chain1 = store.put(makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
     store.put(ChainBinding.newBuilder()
             .setId(UUID.randomUUID().toString())
             .setChainId(chain1.getId())

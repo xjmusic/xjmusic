@@ -38,10 +38,10 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeSegment;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChoice;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChord;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeMeme;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -110,17 +110,17 @@ public class DubDubMasterInitialTest {
       .setType(ChainBinding.Type.Library)
       .build());
 
-    segment6 = store.put(buildSegment(chain2, 0, Segment.State.Dubbing, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:07.384616Z"), "C minor", 16, 0.55, 130, "chains-1-segments-9f7s89d8a7892", "wav"));
-    store.put(buildSegmentChoice(segment6, Program.Type.Macro, fake.program4_sequence0_binding0));
-    store.put(buildSegmentChoice(segment6, Program.Type.Main, fake.program5_sequence0_binding0));
-    SegmentChoice choice1 = store.put(buildSegmentChoice(segment6, Program.Type.Rhythm, fake.program35));
-    store.put(buildSegmentMeme(segment6, "Special"));
-    store.put(buildSegmentMeme(segment6, "Wild"));
-    store.put(buildSegmentMeme(segment6, "Pessimism"));
-    store.put(buildSegmentMeme(segment6, "Outlook"));
-    store.put(buildSegmentChord(segment6, 0.0, "A minor"));
-    store.put(buildSegmentChord(segment6, 8.0, "D major"));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement(choice1, fake.program35_voice0, fake.instrument8));
+    segment6 = store.put(NexusIntegrationTestingFixtures.makeSegment(chain2, 0, Segment.State.Dubbing, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:07.384616Z"), "C minor", 16, 0.55, 130, "chains-1-segments-9f7s89d8a7892", "wav"));
+    store.put(NexusIntegrationTestingFixtures.makeChoice(segment6, Program.Type.Macro, fake.program4_sequence0_binding0));
+    store.put(NexusIntegrationTestingFixtures.makeChoice(segment6, Program.Type.Main, fake.program5_sequence0_binding0));
+    SegmentChoice choice1 = store.put(makeChoice(segment6, fake.program35));
+    store.put(makeMeme(segment6, "Special"));
+    store.put(makeMeme(segment6, "Wild"));
+    store.put(makeMeme(segment6, "Pessimism"));
+    store.put(makeMeme(segment6, "Outlook"));
+    store.put(makeChord(segment6, 0.0, "A minor"));
+    store.put(makeChord(segment6, 8.0, "D major"));
+    store.put(NexusIntegrationTestingFixtures.makeArrangement(choice1, fake.program35_voice0, fake.instrument8));
 
     // future: insert arrangement of choice1
     // future: insert 8 picks of audio 1

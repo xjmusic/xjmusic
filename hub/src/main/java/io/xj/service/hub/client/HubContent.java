@@ -445,6 +445,7 @@ public class HubContent {
   public Collection<ProgramSequencePatternEvent> getEvents(ProgramSequencePattern programPattern) {
     return getAllProgramSequencePatternEvents().stream()
       .filter(m -> m.getProgramSequencePatternId().equals(programPattern.getId()))
+      .sorted(Comparator.comparing(ProgramSequencePatternEvent::getPosition))
       .collect(Collectors.toList());
   }
 

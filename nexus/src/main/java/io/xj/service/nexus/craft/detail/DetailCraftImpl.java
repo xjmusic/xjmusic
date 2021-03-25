@@ -11,7 +11,6 @@ import io.xj.ProgramVoice;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChord;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
 import io.xj.service.nexus.NexusException;
@@ -150,12 +149,8 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       .build());
 
     var program = fabricator.getProgram(choice);
-    if (program.isEmpty()) return;
-    var programConfig = fabricator.getProgramConfig(program.get());
-    if (programConfig.doPatternRestartOnChord() && 0 < fabricator.getSegmentChords().size())
-      craftArrangementForDetailVoicePerEachChord(sequence, arrangement, voice);
-    else
-      craftArrangementForVoiceSection(null, sequence, arrangement, voice, 0, fabricator.getSegment().getTotal());
+    if (program.isPresent())
+      craftArrangementForVoice(program.get(), sequence, voice, arrangement);
   }
 
   /**
@@ -267,51 +262,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     // score is above zero, else empty
     return score;
 
-  }
-
-  /**
-   Iterate through all the chords of a sequence and arrange events per each chord
-   <p>
-   [#176468993] Detail programs can be made to repeat every chord change
-
-   @param sequence    from which to craft events
-   @param arrangement of instrument
-   @param voice       within program
-   @throws NexusException on failure
-   */
-  @Trace(resourceName = "nexus/craft/detail", operationName = "craftArrangementForDetailVoicePerEachChord")
-  private void craftArrangementForDetailVoicePerEachChord(
-    ProgramSequence sequence,
-    SegmentChoiceArrangement arrangement,
-    ProgramVoice voice
-  ) throws NexusException {
-    // guaranteed to be in order of position ascending
-    SegmentChord[] chords = new SegmentChord[fabricator.getSegmentChords().size()];
-    var i = 0;
-    for (var chord : fabricator.getSegmentChords()) {
-      chords[i] = chord;
-      i++;
-    }
-    Section[] sections = new Section[chords.length];
-    for (i = 0; i < chords.length; i++) {
-      sections[i] = new Section();
-      sections[i].chord = chords[i];
-      sections[i].fromPos = chords[i].getPosition();
-      sections[i].toPos = i < chords.length - 1 ?
-        chords[i + 1].getPosition() :
-        fabricator.getSegment().getTotal();
-    }
-    for (var section : sections)
-      craftArrangementForVoiceSection(section.chord, sequence, arrangement, voice, section.fromPos, section.toPos);
-  }
-
-  /**
-   Representation of a section of an arrangement, having a chord, beginning position and end position
-   */
-  static class Section {
-    public SegmentChord chord;
-    public double fromPos;
-    public double toPos;
   }
 
   /**

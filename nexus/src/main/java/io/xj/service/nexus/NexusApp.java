@@ -253,8 +253,9 @@ public class NexusApp extends App {
       .withAttribute("length")
       .withAttribute("amplitude")
       .withAttribute("name")
+      .withAttribute("chordName")
       .belongsTo(Segment.class)
-      .belongsTo(SegmentChoiceArrangement.class)
+      .belongsTo(SegmentChord.class)
       .belongsTo(InstrumentAudio.class)
       .belongsTo(ProgramSequencePatternEvent.class);
 
