@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.protobuf.MessageLite;
-import datadog.trace.api.Trace;
 import com.typesafe.config.Config;
 import io.xj.Program;
 import io.xj.ProgramMeme;
@@ -69,7 +68,13 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
 
   @Override
   public Program create(HubAccess hubAccess, Program rawProgram) throws DAOException, JsonApiException, ValueException {
-    Program program = validate(rawProgram.toBuilder()).build();
+    var builder = validate(rawProgram.toBuilder());
+
+    // [#175347578] validate TypeSafe chain config
+    // [#177129498] Artist saves Program or Instrument config, validate & combine with defaults.
+    builder.setConfig(new ProgramConfig(builder.build(), config).toString());
+
+    var program = builder.build();
     requireArtist(hubAccess);
     validateConfig(program);
     return modelFrom(Program.class, executeCreate(dbProvider.getDSL(), PROGRAM, program));
@@ -270,7 +275,13 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
 
   @Override
   public void update(HubAccess hubAccess, String id, Program rawProgram) throws DAOException, JsonApiException, ValueException {
-    Program program = validate(rawProgram.toBuilder()).build();
+    var builder = validate(rawProgram.toBuilder());
+
+    // [#175347578] validate TypeSafe chain config
+    // [#177129498] Artist saves Program or Instrument config, validate & combine with defaults.
+    builder.setConfig(new ProgramConfig(builder.build(), config).toString());
+
+    var program = builder.build();
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
     readOne(db, hubAccess, id);

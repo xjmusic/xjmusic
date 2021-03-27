@@ -21,12 +21,12 @@ import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.service.hub.client.HubClientAccess;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,9 +119,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       builder.setId(UUID.randomUUID().toString());
       validate(builder);
 
-      // [#175347578] validate TypeSafe chain config
-      new ChainConfig(builder.build(), config);
-
       // store and valid Chain
       Chain chain = store.put(builder.build());
 
@@ -169,10 +166,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       chain.setId(UUID.randomUUID().toString());
       validate(chain);
 
-      // [#175347578] validate TypeSafe chain config
-      // [#177355683] Artist saves Chain config, validate & combine with defaults.
-      chain.setConfig(new ChainConfig(chain.build(), config).toString());
-
       // store and return sanitized payload comprising only the valid Chain
       return store.put(chain.build());
 
@@ -184,18 +177,22 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     }
   }
 
-  private void validate(Chain.Builder chain) throws ValueException {
-    Value.require(chain.getAccountId(), "Account ID");
-    Value.require(chain.getName(), "Name");
+  private void validate(Chain.Builder builder) throws ValueException {
+    Value.require(builder.getAccountId(), "Account ID");
+    Value.require(builder.getName(), "Name");
 
-    if (Value.isEmpty(chain.getType()))
-      chain.setType(Chain.Type.Preview);
-    if (Value.isEmpty(chain.getState()))
-      chain.setState(Chain.State.Draft);
-    if (Value.isSet(chain.getEmbedKey()))
-      chain.setEmbedKey(Text.toEmbedKey(chain.getEmbedKey()));
+    if (Value.isEmpty(builder.getType()))
+      builder.setType(Chain.Type.Preview);
+    if (Value.isEmpty(builder.getState()))
+      builder.setState(Chain.State.Draft);
+    if (Value.isSet(builder.getEmbedKey()))
+      builder.setEmbedKey(Text.toEmbedKey(builder.getEmbedKey()));
 
-    if (Objects.isNull(chain.getConfig())) chain.setConfig("");
+    if (Objects.isNull(builder.getConfig())) builder.setConfig("");
+
+    // [#175347578] validate TypeSafe chain config
+    // [#177355683] Artist saves Chain config, validate & combine with defaults.
+    builder.setConfig(new ChainConfig(builder.build(), config).toString());
   }
 
   @Override
@@ -275,10 +272,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       // override id (cannot be changed) from existing chain, and then validate
       builder.setId(id);
       validate(builder);
-
-      // [#175347578] validate TypeSafe chain config
-      // [#177355683] Artist saves Chain config, validate & combine with defaults.
-      builder.setConfig(new ChainConfig(builder.build(), config).toString());
 
       // If we have an embed key, it must not belong to another chain
       requireUniqueEmbedKey(access, builder);

@@ -305,17 +305,22 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   /**
    Validate data
 
-   @param record to validate
+   @param builder to validate
    @throws DAOException if invalid
    */
-  public Instrument.Builder validate(Instrument.Builder record) throws DAOException {
+  public Instrument.Builder validate(Instrument.Builder builder) throws DAOException {
     try {
-      Value.require(record.getLibraryId(), "Library ID");
-      Value.require(record.getName(), "Name");
-      Value.require(record.getType(), "Type");
-      Value.require(record.getState(), "State");
-      if (Objects.isNull(record.getConfig())) record.setConfig("");
-      return record;
+      Value.require(builder.getLibraryId(), "Library ID");
+      Value.require(builder.getName(), "Name");
+      Value.require(builder.getType(), "Type");
+      Value.require(builder.getState(), "State");
+      if (Objects.isNull(builder.getConfig())) builder.setConfig("");
+
+      // [#175347578] validate TypeSafe chain config
+      // [#177355683] Artist saves Chain config, validate & combine with defaults.
+      builder.setConfig(new InstrumentConfig(builder.build(), config).toString());
+
+      return builder;
 
     } catch (ValueException e) {
       throw new DAOException(e);

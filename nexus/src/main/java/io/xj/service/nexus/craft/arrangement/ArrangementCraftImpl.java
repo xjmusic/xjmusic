@@ -169,7 +169,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // if outro pattern, fabricate those voice event last
     // [#161466708] compute how much to go for it in the outro
     if (outroPattern.isPresent())
-      craftPatternEvents(arrangement, outroPattern.get(), curPos, loopOutPos);
+      craftPatternEvents(arrangement, outroPattern.get(), curPos, maxPos);
   }
 
   /**
@@ -178,24 +178,24 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
    @param arrangement         to craft pattern events for
    @param pattern             to source events
-   @param fromPatternPosition to write events to segment
-   @param toPatternPosition   to write events to segment
+   @param fromSegmentPosition to write events to segment
+   @param toSegmentPosition   to write events to segment
    @return deltaPos of start, after crafting this batch of pattern events
    */
   @Trace(resourceName = "nexus/craft/arrangement", operationName = "craftPatternEvents")
   private double craftPatternEvents(
     SegmentChoiceArrangement arrangement,
     ProgramSequencePattern pattern,
-    double fromPatternPosition,
-    double toPatternPosition
+    double fromSegmentPosition,
+    double toSegmentPosition
   ) throws NexusException {
     if (Objects.isNull(pattern)) throw new NexusException("Cannot craft create null pattern");
-    double totalBeats = toPatternPosition - fromPatternPosition;
+    double totalBeats = toSegmentPosition - fromSegmentPosition;
     Collection<ProgramSequencePatternEvent> events = fabricator.getSourceMaterial().getEvents(pattern);
     var instrument = fabricator.getSourceMaterial().getInstrument(arrangement.getInstrumentId())
       .orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
     for (ProgramSequencePatternEvent event : events)
-      pickNotesAndInstrumentAudio(instrument, arrangement, event, fromPatternPosition);
+      pickNotesAndInstrumentAudio(instrument, arrangement, event, fromSegmentPosition, toSegmentPosition);
     return Math.min(totalBeats, pattern.getTotal());
   }
 
@@ -204,18 +204,20 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
 
    @param event               to pick audio for
-   @param fromSegmentPosition offset voice event zero within current segment
+   @param fromSegmentPosition to pick notes for
+   @param toSegmentPosition   to pick notes for
    */
   @Trace(resourceName = "nexus/craft/arrangement", operationName = "pickInstrumentAudio")
   private void pickNotesAndInstrumentAudio(
     Instrument instrument,
     SegmentChoiceArrangement segmentChoiceArrangement,
     ProgramSequencePatternEvent event,
-    Double fromSegmentPosition
+    Double fromSegmentPosition,
+    Double toSegmentPosition
   ) throws NexusException {
     // Morph & Point attributes are expressed in beats
     double segmentPosition = fromSegmentPosition + event.getPosition();
-    double duration = event.getDuration();
+    double duration = Math.min(event.getDuration(), toSegmentPosition - segmentPosition);
     var chord = fabricator.getChordAt(segmentPosition);
     var chordName = chord.isPresent() ? chord.get().getName() : NO_CHORD_NAME;
 

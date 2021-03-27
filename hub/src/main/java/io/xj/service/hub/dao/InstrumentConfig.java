@@ -1,11 +1,15 @@
 package io.xj.service.hub.dao;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import io.xj.Instrument;
+import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
+
+import java.util.Map;
 
 /**
  Parse a TypeSafe `config` value for a Instrument's configuration, overriding values from top-level default.conf--
@@ -13,8 +17,13 @@ import io.xj.lib.util.ValueException;
  if the `config` value contains only `previewLengthMaxHours = 8`
  */
 public class InstrumentConfig {
-  private final boolean multiphonic;
-  private final boolean atonal;
+  private static final String KEY_PREFIX = "instrument.";
+
+  private final Boolean isTonal;
+  private final String KEY_IS_TONAL = "isTonal";
+
+  private final Boolean isMultiphonic;
+  private final String KEY_IS_MULTIPHONIC = "isMultiphonic";
 
   /**
    Instantiate a Instrument configuration from a string of typesafe config.
@@ -30,8 +39,8 @@ public class InstrumentConfig {
         defaultConfig :
         ConfigFactory.parseString(String.format("instrument {\n%s\n}", instrument.getConfig()))
           .withFallback(defaultConfig);
-      multiphonic = config.getBoolean("instrument.isMultiphonic");
-      atonal = config.getBoolean("instrument.isTonal");
+      isTonal = config.getBoolean(cp(KEY_IS_TONAL));
+      isMultiphonic = config.getBoolean(cp(KEY_IS_MULTIPHONIC));
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
@@ -39,17 +48,38 @@ public class InstrumentConfig {
   }
 
   /**
-   @return whether this instrument ios multiphonic
+   Instrument-prefixed version of a key
+
+   @param key to prefix
+   @return instrument-prefixed key
    */
-  public boolean isMultiphonic() {
-    return multiphonic;
+  private String cp(String key) {
+    return String.format("%s%s", KEY_PREFIX, key);
+  }
+
+  @SuppressWarnings("DuplicatedCode")
+  @Override
+  public String toString() {
+    Map<String, String> config = Maps.newHashMap();
+    config.put(KEY_IS_TONAL, isTonal.toString());
+    config.put(KEY_IS_MULTIPHONIC, isMultiphonic.toString());
+    return Text.formatMultiline(config.entrySet().stream()
+      .sorted(Map.Entry.comparingByKey())
+      .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
+      .toArray());
   }
 
   /**
-   @return whether this instrument is atonal
+   @return True if multiphonic
    */
-  public boolean isTonal() {
-    return atonal;
+  public Boolean isMultiphonic() {
+    return isMultiphonic;
   }
 
+  /**
+   @return true if tonal
+   */
+  public Boolean isTonal() {
+    return isTonal;
+  }
 }

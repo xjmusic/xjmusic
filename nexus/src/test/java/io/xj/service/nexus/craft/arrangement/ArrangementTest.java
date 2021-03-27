@@ -99,19 +99,19 @@ public class ArrangementTest {
   @Test
   public void arrangementA() throws Exception {
     var bass = makeInstrument(Instrument.Type.Bass, true, true);
-    var bassProgram = makeDetailProgram("C",false, "Bass Test");
+    var bassProgram = makeDetailProgram("C", false, "Bass Test");
     var bassVoice = makeVoice(bassProgram, Instrument.Type.Bass);
     var bassTrack = makeTrack(bassVoice);
     var bassSequence = makeSequence(bassProgram, 4);
     var bassPattern = makePattern(bassSequence, bassVoice, ProgramSequencePattern.Type.Loop, 4);
     var pad = makeInstrument(Instrument.Type.Pad, true, true);
-    var padProgram = makeDetailProgram("C",true, "Pad Test");
+    var padProgram = makeDetailProgram("C", true, "Pad Test");
     var padVoice = makeVoice(padProgram, Instrument.Type.Pad);
     var padTrack = makeTrack(padVoice);
     var padSequence = makeSequence(padProgram, 4);
     var padPattern = makePattern(padSequence, padVoice, ProgramSequencePattern.Type.Loop, 4);
     var stab = makeInstrument(Instrument.Type.Stab, true, true);
-    var stabProgram = makeDetailProgram("C",true, "Stab Test");
+    var stabProgram = makeDetailProgram("C", true, "Stab Test");
     var stabVoice = makeVoice(stabProgram, Instrument.Type.Stab);
     var stabTrack = makeTrack(stabVoice);
     var stabSequence = makeSequence(stabProgram, 4);
@@ -178,33 +178,51 @@ public class ArrangementTest {
     var result = store.getSegment(segment.getId()).orElseThrow();
     assertEquals("C", result.getKey());
     assertEquals(20, fabricator.getPicks().size());
+
+    // Assert Bass: list of notes in order they are played
     assertEquals(ImmutableList.of("C1", "C2", "C1", "C2", "F1", "F2", "F1", "F2"),
       fabricator.getPicks().stream()
-        .filter(pick -> pick.getName().equals("Bass"))
-        .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart)) // in order they are played
+        .filter(pick -> like(pick, "Bass", 0.25))
+        .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toList()));
-    assertEquals(ImmutableSet.of("G3", "C4", "E4"), // set has no order
+
+    // Assert Pad: Set of notes is in no particular order for each of the two sustained chords
+    assertEquals(ImmutableSet.of("G3", "C4", "E4"),
       fabricator.getPicks().stream()
-        .filter(pick -> pick.getName().equals("Pad") && pick.getStart() == 0.0) // 0 beats = 0.0 seconds
+        .filter(pick -> like(pick, "Pad", 0.0, 1.0))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toSet()));
-    assertEquals(ImmutableSet.of("A3", "C4", "F4"), // set has no order
+    assertEquals(ImmutableSet.of("A3", "C4", "F4"),
       fabricator.getPicks().stream()
-        .filter(pick -> pick.getName().equals("Pad") && pick.getStart() == 1.0) // 2 beats = 1.0 seconds
+        .filter(pick -> like(pick, "Pad", 1.0, 1.0))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toSet()));
-    assertEquals(ImmutableSet.of("G3", "C4", "E4"), // set has no order
+
+    // Assert Pad: Set of notes is in no particular order for each of the two chord hits
+    assertEquals(ImmutableSet.of("G3", "C4", "E4"),
       fabricator.getPicks().stream()
-        .filter(pick -> pick.getName().equals("Stab") && pick.getStart() == 0.0) // 2 beats = 1.0 seconds
+        .filter(pick -> like(pick, "Stab", 0.0, 0.25))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toSet()));
-    assertEquals(ImmutableSet.of("A3", "C4", "F4"), // set has no order
+    assertEquals(ImmutableSet.of("A3", "C4", "F4"),
       fabricator.getPicks().stream()
-        .filter(pick -> pick.getName().equals("Stab") && pick.getStart() == 1.0) // 2 beats = 1.0 seconds
+        .filter(pick -> like(pick, "Stab", 1.0, 0.25))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toSet()));
-    // TODO assert correct length of bass, pad, and stab picks
+  }
+
+  @SuppressWarnings("SameParameterValue")
+  private boolean like(SegmentChoiceArrangementPick pick, String name, double startAtSeconds, double lengthSeconds) {
+    return pick.getName().equals(name)
+      && pick.getStart() == startAtSeconds
+      && pick.getLength() == lengthSeconds;
+  }
+
+  @SuppressWarnings("SameParameterValue")
+  private boolean like(SegmentChoiceArrangementPick pick, String name, double length) {
+    return pick.getName().equals(name)
+      && pick.getLength() == length;
   }
 
   private ArrangementCraftImpl fabricate(Segment segment) throws NexusException {
