@@ -102,9 +102,12 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
 
       // FUTURE: fork/join thread possible for this sub-runnable of the fabrication worker
       workers.segment(createdSegment.getId()).run();
-      log.info("Fabricated Segment in {}s, id:{}, chainId:{}, offset:{}",
+      log.info("Fabricated in {}s Segment[{}] of {}-Chain[{}] offset:{}",
         (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND,
-        createdSegment.getId(), createdSegment.getChainId(), createdSegment.getOffset());
+        createdSegment.getId(),
+        chain.getType(),
+        chain.getId(),
+        createdSegment.getOffset());
 
       // bums
       var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
