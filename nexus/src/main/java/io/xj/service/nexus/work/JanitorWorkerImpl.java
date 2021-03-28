@@ -6,15 +6,16 @@ import com.typesafe.config.Config;
 import datadog.trace.api.Trace;
 import io.xj.Segment;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.Value;
 import io.xj.service.hub.client.HubClientAccess;
+import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.persistence.NexusEntityStore;
-import io.xj.service.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +39,10 @@ public class JanitorWorkerImpl extends WorkerImpl implements JanitorWorker {
   public JanitorWorkerImpl(
     Config config,
     NexusEntityStore store,
+    NotificationProvider notification,
     SegmentDAO segmentDAO,
     TelemetryProvider telemetryProvider) {
+    super(notification);
     this.store = store;
     this.segmentDAO = segmentDAO;
 

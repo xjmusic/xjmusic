@@ -39,7 +39,7 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
     NotificationProvider notification,
     TelemetryProvider telemetryProvider
   ) {
-    super(notification;
+    super(notification);
     this.chainDAO = chainDAO;
     this.telemetryProvider = telemetryProvider;
 
