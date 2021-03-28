@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import datadog.trace.api.Trace;
 import io.xj.Chain;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
@@ -35,8 +36,10 @@ public class MedicWorkerImpl extends WorkerImpl implements MedicWorker {
   public MedicWorkerImpl(
     Config config,
     ChainDAO chainDAO,
+    NotificationProvider notification,
     TelemetryProvider telemetryProvider
   ) {
+    super(notification;
     this.chainDAO = chainDAO;
     this.telemetryProvider = telemetryProvider;
 
