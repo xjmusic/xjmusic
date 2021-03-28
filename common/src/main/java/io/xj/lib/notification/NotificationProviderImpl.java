@@ -6,6 +6,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSAsyncClientBuilder;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import java.util.Objects;
 /**
  Implementation of Amazon SNS publisher
  */
+@Singleton
 class NotificationProviderImpl implements NotificationProvider {
   private static final Logger log = LoggerFactory.getLogger(NotificationProviderImpl.class);
   private final String awsDefaultRegion;
