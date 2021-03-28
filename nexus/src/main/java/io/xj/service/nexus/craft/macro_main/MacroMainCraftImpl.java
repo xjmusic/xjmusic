@@ -15,6 +15,7 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChord;
 import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
+import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.util.Chance;
@@ -40,12 +41,15 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   private static final double SCORE_MACRO_ENTROPY = 0.5;
   private static final double SCORE_MAIN_ENTROPY = 0.5;
   private static final long NANOS_PER_SECOND = 1_000_000_000;
+  private final ApiUrlProvider apiUrlProvider;
 
   @Inject
   public MacroMainCraftImpl(
-    @Assisted("basis") Fabricator fabricator
+    @Assisted("basis") Fabricator fabricator,
+    ApiUrlProvider apiUrlProvider
   ) {
     super(fabricator);
+    this.apiUrlProvider = apiUrlProvider;
   }
 
   @Override
@@ -56,7 +60,11 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
     Long macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
     var macroSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
-      .orElseThrow(() -> new NexusException("Unable to determine macro sequence binding"));
+      .orElseThrow(() -> new NexusException(String.format(
+        "Unable to determine sequence binding offset for macro Program <a href=\"%s\">%s</a>",
+        apiUrlProvider.getAppUrl(String.format("/mk3/programs/%s", macroProgram.getId())),
+        macroProgram.getName())
+      ));
     var macroSequence = fabricator.getSourceMaterial().getProgramSequence(macroSequenceBinding);
     fabricator.add(
       SegmentChoice.newBuilder()
@@ -69,10 +77,19 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
     // 2. Main
     Program mainProgram = chooseMainProgram()
-      .orElseThrow(() -> new NexusException("Unable to choose main program"));
+      .orElseThrow(() -> new NexusException(String.format(
+        "Unable to choose main program based on macro Program <a href=\"%s\">%s</a> at offset %s",
+        apiUrlProvider.getAppUrl(String.format("/mk3/programs/%s", macroProgram.getId())),
+        macroProgram.getName(),
+        macroSequenceBindingOffset
+      )));
     Long mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
     var mainSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
-      .orElseThrow(() -> new NexusException("Unable to determine main sequence binding offset"));
+      .orElseThrow(() -> new NexusException(String.format(
+        "Unable to determine sequence binding offset for main Program <a href=\"%s\">%s</a>",
+        apiUrlProvider.getAppUrl(String.format("/mk3/programs/%s", mainProgram.getId())),
+        mainProgram.getName())
+      ));
     var mainSequence = fabricator.getSourceMaterial().getProgramSequence(mainSequenceBinding);
     fabricator.add(
       SegmentChoice.newBuilder()

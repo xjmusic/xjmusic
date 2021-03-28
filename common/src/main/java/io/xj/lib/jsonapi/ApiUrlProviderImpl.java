@@ -50,6 +50,11 @@ class ApiUrlProviderImpl implements ApiUrlProvider {
   }
 
   @Override
+  public String getAppUrl(String path) {
+    return String.format("%s%s", appBaseUrl, path);
+  }
+
+  @Override
   public String getAppHost() {
     return appHost;
 

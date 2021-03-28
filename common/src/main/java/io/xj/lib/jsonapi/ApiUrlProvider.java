@@ -30,6 +30,13 @@ public interface ApiUrlProvider {
   String getAppBaseUrl();
 
   /**
+   Get the URL for a path in the app
+   @param path to get URL for
+   @return RUL for given path
+   */
+  String getAppUrl(String path);
+
+  /**
    @return app host
    */
   String getAppHost();

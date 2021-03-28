@@ -20,6 +20,7 @@ import io.xj.User;
 import io.xj.UserRole;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
@@ -41,16 +42,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.time.Instant;
 import java.util.UUID;
 
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeAccount;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeAccountUser;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeBinding;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChain;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeLibrary;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeMeme;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeProgram;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeMeme;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeSequence;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeBinding;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeMeme;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChoice;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeUser;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeUserRole;
 import static org.junit.Assert.assertEquals;
@@ -70,6 +68,9 @@ public class MacroFromOverlappingMemeSequencesTest {
 
   @Mock
   public HubClient hubClient;
+
+  @Mock
+  public ApiUrlProvider apiUrlProvider;
 
   // Fake entities
   private Program macro2a;
@@ -208,7 +209,7 @@ public class MacroFromOverlappingMemeSequencesTest {
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .build());
 
-    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(HubClientAccess.internal(), segment2));
+    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(HubClientAccess.internal(), segment2), apiUrlProvider);
   }
 
   @Test
