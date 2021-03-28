@@ -15,7 +15,7 @@ import io.xj.UserRole;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.MessageType;
-import io.xj.lib.pubsub.PubSubProvider;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
@@ -72,7 +72,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   private final Config config;
   private final SegmentDAO segmentDAO;
   private final int previewLengthMaxHours;
-  private final PubSubProvider pubSub;
+  private final NotificationProvider pubSub;
   private final int previewEmbedKeyLength;
   private final SecureRandom secureRandom = new SecureRandom();
 
@@ -86,12 +86,12 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     NexusEntityStore nexusEntityStore,
     SegmentDAO segmentDAO,
     ChainBindingDAO chainBindingDAO,
-    PubSubProvider pubSubProvider
+    NotificationProvider notificationProvider
   ) {
     super(entityFactory, nexusEntityStore);
     this.config = config;
     this.segmentDAO = segmentDAO;
-    this.pubSub = pubSubProvider;
+    this.pubSub = notificationProvider;
 
     previewLengthMaxHours = config.getInt("fabrication.previewLengthMaxHours");
     previewEmbedKeyLength = config.getInt("fabrication.previewEmbedKeyLength");

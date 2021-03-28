@@ -1,21 +1,21 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.pubsub;
+package io.xj.lib.notification;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class PubSubException extends Exception {
+public class NotificationException extends Exception {
 
-  public PubSubException(String msg) {
+  public NotificationException(String msg) {
     super(msg);
   }
 
-  public PubSubException(String msg, Exception e) {
+  public NotificationException(String msg, Exception e) {
     super(String.format("%s %s\n%s", msg, e.toString(), formatStackTrace(e)));
   }
 
-  public PubSubException(Throwable targetException) {
+  public NotificationException(Throwable targetException) {
     super(String.format("%s\n%s", targetException.getMessage(), formatStackTrace(targetException)));
   }
 

@@ -3,23 +3,26 @@ package io.xj.service.nexus.work;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import datadog.trace.api.Trace;
+import io.xj.Chain;
 import io.xj.Segment;
 import io.xj.SegmentMessage;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.craft.CraftFactory;
+import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.SegmentDAO;
 import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
-import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.dub.DubFactory;
 import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.FabricatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -27,15 +30,19 @@ import java.util.UUID;
  */
 public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker {
   private static final String NAME = "Fabricator";
+  private static final String UNKNOWN = "NaN";
   private static final Logger log = LoggerFactory.getLogger(FabricatorWorker.class);
   private final SegmentDAO segmentDAO;
+  private final ChainDAO chainDAO;
   private final String segmentId;
   private final FabricatorFactory fabricatorFactory;
   private final CraftFactory craftFactory;
   private final DubFactory dubFactory;
   private final HubClientAccess access = HubClientAccess.internal();
+  private final NotificationProvider notification;
   private Fabricator fabricator;
   private Segment segment;
+  private Chain chain;
 
   @Inject
   public FabricatorWorkerImpl(
@@ -43,13 +50,17 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
     CraftFactory craftFactory,
     FabricatorFactory fabricatorFactory,
     SegmentDAO segmentDAO,
-    DubFactory dubFactory
+    ChainDAO chainDAO,
+    DubFactory dubFactory,
+    NotificationProvider notification
   ) {
     this.segmentId = segmentId;
     this.craftFactory = craftFactory;
     this.fabricatorFactory = fabricatorFactory;
     this.segmentDAO = segmentDAO;
+    this.chainDAO = chainDAO;
     this.dubFactory = dubFactory;
+    this.notification = notification;
 
     log.debug("Instantiated OK");
   }
@@ -67,6 +78,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
     try {
       log.debug("[segId={}] will read Segment for fabrication", segmentId);
       segment = segmentDAO.readOne(access, segmentId);
+      chain = chainDAO.readOne(access, segment.getChainId());
     } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException e) {
       didFailWhile("retrieving", e);
       return;
@@ -133,7 +145,7 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
    @throws NexusException on craft failure
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "doCraftWork")
-  private void doCraftWork() throws NexusException, NexusException, NexusException {
+  private void doCraftWork() throws NexusException {
     updateSegmentState(Segment.State.Planned, Segment.State.Crafting);
     craftFactory.macroMain(fabricator).doWork();
     craftFactory.rhythm(fabricator).doWork();
@@ -144,10 +156,10 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
    Dub a Segment, or fail
 
    @throws NexusException on craft failure
-   @throws NexusException   on dub failure
+   @throws NexusException on dub failure
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "doDubWork")
-  protected void doDubWork() throws NexusException, NexusException, NexusException {
+  protected void doDubWork() throws NexusException {
     updateSegmentState(Segment.State.Crafting, Segment.State.Dubbing);
     dubFactory.master(fabricator).doWork();
     dubFactory.ship(fabricator).doWork();
@@ -161,12 +173,31 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "didFailWhile")
   private void didFailWhile(String message, Exception e) {
-    createSegmentErrorMessage(String.format("Failed while %s for Segment #%s:\n\n%s", message, segmentId, e.getMessage()));
-    log.error("[segId={}] Failed while {}", segmentId, message, e);
+    var body = String.format("Failed while %s for Segment[%s] of Chain[%s] (%s):\n\n%s",
+      message,
+      segmentId,
+      chainId(),
+      chainType(),
+      e.getMessage());
+
+    createSegmentErrorMessage(body);
+
+    notification.publish(body,
+      String.format("%s-Chain[%s] Failure",
+        chainType(),
+        chainId()));
+
+    log.error("Failed while {} for Segment[{}] of Chain[{}] ({})",
+      message,
+      segmentId,
+      chainId(),
+      chainType());
   }
 
   /**
    Create a segment error message
+   <p>
+   [#177522463] Chain fabrication: segment messages broadcast somewhere the whole music team can see
 
    @param body of message
    */
@@ -201,4 +232,18 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
     log.debug("[segId={}] Segment transitioned to state {} OK", segmentId, toState);
   }
 
+  /**
+   @return the type of the chain, or unknown
+   */
+  private String chainType() {
+    return Objects.nonNull(chain) && Objects.nonNull(chain.getType()) ?
+      chain.getType().toString() : UNKNOWN;
+  }
+
+  /**
+   @return the ID of the chain, or unknown
+   */
+  private String chainId() {
+    return Objects.nonNull(chain) ? chain.getId() : UNKNOWN;
+  }
 }

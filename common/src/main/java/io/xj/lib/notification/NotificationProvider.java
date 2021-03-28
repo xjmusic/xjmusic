@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.pubsub;
+package io.xj.lib.notification;
 
 /**
  Requires these typesafe configurations to be set:
@@ -7,7 +7,7 @@ package io.xj.lib.pubsub;
  - aws.accessKeyID
  - aws.secretKey
  */
-public interface PubSubProvider {
+public interface NotificationProvider {
 
   /**
    Publish a message on Amazon SNS

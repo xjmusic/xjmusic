@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.pubsub;
+package io.xj.lib.notification;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -16,8 +16,8 @@ import java.util.Objects;
 /**
  Implementation of Amazon SNS publisher
  */
-class PubSubProviderImpl implements PubSubProvider {
-  private static final Logger log = LoggerFactory.getLogger(PubSubProviderImpl.class);
+class NotificationProviderImpl implements NotificationProvider {
+  private static final Logger log = LoggerFactory.getLogger(NotificationProviderImpl.class);
   private final String awsDefaultRegion;
   private final String awsAccessKeyId;
   private final String awsSecretKey;
@@ -29,7 +29,7 @@ class PubSubProviderImpl implements PubSubProvider {
   private final String topicArn;
 
   @Inject
-  public PubSubProviderImpl(
+  public NotificationProviderImpl(
     Config config
   ) {
     awsDefaultRegion = config.getString("aws.defaultRegion");
