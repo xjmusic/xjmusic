@@ -61,10 +61,10 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     Long macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
     var macroSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
-        "Unable to determine sequence binding offset for macro Program <a href=\"%s\">%s</a>",
-        apiUrlProvider.getAppUrl(String.format("/mk3/programs/%s", macroProgram.getId())),
-        macroProgram.getName())
-      ));
+        "Unable to determine sequence binding offset for macro Program \"%s\" %s",
+        macroProgram.getName(),
+        apiUrlProvider.getAppUrl(String.format("/mk3/programs/%s", macroProgram.getId()))
+      )));
     var macroSequence = fabricator.getSourceMaterial().getProgramSequence(macroSequenceBinding);
     fabricator.add(
       SegmentChoice.newBuilder()
@@ -78,18 +78,18 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // 2. Main
     Program mainProgram = chooseMainProgram()
       .orElseThrow(() -> new NexusException(String.format(
-        "Unable to choose main program based on macro Program <a href=\"%s\">%s</a> at offset %s",
-        apiUrlProvider.getAppUrl(String.format("/mk3/programs/%s", macroProgram.getId())),
+        "Unable to choose main program based on macro Program \"%s\" at offset %s %s",
         macroProgram.getName(),
-        macroSequenceBindingOffset
+        macroSequenceBindingOffset,
+        apiUrlProvider.getAppUrl(String.format("/mk3/programs/%s", macroProgram.getId()))
       )));
     Long mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
     var mainSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
-        "Unable to determine sequence binding offset for main Program <a href=\"%s\">%s</a>",
-        apiUrlProvider.getAppUrl(String.format("/mk3/programs/%s", mainProgram.getId())),
-        mainProgram.getName())
-      ));
+        "Unable to determine sequence binding offset for main Program \"%s\" %s",
+        mainProgram.getName(),
+        apiUrlProvider.getAppUrl(String.format("/mk3/programs/%s", mainProgram.getId()))
+      )));
     var mainSequence = fabricator.getSourceMaterial().getProgramSequence(mainSequenceBinding);
     fabricator.add(
       SegmentChoice.newBuilder()
