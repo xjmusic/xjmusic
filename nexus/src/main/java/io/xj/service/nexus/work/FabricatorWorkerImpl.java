@@ -47,13 +47,14 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
   @Inject
   public FabricatorWorkerImpl(
     @Assisted String segmentId,
-    CraftFactory craftFactory,
-    FabricatorFactory fabricatorFactory,
-    SegmentDAO segmentDAO,
     ChainDAO chainDAO,
+    CraftFactory craftFactory,
     DubFactory dubFactory,
-    NotificationProvider notification
+    FabricatorFactory fabricatorFactory,
+    NotificationProvider notification,
+    SegmentDAO segmentDAO
   ) {
+    super(notification);
     this.segmentId = segmentId;
     this.craftFactory = craftFactory;
     this.fabricatorFactory = fabricatorFactory;

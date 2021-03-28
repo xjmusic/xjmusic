@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import datadog.trace.api.Trace;
 import io.xj.Chain;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
@@ -30,8 +31,10 @@ public class BossWorkerImpl extends WorkerImpl implements BossWorker {
   public BossWorkerImpl(
     NexusWork work,
     ChainDAO chainDAO,
+    NotificationProvider notification,
     TelemetryProvider telemetryProvider
   ) {
+    super(notification);
     this.work = work;
     this.chainDAO = chainDAO;
     this.telemetryProvider = telemetryProvider;

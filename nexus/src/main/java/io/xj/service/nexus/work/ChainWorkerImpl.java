@@ -7,6 +7,7 @@ import com.typesafe.config.Config;
 import datadog.trace.api.Trace;
 import io.xj.Chain;
 import io.xj.Segment;
+import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
@@ -47,12 +48,14 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
   @Inject
   public ChainWorkerImpl(
     @Assisted String chainId,
-    Config config,
-    SegmentDAO segmentDAO,
     ChainDAO chainDAO,
-    WorkerFactory workerFactory,
-    TelemetryProvider telemetryProvider
+    Config config,
+    NotificationProvider notification,
+    SegmentDAO segmentDAO,
+    TelemetryProvider telemetryProvider,
+    WorkerFactory workerFactory
   ) {
+    super(notification);
     this.chainId = chainId;
     this.chainDAO = chainDAO;
     this.segmentDAO = segmentDAO;
@@ -72,23 +75,23 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
 
   /**
    Do the work-- this is called by the underlying WorkerImpl run() hook
-
-   @throws DAOFatalException      on failure
-   @throws DAOPrivilegeException  on failure
-   @throws DAOValidationException on failure
-   @throws DAOExistenceException  on failure
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
-  protected void doWork() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
+  protected void doWork() {
+    long startedAt = System.nanoTime();
+    Chain chain;
     try {
-      long startedAt = System.nanoTime();
-      var chain = chainDAO.readOne(access, chainId);
-
+      chain = chainDAO.readOne(access, chainId);
       if (Chain.State.Fabricate != chain.getState()) {
-        log.error("Cannot fabricate Chain id:{} in non-Fabricate ({}) state!", chain.getId(), chain.getState());
+        log.error("Cannot fabricate Chain[{}] in non-Fabricate ({}) state!", chain.getId(), chain.getState());
         return;
       }
+    } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
+      log.error("Cannot find Chain[{}]", chainId);
+      return;
+    }
 
+    try {
       int workBufferSeconds = bufferSecondsFor(chain);
 
       Optional<Segment> segment = chainDAO.buildNextSegmentOrCompleteTheChain(access, chain,
@@ -117,9 +120,24 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
         .setFabricatedAheadSeconds(fabricatedAheadSeconds)
         .build());
 
-    } catch (Throwable e) {
+    } catch (DAOPrivilegeException | DAOExistenceException | DAOValidationException | DAOFatalException e) {
+      var body = String.format("Failed to create Segment of Chain[%s] (%s):\n\n%s",
+        chain.getId(),
+        chain.getType(),
+        e.getMessage());
+
+      notification.publish(body,
+        String.format("%s-Chain[%s] Failure",
+          chain.getType(),
+          chain.getId()));
+
       log.error("Failed to created Segment in chainId={}, reason={}", chainId, e.getMessage());
-      throw e;
+
+      try {
+        chainDAO.revive(access, chain.getId(), body);
+      } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException | DAOValidationException e2) {
+        log.error("Failed to revive chain after fatal error!", e2);
+      }
     }
   }
 
