@@ -38,7 +38,7 @@ public interface Main {
     new HubIngestModule(),
     new HubPersistenceModule()
   );
-  int defaultPort = 3000;
+  int defaultPort = 3001;
 
   /**
    Main method.

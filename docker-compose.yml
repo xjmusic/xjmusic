@@ -7,6 +7,7 @@ services:
       context: .
     tty: true
     stdin_open: true
+    network_mode: host
     volumes:
       - .:/var/app/current
       - ./log:/var/log
@@ -14,25 +15,23 @@ services:
     environment:
       APP_NAME: hub
       APP_VERSION: 1.0
-      DD_AGENT_HOST: ddagent01xj1
+      DD_AGENT_HOST: localhost
       DD_TRACE_AGENT_PORT: 8126
       DD_SERVICE: hub
       DD_ENV: ${ENVIRONMENT}
     container_name: hub01xj1
     ports:
-      - "3001:3000"
-      - "10001:10000"
+      - 3001:3001
     depends_on:
       - ddagent
       - postgres
       - redis
     restart: always
-    networks:
-      - xj_network
 
   nexus:
     build:
       context: .
+    network_mode: host
     tty: true
     stdin_open: true
     volumes:
@@ -42,24 +41,22 @@ services:
     environment:
       APP_NAME: nexus
       APP_VERSION: 1.0
-      DD_AGENT_HOST: ddagent01xj1
+      DD_AGENT_HOST: localhost
       DD_TRACE_AGENT_PORT: 8126
       DD_SERVICE: nexus
       DD_ENV: ${ENVIRONMENT}
     container_name: nexus01xj1
     ports:
-      - "3002:3000"
-      - "10002:10000"
+      - 3002:3002
     depends_on:
       - ddagent
       - postgres
       - redis
     restart: always
-    networks:
-      - xj_network
 
   postgres:
     container_name: postgres01xj1
+    network_mode: host
     image: postgres:11.6
     depends_on:
       - ddagent
@@ -68,27 +65,24 @@ services:
       - ./log/postgres:/var/log/postgres
       - ./ops/postgres/postgresql.conf:/etc/postgresql/postgresql.conf
     ports:
-      - "5400:5432"
+      - 5432:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       DD_ENV: ${ENVIRONMENT}
     restart: always
-    networks:
-      - xj_network
 
   redis:
     container_name: redis01xj1
+    network_mode: host
     image: redis:3.0.7
     depends_on:
       - ddagent
     ports:
-      - "6300:6379"
+      - 6379:6379
     environment:
       DD_ENV: ${ENVIRONMENT}
     restart: always
-    networks:
-      - xj_network
 
   ddagent:
     container_name: ddagent01xj1
@@ -107,9 +101,3 @@ services:
       - /proc/:/host/proc/:ro
       - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
     restart: always
-    networks:
-      - xj_network
-
-networks:
-  xj_network:
-    name: xj-network

@@ -61,8 +61,8 @@ Each service has a unique port assignment:
 
 | Service       | Port          |
 | ------------- |---------------|
-| hub           | 3000          |
-| nexus         | 3000          |
+| hub           | 3001          |
+| nexus         | 3002          |
 
 
 ## Web UI
@@ -136,9 +136,9 @@ You'll need to install the Postgresql client `psql` version 12, e.g. `postgresql
 
 After logging in via Google, there will be a user created for you. It will have an `id`, for example 21. To grant the 
 `admin` user role, you'll connect directly to the database on `postgres01xj1` using the port forwarding from local 
-port 5400 (to Docker Postgres container port 5432):
+port 5432 (to Docker Postgres container port 5432):
 
-    psql -h localhost -p 5400 -u postgres
+    psql -h localhost -p 5432 -u postgres
 
 Even better than ^^^, there's a convenience script to easily connect to the Postgres database in the Docker container.
 
@@ -161,7 +161,7 @@ using `--build`:
 There is a Postgresql dump of a complete example database, for quickly bootstrapping a dev environment. These files 
 are located in `ops/sql/dump/*`:
 
-Load the example database into `postgres01xj1` using the port forwarding from local port 5400 (to Docker Postgres 
+Load the example database into `postgres01xj1` using the port forwarding from local port 5432 (to Docker Postgres 
 container port 5432). There's a convenience script to do this:
 
     bin/sql/reset/all_local
@@ -178,7 +178,7 @@ You may ask Gradle to migrate the Hub service's Postgres database at any time li
     gradle :hub:flywayMigrate --info  
 
 It is NOT necessary to have any local Postgres server running. The build process will use your Docker `postgres01xj1`, 
-or more specifically (for cross-platform compatibility) it will use port 5400 which Docker maps to `postgres01xj1` 
+or more specifically (for cross-platform compatibility) it will use port 5432 which Docker maps to `postgres01xj1` 
 port 5432, for Maven to use during the build process.
 
 Connect to the Docker `postgres01xj1` server:
@@ -261,7 +261,7 @@ By default, you'll need to create two Postgres databases:
 
 ## Redis server
 
-The docker container `redis01xj1` exposes a Redis server on local port 6300.  There's a convenience script for connecting to it:
+The docker container `redis01xj1` exposes a Redis server on local port 6379.  There's a convenience script for connecting to it:
 
     bin/redis_cli
 
@@ -281,16 +281,6 @@ Integration uses the Docker `postgres01xj1` and `redis01xj1` databases.
 
 Each service is responsible for migrating its private stores when it starts up.
 
-
-## Run local platform manually
-
-Run a local **Hub** service on its default port 3000:
-
-    bin/hub    
-
-Run a local **Chains** service on its default port 8045:
-
-    bin/chains
 
 
 ## Cleanup
@@ -314,22 +304,6 @@ To clean, build, test and assemble artifacts for shipment:
 ## Google Authentication
 
 Login to the app using Google authentication. The redirect URL for local development is http://xj.io/auth/google/callback
-
-
-## Debugging
-
-It is helpful to be able to compile and run Java components against the Docker container resources made available by Docker Compose. Assuming that the containers are running locally and addressed properly (see the 'DNS' section above) simply include the following in the Run Configuration -> Program Arguments:
-
-    -Dapp.url.base=http://localhost:3000/
-    -Dapp.url.api=
-    -Dauth.google.id=<dev google oauth client id>
-    -Dauth.google.secret=<dev google oauth client secret>
-    -Ddb.postgresql.host=postgres01xj1
-    -Ddb.redis.host=redis01xj1
-
-Also remember, it is necessary to send an authentication cookie in the header of API requests:
-
-    curl -b Access-Token
 
 
 ## Shipping final audio & JSON to Amazon S3
@@ -501,7 +475,7 @@ Here's the official XJ Music Inc copyright Velocity template:
 On OSX, because we are unable to connect to the container from the host, we are using the following workarounds, which are built in to the cross-platform workflow:
 
   * Local port 80 (e.g. http://localhost) is mapped to Docker container `hub01xj1` port 80
-  * Local port 5400 is mapped to Postgres container `postgres01xj1` port 5432
+  * Local port 5432 is mapped to Postgres container `postgres01xj1` port 5432
 
 Docker documentation: https://docs.docker.com/docker-for-mac/networking/#per-container-ip-addressing-is-not-possible
 GitHub Open Issue: https://github.com/docker/for-mac/issues/155

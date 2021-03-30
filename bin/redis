@@ -4,7 +4,7 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 # Port
-REDIS_PORT=6300
+REDIS_PORT=6379
 
 # Find Redis CLI executable
 REDIS_COMMAND=redis-cli

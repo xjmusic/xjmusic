@@ -40,7 +40,7 @@ public interface Main {
     new NexusEntityStoreModule(),
     new NexusWorkModule()
   );
-  int defaultPort = 3000;
+  int defaultPort = 3002;
 
   /**
    Main method.

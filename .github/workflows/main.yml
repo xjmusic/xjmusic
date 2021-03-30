@@ -27,7 +27,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 6300:6379
+          - 6379:6379
       #
       postgres:
         # Docker Hub image
@@ -42,7 +42,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 5400:5432
+          - 5432:5432
 
     steps:
 
@@ -59,8 +59,8 @@ jobs:
 
       - name: Create Postgres databases
         run: |
-          createdb -h localhost -p 5400 -U postgres xj_dev
-          createdb -h localhost -p 5400 -U postgres xj_test
+          createdb -h localhost -p 5432 -U postgres xj_dev
+          createdb -h localhost -p 5432 -U postgres xj_test
         env:
           PGPASSWORD: postgres
 

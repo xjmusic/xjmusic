@@ -61,8 +61,8 @@ if [[ ! -e ${CONFIG_PATH} ]]; then
 fi
 
 #
-wait_until "postgres_ok postgres01xj1 5400"
-wait_until "redis_ok redis01xj1 6379"
+wait_until "postgres_ok localhost 5432"
+wait_until "redis_ok localhost 6379"
 
 #
 TAR_NAME="${APP_NAME}-${APP_VERSION}.tar"

@@ -200,12 +200,13 @@ public class App {
   public void finish() {
     log.debug("{} will stop", name);
 
-    try {
-      resourceServer.stop();
-      resourceServer.destroy();
-    } catch (Exception e) {
-      log.error("{} failed to stop resource server", name, e);
-    }
+    if (Objects.nonNull(resourceServer))
+      try {
+        resourceServer.stop();
+        resourceServer.destroy();
+      } catch (Exception e) {
+        log.error("{} failed to stop resource server", name, e);
+      }
 
     log.info("{} did stop", name);
   }

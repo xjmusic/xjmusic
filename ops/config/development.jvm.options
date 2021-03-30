@@ -11,10 +11,10 @@
 -Ddb.postgres.database=xj_dev
 -Ddb.postgres.host=localhost
 -Ddb.postgres.pass=postgres
--Ddb.postgres.port=5400
+-Ddb.postgres.port=5432
 -Ddb.postgres.user=postgres
 -Ddb.redis.host=localhost
--Ddb.redis.port=6300
+-Ddb.redis.port=6379
 -Dsegment.file.bucket=xj-dev-ship
 -Dsegment.url.base=https://ship.dev.xj.io/
 -Dsegment.url.upload=https://xj-dev-ship.s3.amazonaws.com

@@ -5,7 +5,7 @@
 
 # Connect as postgres
 SQL_USER="postgres"
-SQL_PORT=5400
+SQL_PORT=5432
 export PGPASSWORD=postgres
 
 # User ID is first parameter

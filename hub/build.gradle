@@ -39,7 +39,7 @@ repositories {
 }
 
 flyway {
-  url = 'jdbc:postgresql://127.0.0.1:5400/xj_dev'
+  url = 'jdbc:postgresql://127.0.0.1:5432/xj_dev'
   user = 'postgres'
   password = 'postgres'
   schemas = ['xj']
@@ -106,7 +106,7 @@ jooq {
   sample(sourceSets.main) {
     jdbc {
       driver = 'org.postgresql.Driver'
-      url = 'jdbc:postgresql://localhost:5400/xj_dev'
+      url = 'jdbc:postgresql://localhost:5432/xj_dev'
       user = 'postgres'
       password = 'postgres'
     }
