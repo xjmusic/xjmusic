@@ -14,6 +14,7 @@ public class OctaveTest {
     assertEquals(Integer.valueOf(3), Octave.of("D#3"));
     assertEquals(Integer.valueOf(5), Octave.of("D5"));
     assertEquals(Integer.valueOf(-2), Octave.of("D-2"));
+    assertEquals(Integer.valueOf(-2), Octave.of("D--2"));
   }
 
 }

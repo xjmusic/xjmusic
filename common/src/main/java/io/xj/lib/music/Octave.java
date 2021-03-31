@@ -23,7 +23,7 @@ public interface Octave {
    @return octave
    */
   static Integer of(String text) {
-    Matcher matcher = rgxOctave.matcher(text.trim());
+    Matcher matcher = rgxOctave.matcher(text.trim().replaceAll("--", "-"));
     if (matcher.find())
       return Integer.valueOf(matcher.group(1));
     else
