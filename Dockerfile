@@ -71,11 +71,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install wget
 # Install unzip
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install unzip
 
-# YourKit Java Profiler
-RUN wget https://www.yourkit.com/download/docker/YourKit-JavaProfiler-2020.9-docker.zip -P /tmp/ && \
-  unzip /tmp/YourKit-JavaProfiler-2020.9-docker.zip -d /usr/local && \
-  rm /tmp/YourKit-JavaProfiler-2020.9-docker.zip
-
 # Datadog Java Agent
 RUN wget -O /usr/local/dd-java-agent.jar https://dtdg.co/latest-java-tracer
 

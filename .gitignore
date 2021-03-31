@@ -44,10 +44,6 @@ github.properties
 # Kafka properties
 kafka.properties
 
-# YourKit Java Profiler
-*.hprof
-*.hprof.idom
-
 # Audio data
 nexus/data/
 
