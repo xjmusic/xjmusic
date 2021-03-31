@@ -9,6 +9,7 @@ import io.xj.Chain;
 import io.xj.Segment;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
+import io.xj.lib.util.Text;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.dao.ChainDAO;
 import io.xj.service.nexus.dao.SegmentDAO;
@@ -121,10 +122,11 @@ public class ChainWorkerImpl extends WorkerImpl implements ChainWorker {
         .build());
 
     } catch (DAOPrivilegeException | DAOExistenceException | DAOValidationException | DAOFatalException e) {
-      var body = String.format("Failed to create Segment of Chain[%s] (%s):\n\n%s",
+      var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
         chain.getId(),
         chain.getType(),
-        e.getMessage());
+        e.getMessage(),
+        Text.formatStackTrace(e));
 
       notification.publish(body,
         String.format("%s-Chain[%s] Failure",

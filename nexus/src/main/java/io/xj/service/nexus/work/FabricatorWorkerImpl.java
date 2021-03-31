@@ -7,6 +7,7 @@ import io.xj.Chain;
 import io.xj.Segment;
 import io.xj.SegmentMessage;
 import io.xj.lib.notification.NotificationProvider;
+import io.xj.lib.util.Text;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.craft.CraftFactory;
@@ -174,12 +175,13 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "didFailWhile")
   private void didFailWhile(String message, Exception e) {
-    var body = String.format("Failed while %s for Segment[%s] of Chain[%s] (%s):\n\n%s",
+    var body = String.format("Failed while %s for Segment[%s] of Chain[%s] (%s) because %s\n\n%s",
       message,
       segmentId,
       chainId(),
       chainType(),
-      e.getMessage());
+      e.getMessage(),
+      Text.formatStackTrace(e));
 
     createSegmentErrorMessage(body);
 
