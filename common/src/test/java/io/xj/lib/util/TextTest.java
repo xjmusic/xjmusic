@@ -69,7 +69,7 @@ public class TextTest {
 
   @Test
   public void toLowerSlug() {
-    assertEquals("hammyjammy", Text.toLowerSlug("H4AMMY jaMMy"));
+    assertEquals("h4mmyjammy", Text.toLowerSlug("H4MMY jaMMy"));
     assertEquals("jammy", Text.toLowerSlug("jaMMy"));
     assertEquals("jmmy", Text.toLowerSlug("j#MMy", "neuf"));
     assertEquals("neuf", Text.toLowerSlug(null, "neuf"));
@@ -163,9 +163,9 @@ public class TextTest {
   @Test
   public void toSlug() {
     assertEquals("jim", Text.toSlug("jim"));
-    assertEquals("jim", Text.toSlug("jim-251"));
-    assertEquals("jim", Text.toSlug("j i m - 2 5 1"));
-    assertEquals("jim", Text.toSlug("j!i$m%-^2%5*1"));
+    assertEquals("jim251", Text.toSlug("jim-251"));
+    assertEquals("jim251", Text.toSlug("j i m - 2 5 1"));
+    assertEquals("j!m251", Text.toSlug("j!$m%-^2%5*1"));
   }
 
   @Test
@@ -187,7 +187,7 @@ public class TextTest {
 
   @Test
   public void toUpperSlug() {
-    assertEquals("JAMMYBUNS", Text.toUpperSlug("jaMMy b#!uns"));
+    assertEquals("JAMMYB!NS", Text.toUpperSlug("jaMMy b#!ns"));
     assertEquals("JAMMY", Text.toUpperSlug("jaMMy"));
     assertEquals("JMMY", Text.toUpperSlug("j#MMy", "neuf"));
     assertEquals("NEUF", Text.toUpperSlug(null, "neuf"));

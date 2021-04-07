@@ -5,31 +5,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Streams;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.InstrumentAudioEvent;
-import io.xj.Program;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceBinding;
-import io.xj.ProgramSequenceChordVoicing;
-import io.xj.ProgramSequencePattern;
-import io.xj.ProgramSequencePatternEvent;
-import io.xj.ProgramVoice;
-import io.xj.ProgramVoiceTrack;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMeme;
-import io.xj.SegmentMessage;
+import io.xj.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -519,12 +500,15 @@ class FabricatorImpl implements Fabricator {
           previousMacroChoice.getProgramId(),
           previousSequenceBinding.getOffset() + 1);
 
-      Collection<String> result = Lists.newArrayList();
-      sourceMaterial.getProgramMemes(previousMacroChoice.getProgramId())
-        .forEach(meme -> result.add(meme.getName()));
-      nextSequenceBinding.forEach(programSequenceBinding -> sourceMaterial.getMemes(programSequenceBinding)
-        .forEach(meme -> result.add(meme.getName())));
-      return MemeIsometry.ofMemes(result);
+      return MemeIsometry.ofMemes(Streams.concat(
+        sourceMaterial.getProgramMemes(previousMacroChoice.getProgramId())
+          .stream()
+          .map(ProgramMeme::getName),
+        nextSequenceBinding.stream()
+          .flatMap(programSequenceBinding -> sourceMaterial.getMemes(programSequenceBinding)
+            .stream()
+            .map(ProgramSequenceBindingMeme::getName))
+      ).collect(Collectors.toList()));
 
     } catch (NexusException e) {
       log.warn("Could not get meme isometry of next sequence in previous macro", e);

@@ -4,6 +4,7 @@ package io.xj.service.nexus.fabricator;
 import com.google.common.base.Objects;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
+import io.xj.lib.util.Text;
 
 import java.util.Collection;
 
@@ -23,7 +24,7 @@ public class MemeIsometry extends Isometry {
   public static MemeIsometry ofMemes(Collection<String> sourceMemes) {
     MemeIsometry result = new MemeIsometry();
     for (String meme : sourceMemes)
-      result.addStem(meme);
+      result.add(Text.toUpperSlug(meme));
     return result;
   }
 
@@ -45,15 +46,12 @@ public class MemeIsometry extends Isometry {
   public double score(Iterable<String> targetMemes) {
     double tally = 0;
 
-    // tally each match of source & target stem
-    for (String meme : targetMemes) {
-      String targetStem = stem(meme);
-      for (String sourceStem : getSources()) {
-        if (Objects.equal(sourceStem, targetStem)) {
+    // tally each match of source & target meme
+    for (String target : targetMemes)
+      for (String source : getSources())
+        if (Objects.equal(source, Text.toUpperSlug(target)))
           tally += 1;
-        }
-      }
-    }
+
     return tally / getSources().size();
   }
 
@@ -62,7 +60,8 @@ public class MemeIsometry extends Isometry {
    */
   public <R> void add(R meme) {
     try {
-      Entities.get(meme, KEY_NAME).ifPresent(name -> addStem(stem(String.valueOf(name))));
+      Entities.get(meme, KEY_NAME)
+        .ifPresent(name -> add(Text.toUpperSlug(String.valueOf(name))));
     } catch (EntityException ignored) {
     }
   }

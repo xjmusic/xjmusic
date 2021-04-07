@@ -562,7 +562,7 @@ public class FabricatorImplTest {
 
     var result = subject.getMemeIsometryOfNextSequenceInPreviousMacro();
 
-    assertEquals(ImmutableList.of("tropic", "cozi"), result.getSources());
+    assertEquals(ImmutableList.of("TROPICAL", "COZY"), result.getSources());
   }
 
   @Test

@@ -5,17 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
-import io.xj.Account;
-import io.xj.AccountUser;
-import io.xj.Instrument;
-import io.xj.Library;
-import io.xj.Program;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceBinding;
-import io.xj.ProgramSequenceBindingMeme;
-import io.xj.ProgramVoice;
-import io.xj.User;
-import io.xj.UserRole;
+import io.xj.*;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
@@ -230,6 +220,52 @@ public class ProgramSequenceBindingMemeIT {
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals(fake.program3_binding1.getId(), result.getProgramSequenceBindingId());
     assertEquals("BLUE", result.getName());
+  }
+
+  /**
+   [#177587964] Artist can use numerals in meme name
+   */
+  @Test
+  public void create_numerals() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    var subject = ProgramSequenceBindingMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program3.getId())
+      .setProgramId(fake.program3_binding1.getProgramId())
+      .setProgramSequenceBindingId(fake.program3_binding1.getId())
+      .setName("Blue5")
+      .build();
+
+    var result = testDAO.create(
+      hubAccess, subject);
+
+    assertNotNull(result);
+    assertEquals(fake.program3.getId(), result.getProgramId());
+    assertEquals(fake.program3_binding1.getId(), result.getProgramSequenceBindingId());
+    assertEquals("BLUE5", result.getName());
+  }
+
+  /**
+   [#176474073] Artist can add !MEME values into Programs
+   */
+  @Test
+  public void create_notMeme() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    var subject = ProgramSequenceBindingMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program3.getId())
+      .setProgramId(fake.program3_binding1.getProgramId())
+      .setProgramSequenceBindingId(fake.program3_binding1.getId())
+      .setName("!Blue")
+      .build();
+
+    var result = testDAO.create(
+      hubAccess, subject);
+
+    assertNotNull(result);
+    assertEquals(fake.program3.getId(), result.getProgramId());
+    assertEquals(fake.program3_binding1.getId(), result.getProgramSequenceBindingId());
+    assertEquals("!BLUE", result.getName());
   }
 
   /**

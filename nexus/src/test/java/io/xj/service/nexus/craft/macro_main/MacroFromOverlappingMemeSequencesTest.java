@@ -7,17 +7,7 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
-import io.xj.Account;
-import io.xj.AccountUser;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Library;
-import io.xj.Program;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceBinding;
-import io.xj.Segment;
-import io.xj.User;
-import io.xj.UserRole;
+import io.xj.*;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.ApiUrlProvider;
@@ -42,15 +32,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.time.Instant;
 import java.util.UUID;
 
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeAccountUser;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeBinding;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChain;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeLibrary;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeMeme;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeProgram;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeSequence;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeUser;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeUserRole;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -63,9 +45,6 @@ public class MacroFromOverlappingMemeSequencesTest {
   private MacroMainCraftImpl subject;
   private static final int REPEAT_TIMES = 100;
 
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
-
   @Mock
   public HubClient hubClient;
 
@@ -74,7 +53,6 @@ public class MacroFromOverlappingMemeSequencesTest {
 
   // Fake entities
   private Program macro2a;
-  private ProgramSequence macro1_sequenceB;
 
   @Before
   public void setUp() throws Exception {
@@ -114,7 +92,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     var macro1_sequenceA = makeSequence(macro1, 0, "Start Wild", 0.6, "C", 125.0);
     var macro1_sequenceA_binding = makeBinding(macro1_sequenceA, 0);
     var macro1_sequenceA_bindingMeme = makeMeme(macro1_sequenceA_binding, "Red");
-    macro1_sequenceB = makeSequence(macro1, 0, "Intermediate", 0.4, "Bb minor", 115.0);
+    ProgramSequence macro1_sequenceB = makeSequence(macro1, 0, "Intermediate", 0.4, "Bb minor", 115.0);
     var macro1_sequenceB_binding = makeBinding(macro1_sequenceB, 1);
     var macro1_sequenceB_bindingMeme = makeMeme(macro1_sequenceB_binding, "Green");
 
@@ -218,7 +196,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     // At 100 repetitions, false positive is 2^100:1 against
     for (int i = 0; i < REPEAT_TIMES; i++) {
       var result = subject.chooseNextMacroProgram().orElseThrow();
-      assertEquals(macro2a.getId(), result.getId());
+      assertEquals(String.format("Run #%s OK", i), macro2a.getId(), result.getId());
     }
   }
 }

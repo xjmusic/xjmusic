@@ -36,7 +36,7 @@ import java.util.UUID;
  */
 public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroMainCraft {
   private static final double SCORE_MATCH = 100;
-  private static final double SCORE_AVOID = -SCORE_MATCH;
+  private static final double SCORE_AVOID = -SCORE_MATCH / 2;
   private static final double SCORE_DIRECT = 10 * SCORE_MATCH;
   private static final double SCORE_MACRO_ENTROPY = 0.5;
   private static final double SCORE_MAIN_ENTROPY = 0.5;

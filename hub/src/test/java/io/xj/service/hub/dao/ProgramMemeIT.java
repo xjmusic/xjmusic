@@ -195,6 +195,46 @@ public class ProgramMemeIT {
   }
 
   /**
+   [#177587964] Artist can use numerals in meme name
+   */
+  @Test
+  public void create_numerals() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    var subject = ProgramMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program3.getId())
+      .setName("3note")
+      .build();
+
+    var result = testDAO.create(
+      hubAccess, subject);
+
+    assertNotNull(result);
+    assertEquals(fake.program3.getId(), result.getProgramId());
+    assertEquals("3NOTE", result.getName());
+  }
+
+  /**
+   [#176474073] Artist can add !MEME values into Programs
+   */
+  @Test
+  public void create_notMeme() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    var subject = ProgramMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramId(fake.program3.getId())
+      .setName("!busy")
+      .build();
+
+    var result = testDAO.create(
+      hubAccess, subject);
+
+    assertNotNull(result);
+    assertEquals(fake.program3.getId(), result.getProgramId());
+    assertEquals("!BUSY", result.getName());
+  }
+
+  /**
    [#156144567] Artist expects to of a Main-type programMeme without crashing the entire platform
    NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
