@@ -32,7 +32,7 @@ public class ChordTest {
   private static final Object KEY_PITCHES = "pitches";
 
   @Test
-  public void TestChordExpectations() throws Exception {
+  public void TestChordExpectations() {
     Yaml yaml = new Yaml();
 
     Map<?, ?> wrapper = (Map<?, ?>) yaml.load(getClass().getResourceAsStream(EXPECTED_CHORDS_YAML));
@@ -52,7 +52,7 @@ public class ChordTest {
       Map<Interval, PitchClass> expectPitches = Maps.newHashMap();
       rawPitches.forEach((rawInterval, rawPitchClass) ->
         expectPitches.put(
-          Interval.valueOf(Integer.valueOf(String.valueOf(rawInterval))),
+          Interval.valueOf(Integer.parseInt(String.valueOf(rawInterval))),
           PitchClass.of(String.valueOf(rawPitchClass))));
 
       assertChordExpectations(expectRootPitchClass, expectPitches, Chord.of(String.valueOf(chordName)));
@@ -166,4 +166,14 @@ public class ChordTest {
     assertTrue(Chord.of("NC").isNoChord());
   }
 
+  /**
+   [#176728338] XJ understands the root of a slash chord
+   */
+  @Test
+  public void getRoot() {
+    assertEquals(PitchClass.C, Chord.of("Cm7").getRoot());
+    assertEquals(PitchClass.Cs, Chord.of("C#m7").getRoot());
+    assertEquals(PitchClass.G, Chord.of("Cm7/G").getRoot());
+    assertEquals(PitchClass.Gs, Chord.of("C#m7/G#").getRoot());
+  }
 }

@@ -9,9 +9,10 @@ import java.util.regex.Pattern;
  Root can be the root of a Chord, Key or Scale.
  */
 public class Root {
-
-  private static final Pattern rgxSingle = Pattern.compile("^([ABCDEFG]).*");
-  private static final Pattern rgxDouble = Pattern.compile("^([ABCDEFG][♯#♭b]).*");
+  private static final Pattern rgxNote = Pattern.compile("^([ABCDEFG]).*");
+  private static final Pattern rgxNoteModified = Pattern.compile("^([ABCDEFG][♯#♭b]).*");
+  private static final Pattern rgxSlashNote = Pattern.compile("/([ABCDEFG])$");
+  private static final Pattern rgxSlashNoteModified = Pattern.compile("/([ABCDEFG][♯#♭b])$");
   private PitchClass pitchClass;
   private String remainingText;
 
@@ -25,12 +26,16 @@ public class Root {
     this.pitchClass = PitchClass.None;
     this.remainingText = name;
 
-    evaluate(rgxSingle, name);
-    evaluate(rgxDouble, name);
+    evaluate(rgxNote, name, true);
+    evaluate(rgxNoteModified, name, true);
+    evaluate(rgxSlashNote, name, false);
+    evaluate(rgxSlashNoteModified, name, false);
   }
 
   /**
    Instantiate a Root by name
+   <p>
+   [#176728338] XJ understands the root of a slash chord
 
    @param name of root
    @return root
@@ -40,12 +45,12 @@ public class Root {
   }
 
   /**
-   First group matching pattern in text, else null
+   First group matching pattern in text, else null@param pattern to in
 
-   @param pattern to in
-   @param text    to search
+   @param text              to search
+   @param withRemainingText whether to store remaining text from this evaluation
    */
-  private void evaluate(Pattern pattern, String text) {
+  private void evaluate(Pattern pattern, String text, Boolean withRemainingText) {
     Matcher matcher = pattern.matcher(text);
     if (!matcher.find())
       return;
@@ -55,7 +60,8 @@ public class Root {
       return;
 
     this.pitchClass = PitchClass.of(match);
-    this.remainingText = text.substring(match.length()).trim();
+    if (withRemainingText)
+      this.remainingText = text.substring(match.length()).trim();
   }
 
   /**

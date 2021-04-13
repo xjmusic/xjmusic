@@ -141,6 +141,9 @@ public abstract class IntervalPitchGroup {
     return name;
   }
 
+  /**
+   [#176728338] XJ understands the root of a slash chord
+   */
   public PitchClass getRoot() {
     return root;
   }
