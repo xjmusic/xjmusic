@@ -4,8 +4,6 @@
 
   <appender name="JSON_TCP" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
     <remoteHost>intake.logs.datadoghq.com</remoteHost>
-    <KeyValuePair key="service" value="nexus3"/>
-
     <port>10514</port>
     <keepAliveDuration>20 seconds</keepAliveDuration>
     <encoder class="net.logstash.logback.encoder.LogstashEncoder">
