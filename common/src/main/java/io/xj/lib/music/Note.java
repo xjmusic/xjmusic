@@ -67,7 +67,7 @@ public class Note {
    @return string representation of Note
    */
   public String toString(AdjSymbol adjSymbol) {
-    return pitchClass.toString(adjSymbol) + octave;
+    return String.format("%s%s", pitchClass.toString(adjSymbol), octave);
   }
 
   /**
