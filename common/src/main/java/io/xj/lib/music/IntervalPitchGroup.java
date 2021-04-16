@@ -18,6 +18,8 @@ public abstract class IntervalPitchGroup {
   protected String name;
   // Root Pitch Class
   protected PitchClass root;
+  // Slash Root Pitch Class
+  protected PitchClass slashRoot;
   // the (flat/sharp) adjustment symbol, which will be used to express this chord
   protected AdjSymbol adjSymbol;
   // a map of this chord's +/- semitones-from-root, for each interval
@@ -43,6 +45,9 @@ public abstract class IntervalPitchGroup {
 
     // parse the root, and keep the remaining string
     this.root = root.getPitchClass();
+
+    // parse the slash root
+    this.slashRoot = SlashRoot.of(name).getPitchClass();
 
     // description is everything AFTER the root, in the original name
     description = root.getRemainingText();
@@ -141,11 +146,15 @@ public abstract class IntervalPitchGroup {
     return name;
   }
 
+  public PitchClass getRoot() {
+    return root;
+  }
+
   /**
    [#176728338] XJ understands the root of a slash chord
    */
-  public PitchClass getRoot() {
-    return root;
+  public PitchClass getSlashRoot() {
+    return slashRoot;
   }
 
   public SortedMap<Interval, Integer> getTones() {

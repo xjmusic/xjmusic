@@ -170,10 +170,10 @@ public class ChordTest {
    [#176728338] XJ understands the root of a slash chord
    */
   @Test
-  public void getRoot() {
-    assertEquals(PitchClass.C, Chord.of("Cm7").getRoot());
-    assertEquals(PitchClass.Cs, Chord.of("C#m7").getRoot());
-    assertEquals(PitchClass.G, Chord.of("Cm7/G").getRoot());
-    assertEquals(PitchClass.Gs, Chord.of("C#m7/G#").getRoot());
+  public void getSlashRoot() {
+    assertEquals(PitchClass.None, Chord.of("Cm7").getSlashRoot());
+    assertEquals(PitchClass.None, Chord.of("C#m7").getSlashRoot());
+    assertEquals(PitchClass.G, Chord.of("Cm7/G").getSlashRoot());
+    assertEquals(PitchClass.Gs, Chord.of("C#m7/G#").getSlashRoot());
   }
 }

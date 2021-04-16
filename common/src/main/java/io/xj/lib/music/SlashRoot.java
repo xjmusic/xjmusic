@@ -8,24 +8,22 @@ import java.util.regex.Pattern;
 /**
  Root can be the root of a Chord, Key or Scale.
  */
-public class Root {
-  private static final Pattern rgxNote = Pattern.compile("^([ABCDEFG]).*");
-  private static final Pattern rgxNoteModified = Pattern.compile("^([ABCDEFG][♯#♭b]).*");
+public class SlashRoot {
+  private static final Pattern rgxSlashNote = Pattern.compile("/([ABCDEFG])$");
+  private static final Pattern rgxSlashNoteModified = Pattern.compile("/([ABCDEFG][♯#♭b])$");
   private PitchClass pitchClass;
-  private String remainingText;
 
   /**
    Parse root and remaining string, using regular expressions
 
    @param name to parse root and remaining of
    */
-  private Root(String name) {
+  private SlashRoot(String name) {
     // as a default, the whole thing is remaining text, and pitch class is None
     this.pitchClass = PitchClass.None;
-    this.remainingText = name;
 
-    evaluate(rgxNote, name, true);
-    evaluate(rgxNoteModified, name, true);
+    evaluate(rgxSlashNote, name);
+    evaluate(rgxSlashNoteModified, name);
   }
 
   /**
@@ -36,17 +34,16 @@ public class Root {
    @param name of root
    @return root
    */
-  public static Root of(String name) {
-    return new Root(name);
+  public static SlashRoot of(String name) {
+    return new SlashRoot(name);
   }
 
   /**
    First group matching pattern in text, else null@param pattern to in
 
-   @param text              to search
-   @param withRemainingText whether to store remaining text from this evaluation
+   @param text to search
    */
-  private void evaluate(Pattern pattern, String text, Boolean withRemainingText) {
+  private void evaluate(Pattern pattern, String text) {
     Matcher matcher = pattern.matcher(text);
     if (!matcher.find())
       return;
@@ -56,8 +53,6 @@ public class Root {
       return;
 
     this.pitchClass = PitchClass.of(match);
-    if (withRemainingText)
-      this.remainingText = text.substring(match.length()).trim();
   }
 
   /**
@@ -67,15 +62,6 @@ public class Root {
    */
   public PitchClass getPitchClass() {
     return pitchClass;
-  }
-
-  /**
-   Remaining text after root has been extracted
-
-   @return remaining text
-   */
-  public String getRemainingText() {
-    return remainingText;
   }
 
 }
