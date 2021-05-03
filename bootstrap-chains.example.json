@@ -11,9 +11,9 @@
         }
       },
       "attributes": {
-        "embedKey": "coolambience",
+        "embedKey": "coolair",
         "stopAt": null,
-        "name": "Cool Ambience",
+        "name": "Cool Air",
         "state": "Fabricate",
         "type": "Production",
         "config": ""
