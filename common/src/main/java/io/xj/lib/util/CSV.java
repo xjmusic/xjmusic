@@ -17,11 +17,13 @@ public interface CSV {
   char SPACE = ' ';
 
   static Collection<String> split(String csv) {
-    return Arrays.asList(csv.split(","));
+    return Arrays.stream(csv.split(","))
+      .map(String::trim)
+      .collect(Collectors.toList());
   }
 
   static Collection<String> splitProperSlug(String csv) {
-    List<String> items = Arrays.asList(csv.split(","));
+    Collection<String> items = split(csv);
     ImmutableList.Builder<String> slugs = new ImmutableList.Builder<>();
     items.stream().filter(item -> Objects.nonNull(item) && !item.isEmpty()).map(Text::toProperSlug).forEach(slugs::add);
     return slugs.build();
@@ -38,11 +40,11 @@ public interface CSV {
   }
 
   /**
-   Join a set of items' toString() values properly, e.g. "One, Two, Three, and Four"
-
-   @param ids             to write
-   @param beforeFinalItem text after last comma
-   @return CSV of ids
+   * Join a set of items' toString() values properly, e.g. "One, Two, Three, and Four"
+   *
+   * @param ids             to write
+   * @param beforeFinalItem text after last comma
+   * @return CSV of ids
    */
   static <T> String prettyFrom(Collection<T> ids, String beforeFinalItem) {
     if (Objects.isNull(ids) || ids.isEmpty()) {
@@ -61,10 +63,10 @@ public interface CSV {
   }
 
   /**
-   Get a CSV string of key=value properties
-
-   @param properties key=value
-   @return CSV string
+   * Get a CSV string of key=value properties
+   *
+   * @param properties key=value
+   * @return CSV string
    */
   static String from(Map<String, String> properties) {
     Collection<String> pieces = Lists.newArrayList();
@@ -73,10 +75,10 @@ public interface CSV {
   }
 
   /**
-   Get a CSV string of key=value properties
-
-   @param properties key=value
-   @return CSV string
+   * Get a CSV string of key=value properties
+   *
+   * @param properties key=value
+   * @return CSV string
    */
   static String from(Collection<?> properties) {
     return join(properties.stream().map(Objects::toString).collect(Collectors.toList()));

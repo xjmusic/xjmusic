@@ -17,6 +17,13 @@ public class CSVTest {
   }
 
   @Test
+  public void split_alsoTrims() {
+    assertEquals(
+      Arrays.asList("one", "two", "three"),
+      CSV.split("one, two, three"));
+  }
+
+  @Test
   public void splitProperSlug() {
     assertEquals(
       Arrays.asList("One", "Two", "Three"),
