@@ -273,7 +273,7 @@ public interface Fabricator {
    @param note  to get key of
    @return unique key for pattern event
    */
-  String keyByTrackNote(String track, Note note) throws NexusException;
+  String keyByTrackNote(String track, String note) throws NexusException;
 
   /**
    Get the Voice ID of a given event
@@ -604,7 +604,7 @@ public interface Fabricator {
    @param type  to get voicing notes for
    @return voicing notes
    */
-  Collection<Note> getVoicingNotes(SegmentChord chord, Instrument.Type type);
+  Collection<String> getVoicingNotes(SegmentChord chord, Instrument.Type type);
 
   /**
    Get instrument for a given segment pick
@@ -730,7 +730,7 @@ public interface Fabricator {
    @param segmentChordName to test for previously picked notes of
    @return notes picked previously for event
    */
-  List<Note> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName);
+  List<String> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName);
 
   /**
    Remember which notes were picked for a given event
@@ -740,7 +740,7 @@ public interface Fabricator {
    @param notes                         to remember were picked
    @return notes to pass  through for chaining method calls
    */
-  List<Note> rememberPickedNotes(String programSequencePatternEventId, String chordName, List<Note> notes);
+  List<String> rememberPickedNotes(String programSequencePatternEventId, String chordName, List<String> notes);
 
   /**
    Get the mix amplitude (ratio) for the instrument type of a given pick, based on chain config
@@ -767,7 +767,7 @@ public interface Fabricator {
    @return notes from voicing
    @throws NexusException on failure
    */
-  Collection<Note> getNotes(SegmentChordVoicing voicing) throws NexusException;
+  Collection<String> getNotes(SegmentChordVoicing voicing) throws NexusException;
 
   /**
    Get the note range for an arrangement based on all the events in its program

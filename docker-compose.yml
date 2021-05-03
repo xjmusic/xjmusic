@@ -20,8 +20,6 @@ services:
       DD_SERVICE: hub
       DD_ENV: ${ENVIRONMENT}
     container_name: hub01xj1
-    ports:
-      - 3001:3001
     depends_on:
       - ddagent
       - postgres
@@ -46,8 +44,6 @@ services:
       DD_SERVICE: nexus
       DD_ENV: ${ENVIRONMENT}
     container_name: nexus01xj1
-    ports:
-      - 3002:3002
     depends_on:
       - ddagent
       - postgres
@@ -64,8 +60,6 @@ services:
       - /var/lib/postgresql/data
       - ./log/postgres:/var/log/postgres
       - ./ops/postgres/postgresql.conf:/etc/postgresql/postgresql.conf
-    ports:
-      - 5432:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -78,8 +72,6 @@ services:
     image: redis:3.0.7
     depends_on:
       - ddagent
-    ports:
-      - 6379:6379
     environment:
       DD_ENV: ${ENVIRONMENT}
     restart: always
@@ -93,9 +85,6 @@ services:
       DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
       DD_ENV: ${ENVIRONMENT}
       DD_HOSTNAME: ${HOSTNAME}
-    ports:
-      - 8125:8125/udp
-      - 8126:8126/udp
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc/:/host/proc/:ro

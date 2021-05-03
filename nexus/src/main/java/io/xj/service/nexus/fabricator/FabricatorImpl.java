@@ -20,7 +20,6 @@ import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
-import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
@@ -48,19 +47,13 @@ import javax.sound.sampled.AudioFormat;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.xj.Instrument.Type.UNRECOGNIZED;
 
 /**
- [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
+ * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 class FabricatorImpl implements Fabricator {
   private static final double MICROS_PER_SECOND = 1000000.0F;
@@ -91,7 +84,7 @@ class FabricatorImpl implements Fabricator {
   private final SegmentDAO segmentDAO;
   private final FabricatorFactory fabricatorFactory;
   private Map<String, InstrumentAudio> previousInstrumentAudio;
-  private final Map<String, Collection<Note>> voicingNotesForSegmentChordInstrumentType = Maps.newHashMap();
+  private final Map<String, Collection<String>> voicingNotesForSegmentChordInstrumentType = Maps.newHashMap();
   private final Map<Instrument.Type, NoteRange> voicingNoteRange = Maps.newHashMap();
   private final Map<String, Collection<InstrumentAudioEvent>> firstEventsOfAudiosOfInstrument = Maps.newHashMap();
   private final PayloadFactory payloadFactory;
@@ -169,9 +162,9 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Digest all previously chosen programs for the same main program
-
-   @return map of program types to instrument types to list of programs chosen
+   * Digest all previously chosen programs for the same main program
+   *
+   * @return map of program types to instrument types to list of programs chosen
    */
   private Map<Program.Type, Map<Instrument.Type, List<String>>> digestPreviouslyChosenProgramIds() {
     Map<Program.Type, Map<Instrument.Type, List<String>>> programIds = Maps.newHashMap();
@@ -189,9 +182,9 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Digest all previously picked events for the same main program
-
-   @return map of program types to instrument types to list of programs chosen
+   * Digest all previously picked events for the same main program
+   *
+   * @return map of program types to instrument types to list of programs chosen
    */
   private Map<String, List<String>> digestPreviouslyPickedNotes() {
     Map<String, List<String>> notes = Maps.newHashMap();
@@ -451,8 +444,8 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String keyByTrackNote(String track, Note note) {
-    return String.format(KEY_VOICE_NOTE_TEMPLATE, track, note.toString(AdjSymbol.Sharp));
+  public String keyByTrackNote(String track, String note) {
+    return String.format(KEY_VOICE_NOTE_TEMPLATE, track, note);
   }
 
   @Override
@@ -877,14 +870,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public List<Note> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName) {
+  public List<String> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName) {
     try {
       var key = keyEventChord(programSequencePatternEventId, segmentChordName);
       if (previouslyPickedNotes.containsKey(key))
-        return previouslyPickedNotes.get(key)
-          .stream()
-          .map(Note::of)
-          .collect(Collectors.toList());
+        return new ArrayList<>(previouslyPickedNotes.get(key));
 
     } catch (NexusException | EntityStoreException e) {
       log.warn("Can't find chord of previous event and chord id", e);
@@ -894,12 +884,10 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public List<Note> rememberPickedNotes(String programSequencePatternEventId, String chordName, List<Note> notes) {
+  public List<String> rememberPickedNotes(String programSequencePatternEventId, String chordName, List<String> notes) {
     try {
       previouslyPickedNotes.put(keyEventChord(programSequencePatternEventId, chordName),
-        notes.stream()
-          .map(note -> note.toString(AdjSymbol.None))
-          .collect(Collectors.toList()));
+        new ArrayList<>(notes));
     } catch (NexusException | EntityStoreException e) {
       log.warn("Can't find chord of previous event and chord id", e);
     }
@@ -1002,7 +990,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<Note> getVoicingNotes(SegmentChord chord, Instrument.Type type) {
+  public Collection<String> getVoicingNotes(SegmentChord chord, Instrument.Type type) {
     var key = String.format("%s__%s", chord.getId(), type);
 
     if (!voicingNotesForSegmentChordInstrumentType.containsKey(key)) {
@@ -1017,8 +1005,8 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<Note> getNotes(SegmentChordVoicing voicing) {
-    return CSV.split(voicing.getNotes()).stream().map(Note::of).collect(Collectors.toList());
+  public Collection<String> getNotes(SegmentChordVoicing voicing) {
+    return new ArrayList<>(CSV.split(voicing.getNotes()));
   }
 
   @Override
@@ -1036,7 +1024,6 @@ class FabricatorImpl implements Fabricator {
         .flatMap(programSequencePatternEvent ->
           CSV.split(programSequencePatternEvent.getNote())
             .stream()
-            .map(Note::of)
         )
         .collect(Collectors.toList())));
     }
@@ -1139,7 +1126,7 @@ class FabricatorImpl implements Fabricator {
   @Override
   public int computeTargetShift(Key fromKey, Chord toChord) {
     if (!fromKey.isPresent()) return 0;
-    var key = String.format("%s__%s", fromKey.toString(), toChord.toString());
+    var key = String.format("%s__%s", fromKey, toChord.toString());
     if (!targetShift.containsKey(key))
       targetShift.put(key, fromKey.getRootPitchClass().delta(toChord.getRootPitchClass()));
 
@@ -1147,21 +1134,21 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Collection Strings from collection of of Segment Memes
-
-   @param memes to get strings of
-   @return strings
+   * Collection Strings from collection of of Segment Memes
+   *
+   * @param memes to get strings of
+   * @return strings
    */
   private Collection<String> toStrings(Collection<SegmentMeme> memes) {
     return memes.stream().map(SegmentMeme::getName).collect(Collectors.toList());
   }
 
   /**
-   General a Segment URL
-
-   @param chain   to generate URL for
-   @param segment to generate URL for
-   @return URL as string
+   * General a Segment URL
+   *
+   * @param chain   to generate URL for
+   * @param segment to generate URL for
+   * @return URL as string
    */
   private String generateStorageKey(Chain chain, Segment segment) {
     String chainName = Strings.isNullOrEmpty(chain.getEmbedKey()) ?
@@ -1172,11 +1159,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Filter and map target ids of a specified type from a set of chain bindings
-
-   @param chainBindings to filter and map from
-   @param type          to include
-   @return set of target ids of the specified type of chain binding targets
+   * Filter and map target ids of a specified type from a set of chain bindings
+   *
+   * @param chainBindings to filter and map from
+   * @param type          to include
+   * @return set of target ids of the specified type of chain binding targets
    */
   private Set<String> targetIdsOfType(Collection<ChainBinding> chainBindings, ChainBinding.Type type) {
     return chainBindings.stream().filter(chainBinding -> chainBinding.getType().equals(type))
@@ -1184,41 +1171,41 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Get a Sequence Binding for a given Choice
-
-   @param choice to get sequence binding for
-   @return Sequence Binding for the given Choice
+   * Get a Sequence Binding for a given Choice
+   *
+   * @param choice to get sequence binding for
+   * @return Sequence Binding for the given Choice
    */
   private Optional<ProgramSequenceBinding> getSequenceBinding(SegmentChoice choice) {
     return sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
   }
 
   /**
-   Format a message with the segmentId as prefix
-
-   @param message to format
-   @return formatted message with segmentId as prefix
+   * Format a message with the segmentId as prefix
+   *
+   * @param message to format
+   * @return formatted message with segmentId as prefix
    */
   private String formatLog(String message) {
     return String.format("[segId=%s] %s", workbench.getSegment().getId(), message);
   }
 
   /**
-   Key for a chord + event pairing
-
-   @param eventId   to get key for
-   @param chordName to get key for
-   @return key for chord + event
+   * Key for a chord + event pairing
+   *
+   * @param eventId   to get key for
+   * @param chordName to get key for
+   * @return key for chord + event
    */
   private String keyEventChord(String eventId, String chordName) throws NexusException, EntityStoreException {
     return String.format("%s__%s", chordName, eventId);
   }
 
   /**
-   Get a time computer, configured for the current segment.
-   Don't use it before this segment has enough choices to determine its time computer
-
-   @return Time Computer
+   * Get a time computer, configured for the current segment.
+   * Don't use it before this segment has enough choices to determine its time computer
+   *
+   * @return Time Computer
    */
   private TimeComputer getTimeComputer() throws NexusException {
     double toTempo = workbench.getSegment().getTempo(); // velocity at current segment tempo
@@ -1241,7 +1228,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   Ensure the current segment has a storage key; if not, add a storage key to this Segment
+   * Ensure the current segment has a storage key; if not, add a storage key to this Segment
    */
   private void ensureStorageKey() {
     if (Value.isEmpty(workbench.getSegment().getStorageKey()) || workbench.getSegment().getStorageKey().isEmpty()) {

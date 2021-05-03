@@ -12,11 +12,11 @@ public class NoteRangeTest {
   @Before
   public void setUp() {
     subject = new NoteRange(ImmutableList.of(
-      Note.of("C3"),
-      Note.of("E3"),
-      Note.of("D4"),
-      Note.of("E5"),
-      Note.of("F6")
+      "C3",
+      "E3",
+      "D4",
+      "E5",
+      "F6"
     ));
   }
 
