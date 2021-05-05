@@ -465,8 +465,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   ) throws NexusException {
     var audioEvent = fabricator.getFirstEventsOfAudiosOfInstrument(instrument)
       .stream()
-      .filter(instrumentAudioEvent -> Note.of(instrumentAudioEvent.getNote())
-        .equals(Note.of(note)))
+      .filter(instrumentAudioEvent -> Note.of(instrumentAudioEvent.getNote()).sameAs(Note.of(note)))
       .findAny();
 
     if (audioEvent.isEmpty()) {
