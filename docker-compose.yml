@@ -21,7 +21,6 @@ services:
       DD_ENV: ${ENVIRONMENT}
     container_name: hub01xj1
     depends_on:
-      - ddagent
       - postgres
       - redis
     restart: always
@@ -45,7 +44,6 @@ services:
       DD_ENV: ${ENVIRONMENT}
     container_name: nexus01xj1
     depends_on:
-      - ddagent
       - postgres
       - redis
     restart: always
@@ -54,8 +52,6 @@ services:
     container_name: postgres01xj1
     network_mode: host
     image: postgres:11.6
-    depends_on:
-      - ddagent
     volumes:
       - /var/lib/postgresql/data
       - ./log/postgres:/var/log/postgres
@@ -70,23 +66,6 @@ services:
     container_name: redis01xj1
     network_mode: host
     image: redis:3.0.7
-    depends_on:
-      - ddagent
     environment:
       DD_ENV: ${ENVIRONMENT}
-    restart: always
-
-  ddagent:
-    container_name: ddagent01xj1
-    image: gcr.io/datadoghq/agent:7
-    environment:
-      DD_API_KEY: ${DD_API_KEY}
-      DD_SITE: datadoghq.com
-      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
-      DD_ENV: ${ENVIRONMENT}
-      DD_HOSTNAME: ${HOSTNAME}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /proc/:/host/proc/:ro
-      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
     restart: always
