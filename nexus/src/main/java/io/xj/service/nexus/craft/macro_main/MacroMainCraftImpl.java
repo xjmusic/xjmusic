@@ -136,7 +136,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
         .setOutputEncoder(fabricator.getChainConfig().getOutputContainer())
         .setDensity(computeSegmentDensity(macroSequence.get(), mainSequence.get()))
         .setTempo(computeSegmentTempo(macroSequence.get(), mainSequence.get()))
-        .setKey(computeSegmentKey(mainSequence.get()))
+        .setKey(computeSegmentKey(mainSequence.get()).strip())
         .setTotal(mainSequence.get().getTotal())
         .build());
 
