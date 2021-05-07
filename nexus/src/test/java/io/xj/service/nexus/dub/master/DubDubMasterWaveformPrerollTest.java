@@ -40,9 +40,8 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeSegment;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChoice;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeArrangement;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChoice;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChord;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeMeme;
 import static org.junit.Assert.assertEquals;
@@ -74,13 +73,13 @@ public class DubDubMasterWaveformPrerollTest {
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
     var injector = AppConfiguration.inject(config,
-            ImmutableSet.of(Modules.override(new NexusWorkModule())
-                    .with(new AbstractModule() {
-                      @Override
-                      public void configure() {
-                        bind(HubClient.class).toInstance(hubClient);
-                      }
-                    })));
+      ImmutableSet.of(Modules.override(new NexusWorkModule())
+        .with(new AbstractModule() {
+          @Override
+          public void configure() {
+            bind(HubClient.class).toInstance(hubClient);
+          }
+        })));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     dubFactory = injector.getInstance(DubFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
@@ -94,31 +93,31 @@ public class DubDubMasterWaveformPrerollTest {
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     when(hubClient.ingest(any(), any(), any(), any()))
-            .thenReturn(new HubContent(Streams.concat(
-                    fake.setupFixtureB1().stream(),
-                    fake.setupFixtureB3().stream()
-            ).collect(Collectors.toList())));
+      .thenReturn(new HubContent(Streams.concat(
+        fake.setupFixtureB1().stream(),
+        fake.setupFixtureB3().stream()
+      ).collect(Collectors.toList())));
 
     // Chain "Print #2" has 1 initial segment in dubbing state - DubMaster is complete
     chain2 = store.put(Chain.newBuilder()
-            .setId(UUID.randomUUID().toString())
-            .setAccountId(fake.account1.getId())
-            .setName("Print #2")
-            .setType(Chain.Type.Production)
-            .setState(Chain.State.Fabricate)
-            .setStartAt("2014-08-12T12:17:02.527142Z")
-            .build());
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(fake.account1.getId())
+      .setName("Print #2")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2014-08-12T12:17:02.527142Z")
+      .build());
     store.put(ChainBinding.newBuilder()
-            .setId(UUID.randomUUID().toString())
-            .setChainId(chain2.getId())
-            .setTargetId(fake.library2.getId())
-            .setType(ChainBinding.Type.Library)
-            .build());
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain2.getId())
+      .setTargetId(fake.library2.getId())
+      .setType(ChainBinding.Type.Library)
+      .build());
 
     segment6 = store.put(NexusIntegrationTestingFixtures.makeSegment(chain2, 0, Segment.State.Dubbing, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:07.384616Z"), "C minor", 16, 0.55, 130, "chains-1-segments-9f7s89d8a7892", "wav"));
     store.put(NexusIntegrationTestingFixtures.makeChoice(segment6, Program.Type.Macro, fake.program4_sequence0_binding0));
     store.put(NexusIntegrationTestingFixtures.makeChoice(segment6, Program.Type.Main, fake.program5_sequence0_binding0));
-    SegmentChoice choice1 = store.put(makeChoice(segment6, fake.program35));
+    SegmentChoice choice1 = store.put(makeChoice(segment6, fake.program35, fake.program35_voice0, fake.instrument8));
     store.put(makeMeme(segment6, "Special"));
     store.put(makeMeme(segment6, "Wild"));
     store.put(makeMeme(segment6, "Pessimism"));
@@ -126,8 +125,8 @@ public class DubDubMasterWaveformPrerollTest {
     var chord0 = makeChord(segment6, 0.0, "A minor");
     store.put(chord0);
     store.put(makeChord(segment6, 8.0, "D major"));
-    SegmentChoiceArrangement arr1 = store.put(makeArrangement(choice1, fake.program35_voice0, fake.instrument8));
-    store.put(NexusIntegrationTestingFixtures.makePick(chord0, arr1, fake.program35_sequence0_pattern0_event0, fake.instrument8_audio8kick, 0.0, 1.0, 1.0, "A4", "BOOM"));
+    SegmentChoiceArrangement arr1 = store.put(makeArrangement(choice1));
+    store.put(NexusIntegrationTestingFixtures.makePick(arr1, fake.program35_sequence0_pattern0_event0, fake.instrument8_audio8kick, 0.0, 1.0, 1.0, "A4", "BOOM"));
 
     // future: insert arrangement of choice1
     // future: insert 8 picks of audio 1

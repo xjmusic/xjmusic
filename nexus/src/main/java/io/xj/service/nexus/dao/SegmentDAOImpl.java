@@ -528,7 +528,6 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
 
   private void validateSegmentChoiceArrangementPick(SegmentChoiceArrangementPick.Builder record) throws ValueException {
     Value.require(record.getSegmentId(), "Segment ID");
-    Value.require(record.getSegmentChordName(), "Segment Chord Name");
     Value.require(record.getSegmentChoiceArrangementId(), "Arrangement ID");
     Value.require(record.getProgramSequencePatternEventId(), "Pattern Event ID");
     Value.require(record.getInstrumentAudioId(), "Audio ID");
@@ -543,14 +542,14 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   private void validateSegmentChoiceArrangement(SegmentChoiceArrangement.Builder record) throws ValueException {
     Value.require(record.getSegmentId(), "Segment ID");
     Value.require(record.getSegmentChoiceId(), "Choice ID");
-    Value.require(record.getProgramVoiceId(), "Voice ID");
-    Value.require(record.getInstrumentId(), "Instrument ID");
+    Value.require(record.getProgramSequencePatternId(), "Program Sequence Pattern ID");
   }
 
   private void validateSegmentChoice(SegmentChoice.Builder record) throws ValueException {
     Value.require(record.getSegmentId(), "Segment ID");
     Value.require(record.getProgramId(), "Program ID");
     Value.require(record.getProgramType(), "Program Type");
+    Value.require(record.getInstrumentId(), "Instrument ID");
   }
 
   private void validateSegment(Segment.Builder record) throws ValueException {

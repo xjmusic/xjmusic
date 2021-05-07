@@ -38,10 +38,9 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChain;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeSegment;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChoice;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeArrangement;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChain;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChoice;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChord;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeMeme;
 import static org.mockito.Matchers.any;
@@ -141,14 +140,14 @@ public class DubDubMasterNextMainTest {
     segment4 = store.put(NexusIntegrationTestingFixtures.makeSegment(chain1, 3, Segment.State.Dubbing, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:03:15.836735Z"), "G minor", 16, 0.45, 120.0, "chains-1-segments-9f7s89d8a7892", "wav"));
     store.put(NexusIntegrationTestingFixtures.makeChoice(segment4, Program.Type.Macro, fake.program4_sequence1_binding0));
     store.put(NexusIntegrationTestingFixtures.makeChoice(segment4, Program.Type.Main, fake.program15_sequence0_binding0));
-    SegmentChoice choice1 = store.put(makeChoice(segment4, fake.program35));
+    SegmentChoice choice1 = store.put(makeChoice(segment4, fake.program35, fake.program35_voice0, fake.instrument8));
     store.put(makeMeme(segment4, "Regret"));
     store.put(makeMeme(segment4, "Sky"));
     store.put(makeMeme(segment4, "Hindsight"));
     store.put(makeMeme(segment4, "Tropical"));
     store.put(makeChord(segment4, 0.0, "G minor"));
     store.put(makeChord(segment4, 8.0, "Ab minor"));
-    store.put(makeArrangement(choice1, fake.program35_voice0, fake.instrument8));
+    store.put(makeArrangement(choice1));
 
     // future: insert arrangement of choice
     // future: insert 8 picks of audio 1

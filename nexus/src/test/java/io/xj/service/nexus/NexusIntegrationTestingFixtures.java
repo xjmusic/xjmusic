@@ -333,6 +333,15 @@ public class NexusIntegrationTestingFixtures {
       .build();
   }
 
+  public static SegmentChoice makeChoice(Segment segment, Program program, ProgramVoice voice, Instrument instrument) {
+    return SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment.getId())
+      .setProgramId(program.getId())
+      .setProgramType(program.getType())
+      .build();
+  }
+
   public static SegmentMeme makeMeme(Segment segment, String name) {
     return SegmentMeme.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -360,21 +369,18 @@ public class NexusIntegrationTestingFixtures {
       .build();
   }
 
-  public static SegmentChoiceArrangement makeArrangement(SegmentChoice segmentChoice, ProgramVoice programVoice, Instrument instrument) {
+  public static SegmentChoiceArrangement makeArrangement(SegmentChoice segmentChoice) {
     return SegmentChoiceArrangement.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segmentChoice.getSegmentId())
       .setSegmentChoiceId(segmentChoice.getId())
-      .setProgramVoiceId(programVoice.getId())
-      .setInstrumentId(instrument.getId())
       .build();
   }
 
-  public static SegmentChoiceArrangementPick makePick(SegmentChord chord0, SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent programSequencePatternEvent, InstrumentAudio instrumentAudio, double position, double duration, double velocity, String note, String name) {
+  public static SegmentChoiceArrangementPick makePick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent programSequencePatternEvent, InstrumentAudio instrumentAudio, double position, double duration, double velocity, String note, String name) {
     return SegmentChoiceArrangementPick.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segmentChoiceArrangement.getSegmentId())
-      .setSegmentChordName(chord0.getName())
       .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId())
       .setProgramSequencePatternEventId(programSequencePatternEvent.getId())
       .setInstrumentAudioId(instrumentAudio.getId())

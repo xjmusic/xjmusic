@@ -43,10 +43,9 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChain;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeSegment;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChoice;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeArrangement;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChain;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChoice;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChord;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeMeme;
 import static org.mockito.Matchers.any;
@@ -174,14 +173,14 @@ public class DubDubMasterContinueTest {
     segment4 = store.put(NexusIntegrationTestingFixtures.makeSegment(chain1, 3, Segment.State.Dubbing, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:03:15.836735Z"), "D Major", 16, 0.45, 120.0, "chains-1-segments-9f7s89d8a7892", "wav"));
     store.put(NexusIntegrationTestingFixtures.makeChoice(segment4, Program.Type.Macro, fake.program4_sequence1_binding0));
     store.put(NexusIntegrationTestingFixtures.makeChoice(segment4, Program.Type.Main, fake.program5_sequence1_binding0));
-    SegmentChoice choice1 = store.put(makeChoice(segment4, fake.program35));
+    SegmentChoice choice1 = store.put(makeChoice(segment4, fake.program35, fake.program35_voice0, fake.instrument8));
     store.put(makeMeme(segment4, "Cozy"));
     store.put(makeMeme(segment4, "Classic"));
     store.put(makeMeme(segment4, "Outlook"));
     store.put(makeMeme(segment4, "Rosy"));
     store.put(makeChord(segment4, 0.0, "A minor"));
     store.put(makeChord(segment4, 8.0, "D major"));
-    store.put(makeArrangement(choice1, fake.program35_voice0, fake.instrument8));
+    store.put(makeArrangement(choice1));
 
     // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
   }

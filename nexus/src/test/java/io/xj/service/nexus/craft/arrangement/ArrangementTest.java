@@ -36,7 +36,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeArrangement;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChoice;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChord;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeDetailProgram;
@@ -151,12 +150,9 @@ public class ArrangementTest {
     // Chain and Segment
     var chain = store.put(NexusIntegrationTestingFixtures.makeChain());
     var segment = store.put(makeSegment(chain, "C", 4, 1, 120));
-    var bassChoice = store.put(makeChoice(segment, bassProgram));
-    var bassArrangement = store.put(makeArrangement(bassChoice, bassVoice, bass));
-    var padChoice = store.put(makeChoice(segment, padProgram));
-    var padArrangement = store.put(makeArrangement(padChoice, padVoice, pad));
-    var stabChoice = store.put(makeChoice(segment, stabProgram));
-    var stabArrangement = store.put(makeArrangement(stabChoice, stabVoice, stab));
+    var bassChoice = store.put(makeChoice(segment, bassProgram, bassVoice, bass));
+    var padChoice = store.put(makeChoice(segment, padProgram, padVoice, pad));
+    var stabChoice = store.put(makeChoice(segment, stabProgram, stabVoice, stab));
     var chord0 = store.put(makeChord(segment, 0.0, "C"));
     store.put(makeVoicing(chord0, Instrument.Type.Bass, "C1, E1, G1, C2, E2, G2, C3, E3"));
     store.put(makeVoicing(chord0, Instrument.Type.Pad, "E3, G3, C4, E4, G4, C5, E5, G5, C6"));
@@ -169,9 +165,9 @@ public class ArrangementTest {
 
     // Execute
     var subject = fabricate(segment);
-    subject.craftArrangementForVoice(bassProgram, bassSequence, bassVoice, bassArrangement);
-    subject.craftArrangementForVoice(padProgram, padSequence, padVoice, padArrangement);
-    subject.craftArrangementForVoice(stabProgram, stabSequence, stabVoice, stabArrangement);
+    subject.craftArrangements(bassChoice);
+    subject.craftArrangements(padChoice);
+    subject.craftArrangements(stabChoice);
 
 
     // Assert

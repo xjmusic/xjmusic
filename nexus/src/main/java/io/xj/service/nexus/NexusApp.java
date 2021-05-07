@@ -3,23 +3,7 @@ package io.xj.service.nexus;
 
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
-import io.xj.Account;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.Program;
-import io.xj.ProgramSequenceBinding;
-import io.xj.ProgramSequencePatternEvent;
-import io.xj.ProgramVoice;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMeme;
-import io.xj.SegmentMessage;
+import io.xj.*;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityException;
@@ -219,8 +203,8 @@ public class NexusApp extends App {
       .withAttribute("waveformPreroll")
       .withAttribute("type")
       .belongsTo(Chain.class)
-      .hasMany(SegmentChoiceArrangement.class)
       .hasMany(SegmentChoice.class)
+      .hasMany(SegmentChoiceArrangement.class)
       .hasMany(SegmentChoiceArrangementPick.class)
       .hasMany(SegmentChord.class)
       .hasMany(SegmentChordVoicing.class)
@@ -231,20 +215,21 @@ public class NexusApp extends App {
     entityFactory.register(SegmentChoice.class)
       .createdBy(SegmentChoice::getDefaultInstance)
       .withAttribute("programType")
-      .withAttribute("instrumentType")
-      .withAttribute("transpose")
-      .belongsTo(Segment.class)
+      .withAttribute("segmentType")
+      .belongsTo(Instrument.class)
       .belongsTo(Program.class)
       .belongsTo(ProgramSequenceBinding.class)
+      .belongsTo(ProgramVoice.class)
+      .belongsTo(Segment.class)
       .hasMany(SegmentChoiceArrangement.class);
 
     // SegmentChoiceArrangement
     entityFactory.register(SegmentChoiceArrangement.class)
       .createdBy(SegmentChoiceArrangement::getDefaultInstance)
+      .belongsTo(ProgramSequencePattern.class)
       .belongsTo(Segment.class)
       .belongsTo(SegmentChoice.class)
-      .belongsTo(ProgramVoice.class)
-      .belongsTo(Instrument.class);
+      .hasMany(SegmentChoiceArrangementPick.class);
 
     // SegmentChoiceArrangementPick
     entityFactory.register(SegmentChoiceArrangementPick.class)
@@ -253,9 +238,8 @@ public class NexusApp extends App {
       .withAttribute("length")
       .withAttribute("amplitude")
       .withAttribute("name")
-      .withAttribute("chordName")
       .belongsTo(Segment.class)
-      .belongsTo(SegmentChord.class)
+      .belongsTo(SegmentChordVoicing.class)
       .belongsTo(InstrumentAudio.class)
       .belongsTo(ProgramSequencePatternEvent.class);
 

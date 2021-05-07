@@ -16,6 +16,7 @@ import java.util.function.Consumer;
  Chord in a particular key
  */
 public class Chord extends IntervalPitchGroup {
+  public static final String NO_CHORD_NAME = "NC";
   private static final double semitonesModulo = 12;
   private static final double semitonesModuloDeltaMax = semitonesModulo / 2;
   private List<ChordForm> forms;

@@ -15,6 +15,7 @@ import io.xj.Instrument;
 import io.xj.InstrumentAudio;
 import io.xj.Program;
 import io.xj.ProgramSequencePattern;
+import io.xj.ProgramVoice;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangementPick;
@@ -94,6 +95,8 @@ public class CraftRhythm_LayeredVoicesTest {
   private InstrumentAudio audioSnare;
   private InstrumentAudio audioHihat;
   private Program program42;
+  private ProgramVoice program42_locomotion;
+  private ProgramVoice program42_kickSnare;
 
   @Before
   public void setUp() throws Exception {
@@ -203,6 +206,7 @@ public class CraftRhythm_LayeredVoicesTest {
     store.put(makeChord(segment4, 8.0, "D Major"));
   }
 
+
   /**
    Some custom fixtures for testing
 
@@ -227,20 +231,20 @@ public class CraftRhythm_LayeredVoicesTest {
     // A basic beat from scratch with layered voices
     program42 = Entities.add(entities, makeProgram(fake.library2, Program.Type.Rhythm, Program.State.Published, "Basic Beat", "C", 121, 0.6));
     Entities.add(entities, NexusIntegrationTestingFixtures.makeMeme(program42, "Basic"));
-    var locomotion = Entities.add(entities, makeVoice(program42, Instrument.Type.Percussive, "Locomotion"));
-    var kickSnare = Entities.add(entities, makeVoice(program42, Instrument.Type.Percussive, "BoomBap"));
+    program42_locomotion = Entities.add(entities, makeVoice(program42, Instrument.Type.Percussive, "Locomotion"));
+    program42_kickSnare = Entities.add(entities, makeVoice(program42, Instrument.Type.Percussive, "BoomBap"));
     var sequence35a = Entities.add(entities, makeSequence(program42, 16, "Base", 0.5, "C", 110.3));
     //
-    var pattern35a1 = Entities.add(entities, makePattern(sequence35a, locomotion, ProgramSequencePattern.Type.Loop, 1, "Hi-hat"));
-    var trackHihat = Entities.add(entities, makeTrack(locomotion, "HIHAT"));
+    var pattern35a1 = Entities.add(entities, makePattern(sequence35a, program42_locomotion, ProgramSequencePattern.Type.Loop, 1, "Hi-hat"));
+    var trackHihat = Entities.add(entities, makeTrack(program42_locomotion, "HIHAT"));
     Entities.add(entities, makeEvent(pattern35a1, trackHihat, 0.0, 1.0, "C2", 1.0));
     Entities.add(entities, makeEvent(pattern35a1, trackHihat, 0.25, 1.0, "G5", 0.4));
     Entities.add(entities, makeEvent(pattern35a1, trackHihat, 0.5, 1.0, "C2", 0.6));
     Entities.add(entities, makeEvent(pattern35a1, trackHihat, 0.75, 1.0, "C2", 0.3));
     //
-    var pattern35a2 = Entities.add(entities, makePattern(sequence35a, kickSnare, ProgramSequencePattern.Type.Loop, 4, "Kick/Snare"));
-    var trackKick = Entities.add(entities, makeTrack(kickSnare, "KICK"));
-    var trackSnare = Entities.add(entities, makeTrack(kickSnare, "SNARE"));
+    var pattern35a2 = Entities.add(entities, makePattern(sequence35a, program42_kickSnare, ProgramSequencePattern.Type.Loop, 4, "Kick/Snare"));
+    var trackKick = Entities.add(entities, makeTrack(program42_kickSnare, "KICK"));
+    var trackSnare = Entities.add(entities, makeTrack(program42_kickSnare, "SNARE"));
     Entities.add(entities, makeEvent(pattern35a2, trackKick, 0.0, 1.0, "B5", 0.9));
     Entities.add(entities, makeEvent(pattern35a2, trackSnare, 1.0, 1.0, "D2", 1.0));
     Entities.add(entities, makeEvent(pattern35a2, trackKick, 2.5, 1.0, "E4", 0.7));

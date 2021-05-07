@@ -6,11 +6,9 @@ import com.google.inject.assistedinject.Assisted;
 import datadog.trace.api.Trace;
 import io.xj.Instrument;
 import io.xj.Program;
-import io.xj.ProgramSequence;
 import io.xj.ProgramVoice;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
 import io.xj.service.nexus.NexusException;
@@ -49,34 +47,49 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
     for (Instrument.Type voicingType : voicingTypes) {
       // program
-      Optional<Program> detailProgram = chooseDetailProgram(voicingType);
+      Optional<Program> program = chooseDetailProgram(voicingType);
 
       // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
-      if (detailProgram.isEmpty()) {
+      if (program.isEmpty()) {
         reportMissing(Program.class, String.format("Detail-type with voicing-type %s", voicingType));
         continue;
       }
 
-      SegmentChoice detailChoice = fabricator.add(SegmentChoice.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(fabricator.getSegment().getId())
-        .setProgramType(Program.Type.Detail)
-        .setInstrumentType(voicingType)
-        .setProgramId(detailProgram.get().getId())
-        .build());
-
       // detail sequence is selected at random of the current program
       // FUTURE: [#166855956] Detail Program with multiple Sequences
-      var detailSequence = fabricator.getSequence(detailChoice);
+      var detailSequence = fabricator.randomlySelectSequence(program.get());
 
       // voice arrangements
       if (detailSequence.isPresent()) {
-        var voices = fabricator.getSourceMaterial().getVoices(detailProgram.get());
+        var voices = fabricator.getSourceMaterial().getVoices(program.get());
         if (voices.isEmpty())
           reportMissing(ProgramVoice.class,
-            String.format("in Detail-choice Program[%s]", detailProgram.get().getId()));
-        for (ProgramVoice voice : voices)
-          craftArrangementForDetailVoice(detailSequence.get(), detailChoice, voice);
+            String.format("in Detail-choice Program[%s]", program.get().getId()));
+        for (ProgramVoice voice : voices) {
+          Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentId(voice.getId());
+
+          // if no previous instrument found, choose a fresh one
+          var instrument = instrumentId.isPresent() ?
+            fabricator.getSourceMaterial().getInstrument(instrumentId.get()) :
+            chooseFreshDetailInstrument(voicingType);
+
+          // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
+          if (instrument.isEmpty()) {
+            reportMissing(Instrument.class, String.format("Detail-type like %s", voice.getName()));
+            return;
+          }
+
+          craftArrangements(fabricator.add(SegmentChoice.newBuilder()
+            .setId(UUID.randomUUID().toString())
+            .setInstrumentId(instrument.get().getId())
+            .setProgramType(program.get().getType())
+            .setInstrumentType(instrument.get().getType())
+            .setProgramId(program.get().getId())
+            .setProgramSequenceId(detailSequence.get().getId())
+            .setProgramVoiceId(voice.getId())
+            .setSegmentId(fabricator.getSegment().getId())
+            .build()));
+        }
       }
     }
 
@@ -108,49 +121,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       default:
         throw new NexusException(String.format("Cannot get Detail-type program for unknown fabricator type=%s", type));
     }
-  }
-
-  /**
-   craft segment events for one detail voice
-   <p>
-   [#176468964] Rhythm and Detail choices are kept for an entire Main Program
-   <p>
-   [#176468993] Detail programs can be made to repeat every chord change
-
-   @param sequence from which to craft events
-   @param choice   of program
-   @param voice    within program
-   @throws NexusException on failure to craft
-   */
-  @Trace(resourceName = "nexus/craft/detail", operationName = "craftArrangementForDetailVoice")
-  private void craftArrangementForDetailVoice(
-    ProgramSequence sequence,
-    SegmentChoice choice,
-    ProgramVoice voice
-  ) throws NexusException {
-    Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentId(voice.getId());
-
-    // if no previous instrument found, choose a fresh one
-    var instrument = chooseFreshDetailInstrument(voice);
-
-    // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
-    if (instrument.isEmpty()) {
-      reportMissing(Instrument.class, String.format("Detail-type like %s", voice.getName()));
-      return;
-    }
-
-    SegmentChoiceArrangement arrangement = fabricator.add(SegmentChoiceArrangement.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(choice.getSegmentId())
-      .setSegmentChoiceId(choice.getId())
-      .setProgramVoiceId(voice.getId())
-      .setInstrumentId(
-        instrumentId.orElseGet(() -> chooseFreshDetailInstrument(voice).orElseThrow().getId()))
-      .build());
-
-    var program = fabricator.getProgram(choice);
-    if (program.isPresent())
-      craftArrangementForVoice(program.get(), sequence, voice, arrangement);
   }
 
   /**
@@ -192,15 +162,15 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    Choose detail instrument
    [#325] Possible to choose multiple instruments for different voices in the same program
 
-   @param voice to choose instrument for
+   @param type of instrument to choose
    @return detail-type Instrument
    */
   @Trace(resourceName = "nexus/craft/detail", operationName = "chooseFreshDetailInstrument")
-  protected Optional<Instrument> chooseFreshDetailInstrument(ProgramVoice voice) {
+  protected Optional<Instrument> chooseFreshDetailInstrument(Instrument.Type type) {
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve instruments bound to chain
-    Collection<Instrument> sourceInstruments = fabricator.getSourceMaterial().getInstrumentsOfType(voice.getType());
+    Collection<Instrument> sourceInstruments = fabricator.getSourceMaterial().getInstrumentsOfType(type);
 
     // (3) score each source instrument based on meme isometry
     for (Instrument instrument : sourceInstruments)
@@ -211,7 +181,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
     // (4) return the top choice
     return superEntityScorePicker.getTop();
-
   }
 
   /**

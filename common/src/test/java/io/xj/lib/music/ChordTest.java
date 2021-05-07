@@ -164,6 +164,7 @@ public class ChordTest {
   public void isNull() {
     assertFalse(Chord.of("C#m7").isNoChord());
     assertTrue(Chord.of("NC").isNoChord());
+    assertEquals("NC", Chord.NO_CHORD_NAME);
   }
 
   /**

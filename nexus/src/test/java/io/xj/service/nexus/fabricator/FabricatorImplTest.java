@@ -274,19 +274,18 @@ public class FabricatorImplTest {
       .setSegmentId(segment.getId())
       .setProgramType(Program.Type.Rhythm)
       .setProgramId(fake.program35.getId())
+      .setProgramVoiceId(fake.program35_voice0.getId())
+      .setInstrumentId(fake.instrument8.getId())
       .build());
     SegmentChoiceArrangement rhythmArrangement = store.put(SegmentChoiceArrangement.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment.getId())
       .setSegmentChoiceId(rhythmChoice.getId())
-      .setProgramVoiceId(fake.program35_voice0.getId())
-      .setInstrumentId(fake.instrument8.getId())
       .build());
     SegmentChoiceArrangementPick rhythmPick = store.put(
       SegmentChoiceArrangementPick.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(rhythmArrangement.getSegmentId())
-        .setSegmentChordName(chord0.getName())
         .setSegmentChoiceArrangementId(rhythmArrangement.getId())
         .setProgramSequencePatternEventId(fake.program35_sequence0_pattern0_event0.getId())
         .setInstrumentAudioId(fake.instrument8_audio8kick.getId())

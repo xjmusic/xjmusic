@@ -644,7 +644,7 @@ public interface Fabricator {
    @return Pattern model, or null if no pattern of this type is found
    @throws NexusException on failure
    */
-  Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(ProgramSequence sequence, ProgramVoice voice, ProgramSequencePattern.Type patternType) throws NexusException;
+  Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(SegmentChoice choice, ProgramSequencePattern.Type patternType) throws NexusException;
 
   /**
    Get a JSON:API payload of the entire result of Segment Fabrication

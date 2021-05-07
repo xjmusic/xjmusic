@@ -6,11 +6,9 @@ import com.google.inject.assistedinject.Assisted;
 import datadog.trace.api.Trace;
 import io.xj.Instrument;
 import io.xj.Program;
-import io.xj.ProgramSequence;
 import io.xj.ProgramVoice;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
 import io.xj.service.nexus.NexusException;
@@ -48,24 +46,40 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "doWork")
   public void doWork() throws NexusException {
     // program
-    Optional<Program> rhythmProgram = chooseRhythmProgram();
-    if (rhythmProgram.isEmpty()) return;
-    SegmentChoice rhythmChoice = fabricator.add(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(fabricator.getSegment().getId())
-      .setProgramType(Program.Type.Rhythm)
-      .setInstrumentType(Instrument.Type.Percussive)
-      .setProgramId(rhythmProgram.get().getId())
-      .build());
+    Optional<Program> program = chooseRhythmProgram();
+    if (program.isEmpty()) return;
 
     // rhythm sequence is selected at random of the current program
     // FUTURE: [#166855956] Rhythm Program with multiple Sequences
-    var rhythmSequence = fabricator.getSequence(rhythmChoice);
+    var sequence = fabricator.randomlySelectSequence(program.get());
 
     // voice arrangements
-    if (rhythmSequence.isPresent())
-      for (ProgramVoice voice : fabricator.getSourceMaterial().getVoices(rhythmProgram.get()))
-        craftArrangementForRhythmVoice(rhythmProgram.get(), rhythmSequence.get(), rhythmChoice, voice);
+    if (sequence.isPresent())
+      for (ProgramVoice voice : fabricator.getSourceMaterial().getVoices(program.get())) {
+        Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentId(voice.getId());
+
+        // if no previous instrument found, choose a fresh one
+        var instrument = instrumentId.isPresent() ?
+          fabricator.getSourceMaterial().getInstrument(instrumentId.get()) :
+          chooseFreshPercussiveInstrument(voice);
+
+        // [#176373977] Should gracefully skip voicing type if unfulfilled by rhythm program
+        if (instrument.isEmpty()) {
+          reportMissing(Instrument.class, String.format("Rhythm-type like %s", voice.getName()));
+          return;
+        }
+
+        this.craftArrangements(fabricator.add(SegmentChoice.newBuilder()
+          .setId(UUID.randomUUID().toString())
+          .setInstrumentId(instrument.get().getId())
+          .setProgramId(program.get().getId())
+          .setProgramSequenceId(sequence.get().getId())
+          .setProgramType(program.get().getType())
+          .setInstrumentType(instrument.get().getType())
+          .setProgramVoiceId(voice.getId())
+          .setSegmentId(fabricator.getSegment().getId())
+          .build()));
+      }
 
     // Finally, update the segment with the crafted content
     fabricator.done();
@@ -158,36 +172,6 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
     // score is above zero, else empty
     return score;
-  }
-
-
-  /**
-   craft segment events for one rhythm voice
-   [#176468964] Rhythm and Detail choices are kept for an entire Main Program
-
-   @param program whose events to craft from
-   @param voice   to craft events for
-   @throws NexusException on failure
-   */
-  @Trace(resourceName = "nexus/craft/rhythm", operationName = "craftArrangementForRhythmVoice")
-  private void craftArrangementForRhythmVoice(Program program, ProgramSequence sequence, SegmentChoice choice, ProgramVoice voice) throws NexusException {
-    Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentId(voice.getId());
-    if (instrumentId.isEmpty()) {
-      var instrument = chooseFreshPercussiveInstrument(voice);
-      if (instrument.isEmpty()) return;
-      instrumentId = Optional.of(instrument.get().getId());
-    }
-
-    // if no previous instrument found, choose a fresh one
-    SegmentChoiceArrangement arrangement = fabricator.add(SegmentChoiceArrangement.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(choice.getSegmentId())
-      .setSegmentChoiceId(choice.getId())
-      .setProgramVoiceId(voice.getId())
-      .setInstrumentId(instrumentId.get())
-      .build());
-
-    craftArrangementForVoice(program, sequence, voice, arrangement);
   }
 
   /**

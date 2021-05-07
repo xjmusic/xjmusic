@@ -49,7 +49,7 @@ dependencies {
   // intravendor
   implementation project(':common')
   //
-  implementation 'io.xj:protocol:v0.17'
+  implementation 'io.xj:protocol:v0.22'
   // jOOq vendor
   jooqRuntime group: 'org.postgresql', name: 'postgresql', version: '42.2.10'
   jooqRuntime group: 'org.postgresql', name: 'postgresql', version: '42.2.10'
