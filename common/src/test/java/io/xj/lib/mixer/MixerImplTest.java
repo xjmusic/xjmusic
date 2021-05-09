@@ -29,8 +29,7 @@ public class MixerImplTest {
     testMixer = mixerFactory.createMixer(
       new MixerConfig(
         new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
-          48000, 32, 2, 8, 48000, false),
-        Duration.ofSeconds(60)
+          48000, 32, 2, 8, 48000, false)
       )
     );
   }
@@ -45,8 +44,7 @@ public class MixerImplTest {
       mixerFactory.createMixer(
         new MixerConfig(
           new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
-            48000, 32, 4, 8, 48000, false),
-          Duration.ofSeconds(60)
+            48000, 32, 4, 8, 48000, false)
         )
       );
 
@@ -62,8 +60,7 @@ public class MixerImplTest {
       mixerFactory.createMixer(
         new MixerConfig(
           new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
-            48000, 32, 0, 8, 48000, false),
-          Duration.ofSeconds(60)
+            48000, 32, 0, 8, 48000, false)
         )
       );
 

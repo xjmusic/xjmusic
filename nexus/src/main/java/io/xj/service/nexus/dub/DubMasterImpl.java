@@ -30,7 +30,6 @@ import java.util.UUID;
  */
 public class DubMasterImpl implements DubMaster {
   private static final int MICROSECONDS_PER_SECOND = 1000000;
-  private static final long OUTPUT_LENGTH_EXTRA_SECONDS = 2; // FUTURE need to compute actual longest sound in segment
   private final Logger log = LoggerFactory.getLogger(DubMasterImpl.class);
   private final Fabricator fabricator;
   private final MixerFactory mixerFactory;
@@ -197,7 +196,7 @@ public class DubMasterImpl implements DubMaster {
    */
   private Mixer mixer() throws Exception {
     if (Objects.isNull(_mixer)) {
-      MixerConfig config = new MixerConfig(fabricator.getOutputAudioFormat(), fabricator.getSegmentTotalLength().plusSeconds(OUTPUT_LENGTH_EXTRA_SECONDS))
+      MixerConfig config = new MixerConfig(fabricator.getOutputAudioFormat())
         .setLogPrefix(String.format("[segId=%s] ", fabricator.getSegment().getId()))
         .setNormalizationMax(fabricator.getChainConfig().getMixerNormalizationMax())
         .setDSPBufferSize(fabricator.getChainConfig().getMixerDspBufferSize())

@@ -25,8 +25,7 @@ public class MixerModuleTest {
   public void createMixerNotNull() throws Exception {
     Mixer mixer = mixerFactory.createMixer(new MixerConfig(
       new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
-        48000, 32, 2, 8, 48000, false),
-      Duration.ofSeconds(60)
+        48000, 32, 2, 8, 48000, false)
     ));
     assertNotNull(mixer);
   }
@@ -38,8 +37,7 @@ public class MixerModuleTest {
   public void createMixerNotNull_supportBigEndian() throws Exception {
     mixerFactory.createMixer(new MixerConfig(
       new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
-        48000, 32, 2, 8, 48000, true),
-      Duration.ofSeconds(60)
+        48000, 32, 2, 8, 48000, true)
     ));
   }
 

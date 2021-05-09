@@ -11,7 +11,6 @@ import io.xj.ProgramSequence;
 import io.xj.ProgramSequenceBinding;
 import io.xj.ProgramSequencePattern;
 import io.xj.ProgramSequencePatternEvent;
-import io.xj.ProgramVoice;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
@@ -22,7 +21,6 @@ import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
-import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.service.hub.client.HubClientAccess;
 import io.xj.service.hub.client.HubContent;
@@ -32,7 +30,6 @@ import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.dao.ChainConfig;
 
 import javax.sound.sampled.AudioFormat;
-import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -445,14 +442,6 @@ public interface Fabricator {
   String getChainStorageKey(String extension);
 
   /**
-   Total length of segment of beginning to end
-
-   @return total length
-   @throws NexusException if unable to compute
-   */
-  Duration getSegmentTotalLength() throws NexusException;
-
-  /**
    [#165954619] Get the sequence for a Choice either directly (rhythm- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences)
    <p>
    [#166690830] Program model handles all of its own entities
@@ -638,8 +627,6 @@ public interface Fabricator {
    <p>
    [#166481918] Rhythm fabrication composited of layered Patterns
 
-   @param sequence    of which to select
-   @param voice       of which to select
    @param patternType to select
    @return Pattern model, or null if no pattern of this type is found
    @throws NexusException on failure
@@ -718,7 +705,7 @@ public interface Fabricator {
    Determine whether we have previously picked notes for this event and chord in the same main program
 
    @param programSequencePatternEventId to test for previously picked notes of
-   @param chordName to test for previously picked notes of
+   @param chordName                     to test for previously picked notes of
    @return true if we have previously picked notes for this event
    */
   Boolean hasPreviouslyPickedNotes(String programSequencePatternEventId, String chordName);
@@ -727,7 +714,7 @@ public interface Fabricator {
    Get the notes previously picked for this event, for the same main program
 
    @param programSequencePatternEventId to get previous notes picked for
-   @param segmentChordName to test for previously picked notes of
+   @param segmentChordName              to test for previously picked notes of
    @return notes picked previously for event
    */
   List<String> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName);
@@ -736,7 +723,7 @@ public interface Fabricator {
    Remember which notes were picked for a given event
 
    @param programSequencePatternEventId to remember notes picked for
-   @param chordName                to remember notes picked for
+   @param chordName                     to remember notes picked for
    @param notes                         to remember were picked
    @return notes to pass  through for chaining method calls
    */

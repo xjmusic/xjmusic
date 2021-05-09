@@ -67,7 +67,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
 import java.text.DecimalFormat;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -678,17 +677,6 @@ class FabricatorImpl implements Fabricator {
       String.format("chain-%s", getChainId())
       : getChain().getEmbedKey();
     return String.format("%s%s%s", chainKey, EXTENSION_SEPARATOR, extension);
-  }
-
-  @Override
-  public Duration getSegmentTotalLength() throws NexusException {
-    if (Value.isEmpty(workbench.getSegment().getEndAt()))
-      throw new NexusException("Cannot compute total length create segment with no end!");
-
-    return Duration.between(
-      Instant.parse(workbench.getSegment().getBeginAt()),
-      Instant.parse(workbench.getSegment().getEndAt()))
-      .plusNanos((long) (workbench.getSegment().getWaveformPreroll() * NANOS_PER_SECOND));
   }
 
   @Override

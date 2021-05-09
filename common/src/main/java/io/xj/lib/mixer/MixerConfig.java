@@ -11,7 +11,6 @@ import java.time.Duration;
  */
 public class MixerConfig {
   private AudioFormat outputFormat;
-  private Duration outputLength;
   private Double compressToAmplitude = 5.0;
   private Double compressAheadSeconds = 0.1;
   private Double compressDecaySeconds = 0.01;
@@ -27,11 +26,9 @@ public class MixerConfig {
    Instantiate a new mixer configuration with format and length (and default compression settings)
 
    @param outputFormat set
-   @param outputLength set
    */
-  public MixerConfig(AudioFormat outputFormat, Duration outputLength) {
+  public MixerConfig(AudioFormat outputFormat) {
     this.outputFormat = outputFormat;
-    this.outputLength = outputLength;
   }
 
   /**
@@ -71,26 +68,6 @@ public class MixerConfig {
    */
   public MixerConfig setOutputFormat(AudioFormat outputFormat) {
     this.outputFormat = outputFormat;
-    return this;
-  }
-
-  /**
-   Get output length
-
-   @return output length
-   */
-  public Duration getOutputLength() {
-    return outputLength;
-  }
-
-  /**
-   Set output length
-
-   @param outputLength to set
-   @return MixerConfig to chain setters
-   */
-  public MixerConfig setOutputLength(Duration outputLength) {
-    this.outputLength = outputLength;
     return this;
   }
 

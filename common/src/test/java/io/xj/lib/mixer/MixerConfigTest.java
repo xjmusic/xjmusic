@@ -22,8 +22,7 @@ public class MixerConfigTest {
   public void setUp() {
     config = new MixerConfig(
       new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
-        48000, 32, 2, 8, 48000, true),
-      Duration.ofSeconds(60));
+        48000, 32, 2, 8, 48000, true));
   }
 
   @Test

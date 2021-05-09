@@ -24,7 +24,6 @@ public interface Main {
   long releaseMicros = 50000;
 
   Duration preRoll = Duration.ofSeconds(1);
-  Duration postRoll = Duration.ofSeconds(2);
 
   String outputFilePath = "/tmp/OUTPUT-MY-FILE.wav";
   int outputFrameRate = 48000;
@@ -88,8 +87,7 @@ public interface Main {
 
     Mixer demoMixer = mixerFactory.createMixer(new MixerConfig(
       new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
-        (outputChannels * outputSampleBits / 8), outputFrameRate, false),
-      totalLength()
+        (outputChannels * outputSampleBits / 8), outputFrameRate, false)
     ));
 
     // setup the sources
@@ -113,10 +111,6 @@ public interface Main {
 
   private static long atMicros(int loopNum, int stepNum) {
     return preRoll.plus(loopLength().multipliedBy(loopNum)).plus(step.multipliedBy(stepNum)).toNanos() / 1000;
-  }
-
-  private static Duration totalLength() {
-    return preRoll.plus(loopLength().multipliedBy(loopTimes)).plus(postRoll);
   }
 
   private static Duration loopLength() {

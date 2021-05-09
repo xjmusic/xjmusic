@@ -120,8 +120,7 @@ public class DemoIT {
   private static void mixAndWriteOutput(OutputEncoder outputEncoder, AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, String outputFilePath) throws Exception {
     Mixer demoMixer = mixerFactory.createMixer(new MixerConfig(
       new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
-        (outputChannels * outputSampleBits / 8), outputFrameRate, false),
-      totalLength()
+        (outputChannels * outputSampleBits / 8), outputFrameRate, false)
     ));
 
     // setup the sources
@@ -189,24 +188,6 @@ public class DemoIT {
    */
   private static long atMicros(int stepNum) {
     return step.multipliedBy(stepNum).toNanos() / 1000;
-  }
-
-  /**
-   total length
-
-   @return duration
-   */
-  private static Duration totalLength() {
-    return loopLength();
-  }
-
-  /**
-   loop length
-
-   @return duration
-   */
-  private static Duration loopLength() {
-    return step.multipliedBy(demoSequence.length);
   }
 
   /**
