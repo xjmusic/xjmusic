@@ -35,8 +35,8 @@ public class PitchClassTest {
     assertPitchClassOf("B#", PitchClass.C, "C", "C");
     assertPitchClassOf("E♭", PitchClass.Ds, "D#", "Eb");
     assertPitchClassOf("Bb", PitchClass.As, "A#", "Bb");
-    assertPitchClassOf("z", PitchClass.None, "-", "-");
-    assertPitchClassOf("zzzz", PitchClass.None, "-", "-");
+    assertPitchClassOf("z", PitchClass.None, "X", "X");
+    assertPitchClassOf("zzzz", PitchClass.None, "X", "X");
   }
 
   @Test
@@ -48,7 +48,7 @@ public class PitchClassTest {
   public void pitchClass_toString() {
     assertEquals("C#", PitchClass.Cs.toString(Sharp));
     assertEquals("Db", PitchClass.Cs.toString(Flat));
-    assertEquals("-", PitchClass.Cs.toString(None));
+    assertEquals("X", PitchClass.Cs.toString(None));
   }
 
   @Test

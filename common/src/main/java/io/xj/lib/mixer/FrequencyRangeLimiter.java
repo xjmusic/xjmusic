@@ -61,13 +61,14 @@ public class FrequencyRangeLimiter {
    @param lowpassThresholdHz  frequency in Hz, below which to allow audio to pass
    */
   public static void filter(double[][] buffer, float sampleRate, int audioBufferSize, float highpassThresholdHz, float lowpassThresholdHz) throws MixerException {
+    if (0 == buffer.length) return;
     int channels = buffer[0].length;
-    for (int chan = 0; chan < channels; chan++) {
+    for (int c = 0; c < channels; c++) {
       int frames = buffer.length;
       float[] inputAudio = new float[frames];
-      copyToSingle(buffer, inputAudio, chan);
+      copyToSingle(buffer, inputAudio, c);
       float[] outputAudio = filter(inputAudio, sampleRate, audioBufferSize, highpassThresholdHz, lowpassThresholdHz);
-      copyToMulti(outputAudio, buffer, chan);
+      copyToMulti(outputAudio, buffer, c);
     }
   }
 

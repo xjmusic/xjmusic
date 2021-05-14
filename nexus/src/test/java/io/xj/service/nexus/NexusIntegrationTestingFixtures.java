@@ -333,11 +333,15 @@ public class NexusIntegrationTestingFixtures {
       .build();
   }
 
-  public static SegmentChoice makeChoice(Segment segment, Program program, ProgramVoice voice, Instrument instrument) {
+  public static SegmentChoice makeChoice(Segment segment, Program program, ProgramSequence programSequence, ProgramVoice voice, Instrument instrument) {
     return SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
+      .setProgramVoiceId(voice.getId())
+      .setInstrumentId(instrument.getId())
+      .setInstrumentType(instrument.getType())
       .setSegmentId(segment.getId())
       .setProgramId(program.getId())
+      .setProgramSequenceId(programSequence.getId())
       .setProgramType(program.getType())
       .build();
   }

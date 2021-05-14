@@ -116,7 +116,7 @@ class FabricatorImpl implements Fabricator {
   private final Map<Instrument.Type, NoteRange> voicingNoteRange = Maps.newHashMap();
   private final Map<String, Collection<InstrumentAudioEvent>> firstEventsOfAudiosOfInstrument = Maps.newHashMap();
   private final PayloadFactory payloadFactory;
-  private final Map<String, NoteRange> rangeForArrangement = Maps.newHashMap();
+  private final Map<String, NoteRange> rangeForChoice = Maps.newHashMap();
   private final Map<String, Integer> rangeShiftOctave = Maps.newHashMap();
   private final Map<String, Integer> targetShift = Maps.newHashMap();
   private final Map<Program.Type, Map<Instrument.Type, List<String>>> previouslyChosenProgramIds;
@@ -216,18 +216,19 @@ class FabricatorImpl implements Fabricator {
   private Map<String, List<String>> digestPreviouslyPickedNotes() {
     Map<String, List<String>> notes = Maps.newHashMap();
 
-    getPicksOfPreviousSegmentsWithSameMainProgram().forEach(pick -> {
-      try {
-        var key = keyEventChord(pick.getProgramSequencePatternEventId(), pick.getSegmentChordVoicingId());
-        if (!notes.containsKey(key))
-          notes.put(key, Lists.newArrayList());
-        if (!notes.get(key).contains(pick.getNote()))
-          notes.get(key).add(pick.getNote());
+    getPicksOfPreviousSegmentsWithSameMainProgram()
+      .forEach(pick -> {
+        try {
+          var key = keyEventChord(pick.getProgramSequencePatternEventId(), pick.getSegmentChordVoicingId());
+          if (!notes.containsKey(key))
+            notes.put(key, Lists.newArrayList());
+          if (!notes.get(key).contains(pick.getNote()))
+            notes.get(key).add(pick.getNote());
 
-      } catch (NexusException | EntityStoreException e) {
-        log.warn("Can't find chord of previous event and chord id", e);
-      }
-    });
+        } catch (NexusException | EntityStoreException e) {
+          log.warn("Can't find chord of previous event and chord id", e);
+        }
+      });
 
     return notes;
   }
@@ -320,12 +321,6 @@ class FabricatorImpl implements Fabricator {
   @Override
   public Double getElapsedSeconds() {
     return (System.nanoTime() - startTime) / NANOS_PER_SECOND;
-  }
-
-  @Override
-  public Key getKeyForArrangement(SegmentChoiceArrangement arrangement) throws NexusException {
-    return getKeyForChoice(getChoice(arrangement).orElseThrow(() ->
-      new NexusException(String.format("No key found for Arrangement[%s]", arrangement.getId()))));
   }
 
   @Override
@@ -791,7 +786,6 @@ class FabricatorImpl implements Fabricator {
     if (Objects.equals(0, rank.size()))
       return Optional.empty();
     return rank.getTop();
-
   }
 
   @Override
@@ -876,27 +870,17 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Boolean hasPreviouslyPickedNotes(String programSequencePatternEventId, String chordName) {
-    try {
-      return previouslyPickedNotes.containsKey(keyEventChord(programSequencePatternEventId, chordName));
-    } catch (NexusException | EntityStoreException e) {
-      log.warn("Can't find chord of previous event and chord id", e);
-      return false;
-    }
-  }
-
-  @Override
-  public List<String> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName) {
+  public Optional<List<String>> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName) {
     try {
       var key = keyEventChord(programSequencePatternEventId, segmentChordName);
       if (previouslyPickedNotes.containsKey(key))
-        return new ArrayList<>(previouslyPickedNotes.get(key));
+        return Optional.of(new ArrayList<>(previouslyPickedNotes.get(key)));
 
     } catch (NexusException | EntityStoreException e) {
       log.warn("Can't find chord of previous event and chord id", e);
     }
 
-    return ImmutableList.of();
+    return Optional.empty();
   }
 
   @Override
@@ -1029,25 +1013,25 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public NoteRange computeRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws NexusException {
-    if (!rangeForArrangement.containsKey(segmentChoiceArrangement.getId())) {
+  public NoteRange computeProgramRange(String programId, Instrument.Type instrumentType) {
+    var key = String.format("%s__%s", programId, instrumentType);
 
-      var program = getProgram(segmentChoiceArrangement);
-      if (program.isEmpty())
-        throw new NexusException("Can't get note range for nonexistent program!");
-      rangeForArrangement.put(segmentChoiceArrangement.getId(), new NoteRange(sourceMaterial.getEvents(program.get())
-        .stream()
-        .filter(programSequencePatternEvent -> sourceMaterial.getTrack(programSequencePatternEvent)
-          .map(track -> programSequencePatternEvent.getProgramVoiceTrackId().equals(track.getId()))
-          .orElse(false))
-        .flatMap(programSequencePatternEvent ->
-          CSV.split(programSequencePatternEvent.getNote())
+    if (!rangeForChoice.containsKey(key)) {
+      rangeForChoice.put(key,
+        new NoteRange(
+          sourceMaterial.getEvents(programId)
             .stream()
-        )
-        .collect(Collectors.toList())));
+            .filter(event -> sourceMaterial.getVoice(event)
+              .map(voice -> voice.getType().equals(instrumentType))
+              .orElse(false))
+            .flatMap(programSequencePatternEvent ->
+              CSV.split(programSequencePatternEvent.getNote())
+                .stream())
+            .collect(Collectors.toList())
+        ));
     }
 
-    return rangeForArrangement.get(segmentChoiceArrangement.getId());
+    return rangeForChoice.get(key);
   }
 
   @Override
@@ -1117,8 +1101,9 @@ class FabricatorImpl implements Fabricator {
           var baselineDelta = 100; // optimal is lowest possible integer zero or above
           for (var o = -10; o <= 10; o++) {
             int d = sourceRange.getLow()
+              .orElseThrow()
               .shiftOctave(o)
-              .delta(targetRange.getLow());
+              .delta(targetRange.getLow().orElseThrow());
             if (0 <= d && d < baselineDelta) {
               baselineDelta = d;
               shiftOctave = o;
@@ -1133,8 +1118,8 @@ class FabricatorImpl implements Fabricator {
         case Stripe:
         case Stab:
         default:
-          int dLow = sourceRange.getLow().delta(targetRange.getLow());
-          int dHigh = sourceRange.getHigh().delta(targetRange.getHigh());
+          int dLow = sourceRange.getLow().orElseThrow().delta(targetRange.getLow().orElseThrow());
+          int dHigh = sourceRange.getHigh().orElseThrow().delta(targetRange.getHigh().orElseThrow());
           rangeShiftOctave.put(key, (int) Math.round(((dLow + dHigh) / 2.0)) / 12);
           break;
       }

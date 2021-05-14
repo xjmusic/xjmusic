@@ -117,7 +117,7 @@ public class DubDubMasterWaveformPrerollTest {
     segment6 = store.put(NexusIntegrationTestingFixtures.makeSegment(chain2, 0, Segment.State.Dubbing, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:07.384616Z"), "C minor", 16, 0.55, 130, "chains-1-segments-9f7s89d8a7892", "wav"));
     store.put(NexusIntegrationTestingFixtures.makeChoice(segment6, Program.Type.Macro, fake.program4_sequence0_binding0));
     store.put(NexusIntegrationTestingFixtures.makeChoice(segment6, Program.Type.Main, fake.program5_sequence0_binding0));
-    SegmentChoice choice1 = store.put(makeChoice(segment6, fake.program35, fake.program35_voice0, fake.instrument8));
+    SegmentChoice choice1 = store.put(makeChoice(segment6, fake.program35, fake.program35_sequence0, fake.program35_voice0, fake.instrument8));
     store.put(makeMeme(segment6, "Special"));
     store.put(makeMeme(segment6, "Wild"));
     store.put(makeMeme(segment6, "Pessimism"));

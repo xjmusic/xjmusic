@@ -22,12 +22,12 @@ public class NoteRangeTest {
 
   @Test
   public void getLow() {
-    assertEquals("C3", subject.getLow().toString(AdjSymbol.None));
+    assertEquals("C3", subject.getLow().orElseThrow().toString(AdjSymbol.None));
   }
 
   @Test
   public void getHigh() {
-    assertEquals("F6", subject.getHigh().toString(AdjSymbol.None));
+    assertEquals("F6", subject.getHigh().orElseThrow().toString(AdjSymbol.None));
   }
 
   @Test
@@ -35,4 +35,13 @@ public class NoteRangeTest {
     assertEquals("C3-F6", subject.toString(AdjSymbol.None));
   }
 
+  @Test
+  public void expand() {
+    subject.expand(ImmutableList.of(
+      "G2",
+      "G6"
+    ));
+    assertEquals("G2", subject.getLow().orElseThrow().toString(AdjSymbol.None));
+    assertEquals("G6", subject.getHigh().orElseThrow().toString(AdjSymbol.None));
+  }
 }

@@ -156,15 +156,6 @@ public interface Fabricator {
   Key getKeyForChoice(SegmentChoice choice) throws NexusException;
 
   /**
-   Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
-
-   @param arrangement to get key for
-   @return key of specified sequence/program via choice
-   @throws NexusException if unable to determine key of choice
-   */
-  Key getKeyForArrangement(SegmentChoiceArrangement arrangement) throws NexusException;
-
-  /**
    Get max available sequence pattern offset for a given choice
 
    @param choice for which to check
@@ -702,22 +693,13 @@ public interface Fabricator {
   List<String> getPreviouslyChosenProgramIds(Program.Type programType, Instrument.Type instrumentType) throws NexusException;
 
   /**
-   Determine whether we have previously picked notes for this event and chord in the same main program
-
-   @param programSequencePatternEventId to test for previously picked notes of
-   @param chordName                     to test for previously picked notes of
-   @return true if we have previously picked notes for this event
-   */
-  Boolean hasPreviouslyPickedNotes(String programSequencePatternEventId, String chordName);
-
-  /**
    Get the notes previously picked for this event, for the same main program
 
    @param programSequencePatternEventId to get previous notes picked for
    @param segmentChordName              to test for previously picked notes of
    @return notes picked previously for event
    */
-  List<String> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName);
+  Optional<List<String>> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName);
 
   /**
    Remember which notes were picked for a given event
@@ -759,10 +741,11 @@ public interface Fabricator {
   /**
    Get the note range for an arrangement based on all the events in its program
 
-   @param segmentChoiceArrangement to get range of
+   @param programId        to get range of
+   @param instrumentType to get range of
    @return Note range of arrangement
    */
-  NoteRange computeRangeForArrangement(SegmentChoiceArrangement segmentChoiceArrangement) throws NexusException;
+  NoteRange computeProgramRange(String programId, Instrument.Type instrumentType) throws NexusException;
 
   /**
    Get the first event of each audio in the instrument

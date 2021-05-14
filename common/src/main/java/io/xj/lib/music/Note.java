@@ -7,7 +7,6 @@ package io.xj.lib.music;
  https://en.wikipedia.org/wiki/Musical_note
  */
 public class Note {
-
   private static final int MAX_DELTA_SEMITONES = 1000; // this max is only for extreme-case infinite loop prevention
   private Integer octave; // octave #
   private PitchClass pitchClass; // pitch class of note
@@ -223,6 +222,26 @@ public class Note {
     if (octave > target.octave) return 1;
     if (octave < target.octave) return -1;
     if (pitchClass.equals(target.pitchClass)) return 0;
-    return pitchClass.compareTo(target.pitchClass);
+    return pitchClass.compareTo(target.pitchClass) > 0 ? 1 : -1;
+  }
+
+  /**
+   Is this note lower than the target note?
+
+   @param target to compare to
+   @return true if this is lower than the target
+   */
+  public boolean isLower(Note target) {
+    return -1 == compareTo(target);
+  }
+
+  /**
+   Is this note higher than the target note?
+
+   @param target to compare to
+   @return true if this is higher than the target
+   */
+  public boolean isHigher(Note target) {
+    return 1 == compareTo(target);
   }
 }

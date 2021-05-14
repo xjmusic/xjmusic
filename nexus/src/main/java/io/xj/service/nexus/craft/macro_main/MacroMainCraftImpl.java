@@ -35,8 +35,8 @@ import java.util.UUID;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroMainCraft {
-  private static final double SCORE_MATCH = 100;
-  private static final double SCORE_AVOID = -SCORE_MATCH / 2;
+  private static final double SCORE_MATCH = 1000;
+  private static final double SCORE_AVOID = -SCORE_MATCH * 2;
   private static final double SCORE_DIRECT = 10 * SCORE_MATCH;
   private static final double SCORE_MACRO_ENTROPY = 0.5;
   private static final double SCORE_MAIN_ENTROPY = 0.5;
@@ -369,7 +369,6 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
           if (Objects.equals(program.getId(), previousMainProgram.get().getId()))
             score += SCORE_AVOID;
       }
-
     }
 
     // [#174435421] Chain bindings specify Program & Instrument within Library

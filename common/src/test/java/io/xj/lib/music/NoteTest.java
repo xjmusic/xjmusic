@@ -175,4 +175,19 @@ public class NoteTest {
         .collect(Collectors.joining(","))
     );
   }
+
+  @Test
+  public void isLower() {
+    assertTrue(Note.of("A5").isLower(Note.of("A6")));
+    assertTrue(Note.of("A5").isLower(Note.of("A#5")));
+    assertFalse(Note.of("A5").isLower(Note.of("Ab5")));
+  }
+
+  @Test
+  public void isHigher() {
+    assertTrue(Note.of("G6").isHigher(Note.of("F6")));
+    assertTrue(Note.of("A5").isHigher(Note.of("A4")));
+    assertTrue(Note.of("A5").isHigher(Note.of("Ab5")));
+    assertFalse(Note.of("A5").isHigher(Note.of("A#5")));
+  }
 }

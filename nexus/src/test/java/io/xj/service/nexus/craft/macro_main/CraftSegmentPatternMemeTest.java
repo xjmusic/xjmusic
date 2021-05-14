@@ -50,9 +50,10 @@ public class CraftSegmentPatternMemeTest {
   public HubClient hubClient;
 
   /**
-   /**
-   [#165803886] Segment memes expected to be taken directly of sequence_pattern binding
+   Test to ensure that the following Macro-Program is based on its first sequence-binding meme
+   matching the the last sequence-binding meme of the preceding Macro-Program
    <p>
+   [#165803886] Segment memes expected to be taken directly of sequence_pattern binding
    [#176728582] Macro program sequence should advance after each main program
    */
   @Test
@@ -94,7 +95,7 @@ public class CraftSegmentPatternMemeTest {
         .setType(ChainBinding.Type.Library)
         .build());
 
-      // Chain "Test Print #1" has this segment that was just crafted
+      // Preceding Segment
       Segment previousSegment = store.put(Segment.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setChainId(chain.getId())
@@ -110,6 +111,8 @@ public class CraftSegmentPatternMemeTest {
         .build());
       store.put(NexusIntegrationTestingFixtures.makeChoice(previousSegment, Program.Type.Macro, fake.program4_sequence1_binding0));
       store.put(NexusIntegrationTestingFixtures.makeChoice(previousSegment, Program.Type.Main, fake.program5_sequence1_binding0));
+
+      // Following Segment
       Segment segment = store.put(NexusIntegrationTestingFixtures.makeSegment(chain, 2, Segment.State.Planned, Instant.parse(previousSegment.getEndAt()), null, "C", 8, 0.8, 120, "chain-1-waveform-12345", "wav"));
 
       craftFactory.macroMain(fabricatorFactory.fabricate(HubClientAccess.internal(), segment)).doWork();

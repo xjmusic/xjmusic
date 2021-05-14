@@ -271,7 +271,7 @@ public enum PitchClass {
     else if (with == AdjSymbol.Flat)
       return stringFlatOf(from);
     else
-      return "-";
+      return "X";
   }
 
   /**
@@ -293,7 +293,7 @@ public enum PitchClass {
       case As:
         return "A#";
       default:
-        return "-";
+        return "X";
     }
   }
 
@@ -316,7 +316,7 @@ public enum PitchClass {
       case As:
         return "Bb";
       default:
-        return "-";
+        return "X";
     }
   }
 }

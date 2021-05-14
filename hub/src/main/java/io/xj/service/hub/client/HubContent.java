@@ -427,12 +427,12 @@ public class HubContent {
   /**
    Get events for a given program
 
-   @param program to get events for
+   @param programId to get events for
    @return events for given program
    */
-  public Collection<ProgramSequencePatternEvent> getEvents(Program program) {
+  public Collection<ProgramSequencePatternEvent> getEvents(String programId) {
     return getAllProgramSequencePatternEvents().stream()
-      .filter(m -> m.getProgramId().equals(program.getId()))
+      .filter(m -> m.getProgramId().equals(programId))
       .collect(Collectors.toList());
   }
 

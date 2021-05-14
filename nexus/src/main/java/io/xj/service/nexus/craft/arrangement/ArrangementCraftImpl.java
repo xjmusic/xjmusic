@@ -18,6 +18,7 @@ import io.xj.SegmentChordVoicing;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
+import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.PitchClass;
 import io.xj.lib.util.CSV;
 import io.xj.service.nexus.NexusException;
@@ -42,6 +43,12 @@ import java.util.stream.Collectors;
 public class ArrangementCraftImpl extends FabricationWrapperImpl {
   private static final String ATONAL_NOTE = "X";
   private final SecureRandom random = new SecureRandom();
+  private final Collection<Instrument.Type> instrumentTypesToSeekInversions = ImmutableList.of(
+    Instrument.Type.Stripe,
+    Instrument.Type.Stab,
+    Instrument.Type.Pad,
+    Instrument.Type.Sticky
+  );
 
   /**
    Must extend this class and inject
@@ -56,20 +63,24 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   /**
    Craft the arrangement for a given voice
 
-   @param choice     to craft arrangements for
+   @param choice to craft arrangements for
    @throws NexusException on failure
    */
   protected void craftArrangements(SegmentChoice choice) throws NexusException {
+    // this is used to invert voicings into the tightest possible range
+    // passed to each iteration of note voicing arrangement in order to move as little as possible from the previous
+    NoteRange range = new NoteRange();
+
     var programConfig = fabricator.getProgramConfig(fabricator.getProgram(choice).orElseThrow());
 
     if (fabricator.getSegmentChords().isEmpty())
-      craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal());
+      craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal(), range);
 
     else if (programConfig.doPatternRestartOnChord())
-      craftArrangementForVoiceSectionRestartingEachChord(choice);
+      craftArrangementForVoiceSectionRestartingEachChord(choice, range);
 
     else
-      craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal());
+      craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal(), range);
   }
 
   /**
@@ -78,11 +89,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    [#176468993] Detail programs can be made to repeat every chord change
 
    @param choice from which to craft events
+   @param range  used to keep voicing in the tightest range possible
    @throws NexusException on failure
    */
   @Trace(resourceName = "nexus/craft/arrangement", operationName = "craftArrangementForVoiceSectionRestartingEachChord")
   private void craftArrangementForVoiceSectionRestartingEachChord(
-    SegmentChoice choice
+    SegmentChoice choice,
+    NoteRange range
   ) throws NexusException {
     // guaranteed to be in order of position ascending
     SegmentChord[] chords = new SegmentChord[fabricator.getSegmentChords().size()];
@@ -101,7 +114,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         fabricator.getSegment().getTotal();
     }
     for (var section : sections)
-      craftArrangementForVoiceSection(choice, section.fromPos, section.toPos);
+      craftArrangementForVoiceSection(choice, section.fromPos, section.toPos, range);
   }
 
   /**
@@ -119,13 +132,15 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param choice  from which to craft events
    @param fromPos position (in beats)
    @param maxPos  position (in beats)
+   @param range   used to keep voicing in the tightest range possible
    @throws NexusException on failure
    */
   @Trace(resourceName = "nexus/craft/arrangement", operationName = "craftArrangementForVoiceSection")
   private void craftArrangementForVoiceSection(
     SegmentChoice choice,
     double fromPos,
-    double maxPos
+    double maxPos,
+    NoteRange range
   ) throws NexusException {
     // choose intro pattern (if available)
     Optional<ProgramSequencePattern> introPattern =
@@ -143,14 +158,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // if intro pattern, fabricate those voice event first
     if (introPattern.isPresent())
-      curPos += craftPatternEvents(choice, introPattern.get(), curPos, loopOutPos);
+      curPos += craftPatternEvents(choice, introPattern.get(), curPos, loopOutPos, range);
 
     // choose loop patterns until arrive at the out point or end of segment
     while (curPos < loopOutPos) {
       Optional<ProgramSequencePattern> loopPattern =
         fabricator.randomlySelectPatternOfSequenceByVoiceAndType(choice, ProgramSequencePattern.Type.Loop);
       if (loopPattern.isPresent())
-        curPos += craftPatternEvents(choice, loopPattern.get(), curPos, loopOutPos);
+        curPos += craftPatternEvents(choice, loopPattern.get(), curPos, loopOutPos, range);
       else
         curPos = loopOutPos;
     }
@@ -158,7 +173,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // if outro pattern, fabricate those voice event last
     // [#161466708] compute how much to go for it in the outro
     if (outroPattern.isPresent())
-      craftPatternEvents(choice, outroPattern.get(), curPos, maxPos);
+      craftPatternEvents(choice, outroPattern.get(), curPos, maxPos, range);
   }
 
   /**
@@ -168,6 +183,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param pattern             to source events
    @param fromSegmentPosition to write events to segment
    @param toSegmentPosition   to write events to segment
+   @param range               used to keep voicing in the tightest range possible
    @return deltaPos of start, after crafting this batch of pattern events
    */
   @Trace(resourceName = "nexus/craft/arrangement", operationName = "craftPatternEvents")
@@ -175,7 +191,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     SegmentChoice choice,
     ProgramSequencePattern pattern,
     double fromSegmentPosition,
-    double toSegmentPosition
+    double toSegmentPosition,
+    NoteRange range
   ) throws NexusException {
     if (Objects.isNull(pattern)) throw new NexusException("Cannot craft create null pattern");
     double totalBeats = toSegmentPosition - fromSegmentPosition;
@@ -191,7 +208,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var instrument = fabricator.getSourceMaterial().getInstrument(choice.getInstrumentId())
       .orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
     for (ProgramSequencePatternEvent event : events)
-      pickNotesAndInstrumentAudio(instrument, arrangement, event, fromSegmentPosition, toSegmentPosition);
+      pickNotesAndInstrumentAudioForEvent(instrument, choice, arrangement, event, fromSegmentPosition, toSegmentPosition, range);
     return Math.min(totalBeats, pattern.getTotal());
   }
 
@@ -199,17 +216,21 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    of a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
    pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
 
+   @param choice              to pick notes for
    @param event               to pick audio for
    @param fromSegmentPosition to pick notes for
    @param toSegmentPosition   to pick notes for
+   @param range               used to keep voicing in the tightest range possible
    */
   @Trace(resourceName = "nexus/craft/arrangement", operationName = "pickInstrumentAudio")
-  private void pickNotesAndInstrumentAudio(
+  private void pickNotesAndInstrumentAudioForEvent(
     Instrument instrument,
-    SegmentChoiceArrangement segmentChoiceArrangement,
+    SegmentChoice choice,
+    SegmentChoiceArrangement arrangement,
     ProgramSequencePatternEvent event,
     Double fromSegmentPosition,
-    Double toSegmentPosition
+    Double toSegmentPosition,
+    NoteRange range
   ) throws NexusException {
     // Morph & Point attributes are expressed in beats
     double segmentPosition = fromSegmentPosition + event.getPosition();
@@ -221,7 +242,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // The final note is voiced from the chord voicing (if found) or else the default is used
     List<String> notes = voicing.isPresent() ?
-      pickNotes(instrument.getType(), segmentChoiceArrangement, event, chord.get(), voicing.get()) :
+      pickNotesForEvent(instrument.getType(), choice, event, chord.get(), voicing.get(), range) :
       ImmutableList.of(ATONAL_NOTE);
 
     // Pick attributes are expressed "rendered" as actual seconds
@@ -230,7 +251,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // pick an audio for each note
     for (var note : notes)
-      pickInstrumentAudio(note, instrument, event, segmentChoiceArrangement, startSeconds, lengthSeconds,
+      pickInstrumentAudio(note, instrument, event, arrangement, startSeconds, lengthSeconds,
         voicing.map(SegmentChordVoicing::getId).orElse(null));
   }
 
@@ -289,49 +310,116 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    <p>
    [#176695166] XJ should choose correct instrument note based on detail program note
 
-   @param instrumentType           comprising audios
-   @param segmentChoiceArrangement chosen program for reference
-   @param sourceEvent              of program to pick instrument note for
-   @param chord                    to use for interpreting the voicing
-   @param voicing                  to choose a note from
+   @param instrumentType comprising audios
+   @param choice         for reference
+   @param event          of program to pick instrument note for
+   @param chord          to use for interpreting the voicing
+   @param voicing        to choose a note from
+   @param range          used to keep voicing in the tightest range possible
    @return note picked from the available voicing
    */
-  private List<String> pickNotes(
+  private List<String> pickNotesForEvent(
     Instrument.Type instrumentType,
-    SegmentChoiceArrangement segmentChoiceArrangement,
-    ProgramSequencePatternEvent sourceEvent,
+    SegmentChoice choice,
+    ProgramSequencePatternEvent event,
     SegmentChord chord,
-    SegmentChordVoicing voicing
+    SegmentChordVoicing voicing,
+    NoteRange range
   ) throws NexusException {
-    if (fabricator.hasPreviouslyPickedNotes(sourceEvent.getId(), chord.getName()))
-      return fabricator.getPreviouslyPickedNotes(sourceEvent.getId(), chord.getName());
+    var previous = fabricator.getPreviouslyPickedNotes(event.getId(), chord.getName());
+    if (previous.isPresent()) return previous.get();
 
+    // Prepare an array to store picked notes
     List<String> notes = Lists.newArrayList();
 
-    var sourceKey = fabricator.getKeyForArrangement(segmentChoiceArrangement);
-    var sourceRange = fabricator.computeRangeForArrangement(segmentChoiceArrangement);
-    var targetShiftSemitones = fabricator.computeTargetShift(sourceKey, Chord.of(chord.getName()));
+    // Various computations to prepare for picking
+    var adjSymbol = Chord.of(chord.getName()).getAdjSymbol();
+    var sourceKey = fabricator.getKeyForChoice(choice);
+    var sourceRange = fabricator.computeProgramRange(choice.getProgramId(), instrumentType);
     var targetRange = fabricator.computeVoicingNoteRange(instrumentType);
-    var targetRangeShiftOctaves = fabricator.computeRangeShiftOctaves(instrumentType, sourceRange, targetRange);
-    var voicingNotes = fabricator.getNotes(voicing);
+    var targetShiftSemitones = fabricator.computeTargetShift(sourceKey, Chord.of(chord.getName()));
+    var targetShiftOctaves = fabricator.computeRangeShiftOctaves(instrumentType, sourceRange, targetRange);
+    var voicingNotes = fabricator.getNotes(voicing).stream().map(Note::of).collect(Collectors.toList());
 
-    for (var note : CSV.split(sourceEvent.getNote()).stream().map(Note::of).collect(Collectors.toList()))
+    // Pick the notes
+    for (var note : CSV.split(event.getNote()).stream().map(Note::of).collect(Collectors.toList()))
       if (PitchClass.None.equals(note.getPitchClass()))
-        pickRandomInstrumentNote(voicingNotes)
-          .ifPresent(notes::add);
+        pickRandom(voicingNotes)
+          .ifPresent(n -> notes.add(n.toString(adjSymbol)));
       else
         voicingNotes
           .stream()
-          .map(voicingNote -> new RankedNote(Note.of(voicingNote),
-            Math.abs(Note.of(voicingNote).delta(note.shift(targetShiftSemitones + 12 * targetRangeShiftOctaves)))))
+          .map(voicingNote -> new RankedNote(voicingNote,
+            Math.abs(voicingNote.delta(note.shift(targetShiftSemitones + 12 * targetShiftOctaves)))))
           .min(Comparator.comparing(RankedNote::getDelta))
           .map(RankedNote::getNote)
-          .ifPresent(pickedNote -> notes.add(pickedNote.toString(Chord.of(chord.getName()).getAdjSymbol())));
+          .ifPresent(pickedNote -> notes.add(pickedNote.toString(adjSymbol)));
 
     // If nothing has made it through to here, pick a single atonal note.
     if (notes.isEmpty()) notes.add(ATONAL_NOTE);
 
-    return fabricator.rememberPickedNotes(sourceEvent.getId(), chord.getName(), notes);
+    // Seek inversions closer to the existing range
+    var invertedNotes =
+      1 < notes.size() && instrumentTypesToSeekInversions.contains(instrumentType) ?
+        seekInversion(notes.stream().map(Note::of).collect(Collectors.toList()), range, voicingNotes)
+          .stream()
+          .map(n -> n.toString(adjSymbol))
+          .collect(Collectors.toList()) :
+        notes; // if no inversion necessary
+
+    // Keep track of the total range of notes selected, to keep voicing in tightest possible range
+    range.expand(invertedNotes);
+
+    return fabricator.rememberPickedNotes(event.getId(), chord.getName(), invertedNotes);
+  }
+
+  /**
+   Seek the inversion of the given notes that is best contained within the given range
+
+   @param sources   for which to seek inversion
+   @param range     towards which seeking will optimize
+   @param available from which to select better notes
+   */
+  private List<Note> seekInversion(List<Note> sources, NoteRange range, Collection<Note> available) {
+    return sources.stream()
+      .map(source -> seekInversion(source, range,
+        available.stream()
+          .filter(note -> note.getPitchClass().equals(source.getPitchClass()))
+          .collect(Collectors.toList())))
+      .collect(Collectors.toList());
+  }
+
+  /**
+   Seek the inversion of the given note that is best contained within the given range
+
+   @param source  for which to seek inversion
+   @param range   towards which seeking will optimize
+   @param options from which to select better notes
+   */
+  private Note seekInversion(Note source, NoteRange range, Collection<Note> options) {
+    if (range.getHigh().isPresent() && range.getHigh().get().isLower(source)) {
+      var alt = options
+        .stream()
+        .filter(o -> !range.getHigh().get().isLower(o))
+        .map(o -> new RankedNote(o,
+          Math.abs(o.delta(range.getHigh().get()))))
+        .min(Comparator.comparing(RankedNote::getDelta))
+        .map(RankedNote::getNote);
+      if (alt.isPresent()) return alt.get();
+    }
+
+    if (range.getLow().isPresent() && range.getLow().get().isHigher(source)) {
+      var alt = options
+        .stream()
+        .filter(o -> !range.getLow().get().isHigher(o))
+        .map(o -> new RankedNote(o,
+          Math.abs(o.delta(range.getLow().get()))))
+        .min(Comparator.comparing(RankedNote::getDelta))
+        .map(RankedNote::getNote);
+      if (alt.isPresent()) return alt.get();
+    }
+
+    return source;
   }
 
   /**
@@ -342,7 +430,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param voicingNotes to pick from
    @return a random note from the voicing
    */
-  private Optional<String> pickRandomInstrumentNote(Collection<String> voicingNotes) {
+  private Optional<Note> pickRandom(List<Note> voicingNotes) {
     return voicingNotes
       .stream()
       .sorted(Comparator.comparing((s) -> random.nextFloat()))

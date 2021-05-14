@@ -150,9 +150,9 @@ public class ArrangementTest {
     // Chain and Segment
     var chain = store.put(NexusIntegrationTestingFixtures.makeChain());
     var segment = store.put(makeSegment(chain, "C", 4, 1, 120));
-    var bassChoice = store.put(makeChoice(segment, bassProgram, bassVoice, bass));
-    var padChoice = store.put(makeChoice(segment, padProgram, padVoice, pad));
-    var stabChoice = store.put(makeChoice(segment, stabProgram, stabVoice, stab));
+    var bassChoice = store.put(makeChoice(segment, bassProgram, bassSequence, bassVoice, bass));
+    var padChoice = store.put(makeChoice(segment, padProgram, padSequence, padVoice, pad));
+    var stabChoice = store.put(makeChoice(segment, stabProgram, stabSequence, stabVoice, stab));
     var chord0 = store.put(makeChord(segment, 0.0, "C"));
     store.put(makeVoicing(chord0, Instrument.Type.Bass, "C1, E1, G1, C2, E2, G2, C3, E3"));
     store.put(makeVoicing(chord0, Instrument.Type.Pad, "E3, G3, C4, E4, G4, C5, E5, G5, C6"));
@@ -189,7 +189,7 @@ public class ArrangementTest {
         .filter(pick -> like(pick, "Pad", 0.0, 1.0))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toSet()));
-    assertEquals(ImmutableSet.of("A3", "C4", "F4"),
+    assertEquals(ImmutableSet.of("F3", "A3", "C4"),
       fabricator.getPicks().stream()
         .filter(pick -> like(pick, "Pad", 1.0, 1.0))
         .map(SegmentChoiceArrangementPick::getNote)
@@ -201,7 +201,7 @@ public class ArrangementTest {
         .filter(pick -> like(pick, "Stab", 0.0, 0.25))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toSet()));
-    assertEquals(ImmutableSet.of("A3", "C4", "F4"),
+    assertEquals(ImmutableSet.of("F3", "A3", "C4"),
       fabricator.getPicks().stream()
         .filter(pick -> like(pick, "Stab", 1.0, 0.25))
         .map(SegmentChoiceArrangementPick::getNote)
