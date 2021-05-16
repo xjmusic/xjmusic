@@ -15,9 +15,9 @@ See the **/art** folder. By Accessing the contents of that folder, you agree to 
 ### Architecture
 
 Here's the general architecture of the XJ Music platform backend services. [(Download PDF)](art/XJ
-Mk3StreamingSegmentsArchitecture.pdf) 
+LabStreamingSegmentsArchitecture.pdf) 
 
-![XJ Mk3 Streaming Segments Architecture](art/XJMk3StreamingSegmentsArchitecture.svg)
+![XJ Lab Streaming Segments Architecture](art/XJLabStreamingSegmentsArchitecture.svg)
 
 
 ## Axioms

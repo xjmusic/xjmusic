@@ -14,7 +14,7 @@ import java.util.Collection;
 /**
  Nexus base DAO interface
  <p>
- [#171553408] XJ Mk3 Distributed Architecture
+ [#171553408] XJ Lab Distributed Architecture
  Chains, ChainBindings, ChainConfigs, Segments and all Segment content sub-entities persisted in memory
  */
 public interface DAO<E extends MessageLite> {

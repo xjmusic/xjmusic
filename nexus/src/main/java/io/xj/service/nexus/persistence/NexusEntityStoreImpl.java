@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 /**
  [#175880468] NexusEntityStore segments and child entities partitioned by segment id for rapid addressing
  <p>
- [#171553408] XJ Mk3 Distributed Architecture
+ [#171553408] XJ Lab Distributed Architecture
  Chains, ChainBindings, ChainConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
  */
 @Singleton

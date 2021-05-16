@@ -4,7 +4,7 @@ package io.xj.service.nexus.work;
 import java.util.Collection;
 
 /**
- The Mk3 Nexus Distributed Work Manager
+ The Lab Nexus Distributed Work Manager
  <p>
  THERE IS NO SPOON
  <p>
@@ -14,7 +14,7 @@ import java.util.Collection;
  - Stream all Chains from the local entity store-- determine which require Work, and cache the latest state
  - Stream all Segments from the local entity store-- determine which require Work, based on the Chain-work state cache
  <p>
- IMPLEMENTS [#171553408] XJ Mk3 Distributed Hub/Nexus Architecture, by removing all Queue mechanics in favor of a cycle happening in Main class for as long as the application is alive, that does nothing but search for active chains, search for segments that need work, and work on them. Zero need for a work queue-- that's what the Chain-Segment state machine is!
+ IMPLEMENTS [#171553408] XJ Lab Distributed Hub/Nexus Architecture, by removing all Queue mechanics in favor of a cycle happening in Main class for as long as the application is alive, that does nothing but search for active chains, search for segments that need work, and work on them. Zero need for a work queue-- that's what the Chain-Segment state machine is!
  <p>
  FUTURE: [#153266872] Admin wants Work tab in order to monitor current platform workload, and a Reinstate All Jobs button to ensure all jobs are up and running
  <p>

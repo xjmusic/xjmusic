@@ -43,7 +43,7 @@ import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.junit.Assert.assertEquals;
 
 /**
- [#171553408] XJ Mk3 Distributed Architecture
+ [#171553408] XJ Lab Distributed Architecture
  <p>
  HubClient** allows a service that depends on Hub (e.g. Nexus) to connect to the Hub REST API via an HTTP client and deserialize results into usable entities
  */

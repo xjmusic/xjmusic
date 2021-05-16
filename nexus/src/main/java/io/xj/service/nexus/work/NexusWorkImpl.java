@@ -18,7 +18,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- The Mk3 Nexus Distributed Work Manager (Implementation)
+ The Lab Nexus Distributed Work Manager (Implementation)
  <p>
  https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
  */

@@ -21,7 +21,7 @@
     <table class="table">
       <thead>
       <tr>
-        <th width="1%"><!--Launch Mk3--></th>
+        <th width="1%"><!--Launch Lab--></th>
         <th width="1%"><!--Launch Player--></th>
         <th>Name</th>
         <th width="1%">Type</th>
@@ -35,7 +35,7 @@
       <tbody>
       {{#each model.chains as |chain|}}
         <tr class="item {{lowercase chain.state}}-state">
-          <td>{{launch-mk3 chain.mk3Url}}</td>
+          <td>{{launch-lab chain.labUrl}}</td>
           <td>{{launch-player chain.embedKey}}</td>
           <td>{{#link-to "accounts.one.chains.one" chain.id}}{{chain.name}}{{/link-to}}</td>
           <td>{{chain.type}}</td>

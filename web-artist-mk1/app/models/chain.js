@@ -15,8 +15,8 @@ export default Model.extend({
   embedKey: attr('string', {defaultValue: ''}),
   account: belongsTo('account'),
   chainBindings: hasMany('chain-binding'),
-  mk3Url: computed('id', function () {
-    return `/mk3/chains/${this.id}`;
+  labUrl: computed('id', function () {
+    return `/chains/${this.id}`;
   }),
 });
 

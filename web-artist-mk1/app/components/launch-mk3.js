@@ -4,16 +4,16 @@
 
 import Component from '@ember/component';
 
-const LaunchMk3Component = Component.extend({});
+const LaunchLabComponent = Component.extend({});
 
 /**
  * Usage (e.g, in Handlebars):
  *
- *   {{launch-mk3 <mk3path>}}
+ *   {{launch-lab <labpath>}}
  */
-LaunchMk3Component.reopenClass({
-  positionalParams: ['mk3url']
+LaunchLabComponent.reopenClass({
+  positionalParams: ['labUrl']
 });
 
-export default LaunchMk3Component;
+export default LaunchLabComponent;
 
