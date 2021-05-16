@@ -5964,7 +5964,6 @@ fd79ea1a-7936-11eb-b4db-13f6ee945e8b	1509102a-16eb-11ea-8a37-4764c2a771db	Publis
 8ab02264-8b84-11eb-a8eb-ebfd83a91bb6	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	3-note stab E	0.5	doPatternRestartOnChord=true
 b3f7af40-860f-11eb-b123-379a9bfda5c1	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	low 3 pad	0.5	doPatternRestartOnChord=true\ndoTranspose=false
 5a34a844-8611-11eb-b123-aff1c420512d	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	sticky 11	0.5	doPatternRestartOnChord=false\ndoTranspose=false
-6d4baa54-8238-11eb-86c7-e77755c7db68	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	120	Rhythm	Apple Sauce Grenade	1	doPatternRestartOnChord=false\ndoTranspose=false
 ed464fcc-8849-11eb-bf80-0f0b7ba1f39c	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	120	Rhythm	Silly Putty	1	doPatternRestartOnChord=false\ndoTranspose=false
 5c36706c-8b81-11eb-8ea0-17b4f7374c3e	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	3-note pad E	0.5	doPatternRestartOnChord=true\ndoTranspose=false
 3bd0831c-8b81-11eb-a962-f74f3f3978a2	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	3-note pad D	0.5	doPatternRestartOnChord=true\ndoTranspose=false
@@ -5990,6 +5989,7 @@ a24c2ab8-8d22-11eb-8799-872ef8bc2bd4	1509102a-16eb-11ea-8a37-4764c2a771db	Publis
 8f11973a-8d22-11eb-8799-3f4a68845047	1509102a-16eb-11ea-8a37-4764c2a771db	Published	D-	120	Detail	4-note stab E	0.5	doPatternRestartOnChord = false
 c3fb82c6-8b83-11eb-89e0-ab4acb03d2bd	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	3-note stab A	0.5	doPatternRestartOnChord = false
 811b3bc2-8d22-11eb-8a95-8717befeaca6	1509102a-16eb-11ea-8a37-4764c2a771db	Published	D-	120	Detail	4-note stab D	0.5	doPatternRestartOnChord = false
+6d4baa54-8238-11eb-86c7-e77755c7db68	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Rhythm	Apple Sauce Grenade	1	doPatternRestartOnChord = false
 f70c5764-8f82-11eb-bf34-93d8f6dd788a	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Detail	sticky 13	0.5	doPatternRestartOnChord = false
 ff2bea54-9045-11eb-afa0-b7fb3117c895	1509102a-16eb-11ea-8a37-4764c2a771db	Published	c	120	Detail	sticky 14	0.5	doPatternRestartOnChord = false
 26ff7082-9046-11eb-9b02-47edc443b9f3	1509102a-16eb-11ea-8a37-4764c2a771db	Published	c	120	Detail	sticky 15	0.5	doPatternRestartOnChord = false
@@ -6010,7 +6010,6 @@ ff13d52a-91a5-11eb-8605-23b893f6dc73	1509102a-16eb-11ea-8a37-4764c2a771db	Publis
 c72de3b4-904a-11eb-abd3-af7e20374a42	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	123	Rhythm	Stepping Out Twice	0	doPatternRestartOnChord = false
 2e2bc04e-9277-11eb-815d-3338b3c623e9	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	120	Rhythm	Tempo Key Density error test	1	doPatternRestartOnChord = false
 4e001996-950c-11eb-933c-fb4581ea2431	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	123	Rhythm	Shan't Step to This	0	doPatternRestartOnChord = false
-f92116fa-9cbd-11eb-820b-afa35ebe06a6	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	120	Rhythm	Steppin' Pepper	1	doPatternRestartOnChord = false
 ac1c3f92-9d67-11eb-92e9-1345b5af3df7	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Detail	Bass plonk	0.5	doPatternRestartOnChord = false
 3a9796ea-9d68-11eb-92e9-e7ef9b7fe28c	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G	120	Detail	Bass plonk'n drift	0.5	doPatternRestartOnChord = true
 ba139ae8-a233-11eb-be01-3b6e8914c26d	1509102a-16eb-11ea-8a37-4764c2a771db	Draft	C	120	Rhythm	Gorgonzola Soulja	1	doPatternRestartOnChord = false
@@ -6048,6 +6047,7 @@ eba748d0-a313-11eb-981b-9b7516f2f3cf	1509102a-16eb-11ea-8a37-4764c2a771db	Publis
 a827da6c-a317-11eb-a584-27f52e78de21	1509102a-16eb-11ea-8a37-4764c2a771db	Published	G#-	120	Main	Wind Home 3 4fl	0.600000024	doPatternRestartOnChord = false
 90cc26de-a3d0-11eb-9e07-57525aafd085	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Eb-	120	Main	Wind Tramp 4fl	0.5	doPatternRestartOnChord = false
 16d58056-a31b-11eb-ba55-770e76c346af	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C-	120	Detail	Sticky 20.1	0.600000024	doPatternRestartOnChord = false
+f92116fa-9cbd-11eb-820b-afa35ebe06a6	1509102a-16eb-11ea-8a37-4764c2a771db	Published	C	120	Rhythm	Steppin' Pepper	1	doPatternRestartOnChord = false
 cb5b3a9c-ae98-11eb-93ac-c7fc22f9d7a8	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F#-	120	Main	Fire Home 2 2step	0.600000024	doPatternRestartOnChord = false
 89885e36-a319-11eb-95c0-576bb6ecca2e	1509102a-16eb-11ea-8a37-4764c2a771db	Published	F#-	120	Main	Fire Home 2 4fl	0.600000024	doPatternRestartOnChord = false
 e31d681c-ae98-11eb-8fab-1fd7b34d181c	1509102a-16eb-11ea-8a37-4764c2a771db	Published	B-	120	Main	Fire Home 3 2step	0.600000024	doPatternRestartOnChord = false
@@ -14393,6 +14393,10 @@ be0e06cd-06d7-4d94-923b-0c83f785e5e6	fa9b1664-a3d6-11eb-8adc-bb2d0db3864e	610f45
 cb458ee0-83c4-497c-b94e-a0a7b15ba162	6cbcef0e-8d22-11eb-8799-0ff393d74652	905d12e2-7e7f-4725-ab2c-483c445ec7ad	69fd86b2-cab6-41fa-b354-961fdbe06047	New Pattern	Loop	16
 5a5f6bbb-044c-4d32-89ad-fdf396b6b486	39a4c5c4-b081-11eb-b7f3-5fb966137ef5	9ea82c23-fda5-4128-b72d-b5ef84aced20	b430c828-8843-4008-9b16-9c7eac6f318b	New Pattern	Loop	8
 6fee1d04-e9cd-4da8-b707-ec210c37c6b1	c3fb82c6-8b83-11eb-89e0-ab4acb03d2bd	815d400b-a8b3-42df-a70f-d4bb0a7c1619	36e4e030-e9c3-4a8d-bbb0-123a583f7210	New	Loop	16
+d0d11290-b5db-11eb-8c19-739950b1cb80	ba139ae8-a233-11eb-be01-3b6e8914c26d	7ed5d4f4-a243-11eb-a91a-57029dd6e983	9c97808c-a243-11eb-a91a-b3d9f1207641	New Pattern	Loop	4
+d63b0150-b5db-11eb-850d-ab4672dff30b	ba139ae8-a233-11eb-be01-3b6e8914c26d	7ed5d4f4-a243-11eb-a91a-57029dd6e983	80fe635e-a243-11eb-a91a-ffc93ead408d	New Pattern	Loop	4
+d7641076-b5db-11eb-850d-5fa298d10266	ba139ae8-a233-11eb-be01-3b6e8914c26d	7ed5d4f4-a243-11eb-a91a-57029dd6e983	9d2a7cc0-a243-11eb-a91a-27476c0382cd	New Pattern	Loop	4
+d43bd550-b5db-11eb-850d-6729f6d9a1d7	ba139ae8-a233-11eb-be01-3b6e8914c26d	7ed5d4f4-a243-11eb-a91a-57029dd6e983	9bd408fa-a243-11eb-a91a-2bafc940176e	New Pattern	Loop	8
 \.
 
 
@@ -16678,6 +16682,16 @@ ef91c8a2-b1ba-11eb-aa1f-7387eff38054	c3fb82c6-8b83-11eb-89e0-ab4acb03d2bd	6fee1d
 49a2eff6-b1bb-11eb-aa1f-83023d68204c	811b3bc2-8d22-11eb-8a95-8717befeaca6	79c4ae75-bb1e-4cf7-882e-d63a46c293b3	a809c30c-0bbd-48db-b33f-908447161372	1	3	0.5	C4, D4, F4, A4
 b39e3558-b1bd-11eb-bdc6-5bbb93dbee53	76b2d680-8b84-11eb-a8eb-9f8096c04ed9	3e89f04c-fa87-4cf6-82f2-7150fe073e17	90d4df76-b447-46ee-8681-c48ca8cc925f	1	1.25	0.25	G3, C4, E4
 d5b9b5fe-b1bd-11eb-adaf-1f3a4ea56bfe	76b2d680-8b84-11eb-a8eb-9f8096c04ed9	3e89f04c-fa87-4cf6-82f2-7150fe073e17	90d4df76-b447-46ee-8681-c48ca8cc925f	1	5.75	0.25	G3, C4, E4
+1a90d730-b5dc-11eb-9bb8-e32b83d09be4	ba139ae8-a233-11eb-be01-3b6e8914c26d	d43bd550-b5db-11eb-850d-6729f6d9a1d7	a15f21b0-a243-11eb-a91a-1ff250da4e5c	1	0	0.125	X
+1b4d0a2c-b5dc-11eb-9bb8-27192a220b46	ba139ae8-a233-11eb-be01-3b6e8914c26d	d43bd550-b5db-11eb-850d-6729f6d9a1d7	a15f21b0-a243-11eb-a91a-1ff250da4e5c	1	1	0.125	X
+2884f0a6-b5dc-11eb-ad4d-87289bc7657b	ba139ae8-a233-11eb-be01-3b6e8914c26d	d43bd550-b5db-11eb-850d-6729f6d9a1d7	a15f21b0-a243-11eb-a91a-1ff250da4e5c	1	4	0.125	X
+29d16dae-b5dc-11eb-ad4d-8b42b8fa8248	ba139ae8-a233-11eb-be01-3b6e8914c26d	d43bd550-b5db-11eb-850d-6729f6d9a1d7	a15f21b0-a243-11eb-a91a-1ff250da4e5c	1	5	0.125	X
+1bbb746c-b5dc-11eb-9bb8-f7ede438ff90	ba139ae8-a233-11eb-be01-3b6e8914c26d	d43bd550-b5db-11eb-850d-6729f6d9a1d7	a15f21b0-a243-11eb-a91a-1ff250da4e5c	1	2	0.5	X
+236bdd28-b5dc-11eb-ad4d-63664965a1e9	ba139ae8-a233-11eb-be01-3b6e8914c26d	d43bd550-b5db-11eb-850d-6729f6d9a1d7	a15f21b0-a243-11eb-a91a-1ff250da4e5c	0.349999994	0.5	0.125	X
+2446002a-b5dc-11eb-ad4d-77c60eaa052a	ba139ae8-a233-11eb-be01-3b6e8914c26d	d43bd550-b5db-11eb-850d-6729f6d9a1d7	a15f21b0-a243-11eb-a91a-1ff250da4e5c	0.349999994	1.5	0.125	X
+294cc216-b5dc-11eb-ad4d-bb49b7f28908	ba139ae8-a233-11eb-be01-3b6e8914c26d	d43bd550-b5db-11eb-850d-6729f6d9a1d7	a15f21b0-a243-11eb-a91a-1ff250da4e5c	0.400000006	4.5	0.125	X
+2a914098-b5dc-11eb-ad4d-cfb2c251fc94	ba139ae8-a233-11eb-be01-3b6e8914c26d	d43bd550-b5db-11eb-850d-6729f6d9a1d7	a15f21b0-a243-11eb-a91a-1ff250da4e5c	0.25	5.5	0.127599999	X
+2b7d53e8-b5dc-11eb-ad4d-fb3e09c45b26	ba139ae8-a233-11eb-be01-3b6e8914c26d	d43bd550-b5db-11eb-850d-6729f6d9a1d7	a15f21b0-a243-11eb-a91a-1ff250da4e5c	1	6	0.5	X
 \.
 
 
@@ -16778,6 +16792,8 @@ fc1f3988-adcd-11eb-9687-1723cd29e510	5188959c-8514-11ea-962a-87e0456d6ec9	14c688
 413f2c58-adf1-11eb-99c9-2b74e262ac8c	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1620253725828-8c1df647-6ecb-4ae6-aa87-5f797615ba0e-111855197599042
 6ec2066c-b04b-11eb-8831-bf59d238fb88	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1620512359068-fe5fe988-bef6-4f0a-ae46-0320267408f7-443244971838831
 58c6ed44-b39a-11eb-888b-e3e278d10294	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1620876105946-97d5c542-7995-46a8-819a-6799211602bd-981394680443272
+c0238104-b5ad-11eb-8191-2b5ab74ea23c	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8c0-16eb-11ea-8a37-336eae21d833	1621104341963-d1014b2e-42d3-4237-9e64-bd41d6b897fd-047790694652431
+3b5ec8ee-b5fc-11eb-ab5f-e7ec17475b82	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1621138049735-46419e7c-b75a-43e3-8e1c-b83daf8591b2-860696762469761
 \.
 
 
