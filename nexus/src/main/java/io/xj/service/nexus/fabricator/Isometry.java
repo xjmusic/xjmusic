@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public class Isometry {
   private static final String CONSTELLATION_DELIMITER = "_";
-  private final List<String> sources;
+  protected final List<String> sources;
 
   /**
    Default constructor

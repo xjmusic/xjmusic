@@ -4,7 +4,6 @@ package io.xj.service.hub.dao;
 import com.google.inject.Inject;
 
 
-import datadog.trace.api.Trace;
 import io.xj.InstrumentMeme;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -91,7 +90,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
     try {
       Value.require(record.getInstrumentId(), "Instrument ID");
       Value.require(record.getName(), "Name");
-      record.setName(Text.toUpperSlug(record.getName()));
+      record.setName(Text.toMeme(record.getName()));
       return record;
 
     } catch (ValueException e) {

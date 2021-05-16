@@ -2,7 +2,6 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import datadog.trace.api.Trace;
 import io.xj.ProgramVoiceTrack;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -153,7 +152,7 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
       Value.require(builder.getProgramId(), "Program ID");
       Value.require(builder.getProgramVoiceId(), "Voice ID");
       Value.require(builder.getName(), "Name");
-      builder.setName(Text.toUpperSlug(builder.getName()));
+      builder.setName(Text.toMeme(builder.getName()));
       return builder;
 
     } catch (ValueException e) {

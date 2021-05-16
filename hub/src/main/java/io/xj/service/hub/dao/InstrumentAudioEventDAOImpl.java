@@ -2,7 +2,6 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import datadog.trace.api.Trace;
 import io.xj.InstrumentAudioEvent;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.EventEntity;
@@ -91,7 +90,7 @@ public class InstrumentAudioEventDAOImpl extends DAOImpl<InstrumentAudioEvent> i
     try {
       Value.require(builder.getInstrumentId(), "Instrument ID");
       Value.require(builder.getInstrumentAudioId(), "Audio ID");
-      builder.setName(Text.toUpperSlug(builder.getName()));
+      builder.setName(Text.toMeme(builder.getName()));
       EventEntity.validate(builder);
       return builder;
 

@@ -165,7 +165,7 @@ public class TextTest {
     assertEquals("jim", Text.toSlug("jim"));
     assertEquals("jim251", Text.toSlug("jim-251"));
     assertEquals("jim251", Text.toSlug("j i m - 2 5 1"));
-    assertEquals("j!m251", Text.toSlug("j!$m%-^2%5*1"));
+    assertEquals("jm251", Text.toSlug("j!$m%-^2%5*1"));
   }
 
   @Test
@@ -186,14 +186,14 @@ public class TextTest {
   }
 
   @Test
-  public void toUpperSlug() {
-    assertEquals("JAMMYB!NS", Text.toUpperSlug("jaMMy b#!ns"));
-    assertEquals("JAMMY", Text.toUpperSlug("jaMMy"));
-    assertEquals("JMMY", Text.toUpperSlug("j#MMy", "neuf"));
-    assertEquals("NEUF", Text.toUpperSlug(null, "neuf"));
-    assertEquals("NEUF", Text.toUpperSlug("%&(#", "neuf"));
-    assertEquals("P", Text.toUpperSlug("%&(#p"));
-    assertEquals("", Text.toUpperSlug("%&(#"));
+  public void toMeme() {
+    assertEquals("JAMMYB!NS", Text.toMeme("jaMMy b#!ns"));
+    assertEquals("JAMMY", Text.toMeme("jaMMy"));
+    assertEquals("JMMY", Text.toMeme("j#MMy", "neuf"));
+    assertEquals("NEUF", Text.toMeme(null, "neuf"));
+    assertEquals("NEUF", Text.toMeme("%&(#", "neuf"));
+    assertEquals("P", Text.toMeme("%&(#p"));
+    assertEquals("", Text.toMeme("%&(#"));
   }
 
   @Test

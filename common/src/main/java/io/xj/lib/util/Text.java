@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
@@ -27,7 +26,8 @@ public interface Text {
   Pattern nonAlphaSlug = Pattern.compile("[^a-zA-Z_]");
   Pattern nonAlphanumeric = Pattern.compile("[^a-zA-Z0-9.\\-]"); // include decimal and sign
   Pattern nonNumeric = Pattern.compile("[^0-9.\\-]"); // include decimal and sign
-  Pattern nonSlug = Pattern.compile("[^a-zA-Z0-9!]");
+  Pattern nonSlug = Pattern.compile("[^a-zA-Z0-9]");
+  Pattern nonMeme = Pattern.compile("[^a-zA-Z0-9!]");
   Pattern nonScored = Pattern.compile("[^a-zA-Z0-9_]");
   Pattern nonNote = Pattern.compile("[^#0-9a-zA-Z ]");
   Pattern isInteger = Pattern.compile("[0-9]+");
@@ -35,18 +35,6 @@ public interface Text {
   String NOTHING = "";
   char SINGLE_QUOTE = '\'';
   char DOUBLE_QUOTE = '"';
-
-  /**
-   Format a stack trace in carriage-return-separated lines
-
-   @param e exception to format the stack trace of
-   @return formatted stack trace
-   */
-  static String formatSimpleTrace(@Nullable Throwable e) {
-    if (Objects.isNull(e)) return "";
-    StackTraceElement[] stack = e.getStackTrace();
-    return Arrays.stream(stack).map(StackTraceElement::toString).iterator().next();
-  }
 
   /**
    Format a stack trace in carriage-return-separated lines
@@ -90,7 +78,7 @@ public interface Text {
     if (entityClass.isInterface())
       return entityClass.getSimpleName();
     if (0 < entityClass.getInterfaces().length &&
-      "impl".equals(entityClass.getSimpleName().substring(entityClass.getSimpleName().length() - 4).toLowerCase()))
+      "impl".equalsIgnoreCase(entityClass.getSimpleName().substring(entityClass.getSimpleName().length() - 4)))
       return entityClass.getInterfaces()[0].getSimpleName();
     else
       return entityClass.getSimpleName();
@@ -377,20 +365,6 @@ public interface Text {
   }
 
   /**
-   Format an immutable list of string values of an array of enum
-
-   @param values to include
-   @return array of string values
-   */
-  static List<String> toStrings(Object[] values) {
-    ImmutableList.Builder<String> valuesBuilder = ImmutableList.builder();
-    for (Object value : values) {
-      valuesBuilder.add(value.toString());
-    }
-    return valuesBuilder.build();
-  }
-
-  /**
    Conform to Upper-scored (e.g. "BUNS_AND_JAMS")
 
    @param raw input
@@ -424,8 +398,10 @@ public interface Text {
    @param raw input
    @return purified
    */
-  static String toUpperSlug(String raw) {
-    return toSlug(raw).toUpperCase(Locale.ENGLISH);
+  static String toMeme(String raw) {
+    return nonMeme.matcher(raw)
+      .replaceAll(NOTHING)
+      .toUpperCase(Locale.ENGLISH);
   }
 
   /**
@@ -435,7 +411,7 @@ public interface Text {
    @param defaultValue if no input
    @return purified
    */
-  static String toUpperSlug(String raw, String defaultValue) {
+  static String toMeme(String raw, String defaultValue) {
     if (Objects.isNull(raw))
       return defaultValue.toUpperCase(Locale.ENGLISH);
 

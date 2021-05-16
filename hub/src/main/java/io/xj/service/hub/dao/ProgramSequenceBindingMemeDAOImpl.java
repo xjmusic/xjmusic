@@ -2,7 +2,6 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import datadog.trace.api.Trace;
 import io.xj.ProgramSequenceBindingMeme;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -129,7 +128,7 @@ public class ProgramSequenceBindingMemeDAOImpl extends DAOImpl<ProgramSequenceBi
     try {
       Value.require(record.getProgramSequenceBindingId(), "ProgramSequenceBinding ID");
       Value.require(record.getName(), "Name");
-      record.setName(Text.toUpperSlug(record.getName()));
+      record.setName(Text.toMeme(record.getName()));
       return record;
 
     } catch (ValueException e) {

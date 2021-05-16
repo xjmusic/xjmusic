@@ -54,7 +54,7 @@ public class MemeIsometryTest {
     assertArrayEquals(new String[]{"SMOOTH", "!BUSY"}, result.getSources().toArray());
 
     assertEquals(0.5, result.score(ImmutableList.of("Smooth")), 0.1);
-    assertEquals(0.0, result.score(ImmutableList.of("Busy")), 0.1);
+    assertEquals(-5, result.score(ImmutableList.of("Busy")), 0.1);
   }
 
 }
