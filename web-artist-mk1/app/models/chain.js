@@ -16,7 +16,7 @@ export default Model.extend({
   account: belongsTo('account'),
   chainBindings: hasMany('chain-binding'),
   labUrl: computed('id', function () {
-    return `/chains/${this.id}`;
+    return `/#/chains/${this.id}`;
   }),
 });
 
