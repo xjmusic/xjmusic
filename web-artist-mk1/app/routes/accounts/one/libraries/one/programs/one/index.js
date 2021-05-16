@@ -24,7 +24,7 @@ export default Route.extend({
   model: function () {
     let program = this.modelFor('accounts.one.libraries.one.programs.one');
     return hash({
-      labStepmaticURL: `/programs/${program.get('id')}`,
+      labUrl: `/#/programs/${program.get('id')}`,
     }, 'program');
   },
 
