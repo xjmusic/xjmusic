@@ -1,6 +1,6 @@
 --  Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 --
--- [#171553408] XJ Lab Distributed Architecture
+-- [#171553408] XJ Mk3 Distributed Architecture
 --   * Only user, account, and library entities will remain in the relational database.
 --   * Migration to destroy Postgres tables:
 --       `chain`
