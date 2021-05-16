@@ -1,0 +1,62 @@
+<!-- Parent (Audio) -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Audio</label>
+  <div class="col-sm-10">
+    <div class="readonly-field">{{model.audio.name}}</div>
+  </div>
+</div>
+
+<!-- Note -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Note</label>
+  <div class="col-sm-10">
+    {{input type="text" value=model.note class="form-control" autofocus="autofocus"
+            placeholder="The note of the Event"}}
+  </div>
+</div>
+
+<!-- Name -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Name</label>
+  <div class="col-sm-10">
+    {{input type="text" value=model.name class="form-control" autofocus="autofocus"
+            placeholder="The name of the Event"}}
+  </div>
+</div>
+
+<!-- Position -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Position</label>
+  <div class="col-sm-10">
+    {{input type="number" step="any" value=model.position class="form-control"
+            placeholder="The position of the Event"}}
+  </div>
+</div>
+
+<!-- Velocity -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Velocity</label>
+  <div class="col-sm-10">
+    {{input type="number" step="any" value=model.velocity class="form-control"
+            placeholder="The velocity of the Event"}}
+  </div>
+</div>
+
+<!-- Tonality -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Tonality</label>
+  <div class="col-sm-10">
+    {{input type="number" step="any" value=model.tonality class="form-control"
+            placeholder="The tonality of the Event"}}
+  </div>
+</div>
+
+<!-- Duration -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Duration</label>
+  <div class="col-sm-10">
+    {{input type="number" step="any" value=model.duration class="form-control"
+            placeholder="The duration of the Event"}}
+  </div>
+</div>
+

@@ -1,0 +1,11 @@
+/*
+ * Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+ */
+
+group = 'io.xj'
+version = '1.0'
+description = 'xj-ui-web-gateway'
+
+apply plugin: 'java'
+jar.enabled = false
+

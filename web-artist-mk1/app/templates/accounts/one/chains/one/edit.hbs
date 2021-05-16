@@ -1,0 +1,30 @@
+<!-- Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Upper Container -->
+{{#modal-dialog}}
+
+  <div class="form-horizontal container-fluid">
+
+    <!-- Type -->
+    <div class="form-group row">
+      <label class="col-sm-2 control-label">Type</label>
+      <div class="col-sm-10">
+        <div class="readonly-field">{{model.chain.type}}</div>
+      </div>
+    </div>
+
+    {{partial "accounts/one/chains/one/form"}}
+
+    <div class="form-group row">
+      <div class="offset-sm-2 col-sm-10">
+        <button type="submit" class="btn btn-primary" {{action 'saveChain' model.chain}}>Save changes</button>
+        <button type="button" class="btn btn-default" {{action 'cancel' model}}>Cancel</button>
+      </div>
+    </div>
+
+  </div>
+
+{{/modal-dialog}}

@@ -5,3 +5,5 @@ rootProject.name = 'xj-platform'
 include('common')
 include('hub')
 include('nexus')
+include(':web-api-gateway')
+include(':web-artist-mk1')

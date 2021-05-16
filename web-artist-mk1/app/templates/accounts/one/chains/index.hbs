@@ -1,0 +1,61 @@
+<!-- Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+
+<!-- Admin -->
+{{#if (or auth.isArtist auth.isAdmin)}}
+  <div class="form-horizontal container-fluid">
+    <div class="row">
+      <div class="col-sm-12 text-right">
+        {{#link-to 'accounts.one.chains.new' model.account}}{{fa-icon "plus"}} New Chain{{/link-to}}
+      </div>
+    </div>
+  </div>
+{{/if}}
+
+<!-- List of Chains -->
+{{#if model.chains.length}}
+  <div class="table-list">
+    <table class="table">
+      <thead>
+      <tr>
+        <th width="1%"><!--Launch Mk3--></th>
+        <th width="1%"><!--Launch Player--></th>
+        <th>Name</th>
+        <th width="1%">Type</th>
+        <th width="1%">State</th>
+        <th width="1%"><!--Change State To --></th>
+        <th width="1%">Start At</th>
+        <th width="1%">Ahead</th>
+        <th><!-- Actions --></th>
+      </tr>
+      </thead>
+      <tbody>
+      {{#each model.chains as |chain|}}
+        <tr class="item {{lowercase chain.state}}-state">
+          <td>{{launch-mk3 chain.mk3Url}}</td>
+          <td>{{launch-player chain.embedKey}}</td>
+          <td>{{#link-to "accounts.one.chains.one" chain.id}}{{chain.name}}{{/link-to}}</td>
+          <td>{{chain.type}}</td>
+          <td>{{chain.state}}</td>
+
+          <td>
+            {{chain-state-change chain submit=(action "chainsUpdated")}}
+          </td>
+
+          <td>{{chain.startAt}}</td>
+          <td>{{chain.fabricatedAheadSeconds}}s</td>
+          <td>
+            {{#link-to 'accounts.one.chains.one.bindings' chain.account.id chain.id}}Bindings{{/link-to}}
+            <span>&nbsp;</span>
+            {{entity-actions "accounts.one.chains.one" "edit|destroy" chain.account.id chain.id}}
+          </td>
+        </tr>
+      {{/each}}
+      </tbody>
+    </table>
+  </div>
+{{/if}}
+

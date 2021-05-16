@@ -1,0 +1,37 @@
+<!-- Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+{{#if model.length}}
+  <div class="table-list">
+    <table class="table">
+      <thead>
+      <tr>
+        <th width="1%">Action</th>
+        <th width="1%">Target</th>
+        <th>&nbsp;</th>
+        <!-- <th>Name</th> -->
+        <th width="1%">State</th>
+      </tr>
+      </thead>
+      <tbody>
+      {{#each model as |work|}}
+        <tr class="item {{lowercase work.state}}-state">
+          <td>{{work.targetAction}}</td>
+          <td>{{work.targetType}}&nbsp;#{{work.targetId}}</td>
+          <td>&nbsp;</td>
+          <!-- <td>{{work.name}}</td> -->
+          <td>{{work.state}}</td>
+        </tr>
+      {{/each}}
+      </tbody>
+    </table>
+  </div>
+{{else}}
+  <div class="form-horizontal container-fluid">
+    <div class="col-sm-12">
+      <p>No work is expected.</p>
+    </div>
+  </div>
+{{/if}}

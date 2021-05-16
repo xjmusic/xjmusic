@@ -1,0 +1,20 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Upper Container -->
+{{#modal-dialog}}
+<div class="form-horizontal container-fluid">
+
+  {{partial "accounts/one/libraries/one/instruments/one/audios/one/chords/one/form"}}
+
+  <div class="form-group row">
+    <div class="offset-sm-2 col-sm-10">
+      <button type="submit" class="btn btn-primary" {{action 'saveChord' model}}>Save changes</button>
+      <button type="button" class="btn btn-secondary" {{action 'cancel' model}}>Cancel</button>
+    </div>
+  </div>
+</div>
+
+{{/modal-dialog}}

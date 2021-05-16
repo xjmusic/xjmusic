@@ -1,0 +1,32 @@
+<!-- Copyright (c) 2020, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+{{yield}}
+
+{{#if (eq model.state 'Draft')}}
+  <button type="button" class="chain-state btn btn-info align-middle" {{action 'changeState' 'Ready' false}}>
+    Get Ready
+  </button>
+{{/if}}
+{{#if (eq model.state 'Ready')}}
+  <button type="button" class="chain-state btn btn-success align-middle" {{action 'changeState' 'Fabricate' true}}>
+    Fabricate
+  </button>
+{{/if}}
+{{#if (eq model.state 'Fabricate')}}
+  <table class="inner">
+    <tr>
+      <td>
+        <button type="button" class="chain-state btn btn-secondary btn-safety align-middle" {{action 'revive' true}}>
+          Revive
+        </button>
+      </td>
+      <td>
+        <button type="button" class="chain-state btn btn-secondary btn-safety align-middle" {{action 'changeState'
+                                                                                                     'Complete' true}}>
+          Finish
+        </button>
+      </td>
+    </tr>
+  </table>
+{{/if}}
+

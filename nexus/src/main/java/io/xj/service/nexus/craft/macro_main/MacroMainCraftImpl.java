@@ -63,7 +63,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
       .orElseThrow(() -> new NexusException(String.format(
         "Unable to determine sequence binding offset for macro Program \"%s\" %s",
         macroProgram.getName(),
-        apiUrlProvider.getAppUrl(String.format("/mk3/programs/%s", macroProgram.getId()))
+        apiUrlProvider.getAppUrl(String.format("/programs/%s", macroProgram.getId()))
       )));
     var macroSequence = fabricator.getSourceMaterial().getProgramSequence(macroSequenceBinding);
     fabricator.add(
@@ -81,14 +81,14 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
         "Unable to choose main program based on macro Program \"%s\" at offset %s %s",
         macroProgram.getName(),
         macroSequenceBindingOffset,
-        apiUrlProvider.getAppUrl(String.format("/mk3/programs/%s", macroProgram.getId()))
+        apiUrlProvider.getAppUrl(String.format("/programs/%s", macroProgram.getId()))
       )));
     Long mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
     var mainSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
         "Unable to determine sequence binding offset for main Program \"%s\" %s",
         mainProgram.getName(),
-        apiUrlProvider.getAppUrl(String.format("/mk3/programs/%s", mainProgram.getId()))
+        apiUrlProvider.getAppUrl(String.format("/programs/%s", mainProgram.getId()))
       )));
     var mainSequence = fabricator.getSourceMaterial().getProgramSequence(mainSequenceBinding);
     fabricator.add(

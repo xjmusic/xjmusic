@@ -1,0 +1,73 @@
+<!-- Parent (Library) -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Library</label>
+  <div class="col-sm-10">
+    <div class="readonly-field">{{model.library.name}}</div>
+  </div>
+</div>
+
+<!-- State -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">State</label>
+  <div class="col-sm-10">
+    <select class="form-control" onchange={{action "selectInstrumentState" value="target.value"}} title="State">
+      {{#if config.instrumentStates}}
+        {{#each config.instrumentStates as |state|}}
+          <option value={{state}} selected={{eq model.state state}}>{{state}}</option>
+        {{/each}}
+      {{else}}
+        <option value={{model.state}} selected>{{model.state}}</option>
+      {{/if}}
+    </select>
+    <!--input state="text" value=model.state class="form-control" autofocus="autofocus"
+            placeholder="The state of the Chain"}} -->
+  </div>
+</div>
+
+<!-- Type -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Type</label>
+  <div class="col-sm-10">
+    <select class="form-control" onchange={{action "selectInstrumentType" value="target.value"}} title="Type">
+      {{#if config.instrumentTypes}}
+        {{#each config.instrumentTypes as |type|}}
+          <option value={{type}} selected={{eq model.type type}}>{{type}}</option>
+        {{/each}}
+      {{else}}
+        <option value={{model.type}} selected>{{model.type}}</option>
+      {{/if}}
+    </select>
+    <!--input type="text" value=model.type class="form-control" autofocus="autofocus"
+            placeholder="The type of the Chain"}} -->
+  </div>
+</div>
+
+<!-- Name -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Name</label>
+  <div class="col-sm-10">
+    {{input type="text" value=model.name class="form-control" autofocus="autofocus"
+            placeholder="The name of the Instrument"}}
+  </div>
+</div>
+
+<!-- Density -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Density</label>
+  <div class="col-sm-10">
+    {{input type="number" step="any" value=model.density class="form-control"
+            placeholder="The density of the Instrument"}}
+  </div>
+</div>
+
+<!-- Config -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Parameters
+    <br/>
+    <button type="submit" class="btn btn-primary" {{action 'resetParameters'}}>Reset</button>
+  </label>
+  <div class="col-sm-10">
+    {{textarea rows="4" value=model.config class="form-control" autofocus="autofocus"
+               placeholder="key=value"}}
+  </div>
+</div>

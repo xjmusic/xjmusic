@@ -2,6 +2,19 @@ version: '2.4'
 
 services:
 
+  web:
+    container_name: web01xj1
+    network_mode: host
+    image: nginx:1.17.8
+    volumes:
+      - ./log:/var/log
+      - ./web-api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./web-api-gateway/root-site:/usr/share/nginx/html/hub-site:ro
+      - ./web-artist-mk1/build:/usr/share/nginx/html/web-artist-mk1:ro
+    ports:
+      - "80:80"
+    restart: always
+
   hub:
     build:
       context: .

@@ -1,0 +1,4 @@
+build/
+
+# Copy this from either the .production.conf or .development.conf example
+nginx.conf
