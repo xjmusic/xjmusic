@@ -84,4 +84,4 @@ jobs:
         continue-on-error: false
 
       - name: Nothing left TODO
-        run: bin/nothing_left_todo.sh
+        run: .github/nothing_left_todo.sh

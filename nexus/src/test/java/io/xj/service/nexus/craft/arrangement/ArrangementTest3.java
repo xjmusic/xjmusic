@@ -53,14 +53,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 /**
- Based on note-picking test #1 by Mark Stewart
+ Based on note-picking test #3 by Mark Stewart
  https://docs.google.com/document/d/1kj2v6FaoZN2ztHd44wN4HvSULufleGXw5dd8lYefBig/edit
  <p>
 
- @see ArrangementTestOne
- This test is similar to Test #1 except the following:
- 1. The second chord, F, occurs at 1.5 instead of 2.0
- 2. The Pad/Stab starting chord is in root position rather than second inversion
+ @see ArrangementTest1
+ @see ArrangementTest2
+ This test is similar to Tests #1 and #2 except the following:
+  * The second chord occurs at 3.0
+  * The starting chord is in first inversion
  <p>
  Choose correct instrument note based on detail + voicing
  https://www.pivotaltracker.com/story/show/176695166
@@ -72,7 +73,7 @@ import static org.mockito.Mockito.when;
  [#176696738] XJ has a serviceable voicing algorithm
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ArrangementTestTwo {
+public class ArrangementTest3 {
   private FabricatorFactory fabrication;
   private NexusEntityStore store;
   private Fabricator fabricator;
@@ -140,13 +141,13 @@ public class ArrangementTestTwo {
       padTrack,
       padSequence,
       padPattern,
-      makeEvent(padPattern, padTrack, 0.0, 4.0, "C4, E4, G4"),
+      makeEvent(padPattern, padTrack, 0.0, 4.0, "E4, G4, C5"),
       stabProgram,
       stabVoice,
       stabTrack,
       stabSequence,
       stabPattern,
-      makeEvent(stabPattern, stabTrack, 0.0, 0.5, "C4, E4, G4")
+      makeEvent(stabPattern, stabTrack, 0.0, 0.5, "E4, G4, C5")
     );
     content.addAll(makeInstrumentWithEvents(bass, "C1, E1, F1, G1, A1, C2, E2, F2, G2, A2, C3, E3"));
     content.addAll(makeInstrumentWithEvents(pad, "E3, F3, G3, A3, C4, E4, F4, G4, A4, C5, E5, F5, G5, A5, C6"));
@@ -162,7 +163,7 @@ public class ArrangementTestTwo {
     store.put(makeVoicing(chord0, Instrument.Type.Bass, "C1, E1, G1, C2, E2, G2, C3, E3"));
     store.put(makeVoicing(chord0, Instrument.Type.Pad, "E3, G3, C4, E4, G4, C5, E5, G5, C6"));
     store.put(makeVoicing(chord0, Instrument.Type.Stab, "E3, G3, C4, E4, G4, C5, E5, G5, C6"));
-    var chord1 = store.put(makeChord(segment, 1.5, "F"));
+    var chord1 = store.put(makeChord(segment, 3.0, "F"));
     store.put(makeVoicing(chord1, Instrument.Type.Bass, "F1, A1, C2, F2, A2, C3"));
     store.put(makeVoicing(chord1, Instrument.Type.Pad, "F3, A3, C4, F4, A4, C5, F5, A5, C6"));
     store.put(makeVoicing(chord1, Instrument.Type.Stab, "F3, A3, C4, F4, A4, C5, F5, A5, C6"));
@@ -181,38 +182,34 @@ public class ArrangementTestTwo {
     assertEquals(20, fabricator.getPicks().size());
 
     // Assert Bass: list of notes in order they are played
-    assertEquals(ImmutableList.of("C1", "C2", "C1", "F2", "F1", "F2", "F1", "F2"),
+    assertEquals(ImmutableList.of("C1", "C2", "C1", "C2", "C1", "C2", "F1", "F2"),
       fabricator.getPicks().stream()
         .filter(pick -> like(pick, "Bass", 0.25))
         .sorted(Comparator.comparing(SegmentChoiceArrangementPick::getStart))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toList()));
 
-    // TODO XJ got all of the note picking correct, but there’s a bug where the first Pad is only 2 beats long, leaving what appears to be a gap before the second Pad hits. Does that jive with what you’ve been hearing? I’ll work on fixing this.
-
-    // TODO Once again, XJ being cheeky compared to your original test results, giving the answer to the second Pad/Stab as A3, C4, F4. Playing it on my keyboard, it seems somewhat reasonable. There’s a distinctly different feeling to the progression. But do you think we should push to get it to answer this test exactly as C4, F4, A4?
-
     // Assert Pad: Set of notes is in no particular order for each of the two sustained chords
-    assertEquals(ImmutableSet.of("C4", "E4", "G4"),
+    assertEquals(ImmutableSet.of("E4", "G4", "C5"),
       fabricator.getPicks().stream()
-        .filter(pick -> like(pick, "Pad", 0.0, 0.75))
+        .filter(pick -> like(pick, "Pad", 0.0, 1.5))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toSet()));
-    assertEquals(ImmutableSet.of("A3", "C4", "F4"),
+    assertEquals(ImmutableSet.of("F4", "A4", "C5"),
       fabricator.getPicks().stream()
-        .filter(pick -> like(pick, "Pad", 0.75, 1.25))
+        .filter(pick -> like(pick, "Pad", 1.5, 0.5))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toSet()));
 
     // Assert Pad: Set of notes is in no particular order for each of the two chord hits
-    assertEquals(ImmutableSet.of("C4", "E4", "G4"),
+    assertEquals(ImmutableSet.of("E4", "G4", "C5"),
       fabricator.getPicks().stream()
         .filter(pick -> like(pick, "Stab", 0.0, 0.25))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toSet()));
-    assertEquals(ImmutableSet.of("A3", "C4", "F4"),
+    assertEquals(ImmutableSet.of("F4", "A4", "C5"),
       fabricator.getPicks().stream()
-        .filter(pick -> like(pick, "Stab", 0.75, 0.25))
+        .filter(pick -> like(pick, "Stab", 1.5, 0.25))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toSet()));
   }

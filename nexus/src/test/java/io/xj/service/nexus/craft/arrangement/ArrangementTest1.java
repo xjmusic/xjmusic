@@ -71,7 +71,7 @@ import static org.mockito.Mockito.when;
  [#176696738] XJ has a serviceable voicing algorithm
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ArrangementTestOne {
+public class ArrangementTest1 {
   private FabricatorFactory fabrication;
   private NexusEntityStore store;
   private Fabricator fabricator;
