@@ -2,7 +2,6 @@
 package io.xj.lib.mixer;
 
 import javax.sound.sampled.AudioFormat;
-import java.time.Duration;
 
 /**
  Configuration for mixer

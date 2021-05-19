@@ -22,9 +22,7 @@ import io.xj.service.nexus.persistence.NexusEntityStore;
 import io.xj.service.nexus.testing.NexusTestConfiguration;
 import io.xj.service.nexus.work.NexusWorkModule;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -170,8 +168,8 @@ public class MacroFromOverlappingMemeSequencesTest {
       .setStorageKey("chains-1-segments-9f7s89d8a7892")
       .setOutputEncoder("wav")
       .build());
-    store.put(NexusIntegrationTestingFixtures.makeChoice(segment1, Program.Type.Macro, macro1_sequenceA_binding));
-    store.put(NexusIntegrationTestingFixtures.makeChoice(segment1, Program.Type.Main, main5_sequenceA_binding));
+    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment1, Program.Type.Macro, macro1_sequenceA_binding));
+    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment1, Program.Type.Main, main5_sequenceA_binding));
 
     Segment segment2 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())

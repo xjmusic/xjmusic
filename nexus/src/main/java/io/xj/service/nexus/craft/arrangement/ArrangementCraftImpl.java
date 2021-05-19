@@ -151,7 +151,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       fabricator.randomlySelectPatternOfSequenceByVoiceAndType(choice, ProgramSequencePattern.Type.Outro);
 
     // compute in and out points, and length # beats for which loop patterns will be required
-    long loopOutPos = (int) maxPos - (outroPattern.map(ProgramSequencePattern::getTotal).orElse(0));
+    double loopOutPos = maxPos - (outroPattern.map(ProgramSequencePattern::getTotal).orElse(0));
 
     // begin at the beginning and fabricate events for the segment of beginning to end
     double curPos = fromPos;

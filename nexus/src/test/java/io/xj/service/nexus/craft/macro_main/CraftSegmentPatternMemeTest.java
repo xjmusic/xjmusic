@@ -109,8 +109,8 @@ public class CraftSegmentPatternMemeTest {
         .setTempo(120.0)
         .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
         .build());
-      store.put(NexusIntegrationTestingFixtures.makeChoice(previousSegment, Program.Type.Macro, fake.program4_sequence1_binding0));
-      store.put(NexusIntegrationTestingFixtures.makeChoice(previousSegment, Program.Type.Main, fake.program5_sequence1_binding0));
+      store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(previousSegment, Program.Type.Macro, fake.program4_sequence1_binding0));
+      store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(previousSegment, Program.Type.Main, fake.program5_sequence1_binding0));
 
       // Following Segment
       Segment segment = store.put(NexusIntegrationTestingFixtures.makeSegment(chain, 2, Segment.State.Planned, Instant.parse(previousSegment.getEndAt()), null, "C", 8, 0.8, 120, "chain-1-waveform-12345", "wav"));

@@ -142,8 +142,8 @@ public class CraftFoundationNextMacroTest {
         .setTempo(120.0)
         .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
         .build());
-      store.put(NexusIntegrationTestingFixtures.makeChoice(segment3, Program.Type.Macro, fake.program4_sequence2_binding0));
-      store.put(NexusIntegrationTestingFixtures.makeChoice(segment3, Program.Type.Main, fake.program5_sequence1_binding0));
+      store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence2_binding0));
+      store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence1_binding0));
 
       // Chain "Test Print #1" has a planned segment
       Segment segment4 = store.put(NexusIntegrationTestingFixtures.makeSegment(chain1, 3, Segment.State.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"), null, "C", 8, 0.8, 120, "chain-1-waveform-12345", "wav"));

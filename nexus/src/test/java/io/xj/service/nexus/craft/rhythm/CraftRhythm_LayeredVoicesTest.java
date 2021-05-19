@@ -61,7 +61,7 @@ import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makePattern;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeEvent;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeVoice;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeTrack;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChoice;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeSegmentChoice;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChord;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -178,9 +178,9 @@ public class CraftRhythm_LayeredVoicesTest {
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .build());
-    store.put(NexusIntegrationTestingFixtures.makeChoice(segment3, Program.Type.Macro, fake.program4_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.makeChoice(segment3, Program.Type.Main, fake.program5_sequence0_binding0));
-    store.put(makeChoice(segment3, program42));
+    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence0_binding0));
+    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence0_binding0));
+    store.put(makeSegmentChoice(segment3, program42));
 
     // segment crafting
     segment4 = store.put(Segment.newBuilder()
@@ -196,8 +196,8 @@ public class CraftRhythm_LayeredVoicesTest {
       .setTempo(120.0)
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .build());
-    store.put(NexusIntegrationTestingFixtures.makeChoice(segment4, Program.Type.Macro, fake.program4_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.makeChoice(segment4, Program.Type.Main, fake.program5_sequence1_binding0));
+    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment4, Program.Type.Macro, fake.program4_sequence0_binding0));
+    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment4, Program.Type.Main, fake.program5_sequence1_binding0));
 
     for (String memeName : ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(NexusIntegrationTestingFixtures.makeMeme(segment4, memeName));

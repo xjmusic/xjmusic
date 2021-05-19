@@ -314,7 +314,7 @@ public class NexusIntegrationTestingFixtures {
     return array[(int) StrictMath.floor(StrictMath.random() * array.length)];
   }
 
-  public static SegmentChoice makeChoice(Segment segment, Program.Type programType, ProgramSequenceBinding programSequenceBinding) {
+  public static SegmentChoice makeSegmentChoice(Segment segment, Program.Type programType, ProgramSequenceBinding programSequenceBinding) {
     return SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment.getId())
@@ -324,7 +324,7 @@ public class NexusIntegrationTestingFixtures {
       .build();
   }
 
-  public static SegmentChoice makeChoice(Segment segment, Program program) {
+  public static SegmentChoice makeSegmentChoice(Segment segment, Program program) {
     return SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment.getId())
@@ -333,7 +333,7 @@ public class NexusIntegrationTestingFixtures {
       .build();
   }
 
-  public static SegmentChoice makeChoice(Segment segment, Program program, ProgramSequence programSequence, ProgramVoice voice, Instrument instrument) {
+  public static SegmentChoice makeSegmentChoice(Segment segment, Program program, ProgramSequence programSequence, ProgramVoice voice, Instrument instrument) {
     return SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramVoiceId(voice.getId())
@@ -1035,7 +1035,7 @@ public class NexusIntegrationTestingFixtures {
     return entity;
   }
 
-  public static Collection<Object> makeWithEvents(Instrument instrument, String notes) {
+  public static Collection<Object> makeInstrumentWithEvents(Instrument instrument, String notes) {
     List<Object> result = Lists.newArrayList(instrument);
     for (String note : CSV.split(notes)) {
       var audio = makeAudio(instrument, String.format("%s-%s", instrument.getType().name(), note));
