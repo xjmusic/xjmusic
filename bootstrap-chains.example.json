@@ -16,7 +16,7 @@
         "name": "Cool Air",
         "state": "Fabricate",
         "type": "Production",
-        "config": "dubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypePad = 0.7\ndubMasterVolumeInstrumentTypePercussive = 1.0\ndubMasterVolumeInstrumentTypeStab = 0.4\ndubMasterVolumeInstrumentTypeSticky = 0.5\ndubMasterVolumeInstrumentTypeStripe = 0.6"
+        "config": "dubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypePad = 0.6\ndubMasterVolumeInstrumentTypePercussive = 0.9\ndubMasterVolumeInstrumentTypeStab = 0.3\ndubMasterVolumeInstrumentTypeSticky = 0.4\ndubMasterVolumeInstrumentTypeStripe = 0.5"
       }
     }
   ],
