@@ -62,6 +62,7 @@ import io.xj.service.nexus.dao.exception.DAOExistenceException;
 import io.xj.service.nexus.dao.exception.DAOFatalException;
 import io.xj.service.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.service.nexus.dao.exception.DAOValidationException;
+import org.glassfish.jersey.internal.guava.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +71,7 @@ import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -120,7 +122,7 @@ class FabricatorImpl implements Fabricator {
   private final Map<String, Integer> rangeShiftOctave = Maps.newHashMap();
   private final Map<String, Integer> targetShift = Maps.newHashMap();
   private final Map<Program.Type, Map<Instrument.Type, List<String>>> previouslyChosenProgramIds;
-  private final Map<String, List<String>> previouslyPickedNotes;
+  private final Map<String, Set<String>> previouslyPickedNotes;
   private final Map<Double, Optional<SegmentChord>> chordAtPosition = Maps.newHashMap();
 
   @AssistedInject
@@ -213,17 +215,16 @@ class FabricatorImpl implements Fabricator {
 
    @return map of program types to instrument types to list of programs chosen
    */
-  private Map<String, List<String>> digestPreviouslyPickedNotes() {
-    Map<String, List<String>> notes = Maps.newHashMap();
+  private Map<String, Set<String>> digestPreviouslyPickedNotes() {
+    Map<String, Set<String>> notes = Maps.newHashMap();
 
     getPicksOfPreviousSegmentsWithSameMainProgram()
       .forEach(pick -> {
         try {
           var key = keyEventChord(pick.getProgramSequencePatternEventId(), pick.getSegmentChordVoicingId());
           if (!notes.containsKey(key))
-            notes.put(key, Lists.newArrayList());
-          if (!notes.get(key).contains(pick.getNote()))
-            notes.get(key).add(pick.getNote());
+            notes.put(key, Sets.newHashSet());
+          notes.get(key).add(pick.getNote());
 
         } catch (NexusException | EntityStoreException e) {
           log.warn("Can't find chord of previous event and chord id", e);
@@ -870,11 +871,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<List<String>> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName) {
+  public Optional<Set<String>> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName) {
     try {
       var key = keyEventChord(programSequencePatternEventId, segmentChordName);
       if (previouslyPickedNotes.containsKey(key))
-        return Optional.of(new ArrayList<>(previouslyPickedNotes.get(key)));
+        return Optional.of(new HashSet<>(previouslyPickedNotes.get(key)));
 
     } catch (NexusException | EntityStoreException e) {
       log.warn("Can't find chord of previous event and chord id", e);
@@ -884,10 +885,10 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public List<String> rememberPickedNotes(String programSequencePatternEventId, String chordName, List<String> notes) {
+  public Set<String> rememberPickedNotes(String programSequencePatternEventId, String chordName, Set<String> notes) {
     try {
       previouslyPickedNotes.put(keyEventChord(programSequencePatternEventId, chordName),
-        new ArrayList<>(notes));
+        new HashSet<>(notes));
     } catch (NexusException | EntityStoreException e) {
       log.warn("Can't find chord of previous event and chord id", e);
     }
@@ -1097,30 +1098,18 @@ class FabricatorImpl implements Fabricator {
       switch (type) {
 
         case Bass:
-          var shiftOctave = 0; // search for optimal value
-          var baselineDelta = 100; // optimal is lowest possible integer zero or above
-          for (var o = -10; o <= 10; o++) {
-            int d = sourceRange.getLow()
-              .orElseThrow()
-              .shiftOctave(o)
-              .delta(targetRange.getLow().orElseThrow());
-            if (0 <= d && d < baselineDelta) {
-              baselineDelta = d;
-              shiftOctave = o;
-            }
-          }
-          rangeShiftOctave.put(key, shiftOctave);
+          rangeShiftOctave.put(key, computeLowestOptimalRangeShiftOctaves(sourceRange, targetRange));
           break;
 
         case Percussive:
+          return 0;
+
         case Pad:
         case Sticky:
         case Stripe:
         case Stab:
         default:
-          int dLow = sourceRange.getLow().orElseThrow().delta(targetRange.getLow().orElseThrow());
-          int dHigh = sourceRange.getHigh().orElseThrow().delta(targetRange.getHigh().orElseThrow());
-          rangeShiftOctave.put(key, (int) Math.round(((dLow + dHigh) / 2.0)) / 12);
+          rangeShiftOctave.put(key, computeMedianOptimalRangeShiftOctaves(sourceRange, targetRange));
           break;
       }
 
@@ -1132,9 +1121,55 @@ class FabricatorImpl implements Fabricator {
     if (!fromKey.isPresent()) return 0;
     var key = String.format("%s__%s", fromKey, toChord.toString());
     if (!targetShift.containsKey(key))
-      targetShift.put(key, fromKey.getRootPitchClass().delta(toChord.getRootPitchClass()));
+      targetShift.put(key, fromKey.getRoot().delta(toChord.getSlashRoot()));
 
     return targetShift.get(key);
+  }
+
+  /**
+   Compute the lowest optimal range shift octaves
+
+   @param sourceRange from
+   @param targetRange to
+   @return lowest optimal range shift octaves
+   */
+  private Integer computeLowestOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) {
+    var shiftOctave = 0; // search for optimal value
+    var baselineDelta = 100; // optimal is lowest possible integer zero or above
+    for (var o = 10; o >= -10; o--) {
+      int d = targetRange.getLow().orElseThrow()
+        .delta(sourceRange.getLow()
+          .orElseThrow()
+          .shiftOctave(o));
+      if (0 <= d && d < baselineDelta) {
+        baselineDelta = d;
+        shiftOctave = o;
+      }
+    }
+    return shiftOctave;
+  }
+
+  /**
+   Compute the median optimal range shift octaves
+
+   @param sourceRange from
+   @param targetRange to
+   @return median optimal range shift octaves
+   */
+  private Integer computeMedianOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) {
+    var shiftOctave = 0; // search for optimal value
+    var baselineDelta = 100; // optimal is lowest possible integer zero or above
+    for (var o = 10; o >= -10; o--) {
+      int dLow = targetRange.getLow().orElseThrow()
+        .delta(sourceRange.getLow().orElseThrow().shiftOctave(o));
+      int dHigh = targetRange.getHigh().orElseThrow()
+        .delta(sourceRange.getHigh().orElseThrow().shiftOctave(o));
+      if (0 <= dLow && 0 >= dHigh && Math.abs(o) < baselineDelta) {
+        baselineDelta = Math.abs(o);
+        shiftOctave = o;
+      }
+    }
+    return shiftOctave;
   }
 
   /**

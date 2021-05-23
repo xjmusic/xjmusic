@@ -47,7 +47,7 @@ public abstract class IntervalPitchGroup {
     this.root = root.getPitchClass();
 
     // parse the slash root
-    this.slashRoot = SlashRoot.of(name).getPitchClass();
+    this.slashRoot = SlashRoot.of(name).orDefault(this.root);
 
     // description is everything AFTER the root, in the original name
     description = root.getRemainingText();
@@ -139,7 +139,7 @@ public abstract class IntervalPitchGroup {
    @return delta +/- semitones to another key
    */
   public int delta(IntervalPitchGroup target) {
-    return root.delta(target.getRootPitchClass());
+    return root.delta(target.getRoot());
   }
 
   public String getName() {
@@ -159,10 +159,6 @@ public abstract class IntervalPitchGroup {
 
   public SortedMap<Interval, Integer> getTones() {
     return tones;
-  }
-
-  public PitchClass getRootPitchClass() {
-    return root;
   }
 
   public AdjSymbol getAdjSymbol() {

@@ -64,4 +64,8 @@ public class SlashRoot {
     return pitchClass;
   }
 
+  public PitchClass orDefault(PitchClass dpc) {
+    if (pitchClass.equals(PitchClass.None)) return dpc;
+    return pitchClass;
+  }
 }

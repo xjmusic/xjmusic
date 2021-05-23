@@ -7,6 +7,7 @@ package io.xj.lib.music;
  https://en.wikipedia.org/wiki/Musical_note
  */
 public class Note {
+  public static final String ATONAL = "X";
   private static final int MAX_DELTA_SEMITONES = 1000; // this max is only for extreme-case infinite loop prevention
   private Integer octave; // octave #
   private PitchClass pitchClass; // pitch class of note

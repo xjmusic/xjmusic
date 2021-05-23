@@ -64,7 +64,7 @@ public class ChordTest {
       "Expect pitch classes " + IntervalPitchGroup.detailsOf(expectPitchClasses, chord.getAdjSymbol()) + " for " +
         "Chord " + chord.details());
     Map<Interval, PitchClass> pitchClasses = chord.getPitchClasses();
-    assertEquals(expectRootPitchClass, chord.getRootPitchClass());
+    assertEquals(expectRootPitchClass, chord.getRoot());
     assertEquals("same number of pitch classes", expectPitchClasses.size(), pitchClasses.size());
     expectPitchClasses.forEach((expectInterval, expectPitchClass) ->
       assertEquals(String.format("same pitch class at interval %s", expectInterval.getValue()), expectPitchClass, pitchClasses.get(expectInterval)));
@@ -73,7 +73,7 @@ public class ChordTest {
   @Test
   public void TestOf_Invalid() {
     Chord chord = Chord.of("P-funk");
-    assertEquals(None, chord.getRootPitchClass());
+    assertEquals(None, chord.getRoot());
   }
 
   @Test
@@ -172,8 +172,8 @@ public class ChordTest {
    */
   @Test
   public void getSlashRoot() {
-    assertEquals(PitchClass.None, Chord.of("Cm7").getSlashRoot());
-    assertEquals(PitchClass.None, Chord.of("C#m7").getSlashRoot());
+    assertEquals(PitchClass.C, Chord.of("Cm7").getSlashRoot());
+    assertEquals(PitchClass.Cs, Chord.of("C#m7").getSlashRoot());
     assertEquals(PitchClass.G, Chord.of("Cm7/G").getSlashRoot());
     assertEquals(PitchClass.Gs, Chord.of("C#m7/G#").getSlashRoot());
   }

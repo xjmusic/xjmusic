@@ -2,9 +2,9 @@ package io.xj.lib.music;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +29,15 @@ public class NoteRange {
     high = null;
   }
 
+  public NoteRange(@Nullable Note low, @Nullable Note high) {
+    this.low = low;
+    this.high = high;
+  }
+
+  public static NoteRange copyOf(NoteRange range) {
+    return new NoteRange(range.low, range.high);
+  }
+
   public Optional<Note> getLow() {
     return Optional.ofNullable(low);
   }
@@ -47,11 +56,17 @@ public class NoteRange {
     return UNKNOWN;
   }
 
-  public void expand(List<String> notes) {
-    for (var note : notes.stream().map(Note::of).collect(Collectors.toList())) {
-      if (Objects.isNull(low) || note.isLower(low)) low = note;
-      if (Objects.isNull(high) || note.isHigher(high)) high = note;
-    }
-    var FUCK="you";
+  public void expand(Set<Note> notes) {
+    for (var note : notes) expand(note);
+  }
+
+  public void expand(Note note) {
+    if (Objects.isNull(low) || note.isLower(low)) low = note;
+    if (Objects.isNull(high) || note.isHigher(high)) high = note;
+  }
+
+  public void expand(NoteRange range) {
+    if (Objects.nonNull(range.low)) expand(range.low);
+    if (Objects.nonNull(range.high)) expand(range.high);
   }
 }

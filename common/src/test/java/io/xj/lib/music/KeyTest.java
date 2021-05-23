@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.music;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
 
@@ -44,7 +43,7 @@ public class KeyTest {
     System.out.println(
       "Expect pitch classes " + expectMode + " for " +
         "Key '" + key.getName() + "'");
-    assertEquals(expectRootPitchClass, key.getRootPitchClass());
+    assertEquals(expectRootPitchClass, key.getRoot());
     assertEquals(expectMode, key.getMode());
   }
 
@@ -63,7 +62,7 @@ public class KeyTest {
   @Test
   public void OfInvalidTest() {
     Key key = Key.of("P-funk");
-    assertEquals(PitchClass.None, key.getRootPitchClass());
+    assertEquals(PitchClass.None, key.getRoot());
   }
 
 
@@ -80,14 +79,14 @@ public class KeyTest {
   @Test
   public void RelativeMajorTest() {
     Key key = Key.of("A minor").relativeMajor();
-    assertEquals(PitchClass.C, key.getRootPitchClass());
+    assertEquals(PitchClass.C, key.getRoot());
     assertEquals(KeyMode.Major, key.getMode());
   }
 
   @Test
   public void RelativeMinorTest() {
     Key key = Key.of("C major").relativeMinor();
-    assertEquals(PitchClass.A, key.getRootPitchClass());
+    assertEquals(PitchClass.A, key.getRoot());
     assertEquals(KeyMode.Minor, key.getMode());
   }
 

@@ -54,20 +54,13 @@ import static org.mockito.Mockito.when;
 
 /**
  Based on note-picking test #2 by Mark Stewart
- https://docs.google.com/document/d/1kj2v6FaoZN2ztHd44wN4HvSULufleGXw5dd8lYefBig/edit
+ https://docs.google.com/document/d/1r-gpTbJV7vl-nRuJkb9Y1-Fgw8A2uD1uy6VzbAXZfX4/
  <p>
 
  @see ArrangementTest1
  This test is similar to Test #1 except the following:
   * The second chord, F, occurs at 1.5 instead of 2.0
   * The Pad/Stab starting chord is in root position rather than second inversion
- <p>
- Choose correct instrument note based on detail + voicing
- https://www.pivotaltracker.com/story/show/176695166
- <p>
- [#176474164] If Sequence has no key/tempo/density inherit from Program
- <p>
- This pad is held for the duration of the C chord as dictated by the main program; it is not re-attacked with each new eighth note
  <p>
  [#176696738] XJ has a serviceable voicing algorithm
  */
@@ -178,7 +171,9 @@ public class ArrangementTest2 {
     // Assert
     var result = store.getSegment(segment.getId()).orElseThrow();
     assertEquals("C", result.getKey());
-    assertEquals(20, fabricator.getPicks().size());
+    assertEquals(8, fabricator.getPicks().stream().filter(pick -> pick.getName().equals("Bass")).count());
+    assertEquals(6, fabricator.getPicks().stream().filter(pick -> pick.getName().equals("Stab")).count());
+    assertEquals(6, fabricator.getPicks().stream().filter(pick -> pick.getName().equals("Pad")).count());
 
     // Assert Bass: list of notes in order they are played
     assertEquals(ImmutableList.of("C1", "C2", "C1", "F2", "F1", "F2", "F1", "F2"),
@@ -200,7 +195,7 @@ public class ArrangementTest2 {
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toSet()));
 
-    // Assert Pad: Set of notes is in no particular order for each of the two chord hits
+    // Assert Stab: Set of notes is in no particular order for each of the two chord hits
     assertEquals(ImmutableSet.of("C4", "E4", "G4"),
       fabricator.getPicks().stream()
         .filter(pick -> like(pick, "Stab", 0.0, 0.25))

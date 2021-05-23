@@ -50,7 +50,7 @@ public class ScaleTest {
       "Expect pitch classes " + IntervalPitchGroup.detailsOf(expectPitchClasses, scale.getAdjSymbol()) + " for " +
         "Scale " + scale.details());
     Map<Interval, PitchClass> pitchClasses = scale.getPitchClasses();
-    assertEquals(expectRootPitchClass, scale.getRootPitchClass());
+    assertEquals(expectRootPitchClass, scale.getRoot());
     assertEquals(expectPitchClasses.size(), pitchClasses.size());
     expectPitchClasses.forEach((expectInterval, expectPitchClass) ->
       assertEquals(expectPitchClass, pitchClasses.get(expectInterval)));

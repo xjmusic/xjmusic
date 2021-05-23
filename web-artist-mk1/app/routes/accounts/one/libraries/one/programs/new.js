@@ -29,8 +29,6 @@ export default Route.extend({
           let auth = this.get('auth');
           if (auth.isArtist || auth.isAdmin) {
 
-            console.log("FUCK SHIT DAMN", this.config.defaultProgramConfig);
-
             let program = this.store.createRecord('program', {
               type: this.config.programTypes[0],
               config: this.config.defaultProgramConfig,

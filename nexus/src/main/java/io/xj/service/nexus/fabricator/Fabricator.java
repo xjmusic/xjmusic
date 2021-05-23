@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface Fabricator {
 
@@ -699,7 +700,7 @@ public interface Fabricator {
    @param segmentChordName              to test for previously picked notes of
    @return notes picked previously for event
    */
-  Optional<List<String>> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName);
+  Optional<Set<String>> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName);
 
   /**
    Remember which notes were picked for a given event
@@ -709,7 +710,7 @@ public interface Fabricator {
    @param notes                         to remember were picked
    @return notes to pass  through for chaining method calls
    */
-  List<String> rememberPickedNotes(String programSequencePatternEventId, String chordName, List<String> notes);
+  Set<String> rememberPickedNotes(String programSequencePatternEventId, String chordName, Set<String> notes);
 
   /**
    Get the mix amplitude (ratio) for the instrument type of a given pick, based on chain config

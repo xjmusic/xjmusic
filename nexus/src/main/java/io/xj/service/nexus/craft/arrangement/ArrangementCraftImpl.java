@@ -1,8 +1,7 @@
 package io.xj.service.nexus.craft.arrangement;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import datadog.trace.api.Trace;
 import io.xj.Instrument;
@@ -19,7 +18,6 @@ import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
-import io.xj.lib.music.PitchClass;
 import io.xj.lib.util.CSV;
 import io.xj.service.nexus.NexusException;
 import io.xj.service.nexus.fabricator.EntityScorePicker;
@@ -28,12 +26,10 @@ import io.xj.service.nexus.fabricator.Fabricator;
 import io.xj.service.nexus.fabricator.NameIsometry;
 
 import javax.annotation.Nullable;
-import java.security.SecureRandom;
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -41,14 +37,6 @@ import java.util.stream.Collectors;
  Arrangement of Segment Events is a common foundation for both Detail and Rhythm craft
  */
 public class ArrangementCraftImpl extends FabricationWrapperImpl {
-  private static final String ATONAL_NOTE = "X";
-  private final SecureRandom random = new SecureRandom();
-  private final Collection<Instrument.Type> instrumentTypesToSeekInversions = ImmutableList.of(
-    Instrument.Type.Stripe,
-    Instrument.Type.Stab,
-    Instrument.Type.Pad,
-    Instrument.Type.Sticky
-  );
 
   /**
    Must extend this class and inject
@@ -241,9 +229,9 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       Optional.empty();
 
     // The final note is voiced from the chord voicing (if found) or else the default is used
-    List<String> notes = voicing.isPresent() ?
+    Set<String> notes = voicing.isPresent() ?
       pickNotesForEvent(instrument.getType(), choice, event, chord.get(), voicing.get(), range) :
-      ImmutableList.of(ATONAL_NOTE);
+      ImmutableSet.of(Note.ATONAL);
 
     // Pick attributes are expressed "rendered" as actual seconds
     double startSeconds = fabricator.computeSecondsAtPosition(segmentPosition);
@@ -299,7 +287,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       .setStart(startSeconds)
       .setLength(lengthSeconds)
       .setAmplitude(event.getVelocity())
-      .setNote(fabricator.getInstrumentConfig(instrument).isTonal() ? note : ATONAL_NOTE);
+      .setNote(fabricator.getInstrumentConfig(instrument).isTonal() ? note : Note.ATONAL);
     if (Objects.nonNull(segmentChordVoicingId))
       builder.setSegmentChordVoicingId(segmentChordVoicingId);
     fabricator.add(builder.build());
@@ -313,27 +301,24 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param instrumentType comprising audios
    @param choice         for reference
    @param event          of program to pick instrument note for
-   @param chord          to use for interpreting the voicing
+   @param segmentChord   to use for interpreting the voicing
    @param voicing        to choose a note from
    @param range          used to keep voicing in the tightest range possible
    @return note picked from the available voicing
    */
-  private List<String> pickNotesForEvent(
+  private Set<String> pickNotesForEvent(
     Instrument.Type instrumentType,
     SegmentChoice choice,
     ProgramSequencePatternEvent event,
-    SegmentChord chord,
+    SegmentChord segmentChord,
     SegmentChordVoicing voicing,
     NoteRange range
   ) throws NexusException {
-    var previous = fabricator.getPreviouslyPickedNotes(event.getId(), chord.getName());
+    var previous = fabricator.getPreviouslyPickedNotes(event.getId(), segmentChord.getName());
     if (previous.isPresent()) return previous.get();
 
-    // Prepare an array to store picked notes
-    List<String> notes = Lists.newArrayList();
-
     // Various computations to prepare for picking
-    var adjSymbol = Chord.of(chord.getName()).getAdjSymbol();
+    var chord = Chord.of(segmentChord.getName());
     var sourceKey = fabricator.getKeyForChoice(choice);
     var sourceRange = fabricator.computeProgramRange(choice.getProgramId(), instrumentType);
     var targetRange = fabricator.computeVoicingNoteRange(instrumentType);
@@ -341,100 +326,16 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var targetShiftOctaves = fabricator.computeRangeShiftOctaves(instrumentType, sourceRange, targetRange);
     var voicingNotes = fabricator.getNotes(voicing).stream().map(Note::of).collect(Collectors.toList());
 
-    // Pick the notes
-    for (var note : CSV.split(event.getNote()).stream().map(Note::of).collect(Collectors.toList()))
-      if (PitchClass.None.equals(note.getPitchClass()))
-        pickRandom(voicingNotes)
-          .ifPresent(n -> notes.add(n.toString(adjSymbol)));
-      else
-        voicingNotes
-          .stream()
-          .map(voicingNote -> new RankedNote(voicingNote,
-            Math.abs(voicingNote.delta(note.shift(targetShiftSemitones + 12 * targetShiftOctaves)))))
-          .min(Comparator.comparing(RankedNote::getDelta))
-          .map(RankedNote::getNote)
-          .ifPresent(pickedNote -> notes.add(pickedNote.toString(adjSymbol)));
-
-    // If nothing has made it through to here, pick a single atonal note.
-    if (notes.isEmpty()) notes.add(ATONAL_NOTE);
-
-    // Seek inversions closer to the existing range
-    var invertedNotes =
-      1 < notes.size() && instrumentTypesToSeekInversions.contains(instrumentType) ?
-        seekInversion(notes.stream().map(Note::of).collect(Collectors.toList()), range, voicingNotes)
-          .stream()
-          .map(n -> n.toString(adjSymbol))
-          .collect(Collectors.toList()) :
-        notes; // if no inversion necessary
-
-    // Keep track of the total range of notes selected, to keep voicing in tightest possible range
-    range.expand(invertedNotes);
-
-    return fabricator.rememberPickedNotes(event.getId(), chord.getName(), invertedNotes);
-  }
-
-  /**
-   Seek the inversion of the given notes that is best contained within the given range
-
-   @param sources   for which to seek inversion
-   @param range     towards which seeking will optimize
-   @param available from which to select better notes
-   */
-  private List<Note> seekInversion(List<Note> sources, NoteRange range, Collection<Note> available) {
-    return sources.stream()
-      .map(source -> seekInversion(source, range,
-        available.stream()
-          .filter(note -> note.getPitchClass().equals(source.getPitchClass()))
-          .collect(Collectors.toList())))
-      .collect(Collectors.toList());
-  }
-
-  /**
-   Seek the inversion of the given note that is best contained within the given range
-
-   @param source  for which to seek inversion
-   @param range   towards which seeking will optimize
-   @param options from which to select better notes
-   */
-  private Note seekInversion(Note source, NoteRange range, Collection<Note> options) {
-    if (range.getHigh().isPresent() && range.getHigh().get().isLower(source)) {
-      var alt = options
+    var notePicker = new NotePicker(instrumentType, chord, range, voicingNotes,
+      CSV.split(event.getNote())
         .stream()
-        .filter(o -> !range.getHigh().get().isLower(o))
-        .map(o -> new RankedNote(o,
-          Math.abs(o.delta(range.getHigh().get()))))
-        .min(Comparator.comparing(RankedNote::getDelta))
-        .map(RankedNote::getNote);
-      if (alt.isPresent()) return alt.get();
-    }
+        .map(n -> Note.of(n).shift(targetShiftSemitones + 12 * targetShiftOctaves))
+        .collect(Collectors.toList()));
+    notePicker.pick();
+    range.expand(notePicker.getRange());
 
-    if (range.getLow().isPresent() && range.getLow().get().isHigher(source)) {
-      var alt = options
-        .stream()
-        .filter(o -> !range.getLow().get().isHigher(o))
-        .map(o -> new RankedNote(o,
-          Math.abs(o.delta(range.getLow().get()))))
-        .min(Comparator.comparing(RankedNote::getDelta))
-        .map(RankedNote::getNote);
-      if (alt.isPresent()) return alt.get();
-    }
-
-    return source;
-  }
-
-  /**
-   Pick a random instrument note from the available notes in the voicing
-   <p>
-   [#175947230] Artist writing detail program expects 'X' note value to result in random selection from available Voicings
-
-   @param voicingNotes to pick from
-   @return a random note from the voicing
-   */
-  private Optional<Note> pickRandom(List<Note> voicingNotes) {
-    return voicingNotes
-      .stream()
-      .sorted(Comparator.comparing((s) -> random.nextFloat()))
-      .findAny();
+    return fabricator.rememberPickedNotes(event.getId(), chord.getName(),
+      notePicker.getPickedNotes().stream().map(n -> n.toString(chord.getAdjSymbol())).collect(Collectors.toSet()));
   }
 
   /**

@@ -6,7 +6,7 @@ import io.xj.lib.music.Note;
  Rank a Note based on its delta
  <p>
  */
-class RankedNote {
+public class RankedNote {
   private final Note note;
   private final int delta;
 
