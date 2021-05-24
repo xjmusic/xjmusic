@@ -5,8 +5,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import datadog.trace.api.Trace;
-import com.typesafe.config.Config;
 import io.xj.InstrumentAudio;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreException;
@@ -51,15 +49,15 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
     PayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider,
-    FileStoreProvider fileStoreProvider,
-    Config config
+    FileStoreProvider fileStoreProvider
+//    Config config
   ) {
     super(payloadFactory, entityFactory);
     this.fileStoreProvider = fileStoreProvider;
     this.dbProvider = dbProvider;
 
     // FUTURE [#170288602] Create instrument audio, provide waveform file extension as query parameter (checked by front-end after selecting the upload file)
-    String waveformFileExtension = config.getString("audio.fileExtension");
+//    String waveformFileExtension = config.getString("audio.fileExtension");
   }
 
   @Override
@@ -118,7 +116,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, InstrumentAudio rawAudio) throws DAOException, JsonApiException, ValueException {
+  public InstrumentAudio update(HubAccess hubAccess, String id, InstrumentAudio rawAudio) throws DAOException, JsonApiException, ValueException {
     var audio = validate(rawAudio.toBuilder()).build();
     requireArtist(hubAccess);
 
@@ -132,6 +130,8 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
         .build());
     else
       executeUpdate(db, INSTRUMENT_AUDIO, id, audio);
+
+    return audio;
   }
 
   @Override

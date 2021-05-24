@@ -84,11 +84,12 @@ public class ProgramSequenceBindingDAOImpl extends DAOImpl<ProgramSequenceBindin
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, ProgramSequenceBinding entity) throws DAOException, JsonApiException, ValueException {
+  public ProgramSequenceBinding update(HubAccess hubAccess, String id, ProgramSequenceBinding entity) throws DAOException, JsonApiException, ValueException {
     validate(entity);
     DSLContext db = dbProvider.getDSL();
     requireModification(db, hubAccess, id);
     executeUpdate(db, PROGRAM_SEQUENCE_BINDING, id, entity);
+    return entity;
   }
 
   @Override

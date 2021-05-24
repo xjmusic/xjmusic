@@ -251,7 +251,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   }
 
   @Override
-  public void update(HubClientAccess access, String id, Chain entity)
+  public Chain update(HubClientAccess access, String id, Chain entity)
     throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException {
     try {
       // cache existing chain from-state
@@ -286,7 +286,9 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
             throw new DAOValidationException("cannot change chain startAt time after it has segments");
 
       // Commit changes
-      store.put(builder.build());
+      var record = builder.build();
+      store.put(record);
+      return record;
 
     } catch (ValueException e) {
       throw new DAOValidationException(e);
@@ -455,7 +457,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     // return newly created chain
     return created;
-
   }
 
   @Override

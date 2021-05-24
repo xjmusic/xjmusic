@@ -85,13 +85,14 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, ProgramVoice entity) throws DAOException, JsonApiException, ValueException {
+  public ProgramVoice update(HubAccess hubAccess, String id, ProgramVoice entity) throws DAOException, JsonApiException, ValueException {
     var record = validate(entity.toBuilder()).build();
     DSLContext db = dbProvider.getDSL();
 
     requireModification(db, hubAccess, id);
 
     executeUpdate(db, PROGRAM_VOICE, id, record);
+    return record;
   }
 
   @Override

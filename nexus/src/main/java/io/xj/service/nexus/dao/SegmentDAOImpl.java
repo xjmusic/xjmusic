@@ -351,7 +351,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public void update(HubClientAccess access, String id, Segment entity) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException, DAOValidationException {
+  public Segment update(HubClientAccess access, String id, Segment entity) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException, DAOValidationException {
     try {
       requireTopLevel(access);
       Segment.Builder builder = entity.toBuilder();
@@ -377,7 +377,9 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       builder.setId(id);
 
       // save segment
-      store.put(builder.build());
+      var record = builder.build();
+      store.put(record);
+      return record;
 
     } catch (NexusException e) {
       throw new DAOFatalException(e);

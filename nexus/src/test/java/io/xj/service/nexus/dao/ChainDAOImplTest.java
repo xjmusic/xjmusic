@@ -41,15 +41,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeAccount;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChain;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeBinding;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeChain;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeHubClientAccess;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeInstrument;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeLibrary;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeProgram;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeSequence;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeBinding;
-import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeSegment;
 import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeUser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

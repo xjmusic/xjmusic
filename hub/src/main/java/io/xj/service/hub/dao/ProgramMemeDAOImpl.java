@@ -72,7 +72,7 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, ProgramMeme rawMeme) throws DAOException, JsonApiException, ValueException {
+  public ProgramMeme update(HubAccess hubAccess, String id, ProgramMeme rawMeme) throws DAOException, JsonApiException, ValueException {
     var meme = validate(rawMeme.toBuilder()).build();
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
@@ -80,6 +80,7 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
     executeUpdate(db, PROGRAM_MEME, id, meme.toBuilder()
       .setProgramId(original.getProgramId())
       .build());
+    return meme;
   }
 
   @Override

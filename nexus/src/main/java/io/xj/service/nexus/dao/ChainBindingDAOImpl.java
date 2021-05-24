@@ -88,7 +88,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   }
 
   @Override
-  public void update(HubClientAccess access, String id, ChainBinding update) throws DAOPrivilegeException {
+  public ChainBinding update(HubClientAccess access, String id, ChainBinding update) throws DAOPrivilegeException {
     throw new DAOPrivilegeException("Not permitted to update Chain Binding. Delete this and create a new one.");
   }
 

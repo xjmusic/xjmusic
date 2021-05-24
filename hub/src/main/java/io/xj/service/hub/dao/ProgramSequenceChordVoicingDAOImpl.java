@@ -84,14 +84,14 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, ProgramSequenceChordVoicing entity) throws DAOException, JsonApiException, ValueException {
+  public ProgramSequenceChordVoicing update(HubAccess hubAccess, String id, ProgramSequenceChordVoicing entity) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     require("Same id", Objects.equals(id, entity.getId()));
     validate(entity);
     requireArtist(hubAccess);
     requireProgramModification(db, hubAccess, entity.getProgramId());
-
     executeUpdate(db, PROGRAM_SEQUENCE_CHORD_VOICING, id, entity);
+    return entity;
   }
 
   @Override

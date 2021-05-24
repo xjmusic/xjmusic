@@ -3,7 +3,6 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import datadog.trace.api.Trace;
 import io.xj.AccountUser;
 import io.xj.User;
 import io.xj.UserAuth;
@@ -331,9 +330,10 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
   }
 
   @Override
-  public void update(HubAccess access, String id, User entity) throws DAOException {
+  public User update(HubAccess access, String id, User entity) throws DAOException {
     try {
       updateUserRolesAndDestroyTokens(access, id, entity);
+      return entity;
     } catch (ValueException e) {
       throw new DAOException("Cannot update User record.", e);
     }

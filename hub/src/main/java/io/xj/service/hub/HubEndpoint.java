@@ -147,8 +147,7 @@ public class HubEndpoint {
   public <N extends MessageLite> Response update(ContainerRequestContext crc, DAO<N> dao, String id, JsonapiPayload jsonapiPayload) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
-      N updated = payloadFactory.consume(dao.readOne(hubAccess, id), jsonapiPayload);
-      dao.update(hubAccess, id, updated);
+      N updated = dao.update(hubAccess, id, payloadFactory.consume(dao.readOne(hubAccess, id), jsonapiPayload));
       return response.ok(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(updated)));
 
     } catch (Exception e) {

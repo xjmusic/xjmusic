@@ -3,7 +3,6 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import datadog.trace.api.Trace;
 import io.xj.ProgramSequencePattern;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -21,7 +20,11 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.service.hub.Tables.*;
+import static io.xj.service.hub.Tables.LIBRARY;
+import static io.xj.service.hub.Tables.PROGRAM;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
+import static io.xj.service.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
 
 public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePattern> implements ProgramSequencePatternDAO {
 
@@ -112,12 +115,14 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, ProgramSequencePattern entity) throws DAOException, JsonApiException, ValueException {
-    ProgramSequencePattern.Builder builder = validate(entity.toBuilder());
+  public ProgramSequencePattern update(HubAccess hubAccess, String id, ProgramSequencePattern rawProgramSequencePattern) throws DAOException, JsonApiException, ValueException {
+    ProgramSequencePattern.Builder builder = validate(rawProgramSequencePattern.toBuilder());
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
     requireModification(db, hubAccess, id);
-    executeUpdate(db, PROGRAM_SEQUENCE_PATTERN, id, builder.build());
+    var programSequencePattern = builder.build();
+    executeUpdate(db, PROGRAM_SEQUENCE_PATTERN, id, programSequencePattern);
+    return programSequencePattern;
   }
 
   @Override

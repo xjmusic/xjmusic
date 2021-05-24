@@ -61,10 +61,11 @@ public class InstrumentMemeDAOImpl extends DAOImpl<InstrumentMeme> implements In
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, InstrumentMeme rawMeme) throws DAOException, JsonApiException, ValueException {
+  public InstrumentMeme update(HubAccess hubAccess, String id, InstrumentMeme rawMeme) throws DAOException, JsonApiException, ValueException {
     var meme = validate(rawMeme.toBuilder()).build();
     requireArtist(hubAccess);
     executeUpdate(dbProvider.getDSL(), INSTRUMENT_MEME, id, meme);
+    return meme;
   }
 
   @Override

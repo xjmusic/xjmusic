@@ -218,7 +218,7 @@ public interface DAO<E extends MessageLite> {
    @param id     of specific Entity to update.
    @param entity for the updated Entity.
    */
-  void update(HubAccess hubAccess, String id, E entity) throws DAOException, JsonApiException, ValueException;
+  E update(HubAccess hubAccess, String id, E entity) throws DAOException, JsonApiException, ValueException;
 
   /**
    Transmogrify a jOOQ Result set into a Collection of POJO entities

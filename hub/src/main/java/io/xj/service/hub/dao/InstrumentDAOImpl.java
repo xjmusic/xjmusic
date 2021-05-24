@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.protobuf.MessageLite;
-import datadog.trace.api.Trace;
 import com.typesafe.config.Config;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
@@ -248,7 +247,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, Instrument rawInstrument) throws DAOException, JsonApiException, ValueException {
+  public Instrument update(HubAccess hubAccess, String id, Instrument rawInstrument) throws DAOException, JsonApiException, ValueException {
     DSLContext db = dbProvider.getDSL();
     Instrument.Builder instrumentBuilder = rawInstrument.toBuilder();
     instrumentBuilder.setId(id); // prevent changing id
@@ -257,6 +256,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
     requireParentExists(db, hubAccess, instrument);
     validateConfig(instrument);
     executeUpdate(db, INSTRUMENT, id, instrument);
+    return instrument;
   }
 
   /**

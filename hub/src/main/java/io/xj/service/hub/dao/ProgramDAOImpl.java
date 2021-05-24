@@ -274,7 +274,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, Program rawProgram) throws DAOException, JsonApiException, ValueException {
+  public Program update(HubAccess hubAccess, String id, Program rawProgram) throws DAOException, JsonApiException, ValueException {
     var builder = validate(rawProgram.toBuilder());
 
     // [#175347578] validate TypeSafe chain config
@@ -288,6 +288,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     validateConfig(program);
 
     executeUpdate(db, PROGRAM, id, program);
+    return program;
   }
 
   @Override

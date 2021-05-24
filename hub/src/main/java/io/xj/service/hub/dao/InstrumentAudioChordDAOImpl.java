@@ -2,7 +2,6 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import datadog.trace.api.Trace;
 import io.xj.InstrumentAudioChord;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
@@ -61,10 +60,11 @@ public class InstrumentAudioChordDAOImpl extends DAOImpl<InstrumentAudioChord> i
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, InstrumentAudioChord entity) throws DAOException, JsonApiException, ValueException {
+  public InstrumentAudioChord update(HubAccess hubAccess, String id, InstrumentAudioChord entity) throws DAOException, JsonApiException, ValueException {
     validate(entity);
     requireArtist(hubAccess);
     executeUpdate(dbProvider.getDSL(), INSTRUMENT_AUDIO_CHORD, id, entity);
+    return entity;
   }
 
   @Override

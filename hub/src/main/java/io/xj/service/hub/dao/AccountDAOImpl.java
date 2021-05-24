@@ -71,10 +71,11 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, Account entity) throws DAOException, JsonApiException, ValueException {
+  public Account update(HubAccess hubAccess, String id, Account entity) throws DAOException, JsonApiException, ValueException {
     requireTopLevel(hubAccess);
     validate(entity);
     executeUpdate(dbProvider.getDSL(), ACCOUNT, id, entity);
+    return entity;
   }
 
   @Override

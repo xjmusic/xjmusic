@@ -71,7 +71,7 @@ public interface DAO<E extends MessageLite> {
    @throws DAOExistenceException if the entity does not exist
    @throws DAOPrivilegeException if access is prohibited
    */
-  void update(HubClientAccess access, String id, E entity) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException;
+  E update(HubClientAccess access, String id, E entity) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException;
 
   /**
    New instance of the primary expected Entity class for a given DAO

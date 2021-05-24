@@ -61,10 +61,11 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, ProgramSequencePatternEvent entity) throws DAOException, JsonApiException, ValueException {
+  public ProgramSequencePatternEvent update(HubAccess hubAccess, String id, ProgramSequencePatternEvent entity) throws DAOException, JsonApiException, ValueException {
     var record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
     executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE_PATTERN_EVENT, id, record);
+    return record;
   }
 
   @Override

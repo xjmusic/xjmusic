@@ -186,8 +186,9 @@ public class HubIntegrationTestProviderImpl<O extends MessageLite> extends DAOIm
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, O entity) {
+  public O update(HubAccess hubAccess, String id, O entity) {
     // no op
+    return entity;
   }
 
   /**

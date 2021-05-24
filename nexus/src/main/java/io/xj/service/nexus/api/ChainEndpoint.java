@@ -190,8 +190,7 @@ public class ChainEndpoint extends NexusEndpoint {
         return response.notAcceptable("Chain ID is required!");
 
       // Consume input payload onto existing Chain record, then update
-      var chain = payloadFactory.consume(dao.readOne(access, id), jsonapiPayload);
-      dao.update(access, id, chain);
+      var chain = dao.update(access, id, payloadFactory.consume(dao.readOne(access, id), jsonapiPayload));
       return response.ok(payloadFactory.newJsonapiPayload().setDataOne(payloadFactory.toPayloadObject(chain)));
 
     } catch (DAOValidationException e) {

@@ -149,9 +149,8 @@ public class NexusEndpoint {
     try {
       HubClientAccess hubClientAccess = HubClientAccess.fromContext(crc);
       N current = dao.readOne(hubClientAccess, id);
-      payloadFactory.consume(current, jsonapiPayload);
-      dao.update(hubClientAccess, id, current);
-      return response.ok(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(current)));
+      var updated = dao.update(hubClientAccess, id, payloadFactory.consume(current, jsonapiPayload));
+      return response.ok(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(updated)));
 
     } catch (Exception e) {
       return response.notAcceptable(e);

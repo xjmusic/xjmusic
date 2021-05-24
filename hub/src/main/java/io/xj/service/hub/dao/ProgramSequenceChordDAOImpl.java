@@ -62,10 +62,11 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, ProgramSequenceChord entity) throws DAOException, JsonApiException, ValueException {
+  public ProgramSequenceChord update(HubAccess hubAccess, String id, ProgramSequenceChord entity) throws DAOException, JsonApiException, ValueException {
     validate(entity);
     requireArtist(hubAccess);
     executeUpdate(dbProvider.getDSL(), PROGRAM_SEQUENCE_CHORD, id, entity);
+    return entity;
   }
 
   @Override

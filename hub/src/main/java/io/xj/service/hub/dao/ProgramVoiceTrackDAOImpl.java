@@ -89,12 +89,13 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, ProgramVoiceTrack entity) throws DAOException, JsonApiException, ValueException {
+  public ProgramVoiceTrack update(HubAccess hubAccess, String id, ProgramVoiceTrack entity) throws DAOException, JsonApiException, ValueException {
     var record = validate(entity.toBuilder()).build();
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
     requireModification(db, hubAccess, id);
     executeUpdate(db, PROGRAM_VOICE_TRACK, id, record);
+    return record;
   }
 
   @Override

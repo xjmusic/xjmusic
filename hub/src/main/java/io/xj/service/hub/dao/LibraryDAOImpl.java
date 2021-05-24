@@ -2,7 +2,6 @@
 package io.xj.service.hub.dao;
 
 import com.google.inject.Inject;
-import datadog.trace.api.Trace;
 import io.xj.Library;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -95,8 +94,8 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, Library entity) throws DAOException, JsonApiException, ValueException {
-    Library.Builder record = validate(entity.toBuilder());
+  public Library update(HubAccess hubAccess, String id, Library rawLibrary) throws DAOException, JsonApiException, ValueException {
+    Library.Builder record = validate(rawLibrary.toBuilder());
     try {
       Entities.setId(record, id); //prevent changing id
     } catch (EntityException e) {
@@ -114,7 +113,9 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
           .fetchOne(0, int.class));
     }
 
-    executeUpdate(dbProvider.getDSL(), LIBRARY, id, record.build());
+    var library = record.build();
+    executeUpdate(dbProvider.getDSL(), LIBRARY, id, library);
+    return library;
   }
 
   @Override

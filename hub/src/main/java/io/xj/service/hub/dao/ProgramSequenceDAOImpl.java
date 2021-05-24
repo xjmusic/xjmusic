@@ -3,7 +3,6 @@ package io.xj.service.hub.dao;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import datadog.trace.api.Trace;
 import io.xj.ProgramSequence;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonApiException;
@@ -144,11 +143,13 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, ProgramSequence entity) throws DAOException, JsonApiException, ValueException {
-    ProgramSequence.Builder builder = validate(entity.toBuilder());
+  public ProgramSequence update(HubAccess hubAccess, String id, ProgramSequence ramProgramSequence) throws DAOException, JsonApiException, ValueException {
+    ProgramSequence.Builder builder = validate(ramProgramSequence.toBuilder());
     DSLContext db = dbProvider.getDSL();
     requireModification(db, hubAccess, id);
-    executeUpdate(db, PROGRAM_SEQUENCE, id, builder.build());
+    var programSequence = builder.build();
+    executeUpdate(db, PROGRAM_SEQUENCE, id, programSequence);
+    return programSequence;
   }
 
   @Override

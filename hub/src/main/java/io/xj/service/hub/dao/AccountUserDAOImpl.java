@@ -70,7 +70,7 @@ public class AccountUserDAOImpl extends DAOImpl<AccountUser> implements AccountU
   }
 
   @Override
-  public void update(HubAccess hubAccess, String id, AccountUser entity) throws DAOException {
+  public AccountUser update(HubAccess hubAccess, String id, AccountUser entity) throws DAOException {
     throw new DAOException("Not allowed to update AccountUser record.");
   }
 
