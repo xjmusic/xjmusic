@@ -1,0 +1,140 @@
+#  Based on arrangement test #5
+#  https://docs.google.com/document/d/1bamMTDDD7XM7_ceh8ecyd9t3h_fy6JSUPVi9RCO2img/
+#
+#  This test is a counterpart to Test #4, in that it uses as its material the other section of the main program featured in Test #4.
+#  Test is based on Main Program “Earth 3”, sequence “A”
+#
+#  [#176696738] XJ has a serviceable voicing algorithm
+---
+
+bassInstrument:
+  isTonal: true
+  isMultiphonic: true
+  notes: C1, C#1, D1, D#1, E1, F1, F#1, G1, G#1, A1, A#1, B1, C2, C#2, D2, D#2, E2, F2, F#2, G2, G#2, A2, A#2, B2, C3, C#3, D3, D#3, E3
+
+padInstrument:
+  isTonal: true
+  isMultiphonic: true
+  notes: E3, F3, F#, G3, G#3, A3, A#3, B3, C4, C#4, D4, D#4, E4, F4, F#4, G4, G#4, A4, A#4, B4, C5, C#5, D5, D#5, E5, F5, F#5, G5, G#5, A5, A#5, B5, C6
+
+stabInstrument:
+  isTonal: true
+  isMultiphonic: true
+  notes: E3, F3, F#, G3, G#3, A3, A#3, B3, C4, C#4, D4, D#4, E4, F4, F#4, G4, G#4, A4, A#4, B4, C5, C#5, D5, D#5, E5, F5, F#5, G5, G#5, A5, A#5, B5, C6
+
+bassDetailProgram:
+  key: C
+  doPatternRestartOnChord: false
+  sequence:
+    total: 4
+    patterns:
+      - type: Loop
+        total: 4
+        events:
+          - { position: 0.0, duration: 0.5, note: "C2" }
+          - { position: 0.5, duration: 0.5, note: "C2" }
+          - { position: 1.0, duration: 0.5, note: "C2" }
+          - { position: 1.5, duration: 0.5, note: "C2" }
+          - { position: 2.0, duration: 0.5, note: "C2" }
+          - { position: 2.5, duration: 0.5, note: "C2" }
+          - { position: 3.0, duration: 0.5, note: "C2" }
+          - { position: 3.5, duration: 0.5, note: "C2" }
+
+padDetailProgram:
+  key: C
+  doPatternRestartOnChord: true
+  sequence:
+    total: 8
+    patterns:
+      - type: Loop
+        total: 8
+        events:
+          - { position: 0.0, duration: 8.0, note: "F3, A3, C4, E4" }
+
+stabDetailProgram:
+  key: C
+  doPatternRestartOnChord: true
+  sequence:
+    total: 4
+    patterns:
+      - type: Loop
+        total: 4
+        events:
+          - { position: 0.0, duration: 0.5, note: "F3, A3, C4, E4" }
+
+segment:
+  key: A
+  total: 16
+  density: 1.0
+  tempo: 120.0
+  chords:
+    - position: 0.0
+      name: Fmaj7add9
+      voicings:
+        bass: C1, D1, F1, G1, A1, C2, D2, F2, G2, A2, C3, D3, F3, G3, A3, C4, D4, F4, G4, A4, C5, D5, F5, G5, A5
+        pad: F3, G3, A3, C4, E4, G4, A4, C5, E5, G5, A5, C6
+        stab: F3, G3, A3, C4, E4, G4, A4, C5, E5, G5, A5, C6
+    - position: 3.5
+      name: Gsus4/A
+      voicings:
+        bass: E1, G1, A1, C2, D2, E2, G2, A2, C3, D3, E3, G3, A3, C4, D4, E4, G4, A4, C5, D5
+        pad: G3, C4, D4, G4, C5, D5, G5, C6
+        stab: G3, C4, D4, G4, C5, D5, G5, C6
+    - position: 7.5
+      name: Cmaj6
+      voicings:
+        bass: C1, D1, E1, G1, A1, C2, D2, E2, G2, A2, C3, D3, E3, G3, A3, C4, D4, E4, G4, A4, C5, D5, E5, G5, A5
+        pad: E3, G3, A3, C4, E4, G4, A4, C5, E5, G5, A5, C6
+        stab: E3, G3, A3, C4, E4, G4, A4, C5, E5, G5, A5, C6
+    - position: 11.5
+      name: Fadd9/D
+      voicings:
+        bass: D1, F1, G1, A1, C2, D2, F2, G2, A2, C3, D3, E3, F3
+        pad: F3, G3, A3, C4, F4, G4, A4, C5, F5, G5, A5, C6
+        stab: F3, G3, A3, C4, F4, G4, A4, C5, F5, G5, A5, C6
+
+
+assertPicks:
+  bass:
+    - { start: 0.00, length: 0.25, count: 1, notes: "F1"}
+    - { start: 0.25, length: 0.25, count: 1, notes: "F1"}
+    - { start: 0.50, length: 0.25, count: 1, notes: "F1"}
+    - { start: 0.75, length: 0.25, count: 1, notes: "F1"}
+    - { start: 1.00, length: 0.25, count: 1, notes: "F1"}
+    - { start: 1.25, length: 0.25, count: 1, notes: "F1"}
+    - { start: 1.50, length: 0.25, count: 1, notes: "F1"}
+    - { start: 1.75, length: 0.25, count: 1, notes: "A1"}
+    - { start: 2.00, length: 0.25, count: 1, notes: "A1"}
+    - { start: 2.25, length: 0.25, count: 1, notes: "A1"}
+    - { start: 2.50, length: 0.25, count: 1, notes: "A1"}
+    - { start: 2.75, length: 0.25, count: 1, notes: "A1"}
+    - { start: 3.00, length: 0.25, count: 1, notes: "A1"}
+    - { start: 3.25, length: 0.25, count: 1, notes: "A1"}
+    - { start: 3.50, length: 0.25, count: 1, notes: "A1"}
+    - { start: 3.75, length: 0.25, count: 1, notes: "C1"}
+    - { start: 4.00, length: 0.25, count: 1, notes: "C1"}
+    - { start: 4.25, length: 0.25, count: 1, notes: "C1"}
+    - { start: 4.50, length: 0.25, count: 1, notes: "C1"}
+    - { start: 4.75, length: 0.25, count: 1, notes: "C1"}
+    - { start: 5.00, length: 0.25, count: 1, notes: "C1"}
+    - { start: 5.25, length: 0.25, count: 1, notes: "C1"}
+    - { start: 5.50, length: 0.25, count: 1, notes: "C1"}
+    - { start: 5.75, length: 0.25, count: 1, notes: "D1"}
+    - { start: 6.00, length: 0.25, count: 1, notes: "D1"}
+    - { start: 6.25, length: 0.25, count: 1, notes: "D1"}
+    - { start: 6.50, length: 0.25, count: 1, notes: "D1"}
+    - { start: 6.75, length: 0.25, count: 1, notes: "D1"}
+    - { start: 7.00, length: 0.25, count: 1, notes: "D1"}
+    - { start: 7.25, length: 0.25, count: 1, notes: "D1"}
+    - { start: 7.50, length: 0.25, count: 1, notes: "D1"}
+    - { start: 7.75, length: 0.25, count: 1, notes: "D1"}
+  pad:
+    - { start: 0.00, length: 1.75, count: 4, notes: "C4, G3, G4, E4" }
+    - { start: 1.75, length: 2.00, count: 4, notes: "G3, C4, D4, G4" }
+    - { start: 3.75, length: 2.00, count: 4, notes: "G3, A3, C4, E4" }
+    - { start: 5.75, length: 2.25, count: 4, notes: "G3, A3, C4, F4" }
+  stab:
+    - { start: 0.00, length: 0.25, count: 4, notes: "C4, G3, G4, E4" }
+    - { start: 1.75, length: 0.25, count: 4, notes: "G3, C4, D4, G4" }
+    - { start: 3.75, length: 0.25, count: 4, notes: "G3, A3, C4, E4" }
+    - { start: 5.75, length: 0.25, count: 4, notes: "G3, A3, C4, F4" }

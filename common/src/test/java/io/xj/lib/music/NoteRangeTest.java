@@ -6,6 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class NoteRangeTest {
   NoteRange subject;
@@ -23,20 +25,68 @@ public class NoteRangeTest {
 
   @Test
   public void getLow() {
-    assertEquals("C3", subject.getLow().orElseThrow().toString(AdjSymbol.None));
+    assertTrue(Note.of("C3").sameAs(subject.getLow().orElseThrow()));
   }
 
   @Test
   public void getHigh() {
-    assertEquals("F6", subject.getHigh().orElseThrow().toString(AdjSymbol.None));
+    assertTrue(Note.of("F6").sameAs(subject.getHigh().orElseThrow()));
+  }
+
+  @Test
+  public void rangeFromNotes() {
+    subject = new NoteRange(Note.of("C3"), Note.of("C4"));
+
+    assertTrue(Note.of("C3").sameAs(subject.getLow().orElseThrow()));
+    assertTrue(Note.of("C4").sameAs(subject.getHigh().orElseThrow()));
+  }
+
+  @Test
+  public void rangeFromNotes_lowIsOptional() {
+    subject = new NoteRange(null, Note.of("C4"));
+
+    assertFalse(subject.getLow().isPresent());
+    assertTrue(Note.of("C4").sameAs(subject.getHigh().orElseThrow()));
+  }
+
+  @Test
+  public void rangeFromNotes_highIsOptional() {
+    subject = new NoteRange(Note.of("C4"), null);
+
+    assertTrue(Note.of("C4").sameAs(subject.getLow().orElseThrow()));
+    assertFalse(subject.getHigh().isPresent());
+  }
+
+  @Test
+  public void rangeFromStrings() {
+    subject = new NoteRange("C3", "C4");
+
+    assertTrue(Note.of("C3").sameAs(subject.getLow().orElseThrow()));
+    assertTrue(Note.of("C4").sameAs(subject.getHigh().orElseThrow()));
+  }
+
+  @Test
+  public void rangeFromStrings_lowOptional() {
+    subject = new NoteRange(null, "C4");
+
+    assertFalse(subject.getLow().isPresent());
+    assertTrue(Note.of("C4").sameAs(subject.getHigh().orElseThrow()));
+  }
+
+  @Test
+  public void rangeFromStrings_highOptional() {
+    subject = new NoteRange("C4", null);
+
+    assertTrue(Note.of("C4").sameAs(subject.getLow().orElseThrow()));
+    assertFalse(subject.getHigh().isPresent());
   }
 
   @Test
   public void copyOf() {
     var cp = NoteRange.copyOf(subject);
 
-    assertEquals("C3", cp.getLow().orElseThrow().toString(AdjSymbol.None));
-    assertEquals("F6", cp.getHigh().orElseThrow().toString(AdjSymbol.None));
+    assertTrue(Note.of("C3").sameAs(cp.getLow().orElseThrow()));
+    assertTrue(Note.of("F6").sameAs(cp.getHigh().orElseThrow()));
   }
 
   @Test
@@ -48,8 +98,8 @@ public class NoteRangeTest {
   public void expand() {
     subject.expand(Note.of("G2"));
 
-    assertEquals("G2", subject.getLow().orElseThrow().toString(AdjSymbol.None));
-    assertEquals("F6", subject.getHigh().orElseThrow().toString(AdjSymbol.None));
+    assertTrue(Note.of("G2").sameAs(subject.getLow().orElseThrow()));
+    assertTrue(Note.of("F6").sameAs(subject.getHigh().orElseThrow()));
   }
 
   @Test
@@ -59,8 +109,8 @@ public class NoteRangeTest {
       Note.of("G6")
     ));
 
-    assertEquals("G2", subject.getLow().orElseThrow().toString(AdjSymbol.None));
-    assertEquals("G6", subject.getHigh().orElseThrow().toString(AdjSymbol.None));
+    assertTrue(Note.of("G2").sameAs(subject.getLow().orElseThrow()));
+    assertTrue(Note.of("G6").sameAs(subject.getHigh().orElseThrow()));
   }
 
   @Test
@@ -70,7 +120,7 @@ public class NoteRangeTest {
       "G6"
     )));
 
-    assertEquals("G2", subject.getLow().orElseThrow().toString(AdjSymbol.None));
-    assertEquals("G6", subject.getHigh().orElseThrow().toString(AdjSymbol.None));
+    assertTrue(Note.of("G2").sameAs(subject.getLow().orElseThrow()));
+    assertTrue(Note.of("G6").sameAs(subject.getHigh().orElseThrow()));
   }
 }

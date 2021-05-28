@@ -13,6 +13,7 @@ import io.xj.ChainBinding;
 import io.xj.Instrument;
 import io.xj.Library;
 import io.xj.Program;
+import io.xj.ProgramSequencePattern;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
@@ -25,10 +26,12 @@ import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.mixer.MixerModule;
+import io.xj.lib.music.Note;
 import io.xj.lib.music.Tuning;
 import io.xj.service.hub.HubApp;
 import io.xj.service.hub.client.HubClient;
 import io.xj.service.hub.client.HubClientAccess;
+import io.xj.service.hub.client.HubClientException;
 import io.xj.service.hub.client.HubClientModule;
 import io.xj.service.hub.client.HubContent;
 import io.xj.service.nexus.NexusApp;
@@ -59,7 +62,14 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeEvent;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makePattern;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeProgram;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeSequence;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeTrack;
+import static io.xj.service.nexus.NexusIntegrationTestingFixtures.makeVoice;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.eq;
@@ -627,6 +637,121 @@ public class FabricatorImplTest {
     assertEquals("Gm", subject.getChordAt(5.5).orElseThrow().getName());
     assertEquals("Gm", subject.getChordAt(6).orElseThrow().getName());
     assertEquals("Gm", subject.getChordAt(7.5).orElseThrow().getName());
+  }
+
+  @Test
+  public void computeProgramRange() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException, HubClientException {
+    var chain = store.put(Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(UUID.randomUUID().toString())
+      .setName("test")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2017-12-12T01:00:08.000000Z")
+      .setConfig("outputEncoding=\"PCM_SIGNED\"")
+      .build());
+    Segment segment = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain.getId())
+      .setOffset(2)
+      .setState(Segment.State.Crafting)
+      .setBeginAt("2017-12-12T01:00:16.000000Z")
+      .setEndAt("2017-12-12T01:00:22.000000Z")
+      .setKey("G major")
+      .setTotal(8)
+      .setDensity(0.6)
+      .setTempo(240)
+      .setStorageKey("seg123.ogg")
+      .build());
+    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
+      .thenReturn(mockSegmentRetrospective);
+    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
+      .thenReturn(mockSegmentWorkbench);
+    when(mockSegmentWorkbench.getSegmentChords())
+      .thenReturn(ImmutableList.of());
+    var access = HubClientAccess.internal();
+    when(mockSegmentWorkbench.getSegment())
+      .thenReturn(segment);
+    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
+    var program = makeProgram(Program.Type.Detail, "C", 120.0, 1.0);
+    var voice = makeVoice(program, Instrument.Type.Bass);
+    var track = makeTrack(voice);
+    var sequence = makeSequence(program, 4);
+    var pattern = makePattern(sequence, voice, ProgramSequencePattern.Type.Loop, 4);
+    when(mockHubClient.ingest(any(), any(), any(), any()))
+      .thenReturn(new HubContent(ImmutableList.of(
+        program,
+        voice,
+        track,
+        sequence,
+        pattern,
+        makeEvent(pattern, track, 0.0, 1.0, "C1"),
+        makeEvent(pattern, track, 1.0, 1.0, "D2")
+      )));
+    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
+
+    var result = subject.computeProgramRange(program.getId(), Instrument.Type.Bass);
+
+    assertTrue(Note.of("C1").sameAs(result.getLow().orElseThrow()));
+    assertTrue(Note.of("D2").sameAs(result.getHigh().orElseThrow()));
+  }
+
+  @Test
+  public void computeProgramRange_ignoresAtonalNotes() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException, HubClientException {
+    var chain = store.put(Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(UUID.randomUUID().toString())
+      .setName("test")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2017-12-12T01:00:08.000000Z")
+      .setConfig("outputEncoding=\"PCM_SIGNED\"")
+      .build());
+    Segment segment = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain.getId())
+      .setOffset(2)
+      .setState(Segment.State.Crafting)
+      .setBeginAt("2017-12-12T01:00:16.000000Z")
+      .setEndAt("2017-12-12T01:00:22.000000Z")
+      .setKey("G major")
+      .setTotal(8)
+      .setDensity(0.6)
+      .setTempo(240)
+      .setStorageKey("seg123.ogg")
+      .build());
+    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
+      .thenReturn(mockSegmentRetrospective);
+    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
+      .thenReturn(mockSegmentWorkbench);
+    when(mockSegmentWorkbench.getSegmentChords())
+      .thenReturn(ImmutableList.of());
+    var access = HubClientAccess.internal();
+    when(mockSegmentWorkbench.getSegment())
+      .thenReturn(segment);
+    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
+    var program = makeProgram(Program.Type.Detail, "C", 120.0, 1.0);
+    var voice = makeVoice(program, Instrument.Type.Bass);
+    var track = makeTrack(voice);
+    var sequence = makeSequence(program, 4);
+    var pattern = makePattern(sequence, voice, ProgramSequencePattern.Type.Loop, 4);
+    when(mockHubClient.ingest(any(), any(), any(), any()))
+      .thenReturn(new HubContent(ImmutableList.of(
+        program,
+        voice,
+        track,
+        sequence,
+        pattern,
+        makeEvent(pattern, track, 0.0, 1.0, "C1"),
+        makeEvent(pattern, track, 1.0, 1.0, "X"),
+        makeEvent(pattern, track, 2.0, 1.0, "D2")
+      )));
+    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
+
+    var result = subject.computeProgramRange(program.getId(), Instrument.Type.Bass);
+
+    assertTrue(Note.of("C1").sameAs(result.getLow().orElseThrow()));
+    assertTrue(Note.of("D2").sameAs(result.getHigh().orElseThrow()));
   }
 
 }

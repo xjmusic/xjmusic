@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  Represent a note range
@@ -32,6 +31,11 @@ public class NoteRange {
   public NoteRange(@Nullable Note low, @Nullable Note high) {
     this.low = low;
     this.high = high;
+  }
+
+  public NoteRange(@Nullable String low, @Nullable String high) {
+    this.low = Objects.nonNull(low) ? Note.of(low) : null;
+    this.high = Objects.nonNull(high) ? Note.of(high) : null;
   }
 
   public static NoteRange copyOf(NoteRange range) {

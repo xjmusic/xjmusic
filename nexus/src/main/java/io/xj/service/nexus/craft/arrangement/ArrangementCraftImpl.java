@@ -334,8 +334,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     notePicker.pick();
     range.expand(notePicker.getRange());
 
-    return fabricator.rememberPickedNotes(event.getId(), chord.getName(),
-      notePicker.getPickedNotes().stream().map(n -> n.toString(chord.getAdjSymbol())).collect(Collectors.toSet()));
+    var notes = notePicker.getPickedNotes().stream()
+      .map(n -> n.toString(chord.getAdjSymbol())).collect(Collectors.toSet());
+
+    return fabricator.rememberPickedNotes(event.getId(), chord.getName(), notes);
   }
 
   /**

@@ -42,7 +42,9 @@ import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
+import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
+import io.xj.lib.music.PitchClass;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
@@ -1022,9 +1024,11 @@ class FabricatorImpl implements Fabricator {
         new NoteRange(
           sourceMaterial.getEvents(programId)
             .stream()
-            .filter(event -> sourceMaterial.getVoice(event)
-              .map(voice -> voice.getType().equals(instrumentType))
-              .orElse(false))
+            .filter(event ->
+              sourceMaterial.getVoice(event)
+                .map(voice -> voice.getType().equals(instrumentType))
+                .orElse(false) &&
+                !Note.of(event.getNote()).getPitchClass().equals(PitchClass.None))
             .flatMap(programSequencePatternEvent ->
               CSV.split(programSequencePatternEvent.getNote())
                 .stream())

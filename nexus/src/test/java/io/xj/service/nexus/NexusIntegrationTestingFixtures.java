@@ -314,88 +314,6 @@ public class NexusIntegrationTestingFixtures {
     return array[(int) StrictMath.floor(StrictMath.random() * array.length)];
   }
 
-  public static SegmentChoice makeSegmentChoice(Segment segment, Program.Type programType, ProgramSequenceBinding programSequenceBinding) {
-    return SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setProgramId(programSequenceBinding.getProgramId())
-      .setProgramSequenceBindingId(programSequenceBinding.getId())
-      .setProgramType(programType)
-      .build();
-  }
-
-  public static SegmentChoice makeSegmentChoice(Segment segment, Program program) {
-    return SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setProgramId(program.getId())
-      .setProgramType(program.getType())
-      .build();
-  }
-
-  public static SegmentChoice makeSegmentChoice(Segment segment, Program program, ProgramSequence programSequence, ProgramVoice voice, Instrument instrument) {
-    return SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramVoiceId(voice.getId())
-      .setInstrumentId(instrument.getId())
-      .setInstrumentType(instrument.getType())
-      .setSegmentId(segment.getId())
-      .setProgramId(program.getId())
-      .setProgramSequenceId(programSequence.getId())
-      .setProgramType(program.getType())
-      .build();
-  }
-
-  public static SegmentMeme makeMeme(Segment segment, String name) {
-    return SegmentMeme.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setName(name)
-      .build();
-  }
-
-  public static SegmentChord makeChord(Segment segment, Double position, String name) {
-    return SegmentChord.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setPosition(position)
-      .setName(name)
-      .build();
-  }
-
-  public static SegmentChordVoicing makeVoicing(SegmentChord chord, Instrument.Type type, String notes) {
-    return SegmentChordVoicing.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(chord.getSegmentId())
-      .setSegmentChordId(chord.getId())
-      .setType(type)
-      .setNotes(notes)
-      .build();
-  }
-
-  public static SegmentChoiceArrangement makeArrangement(SegmentChoice segmentChoice) {
-    return SegmentChoiceArrangement.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segmentChoice.getSegmentId())
-      .setSegmentChoiceId(segmentChoice.getId())
-      .build();
-  }
-
-  public static SegmentChoiceArrangementPick makePick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent programSequencePatternEvent, InstrumentAudio instrumentAudio, double position, double duration, double velocity, String note, String name) {
-    return SegmentChoiceArrangementPick.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segmentChoiceArrangement.getSegmentId())
-      .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId())
-      .setProgramSequencePatternEventId(programSequencePatternEvent.getId())
-      .setInstrumentAudioId(instrumentAudio.getId())
-      .setStart(position)
-      .setLength(duration)
-      .setAmplitude(velocity)
-      .setNote(note)
-      .setName(name)
-      .build();
-  }
-
   /**
    A whole library of mock content
 
@@ -1035,6 +953,88 @@ public class NexusIntegrationTestingFixtures {
     return entity;
   }
 
+  public static SegmentChoice makeSegmentChoice(Segment segment, Program.Type programType, ProgramSequenceBinding programSequenceBinding) {
+    return SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment.getId())
+      .setProgramId(programSequenceBinding.getProgramId())
+      .setProgramSequenceBindingId(programSequenceBinding.getId())
+      .setProgramType(programType)
+      .build();
+  }
+
+  public static SegmentChoice makeSegmentChoice(Segment segment, Program program) {
+    return SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment.getId())
+      .setProgramId(program.getId())
+      .setProgramType(program.getType())
+      .build();
+  }
+
+  public static SegmentChoice makeSegmentChoice(Segment segment, Program program, ProgramSequence programSequence, ProgramVoice voice, Instrument instrument) {
+    return SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setProgramVoiceId(voice.getId())
+      .setInstrumentId(instrument.getId())
+      .setInstrumentType(instrument.getType())
+      .setSegmentId(segment.getId())
+      .setProgramId(program.getId())
+      .setProgramSequenceId(programSequence.getId())
+      .setProgramType(program.getType())
+      .build();
+  }
+
+  public static SegmentMeme makeMeme(Segment segment, String name) {
+    return SegmentMeme.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment.getId())
+      .setName(name)
+      .build();
+  }
+
+  public static SegmentChord makeChord(Segment segment, Double position, String name) {
+    return SegmentChord.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment.getId())
+      .setPosition(position)
+      .setName(name)
+      .build();
+  }
+
+  public static SegmentChordVoicing makeVoicing(SegmentChord chord, Instrument.Type type, String notes) {
+    return SegmentChordVoicing.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(chord.getSegmentId())
+      .setSegmentChordId(chord.getId())
+      .setType(type)
+      .setNotes(notes)
+      .build();
+  }
+
+  public static SegmentChoiceArrangement makeArrangement(SegmentChoice segmentChoice) {
+    return SegmentChoiceArrangement.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segmentChoice.getSegmentId())
+      .setSegmentChoiceId(segmentChoice.getId())
+      .build();
+  }
+
+  public static SegmentChoiceArrangementPick makePick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent programSequencePatternEvent, InstrumentAudio instrumentAudio, double position, double duration, double velocity, String note, String name) {
+    return SegmentChoiceArrangementPick.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segmentChoiceArrangement.getSegmentId())
+      .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId())
+      .setProgramSequencePatternEventId(programSequencePatternEvent.getId())
+      .setInstrumentAudioId(instrumentAudio.getId())
+      .setStart(position)
+      .setLength(duration)
+      .setAmplitude(velocity)
+      .setNote(note)
+      .setName(name)
+      .build();
+  }
+
   public static Collection<Object> makeInstrumentWithEvents(Instrument instrument, String notes) {
     List<Object> result = Lists.newArrayList(instrument);
     for (String note : CSV.split(notes)) {
@@ -1164,7 +1164,7 @@ public class NexusIntegrationTestingFixtures {
       .build();
   }
 
-  public static Program makeProgram(Program.Type type, String key, int tempo, int density) {
+  public static Program makeProgram(Program.Type type, String key, double tempo, double density) {
     return Program.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setLibraryId(UUID.randomUUID().toString())
