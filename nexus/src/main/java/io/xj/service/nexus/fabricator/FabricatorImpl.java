@@ -1161,6 +1161,11 @@ class FabricatorImpl implements Fabricator {
    @return median optimal range shift octaves
    */
   private Integer computeMedianOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) {
+    if (sourceRange.getLow().isEmpty() ||
+      sourceRange.getHigh().isEmpty() ||
+      targetRange.getLow().isEmpty() ||
+      targetRange.getHigh().isEmpty())
+      return 0;
     var shiftOctave = 0; // search for optimal value
     var baselineDelta = 100; // optimal is lowest possible integer zero or above
     for (var o = 10; o >= -10; o--) {
