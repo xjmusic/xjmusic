@@ -172,7 +172,6 @@ COPY xj.instrument (id, library_id, type, state, name, density, config) FROM std
 337d06d2-60d4-11ea-b41e-4fbf8d13a55a	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Published	Wind Small (Archive)	0.600000024	isTonal=false
 15f4f92c-16eb-11ea-8a37-2f529693f38a	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Earth Large (Legacy)	0.600000024	isTonal=false
 0c668776-64d5-11ea-acd9-c772fe2ee43d	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Fire Large	0.600000024	isTonal=false
-28806cbc-64ec-11ea-acb5-7f27befb1aad	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Fire Small	0.600000024	isTonal=false
 199a5e8c-16eb-11ea-8a37-0f841ec0351d	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Wind Large (Legacy)	0.600000024	isTonal=false
 19ea21a6-16eb-11ea-8a37-cb712a6674d9	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	Wind Small (Legacy)	0.600000024	isTonal=false
 d8de4aec-6317-11ea-a6db-9f44c189845f	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Published	New Water Large	0.600000024	isTonal=false
@@ -208,6 +207,7 @@ faf05330-1efd-11eb-90fb-c334b746da1c	1509102a-16eb-11ea-8a37-4764c2a771db	Sticky
 c285e3a8-1ba0-11eb-aab8-1f13fdf1284f	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Earth Large Bass	0.600000024	isMultiphonic=true\nisTonal=true
 e694d3ac-1bbf-11eb-a4ae-afa8e30b1947	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Wind Large Bass	0.600000024	isTonal=true\nisMultiphonic=true\n
 c2eb3bea-1bb9-11eb-8d30-3bee4bcc082d	1509102a-16eb-11ea-8a37-4764c2a771db	Bass	Published	Fire Small Bass V2	0.600000024	isMultiphonic = true\nisTonal = true
+28806cbc-64ec-11ea-acb5-7f27befb1aad	1509102a-16eb-11ea-8a37-4764c2a771db	Percussive	Draft	New Fire Small	0.600000024	isMultiphonic = false\nisTonal = false
 96041858-1bc4-11eb-834d-fb45b20d913f	1509102a-16eb-11ea-8a37-4764c2a771db	Pad	Published	Fire Small Pad	0.600000024	isTonal=true\nisMultiphonic=true
 a24a029a-62a4-11eb-bf98-9b95e451e8fc	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Percussive	Draft	Test failure instrument	0	isMultiphonic=false\nisTonal=false\nnoneiuasdfsdf=123
 4646f998-1caa-11eb-9a3f-c798c68ee101	1509102a-16eb-11ea-8a37-4764c2a771db	Stab	Published	Earth Large Stab	0.600000024	isTonal=true\nisMultiphonic=true
