@@ -5,7 +5,7 @@ plugins {
   id 'java'
   id 'maven'
   id 'nu.studer.jooq' version '4.1'
-  id 'com.google.cloud.tools.jib' version '2.0.0' apply false
+  id 'com.google.cloud.tools.jib' version '3.0.0' apply false
   id "org.flywaydb.flyway" version "7.5.4"
 }
 
@@ -13,8 +13,6 @@ group = 'io.xj'
 version = '1.0'
 
 description = 'XJ Music platform backend services'
-
-sourceCompatibility = 11
 
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
@@ -45,10 +43,14 @@ subprojects {
 
   group = 'io.xj'
   version = '1.0'
-  sourceCompatibility = '11'
 
   tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+  }
+
+  java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
   }
 
 }

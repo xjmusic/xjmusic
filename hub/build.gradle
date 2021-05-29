@@ -1,28 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-buildscript {
-  repositories {
-    jcenter()
-    mavenLocal()
-    mavenCentral()
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-  }
-
-  dependencies {
-    classpath 'org.jooq:jooq-codegen:3.13.1'
-    classpath 'org.postgresql:postgresql:42.2.8'
-    classpath "gradle.plugin.org.flywaydb:gradle-plugin-publishing:6.2.4"
-    classpath "nu.studer:gradle-jooq-plugin:4.1"
-  }
-}
-
 plugins {
   id 'java'
   id 'application'
   id 'distribution'
   id 'jacoco'
+  id 'com.google.cloud.tools.jib'
 }
 
 apply plugin: "nu.studer.jooq"
@@ -131,7 +114,7 @@ jooq {
         // ...
       }
       target {
-        packageName = 'io.xj.service.hub'
+        packageName = 'io.xj.hub'
         directory = 'build/generated/sources/db'
         // directory = ...
       }
@@ -143,22 +126,22 @@ generateSampleJooqSchemaSource.dependsOn(flywayMigrate)
 
 jar {
   manifest {
-    attributes 'Main-Class': 'io.xj.service.hub.Main'
+    attributes 'Main-Class': 'io.xj.hub.Main'
   }
 }
 
 application {
-  mainClassName = 'io.xj.service.hub.Main'
+  mainClassName = 'io.xj.hub.Main'
 }
 
 applicationDefaultJvmArgs = [
   "-javaagent:/usr/local/dd-java-agent.jar",
-  "-Xmx1500m"
+  "-Xmx2g"
 ]
 
 group = 'io.xj'
 version = '1.0'
-description = 'xj-service-hub'
+description = 'xj-hub'
 sourceCompatibility = '11'
 
 tasks.withType(JavaCompile) {
@@ -171,3 +154,5 @@ jacocoTestReport {
     xml.enabled true
   }
 }
+
+jib.to.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/hub'

@@ -49,6 +49,18 @@ jobs:
         run: |
           sudo apt-get -y install libfdk-aac-dev
           sudo apt-get -y install postgresql-client
+          sudo apt-get -y install amazon-ecr-credential-helper
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
       - name: Setup JDK 11
         uses: actions/setup-java@v1
@@ -80,10 +92,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Gradlew Test
+      - name: Build & Run Tests
         id: test
         run: "./gradlew --info --no-daemon build test"
         continue-on-error: false
 
       - name: Nothing left TODO
         run: .github/nothing_left_todo.sh
+
+      - name: Build & Push Docker Image
+        id: jib
+        run: "./gradlew --info --no-daemon jib"
+        continue-on-error: false
+

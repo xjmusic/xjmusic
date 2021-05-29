@@ -5,6 +5,7 @@ plugins {
   id 'distribution'
   id 'jacoco'
   id 'application'
+  id 'com.google.cloud.tools.jib'
 }
 
 repositories {
@@ -63,21 +64,21 @@ dependencies {
 
 jar {
   manifest {
-    attributes 'Main-Class': 'io.xj.service.nexus.Main'
+    attributes 'Main-Class': 'io.xj.nexus.Main'
   }
 }
 
 applicationDefaultJvmArgs = [
   "-javaagent:/usr/local/dd-java-agent.jar",
-  "-Xmx2000m"
+  "-Xmx8g"
 ]
 
 application {
-  mainClassName = 'io.xj.service.nexus.Main'
+  mainClassName = 'io.xj.nexus.Main'
 }
 
 group = 'io.xj'
-description = 'xj-service-nexus'
+description = 'xj-nexus'
 sourceCompatibility = '11'
 
 tasks.withType(JavaCompile) {
@@ -89,3 +90,5 @@ jacocoTestReport {
     xml.enabled true
   }
 }
+
+jib.to.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/nexus'

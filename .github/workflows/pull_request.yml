@@ -78,7 +78,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Gradlew Test
+      - name: Build & Run Tests
         id: test
         run: "./gradlew --info --no-daemon build test"
         continue-on-error: false
