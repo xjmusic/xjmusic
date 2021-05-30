@@ -85,6 +85,6 @@ assertPicks:
   bass:
     - { length: 0.25, count: 8, notes: "A1" }
   pad:
-    - { start: 0.0, length: 2.0, count: 4, notes: "C4, D4, G4, C5" }
+    - { start: 0.0, length: 2.0, count: 4, notes: "D4, G4, C5, D5" }
   stab:
-    - { start: 0.0, length: 0.25, count: 4, notes: "C4, D4, G4, C5" }
+    - { start: 0.0, length: 0.25, count: 4, notes: "D4, G4, C5, D5" }

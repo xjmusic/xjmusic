@@ -331,6 +331,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         .stream()
         .map(n -> Note.of(n).shift(targetShiftSemitones + 12 * targetShiftOctaves))
         .collect(Collectors.toList()));
+
     notePicker.pick();
     range.expand(notePicker.getRange());
 

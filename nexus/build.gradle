@@ -21,7 +21,6 @@ repositories {
 dependencies {
   // intravendor
   implementation project(':common')
-  // TODO confirm nexus builds without hub implementation project(':hub') // FUTURE: instead of depending on hub, we use the client it publishes
   //
   implementation 'io.xj:protocol:v0.22'
   // vendor

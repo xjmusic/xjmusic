@@ -69,7 +69,7 @@ public abstract class YamlTest {
   }
 
   protected void assertSame(String description, Set<String> expected, Set<String> actual) {
-    if (!Objects.equals(expected, actual))
+    if (!Objects.equals(expected, actual)) {
       failures.add(String.format("%s — Expected: %s — Actual: %s", description,
         expected.stream()
           .map(Note::of)
@@ -81,6 +81,7 @@ public abstract class YamlTest {
           .sorted(Note::compareTo)
           .map(n -> n.toString(AdjSymbol.Sharp))
           .collect(Collectors.toList())));
+    }
   }
 
   @Nullable

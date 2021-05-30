@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  In order to pick exactly one optimal voicing note for each of the source event notes.
@@ -55,20 +56,21 @@ public class NotePicker {
    */
   public void pick() {
     // Pick the notes
-    for (var note : eventNotes)
-      if (PitchClass.None.equals(note.getPitchClass()))
+    for (var eN : eventNotes.stream().sorted(Note::compareTo).collect(Collectors.toList())) {
+      if (PitchClass.None.equals(eN.getPitchClass()))
         pickRandom(voicingNotes)
           .ifPresent(this::pick);
       else
-        voicingNotes
-          .stream()
-          .map(voicingNote -> new RankedNote(voicingNote,
-            Math.abs(voicingNote.delta(note))
-              - weightIfMatchSlashRoot(instrumentType, voicingNote, chord)))
+        voicingNotes.stream()
+          .sorted(Note::compareTo)
+          .map(vN -> new RankedNote(vN,
+            Math.abs(vN.delta(eN))
+              - weightIfMatchSlashRoot(instrumentType, vN, chord)))
           .min(Comparator.comparing(RankedNote::getDelta))
           .map(RankedNote::getNote)
           .map(voicingNote -> seekInversion(voicingNote, range, voicingNotes))
           .ifPresent(this::pick);
+    }
 
     // If nothing has made it through to here, pick a single atonal note.
     if (pickedNotes.isEmpty()) pickedNotes.add(Note.of(Note.ATONAL));
