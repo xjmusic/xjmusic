@@ -14,12 +14,12 @@ import io.xj.Program;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.mixer.MixerModule;
-import io.xj.hub.HubApp;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.dao.DAOException;
@@ -70,7 +70,7 @@ public class ProgramEndpointTest {
           bind(ProgramDAO.class).toInstance(programDAO);
         }
       }))));
-    HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
+    Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     var account1 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();

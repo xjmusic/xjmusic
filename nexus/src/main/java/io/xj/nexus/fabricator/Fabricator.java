@@ -19,15 +19,15 @@ import io.xj.SegmentChord;
 import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
+import io.xj.lib.entity.common.InstrumentConfig;
+import io.xj.lib.entity.common.ProgramConfig;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.music.NoteRange;
-import io.xj.hub.client.HubClientAccess;
-import io.xj.hub.client.HubContent;
-import io.xj.hub.dao.InstrumentConfig;
-import io.xj.hub.dao.ProgramConfig;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.ChainConfig;
+import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubContent;
 
 import javax.sound.sampled.AudioFormat;
 import java.util.Collection;
@@ -742,7 +742,7 @@ public interface Fabricator {
   /**
    Get the note range for an arrangement based on all the events in its program
 
-   @param programId        to get range of
+   @param programId      to get range of
    @param instrumentType to get range of
    @return Note range of arrangement
    */

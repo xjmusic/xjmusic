@@ -11,7 +11,6 @@ import io.xj.User;
 import io.xj.UserAuth;
 import io.xj.UserRole;
 import io.xj.lib.entity.Entities;
-import io.xj.hub.dao.UserDAO;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -84,7 +83,7 @@ public class HubAccess {
       .setUserId(user.getId())
       .setUserAuthId(userAuth.getId())
       .setAccountIds(Entities.idsOf(accounts))
-      .setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+      .setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
@@ -97,7 +96,7 @@ public class HubAccess {
   public static HubAccess create(User user, String rolesCSV) {
     return new HubAccess()
       .setUserId(user.getId())
-      .setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+      .setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
@@ -112,7 +111,7 @@ public class HubAccess {
     return new HubAccess()
       .setUserId(user.getId())
       .setAccountIds(Entities.idsOf(accounts))
-      .setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+      .setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
@@ -153,7 +152,7 @@ public class HubAccess {
   public static HubAccess create(ImmutableList<Account> accounts, String rolesCSV) {
     return new HubAccess()
       .setAccountIds(Entities.idsOf(accounts))
-      .setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+      .setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
@@ -163,7 +162,7 @@ public class HubAccess {
    @return access control object
    */
   public static HubAccess create(String rolesCSV) {
-    return new HubAccess().setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+    return new HubAccess().setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**

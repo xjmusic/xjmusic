@@ -1,4 +1,5 @@
-package io.xj.hub.dao;
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.lib.entity.common;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -36,7 +37,7 @@ public class ProgramConfig {
         defaultConfig :
         ConfigFactory.parseString(String.format("program {\n%s\n}", program.getConfig()))
           .withFallback(defaultConfig);
-      doPatternRestartOnChord = config.getBoolean(cp(KEY_PATTERN_RESTART_ON_CHORD));
+      doPatternRestartOnChord = getOptionalBoolean(config, prefixed(KEY_PATTERN_RESTART_ON_CHORD));
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
@@ -50,8 +51,20 @@ public class ProgramConfig {
    @return program-prefixed key
    */
   @SuppressWarnings("SameParameterValue")
-  private String cp(String key) {
+  private String prefixed(String key) {
     return String.format("%s%s", KEY_PREFIX, key);
+  }
+
+  /**
+   If a boolean value is present in the config, return it, otherwise false
+
+   @param config to search for value at key
+   @param key    at which to search
+   @return value if present, else false
+   */
+  private Boolean getOptionalBoolean(Config config, String key) {
+    if (!config.hasPath(key)) return false;
+    return config.getBoolean(key);
   }
 
   @SuppressWarnings("DuplicatedCode")

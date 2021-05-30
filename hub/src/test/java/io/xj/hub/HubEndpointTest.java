@@ -9,6 +9,7 @@ import com.typesafe.config.ConfigFactory;
 import io.xj.Account;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.jsonapi.AssertPayload;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
@@ -57,7 +58,7 @@ public class HubEndpointTest {
     }));
     payloadFactory = injector.getInstance(PayloadFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
-    HubApp.buildApiTopology(entityFactory);
+    Topology.buildHubApiTopology(entityFactory);
     subject = injector.getInstance(HubEndpoint.class);
   }
 

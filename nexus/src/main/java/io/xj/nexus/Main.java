@@ -16,7 +16,7 @@ import io.xj.nexus.dao.NexusDAOModule;
 import io.xj.nexus.dub.DubModule;
 import io.xj.nexus.fabricator.NexusFabricatorModule;
 import io.xj.nexus.work.NexusWorkModule;
-import io.xj.hub.client.HubClientModule;
+import io.xj.nexus.hub_client.client.HubClientModule;
 import io.xj.nexus.persistence.NexusEntityStoreModule;
 import org.slf4j.LoggerFactory;
 

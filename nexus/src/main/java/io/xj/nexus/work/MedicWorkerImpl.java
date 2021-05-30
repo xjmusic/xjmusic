@@ -7,7 +7,7 @@ import datadog.trace.api.Trace;
 import io.xj.Chain;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.hub.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.dao.ChainDAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;

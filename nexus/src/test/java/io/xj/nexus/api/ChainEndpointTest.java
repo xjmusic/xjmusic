@@ -13,6 +13,7 @@ import io.xj.Chain;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
@@ -25,10 +26,8 @@ import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.testing.NexusTestConfiguration;
-import io.xj.hub.HubApp;
-import io.xj.hub.client.HubClientAccess;
-import io.xj.hub.client.HubClientModule;
-import io.xj.nexus.NexusApp;
+import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubClientModule;
 import io.xj.nexus.persistence.NexusEntityStoreModule;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +42,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
-import static io.xj.hub.client.HubClientAccess.CONTEXT_KEY;
+import static io.xj.nexus.hub_client.client.HubClientAccess.CONTEXT_KEY;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.makeHubClientAccess;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -81,8 +80,8 @@ public class ChainEndpointTest {
           bind(ChainDAO.class).toInstance(chainDAO);
         }
       }))));
-    HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
-    NexusApp.buildApiTopology(injector.getInstance(EntityFactory.class));
+    Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
+    Topology.buildNexusApiTopology(injector.getInstance(EntityFactory.class));
 
     account25 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())

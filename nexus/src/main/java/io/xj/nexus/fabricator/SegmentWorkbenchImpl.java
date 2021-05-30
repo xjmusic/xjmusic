@@ -20,7 +20,7 @@ import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.PayloadFactory;
-import io.xj.hub.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;

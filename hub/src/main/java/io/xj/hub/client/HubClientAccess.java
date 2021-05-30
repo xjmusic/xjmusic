@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import io.xj.UserRole;
 import io.xj.lib.entity.Entities;
-import io.xj.hub.dao.UserDAO;
+import io.xj.lib.entity.common.User;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -185,7 +185,7 @@ public class HubClientAccess {
    @return user role types
    */
   public String getRoles() {
-    return UserDAO.csvOfUserRoleTypes(roleTypes);
+    return User.csvOfUserRoleTypes(roleTypes);
   }
 
   /**
@@ -195,7 +195,7 @@ public class HubClientAccess {
    @return user role types
    */
   public HubClientAccess setRoles(String rolesCsv) {
-    setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCsv));
+    setRoleTypes(User.userRoleTypesFromCsv(rolesCsv));
     return this;
   }
 

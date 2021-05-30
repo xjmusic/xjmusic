@@ -13,9 +13,8 @@ import io.xj.SegmentChoice;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusException;
-import io.xj.hub.HubApp;
-import io.xj.nexus.NexusApp;
 import io.xj.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,8 +40,8 @@ public class NexusEntityStoreImplTest {
     Config config = NexusTestConfiguration.getDefault();
     var injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusEntityStoreModule()));
     entityFactory = injector.getInstance(EntityFactory.class);
-    HubApp.buildApiTopology(entityFactory);
-    NexusApp.buildApiTopology(entityFactory);
+    Topology.buildHubApiTopology(entityFactory);
+    Topology.buildNexusApiTopology(entityFactory);
 
     // Instantiate the test subject and put the payload
     subject = injector.getInstance(NexusEntityStore.class);

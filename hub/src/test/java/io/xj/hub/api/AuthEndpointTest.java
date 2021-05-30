@@ -11,11 +11,11 @@ import io.xj.UserRole;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.util.ValueException;
-import io.xj.hub.HubApp;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.client.HubClientAccess;
@@ -52,7 +52,7 @@ public class AuthEndpointTest {
   public void setUp() throws AppException {
     Config config = HubTestConfiguration.getDefault();
     var injector = AppConfiguration.inject(config, ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new MixerModule(), new JsonApiModule(), new FileStoreModule()));
-    HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
+    Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     account1 = Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();

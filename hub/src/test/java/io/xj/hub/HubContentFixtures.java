@@ -26,7 +26,6 @@ import io.xj.UserAuth;
 import io.xj.UserRole;
 import io.xj.lib.entity.Entities;
 import io.xj.hub.client.HubClientAccess;
-import io.xj.hub.dao.UserDAO;
 
 import java.util.Collection;
 import java.util.List;
@@ -217,7 +216,7 @@ public class HubContentFixtures {
       .setUserId(user.getId())
       .setUserAuthId(userAuth.getId())
       .setAccountIds(Entities.idsOf(accounts))
-      .setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+      .setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
@@ -230,7 +229,7 @@ public class HubContentFixtures {
   public static HubClientAccess buildHubClientAccess(User user, String rolesCSV) {
     return new HubClientAccess()
       .setUserId(user.getId())
-      .setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+      .setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
@@ -245,7 +244,7 @@ public class HubContentFixtures {
     return new HubClientAccess()
       .setUserId(user.getId())
       .setAccountIds(Entities.idsOf(accounts))
-      .setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+      .setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
@@ -286,7 +285,7 @@ public class HubContentFixtures {
   public static HubClientAccess buildHubClientAccess(ImmutableList<Account> accounts, String rolesCSV) {
     return new HubClientAccess()
       .setAccountIds(Entities.idsOf(accounts))
-      .setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+      .setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
@@ -296,7 +295,7 @@ public class HubContentFixtures {
    @return access control object
    */
   public static HubClientAccess buildHubClientAccess(String rolesCSV) {
-    return new HubClientAccess().setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+    return new HubClientAccess().setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**

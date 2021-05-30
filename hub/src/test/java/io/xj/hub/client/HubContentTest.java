@@ -10,10 +10,10 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.xj.Instrument;
 import io.xj.InstrumentAudioEvent;
-import io.xj.hub.HubApp;
 import io.xj.hub.HubContentFixtures;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityModule;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.jsonapi.JsonApiModule;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class HubContentTest {
             bind(Config.class).toInstance(config);
           }
         }));
-    HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
+    Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
 
     fake = new HubContentFixtures();
     subject = new HubContent(Streams.concat(

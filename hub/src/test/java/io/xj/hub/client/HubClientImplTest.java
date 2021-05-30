@@ -19,10 +19,10 @@ import io.xj.Account;
 import io.xj.User;
 import io.xj.UserAuth;
 import io.xj.UserRole;
-import io.xj.hub.HubApp;
 import io.xj.hub.HubContentFixtures;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityModule;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.jsonapi.MediaType;
@@ -77,7 +77,7 @@ public class HubClientImplTest {
             bind(Config.class).toInstance(config);
           }
         }));
-    HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
+    Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     content = new HubContentFixtures();
     payloadFactory = injector.getInstance(PayloadFactory.class);
     subject = injector.getInstance(HubClient.class);

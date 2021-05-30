@@ -12,10 +12,9 @@ import io.xj.Chain;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.nexus.testing.NexusTestConfiguration;
-import io.xj.hub.HubApp;
-import io.xj.nexus.NexusApp;
 import io.xj.nexus.persistence.NexusEntityStore;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,8 +70,8 @@ public class NexusWorkImplTest {
                     })));
     var entityFactory = injector.getInstance(EntityFactory.class);
     store = injector.getInstance(NexusEntityStore.class);
-    HubApp.buildApiTopology(entityFactory);
-    NexusApp.buildApiTopology(entityFactory);
+    Topology.buildHubApiTopology(entityFactory);
+    Topology.buildNexusApiTopology(entityFactory);
 
     subject = injector.getInstance(NexusWork.class);
   }

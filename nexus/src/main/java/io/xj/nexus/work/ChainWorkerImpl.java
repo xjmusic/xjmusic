@@ -10,7 +10,7 @@ import io.xj.Segment;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.Text;
-import io.xj.hub.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.dao.ChainDAO;
 import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;

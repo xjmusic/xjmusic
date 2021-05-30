@@ -1,4 +1,6 @@
-package io.xj.hub.dao;
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+package io.xj.lib.entity.common;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -39,12 +41,24 @@ public class InstrumentConfig {
         defaultConfig :
         ConfigFactory.parseString(String.format("instrument {\n%s\n}", instrument.getConfig()))
           .withFallback(defaultConfig);
-      isTonal = config.getBoolean(cp(KEY_IS_TONAL));
-      isMultiphonic = config.getBoolean(cp(KEY_IS_MULTIPHONIC));
+      isTonal = getOptionalBoolean(config, prefixed(KEY_IS_TONAL));
+      isMultiphonic = getOptionalBoolean(config, prefixed(KEY_IS_MULTIPHONIC));
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
     }
+  }
+
+  /**
+   If a boolean value is present in the config, return it, otherwise false
+
+   @param config to search for value at key
+   @param key    at which to search
+   @return value if present, else false
+   */
+  private Boolean getOptionalBoolean(Config config, String key) {
+    if (!config.hasPath(key)) return false;
+    return config.getBoolean(key);
   }
 
   /**
@@ -53,7 +67,7 @@ public class InstrumentConfig {
    @param key to prefix
    @return instrument-prefixed key
    */
-  private String cp(String key) {
+  private String prefixed(String key) {
     return String.format("%s%s", KEY_PREFIX, key);
   }
 

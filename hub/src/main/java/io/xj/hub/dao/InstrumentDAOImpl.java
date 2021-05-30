@@ -14,6 +14,7 @@ import io.xj.InstrumentMeme;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.InstrumentConfig;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.Value;

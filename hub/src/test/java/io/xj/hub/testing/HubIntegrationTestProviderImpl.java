@@ -7,7 +7,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
-import io.xj.hub.HubApp;
 import io.xj.hub.HubException;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlProvider;
@@ -19,6 +18,7 @@ import io.xj.hub.persistence.HubMigration;
 import io.xj.hub.persistence.HubPersistenceException;
 import io.xj.hub.persistence.HubRedisProvider;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.jsonapi.PayloadFactory;
 import org.jooq.DSLContext;
 import org.jooq.Table;
@@ -58,7 +58,7 @@ public class HubIntegrationTestProviderImpl<O extends MessageLite> extends DAOIm
     this.hubAccessControlProvider = hubAccessControlProvider;
 
     // Build the Hub REST API payload topology
-    HubApp.buildApiTopology(entityFactory);
+    Topology.buildHubApiTopology(entityFactory);
 
     // Requires that a configuration has been bound
     config.getString("app.name");

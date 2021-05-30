@@ -21,6 +21,7 @@ import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonApiModule;
@@ -28,13 +29,11 @@ import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.Tuning;
-import io.xj.hub.HubApp;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubClientAccess;
-import io.xj.hub.client.HubClientException;
-import io.xj.hub.client.HubClientModule;
-import io.xj.hub.client.HubContent;
-import io.xj.nexus.NexusApp;
+import io.xj.nexus.hub_client.client.HubClient;
+import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubClientException;
+import io.xj.nexus.hub_client.client.HubClientModule;
+import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.dao.ChainBindingDAO;
@@ -138,8 +137,8 @@ public class FabricatorImplTest {
         }
       })));
     var entityFactory = injector.getInstance(EntityFactory.class);
-    HubApp.buildApiTopology(entityFactory);
-    NexusApp.buildApiTopology(entityFactory);
+    Topology.buildHubApiTopology(entityFactory);
+    Topology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     store = injector.getInstance(NexusEntityStore.class);

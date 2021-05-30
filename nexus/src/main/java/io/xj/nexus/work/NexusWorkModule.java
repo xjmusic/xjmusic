@@ -6,7 +6,7 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import io.xj.lib.telemetry.TelemetryModule;
 import io.xj.nexus.craft.CraftModule;
 import io.xj.nexus.fabricator.NexusFabricatorModule;
-import io.xj.hub.client.HubClientModule;
+import io.xj.nexus.hub_client.client.HubClientModule;
 import io.xj.nexus.dao.NexusDAOModule;
 import io.xj.nexus.dub.DubModule;
 

@@ -13,7 +13,7 @@ import io.xj.nexus.dao.DAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.hub.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubClientAccess;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;

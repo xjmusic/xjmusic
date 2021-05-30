@@ -10,16 +10,16 @@ import io.xj.Chain;
 import io.xj.ChainBinding;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.util.Value;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.hub.HubApp;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubClientAccess;
-import io.xj.hub.client.HubContent;
+import io.xj.nexus.hub_client.client.HubClient;
+import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.NexusApp;
 import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.persistence.NexusEntityStore;
@@ -85,8 +85,8 @@ public class ComplexLibraryTest {
         })));
     segmentDAO = injector.getInstance(SegmentDAO.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
-    HubApp.buildApiTopology(entityFactory);
-    NexusApp.buildApiTopology(entityFactory);
+    Topology.buildHubApiTopology(entityFactory);
+    Topology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     NexusEntityStore test = injector.getInstance(NexusEntityStore.class);

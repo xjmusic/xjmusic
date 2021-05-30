@@ -23,7 +23,7 @@ import io.xj.lib.entity.common.MessageEntity;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
-import io.xj.hub.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
@@ -62,8 +62,8 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     super(entityFactory, nexusEntityStore);
     this.chainDAO = chainDAO;
 
-    playerBufferAheadSeconds = config.getInt("chain.playerBufferAheadSeconds");
-    playerBufferDelaySeconds = config.getInt("chain.playerBufferDelaySeconds");
+    playerBufferAheadSeconds = config.getInt("player.bufferAheadSeconds");
+    playerBufferDelaySeconds = config.getInt("player.bufferDelaySeconds");
     limitSegmentReadSize = config.getInt("segment.limitReadSize");
   }
 

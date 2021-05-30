@@ -42,8 +42,7 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
-import io.xj.hub.client.HubClientAccess;
-import io.xj.hub.dao.UserDAO;
+import io.xj.nexus.hub_client.client.HubClientAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1449,7 +1448,7 @@ public class NexusIntegrationTestingFixtures {
       .setUserId(user.getId())
       .setUserAuthId(userAuth.getId())
       .setAccountIds(Entities.idsOf(accounts))
-      .setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+      .setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
@@ -1462,7 +1461,7 @@ public class NexusIntegrationTestingFixtures {
   public static HubClientAccess makeHubClientAccess(User user, String rolesCSV) {
     return new HubClientAccess()
       .setUserId(user.getId())
-      .setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+      .setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
@@ -1477,7 +1476,7 @@ public class NexusIntegrationTestingFixtures {
     return new HubClientAccess()
       .setUserId(user.getId())
       .setAccountIds(Entities.idsOf(accounts))
-      .setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+      .setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
@@ -1518,7 +1517,7 @@ public class NexusIntegrationTestingFixtures {
   public static HubClientAccess makeHubClientAccess(ImmutableList<Account> accounts, String rolesCSV) {
     return new HubClientAccess()
       .setAccountIds(Entities.idsOf(accounts))
-      .setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+      .setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
   /**
@@ -1528,7 +1527,7 @@ public class NexusIntegrationTestingFixtures {
    @return access control object
    */
   public static HubClientAccess makeHubClientAccess(String rolesCSV) {
-    return new HubClientAccess().setRoleTypes(UserDAO.userRoleTypesFromCsv(rolesCSV));
+    return new HubClientAccess().setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
   }
 
 }

@@ -9,10 +9,10 @@ import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.jsonapi.ApiUrlProvider;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
-import io.xj.hub.HubApp;
 import io.xj.hub.client.HubClientAccess;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +55,7 @@ public class ConfigEndpointTest {
         bind(ApiUrlProvider.class).toInstance(apiUrlProvider);
       }
     }));
-    HubApp.buildApiTopology(injector.getInstance(EntityFactory.class));
+    Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     subject = injector.getInstance(ConfigEndpoint.class);
   }
 

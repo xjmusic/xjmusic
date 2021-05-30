@@ -8,22 +8,22 @@ import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.util.TempFile;
 import io.xj.lib.util.Text;
+import io.xj.nexus.api.NexusAccessLogFilter;
 import io.xj.nexus.dao.ChainDAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
 import io.xj.nexus.work.NexusWork;
-import io.xj.hub.HubApp;
-import io.xj.hub.access.HubAccessLogFilter;
-import io.xj.hub.client.HubAccessTokenFilter;
-import io.xj.hub.client.HubClient;
-import io.xj.hub.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubAccessTokenFilter;
+import io.xj.nexus.hub_client.client.HubClient;
+import io.xj.nexus.hub_client.client.HubClientAccess;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
@@ -90,14 +90,14 @@ public class NexusApp extends App {
 
     // Setup Entity topology
     var entityFactory = injector.getInstance(EntityFactory.class);
-    HubApp.buildApiTopology(entityFactory);
-    buildApiTopology(entityFactory);
+    Topology.buildHubApiTopology(entityFactory);
+    Topology.buildNexusApiTopology(entityFactory);
 
     // Register JAX-RS filter for access log only registers if file succeeds to open for writing
     String pathToWriteAccessLog = config.hasPath(CONFIG_ACCESS_LOG_FILE) ?
       config.getString(CONFIG_ACCESS_LOG_FILE) :
       TempFile.getTempFilePathPrefix() + File.separator + ACCESS_LOG_FILE_NAME;
-    new HubAccessLogFilter(pathToWriteAccessLog).registerTo(getResourceConfig());
+    new NexusAccessLogFilter(pathToWriteAccessLog).registerTo(getResourceConfig());
 
     // Register JAX-RS filter for reading access control token
     HubClient hubClient = injector.getInstance(HubClient.class);
@@ -158,119 +158,6 @@ public class NexusApp extends App {
           log.error("Failed to add binding to bootstrap Chain!", e);
         }
       });
-  }
-
-  /**
-   Given a entity factory, build the Hub REST API entity topology
-
-   @param entityFactory to build topology on
-   */
-  public static void buildApiTopology(EntityFactory entityFactory) {
-    // Chain
-    entityFactory.register(Chain.class)
-      .createdBy(Chain::getDefaultInstance)
-      .withAttribute("name")
-      .withAttribute("config")
-      .withAttribute("state")
-      .withAttribute("type")
-      .withAttribute("startAt")
-      .withAttribute("stopAt")
-      .withAttribute("embedKey")
-      .withAttribute("fabricatedAheadSeconds")
-      .belongsTo(Account.class)
-      .hasMany(ChainBinding.class);
-
-    // ChainBinding
-    entityFactory.register(ChainBinding.class)
-      .createdBy(ChainBinding::getDefaultInstance)
-      .withAttribute("type")
-      .withAttribute("targetId")
-      .belongsTo(Chain.class);
-
-    // Segment
-    entityFactory.register(Segment.class)
-      .createdBy(Segment::getDefaultInstance)
-      .withAttribute("state")
-      .withAttribute("beginAt")
-      .withAttribute("endAt")
-      .withAttribute("key")
-      .withAttribute("total")
-      .withAttribute("offset")
-      .withAttribute("density")
-      .withAttribute("tempo")
-      .withAttribute("storageKey")
-      .withAttribute("outputEncoder")
-      .withAttribute("waveformPreroll")
-      .withAttribute("type")
-      .belongsTo(Chain.class)
-      .hasMany(SegmentChoice.class)
-      .hasMany(SegmentChoiceArrangement.class)
-      .hasMany(SegmentChoiceArrangementPick.class)
-      .hasMany(SegmentChord.class)
-      .hasMany(SegmentChordVoicing.class)
-      .hasMany(SegmentMeme.class)
-      .hasMany(SegmentMessage.class);
-
-    // SegmentChoice
-    entityFactory.register(SegmentChoice.class)
-      .createdBy(SegmentChoice::getDefaultInstance)
-      .withAttribute("programType")
-      .withAttribute("segmentType")
-      .belongsTo(Instrument.class)
-      .belongsTo(Program.class)
-      .belongsTo(ProgramSequenceBinding.class)
-      .belongsTo(ProgramVoice.class)
-      .belongsTo(Segment.class)
-      .hasMany(SegmentChoiceArrangement.class);
-
-    // SegmentChoiceArrangement
-    entityFactory.register(SegmentChoiceArrangement.class)
-      .createdBy(SegmentChoiceArrangement::getDefaultInstance)
-      .belongsTo(ProgramSequencePattern.class)
-      .belongsTo(Segment.class)
-      .belongsTo(SegmentChoice.class)
-      .hasMany(SegmentChoiceArrangementPick.class);
-
-    // SegmentChoiceArrangementPick
-    entityFactory.register(SegmentChoiceArrangementPick.class)
-      .createdBy(SegmentChoiceArrangementPick::getDefaultInstance)
-      .withAttribute("start")
-      .withAttribute("length")
-      .withAttribute("amplitude")
-      .withAttribute("name")
-      .belongsTo(Segment.class)
-      .belongsTo(SegmentChordVoicing.class)
-      .belongsTo(InstrumentAudio.class)
-      .belongsTo(ProgramSequencePatternEvent.class);
-
-    // SegmentChord
-    entityFactory.register(SegmentChord.class)
-      .createdBy(SegmentChord::getDefaultInstance)
-      .withAttribute("name")
-      .withAttribute("position")
-      .hasMany(SegmentChordVoicing.class)
-      .belongsTo(Segment.class);
-
-    // SegmentChordVoicing
-    entityFactory.register(SegmentChordVoicing.class)
-      .createdBy(SegmentChord::getDefaultInstance)
-      .withAttribute("notes")
-      .withAttribute("type")
-      .belongsTo(Segment.class)
-      .belongsTo(SegmentChord.class);
-
-    // SegmentMeme
-    entityFactory.register(SegmentMeme.class)
-      .createdBy(SegmentMeme::getDefaultInstance)
-      .withAttribute("name")
-      .belongsTo(Segment.class);
-
-    // SegmentMessage
-    entityFactory.register(SegmentMessage.class)
-      .createdBy(SegmentMessage::getDefaultInstance)
-      .withAttribute("body")
-      .withAttribute("type")
-      .belongsTo(Segment.class);
   }
 
   /**

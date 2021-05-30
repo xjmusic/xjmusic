@@ -48,7 +48,6 @@ public class ConfigEndpoint extends HubEndpoint {
     var defaultChainConfig = Text.format(config.getConfig("chain"));
     var defaultInstrumentConfig = Text.format(config.getConfig("instrument"));
     var defaultProgramConfig = Text.format(config.getConfig("program"));
-    var segmentTimeDisplayAdjustSeconds = config.getDouble("segment.timeDisplayAdjustSeconds");
 
     configMap = ImmutableMap.<String, Object>builder()
       .put("apiBaseUrl", apiUrlProvider.getAppBaseUrl())
@@ -69,7 +68,6 @@ public class ConfigEndpoint extends HubEndpoint {
       .put("programTypes", Value.without(Program.Type.UNRECOGNIZED, Program.Type.values()))
       .put("segmentBaseUrl", apiUrlProvider.getSegmentBaseUrl())
       .put("segmentStates", Value.without(Segment.State.UNRECOGNIZED, Segment.State.values()))
-      .put("segmentTimeDisplayAdjustSeconds", segmentTimeDisplayAdjustSeconds)
       .put("segmentTypes", Value.without(Segment.Type.UNRECOGNIZED, Segment.Type.values()))
       .put("voiceTypes", Value.without(Instrument.Type.UNRECOGNIZED, Instrument.Type.values()))
       .build();

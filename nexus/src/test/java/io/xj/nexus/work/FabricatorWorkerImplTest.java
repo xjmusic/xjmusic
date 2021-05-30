@@ -15,6 +15,7 @@ import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
@@ -25,8 +26,6 @@ import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.testing.NexusTestConfiguration;
-import io.xj.hub.HubApp;
-import io.xj.nexus.NexusApp;
 import io.xj.nexus.persistence.NexusEntityStore;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,8 +77,8 @@ public class FabricatorWorkerImplTest {
         })));
     var entityFactory = injector.getInstance(EntityFactory.class);
     NexusEntityStore store = injector.getInstance(NexusEntityStore.class);
-    HubApp.buildApiTopology(entityFactory);
-    NexusApp.buildApiTopology(entityFactory);
+    Topology.buildHubApiTopology(entityFactory);
+    Topology.buildNexusApiTopology(entityFactory);
     var workerFactory = injector.getInstance(WorkerFactory.class);
 
     // Chain "Test Print #1" is fabricating segments

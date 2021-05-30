@@ -1,5 +1,4 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-
 package io.xj.lib.entity.common;
 
 import io.xj.lib.entity.Entities;

@@ -3,29 +3,6 @@ package io.xj.hub;
 
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
-import io.xj.Account;
-import io.xj.AccountUser;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.InstrumentAudioChord;
-import io.xj.InstrumentAudioEvent;
-import io.xj.InstrumentMeme;
-import io.xj.Library;
-import io.xj.Program;
-import io.xj.ProgramMeme;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceBinding;
-import io.xj.ProgramSequenceBindingMeme;
-import io.xj.ProgramSequenceChord;
-import io.xj.ProgramSequenceChordVoicing;
-import io.xj.ProgramSequencePattern;
-import io.xj.ProgramSequencePatternEvent;
-import io.xj.ProgramVoice;
-import io.xj.ProgramVoiceTrack;
-import io.xj.User;
-import io.xj.UserAuth;
-import io.xj.UserAuthToken;
-import io.xj.UserRole;
 import io.xj.hub.access.HubAccessControlProvider;
 import io.xj.hub.access.HubAccessLogFilter;
 import io.xj.hub.access.HubAccessTokenAuthFilter;
@@ -35,6 +12,7 @@ import io.xj.hub.persistence.HubPersistenceException;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.util.TempFile;
 import io.xj.lib.util.Text;
 import org.slf4j.Logger;
@@ -91,7 +69,7 @@ public class HubApp extends App {
     log.info("{} configuration:\n{}", getName(), Text.toReport(config));
 
     // Setup Entity topology
-    buildApiTopology(injector.getInstance(EntityFactory.class));
+    Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
 
     // Register JAX-RS filter for access log only registers if file succeeds to open for writing
     String pathToWriteAccessLog = config.hasPath("app.accessLogFile") ?
@@ -103,229 +81,6 @@ public class HubApp extends App {
     HubAccessControlProvider hubAccessControlProvider = injector.getInstance(HubAccessControlProvider.class);
     getResourceConfig().register(new HubAccessTokenAuthFilter(hubAccessControlProvider,
       config.getString("access.tokenName")));
-  }
-
-  /**
-   Given a entity factory, build the Hub REST API entity topology
-
-   @param entityFactory to build topology on
-   */
-  public static void buildApiTopology(EntityFactory entityFactory) {
-    // Account
-    entityFactory.register(Account.class)
-      .createdBy(Account::getDefaultInstance)
-      .withAttribute("name")
-      .hasMany(Library.class)
-      .hasMany(AccountUser.class);
-
-    // AccountUser
-    entityFactory.register(AccountUser.class)
-      .createdBy(AccountUser::getDefaultInstance)
-      .belongsTo(Account.class)
-      .belongsTo(User.class);
-
-    // Instrument
-    entityFactory.register(Instrument.class)
-      .createdBy(Instrument::getDefaultInstance)
-      .withAttribute("state")
-      .withAttribute("type")
-      .withAttribute("name")
-      .withAttribute("density")
-      .withAttribute("config")
-      .belongsTo(User.class)
-      .belongsTo(Library.class)
-      .hasMany(InstrumentAudio.class)
-      .hasMany(InstrumentMeme.class);
-
-    // InstrumentAudio
-    entityFactory.register(InstrumentAudio.class)
-      .createdBy(InstrumentAudio::getDefaultInstance)
-      .withAttribute("waveformKey")
-      .withAttribute("name")
-      .withAttribute("start")
-      .withAttribute("length")
-      .withAttribute("tempo")
-      .withAttribute("density")
-      .belongsTo(Instrument.class)
-      .hasMany(InstrumentAudioChord.class)
-      .hasMany(InstrumentAudioEvent.class);
-
-    // InstrumentAudioChord
-    entityFactory.register(InstrumentAudioChord.class)
-      .createdBy(InstrumentAudioChord::getDefaultInstance)
-      .withAttribute("name")
-      .withAttribute("position")
-      .belongsTo(Instrument.class)
-      .belongsTo(InstrumentAudio.class);
-
-    // InstrumentAudioEvent
-    entityFactory.register(InstrumentAudioEvent.class)
-      .createdBy(InstrumentAudioEvent::getDefaultInstance)
-      .withAttribute("duration")
-      .withAttribute("note")
-      .withAttribute("position")
-      .withAttribute("velocity")
-      .withAttribute("name")
-      .belongsTo(Instrument.class)
-      .belongsTo(InstrumentAudio.class);
-
-    // InstrumentMeme
-    entityFactory.register(InstrumentMeme.class)
-      .createdBy(InstrumentMeme::getDefaultInstance)
-      .withAttribute("name")
-      .belongsTo(Instrument.class);
-
-    // Library
-    entityFactory.register(Library.class)
-      .createdBy(Library::getDefaultInstance)
-      .withAttribute("name")
-      .belongsTo(Account.class)
-      .hasMany(Instrument.class)
-      .hasMany(Program.class);
-
-    // Program
-    entityFactory.register(Program.class)
-      .createdBy(Program::getDefaultInstance)
-      .withAttribute("state")
-      .withAttribute("key")
-      .withAttribute("tempo")
-      .withAttribute("type")
-      .withAttribute("name")
-      .withAttribute("density")
-      .withAttribute("config")
-      .belongsTo(User.class)
-      .belongsTo(Library.class)
-      .hasMany(ProgramMeme.class)
-      .hasMany(ProgramSequence.class)
-      .hasMany(ProgramSequenceChord.class)
-      .hasMany(ProgramSequencePattern.class)
-      .hasMany(ProgramVoiceTrack.class)
-      .hasMany(ProgramSequencePatternEvent.class)
-      .hasMany(ProgramSequenceBinding.class)
-      .hasMany(ProgramSequenceBindingMeme.class)
-      .hasMany(ProgramVoice.class);
-
-    // ProgramMeme
-    entityFactory.register(ProgramMeme.class)
-      .createdBy(ProgramMeme::getDefaultInstance)
-      .withAttribute("name")
-      .belongsTo(Program.class);
-
-    // ProgramSequence
-    entityFactory.register(ProgramSequence.class)
-      .createdBy(ProgramSequence::getDefaultInstance)
-      .withAttribute("name")
-      .withAttribute("key")
-      .withAttribute("density")
-      .withAttribute("total")
-      .withAttribute("tempo")
-      .belongsTo(Program.class)
-      .hasMany(ProgramSequencePattern.class)
-      .hasMany(ProgramSequenceBinding.class)
-      .hasMany(ProgramSequenceChord.class);
-
-    // ProgramSequenceBinding
-    entityFactory.register(ProgramSequenceBinding.class)
-      .createdBy(ProgramSequenceBinding::getDefaultInstance)
-      .withAttribute("offset")
-      .belongsTo(Program.class)
-      .belongsTo(ProgramSequence.class)
-      .hasMany(ProgramSequenceBindingMeme.class);
-
-    // ProgramSequenceBindingMeme
-    entityFactory.register(ProgramSequenceBindingMeme.class)
-      .createdBy(ProgramSequenceBindingMeme::getDefaultInstance)
-      .withAttribute("name")
-      .belongsTo(Program.class)
-      .belongsTo(ProgramSequenceBinding.class);
-
-    // ProgramSequenceChord
-    entityFactory.register(ProgramSequenceChord.class)
-      .createdBy(ProgramSequenceChord::getDefaultInstance)
-      .withAttribute("name")
-      .withAttribute("position")
-      .belongsTo(Program.class)
-      .belongsTo(ProgramSequence.class);
-
-    // ProgramSequenceChordVoicing
-    entityFactory.register(ProgramSequenceChordVoicing.class)
-      .createdBy(ProgramSequenceChordVoicing::getDefaultInstance)
-      .withAttribute("type")
-      .withAttribute("notes")
-      .belongsTo(Program.class)
-      .belongsTo(ProgramSequenceChord.class);
-
-    // ProgramSequencePattern
-    entityFactory.register(ProgramSequencePattern.class)
-      .createdBy(ProgramSequencePattern::getDefaultInstance)
-      .withAttribute("type")
-      .withAttribute("total")
-      .withAttribute("name")
-      .belongsTo(Program.class)
-      .belongsTo(ProgramSequence.class)
-      .belongsTo(ProgramVoice.class)
-      .hasMany(ProgramSequencePatternEvent.class);
-
-    // ProgramSequencePatternEvent
-    entityFactory.register(ProgramSequencePatternEvent.class)
-      .createdBy(ProgramSequencePatternEvent::getDefaultInstance)
-      .withAttribute("duration")
-      .withAttribute("note")
-      .withAttribute("position")
-      .withAttribute("velocity")
-      .belongsTo(Program.class)
-      .belongsTo(ProgramSequencePattern.class)
-      .belongsTo(ProgramVoiceTrack.class);
-
-    // ProgramVoice
-    entityFactory.register(ProgramVoice.class)
-      .createdBy(ProgramVoice::getDefaultInstance)
-      .withAttribute("type")
-      .withAttribute("name")
-      .withAttribute("order")
-      .belongsTo(Program.class)
-      .hasMany(ProgramSequencePattern.class);
-
-    // ProgramVoiceTrack
-    entityFactory.register(ProgramVoiceTrack.class)
-      .createdBy(ProgramVoiceTrack::getDefaultInstance)
-      .withAttribute("name")
-      .withAttribute("order")
-      .belongsTo(Program.class)
-      .belongsTo(ProgramVoice.class)
-      .hasMany(ProgramSequencePatternEvent.class);
-
-    // User
-    entityFactory.register(User.class)
-      .createdBy(User::getDefaultInstance)
-      .withAttribute("name")
-      .withAttribute("roles")
-      .withAttribute("email")
-      .withAttribute("avatarUrl")
-      .hasMany(UserAuth.class)
-      .hasMany(UserAuthToken.class);
-
-    // UserAuth
-    entityFactory.register(UserAuth.class)
-      .createdBy(UserAuth::getDefaultInstance)
-      .withAttribute("type")
-      .withAttribute("externalAccessToken")
-      .withAttribute("externalRefreshToken")
-      .withAttribute("externalAccount")
-      .belongsTo(User.class);
-
-    // UserAuthToken
-    entityFactory.register(UserAuthToken.class)
-      .createdBy(UserAuthToken::getDefaultInstance)
-      .withAttribute("accessToken")
-      .belongsTo(User.class)
-      .belongsTo(UserAuth.class);
-
-    // UserRole
-    entityFactory.register(UserRole.class)
-      .createdBy(UserRole::getDefaultInstance)
-      .withAttribute("type")
-      .belongsTo(User.class);
   }
 
   /**
