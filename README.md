@@ -1,3 +1,7 @@
+[![Integration](https://github.com/xjmusic/nexus/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/xjmusic/nexus/actions/workflows/main.yml)
+
+
+
 # XJ Music™ platform backend services
 
 *Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.*
