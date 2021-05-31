@@ -1,18 +1,97 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 plugins {
-  id 'jacoco'
   id 'java'
-  id 'maven'
-  id 'nu.studer.jooq' version '4.1'
-  id 'com.google.cloud.tools.jib' version '3.0.0' apply false
-  id "org.flywaydb.flyway" version "7.5.4"
+  id 'distribution'
+  id 'jacoco'
+  id 'application'
+  id 'com.google.cloud.tools.jib' version '3.0.0'
+}
+
+repositories {
+  mavenLocal()
+  maven {
+    url = 'https://repo.maven.apache.org/maven2'
+  }
+  maven {
+    url = 'https://packages.confluent.io/maven/'
+  }
+}
+
+dependencies {
+  //
+  implementation 'io.xj:protocol:v0.22'
+  // vendor
+  implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+  implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.119'
+  implementation group: 'com.datadoghq', name: 'dd-java-agent', version: '0.72.0'
+  implementation group: 'com.datadoghq', name: 'java-dogstatsd-client', version: '2.11.0'
+  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.10.1'
+  implementation group: 'com.fasterxml.jackson.jaxrs', name: 'jackson-jaxrs-json-provider', version: '2.10.2.1'
+  implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-guice', version: '2.10.3'
+  implementation group: 'com.github.axet', name: 'TarsosDSP', version: '2.4-1'
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.6.0'
+  implementation group: 'com.github.rholder', name: 'snowball-stemmer', version: '1.3.0.581.1'
+  implementation group: 'com.google.api-client', name: 'google-api-client', version: '1.30.9'
+  implementation group: 'com.google.apis', name: 'google-api-services-plus', version: 'v1-rev590-1.25.0'
+  implementation group: 'com.google.guava', name: 'guava', version: '28.2-jre'
+  implementation group: 'com.google.inject', name: 'guice', version: '5.0.1'
+  implementation group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '5.0.1'
+  implementation group: 'com.typesafe', name: 'config', version: '1.4.0'
+  implementation group: 'com.zaxxer', name: 'HikariCP', version: '3.4.1'
+  implementation group: 'commons-codec', name: 'commons-codec', version: '1.10'
+  implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+  implementation group: 'javax.activation', name: 'activation', version: '1.1'
+  implementation group: 'javax.cache', name: 'cache-api', version: '1.1.1'
+  implementation group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1.1'
+  implementation group: 'me.xdrop', name: 'fuzzywuzzy', version: '1.1.9'
+  implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '6.6'
+  implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.8'
+  implementation group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.4.26.v20200117'
+  implementation group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '9.4.26.v20200117'
+  implementation group: 'org.glassfish.jersey.containers', name: 'jersey-container-grizzly2-http', version: '2.33'
+  implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.33'
+  implementation group: 'org.glassfish.jersey.test-framework.providers', name: 'jersey-test-framework-provider-simple', version: '2.33'
+  implementation group: 'org.glassfish.jersey.core', name: 'jersey-server', version: '2.33'
+  implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.33'
+  implementation group: 'org.jooq', name: 'jooq', version: '3.12.3'
+  implementation group: 'org.jooq', name: 'jooq-codegen', version: '3.12.3'
+  implementation group: 'org.json', name: 'json', version: '20160810'
+  implementation group: 'org.reflections', name: 'reflections', version: '0.9.11'
+  implementation group: 'org.sheinbergon', name: 'jna-aac-encoder', version: '0.1.4'
+  implementation group: 'org.slf4j', name: 'log4j-over-slf4j', version: '1.7.13'
+  implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
+  implementation group: 'org.yaml', name: 'snakeyaml', version: '1.18'
+  testImplementation group: 'com.github.tomakehurst', name: 'wiremock-jre8', version: '2.26.3'
+  testImplementation group: 'junit', name: 'junit', version: '4.12'
+  testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.8.0'
+  testImplementation group: 'org.eclipse.jetty', name: 'jetty-client', version: '9.4.26.v20200117'
+  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '1.3'
+  testImplementation group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
+}
+
+jar {
+  manifest {
+    attributes 'Main-Class': 'io.xj.nexus.Main'
+  }
+}
+
+applicationDefaultJvmArgs = [
+  "-javaagent:/usr/local/dd-java-agent.jar",
+  "-Xmx8g"
+]
+
+application {
+  mainClassName = 'io.xj.nexus.Main'
 }
 
 group = 'io.xj'
-version = '1.0'
+description = 'nexus'
 
-description = 'XJ Music platform backend services'
+java {
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+}
 
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
@@ -24,36 +103,7 @@ jacocoTestReport {
   }
 }
 
-allprojects {
-  group = 'io.xj'
-}
-
-subprojects {
-  apply plugin: 'java'
-
-  repositories {
-    mavenLocal()
-    maven {
-      url = 'https://repo.maven.apache.org/maven2'
-    }
-    maven {
-      url = 'https://packages.confluent.io/maven/'
-    }
-  }
-
-  group = 'io.xj'
-  version = '1.0'
-
-  tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-  }
-
-  java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-  }
-
-}
+jib.to.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/nexus'
 
 
 // For access to private GitHub packages
@@ -61,25 +111,16 @@ def props = getGithubPropertiesFromFile('./github.properties')
 def githubUsername = getGithubUsername(props)
 def githubPassword = getGithubPassword(props)
 
-subprojects {
-  apply plugin: 'java'
-
-  repositories {
-    mavenCentral()
-    mavenLocal()
-    maven {
-      name = 'GitHubPackages'
-      url = 'https://maven.pkg.github.com/xjmusic/protocol'
-      credentials {
-        username = githubUsername
-        password = githubPassword
-      }
+repositories {
+  mavenCentral()
+  mavenLocal()
+  maven {
+    name = 'GitHubPackages'
+    url = 'https://maven.pkg.github.com/xjmusic/protocol'
+    credentials {
+      username = githubUsername
+      password = githubPassword
     }
-  }
-
-  java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
   }
 }
 

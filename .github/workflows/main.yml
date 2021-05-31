@@ -13,42 +13,11 @@ jobs:
     name: Gradle
     runs-on: ubuntu-latest
 
-    #
-    services:
-      #
-      redis:
-        # Docker Hub image
-        image: redis
-        # Set health checks to wait until redis has started
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
-      #
-      postgres:
-        # Docker Hub image
-        image: postgres
-        # Provide the password for postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
     steps:
 
       - name: Install system packages
         run: |
           sudo apt-get -y install libfdk-aac-dev
-          sudo apt-get -y install postgresql-client
           sudo apt-get -y install amazon-ecr-credential-helper
 
       - name: Configure AWS Credentials
@@ -67,13 +36,6 @@ jobs:
         with:
           java-version: 11
           java-package: jdk
-
-      - name: Create Postgres databases
-        run: |
-          createdb -h localhost -p 5432 -U postgres xj_dev
-          createdb -h localhost -p 5432 -U postgres xj_test
-        env:
-          PGPASSWORD: postgres
 
       - name: Checkout
         uses: actions/checkout@v2

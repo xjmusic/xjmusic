@@ -45,7 +45,7 @@ github.properties
 kafka.properties
 
 # Audio data
-nexus/data/
+data/
 
 # Bootstrap chains
 bootstrap-chains.json

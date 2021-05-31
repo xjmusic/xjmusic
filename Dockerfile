@@ -56,14 +56,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install tree
 # Install Telnet
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install telnet
 
-# Install Redis CLI
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install redis-tools
-
 # Install Network tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install net-tools
-
-# Install Postgres Client
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install postgresql-client
 
 # Install wget
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install wget
@@ -79,8 +73,6 @@ RUN wget -O /usr/local/dd-java-agent.jar https://dtdg.co/latest-java-tracer
 ###
 RUN mkdir -p /var/log/profiler && chmod a+w /var/log/profiler
 RUN mkdir -p /var/log/hub && chmod a+w /var/log/hub
-RUN mkdir -p /var/log/nexus && chmod a+w /var/log/nexus
-RUN mkdir -p /var/cache/nexus && chmod a+w /var/cache/nexus
 
 # App bootstrap
 ADD \

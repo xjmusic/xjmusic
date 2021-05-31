@@ -49,10 +49,6 @@ LabStreamingSegmentsArchitecture.pdf)
 ## Dependencies
   * Java 11
   * Gradle (6+ via SDKMAN!)
-  * Docker
-  * Docker-compose
-  * Postgres client tools (apt `postgresql-client-12`)
-  * Redis client tools (apt `redis-tools`)
   * FDK AAC native libraries (apt `libfdk-aac-dev`)
 
 
@@ -62,13 +58,7 @@ Each service has a unique port assignment:
 
 | Service       | Port          |
 | ------------- |---------------|
-| hub           | 3001          |
 | nexus         | 3002          |
-
-
-## Web UI
-
-https://github.com/xjmusic/web-ui
 
 
 ## Chain Work
@@ -81,27 +71,13 @@ in a Chain.
 
 We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development.
 
-First, you'll use `docker-compose` to bring up the Postgres and Redis databases:
-
-```bash
-docker-compose up -d postgres redis
-```
-
-There is a convenience script to reset the Postgres database to a proper known state right away. You'll need to have
-the `postgres-client` aka `psql` tool installed on your local machine for connecting to the database. Run:
-
-```bash
-bin/sql/reset/all_local
-``` 
-
 There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the 
 developer, to obtain keys and fill in the values of your own environment variables, in a new file called **env.conf** 
 which is never checked in to version control or released with the distribution. So, the use of environment variables is 
 federated across development and production deployments, while all actual configurations are kept outside the scope of 
 the code.
 
-Once your **env.conf** file is configured, it's time to bring up the `hub01xj1` server and its supporting resources such 
-as `postgres01xj1` and `redis01xj1`:
+Once your **env.conf** file is configured, it's time to bring up the server:
 
     docker-compose up -d
 
@@ -122,8 +98,6 @@ For a complete rebuild, including configurations and front-end, we could run:
 
     docker compose up -d --build
 
-The data on `postgres01xj1` and `redis01xj1` persists until those containers are explicitly destroyed.
-
 Tail the docker container logs for the `hub` app while it's running (/var/log in the container is mounted from local 
 volume ./log):
 
@@ -133,58 +107,10 @@ Or tail container logs for the `nexus` app:
 
     tail -f log/nexus/*
 
-You'll need to install the Postgresql client `psql` version 12, e.g. `postgresql-client-12` (ubuntu linux)
-
-After logging in via Google, there will be a user created for you. It will have an `id`, for example 21. To grant the 
-`admin` user role, you'll connect directly to the database on `postgres01xj1` using the port forwarding from local 
-port 5432 (to Docker Postgres container port 5432):
-
-    psql -h localhost -p 5432 -u postgres
-
-Even better than ^^^, there's a convenience script to easily connect to the Postgres database in the Docker container.
-
-    bin/sql/connect
-
-And inside psql shell, for example to impersonate user #1 (after being auto-logged-in as new user #21):
-
-    use xj;
-    update user_auth set user_id=1 where user_id=21;
-    
-There's a convenience script to instantly perform the above operation:
-
-    bin/sql/user_auth
-
 Only between major platform configuration changes, it may be necessary to force Docker to rebuild the container 
 using `--build`:
 
     docker-compose up -d --build    
-
-There is a Postgresql dump of a complete example database, for quickly bootstrapping a dev environment. These files 
-are located in `ops/sql/dump/*`:
-
-Load the example database into `postgres01xj1` using the port forwarding from local port 5432 (to Docker Postgres 
-container port 5432). There's a convenience script to do this:
-
-    bin/sql/reset/all_local
-
-The `/ops/sql/dump/*` files can be quickly updated from the current dev database with this script:
-
-    bin/sql/dump/all_local
-
-*note that the latest codebase may run migrations on top of that ^^^, and of course it had better pass checksum ;)*
-This means you can never change the contents of any of your hubMigration .sql files after production hubMigration is done.
-
-You may ask Gradle to migrate the Hub service's Postgres database at any time like this:
-
-    gradle :hub:flywayMigrate --info  
-
-It is NOT necessary to have any local Postgres server running. The build process will use your Docker `postgres01xj1`, 
-or more specifically (for cross-platform compatibility) it will use port 5432 which Docker maps to `postgres01xj1` 
-port 5432, for Maven to use during the build process.
-
-Connect to the Docker `postgres01xj1` server:
-
-    bin/sql/connect
 
 
 ## Additional commands
@@ -252,35 +178,11 @@ Compile & Package the Java server-side application, e.g. as JAR files:
     gradle clean assemble
 
 
-## Postgres database
-
-By default, you'll need to create two Postgres databases:
-
-  * `xj_dev` (for running services)
-  * `xj_test` (for build processes, and running integration tests)
-
-
-## Redis server
-
-The docker container `redis01xj1` exposes a Redis server on local port 6379.  There's a convenience script for connecting to it:
-
-    bin/redis_cli
-
-For more information on Redis and production, see [the README in the ops/redis/ folder](ops/redis/README.md).
-
-
 ## Integration testing
 
 Run all tests with Gradle
 
     gradle test
-
-Integration uses the Docker `postgres01xj1` and `redis01xj1` databases.
-
-
-## Database hubMigration
-
-Each service is responsible for migrating its private stores when it starts up.
 
 
 
@@ -326,8 +228,6 @@ Here are the public-facing Amazon CloudFront-backed URLs for audio files, and th
 
 ## Amazon S3
 
-The `/ops/sql/dump/*` files are generated from data in the production environment, and refer to audio files located in the dev S3 bucket (synced from the production S3 bucket), xj-dev-audio.
-
 Therefore, it is helpful to be able to sync the audio files from production into the dev environment.
 
      aws sync s3://xj-prod-audio/ s3://xj-dev-audio/
@@ -369,7 +269,7 @@ Requires this environment variable set in .env file:
 Contained in the [service](service/) folder.
 
 
-### hub
+### nexus
 
 Central structured data and business logic. Built with Java.
 
@@ -377,27 +277,8 @@ Depends on `lib` components
 
 Connects to:
 
-  * SQL Database
-  * Redis Database
-  * S3 Filesystem
-  
-  
-### chains
-
-Central structured data and business logic. Built with Java.
-
-Depends on `lib` components
-
-Connects to:
-
-  * Redis Database
   * S3 Filesystem
 
-Expects a `POST /heartbeat` every 60 seconds with a `key` in order to ensure platform-wide vitals.
-
-There's a convenience script to send cURL to Hub and trigger heartbeat in development:
-
-    bin/heartbeat
 
 
 ### pulse
@@ -425,33 +306,6 @@ See [Java SE 8: Creating a Basic REST Web Service using Grizzly, Jersey, and Mav
 [Latest User Guide](https://jersey.java.net/documentation/latest/user-guide.html)
 
 
-## Musical debugging
-
-This sql query confirms that all segments begin where the preceding one ended:
-
-```
-SELECT
-  A.offset "prev_offset",
-  B.offset "next_offset",
-  TIMESTAMPDIFF(SECOND, A.end_at, B.begin_at) "gap"
-  FROM segment A
-  JOIN segment B ON B.offset = A.offset+1; 
-```
-
-This sql query will reveal if any of the segment lengths are wildly off, given their relative lengths and totals:
-
-```
-SELECT
-  offset,
-  json_extract(content, '$.type') AS "type",
-  total,
-  tempo,
-  TIMESTAMPDIFF(SECOND, begin_at, end_at) AS "length_seconds",
-  TIMESTAMPDIFF(SECOND, begin_at, end_at)/total AS "time_per_beat"
-  FROM segment
-  WHERE chain_id=10; 
-```
-
 ## IntelliJ IDEA
 
 Here's the official XJ Music Inc copyright Velocity template:
@@ -476,7 +330,6 @@ Here's the official XJ Music Inc copyright Velocity template:
 On OSX, because we are unable to connect to the container from the host, we are using the following workarounds, which are built in to the cross-platform workflow:
 
   * Local port 80 (e.g. http://localhost) is mapped to Docker container `hub01xj1` port 80
-  * Local port 5432 is mapped to Postgres container `postgres01xj1` port 5432
 
 Docker documentation: https://docs.docker.com/docker-for-mac/networking/#per-container-ip-addressing-is-not-possible
 GitHub Open Issue: https://github.com/docker/for-mac/issues/155
