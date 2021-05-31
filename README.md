@@ -2,7 +2,7 @@
 
 
 
-# XJ Music™ platform backend services
+# Nexus
 
 *Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.*
 
