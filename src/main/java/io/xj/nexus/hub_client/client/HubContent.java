@@ -10,8 +10,6 @@ import com.google.common.collect.Ordering;
 import com.google.inject.Inject;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
-import io.xj.InstrumentAudioChord;
-import io.xj.InstrumentAudioEvent;
 import io.xj.InstrumentMeme;
 import io.xj.Program;
 import io.xj.ProgramMeme;

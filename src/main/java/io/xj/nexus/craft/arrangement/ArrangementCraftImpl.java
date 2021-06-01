@@ -475,6 +475,5 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     }
 
     return fabricator.getSourceMaterial().getInstrumentAudio(audioEvent.get().getInstrumentAudioId());
-
   }
 }

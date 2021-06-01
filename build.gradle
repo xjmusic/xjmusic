@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
   //
-  implementation 'io.xj:protocol:v0.22'
+  implementation 'io.xj:protocol:v0.25'
   // vendor
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
   implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.119'
