@@ -6,37 +6,7 @@ package io.xj.nexus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.xj.Account;
-import io.xj.AccountUser;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.InstrumentAudioChord;
-import io.xj.InstrumentAudioEvent;
-import io.xj.InstrumentMeme;
-import io.xj.Library;
-import io.xj.Program;
-import io.xj.ProgramMeme;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceBinding;
-import io.xj.ProgramSequenceBindingMeme;
-import io.xj.ProgramSequenceChord;
-import io.xj.ProgramSequenceChordVoicing;
-import io.xj.ProgramSequencePattern;
-import io.xj.ProgramSequencePatternEvent;
-import io.xj.ProgramVoice;
-import io.xj.ProgramVoiceTrack;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMeme;
-import io.xj.User;
-import io.xj.UserAuth;
-import io.xj.UserRole;
+import io.xj.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.CSV;
@@ -48,11 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  [#165954673] Integration tests use shared scenario fixtures as much as possible
@@ -78,11 +44,6 @@ public class NexusIntegrationTestingFixtures {
   public InstrumentAudio instrument8_audio8snare;
   public InstrumentAudio instrument8_audio8toot;
   public InstrumentAudio instrument9_audio8;
-  public InstrumentAudioEvent instrument8_audio8bleep_event0;
-  public InstrumentAudioEvent instrument8_audio8kick_event0;
-  public InstrumentAudioEvent instrument8_audio8snare_event0;
-  public InstrumentAudioEvent instrument8_audio8toot_event0;
-  public InstrumentAudioEvent instrument9_audio8_event0;
   public InstrumentMeme instrument8_meme0;
   public InstrumentMeme instrument9_meme0;
   public Library library1;
@@ -598,14 +559,10 @@ public class NexusIntegrationTestingFixtures {
     // Instrument "808"
     instrument8 = makeInstrument(library2, Instrument.Type.Percussive, Instrument.State.Published, "808 Drums");
     instrument8_meme0 = makeMeme(instrument8, "heavy");
-    instrument8_audio8kick = makeAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62);
-    instrument8_audio8kick_event0 = makeEvent(instrument8_audio8kick, 0, 1, "KICK", "Eb", 1.0);
-    instrument8_audio8snare = makeAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01, 1.5, 120.0, 0.62);
-    instrument8_audio8snare_event0 = makeEvent(instrument8_audio8snare, 0, 1, "SNARE", "Ab", 0.8);
-    instrument8_audio8bleep = makeAudio(instrument8, "Bleep", "17350afghjkjhaskjdfjhk9758981980.wav", 0.01, 1.5, 120.0, 0.62);
-    instrument8_audio8bleep_event0 = makeEvent(instrument8_audio8bleep, 0, 1, "BLEEP", "Ab", 0.8);
-    instrument8_audio8toot = makeAudio(instrument8, "Toot", "askjdfjhk975898198017350afghjkjh.wav", 0.01, 1.5, 120.0, 0.62);
-    instrument8_audio8toot_event0 = makeEvent(instrument8_audio8toot, 0, 1, "TOOT", "Ab", 0.8);
+    instrument8_audio8kick = makeAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62, "KICK", "Eb", 1.0);
+    instrument8_audio8snare = makeAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01, 1.5, 120.0, 0.62, "SNARE", "Ab", 0.8);
+    instrument8_audio8bleep = makeAudio(instrument8, "Bleep", "17350afghjkjhaskjdfjhk9758981980.wav", 0.01, 1.5, 120.0, 0.62, "BLEEP", "Ab", 0.8);
+    instrument8_audio8toot = makeAudio(instrument8, "Toot", "askjdfjhk975898198017350afghjkjh.wav", 0.01, 1.5, 120.0, 0.62, "TOOT", "Ab", 0.8);
 
     // return them all
     return ImmutableList.of(
@@ -652,13 +609,9 @@ public class NexusIntegrationTestingFixtures {
       instrument8,
       instrument8_meme0,
       instrument8_audio8kick,
-      instrument8_audio8kick_event0,
       instrument8_audio8snare,
-      instrument8_audio8snare_event0,
       instrument8_audio8bleep,
-      instrument8_audio8bleep_event0,
-      instrument8_audio8toot,
-      instrument8_audio8toot_event0
+      instrument8_audio8toot
     );
   }
 
@@ -704,8 +657,7 @@ public class NexusIntegrationTestingFixtures {
     // Instrument "Bass"
     instrument9 = makeInstrument(library2, Instrument.Type.Bass, Instrument.State.Published, "Bass");
     instrument9_meme0 = makeMeme(instrument9, "heavy");
-    instrument9_audio8 = makeAudio(instrument9, "bass", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62);
-    instrument9_audio8_event0 = makeEvent(instrument9_audio8, 0, 1, "BLOOP", "Eb", 1.0);
+    instrument9_audio8 = makeAudio(instrument9, "bass", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62, "BLOOP", "Eb", 1.0);
 
     // return them all
     return ImmutableList.of(
@@ -736,8 +688,7 @@ public class NexusIntegrationTestingFixtures {
       program10_sequence0_pattern3_event3,
       instrument9,
       instrument9_meme0,
-      instrument9_audio8,
-      instrument9_audio8_event0
+      instrument9_audio8
     );
   }
 
@@ -794,10 +745,8 @@ public class NexusIntegrationTestingFixtures {
         .setName(minorMemeName)
         .build());
       // audios of instrument
-      for (int k = 0; k < N; k++) {
-        var audio = add(entities, makeAudio(instrument, Text.toProper(percussiveNames[k]), String.format("%s.wav", Text.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62));
-        add(entities, makeEvent(audio, 0.0, 1.0, percussiveNames[k], "X", random(0.8, 1)));
-      }
+      for (int k = 0; k < N; k++)
+        add(entities, makeAudio(instrument, Text.toProper(percussiveNames[k]), String.format("%s.wav", Text.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62, percussiveNames[k], "X", random(0.8, 1)));
       //
       log.debug("Generated Percussive-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
     }
@@ -1034,52 +983,16 @@ public class NexusIntegrationTestingFixtures {
       .build();
   }
 
-  public static Collection<Object> makeInstrumentWithEvents(Instrument instrument, String notes) {
+  public static Collection<Object> makeInstrumentWithAudios(Instrument instrument, String notes) {
     List<Object> result = Lists.newArrayList(instrument);
     for (String note : CSV.split(notes)) {
-      var audio = makeAudio(instrument, String.format("%s-%s", instrument.getType().name(), note));
+      var audio = makeAudio(instrument, String.format("%s-%s", instrument.getType().name(), note), note);
       result.add(audio);
-      result.add(makeEvent(audio, note));
     }
     return result;
   }
 
-  public static InstrumentAudioEvent makeEvent(InstrumentAudio instrumentAudio, String note) {
-    return InstrumentAudioEvent.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setInstrumentId(instrumentAudio.getInstrumentId())
-      .setInstrumentAudioId(instrumentAudio.getId())
-      .setPosition(0)
-      .setDuration(1.0)
-      .setNote(note)
-      .setVelocity(1.0)
-      .build();
-  }
-
-  public static InstrumentAudioEvent makeEvent(InstrumentAudio instrumentAudio, double position, double duration, String name, String note, double velocity) {
-    return InstrumentAudioEvent.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setInstrumentId(instrumentAudio.getInstrumentId())
-      .setInstrumentAudioId(instrumentAudio.getId())
-      .setName(name)
-      .setPosition(position)
-      .setDuration(duration)
-      .setNote(note)
-      .setVelocity(velocity)
-      .build();
-  }
-
-  public static InstrumentAudioChord makeChord(InstrumentAudio instrumentAudio, double position, String name) {
-    return InstrumentAudioChord.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setInstrumentId(instrumentAudio.getInstrumentId())
-      .setInstrumentAudioId(instrumentAudio.getId())
-      .setName(name)
-      .setPosition(position)
-      .build();
-  }
-
-  public static InstrumentAudio makeAudio(Instrument instrument, String name, String waveformKey, double start, double length, double tempo, double density) {
+  public static InstrumentAudio makeAudio(Instrument instrument, String name, String waveformKey, double start, double length, double tempo, double density, String event, String note, double volume) {
     return InstrumentAudio.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setInstrumentId(instrument.getId())
@@ -1089,10 +1002,13 @@ public class NexusIntegrationTestingFixtures {
       .setLength(length)
       .setTempo(tempo)
       .setDensity(density)
+      .setVolume(volume)
+      .setNote(note)
+      .setEvent(event)
       .build();
   }
 
-  public static InstrumentAudio makeAudio(Instrument instrument, String name) {
+  public static InstrumentAudio makeAudio(Instrument instrument, String name, String note) {
     return InstrumentAudio.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setInstrumentId(instrument.getId())
@@ -1102,6 +1018,9 @@ public class NexusIntegrationTestingFixtures {
       .setLength(1.0)
       .setTempo(120)
       .setDensity(1.0)
+      .setVolume(1.0)
+      .setEvent("X")
+      .setNote(note)
       .build();
   }
 

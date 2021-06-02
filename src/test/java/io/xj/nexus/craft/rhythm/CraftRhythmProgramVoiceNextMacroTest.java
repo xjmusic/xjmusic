@@ -9,16 +9,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.Program;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentMeme;
+import io.xj.*;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
@@ -28,16 +19,14 @@ import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.testing.NexusTestConfiguration;
-import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.testing.NexusTestConfiguration;
+import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -47,11 +36,6 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeInstrument;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeAudio;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeEvent;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeMeme;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -59,22 +43,14 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftRhythmProgramVoiceNextMacroTest {
-  private Injector injector;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
   private NexusIntegrationTestingFixtures fake;
   private Chain chain1;
-  private Segment segment1;
-  private Segment segment2;
-  private Segment segment3;
   private Segment segment4;
   private NexusEntityStore store;
-  private Instrument instrument1;
   private InstrumentAudio audioKick;
   private InstrumentAudio audioSnare;
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
 
   @Mock
   public HubClient hubClient;
@@ -82,7 +58,7 @@ public class CraftRhythmProgramVoiceNextMacroTest {
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
-    injector = AppConfiguration.inject(config,
+    Injector injector = AppConfiguration.inject(config,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override
@@ -117,7 +93,7 @@ public class CraftRhythmProgramVoiceNextMacroTest {
       .setTargetId(fake.library2.getId())
       .setType(ChainBinding.Type.Library)
       .build());
-    segment1 = store.put(Segment.newBuilder()
+    store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(0)
@@ -131,7 +107,7 @@ public class CraftRhythmProgramVoiceNextMacroTest {
       .setStorageKey("chains-1-segments-9f7s89d8a7892")
       .setOutputEncoder("wav")
       .build());
-    segment2 = store.put(Segment.newBuilder()
+    store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(1)
@@ -155,14 +131,12 @@ public class CraftRhythmProgramVoiceNextMacroTest {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    instrument1 = Entities.add(entities, NexusIntegrationTestingFixtures.makeInstrument(fake.library2, Instrument.Type.Percussive, Instrument.State.Published, "808 Drums"));
+    Instrument instrument1 = Entities.add(entities, NexusIntegrationTestingFixtures.makeInstrument(fake.library2, Instrument.Type.Percussive, Instrument.State.Published, "808 Drums"));
     Entities.add(entities, NexusIntegrationTestingFixtures.makeMeme(instrument1, "heavy"));
     //
-    audioKick = Entities.add(entities, NexusIntegrationTestingFixtures.makeAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.6));
-    Entities.add(entities, NexusIntegrationTestingFixtures.makeEvent(audioKick, 0, 1, "KICK", "Eb", 1.0));
+    audioKick = Entities.add(entities, NexusIntegrationTestingFixtures.makeAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.6, "KICK", "Eb", 1.0));
     //
-    audioSnare = Entities.add(entities, NexusIntegrationTestingFixtures.makeAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01, 1.5, 120.0, 0.6));
-    Entities.add(entities, NexusIntegrationTestingFixtures.makeEvent(audioSnare, 1, 1, "SNARE", "Ab", 1.0));
+    audioSnare = Entities.add(entities, NexusIntegrationTestingFixtures.makeAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01, 1.5, 120.0, 0.6, "SNARE", "Ab", 1.0));
 
     return entities;
   }
@@ -210,7 +184,7 @@ public class CraftRhythmProgramVoiceNextMacroTest {
    */
   private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws NexusException {
     // Chain "Test Print #1" has this segment that was just crafted
-    segment3 = store.put(Segment.newBuilder()
+    Segment segment3 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(2L)
@@ -230,7 +204,7 @@ public class CraftRhythmProgramVoiceNextMacroTest {
       .setProgramId(fake.program4_sequence2_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence2_binding0.getId())
       .setProgramType(Program.Type.Macro)
-            .build());
+      .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment3.getId())
@@ -238,14 +212,14 @@ public class CraftRhythmProgramVoiceNextMacroTest {
       .setProgramId(fake.program5_sequence1_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
       .setProgramType(Program.Type.Main)
-            .build());
+      .build());
     if (!excludeRhythmChoiceForSegment3)
       store.put(SegmentChoice.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(segment3.getId())
         .setProgramId(fake.program35.getId())
         .setProgramType(Program.Type.Rhythm)
-                .build());
+        .build());
 
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store.put(Segment.newBuilder()
@@ -268,7 +242,7 @@ public class CraftRhythmProgramVoiceNextMacroTest {
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-            .build());
+      .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment4.getId())
@@ -276,7 +250,7 @@ public class CraftRhythmProgramVoiceNextMacroTest {
       .setProgramId(fake.program15_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program15_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
-            .build());
+      .build());
     for (String memeName : ImmutableList.of("Hindsight", "Chunky", "Regret", "Tangy")) {
       store.put(SegmentMeme.newBuilder()
         .setId(UUID.randomUUID().toString())

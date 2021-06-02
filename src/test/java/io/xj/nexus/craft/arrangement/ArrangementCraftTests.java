@@ -204,7 +204,7 @@ public class ArrangementCraftTests extends YamlTest {
       getBool(obj, "isMultiphonic"));
     instruments.put(type, instrument);
 
-    content.addAll(NexusIntegrationTestingFixtures.makeInstrumentWithEvents(
+    content.addAll(NexusIntegrationTestingFixtures.makeInstrumentWithAudios(
       instrument,
       getStr(obj, "notes")));
   }

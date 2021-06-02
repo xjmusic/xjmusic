@@ -4,16 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import datadog.trace.api.Trace;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.InstrumentAudioEvent;
-import io.xj.ProgramSequencePattern;
-import io.xj.ProgramSequencePatternEvent;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
+import io.xj.*;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
@@ -26,11 +17,7 @@ import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.NameIsometry;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -416,12 +403,12 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     audioEntityScorePicker.addAll(fabricator.getSourceMaterial().getAudios(instrument));
 
     // score each audio against the current voice event, with some variability
-    for (InstrumentAudioEvent audioEvent : fabricator.getSourceMaterial().getAudios(instrument))
+    for (InstrumentAudio audio : fabricator.getSourceMaterial().getAudios(instrument))
       switch (instrument.getType()) {
 
         case Percussive:
-          audioEntityScorePicker.score(audioEvent.getInstrumentAudioId(),
-            NameIsometry.similarity(fabricator.getTrackName(event), audioEvent.getName()));
+          audioEntityScorePicker.score(audio.getId(),
+            NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
           break;
 
         case Bass:
@@ -430,8 +417,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         case Stripe:
         case Stab:
         default:
-          audioEntityScorePicker.score(audioEvent.getInstrumentAudioId(),
-            Note.of(audioEvent.getNote()).sameAs(Note.of(event.getNote())) ? 100.0 : 0.0);
+          audioEntityScorePicker.score(audio.getId(),
+            Note.of(audio.getNote()).sameAs(Note.of(event.getNote())) ? 100.0 : 0.0);
           break;
       }
 
@@ -453,27 +440,28 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   private Optional<InstrumentAudio> selectNewMultiphonicInstrumentAudio(
     Instrument instrument,
     String note
-  ) throws NexusException {
-    var audioEvent = fabricator.getFirstEventsOfAudiosOfInstrument(instrument)
+  ) {
+    var instrumentAudios = fabricator.getSourceMaterial().getAudios(instrument);
+    var audio = instrumentAudios
       .stream()
-      .filter(instrumentAudioEvent -> Note.of(instrumentAudioEvent.getNote()).sameAs(Note.of(note)))
+      .filter(A -> Note.of(A.getNote()).sameAs(Note.of(note)))
       .findAny();
 
-    if (audioEvent.isEmpty()) {
+    if (audio.isEmpty()) {
       reportMissing(ImmutableMap.of(
         "instrumentId", instrument.getId(),
         "searchForNote", note,
-        "availableNotes", CSV.from(fabricator.getFirstEventsOfAudiosOfInstrument(instrument)
+        "availableNotes", CSV.from(instrumentAudios
           .stream()
-          .map(InstrumentAudioEvent::getNote)
+          .map(InstrumentAudio::getNote)
           .map(Note::of)
           .sorted(Note::compareTo)
-          .map(n -> n.toString(AdjSymbol.Sharp))
+          .map(N -> N.toString(AdjSymbol.Sharp))
           .collect(Collectors.toList()))
       ));
       return Optional.empty();
     }
 
-    return fabricator.getSourceMaterial().getInstrumentAudio(audioEvent.get().getInstrumentAudioId());
+    return fabricator.getSourceMaterial().getInstrumentAudio(audio.get().getId());
   }
 }

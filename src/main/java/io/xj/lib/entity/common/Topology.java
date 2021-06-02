@@ -1,39 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.entity.common;
 
-import io.xj.Account;
-import io.xj.AccountUser;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.InstrumentAudioChord;
-import io.xj.InstrumentAudioEvent;
-import io.xj.InstrumentMeme;
-import io.xj.Library;
-import io.xj.Program;
-import io.xj.ProgramMeme;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceBinding;
-import io.xj.ProgramSequenceBindingMeme;
-import io.xj.ProgramSequenceChord;
-import io.xj.ProgramSequenceChordVoicing;
-import io.xj.ProgramSequencePattern;
-import io.xj.ProgramSequencePatternEvent;
-import io.xj.ProgramVoice;
-import io.xj.ProgramVoiceTrack;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMeme;
-import io.xj.SegmentMessage;
 import io.xj.User;
-import io.xj.UserAuth;
-import io.xj.UserAuthToken;
-import io.xj.UserRole;
+import io.xj.*;
 import io.xj.lib.entity.EntityFactory;
 
 /**
@@ -85,28 +54,10 @@ public enum Topology {
       .withAttribute("length")
       .withAttribute("tempo")
       .withAttribute("density")
-      .belongsTo(Instrument.class)
-      .hasMany(InstrumentAudioChord.class)
-      .hasMany(InstrumentAudioEvent.class);
-
-    // InstrumentAudioChord
-    entityFactory.register(InstrumentAudioChord.class)
-      .createdBy(InstrumentAudioChord::getDefaultInstance)
-      .withAttribute("name")
-      .withAttribute("position")
-      .belongsTo(Instrument.class)
-      .belongsTo(InstrumentAudio.class);
-
-    // InstrumentAudioEvent
-    entityFactory.register(InstrumentAudioEvent.class)
-      .createdBy(InstrumentAudioEvent::getDefaultInstance)
-      .withAttribute("duration")
+      .withAttribute("volume")
+      .withAttribute("event")
       .withAttribute("note")
-      .withAttribute("position")
-      .withAttribute("velocity")
-      .withAttribute("name")
-      .belongsTo(Instrument.class)
-      .belongsTo(InstrumentAudio.class);
+      .belongsTo(Instrument.class);
 
     // InstrumentMeme
     entityFactory.register(InstrumentMeme.class)

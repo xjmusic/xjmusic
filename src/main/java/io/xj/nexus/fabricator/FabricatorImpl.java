@@ -10,45 +10,21 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.InstrumentAudioEvent;
-import io.xj.Program;
-import io.xj.ProgramMeme;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceBinding;
-import io.xj.ProgramSequenceBindingMeme;
-import io.xj.ProgramSequenceChordVoicing;
-import io.xj.ProgramSequencePattern;
-import io.xj.ProgramSequencePatternEvent;
-import io.xj.ProgramVoice;
-import io.xj.ProgramVoiceTrack;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMeme;
-import io.xj.SegmentMessage;
+import io.xj.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStoreException;
+import io.xj.lib.entity.common.InstrumentConfig;
+import io.xj.lib.entity.common.ProgramConfig;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
-import io.xj.lib.music.AdjSymbol;
-import io.xj.lib.music.Chord;
-import io.xj.lib.music.Key;
-import io.xj.lib.music.Note;
-import io.xj.lib.music.NoteRange;
-import io.xj.lib.music.PitchClass;
+import io.xj.lib.music.*;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.ChainBindingDAO;
 import io.xj.nexus.dao.ChainConfig;
 import io.xj.nexus.dao.ChainDAO;
@@ -61,9 +37,6 @@ import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubClientException;
 import io.xj.nexus.hub_client.client.HubContent;
-import io.xj.lib.entity.common.InstrumentConfig;
-import io.xj.lib.entity.common.ProgramConfig;
-import io.xj.nexus.NexusException;
 import org.glassfish.jersey.internal.guava.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,15 +44,7 @@ import org.slf4j.LoggerFactory;
 import javax.sound.sampled.AudioFormat;
 import java.text.DecimalFormat;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.xj.Instrument.Type.UNRECOGNIZED;
@@ -118,7 +83,6 @@ class FabricatorImpl implements Fabricator {
   private Map<String, InstrumentAudio> previousInstrumentAudio;
   private final Map<String, Optional<SegmentChordVoicing>> voicingForSegmentChordInstrumentType = Maps.newHashMap();
   private final Map<Instrument.Type, NoteRange> voicingNoteRange = Maps.newHashMap();
-  private final Map<String, Collection<InstrumentAudioEvent>> firstEventsOfAudiosOfInstrument = Maps.newHashMap();
   private final PayloadFactory payloadFactory;
   private final Map<String, NoteRange> rangeForChoice = Maps.newHashMap();
   private final Map<String, Integer> rangeShiftOctave = Maps.newHashMap();
@@ -1037,15 +1001,6 @@ class FabricatorImpl implements Fabricator {
     }
 
     return rangeForChoice.get(key);
-  }
-
-  @Override
-  public Collection<InstrumentAudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) {
-    if (!firstEventsOfAudiosOfInstrument.containsKey(instrument.getId()))
-      firstEventsOfAudiosOfInstrument.put(instrument.getId(),
-        getSourceMaterial().getFirstEventsOfAudiosOfInstrument(instrument));
-
-    return firstEventsOfAudiosOfInstrument.get(instrument.getId());
   }
 
   @Override

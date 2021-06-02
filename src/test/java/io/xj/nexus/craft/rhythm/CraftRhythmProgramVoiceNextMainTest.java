@@ -9,18 +9,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.InstrumentAudioEvent;
-import io.xj.InstrumentMeme;
-import io.xj.Program;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentMeme;
+import io.xj.*;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
@@ -30,12 +19,12 @@ import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.testing.NexusTestConfiguration;
-import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.testing.NexusTestConfiguration;
+import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -175,16 +164,9 @@ public class CraftRhythmProgramVoiceNextMainTest {
       .setLength(2.123)
       .setTempo(120.0)
       .setDensity(0.6)
-      .build());
-    Entities.add(entities, InstrumentAudioEvent.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setInstrumentAudioId(audioKick.getId())
-      .setInstrumentId(audioKick.getInstrumentId())
-      .setPosition(0)
-      .setDuration(1)
-      .setName("KICK")
+      .setEvent("KICK")
       .setNote("Eb")
-      .setVelocity(1.0)
+      .setVolume(1.0)
       .build());
     //
     audioSnare = Entities.add(entities, InstrumentAudio.newBuilder()
@@ -196,16 +178,9 @@ public class CraftRhythmProgramVoiceNextMainTest {
       .setLength(1.5)
       .setTempo(120.0)
       .setDensity(0.6)
-      .build());
-    Entities.add(entities, InstrumentAudioEvent.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setInstrumentAudioId(audioSnare.getId())
-      .setInstrumentId(audioSnare.getInstrumentId())
-      .setPosition(1)
-      .setDuration(1)
-      .setName("SNARE")
+      .setEvent("SNARE")
       .setNote("Ab")
-      .setVelocity(1.0)
+      .setVolume(1.0)
       .build());
 
     return entities;
