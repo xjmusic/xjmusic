@@ -76,7 +76,7 @@ RUN mkdir -p /var/log/hub && chmod a+w /var/log/hub
 
 # App bootstrap
 ADD \
-  ops/docker/bin/boot-docker \
+  bin/boot-docker \
   /data/bin/boot-docker
 
 # Docker bootstrap
