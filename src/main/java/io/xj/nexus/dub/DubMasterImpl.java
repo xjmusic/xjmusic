@@ -15,8 +15,8 @@ import io.xj.lib.mixer.MixerConfig;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.util.Text;
-import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.fabricator.Fabricator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -159,7 +159,7 @@ public class DubMasterImpl implements DubMaster {
         fabricator.getChainConfig().getMixerSampleReleaseMicros(),
       fabricator.getChainConfig().getMixerSampleAttackMicros(),
       fabricator.getChainConfig().getMixerSampleReleaseMicros(),
-      pick.getAmplitude() * fabricator.getAmplitudeForInstrumentType(pick),
+      pick.getAmplitude() * fabricator.getAudioVolume(pick) * fabricator.getAmplitudeForInstrumentType(pick),
       0);
   }
 

@@ -790,4 +790,12 @@ public interface Fabricator {
    @return computed target shift
    */
   int computeTargetShift(Key fromKey, Chord toChord);
+
+  /**
+   The the audio volume for a given pick
+
+   @param pick for which to get audio volume
+   @return audio volume of pick
+   */
+  double getAudioVolume(SegmentChoiceArrangementPick pick);
 }

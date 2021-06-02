@@ -1085,6 +1085,14 @@ class FabricatorImpl implements Fabricator {
     return targetShift.get(key);
   }
 
+  @Override
+  public double getAudioVolume(SegmentChoiceArrangementPick pick) {
+    return getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
+      .stream().map(InstrumentAudio::getVolume)
+      .findAny()
+      .orElse(1.0);
+  }
+
   /**
    Compute the lowest optimal range shift octaves
 
