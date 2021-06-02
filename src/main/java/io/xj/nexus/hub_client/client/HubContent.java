@@ -72,16 +72,6 @@ public class HubContent {
   }
 
   /**
-   get cached InstrumentAudioChord by id
-
-   @param id of InstrumentAudioChord to get
-   @return InstrumentAudioChord
-   */
-  public Optional<InstrumentAudioChord> getInstrumentAudioChord(String id) {
-    return get(InstrumentAudioChord.class, id);
-  }
-
-  /**
    get cached InstrumentAudio by id
 
    @param id of InstrumentAudio to get
@@ -89,16 +79,6 @@ public class HubContent {
    */
   public Optional<InstrumentAudio> getInstrumentAudio(String id) {
     return get(InstrumentAudio.class, id);
-  }
-
-  /**
-   get cached InstrumentAudioEvent by id
-
-   @param id of InstrumentAudioEvent to get
-   @return InstrumentAudioEvent
-   */
-  public Optional<InstrumentAudioEvent> getInstrumentAudioEvent(String id) {
-    return get(InstrumentAudioEvent.class, id);
   }
 
   /**
@@ -237,24 +217,6 @@ public class HubContent {
    */
   public Collection<InstrumentAudio> getAllInstrumentAudios() {
     return getAll(InstrumentAudio.class);
-  }
-
-  /**
-   get all cached InstrumentAudioChords
-
-   @return cached InstrumentAudioChords
-   */
-  public Collection<InstrumentAudioChord> getAllInstrumentAudioChords() {
-    return getAll(InstrumentAudioChord.class);
-  }
-
-  /**
-   get all cached InstrumentAudioEvents
-
-   @return cached InstrumentAudioEvents
-   */
-  public Collection<InstrumentAudioEvent> getAllInstrumentAudioEvents() {
-    return getAll(InstrumentAudioEvent.class);
   }
 
   /**
@@ -482,30 +444,6 @@ public class HubContent {
   }
 
   /**
-   Get all AudioEvents for a given Audio
-
-   @param audio to get events for
-   @return events of audio
-   */
-  public Collection<InstrumentAudioEvent> getEvents(InstrumentAudio audio) {
-    return getAllInstrumentAudioEvents().stream()
-      .filter(e -> e.getInstrumentAudioId().equals(audio.getId()))
-      .collect(Collectors.toList());
-  }
-
-  /**
-   Get all AudioChords for a given Audio
-
-   @param audio to get chords for
-   @return chords of audio
-   */
-  public Collection<InstrumentAudioChord> getChords(InstrumentAudio audio) {
-    return getAllInstrumentAudioChords().stream()
-      .filter(e -> e.getInstrumentAudioId().equals(audio.getId()))
-      .collect(Collectors.toList());
-  }
-
-  /**
    Get all ProgramSequenceChords for a given Sequence
 
    @param sequence to get chords for
@@ -573,22 +511,6 @@ public class HubContent {
    */
   public Optional<ProgramSequence> getProgramSequence(ProgramSequenceBinding sequenceBinding) {
     return getProgramSequence(sequenceBinding.getProgramSequenceId());
-  }
-
-  /**
-   Read all AudioEvent that are first in an audio, for all audio in an Instrument
-
-   @param instrument to get audio for
-   @return audio events
-   */
-  public Collection<InstrumentAudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) {
-    return getAudios(instrument)
-      .stream()
-      .flatMap(instrumentAudio -> getEvents(instrumentAudio).stream()
-        .filter(search -> search.getInstrumentAudioId().equals(instrumentAudio.getId()))
-        .min(Comparator.comparing(InstrumentAudioEvent::getPosition))
-        .stream())
-      .collect(Collectors.toList());
   }
 
   /**

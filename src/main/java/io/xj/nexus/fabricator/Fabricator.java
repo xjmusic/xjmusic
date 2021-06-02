@@ -5,7 +5,6 @@ import com.google.protobuf.MessageLite;
 import io.xj.Chain;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
-import io.xj.InstrumentAudioEvent;
 import io.xj.Program;
 import io.xj.ProgramSequence;
 import io.xj.ProgramSequenceBinding;
@@ -747,14 +746,6 @@ public interface Fabricator {
    @return Note range of arrangement
    */
   NoteRange computeProgramRange(String programId, Instrument.Type instrumentType) throws NexusException;
-
-  /**
-   Get the first event of each audio in the instrument
-
-   @param instrument to get first audio events of
-   @return first event of each audio from the instrument
-   */
-  Collection<InstrumentAudioEvent> getFirstEventsOfAudiosOfInstrument(Instrument instrument) throws NexusException;
 
   /**
    Whether this type of segment continues the same macro-program from the previous segment

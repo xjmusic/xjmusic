@@ -416,7 +416,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     audioEntityScorePicker.addAll(fabricator.getSourceMaterial().getAudios(instrument));
 
     // score each audio against the current voice event, with some variability
-    for (InstrumentAudioEvent audioEvent : fabricator.getSourceMaterial().getFirstEventsOfAudiosOfInstrument(instrument))
+    for (InstrumentAudioEvent audioEvent : fabricator.getSourceMaterial().getAudios(instrument))
       switch (instrument.getType()) {
 
         case Percussive:
