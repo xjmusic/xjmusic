@@ -72,7 +72,7 @@ RUN wget -O /usr/local/dd-java-agent.jar https://dtdg.co/latest-java-tracer
 ### App-specific content follows
 ###
 RUN mkdir -p /var/log/profiler && chmod a+w /var/log/profiler
-RUN mkdir -p /var/log/hub && chmod a+w /var/log/hub
+RUN mkdir -p /var/log/nexus && chmod a+w /var/log/nexus
 
 # App bootstrap
 ADD \

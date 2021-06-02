@@ -102,12 +102,8 @@ For a complete rebuild, including configurations and front-end, we could run:
 
     docker compose up -d --build
 
-Tail the docker container logs for the `hub` app while it's running (/var/log in the container is mounted from local 
+Tail the docker container logs for the `nexus` app while it's running (/var/log in the container is mounted from local 
 volume ./log):
-
-    tail -f log/hub/*
-
-Or tail container logs for the `nexus` app:
 
     tail -f log/nexus/*
 
