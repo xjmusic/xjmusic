@@ -87,6 +87,7 @@ application {
 
 group = 'io.xj'
 description = 'nexus'
+version = '1.0'
 
 java {
   sourceCompatibility = JavaVersion.VERSION_11

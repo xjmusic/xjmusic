@@ -11,7 +11,7 @@ services:
     volumes:
       - .:/var/app/current
       - ./log:/var/log
-      - ./nexus/build/distributions/nexus-1.0.tar:/var/app/nexus-1.0.tar
+      - ./build/distributions/nexus-1.0.tar:/var/app/nexus-1.0.tar
     environment:
       APP_NAME: nexus
       APP_VERSION: 1.0
