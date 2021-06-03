@@ -59,7 +59,7 @@ import java.util.stream.Stream;
  - Add shutdown hook that calls application stop()
  */
 public class NexusApp extends App {
-  private final org.slf4j.Logger log = LoggerFactory.getLogger(NexusApp.class);
+  private final org.slf4j.Logger LOG = LoggerFactory.getLogger(NexusApp.class);
   private final NexusWork work;
   private final String platformRelease;
 
@@ -81,7 +81,7 @@ public class NexusApp extends App {
     platformRelease = env.getEnvironment();
 
     // non-static logger for this class, because app must init first
-    log.info("{} configuration:\n{}", getName(), Text.toReport(config));
+    LOG.info("{} configuration:\n{}", getName(), Text.toReport(config));
 
     // core delegates
     work = injector.getInstance(NexusWork.class);
@@ -108,22 +108,25 @@ public class NexusApp extends App {
 
     //[#176374643] Chains bootstrapped by Nexus are delayed by N seconds
     if (0 < env.getChainBootstrapJsonPath().length()) {
+      LOG.info("Will bootstrap chain from {}", env.getChainBootstrapJsonPath());
       int bootstrapDelaySeconds = config.getInt("nexus.bootstrapDelaySeconds");
       ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
       executorService.schedule(() ->
         bootstrapFromPath(env.getChainBootstrapJsonPath(), payloadFactory, entityFactory, chainDAO, access), bootstrapDelaySeconds, TimeUnit.SECONDS);
+    } else {
+      LOG.info("No Chain Bootstrap specified! {}", env.getChainBootstrapJsonPath());
     }
   }
 
-  private void bootstrapFromPath(String bootstrapJson, PayloadFactory payloadFactory, EntityFactory entityFactory, ChainDAO chainDAO, HubClientAccess access) {
+  private void bootstrapFromPath(String bootstrapJsonFilename, PayloadFactory payloadFactory, EntityFactory entityFactory, ChainDAO chainDAO, HubClientAccess access) {
     try {
-      bootstrapFromPayload(payloadFactory.deserialize(new BufferedReader(new FileReader(bootstrapJson))), payloadFactory, entityFactory, chainDAO, access);
+      bootstrapFromPayload(payloadFactory.deserialize(new BufferedReader(new FileReader(bootstrapJsonFilename))), payloadFactory, entityFactory, chainDAO, access);
 
     } catch (FileNotFoundException e) {
-      log.info("No Chain bootstrap JSON file found.");
+      LOG.info("Specified chain bootstrap JSON file {} not found", bootstrapJsonFilename, e);
 
     } catch (JsonApiException e) {
-      log.warn("Failed to read Chain bootstrap JSON file!", e);
+      LOG.warn("Failed to read specified chain bootstrap JSON file {}", bootstrapJsonFilename, e);
     }
   }
 
@@ -134,7 +137,7 @@ public class NexusApp extends App {
         try {
           return Stream.of(payloadFactory.consume(entityFactory.getInstance(Chain.class), entity));
         } catch (JsonApiException | EntityException e) {
-          log.error("Failed to bootstrap Chain!", e);
+          LOG.error("Failed to bootstrap Chain!", e);
           return Stream.empty();
         }
       })
@@ -147,13 +150,13 @@ public class NexusApp extends App {
                 try {
                   return Stream.of(payloadFactory.consume(entityFactory.getInstance(ChainBinding.class), entity));
                 } catch (JsonApiException | EntityException e) {
-                  log.error("Failed to bootstrap Chain!", e);
+                  LOG.error("Failed to bootstrap Chain!", e);
                   return Stream.empty();
                 }
               })
               .collect(Collectors.toList()));
         } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
-          log.error("Failed to add binding to bootstrap Chain!", e);
+          LOG.error("Failed to add binding to bootstrap Chain!", e);
         }
       });
   }
@@ -163,11 +166,11 @@ public class NexusApp extends App {
    exposing JAX-RS resources defined in this app.
    */
   public void start() throws AppException {
-    log.debug("{} will start work management before resource servers", getName());
+    LOG.debug("{} will start work management before resource servers", getName());
     work.start();
     //
     super.start();
-    log.info("{} ({}) is up at {}}", getName(), platformRelease, getBaseURI());
+    LOG.info("{} ({}) is up at {}}", getName(), platformRelease, getBaseURI());
   }
 
   /**
@@ -184,11 +187,11 @@ public class NexusApp extends App {
    stop App Server
    */
   public void finish() {
-    log.debug("{} will stop worker pool before resource servers", getName());
+    LOG.debug("{} will stop worker pool before resource servers", getName());
     work.finish();
     //
     super.finish();
-    log.info("{} ({}}) did exit OK at {}", getName(), platformRelease, getBaseURI());
+    LOG.info("{} ({}}) did exit OK at {}", getName(), platformRelease, getBaseURI());
   }
 
   /**

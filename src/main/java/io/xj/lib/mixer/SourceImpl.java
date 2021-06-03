@@ -14,7 +14,7 @@ import java.io.BufferedInputStream;
  Source stores a series of Samples in Channels across Time, for audio playback.
  */
 class SourceImpl implements Source {
-  private static final Logger log = LoggerFactory.getLogger(SourceImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SourceImpl.class);
   private static final float microsInASecond = 1000000;
 
   private final float frameRate;
@@ -46,7 +46,7 @@ class SourceImpl implements Source {
     inputLengthMicros = (long) (microsInASecond * stream.getActualFrames() / frameRate);
 
     state = READY;
-    log.debug("Did load source {}", sourceId);
+    LOG.debug("Did load source {}", sourceId);
   }
 
   /**

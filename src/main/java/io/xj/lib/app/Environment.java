@@ -2,6 +2,9 @@ package io.xj.lib.app;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.xj.lib.util.CSV;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -10,6 +13,7 @@ import java.util.Map;
  */
 @Singleton
 public class Environment {
+  private static final Logger LOG = LoggerFactory.getLogger(Environment.class);
   private static final String EMPTY = "";
   private final String appBaseURL;
   private final String audioBaseURL;
@@ -38,6 +42,7 @@ public class Environment {
   @Inject
   public Environment() {
     Map<String, String> env = System.getenv();
+    LOG.info("Received values for {} keys: {}", env.size(), CSV.join(env.keySet()));
     accessLogFilename = getStr(env, "ACCESS_LOG_FILENAME", "/tmp/access.log");
     appBaseURL = getStr(env, "APP_BASE_URL", "http://localhost/");
     audioBaseURL = getStr(env, "AUDIO_BASE_URL", "https://audio.dev.xj.io/");

@@ -12,12 +12,7 @@ services:
       - .:/var/app/current
       - ./log:/var/log
       - ./build/distributions/nexus-1.0.tar:/var/app/nexus-1.0.tar
-    environment:
-      APP_NAME: nexus
-      APP_VERSION: 1.0
-      DD_AGENT_HOST: localhost
-      DD_TRACE_AGENT_PORT: 8126
-      DD_SERVICE: nexus
-      DD_ENV: ${ENVIRONMENT}
     container_name: nexus01xj1
     restart: always
+    env_file:
+      - .env
