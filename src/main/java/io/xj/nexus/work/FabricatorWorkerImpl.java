@@ -190,11 +190,12 @@ public class FabricatorWorkerImpl extends WorkerImpl implements FabricatorWorker
         chainType(),
         chainId()));
 
-    log.error("Failed while {} for Segment[{}] of Chain[{}] ({})",
+    log.error("Failed while {} for Segment[{}] of Chain[{}] ({}) because {}",
       message,
       segmentId,
       chainId(),
-      chainType());
+      chainType(),
+      e.getMessage());
   }
 
   /**
