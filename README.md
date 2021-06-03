@@ -75,13 +75,13 @@ in a Chain.
 
 We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development.
 
-There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the 
-developer, to obtain keys and fill in the values of your own environment variables, in a new file called **env.conf** 
+There is an example configuration called **.env.example** in the root of the project. It is up to you, the 
+developer, to obtain keys and fill in the values of your own environment variables, in a new file called **.env** 
 which is never checked in to version control or released with the distribution. So, the use of environment variables is 
 federated across development and production deployments, while all actual configurations are kept outside the scope of 
 the code.
 
-Once your **env.conf** file is configured, it's time to bring up the server:
+Once your **.env** file is configured, it's time to bring up the server:
 
     docker-compose up -d
 
@@ -123,9 +123,9 @@ To only setup the workflow and check dependencies:
 ## App Configuration
 
 There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the 
-developer, to obtain keys and fill in the values of your own environment variables, in a new file called **env.conf** 
+developer, to obtain keys and fill in the values of your own environment variables, in a new file called **.env** 
 which is never checked in to version control or released with the distribution.  Developers modify their local 
-**env.conf** file with private keys and ceonfiguration. The **env.conf** file is never committed to the repository, 
+**.env** file with private keys and ceonfiguration. The **.env** file is never committed to the repository, 
 because it contains secrets. The **env.example.conf** file is kept up-to-date with all environment variables required 
 for the developer to configure.
 
