@@ -123,7 +123,7 @@ public class NexusApp extends App {
       bootstrapFromPayload(payloadFactory.deserialize(new BufferedReader(new FileReader(bootstrapJsonFilename))), payloadFactory, entityFactory, chainDAO, access);
 
     } catch (FileNotFoundException e) {
-      LOG.info("Specified chain bootstrap JSON file {} not found", bootstrapJsonFilename, e);
+      LOG.info("Failed to locate chain bootstrap JSON file: {}", e.getMessage());
 
     } catch (JsonApiException e) {
       LOG.warn("Failed to read specified chain bootstrap JSON file {}", bootstrapJsonFilename, e);
