@@ -3,7 +3,7 @@ package io.xj.nexus.dub;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.typesafe.config.Config;
+import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.nexus.NexusException;
@@ -12,12 +12,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Objects;
 
 /**
@@ -37,21 +32,21 @@ public class DubAudioCacheItem {
   private final byte[] bytes;
 
   /**
-   @param config            from app
+   @param env               from environment
    @param fileStoreProvider from which to load files
    @param key               ot this item
    @param path              to this item's waveform data on disk
    */
   @Inject
   public DubAudioCacheItem(
-    Config config,
+    Environment env,
     FileStoreProvider fileStoreProvider,
     @Assisted("key") String key,
     @Assisted("path") String path
   ) throws FileStoreException, IOException, NexusException {
     this.key = key;
     this.path = path;
-    String audioFileBucket = config.getString("audio.fileBucket");
+    String audioFileBucket = env.getAudioFileBucket();
     if (!existsOnDisk())
       try (InputStream stream = fileStoreProvider.streamS3Object(audioFileBucket, key)) {
         writeFrom(stream);

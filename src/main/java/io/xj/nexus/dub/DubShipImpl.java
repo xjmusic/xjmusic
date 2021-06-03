@@ -3,14 +3,14 @@ package io.xj.nexus.dub;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.typesafe.config.Config;
 import datadog.trace.api.Trace;
 import io.xj.Segment;
+import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.MediaType;
-import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.fabricator.Fabricator;
 
 /**
  [#264] Segment audio is compressed to OGG and shipped to https://segment.xj.io
@@ -24,12 +24,12 @@ public class DubShipImpl implements DubShip {
   public DubShipImpl(
     @Assisted("basis") Fabricator fabricator,
     FileStoreProvider fileStore,
-    Config config
+    Environment env
     /*-*/) {
     this.fabricator = fabricator;
     this.fileStore = fileStore;
 
-    segmentFileBucket = config.getString("segment.fileBucket");
+    segmentFileBucket = env.getSegmentFileBucket();
   }
 
   @Override

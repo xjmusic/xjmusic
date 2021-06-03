@@ -5,7 +5,7 @@ package io.xj.nexus.hub_client.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
@@ -44,15 +44,15 @@ public class HubClientImpl implements HubClient {
 
   @Inject
   public HubClientImpl(
-    Config config,
+    Environment env,
     PayloadFactory payloadFactory
   ) {
     this.payloadFactory = payloadFactory;
     httpClient = HttpClients.createDefault();
 
-    tokenName = config.getString("access.tokenName");
-    baseUrl = config.getString("hub.baseUrl");
-    internalToken = config.getString("hub.internalToken");
+    tokenName = env.getHubTokenName();
+    baseUrl = env.getHubBaseURL();
+    internalToken = env.getHubTokenValue();
   }
 
   @Override

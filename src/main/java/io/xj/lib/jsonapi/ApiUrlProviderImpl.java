@@ -4,6 +4,7 @@ package io.xj.lib.jsonapi;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
+import io.xj.lib.app.Environment;
 
 import java.net.URI;
 
@@ -22,16 +23,14 @@ class ApiUrlProviderImpl implements ApiUrlProvider {
   private String appPathWelcome;
 
   @Inject
-  public ApiUrlProviderImpl(Config config) {
-    this.appBaseUrl = config.getString("app.baseUrl");
-    this.appHost = config.getString("app.host");
-    this.appHostname = config.getString("app.hostname");
+  public ApiUrlProviderImpl(Config config, Environment env) {
+    this.appBaseUrl = env.getAppBaseURL();
     this.appName = config.getString("app.name");
     this.appPathUnauthorized = config.getString("api.unauthorizedRedirectPath");
     this.appPathWelcome = config.getString("api.welcomeRedirectPath");
-    this.audioBaseUrl = config.getString("audio.baseUrl");
-    this.playerBaseUrl = config.getString("player.baseUrl");
-    this.segmentBaseUrl = config.getString("segment.baseUrl");
+    this.audioBaseUrl = env.getAudioBaseURL();
+    this.playerBaseUrl = env.getPlayerBaseURL();
+    this.segmentBaseUrl = env.getSegmentBaseURL();
   }
 
   @Override

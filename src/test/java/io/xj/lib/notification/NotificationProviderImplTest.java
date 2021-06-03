@@ -19,9 +19,7 @@ public class NotificationProviderImplTest {
 
   @Test
   public void instantiate() {
-    Config config = ConfigFactory.parseResources("config/default.conf")
-      .withValue("aws.accessKeyID", ConfigValueFactory.fromAnyRef("AKIALKSFDJKGIOURTJ7H"))
-      .withValue("aws.secretKey", ConfigValueFactory.fromAnyRef("jhfd897+jkhjHJJDKJF/908090JHKJJHhjhfg78h"));
+    Config config = ConfigFactory.parseResources("config/default.conf");
     var injector = Guice.createInjector(ImmutableSet.of(Modules.override(new NotificationModule()).with(
       new AbstractModule() {
         @Override

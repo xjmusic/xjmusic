@@ -10,6 +10,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import io.xj.lib.app.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,14 +36,15 @@ class FileStoreProviderImpl implements FileStoreProvider {
 
   @Inject
   public FileStoreProviderImpl(
-    Config config
+    Config config,
+    Environment env
   ) {
-    audioUploadUrl = config.getString("audio.uploadUrl");
-    audioFileBucket = config.getString("audio.fileBucket");
+    audioUploadUrl = env.getAudioUploadURL();
+    audioFileBucket = env.getAudioFileBucket();
     awsFileUploadExpireMinutes = config.getInt("aws.uploadExpireMinutes");
-    awsDefaultRegion = config.getString("aws.defaultRegion");
-    awsAccessKeyId = config.getString("aws.accessKeyID");
-    awsSecretKey = config.getString("aws.secretKey");
+    awsDefaultRegion = env.getAwsDefaultRegion();
+    awsAccessKeyId = env.getAwsAccessKeyID();
+    awsSecretKey = env.getAwsSecretKey();
     fileUploadACL = config.getString("aws.fileUploadACL");
     awsS3RetryLimit = config.getInt("aws.s3retryLimit");
   }

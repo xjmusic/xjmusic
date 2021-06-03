@@ -11,6 +11,7 @@ import com.google.inject.assistedinject.AssistedInject;
 import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
 import io.xj.*;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.entity.common.InstrumentConfig;
@@ -96,6 +97,7 @@ class FabricatorImpl implements Fabricator {
     @Assisted("access") HubClientAccess access,
     @Assisted("segment") Segment segment,
     Config config,
+    Environment env,
     HubClient hubClient,
     ChainDAO chainDAO,
     ChainBindingDAO chainBindingDAO,
@@ -115,7 +117,7 @@ class FabricatorImpl implements Fabricator {
       this.fabricatorFactory = fabricatorFactory;
 
       this.config = config;
-      workTempFilePathPrefix = config.getString("work.tempFilePathPrefix");
+      workTempFilePathPrefix = env.getTempFilePathPrefix();
       segmentNameFormat = new DecimalFormat(config.getString("work.segmentNameFormat"));
 
       // time

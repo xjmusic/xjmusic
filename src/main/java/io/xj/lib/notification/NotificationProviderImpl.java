@@ -7,7 +7,7 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSAsyncClientBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.typesafe.config.Config;
+import io.xj.lib.app.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,19 +32,19 @@ class NotificationProviderImpl implements NotificationProvider {
 
   @Inject
   public NotificationProviderImpl(
-    Config config
+    Environment env
   ) {
-    awsDefaultRegion = config.getString("aws.defaultRegion");
-    awsAccessKeyId = config.getString("aws.accessKeyID");
-    awsSecretKey = config.getString("aws.secretKey");
+    awsDefaultRegion = env.getAwsDefaultRegion();
+    awsAccessKeyId = env.getAwsAccessKeyID();
+    awsSecretKey = env.getAwsSecretKey();
 
     // If not configured, will warn instead of publishing
-    if (config.hasPath("aws.snsTopicArn")) {
-      topicArn = config.getString("aws.snsTopicArn");
+    if (0 < env.getAwsSnsTopicArn().length()) {
+      topicArn = env.getAwsSnsTopicArn();
       log.info("Will publish notifications to {}", topicArn);
     } else {
       topicArn = null;
-      log.warn("Will not publish notifications because no aws.snsTopicArn is configured.");
+      log.warn("Will not publish notifications because environment has no aws snsTopicArn");
     }
 
   }

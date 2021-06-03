@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import datadog.trace.api.Trace;
+import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.util.TempFile;
 import org.apache.commons.io.FileUtils;
@@ -29,12 +30,13 @@ class DubAudioCacheImpl implements DubAudioCache {
   @Inject
   DubAudioCacheImpl(
     Config config,
+    Environment env,
     DubAudioCacheItemFactory dubAudioCacheItemFactory
   ) {
     this.dubAudioCacheItemFactory = dubAudioCacheItemFactory;
     long allocateBytes = config.getLong("audio.cacheAllocateBytes");
-    pathPrefix = config.hasPath("audio.cacheFilePrefix") ?
-      config.getString("audio.cacheFilePrefix") :
+    pathPrefix = 0 < env.getAudioCacheFilePrefix().length() ?
+      env.getAudioCacheFilePrefix() :
       TempFile.getTempFilePathPrefix() + "cache" + File.separator;
 
     try {

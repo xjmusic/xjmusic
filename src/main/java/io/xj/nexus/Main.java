@@ -4,10 +4,10 @@ package io.xj.nexus;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
-import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
+import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.mixer.MixerModule;
@@ -50,22 +50,24 @@ public interface Main {
   static void main(String[] args) throws AppException, UnknownHostException {
 
     // Get default configuration
-    Config defaults = AppConfiguration.getDefault()
+    var defaults = AppConfiguration.getDefault()
       .withValue("app.port", ConfigValueFactory.fromAnyRef(defaultPort));
 
     // Read configuration from arguments to program, with default fallbacks
-    Config config = AppConfiguration.parseArgs(args, defaults);
+    var config = AppConfiguration.parseArgs(args, defaults);
+    var injector = AppConfiguration.inject(config, injectorModules);
+    var env = injector.getInstance(Environment.class);
 
     // Add context to logs
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
     lc.setPackagingDataEnabled(true);
     lc.putProperty("source", "java");
     lc.putProperty("service", "nexus");
-    lc.putProperty("host", config.getString("app.hostname"));
-    lc.putProperty("env", config.getString("app.env"));
+    lc.putProperty("host", env.getHostname());
+    lc.putProperty("env", env.getEnvironment());
 
     // Instantiate app
-    NexusApp app = new NexusApp(AppConfiguration.inject(config, injectorModules));
+    NexusApp app = new NexusApp(injector);
 
     // Shutdown Hook
     Runtime.getRuntime().addShutdownHook(new Thread(app::finish));

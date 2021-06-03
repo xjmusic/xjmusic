@@ -29,10 +29,6 @@ import java.util.Set;
 public class AppConfiguration {
   private static final String DEFAULT_CONFIGURATION_RESOURCE_FILENAME = "config/default.conf";
 
-  AppConfiguration() {
-    throw new IllegalStateException("Utility classes cannot be created");
-  }
-
   /**
    @param args     array of arguments passed to program
    @param defaults to fallback on

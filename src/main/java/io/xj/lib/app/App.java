@@ -60,7 +60,8 @@ public class App {
 
     // Configuration from typesafe config
     Config config = injector.getInstance(Config.class);
-    restHostname = fallback(System.getenv("FULL_HOSTNAME"), () -> getInetHostname(config.getString("app.hostname")));
+    var env = injector.getInstance(Environment.class);
+    restHostname = getInetHostname(env.getHostname());
     restPort = config.getInt("app.port");
     name = config.getString("app.name");
 

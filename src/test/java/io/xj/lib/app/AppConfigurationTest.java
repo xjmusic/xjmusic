@@ -10,30 +10,16 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-import org.hamcrest.core.IsInstanceOf;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class AppConfigurationTest {
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
-
-  /**
-   Attempts to create an AppConfiguration via its private constructor and
-   demonstrates that an exception is thrown.
-   */
-  @Test(expected = IllegalStateException.class)
-  public void constructorMustFail() {
-    AppConfiguration config = new AppConfiguration();
-  }
 
   /**
    Reads the file **valid.conf** from the **test/resources** folder
@@ -65,14 +51,16 @@ public class AppConfigurationTest {
    and confirms that an exception is thrown with failure to process
    */
   @Test
-  public void parseArgs_throwsExceptionOnInvalidConfigFile() throws AppException {
+  public void parseArgs_throwsExceptionOnInvalidConfigFile() {
     String configFilePath = absolutePathOfResource("config/invalid.conf");
 
-    failure.expect(AppException.class);
-    failure.expectCause(IsInstanceOf.instanceOf(ConfigException.class));
-    failure.expectMessage("Unable to parse configuration");
+    AppException e = assertThrows(
+      AppException.class,
+      () -> AppConfiguration.parseArgs(new String[]{configFilePath}, AppConfiguration.getDefault())
+    );
 
-    AppConfiguration.parseArgs(new String[]{configFilePath}, AppConfiguration.getDefault());
+    assertEquals("Unable to parse configuration", e.getMessage());
+    assertEquals(ConfigException.Parse.class, e.getCause().getClass());
   }
 
   /**
@@ -81,14 +69,16 @@ public class AppConfigurationTest {
    and confirms that an exception is thrown with failure to find the file
    */
   @Test
-  public void parseArgs_throwsExceptionOnNonexistentConfigFile() throws AppException {
+  public void parseArgs_throwsExceptionOnNonexistentConfigFile() {
     String configFilePath = "/nonexistent.conf";
 
-    failure.expect(AppException.class);
-    failure.expectCause(IsInstanceOf.instanceOf(FileNotFoundException.class));
-    failure.expectMessage("Error reading configuration file");
+    AppException e = assertThrows(
+      AppException.class,
+      () -> AppConfiguration.parseArgs(new String[]{configFilePath}, AppConfiguration.getDefault())
+    );
 
-    AppConfiguration.parseArgs(new String[]{configFilePath}, AppConfiguration.getDefault());
+    assertEquals(FileNotFoundException.class, e.getCause().getClass());
+    assertEquals("Error reading configuration file", e.getMessage());
   }
 
   /**
@@ -114,22 +104,28 @@ public class AppConfigurationTest {
    Test there's an exception if the config is null
    */
   @Test
-  public void inject_exceptionWithNullConfig() throws AppException {
-    failure.expect(AppException.class);
-    failure.expectMessage("Config cannot be null!");
+  public void inject_exceptionWithNullConfig() {
+    AppException e = assertThrows(
+      AppException.class,
+      () -> AppConfiguration.inject(null, ImmutableSet.of())
+    );
 
-    AppConfiguration.inject(null, ImmutableSet.of());
+    assertEquals("Config cannot be null!", e.getMessage());
+
   }
 
   /**
    Test there's an exception if the config is empty
    */
   @Test
-  public void inject_exceptionWithEmptyConfig() throws AppException {
-    failure.expect(AppException.class);
-    failure.expectMessage("Config cannot be empty!");
+  public void inject_exceptionWithEmptyConfig() {
+    AppException e = assertThrows(
+      AppException.class,
+      () -> AppConfiguration.inject(ConfigFactory.empty(), ImmutableSet.of())
+    );
 
-    AppConfiguration.inject(ConfigFactory.empty(), ImmutableSet.of());
+    assertEquals("Config cannot be empty!", e.getMessage());
+
   }
 
   /**

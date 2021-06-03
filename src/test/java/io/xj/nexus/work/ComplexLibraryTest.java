@@ -133,10 +133,10 @@ public class ComplexLibraryTest {
 
     // assertions
     verify(fileStoreProvider, atLeast(MARATHON_NUMBER_OF_SEGMENTS))
-      .putS3ObjectFromTempFile(eq("/tmp/chains-1-segments-12345.aac"), eq("xj-segment-test"), eq("chains-1-segments-12345.aac"));
+      .putS3ObjectFromTempFile(eq("/tmp/chains-1-segments-12345.aac"), eq("xj-dev-ship"), eq("chains-1-segments-12345.aac"));
     // FUTURE use a spy to assert actual json payload shipped to S3 for metadata
     verify(fileStoreProvider, atLeast(MARATHON_NUMBER_OF_SEGMENTS))
-      .putS3ObjectFromString(any(), eq("xj-segment-test"), eq("chains-1-segments-12345.json"), eq("application/vnd.api+json"));
+      .putS3ObjectFromString(any(), eq("xj-dev-ship"), eq("chains-1-segments-12345.json"), eq("application/vnd.api+json"));
     assertTrue(hasSegmentsDubbedPastMinimumOffset(chain1.getId()));
   }
 

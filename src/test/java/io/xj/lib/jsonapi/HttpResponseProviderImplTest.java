@@ -4,7 +4,6 @@ package io.xj.lib.jsonapi;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -29,16 +28,9 @@ public class HttpResponseProviderImplTest {
       @Override
       protected void configure() {
         bind(Config.class).toInstance(ConfigFactory.empty()
-          .withValue("app.apiUrl", ConfigValueFactory.fromAnyRef("http://localhost/"))
-          .withValue("app.baseUrl", ConfigValueFactory.fromAnyRef("http://localhost/"))
-          .withValue("app.host", ConfigValueFactory.fromAnyRef("localhost"))
-          .withValue("app.hostname", ConfigValueFactory.fromAnyRef("localhost"))
           .withValue("app.name", ConfigValueFactory.fromAnyRef("testApp"))
           .withValue("api.unauthorizedRedirectPath", ConfigValueFactory.fromAnyRef("unauthorized"))
-          .withValue("api.welcomeRedirectPath", ConfigValueFactory.fromAnyRef(""))
-          .withValue("audio.baseUrl", ConfigValueFactory.fromAnyRef("http://localhost/"))
-          .withValue("player.baseUrl", ConfigValueFactory.fromAnyRef("http://localhost/"))
-          .withValue("segment.baseUrl", ConfigValueFactory.fromAnyRef("http://localhost/")));
+          .withValue("api.welcomeRedirectPath", ConfigValueFactory.fromAnyRef("")));
       }
     });
     subject = injector.getInstance(HttpResponseProvider.class);

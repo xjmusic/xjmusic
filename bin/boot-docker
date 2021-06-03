@@ -27,13 +27,6 @@ require "${APP_VERSION}" "APP_VERSION environment variable"
 printf "\n[xj:docker]\n"
 
 #
-CONFIG_PATH=/var/app/current/env.conf
-if [[ ! -e ${CONFIG_PATH} ]]; then
-  printf "\n\nCan't find ${CONFIG_PATH}!\nPlease ensure configuration file exists.\n\n"
-  exit 1
-fi
-
-#
 TAR_NAME="${APP_NAME}-${APP_VERSION}.tar"
 TAR_FOLDER="/var/app"
 if [[ ! -e ${TAR_FOLDER}/${TAR_NAME} ]]; then
@@ -66,12 +59,11 @@ chmod +w ${ACCESS_LOG}
 #
 printf "[$(date)]\n"
 printf "Starting ${APP_PATH}/bin/${APP_NAME}\n"
-printf "       config: ${CONFIG_PATH}\n"
 printf "   stdout log: ${STDOUT_LOG}\n"
 printf "   stderr log: ${STDERR_LOG}\n"
 printf "   access log: ${ACCESS_LOG}\n"
 cd ${APP_PATH}
-bin/${APP_NAME} ${CONFIG_PATH} 1> ${STDOUT_LOG} 2> ${STDERR_LOG} &
+bin/${APP_NAME} 1> ${STDOUT_LOG} 2> ${STDERR_LOG} &
 
 # interactive tty
 printf "\nLogging in...\n"

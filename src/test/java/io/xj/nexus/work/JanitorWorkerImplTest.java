@@ -18,9 +18,9 @@ import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.util.Value;
 import io.xj.nexus.dao.SegmentDAO;
-import io.xj.nexus.testing.NexusTestConfiguration;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,7 +48,6 @@ public class JanitorWorkerImplTest {
   public void setUp() throws AppException {
     Config config = NexusTestConfiguration.getDefault()
       .withValue("app.port", ConfigValueFactory.fromAnyRef(9043))
-      .withValue("datadog.statsd.hostname", ConfigValueFactory.fromAnyRef("localhost"))
       .withValue("work.bossDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.janitorDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.medicDelayMillis", ConfigValueFactory.fromAnyRef(1))

@@ -4,38 +4,39 @@ package io.xj.lib.filestore;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
+import io.xj.lib.app.Environment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileStoreProviderImplTest {
   @Mock
   private FileStoreProvider fileStoreProvider;
 
+  @Mock
+  private Environment env;
+
   @Before
   public void setUp() throws Exception {
-    Config config = ConfigFactory.parseResources("config/default.conf")
-      .withValue("audio.uploadUrl", ConfigValueFactory.fromAnyRef("https://s3.amazonaws.com/test-bucket/"))
-      .withValue("aws.accessKeyID", ConfigValueFactory.fromAnyRef("AKIALKSFDJKGIOURTJ7H"))
-      .withValue("aws.secretKey", ConfigValueFactory.fromAnyRef("jhfd897+jkhjHJJDKJF/908090JHKJJHhjhfg78h"))
-      .withValue("audio.fileBucket", ConfigValueFactory.fromAnyRef("xj-dev-audio"));
+    Config config = ConfigFactory.parseResources("config/default.conf");
+    when(env.getAudioUploadURL()).thenReturn("https://s3.amazonaws.com/test-bucket/");
+    when(env.getAwsAccessKeyID()).thenReturn("AKIALKSFDJKGIOURTJ7H");
+    when(env.getAwsSecretKey()).thenReturn("jhfd897+jkhjHJJDKJF/908090JHKJJHhjhfg78h");
+    when(env.getAudioFileBucket()).thenReturn("xj-dev-audio");
     var injector = Guice.createInjector(ImmutableSet.of(Modules.override(new FileStoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
+          bind(Environment.class).toInstance(env);
           bind(Config.class).toInstance(config);
         }
       })));

@@ -8,18 +8,9 @@ import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.Library;
-import io.xj.Program;
-import io.xj.ProgramSequencePattern;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
+import io.xj.*;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreModule;
@@ -29,11 +20,6 @@ import io.xj.lib.jsonapi.PayloadFactory;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.Tuning;
-import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
-import io.xj.nexus.hub_client.client.HubClientException;
-import io.xj.nexus.hub_client.client.HubClientModule;
-import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.dao.ChainBindingDAO;
@@ -43,14 +29,13 @@ import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
+import io.xj.nexus.hub_client.client.*;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreModule;
 import io.xj.nexus.testing.NexusTestConfiguration;
 import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -61,17 +46,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeEvent;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makePattern;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeProgram;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeSequence;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeTrack;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeVoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -85,8 +63,8 @@ public class FabricatorImplTest {
   private NexusIntegrationTestingFixtures fake;
   private Config config;
 
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  @Mock
+  public Environment env;
 
   @Mock
   public FabricatorFactory mockFabricatorFactory;
@@ -214,7 +192,7 @@ public class FabricatorImplTest {
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
+    subject = new FabricatorImpl(access, segment, config, env, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
 
     Double result = subject.computeSecondsAtPosition(0); // instantiates a time computer; see expectation above
 
@@ -266,7 +244,7 @@ public class FabricatorImplTest {
       .setTargetId(fake.library2.getId())
       .setType(ChainBinding.Type.Library)
       .build());
-    var chord0 = store.put(SegmentChord.newBuilder()
+    store.put(SegmentChord.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment.getId())
       .setName("A")
@@ -320,7 +298,7 @@ public class FabricatorImplTest {
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
+    subject = new FabricatorImpl(access, segment, config, env, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
 
     Collection<SegmentChoiceArrangementPick> result = subject.getPicks();
 
@@ -399,7 +377,7 @@ public class FabricatorImplTest {
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
+    subject = new FabricatorImpl(access, segment, config, env, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
 
     List<Instrument.Type> result = subject.getDistinctChordVoicingTypes();
 
@@ -484,7 +462,7 @@ public class FabricatorImplTest {
       .thenReturn(Optional.of(previousMacroChoice));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
+    subject = new FabricatorImpl(access, segment, config, env, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
 
     var result = subject.determineType();
 
@@ -566,7 +544,7 @@ public class FabricatorImplTest {
       .thenReturn(Optional.of(previousMacroChoice));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
+    subject = new FabricatorImpl(access, segment, config, env, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
 
     var result = subject.getMemeIsometryOfNextSequenceInPreviousMacro();
 
@@ -626,7 +604,7 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
+    subject = new FabricatorImpl(access, segment, config, env, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
 
     assertEquals("C", subject.getChordAt(0).orElseThrow().getName());
     assertEquals("C", subject.getChordAt(1).orElseThrow().getName());
@@ -687,7 +665,7 @@ public class FabricatorImplTest {
         makeEvent(pattern, track, 0.0, 1.0, "C1"),
         makeEvent(pattern, track, 1.0, 1.0, "D2")
       )));
-    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
+    subject = new FabricatorImpl(access, segment, config, env, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
 
     var result = subject.computeProgramRange(program.getId(), Instrument.Type.Bass);
 
@@ -745,7 +723,7 @@ public class FabricatorImplTest {
         makeEvent(pattern, track, 1.0, 1.0, "X"),
         makeEvent(pattern, track, 2.0, 1.0, "D2")
       )));
-    subject = new FabricatorImpl(access, segment, config, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
+    subject = new FabricatorImpl(access, segment, config, env, mockHubClient, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockPayloadFactory);
 
     var result = subject.computeProgramRange(program.getId(), Instrument.Type.Bass);
 

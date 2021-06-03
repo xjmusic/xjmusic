@@ -3,9 +3,11 @@ package io.xj.nexus;
 
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
-import io.xj.*;
+import io.xj.Chain;
+import io.xj.ChainBinding;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
@@ -20,10 +22,10 @@ import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
-import io.xj.nexus.work.NexusWork;
 import io.xj.nexus.hub_client.client.HubAccessTokenFilter;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.work.NexusWork;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
@@ -58,10 +60,7 @@ import java.util.stream.Stream;
  */
 public class NexusApp extends App {
   private static final String CONFIG_CHAIN_BOOTSTRAP_JSON_PATH = "nexus.bootstrapJsonPath";
-  private static final String CONFIG_ACCESS_TOKEN_NAME = "access.tokenName";
   private static final String ACCESS_LOG_FILE_NAME = "access.log";
-  private static final String CONFIG_ACCESS_LOG_FILE = "app.accessLogFile";
-  private static final String CONFIG_PLATFORM_RELEASE = "platform.release";
   private final org.slf4j.Logger log = LoggerFactory.getLogger(NexusApp.class);
   private final NexusWork work;
   private final String platformRelease;
@@ -77,10 +76,11 @@ public class NexusApp extends App {
   ) {
     super(injector, Collections.singleton("io.xj.nexus.api"));
 
-    Config config = injector.getInstance(Config.class);
+    var config = injector.getInstance(Config.class);
+    var environment = injector.getInstance(Environment.class);
 
     // Configuration
-    platformRelease = config.getString(CONFIG_PLATFORM_RELEASE);
+    platformRelease = environment.getEnvironment();
 
     // non-static logger for this class, because app must init first
     log.info("{} configuration:\n{}", getName(), Text.toReport(config));
@@ -94,14 +94,14 @@ public class NexusApp extends App {
     Topology.buildNexusApiTopology(entityFactory);
 
     // Register JAX-RS filter for access log only registers if file succeeds to open for writing
-    String pathToWriteAccessLog = config.hasPath(CONFIG_ACCESS_LOG_FILE) ?
-      config.getString(CONFIG_ACCESS_LOG_FILE) :
+    String pathToWriteAccessLog = 0 < environment.getAccessLogFilename().length() ?
+      environment.getAccessLogFilename() :
       TempFile.getTempFilePathPrefix() + File.separator + ACCESS_LOG_FILE_NAME;
     new NexusAccessLogFilter(pathToWriteAccessLog).registerTo(getResourceConfig());
 
     // Register JAX-RS filter for reading access control token
     HubClient hubClient = injector.getInstance(HubClient.class);
-    getResourceConfig().register(new HubAccessTokenFilter(hubClient, config.getString(CONFIG_ACCESS_TOKEN_NAME)));
+    getResourceConfig().register(new HubAccessTokenFilter(hubClient, environment.getHubTokenName()));
 
     // [#176285826] Nexus bootstraps Chains from JSON file on startup
     var payloadFactory = injector.getInstance(PayloadFactory.class);
