@@ -33,6 +33,7 @@ public class Environment {
   private final String playerBaseURL;
   private final String audioCacheFilePrefix;
   private final String tempFilePathPrefix;
+  private final String chainBootstrapJsonPath;
 
   @Inject
   public Environment() {
@@ -59,6 +60,7 @@ public class Environment {
     segmentBaseURL = getStr(env, "SEGMENT_BASE_URL", "https://ship.dev.xj.io/");
     segmentFileBucket = getStr(env, "SEGMENT_FILE_BUCKET", "xj-dev-ship");
     tempFilePathPrefix = getStr(env, "TEMP_FILE_PATH_PREFIX", "/tmp/");
+    chainBootstrapJsonPath = getStr(env, "CHAIN_BOOTSTRAP_JSON_PATH", EMPTY);
   }
 
   /**
@@ -240,5 +242,12 @@ public class Environment {
    */
   public String getTempFilePathPrefix() {
     return tempFilePathPrefix;
+  }
+
+  /**
+   @return the chain bootstrap json path
+   */
+  public String getChainBootstrapJsonPath() {
+    return chainBootstrapJsonPath;
   }
 }

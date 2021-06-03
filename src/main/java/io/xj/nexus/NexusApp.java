@@ -59,8 +59,6 @@ import java.util.stream.Stream;
  - Add shutdown hook that calls application stop()
  */
 public class NexusApp extends App {
-  private static final String CONFIG_CHAIN_BOOTSTRAP_JSON_PATH = "nexus.bootstrapJsonPath";
-  private static final String ACCESS_LOG_FILE_NAME = "access.log";
   private final org.slf4j.Logger log = LoggerFactory.getLogger(NexusApp.class);
   private final NexusWork work;
   private final String platformRelease;
@@ -77,10 +75,10 @@ public class NexusApp extends App {
     super(injector, Collections.singleton("io.xj.nexus.api"));
 
     var config = injector.getInstance(Config.class);
-    var environment = injector.getInstance(Environment.class);
+    var env = injector.getInstance(Environment.class);
 
     // Configuration
-    platformRelease = environment.getEnvironment();
+    platformRelease = env.getEnvironment();
 
     // non-static logger for this class, because app must init first
     log.info("{} configuration:\n{}", getName(), Text.toReport(config));
@@ -94,14 +92,14 @@ public class NexusApp extends App {
     Topology.buildNexusApiTopology(entityFactory);
 
     // Register JAX-RS filter for access log only registers if file succeeds to open for writing
-    String pathToWriteAccessLog = 0 < environment.getAccessLogFilename().length() ?
-      environment.getAccessLogFilename() :
-      TempFile.getTempFilePathPrefix() + File.separator + ACCESS_LOG_FILE_NAME;
+    String pathToWriteAccessLog = 0 < env.getAccessLogFilename().length() ?
+      env.getAccessLogFilename() :
+      TempFile.getTempFilePathPrefix() + File.separator + env.getAccessLogFilename();
     new NexusAccessLogFilter(pathToWriteAccessLog).registerTo(getResourceConfig());
 
     // Register JAX-RS filter for reading access control token
     HubClient hubClient = injector.getInstance(HubClient.class);
-    getResourceConfig().register(new HubAccessTokenFilter(hubClient, environment.getHubTokenName()));
+    getResourceConfig().register(new HubAccessTokenFilter(hubClient, env.getHubTokenName()));
 
     // [#176285826] Nexus bootstraps Chains from JSON file on startup
     var payloadFactory = injector.getInstance(PayloadFactory.class);
@@ -109,11 +107,11 @@ public class NexusApp extends App {
     var access = HubClientAccess.internal();
 
     //[#176374643] Chains bootstrapped by Nexus are delayed by N seconds
-    if (config.hasPath(CONFIG_CHAIN_BOOTSTRAP_JSON_PATH)) {
+    if (0 < env.getChainBootstrapJsonPath().length()) {
       int bootstrapDelaySeconds = config.getInt("nexus.bootstrapDelaySeconds");
       ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
       executorService.schedule(() ->
-        bootstrapFromPath(config.getString(CONFIG_CHAIN_BOOTSTRAP_JSON_PATH), payloadFactory, entityFactory, chainDAO, access), bootstrapDelaySeconds, TimeUnit.SECONDS);
+        bootstrapFromPath(env.getChainBootstrapJsonPath(), payloadFactory, entityFactory, chainDAO, access), bootstrapDelaySeconds, TimeUnit.SECONDS);
     }
   }
 
