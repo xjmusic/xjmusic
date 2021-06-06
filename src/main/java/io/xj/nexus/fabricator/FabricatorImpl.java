@@ -117,16 +117,16 @@ class FabricatorImpl implements Fabricator {
   private final SegmentDAO segmentDAO;
   private final FabricatorFactory fabricatorFactory;
   private Map<String, InstrumentAudio> previousInstrumentAudio;
-  private final Map<String, Optional<SegmentChordVoicing>> voicingForSegmentChordInstrumentType = Maps.newHashMap();
-  private final Map<Instrument.Type, NoteRange> voicingNoteRange = Maps.newHashMap();
   private final PayloadFactory payloadFactory;
-  private final Map<String, NoteRange> rangeForChoice = Maps.newHashMap();
-  private final Map<String, Integer> rangeShiftOctave = Maps.newHashMap();
-  private final Map<String, Integer> targetShift = Maps.newHashMap();
+  private final Map<String, Optional<SegmentChordVoicing>> voicingForSegmentChordInstrumentType;
+  private final Map<Instrument.Type, NoteRange> voicingNoteRange;
+  private final Map<String, NoteRange> rangeForChoice;
+  private final Map<String, Integer> rangeShiftOctave;
+  private final Map<String, Integer> targetShift;
   private final Map<Program.Type, Map<Instrument.Type, List<String>>> previouslyChosenProgramIds;
   private final Map<String, Set<String>> previouslyPickedNotes;
-  private final Map<Double, Optional<SegmentChord>> chordAtPosition = Maps.newHashMap();
-  private final Map<String, Collection<ProgramSequenceChord>> completeChordsForProgramSequence = Maps.newHashMap();
+  private final Map<Double, Optional<SegmentChord>> chordAtPosition;
+  private final Map<String, Collection<ProgramSequenceChord>> completeChordsForProgramSequence;
 
   @AssistedInject
   public FabricatorImpl(
@@ -155,6 +155,15 @@ class FabricatorImpl implements Fabricator {
       this.config = config;
       workTempFilePathPrefix = env.getTempFilePathPrefix();
       segmentNameFormat = new DecimalFormat(config.getString("work.segmentNameFormat"));
+
+      // caches
+      voicingForSegmentChordInstrumentType = Maps.newHashMap();
+      voicingNoteRange = Maps.newHashMap();
+      rangeForChoice = Maps.newHashMap();
+      rangeShiftOctave = Maps.newHashMap();
+      targetShift = Maps.newHashMap();
+      chordAtPosition = Maps.newHashMap();
+      completeChordsForProgramSequence = Maps.newHashMap();
 
       // time
       startTime = System.nanoTime();
