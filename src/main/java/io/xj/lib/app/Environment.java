@@ -42,7 +42,7 @@ public class Environment {
   @Inject
   public Environment() {
     Map<String, String> env = System.getenv();
-    LOG.info("Received values for {} keys: {}", env.size(), CSV.join(env.keySet()));
+    LOG.debug("Received values for {} keys: {}", env.size(), CSV.join(env.keySet()));
     accessLogFilename = getStr(env, "ACCESS_LOG_FILENAME", "/tmp/access.log");
     appBaseURL = getStr(env, "APP_BASE_URL", "http://localhost/");
     audioBaseURL = getStr(env, "AUDIO_BASE_URL", "https://audio.dev.xj.io/");
