@@ -10,7 +10,29 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
-import io.xj.*;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.Program;
+import io.xj.ProgramMeme;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequenceBindingMeme;
+import io.xj.ProgramSequenceChord;
+import io.xj.ProgramSequenceChordVoicing;
+import io.xj.ProgramSequencePattern;
+import io.xj.ProgramSequencePatternEvent;
+import io.xj.ProgramVoice;
+import io.xj.ProgramVoiceTrack;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
+import io.xj.SegmentMeme;
+import io.xj.SegmentMessage;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStoreException;
@@ -20,7 +42,12 @@ import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadFactory;
-import io.xj.lib.music.*;
+import io.xj.lib.music.AdjSymbol;
+import io.xj.lib.music.Chord;
+import io.xj.lib.music.Key;
+import io.xj.lib.music.Note;
+import io.xj.lib.music.NoteRange;
+import io.xj.lib.music.PitchClass;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
@@ -45,7 +72,15 @@ import org.slf4j.LoggerFactory;
 import javax.sound.sampled.AudioFormat;
 import java.text.DecimalFormat;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.xj.Instrument.Type.UNRECOGNIZED;
@@ -91,6 +126,7 @@ class FabricatorImpl implements Fabricator {
   private final Map<Program.Type, Map<Instrument.Type, List<String>>> previouslyChosenProgramIds;
   private final Map<String, Set<String>> previouslyPickedNotes;
   private final Map<Double, Optional<SegmentChord>> chordAtPosition = Maps.newHashMap();
+  private final Map<String, Collection<ProgramSequenceChord>> completeChordsForProgramSequence = Maps.newHashMap();
 
   @AssistedInject
   public FabricatorImpl(
@@ -1093,6 +1129,26 @@ class FabricatorImpl implements Fabricator {
       .stream().map(InstrumentAudio::getVolume)
       .findAny()
       .orElse(1.0);
+  }
+
+  @Override
+  public Collection<ProgramSequenceChord> getProgramSequenceChords(ProgramSequence programSequence) {
+    if (!completeChordsForProgramSequence.containsKey(programSequence.getId())) {
+      Map<Double, ProgramSequenceChord> chordForPosition = Maps.newHashMap();
+      Map<Double, Integer> validVoicingsForPosition = Maps.newHashMap();
+      for (ProgramSequenceChord chord : sourceMaterial.getChords(programSequence)) {
+        int validVoicings = sourceMaterial.getVoicings(chord)
+          .stream().map(V -> CSV.split(V.getNotes()).size()).reduce(0, Integer::sum);
+        if (!validVoicingsForPosition.containsKey(chord.getPosition()) ||
+          validVoicingsForPosition.get(chord.getPosition()) < validVoicings) {
+          validVoicingsForPosition.put(chord.getPosition(), validVoicings);
+          chordForPosition.put(chord.getPosition(), chord);
+        }
+      }
+      completeChordsForProgramSequence.put(programSequence.getId(), chordForPosition.values());
+    }
+
+    return completeChordsForProgramSequence.get(programSequence.getId());
   }
 
   /**

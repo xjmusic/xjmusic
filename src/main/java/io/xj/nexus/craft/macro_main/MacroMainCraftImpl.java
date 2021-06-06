@@ -102,7 +102,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
     // 3. Chords and voicings
     if (mainSequence.isPresent())
-      for (ProgramSequenceChord sequenceChord : fabricator.getSourceMaterial().getChords(mainSequence.get())) {
+      for (ProgramSequenceChord sequenceChord : fabricator.getProgramSequenceChords(mainSequence.get())) {
         // [#154090557] don't of chord past end of Segment
         String name;
         if (sequenceChord.getPosition() < mainSequence.get().getTotal()) {

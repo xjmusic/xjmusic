@@ -8,6 +8,7 @@ import io.xj.InstrumentAudio;
 import io.xj.Program;
 import io.xj.ProgramSequence;
 import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequenceChord;
 import io.xj.ProgramSequencePattern;
 import io.xj.ProgramSequencePatternEvent;
 import io.xj.Segment;
@@ -798,4 +799,14 @@ public interface Fabricator {
    @return audio volume of pick
    */
   double getAudioVolume(SegmentChoiceArrangementPick pick);
+
+  /**
+   Get the complete set of program sequence chords,
+   ignoring ghost chords* REF https://www.pivotaltracker.com/story/show/178420030
+   (caches results)
+
+   @param programSequence for which to get complete do-ghosted set of chords
+   @return get complete do-ghosted set of chords for program sequence
+   */
+  Collection<ProgramSequenceChord> getProgramSequenceChords(ProgramSequence programSequence);
 }
