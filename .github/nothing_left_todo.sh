@@ -13,6 +13,4 @@ check() {
   fi
 }
 
-check common/src
-check hub/src
-check nexus/src
+check src
