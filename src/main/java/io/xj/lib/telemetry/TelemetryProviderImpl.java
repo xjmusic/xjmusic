@@ -4,7 +4,6 @@ package io.xj.lib.telemetry;
 import com.google.inject.Inject;
 import com.timgroup.statsd.NonBlockingStatsDClient;
 import com.timgroup.statsd.NonBlockingStatsDClientBuilder;
-import com.typesafe.config.Config;
 import io.xj.lib.app.Environment;
 
 class TelemetryProviderImpl implements TelemetryProvider {

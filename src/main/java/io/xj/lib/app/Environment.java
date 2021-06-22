@@ -22,7 +22,6 @@ public class Environment {
   private final String awsAccessKeyID;
   private final String awsSecretKey;
   private final String awsSnsTopicArn;
-  private final String segmentBaseURL;
   private final String segmentFileBucket;
   private final String environment;
   private final String accessLogFilename;
@@ -35,6 +34,7 @@ public class Environment {
   private final String hubTokenName;
   private final String hubTokenValue;
   private final String playerBaseURL;
+  private final String segmentBaseURL;
   private final String audioCacheFilePrefix;
   private final String tempFilePathPrefix;
   private final String chainBootstrapJsonPath;

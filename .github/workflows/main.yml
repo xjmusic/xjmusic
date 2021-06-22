@@ -31,6 +31,9 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Authenticate with AWS Elastic Kubernetes Service (EKS)
+        run: aws eks --region ${{ secrets.AWS_DEFAULT_REGION }} update-kubeconfig --name ${{ secrets.CLUSTER_NAME }}
+
       - name: Setup JDK 11
         uses: actions/setup-java@v1
         with:
@@ -66,4 +69,7 @@ jobs:
         id: jib
         run: "./gradlew --info --no-daemon jib"
         continue-on-error: false
+
+      - name: Kubernetes rollout deployment/nexus
+        run: "kubectl -n lab rollout restart deployment/nexus"
 
