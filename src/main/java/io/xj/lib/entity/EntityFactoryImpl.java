@@ -3,19 +3,17 @@
 package io.xj.lib.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.protobuf.MessageLite;
+import io.xj.lib.json.JsonProviderImpl;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Modifier;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -30,16 +28,15 @@ import java.util.function.Supplier;
  */
 @Singleton
 public class EntityFactoryImpl implements EntityFactory {
-  private final ObjectMapper mapper = new ObjectMapper();
   private static final Logger log = LoggerFactory.getLogger(EntityFactoryImpl.class);
+  private final JsonProviderImpl jsonProvider;
   Map<String, EntitySchema> schema = Maps.newConcurrentMap();
 
   @Inject
-  EntityFactoryImpl() {
-    SimpleModule module = new SimpleModule();
-    module.addSerializer(Instant.class, new InstantSerializer());
-    module.addDeserializer(Instant.class, new InstantDeserializer());
-    mapper.registerModule(module);
+  EntityFactoryImpl(
+    JsonProviderImpl jsonProvider
+  ) {
+    this.jsonProvider = jsonProvider;
   }
 
   @Override
@@ -175,7 +172,7 @@ public class EntityFactoryImpl implements EntityFactory {
   @Override
   public <N> N deserialize(Class<N> valueType, String json) throws EntityException {
     try {
-      return mapper.readValue(String.valueOf(json), valueType);
+      return jsonProvider.getObjectMapper().readValue(String.valueOf(json), valueType);
     } catch (JsonProcessingException e) {
       throw new EntityException("Failed to deserialize JSON", e);
     }
@@ -184,7 +181,7 @@ public class EntityFactoryImpl implements EntityFactory {
   @Override
   public String serialize(Object obj) throws EntityException {
     try {
-      return mapper.writeValueAsString(obj);
+      return jsonProvider.getObjectMapper().writeValueAsString(obj);
     } catch (JsonProcessingException e) {
       throw new EntityException("Failed to serialize JSON", e);
     }

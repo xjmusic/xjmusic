@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class JsonapiPayloadTest {
   private JsonapiPayload subject;
-  private PayloadFactory payloadFactory;
+  private JsonapiPayloadFactory jsonapiPayloadFactory;
 
   @Before
   public void setUp() {
@@ -39,9 +39,9 @@ public class JsonapiPayloadTest {
       }
     });
     var entityFactory = injector.getInstance(EntityFactory.class);
-    payloadFactory = injector.getInstance(PayloadFactory.class);
+    jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
     entityFactory.register(Program.class);
-    subject = payloadFactory.newJsonapiPayload();
+    subject = jsonapiPayloadFactory.newJsonapiPayload();
   }
 
   @Test
@@ -56,7 +56,7 @@ public class JsonapiPayloadTest {
 
   @Test
   public void isEmpty_falseAfterSetDataEntity() throws JsonApiException {
-    assertFalse(payloadFactory.setDataEntity(subject, Program.newBuilder()
+    assertFalse(jsonapiPayloadFactory.setDataEntity(subject, Program.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("Test")
       .build()).isEmpty());
@@ -64,7 +64,7 @@ public class JsonapiPayloadTest {
 
   @Test
   public void isEmpty_falseAfterSetDataEntities() throws JsonApiException {
-    assertFalse(payloadFactory.setDataEntities(subject, ImmutableList.of(Program.newBuilder()
+    assertFalse(jsonapiPayloadFactory.setDataEntities(subject, ImmutableList.of(Program.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setName("Test")
       .build())).isEmpty());
@@ -97,7 +97,7 @@ public class JsonapiPayloadTest {
 
   @Test
   public void type_hasOne_afterSetDataEntity() throws JsonApiException {
-    assertEquals(PayloadDataType.One, payloadFactory.setDataEntity(subject,
+    assertEquals(PayloadDataType.One, jsonapiPayloadFactory.setDataEntity(subject,
       Program.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setName("Test")
@@ -106,7 +106,7 @@ public class JsonapiPayloadTest {
 
   @Test
   public void type_hasMany_afterSetDataEntities() throws JsonApiException {
-    assertEquals(PayloadDataType.Many, payloadFactory.setDataEntities(subject,
+    assertEquals(PayloadDataType.Many, jsonapiPayloadFactory.setDataEntities(subject,
       ImmutableList.of(Program.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setName("Test")
@@ -135,7 +135,7 @@ public class JsonapiPayloadTest {
 
   @Test
   public void addIncluded() throws JsonApiException {
-    assertEquals(1, payloadFactory.addIncluded(subject, new JsonapiPayloadObject()).getIncluded().size());
+    assertEquals(1, jsonapiPayloadFactory.addIncluded(subject, new JsonapiPayloadObject()).getIncluded().size());
   }
 
   @Test
@@ -169,8 +169,8 @@ public class JsonapiPayloadTest {
       .setName("Shim")
       .build();
 
-    payloadFactory.setDataEntity(subject, entity1);
-    payloadFactory.addIncluded(subject, payloadFactory.toPayloadObject(entity2));
+    jsonapiPayloadFactory.setDataEntity(subject, entity1);
+    jsonapiPayloadFactory.addIncluded(subject, jsonapiPayloadFactory.toPayloadObject(entity2));
 
     assertTrue(subject.getLinks().isEmpty());
     assertTrue(subject.getDataOne().isPresent());
@@ -192,7 +192,7 @@ public class JsonapiPayloadTest {
 
   @Test
   public void setDataEntities_empty_setsDataTypeToHasMany() throws JsonApiException {
-    payloadFactory.setDataEntities(subject, ImmutableList.of());
+    jsonapiPayloadFactory.setDataEntities(subject, ImmutableList.of());
 
     assertEquals(PayloadDataType.Many, subject.getDataType());
   }

@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
+import io.xj.lib.json.ApiUrlProvider;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,18 +17,18 @@ import java.net.URI;
 import java.util.Objects;
 
 @Singleton
-class HttpResponseProviderImpl implements HttpResponseProvider {
-  private static final Logger log = LoggerFactory.getLogger(HttpResponseProviderImpl.class);
+class JsonapiHttpResponseProviderImpl implements JsonapiHttpResponseProvider {
+  private static final Logger log = LoggerFactory.getLogger(JsonapiHttpResponseProviderImpl.class);
   private final String appUrl;
-  private final PayloadFactory payloadFactory;
+  private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final ApiUrlProvider apiUrlProvider;
 
   @Inject
-  public HttpResponseProviderImpl(
-    PayloadFactory payloadFactory,
+  public JsonapiHttpResponseProviderImpl(
+    JsonapiPayloadFactory jsonapiPayloadFactory,
     ApiUrlProvider apiUrlProvider
   ) {
-    this.payloadFactory = payloadFactory;
+    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
 
     appUrl = apiUrlProvider.getAppBaseUrl();
     this.apiUrlProvider = apiUrlProvider;
@@ -45,12 +46,12 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
       return jsonapiPayload.getSelfURI().isPresent() ?
         Response
           .created(jsonapiPayload.getSelfURI().get())
-          .entity(payloadFactory.serialize(jsonapiPayload))
+          .entity(jsonapiPayloadFactory.serialize(jsonapiPayload))
           .type(MediaType.APPLICATION_JSON)
           .build() :
         Response
           .created(apiUrlProvider.getApiURI(""))
-          .entity(payloadFactory.serialize(jsonapiPayload))
+          .entity(jsonapiPayloadFactory.serialize(jsonapiPayload))
           .type(MediaType.APPLICATION_JSON)
           .build();
 
@@ -157,7 +158,7 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
     try {
       return Response
         .status(status)
-        .entity(payloadFactory.serialize(jsonapiPayload))
+        .entity(jsonapiPayloadFactory.serialize(jsonapiPayload))
         .build();
 
     } catch (JsonApiException e2) {
@@ -182,7 +183,7 @@ class HttpResponseProviderImpl implements HttpResponseProvider {
   public Response ok(JsonapiPayload jsonapiPayload) {
     try {
       return Response
-        .ok(payloadFactory.serialize(jsonapiPayload))
+        .ok(jsonapiPayloadFactory.serialize(jsonapiPayload))
         .type(MediaType.APPLICATION_JSON)
         .build();
 

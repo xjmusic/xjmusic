@@ -2,12 +2,9 @@
 
 package io.xj.lib.jsonapi;
 
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.inject.AbstractModule;
 import io.xj.lib.entity.EntityModule;
+import io.xj.lib.json.JsonModule;
 
 /**
  Injection module for REST API entity
@@ -18,10 +15,8 @@ public class JsonApiModule extends AbstractModule {
   @Override
   protected void configure() {
     install(new EntityModule());
-    bind(PayloadFactory.class).to(PayloadFactoryImpl.class);
-    bind(ApiUrlProvider.class).to(ApiUrlProviderImpl.class);
-    bind(HttpResponseProvider.class).to(HttpResponseProviderImpl.class);
-    bind(HttpTransport.class).to(NetHttpTransport.class);
-    bind(JsonFactory.class).to(JacksonFactory.class);
+    install(new JsonModule());
+    bind(JsonapiPayloadFactory.class).to(JsonapiPayloadFactoryImpl.class);
+    bind(JsonapiHttpResponseProvider.class).to(JsonapiHttpResponseProviderImpl.class);
   }
 }

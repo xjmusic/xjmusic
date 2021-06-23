@@ -3,10 +3,10 @@ package io.xj.nexus.api;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.lib.jsonapi.HttpResponseProvider;
+import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.JsonapiPayload;
-import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.dao.ChainBindingDAO;
 import io.xj.nexus.NexusEndpoint;
 
@@ -35,11 +35,11 @@ public class ChainBindingEndpoint extends NexusEndpoint {
   @Inject
   public ChainBindingEndpoint(
     ChainBindingDAO dao,
-    HttpResponseProvider response,
+    JsonapiHttpResponseProvider response,
     Config config,
-    PayloadFactory payloadFactory
+    JsonapiPayloadFactory jsonapiPayloadFactory
   ) {
-    super(response, config, payloadFactory);
+    super(response, config, jsonapiPayloadFactory);
     this.dao = dao;
   }
 

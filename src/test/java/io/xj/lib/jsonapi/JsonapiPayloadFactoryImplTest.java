@@ -19,10 +19,10 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class PayloadFactoryImplTest {
+public class JsonapiPayloadFactoryImplTest {
   @Rule
   public ExpectedException failure = ExpectedException.none();
-  private PayloadFactory subject;
+  private JsonapiPayloadFactory subject;
   private EntityFactory entityFactory;
 
   @Before
@@ -34,7 +34,7 @@ public class PayloadFactoryImplTest {
       }
     });
     entityFactory = injector.getInstance(EntityFactory.class);
-    subject = injector.getInstance(PayloadFactory.class);
+    subject = injector.getInstance(JsonapiPayloadFactory.class);
   }
 
   @Test

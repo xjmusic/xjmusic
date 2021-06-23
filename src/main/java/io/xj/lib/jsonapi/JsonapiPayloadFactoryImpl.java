@@ -32,11 +32,11 @@ import java.util.stream.Collectors;
  Created by Charney Kaye on 2020/03/09
  */
 @Singleton
-public class PayloadFactoryImpl implements PayloadFactory {
+public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
   private final EntityFactory entityFactory;
 
   @Inject
-  PayloadFactoryImpl(
+  JsonapiPayloadFactoryImpl(
     EntityFactory entityFactory
   ) {
     this.entityFactory = entityFactory;

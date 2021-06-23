@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import org.slf4j.Logger;
@@ -35,12 +34,10 @@ public class JsonapiPayloadObjectDeserializer extends StdDeserializer<JsonapiPay
   }
 
   @Override
-  public JsonapiPayloadObject deserialize(JsonParser jp, DeserializationContext ctxt)
+  public JsonapiPayloadObject deserialize(JsonParser jp, DeserializationContext context)
     throws IOException {
     JsonNode node = jp.getCodec().readTree(jp);
     JsonapiPayloadObject obj = new JsonapiPayloadObject();
-    ObjectMapper mapper = new ObjectMapper();
-
 
     JsonNode id = node.get(JsonapiPayloadObject.KEY_ID);
     if (Objects.nonNull(id))
@@ -54,6 +51,7 @@ public class JsonapiPayloadObjectDeserializer extends StdDeserializer<JsonapiPay
     if (Objects.nonNull(links) && JsonNodeType.OBJECT == links.getNodeType())
       links.forEach(includeNode -> {
         try {
+          //noinspection unchecked
           obj.getLinks().putAll(links.traverse(jp.getCodec()).readValueAs(Map.class));
         } catch (IOException e) {
           log.warn("Unable to put link create node!", e);
@@ -64,6 +62,7 @@ public class JsonapiPayloadObjectDeserializer extends StdDeserializer<JsonapiPay
     if (Objects.nonNull(attributes) && JsonNodeType.OBJECT == attributes.getNodeType())
       attributes.forEach(includeNode -> {
         try {
+          //noinspection unchecked
           obj.getAttributes().putAll(attributes.traverse(jp.getCodec()).readValueAs(Map.class));
         } catch (IOException e) {
           log.warn("Unable to put attribute create node!", e);

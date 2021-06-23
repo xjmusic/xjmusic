@@ -2,14 +2,14 @@
 
 package io.xj.nexus.hub_client.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
-import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -39,20 +39,23 @@ public class HubClientImpl implements HubClient {
   private final String baseUrl;
   private final String tokenName;
   private final Logger log = LoggerFactory.getLogger(HubClientImpl.class);
-  private final PayloadFactory payloadFactory;
+  private final JsonapiPayloadFactory jsonapiPayloadFactory;
+  private final JsonProviderImpl jsonProvider;
   private final String internalToken;
 
   @Inject
   public HubClientImpl(
     Environment env,
-    PayloadFactory payloadFactory
+    JsonapiPayloadFactory jsonapiPayloadFactory,
+    JsonProviderImpl jsonProvider
   ) {
-    this.payloadFactory = payloadFactory;
+    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
+    this.jsonProvider = jsonProvider;
     httpClient = HttpClients.createDefault();
 
-    tokenName = env.getHubTokenName();
-    baseUrl = env.getHubBaseURL();
-    internalToken = env.getHubTokenValue();
+    tokenName = env.getIngestTokenName();
+    baseUrl = env.getIngestURL();
+    internalToken = env.getIngestTokenValue();
   }
 
   @Override
@@ -69,8 +72,8 @@ public class HubClientImpl implements HubClient {
       // return content if successful.
       if (Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
         String entity = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
-        JsonapiPayload jsonapiPayload = payloadFactory.deserialize(entity);
-        return new HubContent(payloadFactory.toMany(jsonapiPayload));
+        JsonapiPayload jsonapiPayload = jsonapiPayloadFactory.deserialize(entity);
+        return new HubContent(jsonapiPayloadFactory.toMany(jsonapiPayload));
       }
 
       // if we got here, it's a failure
@@ -92,7 +95,7 @@ public class HubClientImpl implements HubClient {
     CloseableHttpResponse response;
     try {
       response = httpClient.execute(request);
-      access = new ObjectMapper().readValue(response.getEntity().getContent(), HubClientAccess.class);
+      access = jsonProvider.getObjectMapper().readValue(response.getEntity().getContent(), HubClientAccess.class);
     } catch (IOException e) {
       throw new HubClientException("Failed to authenticate with Hub API", e);
     }

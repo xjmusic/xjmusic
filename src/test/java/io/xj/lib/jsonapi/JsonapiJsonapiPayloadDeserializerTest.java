@@ -26,7 +26,7 @@ import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
  Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiJsonapiPayloadDeserializerTest {
-  private PayloadFactory payloadFactory;
+  private JsonapiPayloadFactory jsonapiPayloadFactory;
 
   @Before
   public void setUp() {
@@ -36,12 +36,12 @@ public class JsonapiJsonapiPayloadDeserializerTest {
         bind(Config.class).toInstance(ConfigFactory.empty());
       }
     });
-    payloadFactory = injector.getInstance(PayloadFactory.class);
+    jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
   }
 
   @Test
   public void deserializeOneIncludingEmbeddedEntities() throws IOException, JsonApiException {
-    JsonapiPayload result = payloadFactory.deserialize(readResourceFile("payload/deserializeOneIncludingEmbeddedEntities.json"));
+    JsonapiPayload result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeOneIncludingEmbeddedEntities.json"));
 
     assertPayload(result)
       .hasDataOne("programs", "805cf759-4e94-4275-a82d-5255c9e69347")
@@ -53,7 +53,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeOneWithRelationship() throws IOException, JsonApiException {
     JsonapiPayload result = null;
     try {
-      result = payloadFactory.deserialize(readResourceFile("payload/deserializeOneWithRelationship.json"));
+      result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeOneWithRelationship.json"));
     } catch (JsonApiException e) {
       e.printStackTrace();
     }
@@ -67,7 +67,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeOne() throws IOException, JsonApiException {
     JsonapiPayload result = null;
     try {
-      result = payloadFactory.deserialize(readResourceFile("payload/deserializeOne.json"));
+      result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeOne.json"));
     } catch (JsonApiException e) {
       e.printStackTrace();
     }
@@ -80,7 +80,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeErrors() throws IOException, JsonApiException {
     JsonapiPayload result = null;
     try {
-      result = payloadFactory.deserialize(readResourceFile("payload/deserializeErrors.json"));
+      result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeErrors.json"));
     } catch (JsonApiException e) {
       e.printStackTrace();
     }
@@ -93,7 +93,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeOneWithNullAttributeValue() throws IOException, JsonApiException {
     JsonapiPayload result = null;
     try {
-      result = payloadFactory.deserialize(readResourceFile("payload/deserializeOneWithNullAttributeValue.json"));
+      result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeOneWithNullAttributeValue.json"));
     } catch (JsonApiException e) {
       e.printStackTrace();
     }
@@ -106,7 +106,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   public void deserializeMany() throws IOException, JsonApiException {
     JsonapiPayload result = null;
     try {
-      result = payloadFactory.deserialize(readResourceFile("payload/deserializeMany.json"));
+      result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeMany.json"));
     } catch (JsonApiException e) {
       e.printStackTrace();
     }
@@ -121,7 +121,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
 
     JsonapiPayload result = null;
     try {
-      result = payloadFactory.deserialize(json);
+      result = jsonapiPayloadFactory.deserialize(json);
     } catch (JsonApiException e) {
       e.printStackTrace();
     }
@@ -136,7 +136,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
 
     JsonapiPayload result = null;
     try {
-      result = payloadFactory.deserialize(json);
+      result = jsonapiPayloadFactory.deserialize(json);
     } catch (JsonApiException e) {
       e.printStackTrace();
     }

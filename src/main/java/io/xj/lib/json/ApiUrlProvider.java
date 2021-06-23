@@ -1,5 +1,5 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.jsonapi;
+// Copyright (c) 1999-2021, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.lib.json;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -8,8 +8,12 @@ import io.xj.lib.app.Environment;
 
 import java.net.URI;
 
+/**
+ Provider of URLs using the injected configuration and some custom formatting
+ */
 @Singleton
-class ApiUrlProviderImpl implements ApiUrlProvider {
+public class ApiUrlProvider {
+
   private String appBaseUrl;
   private String appHost;
   private String appHostname;
@@ -23,7 +27,7 @@ class ApiUrlProviderImpl implements ApiUrlProvider {
   private String appPathWelcome;
 
   @Inject
-  public ApiUrlProviderImpl(Config config, Environment env) {
+  public ApiUrlProvider(Config config, Environment env) {
     this.appBaseUrl = env.getAppBaseURL();
     this.appName = config.getString("app.name");
     this.appPathUnauthorized = config.getString("api.unauthorizedRedirectPath");
@@ -33,118 +37,195 @@ class ApiUrlProviderImpl implements ApiUrlProvider {
     this.segmentBaseUrl = env.getSegmentBaseURL();
   }
 
-  @Override
+  /**
+   Get URI object for a path within the API
+
+   @param path within API
+   @return String
+   */
   public URI getApiURI(String path) {
     return URI.create(getApiUrlString(path));
   }
 
-  @Override
+  /**
+   Get URL String for a path within the API
+
+   @param path within API
+   @return String
+   */
   public String getApiUrlString(String path) {
     return getAppBaseUrl() + path;
   }
 
-  @Override
+  /**
+   @return app base URL
+   */
   public String getAppBaseUrl() {
     return appBaseUrl;
   }
 
-  @Override
+  /**
+   Get the URL for a path in the app
+   @param path to get URL for
+   @return RUL for given path
+   */
   public String getAppUrl(String path) {
     return String.format("%s%s", appBaseUrl, path);
   }
 
-  @Override
+  /**
+   @return app host
+   */
   public String getAppHost() {
     return appHost;
-
   }
 
-  @Override
+  /**
+   @return app hostname
+   */
   public String getAppHostname() {
     return appHostname;
   }
 
-  @Override
+  /**
+   @return app name
+   */
   public String getAppName() {
     return appName;
   }
 
-  @Override
-  public String getAudioBaseUrl() {
+  /**
+   @return Audio base URL (for Amazon S3)
+   */
+  public String getAudioBaseUrl() throws Exception {
     return audioBaseUrl;
   }
 
-  @Override
-  public String getSegmentBaseUrl() {
+  /**
+   @return Segments base URL (for Amazon S3)
+   */
+  public String getSegmentBaseUrl() throws Exception {
     return segmentBaseUrl;
   }
 
-  @Override
-  public String getPlayerBaseUrl() {
+  /**
+   @return Players base URL
+   */
+  public String getPlayerBaseUrl() throws Exception {
     return playerBaseUrl;
   }
 
-  @Override
+  /**
+   @return path for unauthorized redirect
+   */
   public String getAppPathUnauthorized() {
     return appPathUnauthorized;
   }
 
-  @Override
+  /**
+   @return path for unauthorized redirect
+   */
   public String getAppPathWelcome() {
     return appPathWelcome;
   }
 
-  @Override
+  /**
+   Set AppBaseUrl
+
+   @param appBaseUrl to set
+   @return this ApiUrlProvider (for chaining methods)
+   */
   public ApiUrlProvider setAppBaseUrl(String appBaseUrl) {
     this.appBaseUrl = appBaseUrl;
     return this;
   }
 
-  @Override
+  /**
+   Set AppHost
+
+   @param appHost to set
+   @return this ApiUrlProvider (for chaining methods)
+   */
   public ApiUrlProvider setAppHost(String appHost) {
     this.appHost = appHost;
     return this;
   }
 
-  @Override
+  /**
+   Set AppHostname
+
+   @param appHostname to set
+   @return this ApiUrlProvider (for chaining methods)
+   */
   public ApiUrlProvider setAppHostname(String appHostname) {
     this.appHostname = appHostname;
     return this;
   }
 
-  @Override
+  /**
+   Set AppName
+
+   @param appName to set
+   @return this ApiUrlProvider (for chaining methods)
+   */
   public ApiUrlProvider setAppName(String appName) {
     this.appName = appName;
     return this;
   }
 
-  @Override
+  /**
+   Set AudioBaseUrl
+
+   @param audioBaseUrl to set
+   @return this ApiUrlProvider (for chaining methods)
+   */
   public ApiUrlProvider setAudioBaseUrl(String audioBaseUrl) {
     this.audioBaseUrl = audioBaseUrl;
     return this;
   }
 
-  @Override
+  /**
+   Set SegmentBaseUrl
+
+   @param segmentBaseUrl to set
+   @return this ApiUrlProvider (for chaining methods)
+   */
   public ApiUrlProvider setSegmentBaseUrl(String segmentBaseUrl) {
     this.segmentBaseUrl = segmentBaseUrl;
     return this;
   }
 
-  @Override
+  /**
+   Set PlayerBaseUrl
+
+   @param playerBaseUrl to set
+   @return this ApiUrlProvider (for chaining methods)
+   */
   public ApiUrlProvider setPlayerBaseUrl(String playerBaseUrl) {
     this.playerBaseUrl = playerBaseUrl;
     return this;
   }
 
-  @Override
+  /**
+   Set AppPathUnauthorized
+
+   @param appPathUnauthorized to set
+   @return this ApiUrlProvider (for chaining methods)
+   */
   public ApiUrlProvider setAppPathUnauthorized(String appPathUnauthorized) {
     this.appPathUnauthorized = appPathUnauthorized;
     return this;
   }
 
-  @Override
-  public ApiUrlProvider setAppPathWelcome(String appPathWelcome) {
+  /**
+   Set AppPathWelcome
+
+   @param appPathWelcome to set
+   @return this ApiUrlProvider (for chaining methods)
+   */
+  public ApiUrlProvider setAppPathWelcome(String appPathWelcome){
     this.appPathWelcome = appPathWelcome;
     return this;
   }
+
 }

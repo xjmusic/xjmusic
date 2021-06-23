@@ -19,8 +19,8 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-public class HttpResponseProviderImplTest {
-  HttpResponseProvider subject;
+public class JsonapiHttpResponseProviderImplTest {
+  JsonapiHttpResponseProvider subject;
 
   @Before
   public void setUp() {
@@ -33,7 +33,7 @@ public class HttpResponseProviderImplTest {
           .withValue("api.welcomeRedirectPath", ConfigValueFactory.fromAnyRef("")));
       }
     });
-    subject = injector.getInstance(HttpResponseProvider.class);
+    subject = injector.getInstance(JsonapiHttpResponseProvider.class);
   }
 
   @Test

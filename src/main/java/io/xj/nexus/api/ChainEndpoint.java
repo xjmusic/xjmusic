@@ -8,11 +8,11 @@ import io.xj.Account;
 import io.xj.Chain;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.HttpResponseProvider;
+import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.MediaType;
-import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.dao.ChainDAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
@@ -53,12 +53,12 @@ public class ChainEndpoint extends NexusEndpoint {
   @Inject
   public ChainEndpoint(
     ChainDAO dao,
-    HttpResponseProvider response,
+    JsonapiHttpResponseProvider response,
     Config config,
-    PayloadFactory payloadFactory,
+    JsonapiPayloadFactory jsonapiPayloadFactory,
     EntityFactory entityFactory
   ) {
-    super(response, config, payloadFactory);
+    super(response, config, jsonapiPayloadFactory);
     this.dao = dao;
     this.entityFactory = entityFactory;
   }
@@ -79,8 +79,8 @@ public class ChainEndpoint extends NexusEndpoint {
         return response.notAcceptable("Account ID is required!");
 
       // read chain either by uuid (private) or string (public embed key) identifier
-      return response.ok(payloadFactory.newJsonapiPayload().setDataMany(
-        payloadFactory.toPayloadObjects(dao.readMany(access, ImmutableList.of(accountId)))));
+      return response.ok(jsonapiPayloadFactory.newJsonapiPayload().setDataMany(
+        jsonapiPayloadFactory.toPayloadObjects(dao.readMany(access, ImmutableList.of(accountId)))));
 
     } catch (DAOExistenceException e) {
       return response.notFound(Account.class, accountId);
@@ -110,10 +110,10 @@ public class ChainEndpoint extends NexusEndpoint {
       // if present, we will revive a prior chain, else create a new one
       var chain = Objects.nonNull(reviveId) && !reviveId.isEmpty() ?
         dao.revive(access, reviveId, String.format("Requested by User[%s]", access.getUserId())) :
-        dao.create(access, payloadFactory.consume(entityFactory.getInstance(Chain.class), jsonapiPayload));
+        dao.create(access, jsonapiPayloadFactory.consume(entityFactory.getInstance(Chain.class), jsonapiPayload));
 
       // create either a new chain, or a chain revived from an existing prior chain
-      return response.create(payloadFactory.newJsonapiPayload().setDataOne(payloadFactory.toPayloadObject(chain)));
+      return response.create(jsonapiPayloadFactory.newJsonapiPayload().setDataOne(jsonapiPayloadFactory.toPayloadObject(chain)));
 
     } catch (DAOPrivilegeException e) {
       return Objects.nonNull(reviveId) ?
@@ -154,8 +154,8 @@ public class ChainEndpoint extends NexusEndpoint {
       }
 
       // read chain either by uuid (private) or string (public embed key) identifier
-      return response.ok(payloadFactory.newJsonapiPayload().setDataOne(
-        payloadFactory.toPayloadObject(
+      return response.ok(jsonapiPayloadFactory.newJsonapiPayload().setDataOne(
+        jsonapiPayloadFactory.toPayloadObject(
           Objects.nonNull(uuidId) ?
             dao.readOne(access, uuidId) :
             dao.readOneByEmbedKey(access, identifier))));
@@ -190,8 +190,8 @@ public class ChainEndpoint extends NexusEndpoint {
         return response.notAcceptable("Chain ID is required!");
 
       // Consume input payload onto existing Chain record, then update
-      var chain = dao.update(access, id, payloadFactory.consume(dao.readOne(access, id), jsonapiPayload));
-      return response.ok(payloadFactory.newJsonapiPayload().setDataOne(payloadFactory.toPayloadObject(chain)));
+      var chain = dao.update(access, id, jsonapiPayloadFactory.consume(dao.readOne(access, id), jsonapiPayload));
+      return response.ok(jsonapiPayloadFactory.newJsonapiPayload().setDataOne(jsonapiPayloadFactory.toPayloadObject(chain)));
 
     } catch (DAOValidationException e) {
       return response.notAcceptable(e.getMessage());

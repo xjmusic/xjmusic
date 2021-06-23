@@ -19,7 +19,7 @@ import io.xj.SegmentMessage;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.jsonapi.JsonApiException;
-import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.SegmentDAO;
@@ -52,7 +52,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   private Segment segment;
 
   private final SegmentDAO segmentDAO;
-  private final PayloadFactory payloadFactory;
+  private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final HubClientAccess access;
   private final Map<String, Object> report = Maps.newConcurrentMap();
   private final EntityStore bench;
@@ -64,14 +64,14 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     @Assisted("chain") Chain chain,
     @Assisted("segment") Segment segment,
     SegmentDAO segmentDAO,
-    PayloadFactory payloadFactory,
+    JsonapiPayloadFactory jsonapiPayloadFactory,
     EntityStore entityStore
   ) throws NexusException {
     this.access = access;
     this.chain = chain;
     this.segment = segment;
     this.segmentDAO = segmentDAO;
-    this.payloadFactory = payloadFactory;
+    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.bench = entityStore;
 
     // fetch all sub entities of all segments and store the results in the corresponding entity cache
@@ -190,7 +190,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
    Returns the current report map as json, and clears the report so it'll only be reported once
    */
   private void sendReportToSegmentMessage() throws JsonApiException, NexusException {
-    String reported = payloadFactory.serialize(report);
+    String reported = jsonapiPayloadFactory.serialize(report);
     add(SegmentMessage.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment.getId())

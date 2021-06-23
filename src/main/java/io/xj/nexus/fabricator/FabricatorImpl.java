@@ -41,7 +41,7 @@ import io.xj.lib.entity.common.ProgramConfig;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
-import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
@@ -117,7 +117,7 @@ class FabricatorImpl implements Fabricator {
   private final SegmentDAO segmentDAO;
   private final FabricatorFactory fabricatorFactory;
   private Map<String, InstrumentAudio> previousInstrumentAudio;
-  private final PayloadFactory payloadFactory;
+  private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final Map<String, Optional<SegmentChordVoicing>> voicingForSegmentChordInstrumentType;
   private final Map<Instrument.Type, NoteRange> voicingNoteRange;
   private final Map<String, NoteRange> rangeForChoice;
@@ -140,10 +140,10 @@ class FabricatorImpl implements Fabricator {
     FileStoreProvider fileStoreProvider,
     FabricatorFactory fabricatorFactory,
     SegmentDAO segmentDAO,
-    PayloadFactory payloadFactory
+    JsonapiPayloadFactory jsonapiPayloadFactory
   ) throws NexusException {
     this.segmentDAO = segmentDAO;
-    this.payloadFactory = payloadFactory;
+    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     try {
       // FUTURE: [#165815496] Chain fabrication access control
       this.access = access;
@@ -805,13 +805,13 @@ class FabricatorImpl implements Fabricator {
   @Override
   public String getSegmentMetadataJson() throws NexusException {
     try {
-      return payloadFactory.serialize(payloadFactory.newJsonapiPayload()
-        .setDataOne(payloadFactory.toPayloadObject(workbench.getSegment()))
-        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentArrangements()))
-        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChoices()))
-        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentChords()))
-        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentMemes()))
-        .addAllToIncluded(payloadFactory.toPayloadObjects(workbench.getSegmentMessages())));
+      return jsonapiPayloadFactory.serialize(jsonapiPayloadFactory.newJsonapiPayload()
+        .setDataOne(jsonapiPayloadFactory.toPayloadObject(workbench.getSegment()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentArrangements()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoices()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChords()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMemes()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMessages())));
 
     } catch (JsonApiException e) {
       throw new NexusException(e);
@@ -822,12 +822,12 @@ class FabricatorImpl implements Fabricator {
   public String getChainMetadataJson() throws NexusException {
     try {
       JsonapiPayload jsonapiPayload = new JsonapiPayload();
-      jsonapiPayload.setDataOne(payloadFactory.toPayloadObject(chain));
+      jsonapiPayload.setDataOne(jsonapiPayloadFactory.toPayloadObject(chain));
       for (ChainBinding binding : chainBindings)
-        jsonapiPayload.addToIncluded(payloadFactory.toPayloadObject(binding));
+        jsonapiPayload.addToIncluded(jsonapiPayloadFactory.toPayloadObject(binding));
       for (Segment segment : segmentDAO.readManyFromSecondsUTC(access, getChainId(), Instant.now().getEpochSecond()))
-        jsonapiPayload.addToIncluded(payloadFactory.toPayloadObject(segment));
-      return payloadFactory.serialize(jsonapiPayload);
+        jsonapiPayload.addToIncluded(jsonapiPayloadFactory.toPayloadObject(segment));
+      return jsonapiPayloadFactory.serialize(jsonapiPayload);
 
     } catch (JsonApiException | DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
       throw new NexusException(e);

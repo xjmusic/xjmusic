@@ -468,4 +468,16 @@ public interface Text {
   static String toEmbedKey(String embedKey) {
     return toLowerScored(embedKey);
   }
+
+  /**
+   Parse a block of text containing environment variable key-value pairs, into a kev-value map
+
+   @param secretValue to parse
+   @return key-value map of environment variables
+   */
+  static Map<String, String> parseEnvironmentVariableKeyPairs(String secretValue) {
+    return Arrays.stream(secretValue.split("\n"))
+      .map(pair -> pair.split("="))
+      .collect(Collectors.toMap(p -> p[0], p -> p[1]));
+  }
 }

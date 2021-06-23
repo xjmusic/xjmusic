@@ -2,7 +2,6 @@
 
 package io.xj.nexus.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
@@ -12,9 +11,11 @@ import io.xj.Account;
 import io.xj.Chain;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreModule;
+import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonApiModule;
 import io.xj.lib.jsonapi.JsonapiPayload;
@@ -25,10 +26,10 @@ import io.xj.nexus.dao.NexusDAOModule;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.nexus.testing.NexusTestConfiguration;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubClientModule;
 import io.xj.nexus.persistence.NexusEntityStoreModule;
+import io.xj.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +44,6 @@ import java.util.UUID;
 
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static io.xj.nexus.hub_client.client.HubClientAccess.CONTEXT_KEY;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeHubClientAccess;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -55,13 +55,16 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChainEndpointTest {
+  private HubClientAccess access;
+  private ChainEndpoint subject;
+  private Account account25;
+  private JsonProviderImpl jsonProvider;
   @Mock
   ContainerRequestContext crc;
   @Mock
   ChainDAO chainDAO;
-  private HubClientAccess access;
-  private ChainEndpoint subject;
-  private Account account25;
+  @Mock
+  Environment env;
 
   @Before
   public void setUp() throws AppException {
@@ -78,6 +81,7 @@ public class ChainEndpointTest {
         @Override
         public void configure() {
           bind(ChainDAO.class).toInstance(chainDAO);
+          bind(Environment.class).toInstance(env);
         }
       }))));
     Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
@@ -88,6 +92,7 @@ public class ChainEndpointTest {
       .build();
     access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account25), "User,Artist");
     subject = injector.getInstance(ChainEndpoint.class);
+    jsonProvider = injector.getInstance(JsonProviderImpl.class);
     injector.injectMembers(subject);
   }
 
@@ -120,7 +125,7 @@ public class ChainEndpointTest {
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
-    assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
+    assertPayload(jsonProvider.getObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
       .hasDataMany("chains", ImmutableList.of(chain1.getId(), chain2.getId()));
   }
 
@@ -145,7 +150,7 @@ public class ChainEndpointTest {
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());
-    assertPayload(new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
+    assertPayload(jsonProvider.getObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class))
       .hasDataOne("chains", chain17.getId());
   }
 

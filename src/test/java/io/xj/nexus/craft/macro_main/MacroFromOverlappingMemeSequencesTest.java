@@ -11,7 +11,7 @@ import io.xj.*;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
-import io.xj.lib.jsonapi.ApiUrlProvider;
+import io.xj.lib.json.ApiUrlProvider;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.testing.NexusTestConfiguration;

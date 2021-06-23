@@ -5,7 +5,6 @@ package io.xj.lib.jsonapi;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.xj.Program;
@@ -16,7 +15,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class JsonapiPayloadErrorTest {
-  PayloadFactory payloadFactory;
+  JsonapiPayloadFactory jsonapiPayloadFactory;
   PayloadError subject;
 
   @Before
@@ -27,10 +26,10 @@ public class JsonapiPayloadErrorTest {
         bind(Config.class).toInstance(ConfigFactory.empty());
       }
     });
-    payloadFactory = injector.getInstance(PayloadFactory.class);
+    jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
     entityFactory.register(Program.class);
-    subject = payloadFactory.newPayloadError();
+    subject = jsonapiPayloadFactory.newPayloadError();
   }
 
   @Test

@@ -4,7 +4,7 @@ package io.xj.lib.jsonapi;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
-public interface HttpResponseProvider {
+public interface JsonapiHttpResponseProvider {
 
   /**
    Return a simple response that a record was accepted

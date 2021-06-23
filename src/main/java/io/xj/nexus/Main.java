@@ -2,9 +2,11 @@
 package io.xj.nexus;
 
 import ch.qos.logback.classic.LoggerContext;
+import com.amazonaws.services.secretsmanager.AWSSecretsManager;
+import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
+import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
-import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
@@ -15,9 +17,9 @@ import io.xj.nexus.craft.CraftModule;
 import io.xj.nexus.dao.NexusDAOModule;
 import io.xj.nexus.dub.DubModule;
 import io.xj.nexus.fabricator.NexusFabricatorModule;
-import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.hub_client.client.HubClientModule;
 import io.xj.nexus.persistence.NexusEntityStoreModule;
+import io.xj.nexus.work.NexusWorkModule;
 import org.slf4j.LoggerFactory;
 
 import java.net.UnknownHostException;
@@ -39,7 +41,6 @@ public interface Main {
     new NexusEntityStoreModule(),
     new NexusWorkModule()
   );
-  int defaultPort = 3002;
 
   /**
    Main method.
@@ -48,15 +49,12 @@ public interface Main {
    */
   @SuppressWarnings("DuplicatedCode")
   static void main(String[] args) throws AppException, UnknownHostException {
+    var config = AppConfiguration.getDefault();
+    var env = Environment.fromSystem();
+    if (0 < env.getAwsSecretName().length())
+      env = Environment.augmentSystem(getSecret(env.getAwsDefaultRegion(), env.getAwsSecretName()));
 
-    // Get default configuration
-    var defaults = AppConfiguration.getDefault()
-      .withValue("app.port", ConfigValueFactory.fromAnyRef(defaultPort));
-
-    // Read configuration from arguments to program, with default fallbacks
-    var config = AppConfiguration.parseArgs(args, defaults);
     var injector = AppConfiguration.inject(config, injectorModules);
-    var env = injector.getInstance(Environment.class);
 
     // Add context to logs
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -74,5 +72,25 @@ public interface Main {
 
     // start
     app.start();
+  }
+
+
+  /**
+   AWS code snippet for fetching app secret.
+   If you need more information about configurations or implementing the sample code, visit the AWS docs:
+   https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-samples.html#prerequisites
+   <p>
+   In this sample we only handle the specific exceptions for the 'GetSecretValue' API.
+   See https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+   Runtime exceptions are passed through.
+
+   @param region     from which to get secret
+   @param secretName to retrieve
+   @return app secret
+   */
+  static String getSecret(String region, String secretName) {
+    AWSSecretsManager client = AWSSecretsManagerClientBuilder.standard().withRegion(region).build();
+    GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest().withSecretId(secretName);
+    return client.getSecretValue(getSecretValueRequest).getSecretString();
   }
 }

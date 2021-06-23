@@ -25,7 +25,7 @@ import java.util.function.Predicate;
  <p>
  Created by Charney Kaye on 2020/03/09
  */
-public interface PayloadFactory {
+public interface JsonapiPayloadFactory {
 
   /**
    Consume all data of a payload:

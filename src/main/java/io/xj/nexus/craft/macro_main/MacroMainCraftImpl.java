@@ -15,7 +15,7 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChord;
 import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
-import io.xj.lib.jsonapi.ApiUrlProvider;
+import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.util.Chance;

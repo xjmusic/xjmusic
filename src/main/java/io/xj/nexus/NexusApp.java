@@ -3,17 +3,12 @@ package io.xj.nexus;
 
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
-import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
-import io.xj.lib.jsonapi.JsonApiException;
-import io.xj.lib.jsonapi.JsonapiPayload;
-import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.json.JsonProvider;
 import io.xj.lib.util.TempFile;
 import io.xj.lib.util.Text;
 import io.xj.nexus.api.NexusAccessLogFilter;
@@ -28,16 +23,12 @@ import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.work.NexusWork;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  Base application for XJ services.
@@ -62,6 +53,7 @@ public class NexusApp extends App {
   private final org.slf4j.Logger LOG = LoggerFactory.getLogger(NexusApp.class);
   private final NexusWork work;
   private final String platformRelease;
+  private final JsonProvider jsonProvider;
 
   /**
    Construct a new application by providing
@@ -85,6 +77,7 @@ public class NexusApp extends App {
 
     // core delegates
     work = injector.getInstance(NexusWork.class);
+    jsonProvider = injector.getInstance(JsonProvider.class);
 
     // Setup Entity topology
     var entityFactory = injector.getInstance(EntityFactory.class);
@@ -99,66 +92,39 @@ public class NexusApp extends App {
 
     // Register JAX-RS filter for reading access control token
     HubClient hubClient = injector.getInstance(HubClient.class);
-    getResourceConfig().register(new HubAccessTokenFilter(hubClient, env.getHubTokenName()));
+    getResourceConfig().register(new HubAccessTokenFilter(hubClient, env.getIngestTokenName()));
 
     // [#176285826] Nexus bootstraps Chains from JSON file on startup
-    var payloadFactory = injector.getInstance(PayloadFactory.class);
     var chainDAO = injector.getInstance(ChainDAO.class);
     var access = HubClientAccess.internal();
 
     //[#176374643] Chains bootstrapped by Nexus are delayed by N seconds
-    if (0 < env.getChainBootstrapJsonPath().length()) {
-      LOG.info("Will bootstrap chain from {}", env.getChainBootstrapJsonPath());
+    if (0 < env.getChainBootstrapJson().length()) {
+      LOG.info("Will bootstrap chain from {}", env.getChainBootstrapJson());
       int bootstrapDelaySeconds = config.getInt("nexus.bootstrapDelaySeconds");
       ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
       executorService.schedule(() ->
-        bootstrapFromPath(env.getChainBootstrapJsonPath(), payloadFactory, entityFactory, chainDAO, access), bootstrapDelaySeconds, TimeUnit.SECONDS);
+      {
+        try {
+          bootstrapFromJson(env.getChainBootstrapJson(), chainDAO, access);
+
+        } catch (IOException e) {
+          LOG.error("Failed to bootstrap!", e);
+        }
+      }, bootstrapDelaySeconds, TimeUnit.SECONDS);
     } else {
-      LOG.info("No Chain Bootstrap specified! {}", env.getChainBootstrapJsonPath());
+      LOG.info("No Chain Bootstrap specified! {}", env.getChainBootstrapJson());
     }
   }
 
-  private void bootstrapFromPath(String bootstrapJsonFilename, PayloadFactory payloadFactory, EntityFactory entityFactory, ChainDAO chainDAO, HubClientAccess access) {
+
+  private void bootstrapFromJson(String chainBootstrapJson, ChainDAO chainDAO, HubClientAccess access) throws IOException {
+    var bootstrap = jsonProvider.getObjectMapper().readValue(chainBootstrapJson, NexusChainBootstrapPayload.class);
     try {
-      bootstrapFromPayload(payloadFactory.deserialize(new BufferedReader(new FileReader(bootstrapJsonFilename))), payloadFactory, entityFactory, chainDAO, access);
-
-    } catch (FileNotFoundException e) {
-      LOG.info("Failed to locate chain bootstrap JSON file: {}", e.getMessage());
-
-    } catch (JsonApiException e) {
-      LOG.warn("Failed to read specified chain bootstrap JSON file {}", bootstrapJsonFilename, e);
+      chainDAO.bootstrap(access, bootstrap.getChain(), bootstrap.getChainBindings());
+    } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
+      LOG.error("Failed to add binding to bootstrap Chain!", e);
     }
-  }
-
-  private void bootstrapFromPayload(JsonapiPayload bootstrapJsonapiPayload, PayloadFactory payloadFactory, EntityFactory entityFactory, ChainDAO chainDAO, HubClientAccess access) {
-    bootstrapJsonapiPayload.getDataMany().stream()
-      .filter(entity -> entity.isType(Chain.class))
-      .flatMap(entity -> {
-        try {
-          return Stream.of(payloadFactory.consume(entityFactory.getInstance(Chain.class), entity));
-        } catch (JsonApiException | EntityException e) {
-          LOG.error("Failed to bootstrap Chain!", e);
-          return Stream.empty();
-        }
-      })
-      .forEach(chain -> {
-        try {
-          chainDAO.bootstrap(access, chain,
-            bootstrapJsonapiPayload.getIncluded().stream()
-              .filter(entity -> entity.isType(ChainBinding.class))
-              .flatMap(entity -> {
-                try {
-                  return Stream.of(payloadFactory.consume(entityFactory.getInstance(ChainBinding.class), entity));
-                } catch (JsonApiException | EntityException e) {
-                  LOG.error("Failed to bootstrap Chain!", e);
-                  return Stream.empty();
-                }
-              })
-              .collect(Collectors.toList()));
-        } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
-          LOG.error("Failed to add binding to bootstrap Chain!", e);
-        }
-      });
   }
 
   /**
@@ -200,6 +166,8 @@ public class NexusApp extends App {
    @return base URI
    */
   public String getBaseURI() {
+    //noinspection HttpUrlsUsage
     return "http://" + getRestHostname() + ":" + getRestPort() + "/";
   }
+
 }

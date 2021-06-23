@@ -1,6 +1,6 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 1999-2021, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.lib.jsonapi;
+package io.xj.lib.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;

@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
  Created by Charney Kaye on 2020/03/09
  */
 public class JsonapiJsonapiPayloadObjectTest {
-  PayloadFactory payloadFactory;
+  JsonapiPayloadFactory jsonapiPayloadFactory;
   EntityFactory entityFactory;
   JsonapiPayloadObject subject;
 
@@ -43,10 +43,10 @@ public class JsonapiJsonapiPayloadObjectTest {
         bind(Config.class).toInstance(ConfigFactory.empty());
       }
     });
-    payloadFactory = injector.getInstance(PayloadFactory.class);
+    jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
     entityFactory = injector.getInstance(EntityFactory.class);
     entityFactory.register(Program.class);
-    subject = payloadFactory.newPayloadObject();
+    subject = jsonapiPayloadFactory.newPayloadObject();
   }
 
   @Test
@@ -55,7 +55,7 @@ public class JsonapiJsonapiPayloadObjectTest {
       .setId(UUID.randomUUID().toString())
       .setName("Test Program")
       .build();
-    subject.add("parentEntity", payloadFactory.setDataEntity(payloadFactory.newJsonapiPayload(), parentEntity1));
+    subject.add("parentEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), parentEntity1));
 
     assertTrue(subject.getRelationships().get("parentEntity").getDataOne().isPresent());
     assertEquals(parentEntity1.getId(), subject.getRelationships().get("parentEntity").getDataOne().get().getId());
@@ -74,10 +74,10 @@ public class JsonapiJsonapiPayloadObjectTest {
       .build();
     entityFactory.register(Library.class);
     entityFactory.register(Program.class).belongsTo(Library.class);
-    subject = payloadFactory.toPayloadObject(library1);
-    JsonapiPayloadObject rel = payloadFactory.toPayloadObject(program2);
+    subject = jsonapiPayloadFactory.toPayloadObject(library1);
+    JsonapiPayloadObject rel = jsonapiPayloadFactory.toPayloadObject(program2);
 
-    payloadFactory.addIfRelated(subject, rel);
+    jsonapiPayloadFactory.addIfRelated(subject, rel);
 
     assertPayloadObject(subject)
       .hasMany(Program.class, ImmutableList.of(program2));
@@ -99,7 +99,7 @@ public class JsonapiJsonapiPayloadObjectTest {
       .setId(UUID.randomUUID().toString())
       .setName("Test Program")
       .build();
-    subject = payloadFactory.toPayloadObject(parentEntity1);
+    subject = jsonapiPayloadFactory.toPayloadObject(parentEntity1);
 
     JsonapiPayloadObject result = subject.toMinimal();
 
@@ -143,7 +143,7 @@ public class JsonapiJsonapiPayloadObjectTest {
       .setId(UUID.randomUUID().toString())
       .setName("Test Program")
       .build();
-    subject.add("parentEntity", payloadFactory.setDataEntity(payloadFactory.newJsonapiPayload(), parentEntity1));
+    subject.add("parentEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), parentEntity1));
 
     assertTrue(subject.getRelationshipDataOne("parentEntity").isPresent());
     assertEquals(parentEntity1.getId(), subject.getRelationshipDataOne("parentEntity").get().getId());
@@ -152,11 +152,11 @@ public class JsonapiJsonapiPayloadObjectTest {
   @Test
   public void getRelationships_setRelationships() throws JsonApiException {
     subject.setRelationships(ImmutableMap.of(
-      "parentEntity", payloadFactory.setDataEntity(payloadFactory.newJsonapiPayload(), Program.newBuilder()
+      "parentEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), Program.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setName("Test Program")
         .build()),
-      "childEntity", payloadFactory.setDataEntity(payloadFactory.newJsonapiPayload(), Program.newBuilder()
+      "childEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), Program.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setName("Test Program")
         .build())

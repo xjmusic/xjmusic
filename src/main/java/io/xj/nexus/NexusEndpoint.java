@@ -5,10 +5,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
-import io.xj.lib.jsonapi.HttpResponseProvider;
+import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.PayloadDataType;
-import io.xj.lib.jsonapi.PayloadFactory;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.dao.DAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
@@ -33,21 +33,21 @@ public class NexusEndpoint {
   public static final String INTERNAL = "Internal";
   public static final String USER = "User";
   protected final Config config;
-  protected final HttpResponseProvider response;
-  protected final PayloadFactory payloadFactory;
+  protected final JsonapiHttpResponseProvider response;
+  protected final JsonapiPayloadFactory jsonapiPayloadFactory;
 
   /**
    Constructor
    */
   @Inject
   public NexusEndpoint(
-    HttpResponseProvider response,
+    JsonapiHttpResponseProvider response,
     Config config,
-    PayloadFactory payloadFactory
+    JsonapiPayloadFactory jsonapiPayloadFactory
   ) {
     this.response = response;
     this.config = config;
-    this.payloadFactory = payloadFactory;
+    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
   }
 
   /**
@@ -62,10 +62,10 @@ public class NexusEndpoint {
   public <N extends MessageLite> Response create(ContainerRequestContext crc, DAO<N> dao, JsonapiPayload jsonapiPayload) {
     try {
       HubClientAccess hubClientAccess = HubClientAccess.fromContext(crc);
-      N createdEntity = dao.create(hubClientAccess, payloadFactory.consume(dao.newInstance(), jsonapiPayload));
+      N createdEntity = dao.create(hubClientAccess, jsonapiPayloadFactory.consume(dao.newInstance(), jsonapiPayload));
 
       JsonapiPayload responseData = new JsonapiPayload();
-      responseData.setDataOne(payloadFactory.toPayloadObject(createdEntity));
+      responseData.setDataOne(jsonapiPayloadFactory.toPayloadObject(createdEntity));
       return response.create(responseData);
 
     } catch (Exception e) {
@@ -86,7 +86,7 @@ public class NexusEndpoint {
     try {
       Object entity = dao.readOne(HubClientAccess.fromContext(crc), String.valueOf(id));
       JsonapiPayload jsonapiPayload = new JsonapiPayload();
-      jsonapiPayload.setDataOne(payloadFactory.toPayloadObject(entity));
+      jsonapiPayload.setDataOne(jsonapiPayloadFactory.toPayloadObject(entity));
       return response.ok(jsonapiPayload);
 
     } catch (DAOExistenceException | DAOFatalException | DAOPrivilegeException ignored) {
@@ -111,7 +111,7 @@ public class NexusEndpoint {
       Collection<N> entities = dao.readMany(HubClientAccess.fromContext(crc), parentIds.stream().map((Function<Object, String>) String::valueOf).collect(Collectors.toList()));
       JsonapiPayload jsonapiPayload = new JsonapiPayload();
       jsonapiPayload.setDataType(PayloadDataType.Many);
-      for (N entity : entities) jsonapiPayload.addData(payloadFactory.toPayloadObject(entity));
+      for (N entity : entities) jsonapiPayload.addData(jsonapiPayloadFactory.toPayloadObject(entity));
       return response.ok(jsonapiPayload);
 
     } catch (Exception e) {
@@ -149,8 +149,8 @@ public class NexusEndpoint {
     try {
       HubClientAccess hubClientAccess = HubClientAccess.fromContext(crc);
       N current = dao.readOne(hubClientAccess, id);
-      var updated = dao.update(hubClientAccess, id, payloadFactory.consume(current, jsonapiPayload));
-      return response.ok(new JsonapiPayload().setDataOne(payloadFactory.toPayloadObject(updated)));
+      var updated = dao.update(hubClientAccess, id, jsonapiPayloadFactory.consume(current, jsonapiPayload));
+      return response.ok(new JsonapiPayload().setDataOne(jsonapiPayloadFactory.toPayloadObject(updated)));
 
     } catch (Exception e) {
       return response.notAcceptable(e);

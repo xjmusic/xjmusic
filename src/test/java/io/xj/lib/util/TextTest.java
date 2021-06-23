@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
+import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 import org.junit.Test;
@@ -204,5 +205,14 @@ public class TextTest {
 
     assertTrue(result.contains("outputChannels=4"));
     assertTrue(result.contains("outputFrameRate=35"));
+  }
+
+  @Test
+  public void parseEnvironmentVariableKeyPairs() {
+    assertEquals(ImmutableMap.of(
+      "YO", "MA",
+      "HELLA", "BEANS"
+      ),
+      Text.parseEnvironmentVariableKeyPairs("YO=MA\nHELLA=BEANS"));
   }
 }

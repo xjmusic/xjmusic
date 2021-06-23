@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 public class InstantSerdesTest {
   private Instant subject;
   private String subjectJson;
-  private PayloadFactory payloadFactory;
+  private JsonapiPayloadFactory jsonapiPayloadFactory;
   private EntityFactory entityFactory;
 
   @Before
