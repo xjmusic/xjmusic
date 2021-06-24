@@ -62,7 +62,7 @@ public class HubClientImpl implements HubClient {
     ingestTokenValue = env.getIngestTokenValue();
 
     String obscuredSecret = Arrays.stream(ingestTokenValue.split("")).map(c -> "*").collect(Collectors.joining());
-    LOG.info("Will connect to Hub at {} with token '{}' value '{}'", ingestUrl, ingestTokenName, obscuredSecret);
+    LOG.info("Will connect to Hub at {} with token '{}' value '{}'", ingestUrl, ingestTokenName, ingestTokenValue);
   }
 
   @Override
@@ -112,10 +112,10 @@ public class HubClientImpl implements HubClient {
    Set the access token cookie header for a request to Hub
 
    @param request     to set cookie header for
-   @param accessToken to set
+   @param value to set
    */
-  private void setAccessCookie(HttpGet request, String accessToken) {
-    request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, accessToken));
+  private void setAccessCookie(HttpGet request, String value) {
+    request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, value));
   }
 
   /**
