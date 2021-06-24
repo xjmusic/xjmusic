@@ -4,6 +4,7 @@ package io.xj.nexus.hub_client.client;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.json.JsonProviderImpl;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 /**
  Implementation of a Hub Client for connecting to Hub and accessing contents
  */
+@Singleton
 public class HubClientImpl implements HubClient {
   private final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   private static final String API_PATH_INGEST = "api/1/ingest";
