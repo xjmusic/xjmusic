@@ -92,7 +92,6 @@ public class HubClientImpl implements HubClient {
   public HubClientAccess auth(String accessToken) throws HubClientException {
     HttpGet request = new HttpGet(buildURI(HubClientImpl.API_PATH_AUTH, ImmutableMap.of()));
     request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, accessToken));
-    request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, ingestTokenValue));
     HubClientAccess access;
     CloseableHttpResponse response;
     try {
