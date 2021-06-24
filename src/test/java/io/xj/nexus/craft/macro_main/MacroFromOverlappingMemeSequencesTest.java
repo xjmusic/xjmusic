@@ -9,6 +9,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.*;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.json.ApiUrlProvider;
@@ -55,7 +56,8 @@ public class MacroFromOverlappingMemeSequencesTest {
     Config config = NexusTestConfiguration.getDefault()
       .withValue("program.doTranspose", ConfigValueFactory.fromAnyRef(true))
       .withValue("instrument.isTonal", ConfigValueFactory.fromAnyRef(true));
-    Injector injector = AppConfiguration.inject(config,
+    Environment env = Environment.getDefault();
+    Injector injector = AppConfiguration.inject(config, env,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override

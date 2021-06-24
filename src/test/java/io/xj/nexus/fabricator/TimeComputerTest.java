@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
+import io.xj.lib.app.Environment;
 import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
@@ -23,7 +24,8 @@ public class TimeComputerTest {
   @Before
   public void setUp() throws AppException {
     Config config = NexusTestConfiguration.getDefault();
-    var injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusWorkModule(), new NexusFabricatorModule()));
+    Environment env = Environment.getDefault();
+    var injector = AppConfiguration.inject(config, env, ImmutableSet.of(new NexusWorkModule(), new NexusFabricatorModule()));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
   }
 

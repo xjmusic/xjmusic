@@ -102,7 +102,7 @@ public class FabricatorImplTest {
   @Before
   public void setUp() throws Exception {
     config = NexusTestConfiguration.getDefault();
-    var injector = AppConfiguration.inject(config, ImmutableSet.of(Modules.override(new FileStoreModule(), new NexusDAOModule(), new HubClientModule(), new NexusEntityStoreModule(), new MixerModule(), new JsonApiModule(), new NexusWorkModule()).with(
+    var injector = AppConfiguration.inject(config, env, ImmutableSet.of(Modules.override(new FileStoreModule(), new NexusDAOModule(), new HubClientModule(), new NexusEntityStoreModule(), new MixerModule(), new JsonApiModule(), new NexusWorkModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {

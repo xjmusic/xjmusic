@@ -13,6 +13,7 @@ import io.xj.Chain;
 import io.xj.Segment;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -53,8 +54,8 @@ public class JanitorWorkerImplTest {
       .withValue("work.medicDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.chainDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.concurrency", ConfigValueFactory.fromAnyRef(1));
-
-    var injector = AppConfiguration.inject(config,
+    Environment env = Environment.getDefault();
+    var injector = AppConfiguration.inject(config, env,
       ImmutableSet.of(Modules.override(new NexusWorkModule()).with(
         new AbstractModule() {
           @Override

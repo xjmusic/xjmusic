@@ -80,7 +80,7 @@ public class AppConfigurationTest {
    */
   @Test
   public void getDefault() {
-    assertEquals(3001, AppConfiguration.getDefault().getInt("app.port"));
+    assertEquals(3002, AppConfiguration.getDefault().getInt("app.port"));
   }
 
   /**

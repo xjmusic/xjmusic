@@ -9,6 +9,7 @@ import io.xj.Account;
 import io.xj.Chain;
 import io.xj.Segment;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -63,7 +64,8 @@ public class SegmentDAOImplTest {
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault()
       .withValue("segment.limitReadSize", ConfigValueFactory.fromAnyRef(12));
-    var injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusDAOModule()));
+    Environment env = Environment.getDefault();
+    var injector = AppConfiguration.inject(config, env, ImmutableSet.of(new NexusDAOModule()));
     entityFactory = injector.getInstance(EntityFactory.class);
     Topology.buildHubApiTopology(entityFactory);
     Topology.buildNexusApiTopology(entityFactory);

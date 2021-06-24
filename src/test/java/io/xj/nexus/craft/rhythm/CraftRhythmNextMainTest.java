@@ -16,6 +16,7 @@ import io.xj.SegmentChoice;
 import io.xj.SegmentChord;
 import io.xj.SegmentMeme;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusException;
@@ -72,7 +73,8 @@ public class CraftRhythmNextMainTest {
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
-    injector = AppConfiguration.inject(config,
+    Environment env = Environment.getDefault();
+    injector = AppConfiguration.inject(config, env,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override

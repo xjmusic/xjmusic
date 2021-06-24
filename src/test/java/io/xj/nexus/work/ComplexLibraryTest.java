@@ -9,6 +9,7 @@ import com.typesafe.config.ConfigValueFactory;
 import io.xj.Chain;
 import io.xj.ChainBinding;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -74,7 +75,8 @@ public class ComplexLibraryTest {
       .withValue("work.bossDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.chainDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.concurrency", ConfigValueFactory.fromAnyRef(1));
-    var injector = AppConfiguration.inject(config,
+    Environment env = Environment.getDefault();
+    var injector = AppConfiguration.inject(config, env,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override

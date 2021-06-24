@@ -13,6 +13,7 @@ import io.xj.Program;
 import io.xj.Segment;
 import io.xj.User;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.util.Value;
@@ -74,7 +75,8 @@ public class ChainDAOImplTest {
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
-    var injector = AppConfiguration.inject(config, ImmutableSet.of(new NexusDAOModule()));
+    Environment env = Environment.getDefault();
+    var injector = AppConfiguration.inject(config, env, ImmutableSet.of(new NexusDAOModule()));
     chainBindingDAO = injector.getInstance(ChainBindingDAO.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
     Topology.buildHubApiTopology(entityFactory);

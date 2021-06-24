@@ -17,6 +17,7 @@ import io.xj.ProgramVoice;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangementPick;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
@@ -117,7 +118,8 @@ public class ArrangementCraftTests extends YamlTest {
   @Before
   public void setUp() throws AppException {
     Config config = NexusTestConfiguration.getDefault();
-    injector = AppConfiguration.inject(config,
+    Environment env = Environment.getDefault();
+    injector = AppConfiguration.inject(config, env,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override

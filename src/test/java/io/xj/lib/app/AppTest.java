@@ -27,7 +27,8 @@ public class AppTest {
     Config config = AppConfiguration.getDefault()
       .withValue("app.name", ConfigValueFactory.fromAnyRef("test"))
       .withValue("app.port", ConfigValueFactory.fromAnyRef(1903));
-    var injector = AppConfiguration.inject(config, ImmutableSet.of());
+    Environment env = Environment.getDefault();
+    var injector = AppConfiguration.inject(config, env, ImmutableSet.of());
     subject = new App(injector, Collections.singleton("io.xj.lib.app"));
     subject.start();
   }

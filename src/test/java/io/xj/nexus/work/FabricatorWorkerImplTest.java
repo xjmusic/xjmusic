@@ -13,6 +13,7 @@ import io.xj.Segment;
 import io.xj.SegmentMessage;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
@@ -63,8 +64,8 @@ public class FabricatorWorkerImplTest {
       .withValue("work.medicDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.chainDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.concurrency", ConfigValueFactory.fromAnyRef(1));
-
-    var injector = AppConfiguration.inject(mockConfig,
+    Environment env = Environment.getDefault();
+    var injector = AppConfiguration.inject(mockConfig, env,
       ImmutableSet.of(Modules.override(new NexusWorkModule()).with(
         new AbstractModule() {
           @Override

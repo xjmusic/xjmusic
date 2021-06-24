@@ -18,6 +18,7 @@ import io.xj.SegmentChord;
 import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
@@ -68,7 +69,8 @@ public class CraftDetailProgramVoiceInitialTest {
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
-    var injector = AppConfiguration.inject(config,
+    Environment env = Environment.getDefault();
+    var injector = AppConfiguration.inject(config, env,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override

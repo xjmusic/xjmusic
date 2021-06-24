@@ -11,6 +11,7 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.*;
 import io.xj.lib.app.AppConfiguration;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
@@ -63,7 +64,8 @@ public class CraftRhythm_LayeredVoicesTest {
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
-    Injector injector = AppConfiguration.inject(config,
+    Environment env = Environment.getDefault();
+    Injector injector = AppConfiguration.inject(config, env,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override

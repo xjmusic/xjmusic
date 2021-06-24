@@ -63,13 +63,14 @@ public class ChainEndpointTest {
   ContainerRequestContext crc;
   @Mock
   ChainDAO chainDAO;
+
   @Mock
   Environment env;
 
   @Before
   public void setUp() throws AppException {
     Config config = NexusTestConfiguration.getDefault();
-    var injector = AppConfiguration.inject(config, ImmutableSet.of((Modules.override(
+    var injector = AppConfiguration.inject(config, env, ImmutableSet.of((Modules.override(
       new FileStoreModule(),
       new HubClientModule(),
       new MixerModule(),
@@ -81,7 +82,6 @@ public class ChainEndpointTest {
         @Override
         public void configure() {
           bind(ChainDAO.class).toInstance(chainDAO);
-          bind(Environment.class).toInstance(env);
         }
       }))));
     Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
