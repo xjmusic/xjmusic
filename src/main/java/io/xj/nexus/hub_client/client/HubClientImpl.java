@@ -24,9 +24,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  Implementation of a Hub Client for connecting to Hub and accessing contents
@@ -57,7 +59,8 @@ public class HubClientImpl implements HubClient {
     ingestTokenName = env.getIngestTokenName();
     ingestTokenValue = env.getIngestTokenValue();
 
-    LOG.info("Will connect to Hub at {}", ingestUrl);
+    String obscuredSecret = Arrays.stream(ingestTokenValue.split("")).map(c -> "*").collect(Collectors.joining());
+    LOG.info("Will connect to Hub at {} with token '{}' value '{}'", ingestUrl, ingestTokenName, obscuredSecret);
   }
 
   @Override
