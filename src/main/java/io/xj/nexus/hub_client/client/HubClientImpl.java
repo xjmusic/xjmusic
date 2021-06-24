@@ -35,13 +35,13 @@ public class HubClientImpl implements HubClient {
   private final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   private static final String API_PATH_INGEST = "api/1/ingest";
   private static final String API_PATH_AUTH = "auth";
-  private static final String HEADER_COOKIE = "Cookie";
+  private static final String HEADER_COOKIE = "Set-Cookie";
   private final CloseableHttpClient httpClient;
-  private final String baseUrl;
-  private final String tokenName;
+  private final String ingestUrl;
+  private final String ingestTokenName;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final JsonProviderImpl jsonProvider;
-  private final String internalToken;
+  private final String ingestTokenValue;
 
   @Inject
   public HubClientImpl(
@@ -53,11 +53,11 @@ public class HubClientImpl implements HubClient {
     this.jsonProvider = jsonProvider;
     httpClient = HttpClients.createDefault();
 
-    tokenName = env.getIngestTokenName();
-    baseUrl = env.getIngestURL();
-    internalToken = env.getIngestTokenValue();
+    ingestUrl = env.getIngestURL();
+    ingestTokenName = env.getIngestTokenName();
+    ingestTokenValue = env.getIngestTokenValue();
 
-    LOG.info("Will connect to Hub at {}", baseUrl);
+    LOG.info("Will connect to Hub at {}", ingestUrl);
   }
 
   @Override
@@ -68,7 +68,7 @@ public class HubClientImpl implements HubClient {
         "programIds", Entities.csvOf(programIds),
         "instrumentIds", Entities.csvOf(instrumentIds)
       )));
-      setAccessCookie(request, internalToken);
+      request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, ingestTokenValue));
       CloseableHttpResponse response = httpClient.execute(request);
 
       // return content if successful.
@@ -91,8 +91,8 @@ public class HubClientImpl implements HubClient {
   @Override
   public HubClientAccess auth(String accessToken) throws HubClientException {
     HttpGet request = new HttpGet(buildURI(HubClientImpl.API_PATH_AUTH, ImmutableMap.of()));
-    request.setHeader(HEADER_COOKIE, String.format("%s=%s", tokenName, accessToken));
-    setAccessCookie(request, accessToken);
+    request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, accessToken));
+    request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, ingestTokenValue));
     HubClientAccess access;
     CloseableHttpResponse response;
     try {
@@ -105,16 +105,6 @@ public class HubClientImpl implements HubClient {
   }
 
   /**
-   Set the access token cookie header for a request to Hub
-
-   @param request     to set cookie header for
-   @param accessToken to set
-   */
-  private void setAccessCookie(HttpGet request, String accessToken) {
-    request.setHeader(HEADER_COOKIE, String.format("%s=%s", tokenName, accessToken));
-  }
-
-  /**
    Build URI for specified API path
 
    @param path        to build URI to
@@ -124,7 +114,7 @@ public class HubClientImpl implements HubClient {
    */
   private URI buildURI(String path, Map<String, String> queryParams) throws HubClientException {
     try {
-      URIBuilder b = new URIBuilder(String.format("%s%s", baseUrl, path));
+      URIBuilder b = new URIBuilder(String.format("%s%s", ingestUrl, path));
       queryParams.forEach(b::addParameter);
       return b.build();
     } catch (URISyntaxException e) {
