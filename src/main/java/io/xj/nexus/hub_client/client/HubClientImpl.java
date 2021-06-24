@@ -62,7 +62,7 @@ public class HubClientImpl implements HubClient {
     ingestTokenValue = env.getIngestTokenValue();
 
     String obscuredSecret = Arrays.stream(ingestTokenValue.split("")).map(c -> "*").collect(Collectors.joining());
-    LOG.info("Will connect to Hub at {} with token '{}' value '{}'", ingestUrl, ingestTokenName, ingestTokenValue);
+    LOG.info("Will connect to Hub at {} with token '{}' value '{}'", ingestUrl, ingestTokenName, obscuredSecret);
   }
 
   @Override

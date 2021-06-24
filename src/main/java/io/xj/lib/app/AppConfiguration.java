@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.app;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -10,9 +9,6 @@ import com.google.inject.Module;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Set;
 
@@ -29,30 +25,8 @@ import java.util.Set;
 public class AppConfiguration {
   private static final String DEFAULT_CONFIGURATION_RESOURCE_FILENAME = "config/default.conf";
 
-  /**
-   @param args     array of arguments passed to program
-   @param defaults to fallback on
-   @return buffered file reader comprising the ingest config file
-   */
-  public static Config parseArgs(String[] args, Config defaults) throws AppException {
-    if (0 == args.length) return defaults;
-
-    Config config;
-    try (BufferedReader buf = new BufferedReader(new FileReader(args[0]))) {
-      try {
-        Preconditions.checkArgument(buf.ready(), "Unable to read configuration file at given path");
-        config = ConfigFactory.parseReader(buf)
-          .withFallback(defaults)
-          .resolve();
-      } catch (Exception e) {
-        throw new AppException("Unable to parse configuration", e);
-      }
-
-    } catch (IOException e) {
-      throw new AppException("Error reading configuration file", e);
-    }
-
-    return config;
+  AppConfiguration() {
+    throw new IllegalStateException("Utility classes cannot be created");
   }
 
   /**
@@ -62,15 +36,17 @@ public class AppConfiguration {
    @param modules to inject
    @return injector with Config.class bound
    */
-  public static Injector inject(final Config config, Set<Module> modules) throws AppException {
+  public static Injector inject(final Config config, final Environment env, Set<Module> modules) throws AppException {
     if (Objects.isNull(config)) throw new AppException("Config cannot be null!");
     if (config.isEmpty()) throw new AppException("Config cannot be empty!");
+    if (Objects.isNull(env)) throw new AppException("Environment cannot be null!");
     return Guice.createInjector(
       ImmutableList.<Module>builder()
         .add(new AbstractModule() {
           @Override
           protected void configure() {
             bind(Config.class).toInstance(config);
+            bind(Environment.class).toInstance(env);
           }
         })
         .addAll(modules)

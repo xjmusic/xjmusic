@@ -54,7 +54,7 @@ public interface Main {
     if (0 < env.getAwsSecretName().length())
       env = Environment.augmentSystem(getSecret(env.getAwsDefaultRegion(), env.getAwsSecretName()));
 
-    var injector = AppConfiguration.inject(config, injectorModules);
+    var injector = AppConfiguration.inject(config, env, injectorModules);
 
     // Add context to logs
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
