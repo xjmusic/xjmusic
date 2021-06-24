@@ -35,7 +35,7 @@ public class HubClientImpl implements HubClient {
   private final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   private static final String API_PATH_INGEST = "api/1/ingest";
   private static final String API_PATH_AUTH = "auth";
-  private static final String HEADER_COOKIE = "Set-Cookie";
+  private static final String HEADER_COOKIE = "Cookie";
   private final CloseableHttpClient httpClient;
   private final String ingestUrl;
   private final String ingestTokenName;
@@ -68,7 +68,7 @@ public class HubClientImpl implements HubClient {
         "programIds", Entities.csvOf(programIds),
         "instrumentIds", Entities.csvOf(instrumentIds)
       )));
-      request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, ingestTokenValue));
+      setAccessCookie(request, ingestTokenValue);
       CloseableHttpResponse response = httpClient.execute(request);
 
       // return content if successful.
@@ -91,7 +91,7 @@ public class HubClientImpl implements HubClient {
   @Override
   public HubClientAccess auth(String accessToken) throws HubClientException {
     HttpGet request = new HttpGet(buildURI(HubClientImpl.API_PATH_AUTH, ImmutableMap.of()));
-    request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, accessToken));
+    setAccessCookie(request, accessToken);
     HubClientAccess access;
     CloseableHttpResponse response;
     try {
@@ -101,6 +101,16 @@ public class HubClientImpl implements HubClient {
       throw new HubClientException("Failed to authenticate with Hub API", e);
     }
     return access;
+  }
+
+  /**
+   Set the access token cookie header for a request to Hub
+
+   @param request     to set cookie header for
+   @param accessToken to set
+   */
+  private void setAccessCookie(HttpGet request, String accessToken) {
+    request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, accessToken));
   }
 
   /**
