@@ -32,13 +32,13 @@ import java.util.Set;
  Implementation of a Hub Client for connecting to Hub and accessing contents
  */
 public class HubClientImpl implements HubClient {
+  private final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   private static final String API_PATH_INGEST = "api/1/ingest";
   private static final String API_PATH_AUTH = "auth";
   private static final String HEADER_COOKIE = "Cookie";
   private final CloseableHttpClient httpClient;
   private final String baseUrl;
   private final String tokenName;
-  private final Logger log = LoggerFactory.getLogger(HubClientImpl.class);
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final JsonProviderImpl jsonProvider;
   private final String internalToken;
@@ -56,6 +56,8 @@ public class HubClientImpl implements HubClient {
     tokenName = env.getIngestTokenName();
     baseUrl = env.getIngestURL();
     internalToken = env.getIngestTokenValue();
+
+    LOG.info("Will connect to Hub at {}", baseUrl);
   }
 
   @Override
@@ -77,7 +79,7 @@ public class HubClientImpl implements HubClient {
       }
 
       // if we got here, it's a failure
-      log.error("Failed to request {} because {}", request.getURI(), response);
+      LOG.error("Failed to request {} because {}", request.getURI(), response);
       throw new HubClientException(String.format("Failed to request %s because %s",
         request.getURI(), response.getStatusLine().getReasonPhrase()));
 
