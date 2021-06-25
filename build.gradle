@@ -107,8 +107,7 @@ jacocoTestReport {
 
 jib.to.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/nexus'
 jib.from.image = 'ghcr.io/xjmusic/docker-base-image:main'
-
-container.jvmFlags = ["-Djava.library.path=/native"]
+jib.container.jvmFlags = ["-Djava.library.path=/native"]
 
 // For access to private GitHub packages
 def props = getGithubPropertiesFromFile('./github.properties')
