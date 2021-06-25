@@ -71,5 +71,7 @@ jobs:
         continue-on-error: false
 
       - name: Kubernetes rollout deployment/nexus
-        run: "kubectl -n lab rollout restart deployment/nexus"
+        run: |
+          kubectl -n lab rollout restart deployment/nexus
+          kubectl -n yard rollout restart deployment/coolair
 
