@@ -139,7 +139,7 @@ public class AudioStreamWriter {
       new ByteArrayInputStream(outputBytes.array()), specs,
       totalFrames
     );
-    AudioSystem.write(ais, AACFileTypes.AAC_LC, outputFile);
+    AudioSystem.write(ais, AACFileTypes.AAC_HE_V2, outputFile);
   }
 
 }

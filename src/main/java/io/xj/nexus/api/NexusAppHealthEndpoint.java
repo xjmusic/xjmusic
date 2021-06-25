@@ -12,7 +12,6 @@ import javax.ws.rs.Path;
  Health resource.
  */
 @Path("-/health")
-@Singleton
 public class NexusAppHealthEndpoint {
 
   @Inject

@@ -47,14 +47,6 @@ class MixerImpl implements Mixer {
   private MixerState state = MixerState.Ready;
   private int uniquePutId; // key for storage in map of Puts
 
-/*
-  // output buffer created when mixing begins (after sources are put)
-  private double totalSeconds;
-  private int totalBytes;
-  private int totalFrames;
-  private double[][] buf;
-*/
-
   /**
    Instantiate a single Mix instance
 

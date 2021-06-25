@@ -36,7 +36,7 @@ public class DubMasterImpl implements DubMaster {
   private final List<String> warnings = Lists.newArrayList();
   private final Map<String, Double> pickOffsetStart = Maps.newHashMap();
   private final DubAudioCache dubAudioCache;
-  private Mixer _mixer;
+  private Mixer mixer;
 
   @Inject
   public DubMasterImpl(
@@ -195,7 +195,7 @@ public class DubMasterImpl implements DubMaster {
    @return mixer
    */
   private Mixer mixer() throws Exception {
-    if (Objects.isNull(_mixer)) {
+    if (Objects.isNull(mixer)) {
       MixerConfig config = new MixerConfig(fabricator.getOutputAudioFormat())
         .setLogPrefix(String.format("[segId=%s] ", fabricator.getSegment().getId()))
         .setNormalizationMax(fabricator.getChainConfig().getMixerNormalizationMax())
@@ -208,10 +208,10 @@ public class DubMasterImpl implements DubMaster {
         .setCompressAheadSeconds(fabricator.getChainConfig().getMixerCompressAheadSeconds())
         .setCompressDecaySeconds(fabricator.getChainConfig().getMixerCompressDecaySeconds());
 
-      _mixer = mixerFactory.createMixer(config);
+      mixer = mixerFactory.createMixer(config);
     }
 
-    return _mixer;
+    return mixer;
   }
 
   /**
