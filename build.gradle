@@ -107,7 +107,7 @@ jacocoTestReport {
 
 jib {
   to.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/nexus'
-  from.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base/nexus:v0.2'
+  from.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base/nexus:v0.3'
   container.jvmFlags = ["-Djava.library.path=/usr/lib/x86_64-linux-gnu"]
 }
 
