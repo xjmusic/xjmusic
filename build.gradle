@@ -106,7 +106,7 @@ jacocoTestReport {
 }
 
 jib.to.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/nexus'
-jib.from.image = 'ghcr.io/xjmusic/docker-base-image:v0.1'
+jib.from.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base/nexus'
 jib.container.jvmFlags = ["-Djava.library.path=/native"]
 
 // For access to private GitHub packages
