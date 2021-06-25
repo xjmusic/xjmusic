@@ -2,6 +2,7 @@
 
 package io.xj.lib.json;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.inject.Inject;
@@ -21,6 +22,7 @@ public class JsonProviderImpl implements JsonProvider {
     module.addSerializer(Instant.class, new InstantSerializer());
     module.addDeserializer(Instant.class, new InstantDeserializer());
     objectMapper.registerModule(module);
+    objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
   }
 
   @Override
