@@ -4,6 +4,7 @@ package io.xj.nexus.dub;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
@@ -94,6 +95,7 @@ class DubAudioCacheImpl implements DubAudioCache {
    */
   @Trace(resourceName = "nexus/dub/cache", operationName = "fetchAndWrite")
   private DubAudioCacheItem load(String key) throws IOException, FileStoreException {
+    if (Strings.isNullOrEmpty(key)) throw new FileStoreException("Can't load null or empty audio key!");
     return dubAudioCacheItemFactory.load(key, String.format("%s%s", pathPrefix, key));
   }
 }

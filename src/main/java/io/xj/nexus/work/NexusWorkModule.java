@@ -20,12 +20,5 @@ public class NexusWorkModule extends AbstractModule {
     install(new NexusDAOModule());
     install(new NexusFabricatorModule());
     bind(NexusWork.class).to(NexusWorkImpl.class);
-    install(new FactoryModuleBuilder()
-      .implement(BossWorker.class, BossWorkerImpl.class)
-      .implement(JanitorWorker.class, JanitorWorkerImpl.class)
-      .implement(MedicWorker.class, MedicWorkerImpl.class)
-      .implement(ChainWorker.class, ChainWorkerImpl.class)
-      .implement(FabricatorWorker.class, FabricatorWorkerImpl.class)
-      .build(WorkerFactory.class));
   }
 }

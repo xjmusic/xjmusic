@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.work;
 
-import java.util.Collection;
-
 /**
  The Lab Nexus Distributed Work Manager
  <p>
@@ -22,7 +20,7 @@ import java.util.Collection;
  <p>
  DEPRECATED: [#286] True Chain-Segment work management
  */
-public interface NexusWork {
+public interface NexusWork extends Runnable {
 
   /**
    Start performing work
@@ -34,37 +32,4 @@ public interface NexusWork {
    */
   void finish();
 
-  /**
-   Cancel all current work
-   */
-  void cancelAllChainWork();
-
-  /**
-   Whether this Nexus is working on Chain with the given ID
-
-   @param id to check for working status
-   @return true if Nexus is working on the given Chain ID
-   */
-  boolean isWorkingOnChain(String id);
-
-  /**
-   Begin scheduled work on a chain
-
-   @param chainId to begin work for
-   */
-  void beginChainWork(String chainId);
-
-  /**
-   Explicit and safe shutdown of a Work executor service
-
-   @param chainId to cancel & shutdown work for
-   */
-  void cancelChainWork(String chainId);
-
-  /**
-   Get all IDs of Chains that we are currently working on
-
-   @return IDs of Chains that we are currently working on
-   */
-  Collection<String> getChainWorkingIds();
 }
