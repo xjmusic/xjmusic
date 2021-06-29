@@ -32,8 +32,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install python3-
 # Install Python PIP
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install python-pip
 
-# Install Java 11
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install openjdk-11-jdk
+# Install Java 16
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install openjdk-16-jdk
 
 # Install Fraunhofer
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install libfdk-aac-dev

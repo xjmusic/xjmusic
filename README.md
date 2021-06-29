@@ -51,7 +51,7 @@ LabStreamingSegmentsArchitecture.pdf)
 
 
 ## Dependencies
-  * Java 11
+  * Java 16
   * Gradle (6+ via SDKMAN!)
   * FDK AAC native libraries (apt `libfdk-aac-dev`)
 
