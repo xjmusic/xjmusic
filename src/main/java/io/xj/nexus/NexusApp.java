@@ -225,12 +225,12 @@ public class NexusApp extends App {
         LOG.info("Will not rehydrate Chain[{}] with fabricatedAheadSeconds={} (less than threshold {} seconds)",
           chainDAO.getIdentifier(chain), fabricatedAheadSeconds, rehydrateFabricatedAheadThreshold);
       }
-
     } catch (FileStoreException | JsonApiException | NexusException e) {
       LOG.error("Failed to rehydrate store!", e);
     }
 
     try {
+      LOG.info("Will bootstrap Chain[{}]", chainDAO.getIdentifier(bootstrap.getChain()));
       chainDAO.bootstrap(access, bootstrap.getChain(), bootstrap.getChainBindings());
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
       LOG.error("Failed to add binding to bootstrap Chain!", e);
