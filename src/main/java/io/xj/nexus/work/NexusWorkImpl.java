@@ -234,6 +234,7 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
   public void fabricateChain(String chainId) {
+    long startOverall = System.nanoTime();
     Chain chain;
     try {
       chain = chainDAO.readOne(access, chainId);
@@ -260,7 +261,7 @@ public class NexusWorkImpl implements NexusWork {
         incrementCounter(getChainMetricName(chain, METRIC_SEGMENT_CREATED));
 
       // FUTURE: fork/join thread possible for this sub-runnable of the fabrication worker
-      fabricateSegment(createdSegment.getId(), chainId, chain.getType().toString());
+      fabricateSegment(createdSegment.getId(), chainId, chain.getType().toString(), startOverall);
 
       // bums
       var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
@@ -355,8 +356,7 @@ public class NexusWorkImpl implements NexusWork {
    Do the work-- this is called by the underlying WorkerImpl run() hook
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "doWork")
-  protected void fabricateSegment(String segmentId, String chainId, String chainType) {
-    long startOverall = System.nanoTime();
+  protected void fabricateSegment(String segmentId, String chainId, String chainType, long startOverall) {
     Segment segment;
     Chain chain;
     Fabricator fabricator;

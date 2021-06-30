@@ -79,7 +79,7 @@ jar {
 
 applicationDefaultJvmArgs = [
   "-javaagent:/usr/local/dd-java-agent.jar",
-  "-Xmx7g"
+  "-Xmx4g"
 ]
 
 application {
