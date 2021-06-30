@@ -5,6 +5,7 @@ import com.google.api.client.util.Strings;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 import io.xj.Chain;
+import io.xj.ChainBinding;
 import io.xj.Segment;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
@@ -155,6 +156,16 @@ public class NexusApp extends App {
       entityStore.put(chain);
       LOG.info("Will rehydrate Chain[{}] for embed key \"{}\"", chain.getId(), bootstrap.getChain().getEmbedKey());
       chainPayload.getIncluded().stream()
+        .filter(po -> po.isType(ChainBinding.class))
+        .forEach(chainBinding -> {
+          try {
+            entityStore.put(jsonapiPayloadFactory.toOne(chainBinding));
+          } catch (NexusException | JsonApiException e) {
+            LOG.error("Could not deserialize ChainBinding from shipped Chain JSON", e);
+          }
+        });
+      chainPayload.getIncluded().stream()
+        .filter(po -> po.isType(Segment.class))
         .flatMap(po -> {
           try {
             return Stream.of((Segment) jsonapiPayloadFactory.toOne(po));
@@ -187,11 +198,16 @@ public class NexusApp extends App {
                   LOG.error("Could not rehydrate {} of Segment[{}]", entity.getClass().getSimpleName(), segment.getStorageKey(), e);
                 }
               });
-            LOG.info("Rehydrated Segment[{}] and {} child entities", segment, childCount);
+            LOG.info("Rehydrated Segment[{}] and {} child entities", segment.getStorageKey(), childCount);
           } catch (NexusException | FileStoreException | IOException e) {
             LOG.error("Could not rehydrate Segment[{}]", segment.getStorageKey(), e);
           }
         });
+
+      // Success
+      LOG.info("Rehydrated OK. Will skip new chain bootstrap.");
+      return;
+
     } catch (FileStoreException | JsonApiException | NexusException e) {
       LOG.error("Failed to rehydrate store!", e);
     }
