@@ -36,9 +36,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -120,25 +117,30 @@ public class NexusApp extends App {
     var access = HubClientAccess.internal();
 
     //[#176374643] Chains bootstrapped by Nexus are delayed by N seconds
-    if (0 < env.getChainBootstrapJson().length()) {
-      LOG.info("Will bootstrap chain from {}", env.getChainBootstrapJson());
-      int bootstrapDelaySeconds = config.getInt("nexus.bootstrapDelaySeconds");
-      ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-      executorService.schedule(() ->
-      {
-        try {
-          bootstrapFromJson(env.getChainBootstrapJson(), chainDAO, access);
-
-        } catch (IOException e) {
-          LOG.error("Failed to bootstrap!", e);
-        }
-      }, bootstrapDelaySeconds, TimeUnit.SECONDS);
-    } else {
+    if (0 < env.getChainBootstrapJson().length())
+      try {
+        LOG.info("Will bootstrap chain from {}", env.getChainBootstrapJson());
+        bootstrapFromJson(env.getChainBootstrapJson(), chainDAO, access);
+      } catch (IOException e) {
+        LOG.error("Failed to bootstrap!", e);
+      }
+    else
       LOG.info("No Chain Bootstrap specified! {}", env.getChainBootstrapJson());
-    }
   }
 
 
+  /**
+   Bootstrap a chain from JSON chain bootstrap data,
+   first rehydrating store from last shipped JSON matching this embed key.
+   <p>
+   Nexus with bootstrap chain rehydrates store on startup from shipped JSON files
+   https://www.pivotaltracker.com/story/show/178718006
+
+   @param chainBootstrapJson from which to bootstrap
+   @param chainDAO           to access
+   @param access             control
+   @throws IOException on failure
+   */
   private void bootstrapFromJson(String chainBootstrapJson, ChainDAO chainDAO, HubClientAccess access) throws IOException {
     var bootstrap = jsonProvider.getObjectMapper().readValue(chainBootstrapJson, NexusChainBootstrapPayload.class);
 
