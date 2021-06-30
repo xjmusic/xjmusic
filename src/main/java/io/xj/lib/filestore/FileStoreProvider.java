@@ -10,6 +10,7 @@ import java.io.InputStream;
  - aws.secretKey
  */
 public interface FileStoreProvider {
+  String EXTENSION_JSON = "json";
 
   /**
    @return S3UploadPolicy for upload to AWS file storage (S3)
@@ -117,4 +118,22 @@ public interface FileStoreProvider {
    @param targetKey    to revived
    */
   void copyS3Object(String sourceBucket, String sourceKey, String targetBucket, String targetKey) throws FileStoreException;
+
+  /**
+   Get the storage key for a Segment
+
+   @param segmentKey for which to get storage key
+   @param extension  of key
+   @return segment storage key
+   */
+  String getSegmentStorageKey(String segmentKey, String extension);
+
+  /**
+   Get the storage key for a Chain
+
+   @param chainKey for which to get storage key
+   @param extension  of key
+   @return chain storage key
+   */
+  String getChainStorageKey(String chainKey, String extension);
 }

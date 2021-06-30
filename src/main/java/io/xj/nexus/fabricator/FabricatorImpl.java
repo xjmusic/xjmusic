@@ -93,8 +93,6 @@ class FabricatorImpl implements Fabricator {
   private static final double NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
   private static final String KEY_VOICE_TRACK_TEMPLATE = "voice-%s_track-%s";
   private static final String KEY_VOICE_NOTE_TEMPLATE = "voice-%s_note-%s";
-  private static final String EXTENSION_SEPARATOR = ".";
-  private static final String EXTENSION_JSON = "json";
   private static final String NAME_SEPARATOR = "-";
   private static final String UNKNOWN_KEY = "unknown";
   private final HubClientAccess access;
@@ -667,25 +665,26 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public String getSegmentOutputMetadataKey() {
-    return getSegmentStorageKey(EXTENSION_JSON);
+    return getSegmentStorageKey(FileStoreProvider.EXTENSION_JSON);
   }
 
   @Override
   public String getChainOutputMetadataKey() {
-    return getChainStorageKey(EXTENSION_JSON);
+    return getChainStorageKey(FileStoreProvider.EXTENSION_JSON);
   }
 
   @Override
   public String getSegmentStorageKey(String extension) {
-    return String.format("%s%s%s", getSegment().getStorageKey(), EXTENSION_SEPARATOR, extension);
+    return fileStoreProvider.getSegmentStorageKey(getSegment().getStorageKey(), extension);
   }
 
   @Override
   public String getChainStorageKey(String extension) {
-    String chainKey = Strings.isNullOrEmpty(getChain().getEmbedKey()) ?
-      String.format("chain-%s", getChainId())
-      : getChain().getEmbedKey();
-    return String.format("%s%s%s", chainKey, EXTENSION_SEPARATOR, extension);
+    return fileStoreProvider.getChainStorageKey(
+      Strings.isNullOrEmpty(getChain().getEmbedKey()) ?
+        String.format("chain-%s", getChainId())
+        : getChain().getEmbedKey(),
+      extension);
   }
 
   @Override

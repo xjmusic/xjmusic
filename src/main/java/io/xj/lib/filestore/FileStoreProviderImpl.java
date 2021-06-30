@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.lib.app.Environment;
@@ -24,6 +25,7 @@ class FileStoreProviderImpl implements FileStoreProvider {
   private static final Logger log = LoggerFactory.getLogger(FileStoreProviderImpl.class);
   private static final float MICROS_PER_SECOND = 1000000.0F;
   private static final float NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
+  private static final String EXTENSION_SEPARATOR = ".";
   private static final String NAME_SEPARATOR = "-";
   private final String awsDefaultRegion;
   private final String audioUploadUrl;
@@ -169,6 +171,16 @@ class FileStoreProviderImpl implements FileStoreProvider {
     } catch (Exception e) {
       throw new FileStoreException("Failed to revived S3 object", e);
     }
+  }
+
+  @Override
+  public String getSegmentStorageKey(String segmentKey, String extension) {
+    return String.format("%s%s%s", segmentKey, EXTENSION_SEPARATOR, extension);
+  }
+
+  @Override
+  public String getChainStorageKey(String chainKey, String extension) {
+    return String.format("%s%s%s", chainKey, EXTENSION_SEPARATOR, extension);
   }
 
 }

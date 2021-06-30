@@ -1,14 +1,22 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus;
 
+import com.google.api.client.util.Strings;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.Chain;
+import io.xj.Segment;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
+import io.xj.lib.filestore.FileStoreException;
+import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.json.JsonProvider;
+import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.JsonapiPayload;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.TempFile;
 import io.xj.lib.util.Text;
 import io.xj.nexus.api.NexusAccessLogFilter;
@@ -20,6 +28,7 @@ import io.xj.nexus.dao.exception.DAOValidationException;
 import io.xj.nexus.hub_client.client.HubAccessTokenFilter;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWork;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +38,10 @@ import java.util.Collections;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
+
+import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
 
 /**
  Base application for XJ services.
@@ -54,6 +67,10 @@ public class NexusApp extends App {
   private final NexusWork work;
   private final String platformRelease;
   private final JsonProvider jsonProvider;
+  private final Environment env;
+  private final FileStoreProvider fileStoreProvider;
+  private final JsonapiPayloadFactory jsonapiPayloadFactory;
+  private final NexusEntityStore entityStore;
 
   /**
    Construct a new application by providing
@@ -66,8 +83,8 @@ public class NexusApp extends App {
   ) {
     super(injector, Collections.singleton("io.xj.nexus.api"));
 
-    var config = injector.getInstance(Config.class);
-    var env = injector.getInstance(Environment.class);
+    Config config = injector.getInstance(Config.class);
+    env = injector.getInstance(Environment.class);
 
     // Configuration
     platformRelease = env.getEnvironment();
@@ -78,6 +95,9 @@ public class NexusApp extends App {
     // core delegates
     work = injector.getInstance(NexusWork.class);
     jsonProvider = injector.getInstance(JsonProvider.class);
+    fileStoreProvider = injector.getInstance(FileStoreProvider.class);
+    entityStore = injector.getInstance(NexusEntityStore.class);
+    jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
 
     // Setup Entity topology
     var entityFactory = injector.getInstance(EntityFactory.class);
@@ -120,6 +140,62 @@ public class NexusApp extends App {
 
   private void bootstrapFromJson(String chainBootstrapJson, ChainDAO chainDAO, HubClientAccess access) throws IOException {
     var bootstrap = jsonProvider.getObjectMapper().readValue(chainBootstrapJson, NexusChainBootstrapPayload.class);
+
+    if (Strings.isNullOrEmpty(bootstrap.getChain().getEmbedKey())) {
+      LOG.error("Can't bootstrap chain with no embed key!");
+      return;
+    }
+
+    try {
+      LOG.info("Will check for last shipped data");
+      var chainStorageKey = fileStoreProvider.getChainStorageKey(bootstrap.getChain().getEmbedKey(), EXTENSION_JSON);
+      var chainStream = fileStoreProvider.streamS3Object(env.getSegmentFileBucket(), chainStorageKey);
+      var chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
+      var chain = (Chain) jsonapiPayloadFactory.toOne(chainPayload);
+      entityStore.put(chain);
+      LOG.info("Will rehydrate Chain[{}] for embed key \"{}\"", chain.getId(), bootstrap.getChain().getEmbedKey());
+      chainPayload.getIncluded().stream()
+        .flatMap(po -> {
+          try {
+            return Stream.of((Segment) jsonapiPayloadFactory.toOne(po));
+          } catch (JsonApiException e) {
+            LOG.error("Could not deserialize Segment from shipped Chain JSON", e);
+            return Stream.empty();
+          }
+        })
+        .forEach(segment -> {
+          try {
+            var segmentStorageKey = fileStoreProvider.getSegmentStorageKey(segment.getStorageKey(), EXTENSION_JSON);
+            var segmentStream = fileStoreProvider.streamS3Object(env.getSegmentFileBucket(), segmentStorageKey);
+            var segmentPayload = jsonProvider.getObjectMapper().readValue(segmentStream, JsonapiPayload.class);
+            AtomicInteger childCount = new AtomicInteger();
+            entityStore.put(segment);
+            segmentPayload.getIncluded().stream()
+              .flatMap(po -> {
+                try {
+                  return Stream.of(jsonapiPayloadFactory.toOne(po));
+                } catch (JsonApiException e) {
+                  LOG.error("Could not deserialize Segment from shipped Chain JSON", e);
+                  return Stream.empty();
+                }
+              })
+              .forEach(entity -> {
+                try {
+                  entityStore.put(entity);
+                  childCount.getAndIncrement();
+                } catch (NexusException e) {
+                  LOG.error("Could not rehydrate {} of Segment[{}]", entity.getClass().getSimpleName(), segment.getStorageKey(), e);
+                }
+              });
+            LOG.info("Rehydrated Segment[{}] and {} child entities", segment, childCount);
+          } catch (NexusException | FileStoreException | IOException e) {
+            LOG.error("Could not rehydrate Segment[{}]", segment.getStorageKey(), e);
+          }
+        });
+    } catch (FileStoreException | JsonApiException | NexusException e) {
+      LOG.error("Failed to rehydrate store!", e);
+    }
+
     try {
       chainDAO.bootstrap(access, bootstrap.getChain(), bootstrap.getChainBindings());
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
