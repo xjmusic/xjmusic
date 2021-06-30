@@ -54,7 +54,6 @@ import java.util.stream.Collectors;
 @Singleton
 public class NexusWorkImpl implements NexusWork {
   private static final Logger LOG = LoggerFactory.getLogger(NexusWorkImpl.class);
-  private Fabricator fabricator;
   private final ChainDAO chainDAO;
   private final CraftFactory craftFactory;
   private final DubFactory dubFactory;
@@ -235,12 +234,12 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
   public void fabricateChain(String chainId) {
-    long startedAt = System.nanoTime();
     Chain chain;
     try {
       chain = chainDAO.readOne(access, chainId);
       if (Chain.State.Fabricate != chain.getState()) {
-        LOG.error("Cannot fabricate Chain[{}] in non-Fabricate ({}) state!", chain.getId(), chain.getState());
+        LOG.error("Cannot fabricate Chain[{}] in non-Fabricate ({}) state!",
+          chainDAO.getIdentifier(chain), chain.getState());
         return;
       }
     } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
@@ -262,12 +261,6 @@ public class NexusWorkImpl implements NexusWork {
 
       // FUTURE: fork/join thread possible for this sub-runnable of the fabrication worker
       fabricateSegment(createdSegment.getId(), chainId, chain.getType().toString());
-      LOG.info("Fabricated in {}s Segment[{}] of {}-Chain[{}] offset:{}",
-        (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND,
-        createdSegment.getId(),
-        chain.getType(),
-        chain.getId(),
-        createdSegment.getOffset());
 
       // bums
       var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
@@ -279,7 +272,7 @@ public class NexusWorkImpl implements NexusWork {
 
     } catch (DAOPrivilegeException | DAOExistenceException | DAOValidationException | DAOFatalException e) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
-        chain.getId(),
+        chainDAO.getIdentifier(chain),
         chain.getType(),
         e.getMessage(),
         Text.formatStackTrace(e));
@@ -287,7 +280,7 @@ public class NexusWorkImpl implements NexusWork {
       notification.publish(body,
         String.format("%s-Chain[%s] Failure",
           chain.getType(),
-          chain.getId()));
+          chainDAO.getIdentifier(chain)));
 
       LOG.error("Failed to created Segment in chainId={}, reason={}", chainId, e.getMessage());
 
@@ -363,8 +356,11 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "doWork")
   protected void fabricateSegment(String segmentId, String chainId, String chainType) {
+    long startOverall = System.nanoTime();
     Segment segment;
     Chain chain;
+    Fabricator fabricator;
+
     try {
       LOG.debug("[segId={}] will read Segment for fabrication", segmentId);
       segment = segmentDAO.readOne(access, segmentId);
@@ -388,28 +384,54 @@ public class NexusWorkImpl implements NexusWork {
       didFailWhile("creating fabricator", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
       return;
     }
+    double timerPrepSeconds = (System.nanoTime() - startOverall) / NANOS_PER_SECOND;
 
+    long startStep = System.nanoTime();
     try {
       LOG.debug("[segId={}] will do craft work", segment.getId());
-      segment = doCraftWork(segment);
+      segment = doCraftWork(fabricator, segment);
     } catch (Exception e) {
       didFailWhile("doing Craft work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
-      revert(segment, chainId, chainType);
+      revert(fabricator, segment, chainId, chainType);
       return;
     }
+    double timerCraftSeconds = (System.nanoTime() - startStep) / NANOS_PER_SECOND;
 
+    startStep = System.nanoTime();
     try {
-      segment = doDubWork(segment);
+      segment = doDubMasterWork(fabricator, segment);
     } catch (Exception e) {
-      didFailWhile("doing Dub work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
+      didFailWhile("doing Dub Master work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
       return;
     }
+    double timerDubMasterSeconds = (System.nanoTime() - startStep) / NANOS_PER_SECOND;
+
+    startStep = System.nanoTime();
+    try {
+      doDubShipWork(fabricator);
+    } catch (Exception e) {
+      didFailWhile("doing Dub Ship work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
+      return;
+    }
+    double timerDubShipSeconds = (System.nanoTime() - startStep) / NANOS_PER_SECOND;
 
     try {
-      finishWork(segment);
+      finishWork(fabricator, segment);
     } catch (Exception e) {
       didFailWhile("finishing work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
     }
+
+    LOG.info("Fabricated in {}s (Prep {}s, Craft {}s, Dub {}s, Ship {}s) Segment[{}] of {}-Chain[{}] offset:{}",
+      (double) (System.nanoTime() - startOverall) / NANOS_PER_SECOND,
+      timerPrepSeconds,
+      timerCraftSeconds,
+      timerDubMasterSeconds,
+      timerDubShipSeconds,
+      segment.getId(),
+      chain.getType(),
+      chainDAO.getIdentifier(chain),
+      segment.getOffset());
+
   }
 
   /**
@@ -417,9 +439,9 @@ public class NexusWorkImpl implements NexusWork {
    [#171553408] Remove all Queue mechanics in favor of a cycle happening in Main class for as long as the application is alive, that does nothing but search for active chains, search for segments that need work, and work on them. Zero need for a work queue-- that's what the Chain-Segment state machine is!@param segmentId
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "revert")
-  private void revert(Segment segment, String chainId, String chainType) {
+  private void revert(Fabricator fabricator, Segment segment, String chainId, String chainType) {
     try {
-      updateSegmentState(segment, fabricator.getSegment().getState(), Segment.State.Planned);
+      updateSegmentState(fabricator, segment, fabricator.getSegment().getState(), Segment.State.Planned);
       segmentDAO.revert(access, segment.getId());
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException | NexusException e) {
       didFailWhile("reverting and re-queueing segment", e, segment.getId(), chainId, chainType);
@@ -430,21 +452,22 @@ public class NexusWorkImpl implements NexusWork {
    Finish work on Segment@param segmentId
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "finishWork")
-  private void finishWork(Segment segment) throws NexusException {
-    updateSegmentState(segment, Segment.State.Dubbing, Segment.State.Dubbed);
+  private void finishWork(Fabricator fabricator, Segment segment) throws NexusException {
+    updateSegmentState(fabricator, segment, Segment.State.Dubbing, Segment.State.Dubbed);
     LOG.debug("[segId={}] Worked for {} seconds", segment.getId(), fabricator.getElapsedSeconds());
   }
 
   /**
    Craft a Segment, or fail
 
-   @param segment fabricating
+   @param fabricator to craft
+   @param segment    fabricating
    @throws NexusException on configuration failure
    @throws NexusException on craft failure
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "doCraftWork")
-  private Segment doCraftWork(Segment segment) throws NexusException {
-    var updated = updateSegmentState(segment, Segment.State.Planned, Segment.State.Crafting);
+  private Segment doCraftWork(Fabricator fabricator, Segment segment) throws NexusException {
+    var updated = updateSegmentState(fabricator, segment, Segment.State.Planned, Segment.State.Crafting);
     craftFactory.macroMain(fabricator).doWork();
     craftFactory.rhythm(fabricator).doWork();
     craftFactory.detail(fabricator).doWork();
@@ -454,17 +477,29 @@ public class NexusWorkImpl implements NexusWork {
   /**
    Dub a Segment, or fail
 
-   @param segment fabricating
+   @param fabricator to dub master
+   @param segment    fabricating
+   @return updated Segment
    @throws NexusException on craft failure
    @throws NexusException on dub failure
-   @return updated Segment
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "doDubWork")
-  protected Segment doDubWork(Segment segment) throws NexusException {
-    var updated = updateSegmentState(segment, Segment.State.Crafting, Segment.State.Dubbing);
+  protected Segment doDubMasterWork(Fabricator fabricator, Segment segment) throws NexusException {
+    var updated = updateSegmentState(fabricator, segment, Segment.State.Crafting, Segment.State.Dubbing);
     dubFactory.master(fabricator).doWork();
-    dubFactory.ship(fabricator).doWork();
     return updated;
+  }
+
+  /**
+   Ship a Segment, or fail
+
+   @param fabricator to ship
+   @throws NexusException on craft failure
+   @throws NexusException on ship failure
+   */
+  @Trace(resourceName = "nexus/fabricate", operationName = "doShipWork")
+  protected void doDubShipWork(Fabricator fabricator) throws NexusException {
+    dubFactory.ship(fabricator).doWork();
   }
 
   /**
@@ -547,13 +582,14 @@ public class NexusWorkImpl implements NexusWork {
   /**
    Update Segment to Working state
 
-   @throws NexusException if record is invalid
-   @param fromState of existing segment
-   @param toState   of new segment
+   @param fabricator to update
+   @param fromState  of existing segment
+   @param toState    of new segment
    @return updated Segment
+   @throws NexusException if record is invalid
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "updateSegmentState")
-  private Segment updateSegmentState(Segment segment, Segment.State fromState, Segment.State toState) throws NexusException {
+  private Segment updateSegmentState(Fabricator fabricator, Segment segment, Segment.State fromState, Segment.State toState) throws NexusException {
     if (fromState != segment.getState())
       throw new NexusException(String.format("Segment[%s] %s requires Segment must be in %s state.", segment.getId(), toState, fromState));
     fabricator.updateSegment(fabricator.getSegment().toBuilder().setState(toState).build());
@@ -586,7 +622,7 @@ public class NexusWorkImpl implements NexusWork {
       .forEach(chain -> {
         if (chain.getFabricatedAheadSeconds() < -reviveChainFabricatedBehindSeconds) {
           LOG.warn("Chain {} is stalled, fabricatedAheadSeconds={}",
-            chain.getId(), chain.getFabricatedAheadSeconds());
+            chainDAO.getIdentifier(chain), chain.getFabricatedAheadSeconds());
           stalledChainIds.put(chain.getId(),
             String.format("fabricatedAheadSeconds=%s", chain.getFabricatedAheadSeconds()));
         }
