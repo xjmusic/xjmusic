@@ -146,9 +146,13 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/boss", operationName = "run")
   public void run() {
-    doFabrication();
-    doMedic();
-    doJanitor();
+    try {
+      doFabrication();
+      doMedic();
+      doJanitor();
+    } catch (Exception e) {
+      didFailWhile("Running Nexus Work", e);
+    }
   }
 
   /**
