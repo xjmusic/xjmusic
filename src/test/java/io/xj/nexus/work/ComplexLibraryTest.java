@@ -45,7 +45,6 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,7 +53,7 @@ import static org.mockito.Mockito.when;
 public class ComplexLibraryTest {
   private static final Logger log = LoggerFactory.getLogger(ComplexLibraryTest.class);
   private static final int MILLIS_PER_SECOND = 1000;
-  private static final int MARATHON_NUMBER_OF_SEGMENTS = 100;
+  private static final int MARATHON_NUMBER_OF_SEGMENTS = 50;
   private static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
   long startTime = System.currentTimeMillis();
   private NexusApp app;
@@ -126,6 +125,8 @@ public class ComplexLibraryTest {
       .thenReturn("chains-1-segments-12345");
     when(fileStoreProvider.streamS3Object(any(), any()))
       .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(resourceAudioFile()));
+    when(fileStoreProvider.getSegmentStorageKey(any(), any()))
+      .thenReturn("chains-1-segments-12345.json");
 
     // Start app, wait for work, stop app
     app.start();
@@ -136,10 +137,10 @@ public class ComplexLibraryTest {
 
     // assertions
     verify(fileStoreProvider, atLeast(MARATHON_NUMBER_OF_SEGMENTS))
-      .putS3ObjectFromTempFile(eq("/tmp/chains-1-segments-12345.aac"), eq("xj-dev-ship"), eq("chains-1-segments-12345.aac"));
+      .putS3ObjectFromTempFile(any(), any(), any());
     // FUTURE use a spy to assert actual json payload shipped to S3 for metadata
     verify(fileStoreProvider, atLeast(MARATHON_NUMBER_OF_SEGMENTS))
-      .putS3ObjectFromString(any(), eq("xj-dev-ship"), eq("chains-1-segments-12345.json"), eq("application/vnd.api+json"));
+      .putS3ObjectFromString(any(), any(), any(), any());
     assertTrue(hasSegmentsDubbedPastMinimumOffset(chain1.getId()));
   }
 
