@@ -453,8 +453,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     created = created.toBuilder().setState(Chain.State.Fabricate).build();
 
     // publish a notification reporting the event
-    log.info("Revived Chain created {} from prior {} because {}", getIdentifier(created), getIdentifier(builder), reason);
-    pubSub.publish(String.format("Revived Chain created %s create from prior %s because %s", getIdentifier(created), getIdentifier(builder), reason), MessageType.Info.toString());
+    log.info("Revived Chain created {} from prior {} because {}", getIdentifier(created), builder.getId(), reason);
+    pubSub.publish(String.format("Revived Chain created %s create from prior %s because %s", getIdentifier(created), builder.getId(), reason), MessageType.Info.toString());
 
     // return newly created chain
     return created;
@@ -576,12 +576,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
   @Override
   public String getIdentifier(@Nullable Chain chain) {
-    if (Objects.isNull(chain)) return "N/A";
-    return Strings.isNullOrEmpty(chain.getEmbedKey()) ? chain.getId() : chain.getEmbedKey();
-  }
-
-  @Override
-  public String getIdentifier(@Nullable Chain.Builder chain) {
     if (Objects.isNull(chain)) return "N/A";
     return Strings.isNullOrEmpty(chain.getEmbedKey()) ? chain.getId() : chain.getEmbedKey();
   }

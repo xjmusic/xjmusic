@@ -111,12 +111,4 @@ public interface ChainDAO extends DAO<Chain> {
    @return embed key if available, else ID
    */
   String getIdentifier(@Nullable Chain chain);
-
-  /**
-   Get the identifier or a Chain: embed key if available, else ID
-
-   @param chain to get identifier of
-   @return embed key if available, else ID
-   */
-  String getIdentifier(@Nullable Chain.Builder chain);
 }
