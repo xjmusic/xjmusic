@@ -30,6 +30,7 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Collection;
@@ -452,8 +453,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     created = created.toBuilder().setState(Chain.State.Fabricate).build();
 
     // publish a notification reporting the event
-    log.info("Revived Chain created {} from prior {} because {}", created.getId(), builder.getId(), reason);
-    pubSub.publish(String.format("Revived Chain created %s create from prior %s because %s", created.getId(), builder.getId(), reason), MessageType.Info.toString());
+    log.info("Revived Chain created {} from prior {} because {}", getIdentifier(created), getIdentifier(builder), reason);
+    pubSub.publish(String.format("Revived Chain created %s create from prior %s because %s", getIdentifier(created), getIdentifier(builder), reason), MessageType.Info.toString());
 
     // return newly created chain
     return created;
@@ -571,5 +572,17 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     }
     throw new DAOPrivilegeException(String.format("transition to %s not in allowed (%s)",
       toState, CSV.join(allowedStateNames)));
+  }
+
+  @Override
+  public String getIdentifier(@Nullable Chain chain) {
+    if (Objects.isNull(chain)) return "N/A";
+    return Strings.isNullOrEmpty(chain.getEmbedKey()) ? chain.getId() : chain.getEmbedKey();
+  }
+
+  @Override
+  public String getIdentifier(@Nullable Chain.Builder chain) {
+    if (Objects.isNull(chain)) return "N/A";
+    return Strings.isNullOrEmpty(chain.getEmbedKey()) ? chain.getId() : chain.getEmbedKey();
   }
 }

@@ -1,6 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.work;
 
+import io.xj.Chain;
+import io.xj.Segment;
+
+import java.util.Collection;
+
 /**
  The Lab Nexus Distributed Work Manager
  <p>
@@ -32,4 +37,11 @@ public interface NexusWork extends Runnable {
    */
   void finish();
 
+  /**
+   Compute the fabricated-ahead seconds for any collection of Segments
+
+   @param segments for which to get fabricated-ahead seconds
+   @return fabricated-ahead seconds for this collection of Segments
+   */
+  float computeFabricatedAheadSeconds(Chain chain, Collection<Segment> segments);
 }

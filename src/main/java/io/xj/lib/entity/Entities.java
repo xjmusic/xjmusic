@@ -78,11 +78,11 @@ public enum Entities {
       }
     } catch (InvocationTargetException e) {
       throw new EntityException(String.format("Failed to %s.%s(), reason: %s",
-              getSimpleName(target), getter.getName(), e.getTargetException().getMessage()));
+        getSimpleName(target), getter.getName(), e.getTargetException().getMessage()));
 
     } catch (IllegalAccessException e) {
       throw new EntityException(String.format("Could not access %s.%s(), reason: %s",
-              getSimpleName(target), getter.getName(), e.getMessage()));
+        getSimpleName(target), getter.getName(), e.getMessage()));
     }
   }
 
@@ -165,19 +165,19 @@ public enum Entities {
 
     } catch (InvocationTargetException e) {
       throw new EntityException(String.format("Failed to %s.%s(), reason: %s",
-              getSimpleName(target), setter.getName(), e.getTargetException().getMessage()));
+        getSimpleName(target), setter.getName(), e.getTargetException().getMessage()));
 
     } catch (IllegalAccessException e) {
       throw new EntityException(String.format("Could not access %s.%s(), reason: %s",
-              getSimpleName(target), setter.getName(), e.getMessage()));
+        getSimpleName(target), setter.getName(), e.getMessage()));
 
     } catch (IllegalArgumentException e) {
       throw new EntityException(String.format("Could not provide value for %s.%s(), reason: %s",
-              getSimpleName(target), setter.getName(), e.getMessage()));
+        getSimpleName(target), setter.getName(), e.getMessage()));
 
     } catch (NoSuchMethodException e) {
       throw new EntityException(String.format("No such method %s.%s(), reason: %s",
-              getSimpleName(target), setter.getName(), e.getMessage()));
+        getSimpleName(target), setter.getName(), e.getMessage()));
     }
   }
 
@@ -285,7 +285,7 @@ public enum Entities {
     if (entityClass.isInterface())
       return entityClass.getSimpleName();
     if (0 < entityClass.getInterfaces().length &&
-            "impl".equals(entityClass.getSimpleName().substring(entityClass.getSimpleName().length() - 4).toLowerCase()))
+      "impl".equals(entityClass.getSimpleName().substring(entityClass.getSimpleName().length() - 4).toLowerCase()))
       return entityClass.getInterfaces()[0].getSimpleName();
     else
       return entityClass.getSimpleName();
@@ -504,8 +504,8 @@ public enum Entities {
    */
   public static String toAttributeName(Method method) {
     return String.format("%s%s",
-            method.getName().substring(3, 4).toLowerCase(Locale.ENGLISH),
-            method.getName().substring(4));
+      method.getName().substring(3, 4).toLowerCase(Locale.ENGLISH),
+      method.getName().substring(4));
   }
 
   /**
@@ -519,8 +519,8 @@ public enum Entities {
    */
   public static String toSetterName(String attributeName) {
     return String.format("%s%s%s", "set",
-            attributeName.substring(0, 1).toUpperCase(Locale.ENGLISH),
-            attributeName.substring(1));
+      attributeName.substring(0, 1).toUpperCase(Locale.ENGLISH),
+      attributeName.substring(1));
   }
 
   /**
@@ -533,16 +533,16 @@ public enum Entities {
    */
   public static String toAttributeName(String name) {
     return String.format("%s%s",
-            name.substring(0, 1).toLowerCase(Locale.ENGLISH),
-            name.substring(1));
+      name.substring(0, 1).toLowerCase(Locale.ENGLISH),
+      name.substring(1));
   }
 
   /**
    Get the belongsToId attribute value for a given target entity and key
 
-   @param entity to get belongsToId attribute value from
-   @param belongsToType    of belong-to relationship to get
-   @param <R>    entity type
+   @param entity        to get belongsToId attribute value from
+   @param belongsToType of belong-to relationship to get
+   @param <R>           entity type
    @return Optional<String> value of belongsToId attribute from given entity
    @throws EntityException on failure to get relationship value
    */
@@ -567,8 +567,8 @@ public enum Entities {
    */
   public static String toGetterName(String attributeName) {
     return String.format("%s%s%s", "get",
-            attributeName.substring(0, 1).toUpperCase(Locale.ENGLISH),
-            attributeName.substring(1));
+      attributeName.substring(0, 1).toUpperCase(Locale.ENGLISH),
+      attributeName.substring(1));
   }
 
   /**
@@ -616,8 +616,8 @@ public enum Entities {
    */
   public static <N> Set<String> idsOf(Collection<N> entities) {
     return entities.stream()
-            .flatMap(Entities::flatMapIds)
-            .collect(Collectors.toSet());
+      .flatMap(Entities::flatMapIds)
+      .collect(Collectors.toSet());
   }
 
   /**
@@ -717,7 +717,7 @@ public enum Entities {
   public static boolean isSame(Object a, Object b) {
     try {
       return Objects.equals(Entities.getType(a), Entities.getType(b)) &&
-              Objects.equals(Entities.getId(a), Entities.getId(b));
+        Objects.equals(Entities.getId(a), Entities.getId(b));
     } catch (EntityException e) {
       return false;
     }
@@ -731,12 +731,23 @@ public enum Entities {
    */
   public static Collection<String> namesOf(Collection<?> memeEntities) {
     return memeEntities.stream()
-            .flatMap(e -> {
-              try {
-                return Stream.of(String.valueOf(get(e, NAME_KEY).orElseThrow()));
-              } catch (EntityException ignored) {
-                return Stream.empty();
-              }
-            }).collect(Collectors.toList());
+      .flatMap(e -> {
+        try {
+          return Stream.of(String.valueOf(get(e, NAME_KEY).orElseThrow()));
+        } catch (EntityException ignored) {
+          return Stream.empty();
+        }
+      }).collect(Collectors.toList());
+  }
+
+  /**
+   Whether an entity is a given type
+
+   @param entity to test
+   @param type   for which to test
+   @return true if entity is this type
+   */
+  public static boolean isType(Object entity, Class<?> type) {
+    return getType(entity).equals(toType(type));
   }
 }

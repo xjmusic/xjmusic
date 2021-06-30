@@ -10,6 +10,7 @@ import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
@@ -31,13 +32,13 @@ public interface ChainDAO extends DAO<Chain> {
   /**
    [#176285826] Nexus bootstraps Chains from JSON file on startup
 
+   @param access   control
+   @param chain    to bootstrap
+   @param bindings to bind to chain
    @return newly bootstrapped Chain
    @throws DAOFatalException      on failure
    @throws DAOPrivilegeException  if access is prohibited
    @throws DAOValidationException on invalid data
-   @param access   control
-   @param chain    to bootstrap
-   @param bindings to bind to chain
    */
   Chain bootstrap(
     HubClientAccess access,
@@ -102,4 +103,20 @@ public interface ChainDAO extends DAO<Chain> {
    @return newly created revived chain
    */
   Chain revive(HubClientAccess access, String priorChainId, String reason) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
+
+  /**
+   Get the identifier or a Chain: embed key if available, else ID
+
+   @param chain to get identifier of
+   @return embed key if available, else ID
+   */
+  String getIdentifier(@Nullable Chain chain);
+
+  /**
+   Get the identifier or a Chain: embed key if available, else ID
+
+   @param chain to get identifier of
+   @return embed key if available, else ID
+   */
+  String getIdentifier(@Nullable Chain.Builder chain);
 }

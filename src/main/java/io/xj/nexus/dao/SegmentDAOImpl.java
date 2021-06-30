@@ -428,14 +428,19 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   public Optional<Segment> readLastDubbedSegment(HubClientAccess access, String chainId) throws DAOPrivilegeException, DAOFatalException {
     try {
       requireTopLevel(access);
-      return store.getAllSegments(chainId)
-        .stream()
-        .filter(segment -> Segment.State.Dubbed == segment.getState())
-        .max(Comparator.comparing(Segment::getOffset));
+      return getLastDubbed(store.getAllSegments(chainId));
 
     } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
+  }
+
+  @Override
+  public Optional<Segment> getLastDubbed(Collection<Segment> segments) {
+    return segments
+      .stream()
+      .filter(segment -> Segment.State.Dubbed == segment.getState())
+      .max(Comparator.comparing(Segment::getOffset));
   }
 
   @Override
