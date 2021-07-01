@@ -13,14 +13,18 @@ import java.util.stream.Collectors;
  Measures a series of named sections of time
  */
 public class MultiStopwatch {
+  private String section;
+  private final Map<String, Float> sectionTotalSeconds = Maps.newHashMap();
+  private final long started;
+
+  private float lapTotalSeconds;
+
+  private long lapStarted;
+  private long sectionStarted;
+  public static final String STANDBY = "Standby";
   private static final float MILLI = 1000;
   private static final float MILLIS_PER_SECOND = MILLI;
   private static final float NANOS_PER_SECOND = MILLIS_PER_SECOND * MILLI * MILLI;
-  private final long started;
-  private final Map<String, Float> sectionTotalSeconds = Maps.newHashMap();
-  private long sectionStarted;
-  private String sectionName;
-
   @Nullable
   private Float totalSeconds = null;
 
@@ -29,6 +33,8 @@ public class MultiStopwatch {
    */
   private MultiStopwatch() {
     started = System.nanoTime();
+    section(STANDBY);
+    lap();
   }
 
   /**
@@ -44,8 +50,17 @@ public class MultiStopwatch {
    Stop the MultiStopwatch, measuring the last section and total seconds
    */
   public void stop() {
-    stopSection();
+    lap();
     totalSeconds = (System.nanoTime() - started) / NANOS_PER_SECOND;
+  }
+
+  /**
+   Record a lap, including a time for each cycle, and go back to standby
+   */
+  public void lap() {
+    section(STANDBY);
+      lapTotalSeconds =  (System.nanoTime() - lapStarted) / NANOS_PER_SECOND;
+    lapStarted = System.nanoTime();
   }
 
   /**
@@ -59,13 +74,24 @@ public class MultiStopwatch {
   }
 
   /**
+   Get the total # of seconds of the last lap
+
+   @return total seconds
+   */
+  public float getLapTotalSeconds() {
+    return lapTotalSeconds;
+  }
+
+  /**
    Begin a section by name, and measure the last one if we are in a section
 
    @param name of next section
    */
   public void section(String name) {
-    stopSection();
-    sectionName = name;
+    if (Objects.nonNull(section))
+      sectionTotalSeconds.put(section, (System.nanoTime() - sectionStarted) / NANOS_PER_SECOND);
+    sectionStarted = System.nanoTime();
+    section = name;
   }
 
   /**
@@ -88,13 +114,4 @@ public class MultiStopwatch {
       .collect(Collectors.joining(", "));
   }
 
-  /**
-   (Internal) If we are in a section, stop it and measure it. Reset the section timer
-   */
-  private void stopSection() {
-    if (Objects.nonNull(sectionName))
-      sectionTotalSeconds.put(sectionName, (System.nanoTime() - sectionStarted) / NANOS_PER_SECOND);
-    sectionStarted = System.nanoTime();
-    sectionName = null;
-  }
 }

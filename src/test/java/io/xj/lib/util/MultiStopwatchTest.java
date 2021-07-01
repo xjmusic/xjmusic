@@ -41,4 +41,24 @@ public class MultiStopwatchTest {
     assertTrue(str.contains("One"));
     assertTrue(str.contains("Two"));
   }
+
+  @Test
+  public void lap_section_getLapTimes_toString() throws InterruptedException {
+    Thread.sleep(20); // wasted time
+    subject.section("Work");
+    Thread.sleep(10);
+    subject.lap();
+
+    assertTrue(0.03 <= subject.getLapTotalSeconds());
+
+    Thread.sleep(20); // wasted time
+    subject.section("Work");
+    Thread.sleep(10);
+    subject.stop();
+
+    assertTrue(0.03 <= subject.getLapTotalSeconds());
+    assertTrue(0.06 <= subject.getTotalSeconds());
+    assertTrue(0.02 <= subject.getSectionTotalSeconds().get(MultiStopwatch.STANDBY));
+  }
+
 }
