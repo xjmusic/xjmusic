@@ -219,7 +219,7 @@ public class NexusApp extends App {
           .collect(Collectors.toList()));
       if (fabricatedAheadSeconds > rehydrateFabricatedAheadThreshold) {
         entityStore.putAll(entities);
-        LOG.info("Rehydrated {} entities OK. Will skip new chain bootstrap.", entities);
+        LOG.info("Rehydrated {} entities OK. Will skip new chain bootstrap.", entities.size());
         return;
       } else {
         LOG.info("Will not rehydrate Chain[{}] with fabricatedAheadSeconds={} (less than threshold {} seconds)",
