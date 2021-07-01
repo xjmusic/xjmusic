@@ -405,7 +405,7 @@ public class NexusWorkImpl implements NexusWork {
     LOG.info("Fabricated in {}s ({}) Segment[{}] of {}-Chain[{}] offset:{}",
       timer.getTotalSeconds(),
       timer,
-      segment.getId(),
+      segmentDAO.getIdentifier(segment),
       chain.getType(),
       chainDAO.getIdentifier(chain),
       segment.getOffset());

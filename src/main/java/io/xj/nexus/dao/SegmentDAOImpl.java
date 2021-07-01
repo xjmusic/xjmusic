@@ -31,6 +31,7 @@ import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
 import io.xj.nexus.persistence.NexusEntityStore;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
@@ -95,34 +96,13 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
    */
   public static void protectSegmentStateTransition(Segment.State fromState, Segment.State toState) throws ValueException {
     switch (fromState) {
-
-      case Planned:
-        onlyAllowSegmentStateTransitions(toState, Segment.State.Planned, Segment.State.Crafting);
-        break;
-
-      case Crafting:
-        onlyAllowSegmentStateTransitions(toState, Segment.State.Crafting, Segment.State.Crafted, Segment.State.Dubbing, Segment.State.Failed, Segment.State.Planned);
-        break;
-
-      case Crafted:
-        onlyAllowSegmentStateTransitions(toState, Segment.State.Crafted, Segment.State.Dubbing);
-        break;
-
-      case Dubbing:
-        onlyAllowSegmentStateTransitions(toState, Segment.State.Dubbing, Segment.State.Dubbed, Segment.State.Failed);
-        break;
-
-      case Dubbed:
-        onlyAllowSegmentStateTransitions(toState, Segment.State.Dubbed);
-        break;
-
-      case Failed:
-        onlyAllowSegmentStateTransitions(toState, Segment.State.Failed);
-        break;
-
-      default:
-        onlyAllowSegmentStateTransitions(toState, Segment.State.Planned);
-        break;
+      case Planned -> onlyAllowSegmentStateTransitions(toState, Segment.State.Planned, Segment.State.Crafting);
+      case Crafting -> onlyAllowSegmentStateTransitions(toState, Segment.State.Crafting, Segment.State.Crafted, Segment.State.Dubbing, Segment.State.Failed, Segment.State.Planned);
+      case Crafted -> onlyAllowSegmentStateTransitions(toState, Segment.State.Crafted, Segment.State.Dubbing);
+      case Dubbing -> onlyAllowSegmentStateTransitions(toState, Segment.State.Dubbing, Segment.State.Dubbed, Segment.State.Failed);
+      case Dubbed -> onlyAllowSegmentStateTransitions(toState, Segment.State.Dubbed);
+      case Failed -> onlyAllowSegmentStateTransitions(toState, Segment.State.Failed);
+      default -> onlyAllowSegmentStateTransitions(toState, Segment.State.Planned);
     }
   }
 
@@ -444,6 +424,12 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
+  public String getIdentifier(@Nullable Segment segment) {
+    if (Objects.isNull(segment)) return "N/A";
+    return Strings.isNullOrEmpty(segment.getStorageKey()) ? segment.getId() : segment.getStorageKey();
+  }
+
+    @Override
   public void destroy(HubClientAccess access, String id) throws DAOPrivilegeException, DAOFatalException {
     try {
       requireTopLevel(access);
