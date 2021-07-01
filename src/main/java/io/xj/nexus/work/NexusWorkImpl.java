@@ -72,11 +72,12 @@ public class NexusWorkImpl implements NexusWork {
   private final int bufferPreviewSeconds;
   private final int bufferProductionSeconds;
   private final int eraseSegmentsOlderThanSeconds;
+  private final int fabricationCycleSeconds;
   private final int janitorCycleSeconds;
   private final int medicCycleSeconds;
   private final int reviveChainFabricatedBehindSeconds;
   private final int reviveChainProductionGraceSeconds;
-  private final int scheduleDelayMillis;
+  private long nextFabricationNanos;
   private long nextJanitorNanos = 0;
   private long nextMedicNanos = 0;
   private static final String DEFAULT_NAME_PREVIEW = "preview";
@@ -112,15 +113,13 @@ public class NexusWorkImpl implements NexusWork {
     bufferPreviewSeconds = config.getInt("work.bufferPreviewSeconds");
     bufferProductionSeconds = config.getInt("work.bufferProductionSeconds");
     eraseSegmentsOlderThanSeconds = config.getInt("work.eraseSegmentsOlderThanSeconds");
+    fabricationCycleSeconds = config.getInt("work.fabricationCycleSeconds");
     medicCycleSeconds = config.getInt("work.medicCycleSeconds");
     medicEnabled = config.getBoolean("work.medicEnabled");
     janitorCycleSeconds = config.getInt("work.janitorCycleSeconds");
     janitorEnabled = config.getBoolean("work.janitorEnabled");
     reviveChainFabricatedBehindSeconds = config.getInt("fabrication.reviveChainFabricatedBehindSeconds");
     reviveChainProductionGraceSeconds = config.getInt("fabrication.reviveChainProductionGraceSeconds");
-
-    scheduleDelayMillis = config.getInt("work.scheduleDelayMillis");
-
     scheduler = Executors.newSingleThreadScheduledExecutor();
 
     LOG.debug("Instantiated OK");
@@ -128,7 +127,7 @@ public class NexusWorkImpl implements NexusWork {
 
   @Override
   public void start() {
-    schedule = scheduler.scheduleWithFixedDelay(this, scheduleDelayMillis, scheduleDelayMillis, TimeUnit.MILLISECONDS);
+    schedule = scheduler.scheduleWithFixedDelay(this, 0, 0, TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -163,6 +162,9 @@ public class NexusWorkImpl implements NexusWork {
    Do fabrication
    */
   private void doFabrication() {
+    if (System.nanoTime() < nextFabricationNanos) return;
+    nextFabricationNanos = System.nanoTime() + (long) (fabricationCycleSeconds * NANOS_PER_SECOND);
+
     // Get active chain IDs
     Collection<Chain> activeChains;
     try {
@@ -186,7 +188,7 @@ public class NexusWorkImpl implements NexusWork {
     try {
       var timer = MultiStopwatch.start();
       checkAndReviveAll();
-      LOG.debug("Medic did run in {}s OK", timer.getTotalSeconds());
+      LOG.info("Medic did run in {}s OK", timer.getTotalSeconds());
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
       didFailWhile("Medic checking & reviving all", e);
     }
@@ -212,14 +214,14 @@ public class NexusWorkImpl implements NexusWork {
 
     // Erase segments if necessary
     if (segmentIdsToErase.isEmpty())
-      LOG.debug("Found no segments to erase");
+      LOG.info("Found no segments to erase");
     else
-      LOG.debug("Found {} segments to erase", segmentIdsToErase.size());
+      LOG.info("Found {} segments to erase", segmentIdsToErase.size());
 
     for (String segmentId : segmentIdsToErase) {
       try {
         segmentDAO.destroy(access, segmentId);
-        LOG.debug("Did erase Segment[{}]", segmentId);
+        LOG.info("Did erase Segment[{}]", segmentId);
       } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException e) {
         LOG.warn("Error while destroying Segment[{}]", segmentId);
       }
