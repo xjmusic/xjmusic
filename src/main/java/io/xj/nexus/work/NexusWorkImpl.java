@@ -71,13 +71,13 @@ public class NexusWorkImpl implements NexusWork {
   private final boolean medicEnabled;
   private final int bufferPreviewSeconds;
   private final int bufferProductionSeconds;
+  private final int cycleMillis;
   private final int eraseSegmentsOlderThanSeconds;
-  private final int fabricationCycleSeconds;
   private final int janitorCycleSeconds;
   private final int medicCycleSeconds;
   private final int reviveChainFabricatedBehindSeconds;
   private final int reviveChainProductionGraceSeconds;
-  private long nextFabricationNanos;
+  private long nextCycleNanos;
   private long nextJanitorNanos = 0;
   private long nextMedicNanos = 0;
   private static final String DEFAULT_NAME_PREVIEW = "preview";
@@ -85,9 +85,10 @@ public class NexusWorkImpl implements NexusWork {
   private static final String METRIC_CHAIN_FORMAT = "chain.%s.%s";
   private static final String METRIC_FABRICATED_AHEAD_SECONDS = "fabricated_ahead_seconds";
   private static final String METRIC_SEGMENT_CREATED = "segment_created";
-  private static final float MILLI = 1000;
-  private static final float MILLIS_PER_SECOND = MILLI;
-  private static final float NANOS_PER_SECOND = MILLIS_PER_SECOND * MILLI * MILLI;
+  private static final long MILLIS_PER_SECOND = 1000;
+  private static final long NANOS_PER_MILLI = 1000 * 1000;
+  private static final long NANOS_PER_SECOND = NANOS_PER_MILLI * MILLIS_PER_SECOND;
+  private MultiStopwatch timer;
 
   @Inject
   public NexusWorkImpl(
@@ -112,12 +113,12 @@ public class NexusWorkImpl implements NexusWork {
 
     bufferPreviewSeconds = config.getInt("work.bufferPreviewSeconds");
     bufferProductionSeconds = config.getInt("work.bufferProductionSeconds");
+    cycleMillis = config.getInt("work.cycleMillis");
     eraseSegmentsOlderThanSeconds = config.getInt("work.eraseSegmentsOlderThanSeconds");
-    fabricationCycleSeconds = config.getInt("work.fabricationCycleSeconds");
-    medicCycleSeconds = config.getInt("work.medicCycleSeconds");
-    medicEnabled = config.getBoolean("work.medicEnabled");
     janitorCycleSeconds = config.getInt("work.janitorCycleSeconds");
     janitorEnabled = config.getBoolean("work.janitorEnabled");
+    medicCycleSeconds = config.getInt("work.medicCycleSeconds");
+    medicEnabled = config.getBoolean("work.medicEnabled");
     reviveChainFabricatedBehindSeconds = config.getInt("fabrication.reviveChainFabricatedBehindSeconds");
     reviveChainProductionGraceSeconds = config.getInt("fabrication.reviveChainProductionGraceSeconds");
     scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -127,7 +128,8 @@ public class NexusWorkImpl implements NexusWork {
 
   @Override
   public void start() {
-    schedule = scheduler.scheduleWithFixedDelay(this, 0, 0, TimeUnit.MILLISECONDS);
+    schedule = scheduler.scheduleWithFixedDelay(this, 0, cycleMillis, TimeUnit.MILLISECONDS);
+    timer = MultiStopwatch.start();
   }
 
   @Override
@@ -149,6 +151,8 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/boss", operationName = "run")
   public void run() {
+    if (System.nanoTime() < nextCycleNanos) return;
+    nextCycleNanos = System.nanoTime() + cycleMillis * NANOS_PER_MILLI;
     try {
       doFabrication();
       if (medicEnabled) doMedic();
@@ -156,15 +160,17 @@ public class NexusWorkImpl implements NexusWork {
     } catch (Exception e) {
       didFailWhile("Running Nexus Work", e);
     }
+    timer.lap();
+    LOG.info("Lap time: {}s ({}) ",
+      timer.getLapTotalSeconds(),
+      timer);
+    timer.clearNonStandbySections();
   }
 
   /**
    Do fabrication
    */
   private void doFabrication() {
-    if (System.nanoTime() < nextFabricationNanos) return;
-    nextFabricationNanos = System.nanoTime() + (long) (fabricationCycleSeconds * NANOS_PER_SECOND);
-
     // Get active chain IDs
     Collection<Chain> activeChains;
     try {
@@ -179,16 +185,43 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Do medic
+   [#158897383] Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
+   and if found, *revive* it in order to ensure the Chain remains in an operable state.
+   <p>
+   [#177021797] Medic relies on precomputed  telemetry of fabrication latency
    */
   private void doMedic() {
     if (System.nanoTime() < nextMedicNanos) return;
-    nextMedicNanos = System.nanoTime() + (long) (medicCycleSeconds * NANOS_PER_SECOND);
+    nextMedicNanos = System.nanoTime() + (medicCycleSeconds * NANOS_PER_SECOND);
+    timer.section("Medic");
 
     try {
-      var timer = MultiStopwatch.start();
-      checkAndReviveAll();
-      LOG.info("Medic did run in {}s OK", timer.getTotalSeconds());
+      Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionGraceSeconds);
+
+      Map<String, String> stalledChainIds = Maps.newHashMap();
+      chainDAO.readManyInState(access, Chain.State.Fabricate)
+        .stream()
+        .filter((chain) ->
+          Chain.Type.Production.equals(chain.getType()) &&
+            Instant.parse(chain.getStartAt()).isBefore(thresholdChainProductionStartedBefore))
+        .forEach(chain -> {
+          if (chain.getFabricatedAheadSeconds() < -reviveChainFabricatedBehindSeconds) {
+            LOG.warn("Chain {} is stalled, fabricatedAheadSeconds={}",
+              chainDAO.getIdentifier(chain), chain.getFabricatedAheadSeconds());
+            stalledChainIds.put(chain.getId(),
+              String.format("fabricatedAheadSeconds=%s", chain.getFabricatedAheadSeconds()));
+          }
+        });
+
+      // revive all stalled chains
+      for (String stalledChainId : stalledChainIds.keySet()) {
+        chainDAO.revive(access, stalledChainId, stalledChainIds.get(stalledChainId));
+        // [#173968355] Nexus deletes entire chain when no current segments are left.
+        chainDAO.destroy(access, stalledChainId);
+      }
+
+      telemetryProvider.getStatsDClient().incrementCounter("chain.revived", stalledChainIds.size());
+
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
       didFailWhile("Medic checking & reviving all", e);
     }
@@ -201,7 +234,8 @@ public class NexusWorkImpl implements NexusWork {
   @Trace(resourceName = "nexus/janitor", operationName = "doWork")
   protected void doJanitor() {
     if (System.nanoTime() < nextJanitorNanos) return;
-    nextJanitorNanos = System.nanoTime() + (long) (janitorCycleSeconds * NANOS_PER_SECOND);
+    nextJanitorNanos = System.nanoTime() + (janitorCycleSeconds * NANOS_PER_SECOND);
+    timer.section("Janitor");
 
     // Seek segments to erase
     Collection<String> segmentIdsToErase;
@@ -246,8 +280,6 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
   public void fabricateChain(Chain chain) {
-    var timer = MultiStopwatch.start();
-
     try {
       int workBufferSeconds = bufferSecondsFor(chain);
       timer.section("BuildNextSegment");
@@ -311,8 +343,7 @@ public class NexusWorkImpl implements NexusWork {
       Instant.parse(lastDubbedSegment.get().getEndAt()) :
       Instant.parse(chain.getStartAt());
     var now = Instant.now();
-    return (dubbedUntil.toEpochMilli() - now.toEpochMilli()) / MILLIS_PER_SECOND;
-
+    return (float) (dubbedUntil.toEpochMilli() - now.toEpochMilli()) / MILLIS_PER_SECOND;
   }
 
   /**
@@ -401,13 +432,10 @@ public class NexusWorkImpl implements NexusWork {
       didFailWhile("finishing work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
     }
 
-    timer.stop();
-    LOG.info("Fabricated {}-Chain[{}] offset:{} in {}s ({}) Segment[{}]",
+    LOG.info("Fabricated {} Chain[{}] offset={} Segment[{}]",
       chain.getType(),
       chainDAO.getIdentifier(chain),
       segment.getOffset(),
-      timer.getTotalSeconds(),
-      timer,
       segmentDAO.getIdentifier(segment));
   }
 
@@ -574,46 +602,6 @@ public class NexusWorkImpl implements NexusWork {
     return fabricator.getSegment();
   }
 
-
-  /**
-   [#158897383] Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
-   and if found, *revive* it in order to ensure the Chain remains in an operable state.
-   <p>
-   [#177021797] Medic relies on precomputed  telemetry of fabrication latency
-
-   @throws DAOFatalException      on failure
-   @throws DAOPrivilegeException  on failure
-   @throws DAOValidationException on failure
-   @throws DAOExistenceException  on failure
-   */
-  @Trace(resourceName = "nexus/medic", operationName = "checkAndReviveAll")
-  public void checkAndReviveAll() throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
-    Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionGraceSeconds);
-
-    Map<String, String> stalledChainIds = Maps.newHashMap();
-    chainDAO.readManyInState(access, Chain.State.Fabricate)
-      .stream()
-      .filter((chain) ->
-        Chain.Type.Production.equals(chain.getType()) &&
-          Instant.parse(chain.getStartAt()).isBefore(thresholdChainProductionStartedBefore))
-      .forEach(chain -> {
-        if (chain.getFabricatedAheadSeconds() < -reviveChainFabricatedBehindSeconds) {
-          LOG.warn("Chain {} is stalled, fabricatedAheadSeconds={}",
-            chainDAO.getIdentifier(chain), chain.getFabricatedAheadSeconds());
-          stalledChainIds.put(chain.getId(),
-            String.format("fabricatedAheadSeconds=%s", chain.getFabricatedAheadSeconds()));
-        }
-      });
-
-    // revive all stalled chains
-    for (String stalledChainId : stalledChainIds.keySet()) {
-      chainDAO.revive(access, stalledChainId, stalledChainIds.get(stalledChainId));
-      // [#173968355] Nexus deletes entire chain when no current segments are left.
-      chainDAO.destroy(access, stalledChainId);
-    }
-
-    telemetryProvider.getStatsDClient().incrementCounter("chain.revived", stalledChainIds.size());
-  }
 
   /**
    Whether this Segment is before a given threshold, first by end-at if available, else begin-at

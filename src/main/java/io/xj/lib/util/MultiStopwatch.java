@@ -5,6 +5,7 @@ package io.xj.lib.util;
 import com.google.api.client.util.Maps;
 
 import javax.annotation.Nullable;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -16,15 +17,14 @@ public class MultiStopwatch {
   private String section;
   private final Map<String, Float> sectionTotalSeconds = Maps.newHashMap();
   private final long started;
-
   private float lapTotalSeconds;
-
   private long lapStarted;
   private long sectionStarted;
-  public static final String STANDBY = "Standby";
   private static final float MILLI = 1000;
   private static final float MILLIS_PER_SECOND = MILLI;
   private static final float NANOS_PER_SECOND = MILLIS_PER_SECOND * MILLI * MILLI;
+  public static final String STANDBY = "Standby";
+
   @Nullable
   private Float totalSeconds = null;
 
@@ -110,8 +110,17 @@ public class MultiStopwatch {
    */
   public String toString() {
     return sectionTotalSeconds.entrySet().stream()
+      .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
       .map(entry -> String.format("%s: %f", entry.getKey(), entry.getValue()))
       .collect(Collectors.joining(", "));
   }
 
+  /**
+   Clear all sections that are not standby
+   */
+  public void clearNonStandbySections() {
+    var standbyTime = sectionTotalSeconds.get(STANDBY);
+    sectionTotalSeconds.clear();
+    sectionTotalSeconds.put(STANDBY, standbyTime);
+  }
 }
