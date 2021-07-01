@@ -35,7 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -162,16 +164,16 @@ public class NexusWorkImpl implements NexusWork {
    */
   private void doFabrication() {
     // Get active chain IDs
-    Collection<String> activeIds;
+    Collection<Chain> activeChains;
     try {
-      activeIds = getActiveChainIds();
+      activeChains = getActiveChains();
     } catch (DAOFatalException | DAOPrivilegeException e) {
       didFailWhile("Getting list of active chain IDs", e);
       return;
     }
 
     // Fabricate all active chains
-    activeIds.forEach(this::fabricateChain);
+    activeChains.forEach(this::fabricateChain);
   }
 
   /**
@@ -233,33 +235,16 @@ public class NexusWorkImpl implements NexusWork {
    @throws DAOPrivilegeException on access control failure
    @throws DAOFatalException     on internal failure
    */
-  private Collection<String> getActiveChainIds() throws DAOPrivilegeException, DAOFatalException {
-    return chainDAO.readManyInState(access, Chain.State.Fabricate)
-      .stream()
-      .flatMap(Entities::flatMapIds)
-      .collect(Collectors.toList());
+  private List<Chain> getActiveChains() throws DAOPrivilegeException, DAOFatalException {
+    return new ArrayList<>(chainDAO.readManyInState(access, Chain.State.Fabricate));
   }
 
   /**
    Do the work-- this is called by the underlying WorkerImpl run() hook
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
-  public void fabricateChain(String chainId) {
+  public void fabricateChain(Chain chain) {
     var timer = MultiStopwatch.start();
-    Chain chain;
-
-    try {
-      timer.section("ReadChain");
-      chain = chainDAO.readOne(access, chainId);
-      if (Chain.State.Fabricate != chain.getState()) {
-        LOG.error("Cannot fabricate Chain[{}] in non-Fabricate ({}) state!",
-          chainDAO.getIdentifier(chain), chain.getState());
-        return;
-      }
-    } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
-      LOG.error("Cannot find Chain[{}]", chainId);
-      return;
-    }
 
     try {
       int workBufferSeconds = bufferSecondsFor(chain);
@@ -298,7 +283,7 @@ public class NexusWorkImpl implements NexusWork {
           chain.getType(),
           chainDAO.getIdentifier(chain)));
 
-      LOG.error("Failed to created Segment in chainId={}, reason={}", chainId, e.getMessage());
+      LOG.error("Failed to created Segment in Chain[{}] reason={}", chainDAO.getIdentifier(chain), e.getMessage());
 
       try {
         chainDAO.revive(access, chain.getId(), body);
