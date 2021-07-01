@@ -402,14 +402,13 @@ public class NexusWorkImpl implements NexusWork {
     }
 
     timer.stop();
-    LOG.info("Fabricated in {}s ({}) Segment[{}] of {}-Chain[{}] offset:{}",
-      timer.getTotalSeconds(),
-      timer,
-      segmentDAO.getIdentifier(segment),
+    LOG.info("Fabricated {}-Chain[{}] offset:{} in {}s ({}) Segment[{}]",
       chain.getType(),
       chainDAO.getIdentifier(chain),
-      segment.getOffset());
-
+      segment.getOffset(),
+      timer.getTotalSeconds(),
+      timer,
+      segmentDAO.getIdentifier(segment));
   }
 
   /**
