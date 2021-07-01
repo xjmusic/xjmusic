@@ -15,6 +15,7 @@ import io.xj.SegmentMessage;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
+import io.xj.lib.util.MultiStopwatch;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
 import io.xj.nexus.NexusException;
@@ -30,7 +31,6 @@ import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
-import org.glassfish.jersey.internal.guava.ThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 @Singleton
 public class NexusWorkImpl implements NexusWork {
   private static final Logger LOG = LoggerFactory.getLogger(NexusWorkImpl.class);
+  private ScheduledFuture<?> schedule;
   private final ChainDAO chainDAO;
   private final CraftFactory craftFactory;
   private final DubFactory dubFactory;
@@ -61,14 +62,21 @@ public class NexusWorkImpl implements NexusWork {
   private final HubClientAccess access = HubClientAccess.internal();
   private final NexusEntityStore store;
   private final NotificationProvider notification;
+  private final ScheduledExecutorService scheduler;
   private final SegmentDAO segmentDAO;
   private final TelemetryProvider telemetryProvider;
+  private final boolean janitorEnabled;
   private final boolean medicEnabled;
   private final int bufferPreviewSeconds;
   private final int bufferProductionSeconds;
   private final int eraseSegmentsOlderThanSeconds;
+  private final int janitorCycleSeconds;
+  private final int medicCycleSeconds;
   private final int reviveChainFabricatedBehindSeconds;
   private final int reviveChainProductionGraceSeconds;
+  private final int scheduleDelayMillis;
+  private long nextJanitorNanos = 0;
+  private long nextMedicNanos = 0;
   private static final String DEFAULT_NAME_PREVIEW = "preview";
   private static final String DEFAULT_NAME_PRODUCTION = "production";
   private static final String METRIC_CHAIN_FORMAT = "chain.%s.%s";
@@ -76,12 +84,7 @@ public class NexusWorkImpl implements NexusWork {
   private static final String METRIC_SEGMENT_CREATED = "segment_created";
   private static final float MILLI = 1000;
   private static final float MILLIS_PER_SECOND = MILLI;
-  private static final float NANOS_PER_SECOND = MILLI * MILLI * MILLI;
-  private final ScheduledExecutorService scheduler;
-  private ScheduledFuture<?> schedule;
-
-  // Name pool threads
-  private final int scheduleDelayMillis;
+  private static final float NANOS_PER_SECOND = MILLIS_PER_SECOND * MILLI * MILLI;
 
   @Inject
   public NexusWorkImpl(
@@ -107,17 +110,16 @@ public class NexusWorkImpl implements NexusWork {
     bufferPreviewSeconds = config.getInt("work.bufferPreviewSeconds");
     bufferProductionSeconds = config.getInt("work.bufferProductionSeconds");
     eraseSegmentsOlderThanSeconds = config.getInt("work.eraseSegmentsOlderThanSeconds");
-    medicEnabled = config.getBoolean("fabrication.medicEnabled");
+    medicCycleSeconds = config.getInt("work.medicCycleSeconds");
+    medicEnabled = config.getBoolean("work.medicEnabled");
+    janitorCycleSeconds = config.getInt("work.janitorCycleSeconds");
+    janitorEnabled = config.getBoolean("work.janitorEnabled");
     reviveChainFabricatedBehindSeconds = config.getInt("fabrication.reviveChainFabricatedBehindSeconds");
     reviveChainProductionGraceSeconds = config.getInt("fabrication.reviveChainProductionGraceSeconds");
 
     scheduleDelayMillis = config.getInt("work.scheduleDelayMillis");
-    int workConcurrency = config.getInt("work.concurrency");
 
-    scheduler = Executors.newScheduledThreadPool(workConcurrency, new ThreadFactoryBuilder()
-      .setNameFormat(NexusWork.class.getSimpleName() + "-%d")
-      .setDaemon(true)
-      .build());
+    scheduler = Executors.newSingleThreadScheduledExecutor();
 
     LOG.debug("Instantiated OK");
   }
@@ -148,8 +150,8 @@ public class NexusWorkImpl implements NexusWork {
   public void run() {
     try {
       doFabrication();
-      doMedic();
-      doJanitor();
+      if (medicEnabled) doMedic();
+      if (janitorEnabled) doJanitor();
     } catch (Exception e) {
       didFailWhile("Running Nexus Work", e);
     }
@@ -176,11 +178,13 @@ public class NexusWorkImpl implements NexusWork {
    Do medic
    */
   private void doMedic() {
-    // Medic
-    if (medicEnabled) try {
-      long t = Instant.now().toEpochMilli();
+    if (System.nanoTime() < nextMedicNanos) return;
+    nextMedicNanos = System.nanoTime() + (long) (medicCycleSeconds * NANOS_PER_SECOND);
+
+    try {
+      var timer = MultiStopwatch.start();
       checkAndReviveAll();
-      LOG.debug("Medic did run in {}ms OK", Instant.now().toEpochMilli() - t);
+      LOG.debug("Medic did run in {}s OK", timer.getTotalSeconds());
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
       didFailWhile("Medic checking & reviving all", e);
     }
@@ -192,6 +196,9 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/janitor", operationName = "doWork")
   protected void doJanitor() {
+    if (System.nanoTime() < nextJanitorNanos) return;
+    nextJanitorNanos = System.nanoTime() + (long) (janitorCycleSeconds * NANOS_PER_SECOND);
+
     // Seek segments to erase
     Collection<String> segmentIdsToErase;
     try {
@@ -238,9 +245,11 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
   public void fabricateChain(String chainId) {
-    long startOverall = System.nanoTime();
+    var timer = MultiStopwatch.start();
     Chain chain;
+
     try {
+      timer.section("ReadChain");
       chain = chainDAO.readOne(access, chainId);
       if (Chain.State.Fabricate != chain.getState()) {
         LOG.error("Cannot fabricate Chain[{}] in non-Fabricate ({}) state!",
@@ -254,18 +263,20 @@ public class NexusWorkImpl implements NexusWork {
 
     try {
       int workBufferSeconds = bufferSecondsFor(chain);
-
-      Optional<Segment> segment = chainDAO.buildNextSegmentOrCompleteTheChain(access, chain,
+      timer.section("BuildNextSegment");
+      Optional<Segment> nextSegment = chainDAO.buildNextSegmentOrCompleteTheChain(access, chain,
         Instant.now().plusSeconds(workBufferSeconds),
         Instant.now().minusSeconds(workBufferSeconds));
-      if (segment.isEmpty()) return;
-      Segment createdSegment = segmentDAO.create(access, segment.get());
-      LOG.debug("Created Segment {}", createdSegment);
+      if (nextSegment.isEmpty()) return;
+
+      timer.section("CreateSegment");
+      Segment segment = segmentDAO.create(access, nextSegment.get());
+      LOG.debug("Created Segment {}", segment);
       telemetryProvider.getStatsDClient().
         incrementCounter(getChainMetricName(chain, METRIC_SEGMENT_CREATED));
 
-      // FUTURE: fork/join thread possible for this sub-runnable of the fabrication worker
-      fabricateSegment(createdSegment.getId(), chainId, chain.getType().toString(), startOverall);
+      // Fabricate this segment and measure sections of time
+      fabricateSegment(chain, segment, timer);
 
       // bums
       var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
@@ -324,13 +335,11 @@ public class NexusWorkImpl implements NexusWork {
    @return buffer # of seconds this type of chain
    */
   private int bufferSecondsFor(Chain chain) {
-    switch (chain.getType()) {
-      default:
-      case Production:
-        return bufferProductionSeconds;
-      case Preview:
-        return bufferPreviewSeconds;
-    }
+    return switch (chain.getType()) {
+      case Production -> bufferProductionSeconds;
+      case Preview -> bufferPreviewSeconds;
+      case UNRECOGNIZED -> 0;
+    };
   }
 
   /**
@@ -360,27 +369,10 @@ public class NexusWorkImpl implements NexusWork {
    Do the work-- this is called by the underlying WorkerImpl run() hook
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "doWork")
-  protected void fabricateSegment(String segmentId, String chainId, String chainType, long startOverall) {
-    Segment segment;
-    Chain chain;
+  protected void fabricateSegment(Chain chain, Segment segment, MultiStopwatch timer) {
     Fabricator fabricator;
 
-    try {
-      LOG.debug("[segId={}] will read Segment for fabrication", segmentId);
-      segment = segmentDAO.readOne(access, segmentId);
-    } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException e) {
-      didFailWhile("retrieving segment", e, segmentId, "Unknown", "Unknown");
-      return;
-    }
-
-    try {
-      LOG.debug("[segId={}] will read Chain of segment", segment.getId());
-      chain = chainDAO.readOne(access, segment.getChainId());
-    } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException e) {
-      didFailWhile("retrieving chain", e, segment.getId(), "Unknown", "Unknown");
-      return;
-    }
-
+    timer.section("PrepareFabricator");
     try {
       LOG.debug("[segId={}] will prepare fabricator", segment.getId());
       fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment);
@@ -388,49 +380,44 @@ public class NexusWorkImpl implements NexusWork {
       didFailWhile("creating fabricator", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
       return;
     }
-    double timerPrepSeconds = (System.nanoTime() - startOverall) / NANOS_PER_SECOND;
 
-    long startStep = System.nanoTime();
+    timer.section("PrepareFabricator");
     try {
       LOG.debug("[segId={}] will do craft work", segment.getId());
       segment = doCraftWork(fabricator, segment);
     } catch (Exception e) {
       didFailWhile("doing Craft work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
-      revert(fabricator, segment, chainId, chainType);
+      revert(chain, segment, fabricator);
       return;
     }
-    double timerCraftSeconds = (System.nanoTime() - startStep) / NANOS_PER_SECOND;
 
-    startStep = System.nanoTime();
+    timer.section("Dub");
     try {
       segment = doDubMasterWork(fabricator, segment);
     } catch (Exception e) {
       didFailWhile("doing Dub Master work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
       return;
     }
-    double timerDubMasterSeconds = (System.nanoTime() - startStep) / NANOS_PER_SECOND;
 
-    startStep = System.nanoTime();
+    timer.section("Ship");
     try {
       doDubShipWork(fabricator);
     } catch (Exception e) {
       didFailWhile("doing Dub Ship work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
       return;
     }
-    double timerDubShipSeconds = (System.nanoTime() - startStep) / NANOS_PER_SECOND;
 
+    timer.section("Finish");
     try {
       finishWork(fabricator, segment);
     } catch (Exception e) {
       didFailWhile("finishing work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
     }
 
-    LOG.info("Fabricated in {}s (Prep {}s, Craft {}s, Dub {}s, Ship {}s) Segment[{}] of {}-Chain[{}] offset:{}",
-      (double) (System.nanoTime() - startOverall) / NANOS_PER_SECOND,
-      timerPrepSeconds,
-      timerCraftSeconds,
-      timerDubMasterSeconds,
-      timerDubShipSeconds,
+    timer.stop();
+    LOG.info("Fabricated in {}s ({}) Segment[{}] of {}-Chain[{}] offset:{}",
+      timer.getTotalSeconds(),
+      timer,
       segment.getId(),
       chain.getType(),
       chainDAO.getIdentifier(chain),
@@ -443,12 +430,12 @@ public class NexusWorkImpl implements NexusWork {
    [#171553408] Remove all Queue mechanics in favor of a cycle happening in Main class for as long as the application is alive, that does nothing but search for active chains, search for segments that need work, and work on them. Zero need for a work queue-- that's what the Chain-Segment state machine is!@param segmentId
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "revert")
-  private void revert(Fabricator fabricator, Segment segment, String chainId, String chainType) {
+  private void revert(Chain chain, Segment segment, Fabricator fabricator) {
     try {
       updateSegmentState(fabricator, segment, fabricator.getSegment().getState(), Segment.State.Planned);
       segmentDAO.revert(access, segment.getId());
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException | NexusException e) {
-      didFailWhile("reverting and re-queueing segment", e, segment.getId(), chainId, chainType);
+      didFailWhile("reverting and re-queueing segment", e, segment.getId(), chain.getId(), chain.getType().toString());
     }
   }
 

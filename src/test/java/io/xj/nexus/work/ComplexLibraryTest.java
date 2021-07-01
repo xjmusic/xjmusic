@@ -73,8 +73,7 @@ public class ComplexLibraryTest {
       .withValue("datadog.statsd.hostname", ConfigValueFactory.fromAnyRef("localhost"))
       .withValue("work.eraseSegmentsOlderThanSeconds", ConfigValueFactory.fromAnyRef(MAXIMUM_TEST_WAIT_SECONDS + 300))
       .withValue("work.bossDelayMillis", ConfigValueFactory.fromAnyRef(1))
-      .withValue("work.chainDelayMillis", ConfigValueFactory.fromAnyRef(1))
-      .withValue("work.concurrency", ConfigValueFactory.fromAnyRef(1));
+      .withValue("work.chainDelayMillis", ConfigValueFactory.fromAnyRef(1));
     Environment env = Environment.getDefault();
     var injector = AppConfiguration.inject(config, env,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
