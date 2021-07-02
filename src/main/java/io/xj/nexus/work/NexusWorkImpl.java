@@ -79,7 +79,10 @@ public class NexusWorkImpl implements NexusWork {
   private final int medicCycleSeconds;
   private final int reviveChainFabricatedBehindSeconds;
   private final int reviveChainProductionGraceSeconds;
+  private final long healthCycleStalenessThresholdNanos;
+
   private long nextCycleNanos;
+
   private long nextJanitorNanos = 0;
   private long nextMedicNanos = 0;
   private static final String DEFAULT_NAME_PREVIEW = "preview";
@@ -114,6 +117,7 @@ public class NexusWorkImpl implements NexusWork {
     bufferProductionSeconds = config.getInt("work.bufferProductionSeconds");
     cycleMillis = config.getInt("work.cycleMillis");
     eraseSegmentsOlderThanSeconds = config.getInt("work.eraseSegmentsOlderThanSeconds");
+    healthCycleStalenessThresholdNanos = config.getInt("work.healthCycleStalenessThresholdSeconds") * NANOS_PER_SECOND;
     janitorCycleSeconds = config.getInt("work.janitorCycleSeconds");
     janitorEnabled = config.getBoolean("work.janitorEnabled");
     medicCycleSeconds = config.getInt("work.medicCycleSeconds");
@@ -331,8 +335,8 @@ public class NexusWorkImpl implements NexusWork {
   @Override
   public void work() {
     timer = MultiStopwatch.start();
-    while (true)
-      this.run();
+    //noinspection InfiniteLoopStatement
+    while (true) this.run();
   }
 
   /**
@@ -635,4 +639,8 @@ public class NexusWorkImpl implements NexusWork {
     return segmentIds;
   }
 
+  @Override
+  public boolean isHealthy() {
+    return nextCycleNanos > System.nanoTime() - healthCycleStalenessThresholdNanos;
+  }
 }

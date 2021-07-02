@@ -2,6 +2,7 @@
 package io.xj.nexus.api;
 
 import com.google.inject.Inject;
+import io.xj.nexus.work.NexusWork;
 
 import javax.annotation.security.PermitAll;
 import javax.inject.Singleton;
@@ -14,13 +15,20 @@ import javax.ws.rs.Path;
 @Path("-/health")
 public class NexusAppHealthEndpoint {
 
+  private final NexusWork nexusWork;
+
   @Inject
-  public NexusAppHealthEndpoint() {
+  public NexusAppHealthEndpoint(
+    NexusWork nexusWork
+  ) {
+    this.nexusWork = nexusWork;
   }
 
   @GET
   @PermitAll
   public String index() {
+    if (!nexusWork.isHealthy()) throw new RuntimeException("Work is stale!");
+
     return "ok";
   }
 }

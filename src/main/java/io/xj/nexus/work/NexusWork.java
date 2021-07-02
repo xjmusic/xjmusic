@@ -36,7 +36,14 @@ public interface NexusWork extends Runnable {
   float computeFabricatedAheadSeconds(Chain chain, Collection<Segment> segments);
 
   /**
-   This method just does work until failure
+   This method just does work until failure, blocks until interrupted
    */
   void work();
+
+  /**
+   Whether the next cycle nanos is above threshold, compared to System.nanoTime();
+
+   @return next cycle nanos
+   */
+  boolean isHealthy();
 }
