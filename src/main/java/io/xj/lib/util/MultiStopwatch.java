@@ -94,7 +94,7 @@ public class MultiStopwatch {
    */
   public void section(String name) {
     if (Objects.nonNull(section)) {
-      var seconds = (System.nanoTime() - sectionStarted) / NANOS_PER_SECOND;
+      var seconds = (double) (System.nanoTime() - sectionStarted) / NANOS_PER_SECOND;
       lapSectionSeconds.put(section, lapSectionSeconds.containsKey(section) ? lapSectionSeconds.get(section) + seconds : seconds);
       totalSectionSeconds.put(section, totalSectionSeconds.containsKey(section) ? totalSectionSeconds.get(section) + seconds : seconds);
     }
@@ -126,11 +126,11 @@ public class MultiStopwatch {
    @return stopwatch as string
    */
   public String toString(double total, Map<String, Double> sectionTotals) {
-    return String.format("%ss (%s)",
+    return String.format("%s (%s)",
       formatHoursMinutesFromSeconds(total),
       sectionTotals.entrySet().stream()
         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-        .map(entry -> String.format("%s: %d%%", entry.getKey(), (int) Math.floor(100 * entry.getValue() / total)))
+        .map(entry -> String.format("%d%% %s", (int) Math.floor(100 * entry.getValue() / total), entry.getKey()))
         .collect(Collectors.joining(", ")));
   }
 
@@ -144,11 +144,11 @@ public class MultiStopwatch {
     int days = (int) Math.floor(total / SECONDS_PER_DAY);
     int hours = (int) Math.floor((total - days * SECONDS_PER_DAY) / SECONDS_PER_HOUR);
     int minutes = (int) Math.floor((total - days * SECONDS_PER_DAY - hours * SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
-    double seconds = Math.floor(100 * (total - days * SECONDS_PER_DAY - hours * SECONDS_PER_HOUR - minutes * SECONDS_PER_MINUTE)) / 100;
-    if (0 < days) return String.format("%dd %dh %dm %fs", days, hours, minutes, seconds);
-    if (0 < hours) return String.format("%dh %dm %fs", hours, minutes, seconds);
-    if (0 < minutes) return String.format("%dm %fs", minutes, seconds);
-    return String.format("%fs", seconds);
+    double seconds = total - days * SECONDS_PER_DAY - hours * SECONDS_PER_HOUR - minutes * SECONDS_PER_MINUTE;
+    if (0 < days) return String.format("%dd %dh %dm %.2fs", days, hours, minutes, seconds);
+    if (0 < hours) return String.format("%dh %dm %.2fs", hours, minutes, seconds);
+    if (0 < minutes) return String.format("%dm %.2fs", minutes, seconds);
+    return String.format("%.2fs", seconds);
   }
 
   /**
