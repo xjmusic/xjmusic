@@ -223,7 +223,7 @@ public class NexusApp extends App {
           entities.size(), chainDAO.getIdentifier(chain), fabricatedAheadSeconds);
         return;
       } else {
-        LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (threshold {}s)",
+        LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (not > {}s)",
           chainDAO.getIdentifier(chain), fabricatedAheadSeconds, rehydrateFabricatedAheadThreshold);
       }
     } catch (FileStoreException | JsonApiException | NexusException e) {
