@@ -5,9 +5,9 @@ import com.google.inject.Inject;
 import io.xj.nexus.work.NexusWork;
 
 import javax.annotation.security.PermitAll;
-import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 
 /**
  Health resource.
@@ -26,9 +26,9 @@ public class NexusAppHealthEndpoint {
 
   @GET
   @PermitAll
-  public String index() {
-    if (!nexusWork.isHealthy()) throw new RuntimeException("Work is stale!");
+  public Response index() {
+    if (!nexusWork.isHealthy()) return Response.serverError().entity("Work is stale!").build();
 
-    return "ok";
+    return Response.ok().entity("ok").build();
   }
 }
