@@ -147,7 +147,22 @@ public class NexusWorkImpl implements NexusWork {
     nextCycleNanos = System.nanoTime() + cycleMillis * NANOS_PER_MILLI;
 
     try {
-      doFabrication();
+
+      // Get active chain IDs
+      Collection<Chain> activeChains;
+      try {
+        activeChains = getActiveChains();
+      } catch (DAOFatalException | DAOPrivilegeException e) {
+        didFailWhile("Getting list of active chain IDs", e);
+        return;
+      }
+
+      // Fabricate all active chains
+      activeChains.forEach(chain -> {
+        ingestMaterialIfNecessary(chain);
+        fabricateChain(chain);
+      });
+
       if (medicEnabled) doMedic();
       if (janitorEnabled) doJanitor();
     } catch (Exception e) {
@@ -184,28 +199,6 @@ public class NexusWorkImpl implements NexusWork {
     } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException | HubClientException e) {
       didFailWhile("Ingesting source material from Hub", e);
     }
-  }
-
-  /**
-   Do fabrication
-   */
-  private void doFabrication() {
-    timer.section("Fabricate");
-
-    // Get active chain IDs
-    Collection<Chain> activeChains;
-    try {
-      activeChains = getActiveChains();
-    } catch (DAOFatalException | DAOPrivilegeException e) {
-      didFailWhile("Getting list of active chain IDs", e);
-      return;
-    }
-
-    // Fabricate all active chains
-    activeChains.forEach(chain -> {
-      ingestMaterialIfNecessary(chain);
-      fabricateChain(chain);
-    });
   }
 
   /**
@@ -307,6 +300,7 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
   public void fabricateChain(Chain chain) {
+    timer.section("Fabricate");
     try {
       int workBufferSeconds = bufferSecondsFor(chain);
       Optional<Segment> nextSegment = chainDAO.buildNextSegmentOrCompleteTheChain(access, chain,
