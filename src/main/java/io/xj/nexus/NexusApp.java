@@ -163,7 +163,7 @@ public class NexusApp extends App {
       var chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
       var chain = (Chain) jsonapiPayloadFactory.toOne(chainPayload);
       entities.add(chain);
-      LOG.info("Will rehydrate Chain[{}] for embed key \"{}\"", chain.getId(), bootstrap.getChain().getEmbedKey());
+      LOG.info("Will load Chain[{}] for embed key \"{}\"", chain.getId(), bootstrap.getChain().getEmbedKey());
       chainPayload.getIncluded().stream()
         .filter(po -> po.isType(ChainBinding.class))
         .forEach(chainBinding -> {
@@ -206,7 +206,7 @@ public class NexusApp extends App {
             LOG.info("Read Segment[{}] and {} child entities", segment.getStorageKey(), childCount);
 
           } catch (FileStoreException | IOException e) {
-            LOG.error("Could not rehydrate Segment[{}]", segment.getStorageKey(), e);
+            LOG.error("Could not load Segment[{}]", segment.getStorageKey(), e);
           }
         });
 
@@ -219,10 +219,11 @@ public class NexusApp extends App {
           .collect(Collectors.toList()));
       if (fabricatedAheadSeconds > rehydrateFabricatedAheadThreshold) {
         entityStore.putAll(entities);
-        LOG.info("Rehydrated {} entities OK. Will skip new chain bootstrap.", entities.size());
+        LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s", 
+          entities.size(), chainDAO.getIdentifier(chain), fabricatedAheadSeconds);
         return;
       } else {
-        LOG.info("Will not rehydrate Chain[{}] with fabricatedAheadSeconds={} (less than threshold {} seconds)",
+        LOG.info("Will not rehydrate Chain[{}] only fabricated ahead {}s (threshold {}s)",
           chainDAO.getIdentifier(chain), fabricatedAheadSeconds, rehydrateFabricatedAheadThreshold);
       }
     } catch (FileStoreException | JsonApiException | NexusException e) {
