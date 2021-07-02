@@ -145,6 +145,7 @@ public class NexusWorkImpl implements NexusWork {
   public void run() {
     if (System.nanoTime() < nextCycleNanos) return;
     nextCycleNanos = System.nanoTime() + cycleMillis * NANOS_PER_MILLI;
+
     try {
       doFabrication();
       if (medicEnabled) doMedic();
@@ -155,6 +156,7 @@ public class NexusWorkImpl implements NexusWork {
       else
         didFailWhile("Running Nexus Work", e.getClass().getSimpleName(), "");
     }
+
     timer.lap();
     LOG.info("Lap time: {}", timer.lapToString());
     timer.clearLapSections();
@@ -188,6 +190,7 @@ public class NexusWorkImpl implements NexusWork {
    Do fabrication
    */
   private void doFabrication() {
+    timer.section("Fabricate");
 
     // Get active chain IDs
     Collection<Chain> activeChains;
@@ -304,6 +307,7 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
   public void fabricateChain(Chain chain) {
+    timer.section("FabricateChain");
     try {
       int workBufferSeconds = bufferSecondsFor(chain);
       Optional<Segment> nextSegment = chainDAO.buildNextSegmentOrCompleteTheChain(access, chain,
