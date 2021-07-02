@@ -35,8 +35,8 @@ public class MultiStopwatchTest {
     subject.stop();
 
     assertTrue(0.02 <= subject.getTotalSeconds());
-    assertTrue(0.01 <= subject.getLapSectionSeconds().get("One"));
-    assertTrue(0.01 <= subject.getLapSectionSeconds().get("Two"));
+    assertTrue(0.01 <= subject.getSectionLapSeconds().get("One"));
+    assertTrue(0.01 <= subject.getSectionLapSeconds().get("Two"));
     var str = subject.lapToString();
     assertTrue(str.contains("One"));
     assertTrue(str.contains("Two"));
@@ -58,11 +58,11 @@ public class MultiStopwatchTest {
 
     assertTrue(0.03 <= subject.getLapTotalSeconds());
     assertTrue(0.06 <= subject.getTotalSeconds());
-    assertTrue(0.01 <= subject.getLapSectionSeconds().get("Work"));
-    assertTrue(0.02 <= subject.getLapSectionSeconds().get("Standby"));
-    assertTrue(0.02 <= subject.getTotalSectionSeconds().get("Work"));
-    assertTrue(0.04 <= subject.getTotalSectionSeconds().get("Standby"));
-    assertTrue(0.02 <= subject.getLapSectionSeconds().get(MultiStopwatch.STANDBY));
+    assertTrue(0.01 <= subject.getSectionLapSeconds().get("Work"));
+    assertTrue(0.02 <= subject.getSectionLapSeconds().get("Standby"));
+    assertTrue(0.02 <= subject.getSectionTotalSeconds().get("Work"));
+    assertTrue(0.04 <= subject.getSectionTotalSeconds().get("Standby"));
+    assertTrue(0.02 <= subject.getSectionLapSeconds().get(MultiStopwatch.STANDBY));
   }
 
   @Test
@@ -79,9 +79,9 @@ public class MultiStopwatchTest {
     subject.lap();
 
     assertTrue(0.05 <= subject.getLapTotalSeconds());
-    assertTrue(0.02 <= subject.getLapSectionSeconds().get("Left"));
-    assertTrue(0.02 <= subject.getLapSectionSeconds().get("Right"));
-    assertTrue(0.01 <= subject.getLapSectionSeconds().get(MultiStopwatch.STANDBY));
+    assertTrue(0.02 <= subject.getSectionLapSeconds().get("Left"));
+    assertTrue(0.02 <= subject.getSectionLapSeconds().get("Right"));
+    assertTrue(0.01 <= subject.getSectionLapSeconds().get(MultiStopwatch.STANDBY));
   }
 
 }

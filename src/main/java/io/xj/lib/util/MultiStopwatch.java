@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
  */
 public class MultiStopwatch {
   private String section;
-  private final Map<String, Double> lapSectionSeconds = Maps.newHashMap();
-  private final Map<String, Double> totalSectionSeconds = Maps.newHashMap();
+  private final Map<String, Double> sectionLapSeconds = Maps.newHashMap();
+  private final Map<String, Double> sectionTotalSeconds = Maps.newHashMap();
   private final long started;
   private double lapTotalSeconds;
   private long lapStarted;
@@ -95,8 +95,8 @@ public class MultiStopwatch {
   public void section(String name) {
     if (Objects.nonNull(section)) {
       var seconds = (double) (System.nanoTime() - sectionStarted) / NANOS_PER_SECOND;
-      lapSectionSeconds.put(section, lapSectionSeconds.containsKey(section) ? lapSectionSeconds.get(section) + seconds : seconds);
-      totalSectionSeconds.put(section, totalSectionSeconds.containsKey(section) ? totalSectionSeconds.get(section) + seconds : seconds);
+      sectionLapSeconds.put(section, sectionLapSeconds.containsKey(section) ? sectionLapSeconds.get(section) + seconds : seconds);
+      sectionTotalSeconds.put(section, sectionTotalSeconds.containsKey(section) ? sectionTotalSeconds.get(section) + seconds : seconds);
     }
     sectionStarted = System.nanoTime();
     section = name;
@@ -107,8 +107,8 @@ public class MultiStopwatch {
 
    @return map of measured section times
    */
-  public Map<String, Double> getLapSectionSeconds() {
-    return lapSectionSeconds;
+  public Map<String, Double> getSectionLapSeconds() {
+    return sectionLapSeconds;
   }
 
   /**
@@ -116,8 +116,8 @@ public class MultiStopwatch {
 
    @return map of measured section times
    */
-  public Map<String, Double> getTotalSectionSeconds() {
-    return totalSectionSeconds;
+  public Map<String, Double> getSectionTotalSeconds() {
+    return sectionTotalSeconds;
   }
 
   /**
@@ -145,9 +145,9 @@ public class MultiStopwatch {
     int hours = (int) Math.floor((total - days * SECONDS_PER_DAY) / SECONDS_PER_HOUR);
     int minutes = (int) Math.floor((total - days * SECONDS_PER_DAY - hours * SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
     double seconds = total - days * SECONDS_PER_DAY - hours * SECONDS_PER_HOUR - minutes * SECONDS_PER_MINUTE;
-    if (0 < days) return String.format("%dd %dh %dm %.2fs", days, hours, minutes, seconds);
-    if (0 < hours) return String.format("%dh %dm %.2fs", hours, minutes, seconds);
-    if (0 < minutes) return String.format("%dm %.2fs", minutes, seconds);
+    if (0 < days) return String.format("%dd %dh %dm %ds", days, hours, minutes, (int) seconds);
+    if (0 < hours) return String.format("%dh %dm %ds", hours, minutes, (int) seconds);
+    if (0 < minutes) return String.format("%dm %ds", minutes, (int) seconds);
     return String.format("%.2fs", seconds);
   }
 
@@ -157,7 +157,7 @@ public class MultiStopwatch {
    @return stopwatch as string
    */
   public String lapToString() {
-    return toString(lapTotalSeconds, lapSectionSeconds);
+    return toString(lapTotalSeconds, sectionLapSeconds);
   }
 
   /**
@@ -166,13 +166,13 @@ public class MultiStopwatch {
    @return stopwatch as string
    */
   public String totalsToString() {
-    return toString(getTotalSeconds(), totalSectionSeconds);
+    return toString(getTotalSeconds(), sectionTotalSeconds);
   }
 
   /**
    Clear all sections that are not standby
    */
   public void clearLapSections() {
-    lapSectionSeconds.clear();
+    sectionLapSeconds.clear();
   }
 }
