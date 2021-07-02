@@ -172,7 +172,6 @@ public class NexusWorkImpl implements NexusWork {
    Do fabrication
    */
   private void doFabrication() {
-    timer.section("Prepare");
 
     // Get active chain IDs
     Collection<Chain> activeChains;
@@ -286,7 +285,6 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
   public void fabricateChain(Chain chain) {
-    timer.section("FabricateChain");
     try {
       int workBufferSeconds = bufferSecondsFor(chain);
       Optional<Segment> nextSegment = chainDAO.buildNextSegmentOrCompleteTheChain(access, chain,
@@ -393,9 +391,9 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "doWork")
   protected void fabricateSegment(Chain chain, Segment segment, MultiStopwatch timer) {
-    timer.section("FabricateSegment");
     Fabricator fabricator;
 
+    timer.section("Prepare");
     try {
       LOG.debug("[segId={}] will prepare fabricator", segment.getId());
       fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment);
