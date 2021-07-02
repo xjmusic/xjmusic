@@ -34,7 +34,6 @@ import javax.annotation.Nullable;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -59,7 +58,7 @@ import static java.time.temporal.ChronoUnit.HOURS;
  */
 @Singleton
 public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
-  private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ChainDAOImpl.class);
   private static final Set<Chain.State> NOTIFY_ON_CHAIN_STATES = ImmutableSet.of(
     Chain.State.Fabricate,
     Chain.State.Failed
@@ -315,7 +314,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       // commit changes and publish notification
       store.put(chain.build());
       if (NOTIFY_ON_CHAIN_STATES.contains(chain.getState())) {
-        log.info("Updated Chain {} to state {}", chain.getId(), chain.getState());
+        LOG.info("Updated Chain {} to state {}", chain.getId(), chain.getState());
         pubSub.publish(String.format("Updated Chain %s to state %s", chain.getId(), chain.getState()), MessageType.Info.toString());
       }
 
@@ -343,8 +342,10 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     var lastSegmentInChain = maybeLastSegmentInChain.get();
 
     // If the last segment begins after our boundary, we're here early; get outta here.
-    if (Instant.parse(lastSegmentInChain.getBeginAt()).isAfter(segmentBeginBefore))
+    if (Instant.parse(lastSegmentInChain.getBeginAt()).isAfter(segmentBeginBefore)) {
+      LOG.info("Chain[{}] has enough segments, fabricated past {}", getIdentifier(chain), segmentBeginBefore);
       return Optional.empty();
+    }
 
     // [#204] Craft process updates Chain to COMPLETE state when the final segment is in dubbed state.
     if (Value.isSet(lastSegmentInChain.getEndAt()) &&
@@ -358,6 +359,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         && Segment.State.Dubbed.equals(lastSegmentInChain.getState())) {
         updateState(access, chain.getId(), Chain.State.Complete);
       }
+      LOG.info("Chain[{}] is complete.", getIdentifier(chain));
       return Optional.empty();
     }
 
@@ -445,7 +447,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     created = created.toBuilder().setState(Chain.State.Fabricate).build();
 
     // publish a notification reporting the event
-    log.info("Revived Chain created {} from prior {} because {}", getIdentifier(created), builder.getId(), reason);
+    LOG.info("Revived Chain created {} from prior {} because {}", getIdentifier(created), builder.getId(), reason);
     pubSub.publish(String.format("Revived Chain created %s create from prior %s because %s", getIdentifier(created), builder.getId(), reason), MessageType.Info.toString());
 
     // return newly created chain
