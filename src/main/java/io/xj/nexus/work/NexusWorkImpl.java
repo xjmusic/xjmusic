@@ -161,10 +161,8 @@ public class NexusWorkImpl implements NexusWork {
       didFailWhile("Running Nexus Work", e);
     }
     timer.lap();
-    LOG.info("Lap time: {}s ({}) ",
-      timer.getLapTotalSeconds(),
-      timer);
-    timer.clearNonStandbySections();
+    LOG.info("Lap time: {}", timer.lapToString());
+    timer.clearLapSections();
   }
 
   /**
@@ -195,11 +193,14 @@ public class NexusWorkImpl implements NexusWork {
     nextMedicNanos = System.nanoTime() + (medicCycleSeconds * NANOS_PER_SECOND);
     timer.section("Medic");
 
+    LOG.info("Total elapsed time: {}", timer.totalsToString());
     try {
       Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionGraceSeconds);
 
       Map<String, String> stalledChainIds = Maps.newHashMap();
-      chainDAO.readManyInState(access, Chain.State.Fabricate)
+      var fabricatingChains = chainDAO.readManyInState(access, Chain.State.Fabricate);
+      LOG.info("Will Check and revive {} fabricating Chain{}", fabricatingChains.size(), 1 < fabricatingChains.size() ? "s" : "");
+      fabricatingChains
         .stream()
         .filter((chain) ->
           Chain.Type.Production.equals(chain.getType()) &&

@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
  */
 public class MultiStopwatch {
   private String section;
-  private final Map<String, Float> sectionTotalSeconds = Maps.newHashMap();
+  private final Map<String, Float> lapSectionSeconds = Maps.newHashMap();
+  private final Map<String, Float> totalSectionSeconds = Maps.newHashMap();
   private final long started;
   private float lapTotalSeconds;
   private long lapStarted;
@@ -59,7 +60,7 @@ public class MultiStopwatch {
    */
   public void lap() {
     section(STANDBY);
-      lapTotalSeconds =  (System.nanoTime() - lapStarted) / NANOS_PER_SECOND;
+    lapTotalSeconds = (System.nanoTime() - lapStarted) / NANOS_PER_SECOND;
     lapStarted = System.nanoTime();
   }
 
@@ -88,8 +89,12 @@ public class MultiStopwatch {
    @param name of next section
    */
   public void section(String name) {
-    if (Objects.nonNull(section))
-      sectionTotalSeconds.put(section, (System.nanoTime() - sectionStarted) / NANOS_PER_SECOND);
+    if (Objects.nonNull(section)) {
+      var seconds = (System.nanoTime() - sectionStarted) / NANOS_PER_SECOND;
+      lapSectionSeconds.put(section, seconds);
+      totalSectionSeconds.put(section,
+        totalSectionSeconds.containsKey(section) ? totalSectionSeconds.get(section) + seconds : seconds);
+    }
     sectionStarted = System.nanoTime();
     section = name;
   }
@@ -99,8 +104,17 @@ public class MultiStopwatch {
 
    @return map of measured section times
    */
-  public Map<String, Float> getSectionTotalSeconds() {
-    return sectionTotalSeconds;
+  public Map<String, Float> getLapSectionSeconds() {
+    return lapSectionSeconds;
+  }
+
+  /**
+   Get the totals of all measured section times, keyed by section name, values are seconds floating point
+
+   @return map of measured section times
+   */
+  public Map<String, Float> getTotalSectionSeconds() {
+    return totalSectionSeconds;
   }
 
   /**
@@ -108,19 +122,34 @@ public class MultiStopwatch {
 
    @return stopwatch as string
    */
-  public String toString() {
-    return sectionTotalSeconds.entrySet().stream()
-      .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-      .map(entry -> String.format("%s: %f", entry.getKey(), entry.getValue()))
-      .collect(Collectors.joining(", "));
+  public String lapToString() {
+    return String.format("%s (%s)",
+      lapTotalSeconds,
+      lapSectionSeconds.entrySet().stream()
+        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+        .map(entry -> String.format("%s: %f", entry.getKey(), Math.floor(100 * entry.getValue() / lapTotalSeconds)))
+        .collect(Collectors.joining(", ")));
+  }
+
+  /**
+   Represent the whole stopwatch as a comma-separated list of sections and their time
+
+   @return stopwatch as string
+   */
+  public String totalsToString() {
+    var total = getTotalSeconds();
+    return String.format("%s (%s)",
+      total,
+      totalSectionSeconds.entrySet().stream()
+        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+        .map(entry -> String.format("%s: %f", entry.getKey(), Math.floor(100 * entry.getValue() / total)))
+        .collect(Collectors.joining(", ")));
   }
 
   /**
    Clear all sections that are not standby
    */
-  public void clearNonStandbySections() {
-    var standbyTime = sectionTotalSeconds.get(STANDBY);
-    sectionTotalSeconds.clear();
-    sectionTotalSeconds.put(STANDBY, standbyTime);
+  public void clearLapSections() {
+    lapSectionSeconds.clear();
   }
 }
