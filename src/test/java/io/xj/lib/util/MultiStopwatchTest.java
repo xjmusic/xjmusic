@@ -65,4 +65,23 @@ public class MultiStopwatchTest {
     assertTrue(0.02 <= subject.getLapSectionSeconds().get(MultiStopwatch.STANDBY));
   }
 
+  @Test
+  public void lap_sectionTimesAddUpWithinLap() throws InterruptedException {
+    Thread.sleep(10); // standby
+    subject.section("Left");
+    Thread.sleep(10);
+    subject.section("Right");
+    Thread.sleep(10);
+    subject.section("Left");
+    Thread.sleep(10);
+    subject.section("Right");
+    Thread.sleep(10);
+    subject.lap();
+
+    assertTrue(0.05 <= subject.getLapTotalSeconds());
+    assertTrue(0.02 <= subject.getLapSectionSeconds().get("Left"));
+    assertTrue(0.02 <= subject.getLapSectionSeconds().get("Right"));
+    assertTrue(0.01 <= subject.getLapSectionSeconds().get(MultiStopwatch.STANDBY));
+  }
+
 }

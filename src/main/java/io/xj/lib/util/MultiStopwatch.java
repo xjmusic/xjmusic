@@ -91,9 +91,8 @@ public class MultiStopwatch {
   public void section(String name) {
     if (Objects.nonNull(section)) {
       var seconds = (System.nanoTime() - sectionStarted) / NANOS_PER_SECOND;
-      lapSectionSeconds.put(section, seconds);
-      totalSectionSeconds.put(section,
-        totalSectionSeconds.containsKey(section) ? totalSectionSeconds.get(section) + seconds : seconds);
+      lapSectionSeconds.put(section, lapSectionSeconds.containsKey(section) ? lapSectionSeconds.get(section) + seconds : seconds);
+      totalSectionSeconds.put(section, totalSectionSeconds.containsKey(section) ? totalSectionSeconds.get(section) + seconds : seconds);
     }
     sectionStarted = System.nanoTime();
     section = name;

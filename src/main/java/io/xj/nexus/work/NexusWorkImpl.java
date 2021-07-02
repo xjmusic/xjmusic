@@ -158,7 +158,10 @@ public class NexusWorkImpl implements NexusWork {
       if (medicEnabled) doMedic();
       if (janitorEnabled) doJanitor();
     } catch (Exception e) {
-      didFailWhile("Running Nexus Work", e);
+      if (!Strings.isNullOrEmpty(e.getMessage()))
+        didFailWhile("Running Nexus Work", e);
+      else
+        didFailWhile("Running Nexus Work", e.getClass().getSimpleName(), "");
     }
     timer.lap();
     LOG.info("Lap time: {}", timer.lapToString());
@@ -283,6 +286,7 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
   public void fabricateChain(Chain chain) {
+    timer.section("FabricateChain");
     try {
       int workBufferSeconds = bufferSecondsFor(chain);
       Optional<Segment> nextSegment = chainDAO.buildNextSegmentOrCompleteTheChain(access, chain,
@@ -389,6 +393,7 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "doWork")
   protected void fabricateSegment(Chain chain, Segment segment, MultiStopwatch timer) {
+    timer.section("FabricateSegment");
     Fabricator fabricator;
 
     try {
@@ -399,6 +404,7 @@ public class NexusWorkImpl implements NexusWork {
       return;
     }
 
+    timer.section("Craft");
     try {
       LOG.debug("[segId={}] will do craft work", segment.getId());
       segment = doCraftWork(fabricator, segment);
@@ -547,16 +553,28 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/fabricate", operationName = "didFailWhile")
   private void didFailWhile(String message, Exception e) {
+    didFailWhile(message, e.getMessage(), Text.formatStackTrace(e));
+  }
+
+  /**
+   Log and of segment message of error that job failed while (message)
+
+   @param message phrased like "Doing work"
+   @param detail  to include in body
+   @param debug   to include in body
+   */
+  @Trace(resourceName = "nexus/fabricate", operationName = "didFailWhile")
+  private void didFailWhile(String message, String detail, String debug) {
     var body = String.format("Failed while %s because %s\n\n%s",
       message,
-      e.getMessage(),
-      Text.formatStackTrace(e));
+      detail,
+      debug);
 
     notification.publish(body, "Failure");
 
     LOG.error("Failed while {} because {}",
       message,
-      e.getMessage());
+      detail);
   }
 
   /**
