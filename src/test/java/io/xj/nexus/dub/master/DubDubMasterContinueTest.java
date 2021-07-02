@@ -21,18 +21,16 @@ import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.testing.NexusTestConfiguration;
-import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.testing.NexusTestConfiguration;
+import io.xj.nexus.work.NexusWorkModule;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -43,30 +41,15 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeSegmentChoice;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChord;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeMeme;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DubDubMasterContinueTest {
-  private static final String testResourceFilePath = "test_audio" + File.separator + "F32LSB_48kHz_Stereo.wav";
   private DubFactory dubFactory;
   private FabricatorFactory fabricatorFactory;
-  private FileInputStream audioStreamOne;
-  private FileInputStream audioStreamTwo;
-  private NexusIntegrationTestingFixtures fake;
-  private Chain chain1;
-  private Segment segment1;
-  private Segment segment2;
-  private Segment segment3;
+  private HubContent sourceMaterial;
   private Segment segment4;
-  private NexusEntityStore store;
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  private static final String testResourceFilePath = "test_audio" + File.separator + "F32LSB_48kHz_Stereo.wav";
 
   @Mock
   public FileStoreProvider fileStoreProvider;
@@ -94,26 +77,25 @@ public class DubDubMasterContinueTest {
     Topology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    store = injector.getInstance(NexusEntityStore.class);
+    NexusEntityStore store = injector.getInstance(NexusEntityStore.class);
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
-    fake = new NexusIntegrationTestingFixtures();
-    when(hubClient.ingest(any(), any(), any(), any()))
-      .thenReturn(new HubContent(Streams.concat(
+    NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
+    sourceMaterial = new HubContent(Streams.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB3().stream()
-      ).collect(Collectors.toList())));
+      ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(NexusIntegrationTestingFixtures.makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    Chain chain1 = store.put(NexusIntegrationTestingFixtures.makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
     store.put(ChainBinding.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setTargetId(fake.library2.getId())
       .setType(ChainBinding.Type.Library)
       .build());
-    segment1 = store.put(Segment.newBuilder()
+    store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(0)
@@ -124,9 +106,9 @@ public class DubDubMasterContinueTest {
       .setTotal(64)
       .setDensity(0.73)
       .setTempo(120)
-      .setStorageKey("chains-1-segments-97898asdf7892")
+      .setStorageKey("chains-1-segments-97898a2sdf7892")
       .build());
-    segment2 = store.put(Segment.newBuilder()
+    store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(1)
@@ -137,11 +119,11 @@ public class DubDubMasterContinueTest {
       .setTotal(64)
       .setDensity(0.85)
       .setTempo(120)
-      .setStorageKey("chains-1-segments-97898asdf7892")
+      .setStorageKey("chains-1-segments-97898a2sdf7892")
       .build());
 
     // Chain "Test Print #1" has this segment that was just dubbed
-    segment3 = store.put(Segment.newBuilder()
+    Segment segment3 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(2)
@@ -194,14 +176,14 @@ public class DubDubMasterContinueTest {
   public void dubMasterContinue() throws Exception {
     InternalResource testAudioResource = new InternalResource(testResourceFilePath);
     // it's necessary to have two separate streams for this mock of two separate file reads
-    audioStreamOne = FileUtils.openInputStream(testAudioResource.getFile());
-    audioStreamTwo = FileUtils.openInputStream(testAudioResource.getFile());
+    FileInputStream audioStreamOne = FileUtils.openInputStream(testAudioResource.getFile());
+    FileInputStream audioStreamTwo = FileUtils.openInputStream(testAudioResource.getFile());
     when(fileStoreProvider.streamS3Object("my-test-bucket",
       "19801735098q47895897895782138975898")).thenReturn(audioStreamOne);
     when(fileStoreProvider.streamS3Object("my-test-bucket",
       "a1g9f8u0k1v7f3e59o7j5e8s98")).thenReturn(audioStreamTwo);
 
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
     dubFactory.master(fabricator).doWork();
 
     // future test: success of dub master continue test

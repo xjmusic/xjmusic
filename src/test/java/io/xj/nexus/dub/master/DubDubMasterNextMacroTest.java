@@ -15,21 +15,19 @@ import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.testing.NexusTestConfiguration;
+import io.xj.nexus.work.NexusWorkModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -40,26 +38,15 @@ import java.util.stream.Collectors;
 
 import static io.xj.nexus.NexusIntegrationTestingFixtures.makeArrangement;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeSegmentChoice;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChord;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.makeMeme;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DubDubMasterNextMacroTest {
   private DubFactory dubFactory;
   private FabricatorFactory fabricatorFactory;
-  private NexusIntegrationTestingFixtures fake;
-  private Chain chain1;
-  private Segment segment1;
-  private Segment segment2;
-  private Segment segment3;
+  private HubContent sourceMaterial;
   private Segment segment4;
-  private NexusEntityStore store;
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
 
   @Mock
   public HubClient hubClient;
@@ -83,27 +70,26 @@ public class DubDubMasterNextMacroTest {
     Topology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    store = injector.getInstance(NexusEntityStore.class);
+    NexusEntityStore store = injector.getInstance(NexusEntityStore.class);
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
-    fake = new NexusIntegrationTestingFixtures();
-    when(hubClient.ingest(any(), any(), any(), any()))
-      .thenReturn(new HubContent(Streams.concat(
+    NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
+    sourceMaterial = new HubContent(Streams.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream(),
         fake.setupFixtureB3().stream()
-      ).collect(Collectors.toList())));
+      ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    Chain chain1 = store.put(makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
     store.put(ChainBinding.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setTargetId(fake.library2.getId())
       .setType(ChainBinding.Type.Library)
       .build());
-    segment1 = store.put(Segment.newBuilder()
+    store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(0)
@@ -117,7 +103,7 @@ public class DubDubMasterNextMacroTest {
       .setStorageKey("chains-1-segments-9f7s89d8a7892")
       .setOutputEncoder("wav")
       .build());
-    segment2 = store.put(Segment.newBuilder()
+    store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
       .setOffset(1)
@@ -133,7 +119,7 @@ public class DubDubMasterNextMacroTest {
       .build());
 
     // Chain "Test Print #1" has this segment that was just dubbed
-    segment3 = store.put(NexusIntegrationTestingFixtures.makeSegment(chain1, 2, Segment.State.Dubbed, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "Ab minor", 64, 0.30, 120.0, "chains-1-segments-9f7s89d8a7892", "wav"));
+    Segment segment3 = store.put(NexusIntegrationTestingFixtures.makeSegment(chain1, 2, Segment.State.Dubbed, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "Ab minor", 64, 0.30, 120.0, "chains-1-segments-9f7s89d8a7892", "wav"));
     store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence1_binding0));
     store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence1_binding0));
 
@@ -163,7 +149,7 @@ public class DubDubMasterNextMacroTest {
 
   @Test
   public void dubMasterNextMacro() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
 
     dubFactory.master(fabricator).doWork();
 

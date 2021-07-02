@@ -14,6 +14,8 @@ import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface ChainDAO extends DAO<Chain> {
 
@@ -111,4 +113,16 @@ public interface ChainDAO extends DAO<Chain> {
    @return embed key if available, else ID
    */
   String getIdentifier(@Nullable Chain chain);
+
+  /**
+   Filter and map target ids of a specified type from a set of chain bindings
+
+   @param chainBindings to filter and map from
+   @param type          to include
+   @return set of target ids of the specified type of chain binding targets
+   */
+  static Set<String> targetIdsOfType(Collection<ChainBinding> chainBindings, ChainBinding.Type type) {
+    return chainBindings.stream().filter(chainBinding -> chainBinding.getType().equals(type))
+      .map(ChainBinding::getTargetId).collect(Collectors.toSet());
+  }
 }

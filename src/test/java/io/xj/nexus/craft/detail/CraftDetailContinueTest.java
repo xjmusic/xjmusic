@@ -25,17 +25,15 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.testing.NexusTestConfiguration;
-import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.testing.NexusTestConfiguration;
+import io.xj.nexus.work.NexusWorkModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -45,20 +43,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftDetailContinueTest {
+  private Chain chain1;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
-  private NexusIntegrationTestingFixtures fake;
-  private Chain chain1;
-  private Segment segment4;
+  private HubContent sourceMaterial;
   private NexusEntityStore store;
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  private NexusIntegrationTestingFixtures fake;
+  private Segment segment4;
 
   @Mock
   public HubClient hubClient;
@@ -87,12 +81,11 @@ public class CraftDetailContinueTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    when(hubClient.ingest(any(), any(), any(), any()))
-      .thenReturn(new HubContent(Streams.concat(
+    sourceMaterial = new HubContent(Streams.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream(),
         fake.setupFixtureB4_DetailBass().stream()
-      ).collect(Collectors.toList())));
+      ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" is fabricating segments
     chain1 = store.put(Chain.newBuilder()
@@ -146,7 +139,7 @@ public class CraftDetailContinueTest {
   @Test
   public void craftDetailContinue() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
 
     craftFactory.detail(fabricator).doWork();
     // assert choice of detail-type sequence
@@ -158,7 +151,7 @@ public class CraftDetailContinueTest {
   @Test
   public void craftDetailContinue_okEvenWithoutPreviousSegmentDetailChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
     craftFactory.detail(fabricator).doWork();
 
     // assert choice of detail-type sequence

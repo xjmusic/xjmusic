@@ -61,9 +61,7 @@ import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
-import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
-import io.xj.nexus.hub_client.client.HubClientException;
 import io.xj.nexus.hub_client.client.HubContent;
 import org.glassfish.jersey.internal.guava.Sets;
 import org.slf4j.Logger;
@@ -89,50 +87,50 @@ import static io.xj.Instrument.Type.UNRECOGNIZED;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 class FabricatorImpl implements Fabricator {
-  private static final double MICROS_PER_SECOND = 1000000.0F;
-  private static final double NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
-  private static final String KEY_VOICE_TRACK_TEMPLATE = "voice-%s_track-%s";
-  private static final String KEY_VOICE_NOTE_TEMPLATE = "voice-%s_note-%s";
-  private static final String NAME_SEPARATOR = "-";
-  private static final String UNKNOWN_KEY = "unknown";
-  private final HubClientAccess access;
-  private final FileStoreProvider fileStoreProvider;
-  private final Chain chain;
-  private final HubContent sourceMaterial;
-  private final Logger log = LoggerFactory.getLogger(FabricatorImpl.class);
-  private final long startTime;
-  private final Map<SegmentChoice, ProgramSequence> sequenceForChoice = Maps.newHashMap();
-  private final SegmentWorkbench workbench;
-  private final SegmentRetrospective retrospective;
-  private final Set<String> boundProgramIds;
-  private final Set<String> boundInstrumentIds;
-  private final Config config;
-  private final Collection<ChainBinding> chainBindings;
-  private Segment.Type type;
-  private final String workTempFilePathPrefix;
-  private final DecimalFormat segmentNameFormat;
-  private final ChainConfig chainConfig;
-  private final SegmentDAO segmentDAO;
-  private final FabricatorFactory fabricatorFactory;
   private Map<String, InstrumentAudio> previousInstrumentAudio;
+  private Segment.Type type;
+  private final Chain chain;
+  private final ChainConfig chainConfig;
+  private final Collection<ChainBinding> chainBindings;
+  private final Config config;
+  private final DecimalFormat segmentNameFormat;
+  private final FabricatorFactory fabricatorFactory;
+  private final FileStoreProvider fileStoreProvider;
+  private final HubClientAccess access;
+  private final HubContent sourceMaterial;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final Map<String, Optional<SegmentChordVoicing>> voicingForSegmentChordInstrumentType;
+  private final Logger log = LoggerFactory.getLogger(FabricatorImpl.class);
+  private final Map<Double, Optional<SegmentChord>> chordAtPosition;
   private final Map<Instrument.Type, NoteRange> voicingNoteRange;
-  private final Map<String, NoteRange> rangeForChoice;
+  private final Map<Program.Type, Map<Instrument.Type, List<String>>> previouslyChosenProgramIds;
+  private final Map<SegmentChoice, ProgramSequence> sequenceForChoice = Maps.newHashMap();
+  private final Map<String, Collection<ProgramSequenceChord>> completeChordsForProgramSequence;
   private final Map<String, Integer> rangeShiftOctave;
   private final Map<String, Integer> targetShift;
-  private final Map<Program.Type, Map<Instrument.Type, List<String>>> previouslyChosenProgramIds;
+  private final Map<String, NoteRange> rangeForChoice;
+  private final Map<String, Optional<SegmentChordVoicing>> voicingForSegmentChordInstrumentType;
   private final Map<String, Set<String>> previouslyPickedNotes;
-  private final Map<Double, Optional<SegmentChord>> chordAtPosition;
-  private final Map<String, Collection<ProgramSequenceChord>> completeChordsForProgramSequence;
+  private final SegmentDAO segmentDAO;
+  private final SegmentRetrospective retrospective;
+  private final SegmentWorkbench workbench;
+  private final Set<String> boundInstrumentIds;
+  private final Set<String> boundProgramIds;
+  private final String workTempFilePathPrefix;
+  private final long startTime;
+  private static final String KEY_VOICE_NOTE_TEMPLATE = "voice-%s_note-%s";
+  private static final String KEY_VOICE_TRACK_TEMPLATE = "voice-%s_track-%s";
+  private static final String NAME_SEPARATOR = "-";
+  private static final String UNKNOWN_KEY = "unknown";
+  private static final double MICROS_PER_SECOND = 1000000.0F;
+  private static final double NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
 
   @AssistedInject
   public FabricatorImpl(
     @Assisted("access") HubClientAccess access,
+    @Assisted("sourceMaterial") HubContent sourceMaterial,
     @Assisted("segment") Segment segment,
     Config config,
     Environment env,
-    HubClient hubClient,
     ChainDAO chainDAO,
     ChainBindingDAO chainBindingDAO,
     FileStoreProvider fileStoreProvider,
@@ -149,6 +147,7 @@ class FabricatorImpl implements Fabricator {
 
       this.fileStoreProvider = fileStoreProvider;
       this.fabricatorFactory = fabricatorFactory;
+      this.sourceMaterial = sourceMaterial;
 
       this.config = config;
       workTempFilePathPrefix = env.getTempFilePathPrefix();
@@ -171,16 +170,11 @@ class FabricatorImpl implements Fabricator {
       chain = chainDAO.readOne(access, segment.getChainId());
       chainConfig = new ChainConfig(chain, config);
       chainBindings = chainBindingDAO.readMany(access, ImmutableList.of(chain.getId()));
-      Set<String> boundLibraryIds = targetIdsOfType(chainBindings, ChainBinding.Type.Library);
-      boundProgramIds = targetIdsOfType(chainBindings, ChainBinding.Type.Program);
-      boundInstrumentIds = targetIdsOfType(chainBindings, ChainBinding.Type.Instrument);
+      boundProgramIds = ChainDAO.targetIdsOfType(chainBindings, ChainBinding.Type.Program);
+      boundInstrumentIds = ChainDAO.targetIdsOfType(chainBindings, ChainBinding.Type.Instrument);
       log.debug("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(),
         chainConfig,
         CSV.prettyFrom(chainBindings, "and"));
-
-      // read the source material
-      sourceMaterial = hubClient.ingest(access, boundLibraryIds, boundProgramIds, boundInstrumentIds);
-      log.debug("[segId={}] SourceMaterial loaded {} entities", segment.getId(), sourceMaterial.size());
 
       // setup the segment retrospective
       retrospective = fabricatorFactory.loadRetrospective(access, segment, sourceMaterial);
@@ -197,7 +191,7 @@ class FabricatorImpl implements Fabricator {
       // final pre-flight check
       ensureStorageKey();
 
-    } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException | HubClientException | ValueException e) {
+    } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException | ValueException e) {
       throw new NexusException("Failed to instantiate Fabricator!", e);
     }
   }
@@ -910,23 +904,15 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public double getAmplitudeForInstrumentType(SegmentChoiceArrangementPick pick) {
-    switch (getInstrument(pick).map(Instrument::getType).orElse(UNRECOGNIZED)) {
-      case Percussive:
-        return chainConfig.getDubMasterVolumeInstrumentTypePercussive();
-      case Bass:
-        return chainConfig.getDubMasterVolumeInstrumentTypeBass();
-      case Pad:
-        return chainConfig.getDubMasterVolumeInstrumentTypePad();
-      case Sticky:
-        return chainConfig.getDubMasterVolumeInstrumentTypeSticky();
-      case Stripe:
-        return chainConfig.getDubMasterVolumeInstrumentTypeStripe();
-      case Stab:
-        return chainConfig.getDubMasterVolumeInstrumentTypeStab();
-      case UNRECOGNIZED:
-      default:
-        return 1.0;
-    }
+    return switch (getInstrument(pick).map(Instrument::getType).orElse(UNRECOGNIZED)) {
+      case Percussive -> chainConfig.getDubMasterVolumeInstrumentTypePercussive();
+      case Bass -> chainConfig.getDubMasterVolumeInstrumentTypeBass();
+      case Pad -> chainConfig.getDubMasterVolumeInstrumentTypePad();
+      case Sticky -> chainConfig.getDubMasterVolumeInstrumentTypeSticky();
+      case Stripe -> chainConfig.getDubMasterVolumeInstrumentTypeStripe();
+      case Stab -> chainConfig.getDubMasterVolumeInstrumentTypeStab();
+      default -> 1.0;
+    };
   }
 
   @Override
@@ -1233,18 +1219,6 @@ class FabricatorImpl implements Fabricator {
       chain.getEmbedKey();
     String segmentName = segmentNameFormat.format(Instant.parse(segment.getBeginAt()).toEpochMilli());
     return fileStoreProvider.generateKey(chainName + NAME_SEPARATOR + segmentName);
-  }
-
-  /**
-   Filter and map target ids of a specified type from a set of chain bindings
-
-   @param chainBindings to filter and map from
-   @param type          to include
-   @return set of target ids of the specified type of chain binding targets
-   */
-  private Set<String> targetIdsOfType(Collection<ChainBinding> chainBindings, ChainBinding.Type type) {
-    return chainBindings.stream().filter(chainBinding -> chainBinding.getType().equals(type))
-      .map(ChainBinding::getTargetId).collect(Collectors.toSet());
   }
 
   /**

@@ -21,21 +21,19 @@ import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.testing.NexusTestConfiguration;
 import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -48,22 +46,18 @@ import java.util.stream.Collectors;
 import static io.xj.lib.util.Assert.assertSameItems;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChain;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftFoundationContinueTest {
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
+  private HubContent sourceMaterial;
+  private NexusEntityStore store;
   private NexusIntegrationTestingFixtures fake;
   private Segment segment4;
-  private NexusEntityStore store;
 
   @Mock
   public HubClient hubClient;
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
 
   @Before
   public void setUp() throws Exception {
@@ -91,11 +85,10 @@ public class CraftFoundationContinueTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    when(hubClient.ingest(any(), any(), any(), any()))
-            .thenReturn(new HubContent(Streams.concat(
+    sourceMaterial = new HubContent(Streams.concat(
                     fake.setupFixtureB1().stream(),
                     fake.setupFixtureB2().stream()
-            ).collect(Collectors.toList())));
+            ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
     Chain chain1 = store.put(makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
@@ -184,7 +177,7 @@ public class CraftFoundationContinueTest {
    */
   @Test
   public void craftFoundationContinue() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
 
     craftFactory.macroMain(fabricator).doWork();
 

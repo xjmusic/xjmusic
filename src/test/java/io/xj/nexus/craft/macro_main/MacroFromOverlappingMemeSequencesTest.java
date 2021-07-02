@@ -7,7 +7,17 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
-import io.xj.*;
+import io.xj.Account;
+import io.xj.AccountUser;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Library;
+import io.xj.Program;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.Segment;
+import io.xj.User;
+import io.xj.UserRole;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -15,12 +25,12 @@ import io.xj.lib.entity.common.Topology;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.testing.NexusTestConfiguration;
-import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.testing.NexusTestConfiguration;
+import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,15 +41,15 @@ import java.time.Instant;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  [#176728582] Choose next Macro program based on the memes of the last sequence from the previous Macro program
  */
+@SuppressWarnings("ALL")
 @RunWith(MockitoJUnitRunner.class)
 public class MacroFromOverlappingMemeSequencesTest {
   private MacroMainCraftImpl subject;
+  private Program macro2a;
   private static final int REPEAT_TIMES = 100;
 
   @Mock
@@ -47,9 +57,6 @@ public class MacroFromOverlappingMemeSequencesTest {
 
   @Mock
   public ApiUrlProvider apiUrlProvider;
-
-  // Fake entities
-  private Program macro2a;
 
   @Before
   public void setUp() throws Exception {
@@ -114,7 +121,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     var macro2b_sequenceA_binding = NexusIntegrationTestingFixtures.makeBinding(macro2b_sequenceA, 0);
     var macro2b_sequenceA_bindingMeme = NexusIntegrationTestingFixtures.makeMeme(macro2b_sequenceA_binding, "Purple");
 
-    when(hubClient.ingest(any(), any(), any(), any())).thenReturn(new HubContent(ImmutableList.of(
+    HubContent sourceMaterial = new HubContent(ImmutableList.of(
       account1,
       library2,
       user2,
@@ -144,7 +151,7 @@ public class MacroFromOverlappingMemeSequencesTest {
       macro2b_sequenceA,
       macro2b_sequenceA_binding,
       macro2b_sequenceA_bindingMeme
-    )));
+    ));
 
     // Chain "Test Print #1" has 5 total segments
     Chain chain1 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
@@ -185,7 +192,7 @@ public class MacroFromOverlappingMemeSequencesTest {
       .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
       .build());
 
-    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(HubClientAccess.internal(), segment2), apiUrlProvider);
+    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment2), apiUrlProvider);
   }
 
   @Test

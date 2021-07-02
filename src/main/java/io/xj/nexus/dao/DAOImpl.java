@@ -115,7 +115,7 @@ public abstract class DAOImpl<E extends MessageLite> implements DAO<E> {
    @throws DAOPrivilegeException if not true
    */
   protected void require(String name, Boolean mustBeTrue) throws DAOPrivilegeException {
-    require(name, "is required", mustBeTrue);
+    require(name, "is required.", mustBeTrue);
   }
 
   /**

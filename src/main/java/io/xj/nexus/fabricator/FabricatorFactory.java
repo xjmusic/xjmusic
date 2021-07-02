@@ -4,9 +4,9 @@ package io.xj.nexus.fabricator;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.Chain;
 import io.xj.Segment;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
-import io.xj.nexus.NexusException;
 
 /**
  Fabricator content = contentFactory.fabricate(segment);
@@ -19,13 +19,15 @@ public interface FabricatorFactory {
   /**
    Create a fabricator to fabricate a segment
 
-   @param access  control
-   @param segment Segment to be worked on
+   @param sourceMaterial from which to fabricate
+   @param access         control
+   @param segment        segment to be fabricated
    @return Fabricator
    @throws NexusException on failure
    */
   Fabricator fabricate(
     @Assisted("access") HubClientAccess access,
+    @Assisted("sourceMaterial") HubContent sourceMaterial,
     @Assisted("segment") Segment segment
   ) throws NexusException;
 
@@ -37,14 +39,14 @@ public interface FabricatorFactory {
    content.putReport();
 
    @param access         control
-   @param currentSegment Segment that's on the workbench
+   @param segment Segment that's on the workbench
    @param sourceMaterial to get answers about the segment content
    @return SegmentRetrospective
    @throws NexusException on failure
    */
   SegmentRetrospective loadRetrospective(
     @Assisted("access") HubClientAccess access,
-    @Assisted("currentSegment") Segment currentSegment,
+    @Assisted("segment") Segment segment,
     @Assisted("sourceMaterial") HubContent sourceMaterial
   ) throws NexusException;
 

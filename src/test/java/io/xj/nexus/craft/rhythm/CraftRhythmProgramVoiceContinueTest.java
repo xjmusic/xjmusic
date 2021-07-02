@@ -9,7 +9,16 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.*;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.Program;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
+import io.xj.SegmentMeme;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
@@ -40,22 +49,21 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftRhythmProgramVoiceContinueTest {
+  private Chain chain1;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
-  private NexusIntegrationTestingFixtures fake;
-  private Chain chain1;
-  private Segment segment4;
+  private HubContent sourceMaterial;
+  private InstrumentAudio audioKick;
+  private InstrumentAudio audioSnare;
   private NexusEntityStore store;
+  private NexusIntegrationTestingFixtures fake;
+  private Segment segment4;
 
   @Mock
   public HubClient hubClient;
-  private InstrumentAudio audioKick;
-  private InstrumentAudio audioSnare;
 
   @Before
   public void setUp() throws Exception {
@@ -81,12 +89,11 @@ public class CraftRhythmProgramVoiceContinueTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    when(hubClient.ingest(any(), any(), any(), any()))
-      .thenReturn(new HubContent(Streams.concat(
+    sourceMaterial = new HubContent(Streams.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB2().stream(),
         customFixtures().stream()
-      ).collect(Collectors.toList())));
+      ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
     chain1 = store.put(NexusIntegrationTestingFixtures.makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
@@ -152,7 +159,7 @@ public class CraftRhythmProgramVoiceContinueTest {
   @Test
   public void craftRhythmVoiceContinue() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
 
     craftFactory.rhythm(fabricator).doWork();
 
@@ -176,7 +183,7 @@ public class CraftRhythmProgramVoiceContinueTest {
   @Test
   public void craftRhythmVoiceContinue_okIfNoRhythmChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
 
     craftFactory.rhythm(fabricator).doWork();
   }

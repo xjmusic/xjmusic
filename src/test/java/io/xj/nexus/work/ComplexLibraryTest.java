@@ -51,15 +51,15 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComplexLibraryTest {
-  private static final Logger log = LoggerFactory.getLogger(ComplexLibraryTest.class);
-  private static final int MILLIS_PER_SECOND = 1000;
+  private static final Logger LOG = LoggerFactory.getLogger(ComplexLibraryTest.class);
+  long startTime = System.currentTimeMillis();
+  private AppWorkThread workThread;
+  private Chain chain1;
+  private NexusApp app;
+  private SegmentDAO segmentDAO;
   private static final int MARATHON_NUMBER_OF_SEGMENTS = 50;
   private static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
-  long startTime = System.currentTimeMillis();
-  private NexusApp app;
-  private Chain chain1;
-  private SegmentDAO segmentDAO;
-  private AppWorkThread workThread;
+  private static final int MILLIS_PER_SECOND = 1000;
 
   @Mock
   public HubClient hubClient;
@@ -119,7 +119,7 @@ public class ComplexLibraryTest {
 
     app = new NexusApp(injector);
 
-    workThread=new AppWorkThread(app);
+    workThread = new AppWorkThread(app);
   }
 
   @Test
@@ -171,7 +171,7 @@ public class ComplexLibraryTest {
   private boolean isWithinTimeLimit() {
     if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > System.currentTimeMillis() - startTime)
       return true;
-    log.error("EXCEEDED TEST TIME LIMIT OF {} SECONDS", MAXIMUM_TEST_WAIT_SECONDS);
+    LOG.error("EXCEEDED TEST TIME LIMIT OF {} SECONDS", MAXIMUM_TEST_WAIT_SECONDS);
     return false;
   }
 

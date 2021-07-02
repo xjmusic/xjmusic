@@ -9,7 +9,16 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.*;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.Program;
+import io.xj.ProgramSequencePattern;
+import io.xj.ProgramVoice;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangementPick;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
@@ -37,11 +46,20 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeAudio;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChord;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeEvent;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeInstrument;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeMeme;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makePattern;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeProgram;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeSegmentChoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeSequence;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeTrack;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeVoice;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  [#166481918] Rhythm fabrication composited of layered Patterns
@@ -50,16 +68,17 @@ import static org.mockito.Mockito.when;
 public class CraftRhythm_LayeredVoicesTest {
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
-  private NexusIntegrationTestingFixtures fake;
-  private Segment segment4;
+  private HubContent sourceMaterial;
+  private InstrumentAudio audioHihat;
+  private InstrumentAudio audioKick;
+  private InstrumentAudio audioSnare;
   private NexusEntityStore store;
+  private NexusIntegrationTestingFixtures fake;
+  private Program program42;
+  private Segment segment4;
 
   @Mock
   public HubClient hubClient;
-  private InstrumentAudio audioKick;
-  private InstrumentAudio audioSnare;
-  private InstrumentAudio audioHihat;
-  private Program program42;
 
   @Before
   public void setUp() throws Exception {
@@ -85,11 +104,10 @@ public class CraftRhythm_LayeredVoicesTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    when(hubClient.ingest(any(), any(), any(), any()))
-      .thenReturn(new HubContent(Streams.concat(
+    sourceMaterial = new HubContent(Streams.concat(
         fake.setupFixtureB1().stream().filter(entity -> !Entities.isSame(entity, fake.program35) && !Entities.isChild(entity, fake.program35)),
         customFixtures().stream()
-      ).collect(Collectors.toList())));
+      ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
     Chain chain1 = store.put(makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
@@ -221,7 +239,7 @@ public class CraftRhythm_LayeredVoicesTest {
 
   @Test
   public void craftRhythmVoiceContinue() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
 
     craftFactory.rhythm(fabricator).doWork();
 

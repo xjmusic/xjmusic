@@ -35,7 +35,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   @Inject
   public SegmentRetrospectiveImpl(
     @Assisted("access") HubClientAccess access,
-    @Assisted("currentSegment") Segment segment,
+    @Assisted("segment") Segment segment,
     @Assisted("sourceMaterial") HubContent sourceMaterial,
     SegmentDAO segmentDAO,
     EntityStore entityStore

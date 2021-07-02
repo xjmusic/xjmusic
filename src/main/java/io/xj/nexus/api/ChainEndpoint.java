@@ -142,7 +142,7 @@ public class ChainEndpoint extends NexusEndpoint {
 
       // identifier required
       if (Objects.isNull(identifier) || identifier.isEmpty())
-        return response.notAcceptable("Chain id is required");
+        return response.notAcceptable("Chain id is required.");
 
       // will only have value if this can parse a uuid from string
       // otherwise, ignore the exception on attempt and store a null value for uuid

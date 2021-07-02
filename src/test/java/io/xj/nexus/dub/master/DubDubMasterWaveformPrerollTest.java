@@ -4,7 +4,6 @@ package io.xj.nexus.dub.master;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.Chain;
@@ -21,17 +20,15 @@ import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.testing.NexusTestConfiguration;
+import io.xj.nexus.work.NexusWorkModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -40,33 +37,18 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeSegmentChoice;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChord;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeMeme;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DubDubMasterWaveformPrerollTest {
-  private Injector injector;
   private DubFactory dubFactory;
   private FabricatorFactory fabricatorFactory;
-  private NexusIntegrationTestingFixtures fake;
-  private Chain chain1;
-  private Segment segment1;
-  private Segment segment2;
-  private Segment segment3;
-  private Segment segment4;
+  private HubContent sourceMaterial;
   private NexusEntityStore store;
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  private Segment segment6;
 
   @Mock
   public HubClient hubClient;
-  private Segment segment6;
-  private Chain chain2;
 
   @Before
   public void setUp() throws Exception {
@@ -91,15 +73,14 @@ public class DubDubMasterWaveformPrerollTest {
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
-    fake = new NexusIntegrationTestingFixtures();
-    when(hubClient.ingest(any(), any(), any(), any()))
-      .thenReturn(new HubContent(Streams.concat(
+    NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
+    sourceMaterial = new HubContent(Streams.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB3().stream()
-      ).collect(Collectors.toList())));
+      ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in dubbing state - DubMaster is complete
-    chain2 = store.put(Chain.newBuilder()
+    Chain chain2 = store.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(fake.account1.getId())
       .setName("Print #2")
@@ -140,7 +121,7 @@ public class DubDubMasterWaveformPrerollTest {
 
   @Test
   public void dubMaster_hasWaveformPrerollBeforeSegmentStart() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment6);
 
     dubFactory.master(fabricator).doWork();
 

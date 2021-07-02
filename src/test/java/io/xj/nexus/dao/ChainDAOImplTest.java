@@ -11,7 +11,6 @@ import io.xj.Instrument;
 import io.xj.Library;
 import io.xj.Program;
 import io.xj.Segment;
-import io.xj.User;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -21,15 +20,13 @@ import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
-import io.xj.nexus.testing.NexusTestConfiguration;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -40,25 +37,19 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeAccount;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeBinding;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeHubClientAccess;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeInstrument;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeProgram;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeSequence;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("HttpUrlsUsage")
 @RunWith(MockitoJUnitRunner.class)
 public class ChainDAOImplTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+
   @Mock
   HubClient hubClient;
   private NexusEntityStore test;
@@ -68,7 +59,6 @@ public class ChainDAOImplTest {
   private Library library2;
   private Chain chain1;
   private Chain chain2;
-  private User user3;
   private HubContent hubContent;
   private ChainBindingDAO chainBindingDAO;
 
@@ -93,7 +83,7 @@ public class ChainDAOImplTest {
       .build();
     library1 = NexusIntegrationTestingFixtures.makeLibrary(account1, "test");
     library2 = NexusIntegrationTestingFixtures.makeLibrary(account1, "test");
-    User user3 = NexusIntegrationTestingFixtures.makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    NexusIntegrationTestingFixtures.makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     Program program1 = NexusIntegrationTestingFixtures.makeProgram(library2, Program.Type.Rhythm, Program.State.Published, "fonds", "C#", 0.286, 0.6);
     var sequence1 = NexusIntegrationTestingFixtures.makeSequence(program1, 16, "epic beat part 1", 0.342, "C#", 0.286);
     var binding1_0 = NexusIntegrationTestingFixtures.makeBinding(sequence1, 0);
@@ -167,7 +157,7 @@ public class ChainDAOImplTest {
   }
 
   @Test
-  public void create_failsWithInvalidConfig() throws Exception {
+  public void create_failsWithInvalidConfig() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -180,10 +170,10 @@ public class ChainDAOImplTest {
       .setStopAt("2009-09-11T12:17:01.047563Z")
       .build();
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Key 'no type of config I've ever seen' may not be followed by token");
+    Exception thrown = assertThrows(DAOValidationException.class, () -> subject.create(access, input));
 
-    subject.create(access, input);
+    assertTrue(thrown.getMessage()
+      .contains("Key 'no type of config I've ever seen' may not be followed by token"));
   }
 
   @Test
@@ -221,10 +211,9 @@ public class ChainDAOImplTest {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
     subject.create(access, first);
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Chain already exists with embed key 'my_favorite_things'");
+    Exception thrown = assertThrows(DAOValidationException.class, () -> subject.create(access, second));
 
-    subject.create(access, second);
+    assertEquals("Chain already exists with embed key 'my_favorite_things'!", thrown.getMessage());
   }
 
   @Test
@@ -344,7 +333,7 @@ public class ChainDAOImplTest {
   }
 
   @Test
-  public void create_FailsWithoutAccountID() throws Exception {
+  public void create_FailsWithoutAccountID() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setName("coconuts")
@@ -354,21 +343,22 @@ public class ChainDAOImplTest {
       .setStopAt("2009-09-11T12:17:01.047563Z")
       .build();
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Account ID is required");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      subject.create(access, input));
 
-    subject.create(access, input);
+    assertEquals("Account ID is required.", thrown.getMessage());
   }
 
   @Test
-  public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
+  public void readOne_FailsWhenUserIsNotInAccount() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build()), "User");
-    failure.expect(DAOPrivilegeException.class);
-    failure.expectMessage("Account access is required");
 
-    subject.readOne(access, chain1.getId());
+    Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
+      subject.readOne(access, chain1.getId()));
+
+    assertEquals("Account access is required.", thrown.getMessage());
   }
 
   @Test
@@ -409,14 +399,15 @@ public class ChainDAOImplTest {
   }
 
   @Test
-  public void readOneJSONObject_FailsWhenUserIsNotInAccount() throws Exception {
+  public void readOneJSONObject_FailsWhenUserIsNotInAccount() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build()), "User");
-    failure.expect(DAOPrivilegeException.class);
-    failure.expectMessage("Account access is required");
 
-    subject.readOne(access, chain1.getId());
+    Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
+      subject.readOne(access, chain1.getId()));
+
+    assertEquals("Account access is required.", thrown.getMessage());
   }
 
   @Test
@@ -450,15 +441,15 @@ public class ChainDAOImplTest {
   }
 
   @Test
-  public void readMany_SeesNothingOutsideOfAccount() throws Exception {
+  public void readMany_SeesNothingOutsideOfAccount() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build()), "User");
 
-    failure.expect(DAOPrivilegeException.class);
-    failure.expectMessage("Account access is required");
+    Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
+      subject.readMany(access, ImmutableList.of(account1.getId())));
 
-    subject.readMany(access, ImmutableList.of(account1.getId()));
+    assertEquals("Account access is required.", thrown.getMessage());
   }
 
   @Test
@@ -590,10 +581,10 @@ public class ChainDAOImplTest {
       .setStopAt("2009-09-11T12:17:01.989941Z")
       .build();
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Chain already exists with embed key 'twenty_four_hours'");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      subject.update(access, chain2.getId(), input));
 
-    subject.update(access, chain2.getId(), input);
+    assertEquals("Chain already exists with embed key 'twenty_four_hours'!", thrown.getMessage());
   }
 
   @Test
@@ -626,7 +617,7 @@ public class ChainDAOImplTest {
 
 
   @Test
-  public void update_cannotChangeType() throws Exception {
+  public void update_cannotChangeType() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -638,10 +629,11 @@ public class ChainDAOImplTest {
       .setStopAt("2009-09-11T12:17:01.989941Z")
       .build();
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Cannot modify Chain Type");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      subject.update(access, chain2.getId(), input));
 
-    subject.update(access, chain2.getId(), input);
+    assertEquals("Cannot modify Chain Type", thrown.getMessage());
+
   }
 
   @Test
@@ -649,10 +641,11 @@ public class ChainDAOImplTest {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "Admin");
     var chain = test.put(NexusIntegrationTestingFixtures.makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Chain must be bound to at least one Library, Sequence, or Instrument");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      subject.update(access, chain.getId(), NexusIntegrationTestingFixtures.makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Ready, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null)));
 
-    subject.update(access, chain.getId(), NexusIntegrationTestingFixtures.makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Ready, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
+    assertEquals("Chain must be bound to at least one Library, Sequence, or Instrument", thrown.getMessage());
+
   }
 
   @Test
@@ -660,10 +653,10 @@ public class ChainDAOImplTest {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
     var chain = test.put(NexusIntegrationTestingFixtures.makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Chain must be bound to at least one Library, Sequence, or Instrument");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      subject.updateState(access, chain.getId(), Chain.State.Ready));
 
-    subject.updateState(access, chain.getId(), Chain.State.Ready);
+    assertEquals("Chain must be bound to at least one Library, Sequence, or Instrument", thrown.getMessage());
   }
 
   @Test
@@ -698,10 +691,11 @@ public class ChainDAOImplTest {
       .setStopAt("2015-06-09T12:17:01.047563Z")
       .build();
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("cannot change chain startAt time after it has segments");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      subject.update(access, chain2.getId(), input));
 
-    subject.update(access, chain2.getId(), input);
+    assertEquals("cannot change chain startAt time after it has segments", thrown.getMessage());
+
   }
 
   @Test
@@ -774,7 +768,7 @@ public class ChainDAOImplTest {
   }
 
   @Test
-  public void update_FailsWithoutAccountID() throws Exception {
+  public void update_FailsWithoutAccountID() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setName("coconuts")
@@ -784,14 +778,15 @@ public class ChainDAOImplTest {
       .setStopAt("2009-09-11T12:17:01.047563Z")
       .build();
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Account ID is required");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      subject.update(access, chain2.getId(), input));
 
-    subject.update(access, chain2.getId(), input);
+    assertEquals("Account ID is required.", thrown.getMessage());
+
   }
 
   @Test
-  public void update_FailsWithoutName() throws Exception {
+  public void update_FailsWithoutName() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -802,14 +797,15 @@ public class ChainDAOImplTest {
       .setStopAt("2009-09-11T12:17:01.047563Z")
       .build();
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Name is required");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      subject.update(access, chain2.getId(), input));
 
-    subject.update(access, chain2.getId(), input);
+    assertEquals("Name is required.", thrown.getMessage());
+
   }
 
   @Test
-  public void update_failsWithInvalidConfig() throws Exception {
+  public void update_failsWithInvalidConfig() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
     var input = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -822,10 +818,12 @@ public class ChainDAOImplTest {
       .setStopAt("2009-09-11T12:17:01.989941Z")
       .build();
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Key 'no type of config I've ever seen' may not be followed by token");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      subject.update(access, chain2.getId(), input));
 
-    subject.update(access, chain2.getId(), input);
+    assertTrue(thrown.getMessage()
+      .contains("Key 'no type of config I've ever seen' may not be followed by token"));
+
   }
 
   @Test
@@ -877,15 +875,16 @@ public class ChainDAOImplTest {
   }
 
   @Test
-  public void updateState_WithoutAccountAccess_Fails() throws Exception {
+  public void updateState_WithoutAccountAccess_Fails() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build()), "User");
 
-    failure.expect(DAOPrivilegeException.class);
-    failure.expectMessage("Account access is required");
+    Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
+      subject.updateState(access, chain2.getId(), Chain.State.Complete));
 
-    subject.updateState(access, chain2.getId(), Chain.State.Complete);
+    assertEquals("Account access is required.", thrown.getMessage());
+
   }
 
   @Test
@@ -900,13 +899,14 @@ public class ChainDAOImplTest {
   }
 
   @Test
-  public void updateState_WithAccountAccess_FailsWithoutEngineerRole_ForProductionChain() throws Exception {
+  public void updateState_WithAccountAccess_FailsWithoutEngineerRole_ForProductionChain() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User");
 
-    failure.expect(DAOPrivilegeException.class);
-    failure.expectMessage("Engineer role is required");
+    Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
+      subject.updateState(access, chain2.getId(), Chain.State.Complete));
 
-    subject.updateState(access, chain2.getId(), Chain.State.Complete);
+    assertEquals("Engineer role is required.", thrown.getMessage());
+
   }
 
   @Test
@@ -914,10 +914,10 @@ public class ChainDAOImplTest {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User");
     var chain3 = test.put(NexusIntegrationTestingFixtures.makeChain(account1, "bucket", Chain.Type.Preview, Chain.State.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null));
 
-    failure.expect(DAOPrivilegeException.class);
-    failure.expectMessage("Engineer/Artist role is required");
+    Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
+      subject.updateState(access, chain3.getId(), Chain.State.Complete));
 
-    subject.updateState(access, chain3.getId(), Chain.State.Complete);
+    assertEquals("Engineer/Artist role is required.", thrown.getMessage());
   }
 
   @Test
@@ -927,10 +927,10 @@ public class ChainDAOImplTest {
       .setState(Chain.State.Ready)
       .build();
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Chain must be bound to at least one Library, Sequence, or Instrument");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      subject.update(access, chain3.getId(), chain3));
 
-    subject.update(access, chain3.getId(), chain3);
+    assertEquals("Chain must be bound to at least one Library, Sequence, or Instrument", thrown.getMessage());
   }
 
   @Test
@@ -938,10 +938,10 @@ public class ChainDAOImplTest {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
     var chain3 = test.put(NexusIntegrationTestingFixtures.makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Chain must be bound to at least one Library, Sequence, or Instrument");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      subject.updateState(access, chain3.getId(), Chain.State.Ready));
 
-    subject.updateState(access, chain3.getId(), Chain.State.Ready);
+    assertEquals("Chain must be bound to at least one Library, Sequence, or Instrument", thrown.getMessage());
   }
 
   @Test
@@ -966,7 +966,7 @@ public class ChainDAOImplTest {
   @Test
   public void updateState_outOfDraft_BoundToSequence() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
-    user3 = NexusIntegrationTestingFixtures.makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    NexusIntegrationTestingFixtures.makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     library2 = Library.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(account1.getId())
@@ -991,7 +991,7 @@ public class ChainDAOImplTest {
   @Test
   public void updateState_outOfDraft_BoundToMultipleSequences() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
-    user3 = NexusIntegrationTestingFixtures.makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    NexusIntegrationTestingFixtures.makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     library2 = NexusIntegrationTestingFixtures.makeLibrary(account1, "pajamas");
     var chain = test.put(NexusIntegrationTestingFixtures.makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
     test.put(NexusIntegrationTestingFixtures.makeBinding(chain, NexusIntegrationTestingFixtures.makeProgram(library2, Program.Type.Main, Program.State.Published, "fonds", "C#", 120.0, 0.6)));
@@ -1009,7 +1009,7 @@ public class ChainDAOImplTest {
   @Test
   public void updateState_outOfDraft_BoundToInstrument() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Artist,Engineer");
-    user3 = NexusIntegrationTestingFixtures.makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    NexusIntegrationTestingFixtures.makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     var chain = test.put(NexusIntegrationTestingFixtures.makeChain(account1, "bucket", Chain.Type.Production, Chain.State.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null));
     library2 = NexusIntegrationTestingFixtures.makeLibrary(account1, "pajamas");
     test.put(NexusIntegrationTestingFixtures.makeBinding(chain, NexusIntegrationTestingFixtures.makeInstrument(library2, Instrument.Type.Pad, Instrument.State.Published, "fonds")));
@@ -1054,12 +1054,13 @@ public class ChainDAOImplTest {
    [#160299309] Engineer wants a *revived* action, require exists chain of which to revived, throw error if not found.
    */
   @Test
-  public void revive_failsIfNotExistPriorChain() throws Exception {
+  public void revive_failsIfNotExistPriorChain() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
-    failure.expect(DAOExistenceException.class);
-    failure.expectMessage("does not exist");
 
-    subject.revive(access, UUID.randomUUID().toString(), "Testing");
+    Exception thrown = assertThrows(DAOExistenceException.class, () ->
+      subject.revive(access, UUID.randomUUID().toString(), "Testing"));
+
+    assertTrue(thrown.getMessage().contains("does not exist"));
   }
 
   /**
@@ -1085,10 +1086,10 @@ public class ChainDAOImplTest {
     var chain = test.put(NexusIntegrationTestingFixtures.makeChain(account1, "school", Chain.Type.Preview, Chain.State.Draft, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
     test.put(NexusIntegrationTestingFixtures.makeBinding(chain, NexusIntegrationTestingFixtures.makeLibrary(account1, "pajamas")));
 
-    failure.expect(DAOPrivilegeException.class);
-    failure.expectMessage("Can't revive a Chain unless it's in Fabricate, Complete, or Failed state");
+    Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
+      subject.revive(access, chain.getId(), "Testing"));
 
-    subject.revive(access, chain.getId(), "Testing");
+    assertEquals("Can't revive a Chain unless it's in Fabricate, Complete, or Failed state", thrown.getMessage());
   }
 
   /**
@@ -1101,10 +1102,10 @@ public class ChainDAOImplTest {
     var chain = test.put(NexusIntegrationTestingFixtures.makeChain(account1, "school", Chain.Type.Preview, Chain.State.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
     test.put(NexusIntegrationTestingFixtures.makeBinding(chain, NexusIntegrationTestingFixtures.makeLibrary(account1, "pajamas")));
 
-    failure.expect(DAOPrivilegeException.class);
-    failure.expectMessage("Can't revive a Chain unless it's in Fabricate, Complete, or Failed state");
+    Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
+      subject.revive(access, chain.getId(), "Testing"));
 
-    subject.revive(access, chain.getId(), "Testing");
+    assertEquals("Can't revive a Chain unless it's in Fabricate, Complete, or Failed state", thrown.getMessage());
   }
 
   /**
@@ -1135,10 +1136,10 @@ public class ChainDAOImplTest {
     var chain = test.put(NexusIntegrationTestingFixtures.makeChain(account1, "school", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
     test.put(NexusIntegrationTestingFixtures.makeBinding(chain, NexusIntegrationTestingFixtures.makeLibrary(account1, "pajamas")));
 
-    failure.expect(DAOPrivilegeException.class);
-    failure.expectMessage("Account access is required");
+    Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
+      subject.revive(access, chain.getId(), "Testing"));
 
-    subject.revive(access, chain.getId(), "Testing");
+    assertEquals("Account access is required.", thrown.getMessage());
   }
 
   /**
@@ -1147,7 +1148,7 @@ public class ChainDAOImplTest {
   @Test
   public void revive_duplicatesAllChainBindings() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "Engineer");
-    user3 = NexusIntegrationTestingFixtures.makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    NexusIntegrationTestingFixtures.makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     var chain = test.put(NexusIntegrationTestingFixtures.makeChain(account1, "school", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky").toBuilder()
       .setConfig("outputFrameRate=35\noutputChannels=4")
       .build());

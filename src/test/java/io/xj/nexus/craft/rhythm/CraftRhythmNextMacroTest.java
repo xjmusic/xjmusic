@@ -25,17 +25,15 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.testing.NexusTestConfiguration;
-import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.testing.NexusTestConfiguration;
+import io.xj.nexus.work.NexusWorkModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -45,26 +43,17 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChain;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftRhythmNextMacroTest {
-  private Injector injector;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
   private NexusIntegrationTestingFixtures fake;
   private Chain chain1;
-  private Segment segment1;
-  private Segment segment2;
-  private Segment segment3;
   private Segment segment4;
   private NexusEntityStore store;
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  private HubContent sourceMaterial;
 
   @Mock
   public HubClient hubClient;
@@ -73,14 +62,14 @@ public class CraftRhythmNextMacroTest {
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
     Environment env = Environment.getDefault();
-    injector = AppConfiguration.inject(config, env,
-            ImmutableSet.of(Modules.override(new NexusWorkModule())
-                    .with(new AbstractModule() {
-                      @Override
-                      public void configure() {
-                        bind(HubClient.class).toInstance(hubClient);
-                      }
-                    })));
+    Injector injector = AppConfiguration.inject(config, env,
+      ImmutableSet.of(Modules.override(new NexusWorkModule())
+        .with(new AbstractModule() {
+          @Override
+          public void configure() {
+            bind(HubClient.class).toInstance(hubClient);
+          }
+        })));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     craftFactory = injector.getInstance(CraftFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
@@ -93,12 +82,11 @@ public class CraftRhythmNextMacroTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    when(hubClient.ingest(any(), any(), any(), any()))
-            .thenReturn(new HubContent(Streams.concat(
+    sourceMaterial = new HubContent(Streams.concat(
                     fake.setupFixtureB1().stream(),
                     fake.setupFixtureB2().stream(),
                     fake.setupFixtureB3().stream()
-            ).collect(Collectors.toList())));
+            ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
     chain1 = store.put(NexusIntegrationTestingFixtures.makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
@@ -108,33 +96,33 @@ public class CraftRhythmNextMacroTest {
             .setTargetId(fake.library2.getId())
             .setType(ChainBinding.Type.Library)
             .build());
-    segment1 = store.put(Segment.newBuilder()
-            .setId(UUID.randomUUID().toString())
-            .setChainId(chain1.getId())
-            .setOffset(0)
-            .setState(Segment.State.Dubbed)
-            .setBeginAt("2017-02-14T12:01:00.000001Z")
-            .setEndAt("2017-02-14T12:01:32.000001Z")
-            .setKey("D major")
-            .setTotal(64)
-            .setDensity(0.73)
-            .setTempo(120)
-            .setStorageKey("chains-1-segments-9f7s89d8a7892")
-            .setOutputEncoder("wav")
-            .build());
-    segment2 = store.put(Segment.newBuilder()
-            .setId(UUID.randomUUID().toString())
-            .setChainId(chain1.getId())
-            .setOffset(1)
-            .setState(Segment.State.Dubbing)
-            .setBeginAt("2017-02-14T12:01:32.000001Z")
-            .setEndAt("2017-02-14T12:02:04.000001Z")
-            .setKey("Db minor")
-            .setTotal(64)
-            .setDensity(0.85)
-            .setTempo(120)
-            .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-            .build());
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setOffset(0)
+      .setState(Segment.State.Dubbed)
+      .setBeginAt("2017-02-14T12:01:00.000001Z")
+      .setEndAt("2017-02-14T12:01:32.000001Z")
+      .setKey("D major")
+      .setTotal(64)
+      .setDensity(0.73)
+      .setTempo(120)
+      .setStorageKey("chains-1-segments-9f7s89d8a7892")
+      .setOutputEncoder("wav")
+      .build());
+    store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setOffset(1)
+      .setState(Segment.State.Dubbing)
+      .setBeginAt("2017-02-14T12:01:32.000001Z")
+      .setEndAt("2017-02-14T12:02:04.000001Z")
+      .setKey("Db minor")
+      .setTotal(64)
+      .setDensity(0.85)
+      .setTempo(120)
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build());
   }
 
   @After
@@ -145,7 +133,7 @@ public class CraftRhythmNextMacroTest {
   @Test
   public void craftRhythmNextMacro() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
 
     craftFactory.rhythm(fabricator).doWork();
 
@@ -158,7 +146,7 @@ public class CraftRhythmNextMacroTest {
   @Test
   public void craftRhythmNextMacro_okEvenWithoutPreviousSegmentRhythmChoice() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
 
     craftFactory.rhythm(fabricator).doWork();
 
@@ -175,19 +163,19 @@ public class CraftRhythmNextMacroTest {
    */
   private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws NexusException {
     // Chain "Test Print #1" has this segment that was just crafted
-    segment3 = store.put(Segment.newBuilder()
-            .setId(UUID.randomUUID().toString())
-            .setChainId(chain1.getId())
-            .setOffset(2L)
-            .setState(Segment.State.Crafted)
-            .setBeginAt("2017-02-14T12:02:04.000001Z")
-            .setEndAt("2017-02-14T12:02:36.000001Z")
-            .setKey("Ab minor")
-            .setTotal(64)
-            .setDensity(0.30)
-            .setTempo(120.0)
-            .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-            .build());
+    Segment segment3 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain1.getId())
+      .setOffset(2L)
+      .setState(Segment.State.Crafted)
+      .setBeginAt("2017-02-14T12:02:04.000001Z")
+      .setEndAt("2017-02-14T12:02:36.000001Z")
+      .setKey("Ab minor")
+      .setTotal(64)
+      .setDensity(0.30)
+      .setTempo(120.0)
+      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .build());
     store.put(SegmentChoice.newBuilder()
             .setId(UUID.randomUUID().toString())
             .setSegmentId(segment3.getId())

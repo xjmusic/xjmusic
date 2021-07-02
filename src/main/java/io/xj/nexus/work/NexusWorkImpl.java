@@ -10,6 +10,7 @@ import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import datadog.trace.api.Trace;
 import io.xj.Chain;
+import io.xj.ChainBinding;
 import io.xj.Segment;
 import io.xj.SegmentMessage;
 import io.xj.lib.entity.Entities;
@@ -20,6 +21,7 @@ import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.dao.ChainBindingDAO;
 import io.xj.nexus.dao.ChainDAO;
 import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;
@@ -29,7 +31,10 @@ import io.xj.nexus.dao.exception.DAOValidationException;
 import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
+import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubClientException;
+import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +47,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
 import static io.xj.lib.util.MultiStopwatch.MILLIS_PER_SECOND;
@@ -58,15 +61,17 @@ import static io.xj.lib.util.MultiStopwatch.NANOS_PER_SECOND;
 @Singleton
 public class NexusWorkImpl implements NexusWork {
   private static final Logger LOG = LoggerFactory.getLogger(NexusWorkImpl.class);
-  private ScheduledFuture<?> schedule;
+  private MultiStopwatch timer;
+  private final ChainBindingDAO chainBindingDAO;
   private final ChainDAO chainDAO;
   private final CraftFactory craftFactory;
   private final DubFactory dubFactory;
   private final FabricatorFactory fabricatorFactory;
+  private final HubClient hubClient;
   private final HubClientAccess access = HubClientAccess.internal();
+  private final Map<String, HubContent> chainSourceMaterial = Maps.newHashMap();
   private final NexusEntityStore store;
   private final NotificationProvider notification;
-  private final ScheduledExecutorService scheduler;
   private final SegmentDAO segmentDAO;
   private final TelemetryProvider telemetryProvider;
   private final boolean janitorEnabled;
@@ -75,14 +80,14 @@ public class NexusWorkImpl implements NexusWork {
   private final int bufferProductionSeconds;
   private final int cycleMillis;
   private final int eraseSegmentsOlderThanSeconds;
+  private final int ingestCycleSeconds;
   private final int janitorCycleSeconds;
   private final int medicCycleSeconds;
   private final int reviveChainFabricatedBehindSeconds;
   private final int reviveChainProductionGraceSeconds;
   private final long healthCycleStalenessThresholdNanos;
-
-  private long nextCycleNanos;
-
+  private long nextCycleNanos = 0;
+  private final Map<String, Long> nextChainIngestNanos = Maps.newHashMap();
   private long nextJanitorNanos = 0;
   private long nextMedicNanos = 0;
   private static final String DEFAULT_NAME_PREVIEW = "preview";
@@ -90,24 +95,27 @@ public class NexusWorkImpl implements NexusWork {
   private static final String METRIC_CHAIN_FORMAT = "chain.%s.%s";
   private static final String METRIC_FABRICATED_AHEAD_SECONDS = "fabricated_ahead_seconds";
   private static final String METRIC_SEGMENT_CREATED = "segment_created";
-  private MultiStopwatch timer;
 
   @Inject
   public NexusWorkImpl(
+    ChainBindingDAO chainBindingDAO,
     ChainDAO chainDAO,
     Config config,
     CraftFactory craftFactory,
     DubFactory dubFactory,
     FabricatorFactory fabricatorFactory,
+    HubClient hubClient,
     NexusEntityStore store,
     NotificationProvider notification,
     SegmentDAO segmentDAO,
     TelemetryProvider telemetryProvider
   ) {
+    this.chainBindingDAO = chainBindingDAO;
     this.chainDAO = chainDAO;
     this.craftFactory = craftFactory;
     this.dubFactory = dubFactory;
     this.fabricatorFactory = fabricatorFactory;
+    this.hubClient = hubClient;
     this.notification = notification;
     this.segmentDAO = segmentDAO;
     this.store = store;
@@ -118,13 +126,14 @@ public class NexusWorkImpl implements NexusWork {
     cycleMillis = config.getInt("work.cycleMillis");
     eraseSegmentsOlderThanSeconds = config.getInt("work.eraseSegmentsOlderThanSeconds");
     healthCycleStalenessThresholdNanos = config.getInt("work.healthCycleStalenessThresholdSeconds") * NANOS_PER_SECOND;
+    ingestCycleSeconds = config.getInt("work.ingestCycleSeconds");
     janitorCycleSeconds = config.getInt("work.janitorCycleSeconds");
     janitorEnabled = config.getBoolean("work.janitorEnabled");
     medicCycleSeconds = config.getInt("work.medicCycleSeconds");
     medicEnabled = config.getBoolean("work.medicEnabled");
     reviveChainFabricatedBehindSeconds = config.getInt("fabrication.reviveChainFabricatedBehindSeconds");
     reviveChainProductionGraceSeconds = config.getInt("fabrication.reviveChainProductionGraceSeconds");
-    scheduler = Executors.newSingleThreadScheduledExecutor();
+    Executors.newSingleThreadScheduledExecutor();
 
     LOG.debug("Instantiated OK");
   }
@@ -152,6 +161,30 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
+   Ingest Content from Hub
+   */
+  private void ingestMaterialIfNecessary(Chain chain) {
+    if (nextChainIngestNanos.containsKey(chain.getId()) &&
+      System.nanoTime() < nextChainIngestNanos.get(chain.getId())) return;
+    nextChainIngestNanos.put(chain.getId(), System.nanoTime() + ingestCycleSeconds * NANOS_PER_SECOND);
+    timer.section("Ingest");
+
+    try {
+      // read the source material
+      var chainBindings = chainBindingDAO.readMany(access, ImmutableList.of(chain.getId()));
+      var boundLibraryIds = ChainDAO.targetIdsOfType(chainBindings, ChainBinding.Type.Library);
+      var boundProgramIds = ChainDAO.targetIdsOfType(chainBindings, ChainBinding.Type.Program);
+      var boundInstrumentIds = ChainDAO.targetIdsOfType(chainBindings, ChainBinding.Type.Instrument);
+      var material = hubClient.ingest(access, boundLibraryIds, boundProgramIds, boundInstrumentIds);
+      chainSourceMaterial.put(chain.getId(), material);
+      LOG.debug("Ingested {} entities of source material for Chain[{}]", material.size(), chainDAO.getIdentifier(chain));
+
+    } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException | HubClientException e) {
+      didFailWhile("Ingesting source material from Hub", e);
+    }
+  }
+
+  /**
    Do fabrication
    */
   private void doFabrication() {
@@ -166,7 +199,10 @@ public class NexusWorkImpl implements NexusWork {
     }
 
     // Fabricate all active chains
-    activeChains.forEach(this::fabricateChain);
+    activeChains.forEach(chain -> {
+      ingestMaterialIfNecessary(chain);
+      fabricateChain(chain);
+    });
   }
 
   /**
@@ -386,7 +422,7 @@ public class NexusWorkImpl implements NexusWork {
     timer.section("Prepare");
     try {
       LOG.debug("[segId={}] will prepare fabricator", segment.getId());
-      fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment);
+      fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), chainSourceMaterial.get(chain.getId()), segment);
     } catch (NexusException e) {
       didFailWhile("creating fabricator", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
       return;

@@ -28,7 +28,7 @@ public enum MessageType {
    */
   public static MessageType validate(String value) throws ValueException {
     if (Objects.isNull(value))
-      throw new ValueException("Type is required");
+      throw new ValueException("Type is required.");
 
     try {
       return valueOf(Text.toProperSlug(value));

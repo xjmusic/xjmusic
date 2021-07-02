@@ -21,17 +21,17 @@ import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
+import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.testing.NexusTestConfiguration;
+import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -45,8 +45,6 @@ import java.util.stream.Collectors;
 import static io.xj.lib.util.Assert.assertSameItems;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChain;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftFoundationNextMacroTest {
@@ -87,11 +85,10 @@ public class CraftFoundationNextMacroTest {
 
       // Mock request via HubClient returns fake generated library of hub content
       NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
-      when(hubClient.ingest(any(), any(), any(), any()))
-        .thenReturn(new HubContent(Streams.concat(
-          fake.setupFixtureB1().stream(),
-          fake.setupFixtureB2().stream()
-        ).collect(Collectors.toList())));
+      HubContent sourceMaterial = new HubContent(Streams.concat(
+        fake.setupFixtureB1().stream(),
+        fake.setupFixtureB2().stream()
+      ).collect(Collectors.toList()));
 
       // Chain "Test Print #1" has 5 total segments
       Chain chain1 = store.put(makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
@@ -149,7 +146,7 @@ public class CraftFoundationNextMacroTest {
       // Chain "Test Print #1" has a planned segment
       Segment segment4 = store.put(NexusIntegrationTestingFixtures.makeSegment(chain1, 3, Segment.State.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"), null, "C", 8, 0.8, 120, "chain-1-waveform-12345", "wav"));
 
-      Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment4);
+      Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
 
       craftFactory.macroMain(fabricator).doWork();
 

@@ -25,16 +25,14 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.testing.NexusTestConfiguration;
-import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.testing.NexusTestConfiguration;
+import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -45,21 +43,15 @@ import java.util.stream.Collectors;
 
 import static io.xj.lib.util.Assert.assertSameItems;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftFoundationInitialTest {
-  private Injector injector;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
-  private NexusIntegrationTestingFixtures fake;
+  private HubContent sourceMaterial;
   private NexusEntityStore store;
-  private Chain chain2;
+  private NexusIntegrationTestingFixtures fake;
   private Segment segment6;
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
 
   @Mock
   public HubClient hubClient;
@@ -68,7 +60,7 @@ public class CraftFoundationInitialTest {
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
     Environment env = Environment.getDefault();
-    injector = AppConfiguration.inject(config, env,
+    Injector injector = AppConfiguration.inject(config, env,
       ImmutableSet.of(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override
@@ -88,13 +80,12 @@ public class CraftFoundationInitialTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    when(hubClient.ingest(any(), any(), any(), any()))
-      .thenReturn(new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream()
-      ).collect(Collectors.toList())));
+    sourceMaterial = new HubContent(Streams.concat(
+      fake.setupFixtureB1().stream()
+    ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial planned segment
-    chain2 = store.put(Chain.newBuilder()
+    Chain chain2 = store.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(fake.account1.getId())
       .setName("Print #2")
@@ -124,7 +115,7 @@ public class CraftFoundationInitialTest {
 
   @Test
   public void craftFoundationInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment6);
 
     craftFactory.macroMain(fabricator).doWork();
 
@@ -149,9 +140,9 @@ public class CraftFoundationInitialTest {
       store.getAll(result.getId(), SegmentChoice.class);
     SegmentChoice macroChoice = SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Macro);
     assertEquals(fake.program4_sequence0_binding0.getId(), macroChoice.getProgramSequenceBindingId());
-        assertEquals(Long.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
+    assertEquals(Long.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
     SegmentChoice mainChoice = SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Main);
     assertEquals(fake.program5_sequence0_binding0.getId(), mainChoice.getProgramSequenceBindingId());
-        assertEquals(Long.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
+    assertEquals(Long.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
   }
 }

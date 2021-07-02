@@ -17,13 +17,11 @@ import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
-import io.xj.nexus.testing.NexusTestConfiguration;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -33,32 +31,28 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeAccount;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeHubClientAccess;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.makeSegment;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SegmentDAOImplTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
-  @Mock
-  FileStoreProvider fileStoreProvider;
-  private NexusEntityStore store;
-  private SegmentDAO testDAO;
   private Account account1;
   private Chain chain3;
+  private Chain chain5;
+  private EntityFactory entityFactory;
+  private NexusEntityStore store;
   private Segment segment1;
   private Segment segment2;
   private Segment segment4;
   private Segment segment5;
-  private Chain chain5;
-  private EntityFactory entityFactory;
+  private SegmentDAO testDAO;
+
+  @Mock
+  FileStoreProvider fileStoreProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -237,7 +231,7 @@ public class SegmentDAOImplTest {
   }
 
   @Test
-  public void create_FailsIfNotUniqueChainOffset() throws Exception {
+  public void create_FailsIfNotUniqueChainOffset() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
     Segment inputData = Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -255,14 +249,14 @@ public class SegmentDAOImplTest {
     when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Found Segment at same offset in Chain");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      testDAO.create(access, inputData));
 
-    testDAO.create(access, inputData);
+    assertEquals("Found Segment at same offset in Chain!", thrown.getMessage());
   }
 
   @Test
-  public void create_FailsWithoutTopLevelAccess() throws Exception {
+  public void create_FailsWithoutTopLevelAccess() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("User");
     Segment inputData = Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -279,14 +273,14 @@ public class SegmentDAOImplTest {
     when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
-    failure.expect(DAOPrivilegeException.class);
-    failure.expectMessage("top-level access is required");
+    Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
+      testDAO.create(access, inputData));
 
-    testDAO.create(access, inputData);
+    assertEquals("top-level access is required.", thrown.getMessage());
   }
 
   @Test
-  public void create_FailsWithoutChainID() throws Exception {
+  public void create_FailsWithoutChainID() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
     Segment inputData = Segment.newBuilder()
       .setOffset(4L)
@@ -301,11 +295,10 @@ public class SegmentDAOImplTest {
     when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
-    failure.expect(DAOValidationException.class);
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      testDAO.create(access, inputData));
 
-    failure.expectMessage("Chain ID is required");
-
-    testDAO.create(access, inputData);
+    assertEquals("Chain ID is required.", thrown.getMessage());
   }
 
   @Test
@@ -329,14 +322,15 @@ public class SegmentDAOImplTest {
   }
 
   @Test
-  public void readOne_failsWhenUserIsNotInChain() throws Exception {
+  public void readOne_failsWhenUserIsNotInChain() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(Account.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build()), "User");
-    failure.expect(DAOPrivilegeException.class);
-    failure.expectMessage("access is required");
 
-    testDAO.readOne(access, segment1.getId());
+    Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
+      testDAO.readOne(access, segment1.getId()));
+
+    assertEquals("Account access is required.", thrown.getMessage());
   }
 
   @Test
@@ -754,13 +748,14 @@ public class SegmentDAOImplTest {
   }
 
   @Test
-  public void readOneInState_failIfNoneInChain() throws Exception {
+  public void readOneInState_failIfNoneInChain() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Internal");
     NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
-    failure.expect(DAOExistenceException.class);
-    failure.expectMessage("Found no Segment");
 
-    testDAO.readOneInState(access, segment2.getId(), Segment.State.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"));
+    Exception thrown = assertThrows(DAOExistenceException.class, () ->
+      testDAO.readOneInState(access, segment2.getId(), Segment.State.Planned, Instant.parse("2017-02-14T12:03:08.000001Z")));
+
+    assertTrue(thrown.getMessage().contains("Found no Segment"));
   }
 
   @Test
@@ -820,14 +815,14 @@ public class SegmentDAOImplTest {
   }
 
   @Test
-  public void update_failsToTransitionFromDubbingToCrafting() throws Exception {
+  public void update_failsToTransitionFromDubbingToCrafting() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("transition to Crafting not in allowed");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      testDAO.update(access, segment2.getId(),
+        entityFactory.clone(segment2).toBuilder().setState(Segment.State.Crafting).build()));
 
-    testDAO.update(access, segment2.getId(),
-      entityFactory.clone(segment2).toBuilder().setState(Segment.State.Crafting).build());
+    assertTrue(thrown.getMessage().contains("transition to Crafting not in allowed"));
   }
 
   @Test
@@ -845,10 +840,10 @@ public class SegmentDAOImplTest {
       .setTempo(120.0)
       .build());
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("Chain ID is required");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      testDAO.update(access, segment2.getId(), inputData));
 
-    testDAO.update(access, segment2.getId(), inputData);
+    assertEquals("Chain ID is required.", thrown.getMessage());
   }
 
   @Test
@@ -867,19 +862,14 @@ public class SegmentDAOImplTest {
       .setTempo(120.0)
       .build();
 
-    failure.expect(DAOValidationException.class);
-    failure.expectMessage("transition to Crafting not in allowed");
+    Exception thrown = assertThrows(DAOValidationException.class, () ->
+      testDAO.update(access, segment2.getId(), inputData));
 
-    try {
-      testDAO.update(access, segment2.getId(), inputData);
-
-    } catch (Exception e) {
-      Segment result = testDAO.readOne(HubClientAccess.internal(), segment2.getId());
-      assertNotNull(result);
-      assertEquals("Db minor", result.getKey());
-      assertEquals(chain3.getId(), result.getChainId());
-      throw e;
-    }
+    assertTrue(thrown.getMessage().contains("transition to Crafting not in allowed"));
+    Segment result = testDAO.readOne(HubClientAccess.internal(), segment2.getId());
+    assertNotNull(result);
+    assertEquals("Db minor", result.getKey());
+    assertEquals(chain3.getId(), result.getChainId());
   }
 
   @Test

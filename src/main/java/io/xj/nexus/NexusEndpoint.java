@@ -130,7 +130,7 @@ public class NexusEndpoint {
    */
   public <N extends MessageLite> Response readMany(ContainerRequestContext crc, DAO<N> dao, String parentId) {
     if (Objects.isNull(parentId))
-      return response.notAcceptable("parent id is required");
+      return response.notAcceptable("parent id is required.");
 
     return readMany(crc, dao, ImmutableList.of(parentId));
   }

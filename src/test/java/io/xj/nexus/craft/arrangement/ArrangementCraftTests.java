@@ -17,19 +17,19 @@ import io.xj.ProgramVoice;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangementPick;
-import io.xj.lib.app.Environment;
-import io.xj.lib.entity.common.Topology;
-import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
-import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.lib.entity.common.Topology;
 import io.xj.lib.util.CSV;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
+import io.xj.nexus.hub_client.client.HubClient;
+import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.testing.NexusTestConfiguration;
 import io.xj.nexus.work.NexusWorkModule;
@@ -49,8 +49,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChord;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  [#176696738] XJ has a serviceable voicing algorithm
@@ -152,8 +150,8 @@ public class ArrangementCraftTests extends YamlTest {
         loadSegment(data);
 
         // Fabricate: Craft Arrangements for Choices
-        when(hubClient.ingest(any(), any(), any(), any())).thenReturn(new HubContent(content));
-        fabricator = fabrication.fabricate(HubClientAccess.internal(), segment);
+        var sourceMaterial = new HubContent(content);
+        fabricator = fabrication.fabricate(HubClientAccess.internal(), sourceMaterial, segment);
         ArrangementCraftImpl subject = new ArrangementCraftImpl(fabricator);
         for (var choice : segmentChoices.values()) subject.craftArrangements(choice);
 

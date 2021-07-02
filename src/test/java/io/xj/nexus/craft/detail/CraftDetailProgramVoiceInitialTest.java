@@ -27,17 +27,15 @@ import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
-import io.xj.nexus.testing.NexusTestConfiguration;
-import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.testing.NexusTestConfiguration;
+import io.xj.nexus.work.NexusWorkModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -48,20 +46,16 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftDetailProgramVoiceInitialTest {
+  private Chain chain2;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
-  private NexusIntegrationTestingFixtures fake;
+  private HubContent sourceMaterial;
   private NexusEntityStore store;
-  private Chain chain2;
+  private NexusIntegrationTestingFixtures fake;
   private Segment segment6;
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
 
   @Mock
   public HubClient hubClient;
@@ -91,13 +85,12 @@ public class CraftDetailProgramVoiceInitialTest {
     // force known detail selection by destroying program 35
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
-    when(hubClient.ingest(any(), any(), any(), any()))
-      .thenReturn(new HubContent(Streams.concat(
+    sourceMaterial = new HubContent(Streams.concat(
         fake.setupFixtureB1().stream(),
         fake.setupFixtureB3().stream(),
         fake.setupFixtureB4_DetailBass().stream())
         .filter(entity -> !Entities.isSame(entity, fake.program35) && !Entities.isChild(entity, fake.program35))
-        .collect(Collectors.toList())));
+        .collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     chain2 = store.put(Chain.newBuilder()
@@ -125,7 +118,7 @@ public class CraftDetailProgramVoiceInitialTest {
   public void craftDetailVoiceInitial() throws Exception {
     insertSegments();
 
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment6);
 
     craftFactory.detail(fabricator).doWork();
 
@@ -143,7 +136,7 @@ public class CraftDetailProgramVoiceInitialTest {
   @Test
   public void craftDetailVoiceInitial_okWhenNoDetailChoice() throws Exception {
     insertSegments();
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment6);
 
     craftFactory.detail(fabricator).doWork();
   }
