@@ -7,7 +7,6 @@ import com.typesafe.config.Config;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.work.NexusWork;
 import io.xj.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,6 @@ import java.util.Collection;
 @Singleton
 public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestProvider {
   final Logger log = LoggerFactory.getLogger(NexusIntegrationTestProviderImpl.class);
-  private final NexusWork workManager;
   private final NexusEntityStore store;
 
   /**
@@ -26,12 +24,10 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
    */
   @Inject
   NexusIntegrationTestProviderImpl(
-          NexusWork nexusWork,
-          EntityFactory entityFactory,
-          Config config,
-          NexusEntityStore nexusEntityStore
+    EntityFactory entityFactory,
+    Config config,
+    NexusEntityStore nexusEntityStore
   ) {
-    this.workManager = nexusWork;
     this.store = nexusEntityStore;
 
     // Build the Nexus REST API payload topology
@@ -67,7 +63,6 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
 
   @Override
   public void tearDown() {
-    workManager.finish();
     System.clearProperty("work.queue.name");
   }
 

@@ -72,6 +72,9 @@ public interface Main {
 
     // start
     app.start();
+
+    // do work-- this blocks until work quits
+    app.getWork().work();
   }
 
 

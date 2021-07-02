@@ -59,6 +59,7 @@ public class ComplexLibraryTest {
   private NexusApp app;
   private Chain chain1;
   private SegmentDAO segmentDAO;
+  private AppWorkThread workThread;
 
   @Mock
   public HubClient hubClient;
@@ -117,6 +118,8 @@ public class ComplexLibraryTest {
       .build());
 
     app = new NexusApp(injector);
+
+    workThread=new AppWorkThread(app);
   }
 
   @Test
@@ -130,10 +133,11 @@ public class ComplexLibraryTest {
 
     // Start app, wait for work, stop app
     app.start();
+    workThread.start();
     while (!hasSegmentsDubbedPastMinimumOffset(chain1.getId()) && isWithinTimeLimit())
       //noinspection BusyWait
       Thread.sleep(MILLIS_PER_SECOND);
-    app.finish();
+    workThread.interrupt();
 
     // assertions
     verify(fileStoreProvider, atLeast(MARATHON_NUMBER_OF_SEGMENTS))

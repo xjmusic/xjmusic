@@ -242,9 +242,6 @@ public class NexusApp extends App {
    exposing JAX-RS resources defined in this app.
    */
   public void start() throws AppException {
-    LOG.debug("{} will start work management before resource servers", getName());
-    work.start();
-    //
     super.start();
     LOG.info("{} ({}) is up at {}}", getName(), platformRelease, getBaseURI());
   }
@@ -263,9 +260,6 @@ public class NexusApp extends App {
    stop App Server
    */
   public void finish() {
-    LOG.debug("{} will stop worker pool before resource servers", getName());
-    work.finish();
-    //
     super.finish();
     LOG.info("{} ({}}) did exit OK at {}", getName(), platformRelease, getBaseURI());
   }

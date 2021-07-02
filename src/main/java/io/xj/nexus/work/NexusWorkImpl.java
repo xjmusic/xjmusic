@@ -39,13 +39,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.xj.lib.util.MultiStopwatch.MILLIS_PER_SECOND;
@@ -125,26 +123,6 @@ public class NexusWorkImpl implements NexusWork {
     scheduler = Executors.newSingleThreadScheduledExecutor();
 
     LOG.debug("Instantiated OK");
-  }
-
-  @Override
-  public void start() {
-    schedule = scheduler.scheduleWithFixedDelay(this, 0, cycleMillis, TimeUnit.MILLISECONDS);
-    timer = MultiStopwatch.start();
-  }
-
-  @Override
-  public void finish() {
-    if (Objects.nonNull(schedule)) schedule.cancel(false);
-    scheduler.shutdown();
-    try {
-      if (scheduler.awaitTermination(1, TimeUnit.MINUTES))
-        LOG.debug("Executor service did terminate OK");
-      else
-        LOG.error("Executor service failed to terminate!");
-    } catch (InterruptedException e) {
-      LOG.error("Timout waiting to for termination of executor service!", e);
-    }
   }
 
   /**
@@ -348,6 +326,13 @@ public class NexusWorkImpl implements NexusWork {
       Instant.parse(chain.getStartAt());
     var now = Instant.now();
     return (float) (dubbedUntil.toEpochMilli() - now.toEpochMilli()) / MILLIS_PER_SECOND;
+  }
+
+  @Override
+  public void work() {
+    timer = MultiStopwatch.start();
+    while (true)
+      this.run();
   }
 
   /**
