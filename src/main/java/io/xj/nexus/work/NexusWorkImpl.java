@@ -169,6 +169,8 @@ public class NexusWorkImpl implements NexusWork {
    Do fabrication
    */
   private void doFabrication() {
+    timer.section("Prepare");
+
     // Get active chain IDs
     Collection<Chain> activeChains;
     try {
@@ -283,13 +285,11 @@ public class NexusWorkImpl implements NexusWork {
   public void fabricateChain(Chain chain) {
     try {
       int workBufferSeconds = bufferSecondsFor(chain);
-      timer.section("BuildNextSegment");
       Optional<Segment> nextSegment = chainDAO.buildNextSegmentOrCompleteTheChain(access, chain,
         Instant.now().plusSeconds(workBufferSeconds),
         Instant.now().minusSeconds(workBufferSeconds));
       if (nextSegment.isEmpty()) return;
 
-      timer.section("CreateSegment");
       Segment segment = segmentDAO.create(access, nextSegment.get());
       LOG.debug("Created Segment {}", segment);
       telemetryProvider.getStatsDClient().
@@ -391,7 +391,6 @@ public class NexusWorkImpl implements NexusWork {
   protected void fabricateSegment(Chain chain, Segment segment, MultiStopwatch timer) {
     Fabricator fabricator;
 
-    timer.section("PrepareFabricator");
     try {
       LOG.debug("[segId={}] will prepare fabricator", segment.getId());
       fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), segment);
@@ -400,7 +399,6 @@ public class NexusWorkImpl implements NexusWork {
       return;
     }
 
-    timer.section("PrepareFabricator");
     try {
       LOG.debug("[segId={}] will do craft work", segment.getId());
       segment = doCraftWork(fabricator, segment);
@@ -426,7 +424,6 @@ public class NexusWorkImpl implements NexusWork {
       return;
     }
 
-    timer.section("Finish");
     try {
       finishWork(fabricator, segment);
     } catch (Exception e) {
