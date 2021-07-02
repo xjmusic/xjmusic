@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.dub;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -91,6 +92,7 @@ public class DubMasterImpl implements DubMaster {
   private void doMixerSourceLoading() throws Exception {
     for (InstrumentAudio audio : fabricator.getPickedAudios()) {
       String key = audio.getWaveformKey();
+      if (Strings.isNullOrEmpty(key)) continue;
 
       if (!mixer().hasLoadedSource(audio.getId())) try {
         mixer().loadSource(audio.getId(), dubAudioCache.get(key));
