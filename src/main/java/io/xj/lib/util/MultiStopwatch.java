@@ -127,7 +127,7 @@ public class MultiStopwatch {
       lapTotalSeconds,
       lapSectionSeconds.entrySet().stream()
         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-        .map(entry -> String.format("%s: %f", entry.getKey(), Math.floor(100 * entry.getValue() / lapTotalSeconds)))
+        .map(entry -> String.format("%s: %d%%", entry.getKey(), (int) Math.floor(100 * entry.getValue() / lapTotalSeconds)))
         .collect(Collectors.joining(", ")));
   }
 
@@ -142,7 +142,7 @@ public class MultiStopwatch {
       total,
       totalSectionSeconds.entrySet().stream()
         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-        .map(entry -> String.format("%s: %f", entry.getKey(), Math.floor(100 * entry.getValue() / total)))
+        .map(entry -> String.format("%s: %d%%", entry.getKey(), (int) Math.floor(100 * entry.getValue() / total)))
         .collect(Collectors.joining(", ")));
   }
 
