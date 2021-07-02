@@ -186,7 +186,7 @@ public class NexusWorkImpl implements NexusWork {
 
       Map<String, String> stalledChainIds = Maps.newHashMap();
       var fabricatingChains = chainDAO.readManyInState(access, Chain.State.Fabricate);
-      LOG.info("Will Check and revive {} fabricating Chain{}", fabricatingChains.size(), 1 < fabricatingChains.size() ? "s" : "");
+      LOG.info("Medic will check {} fabricating Chain{}", fabricatingChains.size(), 1 < fabricatingChains.size() ? "s" : "");
       fabricatingChains
         .stream()
         .filter((chain) ->
