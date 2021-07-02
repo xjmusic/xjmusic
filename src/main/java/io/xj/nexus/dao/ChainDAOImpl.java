@@ -343,7 +343,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     // If the last segment begins after our boundary, we're here early; get outta here.
     if (Instant.parse(lastSegmentInChain.getBeginAt()).isAfter(segmentBeginBefore)) {
-      LOG.info("Chain[{}] has enough segments, fabricated past {}", getIdentifier(chain), segmentBeginBefore);
+      LOG.info("Chain[{}] has enough segments, last Segment[{}] starts at {}, which is past {}",
+        getIdentifier(chain), segmentDAO.getIdentifier(lastSegmentInChain), lastSegmentInChain.getBeginAt(), segmentBeginBefore);
       return Optional.empty();
     }
 
