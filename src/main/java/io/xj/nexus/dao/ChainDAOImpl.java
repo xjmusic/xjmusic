@@ -328,14 +328,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   public Optional<Segment> buildNextSegmentOrCompleteTheChain(HubClientAccess access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteAfter) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException {
     requireTopLevel(access);
 
-    // If there's already a no-endAt-time-having Segment at the end of this Chain, get outta here
-    if (segmentDAO.readMany(access, ImmutableSet.of(chain.getId()))
-      .stream()
-      .filter(s -> Value.isEmpty(s.getEndAt()))
-      .max(Comparator.comparing(Segment::getOffset))
-      .isPresent())
-      return Optional.empty();
-
     // Get the last segment in the chain
     // If the chain had no last segment, it must be empty; return a template for its first segment
     var maybeLastSegmentInChain = segmentDAO.readLastSegment(access, chain.getId());
