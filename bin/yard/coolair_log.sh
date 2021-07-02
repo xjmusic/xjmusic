@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
 
-kubectl -n yard -c coolair logs -f deployment/coolair | grep -v '/-/health' | sed -e 's/^.*WorkImpl//g'
+POD=$(kubectl -n yard get pods | grep -oe '^coolair[0-9a-zA-Z\-]*')
 
+kubectl \
+    -n yard \
+    -c coolair \
+    logs -f ${POD} \
+    | grep -v '/-/health' \
+    | sed -e 's/^.*(WorkImpl|ChainDAOImpl)//g'
