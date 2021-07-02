@@ -121,12 +121,12 @@ public class MultiStopwatch {
 
    @return stopwatch as string
    */
-  public String lapToString() {
-    return String.format("%s (%s)",
-      lapTotalSeconds,
-      lapSectionSeconds.entrySet().stream()
+  public String toString(float total, Map<String, Float> sectionTotals) {
+    return String.format("%ss (%s)",
+      total,
+      sectionTotals.entrySet().stream()
         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-        .map(entry -> String.format("%s: %d%%", entry.getKey(), (int) Math.floor(100 * entry.getValue() / lapTotalSeconds)))
+        .map(entry -> String.format("%s: %d%%", entry.getKey(), (int) Math.floor(100 * entry.getValue() / total)))
         .collect(Collectors.joining(", ")));
   }
 
@@ -135,14 +135,17 @@ public class MultiStopwatch {
 
    @return stopwatch as string
    */
+  public String lapToString() {
+    return toString(lapTotalSeconds, lapSectionSeconds);
+  }
+
+  /**
+   Represent the whole stopwatch as a comma-separated list of sections and their time
+
+   @return stopwatch as string
+   */
   public String totalsToString() {
-    var total = getTotalSeconds();
-    return String.format("%s (%s)",
-      total,
-      totalSectionSeconds.entrySet().stream()
-        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-        .map(entry -> String.format("%s: %d%%", entry.getKey(), (int) Math.floor(100 * entry.getValue() / total)))
-        .collect(Collectors.joining(", ")));
+    return toString(getTotalSeconds(), totalSectionSeconds);
   }
 
   /**
