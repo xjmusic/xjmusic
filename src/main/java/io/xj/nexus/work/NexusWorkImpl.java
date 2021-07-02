@@ -307,7 +307,6 @@ public class NexusWorkImpl implements NexusWork {
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
   public void fabricateChain(Chain chain) {
-    timer.section("FabricateChain");
     try {
       int workBufferSeconds = bufferSecondsFor(chain);
       Optional<Segment> nextSegment = chainDAO.buildNextSegmentOrCompleteTheChain(access, chain,
