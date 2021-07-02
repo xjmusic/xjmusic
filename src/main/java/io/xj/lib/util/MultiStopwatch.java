@@ -15,19 +15,24 @@ import java.util.stream.Collectors;
  */
 public class MultiStopwatch {
   private String section;
-  private final Map<String, Float> lapSectionSeconds = Maps.newHashMap();
-  private final Map<String, Float> totalSectionSeconds = Maps.newHashMap();
+  private final Map<String, Double> lapSectionSeconds = Maps.newHashMap();
+  private final Map<String, Double> totalSectionSeconds = Maps.newHashMap();
   private final long started;
-  private float lapTotalSeconds;
+  private double lapTotalSeconds;
   private long lapStarted;
   private long sectionStarted;
-  private static final float MILLI = 1000;
-  private static final float MILLIS_PER_SECOND = MILLI;
-  private static final float NANOS_PER_SECOND = MILLIS_PER_SECOND * MILLI * MILLI;
+  public static final long SECONDS_PER_MINUTE = 60;
+  public static final long MINUTES_PER_HOUR = 60;
+  public static final long HOURS_PER_DAY = 24;
+  public static final long MILLIS_PER_SECOND = 1000;
+  public static final long NANOS_PER_SECOND = 1000000000L;
+  public static final long NANOS_PER_MILLI = 1000000L;
+  public static final long SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
+  public static final long SECONDS_PER_DAY = SECONDS_PER_HOUR * HOURS_PER_DAY;
   public static final String STANDBY = "Standby";
 
   @Nullable
-  private Float totalSeconds = null;
+  private Double totalSeconds = null;
 
   /**
    Don't construct directly-- use MultiStopwatch.start()
@@ -52,7 +57,7 @@ public class MultiStopwatch {
    */
   public void stop() {
     lap();
-    totalSeconds = (System.nanoTime() - started) / NANOS_PER_SECOND;
+    totalSeconds = (double) (System.nanoTime() - started) / NANOS_PER_SECOND;
   }
 
   /**
@@ -60,7 +65,7 @@ public class MultiStopwatch {
    */
   public void lap() {
     section(STANDBY);
-    lapTotalSeconds = (System.nanoTime() - lapStarted) / NANOS_PER_SECOND;
+    lapTotalSeconds = (double) (System.nanoTime() - lapStarted) / NANOS_PER_SECOND;
     lapStarted = System.nanoTime();
   }
 
@@ -69,9 +74,8 @@ public class MultiStopwatch {
 
    @return total seconds
    */
-  public float getTotalSeconds() {
-    return Objects.nonNull(totalSeconds) ? totalSeconds :
-      (System.nanoTime() - started) / NANOS_PER_SECOND;
+  public Double getTotalSeconds() {
+    return Objects.nonNull(totalSeconds) ? totalSeconds : (System.nanoTime() - started) / NANOS_PER_SECOND;
   }
 
   /**
@@ -79,7 +83,7 @@ public class MultiStopwatch {
 
    @return total seconds
    */
-  public float getLapTotalSeconds() {
+  public double getLapTotalSeconds() {
     return lapTotalSeconds;
   }
 
@@ -99,20 +103,20 @@ public class MultiStopwatch {
   }
 
   /**
-   Get map of all measured section times, keyed by section name, values are seconds floating point
+   Get map of all measured section times, keyed by section name, values are seconds double
 
    @return map of measured section times
    */
-  public Map<String, Float> getLapSectionSeconds() {
+  public Map<String, Double> getLapSectionSeconds() {
     return lapSectionSeconds;
   }
 
   /**
-   Get the totals of all measured section times, keyed by section name, values are seconds floating point
+   Get the totals of all measured section times, keyed by section name, values are seconds double
 
    @return map of measured section times
    */
-  public Map<String, Float> getTotalSectionSeconds() {
+  public Map<String, Double> getTotalSectionSeconds() {
     return totalSectionSeconds;
   }
 
@@ -121,13 +125,30 @@ public class MultiStopwatch {
 
    @return stopwatch as string
    */
-  public String toString(float total, Map<String, Float> sectionTotals) {
+  public String toString(double total, Map<String, Double> sectionTotals) {
     return String.format("%ss (%s)",
-      total,
+      formatHoursMinutesFromSeconds(total),
       sectionTotals.entrySet().stream()
         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
         .map(entry -> String.format("%s: %d%%", entry.getKey(), (int) Math.floor(100 * entry.getValue() / total)))
         .collect(Collectors.joining(", ")));
+  }
+
+  /**
+   Format a number of seconds like 4d 12h 43m 23.45s or 12h 43m 23.45s or 43m 23.45s or 23.45s
+
+   @param total number of seconds
+   @return formatted seconds
+   */
+  private String formatHoursMinutesFromSeconds(double total) {
+    int days = (int) Math.floor(total / SECONDS_PER_DAY);
+    int hours = (int) Math.floor((total - days * SECONDS_PER_DAY) / SECONDS_PER_HOUR);
+    int minutes = (int) Math.floor((total - days * SECONDS_PER_DAY - hours * SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
+    double seconds = Math.floor(100 * (total - days * SECONDS_PER_DAY - hours * SECONDS_PER_HOUR - minutes * SECONDS_PER_MINUTE)) / 100;
+    if (0 < days) return String.format("%dd %dh %dm %fs", days, hours, minutes, seconds);
+    if (0 < hours) return String.format("%dh %dm %fs", hours, minutes, seconds);
+    if (0 < minutes) return String.format("%dm %fs", minutes, seconds);
+    return String.format("%fs", seconds);
   }
 
   /**

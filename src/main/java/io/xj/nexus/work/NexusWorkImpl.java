@@ -48,6 +48,10 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static io.xj.lib.util.MultiStopwatch.MILLIS_PER_SECOND;
+import static io.xj.lib.util.MultiStopwatch.NANOS_PER_MILLI;
+import static io.xj.lib.util.MultiStopwatch.NANOS_PER_SECOND;
+
 /**
  The Lab Nexus Distributed Work Manager (Implementation)
  <p>
@@ -85,9 +89,6 @@ public class NexusWorkImpl implements NexusWork {
   private static final String METRIC_CHAIN_FORMAT = "chain.%s.%s";
   private static final String METRIC_FABRICATED_AHEAD_SECONDS = "fabricated_ahead_seconds";
   private static final String METRIC_SEGMENT_CREATED = "segment_created";
-  private static final long MILLIS_PER_SECOND = 1000;
-  private static final long NANOS_PER_MILLI = 1000 * 1000;
-  private static final long NANOS_PER_SECOND = NANOS_PER_MILLI * MILLIS_PER_SECOND;
   private MultiStopwatch timer;
 
   @Inject
