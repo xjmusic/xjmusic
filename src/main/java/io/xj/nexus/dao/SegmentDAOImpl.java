@@ -23,12 +23,12 @@ import io.xj.lib.entity.common.MessageEntity;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
+import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
 
 import javax.annotation.Nullable;
@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
+  private static final long MILLIS_PER_SECOND = 1000;
   private final ChainDAO chainDAO;
   private final int playerBufferAheadSeconds;
   private final int playerBufferDelaySeconds;
@@ -429,7 +430,12 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     return Strings.isNullOrEmpty(segment.getStorageKey()) ? segment.getId() : segment.getStorageKey();
   }
 
-    @Override
+  @Override
+  public float getLengthSeconds(Segment segment) {
+    return (float) (Instant.parse(segment.getEndAt()).toEpochMilli() - Instant.parse(segment.getBeginAt()).toEpochMilli()) / MILLIS_PER_SECOND;
+  }
+
+  @Override
   public void destroy(HubClientAccess access, String id) throws DAOPrivilegeException, DAOFatalException {
     try {
       requireTopLevel(access);

@@ -218,7 +218,8 @@ public class NexusWorkImpl implements NexusWork {
 
       Map<String, String> stalledChainIds = Maps.newHashMap();
       var fabricatingChains = chainDAO.readManyInState(access, Chain.State.Fabricate);
-      LOG.info("Medic will check {} fabricating Chain{}", fabricatingChains.size(), 1 < fabricatingChains.size() ? "s" : "");
+      LOG.info("Medic will check {} fabricating {}",
+        fabricatingChains.size(), 1 < fabricatingChains.size() ? "Chains" : "Chain");
       fabricatingChains
         .stream()
         .filter((chain) ->
@@ -318,15 +319,59 @@ public class NexusWorkImpl implements NexusWork {
       telemetryProvider.getStatsDClient().
         incrementCounter(getChainMetricName(chain, METRIC_SEGMENT_CREATED));
 
-      // Fabricate this segment and measure sections of time
-      fabricateSegment(chain, segment, timer);
+      Fabricator fabricator;
+      timer.section("Prepare");
+      try {
+        LOG.debug("[segId={}] will prepare fabricator", segment.getId());
+        fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), chainSourceMaterial.get(chain.getId()), segment);
+      } catch (NexusException e) {
+        didFailWhile("creating fabricator", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
+        return;
+      }
 
+      timer.section("Craft");
+      try {
+        LOG.debug("[segId={}] will do craft work", segment.getId());
+        segment = doCraftWork(fabricator, segment);
+      } catch (Exception e) {
+        didFailWhile("doing Craft work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
+        revert(chain, segment, fabricator);
+        return;
+      }
+
+      timer.section("Dub");
+      try {
+        segment = doDubMasterWork(fabricator, segment);
+      } catch (Exception e) {
+        didFailWhile("doing Dub Master work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
+        return;
+      }
+
+      // Update the chain fabricated-ahead seconds before shipping data
+      var segmentLengthSeconds = segmentDAO.getLengthSeconds(segment);
+      fabricatedAheadSeconds += segmentLengthSeconds;
       updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
-      LOG.info("Fabricated {} Chain[{}] offset={} Segment[{}] fabricated ahead {}s",
+
+      timer.section("Ship");
+      try {
+        doDubShipWork(fabricator);
+      } catch (Exception e) {
+        didFailWhile("doing Dub Ship work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
+        return;
+      }
+
+      try {
+        finishWork(fabricator, segment);
+      } catch (Exception e) {
+        didFailWhile("finishing work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
+      }
+
+      LOG.info("Fabricated {} Chain[{}] offset={} Segment[{}] fabricated ahead +{}s to {}s",
         chain.getType(),
         chainDAO.getIdentifier(chain),
         segment.getOffset(),
         segmentDAO.getIdentifier(segment),
+        segmentLengthSeconds,
         chain.getFabricatedAheadSeconds());
 
     } catch (DAOPrivilegeException | DAOExistenceException | DAOValidationException | DAOFatalException e) {
@@ -403,55 +448,6 @@ public class NexusWorkImpl implements NexusWork {
     return Chain.Type.Production.equals(chain.getType()) ?
       (!Strings.isNullOrEmpty(chain.getEmbedKey()) ? chain.getEmbedKey() : DEFAULT_NAME_PRODUCTION) :
       DEFAULT_NAME_PREVIEW;
-  }
-
-  /**
-   Do the work-- this is called by the underlying WorkerImpl run() hook
-   */
-  @Trace(resourceName = "nexus/fabricate", operationName = "doWork")
-  protected void fabricateSegment(Chain chain, Segment segment, MultiStopwatch timer) {
-    Fabricator fabricator;
-
-    timer.section("Prepare");
-    try {
-      LOG.debug("[segId={}] will prepare fabricator", segment.getId());
-      fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), chainSourceMaterial.get(chain.getId()), segment);
-    } catch (NexusException e) {
-      didFailWhile("creating fabricator", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
-      return;
-    }
-
-    timer.section("Craft");
-    try {
-      LOG.debug("[segId={}] will do craft work", segment.getId());
-      segment = doCraftWork(fabricator, segment);
-    } catch (Exception e) {
-      didFailWhile("doing Craft work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
-      revert(chain, segment, fabricator);
-      return;
-    }
-
-    timer.section("Dub");
-    try {
-      segment = doDubMasterWork(fabricator, segment);
-    } catch (Exception e) {
-      didFailWhile("doing Dub Master work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
-      return;
-    }
-
-    timer.section("Ship");
-    try {
-      doDubShipWork(fabricator);
-    } catch (Exception e) {
-      didFailWhile("doing Dub Ship work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
-      return;
-    }
-
-    try {
-      finishWork(fabricator, segment);
-    } catch (Exception e) {
-      didFailWhile("finishing work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
-    }
   }
 
   /**

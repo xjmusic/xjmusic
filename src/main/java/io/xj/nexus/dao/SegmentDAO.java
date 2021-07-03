@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.dao;
 
-import io.xj.Chain;
 import io.xj.Program;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
@@ -238,4 +237,12 @@ public interface SegmentDAO extends DAO<Segment> {
    @return embed key if available, else ID
    */
   String getIdentifier(@Nullable Segment segment);
+
+  /**
+   Get the length of a Segment in seconds
+
+   @param segment for which to get length
+   @return length of segment in seconds
+   */
+  float getLengthSeconds(Segment segment);
 }

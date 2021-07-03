@@ -2,7 +2,6 @@
 package io.xj.nexus.work;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
 import io.xj.lib.telemetry.TelemetryModule;
 import io.xj.nexus.craft.CraftModule;
 import io.xj.nexus.fabricator.NexusFabricatorModule;
