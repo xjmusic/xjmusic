@@ -214,6 +214,7 @@ public class NexusWorkImpl implements NexusWork {
 
     LOG.info("Total elapsed time: {}", timer.totalsToString());
     try {
+      // After a chain starts, it has N seconds before being judged stalled
       Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionGraceSeconds);
 
       Map<String, String> stalledChainIds = Maps.newHashMap();
