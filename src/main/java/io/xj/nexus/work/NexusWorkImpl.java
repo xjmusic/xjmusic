@@ -225,7 +225,7 @@ public class NexusWorkImpl implements NexusWork {
           Chain.Type.Production.equals(chain.getType()) &&
             Instant.parse(chain.getStartAt()).isBefore(thresholdChainProductionStartedBefore))
         .forEach(chain -> {
-          if (chain.getFabricatedAheadSeconds() < -reviveChainFabricatedBehindSeconds) {
+          if (chain.getFabricatedAheadSeconds() < reviveChainFabricatedBehindSeconds) {
             LOG.warn("Chain {} is stalled, fabricatedAheadSeconds={}",
               chainDAO.getIdentifier(chain), chain.getFabricatedAheadSeconds());
             stalledChainIds.put(chain.getId(),
@@ -303,12 +303,7 @@ public class NexusWorkImpl implements NexusWork {
     try {
       timer.section("ComputeAhead");
       var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
-      telemetryProvider.getStatsDClient()
-        .gauge(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), fabricatedAheadSeconds);
-      chainDAO.update(access, chain.getId(), chain.toBuilder()
-        .setFabricatedAheadSeconds(fabricatedAheadSeconds)
-        .build());
-
+      updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
       if (fabricatedAheadSeconds > bufferProductionSeconds) return;
 
       timer.section("BuildNext");
@@ -325,6 +320,14 @@ public class NexusWorkImpl implements NexusWork {
 
       // Fabricate this segment and measure sections of time
       fabricateSegment(chain, segment, timer);
+
+      updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
+      LOG.info("Fabricated {} Chain[{}] offset={} Segment[{}] fabricated ahead {}s",
+        chain.getType(),
+        chainDAO.getIdentifier(chain),
+        segment.getOffset(),
+        segmentDAO.getIdentifier(segment),
+        chain.getFabricatedAheadSeconds());
 
     } catch (DAOPrivilegeException | DAOExistenceException | DAOValidationException | DAOFatalException e) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
@@ -346,15 +349,6 @@ public class NexusWorkImpl implements NexusWork {
         LOG.error("Failed to revive chain after fatal error!", e2);
       }
     }
-  }
-
-  /**
-   [#177072936] Mk1 UI each chain shows current fabrication latency
-
-   @param chain fabricating
-   */
-  private float computeFabricatedAheadSeconds(Chain chain) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    return computeFabricatedAheadSeconds(chain, segmentDAO.readMany(access, ImmutableList.of(chain.getId())));
   }
 
   @Override
@@ -458,13 +452,6 @@ public class NexusWorkImpl implements NexusWork {
     } catch (Exception e) {
       didFailWhile("finishing work", e, segment.getId(), chainDAO.getIdentifier(chain), chain.getType().toString());
     }
-
-    LOG.info("Fabricated {} Chain[{}] offset={} Segment[{}] fabricated ahead {}s",
-      chain.getType(),
-      chainDAO.getIdentifier(chain),
-      segment.getOffset(),
-      segmentDAO.getIdentifier(segment),
-      chain.getFabricatedAheadSeconds());
   }
 
   /**
@@ -678,5 +665,32 @@ public class NexusWorkImpl implements NexusWork {
   @Override
   public boolean isHealthy() {
     return nextCycleNanos > System.nanoTime() - healthCycleStalenessThresholdNanos;
+  }
+
+  /**
+   Update a chain's fabricate ahead seconds
+
+   @param chain                  to update
+   @param fabricatedAheadSeconds value to set
+   @throws DAOFatalException      on failure
+   @throws DAOPrivilegeException  on failure
+   @throws DAOValidationException on failure
+   @throws DAOExistenceException  on failure
+   */
+  private void updateFabricatedAheadSeconds(Chain chain, float fabricatedAheadSeconds) throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
+    telemetryProvider.getStatsDClient()
+      .gauge(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), fabricatedAheadSeconds);
+    chainDAO.update(access, chain.getId(), chain.toBuilder()
+      .setFabricatedAheadSeconds(fabricatedAheadSeconds)
+      .build());
+  }
+
+  /**
+   [#177072936] Mk1 UI each chain shows current fabrication latency
+
+   @param chain fabricating
+   */
+  private float computeFabricatedAheadSeconds(Chain chain) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+    return computeFabricatedAheadSeconds(chain, segmentDAO.readMany(access, ImmutableList.of(chain.getId())));
   }
 }
