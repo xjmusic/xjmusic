@@ -367,8 +367,7 @@ public class NexusWorkImpl implements NexusWork {
         didFailWhile("finishing work", e, segment.getId(), ChainDAO.getIdentifier(chain), chain.getType().toString());
       }
 
-      LOG.info("{} Chain[{}] offset={} Segment[{}] fabricated ahead +{}s to {}s",
-        chain.getType(),
+      LOG.info("Chain[{}] offset={} Segment[{}] fabricated ahead +{}s to {}s",
         ChainDAO.getIdentifier(chain),
         segment.getOffset(),
         segmentDAO.getIdentifier(segment),
