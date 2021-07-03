@@ -301,6 +301,16 @@ public class NexusWorkImpl implements NexusWork {
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
   public void fabricateChain(Chain chain) {
     try {
+      timer.section("ComputeAhead");
+      var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
+      telemetryProvider.getStatsDClient()
+        .gauge(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), fabricatedAheadSeconds);
+      chainDAO.update(access, chain.getId(), chain.toBuilder()
+        .setFabricatedAheadSeconds(fabricatedAheadSeconds)
+        .build());
+
+      if (fabricatedAheadSeconds > bufferProductionSeconds) return;
+
       timer.section("BuildNext");
       int workBufferSeconds = bufferSecondsFor(chain);
       Optional<Segment> nextSegment = chainDAO.buildNextSegmentOrCompleteTheChain(access, chain,
@@ -315,14 +325,6 @@ public class NexusWorkImpl implements NexusWork {
 
       // Fabricate this segment and measure sections of time
       fabricateSegment(chain, segment, timer);
-
-      // bums
-      var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
-      telemetryProvider.getStatsDClient()
-        .gauge(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), fabricatedAheadSeconds);
-      chainDAO.update(access, chain.getId(), chain.toBuilder()
-        .setFabricatedAheadSeconds(fabricatedAheadSeconds)
-        .build());
 
     } catch (DAOPrivilegeException | DAOExistenceException | DAOValidationException | DAOFatalException e) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",

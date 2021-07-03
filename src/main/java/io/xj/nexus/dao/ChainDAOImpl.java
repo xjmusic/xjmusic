@@ -341,13 +341,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         .build());
     var lastSegmentInChain = maybeLastSegmentInChain.get();
 
-    // If the last segment begins after our boundary, we're here early; get outta here.
-    if (Instant.parse(lastSegmentInChain.getBeginAt()).isAfter(segmentBeginBefore)) {
-      LOG.info("Chain[{}] has enough segments, last Segment[{}] starts at {}, which is past {}",
-        getIdentifier(chain), segmentDAO.getIdentifier(lastSegmentInChain), lastSegmentInChain.getBeginAt(), segmentBeginBefore);
-      return Optional.empty();
-    }
-
     // [#204] Craft process updates Chain to COMPLETE state when the final segment is in dubbed state.
     if (Value.isSet(lastSegmentInChain.getEndAt()) &&
       Value.isSet(chain.getStopAt()) &&

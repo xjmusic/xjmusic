@@ -1229,33 +1229,6 @@ public class ChainDAOImplTest {
   }
 
   @Test
-  public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment_butChainIsAlreadyFull_butLastSegmentNotDubbedSoChainNotComplete() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Internal");
-    chain1 = test.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
-    test.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setOffset(5L)
-      .setBeginAt(Value.formatIso8601UTC(Instant.now()))
-      .setType(Segment.Type.NextMain)
-      .setState(Segment.State.Dubbing)
-      .setKey("E minor")
-      .setTotal(64)
-      .setDensity(0.41)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892")
-      .setOutputEncoder("wav")
-      .build());
-
-    Optional<Segment> result = subject.buildNextSegmentOrCompleteTheChain(access, chain1, Instant.parse("2014-02-14T14:03:50.000001Z"), Instant.parse("2014-02-14T14:15:50.000001Z"));
-
-    assertTrue(result.isEmpty());
-    var resultFinal = subject.readOne(HubClientAccess.internal(), chain1.getId());
-    assertNotNull(resultFinal);
-    assertEquals(Chain.State.Fabricate, resultFinal.getState());
-  }
-
-  @Test
   public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment_butChainIsAlreadyFull_andGetsUpdatedToComplete() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Internal");
     chain1 = test.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null));
