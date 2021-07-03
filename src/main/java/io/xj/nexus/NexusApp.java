@@ -155,6 +155,24 @@ public class NexusApp extends App {
       return;
     }
 
+    var successfulRehydration = attemptToRehydrateFrom(bootstrap);
+
+    if (!successfulRehydration)
+      try {
+        LOG.info("Will bootstrap Chain[{}]", ChainDAO.getIdentifier(bootstrap.getChain()));
+        chainDAO.bootstrap(access, bootstrap.getChain(), bootstrap.getChainBindings());
+      } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
+        LOG.error("Failed to add binding to bootstrap Chain!", e);
+      }
+  }
+
+  /**
+   Attempt to rehydrate the store from a bootstrap, and return true if successful so we can skip other stuff
+
+   @param bootstrap to rehydrate from
+   @return true if successful
+   */
+  private Boolean attemptToRehydrateFrom(NexusChainBootstrapPayload bootstrap) {
     try {
       Collection<Object> entities = Lists.newArrayList();
       LOG.info("Will check for last shipped data");
@@ -220,21 +238,17 @@ public class NexusApp extends App {
       if (fabricatedAheadSeconds > rehydrateFabricatedAheadThreshold) {
         entityStore.putAll(entities);
         LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s",
-          entities.size(), chainDAO.getIdentifier(chain), fabricatedAheadSeconds);
-        return;
+          entities.size(), ChainDAO.getIdentifier(chain), fabricatedAheadSeconds);
+        return true;
       } else {
         LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (not > {}s)",
-          chainDAO.getIdentifier(chain), fabricatedAheadSeconds, rehydrateFabricatedAheadThreshold);
+          ChainDAO.getIdentifier(chain), fabricatedAheadSeconds, rehydrateFabricatedAheadThreshold);
+        return false;
       }
-    } catch (FileStoreException | JsonApiException | NexusException e) {
-      LOG.error("Failed to rehydrate store!", e);
-    }
 
-    try {
-      LOG.info("Will bootstrap Chain[{}]", chainDAO.getIdentifier(bootstrap.getChain()));
-      chainDAO.bootstrap(access, bootstrap.getChain(), bootstrap.getChainBindings());
-    } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
-      LOG.error("Failed to add binding to bootstrap Chain!", e);
+    } catch (FileStoreException | JsonApiException | NexusException | IOException e) {
+      LOG.error("Failed to rehydrate store: {}", e.getMessage());
+      return false;
     }
   }
 

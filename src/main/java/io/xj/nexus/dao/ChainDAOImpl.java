@@ -353,7 +353,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         && Segment.State.Dubbed.equals(lastSegmentInChain.getState())) {
         updateState(access, chain.getId(), Chain.State.Complete);
       }
-      LOG.info("Chain[{}] is complete.", getIdentifier(chain));
+      LOG.info("Chain[{}] is complete.", ChainDAO.getIdentifier(chain));
       return Optional.empty();
     }
 
@@ -441,8 +441,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     created = created.toBuilder().setState(Chain.State.Fabricate).build();
 
     // publish a notification reporting the event
-    LOG.info("Revived Chain created {} from prior {} because {}", getIdentifier(created), builder.getId(), reason);
-    pubSub.publish(String.format("Revived Chain created %s create from prior %s because %s", getIdentifier(created), builder.getId(), reason), MessageType.Info.toString());
+    LOG.info("Revived Chain created {} from prior {} because {}", ChainDAO.getIdentifier(created), builder.getId(), reason);
+    pubSub.publish(String.format("Revived Chain created %s create from prior %s because %s", ChainDAO.getIdentifier(created), builder.getId(), reason), MessageType.Info.toString());
 
     // return newly created chain
     return created;
@@ -562,9 +562,4 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       toState, CSV.join(allowedStateNames)));
   }
 
-  @Override
-  public String getIdentifier(@Nullable Chain chain) {
-    if (Objects.isNull(chain)) return "N/A";
-    return Strings.isNullOrEmpty(chain.getEmbedKey()) ? chain.getId() : chain.getEmbedKey();
-  }
 }
