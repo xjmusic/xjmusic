@@ -367,12 +367,14 @@ public class NexusWorkImpl implements NexusWork {
         didFailWhile("finishing work", e, segment.getId(), ChainDAO.getIdentifier(chain), chain.getType().toString());
       }
 
-      LOG.info("Chain[{}] offset={} Segment[{}] fabricated ahead +{}s to {}s",
+      LOG.info("Chain[{}] offset={} Segment[{}] fabricated ahead +{}s to {}s ({} to {})",
         ChainDAO.getIdentifier(chain),
         segment.getOffset(),
         segmentDAO.getIdentifier(segment),
         segmentLengthSeconds,
-        chain.getFabricatedAheadSeconds());
+        chain.getFabricatedAheadSeconds(),
+        segment.getBeginAt(),
+        segment.getEndAt());
 
     } catch (DAOPrivilegeException | DAOExistenceException | DAOValidationException | DAOFatalException e) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
