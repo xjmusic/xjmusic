@@ -305,7 +305,7 @@ public class NexusWorkImpl implements NexusWork {
     try {
       timer.section("ComputeAhead");
       var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
-      updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
+      chain = updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
       if (fabricatedAheadSeconds > bufferProductionSeconds) return;
 
       timer.section("BuildNext");
@@ -351,7 +351,7 @@ public class NexusWorkImpl implements NexusWork {
       // Update the chain fabricated-ahead seconds before shipping data
       var segmentLengthSeconds = segmentDAO.getLengthSeconds(segment);
       fabricatedAheadSeconds += segmentLengthSeconds;
-      updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
+      chain = updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
 
       timer.section("Ship");
       try {
@@ -666,17 +666,18 @@ public class NexusWorkImpl implements NexusWork {
   /**
    Update a chain's fabricate ahead seconds
 
-   @param chain                  to update
-   @param fabricatedAheadSeconds value to set
    @throws DAOFatalException      on failure
    @throws DAOPrivilegeException  on failure
    @throws DAOValidationException on failure
    @throws DAOExistenceException  on failure
+   @param chain                  to update
+   @param fabricatedAheadSeconds value to set
+   @return
    */
-  private void updateFabricatedAheadSeconds(Chain chain, float fabricatedAheadSeconds) throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
+  private Chain updateFabricatedAheadSeconds(Chain chain, float fabricatedAheadSeconds) throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
     telemetryProvider.getStatsDClient()
       .gauge(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), fabricatedAheadSeconds);
-    chainDAO.update(access, chain.getId(), chain.toBuilder()
+    return chainDAO.update(access, chain.getId(), chain.toBuilder()
       .setFabricatedAheadSeconds(fabricatedAheadSeconds)
       .build());
   }

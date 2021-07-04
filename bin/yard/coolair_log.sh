@@ -7,4 +7,4 @@ kubectl \
     -c coolair \
     logs -f ${POD} \
     | grep -v '/-/health' \
-    | sed -e 's/^.*(WorkImpl|ChainDAOImpl)//g'
+    | sed -e 's/^.*WorkImpl//g'
