@@ -172,7 +172,7 @@ public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
         break;
       case One:
         if (jsonapiPayload.getDataOne().isPresent())
-          addIfRelated(jsonapiPayload.getDataOne().get(), jsonapiPayloadObject);
+          addIfRelated(jsonapiPayload.getDataOne().orElseThrow(), jsonapiPayloadObject);
         break;
       case Ambiguous:
         break;

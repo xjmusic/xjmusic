@@ -285,7 +285,7 @@ public enum Entities {
     if (entityClass.isInterface())
       return entityClass.getSimpleName();
     if (0 < entityClass.getInterfaces().length &&
-      "impl".equals(entityClass.getSimpleName().substring(entityClass.getSimpleName().length() - 4).toLowerCase()))
+      "impl".equalsIgnoreCase(entityClass.getSimpleName().substring(entityClass.getSimpleName().length() - 4)))
       return entityClass.getInterfaces()[0].getSimpleName();
     else
       return entityClass.getSimpleName();

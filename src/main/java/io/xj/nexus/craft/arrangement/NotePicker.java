@@ -113,7 +113,7 @@ public class NotePicker {
   private Note seekInversion(Note source, NoteRange range, Collection<Note> options) {
     if (!instrumentTypesToSeekInversions.contains(instrumentType)) return source;
 
-    if (range.getHigh().isPresent() && range.getHigh().get().isLower(source)) {
+    if (range.getHigh().isPresent() && range.getHigh().orElseThrow().isLower(source)) {
       var alt = options
         .stream()
         .filter(o -> !range.getHigh().get().isLower(o))
@@ -124,7 +124,7 @@ public class NotePicker {
       if (alt.isPresent()) return alt.get();
     }
 
-    if (range.getLow().isPresent() && range.getLow().get().isHigher(source)) {
+    if (range.getLow().isPresent() && range.getLow().orElseThrow().isHigher(source)) {
       var alt = options
         .stream()
         .filter(o -> !range.getLow().get().isHigher(o))

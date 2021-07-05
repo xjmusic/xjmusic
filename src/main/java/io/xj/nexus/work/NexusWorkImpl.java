@@ -94,6 +94,7 @@ public class NexusWorkImpl implements NexusWork {
   private static final String METRIC_CHAIN_FORMAT = "chain.%s.%s";
   private static final String METRIC_FABRICATED_AHEAD_SECONDS = "fabricated_ahead_seconds";
   private static final String METRIC_SEGMENT_CREATED = "segment_created";
+  private boolean alive = true;
 
   @Inject
   public NexusWorkImpl(
@@ -429,8 +430,12 @@ public class NexusWorkImpl implements NexusWork {
   @Override
   public void work() {
     timer = MultiStopwatch.start();
-    //noinspection InfiniteLoopStatement
-    while (true) this.run();
+    while (alive) this.run();
+  }
+
+  @Override
+  public void stop() {
+    alive = false;
   }
 
   /**

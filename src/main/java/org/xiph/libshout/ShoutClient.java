@@ -3,6 +3,9 @@
 
 package org.xiph.libshout;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,13 +13,16 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
+@SuppressWarnings({"unused", "HttpUrlsUsage"})
 public class ShoutClient {
+  private static final Logger LOG = LoggerFactory.getLogger(ShoutClient.class);
 
   private Socket socket = null;
   private OutputStream socketOutputStream = null;
 
-  private boolean connected = false;
+  private boolean connected;
 
   private String mount = null;
   private String host = null;
@@ -29,7 +35,7 @@ public class ShoutClient {
   private String title = null;
   private String desc = null;
 
-  private char[] base64table = new char[]{
+  private final char[] base64table = new char[]{
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
     'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
     'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
@@ -75,11 +81,10 @@ public class ShoutClient {
         writeHeader();
       } catch (UnknownHostException e) {
         connected = false;
-        System.out.println("Unknown host: " + host);
+        LOG.error("Unknown host: {}", host);
       } catch (IOException e) {
         connected = false;
-        System.out.println("Socket Connection Error: http://" + host + ":" + port);
-        System.out.println(e + "\n");
+        LOG.error("Socket Connection Error: http://" + host + ":" + port, e);
       }
     }
 
@@ -164,32 +169,28 @@ public class ShoutClient {
 
   public void writeHeader() throws IOException {
 
-    socketOutputStream.write(new String("SOURCE " + mount + " HTTP/1.0" + "\r\n").getBytes());
+    socketOutputStream.write(("SOURCE " + mount + " HTTP/1.0" + "\r\n").getBytes());
 
     Base64EncoderDecoder base64Encode = new Base64EncoderDecoder(null, "");
     String rawAuth = username + ":" + password;
-    String encodedAuth = base64Encode.encodeBase64(base64table.toString(), rawAuth);
-    socketOutputStream.write(new String("Authorization: Basic " + encodedAuth + "\r\n").getBytes());
+    String encodedAuth = base64Encode.encodeBase64(Arrays.toString(base64table), rawAuth);
+    socketOutputStream.write(("Authorization: Basic " + encodedAuth + "\r\n").getBytes());
 
-    socketOutputStream.write(new String("User-Agent: libshout/" + "\r\n").getBytes());
-    socketOutputStream.write(new String("Content-Type: application/ogg" + "\r\n").getBytes());
+    socketOutputStream.write(("User-Agent: libshout/" + "\r\n").getBytes());
+    socketOutputStream.write(("Content-Type: application/ogg" + "\r\n").getBytes());
 
-    socketOutputStream.write(new String("ice-url: " + url + "\r\n").getBytes());
-    socketOutputStream.write(new String("ice-public: 1" + "\r\n").getBytes());
-    socketOutputStream.write(new String("ice-genre: " + genre + "\r\n").getBytes());
-    socketOutputStream.write(new String("ice-name: " + title + "\r\n").getBytes());
-    socketOutputStream.write(new String("ice-description: " + desc + "\r\n").getBytes());
+    socketOutputStream.write(("ice-url: " + url + "\r\n").getBytes());
+    socketOutputStream.write(("ice-public: 1" + "\r\n").getBytes());
+    socketOutputStream.write(("ice-genre: " + genre + "\r\n").getBytes());
+    socketOutputStream.write(("ice-name: " + title + "\r\n").getBytes());
+    socketOutputStream.write(("ice-description: " + desc + "\r\n").getBytes());
     // socketOutputStream.write( new String("ice-audio-info: 1" + "\r\n").getBytes() );
 
-    socketOutputStream.write(new String("\r\n").getBytes());
+    socketOutputStream.write("\r\n".getBytes());
     socketOutputStream.flush();
     System.out.println("OggCast Header Sent");
 
-    if (readHeaderResponse()) {
-      connected = true;
-    } else {
-      connected = false;
-    }
+    connected = readHeaderResponse();
   }
 
   public boolean readHeaderResponse() throws IOException {
@@ -204,10 +205,7 @@ public class ShoutClient {
     int responseCodeIndex = responseHeader.indexOf(' ');
     int responseCode = Integer.parseInt(responseHeader.substring(responseCodeIndex + 1, responseCodeIndex + 4));
 
-    if (responseCode >= 200 && responseCode < 300)
-      return true;
-
-    return false;
+    return responseCode >= 200 && responseCode < 300;
   }
 
   public void write(byte[] foo, int foostart, int foolength, byte[] bar, int barstart, int barlength) {
@@ -218,8 +216,7 @@ public class ShoutClient {
       socketOutputStream.flush();
     } catch (IOException e) {
       connected = false;
-      System.out.println("Socket Connection Error: http://" + host + ":" + port);
-      System.out.println(e);
+      LOG.error("Socket Connection Error: http://" + host + ":" + port, e);
     }
   }
 
@@ -232,9 +229,8 @@ public class ShoutClient {
       socketOutputStream = null;
       socket = null;
     } catch (Exception e) {
-      System.out.println("Socket Connection Error: http://" + host + ":" + port);
-      System.out.println(e);
+      LOG.error("Socket Connection Error: http://" + host + ":" + port, e);
     }
-    System.out.println("Disconnected from: http://" + host + ":" + port);
+    LOG.info("Disconnected from: http://" + host + ":" + port);
   }
 }

@@ -20,7 +20,7 @@ public interface ChordForms {
 
   // Regular expressions for different utilities
   String majorExp = "(M|maj|major)";
-  String minorExp = "([^a-z]|^)(m|min|minor)";
+  String minorExp = "(^|[^a-z])(m|min|minor)";
 
   String flatExp = "(f|flat|b|♭)";
   String sharpExp = "(#|s|sharp)";

@@ -83,9 +83,9 @@ public class vorbisenc {
     if (nominal_bitrate <= 0.) {
       if (max_bitrate > 0.) {
         if (min_bitrate > 0.)
-          nominal_bitrate = new Double((max_bitrate + min_bitrate) * .5).intValue();
+          nominal_bitrate = Double.valueOf((max_bitrate + min_bitrate) * .5).intValue();
         else
-          nominal_bitrate = new Double(max_bitrate * .875).intValue();
+          nominal_bitrate = Double.valueOf(max_bitrate * .875).intValue();
       } else {
         if (min_bitrate > 0.)
           nominal_bitrate = min_bitrate;
@@ -107,7 +107,7 @@ public class vorbisenc {
     hi.managed = 1;
     hi.bitrate_min = min_bitrate;
     hi.bitrate_max = max_bitrate;
-    hi.bitrate_av = new Float(tnominal).intValue();
+    hi.bitrate_av = Float.valueOf(tnominal).intValue();
     hi.bitrate_av_damp = 1.5f;
     hi.bitrate_reservoir = nominal_bitrate * 2;
     hi.bitrate_reservoir_bias = .1f;  // bias toward hoarding bits
@@ -370,7 +370,7 @@ public class vorbisenc {
     vi.channels = channels;
     vi.rate = rate;
 
-    is = new Float(hi.base_setting).intValue();
+    is = Float.valueOf(hi.base_setting).intValue();
     ds = hi.base_setting - is;
 
     hi.short_setting = hi.base_setting;
@@ -507,7 +507,7 @@ public class vorbisenc {
     if (hi.bitrate_av > 0)
       vi.bitrate_nominal = hi.bitrate_av;
     else
-      vi.bitrate_nominal = new Float(setting_to_approx_bitrate()).intValue();
+      vi.bitrate_nominal = Float.valueOf(setting_to_approx_bitrate()).intValue();
 
     vi.bitrate_lower = hi.bitrate_min;
     vi.bitrate_upper = hi.bitrate_max;
@@ -533,7 +533,7 @@ public class vorbisenc {
   private void vorbis_encode_blocksize_setup(float s, int[] shortb, int[] longb) {
 
     codec_setup_info ci = vi.codec_setup;
-    int is = new Float(s).intValue();
+    int is = Float.valueOf(s).intValue();
 
     int blockshort = shortb[is];
     int blocklong = longb[is];
@@ -544,7 +544,7 @@ public class vorbisenc {
   private void vorbis_encode_floor_setup(float s, int block, static_codebook[][] books, vorbis_info_floor1[] in, int[] x) {
 
     int i, k;
-    int is = new Float(s).intValue();
+    int is = Float.valueOf(s).intValue();
 
     codec_setup_info ci = vi.codec_setup;
 
@@ -593,17 +593,17 @@ public class vorbisenc {
   private void vorbis_encode_global_psych_setup(float s, vorbis_info_psy_global[] in, float[] x) {
 
     int i;
-    int is = new Float(s).intValue();
+    int is = Float.valueOf(s).intValue();
     float ds = s - is;
     codec_setup_info ci = vi.codec_setup;
 
     // memcpy(g,in+(int)x[is],sizeof(*g));
-    ci.psy_g_param = new vorbis_info_psy_global(in[new Float(x[is]).intValue()]);
+    ci.psy_g_param = new vorbis_info_psy_global(in[Float.valueOf(x[is]).intValue()]);
     vorbis_info_psy_global g = ci.psy_g_param;
 
     ds = x[is] * (1.0f - ds) + x[is + 1] * ds;
 
-    is = new Float(ds).intValue();
+    is = Float.valueOf(ds).intValue();
     ds -= is;
     if (ds == 0 && is > 0) {
       is--;
@@ -612,8 +612,8 @@ public class vorbisenc {
 
     // interpolate the trigger threshholds
     for (i = 0; i < 4; i++) {
-      g.preecho_thresh[i] = new Double(in[is].preecho_thresh[i] * (1. - ds) + in[is + 1].preecho_thresh[i] * ds).floatValue();
-      g.postecho_thresh[i] = new Double(in[is].postecho_thresh[i] * (1. - ds) + in[is + 1].postecho_thresh[i] * ds).floatValue();
+      g.preecho_thresh[i] = Double.valueOf(in[is].preecho_thresh[i] * (1. - ds) + in[is + 1].preecho_thresh[i] * ds).floatValue();
+      g.postecho_thresh[i] = Double.valueOf(in[is].postecho_thresh[i] * (1. - ds) + in[is + 1].postecho_thresh[i] * ds).floatValue();
     }
     g.ampmax_att_per_sec = ci.hi.amplitude_track_dBpersec;
   }
@@ -622,7 +622,7 @@ public class vorbisenc {
 
     float s = hi.stereo_point_setting;
     int i;
-    int is = new Float(s).intValue();
+    int is = Float.valueOf(s).intValue();
     float ds = s - is;
     codec_setup_info ci = vi.codec_setup;
     vorbis_info_psy_global g = ci.psy_g_param;
@@ -638,27 +638,27 @@ public class vorbisenc {
       if (hi.managed != 0) {
         // interpolate the kHz threshholds
         for (i = 0; i < integer_constants.PACKETBLOBS; i++) {
-          float kHz = new Double(p[is].kHz[i] * (1. - ds) + p[is + 1].kHz[i] * ds).floatValue();
-          g.coupling_pointlimit[0][i] = new Double(kHz * 1000. / vi.rate * ci.blocksizes[0]).intValue();
-          g.coupling_pointlimit[1][i] = new Double(kHz * 1000. / vi.rate * ci.blocksizes[1]).intValue();
-          g.coupling_pkHz[i] = new Float(kHz).intValue();
+          float kHz = Double.valueOf(p[is].kHz[i] * (1. - ds) + p[is + 1].kHz[i] * ds).floatValue();
+          g.coupling_pointlimit[0][i] = Double.valueOf(kHz * 1000. / vi.rate * ci.blocksizes[0]).intValue();
+          g.coupling_pointlimit[1][i] = Double.valueOf(kHz * 1000. / vi.rate * ci.blocksizes[1]).intValue();
+          g.coupling_pkHz[i] = Float.valueOf(kHz).intValue();
 
-          kHz = new Double(p[is].lowpasskHz[i] * (1. - ds) + p[is + 1].lowpasskHz[i] * ds).floatValue();
-          g.sliding_lowpass[0][i] = new Double(kHz * 1000. / vi.rate * ci.blocksizes[0]).intValue();
-          g.sliding_lowpass[1][i] = new Double(kHz * 1000. / vi.rate * ci.blocksizes[1]).intValue();
+          kHz = Double.valueOf(p[is].lowpasskHz[i] * (1. - ds) + p[is + 1].lowpasskHz[i] * ds).floatValue();
+          g.sliding_lowpass[0][i] = Double.valueOf(kHz * 1000. / vi.rate * ci.blocksizes[0]).intValue();
+          g.sliding_lowpass[1][i] = Double.valueOf(kHz * 1000. / vi.rate * ci.blocksizes[1]).intValue();
         }
       } else {
-        float kHz = new Double(p[is].kHz[integer_constants.PACKETBLOBS / 2] * (1. - ds) + p[is + 1].kHz[integer_constants.PACKETBLOBS / 2] * ds).floatValue();
+        float kHz = Double.valueOf(p[is].kHz[integer_constants.PACKETBLOBS / 2] * (1. - ds) + p[is + 1].kHz[integer_constants.PACKETBLOBS / 2] * ds).floatValue();
         for (i = 0; i < integer_constants.PACKETBLOBS; i++) {
-          g.coupling_pointlimit[0][i] = new Double(kHz * 1000. / vi.rate * ci.blocksizes[0]).intValue();
-          g.coupling_pointlimit[1][i] = new Double(kHz * 1000. / vi.rate * ci.blocksizes[1]).intValue();
-          g.coupling_pkHz[i] = new Float(kHz).intValue();
+          g.coupling_pointlimit[0][i] = Double.valueOf(kHz * 1000. / vi.rate * ci.blocksizes[0]).intValue();
+          g.coupling_pointlimit[1][i] = Double.valueOf(kHz * 1000. / vi.rate * ci.blocksizes[1]).intValue();
+          g.coupling_pkHz[i] = Float.valueOf(kHz).intValue();
         }
 
-        kHz = new Double(p[is].lowpasskHz[integer_constants.PACKETBLOBS / 2] * (1. - ds) + p[is + 1].lowpasskHz[integer_constants.PACKETBLOBS / 2] * ds).floatValue();
+        kHz = Double.valueOf(p[is].lowpasskHz[integer_constants.PACKETBLOBS / 2] * (1. - ds) + p[is + 1].lowpasskHz[integer_constants.PACKETBLOBS / 2] * ds).floatValue();
         for (i = 0; i < integer_constants.PACKETBLOBS; i++) {
-          g.sliding_lowpass[0][i] = new Double(kHz * 1000. / vi.rate * ci.blocksizes[0]).intValue();
-          g.sliding_lowpass[1][i] = new Double(kHz * 1000. / vi.rate * ci.blocksizes[1]).intValue();
+          g.sliding_lowpass[0][i] = Double.valueOf(kHz * 1000. / vi.rate * ci.blocksizes[0]).intValue();
+          g.sliding_lowpass[1][i] = Double.valueOf(kHz * 1000. / vi.rate * ci.blocksizes[1]).intValue();
         }
       }
     } else {
@@ -673,7 +673,7 @@ public class vorbisenc {
 
     codec_setup_info ci = vi.codec_setup;
     highlevel_encode_setup hi = ci.hi;
-    int is = new Float(s).intValue();
+    int is = Float.valueOf(s).intValue();
 
     if (block >= ci.psys)
       ci.psys = block + 1;
@@ -709,34 +709,34 @@ public class vorbisenc {
   private void vorbis_encode_tonemask_setup(float s, int block, att3[] att, int[] max, vp_adjblock[] in) {
 
     int i;
-    int is = new Float(s).intValue();
+    int is = Float.valueOf(s).intValue();
     float ds = s - is;
     codec_setup_info ci = vi.codec_setup;
     vorbis_info_psy p = ci.psy_param[block];
 
     // 0 and 2 are only used by bitmanagement, but there's no harm to always filling the values in here
-    p.tone_masteratt[0] = new Double(att[is].att[0] * (1. - ds) + att[is + 1].att[0] * ds).floatValue();
-    p.tone_masteratt[1] = new Double(att[is].att[1] * (1. - ds) + att[is + 1].att[1] * ds).floatValue();
-    p.tone_masteratt[2] = new Double(att[is].att[2] * (1. - ds) + att[is + 1].att[2] * ds).floatValue();
-    p.tone_centerboost = new Double(att[is].boost * (1. - ds) + att[is + 1].boost * ds).floatValue();
-    p.tone_decay = new Double(att[is].decay * (1. - ds) + att[is + 1].decay * ds).floatValue();
+    p.tone_masteratt[0] = Double.valueOf(att[is].att[0] * (1. - ds) + att[is + 1].att[0] * ds).floatValue();
+    p.tone_masteratt[1] = Double.valueOf(att[is].att[1] * (1. - ds) + att[is + 1].att[1] * ds).floatValue();
+    p.tone_masteratt[2] = Double.valueOf(att[is].att[2] * (1. - ds) + att[is + 1].att[2] * ds).floatValue();
+    p.tone_centerboost = Double.valueOf(att[is].boost * (1. - ds) + att[is + 1].boost * ds).floatValue();
+    p.tone_decay = Double.valueOf(att[is].decay * (1. - ds) + att[is + 1].decay * ds).floatValue();
 
-    p.max_curve_dB = new Double(max[is] * (1. - ds) + max[is + 1] * ds).floatValue();
+    p.max_curve_dB = Double.valueOf(max[is] * (1. - ds) + max[is + 1] * ds).floatValue();
 
     for (i = 0; i < integer_constants.P_BANDS; i++)
-      p.toneatt[i] = new Double(in[is].block[i] * (1. - ds) + in[is + 1].block[i] * ds).floatValue();
+      p.toneatt[i] = Double.valueOf(in[is].block[i] * (1. - ds) + in[is + 1].block[i] * ds).floatValue();
   }
 
   private void vorbis_encode_compand_setup(float s, int block, compandblock[] in, float[] x) {
 
     int i;
-    int is = new Float(s).intValue();
+    int is = Float.valueOf(s).intValue();
     float ds = s - is;
     codec_setup_info ci = vi.codec_setup;
     vorbis_info_psy p = ci.psy_param[block];
 
     ds = x[is] * (1.0f - ds) + x[is + 1] * ds;
-    is = new Float(ds).intValue();
+    is = Float.valueOf(ds).intValue();
     ds -= is;
     if (ds == 0 && is > 0) {
       is--;
@@ -745,35 +745,35 @@ public class vorbisenc {
 
     // interpolate the compander settings
     for (i = 0; i < integer_constants.NOISE_COMPAND_LEVELS; i++)
-      p.noisecompand[i] = new Double(in[is].data[i] * (1. - ds) + in[is + 1].data[i] * ds).floatValue();
+      p.noisecompand[i] = Double.valueOf(in[is].data[i] * (1. - ds) + in[is + 1].data[i] * ds).floatValue();
   }
 
   private void vorbis_encode_peak_setup(float s, int block, int[] suppress) {
 
-    int is = new Float(s).intValue();
+    int is = Float.valueOf(s).intValue();
     float ds = s - is;
     codec_setup_info ci = vi.codec_setup;
     vorbis_info_psy p = ci.psy_param[block];
 
-    p.tone_abs_limit = new Double(suppress[is] * (1. - ds) + suppress[is + 1] * ds).floatValue();
+    p.tone_abs_limit = Double.valueOf(suppress[is] * (1. - ds) + suppress[is + 1] * ds).floatValue();
   }
 
   private void vorbis_encode_noisebias_setup(float s, int block, int[] suppress, noise3[] in, noiseguard[] guard, float userbias) {
 
     int i, j;
-    int is = new Float(s).intValue();
+    int is = Float.valueOf(s).intValue();
     float ds = s - is;
     codec_setup_info ci = vi.codec_setup;
     vorbis_info_psy p = ci.psy_param[block];
 
-    p.noisemaxsupp = new Double(suppress[is] * (1. - ds) + suppress[is + 1] * ds).floatValue();
+    p.noisemaxsupp = Double.valueOf(suppress[is] * (1. - ds) + suppress[is + 1] * ds).floatValue();
     p.noisewindowlomin = guard[block].lo;
     p.noisewindowhimin = guard[block].hi;
     p.noisewindowfixed = guard[block].fixed;
 
     for (j = 0; j < integer_constants.P_NOISECURVES; j++)
       for (i = 0; i < integer_constants.P_BANDS; i++)
-        p.noiseoff[j][i] = new Double(in[is].data[j][i] * (1. - ds) + in[is + 1].data[j][i] * ds).floatValue();
+        p.noiseoff[j][i] = Double.valueOf(in[is].data[j][i] * (1. - ds) + in[is + 1].data[j][i] * ds).floatValue();
 
     // impulse blocks may take a user specified bias to boost the nominal/high noise encoding depth
     for (j = 0; j < integer_constants.P_NOISECURVES; j++) {
@@ -899,7 +899,7 @@ public class vorbisenc {
 
       // in the floor, the granularity can be very fine; it doesn't alter the
       // encoding structure, only the samples used to fit the floor approximation
-      f.n = new Double(freq / nyq * blocksize).intValue();
+      f.n = Double.valueOf(freq / nyq * blocksize).intValue();
 
       // this res may by limited by the maximum pointlimit of the mode,
       // not the lowpass. the floor is always lowpass limited.
@@ -918,9 +918,9 @@ public class vorbisenc {
       // previous boundary in encode/decode
 
       if (ci.residue_type[block] == 2)
-        r.end = new Double((freq / nyq * blocksize * 2) / r.grouping + .9).intValue() * r.grouping; // round up only if we're well past
+        r.end = Double.valueOf((freq / nyq * blocksize * 2) / r.grouping + .9).intValue() * r.grouping; // round up only if we're well past
       else
-        r.end = new Double((freq / nyq * blocksize) / r.grouping + .9).intValue() * r.grouping; // round up only if we're well past
+        r.end = Double.valueOf((freq / nyq * blocksize) / r.grouping + .9).intValue() * r.grouping; // round up only if we're well past
     }
   }
 
@@ -929,7 +929,7 @@ public class vorbisenc {
 
     codec_setup_info ci = vi.codec_setup;
     int i, j;
-    int is = new Float(s).intValue();
+    int is = Float.valueOf(s).intValue();
     int modes = 2;
     vorbis_info_mapping0[] map = maps[is].map;
     vorbis_info_mode[] mode = {new vorbis_info_mode(0, 0, 0, 0), new vorbis_info_mode(1, 0, 0, 1)}; // _mode_template
@@ -967,7 +967,7 @@ public class vorbisenc {
     highlevel_encode_setup hi = ci.hi;
     ve_setup_data_template setup = hi.setup;
 
-    int is = new Float(hi.base_setting).intValue();
+    int is = Float.valueOf(hi.base_setting).intValue();
     float ds = hi.base_setting - is;
     int ch = vi.channels;
     float[] r = setup.rate_mapping;

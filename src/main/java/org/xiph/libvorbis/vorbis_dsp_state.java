@@ -179,7 +179,7 @@ public class vorbis_dsp_state {
       }
     }
 
-    look.partvals = new Double(Math.rint(Math.pow(look.parts, dim))).intValue();
+    look.partvals = Double.valueOf(Math.rint(Math.pow(look.parts, dim))).intValue();
     look.stages = maxstage;
 
     // look.decodemap=_ogg_malloc(look.partvals*sizeof(*look.decodemap));
@@ -613,7 +613,7 @@ public class vorbis_dsp_state {
 
     // we need the error value to know how big an impulse to hit the filter with later
 
-    return new Double(error).floatValue();
+    return Double.valueOf(error).floatValue();
   }
 
   public void vorbis_lpc_predict(float[] coeff, float[] prime, int offset1, int m, int offset2, int n) {

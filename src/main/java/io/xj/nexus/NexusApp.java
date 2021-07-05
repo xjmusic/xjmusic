@@ -262,6 +262,13 @@ public class NexusApp extends App {
   }
 
   /**
+   Stop the work
+   */
+  public void stop() throws AppException {
+    work.stop();
+  }
+
+  /**
    Get the current work manager
 
    @return work manager

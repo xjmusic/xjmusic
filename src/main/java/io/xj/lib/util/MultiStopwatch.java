@@ -73,7 +73,7 @@ public class MultiStopwatch {
    @return total seconds
    */
   public Double getTotalSeconds() {
-    return Objects.nonNull(totalSeconds) ? totalSeconds : (System.currentTimeMillis() - startedMillis) / MILLIS_PER_SECOND;
+    return Objects.nonNull(totalSeconds) ? totalSeconds : (double) (System.currentTimeMillis() - startedMillis) / MILLIS_PER_SECOND;
   }
 
   /**

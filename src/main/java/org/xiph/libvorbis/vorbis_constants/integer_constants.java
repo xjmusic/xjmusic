@@ -173,7 +173,7 @@ public class integer_constants {
 
   public static int vorbis_dBquant(float x) {
 
-    int i = new Float(x * 7.3142857f + 1023.5f).intValue();
+    int i = Float.valueOf(x * 7.3142857f + 1023.5f).intValue();
     if (i > 1023)
       return (1023);
     if (i < 0)

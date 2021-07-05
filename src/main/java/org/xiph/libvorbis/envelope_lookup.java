@@ -77,7 +77,7 @@ class envelope_lookup {
     mdct.mdct_init(n);
 
     for (int i = 0; i < n; i++) {
-      mdct_win[i] = new Double(Math.sin(i / (n - 1.) * integer_constants.M_PI)).floatValue();
+      mdct_win[i] = Double.valueOf(Math.sin(i / (n - 1.) * integer_constants.M_PI)).floatValue();
       mdct_win[i] *= mdct_win[i];
     }
 
@@ -109,7 +109,7 @@ class envelope_lookup {
       band[j].window = new float[n];
 
       for (int i = 0; i < n; i++) {
-        band[j].window[i] = new Double(Math.sin((i + .5) / n * integer_constants.M_PI)).floatValue();
+        band[j].window[i] = Double.valueOf(Math.sin((i + .5) / n * integer_constants.M_PI)).floatValue();
         band[j].total += band[j].window[i];
       }
       band[j].total = 1.0f / band[j].total;

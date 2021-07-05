@@ -37,7 +37,7 @@ class mdct_lookup {
   public void mdct_init(int _n) {
 
     n = _n;
-    log2n = new Double(Math.rint(Math.log(new Integer(n).floatValue()) / Math.log(2.f))).intValue();
+    log2n = Double.valueOf(Math.rint(Math.log(new Integer(n).floatValue()) / Math.log(2.f))).intValue();
 
     // DATA_TYPE *T=_ogg_malloc(sizeof(*T)*(n+n/4));
     trig = new float[n + n / 4];
@@ -50,15 +50,15 @@ class mdct_lookup {
 
     // trig lookups...
     for (i = 0; i < n / 4; i++) {
-      trig[i * 2] = new Double(Math.cos((integer_constants.M_PI / n) * (4 * i))).floatValue();
-      trig[i * 2 + 1] = new Double(-Math.sin((integer_constants.M_PI / n) * (4 * i))).floatValue();
-      trig[n2 + i * 2] = new Double(Math.cos((integer_constants.M_PI / (2 * n)) * (2 * i + 1))).floatValue();
-      trig[n2 + i * 2 + 1] = new Double(Math.sin((integer_constants.M_PI / (2 * n)) * (2 * i + 1))).floatValue();
+      trig[i * 2] = Double.valueOf(Math.cos((integer_constants.M_PI / n) * (4 * i))).floatValue();
+      trig[i * 2 + 1] = Double.valueOf(-Math.sin((integer_constants.M_PI / n) * (4 * i))).floatValue();
+      trig[n2 + i * 2] = Double.valueOf(Math.cos((integer_constants.M_PI / (2 * n)) * (2 * i + 1))).floatValue();
+      trig[n2 + i * 2 + 1] = Double.valueOf(Math.sin((integer_constants.M_PI / (2 * n)) * (2 * i + 1))).floatValue();
     }
 
     for (i = 0; i < n / 8; i++) {
-      trig[n + i * 2] = new Double(Math.cos((integer_constants.M_PI / n) * (4 * i + 2)) * .5).floatValue();
-      trig[n + i * 2 + 1] = new Double(-Math.sin((integer_constants.M_PI / n) * (4 * i + 2)) * .5).floatValue();
+      trig[n + i * 2] = Double.valueOf(Math.cos((integer_constants.M_PI / n) * (4 * i + 2)) * .5).floatValue();
+      trig[n + i * 2 + 1] = Double.valueOf(-Math.sin((integer_constants.M_PI / n) * (4 * i + 2)) * .5).floatValue();
     }
 
     // bitreverse lookup...

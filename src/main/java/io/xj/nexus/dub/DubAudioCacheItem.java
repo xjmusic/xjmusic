@@ -82,10 +82,10 @@ public class DubAudioCacheItem {
     if (Objects.isNull(data))
       throw new NexusException(String.format("Unable to write bytes to disk cache: %s", path));
 
-    OutputStream toFile = FileUtils.openOutputStream(new File(path));
-    size = IOUtils.copy(data, toFile); // stores number of bytes copied
-    toFile.close();
-    log.debug("Did write media item to disk cache: {} ({} bytes)", path, size);
+    try (OutputStream toFile = FileUtils.openOutputStream(new File(path))) {
+      size = IOUtils.copy(data, toFile); // stores number of bytes copied
+      log.debug("Did write media item to disk cache: {} ({} bytes)", path, size);
+    }
   }
 
   /**

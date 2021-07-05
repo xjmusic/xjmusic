@@ -37,16 +37,16 @@ public class codebook {
     valuelist = _book_unquantize(s, s.entries, null);
   }
 
-  private int[] _make_words(int[] l, int n, int sparsecount) {
+  private int[] _make_words(int[] l, int n, int sparseCount) {
 
     int i, j, count = 0;
     int[] marker;    // ogg_uint32_t marker[33];
 
-    // ogg_uint32_t *r=_ogg_malloc((sparsecount?sparsecount:n)*sizeof(*r));
+    // ogg_uint32_t *r=_ogg_malloc((sparseCount?sparseCount:n)*sizeof(*r));
     int[] r;
 
-    if (sparsecount != 0)
-      r = new int[sparsecount];
+    if (sparseCount != 0)
+      r = new int[sparseCount];
     else
       r = new int[n];
 
@@ -102,7 +102,7 @@ public class codebook {
           } else
             break;
         }
-      } else if (sparsecount == 0)
+      } else if (sparseCount == 0)
         count++;
     }
 
@@ -117,7 +117,7 @@ public class codebook {
         temp |= (r[count] >>> j) & 1;
       }
 
-      if (sparsecount != 0) {
+      if (sparseCount != 0) {
         if (l[i] != 0)
           r[count++] = temp;
       } else
@@ -129,7 +129,7 @@ public class codebook {
 
   private float ldexp(double value, long exp) {
 
-    return new Double(value * Math.pow(2, new Long(exp).intValue())).floatValue();
+    return Double.valueOf(value * Math.pow(2, Long.valueOf(exp).intValue())).floatValue();
   }
 
   private float _float32_unpack(int val) {

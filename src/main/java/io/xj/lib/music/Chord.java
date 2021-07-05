@@ -60,7 +60,7 @@ public class Chord extends IntervalPitchGroup {
       sum += value.doubleValue();
       count++;
     }
-    return sum / count;
+    return 0 != count ? sum / count : 0;
   }
 
   /**

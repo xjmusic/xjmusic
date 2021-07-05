@@ -45,7 +45,7 @@ class JsonapiHttpResponseProviderImpl implements JsonapiHttpResponseProvider {
     try {
       return jsonapiPayload.getSelfURI().isPresent() ?
         Response
-          .created(jsonapiPayload.getSelfURI().get())
+          .created(jsonapiPayload.getSelfURI().orElseThrow())
           .entity(jsonapiPayloadFactory.serialize(jsonapiPayload))
           .type(MediaType.APPLICATION_JSON)
           .build() :

@@ -135,6 +135,7 @@ public class ComplexLibraryTest {
     while (!hasSegmentsDubbedPastMinimumOffset(chain1.getId()) && isWithinTimeLimit())
       //noinspection BusyWait
       Thread.sleep(MILLIS_PER_SECOND);
+    app.stop();
     workThread.interrupt();
 
     // assertions

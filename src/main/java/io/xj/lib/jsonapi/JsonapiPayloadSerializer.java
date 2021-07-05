@@ -33,7 +33,7 @@ public class JsonapiPayloadSerializer extends StdSerializer<JsonapiPayload> {
 
     // Add data (one or many) if present
     if (PayloadDataType.One == value.getDataType() && value.getDataOne().isPresent())
-      json.writeObjectField(JsonapiPayload.KEY_DATA, value.getDataOne().get());
+      json.writeObjectField(JsonapiPayload.KEY_DATA, value.getDataOne().orElseThrow());
 
     if (PayloadDataType.Many == value.getDataType()) {
       json.writeArrayFieldStart(JsonapiPayload.KEY_DATA);

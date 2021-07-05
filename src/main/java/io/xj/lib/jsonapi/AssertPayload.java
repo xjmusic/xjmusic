@@ -98,7 +98,7 @@ public class AssertPayload {
       Optional<JsonapiPayloadObject> dataOne = jsonapiPayload.getDataOne();
       assertTrue("has one data", dataOne.isPresent());
       assertEquals("payload object type", resourceType, dataOne.orElseThrow().getType());
-      assertEquals("payload object id", resourceId, dataOne.get().getId());
+      assertEquals("payload object id", resourceId, dataOne.orElseThrow().getId());
       return new AssertPayloadObject(dataOne.get());
 
     } catch (ValueException e) {
@@ -119,7 +119,7 @@ public class AssertPayload {
       Optional<JsonapiPayloadObject> dataOne = jsonapiPayload.getDataOne();
       assertTrue("has one data", dataOne.isPresent());
       assertTrue(String.format("one data same as %s id=%s", Entities.toType(resource), Entities.getId(resource)), dataOne.orElseThrow().isSame(resource));
-      return new AssertPayloadObject(dataOne.get());
+      return new AssertPayloadObject(dataOne.orElseThrow());
 
     } catch (EntityException | ValueException e) {
       throw new JsonApiException(e);

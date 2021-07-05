@@ -803,21 +803,21 @@ class vorbis_look_psy {
   }
 
   private float toBARK(double z) {
-    return new Double(13.1f * Math.atan(.00074f * (z)) + 2.24f * Math.atan((z) * (z) * 1.85e-8f) + 1e-4f * (z)).floatValue();
+    return Double.valueOf(13.1f * Math.atan(.00074f * (z)) + 2.24f * Math.atan((z) * (z) * 1.85e-8f) + 1e-4f * (z)).floatValue();
   }
 
 //	private float fromBARK( double z ) {
-//		return new Double( 102.f*(z)-2.f*Math.pow(z,2.f)+.4f*Math.pow(z,3.f)+Math.pow(1.46f,z)-1.f ).floatValue();
+//		return Double.valueOf( 102.f*(z)-2.f*Math.pow(z,2.f)+.4f*Math.pow(z,3.f)+Math.pow(1.46f,z)-1.f ).floatValue();
 //	}
 
   // Frequency to octave.  We arbitrarily declare 63.5 Hz to be octave 0.0
 
   private float toOC(double z) {
-    return new Double(Math.log(z) * 1.442695f - 5.965784f).floatValue();
+    return Double.valueOf(Math.log(z) * 1.442695f - 5.965784f).floatValue();
   }
 
   private float fromOC(double o) {
-    return new Double(Math.exp(((o) + 5.965784f) * .693147f)).floatValue();
+    return Double.valueOf(Math.exp(((o) + 5.965784f) * .693147f)).floatValue();
   }
 
   private void min_curve(float[] c, float[] c2) {
@@ -913,7 +913,7 @@ class vorbis_look_psy {
         int tmp = j;
         if (j < 2)
           tmp = 2;
-        attenuate_curve(workc[i][j], new Double(curveatt_dB[i] + 100.0f - (tmp) * 10. - integer_constants.P_LEVEL_0).floatValue());
+        attenuate_curve(workc[i][j], Double.valueOf(curveatt_dB[i] + 100.0f - (tmp) * 10. - integer_constants.P_LEVEL_0).floatValue());
 
         // memcpy( athc[j], ath, EHMER_MAX*sizeof(**athc) );
         System.arraycopy(ath, 0, athc[j], 0, athc[j].length);
@@ -952,9 +952,9 @@ class vorbis_look_psy {
 
       // which octave curves will we be compositing?
 
-      bin = new Double(Math.floor(fromOC(i * .5) / binHz)).intValue();
-      lo_curve = new Double(Math.ceil(toOC(bin * binHz + 1) * 2)).intValue();
-      hi_curve = new Double(Math.floor(toOC((bin + 1) * binHz) * 2)).intValue();
+      bin = Double.valueOf(Math.floor(fromOC(i * .5) / binHz)).intValue();
+      lo_curve = Double.valueOf(Math.ceil(toOC(bin * binHz + 1) * 2)).intValue();
+      hi_curve = Double.valueOf(Math.floor(toOC((bin + 1) * binHz) * 2)).intValue();
       if (lo_curve > i)
         lo_curve = i;
       if (lo_curve < 0)
@@ -978,8 +978,8 @@ class vorbis_look_psy {
 
           for (j = 0; j < integer_constants.EHMER_MAX; j++) {
 
-            int lo_bin = new Float(fromOC(j * .125 + k * .5 - 2.0625) / binHz).intValue();
-            int hi_bin = new Float(fromOC(j * .125 + k * .5 - 1.9375) / binHz + 1).intValue();
+            int lo_bin = Float.valueOf(fromOC(j * .125 + k * .5 - 2.0625) / binHz).intValue();
+            int hi_bin = Float.valueOf(fromOC(j * .125 + k * .5 - 1.9375) / binHz + 1).intValue();
 
             if (lo_bin < 0) lo_bin = 0;
             if (lo_bin > n) lo_bin = n;
@@ -1008,8 +1008,8 @@ class vorbis_look_psy {
 
           for (j = 0; j < integer_constants.EHMER_MAX; j++) {
 
-            int lo_bin = new Float(fromOC(j * .125 + i * .5 - 2.0625) / binHz).intValue();
-            int hi_bin = new Float(fromOC(j * .125 + i * .5 - 1.9375) / binHz + 1).intValue();
+            int lo_bin = Float.valueOf(fromOC(j * .125 + i * .5 - 2.0625) / binHz).intValue();
+            int hi_bin = Float.valueOf(fromOC(j * .125 + i * .5 - 1.9375) / binHz + 1).intValue();
 
             if (lo_bin < 0) lo_bin = 0;
             if (lo_bin > n) lo_bin = n;
@@ -1031,7 +1031,7 @@ class vorbis_look_psy {
 
         for (j = 0; j < integer_constants.EHMER_MAX; j++) {
 
-          bin = new Float(fromOC(j * .125 + i * .5 - 2.) / binHz).intValue();
+          bin = Float.valueOf(fromOC(j * .125 + i * .5 - 2.) / binHz).intValue();
           if (bin < 0) {
             tonecurves[i][m][j + 2] = -999.0f;
           } else {
@@ -1076,10 +1076,10 @@ class vorbis_look_psy {
       m_val = 1.275f;  // 48kHz
 
     eighth_octave_lines = gi.eighth_octave_lines;
-    shiftoc = new Double(Math.rint(Math.log(gi.eighth_octave_lines * 8.0f) / Math.log(2.0f)) - 1).intValue();
+    shiftoc = Double.valueOf(Math.rint(Math.log(gi.eighth_octave_lines * 8.0f) / Math.log(2.0f)) - 1).intValue();
 
-    firstoc = new Float(toOC(0.25f * rate * 0.5 / n) * (1 << (shiftoc + 1)) - gi.eighth_octave_lines).intValue();
-    maxoc = new Float(toOC((n + .25f) * rate * 0.5 / n) * (1 << (shiftoc + 1)) + 0.5f).intValue();
+    firstoc = Float.valueOf(toOC(0.25f * rate * 0.5 / n) * (1 << (shiftoc + 1)) - gi.eighth_octave_lines).intValue();
+    maxoc = Float.valueOf(toOC((n + .25f) * rate * 0.5 / n) * (1 << (shiftoc + 1)) + 0.5f).intValue();
     total_octave_lines = maxoc - firstoc + 1;
 
     // ath=_ogg_malloc(n*sizeof(*ath));
@@ -1093,7 +1093,7 @@ class vorbis_look_psy {
     // set up the lookups for a given blocksize and sample rate
 
     for (i = 0, j = 0; i < integer_constants.MAX_ATH - 1; i++) {
-      int endpos = new Double(Math.rint(fromOC((i + 1) * 0.125f - 2.0f) * 2 * n / rate)).intValue();
+      int endpos = Double.valueOf(Math.rint(fromOC((i + 1) * 0.125f - 2.0f) * 2 * n / rate)).intValue();
       float base = ATH[i];
       if (j < endpos) {
         float delta = (ATH[i + 1] - base) / (endpos - j);
@@ -1116,7 +1116,7 @@ class vorbis_look_psy {
     }
 
     for (i = 0; i < n; i++)
-      octave[i] = new Float(toOC((i + 0.25f) * 0.5f * rate / n) * (1 << (shiftoc + 1)) + 0.5f).intValue();
+      octave[i] = Float.valueOf(toOC((i + 0.25f) * 0.5f * rate / n) * (1 << (shiftoc + 1)) + 0.5f).intValue();
 
     setup_tone_curves(vi.toneatt, rate * 0.5f / n, n, vi.tone_centerboost, vi.tone_decay);
 
@@ -1196,7 +1196,7 @@ class vorbis_look_psy {
     curve = 2;
     post1 = (int) posts[1];
 
-    seedptr = new Float(oc + (posts[0] - integer_constants.EHMER_OFFSET) * linesper - (linesper >>> 1)).intValue();
+    seedptr = Float.valueOf(oc + (posts[0] - integer_constants.EHMER_OFFSET) * linesper - (linesper >>> 1)).intValue();
 
     for (i = (int) posts[0]; i < post1; i++) {
 
@@ -1523,7 +1523,7 @@ class vorbis_look_psy {
       work[i] = logmdct[offset + i] - work[i];
 
     for (i = 0; i < n; i++) {
-      int dB = new Float(logmask[i] + .5f).intValue();
+      int dB = Float.valueOf(logmask[i] + .5f).intValue();
       if (dB >= integer_constants.NOISE_COMPAND_LEVELS)
         dB = integer_constants.NOISE_COMPAND_LEVELS - 1;
       if (dB < 0)

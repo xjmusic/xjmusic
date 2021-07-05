@@ -377,7 +377,7 @@ public class vorbis_block {
 
     // weight toward the actually used frequencies if we meet the threshhold
 
-    int weight = new Float(nb * info.twofitweight / (na + 1)).intValue();
+    int weight = Float.valueOf(nb * info.twofitweight / (na + 1)).intValue();
 
     a.xa = xa * weight + xb;
     a.ya = ya * weight + yb;
@@ -721,30 +721,30 @@ public class vorbis_block {
   static float dipole_hypot(float a, float b) {
 
     if (a > 0.) {
-      if (b > 0.) return new Double(Math.sqrt(a * a + b * b)).floatValue();
-      if (a > -b) return new Double(Math.sqrt(a * a - b * b)).floatValue();
-      return new Double(-Math.sqrt(b * b - a * a)).floatValue();
+      if (b > 0.) return Double.valueOf(Math.sqrt(a * a + b * b)).floatValue();
+      if (a > -b) return Double.valueOf(Math.sqrt(a * a - b * b)).floatValue();
+      return Double.valueOf(-Math.sqrt(b * b - a * a)).floatValue();
     }
 
-    if (b < 0.) return new Double(-Math.sqrt(a * a + b * b)).floatValue();
-    if (-a > b) return new Double(-Math.sqrt(a * a - b * b)).floatValue();
+    if (b < 0.) return Double.valueOf(-Math.sqrt(a * a + b * b)).floatValue();
+    if (-a > b) return Double.valueOf(-Math.sqrt(a * a - b * b)).floatValue();
 
-    return new Double(Math.sqrt(b * b - a * a)).floatValue();
+    return Double.valueOf(Math.sqrt(b * b - a * a)).floatValue();
   }
 
   static float round_hypot(float a, float b) {
 
     if (a > 0.) {
-      if (b > 0.) return new Double(Math.sqrt(a * a + b * b)).floatValue();
-      if (a > -b) return new Double(Math.sqrt(a * a + b * b)).floatValue();
-      return new Double(-Math.sqrt(b * b + a * a)).floatValue();
+      if (b > 0.) return Double.valueOf(Math.sqrt(a * a + b * b)).floatValue();
+      if (a > -b) return Double.valueOf(Math.sqrt(a * a + b * b)).floatValue();
+      return Double.valueOf(-Math.sqrt(b * b + a * a)).floatValue();
     }
 
-    if (b < 0.) return new Double(-Math.sqrt(a * a + b * b)).floatValue();
+    if (b < 0.) return Double.valueOf(-Math.sqrt(a * a + b * b)).floatValue();
 
-    if (-a > b) return new Double(-Math.sqrt(a * a + b * b)).floatValue();
+    if (-a > b) return Double.valueOf(-Math.sqrt(a * a + b * b)).floatValue();
 
-    return new Double(Math.sqrt(b * b + a * a)).floatValue();
+    return Double.valueOf(Math.sqrt(b * b + a * a)).floatValue();
   }
 
   private float[][] _vp_quantize_couple_memo(vorbis_info_psy_global g, vorbis_look_psy p, vorbis_info_mapping0 vi, float[][] mdct) {
@@ -1899,7 +1899,7 @@ public class vorbis_block {
     codec_setup_info ci = vi.codec_setup;
     bitrate_manager_info bi = ci.bi;
 
-    int choice = new Double(Math.rint(bm.avgfloat)).intValue();
+    int choice = Double.valueOf(Math.rint(bm.avgfloat)).intValue();
     int this_bits = vbi.packetblob[choice].oggpack_bytes() * 8;  // long
 
     int min_target_bits;    // long
@@ -1917,7 +1917,7 @@ public class vorbis_block {
     }
 
     int samples = ci.blocksizes[W] >> 1;
-    int desired_fill = new Float(bi.reservoir_bits * bi.reservoir_bias).intValue();  // long
+    int desired_fill = Float.valueOf(bi.reservoir_bits * bi.reservoir_bias).intValue();  // long
 
     if (bm.managed <= 0) {
 
@@ -1963,12 +1963,12 @@ public class vorbis_block {
         }
       }
 
-      slew = new Double(Math.rint(choice - bm.avgfloat) / samples * vi.rate).floatValue();
+      slew = Double.valueOf(Math.rint(choice - bm.avgfloat) / samples * vi.rate).floatValue();
       if (slew < -slewlimit)
         slew = -slewlimit;
       if (slew > slewlimit)
         slew = slewlimit;
-      choice = new Float(Math.rint(bm.avgfloat += slew / vi.rate * samples)).intValue();
+      choice = Float.valueOf(Math.rint(bm.avgfloat += slew / vi.rate * samples)).intValue();
       this_bits = vbi.packetblob[choice].oggpack_bytes() * 8;
     }
 

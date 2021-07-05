@@ -633,7 +633,7 @@ class FabricatorImpl implements Fabricator {
     if (isInitialSegment() || retrospective.getPreviousSegment().isEmpty())
       throw new NexusException("Initial Segment has no previous Segment");
 
-    return retrospective.getPreviousSegment().get();
+    return retrospective.getPreviousSegment().orElseThrow();
   }
 
   @Override

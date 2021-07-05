@@ -170,8 +170,8 @@ class drft_lookup {
               for (ii = 2; ii < ido; ii += 2) {
                 fi += 1.f;
                 arg = fi * argld;
-                wa[_n + (i++)] = new Double(Math.cos(arg)).floatValue();
-                wa[_n + (i++)] = new Double(Math.sin(arg)).floatValue();
+                wa[_n + (i++)] = Double.valueOf(Math.cos(arg)).floatValue();
+                wa[_n + (i++)] = Double.valueOf(Math.sin(arg)).floatValue();
               }
               is += ido;
             }
@@ -462,8 +462,8 @@ class drft_lookup {
     int idp2, ipp2;
 
     arg = tpi / new Integer(ip).floatValue();
-    dcp = new Double(Math.cos(arg)).floatValue();
-    dsp = new Double(Math.sin(arg)).floatValue();
+    dcp = Double.valueOf(Math.cos(arg)).floatValue();
+    dsp = Double.valueOf(Math.sin(arg)).floatValue();
     ipph = (ip + 1) >> 1;
     ipp2 = ip;
     idp2 = ido;
@@ -1089,8 +1089,8 @@ class drft_lookup {
     t10 = ip * ido;
     t0 = l1 * ido;
     arg = tpi / new Integer(ip).floatValue();
-    dcp = new Double(Math.cos(arg)).floatValue();
-    dsp = new Double(Math.sin(arg)).floatValue();
+    dcp = Double.valueOf(Math.cos(arg)).floatValue();
+    dsp = Double.valueOf(Math.sin(arg)).floatValue();
     nbd = (ido - 1) >> 1;
     ipp2 = ip;
     ipph = (ip + 1) >> 1;

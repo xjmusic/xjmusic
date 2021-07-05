@@ -34,15 +34,15 @@ class bitrate_manager_state {
       short_per_long = ci.blocksizes[1] / ci.blocksizes[0];
       managed = 1;
 
-      avg_bitsper = new Double(Math.rint(1. * bi.avg_rate * halfsamples / ratesamples)).intValue();
-      min_bitsper = new Double(Math.rint(1. * bi.min_rate * halfsamples / ratesamples)).intValue();
-      max_bitsper = new Double(Math.rint(1. * bi.max_rate * halfsamples / ratesamples)).intValue();
+      avg_bitsper = Double.valueOf(Math.rint(1. * bi.avg_rate * halfsamples / ratesamples)).intValue();
+      min_bitsper = Double.valueOf(Math.rint(1. * bi.min_rate * halfsamples / ratesamples)).intValue();
+      max_bitsper = Double.valueOf(Math.rint(1. * bi.max_rate * halfsamples / ratesamples)).intValue();
 
-      avgfloat = integer_constants.PACKETBLOBS / 2;
+      avgfloat = (float) integer_constants.PACKETBLOBS / 2;
 
       // not a necessary fix, but one that leads to a more balanced typical initialization
       {
-        int desired_fill = new Float(bi.reservoir_bits * bi.reservoir_bias).intValue();  // long
+        int desired_fill = Float.valueOf(bi.reservoir_bits * bi.reservoir_bias).intValue();  // long
         minmax_reservoir = desired_fill;
         avg_reservoir = desired_fill;
       }

@@ -41,6 +41,11 @@ public interface NexusWork extends Runnable {
   void work();
 
   /**
+   Stop work
+   */
+  void stop();
+
+  /**
    Whether the next cycle nanos is above threshold, compared to System.nanoTime();
 
    @return next cycle nanos
