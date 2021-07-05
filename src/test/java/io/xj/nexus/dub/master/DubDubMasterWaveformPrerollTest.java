@@ -21,6 +21,7 @@ import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.lib.mixer.Source;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.dub.DubAudioCache;
 import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
@@ -37,7 +38,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -63,6 +67,9 @@ public class DubDubMasterWaveformPrerollTest {
   public FileStoreProvider fileStoreProvider;
 
   @Mock
+  public DubAudioCache dubAudioCache;
+
+  @Mock
   private Source source;
 
   @Mock
@@ -80,6 +87,7 @@ public class DubDubMasterWaveformPrerollTest {
             bind(HubClient.class).toInstance(hubClient);
             bind(MixerFactory.class).toInstance(mixerFactory);
             bind(FileStoreProvider.class).toInstance(fileStoreProvider);
+            bind(DubAudioCache.class).toInstance(dubAudioCache);
           }
         })));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
@@ -89,6 +97,9 @@ public class DubDubMasterWaveformPrerollTest {
     Topology.buildNexusApiTopology(entityFactory);
     when(mixerFactory.createSource(any(),any())).thenReturn(source);
     when(mixerFactory.createMixer(any())).thenReturn(mixer);
+    when(dubAudioCache.get(any()))
+      .thenReturn(new BufferedInputStream(new FileInputStream(Objects.requireNonNull(
+        DubDubMasterWaveformPrerollTest.class.getClassLoader().getResource("source_audio/kick1.wav")).getFile())));
 
     // Manipulate the underlying entity store; reset before each test
     store = injector.getInstance(NexusEntityStore.class);
