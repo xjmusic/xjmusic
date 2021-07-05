@@ -16,6 +16,10 @@ import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
+import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.mixer.Mixer;
+import io.xj.lib.mixer.MixerFactory;
+import io.xj.lib.mixer.Source;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.Fabricator;
@@ -38,6 +42,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DubDubMasterWaveformPrerollTest {
@@ -50,6 +56,18 @@ public class DubDubMasterWaveformPrerollTest {
   @Mock
   public HubClient hubClient;
 
+  @Mock
+  private MixerFactory mixerFactory;
+
+  @Mock
+  public FileStoreProvider fileStoreProvider;
+
+  @Mock
+  private Source source;
+
+  @Mock
+  private Mixer mixer;
+
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
@@ -60,6 +78,8 @@ public class DubDubMasterWaveformPrerollTest {
           @Override
           public void configure() {
             bind(HubClient.class).toInstance(hubClient);
+            bind(MixerFactory.class).toInstance(mixerFactory);
+            bind(FileStoreProvider.class).toInstance(fileStoreProvider);
           }
         })));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
@@ -67,6 +87,8 @@ public class DubDubMasterWaveformPrerollTest {
     var entityFactory = injector.getInstance(EntityFactory.class);
     Topology.buildHubApiTopology(entityFactory);
     Topology.buildNexusApiTopology(entityFactory);
+    when(mixerFactory.createSource(any(),any())).thenReturn(source);
+    when(mixerFactory.createMixer(any())).thenReturn(mixer);
 
     // Manipulate the underlying entity store; reset before each test
     store = injector.getInstance(NexusEntityStore.class);

@@ -27,10 +27,8 @@ public interface HubClient {
 
   /**
    Retrieve a HubClientAccess entity from Hub via the /auth endpoint
-   <p<
+   <p>
    Nexus service is able to retrieve HubAccess from its request context, by requesting access for a specified cookie from the Hub service
-   <p<
-   Nexus caching HubClientAccess access tokens via Caffeine for a specified time to live
 
    @param accessToken to get HubClientAccess for
    @return HubClientAccess for given auth token

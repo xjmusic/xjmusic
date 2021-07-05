@@ -94,13 +94,8 @@ public class DubMasterImpl implements DubMaster {
       String key = audio.getWaveformKey();
       if (Strings.isNullOrEmpty(key)) continue;
 
-      if (!mixer().hasLoadedSource(audio.getId())) try {
+      if (!mixer().hasLoadedSource(audio.getId()))
         mixer().loadSource(audio.getId(), dubAudioCache.get(key));
-
-      } catch (Exception e) {
-        dubAudioCache.refresh(key);
-        warnings.add(e.getMessage() + " " + Text.formatStackTrace(e));
-      }
     }
   }
 
