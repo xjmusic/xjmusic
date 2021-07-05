@@ -34,11 +34,8 @@ import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.URL;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
@@ -127,7 +124,8 @@ public class ComplexLibraryTest {
     when(fileStoreProvider.generateKey(any()))
       .thenReturn("chains-1-segments-12345");
     when(fileStoreProvider.streamS3Object(any(), any()))
-      .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(resourceAudioFile()));
+      .thenAnswer((Answer<InputStream>) invocation -> new FileInputStream(Objects.requireNonNull(
+        ComplexLibraryTest.class.getClassLoader().getResource("source_audio/kick1.wav")).getFile()));
     when(fileStoreProvider.getSegmentStorageKey(any(), any()))
       .thenReturn("chains-1-segments-12345.json");
 
@@ -147,21 +145,6 @@ public class ComplexLibraryTest {
       .putS3ObjectFromString(any(), any(), any(), any());
     assertTrue(hasSegmentsDubbedPastMinimumOffset(chain1.getId()));
   }
-
-  /**
-   Get a file of java resources
-
-   @return File
-   @throws FileNotFoundException if resource does not exist
-   */
-  private File resourceAudioFile() throws FileNotFoundException {
-    ClassLoader classLoader = ComplexLibraryTest.class.getClassLoader();
-    URL resource = classLoader.getResource("source_audio/kick1.wav");
-    if (Objects.isNull(resource))
-      throw new FileNotFoundException(String.format("Failed to load resource: %s", "source_audio/kick1.wav"));
-    return new File(resource.getFile());
-  }
-
 
   /**
    Whether this test is within the time limit

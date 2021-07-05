@@ -17,16 +17,14 @@ public class MultiStopwatch {
   private String section;
   private final Map<String, Double> sectionLapSeconds = Maps.newHashMap();
   private final Map<String, Double> sectionTotalSeconds = Maps.newHashMap();
-  private final long started;
+  private final long startedMillis;
   private double lapTotalSeconds;
-  private long lapStarted;
-  private long sectionStarted;
+  private long lapStartedMillis;
+  private long sectionStartedMillis;
   public static final long SECONDS_PER_MINUTE = 60;
   public static final long MINUTES_PER_HOUR = 60;
   public static final long HOURS_PER_DAY = 24;
   public static final long MILLIS_PER_SECOND = 1000;
-  public static final long NANOS_PER_SECOND = 1000000000L;
-  public static final long NANOS_PER_MILLI = 1000000L;
   public static final long SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
   public static final long SECONDS_PER_DAY = SECONDS_PER_HOUR * HOURS_PER_DAY;
   public static final String STANDBY = "Standby";
@@ -38,7 +36,7 @@ public class MultiStopwatch {
    Don't construct directly-- use MultiStopwatch.start()
    */
   private MultiStopwatch() {
-    started = System.nanoTime();
+    startedMillis = System.currentTimeMillis();
     section(STANDBY);
     lap();
   }
@@ -57,7 +55,7 @@ public class MultiStopwatch {
    */
   public void stop() {
     lap();
-    totalSeconds = (double) (System.nanoTime() - started) / NANOS_PER_SECOND;
+    totalSeconds = (double) (System.currentTimeMillis() - startedMillis) / MILLIS_PER_SECOND;
   }
 
   /**
@@ -65,8 +63,8 @@ public class MultiStopwatch {
    */
   public void lap() {
     section(STANDBY);
-    lapTotalSeconds = (double) (System.nanoTime() - lapStarted) / NANOS_PER_SECOND;
-    lapStarted = System.nanoTime();
+    lapTotalSeconds = (double) (System.currentTimeMillis() - lapStartedMillis) / MILLIS_PER_SECOND;
+    lapStartedMillis = System.currentTimeMillis();
   }
 
   /**
@@ -75,7 +73,7 @@ public class MultiStopwatch {
    @return total seconds
    */
   public Double getTotalSeconds() {
-    return Objects.nonNull(totalSeconds) ? totalSeconds : (System.nanoTime() - started) / NANOS_PER_SECOND;
+    return Objects.nonNull(totalSeconds) ? totalSeconds : (System.currentTimeMillis() - startedMillis) / MILLIS_PER_SECOND;
   }
 
   /**
@@ -83,7 +81,7 @@ public class MultiStopwatch {
 
    @return total seconds
    */
-  public double getLapTotalSeconds() {
+  public Double getLapTotalSeconds() {
     return lapTotalSeconds;
   }
 
@@ -94,11 +92,11 @@ public class MultiStopwatch {
    */
   public void section(String name) {
     if (Objects.nonNull(section)) {
-      var seconds = (double) (System.nanoTime() - sectionStarted) / NANOS_PER_SECOND;
+      var seconds = (double) (System.currentTimeMillis() - sectionStartedMillis) / MILLIS_PER_SECOND;
       sectionLapSeconds.put(section, sectionLapSeconds.containsKey(section) ? sectionLapSeconds.get(section) + seconds : seconds);
       sectionTotalSeconds.put(section, sectionTotalSeconds.containsKey(section) ? sectionTotalSeconds.get(section) + seconds : seconds);
     }
-    sectionStarted = System.nanoTime();
+    sectionStartedMillis = System.currentTimeMillis();
     section = name;
   }
 
