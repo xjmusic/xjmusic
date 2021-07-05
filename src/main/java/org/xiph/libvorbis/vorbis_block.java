@@ -1968,7 +1968,7 @@ public class vorbis_block {
         slew = -slewlimit;
       if (slew > slewlimit)
         slew = slewlimit;
-      choice = Float.valueOf(Math.rint(bm.avgfloat += slew / vi.rate * samples)).intValue();
+      choice = (int) Math.rint(bm.avgfloat += slew / vi.rate * samples);
       this_bits = vbi.packetblob[choice].oggpack_bytes() * 8;
     }
 
