@@ -98,6 +98,10 @@ tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
 
+test {
+  failFast = true
+}
+
 jacocoTestReport {
   reports {
     xml.enabled true
