@@ -10,17 +10,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface Value {
-  String CHORD_SEPARATOR_DESCRIPTOR = ":";
-  String CHORD_SEPARATOR_DESCRIPTOR_UNIT = "|";
-  String CHORD_MARKER_NON_CHORD = "---";
   double entityPositionDecimalPlaces = 2.0;
   double roundPositionMultiplier = StrictMath.pow(10.0, entityPositionDecimalPlaces);
-  Pattern isInteger = Pattern.compile("[0-9]+");
 
   /**
    Return the first value if it's non-null, else the second
@@ -128,18 +123,6 @@ public interface Value {
   }
 
   /**
-   Require a non-zero value, or else throw an exception with the specified name
-
-   @param value value
-   @param name  to describe in exception
-   @throws ValueException if null
-   */
-  static <V> void requireNonZero(V value, String name) throws ValueException {
-    if (Value.isUnsetOrZero(value))
-      throw new ValueException(String.format("Non-zero %s is required.", name));
-  }
-
-  /**
    allow only the specified values, or else throw an exception with the specified name
 
    @param value value
@@ -150,18 +133,6 @@ public interface Value {
     require(value, name);
     if (!allowed.contains(value))
       throw new ValueException(String.format("%s '%s' is invalid.", name, value));
-  }
-
-  /**
-   Require no exception is present, or else throw an exception with the specified name
-
-   @param exception cannot be present
-   @param name      to describe in exception
-   @throws ValueException if exception is present
-   */
-  static <E extends Exception> void requireNo(E exception, String name) throws ValueException {
-    if (Objects.nonNull(exception))
-      throw new ValueException(String.format("%s is invalid because %s", name, exception.getMessage()));
   }
 
   /**
@@ -195,16 +166,6 @@ public interface Value {
   static boolean isEmpty(Object value) {
     if (Objects.isNull(value)) return true;
     return String.valueOf(value).isBlank();
-  }
-
-  /**
-   Is a value not present, empty, or equal to zero?
-
-   @param value to test
-   @return true if unset, empty, or equals zero
-   */
-  static <V> boolean isUnsetOrZero(V value) {
-    return Objects.isNull(value) || String.valueOf(value).isEmpty() || Double.valueOf(String.valueOf(value)).equals(0.0);
   }
 
   /**

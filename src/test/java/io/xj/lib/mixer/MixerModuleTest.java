@@ -35,10 +35,11 @@ public class MixerModuleTest {
    */
   @Test
   public void createMixerNotNull_supportBigEndian() throws Exception {
-    mixerFactory.createMixer(new MixerConfig(
+    var mixer =mixerFactory.createMixer(new MixerConfig(
       new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
         48000, 32, 2, 8, 48000, true)
     ));
+    assertNotNull(mixer);
   }
 
 }

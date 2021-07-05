@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public class SourceImplTest {
   private final MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
@@ -40,24 +41,24 @@ public class SourceImplTest {
 
   @Test(expected = SourceException.class)
   public void unsupported_over2channels() throws Exception {
-    mixerFactory.createSource(
+    assertNotNull(mixerFactory.createSource(
       "F32LSB_48kHz_6ch",
       new BufferedInputStream(
         new FileInputStream(
           new InternalResource(
-                  "test_audio/F32LSB_48kHz_6ch.wav"
-          ).getFile())));
+            "test_audio/F32LSB_48kHz_6ch.wav"
+          ).getFile()))));
   }
 
   @Test
   public void load24BitSourceAudio() throws Exception {
-    mixerFactory.createSource(
+    assertNotNull(mixerFactory.createSource(
       "S24LSB_44100Hz_Stereo",
       new BufferedInputStream(
         new FileInputStream(
           new InternalResource(
-                  "test_audio/S24LSB_44100Hz_Stereo.wav"
-          ).getFile())));
+            "test_audio/S24LSB_44100Hz_Stereo.wav"
+          ).getFile()))));
   }
 
   @Test

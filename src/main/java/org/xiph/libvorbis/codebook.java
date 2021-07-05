@@ -37,7 +37,7 @@ public class codebook {
     valuelist = _book_unquantize(s, s.entries, null);
   }
 
-  private int[] _make_words(int[] l, int n, int sparseCount) {
+  private int[] _make_words(int[] l, int n, int sparsecount) {
 
     int i, j, count = 0;
     int[] marker;    // ogg_uint32_t marker[33];
@@ -45,8 +45,8 @@ public class codebook {
     // ogg_uint32_t *r=_ogg_malloc((sparseCount?sparseCount:n)*sizeof(*r));
     int[] r;
 
-    if (sparseCount != 0)
-      r = new int[sparseCount];
+    if (sparsecount != 0)
+      r = new int[sparsecount];
     else
       r = new int[n];
 
@@ -102,7 +102,7 @@ public class codebook {
           } else
             break;
         }
-      } else if (sparseCount == 0)
+      } else if (sparsecount == 0)
         count++;
     }
 
@@ -117,7 +117,7 @@ public class codebook {
         temp |= (r[count] >>> j) & 1;
       }
 
-      if (sparseCount != 0) {
+      if (sparsecount != 0) {
         if (l[i] != 0)
           r[count++] = temp;
       } else

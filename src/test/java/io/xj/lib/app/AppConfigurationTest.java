@@ -7,27 +7,22 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.typesafe.config.ConfigFactory;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import java.io.File;
-import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 public class AppConfigurationTest {
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
 
   /**
    Attempts to create an AppConfiguration via its private constructor and
    demonstrates that an exception is thrown.
    */
   @Test(expected = IllegalStateException.class)
+  @SuppressWarnings("InstantiationOfUtilityClass")
   public void constructorMustFail() {
-    AppConfiguration config = new AppConfiguration();
+    new AppConfiguration();
   }
 
   /**
@@ -48,31 +43,33 @@ public class AppConfigurationTest {
   @Test
   public void inject_okWithNoModules() throws AppException {
     var env = Environment.getDefault();
-    AppConfiguration.inject(AppConfiguration.getDefault(), env, ImmutableSet.of());
+
+    var config = AppConfiguration.inject(AppConfiguration.getDefault(), env, ImmutableSet.of());
+    assertNotNull(config);
   }
 
   /**
    Test there's an exception if the config is null
    */
   @Test
-  public void inject_exceptionWithNullConfig() throws AppException {
-    failure.expect(AppException.class);
-    failure.expectMessage("Config cannot be null!");
+  public void inject_exceptionWithNullConfig() {
     var env = Environment.getDefault();
 
-    AppConfiguration.inject(null, env, ImmutableSet.of());
+    var e = assertThrows(AppException.class,
+      () -> AppConfiguration.inject(null, env, ImmutableSet.of()));
+    assertEquals("Config cannot be null!", e.getMessage());
   }
 
   /**
    Test there's an exception if the config is empty
    */
   @Test
-  public void inject_exceptionWithEmptyConfig() throws AppException {
-    failure.expect(AppException.class);
-    failure.expectMessage("Config cannot be empty!");
+  public void inject_exceptionWithEmptyConfig() {
     var env = Environment.getDefault();
 
-    AppConfiguration.inject(ConfigFactory.empty(), env, ImmutableSet.of());
+    var e = assertThrows(AppException.class,
+      () -> AppConfiguration.inject(ConfigFactory.empty(), env, ImmutableSet.of()));
+    assertEquals("Config cannot be empty!", e.getMessage());
   }
 
   /**
@@ -81,18 +78,6 @@ public class AppConfigurationTest {
   @Test
   public void getDefault() {
     assertEquals(3002, AppConfiguration.getDefault().getInt("app.port"));
-  }
-
-  /**
-   Get the absolute path to a file based on its resource name
-
-   @param name of resource to get absolute path for
-   @return absolute path of resource
-   */
-  private String absolutePathOfResource(String name) {
-    ClassLoader classLoader = getClass().getClassLoader();
-    File file = new File(Objects.requireNonNull(classLoader.getResource(name)).getFile());
-    return file.getAbsolutePath();
   }
 
   /**

@@ -90,7 +90,7 @@ public class NexusApp extends App {
     env = injector.getInstance(Environment.class);
 
     // Configuration
-    platformRelease = env.getEnvironment();
+    platformRelease = env.getPlatformEnvironment();
     rehydrateFabricatedAheadThreshold = config.getInt("work.rehydrateFabricatedAheadThreshold");
 
     // non-static logger for this class, because app must init first

@@ -170,11 +170,6 @@ public class TextTest {
   }
 
   @Test
-  public void toStrings() {
-    // FUTURE test Text.toStrings()
-  }
-
-  @Test
   public void toUpperScored() {
     assertEquals("JAMMY_BUNS", Text.toUpperScored("jaMMy b#!uns"));
     assertEquals("JAMMY_BUNS", Text.toUpperScored("  jaMMy    b#!uns   "));

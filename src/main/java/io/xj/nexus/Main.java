@@ -62,7 +62,7 @@ public interface Main {
     lc.putProperty("source", "java");
     lc.putProperty("service", "nexus");
     lc.putProperty("host", env.getHostname());
-    lc.putProperty("env", env.getEnvironment());
+    lc.putProperty("env", env.getPlatformEnvironment());
 
     // Instantiate app
     NexusApp app = new NexusApp(injector);

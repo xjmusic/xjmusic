@@ -40,7 +40,7 @@ public class Environment {
   private final String datadogStatsdHostname;
   private final int datadogStatsdPort;
   private final String datadogStatsdPrefix;
-  private final String environment;
+  private final String platformEnvironment;
   private final String googleClientID;
   private final String googleClientSecret;
   private final String hostname;
@@ -134,7 +134,7 @@ public class Environment {
     datadogStatsdHostname = getStr(vars, "DATADOG_STATSD_HOSTNAME", "localhost");
     datadogStatsdPort = getInt(vars, "DATADOG_STATSD_PORT", 8125);
     datadogStatsdPrefix = getStr(vars, "DATADOG_STATSD_PREFIX", "xj");
-    environment = getStr(vars, "ENVIRONMENT", "dev");
+    platformEnvironment = getStr(vars, "ENVIRONMENT", "dev");
     googleClientID = getStr(vars, "GOOGLE_CLIENT_ID", EMPTY);
     googleClientSecret = getStr(vars, "GOOGLE_CLIENT_SECRET", EMPTY);
     hostname = getStr(vars, "HOSTNAME", "localhost");
@@ -246,8 +246,8 @@ public class Environment {
   /**
    @return the environment, e.g. "dev" "stage" or "prod"
    */
-  public String getEnvironment() {
-    return environment;
+  public String getPlatformEnvironment() {
+    return platformEnvironment;
   }
 
   /**

@@ -539,6 +539,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
             Instant.parse(chain.getStartAt()).plus(previewLengthMaxHours, HOURS))); // [#174153691]
       case Complete:
       case Failed:
+      default:
         // no op
         break;
     }

@@ -40,11 +40,6 @@ public class PitchClassTest {
   }
 
   @Test
-  public void NameStepTest() {
-    //assertEquals(false, true)
-  }
-
-  @Test
   public void pitchClass_toString() {
     assertEquals("C#", PitchClass.Cs.toString(Sharp));
     assertEquals("Db", PitchClass.Cs.toString(Flat));

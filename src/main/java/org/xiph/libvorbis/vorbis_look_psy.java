@@ -25,7 +25,7 @@ class vorbis_look_psy {
   float m_val;  // Masking compensation value
 
   //	 static float ATH[]={
-  public static final float[] ATH = new float[]{
+  public static final float[] bookATH = new float[]{
     /*15*/  -51, -52, -53, -54, -55, -56, -57, -58,
     /*31*/  -59, -60, -61, -62, -63, -64, -65, -66,
     /*63*/  -67, -68, -69, -70, -71, -72, -73, -74,
@@ -869,11 +869,11 @@ class vorbis_look_psy {
         float min = 999.0f;
         for (k = 0; k < 4; k++) {
           if (j + k + ath_offset < integer_constants.MAX_ATH) {
-            if (min > ATH[j + k + ath_offset])
-              min = ATH[j + k + ath_offset];
+            if (min > bookATH[j + k + ath_offset])
+              min = bookATH[j + k + ath_offset];
           } else {
-            if (min > ATH[integer_constants.MAX_ATH - 1])
-              min = ATH[integer_constants.MAX_ATH - 1];
+            if (min > bookATH[integer_constants.MAX_ATH - 1])
+              min = bookATH[integer_constants.MAX_ATH - 1];
           }
         }
         ath[j] = min;
@@ -1094,9 +1094,9 @@ class vorbis_look_psy {
 
     for (i = 0, j = 0; i < integer_constants.MAX_ATH - 1; i++) {
       int endpos = Double.valueOf(Math.rint(fromOC((i + 1) * 0.125f - 2.0f) * 2 * n / rate)).intValue();
-      float base = ATH[i];
+      float base = bookATH[i];
       if (j < endpos) {
-        float delta = (ATH[i + 1] - base) / (endpos - j);
+        float delta = (bookATH[i + 1] - base) / (endpos - j);
         for (; j < endpos && j < n; j++) {
           ath[j] = base + 100.0f;
           base += delta;
