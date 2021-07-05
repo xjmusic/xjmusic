@@ -159,7 +159,7 @@ public class NexusWorkImpl implements NexusWork {
       // Fabricate all active chains
       activeChains.forEach(chain -> {
         ingestMaterialIfNecessary(chain);
-        fabricatedChains.add(fabricateChain(chain));
+        fabricateChain(chain).ifPresent(fabricatedChains::add);
       });
 
       if (medicEnabled) doMedic();
@@ -322,19 +322,19 @@ public class NexusWorkImpl implements NexusWork {
    Do the work-- this is called by the underlying WorkerImpl run() hook
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
-  public Chain fabricateChain(Chain chain) {
+  public Optional<Chain> fabricateChain(Chain chain) {
     try {
       timer.section("ComputeAhead");
       var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
       chain = updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
-      if (fabricatedAheadSeconds > bufferProductionSeconds) return chain;
+      if (fabricatedAheadSeconds > bufferProductionSeconds) return Optional.empty();
 
       timer.section("BuildNext");
       int workBufferSeconds = bufferSecondsFor(chain);
       Optional<Segment> nextSegment = chainDAO.buildNextSegmentOrCompleteTheChain(access, chain,
         Instant.now().plusSeconds(workBufferSeconds),
         Instant.now().minusSeconds(workBufferSeconds));
-      if (nextSegment.isEmpty()) return chain;
+      if (nextSegment.isEmpty()) return Optional.empty();
 
       Segment segment = segmentDAO.create(access, nextSegment.get());
       LOG.debug("Created Segment {}", segment);
@@ -348,7 +348,7 @@ public class NexusWorkImpl implements NexusWork {
         fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), chainSourceMaterial.get(chain.getId()), segment);
       } catch (NexusException e) {
         didFailWhile("creating fabricator", e, segment.getId(), ChainDAO.getIdentifier(chain), chain.getType().toString());
-        return chain;
+        return Optional.empty();
       }
 
       timer.section("Craft");
@@ -358,7 +358,7 @@ public class NexusWorkImpl implements NexusWork {
       } catch (Exception e) {
         didFailWhile("doing Craft work", e, segment.getId(), ChainDAO.getIdentifier(chain), chain.getType().toString());
         revert(chain, segment, fabricator);
-        return chain;
+        return Optional.empty();
       }
 
       timer.section("Dub");
@@ -366,7 +366,7 @@ public class NexusWorkImpl implements NexusWork {
         segment = doDubMasterWork(fabricator, segment);
       } catch (Exception e) {
         didFailWhile("doing Dub Master work", e, segment.getId(), ChainDAO.getIdentifier(chain), chain.getType().toString());
-        return chain;
+        return Optional.empty();
       }
 
       // Update the chain fabricated-ahead seconds before shipping data
@@ -379,7 +379,7 @@ public class NexusWorkImpl implements NexusWork {
         doDubShipWork(fabricator);
       } catch (Exception e) {
         didFailWhile("doing Dub Ship work", e, segment.getId(), ChainDAO.getIdentifier(chain), chain.getType().toString());
-        return chain;
+        return Optional.empty();
       }
 
       try {
@@ -413,7 +413,7 @@ public class NexusWorkImpl implements NexusWork {
         LOG.error("Failed to revive chain after fatal error!", e2);
       }
     }
-    return chain;
+    return Optional.of(chain);
   }
 
   @Override
