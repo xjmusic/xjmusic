@@ -425,12 +425,6 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public String getIdentifier(@Nullable Segment segment) {
-    if (Objects.isNull(segment)) return "N/A";
-    return Strings.isNullOrEmpty(segment.getStorageKey()) ? segment.getId() : segment.getStorageKey();
-  }
-
-  @Override
   public float getLengthSeconds(Segment segment) {
     return (float) (Instant.parse(segment.getEndAt()).toEpochMilli() - Instant.parse(segment.getBeginAt()).toEpochMilli()) / MILLIS_PER_SECOND;
   }

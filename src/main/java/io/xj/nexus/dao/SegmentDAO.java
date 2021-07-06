@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.dao;
 
+import com.google.common.base.Strings;
 import io.xj.Program;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
@@ -14,6 +15,7 @@ import io.xj.nexus.hub_client.client.HubClientAccess;
 import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 
 public interface SegmentDAO extends DAO<Segment> {
@@ -236,7 +238,11 @@ public interface SegmentDAO extends DAO<Segment> {
    @param segment to get identifier of
    @return embed key if available, else ID
    */
-  String getIdentifier(@Nullable Segment segment);
+  static String getIdentifier(@Nullable Segment segment) {
+    if (Objects.isNull(segment)) return "N/A";
+    return Strings.isNullOrEmpty(segment.getStorageKey()) ? segment.getId() : segment.getStorageKey();
+  }
+
 
   /**
    Get the length of a Segment in seconds

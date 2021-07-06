@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -68,8 +69,10 @@ public class NexusWorkImpl implements NexusWork {
   private final HubClient hubClient;
   private final HubClientAccess access = HubClientAccess.internal();
   private final Map<String, Double> chainLastAheadSeconds = Maps.newHashMap();
+  private final Map<String, Segment> chainLastSegment = Maps.newHashMap();
+  private final Map<String, Long> chainLastDubbedUntilMillis = Maps.newHashMap();
   private final Map<String, HubContent> chainSourceMaterial = Maps.newHashMap();
-  private final Map<String, Long> nextChainIngestMillis = Maps.newHashMap();
+  private final Map<String, Long> chainNextIngestMillis = Maps.newHashMap();
   private final NexusEntityStore store;
   private final NotificationProvider notification;
   private final SegmentDAO segmentDAO;
@@ -180,9 +183,15 @@ public class NexusWorkImpl implements NexusWork {
           .orElseThrow(() -> new DAOExistenceException("No last-dubbed segment!"));
         var segmentLengthSeconds = segmentDAO.getLengthSeconds(segment);
         var fabricatedAheadSeconds = chain.getFabricatedAheadSeconds();
-        var previousFabricatedAheadSeconds = chainLastAheadSeconds.containsKey(chain.getId()) ? chainLastAheadSeconds.get(chain.getId()) : 0;
-        var advancedAheadSeconds = fabricatedAheadSeconds - previousFabricatedAheadSeconds;
+        var lastAheadSeconds = chainLastAheadSeconds.getOrDefault(chain.getId(), 0.0);
+        var lastDubbedUntilMillis = chainLastDubbedUntilMillis.getOrDefault(chain.getId(), 0L);
+        var lastSegment = chainLastSegment.getOrDefault(chain.getId(), null);
+        var advancedAheadSeconds = fabricatedAheadSeconds - lastAheadSeconds;
         var lostSeconds = (segmentLengthSeconds - timer.getLapTotalSeconds()) - advancedAheadSeconds;
+        var dubbedUntilMillis = Instant.parse(segment.getEndAt()).toEpochMilli();
+        if (Objects.equals(lastDubbedUntilMillis, dubbedUntilMillis))
+          LOG.error("Segment[{}]@{} ends at same time as last Segment[{}]@{}!",
+            SegmentDAO.getIdentifier(segment), segment.getOffset(), SegmentDAO.getIdentifier(lastSegment), lastSegment.getOffset());
         LOG.info("Chain[{}] ahead {}s at {} ({} +{}s) lost {}s",
           ChainDAO.getIdentifier(chain),
           fabricatedAheadSeconds,
@@ -190,6 +199,7 @@ public class NexusWorkImpl implements NexusWork {
           segment.getBeginAt(),
           segmentLengthSeconds,
           lostSeconds);
+        chainLastDubbedUntilMillis.put(chain.getId(), dubbedUntilMillis);
         chainLastAheadSeconds.put(chain.getId(), (double) fabricatedAheadSeconds);
       } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException e) {
         didFailWhile("Computing end-lap telemetry", e);
@@ -203,9 +213,9 @@ public class NexusWorkImpl implements NexusWork {
    Ingest Content from Hub
    */
   private void ingestMaterialIfNecessary(Chain chain) {
-    if (nextChainIngestMillis.containsKey(chain.getId()) &&
-      System.currentTimeMillis() < nextChainIngestMillis.get(chain.getId())) return;
-    nextChainIngestMillis.put(chain.getId(), System.currentTimeMillis() + ingestCycleSeconds * MILLIS_PER_SECOND);
+    if (chainNextIngestMillis.containsKey(chain.getId()) &&
+      System.currentTimeMillis() < chainNextIngestMillis.get(chain.getId())) return;
+    chainNextIngestMillis.put(chain.getId(), System.currentTimeMillis() + ingestCycleSeconds * MILLIS_PER_SECOND);
     timer.section("Ingest");
 
     try {
@@ -392,7 +402,7 @@ public class NexusWorkImpl implements NexusWork {
       LOG.info("Chain[{}] offset={} Segment[{}] fabricated OK",
         ChainDAO.getIdentifier(chain),
         segment.getOffset(),
-        segmentDAO.getIdentifier(segment));
+        SegmentDAO.getIdentifier(segment));
 
     } catch (DAOPrivilegeException | DAOExistenceException | DAOValidationException | DAOFatalException e) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
