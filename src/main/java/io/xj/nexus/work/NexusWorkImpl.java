@@ -185,12 +185,11 @@ public class NexusWorkImpl implements NexusWork {
         var fabricatedAheadSeconds = chain.getFabricatedAheadSeconds();
         var lastAheadSeconds = chainLastAheadSeconds.getOrDefault(chain.getId(), 0.0);
         @Nullable var lastSegment = chainLastSegment.getOrDefault(chain.getId(), null);
-        var lastDubbedUntilMillis = Objects.nonNull(lastSegment) ? Instant.parse(lastSegment.getEndAt()) : 0;
         var advancedAheadSeconds = fabricatedAheadSeconds - lastAheadSeconds;
         var lostSeconds = (segmentLengthSeconds - timer.getLapTotalSeconds()) - advancedAheadSeconds;
-        var dubbedUntilMillis = Instant.parse(segment.getEndAt()).toEpochMilli();
-        if (Objects.nonNull(lastSegment) && !Objects.equals(segment.getId(), lastSegment.getId()) && Objects.equals(lastDubbedUntilMillis, dubbedUntilMillis))
-          LOG.error("Segment[{}]@{} ends at same time as last Segment[{}]@{}!",
+        if (Objects.nonNull(lastSegment) &&
+          Objects.equals(segment.getBeginAt(), lastSegment.getBeginAt()))
+          LOG.error("Segment[{}]@{} starts at same time as last Segment[{}]@{}!",
             SegmentDAO.getIdentifier(segment), segment.getOffset(), SegmentDAO.getIdentifier(lastSegment), lastSegment.getOffset());
         LOG.info("Chain[{}] ahead {}s at {} ({} +{}s) lost {}s",
           ChainDAO.getIdentifier(chain),
@@ -331,6 +330,8 @@ public class NexusWorkImpl implements NexusWork {
 
   /**
    Do the work-- this is called by the underlying WorkerImpl run() hook
+
+   @return chain if fabricated, empty if no action was taken
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
   public Optional<Chain> fabricateChain(Chain chain) {
@@ -404,6 +405,8 @@ public class NexusWorkImpl implements NexusWork {
         segment.getOffset(),
         SegmentDAO.getIdentifier(segment));
 
+      return Optional.of(chain);
+
     } catch (DAOPrivilegeException | DAOExistenceException | DAOValidationException | DAOFatalException e) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
         ChainDAO.getIdentifier(chain),
@@ -424,7 +427,7 @@ public class NexusWorkImpl implements NexusWork {
         LOG.error("Failed to revive chain after fatal error!", e2);
       }
     }
-    return Optional.of(chain);
+    return Optional.empty();
   }
 
   @Override
