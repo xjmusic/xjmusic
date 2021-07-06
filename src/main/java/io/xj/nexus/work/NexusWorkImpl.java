@@ -39,6 +39,7 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,7 +71,6 @@ public class NexusWorkImpl implements NexusWork {
   private final HubClientAccess access = HubClientAccess.internal();
   private final Map<String, Double> chainLastAheadSeconds = Maps.newHashMap();
   private final Map<String, Segment> chainLastSegment = Maps.newHashMap();
-  private final Map<String, Long> chainLastDubbedUntilMillis = Maps.newHashMap();
   private final Map<String, HubContent> chainSourceMaterial = Maps.newHashMap();
   private final Map<String, Long> chainNextIngestMillis = Maps.newHashMap();
   private final NexusEntityStore store;
@@ -184,12 +184,12 @@ public class NexusWorkImpl implements NexusWork {
         var segmentLengthSeconds = segmentDAO.getLengthSeconds(segment);
         var fabricatedAheadSeconds = chain.getFabricatedAheadSeconds();
         var lastAheadSeconds = chainLastAheadSeconds.getOrDefault(chain.getId(), 0.0);
-        var lastDubbedUntilMillis = chainLastDubbedUntilMillis.getOrDefault(chain.getId(), 0L);
-        var lastSegment = chainLastSegment.getOrDefault(chain.getId(), null);
+        @Nullable var lastSegment = chainLastSegment.getOrDefault(chain.getId(), null);
+        var lastDubbedUntilMillis = Objects.nonNull(lastSegment) ? Instant.parse(lastSegment.getEndAt()) : 0;
         var advancedAheadSeconds = fabricatedAheadSeconds - lastAheadSeconds;
         var lostSeconds = (segmentLengthSeconds - timer.getLapTotalSeconds()) - advancedAheadSeconds;
         var dubbedUntilMillis = Instant.parse(segment.getEndAt()).toEpochMilli();
-        if (!Objects.equals(segment.getId(), lastSegment.getId()) && Objects.equals(lastDubbedUntilMillis, dubbedUntilMillis))
+        if (Objects.nonNull(lastSegment) && !Objects.equals(segment.getId(), lastSegment.getId()) && Objects.equals(lastDubbedUntilMillis, dubbedUntilMillis))
           LOG.error("Segment[{}]@{} ends at same time as last Segment[{}]@{}!",
             SegmentDAO.getIdentifier(segment), segment.getOffset(), SegmentDAO.getIdentifier(lastSegment), lastSegment.getOffset());
         LOG.info("Chain[{}] ahead {}s at {} ({} +{}s) lost {}s",
@@ -199,7 +199,7 @@ public class NexusWorkImpl implements NexusWork {
           segment.getBeginAt(),
           segmentLengthSeconds,
           lostSeconds);
-        chainLastDubbedUntilMillis.put(chain.getId(), dubbedUntilMillis);
+        chainLastSegment.put(chain.getId(), segment);
         chainLastAheadSeconds.put(chain.getId(), (double) fabricatedAheadSeconds);
       } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException e) {
         didFailWhile("Computing end-lap telemetry", e);
