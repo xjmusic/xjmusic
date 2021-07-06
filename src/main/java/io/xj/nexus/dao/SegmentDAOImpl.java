@@ -31,7 +31,6 @@ import io.xj.nexus.dao.exception.DAOValidationException;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
 
-import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
@@ -240,6 +239,11 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
 
   @Override
   public Collection<Segment> readMany(HubClientAccess access, Collection<String> chainIds) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+    return readAll(access, chainIds).stream().limit(limitSegmentReadSize).collect(Collectors.toList());
+  }
+
+  @Override
+  public Collection<Segment> readAll(HubClientAccess access, Collection<String> chainIds) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     try {
       Collection<Segment> segments = Lists.newArrayList();
       for (String chainId : chainIds)

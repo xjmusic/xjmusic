@@ -411,6 +411,32 @@ public class SegmentDAOImplTest {
     assertEquals(12L, result.size());
   }
 
+  /**
+   [#173806948] List of Segments returned should not be more than a dozen or so
+   */
+  @Test
+  public void readAll_hasNoLimit() throws Exception {
+    chain5 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
+    for (int i = 0; i < 20; i++)
+      store.put(Segment.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setChainId(chain5.getId())
+        .setOffset(4L)
+        .setState(Segment.State.Crafting)
+        .setBeginAt("1995-04-28T11:23:00.000001Z")
+        .setEndAt("1995-04-28T11:23:32.000001Z")
+        .setTotal(64)
+        .setDensity(0.74)
+        .setKey("C# minor 7 b9")
+        .setTempo(120.0)
+        .build());
+
+    Collection<Segment> result = testDAO.readAll(HubClientAccess.internal(), ImmutableList.of(chain5.getId()));
+
+    assertNotNull(result);
+    assertEquals(20L, result.size());
+  }
+
   @Test
   public void readMany_byChainEmbedKey() throws Exception {
     chain5 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));

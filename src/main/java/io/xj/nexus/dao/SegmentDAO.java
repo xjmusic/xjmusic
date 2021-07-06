@@ -106,6 +106,15 @@ public interface SegmentDAO extends DAO<Segment> {
   <N> void createAllSubEntities(HubClientAccess access, Collection<N> entities) throws DAOPrivilegeException, DAOFatalException;
 
   /**
+   Same as read many, but with no limit
+
+   @param access   control
+   @param chainIds for which to get segments
+   @return all segments
+   */
+  Collection<Segment> readAll(HubClientAccess access, Collection<String> chainIds) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
+
+  /**
    Read all Segments that are accessible, by Chain Id, starting at a particular offset
    limit max # of segments readable at once in environment configuration
 

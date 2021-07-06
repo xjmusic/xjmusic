@@ -818,7 +818,7 @@ class FabricatorImpl implements Fabricator {
       jsonapiPayload.setDataOne(jsonapiPayloadFactory.toPayloadObject(chain));
       for (ChainBinding binding : chainBindings)
         jsonapiPayload.addToIncluded(jsonapiPayloadFactory.toPayloadObject(binding));
-      for (Segment segment : segmentDAO.readMany(access, ImmutableList.of(chain.getId())))
+      for (Segment segment : segmentDAO.readAll(access, ImmutableList.of(chain.getId())))
         jsonapiPayload.addToIncluded(jsonapiPayloadFactory.toPayloadObject(segment));
       return jsonapiPayloadFactory.serialize(jsonapiPayload);
 
