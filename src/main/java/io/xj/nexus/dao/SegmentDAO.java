@@ -106,29 +106,6 @@ public interface SegmentDAO extends DAO<Segment> {
   <N> void createAllSubEntities(HubClientAccess access, Collection<N> entities) throws DAOPrivilegeException, DAOFatalException;
 
   /**
-   Same as read many, but with no limit
-
-   @param access   control
-   @param chainIds for which to get segments
-   @return all segments
-   */
-  Collection<Segment> readAll(HubClientAccess access, Collection<String> chainIds) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
-
-  /**
-   Read all Segments that are accessible, by Chain Id, starting at a particular offset
-   limit max # of segments readable at once in environment configuration
-
-   @param access     control
-   @param chainId    to read all segments of
-   @param fromOffset to read segments form
-   @return array of segments as JSON
-   @throws DAOFatalException     on failure
-   @throws DAOExistenceException if the entity does not exist
-   @throws DAOPrivilegeException if access is prohibited
-   */
-  Collection<Segment> readManyFromOffset(HubClientAccess access, String chainId, Long fromOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
-
-  /**
    Read all Segments that are accessible, by Chain Id, starting and ending at particular offsets
 
    @param access     control
@@ -141,34 +118,6 @@ public interface SegmentDAO extends DAO<Segment> {
    @throws DAOPrivilegeException if access is prohibited
    */
   Collection<Segment> readManyFromToOffset(HubClientAccess access, String chainId, Long fromOffset, Long toOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
-
-  /**
-   Read all Segments in a specified state
-
-   @param access  control
-   @param chainId to read segments in
-   @param state   of segments to read
-   @return segments
-   @throws DAOFatalException     on failure
-   @throws DAOExistenceException if the entity does not exist
-   @throws DAOPrivilegeException if access is prohibited
-   */
-  Collection<Segment> readManyInState(HubClientAccess access, String chainId, Segment.State state) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
-
-  /**
-   Read all Segments that are accessible, by Chain Embed Key, starting at a particular offset
-   limit max # of segments readable at once in environment configuration
-   [#150279540] Unauthenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
-
-   @param access        control
-   @param chainEmbedKey to read all segments of
-   @param fromOffset    to read segments form
-   @return array of segments as JSON
-   @throws DAOFatalException     on failure
-   @throws DAOExistenceException if the entity does not exist
-   @throws DAOPrivilegeException if access is prohibited
-   */
-  Collection<Segment> readManyFromOffsetByEmbedKey(HubClientAccess access, String chainEmbedKey, Long fromOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
 
   /**
    Read all Segments that are accessible, by Chain Id, starting at a particular time in seconds UTC since epoch.

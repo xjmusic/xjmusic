@@ -180,7 +180,7 @@ public class NexusWorkImpl implements NexusWork {
     timer.lap();
     for (Chain chain : fabricatedChains) {
       try {
-        var segment = segmentDAO.getLastDubbed(segmentDAO.readAll(access, ImmutableList.of(chain.getId())))
+        var segment = segmentDAO.getLastDubbed(segmentDAO.readMany(access, ImmutableList.of(chain.getId())))
           .orElseThrow(() -> new DAOExistenceException("No last-dubbed segment!"));
         var segmentLengthSeconds = segmentDAO.getLengthSeconds(segment);
         var fabricatedAheadSeconds = chain.getFabricatedAheadSeconds();
@@ -730,6 +730,6 @@ public class NexusWorkImpl implements NexusWork {
    @param chain fabricating
    */
   private float computeFabricatedAheadSeconds(Chain chain) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    return computeFabricatedAheadSeconds(chain, segmentDAO.readAll(access, ImmutableList.of(chain.getId())));
+    return computeFabricatedAheadSeconds(chain, segmentDAO.readMany(access, ImmutableList.of(chain.getId())));
   }
 }

@@ -282,7 +282,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       // [#116] block update Chain state: cannot change chain startAt time after has segments
       if (Value.isSet(builder.getStartAt()))
         if (!existing.getStartAt().equals(builder.getStartAt()))
-          if (!segmentDAO.readAll(access, ImmutableList.of(builder.getId())).isEmpty())
+          if (!segmentDAO.readMany(access, ImmutableList.of(builder.getId())).isEmpty())
             throw new DAOValidationException("cannot change chain startAt time after it has segments");
 
       // Commit changes
@@ -380,7 +380,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       for (ChainBinding chainBinding : chainBindingDAO.readMany(access, ImmutableList.of()))
         chainBindingDAO.destroy(access, chainBinding.getId());
 
-      for (Segment segment : segmentDAO.readAll(access, ImmutableList.of()))
+      for (Segment segment : segmentDAO.readMany(access, ImmutableList.of()))
         segmentDAO.destroy(access, segment.getId());
 
       store.deleteChain(id);

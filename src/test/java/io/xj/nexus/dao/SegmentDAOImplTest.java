@@ -3,8 +3,6 @@ package io.xj.nexus.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValueFactory;
 import io.xj.Account;
 import io.xj.Chain;
 import io.xj.Segment;
@@ -19,7 +17,6 @@ import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,10 +53,8 @@ public class SegmentDAOImplTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = NexusTestConfiguration.getDefault()
-      .withValue("segment.limitReadSize", ConfigValueFactory.fromAnyRef(12));
     Environment env = Environment.getDefault();
-    var injector = AppConfiguration.inject(config, env, ImmutableSet.of(new NexusDAOModule()));
+    var injector = AppConfiguration.inject(AppConfiguration.getDefault(), env, ImmutableSet.of(new NexusDAOModule()));
     entityFactory = injector.getInstance(EntityFactory.class);
     Topology.buildHubApiTopology(entityFactory);
     Topology.buildNexusApiTopology(entityFactory);
@@ -363,33 +358,7 @@ public class SegmentDAOImplTest {
    [#173806948] List of Segments returned should not be more than a dozen or so
    */
   @Test
-  public void readMany_doesNotExceedReadLimit() throws Exception {
-    for (int i = 0; i < 20; i++)
-      store.put(Segment.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setChainId(chain3.getId())
-        .setOffset(4L)
-        .setState(Segment.State.Crafting)
-        .setBeginAt("1995-04-28T11:23:00.000001Z")
-        .setEndAt("1995-04-28T11:23:32.000001Z")
-        .setTotal(64)
-        .setDensity(0.74)
-        .setKey("C# minor 7 b9")
-        .setTempo(120.0)
-        .build());
-    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Engineer");
-
-    Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(chain3.getId()));
-
-    assertNotNull(result);
-    assertEquals(12L, result.size());
-  }
-
-  /**
-   [#173806948] List of Segments returned should not be more than a dozen or so
-   */
-  @Test
-  public void readMany_byChainEmbedKey_doesNotExceedReadLimit() throws Exception {
+  public void readMany_hasNoLimit() throws Exception {
     chain5 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
     for (int i = 0; i < 20; i++)
       store.put(Segment.newBuilder()
@@ -405,33 +374,7 @@ public class SegmentDAOImplTest {
         .setTempo(120.0)
         .build());
 
-    Collection<Segment> result = testDAO.readManyByEmbedKey(HubClientAccess.internal(), "barnacles");
-
-    assertNotNull(result);
-    assertEquals(12L, result.size());
-  }
-
-  /**
-   [#173806948] List of Segments returned should not be more than a dozen or so
-   */
-  @Test
-  public void readAll_hasNoLimit() throws Exception {
-    chain5 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
-    for (int i = 0; i < 20; i++)
-      store.put(Segment.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setChainId(chain5.getId())
-        .setOffset(4L)
-        .setState(Segment.State.Crafting)
-        .setBeginAt("1995-04-28T11:23:00.000001Z")
-        .setEndAt("1995-04-28T11:23:32.000001Z")
-        .setTotal(64)
-        .setDensity(0.74)
-        .setKey("C# minor 7 b9")
-        .setTempo(120.0)
-        .build());
-
-    Collection<Segment> result = testDAO.readAll(HubClientAccess.internal(), ImmutableList.of(chain5.getId()));
+    Collection<Segment> result = testDAO.readMany(HubClientAccess.internal(), ImmutableList.of(chain5.getId()));
 
     assertNotNull(result);
     assertEquals(20L, result.size());
@@ -522,22 +465,6 @@ public class SegmentDAOImplTest {
   }
 
   @Test
-  public void readManyFromOffset() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Engineer");
-
-    Collection<Segment> result = testDAO.readManyFromOffset(access, chain3.getId(), 2L);
-
-    assertEquals(3L, result.size());
-    Iterator<Segment> it = result.iterator();
-    Segment actualResult0 = it.next();
-    assertEquals(Segment.State.Crafted, actualResult0.getState());
-    Segment result1 = it.next();
-    assertEquals(Segment.State.Crafting, result1.getState());
-    Segment result2 = it.next();
-    assertEquals(Segment.State.Planned, result2.getState());
-  }
-
-  @Test
   public void readManyFromToOffset() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
@@ -558,82 +485,6 @@ public class SegmentDAOImplTest {
     Collection<Segment> result = testDAO.readManyFromToOffset(access, chain3.getId(), -1L, -1L);
 
     assertEquals(0L, result.size());
-  }
-
-  @Test
-  public void readManyFromOffset_byChainEmbedKey() throws Exception {
-    chain5 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain5.getId())
-      .setOffset(0L)
-      .setState(Segment.State.Dubbed)
-      .setKey("D major")
-      .setTotal(64)
-      .setDensity(0.73)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .build());
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain5.getId())
-      .setOffset(1L)
-      .setState(Segment.State.Dubbing)
-      .setKey("Db minor")
-      .setTotal(64)
-      .setDensity(0.85)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:01:32.000001Z")
-      .build());
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain5.getId())
-      .setOffset(2L)
-      .setState(Segment.State.Crafted)
-      .setKey("F major")
-      .setTotal(64)
-      .setDensity(0.30)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:02:04.000001Z")
-      .build());
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain5.getId())
-      .setOffset(3L)
-      .setState(Segment.State.Crafting)
-      .setKey("E minor")
-      .setTotal(64)
-      .setDensity(0.41)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:02:36.000001Z")
-      .build());
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain5.getId())
-      .setBeginAt("2017-02-14T12:03:08.000001Z")
-      .setOffset(4L)
-      .setState(Segment.State.Planned)
-      .setKey("E minor")
-      .setTotal(64)
-      .setDensity(0.41)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .build());
-
-    Collection<Segment> result = testDAO.readManyFromOffsetByEmbedKey(HubClientAccess.internal(), "barnacles", 2L);
-
-    assertEquals(3L, result.size());
-    Iterator<Segment> it = result.iterator();
-    Segment actualResult0 = it.next();
-    assertEquals(Segment.State.Crafted, actualResult0.getState());
-    Segment result1 = it.next();
-    assertEquals(Segment.State.Crafting, result1.getState());
-    Segment result2 = it.next();
-    assertEquals(Segment.State.Planned, result2.getState());
   }
 
   @Test

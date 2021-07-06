@@ -49,7 +49,6 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   private final ChainDAO chainDAO;
   private final int playerBufferAheadSeconds;
   private final int playerBufferDelaySeconds;
-  private final int limitSegmentReadSize;
   public static final Double LENGTH_MINIMUM = 0.01; //
   public static final Double AMPLITUDE_MINIMUM = 0.0; //
 
@@ -65,7 +64,6 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
 
     playerBufferAheadSeconds = config.getInt("player.bufferAheadSeconds");
     playerBufferDelaySeconds = config.getInt("player.bufferDelaySeconds");
-    limitSegmentReadSize = config.getInt("segment.limitReadSize");
   }
 
   /**
@@ -195,7 +193,6 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       return store.getAllSegments(chainId)
         .stream()
         .sorted(Comparator.comparing(Segment::getOffset).reversed())
-        .limit(limitSegmentReadSize)
         .collect(Collectors.toList());
 
     } catch (NexusException e) {
@@ -239,11 +236,6 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
 
   @Override
   public Collection<Segment> readMany(HubClientAccess access, Collection<String> chainIds) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    return readAll(access, chainIds).stream().limit(limitSegmentReadSize).collect(Collectors.toList());
-  }
-
-  @Override
-  public Collection<Segment> readAll(HubClientAccess access, Collection<String> chainIds) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     try {
       Collection<Segment> segments = Lists.newArrayList();
       for (String chainId : chainIds)
@@ -259,11 +251,6 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public Collection<Segment> readManyFromOffset(HubClientAccess access, String chainId, Long fromOffset) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException {
-    return readManyFromToOffset(access, chainId, fromOffset, fromOffset + limitSegmentReadSize);
-  }
-
-  @Override
   public Collection<Segment> readManyFromToOffset(HubClientAccess access, String chainId, Long fromOffset, Long toOffset) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException {
     try {
       requireChainAccount(access, chainId);
@@ -273,36 +260,11 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
           .stream()
           .filter(s -> s.getOffset() >= fromOffset && s.getOffset() <= toOffset)
           .sorted(Comparator.comparing(Segment::getOffset))
-          .limit(limitSegmentReadSize)
           .collect(Collectors.toList());
 
     } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
-  }
-
-  @Override
-  public Collection<Segment> readManyInState(HubClientAccess access, String chainId, Segment.State state) throws DAOPrivilegeException, DAOFatalException {
-    try {
-      requireTopLevel(access);
-      return
-        store.getAllSegments(chainId)
-          .stream()
-          .filter(s -> state.equals(s.getState()))
-          .sorted(Comparator.comparing(Segment::getOffset))
-          .limit(limitSegmentReadSize)
-          .collect(Collectors.toList());
-
-    } catch (NexusException e) {
-      throw new DAOFatalException(e);
-    }
-  }
-
-  @Override
-  public Collection<Segment> readManyFromOffsetByEmbedKey(HubClientAccess access, String chainEmbedKey, Long fromOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    return readManyFromToOffset(access,
-      chainDAO.readOneByEmbedKey(access, chainEmbedKey).getId(),
-      fromOffset, fromOffset + limitSegmentReadSize);
   }
 
   @Override
@@ -319,7 +281,6 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
           !Strings.isNullOrEmpty(s.getEndAt()) &&
           minEndAt.isBefore(Instant.parse(s.getEndAt())))
         .sorted(Comparator.comparing(Segment::getOffset))
-        .limit(limitSegmentReadSize)
         .collect(Collectors.toList());
 
     } catch (NexusException e) {

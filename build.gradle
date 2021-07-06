@@ -79,7 +79,7 @@ jar {
 
 applicationDefaultJvmArgs = [
   "-javaagent:/usr/local/dd-java-agent.jar",
-  "-Xmx5600m"
+  "-Xmx2500m"
 ]
 
 application {
@@ -97,10 +97,6 @@ java {
 
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
-}
-
-test {
-  failFast = true
 }
 
 jacocoTestReport {
