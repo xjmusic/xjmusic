@@ -246,7 +246,6 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
         store.getAllSegments(requireChainAccount(access, chainId))
           .stream()
           .sorted(Comparator.comparing(Segment::getOffset))
-          .limit(limitSegmentReadSize)
           .forEach(segments::add);
       return segments;
 
