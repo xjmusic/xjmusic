@@ -154,7 +154,7 @@ public class CraftFoundationNextMacroTest {
       assertEquals(Segment.Type.NextMacro, result.getType());
       assertEquals("2017-02-14T12:03:15.840157Z", result.getEndAt());
       assertEquals(16, result.getTotal());
-      assertEquals("AAC", result.getOutputEncoder());
+      assertEquals("OGG", result.getOutputEncoder());
       assertEquals(0.45, result.getDensity(), 0.01);
       assertEquals("G minor", result.getKey());
       assertEquals(125, result.getTempo(), 0.01);

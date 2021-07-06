@@ -1311,7 +1311,7 @@ public class ChainDAOImplTest {
   public void buildNextSegmentOrComplete_chainEndingInCraftedSegment() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Internal");
     var fromChain = test.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
-    test.put(NexusIntegrationTestingFixtures.makeSegment(fromChain, 5, Segment.State.Crafted, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-08-12T14:03:38.000001Z"), "A major", 64, 0.52, 120.0, "chains-1-segments-9f7s89d8a7892.wav", "AAC"));
+    test.put(NexusIntegrationTestingFixtures.makeSegment(fromChain, 5, Segment.State.Crafted, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-08-12T14:03:38.000001Z"), "A major", 64, 0.52, 120.0, "chains-1-segments-9f7s89d8a7892.wav", "OGG"));
 
     Segment result = subject.buildNextSegmentOrCompleteTheChain(access, fromChain, Instant.parse("2014-08-12T14:03:38.000001Z"), Instant.parse("2014-08-12T13:53:38.000001Z")).orElseThrow();
 

@@ -519,7 +519,7 @@ public class SegmentDAOImplTest {
       Instant endAt = beginAt.plusMillis(1000 * total * 60 / tempo);
       store.put(NexusIntegrationTestingFixtures.makeSegment(chain5, offset, Segment.State.Dubbed,
         beginAt, endAt, "D major", total, 0.73, tempo,
-        "chains-1-segments-9f7s89d8a7892.wav", "AAC"));
+        "chains-1-segments-9f7s89d8a7892.wav", "OGG"));
       beginAt = endAt;
     }
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(account1), "User,Engineer");

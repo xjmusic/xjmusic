@@ -17,6 +17,8 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.InternalResource;
+import io.xj.lib.mixer.Mixer;
+import io.xj.lib.mixer.MixerFactory;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.Fabricator;
@@ -41,6 +43,7 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,6 +60,12 @@ public class DubDubMasterContinueTest {
   @Mock
   public HubClient hubClient;
 
+  @Mock
+  public Mixer mixer;
+
+  @Mock
+  public MixerFactory mixerFactory;
+
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
@@ -68,10 +77,12 @@ public class DubDubMasterContinueTest {
           public void configure() {
             bind(FileStoreProvider.class).toInstance(fileStoreProvider);
             bind(HubClient.class).toInstance(hubClient);
+            bind(MixerFactory.class).toInstance(mixerFactory);
           }
         })));
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     dubFactory = injector.getInstance(DubFactory.class);
+    when(mixerFactory.createMixer(any())).thenReturn(mixer);
     var entityFactory = injector.getInstance(EntityFactory.class);
     Topology.buildHubApiTopology(entityFactory);
     Topology.buildNexusApiTopology(entityFactory);

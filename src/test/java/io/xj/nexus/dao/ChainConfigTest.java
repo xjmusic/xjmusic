@@ -34,7 +34,7 @@ public class ChainConfigTest {
         "outputEncoding = \"PCM_SIGNED\"\n" +
         "mixerCompressRatioMin = 0.5\n" +
         "dubMasterVolumeInstrumentTypePad = 0.95\n" +
-        "outputContainer = \"AAC\"\n" +
+        "outputContainer = \"OGG\"\n" +
         "dubMasterVolumeInstrumentTypePercussive = 1.2\n" +
         "outputChannels = 2\n" +
         "dubMasterVolumeInstrumentTypeStab = 0.8\n" +
@@ -67,7 +67,7 @@ public class ChainConfigTest {
         "mixerSampleAttackMicros = 1000\n" +
         "mixerSampleReleaseMicros = 60000\n" +
         "outputChannels = 2\n" +
-        "outputContainer = \"AAC\"\n" +
+        "outputContainer = \"OGG\"\n" +
         "outputEncoding = \"PCM_SIGNED\"\n" +
         "outputEncodingQuality = 0.618\n" +
         "outputFrameRate = 48000\n" +

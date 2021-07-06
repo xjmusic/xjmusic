@@ -121,7 +121,7 @@ public class CraftFoundationInitialTest {
 
     Segment result = store.getSegment(segment6.getId()).orElseThrow();
     assertEquals(segment6.getId(), result.getId());
-    assertEquals("AAC", result.getOutputEncoder());
+    assertEquals("OGG", result.getOutputEncoder());
     assertEquals(Segment.Type.Initial, result.getType());
     assertEquals("2017-02-14T12:01:07.384616Z", result.getEndAt());
     assertEquals(16, result.getTotal());

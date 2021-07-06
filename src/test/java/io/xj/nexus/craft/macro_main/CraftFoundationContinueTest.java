@@ -185,7 +185,7 @@ public class CraftFoundationContinueTest {
     assertEquals(Segment.Type.Continue, result.getType());
     assertEquals("2017-02-14T12:03:23.680157Z", result.getEndAt());
     assertEquals(32, result.getTotal());
-    assertEquals("AAC", result.getOutputEncoder());
+    assertEquals("OGG", result.getOutputEncoder());
     assertEquals(0.45, result.getDensity(), 0.001);
     assertEquals("G minor", result.getKey());
     assertEquals(125, result.getTempo(), 0.001);
