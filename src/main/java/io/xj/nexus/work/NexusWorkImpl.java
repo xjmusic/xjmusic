@@ -189,7 +189,7 @@ public class NexusWorkImpl implements NexusWork {
         var advancedAheadSeconds = fabricatedAheadSeconds - lastAheadSeconds;
         var lostSeconds = (segmentLengthSeconds - timer.getLapTotalSeconds()) - advancedAheadSeconds;
         var dubbedUntilMillis = Instant.parse(segment.getEndAt()).toEpochMilli();
-        if (Objects.equals(lastDubbedUntilMillis, dubbedUntilMillis))
+        if (!Objects.equals(segment.getId(), lastSegment.getId()) && Objects.equals(lastDubbedUntilMillis, dubbedUntilMillis))
           LOG.error("Segment[{}]@{} ends at same time as last Segment[{}]@{}!",
             SegmentDAO.getIdentifier(segment), segment.getOffset(), SegmentDAO.getIdentifier(lastSegment), lastSegment.getOffset());
         LOG.info("Chain[{}] ahead {}s at {} ({} +{}s) lost {}s",
