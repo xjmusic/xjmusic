@@ -191,7 +191,7 @@ public class NexusWorkImpl implements NexusWork {
         if (Objects.nonNull(lastSegment) &&
           Objects.equals(segment.getBeginAt(), lastSegment.getBeginAt())) {
           broken = true;
-          LOG.error("Segment[{}]@{} starts at same time as last Segment[{}]@{}!",
+          LOG.error("Segment[{}] @ {} starts at same time as last Segment[{}] @ {}!",
             SegmentDAO.getIdentifier(segment), segment.getOffset(), SegmentDAO.getIdentifier(lastSegment), lastSegment.getOffset());
         }
         LOG.info("Chain[{}] ahead {}s at {} ({} +{}s) lost {}s",
