@@ -98,6 +98,7 @@ public class NexusWorkImpl implements NexusWork {
   private static final String METRIC_FABRICATED_AHEAD_SECONDS = "fabricated_ahead_seconds";
   private static final String METRIC_SEGMENT_CREATED = "segment_created";
   private boolean alive = true;
+  private boolean broken = false;
 
   @Inject
   public NexusWorkImpl(
@@ -188,9 +189,11 @@ public class NexusWorkImpl implements NexusWork {
         var advancedAheadSeconds = fabricatedAheadSeconds - lastAheadSeconds;
         var lostSeconds = (segmentLengthSeconds - timer.getLapTotalSeconds()) - advancedAheadSeconds;
         if (Objects.nonNull(lastSegment) &&
-          Objects.equals(segment.getBeginAt(), lastSegment.getBeginAt()))
+          Objects.equals(segment.getBeginAt(), lastSegment.getBeginAt())) {
+          broken = true;
           LOG.error("Segment[{}]@{} starts at same time as last Segment[{}]@{}!",
             SegmentDAO.getIdentifier(segment), segment.getOffset(), SegmentDAO.getIdentifier(lastSegment), lastSegment.getOffset());
+        }
         LOG.info("Chain[{}] ahead {}s at {} ({} +{}s) lost {}s",
           ChainDAO.getIdentifier(chain),
           fabricatedAheadSeconds,
@@ -698,7 +701,8 @@ public class NexusWorkImpl implements NexusWork {
 
   @Override
   public boolean isHealthy() {
-    return nextCycleMillis > System.currentTimeMillis() - healthCycleStalenessThresholdMillis;
+    return nextCycleMillis > System.currentTimeMillis() - healthCycleStalenessThresholdMillis
+      && !broken;
   }
 
   /**
