@@ -211,7 +211,6 @@ public class NexusWorkImpl implements NexusWork {
     nextMedicMillis = System.currentTimeMillis() + (medicCycleSeconds * MILLIS_PER_SECOND);
     timer.section("Medic");
 
-    LOG.info("Total elapsed time: {}", timer.totalsToString());
     try {
       // After a chain starts, it has N seconds before being judged stalled
       Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionGraceSeconds);
@@ -242,6 +241,7 @@ public class NexusWorkImpl implements NexusWork {
       }
 
       telemetryProvider.getStatsDClient().incrementCounter("chain.revived", stalledChainIds.size());
+      LOG.info("Total elapsed time: {}", timer.totalsToString());
 
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
       didFailWhile("Medic checking & reviving all", e);
