@@ -38,8 +38,8 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   private static final double SCORE_MATCH = 1000;
   private static final double SCORE_AVOID = -SCORE_MATCH * 2;
   private static final double SCORE_DIRECT = 10 * SCORE_MATCH;
-  private static final double SCORE_MACRO_ENTROPY = 0.5;
-  private static final double SCORE_MAIN_ENTROPY = 0.5;
+  private static final double SCORE_MACRO_ENTROPY = 1.0;
+  private static final double SCORE_MAIN_ENTROPY = 1.0;
   private static final long NANOS_PER_SECOND = 1_000_000_000;
   private final ApiUrlProvider apiUrlProvider;
 

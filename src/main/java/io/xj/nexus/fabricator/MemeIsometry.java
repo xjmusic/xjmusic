@@ -15,7 +15,7 @@ public class MemeIsometry extends Isometry {
   private static final String KEY_NAME = "name";
   private static final String NOT_PREFIX = "!";
   private static final int WEIGHT_MATCH = 1;
-  private static final int WEIGHT_ANTIMATCH = 10;
+  private static final int WEIGHT_ANTI_MATCH = 20;
 
   /**
    Instantiate a new MemeIsometry of a group of source Memes,
@@ -50,7 +50,7 @@ public class MemeIsometry extends Isometry {
     return targets.stream()
       .map(Text::toMeme)
       .flatMap(target -> sources.stream().map(source -> score(source, target)))
-      .reduce(0, Integer::sum) / (double) sources.size();
+      .reduce(0, Integer::sum);
   }
 
   /**
@@ -63,9 +63,9 @@ public class MemeIsometry extends Isometry {
   private int score(String source, String target) {
     if (Objects.equal(source, target)) return WEIGHT_MATCH;
     if (NOT_PREFIX.equals(source.substring(0, 1)) && source.substring(1).equals(target))
-      return -WEIGHT_ANTIMATCH;
+      return -WEIGHT_ANTI_MATCH;
     if (NOT_PREFIX.equals(target.substring(0, 1)) && target.substring(1).equals(source))
-      return -WEIGHT_ANTIMATCH;
+      return -WEIGHT_ANTI_MATCH;
     return 0;
   }
 

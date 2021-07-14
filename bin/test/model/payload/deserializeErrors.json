@@ -1,0 +1,37 @@
+{
+  "data": {
+    "id": "17",
+    "type": "chains",
+    "relationships": {
+      "chainBindings": {
+        "data": []
+      },
+      "chainConfigs": {
+        "data": []
+      },
+      "account": {
+        "data": {
+          "id": "25",
+          "type": "accounts"
+        }
+      }
+    },
+    "attributes": {
+      "embedKey": "test_print",
+      "stopAt": null,
+      "name": "Test Print #1",
+      "state": "Fabricate",
+      "type": "Production",
+      "startAt": "2014-08-12T12:17:02.527142Z"
+    }
+  },
+  "errors": [
+    {
+      "links": {},
+      "code": "CoreException",
+      "title": "Chain OutputChannels requires numeric value!",
+      "detail": null,
+      "id": null
+    }
+  ]
+}

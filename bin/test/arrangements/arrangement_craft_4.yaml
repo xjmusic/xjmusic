@@ -1,0 +1,90 @@
+#  Based on arrangement test #4
+#  https://docs.google.com/document/d/1EObO0I6EEsIZjXTiinqS6tb4A-tH4W2EGogL2WTc4O4/
+#
+#  This test aims to establish the musically appropriate way for XJ to apply standard detail programs to a
+#  published main program, as compared to a flawed transcribed XJ performance of that main program.
+#  Unlike Tests #1-3, this test utilizes:
+#    * Slash chords
+#    * Four-note chords
+#  Test is based on Main Program “Earth 3”, sequence “0”
+#
+#  [#176696738] XJ has a serviceable voicing algorithm
+---
+
+bassInstrument:
+  isTonal: true
+  isMultiphonic: true
+  notes: C1, C#1, D1, D#1, E1, F1, F#1, G1, G#1, A1, A#1, B1, C2, C#2, D2, D#2, E2, F2, F#2, G2, G#2, A2, A#2, B2, C3, C#3, D3, D#3, E3
+
+padInstrument:
+  isTonal: true
+  isMultiphonic: true
+  notes: E3, F3, F#, G3, G#3, A3, A#3, B3, C4, C#4, D4, D#4, E4, F4, F#4, G4, G#4, A4, A#4, B4, C5, C#5, D5, D#5, E5, F5, F#5, G5, G#5, A5, A#5, B5, C6
+
+stabInstrument:
+  isTonal: true
+  isMultiphonic: true
+  notes: E3, F3, F#, G3, G#3, A3, A#3, B3, C4, C#4, D4, D#4, E4, F4, F#4, G4, G#4, A4, A#4, B4, C5, C#5, D5, D#5, E5, F5, F#5, G5, G#5, A5, A#5, B5, C6
+
+bassDetailProgram:
+  key: C
+  doPatternRestartOnChord: false
+  sequence:
+    total: 4
+    patterns:
+      - type: Loop
+        total: 4
+        events:
+          - { position: 0.0, duration: 0.5, note: "C2" }
+          - { position: 0.5, duration: 0.5, note: "C2" }
+          - { position: 1.0, duration: 0.5, note: "C2" }
+          - { position: 1.5, duration: 0.5, note: "C2" }
+          - { position: 2.0, duration: 0.5, note: "C2" }
+          - { position: 2.5, duration: 0.5, note: "C2" }
+          - { position: 3.0, duration: 0.5, note: "C2" }
+          - { position: 3.5, duration: 0.5, note: "C2" }
+
+padDetailProgram:
+  key: C
+  doPatternRestartOnChord: true
+  sequence:
+    total: 4
+    patterns:
+      - type: Loop
+        total: 4
+        events:
+          - { position: 0.0, duration: 4.0, note: "F3, A3, C4, E4" }
+
+stabDetailProgram:
+  key: C
+  doPatternRestartOnChord: true
+  sequence:
+    total: 4
+    patterns:
+      - type: Loop
+        total: 4
+        events:
+          - { position: 0.0, duration: 0.5, note: "F3, A3, C4, E4" }
+
+segment:
+  key: A
+  total: 4
+  density: 1.0
+  tempo: 120.0
+  chords:
+    - position: 0.0
+      name: Gsus4/A
+      voicings:
+        # Bass deliberately has too-high voicings available to test against
+        # [#178277316] Bass always prefers the lowest end of the available voicings
+        bass: E1, G1, A1, C2, D2, E2, G2, A2, C3, D3, E3, G3, A3, C4, D4, E4, G4, A4, C5, D5
+        pad: G3, C4, D4, G4, C5, D5, G5, C6
+        stab: G3, C4, D4, G4, C5, D5, G5, C6
+
+assertPicks:
+  bass:
+    - { length: 0.25, count: 8, notes: "A1" }
+  pad:
+    - { start: 0.0, length: 2.0, count: 4, notes: "D4, G4, C5, D5" }
+  stab:
+    - { start: 0.0, length: 0.25, count: 4, notes: "D4, G4, C5, D5" }

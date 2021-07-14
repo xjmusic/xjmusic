@@ -1,0 +1,33 @@
+<!-- Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<configuration>
+
+  <appender name="JSON_TCP" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+    <remoteHost>intake.logs.datadoghq.com</remoteHost>
+    <port>10514</port>
+    <keepAliveDuration>20 seconds</keepAliveDuration>
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+      <prefix class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+          <pattern>ffe6de0162d7b2903a673a33139e6604 %mdc{keyThatDoesNotExist}</pattern>
+        </layout>
+      </prefix>
+    </encoder>
+  </appender>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>[%thread] %-5level %logger{10} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="WARN">
+    <appender-ref ref="JSON_TCP"/>
+    <appender-ref ref="STDOUT"/>
+  </root>
+
+  <logger name="org.glassfish.jersey" level="ERROR"/>
+  <logger name="io.xj" level="INFO"/>
+
+</configuration>
+

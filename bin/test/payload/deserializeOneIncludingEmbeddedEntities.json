@@ -1,0 +1,42 @@
+{
+  "data": {
+    "id": "805cf759-4e94-4275-a82d-5255c9e69347",
+    "attributes": {
+      "name": "Cool"
+    },
+    "relationships": {
+      "library": {
+        "data": {
+          "type": "libraries",
+          "id": "f94290f4-537c-4444-92e5-dc0b0df352e5"
+        }
+      },
+      "programSequences": {
+        "data": [
+          {
+            "type": "program-sequences",
+            "id": "9b862c2f-192f-4041-b849-442a2ec50218"
+          }
+        ]
+      }
+    },
+    "type": "programs"
+  },
+  "included": [
+    {
+      "id": "9b862c2f-192f-4041-b849-442a2ec50218",
+      "attributes": {
+        "name": "Test #5"
+      },
+      "relationships": {
+        "program": {
+          "data": {
+            "type": "programs",
+            "id": "805cf759-4e94-4275-a82d-5255c9e69347"
+          }
+        }
+      },
+      "type": "program-sequences"
+    }
+  ]
+}
