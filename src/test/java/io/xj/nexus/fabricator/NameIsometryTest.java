@@ -4,9 +4,10 @@ package io.xj.nexus.fabricator;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class NameIsometryTest {
 
@@ -32,13 +33,13 @@ public class NameIsometryTest {
 
   @Test
   public void getSourceStems() {
-    List<String> result = NameIsometry.ofEvents(ImmutableList.of(
+    Set<String> result = NameIsometry.ofEvents(ImmutableList.of(
       "TomHigh",
       "TomLow",
       "Tom"
     )).getSources();
 
-    assertArrayEquals(new String[]{"TMH", "TML", "TM"}, result.toArray());
+    assertArrayEquals(new String[]{"TM", "TMH", "TML"}, result.stream().sorted().toArray());
   }
 
 }

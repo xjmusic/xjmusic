@@ -8,7 +8,17 @@ import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.*;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Instrument;
+import io.xj.Library;
+import io.xj.Program;
+import io.xj.ProgramSequencePattern;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -29,7 +39,11 @@ import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.nexus.hub_client.client.*;
+import io.xj.nexus.hub_client.client.HubClient;
+import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubClientException;
+import io.xj.nexus.hub_client.client.HubClientModule;
+import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreModule;
 import io.xj.nexus.testing.NexusTestConfiguration;
@@ -46,10 +60,18 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeEvent;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makePattern;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeProgram;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeSequence;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeTrack;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.makeVoice;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -548,7 +570,7 @@ public class FabricatorImplTest {
 
     var result = subject.getMemeIsometryOfNextSequenceInPreviousMacro();
 
-    assertEquals(ImmutableList.of("TROPICAL", "COZY"), result.getSources());
+    assertArrayEquals(new String[]{"COZY", "TROPICAL"}, result.getSources().stream().sorted().toArray());
   }
 
   @Test

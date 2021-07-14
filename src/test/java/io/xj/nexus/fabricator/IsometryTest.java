@@ -4,7 +4,7 @@ package io.xj.nexus.fabricator;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -15,14 +15,14 @@ public class IsometryTest {
   public void of() {
     Isometry result = Isometry.of(ImmutableList.of("Smooth", "Catlike"));
 
-    assertArrayEquals(new String[]{"Smooth", "Catlike"}, result.getSources().toArray());
+    assertArrayEquals(new String[]{"Catlike", "Smooth"}, result.getSources().stream().sorted().toArray());
   }
 
   @Test
   public void ofPhonetic() {
     Isometry result = Isometry.ofPhonetic(ImmutableList.of("Kick", "Snare"));
 
-    assertArrayEquals(new String[]{"KK", "SNR"}, result.getSources().toArray());
+    assertArrayEquals(new String[]{"KK", "SNR"}, result.getSources().stream().sorted().toArray());
   }
 
   @Test
@@ -30,14 +30,14 @@ public class IsometryTest {
     Isometry result = Isometry.of(ImmutableList.of("Smooth"));
     result.add("Catlike");
 
-    assertArrayEquals(new String[]{"Smooth", "Catlike"}, result.getSources().toArray());
+    assertArrayEquals(new String[]{"Catlike", "Smooth"}, result.getSources().stream().sorted().toArray());
   }
 
   @Test
   public void getSourceStems() {
-    List<String> result = Isometry.of(ImmutableList.of("Intensity", "Cool", "Dark")).getSources();
+    Set<String> result = Isometry.of(ImmutableList.of("Intensity", "Cool", "Dark")).getSources();
 
-    assertArrayEquals(new String[]{"Intensity", "Cool", "Dark"}, result.toArray());
+    assertArrayEquals(new String[]{"Cool", "Dark", "Intensity"}, result.stream().sorted().toArray());
   }
 
   @Test

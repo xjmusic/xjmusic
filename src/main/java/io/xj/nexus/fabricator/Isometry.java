@@ -1,13 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.codec.language.Metaphone;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,13 +14,13 @@ import java.util.Set;
  */
 public class Isometry {
   private static final String CONSTELLATION_DELIMITER = "_";
-  protected final List<String> sources;
+  protected final Set<String> sources;
 
   /**
    Default constructor
    */
   public Isometry() {
-    sources = Lists.newArrayList();
+    sources = Sets.newHashSet();
   }
 
   /**
@@ -83,8 +81,8 @@ public class Isometry {
 
    @return source memes
    */
-  List<String> getSources() {
-    return Collections.unmodifiableList(sources);
+  Set<String> getSources() {
+    return Collections.unmodifiableSet(sources);
   }
 
   /**
