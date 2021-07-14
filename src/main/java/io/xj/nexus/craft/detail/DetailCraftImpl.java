@@ -27,9 +27,9 @@ import java.util.stream.Collectors;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft {
-  private static final double SCORE_INSTRUMENT_ENTROPY = 5.0;
+  private static final double SCORE_INSTRUMENT_ENTROPY = 7.0;
   private static final double SCORE_MATCHED_MEMES = 1.0;
-  private static final double SCORE_DETAIL_ENTROPY = 5.0;
+  private static final double SCORE_DETAIL_ENTROPY = 7.0;
   private static final double SCORE_DIRECTLY_BOUND = 100;
 
   @Inject
