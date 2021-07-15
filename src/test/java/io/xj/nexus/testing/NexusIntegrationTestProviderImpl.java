@@ -15,7 +15,7 @@ import java.util.Collection;
 
 @Singleton
 public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestProvider {
-  final Logger log = LoggerFactory.getLogger(NexusIntegrationTestProviderImpl.class);
+  final Logger LOG = LoggerFactory.getLogger(NexusIntegrationTestProviderImpl.class);
   private final NexusEntityStore store;
 
   /**
@@ -37,10 +37,10 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
     config.getString("app.name");
 
     // Begin database prep
-    log.debug("Will prepare integration database.");
+    LOG.debug("Will prepare integration database.");
 
     // Prepared
-    log.debug("Did open master connection and prepare integration database.");
+    LOG.debug("Did open master connection and prepare integration database.");
   }
 
   @Override
