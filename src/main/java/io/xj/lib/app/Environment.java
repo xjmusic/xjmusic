@@ -131,9 +131,9 @@ public class Environment {
     awsFileUploadACL = getStr(vars, "AWS_FILE_UPLOAD_ACL", "bucket-owner-full-control");
     awsS3retryLimit = getInt(vars, "AWS_S3_RETRY_LIMIT", 10);
     chainBootstrapJson = getStr(vars, "CHAIN_BOOTSTRAP_JSON", EMPTY);
-    datadogStatsdHostname = getStr(vars, "DATADOG_STATSD_HOSTNAME", "localhost");
-    datadogStatsdPort = getInt(vars, "DATADOG_STATSD_PORT", 8125);
-    datadogStatsdPrefix = getStr(vars, "DATADOG_STATSD_PREFIX", "xj");
+    datadogStatsdHostname = getStr(vars, "DD_AGENT_HOST", "localhost");
+    datadogStatsdPort = getInt(vars, "DD_AGENT_PORT", 8125);
+    datadogStatsdPrefix = getStr(vars, "DD_AGENT_PREFIX", "xj");
     platformEnvironment = getStr(vars, "ENVIRONMENT", "dev");
     googleClientID = getStr(vars, "GOOGLE_CLIENT_ID", EMPTY);
     googleClientSecret = getStr(vars, "GOOGLE_CLIENT_SECRET", EMPTY);
