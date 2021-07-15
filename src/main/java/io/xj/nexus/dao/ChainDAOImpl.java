@@ -30,7 +30,6 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Collection;
@@ -353,7 +352,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         && Segment.State.Dubbed.equals(lastSegmentInChain.getState())) {
         updateState(access, chain.getId(), Chain.State.Complete);
       }
-      LOG.info("Chain[{}] is complete.", ChainDAO.getIdentifier(chain));
+      LOG.info("Chain[{}] is complete.", Chains.getIdentifier(chain));
       return Optional.empty();
     }
 
@@ -441,8 +440,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     created = created.toBuilder().setState(Chain.State.Fabricate).build();
 
     // publish a notification reporting the event
-    LOG.info("Revived Chain created {} from prior {} because {}", ChainDAO.getIdentifier(created), builder.getId(), reason);
-    pubSub.publish(String.format("Revived Chain created %s create from prior %s because %s", ChainDAO.getIdentifier(created), builder.getId(), reason), MessageType.Info.toString());
+    LOG.info("Revived Chain created {} from prior {} because {}", Chains.getIdentifier(created), builder.getId(), reason);
+    pubSub.publish(String.format("Revived Chain created %s create from prior %s because %s", Chains.getIdentifier(created), builder.getId(), reason), MessageType.Info.toString());
 
     // return newly created chain
     return created;

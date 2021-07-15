@@ -52,6 +52,7 @@ import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.nexus.dao.Chains;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.ChainBindingDAO;
 import io.xj.nexus.dao.ChainConfig;
@@ -87,6 +88,7 @@ import static io.xj.Instrument.Type.UNRECOGNIZED;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 class FabricatorImpl implements Fabricator {
+  private final int workBufferAheadSeconds;
   private Map<String, InstrumentAudio> previousInstrumentAudio;
   private Segment.Type type;
   private final Chain chain;
@@ -152,6 +154,7 @@ class FabricatorImpl implements Fabricator {
       this.config = config;
       workTempFilePathPrefix = env.getTempFilePathPrefix();
       segmentNameFormat = new DecimalFormat(config.getString("work.segmentNameFormat"));
+      workBufferAheadSeconds = config.getInt("work.bufferAheadSeconds");
 
       // caches
       voicingForSegmentChordInstrumentType = Maps.newHashMap();
@@ -170,8 +173,8 @@ class FabricatorImpl implements Fabricator {
       chain = chainDAO.readOne(access, segment.getChainId());
       chainConfig = new ChainConfig(chain, config);
       chainBindings = chainBindingDAO.readMany(access, ImmutableList.of(chain.getId()));
-      boundProgramIds = ChainDAO.targetIdsOfType(chainBindings, ChainBinding.Type.Program);
-      boundInstrumentIds = ChainDAO.targetIdsOfType(chainBindings, ChainBinding.Type.Instrument);
+      boundProgramIds = Chains.targetIdsOfType(chainBindings, ChainBinding.Type.Program);
+      boundInstrumentIds = Chains.targetIdsOfType(chainBindings, ChainBinding.Type.Instrument);
       log.debug("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(),
         chainConfig,
         CSV.prettyFrom(chainBindings, "and"));
@@ -663,22 +666,18 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public String getChainFullOutputMetadataKey() {
+    return fileStoreProvider.getChainStorageKey(Chains.getFullKey(getChainBaseKey()), FileStoreProvider.EXTENSION_JSON);
+  }
+
+  @Override
   public String getChainOutputMetadataKey() {
-    return getChainStorageKey(FileStoreProvider.EXTENSION_JSON);
+    return fileStoreProvider.getChainStorageKey(getChainBaseKey(), FileStoreProvider.EXTENSION_JSON);
   }
 
   @Override
   public String getSegmentStorageKey(String extension) {
     return fileStoreProvider.getSegmentStorageKey(getSegment().getStorageKey(), extension);
-  }
-
-  @Override
-  public String getChainStorageKey(String extension) {
-    return fileStoreProvider.getChainStorageKey(
-      Strings.isNullOrEmpty(getChain().getEmbedKey()) ?
-        String.format("chain-%s", getChainId())
-        : getChain().getEmbedKey(),
-      extension);
   }
 
   @Override
@@ -812,17 +811,24 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public String getChainFullMetadataJson() throws NexusException {
+    try {
+      return getChainMetadataJson(segmentDAO.readMany(access, ImmutableList.of(chain.getId())));
+
+    } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
+      throw new NexusException(e);
+    }
+  }
+
+  @Override
   public String getChainMetadataJson() throws NexusException {
     try {
-      JsonapiPayload jsonapiPayload = new JsonapiPayload();
-      jsonapiPayload.setDataOne(jsonapiPayloadFactory.toPayloadObject(chain));
-      for (ChainBinding binding : chainBindings)
-        jsonapiPayload.addToIncluded(jsonapiPayloadFactory.toPayloadObject(binding));
-      for (Segment segment : segmentDAO.readMany(access, ImmutableList.of(chain.getId())))
-        jsonapiPayload.addToIncluded(jsonapiPayloadFactory.toPayloadObject(segment));
-      return jsonapiPayloadFactory.serialize(jsonapiPayload);
+      var threshold = Instant.now().plusSeconds(workBufferAheadSeconds);
+      return getChainMetadataJson(segmentDAO.readMany(access, ImmutableList.of(chain.getId())).stream()
+        .filter(segment -> Instant.parse(segment.getBeginAt()).isBefore(threshold))
+        .collect(Collectors.toList()));
 
-    } catch (JsonApiException | DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
+    } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
       throw new NexusException(e);
     }
   }
@@ -1146,6 +1152,16 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
+   @return Chain base key
+   */
+  private String getChainBaseKey() {
+    return
+      Strings.isNullOrEmpty(getChain().getEmbedKey()) ?
+        String.format("chain-%s", getChainId())
+        : getChain().getEmbedKey();
+  }
+
+  /**
    Compute the lowest optimal range shift octaves
 
    @param sourceRange from
@@ -1239,6 +1255,28 @@ class FabricatorImpl implements Fabricator {
    */
   private String formatLog(String message) {
     return String.format("[segId=%s] %s", workbench.getSegment().getId(), message);
+  }
+
+  /**
+   Get the Chain Metadata JSON file from a set of segments
+
+   @param segments to include in metadata JSON
+   @return metadata JSON
+   @throws NexusException on failure
+   */
+  private String getChainMetadataJson(Collection<Segment> segments) throws NexusException {
+    try {
+      JsonapiPayload jsonapiPayload = new JsonapiPayload();
+      jsonapiPayload.setDataOne(jsonapiPayloadFactory.toPayloadObject(chain));
+      for (ChainBinding binding : chainBindings)
+        jsonapiPayload.addToIncluded(jsonapiPayloadFactory.toPayloadObject(binding));
+      for (Segment segment : segments)
+        jsonapiPayload.addToIncluded(jsonapiPayloadFactory.toPayloadObject(segment));
+      return jsonapiPayloadFactory.serialize(jsonapiPayload);
+
+    } catch (JsonApiException e) {
+      throw new NexusException(e);
+    }
   }
 
   /**

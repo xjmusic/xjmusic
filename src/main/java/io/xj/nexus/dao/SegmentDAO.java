@@ -21,19 +21,6 @@ import java.util.Optional;
 public interface SegmentDAO extends DAO<Segment> {
 
   /**
-   Find first segment choice of a given type in a collection of segment choices
-
-   @param segmentChoices to filter from
-   @param type           to find one of
-   @return segment choice of given type
-   */
-  static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, Program.Type type) throws DAOExistenceException {
-    Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getProgramType().equals(type)).findFirst();
-    if (found.isEmpty()) throw new DAOExistenceException(String.format("No %s-type choice found", type));
-    return found.get();
-  }
-
-  /**
    Create a Message in a given Segment
 
    @param access control
@@ -189,17 +176,6 @@ public interface SegmentDAO extends DAO<Segment> {
    @return last dubbed segment from collection
    */
   Optional<Segment> getLastDubbed(Collection<Segment> segments);
-
-  /**
-   Get the identifier or a Segment: embed key if available, else ID
-
-   @param segment to get identifier of
-   @return embed key if available, else ID
-   */
-  static String getIdentifier(@Nullable Segment segment) {
-    if (Objects.isNull(segment)) return "N/A";
-    return Strings.isNullOrEmpty(segment.getStorageKey()) ? segment.getId() : segment.getStorageKey();
-  }
 
 
   /**

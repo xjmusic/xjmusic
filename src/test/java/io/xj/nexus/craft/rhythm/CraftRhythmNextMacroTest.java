@@ -21,8 +21,8 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
@@ -140,7 +140,7 @@ public class CraftRhythmNextMacroTest {
     // assert choice of rhythm-type sequence
     Collection<SegmentChoice> segmentChoices =
             store.getAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Rhythm));
+    assertNotNull(Segments.findFirstOfType(segmentChoices, Program.Type.Rhythm));
   }
 
   @Test
@@ -153,7 +153,7 @@ public class CraftRhythmNextMacroTest {
     // assert choice of rhythm-type sequence
     Collection<SegmentChoice> segmentChoices =
             store.getAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Rhythm));
+    assertNotNull(Segments.findFirstOfType(segmentChoices, Program.Type.Rhythm));
   }
 
   /**

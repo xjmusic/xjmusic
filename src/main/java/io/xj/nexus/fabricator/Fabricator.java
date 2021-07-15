@@ -414,6 +414,15 @@ public interface Fabricator {
 
   /**
    Returns the storage key concatenated with JSON as its file extension
+   Including ALL segments-- this allows the chain to rehydrate from this output
+
+   @return Output Metadata Key
+   */
+  String getChainFullOutputMetadataKey();
+
+  /**
+   Returns the storage key concatenated with JSON as its file extension
+   Including only the next 90 seconds worth of segments- to the keep the player load focused on the near-future
 
    @return Output Metadata Key
    */
@@ -425,13 +434,6 @@ public interface Fabricator {
    @return Output Metadata Key
    */
   String getSegmentStorageKey(String extension);
-
-  /**
-   Returns the chain storage key concatenated with a specified extension
-
-   @return Output Metadata Key
-   */
-  String getChainStorageKey(String extension);
 
   /**
    [#165954619] Get the sequence for a Choice either directly (rhythm- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences)
@@ -634,6 +636,15 @@ public interface Fabricator {
 
   /**
    Get a JSON:API payload of the entire result of Chain Fabrication
+   Including ALL segments-- this allows the chain to rehydrate from this output
+
+   @return JSON:API payload of the entire result of Chain Fabrication
+   */
+  String getChainFullMetadataJson() throws NexusException;
+
+  /**
+   Get a JSON:API payload of the entire result of Chain Fabrication
+   Including only the next 90 seconds worth of segments- to the keep the player load focused on the near-future
 
    @return JSON:API payload of the entire result of Chain Fabrication
    */

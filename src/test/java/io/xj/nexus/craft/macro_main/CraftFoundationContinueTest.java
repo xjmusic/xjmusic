@@ -22,8 +22,8 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
@@ -201,11 +201,11 @@ public class CraftFoundationContinueTest {
     Collection<SegmentChoice> segmentChoices =
             store.getAll(result.getId(), SegmentChoice.class);
     // assert macro choice
-    SegmentChoice macroChoice = SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Macro);
+    SegmentChoice macroChoice = Segments.findFirstOfType(segmentChoices, Program.Type.Macro);
     assertEquals(fake.program4_sequence1_binding0.getId(), macroChoice.getProgramSequenceBindingId());
         assertEquals(Long.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
     // assert main choice
-    SegmentChoice mainChoice = SegmentDAO.findFirstOfType(segmentChoices, Program.Type.Main);
+    SegmentChoice mainChoice = Segments.findFirstOfType(segmentChoices, Program.Type.Main);
     assertEquals(fake.program5_sequence1_binding0.getId(), mainChoice.getProgramSequenceBindingId()); // next main sequence binding in same program as previous sequence
         assertEquals(Long.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
   }

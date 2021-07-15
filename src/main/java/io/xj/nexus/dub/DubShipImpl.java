@@ -38,9 +38,10 @@ public class DubShipImpl implements DubShip {
     Segment.Type type = null;
     try {
       type = fabricator.getType();
-      shipChainMetadata();
       shipSegmentMetadata();
       shipSegmentAudio();
+      shipChainFullMetadata();
+      shipChainMetadata();
 
     } catch (NexusException | FileStoreException e) {
       throw new NexusException(String.format("Failed to do %s-type ShipDub for segment #%s",
@@ -69,6 +70,18 @@ public class DubShipImpl implements DubShip {
       fabricator.getSegmentMetadataJson(),
       segmentFileBucket,
       fabricator.getSegmentOutputMetadataKey(),
+      MediaType.APPLICATION_JSONAPI);
+  }
+
+  /**
+   DubShip the final metadata
+   */
+  @Trace(resourceName = "nexus/dub/ship", operationName = "shipFinalMetadata")
+  private void shipChainFullMetadata() throws NexusException, FileStoreException {
+    fileStore.putS3ObjectFromString(
+      fabricator.getChainFullMetadataJson(),
+      segmentFileBucket,
+      fabricator.getChainFullOutputMetadataKey(),
       MediaType.APPLICATION_JSONAPI);
   }
 

@@ -108,27 +108,5 @@ public interface ChainDAO extends DAO<Chain> {
    */
   Chain revive(HubClientAccess access, String priorChainId, String reason) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
 
-  /**
-   Get the identifier or a Chain: embed key if available, else ID
 
-   @param chain to get identifier of
-   @return embed key if available, else ID
-   */
-  static String getIdentifier(@Nullable Chain chain) {
-    if (Objects.isNull(chain)) return "N/A";
-    return Strings.isNullOrEmpty(chain.getEmbedKey()) ? chain.getId() : chain.getEmbedKey();
-  }
-
-
-  /**
-   Filter and map target ids of a specified type from a set of chain bindings
-
-   @param chainBindings to filter and map from
-   @param type          to include
-   @return set of target ids of the specified type of chain binding targets
-   */
-  static Set<String> targetIdsOfType(Collection<ChainBinding> chainBindings, ChainBinding.Type type) {
-    return chainBindings.stream().filter(chainBinding -> chainBinding.getType().equals(type))
-      .map(ChainBinding::getTargetId).collect(Collectors.toSet());
-  }
 }

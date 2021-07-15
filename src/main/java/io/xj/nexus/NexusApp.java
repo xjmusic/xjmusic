@@ -24,6 +24,7 @@ import io.xj.lib.util.TempFile;
 import io.xj.lib.util.Text;
 import io.xj.nexus.api.NexusAccessLogFilter;
 import io.xj.nexus.dao.ChainDAO;
+import io.xj.nexus.dao.Chains;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
@@ -159,7 +160,7 @@ public class NexusApp extends App {
 
     if (!successfulRehydration)
       try {
-        LOG.info("Will bootstrap Chain[{}]", ChainDAO.getIdentifier(bootstrap.getChain()));
+        LOG.info("Will bootstrap Chain[{}]", Chains.getIdentifier(bootstrap.getChain()));
         chainDAO.bootstrap(access, bootstrap.getChain(), bootstrap.getChainBindings());
       } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
         LOG.error("Failed to add binding to bootstrap Chain!", e);
@@ -176,7 +177,7 @@ public class NexusApp extends App {
     try {
       Collection<Object> entities = Lists.newArrayList();
       LOG.info("Will check for last shipped data");
-      var chainStorageKey = fileStoreProvider.getChainStorageKey(bootstrap.getChain().getEmbedKey(), EXTENSION_JSON);
+      var chainStorageKey = fileStoreProvider.getChainStorageKey(Chains.getFullKey(bootstrap.getChain().getEmbedKey()), EXTENSION_JSON);
       var chainStream = fileStoreProvider.streamS3Object(env.getSegmentFileBucket(), chainStorageKey);
       var chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
       var chain = (Chain) jsonapiPayloadFactory.toOne(chainPayload);
@@ -238,11 +239,11 @@ public class NexusApp extends App {
       if (fabricatedAheadSeconds > rehydrateFabricatedAheadThreshold) {
         entityStore.putAll(entities);
         LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s",
-          entities.size(), ChainDAO.getIdentifier(chain), fabricatedAheadSeconds);
+          entities.size(), Chains.getIdentifier(chain), fabricatedAheadSeconds);
         return true;
       } else {
         LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (not > {}s)",
-          ChainDAO.getIdentifier(chain), fabricatedAheadSeconds, rehydrateFabricatedAheadThreshold);
+          Chains.getIdentifier(chain), fabricatedAheadSeconds, rehydrateFabricatedAheadThreshold);
         return false;
       }
 

@@ -19,7 +19,9 @@ import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.MultiStopwatch;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
+import io.xj.nexus.dao.Chains;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dao.ChainBindingDAO;
 import io.xj.nexus.dao.ChainDAO;
@@ -188,12 +190,12 @@ public class NexusWorkImpl implements NexusWork {
     try {
       // read the source material
       var chainBindings = chainBindingDAO.readMany(access, ImmutableList.of(chain.getId()));
-      var boundLibraryIds = ChainDAO.targetIdsOfType(chainBindings, ChainBinding.Type.Library);
-      var boundProgramIds = ChainDAO.targetIdsOfType(chainBindings, ChainBinding.Type.Program);
-      var boundInstrumentIds = ChainDAO.targetIdsOfType(chainBindings, ChainBinding.Type.Instrument);
+      var boundLibraryIds = Chains.targetIdsOfType(chainBindings, ChainBinding.Type.Library);
+      var boundProgramIds = Chains.targetIdsOfType(chainBindings, ChainBinding.Type.Program);
+      var boundInstrumentIds = Chains.targetIdsOfType(chainBindings, ChainBinding.Type.Instrument);
       var material = hubClient.ingest(access, boundLibraryIds, boundProgramIds, boundInstrumentIds);
       chainSourceMaterial.put(chain.getId(), material);
-      LOG.debug("Ingested {} entities of source material for Chain[{}]", material.size(), ChainDAO.getIdentifier(chain));
+      LOG.debug("Ingested {} entities of source material for Chain[{}]", material.size(), Chains.getIdentifier(chain));
 
     } catch (DAOFatalException | DAOPrivilegeException | DAOExistenceException | HubClientException e) {
       didFailWhile("Ingesting source material from Hub", e);
@@ -227,7 +229,7 @@ public class NexusWorkImpl implements NexusWork {
         .forEach(chain -> {
           if (chain.getFabricatedAheadSeconds() < reviveChainFabricatedBehindSeconds) {
             LOG.warn("Chain {} is stalled, fabricatedAheadSeconds={}",
-              ChainDAO.getIdentifier(chain), chain.getFabricatedAheadSeconds());
+              Chains.getIdentifier(chain), chain.getFabricatedAheadSeconds());
             stalledChainIds.put(chain.getId(),
               String.format("fabricatedAheadSeconds=%s", chain.getFabricatedAheadSeconds()));
           }
@@ -326,7 +328,7 @@ public class NexusWorkImpl implements NexusWork {
         LOG.debug("[segId={}] will prepare fabricator", segment.getId());
         fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), chainSourceMaterial.get(chain.getId()), segment);
       } catch (NexusException e) {
-        didFailWhile("creating fabricator", e, segment.getId(), ChainDAO.getIdentifier(chain), chain.getType().toString());
+        didFailWhile("creating fabricator", e, segment.getId(), Chains.getIdentifier(chain), chain.getType().toString());
         return;
       }
 
@@ -335,7 +337,7 @@ public class NexusWorkImpl implements NexusWork {
         LOG.debug("[segId={}] will do craft work", segment.getId());
         segment = doCraftWork(fabricator, segment);
       } catch (Exception e) {
-        didFailWhile("doing Craft work", e, segment.getId(), ChainDAO.getIdentifier(chain), chain.getType().toString());
+        didFailWhile("doing Craft work", e, segment.getId(), Chains.getIdentifier(chain), chain.getType().toString());
         revert(chain, segment, fabricator);
         return;
       }
@@ -344,7 +346,7 @@ public class NexusWorkImpl implements NexusWork {
       try {
         segment = doDubMasterWork(fabricator, segment);
       } catch (Exception e) {
-        didFailWhile("doing Dub Master work", e, segment.getId(), ChainDAO.getIdentifier(chain), chain.getType().toString());
+        didFailWhile("doing Dub Master work", e, segment.getId(), Chains.getIdentifier(chain), chain.getType().toString());
         return;
       }
 
@@ -357,25 +359,25 @@ public class NexusWorkImpl implements NexusWork {
       try {
         doDubShipWork(fabricator);
       } catch (Exception e) {
-        didFailWhile("doing Dub Ship work", e, segment.getId(), ChainDAO.getIdentifier(chain), chain.getType().toString());
+        didFailWhile("doing Dub Ship work", e, segment.getId(), Chains.getIdentifier(chain), chain.getType().toString());
         return;
       }
 
       try {
         finishWork(fabricator, segment);
       } catch (Exception e) {
-        didFailWhile("finishing work", e, segment.getId(), ChainDAO.getIdentifier(chain), chain.getType().toString());
+        didFailWhile("finishing work", e, segment.getId(), Chains.getIdentifier(chain), chain.getType().toString());
       }
 
       LOG.info("Chain[{}] offset={} Segment[{}] ahead {}s fabricated OK",
-        ChainDAO.getIdentifier(chain),
+        Chains.getIdentifier(chain),
         segment.getOffset(),
-        SegmentDAO.getIdentifier(segment),
+        Segments.getIdentifier(segment),
         fabricatedAheadSeconds);
 
     } catch (DAOPrivilegeException | DAOExistenceException | DAOValidationException | DAOFatalException e) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
-        ChainDAO.getIdentifier(chain),
+        Chains.getIdentifier(chain),
         chain.getType(),
         e.getMessage(),
         Text.formatStackTrace(e));
@@ -383,9 +385,9 @@ public class NexusWorkImpl implements NexusWork {
       notification.publish(body,
         String.format("%s-Chain[%s] Failure",
           chain.getType(),
-          ChainDAO.getIdentifier(chain)));
+          Chains.getIdentifier(chain)));
 
-      LOG.error("Failed to created Segment in Chain[{}] reason={}", ChainDAO.getIdentifier(chain), e.getMessage());
+      LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(chain), e.getMessage());
 
       try {
         chainDAO.revive(access, chain.getId(), body);

@@ -21,8 +21,8 @@ import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
@@ -182,7 +182,7 @@ public class CraftDetailInitialTest {
 
     // assert choice of detail-type sequence
     Collection<SegmentChoice> choices = store.getAll(segment6.getId(), SegmentChoice.class);
-    assertNotNull(SegmentDAO.findFirstOfType(choices, Program.Type.Detail));
+    assertNotNull(Segments.findFirstOfType(choices, Program.Type.Detail));
 
     // [#154464276] Detail Craft v1 -- segment chords voicings belong to chords and segments
     Collection<SegmentChordVoicing> voicings = store.getAll(segment6.getId(), SegmentChordVoicing.class);
