@@ -73,51 +73,9 @@ in a Chain.
 
 ## Getting Started
 
-We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development.
-
-There is an example configuration called **.env.example** in the root of the project. It is up to you, the 
-developer, to obtain keys and fill in the values of your own environment variables, in a new file called **.env** 
-which is never checked in to version control or released with the distribution. So, the use of environment variables is 
-federated across development and production deployments, while all actual configurations are kept outside the scope of 
-the code.
-
-Once your **.env** file is configured, it's time to bring up the server:
-
-    docker-compose up -d
-
-In the above example, `-d` tells Docker to start the containers in the background (as Daemons).
-
-Note that `localhost` simply points to the local loopback. Docker-compose maps maps local port 80 to the `hub01xj1` 
-docker container port 80.
-
 To compile the Java server-side applications and package them for deployment:
 
     gradle clean assemble
-
-To build and deploy the platform during local development, we run this a lot:
-
-    gradle assemble && docker restart hub01xj1 nexus01xj1
-
-For a complete rebuild, including configurations and front-end, we could run:
-
-    docker compose up -d --build
-
-Tail the docker container logs for the `nexus` app while it's running (/var/log in the container is mounted from local 
-volume ./log):
-
-    tail -f log/nexus/*
-
-Only between major platform configuration changes, it may be necessary to force Docker to rebuild the container 
-using `--build`:
-
-    docker-compose up -d --build    
-
-
-## Additional commands
-
-To only setup the workflow and check dependencies:
-
-    bin/setup
 
 
 ## App Configuration
@@ -128,54 +86,6 @@ which is never checked in to version control or released with the distribution. 
 **.env** file with private keys and ceonfiguration. The **.env** file is never committed to the repository, 
 because it contains secrets. The **env.example.conf** file is kept up-to-date with all environment variables required 
 for the developer to configure.
-
-
-## Run local platform in Docker containers
-
-Before running the docker container, be sure to package the latest Java build artifacts, with `make` or `bin/assemble`.
-
-Bring up the `hub01xj1` docker container and its required resource containers:
-
-    docker-compose up -d
-
-The `-d` option above runs containers as background daemons, instead of seeing all their `stdin`. Use `docker-compose` 
-or `docker` to manage containers from there.
-
-To see running containers:
-
-    docker ps --format
-
-To attach to a container by `<name>`:
-
-    docker attach <name>
-
-To stop all containers:
-
-    docker-compose down
-
-To remove all containers:
-
-    docker-compose rm
-
-To bring up containers with a forced build:
-
-    docker-compose up --build
-
-To run just the `hub01xj1` container, attached via tty:
-
-    docker-compose run xj
-
-The configuration uses volumes such that the latest build artifacts are available without having to rebuild the docker 
-container. The container runs as user `root` by default. Project folders are available inside the container as:
-
-    /var/app/current/
-
-
-## Compile server-side platform
-
-Compile & Package the Java server-side application, e.g. as JAR files:
-
-    gradle clean assemble
 
 
 ## Integration testing
@@ -236,15 +146,13 @@ Note that in order to use that command, the source bucket (xj-prod-audio) must g
 
 ## Library
 
-Contained in the **[lib](lib/)** folder, these shared modules are dependencies of the XJ Music™ platform backend services built with Java.
-
 **Craft** fabricates a musical audio composite from source sequences and instrument-audio. Built with Java, Guice, Tomcat, Maven.
 
 **Dub** mixes and ships finished audio data to delivery. Built with Java, Guice, Tomcat, Maven.
 
-**Mixer** is a Java implementation of the Go project [https://github.com/go-mix/mix](go-mix).
+**Mixer** is a Java implementation of the Go project [go-mix](https://github.com/go-mix/mix).
 
-**Music** is a Java implementation of the Go project [https://github.com/go-music-theory/music-theory](go-music-theory).
+**Music** is a Java implementation of the Go project [go-music-theory](https://github.com/go-music-theory/music-theory).
 
 A **Note** is used to represent the relative duration and pitch of a sound.
 
@@ -262,11 +170,6 @@ Contained in the `lib/telemetry` module.
 Requires this environment variable set in .env file:
 
     DD_API_KEY=ffe6de0162d7b2903a673a33139e6604
-
-
-## Services
-
-Contained in the [service](service/) folder.
 
 
 ### nexus
@@ -312,27 +215,6 @@ Here's the official XJ Music Inc copyright Velocity template:
 
     Copyright (c) 1999-${today.year}, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-
-## Docker run as non-root user
-
- - Add the docker group if it doesn't already exist:
-
-        sudo groupadd docker
-
- - Add the connected user "$USER" to the docker group. Change the user name to match your preferred user if you do not want to use your current user:
-
-        sudo gpasswd -a $USER docker
-
- - log out/in to activate the changes to groups.
-
-## OSX
-
-On OSX, because we are unable to connect to the container from the host, we are using the following workarounds, which are built in to the cross-platform workflow:
-
-  * Local port 80 (e.g. http://localhost) is mapped to Docker container `hub01xj1` port 80
-
-Docker documentation: https://docs.docker.com/docker-for-mac/networking/#per-container-ip-addressing-is-not-possible
-GitHub Open Issue: https://github.com/docker/for-mac/issues/155
 
 
 ## Troubleshooting the build
