@@ -19,13 +19,13 @@ import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.MultiStopwatch;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
-import io.xj.nexus.dao.Chains;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.dao.Segments;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dao.ChainBindingDAO;
 import io.xj.nexus.dao.ChainDAO;
+import io.xj.nexus.dao.Chains;
 import io.xj.nexus.dao.SegmentDAO;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
@@ -300,7 +300,6 @@ public class NexusWorkImpl implements NexusWork {
 
   /**
    Do the work-- this is called by the underlying WorkerImpl run() hook
-
    */
   @Trace(resourceName = "nexus/chain", operationName = "doWork")
   public void fabricateChain(Chain chain) {
@@ -308,7 +307,8 @@ public class NexusWorkImpl implements NexusWork {
       timer.section("ComputeAhead");
       var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
       chain = updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
-      if (fabricatedAheadSeconds > bufferProductionSeconds) return;
+      if (Chain.Type.Preview.equals(chain.getType()) && fabricatedAheadSeconds > bufferPreviewSeconds) return;
+      else if (fabricatedAheadSeconds > bufferProductionSeconds) return;
 
       timer.section("BuildNext");
       int workBufferSeconds = bufferSecondsFor(chain);
