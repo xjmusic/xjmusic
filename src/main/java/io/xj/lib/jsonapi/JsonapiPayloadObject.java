@@ -43,7 +43,7 @@ public class JsonapiPayloadObject {
    Add a relationship object to this resource object
 
    @param relationshipName for which object will be added
-   @param jsonapiPayload   to add
+   @param jsonapiPayload          to add
    @return this PayloadObject (for chaining methods)
    */
   public JsonapiPayloadObject add(String relationshipName, JsonapiPayload jsonapiPayload) {

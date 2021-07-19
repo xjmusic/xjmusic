@@ -51,19 +51,24 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DubDubMasterWaveformPrerollTest {
-  @Mock
-  public HubClient hubClient;
-  @Mock
-  public FileStoreProvider fileStoreProvider;
-  @Mock
-  public DubAudioCache dubAudioCache;
   private DubFactory dubFactory;
   private FabricatorFactory fabricatorFactory;
   private HubContent sourceMaterial;
   private NexusEntityStore store;
   private Segment segment6;
+
+  @Mock
+  public HubClient hubClient;
+
   @Mock
   private MixerFactory mixerFactory;
+
+  @Mock
+  public FileStoreProvider fileStoreProvider;
+
+  @Mock
+  public DubAudioCache dubAudioCache;
+
   @Mock
   private Source source;
 
@@ -90,7 +95,7 @@ public class DubDubMasterWaveformPrerollTest {
     var entityFactory = injector.getInstance(EntityFactory.class);
     Topology.buildHubApiTopology(entityFactory);
     Topology.buildNexusApiTopology(entityFactory);
-    when(mixerFactory.createSource(any(), any())).thenReturn(source);
+    when(mixerFactory.createSource(any(),any())).thenReturn(source);
     when(mixerFactory.createMixer(any())).thenReturn(mixer);
     when(dubAudioCache.get(any()))
       .thenReturn(new BufferedInputStream(new FileInputStream(Objects.requireNonNull(
@@ -103,9 +108,9 @@ public class DubDubMasterWaveformPrerollTest {
     // Mock request via HubClient returns fake generated library of hub content
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Streams.concat(
-      fake.setupFixtureB1().stream(),
-      fake.setupFixtureB3().stream()
-    ).collect(Collectors.toList()));
+        fake.setupFixtureB1().stream(),
+        fake.setupFixtureB3().stream()
+      ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in dubbing state - DubMaster is complete
     Chain chain2 = store.put(Chain.newBuilder()

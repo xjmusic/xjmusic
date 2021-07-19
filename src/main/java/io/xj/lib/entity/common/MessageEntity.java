@@ -33,8 +33,7 @@ public abstract class MessageEntity {
   public static void validate(Object message) throws ValueException {
     try {
       Value.require(Entities.get(message, "type"), "Type");
-      String body = String.valueOf(Entities.get(message, "body")
-        .orElseThrow(() -> new ValueException("Can't get body of message")));
+      String body = String.valueOf(Entities.get(message, "body").orElseThrow());
       Value.require(body, "Body");
       if (BODY_LENGTH_LIMIT < body.length())
         Entities.set(message, "body", body.substring(0, BODY_LENGTH_LIMIT - BODY_TRUNCATE_SUFFIX.length()) + BODY_TRUNCATE_SUFFIX);
@@ -65,15 +64,6 @@ public abstract class MessageEntity {
   }
 
   /**
-   Message Type
-
-   @return type
-   */
-  public MessageType getType() {
-    return type;
-  }
-
-  /**
    Set Type
 
    @param type to set
@@ -86,6 +76,15 @@ public abstract class MessageEntity {
       this.typeException = e;
     }
     return this;
+  }
+
+  /**
+   Message Type
+
+   @return type
+   */
+  public MessageType getType() {
+    return type;
   }
 
   /**

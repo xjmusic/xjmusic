@@ -4,6 +4,7 @@ package io.xj.lib.entity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.xj.InstrumentMeme;
 import io.xj.Library;
 import io.xj.Program;
@@ -31,11 +32,6 @@ import static org.junit.Assert.assertTrue;
  Created by Charney Kaye on 2020/03/09
  */
 public class EntitiesTest extends TestTemplate {
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
-  Program program;
-  private EntityFactory entityFactory;
 
   @Test
   public void toResourceBelongsTo() {
@@ -89,6 +85,12 @@ public class EntitiesTest extends TestTemplate {
   public void toAttributeName() {
     assertEquals("dancingAbility", Entities.toAttributeName("DancingAbility"));
   }
+
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
+
+  Program program;
+  private EntityFactory entityFactory;
 
   @Before
   public void setUp() {

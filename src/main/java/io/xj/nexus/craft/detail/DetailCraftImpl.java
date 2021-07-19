@@ -11,10 +11,10 @@ import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
-import io.xj.nexus.NexusException;
-import io.xj.nexus.craft.arrangement.ArrangementCraftImpl;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.NexusException;
+import io.xj.nexus.craft.arrangement.ArrangementCraftImpl;
 
 import java.util.Collection;
 import java.util.Map;
@@ -27,6 +27,10 @@ import java.util.stream.Collectors;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft {
+  private static final double SCORE_INSTRUMENT_ENTROPY = 12.0;
+  private static final double SCORE_MATCHED_MEMES = 1.0;
+  private static final double SCORE_DETAIL_ENTROPY = 12.0;
+  private static final double SCORE_DIRECTLY_BOUND = 100;
 
   @Inject
   public DetailCraftImpl(
@@ -61,10 +65,8 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
         if (voices.isEmpty())
           reportMissing(ProgramVoice.class,
             String.format("in Detail-choice Program[%s]", program.get().getId()));
-
-        // Each voice will use either its new choice or an inertial choice.
         for (ProgramVoice voice : voices) {
-          Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentIdOfSameMainProgram(voice.getName());
+          Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentId(voice.getId());
 
           // if no previous instrument found, choose a fresh one
           var instrument = instrumentId.isPresent() ?
@@ -164,7 +166,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @return detail-type Instrument
    */
   @Trace(resourceName = "nexus/craft/detail", operationName = "chooseFreshDetailInstrument")
-  protected Optional<Instrument> chooseFreshDetailInstrument(Instrument.Type type) throws NexusException {
+  protected Optional<Instrument> chooseFreshDetailInstrument(Instrument.Type type) {
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve instruments bound to chain
@@ -173,14 +175,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     // (3) score each source instrument based on meme isometry
     for (Instrument instrument : sourceInstruments)
       superEntityScorePicker.add(instrument, scoreDetail(instrument));
-
-    // (4) prefer same instrument choices throughout a main program
-    // Instrument choice inertia
-    // https://www.pivotaltracker.com/story/show/178442889
-    // If the previously chosen instruments are for the same main program as the current segment,
-    // score them all at 95% inertia (almost definitely will choose again)
-    fabricator.getChoicesOfPreviousSegmentsWithSameMainProgram()
-      .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCHED_MAIN_PROGRAM));
 
     // report
     fabricator.putReport("detailChoice", superEntityScorePicker.report());
@@ -197,7 +191,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    */
   @Trace(resourceName = "nexus/craft/detail", operationName = "scoreDetail")
   protected double scoreDetail(Instrument instrument) {
-    double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
+    double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
 
     // Score includes matching memes, previous segment to macro instrument first pattern
     score += SCORE_MATCHED_MEMES *
@@ -209,6 +203,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       score += SCORE_DIRECTLY_BOUND;
 
     return score;
+
   }
 
   /**
@@ -227,7 +222,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     double score = 0;
     Collection<String> memes = fabricator.getSourceMaterial().getMemesAtBeginning(program);
     if (!memes.isEmpty())
-      score += fabricator.getMemeIsometryOfSegment().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_DETAIL);
+      score += fabricator.getMemeIsometryOfSegment().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_DETAIL_ENTROPY);
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))

@@ -69,7 +69,7 @@ public interface SegmentRetrospective {
    @param type of choice to get
    @return choice of given type
    */
-  Optional<SegmentChoice> getPreviousSegmentChoiceOfType(Program.Type type);
+  Optional<SegmentChoice> getPreviousChoiceOfType(Program.Type type);
 
   /**
    Add an Entity

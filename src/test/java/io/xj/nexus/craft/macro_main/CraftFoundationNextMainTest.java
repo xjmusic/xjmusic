@@ -23,8 +23,8 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dao.Segments;
+import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
@@ -51,8 +51,6 @@ import static org.junit.Assert.assertThrows;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftFoundationNextMainTest {
-  @Mock
-  public HubClient hubClient;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
   private NexusIntegrationTestingFixtures fake;
@@ -60,6 +58,9 @@ public class CraftFoundationNextMainTest {
   private Segment segment4;
   private NexusEntityStore store;
   private HubContent sourceMaterial;
+
+  @Mock
+  public HubClient hubClient;
 
   @Before
   public void setUp() throws Exception {

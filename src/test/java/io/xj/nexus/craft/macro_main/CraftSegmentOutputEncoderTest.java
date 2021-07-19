@@ -37,13 +37,14 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftSegmentOutputEncoderTest {
-  @Mock
-  public HubClient hubClient;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
   private NexusEntityStore store;
   private Segment segment6;
   private HubContent sourceMaterial;
+
+  @Mock
+  public HubClient hubClient;
 
   @Before
   public void setUp() throws Exception {

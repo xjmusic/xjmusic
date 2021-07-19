@@ -19,13 +19,13 @@ import java.util.stream.Collectors;
  In order to pick exactly one optimal voicing note for each of the source event notes.
  */
 public class NotePicker {
-  private static final int WEIGHT_MATCH_SLASH_ROOT = 10;
   private final Instrument.Type instrumentType;
   private final Chord chord;
   private final NoteRange range;
   private final Set<Note> eventNotes;
   private final Set<Note> voicingNotes;
   private final Set<Note> pickedNotes;
+  private static final int WEIGHT_MATCH_SLASH_ROOT = 10;
   private final SecureRandom random = new SecureRandom();
   private final Collection<Instrument.Type> instrumentTypesToSeekInversions = ImmutableList.of(
     Instrument.Type.Stripe,
@@ -113,9 +113,7 @@ public class NotePicker {
   private Note seekInversion(Note source, NoteRange range, Collection<Note> options) {
     if (!instrumentTypesToSeekInversions.contains(instrumentType)) return source;
 
-    if (range.getHigh().isPresent() && range.getHigh()
-      .orElseThrow(() -> new RuntimeException("Can't get high end of range"))
-      .isLower(source)) {
+    if (range.getHigh().isPresent() && range.getHigh().orElseThrow().isLower(source)) {
       var alt = options
         .stream()
         .filter(o -> !range.getHigh().get().isLower(o))
@@ -126,9 +124,7 @@ public class NotePicker {
       if (alt.isPresent()) return alt.get();
     }
 
-    if (range.getLow().isPresent() && range.getLow()
-      .orElseThrow(() -> new RuntimeException("Can't get low end of range"))
-      .isHigher(source)) {
+    if (range.getLow().isPresent() && range.getLow().orElseThrow().isHigher(source)) {
       var alt = options
         .stream()
         .filter(o -> !range.getLow().get().isHigher(o))
@@ -165,12 +161,20 @@ public class NotePicker {
    @param chord          to weigh against
    @return weight
    */
-  @SuppressWarnings("SwitchStatementWithTooFewBranches")
   private int weightIfMatchSlashRoot(Instrument.Type instrumentType, Note note, Chord chord) {
-    return switch (instrumentType) {
-      case Bass -> chord.getSlashRoot().equals(note.getPitchClass()) ? WEIGHT_MATCH_SLASH_ROOT : 0;
-      default -> 0;
-    };
+    switch (instrumentType) {
+      case Bass:
+        return chord.getSlashRoot().equals(note.getPitchClass()) ? WEIGHT_MATCH_SLASH_ROOT : 0;
+
+      case Percussive:
+      case Pad:
+      case Sticky:
+      case Stripe:
+      case Stab:
+      case UNRECOGNIZED:
+      default:
+        return 0;
+    }
   }
 
 
