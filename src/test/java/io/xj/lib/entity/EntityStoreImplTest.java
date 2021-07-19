@@ -4,7 +4,6 @@ package io.xj.lib.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import io.xj.Library;
 import io.xj.Program;
 import org.junit.Assert;

@@ -4,7 +4,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import datadog.trace.api.Trace;
-import io.xj.*;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.ProgramSequencePattern;
+import io.xj.ProgramSequencePatternEvent;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
@@ -17,13 +25,28 @@ import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.NameIsometry;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.security.SecureRandom;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
  Arrangement of Segment Events is a common foundation for both Detail and Rhythm craft
  */
 public class ArrangementCraftImpl extends FabricationWrapperImpl {
+  protected static final double SCORE_DIRECTLY_BOUND = 100;
+  protected static final double SCORE_ENTROPY_CHOICE_DETAIL = 12.0;
+  protected static final double SCORE_ENTROPY_CHOICE_INSTRUMENT = 12.0;
+  protected static final double SCORE_ENTROPY_CHOICE_RHYTHM = 8.0;
+  protected static final double SCORE_MATCHED_MEMES = 1.0;
+  protected static final double SCORE_MATCHED_MAIN_PROGRAM = 10;
+  protected static final double SCORE_MATCHED_PROGRAM_TYPE = 10;
+  protected static final double SCORE_MATCHED_INSTRUMENT_TYPE = 10;
+  private final SecureRandom random = new SecureRandom();
 
   /**
    Must extend this class and inject
@@ -37,6 +60,16 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
   /**
    Craft the arrangement for a given voice
+   <p>
+   Choice inertia
+   https://www.pivotaltracker.com/story/show/178442889
+   Perform the inertia analysis, and determine whether the actually use the new choice or not
+   IMPORTANT** If the previously chosen instruments are for the previous main program as the current segment,
+   the inertia scores are not actually added to the regular scores or used to make choices--
+   this would prevent new choices from being made. **Inertia must be its own layer of calculation,
+   a question of whether the choices will be followed or whether the inertia will be followed**
+   thus the new choices have been made, we know *where* we're going next,
+   but we aren't actually using them yet until we hit the next main program in full, N segments later.
 
    @param choice to craft arrangements for
    @throws NexusException on failure
@@ -46,16 +79,48 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // passed to each iteration of note voicing arrangement in order to move as little as possible from the previous
     NoteRange range = new NoteRange();
 
-    var programConfig = fabricator.getProgramConfig(fabricator.getProgram(choice).orElseThrow());
+    var programConfig = fabricator.getProgramConfig(fabricator.getProgram(choice)
+      .orElseThrow(() -> new NexusException("Can't get program config")));
+
+    // Choice inertia REF https://www.pivotaltracker.com/story/show/178442889
+    Optional<SegmentChoice> inertialChoice = fabricator.getChoicesOfPreviousMainChoice()
+      .stream().max(Comparator.comparing((candidate -> {
+        var score = 0.0;
+        var candidateVoice = fabricator.getSourceMaterial().getProgramVoice(candidate.getProgramVoiceId());
+        var voice = fabricator.getSourceMaterial().getProgramVoice(choice.getProgramVoiceId());
+        if (candidateVoice.isPresent() && voice.isPresent())
+          score += NameIsometry.similarity(candidateVoice.get().getName(), voice.get().getName());
+        if (Objects.equals(candidate.getProgramType(), choice.getProgramType())) score += SCORE_MATCHED_PROGRAM_TYPE;
+        if (Objects.equals(candidate.getInstrumentType(), choice.getInstrumentType()))
+          score += SCORE_MATCHED_INSTRUMENT_TYPE;
+        return score;
+      })));
+
+    var actual =
+      (fabricator.isInertiaActive() &&
+        inertialChoice.isPresent() &&
+        beatOddsAgainstOne((int) Math.pow(2, fabricator.getDistanceToPreviousMainChoice())))
+        ? inertialChoice.get().toBuilder().setSegmentId(choice.getSegmentId()).build()
+        : choice;
 
     if (fabricator.getSegmentChords().isEmpty())
-      craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal(), range);
+      craftArrangementForVoiceSection(actual, 0, fabricator.getSegment().getTotal(), range);
 
     else if (programConfig.doPatternRestartOnChord())
-      craftArrangementForVoiceSectionRestartingEachChord(choice, range);
+      craftArrangementForVoiceSectionRestartingEachChord(actual, range);
 
     else
-      craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal(), range);
+      craftArrangementForVoiceSection(actual, 0, fabricator.getSegment().getTotal(), range);
+  }
+
+  /**
+   Put N marbles in the bag, with one marble set to true, and the others set to false
+
+   @param odds against one, or the total number of marbles, of which one is true
+   @return a marble from the bag
+   */
+  private boolean beatOddsAgainstOne(int odds) {
+    return random.nextInt(odds) > 0;
   }
 
   /**
@@ -90,15 +155,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     }
     for (var section : sections)
       craftArrangementForVoiceSection(choice, section.fromPos, section.toPos, range);
-  }
-
-  /**
-   Representation of a section of an arrangement, having a chord, beginning position and end position
-   */
-  static class Section {
-    public SegmentChord chord;
-    public double fromPos;
-    public double toPos;
   }
 
   /**
@@ -404,24 +460,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // score each audio against the current voice event, with some variability
     for (InstrumentAudio audio : fabricator.getSourceMaterial().getAudios(instrument))
-      switch (instrument.getType()) {
-
-        case Percussive:
-          audioEntityScorePicker.score(audio.getId(),
-            NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
-          break;
-
-        case Bass:
-        case Pad:
-        case Sticky:
-        case Stripe:
-        case Stab:
-        default:
-          audioEntityScorePicker.score(audio.getId(),
-            Note.of(audio.getNote()).sameAs(Note.of(event.getNote())) ? 100.0 : 0.0);
-          break;
-      }
-
+      if (instrument.getType() == Instrument.Type.Percussive)
+        audioEntityScorePicker.score(audio.getId(), NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
+      else
+        audioEntityScorePicker.score(audio.getId(), Note.of(audio.getNote()).sameAs(Note.of(event.getNote())) ? 100.0 : 0.0);
 
     // final chosen audio event
     return audioEntityScorePicker.getTop();
@@ -463,5 +505,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     }
 
     return fabricator.getSourceMaterial().getInstrumentAudio(audio.get().getId());
+  }
+
+  /**
+   Representation of a section of an arrangement, having a chord, beginning position and end position
+   */
+  static class Section {
+    public SegmentChord chord;
+    public double fromPos;
+    public double toPos;
   }
 }

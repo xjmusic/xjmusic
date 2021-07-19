@@ -18,7 +18,6 @@ import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
 import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
-import io.xj.SegmentMessage;
 import io.xj.lib.entity.common.InstrumentConfig;
 import io.xj.lib.entity.common.ProgramConfig;
 import io.xj.lib.music.Chord;
@@ -106,13 +105,6 @@ public interface Fabricator {
   Optional<SegmentChord> getChordAt(double position);
 
   /**
-   Get the Messages for the current segment in the chain
-
-   @return Segment Messages
-   */
-  Collection<SegmentMessage> getSegmentMessages();
-
-  /**
    fetch the macro-type choice for the current segment in the chain
 
    @return macro-type segment choice
@@ -157,42 +149,6 @@ public interface Fabricator {
   Key getKeyForChoice(SegmentChoice choice) throws NexusException;
 
   /**
-   Get max available sequence pattern offset for a given choice
-
-   @param choice for which to check
-   @return max available sequence pattern offset
-   @throws NexusException on attempt to get max available SequenceBinding offset of choice with no SequenceBinding
-   */
-  Long getMaxAvailableSequenceBindingOffset(SegmentChoice choice) throws NexusException;
-
-  /**
-   Compute the pattern-meme constellations of any previous segments which selected the same main sequence
-   <p>
-   [#161736024] to compute unique constellations for prior segments with the same main sequence
-
-   @return map of all previous segment meme constellations (as keys) to a collection of arrangements made
-   */
-  Map<String, Collection<SegmentChoiceArrangement>> getMemeConstellationArrangementsOfPreviousSegments() throws NexusException;
-
-  /**
-   Get the arrangements of any previous segments which selected the same main sequence
-   <p>
-   [#176468964] Rhythm and Detail choices are kept for an entire Main Program
-
-   @return map of all previous segment meme constellations (as keys) to a collection of arrangements made
-   */
-  Collection<SegmentChoiceArrangement> getChoiceArrangementsOfPreviousSegments() throws NexusException;
-
-  /**
-   Compute the pattern-meme constellations of any previous segments which selected the same main program
-   <p>
-   [#161736024] to compute unique constellations for prior segments with the same main program
-
-   @return map of all previous segment meme constellations (as keys) to a collection of choices made
-   */
-  Map<String, Collection<SegmentChoice>> getMemeConstellationChoicesOfPreviousSegments() throws NexusException;
-
-  /**
    Get the choices of any previous segments which selected the same main sequence
    <p>
    [#176468964] Rhythm and Detail choices are kept for an entire Main Program
@@ -209,16 +165,6 @@ public interface Fabricator {
    @return map of all previous segment meme constellations (as keys) to a collection of choices made
    */
   Collection<SegmentChoiceArrangementPick> getPicksOfPreviousSegmentsWithSameMainProgram();
-
-  /**
-   Get any sequence by id
-   <p>
-   /**
-   [#162361534] Artist wants segments that continue the use of a main sequence to make the exact same instrument audio assignments, in order to further reign in the randomness, and use very slow evolution of percussive possibilities.
-
-   @return map of all previous segment meme constellations (as keys) to a collection of picks extracted of their content JSON
-   */
-  Map<String, Collection<SegmentChoiceArrangementPick>> getMemeConstellationPicksOfPreviousSegments() throws NexusException;
 
   /**
    Get the choiceArrangementPicks of any previous segments which selected the same main sequence
@@ -281,7 +227,7 @@ public interface Fabricator {
 
    @return rhythm sequence if previously selected, or null if none is found
    */
-  Optional<String> getPreviousVoiceInstrumentId(String voiceId);
+  Optional<String> getPreviousVoiceInstrumentIdOfSameMainProgram(String voiceId);
 
   /**
    Get meme isometry for the current offset in this macro-choice
@@ -354,26 +300,51 @@ public interface Fabricator {
   Optional<Program> getProgram(SegmentChoice choice);
 
   /**
-   Get Program for any given arrangement
-
-   @param arrangement to get program for
-   @return program for arrangement
-   */
-  Optional<Program> getProgram(SegmentChoiceArrangement arrangement);
-
-  /**
    fetch the macro-type choice for the previous segment in the chain
 
    @return macro-type segment choice, null if none found
    */
-  Optional<SegmentChoice> getPreviousMacroChoice();
+  Optional<SegmentChoice> getMacroChoiceOfPreviousSegment();
 
   /**
    fetch the main-type choice for the previous segment in the chain
 
    @return main-type segment choice, null if none found
    */
-  Optional<SegmentChoice> getPreviousMainChoice();
+  Optional<SegmentChoice> getMainChoiceOfPreviousSegment();
+
+
+  /**
+   For computing instrument or program choice inertia
+   REF https://www.pivotaltracker.com/story/show/178442889
+
+   @return the choices of the segments having the main choice prior to the current main choice
+   */
+  Collection<SegmentChoice> getChoicesOfPreviousMainChoice();
+
+  /**
+   Get the distance (# of segments, starting at 1 if it was the immediately previous segment)
+   to a segment with a different main choice than the current main coice
+   For computing instrument or program choice inertia
+   REF https://www.pivotaltracker.com/story/show/178442889
+
+   @return the choices of the segments having the main choice prior to the current main choice
+   */
+  int getDistanceToPreviousMainChoice();
+
+  /**
+   For computing instrument choice inertia
+   REF https://www.pivotaltracker.com/story/show/178442889
+   IMPORTANT** If the previously chosen instruments are for the previous main program as the current segment,
+   the inertia scores are not actually added to the regular scores or used to make choices--
+   this would prevent new choices from being made. **Inertia must be its own layer of calculation,
+   a question of whether the choices will be followed or whether the inertia will be followed**
+   thus the new choices have been made, we know *where* we're going next, but we aren't actually
+   using them yet until we hit the next main program in full, N segments later.
+
+   @return the segments having the main choice prior to the current main choice
+   */
+  Collection<Segment> getSegmentsOfPreviousMainChoice();
 
   /**
    fetch the previous segment in the chain
@@ -534,14 +505,6 @@ public interface Fabricator {
   Collection<SegmentChoice> getChoices();
 
   /**
-   Get Choice for arrangement
-
-   @param arrangement for which to get choice
-   @return choice for arrangement
-   */
-  Optional<SegmentChoice> getChoice(SegmentChoiceArrangement arrangement);
-
-  /**
    Get arrangements for segment
 
    @return arrangements for segment
@@ -579,17 +542,6 @@ public interface Fabricator {
   Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, Instrument.Type type);
 
   /**
-   Get voicing notes for a given segment chord
-   <p>
-   Cache this lookup and transformation for optimal performance fabricating many notes from repeated voicings
-
-   @param chord to get voicing notes for
-   @param type  to get voicing notes for
-   @return voicing notes
-   */
-  Collection<String> getVoicingNotes(SegmentChord chord, Instrument.Type type);
-
-  /**
    Get instrument for a given segment pick
 
    @param pick to get instrument for
@@ -597,22 +549,6 @@ public interface Fabricator {
    @throws NexusException on failure
    */
   Optional<Instrument> getInstrument(SegmentChoiceArrangementPick pick) throws NexusException;
-
-  /**
-   Get instrument for a given arrangement
-
-   @param arrangement to get instrument for
-   @return instrument for pick
-   @throws NexusException on failure
-   */
-  Optional<Instrument> getInstrument(SegmentChoiceArrangement arrangement) throws NexusException;
-
-  /**
-   Get memes for segment
-
-   @return memes for segment
-   */
-  Collection<SegmentMeme> getSegmentMemes();
 
   /**
    [#165954619] Selects one (at random) of all available patterns of a given type within a sequence.
@@ -792,7 +728,7 @@ public interface Fabricator {
    @param targetRange to compute required # of octaves to shift into
    @return +/- octaves required to shift from source to target range
    */
-  int computeRangeShiftOctaves(Instrument.Type type, NoteRange sourceRange, NoteRange targetRange);
+  int computeRangeShiftOctaves(Instrument.Type type, NoteRange sourceRange, NoteRange targetRange) throws NexusException;
 
   /**
    Compute the target shift from a key toward a chord
@@ -820,4 +756,12 @@ public interface Fabricator {
    @return get complete do-ghosted set of chords for program sequence
    */
   Collection<ProgramSequenceChord> getProgramSequenceChords(ProgramSequence programSequence);
+
+  /**
+   Whether choice inertia is activated
+   REF https://www.pivotaltracker.com/story/show/178442889
+
+   @return true if active
+   */
+  Boolean isInertiaActive();
 }

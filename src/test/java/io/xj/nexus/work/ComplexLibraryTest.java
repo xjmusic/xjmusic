@@ -72,7 +72,8 @@ public class ComplexLibraryTest {
       .withValue("work.eraseSegmentsOlderThanSeconds", ConfigValueFactory.fromAnyRef(MAXIMUM_TEST_WAIT_SECONDS + 300))
       .withValue("work.bossDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.chainDelayMillis", ConfigValueFactory.fromAnyRef(1))
-      .withValue("work.cycleMillis", ConfigValueFactory.fromAnyRef(50));
+      .withValue("work.cycleMillis", ConfigValueFactory.fromAnyRef(50))
+      .withValue("fabrication.isInertiaActive", ConfigValueFactory.fromAnyRef(true));
     Environment env = Environment.getDefault();
     var injector = AppConfiguration.inject(config, env,
       ImmutableSet.of(Modules.override(new NexusWorkModule())

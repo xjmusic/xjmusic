@@ -131,7 +131,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Optional<SegmentChoice> getPreviousChoiceOfType(Program.Type type) {
+  public Optional<SegmentChoice> getPreviousSegmentChoiceOfType(Program.Type type) {
     Optional<Segment> seg = getPreviousSegment();
     if (seg.isEmpty()) return Optional.empty();
     return getChoiceOfType(seg.get(), type);
