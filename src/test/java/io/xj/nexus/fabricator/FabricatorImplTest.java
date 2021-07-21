@@ -54,6 +54,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -81,6 +82,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FabricatorImplTest {
+  private final SecureRandom random = new SecureRandom();
   @Mock
   public Environment env;
   @Mock
@@ -741,7 +743,6 @@ public class FabricatorImplTest {
   }
 
 
-  // TODO test
   // Choice inertia
   // https://www.pivotaltracker.com/story/show/178442889
   @Test

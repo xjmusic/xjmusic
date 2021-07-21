@@ -9,6 +9,7 @@ import io.xj.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.SecureRandom;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,7 +18,18 @@ import java.util.UUID;
  */
 public abstract class FabricationWrapperImpl {
   private final Logger log = LoggerFactory.getLogger(FabricationWrapperImpl.class);
+  private static final SecureRandom random = new SecureRandom();
   protected Fabricator fabricator;
+
+  /**
+   Put N marbles in the bag, with one marble set to true, and the others set to false
+
+   @param odds against one, or the total number of marbles, of which one is true
+   @return a marble from the bag
+   */
+  protected boolean beatOddsAgainstOne(int odds) {
+    return random.nextInt(odds) == 0;
+  }
 
   /**
    Must extend this class and inject

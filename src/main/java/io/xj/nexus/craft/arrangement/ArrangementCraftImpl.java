@@ -45,7 +45,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   protected static final double SCORE_MATCHED_MEMES = 1.0;
   protected static final double SCORE_MATCHED_MAIN_PROGRAM = 10;
   private static final double INERTIAL_DISTANCE_EXPONENT_BASE = 2;
-  private final SecureRandom random = new SecureRandom();
 
   /**
    Must extend this class and inject
@@ -112,16 +111,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     else
       craftArrangementForVoiceSection(actual, 0, fabricator.getSegment().getTotal(), range);
-  }
-
-  /**
-   Put N marbles in the bag, with one marble set to true, and the others set to false
-
-   @param odds against one, or the total number of marbles, of which one is true
-   @return a marble from the bag
-   */
-  private boolean beatOddsAgainstOne(int odds) {
-    return random.nextInt(odds) == 1;
   }
 
   /**
