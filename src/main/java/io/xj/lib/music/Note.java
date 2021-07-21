@@ -61,6 +61,15 @@ public class Note {
   }
 
   /**
+   Instantiate an atonal note
+
+   @return atonal note
+   */
+  public static Note atonal() {
+    return of(Note.ATONAL);
+  }
+
+  /**
    Note to String
 
    @param adjSymbol to represent note with

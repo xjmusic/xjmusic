@@ -11,14 +11,15 @@ import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.Fabricator;
-import io.xj.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,10 +30,6 @@ import java.util.UUID;
  [#176625174] RhythmCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
  */
 public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
-  private static final double SCORE_INSTRUMENT_ENTROPY = 0.5;
-  private static final double SCORE_MATCHED_MEMES = 5;
-  private static final double SCORE_RHYTHM_ENTROPY = 0.5;
-  private static final double SCORE_DIRECTLY_BOUND = 100;
   private final Logger log = LoggerFactory.getLogger(RhythmCraftImpl.class);
 
   @Inject
@@ -56,7 +53,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // voice arrangements
     if (sequence.isPresent())
       for (ProgramVoice voice : fabricator.getSourceMaterial().getVoices(program.get())) {
-        Optional<String> instrumentId = fabricator.getPreviousVoiceInstrumentId(voice.getId());
+        Optional<String> instrumentId = fabricator.getInstrumentIdChosenForVoiceOfSameMainProgram(voice);
 
         // if no previous instrument found, choose a fresh one
         var instrument = instrumentId.isPresent() ?
@@ -164,7 +161,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     double score = 0;
     Collection<String> memes = fabricator.getSourceMaterial().getMemesAtBeginning(program);
     if (!memes.isEmpty())
-      score += fabricator.getMemeIsometryOfSegment().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_RHYTHM_ENTROPY);
+      score += fabricator.getMemeIsometryOfSegment().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_RHYTHM);
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
@@ -182,7 +179,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @return percussive-type Instrument
    */
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "chooseFreshPercussiveInstrument")
-  private Optional<Instrument> chooseFreshPercussiveInstrument(ProgramVoice voice) {
+  private Optional<Instrument> chooseFreshPercussiveInstrument(ProgramVoice voice) throws NexusException {
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve instruments bound to chain
@@ -194,6 +191,21 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // (3) score each source instrument based on meme isometry
     for (Instrument instrument : sourceInstruments)
       superEntityScorePicker.add(instrument, scorePercussive(instrument));
+
+    // (4) prefer same instrument choices throughout a main program
+    // Instrument choice inertia
+    // https://www.pivotaltracker.com/story/show/178442889
+    // If the previously chosen instruments are for the same main program as the current segment,
+    // score them all at 95% inertia (almost definitely will choose again)
+    if (Segment.Type.Continue.equals(fabricator.getSegment().getType()))
+      fabricator.getChoicesOfPreviousSegmentsWithSameMainProgram().stream()
+        .filter(candidate ->
+          candidate.getInstrumentType().equals(Instrument.Type.Percussive) &&
+            fabricator.getSourceMaterial().getProgramVoice(candidate.getProgramVoiceId())
+              .stream().map(pv -> Objects.equals(voice.getName(), pv.getName()))
+              .findFirst()
+              .orElse(false))
+        .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCHED_MAIN_PROGRAM));
 
     // report
     fabricator.putReport("percussiveChoice", superEntityScorePicker.report());
@@ -210,7 +222,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    */
   @Trace(resourceName = "nexus/craft/rhythm", operationName = "scorePercussive")
   private double scorePercussive(Instrument instrument) {
-    double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
+    double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
 
     // Score includes matching memes, previous segment to macro instrument first pattern
     score += SCORE_MATCHED_MEMES *

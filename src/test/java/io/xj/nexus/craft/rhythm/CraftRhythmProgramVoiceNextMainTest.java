@@ -51,6 +51,8 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftRhythmProgramVoiceNextMainTest {
+  @Mock
+  public HubClient hubClient;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
   private NexusIntegrationTestingFixtures fake;
@@ -60,9 +62,6 @@ public class CraftRhythmProgramVoiceNextMainTest {
   private InstrumentAudio audioKick;
   private InstrumentAudio audioSnare;
   private HubContent sourceMaterial;
-
-  @Mock
-  public HubClient hubClient;
 
   @Before
   public void setUp() throws Exception {
@@ -89,10 +88,10 @@ public class CraftRhythmProgramVoiceNextMainTest {
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB2().stream(),
-        customFixtures().stream()
-      ).collect(Collectors.toList()));
+      fake.setupFixtureB1().stream(),
+      fake.setupFixtureB2().stream(),
+      customFixtures().stream()
+    ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
     chain1 = store.put(Chain.newBuilder()

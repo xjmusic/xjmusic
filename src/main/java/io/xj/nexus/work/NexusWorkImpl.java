@@ -465,7 +465,7 @@ public class NexusWorkImpl implements NexusWork {
       updateSegmentState(fabricator, segment, fabricator.getSegment().getState(), Segment.State.Planned);
       segmentDAO.revert(access, segment.getId());
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException | NexusException e) {
-      didFailWhile("reverting and re-queueing segment", e, segment.getId(), chain.getId(), chain.getType().toString());
+      didFailWhile("reverting and re-queueing segment", e, Segments.getIdentifier(segment), Chains.getIdentifier(chain), chain.getType().toString());
     }
   }
 

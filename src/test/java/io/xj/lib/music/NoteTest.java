@@ -190,4 +190,9 @@ public class NoteTest {
     assertTrue(Note.of("A5").isHigher(Note.of("Ab5")));
     assertFalse(Note.of("A5").isHigher(Note.of("A#5")));
   }
+
+  @Test
+  public void atonal() {
+    assertEquals(PitchClass.None, Note.atonal().getPitchClass());
+  }
 }

@@ -46,6 +46,8 @@ import static org.junit.Assert.assertFalse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftRhythmProgramVoiceInitialTest {
+  @Mock
+  public HubClient hubClient;
   private Chain chain2;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
@@ -53,9 +55,6 @@ public class CraftRhythmProgramVoiceInitialTest {
   private NexusEntityStore store;
   private NexusIntegrationTestingFixtures fake;
   private Segment segment6;
-
-  @Mock
-  public HubClient hubClient;
 
   @Before
   public void setUp() throws Exception {
@@ -83,10 +82,10 @@ public class CraftRhythmProgramVoiceInitialTest {
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB3().stream())
-        .filter(entity -> !Entities.isSame(entity, fake.program35) && !Entities.isChild(entity, fake.program35))
-        .collect(Collectors.toList()));
+      fake.setupFixtureB1().stream(),
+      fake.setupFixtureB3().stream())
+      .filter(entity -> !Entities.isSame(entity, fake.program35) && !Entities.isChild(entity, fake.program35))
+      .collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     chain2 = store.put(Chain.newBuilder()
@@ -170,7 +169,7 @@ public class CraftRhythmProgramVoiceInitialTest {
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-            .build());
+      .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment5.getId())
@@ -178,7 +177,7 @@ public class CraftRhythmProgramVoiceInitialTest {
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
-            .build());
+      .build());
 
     // segment crafting
     segment6 = store.put(Segment.newBuilder()
@@ -201,7 +200,7 @@ public class CraftRhythmProgramVoiceInitialTest {
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-            .build());
+      .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment6.getId())
@@ -209,7 +208,7 @@ public class CraftRhythmProgramVoiceInitialTest {
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
-            .build());
+      .build());
     for (String memeName : ImmutableList.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(SegmentMeme.newBuilder()
         .setId(UUID.randomUUID().toString())

@@ -33,10 +33,10 @@ LabStreamingSegmentsArchitecture.pdf)
   
   
 ## Workflow
-  * Features are described as the desire of a person to take an action for a particular reason, e.g. "Artist wants 
+  * Describe features as the desire of a person to take an action for a particular reason, e.g. "Artist wants 
     Sequence and Pattern to be named according to musical norms, in order to make the most sense of XJ as a musical 
     instrument."
-  * Bugs are described as expectation versus actual, e.g. "Artist expects to be able to list Audios after deleting an 
+  * Describe bugs as expectation versus actual, e.g. "Artist expects to be able to list Audios after deleting an 
     Audio from an Instrument," then:
     - DESCRIBE LIKE THIS: "I clicked the button labeled 'Turn;' I expected the Earth to turn; actually, it stood still."
     - NOT LIKE THIS: "I click the button and nothing happened."

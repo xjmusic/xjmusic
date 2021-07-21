@@ -48,7 +48,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   private static final long MILLIS_PER_SECOND = 1000;
   private final ChainDAO chainDAO;
   private final int workBufferAheadSeconds;
-  private final int workBufferDelaySeconds;
+  private final int workBufferBeforeSeconds;
   public static final Double LENGTH_MINIMUM = 0.01; //
   public static final Double AMPLITUDE_MINIMUM = 0.0; //
 
@@ -63,7 +63,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     this.chainDAO = chainDAO;
 
     workBufferAheadSeconds = config.getInt("work.bufferAheadSeconds");
-    workBufferDelaySeconds = config.getInt("work.bufferDelaySeconds");
+    workBufferBeforeSeconds = config.getInt("work.bufferBeforeSeconds");
   }
 
   /**
@@ -272,7 +272,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     try {
       Instant from = Instant.ofEpochSecond(fromSecondsUTC);
       Instant maxBeginAt = from.plusSeconds(workBufferAheadSeconds);
-      Instant minEndAt = from.minusSeconds(workBufferDelaySeconds);
+      Instant minEndAt = from.minusSeconds(workBufferBeforeSeconds);
       requireChainAccount(access, chainId);
       return store.getAllSegments(chainId)
         .stream()
@@ -503,6 +503,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   private void validateSegmentChoice(SegmentChoice.Builder record) throws ValueException {
+    if (Value.isEmpty(record.getIsInertial())) record.setIsInertial(false);
     Value.require(record.getSegmentId(), "Segment ID");
     Value.require(record.getProgramId(), "Program ID");
     Value.require(record.getProgramType(), "Program Type");

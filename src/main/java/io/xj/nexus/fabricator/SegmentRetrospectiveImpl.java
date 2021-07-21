@@ -9,17 +9,16 @@ import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentMeme;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
-import io.xj.nexus.hub_client.client.HubClientAccess;
-import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
+import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.hub_client.client.HubContent;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -75,33 +74,22 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks(Segment segment) {
-    return store.getAll(SegmentChoiceArrangementPick.class).stream().filter(e ->
-      e.getSegmentId().equals(segment.getId()))
+  public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks(Segment segment, Boolean includeInertial) {
+    return store.getAll(SegmentChoiceArrangementPick.class).stream()
+      .filter(pick ->
+        pick.getSegmentId().equals(segment.getId()) && (includeInertial || !isInertial(pick)))
       .collect(Collectors.toList());
   }
+
 
   @Override
-  public Collection<SegmentChoice> getSegmentChoices(Segment segment) {
-    return store.getAll(SegmentChoice.class).stream().filter(e ->
-      e.getSegmentId().equals(segment.getId()))
+  public Collection<SegmentChoice> getSegmentChoices(Segment segment, Boolean includeInertial) {
+    return store.getAll(SegmentChoice.class).stream()
+      .filter(choice ->
+        choice.getSegmentId().equals(segment.getId()) && (includeInertial || !choice.getIsInertial()))
       .collect(Collectors.toList());
   }
 
-  @Override
-  public Collection<SegmentChoiceArrangement> getSegmentChoiceArrangements(Segment segment) {
-    return store.getAll(SegmentChoiceArrangement.class).stream().filter(e ->
-      e.getSegmentId().equals(segment.getId()))
-      .collect(Collectors.toList());
-  }
-
-  @Override
-  public Collection<SegmentMeme> getSegmentMemes(Segment segment) {
-    return store.getAll(SegmentMeme.class).stream().filter(e ->
-      e.getSegmentId().equals(segment.getId()))
-      .collect(Collectors.toList());
-
-  }
 
   @Override
   public Collection<Segment> getSegments() {
@@ -119,19 +107,12 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice segmentChoice) {
-    return store.getAll(SegmentChoiceArrangement.class).stream().filter(a ->
-      a.getSegmentChoiceId().equals(segmentChoice.getId()))
-      .collect(Collectors.toList());
-  }
-
-  @Override
   public Optional<Segment> getPreviousSegment() {
     return Optional.ofNullable(previousSegment);
   }
 
   @Override
-  public Optional<SegmentChoice> getPreviousChoiceOfType(Program.Type type) {
+  public Optional<SegmentChoice> getPreviousSegmentChoiceOfType(Program.Type type) {
     Optional<Segment> seg = getPreviousSegment();
     if (seg.isEmpty()) return Optional.empty();
     return getChoiceOfType(seg.get(), type);
@@ -146,4 +127,24 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     }
   }
 
+  /**
+   Whether get given pick belongs to an inertial choice
+
+   @param pick which to test for inertial choice
+   @return true if belongs to inertial choice
+   */
+  private boolean isInertial(SegmentChoiceArrangementPick pick) {
+    try {
+      return
+        store.get(SegmentChoice.class,
+          store.get(SegmentChoiceArrangement.class, pick.getSegmentChoiceArrangementId())
+            .orElseThrow(() -> new EntityStoreException("Can't find arrangement!"))
+            .getSegmentChoiceId())
+          .orElseThrow(() -> new EntityStoreException("Can't find choice!"))
+          .getIsInertial();
+
+    } catch (EntityStoreException e) {
+      return false;
+    }
+  }
 }

@@ -197,7 +197,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    */
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "computeMacroProgramSequenceBindingOffset")
   private Long computeMacroProgramSequenceBindingOffset() throws NexusException {
-    var previousMacroChoice = fabricator.getPreviousMacroChoice();
+    var previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
     switch (fabricator.getType()) {
 
       case Initial:
@@ -232,7 +232,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
         return 0L;
 
       case Continue:
-        var previousMainChoice = fabricator.getPreviousMainChoice();
+        var previousMainChoice = fabricator.getMainChoiceOfPreviousSegment();
         if (previousMainChoice.isEmpty())
           throw new NexusException("Cannot get retrieve previous main choice");
         return fabricator.getNextSequenceBindingOffset(previousMainChoice.get());
@@ -253,7 +253,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     if (fabricator.isInitialSegment()) return chooseRandomMacroProgram();
 
     // if continuing the macro program, use the same one
-    var previousMacroChoice = fabricator.getPreviousMacroChoice();
+    var previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
     if (fabricator.continuesMacroProgram() && previousMacroChoice.isPresent())
       return fabricator.getProgram(previousMacroChoice.get());
 
@@ -303,7 +303,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "chooseMainProgram")
   private Optional<Program> chooseMainProgram() {
     // if continuing the macro program, use the same one
-    var previousMainChoice = fabricator.getPreviousMainChoice();
+    var previousMainChoice = fabricator.getMainChoiceOfPreviousSegment();
     if (Segment.Type.Continue == fabricator.getType())
       if (previousMainChoice.isPresent())
         return fabricator.getProgram(previousMainChoice.get());
@@ -360,7 +360,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     double score = Chance.normallyAround(0, SCORE_MAIN_ENTROPY);
 
     if (!fabricator.isInitialSegment()) {
-      var previousMainChoice = fabricator.getPreviousMainChoice();
+      var previousMainChoice = fabricator.getMainChoiceOfPreviousSegment();
 
       // Avoid previous main program
       if (previousMainChoice.isPresent()) {

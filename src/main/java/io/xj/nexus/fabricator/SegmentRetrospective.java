@@ -4,9 +4,7 @@ package io.xj.nexus.fabricator;
 import io.xj.Program;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentMeme;
 import io.xj.nexus.NexusException;
 
 import java.util.Collection;
@@ -15,25 +13,16 @@ import java.util.Optional;
 public interface SegmentRetrospective {
 
   /**
-   @param segment to get picks for
    @return entity cache of SegmentChoiceArrangementPick
+   @param segment to get picks for
+   @param includeInertial
    */
-  Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks(Segment segment);
+  Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks(Segment segment, Boolean includeInertial);
 
   /**
    @return entity cache of SegmentChoice
    */
-  Collection<SegmentChoice> getSegmentChoices(Segment segment);
-
-  /**
-   @return entity cache of SegmentChoiceArrangement
-   */
-  Collection<SegmentChoiceArrangement> getSegmentChoiceArrangements(Segment segment);
-
-  /**
-   @return entity cache of SegmentMeme
-   */
-  Collection<SegmentMeme> getSegmentMemes(Segment segment);
+  Collection<SegmentChoice> getSegmentChoices(Segment segment, Boolean includeInertial);
 
   /**
    @return all cached segments
@@ -49,14 +38,6 @@ public interface SegmentRetrospective {
   Optional<SegmentChoice> getChoiceOfType(Segment segment, Program.Type type);
 
   /**
-   Get the arrangements for a given choice
-
-   @param segmentChoice to get arrangements for
-   @return arrangements for choice
-   */
-  Collection<SegmentChoiceArrangement> getArrangements(SegmentChoice segmentChoice);
-
-  /**
    Get the segment immediately previous to the current segment
 
    @return previous segment
@@ -69,7 +50,7 @@ public interface SegmentRetrospective {
    @param type of choice to get
    @return choice of given type
    */
-  Optional<SegmentChoice> getPreviousChoiceOfType(Program.Type type);
+  Optional<SegmentChoice> getPreviousSegmentChoiceOfType(Program.Type type);
 
   /**
    Add an Entity

@@ -52,6 +52,8 @@ import static org.junit.Assert.assertFalse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftRhythmProgramVoiceContinueTest {
+  @Mock
+  public HubClient hubClient;
   private Chain chain1;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
@@ -61,9 +63,6 @@ public class CraftRhythmProgramVoiceContinueTest {
   private NexusEntityStore store;
   private NexusIntegrationTestingFixtures fake;
   private Segment segment4;
-
-  @Mock
-  public HubClient hubClient;
 
   @Before
   public void setUp() throws Exception {
@@ -90,10 +89,10 @@ public class CraftRhythmProgramVoiceContinueTest {
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB2().stream(),
-        customFixtures().stream()
-      ).collect(Collectors.toList()));
+      fake.setupFixtureB1().stream(),
+      fake.setupFixtureB2().stream(),
+      customFixtures().stream()
+    ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
     chain1 = store.put(NexusIntegrationTestingFixtures.makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));

@@ -80,47 +80,35 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FabricatorImplTest {
+  @Mock
+  public Environment env;
+  @Mock
+  public FabricatorFactory mockFabricatorFactory;
+  @Mock
+  public TimeComputer mockTimeComputer;
+  @Mock
+  public SegmentWorkbench mockSegmentWorkbench;
+  @Mock
+  public SegmentRetrospective mockSegmentRetrospective;
+  @Mock
+  public Tuning mockTuning;
+  @Mock
+  public HubClient mockHubClient;
+  @Mock
+  public ChainDAO mockChainDAO;
+  @Mock
+  public ChainBindingDAO mockChainBindingDAO;
+  @Mock
+  public SegmentDAO mockSegmentDAO;
+  @Mock
+  public JsonapiPayloadFactory mockJsonapiPayloadFactory;
+  @Mock
+  public FileStoreProvider mockFileStoreProvider;
   private Config config;
   private FabricatorImpl subject;
   private HubContent sourceMaterial;
   private NexusEntityStore store;
   private NexusIntegrationTestingFixtures fake;
-
-  @Mock
-  public Environment env;
-
-  @Mock
-  public FabricatorFactory mockFabricatorFactory;
-
-  @Mock
-  public TimeComputer mockTimeComputer;
-
-  @Mock
-  public SegmentWorkbench mockSegmentWorkbench;
-
-  @Mock
-  public SegmentRetrospective mockSegmentRetrospective;
-
-  @Mock
-  public Tuning mockTuning;
-
-  @Mock
-  public HubClient mockHubClient;
-
-  @Mock
-  public ChainDAO mockChainDAO;
-
-  @Mock
-  public ChainBindingDAO mockChainBindingDAO;
-
-  @Mock
-  public SegmentDAO mockSegmentDAO;
-
-  @Mock
-  public JsonapiPayloadFactory mockJsonapiPayloadFactory;
-
-  @Mock
-  public FileStoreProvider mockFileStoreProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -148,10 +136,10 @@ public class FabricatorImplTest {
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB2().stream(),
-        fake.setupFixtureB3().stream()
-      ).collect(Collectors.toList()));
+      fake.setupFixtureB1().stream(),
+      fake.setupFixtureB2().stream(),
+      fake.setupFixtureB3().stream()
+    ).collect(Collectors.toList()));
   }
 
   @Test
@@ -478,9 +466,9 @@ public class FabricatorImplTest {
       .thenReturn(segment);
     when(mockSegmentRetrospective.getPreviousSegment())
       .thenReturn(Optional.of(previousSegment));
-    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Main))
+    when(mockSegmentRetrospective.getPreviousSegmentChoiceOfType(Program.Type.Main))
       .thenReturn(Optional.of(previousMainChoice));
-    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Macro))
+    when(mockSegmentRetrospective.getPreviousSegmentChoiceOfType(Program.Type.Macro))
       .thenReturn(Optional.of(previousMacroChoice));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
@@ -560,9 +548,9 @@ public class FabricatorImplTest {
       .thenReturn(segment);
     when(mockSegmentRetrospective.getPreviousSegment())
       .thenReturn(Optional.of(previousSegment));
-    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Main))
+    when(mockSegmentRetrospective.getPreviousSegmentChoiceOfType(Program.Type.Main))
       .thenReturn(Optional.of(previousMainChoice));
-    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Macro))
+    when(mockSegmentRetrospective.getPreviousSegmentChoiceOfType(Program.Type.Macro))
       .thenReturn(Optional.of(previousMacroChoice));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
@@ -678,14 +666,14 @@ public class FabricatorImplTest {
     var sequence = makeSequence(program, 4);
     var pattern = makePattern(sequence, voice, ProgramSequencePattern.Type.Loop, 4);
     sourceMaterial = new HubContent(ImmutableList.of(
-        program,
-        voice,
-        track,
-        sequence,
-        pattern,
-        makeEvent(pattern, track, 0.0, 1.0, "C1"),
-        makeEvent(pattern, track, 1.0, 1.0, "D2")
-      ));
+      program,
+      voice,
+      track,
+      sequence,
+      pattern,
+      makeEvent(pattern, track, 0.0, 1.0, "C1"),
+      makeEvent(pattern, track, 1.0, 1.0, "D2")
+    ));
     subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
 
     var result = subject.computeProgramRange(program.getId(), Instrument.Type.Bass);
@@ -734,15 +722,15 @@ public class FabricatorImplTest {
     var sequence = makeSequence(program, 4);
     var pattern = makePattern(sequence, voice, ProgramSequencePattern.Type.Loop, 4);
     sourceMaterial = new HubContent(ImmutableList.of(
-        program,
-        voice,
-        track,
-        sequence,
-        pattern,
-        makeEvent(pattern, track, 0.0, 1.0, "C1"),
-        makeEvent(pattern, track, 1.0, 1.0, "X"),
-        makeEvent(pattern, track, 2.0, 1.0, "D2")
-      ));
+      program,
+      voice,
+      track,
+      sequence,
+      pattern,
+      makeEvent(pattern, track, 0.0, 1.0, "C1"),
+      makeEvent(pattern, track, 1.0, 1.0, "X"),
+      makeEvent(pattern, track, 2.0, 1.0, "D2")
+    ));
     subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
 
     var result = subject.computeProgramRange(program.getId(), Instrument.Type.Bass);

@@ -274,6 +274,7 @@ public enum Topology {
       .createdBy(SegmentChoice::getDefaultInstance)
       .withAttribute("programType")
       .withAttribute("segmentType")
+      .withAttribute("isInertial")
       .belongsTo(Instrument.class)
       .belongsTo(Program.class)
       .belongsTo(ProgramSequenceBinding.class)
