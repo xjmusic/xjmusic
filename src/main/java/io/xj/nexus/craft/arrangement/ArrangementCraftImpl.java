@@ -18,6 +18,7 @@ import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.util.CSV;
+import io.xj.lib.util.TremendouslyRandom;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
@@ -25,7 +26,6 @@ import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.NameIsometry;
 
 import javax.annotation.Nullable;
-import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
@@ -44,7 +44,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   protected static final double SCORE_ENTROPY_CHOICE_RHYTHM = 8.0;
   protected static final double SCORE_MATCHED_MEMES = 1.0;
   protected static final double SCORE_MATCHED_MAIN_PROGRAM = 10;
-  private static final double INERTIAL_DISTANCE_EXPONENT_BASE = 2;
 
   /**
    Must extend this class and inject
@@ -99,7 +98,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var useInertial =
       fabricator.isInertiaActive()
         && inertialChoice.isPresent()
-        && beatOddsAgainstOne((int) Math.floor(Math.pow(INERTIAL_DISTANCE_EXPONENT_BASE, fabricator.getDistanceToPreviousMainChoice())));
+        && TremendouslyRandom.beatOddsAgainstOne(fabricator.getSegment().getOffsetMain() + 1);
 
     var actual = useInertial ? fabricator.add(inertialChoice.get()) : choice;
 

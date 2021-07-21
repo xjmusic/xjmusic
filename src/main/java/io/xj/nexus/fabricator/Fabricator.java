@@ -324,16 +324,6 @@ public interface Fabricator {
   Collection<SegmentChoice> getChoicesOfPreviousMainChoice();
 
   /**
-   Get the distance (# of segments, starting at 1 if it was the immediately previous segment)
-   to a segment with a different main choice than the current main coice
-   For computing instrument or program choice inertia
-   REF https://www.pivotaltracker.com/story/show/178442889
-
-   @return the choices of the segments having the main choice prior to the current main choice
-   */
-  int getDistanceToPreviousMainChoice();
-
-  /**
    For computing instrument choice inertia
    REF https://www.pivotaltracker.com/story/show/178442889
    IMPORTANT** If the previously chosen instruments are for the previous main program as the current segment,

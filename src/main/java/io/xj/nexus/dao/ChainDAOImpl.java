@@ -335,6 +335,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         .setChainId(chain.getId())
         .setBeginAt(chain.getStartAt())
         .setOffset(0L)
+        .setOffsetMain(0)
         .setType(Segment.Type.Pending)
         .setState(Segment.State.Planned)
         .build());
@@ -357,12 +358,12 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     }
 
     // Build the template of the segment that follows the last known one
-    long pilotOffset = lastSegmentInChain.getOffset() + 1;
     Segment pilotTemplate = Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain.getId())
       .setBeginAt(lastSegmentInChain.getEndAt())
-      .setOffset(pilotOffset)
+      .setOffset(lastSegmentInChain.getOffset() + 1)
+      .setOffsetMain(lastSegmentInChain.getOffsetMain() + 1)
       .setType(Segment.Type.Pending)
       .setState(Segment.State.Planned)
       .build();

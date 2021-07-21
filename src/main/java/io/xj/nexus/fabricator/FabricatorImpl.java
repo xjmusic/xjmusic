@@ -126,7 +126,6 @@ class FabricatorImpl implements Fabricator {
   private final int workBufferBeforeSeconds;
   private Map<String, InstrumentAudio> previousInstrumentAudio;
   private Segment.Type type;
-  private Integer distanceToPreviousMainChoice;
 
   @AssistedInject
   public FabricatorImpl(
@@ -570,19 +569,6 @@ class FabricatorImpl implements Fabricator {
       .stream()
       .flatMap(segment -> retrospective.getSegmentChoices(segment, false).stream())
       .collect(Collectors.toList());
-  }
-
-  @Override
-  public int getDistanceToPreviousMainChoice() {
-    if (Objects.isNull(distanceToPreviousMainChoice))
-      distanceToPreviousMainChoice = getSegmentsOfPreviousMainChoice()
-        .stream()
-        .max(Comparator.comparing(Segment::getOffset))
-        .map(segment -> workbench.getSegment().getOffset() - segment.getOffset())
-        .orElse(0L)
-        .intValue();
-
-    return distanceToPreviousMainChoice;
   }
 
   @Override

@@ -30,4 +30,13 @@ public interface TremendouslyRandom {
     return ThreadLocalRandom.current().nextDouble(0, limit);
   }
 
+  /**
+   Put N marbles in the bag, with one marble set to true, and the others set to false
+
+   @param odds against one, or the total number of marbles, of which one is true
+   @return a marble from the bag
+   */
+  static boolean beatOddsAgainstOne(int odds) {
+    return zeroToLimit(odds) == 0;
+  }
 }

@@ -254,6 +254,7 @@ public enum Topology {
       .withAttribute("key")
       .withAttribute("total")
       .withAttribute("offset")
+      .withAttribute("offsetMain")
       .withAttribute("density")
       .withAttribute("tempo")
       .withAttribute("storageKey")

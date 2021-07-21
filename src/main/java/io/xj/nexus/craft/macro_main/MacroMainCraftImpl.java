@@ -146,6 +146,12 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
         .setEndAt(Value.formatIso8601UTC(segmentEndInstant(mainSequence.get())))
         .build());
 
+    // If the type is not Continue, we will reset the offset main
+    if (!Segment.Type.Continue.equals(fabricator.getType()))
+      fabricator.updateSegment(fabricator.getSegment().toBuilder()
+        .setOffsetMain(0)
+        .build());
+
     // done
     fabricator.done();
   }
@@ -198,23 +204,14 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   @Trace(resourceName = "nexus/craft/macro_main", operationName = "computeMacroProgramSequenceBindingOffset")
   private Long computeMacroProgramSequenceBindingOffset() throws NexusException {
     var previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
-    switch (fabricator.getType()) {
-
-      case Initial:
-      case NextMacro:
-        return 0L;
-
-      case Continue:
-        return previousMacroChoice.isPresent() ?
-          fabricator.getSequenceBindingOffsetForChoice(previousMacroChoice.get()) : 0L;
-
-      case NextMain:
-        return previousMacroChoice.isPresent() ?
-          fabricator.getNextSequenceBindingOffset(previousMacroChoice.get()) : 0L;
-
-      default:
-        throw new NexusException(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
-    }
+    return switch (fabricator.getType()) {
+      case Initial, NextMacro -> 0L;
+      case Continue -> previousMacroChoice.isPresent() ?
+        fabricator.getSequenceBindingOffsetForChoice(previousMacroChoice.get()) : 0L;
+      case NextMain -> previousMacroChoice.isPresent() ?
+        fabricator.getNextSequenceBindingOffset(previousMacroChoice.get()) : 0L;
+      default -> throw new NexusException(String.format("Cannot get Macro-type sequence for known fabricator type=%s", fabricator.getType()));
+    };
   }
 
   /**
