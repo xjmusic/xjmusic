@@ -79,6 +79,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var programConfig = fabricator.getProgramConfig(fabricator.getProgram(choice)
       .orElseThrow(() -> new NexusException("Can't get program config")));
 
+/*
     // Choice inertia REF https://www.pivotaltracker.com/story/show/178442889
     Optional<SegmentChoice> inertialChoice = fabricator.getChoicesOfPreviousMainChoice()
       .stream()
@@ -101,6 +102,9 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         && TremendouslyRandom.beatOddsAgainstOne(fabricator.getSegment().getOffsetMain() + 1);
 
     var actual = useInertial ? fabricator.add(inertialChoice.get()) : choice;
+*/
+    
+    var actual = choice;
 
     if (fabricator.getSegmentChords().isEmpty())
       craftArrangementForVoiceSection(actual, 0, fabricator.getSegment().getTotal(), range);
