@@ -80,7 +80,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static io.xj.Instrument.Type.UNRECOGNIZED;
@@ -127,6 +126,7 @@ class FabricatorImpl implements Fabricator {
   private final int workBufferBeforeSeconds;
   private Map<String, InstrumentAudio> previousInstrumentAudio;
   private Segment.Type type;
+  private Integer distanceToPreviousMainChoice;
 
   @AssistedInject
   public FabricatorImpl(
@@ -574,12 +574,15 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public int getDistanceToPreviousMainChoice() {
-    return getSegmentsOfPreviousMainChoice()
-      .stream()
-      .max(Comparator.comparing(Segment::getOffset))
-      .map(segment -> workbench.getSegment().getOffset() - segment.getOffset())
-      .orElse(0L)
-      .intValue();
+    if (Objects.isNull(distanceToPreviousMainChoice))
+      distanceToPreviousMainChoice = getSegmentsOfPreviousMainChoice()
+        .stream()
+        .max(Comparator.comparing(Segment::getOffset))
+        .map(segment -> workbench.getSegment().getOffset() - segment.getOffset())
+        .orElse(0L)
+        .intValue();
+
+    return distanceToPreviousMainChoice;
   }
 
   @Override
@@ -587,16 +590,16 @@ class FabricatorImpl implements Fabricator {
     if (segmentsOfPreviousMainChoice.isEmpty()) {
       if (getCurrentMainChoice().isEmpty()) return ImmutableList.of();
       String currentMainProgramId = getCurrentMainChoice().get().getProgramId();
-      AtomicReference<String> previousMainProgramId = new AtomicReference<>("");
-      AtomicReference<String> mainProgramId = new AtomicReference<>("");
-      retrospective.getSegments().stream().sorted(Comparator.comparing(Segment::getOffset).reversed())
-        .forEach(segment -> {
-          mainProgramId.set(retrospective.getChoiceOfType(segment, Program.Type.Main).orElseThrow().getProgramId());
-          if (Objects.equals(currentMainProgramId, mainProgramId.get())) return;
-          if (Strings.isNullOrEmpty(previousMainProgramId.get())) previousMainProgramId.set(mainProgramId.get());
-          if (Objects.equals(previousMainProgramId.get(), mainProgramId.get()))
-            segmentsOfPreviousMainChoice.add(segment);
-        });
+      String previousMainProgramId = null;
+      var segments = retrospective.getSegments().stream().sorted(Comparator.comparing(Segment::getOffset).reversed()).collect(Collectors.toList());
+      for (Segment segment : segments) {
+        var mainChoice = retrospective.getChoiceOfType(segment, Program.Type.Main);
+        if (mainChoice.isEmpty()) continue;
+        var mainProgramId = mainChoice.get().getProgramId();
+        if (Objects.equals(currentMainProgramId, mainProgramId)) continue;
+        if (Strings.isNullOrEmpty(previousMainProgramId)) previousMainProgramId = mainProgramId;
+        if (Objects.equals(previousMainProgramId, mainProgramId)) segmentsOfPreviousMainChoice.add(segment);
+      }
     }
     return segmentsOfPreviousMainChoice;
   }

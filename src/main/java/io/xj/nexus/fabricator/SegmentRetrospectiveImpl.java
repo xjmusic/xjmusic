@@ -94,7 +94,6 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   @Override
   public Collection<Segment> getSegments() {
     return store.getAll(Segment.class);
-
   }
 
   @Override
@@ -103,7 +102,6 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       store.getAll(SegmentChoice.class).stream().filter(c ->
         c.getSegmentId().equals(segment.getId()) &&
           c.getProgramType().equals(type)).findFirst();
-
   }
 
   @Override

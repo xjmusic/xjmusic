@@ -72,6 +72,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -739,4 +740,122 @@ public class FabricatorImplTest {
     assertTrue(Note.of("D2").sameAs(result.getHigh().orElseThrow()));
   }
 
+
+  // TODO test
+  // Choice inertia
+  // https://www.pivotaltracker.com/story/show/178442889
+  @Test
+  public void getDistanceToPreviousMainChoice() throws NexusException, DAOFatalException, DAOPrivilegeException, DAOExistenceException {
+    var chain = store.put(Chain.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(UUID.randomUUID().toString())
+      .setName("test")
+      .setType(Chain.Type.Production)
+      .setState(Chain.State.Fabricate)
+      .setStartAt("2017-12-12T01:00:08.000000Z")
+      .setConfig("outputEncoding=\"PCM_SIGNED\"")
+      .build());
+    store.put(ChainBinding.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain.getId())
+      .setTargetId(fake.library2.getId())
+      .setType(ChainBinding.Type.Library)
+      .build());
+    Segment segmentMinus2 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain.getId())
+      .setOffset(0)
+      .setState(Segment.State.Crafted)
+      .setBeginAt("2017-12-12T01:00:08.000000Z")
+      .setEndAt("2017-12-12T01:00:16.000000Z")
+      .setKey("F major")
+      .setTotal(8)
+      .setDensity(0.6)
+      .setTempo(120)
+      .setStorageKey("seg123.ogg")
+      .build());
+    store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segmentMinus2.getId())
+      .setProgramType(Program.Type.Macro)
+      .setProgramId(fake.program4.getId())
+      .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
+      .build());
+    var segmentMinus2_choiceMain = store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segmentMinus2.getId())
+      .setProgramType(Program.Type.Main)
+      .setProgramId(fake.program5.getId())
+      .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
+      .build());
+    Segment segmentMinus1 = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain.getId())
+      .setOffset(1)
+      .setState(Segment.State.Crafted)
+      .setBeginAt("2017-12-12T01:00:08.000000Z")
+      .setEndAt("2017-12-12T01:00:16.000000Z")
+      .setKey("F major")
+      .setTotal(8)
+      .setDensity(0.6)
+      .setTempo(120)
+      .setStorageKey("seg123.ogg")
+      .build());
+    store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segmentMinus1.getId())
+      .setProgramType(Program.Type.Macro)
+      .setProgramId(fake.program4.getId())
+      .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
+      .build());
+    var segmentMinus1_choiceMain = store.put(SegmentChoice.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segmentMinus1.getId())
+      .setProgramType(Program.Type.Main)
+      .setProgramId(fake.program15.getId())
+      .setProgramSequenceBindingId(fake.program15_sequence0_binding0.getId())
+      .build());
+    Segment segment = store.put(Segment.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setChainId(chain.getId())
+      .setOffset(2)
+      .setState(Segment.State.Crafting)
+      .setBeginAt("2017-12-12T01:00:16.000000Z")
+      .setEndAt("2017-12-12T01:00:22.000000Z")
+      .setKey("G major")
+      .setTotal(8)
+      .setDensity(0.6)
+      .setTempo(240)
+      .setStorageKey("seg123.ogg")
+      .build());
+    store.put(SegmentChoice.newBuilder() // current macro program
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment.getId())
+      .setProgramType(Program.Type.Macro)
+      .setProgramId(fake.program4.getId())
+      .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
+      .build());
+    var segment_choiceMain = store.put(SegmentChoice.newBuilder() // current main program
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(segment.getId())
+      .setProgramType(Program.Type.Main)
+      .setProgramId(fake.program15.getId())
+      .setProgramSequenceBindingId(fake.program15_sequence0_binding0.getId())
+      .build());
+    when(mockFabricatorFactory.loadRetrospective(any(), any(), any())).thenReturn(mockSegmentRetrospective);
+    when(mockFabricatorFactory.setupWorkbench(any(), any(), any())).thenReturn(mockSegmentWorkbench);
+    when(mockSegmentWorkbench.getSegment()).thenReturn(segment);
+    when(mockSegmentWorkbench.getChoiceOfType(eq(Program.Type.Main))).thenReturn(Optional.of(segment_choiceMain));
+    when(mockSegmentRetrospective.getSegments()).thenReturn(ImmutableList.of(segmentMinus2, segmentMinus1, segment));
+    when(mockSegmentRetrospective.getChoiceOfType(same(segment), eq(Program.Type.Main))).thenReturn(Optional.of(segment_choiceMain));
+    when(mockSegmentRetrospective.getChoiceOfType(same(segmentMinus1), eq(Program.Type.Main))).thenReturn(Optional.of(segmentMinus1_choiceMain));
+    when(mockSegmentRetrospective.getChoiceOfType(same(segmentMinus2), eq(Program.Type.Main))).thenReturn(Optional.of(segmentMinus2_choiceMain));
+    var access = HubClientAccess.internal();
+    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
+
+    var result = subject.getDistanceToPreviousMainChoice();
+
+    assertEquals(2, result);
+  }
 }
