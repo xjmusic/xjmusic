@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -174,6 +175,7 @@ public class NexusApp extends App {
    @return true if successful
    */
   private Boolean attemptToRehydrateFrom(NexusChainBootstrapPayload bootstrap) {
+    var success = new AtomicBoolean(true);
     try {
       Collection<Object> entities = Lists.newArrayList();
       LOG.info("Will check for last shipped data");
@@ -189,7 +191,8 @@ public class NexusApp extends App {
           try {
             entities.add(jsonapiPayloadFactory.toOne(chainBinding));
           } catch (JsonApiException e) {
-            LOG.error("Could not deserialize ChainBinding from shipped Chain JSON", e);
+            success.set(false);
+            LOG.error("Could not deserialize ChainBinding from shipped Chain JSON because {}", e.getMessage());
           }
         });
       chainPayload.getIncluded().stream()
@@ -198,7 +201,8 @@ public class NexusApp extends App {
           try {
             return Stream.of((Segment) jsonapiPayloadFactory.toOne(po));
           } catch (JsonApiException e) {
-            LOG.error("Could not deserialize Segment from shipped Chain JSON", e);
+            LOG.error("Could not deserialize Segment from shipped Chain JSON because {}", e.getMessage());
+            success.set(false);
             return Stream.empty();
           }
         })
@@ -214,7 +218,8 @@ public class NexusApp extends App {
                 try {
                   return Stream.of(jsonapiPayloadFactory.toOne(po));
                 } catch (JsonApiException e) {
-                  LOG.error("Could not deserialize Segment from shipped Chain JSON", e);
+                  LOG.error("Could not deserialize Segment from shipped Chain JSON because {}", e.getMessage());
+                  success.set(false);
                   return Stream.empty();
                 }
               })
@@ -225,9 +230,13 @@ public class NexusApp extends App {
             LOG.info("Read Segment[{}] and {} child entities", segment.getStorageKey(), childCount);
 
           } catch (FileStoreException | IOException e) {
-            LOG.error("Could not load Segment[{}]", segment.getStorageKey(), e);
+            LOG.error("Could not load Segment[{}] because {}", segment.getStorageKey(), e.getMessage());
+            success.set(false);
           }
         });
+
+      // Quit if anything failed up to here
+      if (!success.get()) return false;
 
       // Nexus with bootstrap won't rehydrate stale Chain
       // https://www.pivotaltracker.com/story/show/178727631
@@ -248,7 +257,7 @@ public class NexusApp extends App {
       }
 
     } catch (FileStoreException | JsonApiException | NexusException | IOException e) {
-      LOG.error("Failed to rehydrate store: {}", e.getMessage());
+      LOG.error("Failed to rehydrate store because {}", e.getMessage());
       return false;
     }
   }
