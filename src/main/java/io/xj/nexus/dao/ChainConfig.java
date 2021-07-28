@@ -91,6 +91,9 @@ public class ChainConfig {
   private final double dubMasterVolumeInstrumentTypeStab;
   private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB = "dubMasterVolumeInstrumentTypeStab";
 
+  private final int craftChoiceInertiaPercent;
+  private final String KEY_CRAFT_CHOICE_INERTIA_PERCENT = "craftChoiceInertiaPercent";
+
   /**
    Instantiate a Chain configuration from a string of typesafe config.
    Said string will be embedded in a `chain{...}` block such that
@@ -105,29 +108,30 @@ public class ChainConfig {
         defaultConfig :
         ConfigFactory.parseString(String.format("chain {\n%s\n}", chain.getConfig()))
           .withFallback(defaultConfig);
-      outputChannels = config.getInt(cp(KEY_OUTPUT_CHANNELS));
-      outputContainer = config.getString(cp(KEY_OUTPUT_CONTAINER));
-      outputEncoding = new AudioFormat.Encoding(config.getString(cp(KEY_OUTPUT_ENCODING)));
-      outputEncodingQuality = config.getDouble(cp(KEY_OUTPUT_ENCODING_QUALITY));
-      outputFrameRate = config.getInt(cp(KEY_OUTPUT_FRAME_RATE));
-      outputSampleBits = config.getInt(cp(KEY_OUTPUT_SAMPLE_BITS));
-      mixerCompressAheadSeconds = config.getDouble(cp(KEY_MIXER_COMPRESS_AHEAD_SECONDS));
-      mixerCompressDecaySeconds = config.getDouble(cp(KEY_MIXER_COMPRESS_DECAY_SECONDS));
-      mixerCompressRatioMax = config.getDouble(cp(KEY_MIXER_COMPRESS_RATIO_MAX));
-      mixerCompressRatioMin = config.getDouble(cp(KEY_MIXER_COMPRESS_RATIO_MIN));
-      mixerCompressToAmplitude = config.getDouble(cp(KEY_MIXER_COMPRESS_TO_AMPLITUDE));
-      mixerDspBufferSize = config.getInt(cp(KEY_MIXER_DSP_BUFFER_SIZE));
-      mixerHighpassThresholdHz = config.getDouble(cp(KEY_MIXER_HIGHPASS_THRESHOLD_HZ));
-      mixerLowpassThresholdHz = config.getDouble(cp(KEY_MIXER_LOWPASS_THRESHOLD_HZ));
-      mixerNormalizationMax = config.getDouble(cp(KEY_MIXER_NORMALIZATION_MAX));
-      mixerSampleAttackMicros = config.getLong(cp(KEY_MIXER_SAMPLE_ATTACK_MICROS));
-      mixerSampleReleaseMicros = config.getLong(cp(KEY_MIXER_SAMPLE_RELEASE_MICROS));
-      dubMasterVolumeInstrumentTypePercussive = config.getDouble(cp(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE));
-      dubMasterVolumeInstrumentTypeBass = config.getDouble(cp(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS));
-      dubMasterVolumeInstrumentTypePad = config.getDouble(cp(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD));
-      dubMasterVolumeInstrumentTypeSticky = config.getDouble(cp(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY));
-      dubMasterVolumeInstrumentTypeStripe = config.getDouble(cp(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE));
-      dubMasterVolumeInstrumentTypeStab = config.getDouble(cp(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB));
+      craftChoiceInertiaPercent = config.getInt(chPfx(KEY_CRAFT_CHOICE_INERTIA_PERCENT));
+      dubMasterVolumeInstrumentTypeBass = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS));
+      dubMasterVolumeInstrumentTypePad = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD));
+      dubMasterVolumeInstrumentTypePercussive = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE));
+      dubMasterVolumeInstrumentTypeStab = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB));
+      dubMasterVolumeInstrumentTypeSticky = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY));
+      dubMasterVolumeInstrumentTypeStripe = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE));
+      mixerCompressAheadSeconds = config.getDouble(chPfx(KEY_MIXER_COMPRESS_AHEAD_SECONDS));
+      mixerCompressDecaySeconds = config.getDouble(chPfx(KEY_MIXER_COMPRESS_DECAY_SECONDS));
+      mixerCompressRatioMax = config.getDouble(chPfx(KEY_MIXER_COMPRESS_RATIO_MAX));
+      mixerCompressRatioMin = config.getDouble(chPfx(KEY_MIXER_COMPRESS_RATIO_MIN));
+      mixerCompressToAmplitude = config.getDouble(chPfx(KEY_MIXER_COMPRESS_TO_AMPLITUDE));
+      mixerDspBufferSize = config.getInt(chPfx(KEY_MIXER_DSP_BUFFER_SIZE));
+      mixerHighpassThresholdHz = config.getDouble(chPfx(KEY_MIXER_HIGHPASS_THRESHOLD_HZ));
+      mixerLowpassThresholdHz = config.getDouble(chPfx(KEY_MIXER_LOWPASS_THRESHOLD_HZ));
+      mixerNormalizationMax = config.getDouble(chPfx(KEY_MIXER_NORMALIZATION_MAX));
+      mixerSampleAttackMicros = config.getLong(chPfx(KEY_MIXER_SAMPLE_ATTACK_MICROS));
+      mixerSampleReleaseMicros = config.getLong(chPfx(KEY_MIXER_SAMPLE_RELEASE_MICROS));
+      outputChannels = config.getInt(chPfx(KEY_OUTPUT_CHANNELS));
+      outputContainer = config.getString(chPfx(KEY_OUTPUT_CONTAINER));
+      outputEncoding = new AudioFormat.Encoding(config.getString(chPfx(KEY_OUTPUT_ENCODING)));
+      outputEncodingQuality = config.getDouble(chPfx(KEY_OUTPUT_ENCODING_QUALITY));
+      outputFrameRate = config.getInt(chPfx(KEY_OUTPUT_FRAME_RATE));
+      outputSampleBits = config.getInt(chPfx(KEY_OUTPUT_SAMPLE_BITS));
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
@@ -140,7 +144,7 @@ public class ChainConfig {
    @param key to prefix
    @return chain-prefixed key
    */
-  private String cp(String key) {
+  private String chPfx(String key) {
     return String.format("%s%s", KEY_PREFIX, key);
   }
 
@@ -148,12 +152,13 @@ public class ChainConfig {
   @Override
   public String toString() {
     Map<String, String> config = Maps.newHashMap();
-    config.put(KEY_OUTPUT_CHANNELS, String.valueOf(outputChannels));
-    config.put(KEY_OUTPUT_CONTAINER, Text.doubleQuoted(outputContainer));
-    config.put(KEY_OUTPUT_ENCODING, Text.doubleQuoted(outputEncoding.toString()));
-    config.put(KEY_OUTPUT_ENCODING_QUALITY, String.valueOf(outputEncodingQuality));
-    config.put(KEY_OUTPUT_FRAME_RATE, String.valueOf(outputFrameRate));
-    config.put(KEY_OUTPUT_SAMPLE_BITS, String.valueOf(outputSampleBits));
+    config.put(KEY_CRAFT_CHOICE_INERTIA_PERCENT, String.valueOf(craftChoiceInertiaPercent));
+    config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS, String.valueOf(dubMasterVolumeInstrumentTypeBass));
+    config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD, String.valueOf(dubMasterVolumeInstrumentTypePad));
+    config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE, String.valueOf(dubMasterVolumeInstrumentTypePercussive));
+    config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB, String.valueOf(dubMasterVolumeInstrumentTypeStab));
+    config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY, String.valueOf(dubMasterVolumeInstrumentTypeSticky));
+    config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE, String.valueOf(dubMasterVolumeInstrumentTypeStripe));
     config.put(KEY_MIXER_COMPRESS_AHEAD_SECONDS, String.valueOf(mixerCompressAheadSeconds));
     config.put(KEY_MIXER_COMPRESS_DECAY_SECONDS, String.valueOf(mixerCompressDecaySeconds));
     config.put(KEY_MIXER_COMPRESS_RATIO_MAX, String.valueOf(mixerCompressRatioMax));
@@ -165,12 +170,12 @@ public class ChainConfig {
     config.put(KEY_MIXER_NORMALIZATION_MAX, String.valueOf(mixerNormalizationMax));
     config.put(KEY_MIXER_SAMPLE_ATTACK_MICROS, String.valueOf(mixerSampleAttackMicros));
     config.put(KEY_MIXER_SAMPLE_RELEASE_MICROS, String.valueOf(mixerSampleReleaseMicros));
-    config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE, String.valueOf(dubMasterVolumeInstrumentTypePercussive));
-    config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS, String.valueOf(dubMasterVolumeInstrumentTypeBass));
-    config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD, String.valueOf(dubMasterVolumeInstrumentTypePad));
-    config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY, String.valueOf(dubMasterVolumeInstrumentTypeSticky));
-    config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE, String.valueOf(dubMasterVolumeInstrumentTypeStripe));
-    config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB, String.valueOf(dubMasterVolumeInstrumentTypeStab));
+    config.put(KEY_OUTPUT_CHANNELS, String.valueOf(outputChannels));
+    config.put(KEY_OUTPUT_CONTAINER, Text.doubleQuoted(outputContainer));
+    config.put(KEY_OUTPUT_ENCODING, Text.doubleQuoted(outputEncoding.toString()));
+    config.put(KEY_OUTPUT_ENCODING_QUALITY, String.valueOf(outputEncodingQuality));
+    config.put(KEY_OUTPUT_FRAME_RATE, String.valueOf(outputFrameRate));
+    config.put(KEY_OUTPUT_SAMPLE_BITS, String.valueOf(outputSampleBits));
     return Text.formatMultiline(config.entrySet().stream()
       .sorted(Map.Entry.comparingByKey())
       .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
@@ -336,5 +341,12 @@ public class ChainConfig {
    */
   public long getMixerSampleReleaseMicros() {
     return mixerSampleReleaseMicros;
+  }
+
+  /**
+   @return percent chance of making an inertial choice
+   */
+  public int getCraftChoiceInertiaPercent() {
+    return craftChoiceInertiaPercent;
   }
 }

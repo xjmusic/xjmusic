@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft {
-  private static final int PERCENT_CHANCE_INERTIAL_CHOICE = 50;
 
   @Inject
   public DetailCraftImpl(
@@ -267,12 +266,15 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @return choice if it ought to be used, otherwise, empty.
    */
   private Optional<SegmentChoice> buildInertialIfBeatsOdds(@Nullable SegmentChoice choice) {
-    if (Objects.isNull(choice)) return Optional.empty();
-    if (!TremendouslyRandom.beatOddsPercent(DetailCraftImpl.PERCENT_CHANCE_INERTIAL_CHOICE)) return Optional.empty();
-    return Optional.of(choice.toBuilder()
-      .setSegmentId(fabricator.getSegment().getId())
-      .setType(SegmentChoice.Type.Inertial)
-      .build());
+    if (Objects.isNull(choice))
+      return Optional.empty();
+    else if (!TremendouslyRandom.beatOddsPercent(fabricator.getChainConfig().getCraftChoiceInertiaPercent()))
+      return Optional.empty();
+    else
+      return Optional.of(choice.toBuilder()
+        .setSegmentId(fabricator.getSegment().getId())
+        .setType(SegmentChoice.Type.Inertial)
+        .build());
   }
 
   /**
