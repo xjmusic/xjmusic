@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import datadog.trace.api.Trace;
 import io.xj.Program;
 import io.xj.ProgramSequence;
 import io.xj.ProgramSequenceChord;
@@ -52,14 +51,53 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     this.apiUrlProvider = apiUrlProvider;
   }
 
+  /**
+   Compute the final key of the current segment
+   Segment Key is the key of the current main program sequence
+
+   @param mainSequence of which to compute key
+   @return key
+   */
+  private static String computeSegmentKey(ProgramSequence mainSequence) {
+    String mainKey = mainSequence.getKey();
+    if (null == mainKey || mainKey.isEmpty()) {
+      mainKey = mainSequence.getKey();
+    }
+    return Key.of(mainKey).getFullDescription();
+  }
+
+  /**
+   Compute the final tempo of the current segment
+
+   @param macroSequence of which to compute segment tempo
+   @param mainSequence  of which to compute segment tempo
+   @return tempo
+   */
+  private static double computeSegmentTempo(ProgramSequence macroSequence, ProgramSequence mainSequence) {
+    return (Value.eitherOr(macroSequence.getTempo(), macroSequence.getTempo()) +
+      Value.eitherOr(mainSequence.getTempo(), mainSequence.getTempo())) / 2;
+  }
+
+  /**
+   Compute the final density of the current segment
+   future: Segment Density = average of macro and main-sequence patterns
+
+   @param macroSequence of which to compute segment tempo
+   @param mainSequence  of which to compute segment tempo
+   @return density
+   */
+  private static Double computeSegmentDensity(ProgramSequence macroSequence, ProgramSequence mainSequence) {
+    return (Value.eitherOr(macroSequence.getDensity(), macroSequence.getDensity()) +
+      Value.eitherOr(mainSequence.getDensity(), mainSequence.getDensity())) / 2;
+  }
+
   @Override
-  @Trace(resourceName = "nexus/craft/macro_main", operationName = "doWork")
   public void doWork() throws NexusException {
     var macroProgram = chooseNextMacroProgram()
       .orElseThrow(() -> new NexusException("Failed to choose a Macro-program by any means!"));
 
     Long macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
-    var macroSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
+    var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
         "Unable to determine sequence binding offset for macro Program \"%s\" %s",
         macroProgram.getName(),
@@ -84,7 +122,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
         apiUrlProvider.getAppUrl(String.format("/programs/%s", macroProgram.getId()))
       )));
     Long mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
-    var mainSequenceBinding = fabricator.randomlySelectSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
+    var mainSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
         "Unable to determine sequence binding offset for main Program \"%s\" %s",
         mainProgram.getName(),
@@ -149,7 +187,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // If the type is not Continue, we will reset the offset main
     if (!Segment.Type.Continue.equals(fabricator.getType()))
       fabricator.updateSegment(fabricator.getSegment().toBuilder()
-        .setOffsetMain(0)
+        .setDelta(0)
         .build());
 
     // done
@@ -157,51 +195,10 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   }
 
   /**
-   Compute the final key of the current segment
-   Segment Key is the key of the current main program sequence
-
-   @param mainSequence of which to compute key
-   @return key
-   */
-  private static String computeSegmentKey(ProgramSequence mainSequence) {
-    String mainKey = mainSequence.getKey();
-    if (null == mainKey || mainKey.isEmpty()) {
-      mainKey = mainSequence.getKey();
-    }
-    return Key.of(mainKey).getFullDescription();
-  }
-
-  /**
-   Compute the final tempo of the current segment
-
-   @param macroSequence of which to compute segment tempo
-   @param mainSequence  of which to compute segment tempo
-   @return tempo
-   */
-  private static double computeSegmentTempo(ProgramSequence macroSequence, ProgramSequence mainSequence) {
-    return (Value.eitherOr(macroSequence.getTempo(), macroSequence.getTempo()) +
-      Value.eitherOr(mainSequence.getTempo(), mainSequence.getTempo())) / 2;
-  }
-
-  /**
-   Compute the final density of the current segment
-   future: Segment Density = average of macro and main-sequence patterns
-
-   @param macroSequence of which to compute segment tempo
-   @param mainSequence  of which to compute segment tempo
-   @return density
-   */
-  private static Double computeSegmentDensity(ProgramSequence macroSequence, ProgramSequence mainSequence) {
-    return (Value.eitherOr(macroSequence.getDensity(), macroSequence.getDensity()) +
-      Value.eitherOr(mainSequence.getDensity(), mainSequence.getDensity())) / 2;
-  }
-
-  /**
    compute the macroSequenceBindingOffset
 
    @return macroSequenceBindingOffset
    */
-  @Trace(resourceName = "nexus/craft/macro_main", operationName = "computeMacroProgramSequenceBindingOffset")
   private Long computeMacroProgramSequenceBindingOffset() throws NexusException {
     var previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
     return switch (fabricator.getType()) {
@@ -219,7 +216,6 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return mainSequenceBindingOffset
    */
-  @Trace(resourceName = "nexus/craft/macro_main", operationName = "computeMainProgramSequenceBindingOffset")
   private Long computeMainProgramSequenceBindingOffset() throws NexusException {
     switch (fabricator.getType()) {
 
@@ -245,13 +241,12 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return macro-type program
    */
-  @Trace(resourceName = "nexus/craft/macro_main", operationName = "chooseMacroProgram")
   public Optional<Program> chooseNextMacroProgram() {
     if (fabricator.isInitialSegment()) return chooseRandomMacroProgram();
 
     // if continuing the macro program, use the same one
     var previousMacroChoice = fabricator.getMacroChoiceOfPreviousSegment();
-    if (fabricator.continuesMacroProgram() && previousMacroChoice.isPresent())
+    if (fabricator.isContinuationOfMacroProgram() && previousMacroChoice.isPresent())
       return fabricator.getProgram(previousMacroChoice.get());
 
     // will rank all possibilities, and choose the next macro program
@@ -280,7 +275,6 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return macro-type program
    */
-  @Trace(resourceName = "nexus/craft/macro_main", operationName = "chooseMacroProgram")
   public Optional<Program> chooseRandomMacroProgram() {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
@@ -297,7 +291,6 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return main-type Program
    */
-  @Trace(resourceName = "nexus/craft/macro_main", operationName = "chooseMainProgram")
   private Optional<Program> chooseMainProgram() {
     // if continuing the macro program, use the same one
     var previousMainChoice = fabricator.getMainChoiceOfPreviousSegment();
@@ -327,7 +320,6 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @param program to score
    @return score, including +/- entropy
    */
-  @Trace(resourceName = "nexus/craft/macro_main", operationName = "scoreMacro")
   private double scoreMacro(Program program) {
     double score = Chance.normallyAround(0, SCORE_MACRO_ENTROPY);
 
@@ -352,7 +344,6 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @param program to score
    @return score, including +/- entropy
    */
-  @Trace(resourceName = "nexus/craft/macro_main", operationName = "scoreMain")
   private double scoreMain(Program program) {
     double score = Chance.normallyAround(0, SCORE_MAIN_ENTROPY);
 
@@ -385,7 +376,6 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return map of meme name to SegmentMeme entity
    */
-  @Trace(resourceName = "nexus/craft/macro_main", operationName = "segmentMemes")
   private Collection<SegmentMeme> segmentMemes() throws NexusException {
     Multiset<String> uniqueResults = ConcurrentHashMultiset.create();
     for (SegmentChoice choice : fabricator.getChoices())
@@ -409,7 +399,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @throws NexusException on failure
    */
   private long segmentLengthNanos(ProgramSequence mainSequence) throws NexusException {
-    return (long) (fabricator.computeSecondsAtPosition(mainSequence.getTotal()) * NANOS_PER_SECOND);
+    return (long) (fabricator.getSecondsAtPosition(mainSequence.getTotal()) * NANOS_PER_SECOND);
   }
 
   /**

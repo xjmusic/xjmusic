@@ -8,13 +8,6 @@ import java.util.Arrays;
 
 class oggpack_buffer {
 
-  int endbyte;  // long
-  int endbit;
-
-  byte[] buffer;  // unsigned char *buffer;
-  int ptr;    // unsigned char *ptr;	// offset
-  int storage;  // long
-
   static int[] mask = new int[]{
     0x00000000,
     0x00000001,
@@ -49,6 +42,12 @@ class oggpack_buffer {
     0x3fffffff,
     0x7fffffff,
     0xffffffff};
+  static int seq = 0;
+  int endbyte;  // long
+  int endbit;
+  byte[] buffer;  // unsigned char *buffer;
+  int ptr;    // unsigned char *ptr;	// offset
+  int storage;  // long
 
   public oggpack_buffer() {  // void oggpack_writeinit(oggpack_buffer *b)
 
@@ -428,8 +427,6 @@ class oggpack_buffer {
         oggpack_write(info.postlist[k + 2], rangebits);
     }
   }
-
-  static int seq = 0;
 
   public int floor1_encode(vorbis_block vb, vorbis_look_floor1 look, int[] post, int[] ilogmask) {
 

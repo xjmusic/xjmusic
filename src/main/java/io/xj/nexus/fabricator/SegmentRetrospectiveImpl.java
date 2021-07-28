@@ -7,7 +7,6 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.Program;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStore;
@@ -20,6 +19,7 @@ import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,11 +40,14 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     EntityStore entityStore
   ) throws NexusException {
     this.store = entityStore;
+
+    // begin by getting the previous segment
+    // only can build retrospective if there is at least one previous segment
+    // the previous segment is the first one cached here. we may cache even further back segments below if found
+    if (segment.getOffset() <= 0) return;
     try {
       // begin by getting the previous segment
-      // only can build retrospective if there is at least one previous segment
       // the previous segment is the first one cached here. we may cache even further back segments below if found
-      if (segment.getOffset() <= 0) return;
       previousSegment = store.put(segmentDAO.readOneAtChainOffset(access,
         segment.getChainId(), segment.getOffset() - 1));
       store.putAll(segmentDAO.readManySubEntities(access, ImmutableList.of(previousSegment.getId()), true));
@@ -74,34 +77,16 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks(Segment segment, Boolean includeInertial) {
-    return store.getAll(SegmentChoiceArrangementPick.class).stream()
-      .filter(pick ->
-        pick.getSegmentId().equals(segment.getId()) && (includeInertial || !isInertial(pick)))
-      .collect(Collectors.toList());
-  }
-
-
-  @Override
-  public Collection<SegmentChoice> getSegmentChoices(Segment segment, Boolean includeInertial) {
-    return store.getAll(SegmentChoice.class).stream()
-      .filter(choice ->
-        choice.getSegmentId().equals(segment.getId()) && (includeInertial || !choice.getIsInertial()))
-      .collect(Collectors.toList());
-  }
-
-
-  @Override
-  public Collection<Segment> getSegments() {
-    return store.getAll(Segment.class);
-  }
-
-  @Override
-  public Optional<SegmentChoice> getChoiceOfType(Segment segment, Program.Type type) {
+  public Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, Program.Type type) {
     return
       store.getAll(SegmentChoice.class).stream().filter(c ->
         c.getSegmentId().equals(segment.getId()) &&
           c.getProgramType().equals(type)).findFirst();
+  }
+
+  @Override
+  public Collection<SegmentChoiceArrangementPick> getPicks() {
+    return new ArrayList<>(store.getAll(SegmentChoiceArrangementPick.class));
   }
 
   @Override
@@ -110,39 +95,33 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Optional<SegmentChoice> getPreviousSegmentChoiceOfType(Program.Type type) {
+  public Optional<SegmentChoice> getPreviousChoiceOfType(Program.Type type) {
     Optional<Segment> seg = getPreviousSegment();
     if (seg.isEmpty()) return Optional.empty();
-    return getChoiceOfType(seg.get(), type);
+    return getPreviousChoiceOfType(seg.get(), type);
   }
 
   @Override
-  public <N> N add(N entity) throws NexusException {
-    try {
-      return store.put(entity);
-    } catch (EntityStoreException e) {
-      throw new NexusException(e);
-    }
+  public Collection<Segment> getSegments() {
+    return store.getAll(Segment.class);
   }
 
-  /**
-   Whether get given pick belongs to an inertial choice
+  @Override
+  public Collection<SegmentChoice> getChoices() {
+    return store.getAll(SegmentChoice.class);
+  }
 
-   @param pick which to test for inertial choice
-   @return true if belongs to inertial choice
-   */
-  private boolean isInertial(SegmentChoiceArrangementPick pick) {
-    try {
-      return
-        store.get(SegmentChoice.class,
-          store.get(SegmentChoiceArrangement.class, pick.getSegmentChoiceArrangementId())
-            .orElseThrow(() -> new EntityStoreException("Can't find arrangement!"))
-            .getSegmentChoiceId())
-          .orElseThrow(() -> new EntityStoreException("Can't find choice!"))
-          .getIsInertial();
+  @Override
+  public Collection<SegmentChoice> getInertialChoices() {
+    return getChoices().stream()
+      .filter(choice -> SegmentChoice.Type.Inertial.equals(choice.getType()))
+      .collect(Collectors.toList());
+  }
 
-    } catch (EntityStoreException e) {
-      return false;
-    }
+  @Override
+  public Collection<SegmentChoice> getPrimaryChoices() {
+    return getChoices().stream()
+      .filter(choice -> SegmentChoice.Type.Primary.equals(choice.getType()))
+      .collect(Collectors.toList());
   }
 }

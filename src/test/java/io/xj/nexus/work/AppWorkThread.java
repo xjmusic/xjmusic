@@ -4,7 +4,7 @@ package io.xj.nexus.work;
 
 import io.xj.nexus.NexusApp;
 
-public class AppWorkThread extends Thread{
+public class AppWorkThread extends Thread {
 
   private final NexusApp app;
 
@@ -12,7 +12,7 @@ public class AppWorkThread extends Thread{
     this.app = app;
   }
 
-  public void run(){
+  public void run() {
     app.getWork().work();
   }
 }

@@ -10,12 +10,12 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.NexusException;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -39,9 +39,9 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
 
   @Inject
   public ChainBindingDAOImpl(
-          EntityFactory entityFactory,
-          NexusEntityStore nexusEntityStore,
-          ChainDAO chainDAO
+    EntityFactory entityFactory,
+    NexusEntityStore nexusEntityStore,
+    ChainDAO chainDAO
   ) {
     super(entityFactory, nexusEntityStore);
     this.chainDAO = chainDAO;
@@ -65,7 +65,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   public ChainBinding readOne(HubClientAccess access, String id) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException {
     try {
       var chainBinding = store.getChainBinding(id)
-              .orElseThrow(() -> new DAOExistenceException(ChainBinding.class, id));
+        .orElseThrow(() -> new DAOExistenceException(ChainBinding.class, id));
       requireChainAccountRole(access, chainBinding);
       return chainBinding;
 
@@ -105,7 +105,7 @@ public class ChainBindingDAOImpl extends DAOImpl<ChainBinding> implements ChainB
   public void destroy(HubClientAccess access, String id) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException {
     try {
       var chainBinding = store.getChainBinding(id)
-              .orElseThrow(() -> new DAOExistenceException(ChainBinding.class, id));
+        .orElseThrow(() -> new DAOExistenceException(ChainBinding.class, id));
       requireChainAccountRole(access, chainBinding);
       store.deleteChainBinding(id);
 

@@ -9,7 +9,6 @@ import org.junit.Test;
 import javax.sound.sampled.AudioFormat;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
-import java.time.Duration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

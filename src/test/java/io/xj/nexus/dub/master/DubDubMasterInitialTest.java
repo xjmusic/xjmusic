@@ -43,19 +43,16 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DubDubMasterInitialTest {
+  @Mock
+  public HubClient hubClient;
+  @Mock
+  public Mixer mixer;
+  @Mock
+  public MixerFactory mixerFactory;
   private DubFactory dubFactory;
   private FabricatorFactory fabricatorFactory;
   private HubContent sourceMaterial;
   private Segment segment6;
-
-  @Mock
-  public HubClient hubClient;
-
-  @Mock
-  public Mixer mixer;
-
-  @Mock
-  public MixerFactory mixerFactory;
 
   @Before
   public void setUp() throws Exception {
@@ -84,9 +81,9 @@ public class DubDubMasterInitialTest {
     // Mock request via HubClient returns fake generated library of hub content
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB3().stream()
-      ).collect(Collectors.toList()));
+      fake.setupFixtureB1().stream(),
+      fake.setupFixtureB3().stream()
+    ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in dubbing state - DubMaster is complete
     Chain chain2 = store.put(Chain.newBuilder()

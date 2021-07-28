@@ -53,51 +53,6 @@ public class Environment {
   private final String segmentFileBucket;
 
   /**
-   Get the environment from a specific set of variables
-
-   @param vars from which to get environment
-   @return environment from variables
-   */
-  public static Environment from(Map<String, String> vars) {
-    return new Environment(vars);
-  }
-
-  /**
-   Get the environment from system environment variables
-
-   @return system environment
-   */
-  public static Environment fromSystem() {
-    return from(System.getenv());
-  }
-
-  /**
-   Get the default environment
-
-   @return environment with default values
-   */
-  public static Environment getDefault() {
-    return from(ImmutableMap.of());
-  }
-
-  /**
-   Augment the system environment variables with a source text body of key=value lines
-
-   @param secretKeyValueLines to parse for key=value lines
-   @return system environment augmented with source
-   */
-  public static Environment augmentSystem(String secretKeyValueLines) {
-    var vars = new HashMap<>(System.getenv());
-    var pairs = Text.parseEnvironmentVariableKeyPairs(secretKeyValueLines);
-    pairs.forEach(vars::put);
-    if (0 < pairs.size())
-      LOG.info("Augmented system environment with {} secrets having keys {}", pairs.size(), CSV.join(pairs.keySet()));
-    else
-      LOG.warn("Did not parse any secrets with which to augment system environment.");
-    return from(vars);
-  }
-
-  /**
    Zero-argument construction defaults to system environment
    */
   @Inject
@@ -145,6 +100,51 @@ public class Environment {
     segmentBaseURL = getStr(vars, "SEGMENT_BASE_URL", "https://ship.dev.xj.io/");
     segmentFileBucket = getStr(vars, "SEGMENT_FILE_BUCKET", "xj-dev-ship");
     tempFilePathPrefix = getStr(vars, "TEMP_FILE_PATH_PREFIX", "/tmp/");
+  }
+
+  /**
+   Get the environment from a specific set of variables
+
+   @param vars from which to get environment
+   @return environment from variables
+   */
+  public static Environment from(Map<String, String> vars) {
+    return new Environment(vars);
+  }
+
+  /**
+   Get the environment from system environment variables
+
+   @return system environment
+   */
+  public static Environment fromSystem() {
+    return from(System.getenv());
+  }
+
+  /**
+   Get the default environment
+
+   @return environment with default values
+   */
+  public static Environment getDefault() {
+    return from(ImmutableMap.of());
+  }
+
+  /**
+   Augment the system environment variables with a source text body of key=value lines
+
+   @param secretKeyValueLines to parse for key=value lines
+   @return system environment augmented with source
+   */
+  public static Environment augmentSystem(String secretKeyValueLines) {
+    var vars = new HashMap<>(System.getenv());
+    var pairs = Text.parseEnvironmentVariableKeyPairs(secretKeyValueLines);
+    pairs.forEach(vars::put);
+    if (0 < pairs.size())
+      LOG.info("Augmented system environment with {} secrets having keys {}", pairs.size(), CSV.join(pairs.keySet()));
+    else
+      LOG.warn("Did not parse any secrets with which to augment system environment.");
+    return from(vars);
   }
 
   /**

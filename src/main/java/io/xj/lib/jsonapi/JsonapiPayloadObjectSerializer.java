@@ -28,7 +28,7 @@ public class JsonapiPayloadObjectSerializer extends StdSerializer<JsonapiPayload
 
   @Override
   public void serialize(
-          JsonapiPayloadObject value, JsonGenerator json, SerializerProvider provider)
+    JsonapiPayloadObject value, JsonGenerator json, SerializerProvider provider)
     throws IOException {
 
     json.writeStartObject();

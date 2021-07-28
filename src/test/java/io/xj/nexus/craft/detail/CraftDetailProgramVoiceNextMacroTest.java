@@ -203,6 +203,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
+      .setType(Segment.Type.Continue)
       .setChainId(chain1.getId())
       .setOffset(3L)
       .setState(Segment.State.Crafting)

@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.sound.sampled.AudioFormat;
-import java.time.Duration;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -35,7 +34,7 @@ public class MixerModuleTest {
    */
   @Test
   public void createMixerNotNull_supportBigEndian() throws Exception {
-    var mixer =mixerFactory.createMixer(new MixerConfig(
+    var mixer = mixerFactory.createMixer(new MixerConfig(
       new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
         48000, 32, 2, 8, 48000, true)
     ));

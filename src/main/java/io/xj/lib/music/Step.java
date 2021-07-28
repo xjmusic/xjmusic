@@ -10,6 +10,14 @@ public class Step {
   private final Integer deltaOctave;
 
   /**
+   Private constructor
+   */
+  private Step(PitchClass pitchClass, Integer deltaOctave) {
+    this.pitchClass = pitchClass;
+    this.deltaOctave = deltaOctave;
+  }
+
+  /**
    Represents a step to a particular pitch class, optionally +/- octave
    Preferred usage:
    <p>
@@ -39,14 +47,6 @@ public class Step {
    */
   public Integer getDeltaOctave() {
     return deltaOctave;
-  }
-
-  /**
-   Private constructor
-   */
-  private Step(PitchClass pitchClass, Integer deltaOctave) {
-    this.pitchClass = pitchClass;
-    this.deltaOctave = deltaOctave;
   }
 
 }

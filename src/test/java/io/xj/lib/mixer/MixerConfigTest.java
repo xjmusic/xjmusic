@@ -8,15 +8,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import javax.sound.sampled.AudioFormat;
-import java.time.Duration;
 
 import static org.junit.Assert.assertEquals;
 
 public class MixerConfigTest {
-  MixerConfig config;
-
   @Rule
   public ExpectedException failure = ExpectedException.none();
+  MixerConfig config;
 
   @Before
   public void setUp() {

@@ -45,37 +45,6 @@ class drft_lookup {
     this(src.n, src.trigcache, src.splitcache);
   }
 
-  public void drft_forward(float[] data) {
-
-    if (n == 1)
-      return;
-
-    // drftf1( l->n, data, l->trigcache, l->trigcache+l->n, l->splitcache );
-    drftf1(n, data, trigcache, splitcache);
-  }
-
-  public void drft_backward(float[] data) {
-
-    if (n == 1)
-      return;
-
-    // drftb1( l->n, data, l->trigcache, l->trigcache+l->n, l->splitcache );
-    drftb1(n, data, trigcache, splitcache);
-  }
-
-  public void drft_init(int _n) {
-
-    n = _n;
-
-    // l->trigcache=_ogg_calloc(3*n,sizeof(*l->trigcache));
-    trigcache = new float[3 * n];
-
-    // l->splitcache=_ogg_calloc(32,sizeof(*l->splitcache));
-    splitcache = new int[32];
-
-    fdrffti(n, trigcache, splitcache);
-  }
-
   static void fdrffti(int _n, float[] wsave, int[] ifac) {
 
     if (_n == 1)
@@ -1385,5 +1354,36 @@ class drft_lookup {
         }
       }
     }
+  }
+
+  public void drft_forward(float[] data) {
+
+    if (n == 1)
+      return;
+
+    // drftf1( l->n, data, l->trigcache, l->trigcache+l->n, l->splitcache );
+    drftf1(n, data, trigcache, splitcache);
+  }
+
+  public void drft_backward(float[] data) {
+
+    if (n == 1)
+      return;
+
+    // drftb1( l->n, data, l->trigcache, l->trigcache+l->n, l->splitcache );
+    drftb1(n, data, trigcache, splitcache);
+  }
+
+  public void drft_init(int _n) {
+
+    n = _n;
+
+    // l->trigcache=_ogg_calloc(3*n,sizeof(*l->trigcache));
+    trigcache = new float[3 * n];
+
+    // l->splitcache=_ogg_calloc(32,sizeof(*l->splitcache));
+    splitcache = new int[32];
+
+    fdrffti(n, trigcache, splitcache);
   }
 }

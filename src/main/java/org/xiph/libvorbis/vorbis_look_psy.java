@@ -6,24 +6,6 @@ import org.xiph.libvorbis.vorbis_constants.integer_constants;
 
 class vorbis_look_psy {
 
-  int n;
-  vorbis_info_psy vi;
-
-  float[][][] tonecurves;    // float ***tonecurves
-  float[][] noiseoffset;    // float **noiseoffset
-
-  float[] ath;
-  int[] octave;      // in n.ocshift format
-  int[] bark;
-
-  int firstoc;
-  int shiftoc;
-  int eighth_octave_lines;  // power of two, please
-  int total_octave_lines;
-  int rate;      // cache it
-
-  float m_val;  // Masking compensation value
-
   //	 static float ATH[]={
   public static final float[] bookATH = new float[]{
     /*15*/  -51, -52, -53, -54, -55, -56, -57, -58,
@@ -38,7 +20,6 @@ class vorbis_look_psy {
     /*8k*/  -95, -95, -96, -97, -96, -95, -93, -90,
     /*16k*/ -80, -70, -50, -40, -30, -30, -30, -30
   };
-
   //	 static float tonemasks[P_BANDS][6][EHMER_MAX]={
   public static final float[][][] tonemasks = new float[][][]{
     /* 62.5 Hz */
@@ -773,6 +754,19 @@ class vorbis_look_psy {
         -999, -999, -999, -999, -999, -999, -999, -999,
         -999, -999, -999, -999, -999, -999, -999, -999}}
   };
+  int n;
+  vorbis_info_psy vi;
+  float[][][] tonecurves;    // float ***tonecurves
+  float[][] noiseoffset;    // float **noiseoffset
+  float[] ath;
+  int[] octave;      // in n.ocshift format
+  int[] bark;
+  int firstoc;
+  int shiftoc;
+  int eighth_octave_lines;  // power of two, please
+  int total_octave_lines;
+  int rate;      // cache it
+  float m_val;  // Masking compensation value
 
 
   public vorbis_look_psy() {
@@ -802,8 +796,36 @@ class vorbis_look_psy {
     this(src.n, src.vi, src.tonecurves, src.noiseoffset, src.ath, src.octave, src.bark, src.firstoc, src.shiftoc, src.eighth_octave_lines, src.total_octave_lines, src.rate);
   }
 
-  private float toBARK(double z) {
-    return Double.valueOf(13.1f * Math.atan(.00074f * (z)) + 2.24f * Math.atan((z) * (z) * 1.85e-8f) + 1e-4f * (z)).floatValue();
+  // octave/(8*eighth_octave_lines) x scale and dB y scale
+  static void seed_curve(float[] seed, float[][] curves, float amp, int oc, int n, int linesper, float dBoffset) {
+
+    int i;
+    int post1;
+    int seedptr;
+    float[] posts;
+    int curve;
+
+    int choice = (int) ((amp + dBoffset - integer_constants.P_LEVEL_0) * .1f);
+    choice = Math.max(choice, 0);
+    choice = Math.min(choice, integer_constants.P_LEVELS - 1);
+    posts = curves[choice];
+    // curve=posts+2;
+    curve = 2;
+    post1 = (int) posts[1];
+
+    seedptr = Float.valueOf(oc + (posts[0] - integer_constants.EHMER_OFFSET) * linesper - (linesper >>> 1)).intValue();
+
+    for (i = (int) posts[0]; i < post1; i++) {
+
+      if (seedptr > 0) {
+        float lin = amp + posts[curve + i];
+        if (seed[seedptr] < lin)
+          seed[seedptr] = lin;
+      }
+      seedptr += linesper;
+      if (seedptr >= n)
+        break;
+    }
   }
 
 //	private float fromBARK( double z ) {
@@ -811,6 +833,237 @@ class vorbis_look_psy {
 //	}
 
   // Frequency to octave.  We arbitrarily declare 63.5 Hz to be octave 0.0
+
+  static void seed_chase(float[] seeds, int linesper, int n) {
+
+    // long  *posstack=alloca(n*sizeof(*posstack));
+    // float *ampstack=alloca(n*sizeof(*ampstack));
+    int[] posstack = new int[n];
+    float[] ampstack = new float[n];
+
+    int stack = 0;
+    int pos = 0;
+    int i;
+
+    for (i = 0; i < n; i++) {
+
+      if (stack < 2) {
+        posstack[stack] = i;
+        ampstack[stack++] = seeds[i];
+      } else {
+        while (true) {
+          if (seeds[i] < ampstack[stack - 1]) {
+            posstack[stack] = i;
+            ampstack[stack++] = seeds[i];
+            break;
+          } else {
+            if (i < posstack[stack - 1] + linesper) {
+              if (stack > 1 && ampstack[stack - 1] <= ampstack[stack - 2] && i < posstack[stack - 2] + linesper) {
+                // we completely overlap, making stack-1 irrelevant.  pop it
+                stack--;
+                continue;
+              }
+            }
+            posstack[stack] = i;
+            ampstack[stack++] = seeds[i];
+            break;
+          }
+        }
+      }
+    }
+
+    // the stack now contains only the positions that are relevant. Scan 'em straight through
+
+    for (i = 0; i < stack; i++) {
+
+      int endpos;
+      if (i < stack - 1 && ampstack[i + 1] > ampstack[i]) {
+        endpos = posstack[i + 1];
+      } else {
+        endpos = posstack[i] + linesper + 1; // +1 is important, else bin 0 is discarded in short frames
+      }
+
+      if (endpos > n)
+        endpos = n;
+      for (; pos < endpos; pos++)
+        seeds[pos] = ampstack[i];
+    }
+  }
+
+  static void bark_noise_hybridmp(int n, int[] b, float[] f, int foff, float[] noise, float offset, int fixed) {
+
+    // float *N=alloca(n*sizeof(*N));
+    // float *X=alloca(n*sizeof(*N));
+    // float *XX=alloca(n*sizeof(*N));
+    // float *Y=alloca(n*sizeof(*N));
+    // float *XY=alloca(n*sizeof(*N));
+    float[] N = new float[n];
+    float[] X = new float[n];
+    float[] XX = new float[n];
+    float[] Y = new float[n];
+    float[] XY = new float[n];
+
+    float tN, tX, tXX, tY, tXY;
+    int i;
+
+    int lo, hi;
+    float R = 0.f;
+    float A = 0.f;
+    float B = 0.f;
+    float D = 0.f;
+    float w, x, y;
+
+    tN = tX = tXX = tY = tXY = 0.f;
+
+    y = f[foff + 0] + offset;
+    if (y < 1.f)
+      y = 1.f;
+
+    w = y * y * .5f;
+
+    tN += w;
+    tX += w;
+    tY += w * y;
+
+    N[0] = tN;
+    X[0] = tX;
+    XX[0] = tXX;
+    Y[0] = tY;
+    XY[0] = tXY;
+
+    for (i = 1, x = 1.f; i < n; i++, x += 1.f) {
+
+      y = f[foff + i] + offset;
+      if (y < 1.f)
+        y = 1.f;
+
+      w = y * y;
+
+      tN += w;
+      tX += w * x;
+      tXX += w * x * x;
+      tY += w * y;
+      tXY += w * x * y;
+
+      N[i] = tN;
+      X[i] = tX;
+      XX[i] = tXX;
+      Y[i] = tY;
+      XY[i] = tXY;
+    }
+
+    for (i = 0, x = 0.f; ; i++, x += 1.f) {
+
+      lo = b[i] >> 16;
+      if (lo >= 0)
+        break;
+      hi = b[i] & 0xffff;
+
+      tN = N[hi] + N[-lo];
+      tX = X[hi] - X[-lo];
+      tXX = XX[hi] + XX[-lo];
+      tY = Y[hi] + Y[-lo];
+      tXY = XY[hi] - XY[-lo];
+
+      A = tY * tXX - tX * tXY;
+      B = tN * tXY - tX * tY;
+      D = tN * tXX - tX * tX;
+      R = (A + x * B) / D;
+      if (R < 0.f)
+        R = 0.f;
+
+      noise[i] = R - offset;
+    }
+
+    for (; ; i++, x += 1.f) {
+
+      lo = b[i] >> 16;
+      hi = b[i] & 0xffff;
+      if (hi >= n)
+        break;
+
+      tN = N[hi] - N[lo];
+      tX = X[hi] - X[lo];
+      tXX = XX[hi] - XX[lo];
+      tY = Y[hi] - Y[lo];
+      tXY = XY[hi] - XY[lo];
+
+      A = tY * tXX - tX * tXY;
+      B = tN * tXY - tX * tY;
+      D = tN * tXX - tX * tX;
+      R = (A + x * B) / D;
+      if (R < 0.f)
+        R = 0.f;
+
+      noise[i] = R - offset;
+    }
+
+    for (; i < n; i++, x += 1.f) {
+
+      R = (A + x * B) / D;
+      if (R < 0.f)
+        R = 0.f;
+
+      noise[i] = R - offset;
+    }
+
+    if (fixed <= 0)
+      return;
+
+    for (i = 0, x = 0.f; ; i++, x += 1.f) {
+
+      hi = i + fixed / 2;
+      lo = hi - fixed;
+      if (lo >= 0)
+        break;
+
+      tN = N[hi] + N[-lo];
+      tX = X[hi] - X[-lo];
+      tXX = XX[hi] + XX[-lo];
+      tY = Y[hi] + Y[-lo];
+      tXY = XY[hi] - XY[-lo];
+
+      A = tY * tXX - tX * tXY;
+      B = tN * tXY - tX * tY;
+      D = tN * tXX - tX * tX;
+      R = (A + x * B) / D;
+
+      if (R - offset < noise[i])
+        noise[i] = R - offset;
+    }
+
+    for (; ; i++, x += 1.f) {
+
+      hi = i + fixed / 2;
+      lo = hi - fixed;
+      if (hi >= n)
+        break;
+
+      tN = N[hi] - N[lo];
+      tX = X[hi] - X[lo];
+      tXX = XX[hi] - XX[lo];
+      tY = Y[hi] - Y[lo];
+      tXY = XY[hi] - XY[lo];
+
+      A = tY * tXX - tX * tXY;
+      B = tN * tXY - tX * tY;
+      D = tN * tXX - tX * tX;
+      R = (A + x * B) / D;
+
+      if (R - offset < noise[i])
+        noise[i] = R - offset;
+    }
+
+    for (; i < n; i++, x += 1.f) {
+      R = (A + x * B) / D;
+      if (R - offset < noise[i])
+        noise[i] = R - offset;
+    }
+  }
+
+  private float toBARK(double z) {
+    return Double.valueOf(13.1f * Math.atan(.00074f * (z)) + 2.24f * Math.atan((z) * (z) * 1.85e-8f) + 1e-4f * (z)).floatValue();
+  }
 
   private float toOC(double z) {
     return Double.valueOf(Math.log(z) * 1.442695f - 5.965784f).floatValue();
@@ -1179,38 +1432,6 @@ class vorbis_look_psy {
     // } catch (Exception e) { e.printStackTrace(System.out); }
   }
 
-  // octave/(8*eighth_octave_lines) x scale and dB y scale
-  static void seed_curve(float[] seed, float[][] curves, float amp, int oc, int n, int linesper, float dBoffset) {
-
-    int i;
-    int post1;
-    int seedptr;
-    float[] posts;
-    int curve;
-
-    int choice = (int) ((amp + dBoffset - integer_constants.P_LEVEL_0) * .1f);
-    choice = Math.max(choice, 0);
-    choice = Math.min(choice, integer_constants.P_LEVELS - 1);
-    posts = curves[choice];
-    // curve=posts+2;
-    curve = 2;
-    post1 = (int) posts[1];
-
-    seedptr = Float.valueOf(oc + (posts[0] - integer_constants.EHMER_OFFSET) * linesper - (linesper >>> 1)).intValue();
-
-    for (i = (int) posts[0]; i < post1; i++) {
-
-      if (seedptr > 0) {
-        float lin = amp + posts[curve + i];
-        if (seed[seedptr] < lin)
-          seed[seedptr] = lin;
-      }
-      seedptr += linesper;
-      if (seedptr >= n)
-        break;
-    }
-  }
-
   private void seed_loop(float[][][] curves, float[] f, float[] flr, float[] seed, float specmax) {
 
     int i;
@@ -1238,62 +1459,6 @@ class vorbis_look_psy {
 
         seed_curve(seed, curves[oc], max, octave[i] - firstoc, total_octave_lines, eighth_octave_lines, dBoffset);
       }
-    }
-  }
-
-  static void seed_chase(float[] seeds, int linesper, int n) {
-
-    // long  *posstack=alloca(n*sizeof(*posstack));
-    // float *ampstack=alloca(n*sizeof(*ampstack));
-    int[] posstack = new int[n];
-    float[] ampstack = new float[n];
-
-    int stack = 0;
-    int pos = 0;
-    int i;
-
-    for (i = 0; i < n; i++) {
-
-      if (stack < 2) {
-        posstack[stack] = i;
-        ampstack[stack++] = seeds[i];
-      } else {
-        while (true) {
-          if (seeds[i] < ampstack[stack - 1]) {
-            posstack[stack] = i;
-            ampstack[stack++] = seeds[i];
-            break;
-          } else {
-            if (i < posstack[stack - 1] + linesper) {
-              if (stack > 1 && ampstack[stack - 1] <= ampstack[stack - 2] && i < posstack[stack - 2] + linesper) {
-                // we completely overlap, making stack-1 irrelevant.  pop it
-                stack--;
-                continue;
-              }
-            }
-            posstack[stack] = i;
-            ampstack[stack++] = seeds[i];
-            break;
-          }
-        }
-      }
-    }
-
-    // the stack now contains only the positions that are relevant. Scan 'em straight through
-
-    for (i = 0; i < stack; i++) {
-
-      int endpos;
-      if (i < stack - 1 && ampstack[i + 1] > ampstack[i]) {
-        endpos = posstack[i + 1];
-      } else {
-        endpos = posstack[i] + linesper + 1; // +1 is important, else bin 0 is discarded in short frames
-      }
-
-      if (endpos > n)
-        endpos = n;
-      for (; pos < endpos; pos++)
-        seeds[pos] = ampstack[i];
     }
   }
 
@@ -1332,177 +1497,6 @@ class vorbis_look_psy {
     for (; linpos < n; linpos++)
       if (flr[linpos] < minV)
         flr[linpos] = minV;
-  }
-
-  static void bark_noise_hybridmp(int n, int[] b, float[] f, int foff, float[] noise, float offset, int fixed) {
-
-    // float *N=alloca(n*sizeof(*N));
-    // float *X=alloca(n*sizeof(*N));
-    // float *XX=alloca(n*sizeof(*N));
-    // float *Y=alloca(n*sizeof(*N));
-    // float *XY=alloca(n*sizeof(*N));
-    float[] N = new float[n];
-    float[] X = new float[n];
-    float[] XX = new float[n];
-    float[] Y = new float[n];
-    float[] XY = new float[n];
-
-    float tN, tX, tXX, tY, tXY;
-    int i;
-
-    int lo, hi;
-    float R = 0.f;
-    float A = 0.f;
-    float B = 0.f;
-    float D = 0.f;
-    float w, x, y;
-
-    tN = tX = tXX = tY = tXY = 0.f;
-
-    y = f[foff + 0] + offset;
-    if (y < 1.f)
-      y = 1.f;
-
-    w = y * y * .5f;
-
-    tN += w;
-    tX += w;
-    tY += w * y;
-
-    N[0] = tN;
-    X[0] = tX;
-    XX[0] = tXX;
-    Y[0] = tY;
-    XY[0] = tXY;
-
-    for (i = 1, x = 1.f; i < n; i++, x += 1.f) {
-
-      y = f[foff + i] + offset;
-      if (y < 1.f)
-        y = 1.f;
-
-      w = y * y;
-
-      tN += w;
-      tX += w * x;
-      tXX += w * x * x;
-      tY += w * y;
-      tXY += w * x * y;
-
-      N[i] = tN;
-      X[i] = tX;
-      XX[i] = tXX;
-      Y[i] = tY;
-      XY[i] = tXY;
-    }
-
-    for (i = 0, x = 0.f; ; i++, x += 1.f) {
-
-      lo = b[i] >> 16;
-      if (lo >= 0)
-        break;
-      hi = b[i] & 0xffff;
-
-      tN = N[hi] + N[-lo];
-      tX = X[hi] - X[-lo];
-      tXX = XX[hi] + XX[-lo];
-      tY = Y[hi] + Y[-lo];
-      tXY = XY[hi] - XY[-lo];
-
-      A = tY * tXX - tX * tXY;
-      B = tN * tXY - tX * tY;
-      D = tN * tXX - tX * tX;
-      R = (A + x * B) / D;
-      if (R < 0.f)
-        R = 0.f;
-
-      noise[i] = R - offset;
-    }
-
-    for (; ; i++, x += 1.f) {
-
-      lo = b[i] >> 16;
-      hi = b[i] & 0xffff;
-      if (hi >= n)
-        break;
-
-      tN = N[hi] - N[lo];
-      tX = X[hi] - X[lo];
-      tXX = XX[hi] - XX[lo];
-      tY = Y[hi] - Y[lo];
-      tXY = XY[hi] - XY[lo];
-
-      A = tY * tXX - tX * tXY;
-      B = tN * tXY - tX * tY;
-      D = tN * tXX - tX * tX;
-      R = (A + x * B) / D;
-      if (R < 0.f)
-        R = 0.f;
-
-      noise[i] = R - offset;
-    }
-
-    for (; i < n; i++, x += 1.f) {
-
-      R = (A + x * B) / D;
-      if (R < 0.f)
-        R = 0.f;
-
-      noise[i] = R - offset;
-    }
-
-    if (fixed <= 0)
-      return;
-
-    for (i = 0, x = 0.f; ; i++, x += 1.f) {
-
-      hi = i + fixed / 2;
-      lo = hi - fixed;
-      if (lo >= 0)
-        break;
-
-      tN = N[hi] + N[-lo];
-      tX = X[hi] - X[-lo];
-      tXX = XX[hi] + XX[-lo];
-      tY = Y[hi] + Y[-lo];
-      tXY = XY[hi] - XY[-lo];
-
-      A = tY * tXX - tX * tXY;
-      B = tN * tXY - tX * tY;
-      D = tN * tXX - tX * tX;
-      R = (A + x * B) / D;
-
-      if (R - offset < noise[i])
-        noise[i] = R - offset;
-    }
-
-    for (; ; i++, x += 1.f) {
-
-      hi = i + fixed / 2;
-      lo = hi - fixed;
-      if (hi >= n)
-        break;
-
-      tN = N[hi] - N[lo];
-      tX = X[hi] - X[lo];
-      tXX = XX[hi] - XX[lo];
-      tY = Y[hi] - Y[lo];
-      tXY = XY[hi] - XY[lo];
-
-      A = tY * tXX - tX * tXY;
-      B = tN * tXY - tX * tY;
-      D = tN * tXX - tX * tX;
-      R = (A + x * B) / D;
-
-      if (R - offset < noise[i])
-        noise[i] = R - offset;
-    }
-
-    for (; i < n; i++, x += 1.f) {
-      R = (A + x * B) / D;
-      if (R - offset < noise[i])
-        noise[i] = R - offset;
-    }
   }
 
   public void _vp_noisemask(float[] logmdct, int offset, float[] logmask) {

@@ -39,11 +39,6 @@ public class Key extends IntervalPitchGroup {
     return new Key(name);
   }
 
-  @Override
-  protected void parseSchema(String text) {
-    this.mode = KeyMode.of(text);
-  }
-
   /**
    delta +/- semitones from a Key (string) to another Key (string)
 
@@ -80,6 +75,11 @@ public class Key extends IntervalPitchGroup {
     return Objects.nonNull(key1) &&
       key2.getMode().equals(
         key1.getMode());
+  }
+
+  @Override
+  protected void parseSchema(String text) {
+    this.mode = KeyMode.of(text);
   }
 
   /**
@@ -137,6 +137,17 @@ public class Key extends IntervalPitchGroup {
   }
 
   /**
+   set mode
+
+   @param mode of key
+   @return key (for chaining setters)
+   */
+  public Key setMode(KeyMode mode) {
+    this.mode = mode;
+    return this;
+  }
+
+  /**
    set root pitch class
 
    @param root pitch class
@@ -155,17 +166,6 @@ public class Key extends IntervalPitchGroup {
    */
   public Key setAdjSymbol(AdjSymbol adjSymbol) {
     this.adjSymbol = adjSymbol;
-    return this;
-  }
-
-  /**
-   set mode
-
-   @param mode of key
-   @return key (for chaining setters)
-   */
-  public Key setMode(KeyMode mode) {
-    this.mode = mode;
     return this;
   }
 
@@ -193,6 +193,7 @@ public class Key extends IntervalPitchGroup {
 
   /**
    Whether this Key is null
+
    @return true if non-null
    */
   public boolean isPresent() {

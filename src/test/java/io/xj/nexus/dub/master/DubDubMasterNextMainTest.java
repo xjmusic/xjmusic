@@ -47,19 +47,16 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DubDubMasterNextMainTest {
+  @Mock
+  public HubClient hubClient;
+  @Mock
+  public Mixer mixer;
+  @Mock
+  public MixerFactory mixerFactory;
   private DubFactory dubFactory;
   private FabricatorFactory fabricatorFactory;
   private HubContent sourceMaterial;
   private Segment segment4;
-
-  @Mock
-  public HubClient hubClient;
-
-  @Mock
-  public Mixer mixer;
-
-  @Mock
-  public MixerFactory mixerFactory;
 
   @Before
   public void setUp() throws Exception {
@@ -88,10 +85,10 @@ public class DubDubMasterNextMainTest {
     // Mock request via HubClient returns fake generated library of hub content
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB2().stream(),
-        fake.setupFixtureB3().stream()
-      ).collect(Collectors.toList()));
+      fake.setupFixtureB1().stream(),
+      fake.setupFixtureB2().stream(),
+      fake.setupFixtureB3().stream()
+    ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
     Chain chain1 = store.put(makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));

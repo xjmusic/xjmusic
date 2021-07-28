@@ -7,8 +7,8 @@ import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
-import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.PayloadDataType;
 import io.xj.nexus.dao.DAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
@@ -53,10 +53,10 @@ public class NexusEndpoint {
   /**
    Create one Entity via a DAO given a JSON:API payload request
 
-   @param crc     request context
-   @param dao     via which to of Entity
+   @param crc            request context
+   @param dao            via which to of Entity
    @param jsonapiPayload of data to of Entity
-   @param <N>     type of Entity
+   @param <N>            type of Entity
    @return HTTP response comprising JSON:API payload
    */
   public <N extends MessageLite> Response create(ContainerRequestContext crc, DAO<N> dao, JsonapiPayload jsonapiPayload) {
@@ -138,11 +138,11 @@ public class NexusEndpoint {
   /**
    Update one Entity via a DAO given a JSON:API payload request
 
-   @param crc     request context
-   @param dao     via which to read one Entity
-   @param id      of Entity to read
+   @param crc            request context
+   @param dao            via which to read one Entity
+   @param id             of Entity to read
    @param jsonapiPayload of data to update
-   @param <N>     type of Entity
+   @param <N>            type of Entity
    @return HTTP response comprising JSON:API payload
    */
   public <N extends MessageLite> Response update(ContainerRequestContext crc, DAO<N> dao, String id, JsonapiPayload jsonapiPayload) {

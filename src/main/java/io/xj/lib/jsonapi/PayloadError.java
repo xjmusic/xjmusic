@@ -53,6 +53,17 @@ public class PayloadError {
   }
 
   /**
+   set Code
+
+   @param code to set
+   @return this PayloadError (for chaining methods)
+   */
+  public PayloadError setCode(String code) {
+    this.code = code;
+    return this;
+  }
+
+  /**
    Get detail
 
    @return detail
@@ -62,12 +73,34 @@ public class PayloadError {
   }
 
   /**
+   set detail
+
+   @param detail to set
+   @return this PayloadError (for chaining methods)
+   */
+  public PayloadError setDetail(String detail) {
+    this.detail = detail;
+    return this;
+  }
+
+  /**
    get Id
 
    @return Id
    */
   public String getId() {
     return id;
+  }
+
+  /**
+   set Id
+
+   @param id to set
+   @return this PayloadError (for chaining methods)
+   */
+  public PayloadError setId(String id) {
+    this.id = id;
+    return this;
   }
 
   /**
@@ -89,6 +122,17 @@ public class PayloadError {
   }
 
   /**
+   set title
+
+   @param title to set
+   @return this PayloadError (for chaining methods)
+   */
+  public PayloadError setTitle(String title) {
+    this.title = title;
+    return this;
+  }
+
+  /**
    set about Link
 
    @param aboutLink to set
@@ -97,50 +141,6 @@ public class PayloadError {
   public PayloadError setAboutLink(String aboutLink) {
     links.clear();
     links.put(KEY_ABOUT, aboutLink);
-    return this;
-  }
-
-  /**
-   set Code
-
-   @param code to set
-   @return this PayloadError (for chaining methods)
-   */
-  public PayloadError setCode(String code) {
-    this.code = code;
-    return this;
-  }
-
-  /**
-   set detail
-
-   @param detail to set
-   @return this PayloadError (for chaining methods)
-   */
-  public PayloadError setDetail(String detail) {
-    this.detail = detail;
-    return this;
-  }
-
-  /**
-   set Id
-
-   @param id to set
-   @return this PayloadError (for chaining methods)
-   */
-  public PayloadError setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   set title
-
-   @param title to set
-   @return this PayloadError (for chaining methods)
-   */
-  public PayloadError setTitle(String title) {
-    this.title = title;
     return this;
   }
 }

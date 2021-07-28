@@ -204,7 +204,7 @@ public class FabricatorImplTest {
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
     subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
 
-    Double result = subject.computeSecondsAtPosition(0); // instantiates a time computer; see expectation above
+    Double result = subject.getSecondsAtPosition(0); // instantiates a time computer; see expectation above
 
     assertEquals(Double.valueOf(0), result);
     verify(mockFabricatorFactory).createTimeComputer(8.0, 120, 240.0);
@@ -400,7 +400,7 @@ public class FabricatorImplTest {
    [#176728582] Choose next Macro program based on the memes of the last sequence from the previous Macro program
    */
   @Test
-  public void determineType() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public void getType() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     var chain = store.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(UUID.randomUUID().toString())
@@ -466,15 +466,15 @@ public class FabricatorImplTest {
       .thenReturn(segment);
     when(mockSegmentRetrospective.getPreviousSegment())
       .thenReturn(Optional.of(previousSegment));
-    when(mockSegmentRetrospective.getPreviousSegmentChoiceOfType(Program.Type.Main))
+    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Main))
       .thenReturn(Optional.of(previousMainChoice));
-    when(mockSegmentRetrospective.getPreviousSegmentChoiceOfType(Program.Type.Macro))
+    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Macro))
       .thenReturn(Optional.of(previousMacroChoice));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
     subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
 
-    var result = subject.determineType();
+    var result = subject.getType();
 
     assertEquals(Segment.Type.NextMacro, result);
   }
@@ -548,9 +548,9 @@ public class FabricatorImplTest {
       .thenReturn(segment);
     when(mockSegmentRetrospective.getPreviousSegment())
       .thenReturn(Optional.of(previousSegment));
-    when(mockSegmentRetrospective.getPreviousSegmentChoiceOfType(Program.Type.Main))
+    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Main))
       .thenReturn(Optional.of(previousMainChoice));
-    when(mockSegmentRetrospective.getPreviousSegmentChoiceOfType(Program.Type.Macro))
+    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Macro))
       .thenReturn(Optional.of(previousMacroChoice));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
@@ -676,7 +676,7 @@ public class FabricatorImplTest {
     ));
     subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
 
-    var result = subject.computeProgramRange(program.getId(), Instrument.Type.Bass);
+    var result = subject.getProgramRange(program.getId(), Instrument.Type.Bass);
 
     assertTrue(Note.of("C1").sameAs(result.getLow().orElseThrow()));
     assertTrue(Note.of("D2").sameAs(result.getHigh().orElseThrow()));
@@ -733,7 +733,7 @@ public class FabricatorImplTest {
     ));
     subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
 
-    var result = subject.computeProgramRange(program.getId(), Instrument.Type.Bass);
+    var result = subject.getProgramRange(program.getId(), Instrument.Type.Bass);
 
     assertTrue(Note.of("C1").sameAs(result.getLow().orElseThrow()));
     assertTrue(Note.of("D2").sameAs(result.getHigh().orElseThrow()));

@@ -123,7 +123,7 @@ public interface NexusEntityStore {
    @throws NexusException on failure to retrieve the requested key
    */
   Collection<ChainBinding> getAllChainBindings(
-          String chainId
+    String chainId
   ) throws NexusException;
 
   /**
@@ -134,7 +134,7 @@ public interface NexusEntityStore {
    @throws NexusException on failure to retrieve the requested key
    */
   Collection<Segment> getAllSegments(
-          String chainId
+    String chainId
   ) throws NexusException;
 
   /**
@@ -157,8 +157,8 @@ public interface NexusEntityStore {
    @throws NexusException on failure to retrieve the requested key
    */
   <N> Collection<N> getAll(
-          String segmentId,
-          Class<N> type
+    String segmentId,
+    Class<N> type
   ) throws NexusException;
 
   /**
@@ -174,9 +174,9 @@ public interface NexusEntityStore {
    @throws NexusException on failure to retrieve the requested key
    */
   <N, B> Collection<N> getAll(
-          String segmentId, Class<N> type,
-          Class<B> belongsToType,
-          Collection<String> belongsToIds
+    String segmentId, Class<N> type,
+    Class<B> belongsToType,
+    Collection<String> belongsToIds
   ) throws NexusException;
 
   /**

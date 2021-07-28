@@ -47,35 +47,16 @@ public enum Entities {
     try {
       Object value = getter.invoke(target);
       if (Objects.isNull(value)) return Optional.empty();
-      switch (value.getClass().getSimpleName().toLowerCase()) {
-
-        case "uinteger":
-        case "integer":
-        case "int":
-          return Optional.of(Integer.valueOf(String.valueOf(value)));
-
-        case "long":
-          return Optional.of(Long.valueOf(String.valueOf(value)));
-
-        case "double":
-          return Optional.of(Double.valueOf(String.valueOf(value)));
-
-        case "float":
-          return Optional.of(Float.valueOf(String.valueOf(value)));
-
-        case "timestamp":
-          return Optional.of(Timestamp.valueOf(String.valueOf(value)).toInstant().truncatedTo(ChronoUnit.MICROS));
-
-        case "ulong":
-        case "biginteger":
-          return Optional.of(new BigInteger(String.valueOf(value)));
-
-        case "string":
-          return String.valueOf(value).isBlank() ? Optional.empty() : Optional.of(String.valueOf(value));
-
-        default:
-          return Optional.of(value);
-      }
+      return switch (value.getClass().getSimpleName().toLowerCase()) {
+        case "uinteger", "integer", "int" -> Optional.of(Integer.valueOf(String.valueOf(value)));
+        case "long" -> Optional.of(Long.valueOf(String.valueOf(value)));
+        case "double" -> Optional.of(Double.valueOf(String.valueOf(value)));
+        case "float" -> Optional.of(Float.valueOf(String.valueOf(value)));
+        case "timestamp" -> Optional.of(Timestamp.valueOf(String.valueOf(value)).toInstant().truncatedTo(ChronoUnit.MICROS));
+        case "ulong", "biginteger" -> Optional.of(new BigInteger(String.valueOf(value)));
+        case "string" -> String.valueOf(value).isBlank() ? Optional.empty() : Optional.of(String.valueOf(value));
+        default -> Optional.of(value);
+      };
     } catch (InvocationTargetException e) {
       throw new EntityException(String.format("Failed to %s.%s(), reason: %s",
         getSimpleName(target), getter.getName(), e.getTargetException().getMessage()));

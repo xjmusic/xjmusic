@@ -39,4 +39,14 @@ public interface TremendouslyRandom {
   static boolean beatOddsAgainstOne(int odds) {
     return zeroToLimit(odds) == 0;
   }
+
+  /**
+   Return true if we hit the given % chance
+
+   @param percent to test
+   @return true if the odds hit
+   */
+  static boolean beatOddsPercent(int percent) {
+    return percent >= zeroToLimit(100);
+  }
 }

@@ -6,7 +6,35 @@ package io.xj.nexus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.xj.*;
+import io.xj.Account;
+import io.xj.AccountUser;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.InstrumentMeme;
+import io.xj.Library;
+import io.xj.Program;
+import io.xj.ProgramMeme;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequenceBindingMeme;
+import io.xj.ProgramSequenceChord;
+import io.xj.ProgramSequenceChordVoicing;
+import io.xj.ProgramSequencePattern;
+import io.xj.ProgramSequencePatternEvent;
+import io.xj.ProgramVoice;
+import io.xj.ProgramVoiceTrack;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
+import io.xj.SegmentMeme;
+import io.xj.User;
+import io.xj.UserAuth;
+import io.xj.UserRole;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.CSV;
@@ -18,7 +46,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  [#165954673] Integration tests use shared scenario fixtures as much as possible
@@ -272,633 +304,6 @@ public class NexusIntegrationTestingFixtures {
    */
   protected static Integer random(Integer[] array) {
     return array[(int) StrictMath.floor(StrictMath.random() * array.length)];
-  }
-
-  /**
-   A whole library of mock content
-
-   @return collection of entities
-   */
-  public Collection<Object> setupFixtureB1() throws EntityException {
-
-    // Account "bananas"
-    account1 = makeAccount("bananas");
-
-    // Library "house"
-    library2 = makeLibrary(account1, "house");
-
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    user2 = makeUser("john", "john@email.com", "http://pictures.com/john.gif");
-    userRole2a = makeUserRole(user2, UserRole.Type.Admin);
-
-    // Jenny has a "user" role and belongs to account "bananas"
-    user3 = makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    userRole3a = makeUserRole(user3, UserRole.Type.User);
-    accountUser1a = makeAccountUser(account1, user3);
-
-    // "Tropical, Wild to Cozy" macro-program in house library
-    program4 = makeProgram(library2, Program.Type.Macro, Program.State.Published, "Tropical, Wild to Cozy", "C", 120.0, 0.6);
-    program4_meme0 = makeMeme(program4, "Tropical");
-    //
-    program4_sequence0 = makeSequence(program4, 0, "Start Wild", 0.6, "C", 125.0);
-    program4_sequence0_binding0 = makeBinding(program4_sequence0, 0);
-    program4_sequence0_binding0_meme0 = makeMeme(program4_sequence0_binding0, "Wild");
-    //
-    program4_sequence1 = makeSequence(program4, 0, "Intermediate", 0.4, "Bb minor", 115.0);
-    program4_sequence1_binding0 = makeBinding(program4_sequence1, 1);
-    program4_sequence1_binding0_meme0 = makeMeme(program4_sequence1_binding0, "Cozy");
-    program4_sequence1_binding0_meme1 = makeMeme(program4_sequence1_binding0, "Wild");
-    //
-    program4_sequence2 = makeSequence(program4, 0, "Finish Cozy", 0.4, "Ab minor", 125.0);
-    program4_sequence2_binding0 = makeBinding(program4_sequence2, 2);
-    program4_sequence2_binding0_meme0 = makeMeme(program4_sequence2_binding0, "Cozy");
-
-    // Main program
-    program5 = makeProgram(library2, Program.Type.Main, Program.State.Published, "Main Jam", "C minor", 140, 0.6);
-    program5_meme0 = makeMeme(program5, "Outlook");
-    //
-    program5_sequence0 = makeSequence(program5, 16, "Intro", 0.5, "G major", 135.0);
-    program5_sequence0_chord0 = makeChord(program5_sequence0, 0.0, "G major");
-
-    program5_sequence0_chord0_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence0_chord0, "G3, B3, D4");
-    program5_sequence0_chord1 = makeChord(program5_sequence0, 8.0, "Ab minor");
-
-    program5_sequence0_chord1_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence0_chord1, "Ab3, Db3, F4");
-    program5_sequence0_chord2 = makeChord(program5_sequence0, 75.0, "G-9"); // [#154090557] this ChordEntity should be ignored, because it's past the end of the main-pattern total
-
-    program5_sequence0_chord2_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence0_chord2, "G3, Bb3, D4, A4");
-    program5_sequence0_binding0 = makeBinding(program5_sequence0, 0);
-    program5_sequence0_binding0_meme0 = makeMeme(program5_sequence0_binding0, "Optimism");
-    //
-    program5_sequence1 = makeSequence(program5, 32, "Drop", 0.5, "G minor", 135.0);
-    program5_sequence1_chord0 = makeChord(program5_sequence1, 0.0, "C major");
-
-    program5_sequence1_chord0_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence1_chord0, "Ab3, Db3, F4");
-    program5_sequence1_chord1 = makeChord(program5_sequence1, 8.0, "Bb minor");
-
-    program5_sequence1_chord1_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence1_chord1, "Ab3, Db3, F4");
-    program5_sequence1_binding0 = makeBinding(program5_sequence1, 1);
-    program5_sequence1_binding0_meme0 = makeMeme(program5_sequence1_binding0, "Pessimism");
-
-    // A basic beat
-    program35 = makeProgram(library2, Program.Type.Rhythm, Program.State.Published, "Basic Beat", "C", 121, 0.6);
-    program35_meme0 = makeMeme(program35, "Basic");
-    program35_voice0 = makeVoice(program35, Instrument.Type.Percussive, "Drums");
-    program35_voice0_track0 = makeTrack(program35_voice0, "CLOCK");
-    program35_voice0_track1 = makeTrack(program35_voice0, "SNORT");
-    program35_voice0_track2 = makeTrack(program35_voice0, "KICK");
-    program35_voice0_track3 = makeTrack(program35_voice0, "SNARL");
-    //
-    program35_sequence0 = makeSequence(program35, 16, "Base", 0.5, "C", 110.3);
-    program35_sequence0_pattern0 = makePattern(program35_sequence0, program35_voice0, ProgramSequencePattern.Type.Loop, 4, "Drop");
-    program35_sequence0_pattern0_event0 = makeEvent(program35_sequence0_pattern0, program35_voice0_track0, 0.0, 1.0, "C2", 1.0);
-    program35_sequence0_pattern0_event1 = makeEvent(program35_sequence0_pattern0, program35_voice0_track1, 1.0, 1.0, "G5", 0.8);
-    program35_sequence0_pattern0_event2 = makeEvent(program35_sequence0_pattern0, program35_voice0_track2, 2.5, 1.0, "C2", 0.6);
-    program35_sequence0_pattern0_event3 = makeEvent(program35_sequence0_pattern0, program35_voice0_track3, 3.0, 1.0, "G5", 0.9);
-    //
-    program35_sequence0_pattern1 = makePattern(program35_sequence0, program35_voice0, ProgramSequencePattern.Type.Loop, 4, "Drop Alt");
-    program35_sequence0_pattern1_event0 = makeEvent(program35_sequence0_pattern1, program35_voice0_track0, 0.0, 1.0, "B5", 0.9);
-    program35_sequence0_pattern1_event1 = makeEvent(program35_sequence0_pattern1, program35_voice0_track1, 1.0, 1.0, "D2", 1.0);
-    program35_sequence0_pattern1_event2 = makeEvent(program35_sequence0_pattern1, program35_voice0_track2, 2.5, 1.0, "E4", 0.7);
-    program35_sequence0_pattern1_event3 = makeEvent(program35_sequence0_pattern1, program35_voice0_track3, 3.0, 1.0, "c3", 0.5);
-
-    // List of all parent entities including the library
-    // ORDER IS IMPORTANT because this list will be used for real database entities, so ordered from parent -> child
-    return ImmutableList.of(
-      account1,
-      library2,
-      user2,
-      userRole2a,
-      user3,
-      userRole3a,
-      accountUser1a,
-      program35,
-      program35_voice0,
-      program35_voice0_track0,
-      program35_voice0_track1,
-      program35_voice0_track2,
-      program35_voice0_track3,
-      program35_meme0,
-      program35_sequence0,
-      program35_sequence0_pattern0,
-      program35_sequence0_pattern0_event0,
-      program35_sequence0_pattern0_event1,
-      program35_sequence0_pattern0_event2,
-      program35_sequence0_pattern0_event3,
-      program35_sequence0_pattern1,
-      program35_sequence0_pattern1_event0,
-      program35_sequence0_pattern1_event1,
-      program35_sequence0_pattern1_event2,
-      program35_sequence0_pattern1_event3,
-      program4,
-      program4_meme0,
-      program4_sequence0,
-      program4_sequence0_binding0,
-      program4_sequence0_binding0_meme0,
-      program4_sequence1,
-      program4_sequence1_binding0,
-      program4_sequence1_binding0_meme0,
-      program4_sequence1_binding0_meme1,
-      program4_sequence2,
-      program4_sequence2_binding0,
-      program4_sequence2_binding0_meme0,
-      program5,
-      program5_meme0,
-      program5_sequence0,
-      program5_sequence0_binding0,
-      program5_sequence0_binding0_meme0,
-      program5_sequence0_chord0,
-      program5_sequence0_chord0_voicing,
-      program5_sequence0_chord1,
-      program5_sequence0_chord1_voicing,
-      program5_sequence0_chord2,
-      program5_sequence0_chord2_voicing,
-      program5_sequence1,
-      program5_sequence1_binding0,
-      program5_sequence1_binding0_meme0,
-      program5_sequence1_chord0,
-      program5_sequence1_chord0_voicing,
-      program5_sequence1_chord1,
-      program5_sequence1_chord1_voicing
-    );
-  }
-
-
-  /**
-   Library of Content B-2 (shared test fixture)
-   <p>
-   [#165954673] Integration tests use shared scenario fixtures as much as possible
-   */
-  public Collection<Object> setupFixtureB2() {
-    // "Tangy, Chunky to Smooth" macro-program in house library
-    program3 = makeProgram(library2, Program.Type.Macro, Program.State.Published, "Tangy, Chunky to Smooth", "G minor", 120.0, 0.6);
-    program3_meme0 = makeMeme(program3, "Tangy");
-    //
-    program3_sequence0 = makeSequence(program3, 0, "Start Chunky", 0.4, "G minor", 115.0);
-    program3_sequence0_binding0 = makeBinding(program3_sequence0, 0);
-    program3_sequence0_binding0_meme0 = makeMeme(program3_sequence0_binding0, "Chunky");
-    //
-    program3_sequence1 = makeSequence(program3, 0, "Finish Smooth", 0.6, "C", 125.0);
-    program3_sequence1_binding0 = makeBinding(program3_sequence1, 1);
-    program3_sequence1_binding0_meme0 = makeMeme(program3_sequence1_binding0, "Smooth");
-
-    // Main program
-    program15 = makeProgram(library2, Program.Type.Main, Program.State.Published, "Next Jam", "Db minor", 140, 0.6);
-    program15_meme0 = makeMeme(program15, "Hindsight");
-    //
-    program15_sequence0 = makeSequence(program15, 16, "Intro", 0.5, "G minor", 135.0);
-    program15_sequence0_chord0 = makeChord(program15_sequence0, 0.0, "G minor");
-    program15_sequence0_chord0_voicing = makeVoicing(Instrument.Type.Bass, program15_sequence0_chord0, "G3, Bb3, D4");
-    program15_sequence0_chord1 = makeChord(program15_sequence0, 8.0, "Ab minor");
-    program15_sequence0_chord1_voicing = makeVoicing(Instrument.Type.Bass, program15_sequence0_chord1, "Ab3, C3, Eb4");
-    program15_sequence0_binding0 = makeBinding(program15_sequence0, 0);
-    program15_sequence0_binding0_meme0 = makeMeme(program15_sequence0_binding0, "Regret");
-    //
-    program15_sequence1 = makeSequence(program15, 32, "Outro", 0.5, "A major", 135.0);
-    program15_sequence1_chord0 = makeChord(program15_sequence1, 0.0, "C major");
-    program15_sequence1_chord0_voicing = makeVoicing(Instrument.Type.Bass, program15_sequence0_chord0, "E3, G3, C4");
-    program15_sequence1_chord1 = makeChord(program15_sequence1, 8.0, "Bb major");
-    program15_sequence1_chord1_voicing = makeVoicing(Instrument.Type.Bass, program15_sequence0_chord1, "F3, Bb3, D4");
-    program15_sequence1_binding0 = makeBinding(program15_sequence1, 1);
-    program15_sequence1_binding0_meme0 = makeMeme(program15_sequence1_binding0, "Pride");
-    program15_sequence1_binding0_meme1 = makeMeme(program15_sequence1_binding0, "Shame");
-
-    // return them all
-    return ImmutableList.of(
-      program3,
-      program3_meme0,
-      program3_sequence0,
-      program3_sequence0_binding0,
-      program3_sequence0_binding0_meme0,
-      program3_sequence1,
-      program3_sequence1_binding0,
-      program3_sequence1_binding0_meme0,
-      program15,
-      program15_meme0,
-      program15_sequence0,
-      program15_sequence0_chord0,
-      program15_sequence0_chord0_voicing,
-      program15_sequence0_chord1,
-      program15_sequence0_chord1_voicing,
-      program15_sequence0_binding0,
-      program15_sequence0_binding0_meme0,
-      program15_sequence1,
-      program15_sequence1_chord0,
-      program15_sequence1_chord0_voicing,
-      program15_sequence1_chord1,
-      program15_sequence1_chord1_voicing,
-      program15_sequence1_binding0,
-      program15_sequence1_binding0_meme0,
-      program15_sequence1_binding0_meme1
-    );
-  }
-
-  /**
-   Library of Content B-3 (shared test fixture)
-   <p>
-   [#165954673] Integration tests use shared scenario fixtures as much as possible
-   <p>
-   [#163158036] memes bound to sequence-pattern because sequence-binding is not considered for rhythm sequences, rhythm sequence patterns do not have memes.
-   <p>
-   [#165954619] Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (rhythm- and detail-type sequences)
-   <p>
-   [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Rhythm or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
-   + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
-   <p>
-   [#150279647] Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
-   */
-  public Collection<Object> setupFixtureB3() {
-    // A basic beat
-    program9 = makeProgram(library2, Program.Type.Rhythm, Program.State.Published, "Basic Beat", "C", 121, 0.6);
-    program9_meme0 = makeMeme(program9, "Basic");
-    //
-    program9_voice0 = makeVoice(program9, Instrument.Type.Percussive, "Drums");
-    program9_voice0_track0 = makeTrack(program9_voice0, "BLEEP");
-    program9_voice0_track1 = makeTrack(program9_voice0, "BLEIP");
-    program9_voice0_track2 = makeTrack(program9_voice0, "BLEAP");
-    program9_voice0_track3 = makeTrack(program9_voice0, "BLEEEP");
-    program9_voice0_track4 = makeTrack(program9_voice0, "CLOCK");
-    program9_voice0_track5 = makeTrack(program9_voice0, "SNORT");
-    program9_voice0_track6 = makeTrack(program9_voice0, "KICK");
-    program9_voice0_track7 = makeTrack(program9_voice0, "SNARL");
-    program9_voice0_track8 = makeTrack(program9_voice0, "KIICK");
-    program9_voice0_track9 = makeTrack(program9_voice0, "SNARR");
-    program9_voice0_track10 = makeTrack(program9_voice0, "KEICK");
-    program9_voice0_track11 = makeTrack(program9_voice0, "SNAER");
-    program9_voice0_track12 = makeTrack(program9_voice0, "TOOT");
-    program9_voice0_track13 = makeTrack(program9_voice0, "TOOOT");
-    program9_voice0_track14 = makeTrack(program9_voice0, "TOOTE");
-    program9_voice0_track15 = makeTrack(program9_voice0, "TOUT");
-    //
-    program9_sequence0 = makeSequence(program9, 16, "Base", 0.5, "C", 110.3);
-    //
-    program9_sequence0_pattern0 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePattern.Type.Intro, 4, "Intro");
-    program9_sequence0_pattern0_event0 = makeEvent(program9_sequence0_pattern0, program9_voice0_track0, 0, 1, "C2", 1.0);
-    program9_sequence0_pattern0_event1 = makeEvent(program9_sequence0_pattern0, program9_voice0_track1, 1, 1, "G5", 0.8);
-    program9_sequence0_pattern0_event2 = makeEvent(program9_sequence0_pattern0, program9_voice0_track2, 2.5, 1, "C2", 0.6);
-    program9_sequence0_pattern0_event3 = makeEvent(program9_sequence0_pattern0, program9_voice0_track3, 3, 1, "G5", 0.9);
-    //
-    program9_sequence0_pattern1 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop A");
-    program9_sequence0_pattern1_event0 = makeEvent(program9_sequence0_pattern1, program9_voice0_track4, 0, 1, "C2", 1.0);
-    program9_sequence0_pattern1_event1 = makeEvent(program9_sequence0_pattern1, program9_voice0_track5, 1, 1, "G5", 0.8);
-    program9_sequence0_pattern1_event2 = makeEvent(program9_sequence0_pattern1, program9_voice0_track6, 2.5, 1, "C2", 0.6);
-    program9_sequence0_pattern1_event3 = makeEvent(program9_sequence0_pattern1, program9_voice0_track7, 3, 1, "G5", 0.9);
-    //
-    program9_sequence0_pattern2 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop B");
-    program9_sequence0_pattern2_event0 = makeEvent(program9_sequence0_pattern2, program9_voice0_track8, 0, 1, "B5", 0.9);
-    program9_sequence0_pattern2_event1 = makeEvent(program9_sequence0_pattern2, program9_voice0_track9, 1, 1, "D2", 1.0);
-    program9_sequence0_pattern2_event2 = makeEvent(program9_sequence0_pattern2, program9_voice0_track10, 2.5, 1, "E4", 0.7);
-    program9_sequence0_pattern2_event3 = makeEvent(program9_sequence0_pattern2, program9_voice0_track11, 3, 1, "C3", 0.5);
-    //
-    program9_sequence0_pattern3 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePattern.Type.Outro, 4, "Outro");
-    program9_sequence0_pattern3_event0 = makeEvent(program9_sequence0_pattern3, program9_voice0_track12, 0, 1, "C2", 1.0);
-    program9_sequence0_pattern3_event1 = makeEvent(program9_sequence0_pattern3, program9_voice0_track13, 1, 1, "G5", 0.8);
-    program9_sequence0_pattern3_event2 = makeEvent(program9_sequence0_pattern3, program9_voice0_track14, 2.5, 1, "C2", 0.6);
-    program9_sequence0_pattern3_event3 = makeEvent(program9_sequence0_pattern3, program9_voice0_track15, 3, 1, "G5", 0.9);
-
-    // Instrument "808"
-    instrument8 = makeInstrument(library2, Instrument.Type.Percussive, Instrument.State.Published, "808 Drums");
-    instrument8_meme0 = makeMeme(instrument8, "heavy");
-    instrument8_audio8kick = makeAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62, "KICK", "Eb", 1.0);
-    instrument8_audio8snare = makeAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01, 1.5, 120.0, 0.62, "SNARE", "Ab", 0.8);
-    instrument8_audio8bleep = makeAudio(instrument8, "Bleep", "17350afghjkjhaskjdfjhk9758981980.wav", 0.01, 1.5, 120.0, 0.62, "BLEEP", "Ab", 0.8);
-    instrument8_audio8toot = makeAudio(instrument8, "Toot", "askjdfjhk975898198017350afghjkjh.wav", 0.01, 1.5, 120.0, 0.62, "TOOT", "Ab", 0.8);
-
-    // return them all
-    return ImmutableList.of(
-      program9,
-      program9_meme0,
-      program9_voice0,
-      program9_voice0_track0,
-      program9_voice0_track1,
-      program9_voice0_track2,
-      program9_voice0_track3,
-      program9_voice0_track4,
-      program9_voice0_track5,
-      program9_voice0_track6,
-      program9_voice0_track7,
-      program9_voice0_track8,
-      program9_voice0_track9,
-      program9_voice0_track10,
-      program9_voice0_track11,
-      program9_voice0_track12,
-      program9_voice0_track13,
-      program9_voice0_track14,
-      program9_voice0_track15,
-      program9_sequence0,
-      program9_sequence0_pattern0,
-      program9_sequence0_pattern0_event0,
-      program9_sequence0_pattern0_event1,
-      program9_sequence0_pattern0_event2,
-      program9_sequence0_pattern0_event3,
-      program9_sequence0_pattern1,
-      program9_sequence0_pattern1_event0,
-      program9_sequence0_pattern1_event1,
-      program9_sequence0_pattern1_event2,
-      program9_sequence0_pattern1_event3,
-      program9_sequence0_pattern2,
-      program9_sequence0_pattern2_event0,
-      program9_sequence0_pattern2_event1,
-      program9_sequence0_pattern2_event2,
-      program9_sequence0_pattern2_event3,
-      program9_sequence0_pattern3,
-      program9_sequence0_pattern3_event0,
-      program9_sequence0_pattern3_event1,
-      program9_sequence0_pattern3_event2,
-      program9_sequence0_pattern3_event3,
-      instrument8,
-      instrument8_meme0,
-      instrument8_audio8kick,
-      instrument8_audio8snare,
-      instrument8_audio8bleep,
-      instrument8_audio8toot
-    );
-  }
-
-  /**
-   Library of Content B-4 (shared test fixture)
-   <p>
-   [#154464276] Detail Craft v1
-   */
-  public Collection<Object> setupFixtureB4_DetailBass() {
-    // A basic bass pattern
-    program10 = makeProgram(library2, Program.Type.Detail, Program.State.Published, "Earth Bass Detail Pattern", "C", 121, 0.6);
-    program10_meme0 = makeMeme(program10, "EARTH");
-    //
-    program10_voice0 = makeVoice(program10, Instrument.Type.Bass, "Dirty Bass");
-    program10_voice0_track0 = makeTrack(program10_voice0, "BUM");
-    //
-    program10_sequence0 = makeSequence(program10, 16, "Simple Walk", 0.5, "C", 110.3);
-    //
-    program10_sequence0_pattern0 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Intro, 4, "Intro");
-    program10_sequence0_pattern0_event0 = makeEvent(program10_sequence0_pattern0, program10_voice0_track0, 0, 1, "C2", 1.0);
-    program10_sequence0_pattern0_event1 = makeEvent(program10_sequence0_pattern0, program10_voice0_track0, 1, 1, "G5", 0.8);
-    program10_sequence0_pattern0_event2 = makeEvent(program10_sequence0_pattern0, program10_voice0_track0, 2, 1, "C2", 0.6);
-    program10_sequence0_pattern0_event3 = makeEvent(program10_sequence0_pattern0, program10_voice0_track0, 3, 1, "G5", 0.9);
-    //
-    program10_sequence0_pattern1 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop A");
-    program10_sequence0_pattern1_event0 = makeEvent(program10_sequence0_pattern1, program10_voice0_track0, 0, 1, "C2", 1.0);
-    program10_sequence0_pattern1_event1 = makeEvent(program10_sequence0_pattern1, program10_voice0_track0, 1, 1, "G5", 0.8);
-    program10_sequence0_pattern1_event2 = makeEvent(program10_sequence0_pattern1, program10_voice0_track0, 2, 1, "C2", 0.6);
-    program10_sequence0_pattern1_event3 = makeEvent(program10_sequence0_pattern1, program10_voice0_track0, 3, 1, "G5", 0.9);
-    //
-    program10_sequence0_pattern2 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop B");
-    program10_sequence0_pattern2_event0 = makeEvent(program10_sequence0_pattern2, program10_voice0_track0, 0, 1, "B5", 0.9);
-    program10_sequence0_pattern2_event1 = makeEvent(program10_sequence0_pattern2, program10_voice0_track0, 1, 1, "D2", 1.0);
-    program10_sequence0_pattern2_event2 = makeEvent(program10_sequence0_pattern2, program10_voice0_track0, 2, 1, "E4", 0.7);
-    program10_sequence0_pattern2_event3 = makeEvent(program10_sequence0_pattern2, program10_voice0_track0, 3, 1, "C3", 0.5);
-    //
-    program10_sequence0_pattern3 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Outro, 4, "Outro");
-    program10_sequence0_pattern3_event0 = makeEvent(program10_sequence0_pattern3, program10_voice0_track0, 0, 1, "C2", 1.0);
-    program10_sequence0_pattern3_event1 = makeEvent(program10_sequence0_pattern3, program10_voice0_track0, 1, 1, "G5", 0.8);
-    program10_sequence0_pattern3_event2 = makeEvent(program10_sequence0_pattern3, program10_voice0_track0, 2, 1, "C2", 0.6);
-    program10_sequence0_pattern3_event3 = makeEvent(program10_sequence0_pattern3, program10_voice0_track0, 3, 1, "G5", 0.9);
-
-    // Instrument "Bass"
-    instrument9 = makeInstrument(library2, Instrument.Type.Bass, Instrument.State.Published, "Bass");
-    instrument9_meme0 = makeMeme(instrument9, "heavy");
-    instrument9_audio8 = makeAudio(instrument9, "bass", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62, "BLOOP", "Eb", 1.0);
-
-    // return them all
-    return ImmutableList.of(
-      program10,
-      program10_meme0,
-      program10_voice0,
-      program10_voice0_track0,
-      program10_sequence0,
-      program10_sequence0_pattern0,
-      program10_sequence0_pattern0_event0,
-      program10_sequence0_pattern0_event1,
-      program10_sequence0_pattern0_event2,
-      program10_sequence0_pattern0_event3,
-      program10_sequence0_pattern1,
-      program10_sequence0_pattern1_event0,
-      program10_sequence0_pattern1_event1,
-      program10_sequence0_pattern1_event2,
-      program10_sequence0_pattern1_event3,
-      program10_sequence0_pattern2,
-      program10_sequence0_pattern2_event0,
-      program10_sequence0_pattern2_event1,
-      program10_sequence0_pattern2_event2,
-      program10_sequence0_pattern2_event3,
-      program10_sequence0_pattern3,
-      program10_sequence0_pattern3_event0,
-      program10_sequence0_pattern3_event1,
-      program10_sequence0_pattern3_event2,
-      program10_sequence0_pattern3_event3,
-      instrument9,
-      instrument9_meme0,
-      instrument9_audio8
-    );
-  }
-
-
-  /**
-   Generate a Library comprising many related entities
-
-   @param N magnitude of library to generate
-   @return entities
-   */
-  public Collection<Object> generatedFixture(int N) {
-    Collection<Object> entities = Lists.newArrayList();
-
-    account1 = add(entities, Account.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("Generated")
-      .build());
-    user1 = add(entities, User.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("generated")
-      .setEmail("generated@email.com")
-      .setAvatarUrl("http://pictures.com/generated.gif")
-      .build());
-    add(entities, UserRole.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setUserId(user1.getId())
-      .setType(UserRole.Type.Admin)
-      .build());
-    library1 = add(entities, Library.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(account1.getId())
-      .setName("generated")
-      .build());
-
-    // Create a N-magnitude set of unique major memes
-    String[] majorMemeNames = listOfUniqueRandom(N, LoremIpsum.COLORS);
-    String[] minorMemeNames = listOfUniqueRandom((long) StrictMath.ceil(N >> 1), LoremIpsum.VARIANTS);
-    String[] percussiveNames = listOfUniqueRandom(N, LoremIpsum.PERCUSSIVE_NAMES);
-
-    // Generate a Percussive Instrument for each meme
-    for (int i = 0; i < N; i++) {
-      String majorMemeName = majorMemeNames[i];
-      String minorMemeName = random(minorMemeNames);
-      //
-      Instrument instrument = add(entities, makeInstrument(library1, Instrument.Type.Percussive, Instrument.State.Published, String.format("%s Drums", majorMemeName)));
-      add(entities, InstrumentMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setInstrumentId(instrument.getId())
-        .setName(majorMemeName)
-        .build());
-      add(entities, InstrumentMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setInstrumentId(instrument.getId())
-        .setName(minorMemeName)
-        .build());
-      // audios of instrument
-      for (int k = 0; k < N; k++)
-        add(entities, makeAudio(instrument, Text.toProper(percussiveNames[k]), String.format("%s.wav", Text.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62, percussiveNames[k], "X", random(0.8, 1)));
-      //
-      log.debug("Generated Percussive-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
-    }
-
-    // Generate N*2 total Macro-type programs, each transitioning of one MemeEntity to another
-    for (int i = 0; i < N << 1; i++) {
-      String[] twoMemeNames = listOfUniqueRandom(2, majorMemeNames);
-      String majorMemeFromName = twoMemeNames[0];
-      String majorMemeToName = twoMemeNames[1];
-      String minorMemeName = random(minorMemeNames);
-      String[] twoKeys = listOfUniqueRandom(2, LoremIpsum.MUSICAL_KEYS);
-      String keyFrom = twoKeys[0];
-      String keyTo = twoKeys[1];
-      double densityFrom = random(0.3, 0.9);
-      double tempoFrom = random(80, 120);
-      //
-      Program program = add(entities, makeProgram(library1, Program.Type.Macro, Program.State.Published, String.format("%s, create %s to %s", minorMemeName, majorMemeFromName, majorMemeToName), keyFrom, tempoFrom, 0.6));
-      add(entities, ProgramMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramId(program.getId())
-        .setName(minorMemeName)
-        .build());
-      // of offset 0
-      var sequence0 = add(entities, makeSequence(program, 0, String.format("Start %s", majorMemeFromName), densityFrom, keyFrom, tempoFrom));
-      var binding0 = add(entities, ProgramSequenceBinding.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramSequenceId(sequence0.getId())
-        .setProgramId(sequence0.getProgramId())
-        .setOffset(0)
-        .build());
-      add(entities, ProgramSequenceBindingMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramId(binding0.getProgramId())
-        .setProgramSequenceBindingId(binding0.getId())
-        .setName(majorMemeFromName)
-        .build());
-      // to offset 1
-      double densityTo = random(0.3, 0.9);
-      double tempoTo = random(803, 120);
-      var sequence1 = add(entities, makeSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo, tempoTo));
-      var binding1 = add(entities, ProgramSequenceBinding.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramSequenceId(sequence1.getId())
-        .setProgramId(sequence1.getProgramId())
-        .setOffset(1)
-        .build());
-      add(entities, ProgramSequenceBindingMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramSequenceBindingId(binding1.getId())
-        .setProgramId(binding1.getProgramId())
-        .setName(majorMemeToName)
-        .build());
-      //
-      log.debug("Generated Macro-type Program id={}, minorMeme={}, majorMemeFrom={}, majorMemeTo={}", program.getId(), minorMemeName, majorMemeFromName, majorMemeToName);
-    }
-
-    // Generate N*4 total Main-type Programs, each having N patterns comprised of ~N*2 chords, bound to N*4 sequence patterns
-    ProgramSequence[] sequences = new ProgramSequence[N];
-    for (int i = 0; i < N << 2; i++) {
-      String majorMemeName = random(majorMemeNames);
-      String[] sequenceNames = listOfUniqueRandom(N, LoremIpsum.ELEMENTS);
-      String[] subKeys = listOfUniqueRandom(N, LoremIpsum.MUSICAL_KEYS);
-      Double[] subDensities = listOfRandomValues(N);
-      double tempo = random(80, 120);
-      //
-      Program program = add(entities, makeProgram(library1, Program.Type.Main, Program.State.Published, String.format("%s: %s", majorMemeName, String.join(",", sequenceNames)), subKeys[0], tempo, 0.6));
-      add(entities, ProgramMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramId(program.getId())
-        .setName(majorMemeName)
-        .build());
-      // sequences of program
-      for (int iP = 0; iP < N; iP++) {
-        Integer total = random(LoremIpsum.SEQUENCE_TOTALS);
-        sequences[iP] = add(entities, makeSequence(program, total, String.format("%s in %s", majorMemeName, sequenceNames[iP]), subDensities[iP], subKeys[iP], tempo));
-        for (int iPC = 0; iPC < N << 2; iPC++) {
-          // always use first chord, then use more chords with more density
-          if (0 == iPC || StrictMath.random() < subDensities[iP]) {
-            add(entities, makeChord(sequences[iP], StrictMath.floor((float) iPC * total * 4 / N), random(LoremIpsum.MUSICAL_CHORDS)));
-          }
-        }
-      }
-      // sequence sequence binding
-      for (int offset = 0; offset < N << 2; offset++) {
-        int num = (int) StrictMath.floor(StrictMath.random() * N);
-        var binding = add(entities, ProgramSequenceBinding.newBuilder()
-          .setId(UUID.randomUUID().toString())
-          .setProgramSequenceId(sequences[num].getId())
-          .setProgramId(sequences[num].getProgramId())
-          .setOffset(offset)
-          .build());
-        add(entities, makeMeme(binding, random(minorMemeNames)));
-      }
-      log.debug("Generated Main-type Program id={}, majorMeme={} with {} sequences bound {} times", program.getId(), majorMemeName, N, N << 2);
-    }
-
-    // Generate N total Rhythm-type Sequences, each having N voices, and N*2 patterns comprised of N*8 events
-    ProgramVoice[] voices = new ProgramVoice[N];
-    Map<String, ProgramVoiceTrack> trackMap = Maps.newHashMap();
-    for (int i = 0; i < N; i++) {
-      String majorMemeName = majorMemeNames[i];
-      double tempo = random(80, 120);
-      String key = random(LoremIpsum.MUSICAL_KEYS);
-      double density = random(0.4, 0.9);
-      //
-      Program program = add(entities, makeProgram(library1, Program.Type.Rhythm, Program.State.Published, String.format("%s Beat", majorMemeName), key, tempo, 0.6));
-      trackMap.clear();
-      add(entities, ProgramMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramId(program.getId())
-        .setName(majorMemeName)
-        .build());
-      // voices of program
-      for (int iV = 0; iV < N; iV++) {
-        voices[iV] = add(entities, makeVoice(program, Instrument.Type.Percussive, String.format("%s %s", majorMemeName, percussiveNames[iV])));
-      }
-      var sequenceBase = add(entities, makeSequence(program, random(LoremIpsum.SEQUENCE_TOTALS), "Base", density, key, tempo));
-      // patterns of program
-      for (int iP = 0; iP < N << 1; iP++) {
-        Integer total = random(LoremIpsum.PATTERN_TOTALS);
-        int num = (int) StrictMath.floor(StrictMath.random() * N);
-
-        // first pattern is always a Loop (because that's required) then the rest at random
-        ProgramSequencePattern.Type type = 0 == iP ? ProgramSequencePattern.Type.Loop : randomRhythmPatternType();
-        var pattern = add(entities, makePattern(sequenceBase, voices[num], type, total, String.format("%s %s %s", majorMemeName, type.toString(), random(LoremIpsum.ELEMENTS))));
-        for (int iPE = 0; iPE < N << 2; iPE++) {
-          // always use first chord, then use more chords with more density
-          if (0 == iPE || StrictMath.random() < density) {
-            String name = percussiveNames[num];
-            if (!trackMap.containsKey(name))
-              trackMap.put(name, add(entities, makeTrack(voices[num], name)));
-            add(entities, makeEvent(pattern, trackMap.get(name), StrictMath.floor((float) iPE * total * 4 / N), random(0.25, 1.0), "X", random(0.4, 0.9)));
-          }
-        }
-      }
-      log.debug("Generated Rhythm-type Program id={}, majorMeme={} with {} patterns", program.getId(), majorMemeName, N);
-    }
-
-    return entities;
-  }
-
-  /**
-   Add an entity to a collection, then return that entity
-
-   @param to     collection
-   @param entity to add
-   @param <N>    type of entity
-   @return entity that's been added
-   */
-  private <N> N add(Collection<Object> to, N entity) {
-    to.add(entity);
-    return entity;
   }
 
   public static SegmentChoice makeSegmentChoice(Segment segment, Program.Type programType, ProgramSequenceBinding programSequenceBinding) {
@@ -1447,6 +852,631 @@ public class NexusIntegrationTestingFixtures {
    */
   public static HubClientAccess makeHubClientAccess(String rolesCSV) {
     return new HubClientAccess().setRoleTypes(io.xj.lib.entity.common.User.userRoleTypesFromCsv(rolesCSV));
+  }
+
+  /**
+   A whole library of mock content
+
+   @return collection of entities
+   */
+  public Collection<Object> setupFixtureB1() throws EntityException {
+
+    // Account "bananas"
+    account1 = makeAccount("bananas");
+
+    // Library "house"
+    library2 = makeLibrary(account1, "house");
+
+    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
+    user2 = makeUser("john", "john@email.com", "http://pictures.com/john.gif");
+    userRole2a = makeUserRole(user2, UserRole.Type.Admin);
+
+    // Jenny has a "user" role and belongs to account "bananas"
+    user3 = makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    userRole3a = makeUserRole(user3, UserRole.Type.User);
+    accountUser1a = makeAccountUser(account1, user3);
+
+    // "Tropical, Wild to Cozy" macro-program in house library
+    program4 = makeProgram(library2, Program.Type.Macro, Program.State.Published, "Tropical, Wild to Cozy", "C", 120.0, 0.6);
+    program4_meme0 = makeMeme(program4, "Tropical");
+    //
+    program4_sequence0 = makeSequence(program4, 0, "Start Wild", 0.6, "C", 125.0);
+    program4_sequence0_binding0 = makeBinding(program4_sequence0, 0);
+    program4_sequence0_binding0_meme0 = makeMeme(program4_sequence0_binding0, "Wild");
+    //
+    program4_sequence1 = makeSequence(program4, 0, "Intermediate", 0.4, "Bb minor", 115.0);
+    program4_sequence1_binding0 = makeBinding(program4_sequence1, 1);
+    program4_sequence1_binding0_meme0 = makeMeme(program4_sequence1_binding0, "Cozy");
+    program4_sequence1_binding0_meme1 = makeMeme(program4_sequence1_binding0, "Wild");
+    //
+    program4_sequence2 = makeSequence(program4, 0, "Finish Cozy", 0.4, "Ab minor", 125.0);
+    program4_sequence2_binding0 = makeBinding(program4_sequence2, 2);
+    program4_sequence2_binding0_meme0 = makeMeme(program4_sequence2_binding0, "Cozy");
+
+    // Main program
+    program5 = makeProgram(library2, Program.Type.Main, Program.State.Published, "Main Jam", "C minor", 140, 0.6);
+    program5_meme0 = makeMeme(program5, "Outlook");
+    //
+    program5_sequence0 = makeSequence(program5, 16, "Intro", 0.5, "G major", 135.0);
+    program5_sequence0_chord0 = makeChord(program5_sequence0, 0.0, "G major");
+
+    program5_sequence0_chord0_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence0_chord0, "G3, B3, D4");
+    program5_sequence0_chord1 = makeChord(program5_sequence0, 8.0, "Ab minor");
+
+    program5_sequence0_chord1_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence0_chord1, "Ab3, Db3, F4");
+    program5_sequence0_chord2 = makeChord(program5_sequence0, 75.0, "G-9"); // [#154090557] this ChordEntity should be ignored, because it's past the end of the main-pattern total
+
+    program5_sequence0_chord2_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence0_chord2, "G3, Bb3, D4, A4");
+    program5_sequence0_binding0 = makeBinding(program5_sequence0, 0);
+    program5_sequence0_binding0_meme0 = makeMeme(program5_sequence0_binding0, "Optimism");
+    //
+    program5_sequence1 = makeSequence(program5, 32, "Drop", 0.5, "G minor", 135.0);
+    program5_sequence1_chord0 = makeChord(program5_sequence1, 0.0, "C major");
+
+    program5_sequence1_chord0_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence1_chord0, "Ab3, Db3, F4");
+    program5_sequence1_chord1 = makeChord(program5_sequence1, 8.0, "Bb minor");
+
+    program5_sequence1_chord1_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence1_chord1, "Ab3, Db3, F4");
+    program5_sequence1_binding0 = makeBinding(program5_sequence1, 1);
+    program5_sequence1_binding0_meme0 = makeMeme(program5_sequence1_binding0, "Pessimism");
+
+    // A basic beat
+    program35 = makeProgram(library2, Program.Type.Rhythm, Program.State.Published, "Basic Beat", "C", 121, 0.6);
+    program35_meme0 = makeMeme(program35, "Basic");
+    program35_voice0 = makeVoice(program35, Instrument.Type.Percussive, "Drums");
+    program35_voice0_track0 = makeTrack(program35_voice0, "CLOCK");
+    program35_voice0_track1 = makeTrack(program35_voice0, "SNORT");
+    program35_voice0_track2 = makeTrack(program35_voice0, "KICK");
+    program35_voice0_track3 = makeTrack(program35_voice0, "SNARL");
+    //
+    program35_sequence0 = makeSequence(program35, 16, "Base", 0.5, "C", 110.3);
+    program35_sequence0_pattern0 = makePattern(program35_sequence0, program35_voice0, ProgramSequencePattern.Type.Loop, 4, "Drop");
+    program35_sequence0_pattern0_event0 = makeEvent(program35_sequence0_pattern0, program35_voice0_track0, 0.0, 1.0, "C2", 1.0);
+    program35_sequence0_pattern0_event1 = makeEvent(program35_sequence0_pattern0, program35_voice0_track1, 1.0, 1.0, "G5", 0.8);
+    program35_sequence0_pattern0_event2 = makeEvent(program35_sequence0_pattern0, program35_voice0_track2, 2.5, 1.0, "C2", 0.6);
+    program35_sequence0_pattern0_event3 = makeEvent(program35_sequence0_pattern0, program35_voice0_track3, 3.0, 1.0, "G5", 0.9);
+    //
+    program35_sequence0_pattern1 = makePattern(program35_sequence0, program35_voice0, ProgramSequencePattern.Type.Loop, 4, "Drop Alt");
+    program35_sequence0_pattern1_event0 = makeEvent(program35_sequence0_pattern1, program35_voice0_track0, 0.0, 1.0, "B5", 0.9);
+    program35_sequence0_pattern1_event1 = makeEvent(program35_sequence0_pattern1, program35_voice0_track1, 1.0, 1.0, "D2", 1.0);
+    program35_sequence0_pattern1_event2 = makeEvent(program35_sequence0_pattern1, program35_voice0_track2, 2.5, 1.0, "E4", 0.7);
+    program35_sequence0_pattern1_event3 = makeEvent(program35_sequence0_pattern1, program35_voice0_track3, 3.0, 1.0, "c3", 0.5);
+
+    // List of all parent entities including the library
+    // ORDER IS IMPORTANT because this list will be used for real database entities, so ordered from parent -> child
+    return ImmutableList.of(
+      account1,
+      library2,
+      user2,
+      userRole2a,
+      user3,
+      userRole3a,
+      accountUser1a,
+      program35,
+      program35_voice0,
+      program35_voice0_track0,
+      program35_voice0_track1,
+      program35_voice0_track2,
+      program35_voice0_track3,
+      program35_meme0,
+      program35_sequence0,
+      program35_sequence0_pattern0,
+      program35_sequence0_pattern0_event0,
+      program35_sequence0_pattern0_event1,
+      program35_sequence0_pattern0_event2,
+      program35_sequence0_pattern0_event3,
+      program35_sequence0_pattern1,
+      program35_sequence0_pattern1_event0,
+      program35_sequence0_pattern1_event1,
+      program35_sequence0_pattern1_event2,
+      program35_sequence0_pattern1_event3,
+      program4,
+      program4_meme0,
+      program4_sequence0,
+      program4_sequence0_binding0,
+      program4_sequence0_binding0_meme0,
+      program4_sequence1,
+      program4_sequence1_binding0,
+      program4_sequence1_binding0_meme0,
+      program4_sequence1_binding0_meme1,
+      program4_sequence2,
+      program4_sequence2_binding0,
+      program4_sequence2_binding0_meme0,
+      program5,
+      program5_meme0,
+      program5_sequence0,
+      program5_sequence0_binding0,
+      program5_sequence0_binding0_meme0,
+      program5_sequence0_chord0,
+      program5_sequence0_chord0_voicing,
+      program5_sequence0_chord1,
+      program5_sequence0_chord1_voicing,
+      program5_sequence0_chord2,
+      program5_sequence0_chord2_voicing,
+      program5_sequence1,
+      program5_sequence1_binding0,
+      program5_sequence1_binding0_meme0,
+      program5_sequence1_chord0,
+      program5_sequence1_chord0_voicing,
+      program5_sequence1_chord1,
+      program5_sequence1_chord1_voicing
+    );
+  }
+
+  /**
+   Library of Content B-2 (shared test fixture)
+   <p>
+   [#165954673] Integration tests use shared scenario fixtures as much as possible
+   */
+  public Collection<Object> setupFixtureB2() {
+    // "Tangy, Chunky to Smooth" macro-program in house library
+    program3 = makeProgram(library2, Program.Type.Macro, Program.State.Published, "Tangy, Chunky to Smooth", "G minor", 120.0, 0.6);
+    program3_meme0 = makeMeme(program3, "Tangy");
+    //
+    program3_sequence0 = makeSequence(program3, 0, "Start Chunky", 0.4, "G minor", 115.0);
+    program3_sequence0_binding0 = makeBinding(program3_sequence0, 0);
+    program3_sequence0_binding0_meme0 = makeMeme(program3_sequence0_binding0, "Chunky");
+    //
+    program3_sequence1 = makeSequence(program3, 0, "Finish Smooth", 0.6, "C", 125.0);
+    program3_sequence1_binding0 = makeBinding(program3_sequence1, 1);
+    program3_sequence1_binding0_meme0 = makeMeme(program3_sequence1_binding0, "Smooth");
+
+    // Main program
+    program15 = makeProgram(library2, Program.Type.Main, Program.State.Published, "Next Jam", "Db minor", 140, 0.6);
+    program15_meme0 = makeMeme(program15, "Hindsight");
+    //
+    program15_sequence0 = makeSequence(program15, 16, "Intro", 0.5, "G minor", 135.0);
+    program15_sequence0_chord0 = makeChord(program15_sequence0, 0.0, "G minor");
+    program15_sequence0_chord0_voicing = makeVoicing(Instrument.Type.Bass, program15_sequence0_chord0, "G3, Bb3, D4");
+    program15_sequence0_chord1 = makeChord(program15_sequence0, 8.0, "Ab minor");
+    program15_sequence0_chord1_voicing = makeVoicing(Instrument.Type.Bass, program15_sequence0_chord1, "Ab3, C3, Eb4");
+    program15_sequence0_binding0 = makeBinding(program15_sequence0, 0);
+    program15_sequence0_binding0_meme0 = makeMeme(program15_sequence0_binding0, "Regret");
+    //
+    program15_sequence1 = makeSequence(program15, 32, "Outro", 0.5, "A major", 135.0);
+    program15_sequence1_chord0 = makeChord(program15_sequence1, 0.0, "C major");
+    program15_sequence1_chord0_voicing = makeVoicing(Instrument.Type.Bass, program15_sequence0_chord0, "E3, G3, C4");
+    program15_sequence1_chord1 = makeChord(program15_sequence1, 8.0, "Bb major");
+    program15_sequence1_chord1_voicing = makeVoicing(Instrument.Type.Bass, program15_sequence0_chord1, "F3, Bb3, D4");
+    program15_sequence1_binding0 = makeBinding(program15_sequence1, 1);
+    program15_sequence1_binding0_meme0 = makeMeme(program15_sequence1_binding0, "Pride");
+    program15_sequence1_binding0_meme1 = makeMeme(program15_sequence1_binding0, "Shame");
+
+    // return them all
+    return ImmutableList.of(
+      program3,
+      program3_meme0,
+      program3_sequence0,
+      program3_sequence0_binding0,
+      program3_sequence0_binding0_meme0,
+      program3_sequence1,
+      program3_sequence1_binding0,
+      program3_sequence1_binding0_meme0,
+      program15,
+      program15_meme0,
+      program15_sequence0,
+      program15_sequence0_chord0,
+      program15_sequence0_chord0_voicing,
+      program15_sequence0_chord1,
+      program15_sequence0_chord1_voicing,
+      program15_sequence0_binding0,
+      program15_sequence0_binding0_meme0,
+      program15_sequence1,
+      program15_sequence1_chord0,
+      program15_sequence1_chord0_voicing,
+      program15_sequence1_chord1,
+      program15_sequence1_chord1_voicing,
+      program15_sequence1_binding0,
+      program15_sequence1_binding0_meme0,
+      program15_sequence1_binding0_meme1
+    );
+  }
+
+  /**
+   Library of Content B-3 (shared test fixture)
+   <p>
+   [#165954673] Integration tests use shared scenario fixtures as much as possible
+   <p>
+   [#163158036] memes bound to sequence-pattern because sequence-binding is not considered for rhythm sequences, rhythm sequence patterns do not have memes.
+   <p>
+   [#165954619] Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (rhythm- and detail-type sequences)
+   <p>
+   [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Rhythm or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
+   + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
+   <p>
+   [#150279647] Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
+   */
+  public Collection<Object> setupFixtureB3() {
+    // A basic beat
+    program9 = makeProgram(library2, Program.Type.Rhythm, Program.State.Published, "Basic Beat", "C", 121, 0.6);
+    program9_meme0 = makeMeme(program9, "Basic");
+    //
+    program9_voice0 = makeVoice(program9, Instrument.Type.Percussive, "Drums");
+    program9_voice0_track0 = makeTrack(program9_voice0, "BLEEP");
+    program9_voice0_track1 = makeTrack(program9_voice0, "BLEIP");
+    program9_voice0_track2 = makeTrack(program9_voice0, "BLEAP");
+    program9_voice0_track3 = makeTrack(program9_voice0, "BLEEEP");
+    program9_voice0_track4 = makeTrack(program9_voice0, "CLOCK");
+    program9_voice0_track5 = makeTrack(program9_voice0, "SNORT");
+    program9_voice0_track6 = makeTrack(program9_voice0, "KICK");
+    program9_voice0_track7 = makeTrack(program9_voice0, "SNARL");
+    program9_voice0_track8 = makeTrack(program9_voice0, "KIICK");
+    program9_voice0_track9 = makeTrack(program9_voice0, "SNARR");
+    program9_voice0_track10 = makeTrack(program9_voice0, "KEICK");
+    program9_voice0_track11 = makeTrack(program9_voice0, "SNAER");
+    program9_voice0_track12 = makeTrack(program9_voice0, "TOOT");
+    program9_voice0_track13 = makeTrack(program9_voice0, "TOOOT");
+    program9_voice0_track14 = makeTrack(program9_voice0, "TOOTE");
+    program9_voice0_track15 = makeTrack(program9_voice0, "TOUT");
+    //
+    program9_sequence0 = makeSequence(program9, 16, "Base", 0.5, "C", 110.3);
+    //
+    program9_sequence0_pattern0 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePattern.Type.Intro, 4, "Intro");
+    program9_sequence0_pattern0_event0 = makeEvent(program9_sequence0_pattern0, program9_voice0_track0, 0, 1, "C2", 1.0);
+    program9_sequence0_pattern0_event1 = makeEvent(program9_sequence0_pattern0, program9_voice0_track1, 1, 1, "G5", 0.8);
+    program9_sequence0_pattern0_event2 = makeEvent(program9_sequence0_pattern0, program9_voice0_track2, 2.5, 1, "C2", 0.6);
+    program9_sequence0_pattern0_event3 = makeEvent(program9_sequence0_pattern0, program9_voice0_track3, 3, 1, "G5", 0.9);
+    //
+    program9_sequence0_pattern1 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop A");
+    program9_sequence0_pattern1_event0 = makeEvent(program9_sequence0_pattern1, program9_voice0_track4, 0, 1, "C2", 1.0);
+    program9_sequence0_pattern1_event1 = makeEvent(program9_sequence0_pattern1, program9_voice0_track5, 1, 1, "G5", 0.8);
+    program9_sequence0_pattern1_event2 = makeEvent(program9_sequence0_pattern1, program9_voice0_track6, 2.5, 1, "C2", 0.6);
+    program9_sequence0_pattern1_event3 = makeEvent(program9_sequence0_pattern1, program9_voice0_track7, 3, 1, "G5", 0.9);
+    //
+    program9_sequence0_pattern2 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop B");
+    program9_sequence0_pattern2_event0 = makeEvent(program9_sequence0_pattern2, program9_voice0_track8, 0, 1, "B5", 0.9);
+    program9_sequence0_pattern2_event1 = makeEvent(program9_sequence0_pattern2, program9_voice0_track9, 1, 1, "D2", 1.0);
+    program9_sequence0_pattern2_event2 = makeEvent(program9_sequence0_pattern2, program9_voice0_track10, 2.5, 1, "E4", 0.7);
+    program9_sequence0_pattern2_event3 = makeEvent(program9_sequence0_pattern2, program9_voice0_track11, 3, 1, "C3", 0.5);
+    //
+    program9_sequence0_pattern3 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePattern.Type.Outro, 4, "Outro");
+    program9_sequence0_pattern3_event0 = makeEvent(program9_sequence0_pattern3, program9_voice0_track12, 0, 1, "C2", 1.0);
+    program9_sequence0_pattern3_event1 = makeEvent(program9_sequence0_pattern3, program9_voice0_track13, 1, 1, "G5", 0.8);
+    program9_sequence0_pattern3_event2 = makeEvent(program9_sequence0_pattern3, program9_voice0_track14, 2.5, 1, "C2", 0.6);
+    program9_sequence0_pattern3_event3 = makeEvent(program9_sequence0_pattern3, program9_voice0_track15, 3, 1, "G5", 0.9);
+
+    // Instrument "808"
+    instrument8 = makeInstrument(library2, Instrument.Type.Percussive, Instrument.State.Published, "808 Drums");
+    instrument8_meme0 = makeMeme(instrument8, "heavy");
+    instrument8_audio8kick = makeAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62, "KICK", "Eb", 1.0);
+    instrument8_audio8snare = makeAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01, 1.5, 120.0, 0.62, "SNARE", "Ab", 0.8);
+    instrument8_audio8bleep = makeAudio(instrument8, "Bleep", "17350afghjkjhaskjdfjhk9758981980.wav", 0.01, 1.5, 120.0, 0.62, "BLEEP", "Ab", 0.8);
+    instrument8_audio8toot = makeAudio(instrument8, "Toot", "askjdfjhk975898198017350afghjkjh.wav", 0.01, 1.5, 120.0, 0.62, "TOOT", "Ab", 0.8);
+
+    // return them all
+    return ImmutableList.of(
+      program9,
+      program9_meme0,
+      program9_voice0,
+      program9_voice0_track0,
+      program9_voice0_track1,
+      program9_voice0_track2,
+      program9_voice0_track3,
+      program9_voice0_track4,
+      program9_voice0_track5,
+      program9_voice0_track6,
+      program9_voice0_track7,
+      program9_voice0_track8,
+      program9_voice0_track9,
+      program9_voice0_track10,
+      program9_voice0_track11,
+      program9_voice0_track12,
+      program9_voice0_track13,
+      program9_voice0_track14,
+      program9_voice0_track15,
+      program9_sequence0,
+      program9_sequence0_pattern0,
+      program9_sequence0_pattern0_event0,
+      program9_sequence0_pattern0_event1,
+      program9_sequence0_pattern0_event2,
+      program9_sequence0_pattern0_event3,
+      program9_sequence0_pattern1,
+      program9_sequence0_pattern1_event0,
+      program9_sequence0_pattern1_event1,
+      program9_sequence0_pattern1_event2,
+      program9_sequence0_pattern1_event3,
+      program9_sequence0_pattern2,
+      program9_sequence0_pattern2_event0,
+      program9_sequence0_pattern2_event1,
+      program9_sequence0_pattern2_event2,
+      program9_sequence0_pattern2_event3,
+      program9_sequence0_pattern3,
+      program9_sequence0_pattern3_event0,
+      program9_sequence0_pattern3_event1,
+      program9_sequence0_pattern3_event2,
+      program9_sequence0_pattern3_event3,
+      instrument8,
+      instrument8_meme0,
+      instrument8_audio8kick,
+      instrument8_audio8snare,
+      instrument8_audio8bleep,
+      instrument8_audio8toot
+    );
+  }
+
+  /**
+   Library of Content B-4 (shared test fixture)
+   <p>
+   [#154464276] Detail Craft v1
+   */
+  public Collection<Object> setupFixtureB4_DetailBass() {
+    // A basic bass pattern
+    program10 = makeProgram(library2, Program.Type.Detail, Program.State.Published, "Earth Bass Detail Pattern", "C", 121, 0.6);
+    program10_meme0 = makeMeme(program10, "EARTH");
+    //
+    program10_voice0 = makeVoice(program10, Instrument.Type.Bass, "Dirty Bass");
+    program10_voice0_track0 = makeTrack(program10_voice0, "BUM");
+    //
+    program10_sequence0 = makeSequence(program10, 16, "Simple Walk", 0.5, "C", 110.3);
+    //
+    program10_sequence0_pattern0 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Intro, 4, "Intro");
+    program10_sequence0_pattern0_event0 = makeEvent(program10_sequence0_pattern0, program10_voice0_track0, 0, 1, "C2", 1.0);
+    program10_sequence0_pattern0_event1 = makeEvent(program10_sequence0_pattern0, program10_voice0_track0, 1, 1, "G5", 0.8);
+    program10_sequence0_pattern0_event2 = makeEvent(program10_sequence0_pattern0, program10_voice0_track0, 2, 1, "C2", 0.6);
+    program10_sequence0_pattern0_event3 = makeEvent(program10_sequence0_pattern0, program10_voice0_track0, 3, 1, "G5", 0.9);
+    //
+    program10_sequence0_pattern1 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop A");
+    program10_sequence0_pattern1_event0 = makeEvent(program10_sequence0_pattern1, program10_voice0_track0, 0, 1, "C2", 1.0);
+    program10_sequence0_pattern1_event1 = makeEvent(program10_sequence0_pattern1, program10_voice0_track0, 1, 1, "G5", 0.8);
+    program10_sequence0_pattern1_event2 = makeEvent(program10_sequence0_pattern1, program10_voice0_track0, 2, 1, "C2", 0.6);
+    program10_sequence0_pattern1_event3 = makeEvent(program10_sequence0_pattern1, program10_voice0_track0, 3, 1, "G5", 0.9);
+    //
+    program10_sequence0_pattern2 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop B");
+    program10_sequence0_pattern2_event0 = makeEvent(program10_sequence0_pattern2, program10_voice0_track0, 0, 1, "B5", 0.9);
+    program10_sequence0_pattern2_event1 = makeEvent(program10_sequence0_pattern2, program10_voice0_track0, 1, 1, "D2", 1.0);
+    program10_sequence0_pattern2_event2 = makeEvent(program10_sequence0_pattern2, program10_voice0_track0, 2, 1, "E4", 0.7);
+    program10_sequence0_pattern2_event3 = makeEvent(program10_sequence0_pattern2, program10_voice0_track0, 3, 1, "C3", 0.5);
+    //
+    program10_sequence0_pattern3 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Outro, 4, "Outro");
+    program10_sequence0_pattern3_event0 = makeEvent(program10_sequence0_pattern3, program10_voice0_track0, 0, 1, "C2", 1.0);
+    program10_sequence0_pattern3_event1 = makeEvent(program10_sequence0_pattern3, program10_voice0_track0, 1, 1, "G5", 0.8);
+    program10_sequence0_pattern3_event2 = makeEvent(program10_sequence0_pattern3, program10_voice0_track0, 2, 1, "C2", 0.6);
+    program10_sequence0_pattern3_event3 = makeEvent(program10_sequence0_pattern3, program10_voice0_track0, 3, 1, "G5", 0.9);
+
+    // Instrument "Bass"
+    instrument9 = makeInstrument(library2, Instrument.Type.Bass, Instrument.State.Published, "Bass");
+    instrument9_meme0 = makeMeme(instrument9, "heavy");
+    instrument9_audio8 = makeAudio(instrument9, "bass", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62, "BLOOP", "Eb", 1.0);
+
+    // return them all
+    return ImmutableList.of(
+      program10,
+      program10_meme0,
+      program10_voice0,
+      program10_voice0_track0,
+      program10_sequence0,
+      program10_sequence0_pattern0,
+      program10_sequence0_pattern0_event0,
+      program10_sequence0_pattern0_event1,
+      program10_sequence0_pattern0_event2,
+      program10_sequence0_pattern0_event3,
+      program10_sequence0_pattern1,
+      program10_sequence0_pattern1_event0,
+      program10_sequence0_pattern1_event1,
+      program10_sequence0_pattern1_event2,
+      program10_sequence0_pattern1_event3,
+      program10_sequence0_pattern2,
+      program10_sequence0_pattern2_event0,
+      program10_sequence0_pattern2_event1,
+      program10_sequence0_pattern2_event2,
+      program10_sequence0_pattern2_event3,
+      program10_sequence0_pattern3,
+      program10_sequence0_pattern3_event0,
+      program10_sequence0_pattern3_event1,
+      program10_sequence0_pattern3_event2,
+      program10_sequence0_pattern3_event3,
+      instrument9,
+      instrument9_meme0,
+      instrument9_audio8
+    );
+  }
+
+  /**
+   Generate a Library comprising many related entities
+
+   @param N magnitude of library to generate
+   @return entities
+   */
+  public Collection<Object> generatedFixture(int N) {
+    Collection<Object> entities = Lists.newArrayList();
+
+    account1 = add(entities, Account.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("Generated")
+      .build());
+    user1 = add(entities, User.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setName("generated")
+      .setEmail("generated@email.com")
+      .setAvatarUrl("http://pictures.com/generated.gif")
+      .build());
+    add(entities, UserRole.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setUserId(user1.getId())
+      .setType(UserRole.Type.Admin)
+      .build());
+    library1 = add(entities, Library.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setAccountId(account1.getId())
+      .setName("generated")
+      .build());
+
+    // Create a N-magnitude set of unique major memes
+    String[] majorMemeNames = listOfUniqueRandom(N, LoremIpsum.COLORS);
+    String[] minorMemeNames = listOfUniqueRandom((long) StrictMath.ceil(N >> 1), LoremIpsum.VARIANTS);
+    String[] percussiveNames = listOfUniqueRandom(N, LoremIpsum.PERCUSSIVE_NAMES);
+
+    // Generate a Percussive Instrument for each meme
+    for (int i = 0; i < N; i++) {
+      String majorMemeName = majorMemeNames[i];
+      String minorMemeName = random(minorMemeNames);
+      //
+      Instrument instrument = add(entities, makeInstrument(library1, Instrument.Type.Percussive, Instrument.State.Published, String.format("%s Drums", majorMemeName)));
+      add(entities, InstrumentMeme.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setInstrumentId(instrument.getId())
+        .setName(majorMemeName)
+        .build());
+      add(entities, InstrumentMeme.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setInstrumentId(instrument.getId())
+        .setName(minorMemeName)
+        .build());
+      // audios of instrument
+      for (int k = 0; k < N; k++)
+        add(entities, makeAudio(instrument, Text.toProper(percussiveNames[k]), String.format("%s.wav", Text.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62, percussiveNames[k], "X", random(0.8, 1)));
+      //
+      log.debug("Generated Percussive-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
+    }
+
+    // Generate N*2 total Macro-type programs, each transitioning of one MemeEntity to another
+    for (int i = 0; i < N << 1; i++) {
+      String[] twoMemeNames = listOfUniqueRandom(2, majorMemeNames);
+      String majorMemeFromName = twoMemeNames[0];
+      String majorMemeToName = twoMemeNames[1];
+      String minorMemeName = random(minorMemeNames);
+      String[] twoKeys = listOfUniqueRandom(2, LoremIpsum.MUSICAL_KEYS);
+      String keyFrom = twoKeys[0];
+      String keyTo = twoKeys[1];
+      double densityFrom = random(0.3, 0.9);
+      double tempoFrom = random(80, 120);
+      //
+      Program program = add(entities, makeProgram(library1, Program.Type.Macro, Program.State.Published, String.format("%s, create %s to %s", minorMemeName, majorMemeFromName, majorMemeToName), keyFrom, tempoFrom, 0.6));
+      add(entities, ProgramMeme.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setProgramId(program.getId())
+        .setName(minorMemeName)
+        .build());
+      // of offset 0
+      var sequence0 = add(entities, makeSequence(program, 0, String.format("Start %s", majorMemeFromName), densityFrom, keyFrom, tempoFrom));
+      var binding0 = add(entities, ProgramSequenceBinding.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setProgramSequenceId(sequence0.getId())
+        .setProgramId(sequence0.getProgramId())
+        .setOffset(0)
+        .build());
+      add(entities, ProgramSequenceBindingMeme.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setProgramId(binding0.getProgramId())
+        .setProgramSequenceBindingId(binding0.getId())
+        .setName(majorMemeFromName)
+        .build());
+      // to offset 1
+      double densityTo = random(0.3, 0.9);
+      double tempoTo = random(803, 120);
+      var sequence1 = add(entities, makeSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo, tempoTo));
+      var binding1 = add(entities, ProgramSequenceBinding.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setProgramSequenceId(sequence1.getId())
+        .setProgramId(sequence1.getProgramId())
+        .setOffset(1)
+        .build());
+      add(entities, ProgramSequenceBindingMeme.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setProgramSequenceBindingId(binding1.getId())
+        .setProgramId(binding1.getProgramId())
+        .setName(majorMemeToName)
+        .build());
+      //
+      log.debug("Generated Macro-type Program id={}, minorMeme={}, majorMemeFrom={}, majorMemeTo={}", program.getId(), minorMemeName, majorMemeFromName, majorMemeToName);
+    }
+
+    // Generate N*4 total Main-type Programs, each having N patterns comprised of ~N*2 chords, bound to N*4 sequence patterns
+    ProgramSequence[] sequences = new ProgramSequence[N];
+    for (int i = 0; i < N << 2; i++) {
+      String majorMemeName = random(majorMemeNames);
+      String[] sequenceNames = listOfUniqueRandom(N, LoremIpsum.ELEMENTS);
+      String[] subKeys = listOfUniqueRandom(N, LoremIpsum.MUSICAL_KEYS);
+      Double[] subDensities = listOfRandomValues(N);
+      double tempo = random(80, 120);
+      //
+      Program program = add(entities, makeProgram(library1, Program.Type.Main, Program.State.Published, String.format("%s: %s", majorMemeName, String.join(",", sequenceNames)), subKeys[0], tempo, 0.6));
+      add(entities, ProgramMeme.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setProgramId(program.getId())
+        .setName(majorMemeName)
+        .build());
+      // sequences of program
+      for (int iP = 0; iP < N; iP++) {
+        Integer total = random(LoremIpsum.SEQUENCE_TOTALS);
+        sequences[iP] = add(entities, makeSequence(program, total, String.format("%s in %s", majorMemeName, sequenceNames[iP]), subDensities[iP], subKeys[iP], tempo));
+        for (int iPC = 0; iPC < N << 2; iPC++) {
+          // always use first chord, then use more chords with more density
+          if (0 == iPC || StrictMath.random() < subDensities[iP]) {
+            add(entities, makeChord(sequences[iP], StrictMath.floor((float) iPC * total * 4 / N), random(LoremIpsum.MUSICAL_CHORDS)));
+          }
+        }
+      }
+      // sequence sequence binding
+      for (int offset = 0; offset < N << 2; offset++) {
+        int num = (int) StrictMath.floor(StrictMath.random() * N);
+        var binding = add(entities, ProgramSequenceBinding.newBuilder()
+          .setId(UUID.randomUUID().toString())
+          .setProgramSequenceId(sequences[num].getId())
+          .setProgramId(sequences[num].getProgramId())
+          .setOffset(offset)
+          .build());
+        add(entities, makeMeme(binding, random(minorMemeNames)));
+      }
+      log.debug("Generated Main-type Program id={}, majorMeme={} with {} sequences bound {} times", program.getId(), majorMemeName, N, N << 2);
+    }
+
+    // Generate N total Rhythm-type Sequences, each having N voices, and N*2 patterns comprised of N*8 events
+    ProgramVoice[] voices = new ProgramVoice[N];
+    Map<String, ProgramVoiceTrack> trackMap = Maps.newHashMap();
+    for (int i = 0; i < N; i++) {
+      String majorMemeName = majorMemeNames[i];
+      double tempo = random(80, 120);
+      String key = random(LoremIpsum.MUSICAL_KEYS);
+      double density = random(0.4, 0.9);
+      //
+      Program program = add(entities, makeProgram(library1, Program.Type.Rhythm, Program.State.Published, String.format("%s Beat", majorMemeName), key, tempo, 0.6));
+      trackMap.clear();
+      add(entities, ProgramMeme.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setProgramId(program.getId())
+        .setName(majorMemeName)
+        .build());
+      // voices of program
+      for (int iV = 0; iV < N; iV++) {
+        voices[iV] = add(entities, makeVoice(program, Instrument.Type.Percussive, String.format("%s %s", majorMemeName, percussiveNames[iV])));
+      }
+      var sequenceBase = add(entities, makeSequence(program, random(LoremIpsum.SEQUENCE_TOTALS), "Base", density, key, tempo));
+      // patterns of program
+      for (int iP = 0; iP < N << 1; iP++) {
+        Integer total = random(LoremIpsum.PATTERN_TOTALS);
+        int num = (int) StrictMath.floor(StrictMath.random() * N);
+
+        // first pattern is always a Loop (because that's required) then the rest at random
+        ProgramSequencePattern.Type type = 0 == iP ? ProgramSequencePattern.Type.Loop : randomRhythmPatternType();
+        var pattern = add(entities, makePattern(sequenceBase, voices[num], type, total, String.format("%s %s %s", majorMemeName, type.toString(), random(LoremIpsum.ELEMENTS))));
+        for (int iPE = 0; iPE < N << 2; iPE++) {
+          // always use first chord, then use more chords with more density
+          if (0 == iPE || StrictMath.random() < density) {
+            String name = percussiveNames[num];
+            if (!trackMap.containsKey(name))
+              trackMap.put(name, add(entities, makeTrack(voices[num], name)));
+            add(entities, makeEvent(pattern, trackMap.get(name), StrictMath.floor((float) iPE * total * 4 / N), random(0.25, 1.0), "X", random(0.4, 0.9)));
+          }
+        }
+      }
+      log.debug("Generated Rhythm-type Program id={}, majorMeme={} with {} patterns", program.getId(), majorMemeName, N);
+    }
+
+    return entities;
+  }
+
+  /**
+   Add an entity to a collection, then return that entity
+
+   @param to     collection
+   @param entity to add
+   @param <N>    type of entity
+   @return entity that's been added
+   */
+  private <N> N add(Collection<Object> to, N entity) {
+    to.add(entity);
+    return entity;
   }
 
 }

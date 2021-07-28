@@ -20,13 +20,13 @@ import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
+import io.xj.nexus.hub_client.client.HubClientAccess;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -48,14 +48,12 @@ import java.util.stream.Collectors;
  */
 class SegmentWorkbenchImpl implements SegmentWorkbench {
   private final Chain chain;
-
-  private Segment segment;
-
   private final SegmentDAO segmentDAO;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final HubClientAccess access;
   private final Map<String, Object> report = Maps.newConcurrentMap();
   private final EntityStore bench;
+  private Segment segment;
   private Collection<SegmentChord> segmentChords;
 
   @Inject
@@ -80,11 +78,6 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     } catch (DAOFatalException | DAOPrivilegeException | EntityStoreException e) {
       throw new NexusException("Failed to load Segment for Workbench!", e);
     }
-  }
-
-  @Override
-  public void setSegment(Segment segment) {
-    this.segment = segment;
   }
 
   @Override
@@ -132,6 +125,11 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public Segment getSegment() {
     return segment;
+  }
+
+  @Override
+  public void setSegment(Segment segment) {
+    this.segment = segment;
   }
 
   @Override

@@ -18,9 +18,9 @@ import java.util.Map;
  if the `config` value contains only `previewLengthMaxHours = 8`
  */
 public class ProgramConfig {
+  private static final String KEY_PREFIX = "program.";
   private final Boolean doPatternRestartOnChord;
   private final String KEY_PATTERN_RESTART_ON_CHORD = "doPatternRestartOnChord";
-  private static final String KEY_PREFIX = "program.";
 
   /**
    Instantiate a Program configuration from a string of typesafe config.

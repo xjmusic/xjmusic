@@ -65,7 +65,19 @@ public class ApiUrlProvider {
   }
 
   /**
+   Set AppBaseUrl
+
+   @param appBaseUrl to set
+   @return this ApiUrlProvider (for chaining methods)
+   */
+  public ApiUrlProvider setAppBaseUrl(String appBaseUrl) {
+    this.appBaseUrl = appBaseUrl;
+    return this;
+  }
+
+  /**
    Get the URL for a path in the app
+
    @param path to get URL for
    @return RUL for given path
    */
@@ -81,66 +93,6 @@ public class ApiUrlProvider {
   }
 
   /**
-   @return app hostname
-   */
-  public String getAppHostname() {
-    return appHostname;
-  }
-
-  /**
-   @return app name
-   */
-  public String getAppName() {
-    return appName;
-  }
-
-  /**
-   @return Audio base URL (for Amazon S3)
-   */
-  public String getAudioBaseUrl() throws Exception {
-    return audioBaseUrl;
-  }
-
-  /**
-   @return Segments base URL (for Amazon S3)
-   */
-  public String getSegmentBaseUrl() throws Exception {
-    return segmentBaseUrl;
-  }
-
-  /**
-   @return Players base URL
-   */
-  public String getPlayerBaseUrl() throws Exception {
-    return playerBaseUrl;
-  }
-
-  /**
-   @return path for unauthorized redirect
-   */
-  public String getAppPathUnauthorized() {
-    return appPathUnauthorized;
-  }
-
-  /**
-   @return path for unauthorized redirect
-   */
-  public String getAppPathWelcome() {
-    return appPathWelcome;
-  }
-
-  /**
-   Set AppBaseUrl
-
-   @param appBaseUrl to set
-   @return this ApiUrlProvider (for chaining methods)
-   */
-  public ApiUrlProvider setAppBaseUrl(String appBaseUrl) {
-    this.appBaseUrl = appBaseUrl;
-    return this;
-  }
-
-  /**
    Set AppHost
 
    @param appHost to set
@@ -149,6 +101,13 @@ public class ApiUrlProvider {
   public ApiUrlProvider setAppHost(String appHost) {
     this.appHost = appHost;
     return this;
+  }
+
+  /**
+   @return app hostname
+   */
+  public String getAppHostname() {
+    return appHostname;
   }
 
   /**
@@ -163,6 +122,13 @@ public class ApiUrlProvider {
   }
 
   /**
+   @return app name
+   */
+  public String getAppName() {
+    return appName;
+  }
+
+  /**
    Set AppName
 
    @param appName to set
@@ -171,6 +137,13 @@ public class ApiUrlProvider {
   public ApiUrlProvider setAppName(String appName) {
     this.appName = appName;
     return this;
+  }
+
+  /**
+   @return Audio base URL (for Amazon S3)
+   */
+  public String getAudioBaseUrl() throws Exception {
+    return audioBaseUrl;
   }
 
   /**
@@ -185,6 +158,13 @@ public class ApiUrlProvider {
   }
 
   /**
+   @return Segments base URL (for Amazon S3)
+   */
+  public String getSegmentBaseUrl() throws Exception {
+    return segmentBaseUrl;
+  }
+
+  /**
    Set SegmentBaseUrl
 
    @param segmentBaseUrl to set
@@ -193,6 +173,13 @@ public class ApiUrlProvider {
   public ApiUrlProvider setSegmentBaseUrl(String segmentBaseUrl) {
     this.segmentBaseUrl = segmentBaseUrl;
     return this;
+  }
+
+  /**
+   @return Players base URL
+   */
+  public String getPlayerBaseUrl() throws Exception {
+    return playerBaseUrl;
   }
 
   /**
@@ -207,6 +194,13 @@ public class ApiUrlProvider {
   }
 
   /**
+   @return path for unauthorized redirect
+   */
+  public String getAppPathUnauthorized() {
+    return appPathUnauthorized;
+  }
+
+  /**
    Set AppPathUnauthorized
 
    @param appPathUnauthorized to set
@@ -218,12 +212,19 @@ public class ApiUrlProvider {
   }
 
   /**
+   @return path for unauthorized redirect
+   */
+  public String getAppPathWelcome() {
+    return appPathWelcome;
+  }
+
+  /**
    Set AppPathWelcome
 
    @param appPathWelcome to set
    @return this ApiUrlProvider (for chaining methods)
    */
-  public ApiUrlProvider setAppPathWelcome(String appPathWelcome){
+  public ApiUrlProvider setAppPathWelcome(String appPathWelcome) {
     this.appPathWelcome = appPathWelcome;
     return this;
   }

@@ -15,8 +15,8 @@ public interface DubAudioCache {
    <p>
    [#176642679] Advanced audio caching during fabrication
 
-   @return stream if cached; null if not
    @param key to retrieve
+   @return stream if cached; null if not
    */
   BufferedInputStream get(String key) throws FileStoreException, IOException;
 

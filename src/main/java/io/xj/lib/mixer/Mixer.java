@@ -36,13 +36,12 @@ public interface Mixer {
    the Put only has a reference to the source--
    so the Mixer has to use that reference source id along with other variables from the Put,
    in order to arrive at the final source output value at any given microsecond@param sourceId      under which the audio is stored@param startAtMicros duration from beginning of mix
+
    @param stopAtMicros  duration from beginning of mix
    @param attackMicros  length of attack in microseconds
    @param releaseMicros length of release in microseconds
    @param velocity      0 to 1
    @param pan           -1 (left) to +1 (right)
-
-
    */
   void put(String sourceId, long startAtMicros, long stopAtMicros, long attackMicros, long releaseMicros, double velocity, double pan) throws PutException;
 

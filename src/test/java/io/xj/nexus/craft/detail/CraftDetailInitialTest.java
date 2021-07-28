@@ -21,8 +21,8 @@ import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.dao.Segments;
 import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
@@ -47,13 +47,12 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftDetailInitialTest {
+  @Mock
+  public HubClient hubClient;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
   private HubContent sourceMaterial;
   private NexusEntityStore store;
-
-  @Mock
-  public HubClient hubClient;
   private Segment segment6;
 
   @Before
@@ -81,11 +80,11 @@ public class CraftDetailInitialTest {
     // Mock request via HubClient returns fake generated library of hub content
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB2().stream(),
-        fake.setupFixtureB3().stream(),
-        fake.setupFixtureB4_DetailBass().stream()
-      ).collect(Collectors.toList()));
+      fake.setupFixtureB1().stream(),
+      fake.setupFixtureB2().stream(),
+      fake.setupFixtureB3().stream(),
+      fake.setupFixtureB4_DetailBass().stream()
+    ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     var chain2 = store.put(Chain.newBuilder()
@@ -107,6 +106,7 @@ public class CraftDetailInitialTest {
     segment6 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain2.getId())
+      .setType(Segment.Type.Initial)
       .setOffset(0L)
       .setState(Segment.State.Crafting)
       .setBeginAt("2017-02-14T12:01:00.000001Z")
@@ -125,7 +125,7 @@ public class CraftDetailInitialTest {
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-            .build());
+      .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment6.getId())
@@ -134,7 +134,7 @@ public class CraftDetailInitialTest {
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
-            .build());
+      .build());
     for (String memeName : ImmutableList.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(SegmentMeme.newBuilder()
         .setId(UUID.randomUUID().toString())

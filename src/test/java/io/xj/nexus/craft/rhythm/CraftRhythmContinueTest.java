@@ -20,8 +20,8 @@ import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.dao.Segments;
 import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
@@ -47,6 +47,8 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftRhythmContinueTest {
+  @Mock
+  public HubClient hubClient;
   private Chain chain1;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
@@ -54,10 +56,6 @@ public class CraftRhythmContinueTest {
   private NexusEntityStore store;
   private NexusIntegrationTestingFixtures fake;
   private Segment segment4;
-
-  @Mock
-  public HubClient hubClient;
-
 
   @Before
   public void setUp() throws Exception {
@@ -84,10 +82,10 @@ public class CraftRhythmContinueTest {
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB2().stream(),
-        fake.setupFixtureB3().stream()
-      ).collect(Collectors.toList()));
+      fake.setupFixtureB1().stream(),
+      fake.setupFixtureB2().stream(),
+      fake.setupFixtureB3().stream()
+    ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" is fabricating segments
     chain1 = store.put(makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
@@ -100,6 +98,7 @@ public class CraftRhythmContinueTest {
     store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
+      .setType(Segment.Type.Initial)
       .setOffset(0)
       .setState(Segment.State.Dubbed)
       .setBeginAt("2017-02-14T12:01:00.000001Z")
@@ -114,6 +113,7 @@ public class CraftRhythmContinueTest {
     store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
+      .setType(Segment.Type.Continue)
       .setOffset(1)
       .setState(Segment.State.Dubbing)
       .setBeginAt("2017-02-14T12:01:32.000001Z")
@@ -153,6 +153,7 @@ public class CraftRhythmContinueTest {
     Segment segment3 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
+      .setType(Segment.Type.Continue)
       .setOffset(2L)
       .setState(Segment.State.Crafted)
       .setBeginAt("2017-02-14T12:02:04.000001Z")
@@ -170,7 +171,7 @@ public class CraftRhythmContinueTest {
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-            .build());
+      .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment3.getId())
@@ -178,19 +179,20 @@ public class CraftRhythmContinueTest {
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
-            .build());
+      .build());
     if (!excludeRhythmChoiceForSegment3)
       store.put(SegmentChoice.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(segment3.getId())
         .setProgramId(fake.program35.getId())
         .setProgramType(Program.Type.Rhythm)
-                .build());
+        .build());
 
     // segment crafting
     segment4 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
+      .setType(Segment.Type.Continue)
       .setOffset(3L)
       .setState(Segment.State.Crafting)
       .setBeginAt("2017-02-14T12:03:08.000001Z")
@@ -208,7 +210,7 @@ public class CraftRhythmContinueTest {
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-            .build());
+      .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment4.getId())
@@ -216,7 +218,7 @@ public class CraftRhythmContinueTest {
       .setProgramId(fake.program5_sequence1_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
       .setProgramType(Program.Type.Main)
-            .build());
+      .build());
     for (String memeName : ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(SegmentMeme.newBuilder()
         .setId(UUID.randomUUID().toString())

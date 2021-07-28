@@ -5,8 +5,7 @@ import java.util.Locale;
 
 public enum OutputEncoder {
   WAV,
-  OGG,
-  AAC;
+  OGG;
 
   /**
    Parse any object to determine if it's a known output encoding, else use default encoding
@@ -16,17 +15,9 @@ public enum OutputEncoder {
    */
   public static OutputEncoder parse(Object obj) {
     String encoder = String.valueOf(obj).toLowerCase(Locale.ENGLISH).trim();
-    switch (encoder) {
-
-      case "wave":
-      case "wav":
-        return WAV;
-
-      case "ogg":
-        return OGG;
-
-      default:
-        return AAC;
-    }
+    return switch (encoder) {
+      case "wave", "wav" -> WAV;
+      default -> OGG;
+    };
   }
 }

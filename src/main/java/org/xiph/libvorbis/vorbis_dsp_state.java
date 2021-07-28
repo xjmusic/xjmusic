@@ -9,14 +9,11 @@ import java.util.Arrays;
 
 public class vorbis_dsp_state {
 
-  int analysisp;
-
   public vorbis_info vi;
-
-  float[][] pcm;    // float **pcm // float **pcmret
-
-  int pcm_storage;
   public int pcm_current;
+  int analysisp;
+  float[][] pcm;    // float **pcm // float **pcmret
+  int pcm_storage;
   int pcm_returned;
 
   int preextrapolate;

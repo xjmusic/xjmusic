@@ -101,15 +101,6 @@ public class App {
   }
 
   /**
-   Set the REST port of the application, because individual apps will have their own ports to override the default
-
-   @param restPort to set
-   */
-  public void setRestPort(int restPort) {
-    this.restPort = restPort;
-  }
-
-  /**
    Get name of application, probably simple name of main app class, e.g. Hub
 
    @return name of application
@@ -214,6 +205,15 @@ public class App {
 
   public int getRestPort() {
     return restPort;
+  }
+
+  /**
+   Set the REST port of the application, because individual apps will have their own ports to override the default
+
+   @param restPort to set
+   */
+  public void setRestPort(int restPort) {
+    this.restPort = restPort;
   }
 
   public String getRestHostname() {

@@ -10,41 +10,42 @@ public class vorbis_block {
 
   // necessary stream state for linking to the framing abstraction
 
+  static float[] hypot_lookup = { // [32]
+    -0.009935f, -0.011245f, -0.012726f, -0.014397f,
+    -0.016282f, -0.018407f, -0.020800f, -0.023494f,
+    -0.026522f, -0.029923f, -0.033737f, -0.038010f,
+    -0.042787f, -0.048121f, -0.054064f, -0.060671f,
+    -0.068000f, -0.076109f, -0.085054f, -0.094892f,
+    -0.105675f, -0.117451f, -0.130260f, -0.144134f,
+    -0.159093f, -0.175146f, -0.192286f, -0.210490f,
+    -0.229718f, -0.249913f, -0.271001f, -0.292893f};
   float[][] pcm;     // float **pcm // this is a pointer into local storage
   int pcm_offset;
   oggpack_buffer opb;
-
   int lW;      // long
   int W;      // long
   int nW;      // long
   int pcmend;
   int mode;
-
   int eofflag;
   int granulepos;    // ogg_int64_t
   int sequence;    // ogg_int64_t
-  vorbis_dsp_state vd;  // *vd // For read-only access of configuration
 
   // local storage to avoid remallocing; it's up to the mapping to structure it
-
+  vorbis_dsp_state vd;  // *vd // For read-only access of configuration
   Object[] localstore;
   int localtop;    // long
   int localalloc;    // long
   int totaluse;    // long
-
   alloc_chain reap;
-
   // bitmetrics for the frame
   int glue_bits;    // long
   int time_bits;    // long
   int floor_bits;    // long
   int res_bits;    // long
-
   vorbis_block_internal internal;  // void *internal;
-
   // vorbis_window used to hold window arrays and functions
   vorbis_window window;
-
 
   public vorbis_block(vorbis_dsp_state v) {
 
@@ -67,6 +68,522 @@ public class vorbis_block {
     }
 
     window = new vorbis_window();
+  }
+
+  // the floor has already been filtered to only include relevant sections
+  static int accumulate_fit(float[] flr, int mdct, int x0, int x1, lsfit_acc a, int n, vorbis_info_floor1 info) {
+
+    int i;
+    // int quantized = vorbis_dBquant(flr[x0]);
+
+    int xa = 0, ya = 0, x2a = 0, y2a = 0, xya = 0, na = 0, xb = 0, yb = 0, x2b = 0, y2b = 0, xyb = 0, nb = 0;
+
+    a.x0 = x0;
+    a.x1 = x1;
+    if (x1 >= n)
+      x1 = n - 1;
+
+    for (i = x0; i <= x1; i++) {
+
+      int quantized = integer_constants.vorbis_dBquant(flr[i]);
+      if (quantized > 0) {
+
+        if (flr[mdct + i] + info.twofitatten >= flr[i]) {
+
+          xa += i;
+          ya += quantized;
+          x2a += i * i;
+          y2a += quantized * quantized;
+          xya += i * quantized;
+          na++;
+
+        } else {
+
+          xb += i;
+          yb += quantized;
+          x2b += i * i;
+          y2b += quantized * quantized;
+          xyb += i * quantized;
+          nb++;
+        }
+      }
+    }
+
+    xb += xa;
+    yb += ya;
+    x2b += x2a;
+    y2b += y2a;
+    xyb += xya;
+    nb += na;
+
+    // weight toward the actually used frequencies if we meet the threshhold
+
+    int weight = Float.valueOf(nb * info.twofitweight / (na + 1)).intValue();
+
+    a.xa = xa * weight + xb;
+    a.ya = ya * weight + yb;
+    a.x2a = x2a * weight + x2b;
+    a.y2a = y2a * weight + y2b;
+    a.xya = xya * weight + xyb;
+    a.an = na * weight + nb;
+
+    return na;
+  }
+
+  static int[] fit_line(lsfit_acc[] a, int offset, int fits, int y0, int y1) {
+
+    int x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, an = 0, i;
+    int x0 = a[offset].x0;
+    int x1 = a[offset + fits - 1].x1;
+
+    for (i = 0; i < fits; i++) {
+
+      x += a[offset + i].xa;
+      y += a[offset + i].ya;
+      x2 += a[offset + i].x2a;
+      y2 += a[offset + i].y2a;
+      xy += a[offset + i].xya;
+      an += a[offset + i].an;
+    }
+
+    // if (*y0 >= 0 ) {
+    if (y0 >= 0) {
+
+      x += x0;
+      y += y0;      // y +=  *y0;
+      x2 += x0 * x0;
+      y2 += y0 * y0;  // y2 += *y0 * *y0;
+      xy += y0 * x0;    // xy += *y0 *  x0;
+      an++;
+    }
+
+    // if(*y1>=0){
+    if (y1 >= 0) {
+      x += x1;
+      y += y1;      // y+=  *y1;
+      x2 += x1 * x1;
+      y2 += y1 * y1;    // y2+= *y1 * *y1;
+      xy += y1 * x1;    // xy+= *y1 *  x1;
+      an++;
+    }
+
+    if (an > 0) {
+
+      // need 64 bit multiplies, which C doesn't give portably as int
+      double fx = x;
+      double fy = y;
+      double fx2 = x2;
+      double fxy = xy;
+      double denom = 1. / (an * fx2 - fx * fx);
+      double a_local = (fy * fx2 - fxy * fx) * denom;
+      double b = (an * fxy - fx * fy) * denom;
+      y0 = (int) Math.rint(a_local + b * x0);    // *y0=rint(a_local+b*x0);
+      y1 = (int) Math.rint(a_local + b * x1);    // *y1=rint(a_local+b*x1);
+
+      // limit to our range!
+      if (y0 > 1023)    // if(*y0>1023)*y0=1023;
+        y0 = 1023;
+      if (y1 > 1023)    // if(*y1>1023)*y1=1023;
+        y1 = 1023;
+      if (y0 < 0)    // if(*y0<0)*y0=0;
+        y0 = 0;
+      if (y1 < 0)    // if(*y1<0)*y1=0;
+        y1 = 0;
+    } else {
+      y0 = 0;    // *y0=0;
+      y1 = 0;    // *y1=0;
+    }
+
+    int[] return_buffer = {y0, y1};
+    return return_buffer;
+  }
+
+  static int inspect_error(int x0, int x1, int y0, int y1, float[] mask, int mdct, vorbis_info_floor1 info) {
+
+    int dy = y1 - y0;
+    int adx = x1 - x0;
+    int ady = Math.abs(dy);
+    int base = dy / adx;
+    int sy = (dy < 0 ? base - 1 : base + 1);
+    int x = x0;
+    int y = y0;
+    int err = 0;
+    int val = integer_constants.vorbis_dBquant(mask[x]);
+    int mse = 0;
+    int n = 0;
+
+    ady -= Math.abs(base * adx);
+
+    mse = (y - val);
+    mse *= mse;
+    n++;
+
+    if (mask[mdct + x] + info.twofitatten >= mask[x]) {
+      if (y + info.maxover < val)
+        return (1);
+      if (y - info.maxunder > val)
+        return (1);
+    }
+
+    while (++x < x1) {
+
+      err = err + ady;
+      if (err >= adx) {
+        err -= adx;
+        y += sy;
+      } else {
+        y += base;
+      }
+
+      val = integer_constants.vorbis_dBquant(mask[x]);
+      mse += ((y - val) * (y - val));
+      n++;
+      if (mask[mdct + x] + info.twofitatten >= mask[x]) {
+        if (val > 0) {
+          if (y + info.maxover < val)
+            return (1);
+          if (y - info.maxunder > val)
+            return (1);
+        }
+      }
+    }
+
+    if (info.maxover * info.maxover / n > info.maxerr)
+      return (0);
+    if (info.maxunder * info.maxunder / n > info.maxerr)
+      return (0);
+    if (mse / n > info.maxerr)
+      return (1);
+    return (0);
+  }
+
+  static int post_Y(int[] A, int[] B, int pos) {
+
+    if (A[pos] < 0)
+      return B[pos];
+    if (B[pos] < 0)
+      return A[pos];
+
+    return (A[pos] + B[pos]) >>> 1;
+  }
+
+  static int[] floor1_interpolate_fit(vorbis_look_floor1 look, int[] A, int[] B, int del) {
+
+    int i;
+    int posts = look.posts;
+    int[] output = null;
+
+    if (A != null && B != null) {
+
+      // output=_vorbis_block_alloc(vb,sizeof(*output)*posts);
+      output = new int[posts];
+
+      for (i = 0; i < posts; i++) {
+        output[i] = ((65536 - del) * (A[i] & 0x7fff) + del * (B[i] & 0x7fff) + 32768) >> 16;
+
+        boolean aTrue = (A[i] & 0x8000) > 0;
+        boolean bTrue = (B[i] & 0x8000) > 0;
+        if (aTrue && bTrue)
+          output[i] |= 0x8000;
+      }
+    }
+    return (output);
+  }
+
+  static float dipole_hypot(float a, float b) {
+
+    if (a > 0.) {
+      if (b > 0.) return Double.valueOf(Math.sqrt(a * a + b * b)).floatValue();
+      if (a > -b) return Double.valueOf(Math.sqrt(a * a - b * b)).floatValue();
+      return Double.valueOf(-Math.sqrt(b * b - a * a)).floatValue();
+    }
+
+    if (b < 0.) return Double.valueOf(-Math.sqrt(a * a + b * b)).floatValue();
+    if (-a > b) return Double.valueOf(-Math.sqrt(a * a - b * b)).floatValue();
+
+    return Double.valueOf(Math.sqrt(b * b - a * a)).floatValue();
+  }
+
+  static float round_hypot(float a, float b) {
+
+    if (a > 0.) {
+      if (b > 0.) return Double.valueOf(Math.sqrt(a * a + b * b)).floatValue();
+      if (a > -b) return Double.valueOf(Math.sqrt(a * a + b * b)).floatValue();
+      return Double.valueOf(-Math.sqrt(b * b + a * a)).floatValue();
+    }
+
+    if (b < 0.) return Double.valueOf(-Math.sqrt(a * a + b * b)).floatValue();
+
+    if (-a > b) return Double.valueOf(-Math.sqrt(a * a + b * b)).floatValue();
+
+    return Double.valueOf(Math.sqrt(b * b + a * a)).floatValue();
+  }
+
+  private static void SORT4(int o, float[] data, int offset, int[] n) {
+
+    if (Math.abs(data[offset + o + 2]) >= Math.abs(data[offset + o + 3]))
+      if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 1]))
+        if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 2]))
+          if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 2])) {
+            n[o] = o + 0;
+            n[o + 1] = o + 1;
+            n[o + 2] = o + 2;
+            n[o + 3] = o + 3;
+          } else if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 3])) {
+            n[o] = o + 0;
+            n[o + 1] = o + 2;
+            n[o + 2] = o + 1;
+            n[o + 3] = o + 3;
+          } else {
+            n[o] = o + 0;
+            n[o + 1] = o + 2;
+            n[o + 2] = o + 3;
+            n[o + 3] = o + 1;
+          }
+        else if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 3]))
+          if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 3])) {
+            n[o] = o + 2;
+            n[o + 1] = o + 0;
+            n[o + 2] = o + 1;
+            n[o + 3] = o + 3;
+          } else {
+            n[o] = o + 2;
+            n[o + 1] = o + 0;
+            n[o + 2] = o + 3;
+            n[o + 3] = o + 1;
+          }
+        else {
+          n[o] = o + 2;
+          n[o + 1] = o + 3;
+          n[o + 2] = o + 0;
+          n[o + 3] = o + 1;
+        }
+      else if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 2]))
+        if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 2])) {
+          n[o] = o + 1;
+          n[o + 1] = o + 0;
+          n[o + 2] = o + 2;
+          n[o + 3] = o + 3;
+        } else if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 3])) {
+          n[o] = o + 1;
+          n[o + 1] = o + 2;
+          n[o + 2] = o + 0;
+          n[o + 3] = o + 3;
+        } else {
+          n[o] = o + 1;
+          n[o + 1] = o + 2;
+          n[o + 2] = o + 3;
+          n[o + 3] = o + 0;
+        }
+      else if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 3]))
+        if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 3])) {
+          n[o] = o + 2;
+          n[o + 1] = o + 1;
+          n[o + 2] = o + 0;
+          n[o + 3] = o + 3;
+        } else {
+          n[o] = o + 2;
+          n[o + 1] = o + 1;
+          n[o + 2] = o + 3;
+          n[o + 3] = o + 0;
+        }
+      else {
+        n[o] = o + 2;
+        n[o + 1] = o + 3;
+        n[o + 2] = o + 1;
+        n[o + 3] = o + 0;
+      }
+    else if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 1]))
+      if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 3]))
+        if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 3])) {
+          n[o] = o + 0;
+          n[o + 1] = o + 1;
+          n[o + 2] = o + 3;
+          n[o + 3] = o + 2;
+        } else if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 2])) {
+          n[o] = o + 0;
+          n[o + 1] = o + 3;
+          n[o + 2] = o + 1;
+          n[o + 3] = o + 2;
+        } else {
+          n[o] = o + 0;
+          n[o + 1] = o + 3;
+          n[o + 2] = o + 2;
+          n[o + 3] = o + 1;
+        }
+      else if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 2]))
+        if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 2])) {
+          n[o] = o + 3;
+          n[o + 1] = o + 0;
+          n[o + 2] = o + 1;
+          n[o + 3] = o + 2;
+        } else {
+          n[o] = o + 3;
+          n[o + 1] = o + 0;
+          n[o + 2] = o + 2;
+          n[o + 3] = o + 1;
+        }
+      else {
+        n[o] = o + 3;
+        n[o + 1] = o + 2;
+        n[o + 2] = o + 0;
+        n[o + 3] = o + 1;
+      }
+    else if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 3]))
+      if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 3])) {
+        n[o] = o + 1;
+        n[o + 1] = o + 0;
+        n[o + 2] = o + 3;
+        n[o + 3] = o + 2;
+      } else if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 2])) {
+        n[o] = o + 1;
+        n[o + 1] = o + 3;
+        n[o + 2] = o + 0;
+        n[o + 3] = o + 2;
+      } else {
+        n[o] = o + 1;
+        n[o + 1] = o + 3;
+        n[o + 2] = o + 2;
+        n[o + 3] = o + 0;
+      }
+    else if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 2]))
+      if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 2])) {
+        n[o] = o + 3;
+        n[o + 1] = o + 1;
+        n[o + 2] = o + 0;
+        n[o + 3] = o + 2;
+      } else {
+        n[o] = o + 3;
+        n[o + 1] = o + 1;
+        n[o + 2] = o + 2;
+        n[o + 3] = o + 0;
+      }
+    else {
+      n[o] = o + 3;
+      n[o + 1] = o + 2;
+      n[o + 2] = o + 1;
+      n[o + 3] = o + 0;
+    }
+  }
+
+  static void sortindex_fix8(int[] index, int ioff, float[] data, int offset) {
+
+    int i, j, k;
+    int[] n = new int[8];
+
+    // index+=offset;
+    // data+=offset;
+
+    SORT4(0, data, offset, n);
+    SORT4(4, data, offset, n);
+
+    j = 0;
+    k = 4;
+    for (i = 0; i < 8; i++)
+      index[ioff + offset + i] = n[((k >= 8) || (j < 4) && (Math.abs(data[offset + 0 + n[j]]) >= Math.abs(data[offset + 0 + n[k]])) ? j++ : k++)] + offset;
+  }
+
+  static void sortindex_fix32(int[] index, int ioff, float[] data, int offset) {
+
+    int i, j, k;
+    int[] n = new int[32];
+
+    for (i = 0; i < 32; i += 8)
+      sortindex_fix8(index, ioff, data, offset + i);
+
+    ioff += offset;
+
+    for (i = j = 0, k = 8; i < 16; i++)
+      n[i] = index[ioff + ((k >= 16) || (j < 8) && (Math.abs(data[0 + index[ioff + j]]) >= Math.abs(data[0 + index[ioff + k]])) ? j++ : k++)];
+
+    for (i = j = 16, k = 24; i < 32; i++)
+      n[i] = index[ioff + ((k >= 32) || (j < 24) && (Math.abs(data[0 + index[ioff + j]]) >= Math.abs(data[0 + index[ioff + k]])) ? j++ : k++)];
+
+    for (i = j = 0, k = 16; i < 32; i++)
+      index[ioff + i] = n[((k >= 32) || (j < 16) && (Math.abs(data[0 + n[j]]) >= Math.abs(data[0 + n[k]])) ? j++ : k++)];
+  }
+
+  static void sortindex_shellsort(int[] index, int ioff, float[] data, int offset, int count) {
+
+    int gap, pos, left;
+    // int right;
+    int i, j;
+
+    ioff += offset;
+
+    for (i = 0; i < count; i++)
+      index[ioff + i] = i + offset;
+    gap = 1;
+    while (gap <= count)
+      gap = gap * 3 + 1;
+    gap /= 3;
+    if (gap >= 4)
+      gap /= 3;
+
+    while (gap > 0) {
+      for (pos = gap; pos < count; pos++) {
+        for (left = pos - gap; left >= 0; left -= gap) {
+          i = index[ioff + left];
+          j = index[ioff + left + gap];
+          if (!(Math.abs(data[0 + i]) >= Math.abs(data[0 + j]))) {
+            index[ioff + left] = j;
+            index[ioff + left + gap] = i;
+          } else
+            break;
+        }
+      }
+      gap /= 3;
+    }
+  }
+
+  static void sortindex(int[] index, int ioff, float[] data, int offset, int count) {
+
+    if (count == 8)
+      sortindex_fix8(index, ioff, data, offset);
+    else if (count == 32)
+      sortindex_fix32(index, ioff, data, offset);
+    else
+      sortindex_shellsort(index, ioff, data, offset, count);
+  }
+
+  static float[] couple_lossless(float A, float B, float qA, float qB) {
+
+    int test1 = ((Math.abs(qA) > Math.abs(qB)) ? 1 : 0);
+    test1 -= ((Math.abs(qA) < Math.abs(qB)) ? 1 : 0);
+
+    if (test1 <= 0)
+      test1 = ((((Math.abs(A) > Math.abs(B))) ? 1 : 0) << 1) - 1;
+
+    if (test1 == 1) {
+      qB = (qA > 0.f ? qA - qB : qB - qA);
+    } else {
+      float temp = qB;
+      qB = (qB > 0.f ? qA - qB : qB - qA);
+      qA = temp;
+    }
+
+    if (qB > Math.abs(qA) * 1.9999f) {
+      qB = -Math.abs(qA) * 2.f;
+      qA = -qA;
+    }
+
+    float[] ret = {qA, qB};
+    return ret;
+  }
+
+  static float[] precomputed_couple_point(float premag, int floorA, int floorB, float mag, float ang) {
+
+    int test = ((floorA > floorB) ? 1 : 0) - 1;
+    int offset = 31 - Math.abs(floorA - floorB);
+    float floormag = hypot_lookup[(((offset < 0) ? 1 : 0) - 1) & offset] + 1.f;
+
+    floormag *= integer_constants.FLOOR1_fromdB_INV_LOOKUP[(floorB & test) | (floorA & (~test))];
+
+    mag = premag * floormag;
+    ang = 0.f;
+
+    float[] ret = {mag, ang};
+    return ret;
   }
 
   public int _vorbis_block_alloc(int bytes) {
@@ -329,203 +846,6 @@ public class vorbis_block {
     return true;
   }
 
-  // the floor has already been filtered to only include relevant sections
-  static int accumulate_fit(float[] flr, int mdct, int x0, int x1, lsfit_acc a, int n, vorbis_info_floor1 info) {
-
-    int i;
-    // int quantized = vorbis_dBquant(flr[x0]);
-
-    int xa = 0, ya = 0, x2a = 0, y2a = 0, xya = 0, na = 0, xb = 0, yb = 0, x2b = 0, y2b = 0, xyb = 0, nb = 0;
-
-    a.x0 = x0;
-    a.x1 = x1;
-    if (x1 >= n)
-      x1 = n - 1;
-
-    for (i = x0; i <= x1; i++) {
-
-      int quantized = integer_constants.vorbis_dBquant(flr[i]);
-      if (quantized > 0) {
-
-        if (flr[mdct + i] + info.twofitatten >= flr[i]) {
-
-          xa += i;
-          ya += quantized;
-          x2a += i * i;
-          y2a += quantized * quantized;
-          xya += i * quantized;
-          na++;
-
-        } else {
-
-          xb += i;
-          yb += quantized;
-          x2b += i * i;
-          y2b += quantized * quantized;
-          xyb += i * quantized;
-          nb++;
-        }
-      }
-    }
-
-    xb += xa;
-    yb += ya;
-    x2b += x2a;
-    y2b += y2a;
-    xyb += xya;
-    nb += na;
-
-    // weight toward the actually used frequencies if we meet the threshhold
-
-    int weight = Float.valueOf(nb * info.twofitweight / (na + 1)).intValue();
-
-    a.xa = xa * weight + xb;
-    a.ya = ya * weight + yb;
-    a.x2a = x2a * weight + x2b;
-    a.y2a = y2a * weight + y2b;
-    a.xya = xya * weight + xyb;
-    a.an = na * weight + nb;
-
-    return na;
-  }
-
-  static int[] fit_line(lsfit_acc[] a, int offset, int fits, int y0, int y1) {
-
-    int x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, an = 0, i;
-    int x0 = a[offset].x0;
-    int x1 = a[offset + fits - 1].x1;
-
-    for (i = 0; i < fits; i++) {
-
-      x += a[offset + i].xa;
-      y += a[offset + i].ya;
-      x2 += a[offset + i].x2a;
-      y2 += a[offset + i].y2a;
-      xy += a[offset + i].xya;
-      an += a[offset + i].an;
-    }
-
-    // if (*y0 >= 0 ) {
-    if (y0 >= 0) {
-
-      x += x0;
-      y += y0;      // y +=  *y0;
-      x2 += x0 * x0;
-      y2 += y0 * y0;  // y2 += *y0 * *y0;
-      xy += y0 * x0;    // xy += *y0 *  x0;
-      an++;
-    }
-
-    // if(*y1>=0){
-    if (y1 >= 0) {
-      x += x1;
-      y += y1;      // y+=  *y1;
-      x2 += x1 * x1;
-      y2 += y1 * y1;    // y2+= *y1 * *y1;
-      xy += y1 * x1;    // xy+= *y1 *  x1;
-      an++;
-    }
-
-    if (an > 0) {
-
-      // need 64 bit multiplies, which C doesn't give portably as int
-      double fx = x;
-      double fy = y;
-      double fx2 = x2;
-      double fxy = xy;
-      double denom = 1. / (an * fx2 - fx * fx);
-      double a_local = (fy * fx2 - fxy * fx) * denom;
-      double b = (an * fxy - fx * fy) * denom;
-      y0 = (int) Math.rint(a_local + b * x0);    // *y0=rint(a_local+b*x0);
-      y1 = (int) Math.rint(a_local + b * x1);    // *y1=rint(a_local+b*x1);
-
-      // limit to our range!
-      if (y0 > 1023)    // if(*y0>1023)*y0=1023;
-        y0 = 1023;
-      if (y1 > 1023)    // if(*y1>1023)*y1=1023;
-        y1 = 1023;
-      if (y0 < 0)    // if(*y0<0)*y0=0;
-        y0 = 0;
-      if (y1 < 0)    // if(*y1<0)*y1=0;
-        y1 = 0;
-    } else {
-      y0 = 0;    // *y0=0;
-      y1 = 0;    // *y1=0;
-    }
-
-    int[] return_buffer = {y0, y1};
-    return return_buffer;
-  }
-
-  static int inspect_error(int x0, int x1, int y0, int y1, float[] mask, int mdct, vorbis_info_floor1 info) {
-
-    int dy = y1 - y0;
-    int adx = x1 - x0;
-    int ady = Math.abs(dy);
-    int base = dy / adx;
-    int sy = (dy < 0 ? base - 1 : base + 1);
-    int x = x0;
-    int y = y0;
-    int err = 0;
-    int val = integer_constants.vorbis_dBquant(mask[x]);
-    int mse = 0;
-    int n = 0;
-
-    ady -= Math.abs(base * adx);
-
-    mse = (y - val);
-    mse *= mse;
-    n++;
-
-    if (mask[mdct + x] + info.twofitatten >= mask[x]) {
-      if (y + info.maxover < val)
-        return (1);
-      if (y - info.maxunder > val)
-        return (1);
-    }
-
-    while (++x < x1) {
-
-      err = err + ady;
-      if (err >= adx) {
-        err -= adx;
-        y += sy;
-      } else {
-        y += base;
-      }
-
-      val = integer_constants.vorbis_dBquant(mask[x]);
-      mse += ((y - val) * (y - val));
-      n++;
-      if (mask[mdct + x] + info.twofitatten >= mask[x]) {
-        if (val > 0) {
-          if (y + info.maxover < val)
-            return (1);
-          if (y - info.maxunder > val)
-            return (1);
-        }
-      }
-    }
-
-    if (info.maxover * info.maxover / n > info.maxerr)
-      return (0);
-    if (info.maxunder * info.maxunder / n > info.maxerr)
-      return (0);
-    if (mse / n > info.maxerr)
-      return (1);
-    return (0);
-  }
-
-  static int post_Y(int[] A, int[] B, int pos) {
-
-    if (A[pos] < 0)
-      return B[pos];
-    if (B[pos] < 0)
-      return A[pos];
-
-    return (A[pos] + B[pos]) >>> 1;
-  }
-
   public int[] floor1_fit(vorbis_look_floor1 look, int logmdct, float[] logmask) {
 
     int i, j;
@@ -695,58 +1015,6 @@ public class vorbis_block {
     return output;
   }
 
-  static int[] floor1_interpolate_fit(vorbis_look_floor1 look, int[] A, int[] B, int del) {
-
-    int i;
-    int posts = look.posts;
-    int[] output = null;
-
-    if (A != null && B != null) {
-
-      // output=_vorbis_block_alloc(vb,sizeof(*output)*posts);
-      output = new int[posts];
-
-      for (i = 0; i < posts; i++) {
-        output[i] = ((65536 - del) * (A[i] & 0x7fff) + del * (B[i] & 0x7fff) + 32768) >> 16;
-
-        boolean aTrue = (A[i] & 0x8000) > 0;
-        boolean bTrue = (B[i] & 0x8000) > 0;
-        if (aTrue && bTrue)
-          output[i] |= 0x8000;
-      }
-    }
-    return (output);
-  }
-
-  static float dipole_hypot(float a, float b) {
-
-    if (a > 0.) {
-      if (b > 0.) return Double.valueOf(Math.sqrt(a * a + b * b)).floatValue();
-      if (a > -b) return Double.valueOf(Math.sqrt(a * a - b * b)).floatValue();
-      return Double.valueOf(-Math.sqrt(b * b - a * a)).floatValue();
-    }
-
-    if (b < 0.) return Double.valueOf(-Math.sqrt(a * a + b * b)).floatValue();
-    if (-a > b) return Double.valueOf(-Math.sqrt(a * a - b * b)).floatValue();
-
-    return Double.valueOf(Math.sqrt(b * b - a * a)).floatValue();
-  }
-
-  static float round_hypot(float a, float b) {
-
-    if (a > 0.) {
-      if (b > 0.) return Double.valueOf(Math.sqrt(a * a + b * b)).floatValue();
-      if (a > -b) return Double.valueOf(Math.sqrt(a * a + b * b)).floatValue();
-      return Double.valueOf(-Math.sqrt(b * b + a * a)).floatValue();
-    }
-
-    if (b < 0.) return Double.valueOf(-Math.sqrt(a * a + b * b)).floatValue();
-
-    if (-a > b) return Double.valueOf(-Math.sqrt(a * a + b * b)).floatValue();
-
-    return Double.valueOf(Math.sqrt(b * b + a * a)).floatValue();
-  }
-
   private float[][] _vp_quantize_couple_memo(vorbis_info_psy_global g, vorbis_look_psy p, vorbis_info_mapping0 vi, float[][] mdct) {
 
     int i, j;
@@ -768,233 +1036,6 @@ public class vorbis_block {
     }
 
     return ret;
-  }
-
-  private static void SORT4(int o, float[] data, int offset, int[] n) {
-
-    if (Math.abs(data[offset + o + 2]) >= Math.abs(data[offset + o + 3]))
-      if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 1]))
-        if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 2]))
-          if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 2])) {
-            n[o] = o + 0;
-            n[o + 1] = o + 1;
-            n[o + 2] = o + 2;
-            n[o + 3] = o + 3;
-          } else if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 3])) {
-            n[o] = o + 0;
-            n[o + 1] = o + 2;
-            n[o + 2] = o + 1;
-            n[o + 3] = o + 3;
-          } else {
-            n[o] = o + 0;
-            n[o + 1] = o + 2;
-            n[o + 2] = o + 3;
-            n[o + 3] = o + 1;
-          }
-        else if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 3]))
-          if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 3])) {
-            n[o] = o + 2;
-            n[o + 1] = o + 0;
-            n[o + 2] = o + 1;
-            n[o + 3] = o + 3;
-          } else {
-            n[o] = o + 2;
-            n[o + 1] = o + 0;
-            n[o + 2] = o + 3;
-            n[o + 3] = o + 1;
-          }
-        else {
-          n[o] = o + 2;
-          n[o + 1] = o + 3;
-          n[o + 2] = o + 0;
-          n[o + 3] = o + 1;
-        }
-      else if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 2]))
-        if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 2])) {
-          n[o] = o + 1;
-          n[o + 1] = o + 0;
-          n[o + 2] = o + 2;
-          n[o + 3] = o + 3;
-        } else if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 3])) {
-          n[o] = o + 1;
-          n[o + 1] = o + 2;
-          n[o + 2] = o + 0;
-          n[o + 3] = o + 3;
-        } else {
-          n[o] = o + 1;
-          n[o + 1] = o + 2;
-          n[o + 2] = o + 3;
-          n[o + 3] = o + 0;
-        }
-      else if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 3]))
-        if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 3])) {
-          n[o] = o + 2;
-          n[o + 1] = o + 1;
-          n[o + 2] = o + 0;
-          n[o + 3] = o + 3;
-        } else {
-          n[o] = o + 2;
-          n[o + 1] = o + 1;
-          n[o + 2] = o + 3;
-          n[o + 3] = o + 0;
-        }
-      else {
-        n[o] = o + 2;
-        n[o + 1] = o + 3;
-        n[o + 2] = o + 1;
-        n[o + 3] = o + 0;
-      }
-    else if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 1]))
-      if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 3]))
-        if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 3])) {
-          n[o] = o + 0;
-          n[o + 1] = o + 1;
-          n[o + 2] = o + 3;
-          n[o + 3] = o + 2;
-        } else if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 2])) {
-          n[o] = o + 0;
-          n[o + 1] = o + 3;
-          n[o + 2] = o + 1;
-          n[o + 3] = o + 2;
-        } else {
-          n[o] = o + 0;
-          n[o + 1] = o + 3;
-          n[o + 2] = o + 2;
-          n[o + 3] = o + 1;
-        }
-      else if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 2]))
-        if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 2])) {
-          n[o] = o + 3;
-          n[o + 1] = o + 0;
-          n[o + 2] = o + 1;
-          n[o + 3] = o + 2;
-        } else {
-          n[o] = o + 3;
-          n[o + 1] = o + 0;
-          n[o + 2] = o + 2;
-          n[o + 3] = o + 1;
-        }
-      else {
-        n[o] = o + 3;
-        n[o + 1] = o + 2;
-        n[o + 2] = o + 0;
-        n[o + 3] = o + 1;
-      }
-    else if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 3]))
-      if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 3])) {
-        n[o] = o + 1;
-        n[o + 1] = o + 0;
-        n[o + 2] = o + 3;
-        n[o + 3] = o + 2;
-      } else if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 2])) {
-        n[o] = o + 1;
-        n[o + 1] = o + 3;
-        n[o + 2] = o + 0;
-        n[o + 3] = o + 2;
-      } else {
-        n[o] = o + 1;
-        n[o + 1] = o + 3;
-        n[o + 2] = o + 2;
-        n[o + 3] = o + 0;
-      }
-    else if (Math.abs(data[offset + o + 1]) >= Math.abs(data[offset + o + 2]))
-      if (Math.abs(data[offset + o + 0]) >= Math.abs(data[offset + o + 2])) {
-        n[o] = o + 3;
-        n[o + 1] = o + 1;
-        n[o + 2] = o + 0;
-        n[o + 3] = o + 2;
-      } else {
-        n[o] = o + 3;
-        n[o + 1] = o + 1;
-        n[o + 2] = o + 2;
-        n[o + 3] = o + 0;
-      }
-    else {
-      n[o] = o + 3;
-      n[o + 1] = o + 2;
-      n[o + 2] = o + 1;
-      n[o + 3] = o + 0;
-    }
-  }
-
-  static void sortindex_fix8(int[] index, int ioff, float[] data, int offset) {
-
-    int i, j, k;
-    int[] n = new int[8];
-
-    // index+=offset;
-    // data+=offset;
-
-    SORT4(0, data, offset, n);
-    SORT4(4, data, offset, n);
-
-    j = 0;
-    k = 4;
-    for (i = 0; i < 8; i++)
-      index[ioff + offset + i] = n[((k >= 8) || (j < 4) && (Math.abs(data[offset + 0 + n[j]]) >= Math.abs(data[offset + 0 + n[k]])) ? j++ : k++)] + offset;
-  }
-
-  static void sortindex_fix32(int[] index, int ioff, float[] data, int offset) {
-
-    int i, j, k;
-    int[] n = new int[32];
-
-    for (i = 0; i < 32; i += 8)
-      sortindex_fix8(index, ioff, data, offset + i);
-
-    ioff += offset;
-
-    for (i = j = 0, k = 8; i < 16; i++)
-      n[i] = index[ioff + ((k >= 16) || (j < 8) && (Math.abs(data[0 + index[ioff + j]]) >= Math.abs(data[0 + index[ioff + k]])) ? j++ : k++)];
-
-    for (i = j = 16, k = 24; i < 32; i++)
-      n[i] = index[ioff + ((k >= 32) || (j < 24) && (Math.abs(data[0 + index[ioff + j]]) >= Math.abs(data[0 + index[ioff + k]])) ? j++ : k++)];
-
-    for (i = j = 0, k = 16; i < 32; i++)
-      index[ioff + i] = n[((k >= 32) || (j < 16) && (Math.abs(data[0 + n[j]]) >= Math.abs(data[0 + n[k]])) ? j++ : k++)];
-  }
-
-  static void sortindex_shellsort(int[] index, int ioff, float[] data, int offset, int count) {
-
-    int gap, pos, left;
-    // int right;
-    int i, j;
-
-    ioff += offset;
-
-    for (i = 0; i < count; i++)
-      index[ioff + i] = i + offset;
-    gap = 1;
-    while (gap <= count)
-      gap = gap * 3 + 1;
-    gap /= 3;
-    if (gap >= 4)
-      gap /= 3;
-
-    while (gap > 0) {
-      for (pos = gap; pos < count; pos++) {
-        for (left = pos - gap; left >= 0; left -= gap) {
-          i = index[ioff + left];
-          j = index[ioff + left + gap];
-          if (!(Math.abs(data[0 + i]) >= Math.abs(data[0 + j]))) {
-            index[ioff + left] = j;
-            index[ioff + left + gap] = i;
-          } else
-            break;
-        }
-      }
-      gap /= 3;
-    }
-  }
-
-  static void sortindex(int[] index, int ioff, float[] data, int offset, int count) {
-
-    if (count == 8)
-      sortindex_fix8(index, ioff, data, offset);
-    else if (count == 32)
-      sortindex_fix32(index, ioff, data, offset);
-    else
-      sortindex_shellsort(index, ioff, data, offset, count);
   }
 
   private int[][] _vp_quantize_couple_sort(vorbis_look_psy p, vorbis_info_mapping0 vi, float[][] mags) {
@@ -1148,56 +1189,6 @@ public class vorbis_block {
 
     for (; j < n; j++)
       in[out + j] = (float) Math.rint(in[j]);
-  }
-
-  static float[] couple_lossless(float A, float B, float qA, float qB) {
-
-    int test1 = ((Math.abs(qA) > Math.abs(qB)) ? 1 : 0);
-    test1 -= ((Math.abs(qA) < Math.abs(qB)) ? 1 : 0);
-
-    if (test1 <= 0)
-      test1 = ((((Math.abs(A) > Math.abs(B))) ? 1 : 0) << 1) - 1;
-
-    if (test1 == 1) {
-      qB = (qA > 0.f ? qA - qB : qB - qA);
-    } else {
-      float temp = qB;
-      qB = (qB > 0.f ? qA - qB : qB - qA);
-      qA = temp;
-    }
-
-    if (qB > Math.abs(qA) * 1.9999f) {
-      qB = -Math.abs(qA) * 2.f;
-      qA = -qA;
-    }
-
-    float[] ret = {qA, qB};
-    return ret;
-  }
-
-  static float[] hypot_lookup = { // [32]
-    -0.009935f, -0.011245f, -0.012726f, -0.014397f,
-    -0.016282f, -0.018407f, -0.020800f, -0.023494f,
-    -0.026522f, -0.029923f, -0.033737f, -0.038010f,
-    -0.042787f, -0.048121f, -0.054064f, -0.060671f,
-    -0.068000f, -0.076109f, -0.085054f, -0.094892f,
-    -0.105675f, -0.117451f, -0.130260f, -0.144134f,
-    -0.159093f, -0.175146f, -0.192286f, -0.210490f,
-    -0.229718f, -0.249913f, -0.271001f, -0.292893f};
-
-  static float[] precomputed_couple_point(float premag, int floorA, int floorB, float mag, float ang) {
-
-    int test = ((floorA > floorB) ? 1 : 0) - 1;
-    int offset = 31 - Math.abs(floorA - floorB);
-    float floormag = hypot_lookup[(((offset < 0) ? 1 : 0) - 1) & offset] + 1.f;
-
-    floormag *= integer_constants.FLOOR1_fromdB_INV_LOOKUP[(floorB & test) | (floorA & (~test))];
-
-    mag = premag * floormag;
-    ang = 0.f;
-
-    float[] ret = {mag, ang};
-    return ret;
   }
 
   private void _vp_couple(int blobno, vorbis_info_psy_global g, vorbis_look_psy p, vorbis_info_mapping0 vi,

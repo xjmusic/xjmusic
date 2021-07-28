@@ -1113,13 +1113,10 @@ class resbook_44s_0 {
     12, 13, 12, 11, 9, 8, 9, 11, 13, 16, 16, 15, 15, 12, 10, 11,
     12,
   };
-
-
-  static_codebook zero = null;
-
   public static_bookblock books;
   public static_codebook _huff_book__44c0_s_short;
   public static_codebook _huff_book__44c0_s_long;
+  static_codebook zero = null;
 
 
   public resbook_44s_0() {

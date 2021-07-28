@@ -17,8 +17,8 @@ import java.util.UUID;
  Fabrication wrapper is a common foundation for all craft
  */
 public abstract class FabricationWrapperImpl {
-  private final Logger log = LoggerFactory.getLogger(FabricationWrapperImpl.class);
   private static final SecureRandom random = new SecureRandom();
+  private final Logger log = LoggerFactory.getLogger(FabricationWrapperImpl.class);
   protected Fabricator fabricator;
 
   /**

@@ -5,7 +5,7 @@ package io.xj.lib.util;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  Measures a series of named sections of time

@@ -3,7 +3,6 @@ package io.xj.nexus.craft.rhythm;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import datadog.trace.api.Trace;
 import io.xj.Instrument;
 import io.xj.Program;
 import io.xj.ProgramVoice;
@@ -40,7 +39,6 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
   }
 
   @Override
-  @Trace(resourceName = "nexus/craft/rhythm", operationName = "doWork")
   public void doWork() throws NexusException {
     // program
     Optional<Program> program = chooseRhythmProgram();
@@ -48,7 +46,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
     // rhythm sequence is selected at random of the current program
     // FUTURE: [#166855956] Rhythm Program with multiple Sequences
-    var sequence = fabricator.randomlySelectSequence(program.get());
+    var sequence = fabricator.getRandomlySelectedSequence(program.get());
 
     // voice arrangements
     if (sequence.isPresent())
@@ -66,8 +64,10 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
           return;
         }
 
-        this.craftArrangements(fabricator.add(SegmentChoice.newBuilder()
+        // build primary choice from new ideas
+        var primaryChoice = fabricator.add(SegmentChoice.newBuilder()
           .setId(UUID.randomUUID().toString())
+          .setType(SegmentChoice.Type.Primary)
           .setInstrumentId(instrument.get().getId())
           .setProgramId(program.get().getId())
           .setProgramSequenceId(sequence.get().getId())
@@ -75,7 +75,16 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
           .setInstrumentType(instrument.get().getType())
           .setProgramVoiceId(voice.getId())
           .setSegmentId(fabricator.getSegment().getId())
-          .build()));
+          .build());
+
+        // Optionally, use the inertial choice that corresponds to this primary one, instead.
+        var inertialChoice = computeInertialChoice(primaryChoice);
+
+        // If there's an inertial choice, use it
+        if (inertialChoice.isPresent())
+          this.craftArrangements(fabricator.add(inertialChoice.get()));
+        else
+          this.craftArrangements(primaryChoice);
       }
 
     // Finally, update the segment with the crafted content
@@ -87,7 +96,6 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
    @return mainProgram
    */
-  @Trace(resourceName = "nexus/craft/rhythm", operationName = "chooseRhythmProgram")
   private Optional<Program> chooseRhythmProgram() throws NexusException {
     Segment.Type type;
     type = fabricator.getType();
@@ -115,9 +123,8 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
    @return rhythm program if previously selected, or null if none is found
    */
-  @Trace(resourceName = "nexus/craft/rhythm", operationName = "getRhythmProgramSelectedPreviouslyForMainProgram")
-  private Optional<Program> getRhythmProgramSelectedPreviouslyForMainProgram() throws NexusException {
-    return fabricator.getPreviouslyChosenProgramIds(Program.Type.Rhythm, Instrument.Type.Percussive)
+  private Optional<Program> getRhythmProgramSelectedPreviouslyForMainProgram() {
+    return fabricator.getPreferredProgramIds(Program.Type.Rhythm, Instrument.Type.Percussive)
       .stream()
       .flatMap(choice -> fabricator.getSourceMaterial().getProgram(choice).stream())
       .findFirst();
@@ -129,7 +136,6 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
    @return rhythm-type Program
    */
-  @Trace(resourceName = "nexus/craft/rhythm", operationName = "chooseFreshRhythm")
   private Optional<Program> chooseFreshRhythm() {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
@@ -156,7 +162,6 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
   @SuppressWarnings("DuplicatedCode")
-  @Trace(resourceName = "nexus/craft/rhythm", operationName = "scoreRhythm")
   private Double scoreRhythm(Program program) {
     double score = 0;
     Collection<String> memes = fabricator.getSourceMaterial().getMemesAtBeginning(program);
@@ -178,8 +183,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @param voice to choose instrument for
    @return percussive-type Instrument
    */
-  @Trace(resourceName = "nexus/craft/rhythm", operationName = "chooseFreshPercussiveInstrument")
-  private Optional<Instrument> chooseFreshPercussiveInstrument(ProgramVoice voice) throws NexusException {
+  private Optional<Instrument> chooseFreshPercussiveInstrument(ProgramVoice voice) {
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve instruments bound to chain
@@ -198,7 +202,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // If the previously chosen instruments are for the same main program as the current segment,
     // score them all at 95% inertia (almost definitely will choose again)
     if (Segment.Type.Continue.equals(fabricator.getSegment().getType()))
-      fabricator.getChoicesOfPreviousSegmentsWithSameMainProgram().stream()
+      fabricator.retrospective().getChoices().stream()
         .filter(candidate ->
           candidate.getInstrumentType().equals(Instrument.Type.Percussive) &&
             fabricator.getSourceMaterial().getProgramVoice(candidate.getProgramVoiceId())
@@ -220,7 +224,6 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @param instrument to score
    @return score, including +/- entropy
    */
-  @Trace(resourceName = "nexus/craft/rhythm", operationName = "scorePercussive")
   private double scorePercussive(Instrument instrument) {
     double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
 

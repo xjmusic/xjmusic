@@ -3,7 +3,6 @@ package io.xj.nexus.dub;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import datadog.trace.api.Trace;
 import io.xj.Segment;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreException;
@@ -33,7 +32,6 @@ public class DubShipImpl implements DubShip {
   }
 
   @Override
-  @Trace(resourceName = "nexus/dub/ship", operationName = "doWork")
   public void doWork() throws NexusException {
     Segment.Type type = null;
     try {
@@ -53,7 +51,6 @@ public class DubShipImpl implements DubShip {
   /**
    DubShip the final audio
    */
-  @Trace(resourceName = "nexus/dub/ship", operationName = "shipFinalAudio")
   private void shipSegmentAudio() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromTempFile(
       fabricator.getFullQualityAudioOutputFilePath(),
@@ -64,7 +61,6 @@ public class DubShipImpl implements DubShip {
   /**
    DubShip the final metadata
    */
-  @Trace(resourceName = "nexus/dub/ship", operationName = "shipFinalMetadata")
   private void shipSegmentMetadata() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromString(
       fabricator.getSegmentMetadataJson(),
@@ -76,24 +72,22 @@ public class DubShipImpl implements DubShip {
   /**
    DubShip the final metadata
    */
-  @Trace(resourceName = "nexus/dub/ship", operationName = "shipFinalMetadata")
   private void shipChainFullMetadata() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromString(
-      fabricator.getChainFullMetadataJson(),
+      fabricator.getChainMetadataFullJson(),
       segmentFileBucket,
-      fabricator.getChainFullOutputMetadataKey(),
+      fabricator.getChainMetadataFullKey(),
       MediaType.APPLICATION_JSONAPI);
   }
 
   /**
    DubShip the final metadata
    */
-  @Trace(resourceName = "nexus/dub/ship", operationName = "shipFinalMetadata")
   private void shipChainMetadata() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromString(
       fabricator.getChainMetadataJson(),
       segmentFileBucket,
-      fabricator.getChainOutputMetadataKey(),
+      fabricator.getChainMetadataKey(),
       MediaType.APPLICATION_JSONAPI);
   }
 

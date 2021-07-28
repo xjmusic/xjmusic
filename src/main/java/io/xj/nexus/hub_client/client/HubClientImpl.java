@@ -36,10 +36,10 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public class HubClientImpl implements HubClient {
-  private final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   private static final String API_PATH_INGEST = "api/1/ingest";
   private static final String API_PATH_AUTH = "auth";
   private static final String HEADER_COOKIE = "Cookie";
+  private final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
   private final CloseableHttpClient httpClient;
   private final String ingestUrl;
   private final String ingestTokenName;
@@ -111,8 +111,8 @@ public class HubClientImpl implements HubClient {
   /**
    Set the access token cookie header for a request to Hub
 
-   @param request     to set cookie header for
-   @param value to set
+   @param request to set cookie header for
+   @param value   to set
    */
   private void setAccessCookie(HttpGet request, String value) {
     request.setHeader(HEADER_COOKIE, String.format("%s=%s", ingestTokenName, value));

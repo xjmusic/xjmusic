@@ -22,10 +22,10 @@ import static org.mockito.Mockito.spy;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AudioStreamLoaderTest {
+  private static final String testResourceFilePath = "test_audio" + File.separator + "F32LSB_48kHz_Stereo.wav";
   private InternalResource testResource;
   private InputStream testInputStream;
   private InputStream spyInputStream;
-  private static final String testResourceFilePath = "test_audio" + File.separator + "F32LSB_48kHz_Stereo.wav";
 
   @Before
   public void setUp() throws Exception {

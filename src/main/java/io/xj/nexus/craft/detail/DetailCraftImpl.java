@@ -3,7 +3,6 @@ package io.xj.nexus.craft.detail;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import datadog.trace.api.Trace;
 import io.xj.Instrument;
 import io.xj.Program;
 import io.xj.ProgramVoice;
@@ -11,13 +10,17 @@ import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
+import io.xj.lib.util.TremendouslyRandom;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.arrangement.ArrangementCraftImpl;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.Fabricator;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft {
+  private static final int PERCENT_CHANCE_INERTIAL_CHOICE = 50;
 
   @Inject
   public DetailCraftImpl(
@@ -36,7 +40,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   }
 
   @Override
-  @Trace(resourceName = "nexus/craft/detail", operationName = "doWork")
   public void doWork() throws NexusException {
     // for each unique voicing (instrument) types present in the chord voicings of the current main choice
     var voicingTypes = fabricator.getDistinctChordVoicingTypes();
@@ -53,7 +56,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
       // detail sequence is selected at random of the current program
       // FUTURE: [#166855956] Detail Program with multiple Sequences
-      var detailSequence = fabricator.randomlySelectSequence(program.get());
+      var detailSequence = fabricator.getRandomlySelectedSequence(program.get());
 
       // voice arrangements
       if (detailSequence.isPresent()) {
@@ -77,8 +80,9 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
             return;
           }
 
-          craftArrangements(fabricator.add(SegmentChoice.newBuilder()
+          var primaryChoice = fabricator.add(SegmentChoice.newBuilder()
             .setId(UUID.randomUUID().toString())
+            .setType(SegmentChoice.Type.Primary)
             .setInstrumentId(instrument.get().getId())
             .setProgramType(program.get().getType())
             .setInstrumentType(instrument.get().getType())
@@ -86,7 +90,16 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
             .setProgramSequenceId(detailSequence.get().getId())
             .setProgramVoiceId(voice.getId())
             .setSegmentId(fabricator.getSegment().getId())
-            .build()));
+            .build());
+
+          // Optionally, use the inertial choice that corresponds to this primary one, instead.
+          var inertialChoice = computeInertialChoice(primaryChoice);
+
+          // If there's an inertial choice, use it
+          if (inertialChoice.isPresent())
+            this.craftArrangements(fabricator.add(inertialChoice.get()));
+          else
+            this.craftArrangements(primaryChoice);
         }
       }
     }
@@ -101,7 +114,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param voicingType of voicing to choose detail program for
    @return Chosen Detail Program
    */
-  @Trace(resourceName = "nexus/craft/detail", operationName = "chooseDetailProgram")
   private Optional<Program> chooseDetailProgram(Instrument.Type voicingType) throws NexusException {
     Segment.Type type;
     type = fabricator.getType();
@@ -128,7 +140,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param voicingType to choose a fresh detail program for-- meaning the detail program will have this type of voice
    @return detail-type Program
    */
-  @Trace(resourceName = "nexus/craft/detail", operationName = "chooseFreshDetailProgram")
   private Optional<Program> chooseFreshDetailProgram(Instrument.Type voicingType) {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
@@ -163,8 +174,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param type of instrument to choose
    @return detail-type Instrument
    */
-  @Trace(resourceName = "nexus/craft/detail", operationName = "chooseFreshDetailInstrument")
-  protected Optional<Instrument> chooseFreshDetailInstrument(Instrument.Type type) throws NexusException {
+  protected Optional<Instrument> chooseFreshDetailInstrument(Instrument.Type type) {
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve instruments bound to chain
@@ -181,7 +191,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     // If the previously chosen instruments are for the same main program as the current segment,
     // score them all at 95% inertia (almost definitely will choose again)
     if (Segment.Type.Continue.equals(fabricator.getSegment().getType()))
-      fabricator.getChoicesOfPreviousSegmentsWithSameMainProgram().stream()
+      fabricator.retrospective().getChoices().stream()
         .filter(candidate -> candidate.getInstrumentType().equals(type))
         .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCHED_MAIN_PROGRAM));
 
@@ -198,7 +208,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param instrument to score
    @return score, including +/- entropy
    */
-  @Trace(resourceName = "nexus/craft/detail", operationName = "scoreDetail")
   protected double scoreDetail(Instrument instrument) {
     double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
 
@@ -215,6 +224,58 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   }
 
   /**
+   Continue-type: 50% chance to continue an inertial choice from retrospective inertial choices
+   NextMain/NextMacro-type: 50% chance of taking an inertial choice directly from retrospective primary choices
+
+   @param source from which to extrapolate and compute an optional inertial choice
+   @return inertial choice if it ought to be used, otherwise, empty.
+   */
+  protected Optional<SegmentChoice> computeInertialChoice(SegmentChoice source) throws NexusException {
+    return switch (fabricator.getSegment().getType()) {
+      case Pending, UNRECOGNIZED -> throw new NexusException(
+        String.format("Can't compute inertial choice for %s-type Segment!", fabricator.getSegment().getType()));
+      case Initial -> Optional.empty();
+      case Continue -> computeInertialChoice(source, fabricator.retrospective().getInertialChoices());
+      case NextMacro, NextMain -> computeInertialChoice(source, fabricator.retrospective().getPrimaryChoices());
+    };
+  }
+
+  /**
+   Compute inertial choices for the source choice given a set of candidates
+
+   @param source     from which to extrapolate and compute an optional inertial choice
+   @param candidates from which to score and optionally select a
+   @return inertial choice if it ought to be used, otherwise, empty.
+   */
+  private Optional<SegmentChoice> computeInertialChoice(SegmentChoice source, Collection<SegmentChoice> candidates) {
+    return buildInertialIfBeatsOdds(
+      candidates.stream()
+        .filter(candidate ->
+          candidate.getProgramType().equals(source.getProgramType())
+            && candidate.getInstrumentType().equals(source.getInstrumentType()))
+        .map(candidate -> new InertialCandidate(fabricator, candidate, source))
+        .max(Comparator.comparing(InertialCandidate::getScore))
+        .map(InertialCandidate::getTarget)
+        .orElse(null));
+  }
+
+
+  /**
+   % chance of returning the given choice, otherwise empty
+
+   @param choice to pass through if the odds hit
+   @return choice if it ought to be used, otherwise, empty.
+   */
+  private Optional<SegmentChoice> buildInertialIfBeatsOdds(@Nullable SegmentChoice choice) {
+    if (Objects.isNull(choice)) return Optional.empty();
+    if (!TremendouslyRandom.beatOddsPercent(DetailCraftImpl.PERCENT_CHANCE_INERTIAL_CHOICE)) return Optional.empty();
+    return Optional.of(choice.toBuilder()
+      .setSegmentId(fabricator.getSegment().getId())
+      .setType(SegmentChoice.Type.Inertial)
+      .build());
+  }
+
+  /**
    Score a candidate for detail program, given current fabricator
    Score includes matching memes, previous segment to macro program first pattern
    <p>
@@ -225,7 +286,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
   @SuppressWarnings("DuplicatedCode")
-  @Trace(resourceName = "nexus/craft/detail", operationName = "scoreDetail")
   private Double scoreDetail(Program program) {
     double score = 0;
     Collection<String> memes = fabricator.getSourceMaterial().getMemesAtBeginning(program);
@@ -251,18 +311,11 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param voicingType to get detail program for
    @return detail program if previously selected, or null if none is found
    */
-  @Trace(resourceName = "nexus/craft/detail", operationName = "getDetailProgramSelectedPreviouslyForSegmentMainProgram")
   private Optional<Program> getDetailProgramSelectedPreviouslyForSegmentMainProgram(Instrument.Type voicingType) {
-    try {
-      return fabricator.getPreviouslyChosenProgramIds(Program.Type.Detail, voicingType)
-        .stream()
-        .flatMap(choice -> fabricator.getSourceMaterial().getProgram(choice).stream())
-        .findFirst();
-
-    } catch (NexusException e) {
-      reportMissing(Program.class, String.format("detail previously selected for %s-type Instrument and main program because fabrication exception %s", voicingType, e.getMessage()));
-      return Optional.empty();
-    }
+    return fabricator.getPreferredProgramIds(Program.Type.Detail, voicingType)
+      .stream()
+      .flatMap(choice -> fabricator.getSourceMaterial().getProgram(choice).stream())
+      .findFirst();
   }
 
 }

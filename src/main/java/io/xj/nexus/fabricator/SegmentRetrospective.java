@@ -5,29 +5,20 @@ import io.xj.Program;
 import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangementPick;
-import io.xj.nexus.NexusException;
 
 import java.util.Collection;
 import java.util.Optional;
 
+/**
+ Digest segments of the previous main program
+ <p>
+ NextMain/NextMacro-type: Retrospective of the previous main choice, primary choices only
+ REF https://www.pivotaltracker.com/story/show/178442889
+ <p>
+ Continue-type: Retrospective of all segments in this main program
+ REF https://www.pivotaltracker.com/story/show/178442889
+ */
 public interface SegmentRetrospective {
-
-  /**
-   @return entity cache of SegmentChoiceArrangementPick
-   @param segment to get picks for
-   @param includeInertial
-   */
-  Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks(Segment segment, Boolean includeInertial);
-
-  /**
-   @return entity cache of SegmentChoice
-   */
-  Collection<SegmentChoice> getSegmentChoices(Segment segment, Boolean includeInertial);
-
-  /**
-   @return all cached segments
-   */
-  Collection<Segment> getSegments();
 
   /**
    Get the choice of a given type
@@ -35,7 +26,16 @@ public interface SegmentRetrospective {
    @param type of choice to get
    @return choice of given type
    */
-  Optional<SegmentChoice> getChoiceOfType(Segment segment, Program.Type type);
+  Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, Program.Type type);
+
+  /**
+   Get the picks of any previous segments which selected the same main sequence
+   <p>
+   [#175947230] Artist writing detail program expects 'X' note value to result in random part creation from available Voicings
+
+   @return map of all previous segment meme constellations (as keys) to a collection of choices made
+   */
+  Collection<SegmentChoiceArrangementPick> getPicks();
 
   /**
    Get the segment immediately previous to the current segment
@@ -50,15 +50,30 @@ public interface SegmentRetrospective {
    @param type of choice to get
    @return choice of given type
    */
-  Optional<SegmentChoice> getPreviousSegmentChoiceOfType(Program.Type type);
+  Optional<SegmentChoice> getPreviousChoiceOfType(Program.Type type);
 
   /**
-   Add an Entity
-
-   @param entity to add
-   @param <N>    type of Entity
-   @return entity that was added
-   @throws NexusException on failure
+   @return all cached segments
+   <p>
+   Always starts with the segment at current offset minus one,
+   includes that segment and all others with the same main program, which covers both
+   whether this retrospective is looking back on the current main program (Continue segment),
+   or the previous one (NextMain/NextMacro segments)
    */
-  <N> N add(N entity) throws NexusException;
+  Collection<Segment> getSegments();
+
+  /**
+   @return all choices
+   */
+  Collection<SegmentChoice> getChoices();
+
+  /**
+   @return all inertial choices
+   */
+  Collection<SegmentChoice> getInertialChoices();
+
+  /**
+   @return all primary choices
+   */
+  Collection<SegmentChoice> getPrimaryChoices();
 }

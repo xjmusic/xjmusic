@@ -2,8 +2,8 @@
 package io.xj.nexus.dub;
 
 import com.google.inject.assistedinject.Assisted;
-import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.fabricator.Fabricator;
 
 /**
  Dub is performed:

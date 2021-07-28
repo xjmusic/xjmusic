@@ -17,7 +17,6 @@ jobs:
 
       - name: Install system packages
         run: |
-          sudo apt-get -y install libfdk-aac-dev
           sudo apt-get -y install amazon-ecr-credential-helper
 
       - name: Configure AWS Credentials

@@ -8,7 +8,6 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
-import datadog.trace.api.Trace;
 import io.xj.Chain;
 import io.xj.ChainBinding;
 import io.xj.Segment;
@@ -61,7 +60,11 @@ import static io.xj.lib.util.MultiStopwatch.MILLIS_PER_SECOND;
 @Singleton
 public class NexusWorkImpl implements NexusWork {
   private static final Logger LOG = LoggerFactory.getLogger(NexusWorkImpl.class);
-  private MultiStopwatch timer;
+  private static final String DEFAULT_NAME_PREVIEW = "preview";
+  private static final String DEFAULT_NAME_PRODUCTION = "production";
+  private static final String METRIC_CHAIN_FORMAT = "chain.%s.%s";
+  private static final String METRIC_FABRICATED_AHEAD_SECONDS = "fabricated_ahead_seconds";
+  private static final String METRIC_SEGMENT_CREATED = "segment_created";
   private final ChainBindingDAO chainBindingDAO;
   private final ChainDAO chainDAO;
   private final CraftFactory craftFactory;
@@ -87,14 +90,10 @@ public class NexusWorkImpl implements NexusWork {
   private final int reviveChainFabricatedBehindSeconds;
   private final int reviveChainProductionGraceSeconds;
   private final long healthCycleStalenessThresholdMillis;
+  private MultiStopwatch timer;
   private long nextCycleMillis = 0;
   private long nextJanitorMillis = 0;
   private long nextMedicMillis = 0;
-  private static final String DEFAULT_NAME_PREVIEW = "preview";
-  private static final String DEFAULT_NAME_PRODUCTION = "production";
-  private static final String METRIC_CHAIN_FORMAT = "chain.%s.%s";
-  private static final String METRIC_FABRICATED_AHEAD_SECONDS = "fabricated_ahead_seconds";
-  private static final String METRIC_SEGMENT_CREATED = "segment_created";
   private boolean alive = true;
 
   @Inject
@@ -142,7 +141,6 @@ public class NexusWorkImpl implements NexusWork {
   /**
    Do the work-- this is called by the underlying WorkerImpl run() hook
    */
-  @Trace(resourceName = "nexus/boss", operationName = "run")
   public void run() {
     if (System.currentTimeMillis() < nextCycleMillis) return;
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
@@ -254,7 +252,6 @@ public class NexusWorkImpl implements NexusWork {
   /**
    Do the work-- this is called by the underlying WorkerImpl run() hook
    */
-  @Trace(resourceName = "nexus/janitor", operationName = "doWork")
   protected void doJanitor() {
     if (System.currentTimeMillis() < nextJanitorMillis) return;
     nextJanitorMillis = System.currentTimeMillis() + (janitorCycleSeconds * MILLIS_PER_SECOND);
@@ -301,7 +298,6 @@ public class NexusWorkImpl implements NexusWork {
   /**
    Do the work-- this is called by the underlying WorkerImpl run() hook
    */
-  @Trace(resourceName = "nexus/chain", operationName = "doWork")
   public void fabricateChain(Chain chain) {
     try {
       timer.section("ComputeAhead");
@@ -459,7 +455,6 @@ public class NexusWorkImpl implements NexusWork {
    [#158610991] Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance
    [#171553408] Remove all Queue mechanics in favor of a cycle happening in Main class for as long as the application is alive, that does nothing but search for active chains, search for segments that need work, and work on them. Zero need for a work queue-- that's what the Chain-Segment state machine is!@param segmentId
    */
-  @Trace(resourceName = "nexus/fabricate", operationName = "revert")
   private void revert(Chain chain, Segment segment, Fabricator fabricator) {
     try {
       updateSegmentState(fabricator, segment, fabricator.getSegment().getState(), Segment.State.Planned);
@@ -472,7 +467,6 @@ public class NexusWorkImpl implements NexusWork {
   /**
    Finish work on Segment@param segmentId
    */
-  @Trace(resourceName = "nexus/fabricate", operationName = "finishWork")
   private void finishWork(Fabricator fabricator, Segment segment) throws NexusException {
     updateSegmentState(fabricator, segment, Segment.State.Dubbing, Segment.State.Dubbed);
     LOG.debug("[segId={}] Worked for {} seconds", segment.getId(), fabricator.getElapsedSeconds());
@@ -486,7 +480,6 @@ public class NexusWorkImpl implements NexusWork {
    @throws NexusException on configuration failure
    @throws NexusException on craft failure
    */
-  @Trace(resourceName = "nexus/fabricate", operationName = "doCraftWork")
   private Segment doCraftWork(Fabricator fabricator, Segment segment) throws NexusException {
     var updated = updateSegmentState(fabricator, segment, Segment.State.Planned, Segment.State.Crafting);
     craftFactory.macroMain(fabricator).doWork();
@@ -504,7 +497,6 @@ public class NexusWorkImpl implements NexusWork {
    @throws NexusException on craft failure
    @throws NexusException on dub failure
    */
-  @Trace(resourceName = "nexus/fabricate", operationName = "doDubWork")
   protected Segment doDubMasterWork(Fabricator fabricator, Segment segment) throws NexusException {
     var updated = updateSegmentState(fabricator, segment, Segment.State.Crafting, Segment.State.Dubbing);
     dubFactory.master(fabricator).doWork();
@@ -518,7 +510,6 @@ public class NexusWorkImpl implements NexusWork {
    @throws NexusException on craft failure
    @throws NexusException on ship failure
    */
-  @Trace(resourceName = "nexus/fabricate", operationName = "doShipWork")
   protected void doDubShipWork(Fabricator fabricator) throws NexusException {
     dubFactory.ship(fabricator).doWork();
   }
@@ -532,7 +523,6 @@ public class NexusWorkImpl implements NexusWork {
    @param chainId   fabricating
    @param chainType fabricating
    */
-  @Trace(resourceName = "nexus/fabricate", operationName = "didFailWhile")
   private void didFailWhile(String message, Exception e, String segmentId, String chainId, String chainType) {
     var body = String.format("Failed while %s for Segment[%s] of Chain[%s] (%s) because %s\n\n%s",
       message,
@@ -563,7 +553,6 @@ public class NexusWorkImpl implements NexusWork {
    @param message phrased like "Doing work"
    @param e       exception (optional)
    */
-  @Trace(resourceName = "nexus/fabricate", operationName = "didFailWhile")
   private void didFailWhile(String message, Exception e) {
     didFailWhile(message, e.getMessage(), Text.formatStackTrace(e));
   }
@@ -575,7 +564,6 @@ public class NexusWorkImpl implements NexusWork {
    @param detail  to include in body
    @param debug   to include in body
    */
-  @Trace(resourceName = "nexus/fabricate", operationName = "didFailWhile")
   private void didFailWhile(String message, String detail, String debug) {
     var body = String.format("Failed while %s because %s\n\n%s",
       message,
@@ -597,7 +585,6 @@ public class NexusWorkImpl implements NexusWork {
    @param body      of message
    @param segmentId fabricating
    */
-  @Trace(resourceName = "nexus/fabricate", operationName = "createSegmentErrorMessage")
   protected void createSegmentErrorMessage(String body, String segmentId) {
     try {
       segmentDAO.create(access, SegmentMessage.newBuilder()
@@ -621,7 +608,6 @@ public class NexusWorkImpl implements NexusWork {
    @return updated Segment
    @throws NexusException if record is invalid
    */
-  @Trace(resourceName = "nexus/fabricate", operationName = "updateSegmentState")
   private Segment updateSegmentState(Fabricator fabricator, Segment segment, Segment.State fromState, Segment.State toState) throws NexusException {
     if (fromState != segment.getState())
       throw new NexusException(String.format("Segment[%s] %s requires Segment must be in %s state.", segment.getId(), toState, fromState));
@@ -648,7 +634,6 @@ public class NexusWorkImpl implements NexusWork {
 
    @return list of IDs of Segments we ought to erase
    */
-  @Trace(resourceName = "nexus/janitor", operationName = "getSegmentIdsToErase")
   private Collection<String> getSegmentIdsToErase() throws NexusException {
     Instant eraseBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);
     Collection<String> segmentIds = Lists.newArrayList();

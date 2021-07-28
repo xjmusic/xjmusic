@@ -9,9 +9,9 @@ import io.xj.nexus.craft.CraftModule;
 import io.xj.nexus.dao.NexusDAOModule;
 import io.xj.nexus.dub.DubModule;
 import io.xj.nexus.fabricator.NexusFabricatorModule;
-import io.xj.nexus.work.NexusWorkModule;
 import io.xj.nexus.hub_client.client.HubClientModule;
 import io.xj.nexus.persistence.NexusEntityStoreModule;
+import io.xj.nexus.work.NexusWorkModule;
 
 public class NexusIntegrationTestModule extends AbstractModule {
   @Override

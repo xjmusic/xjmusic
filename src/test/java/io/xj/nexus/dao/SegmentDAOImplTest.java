@@ -37,6 +37,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SegmentDAOImplTest {
+  @Mock
+  FileStoreProvider fileStoreProvider;
   private Account account1;
   private Chain chain3;
   private Chain chain5;
@@ -47,9 +49,6 @@ public class SegmentDAOImplTest {
   private Segment segment4;
   private Segment segment5;
   private SegmentDAO testDAO;
-
-  @Mock
-  FileStoreProvider fileStoreProvider;
 
   @Before
   public void setUp() throws Exception {

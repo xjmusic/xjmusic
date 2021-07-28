@@ -27,7 +27,7 @@ public class SourceImplTest {
       new BufferedInputStream(
         new FileInputStream(
           new InternalResource(
-                  "test_audio/F32LSB_48kHz_Stereo.wav"
+            "test_audio/F32LSB_48kHz_Stereo.wav"
           ).getFile())));
 
     S16LSB_44100Hz_Mono = mixerFactory.createSource(
@@ -35,7 +35,7 @@ public class SourceImplTest {
       new BufferedInputStream(
         new FileInputStream(
           new InternalResource(
-                  "test_audio/S16LSB_44100Hz_Mono.wav"
+            "test_audio/S16LSB_44100Hz_Mono.wav"
           ).getFile())));
   }
 

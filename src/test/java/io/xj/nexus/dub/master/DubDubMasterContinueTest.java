@@ -48,23 +48,19 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DubDubMasterContinueTest {
+  private static final String testResourceFilePath = "test_audio" + File.separator + "F32LSB_48kHz_Stereo.wav";
+  @Mock
+  public FileStoreProvider fileStoreProvider;
+  @Mock
+  public HubClient hubClient;
+  @Mock
+  public Mixer mixer;
+  @Mock
+  public MixerFactory mixerFactory;
   private DubFactory dubFactory;
   private FabricatorFactory fabricatorFactory;
   private HubContent sourceMaterial;
   private Segment segment4;
-  private static final String testResourceFilePath = "test_audio" + File.separator + "F32LSB_48kHz_Stereo.wav";
-
-  @Mock
-  public FileStoreProvider fileStoreProvider;
-
-  @Mock
-  public HubClient hubClient;
-
-  @Mock
-  public Mixer mixer;
-
-  @Mock
-  public MixerFactory mixerFactory;
 
   @Before
   public void setUp() throws Exception {
@@ -94,9 +90,9 @@ public class DubDubMasterContinueTest {
     // Mock request via HubClient returns fake generated library of hub content
     NexusIntegrationTestingFixtures fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB3().stream()
-      ).collect(Collectors.toList()));
+      fake.setupFixtureB1().stream(),
+      fake.setupFixtureB3().stream()
+    ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
     Chain chain1 = store.put(NexusIntegrationTestingFixtures.makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
@@ -153,14 +149,14 @@ public class DubDubMasterContinueTest {
       .setProgramType(Program.Type.Macro)
       .setProgramId(fake.program4_sequence1_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
-            .build());
+      .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment3.getId())
       .setProgramType(Program.Type.Main)
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
-            .build());
+      .build());
 
     // Chain "Test Print #1" has this segment dubbing - Structure is complete
     segment4 = store.put(NexusIntegrationTestingFixtures.makeSegment(chain1, 3, Segment.State.Dubbing, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:03:15.836735Z"), "D Major", 16, 0.45, 120.0, "chains-1-segments-9f7s89d8a7892", "wav"));

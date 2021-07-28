@@ -55,17 +55,16 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChainEndpointTest {
-  private HubClientAccess access;
-  private ChainEndpoint subject;
-  private Account account25;
-  private JsonProviderImpl jsonProvider;
   @Mock
   ContainerRequestContext crc;
   @Mock
   ChainDAO chainDAO;
-
   @Mock
   Environment env;
+  private HubClientAccess access;
+  private ChainEndpoint subject;
+  private Account account25;
+  private JsonProviderImpl jsonProvider;
 
   @Before
   public void setUp() throws AppException {

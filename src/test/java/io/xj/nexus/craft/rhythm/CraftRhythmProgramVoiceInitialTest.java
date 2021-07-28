@@ -54,7 +54,7 @@ public class CraftRhythmProgramVoiceInitialTest {
   private HubContent sourceMaterial;
   private NexusEntityStore store;
   private NexusIntegrationTestingFixtures fake;
-  private Segment segment6;
+  private Segment segment0;
 
   @Before
   public void setUp() throws Exception {
@@ -106,13 +106,13 @@ public class CraftRhythmProgramVoiceInitialTest {
 
   @Test
   public void craftRhythmVoiceInitial() throws Exception {
-    insertSegments();
+    insertSegment();
 
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment0);
 
     craftFactory.rhythm(fabricator).doWork();
 
-    Segment result = store.getSegment(segment6.getId()).orElseThrow();
+    Segment result = store.getSegment(segment0.getId()).orElseThrow();
     assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
     // test vector for [#154014731] persist Audio pick in memory
     int pickedKick = 0;
@@ -138,8 +138,8 @@ public class CraftRhythmProgramVoiceInitialTest {
 
   @Test
   public void craftRhythmVoiceInitial_okWhenNoRhythmChoice() throws Exception {
-    insertSegments();
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment6);
+    insertSegment();
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment0);
 
     craftFactory.rhythm(fabricator).doWork();
   }
@@ -147,43 +147,12 @@ public class CraftRhythmProgramVoiceInitialTest {
   /**
    Insert fixture segment 6, including the rhythm choice only if specified
    */
-  private void insertSegments() throws NexusException {
-    // segment crafted
-    Segment segment5 = store.put(Segment.newBuilder()
+  private void insertSegment() throws NexusException {
+    segment0 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain2.getId())
-      .setOffset(2L)
-      .setState(Segment.State.Crafted)
-      .setBeginAt("2017-02-14T12:01:07.384616Z")
-      .setEndAt("2017-02-14T12:01:27.384616Z")
-      .setKey("D Major")
-      .setTotal(32)
-      .setDensity(0.55)
-      .setTempo(130.0)
-      .setStorageKey("chains-1-segments-0970305977172.wav")
-      .build());
-    store.put(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment5.getId())
-      .setProgramId(fake.program4.getId())
-      .setProgramId(fake.program4_sequence0_binding0.getProgramId())
-      .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
-      .setProgramType(Program.Type.Macro)
-      .build());
-    store.put(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment5.getId())
-      .setProgramId(fake.program5.getId())
-      .setProgramId(fake.program5_sequence0_binding0.getProgramId())
-      .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
-      .setProgramType(Program.Type.Main)
-      .build());
-
-    // segment crafting
-    segment6 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain2.getId())
-      .setOffset(3L)
+      .setType(Segment.Type.Initial)
+      .setOffset(0L)
       .setState(Segment.State.Crafting)
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setEndAt("2017-02-14T12:01:07.384616Z")
@@ -195,7 +164,7 @@ public class CraftRhythmProgramVoiceInitialTest {
       .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment6.getId())
+      .setSegmentId(segment0.getId())
       .setProgramId(fake.program4.getId())
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
@@ -203,7 +172,7 @@ public class CraftRhythmProgramVoiceInitialTest {
       .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment6.getId())
+      .setSegmentId(segment0.getId())
       .setProgramId(fake.program5.getId())
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
@@ -212,16 +181,16 @@ public class CraftRhythmProgramVoiceInitialTest {
     for (String memeName : ImmutableList.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(SegmentMeme.newBuilder()
         .setId(UUID.randomUUID().toString())
-        .setSegmentId(segment6.getId()).setName(memeName)
+        .setSegmentId(segment0.getId()).setName(memeName)
         .build());
 
     store.put(SegmentChord.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment6.getId()).setPosition(0.0).setName("C minor")
+      .setSegmentId(segment0.getId()).setPosition(0.0).setName("C minor")
       .build());
     store.put(SegmentChord.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment6.getId()).setPosition(8.0).setName("Db minor")
+      .setSegmentId(segment0.getId()).setPosition(8.0).setName("Db minor")
       .build());
   }
 

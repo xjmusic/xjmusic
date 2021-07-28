@@ -94,12 +94,12 @@ public class AppConfigurationTest {
    */
   public static class WidgetImpl implements Widget {
 
+    private String name;
+
     @Inject
     public WidgetImpl() {
       this.name = "";
     }
-
-    private String name;
 
     @Override
     public String getName() {

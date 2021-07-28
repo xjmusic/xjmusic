@@ -49,20 +49,18 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ComplexLibraryTest {
   private static final Logger LOG = LoggerFactory.getLogger(ComplexLibraryTest.class);
+  private static final int MARATHON_NUMBER_OF_SEGMENTS = 50;
+  private static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
+  private static final int MILLIS_PER_SECOND = 1000;
+  @Mock
+  public HubClient hubClient;
+  @Mock
+  public FileStoreProvider fileStoreProvider;
   long startTime = System.currentTimeMillis();
   private AppWorkThread workThread;
   private Chain chain1;
   private NexusApp app;
   private SegmentDAO segmentDAO;
-  private static final int MARATHON_NUMBER_OF_SEGMENTS = 50;
-  private static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
-  private static final int MILLIS_PER_SECOND = 1000;
-
-  @Mock
-  public HubClient hubClient;
-
-  @Mock
-  public FileStoreProvider fileStoreProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -72,8 +70,7 @@ public class ComplexLibraryTest {
       .withValue("work.eraseSegmentsOlderThanSeconds", ConfigValueFactory.fromAnyRef(MAXIMUM_TEST_WAIT_SECONDS + 300))
       .withValue("work.bossDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.chainDelayMillis", ConfigValueFactory.fromAnyRef(1))
-      .withValue("work.cycleMillis", ConfigValueFactory.fromAnyRef(50))
-      .withValue("fabrication.isInertiaActive", ConfigValueFactory.fromAnyRef(true));
+      .withValue("work.cycleMillis", ConfigValueFactory.fromAnyRef(50));
     Environment env = Environment.getDefault();
     var injector = AppConfiguration.inject(config, env,
       ImmutableSet.of(Modules.override(new NexusWorkModule())

@@ -72,7 +72,6 @@ import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -88,43 +87,42 @@ import static io.xj.Instrument.Type.UNRECOGNIZED;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 class FabricatorImpl implements Fabricator {
+  private static final double MICROS_PER_SECOND = 1000000.0F;
+  private static final double NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
   private static final String KEY_VOICE_NOTE_TEMPLATE = "voice-%s_note-%s";
   private static final String KEY_VOICE_TRACK_TEMPLATE = "voice-%s_track-%s";
   private static final String NAME_SEPARATOR = "-";
   private static final String UNKNOWN_KEY = "unknown";
-  private static final double MICROS_PER_SECOND = 1000000.0F;
-  private static final double NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
   private final Logger LOG = LoggerFactory.getLogger(FabricatorImpl.class);
   private final Chain chain;
   private final ChainConfig chainConfig;
   private final Collection<ChainBinding> chainBindings;
-  private final Collection<Segment> segmentsOfPreviousMainChoice = Lists.newArrayList();
   private final Config config;
   private final DecimalFormat segmentNameFormat;
   private final FabricatorFactory fabricatorFactory;
   private final FileStoreProvider fileStoreProvider;
   private final HubClientAccess access;
   private final HubContent sourceMaterial;
+  private final int workBufferAheadSeconds;
+  private final int workBufferBeforeSeconds;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
+  private final long startTime;
   private final Map<Double, Optional<SegmentChord>> chordAtPosition;
   private final Map<Instrument.Type, NoteRange> voicingNoteRange;
-  private final Map<Program.Type, Map<Instrument.Type, List<String>>> previouslyChosenProgramIds;
+  private final Map<Program.Type, Map<Instrument.Type, List<String>>> preferredProgramIds;
   private final Map<SegmentChoice, ProgramSequence> sequenceForChoice = Maps.newHashMap();
   private final Map<String, Collection<ProgramSequenceChord>> completeChordsForProgramSequence;
   private final Map<String, Integer> rangeShiftOctave;
   private final Map<String, Integer> targetShift;
   private final Map<String, NoteRange> rangeForChoice;
-  private final Map<String, Set<String>> previouslyPickedNotes;
+  private final Map<String, Set<String>> preferredNotes;
   private final SegmentDAO segmentDAO;
   private final SegmentRetrospective retrospective;
   private final SegmentWorkbench workbench;
   private final Set<String> boundInstrumentIds;
   private final Set<String> boundProgramIds;
   private final String workTempFilePathPrefix;
-  private final int workBufferAheadSeconds;
-  private final long startTime;
-  private final int workBufferBeforeSeconds;
-  private Map<String, InstrumentAudio> previousInstrumentAudio;
+  private final Map<String, InstrumentAudio> preferredAudios;
   private Segment.Type type;
 
   @AssistedInject
@@ -184,13 +182,16 @@ class FabricatorImpl implements Fabricator {
       retrospective = fabricatorFactory.loadRetrospective(access, segment, sourceMaterial);
 
       // digest previous choices
-      previouslyChosenProgramIds = digestPreviouslyChosenProgramIds();
+      preferredProgramIds = computePreferredProgramIds();
+
+      // digest previous picks
+      preferredNotes = computePreferredNotes();
+
+      // digest previous instrument audio
+      preferredAudios = computePreferredInstrumentAudio();
 
       // get the current segment on the workbench
       workbench = fabricatorFactory.setupWorkbench(access, chain, segment);
-
-      // digest previous picks
-      previouslyPickedNotes = digestPreviouslyPickedNotes();
 
       // final pre-flight check
       ensureStorageKey();
@@ -200,57 +201,21 @@ class FabricatorImpl implements Fabricator {
     }
   }
 
-  /**
-   Digest all previously chosen programs for the same main program
-
-   @return map of program types to instrument types to list of programs chosen
-   */
-  private Map<Program.Type, Map<Instrument.Type, List<String>>> digestPreviouslyChosenProgramIds() {
-    Map<Program.Type, Map<Instrument.Type, List<String>>> programIds = Maps.newHashMap();
-    getChoicesOfPreviousSegmentsWithSameMainProgram().forEach(choice -> {
-      if (!programIds.containsKey(choice.getProgramType()))
-        programIds.put(choice.getProgramType(), Maps.newHashMap());
-      if (!programIds.get(choice.getProgramType()).containsKey(choice.getInstrumentType()))
-        programIds.get(choice.getProgramType()).put(choice.getInstrumentType(), Lists.newArrayList());
-      programIds.get(choice.getProgramType()).get(choice.getInstrumentType())
-        .add(choice.getProgramId());
-    });
-
-    return programIds;
-  }
-
-  /**
-   Digest all previously picked events for the same main program
-
-   @return map of program types to instrument types to list of programs chosen
-   */
-  private Map<String, Set<String>> digestPreviouslyPickedNotes() {
-    Map<String, Set<String>> notes = Maps.newHashMap();
-
-    getPicksOfPreviousSegmentsWithSameMainProgram()
-      .forEach(pick -> {
-        try {
-          var key = keyEventChord(pick.getProgramSequencePatternEventId(), pick.getSegmentChordVoicingId());
-          if (!notes.containsKey(key))
-            notes.put(key, Sets.newHashSet());
-          notes.get(key).add(pick.getNote());
-
-        } catch (NexusException | EntityStoreException e) {
-          LOG.warn("Can't find chord of previous event and chord id", e);
-        }
-      });
-
-    return notes;
-  }
-
   @Override
   public <N extends MessageLite> N add(N entity) throws NexusException {
     return workbench.add(entity);
   }
 
   @Override
-  public Double computeSecondsAtPosition(double p) throws NexusException {
-    return getTimeComputer().getSecondsAtPosition(p);
+  public void done() throws NexusException {
+    try {
+      workbench.setSegment(workbench.getSegment().toBuilder()
+        .setType(getType())
+        .build());
+      workbench.done();
+    } catch (JsonApiException | ValueException e) {
+      throw new NexusException("Could not complete Segment fabrication", e);
+    }
   }
 
   @Override
@@ -259,12 +224,37 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<InstrumentAudio> getPickedAudios() {
-    Collection<InstrumentAudio> audios = Lists.newArrayList();
-    for (SegmentChoiceArrangementPick pick : workbench.getSegmentChoiceArrangementPicks())
-      sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId())
-        .ifPresent(audios::add);
-    return audios;
+  public double getAmplitudeForInstrumentType(SegmentChoiceArrangementPick pick) {
+    return switch (getInstrument(pick).map(Instrument::getType).orElse(UNRECOGNIZED)) {
+      case Percussive -> chainConfig.getDubMasterVolumeInstrumentTypePercussive();
+      case Bass -> chainConfig.getDubMasterVolumeInstrumentTypeBass();
+      case Pad -> chainConfig.getDubMasterVolumeInstrumentTypePad();
+      case Sticky -> chainConfig.getDubMasterVolumeInstrumentTypeSticky();
+      case Stripe -> chainConfig.getDubMasterVolumeInstrumentTypeStripe();
+      case Stab -> chainConfig.getDubMasterVolumeInstrumentTypeStab();
+      default -> 1.0;
+    };
+  }
+
+  @Override
+  public Collection<SegmentChoiceArrangement> getArrangements() {
+    return workbench.getSegmentArrangements();
+  }
+
+  @Override
+  public Collection<SegmentChoiceArrangement> getArrangements(Collection<SegmentChoice> choices) {
+    Collection<String> choiceIds = Entities.idsOf(choices);
+    return getArrangements().stream()
+      .filter(arrangement -> choiceIds.contains(String.valueOf(arrangement.getSegmentChoiceId())))
+      .collect(Collectors.toList());
+  }
+
+  @Override
+  public double getAudioVolume(SegmentChoiceArrangementPick pick) {
+    return getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
+      .stream().map(InstrumentAudio::getVolume)
+      .findAny()
+      .orElse(1.0);
   }
 
   @Override
@@ -278,8 +268,45 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getChainId() {
-    return chain.getId();
+  public String getChainMetadataFullJson() throws NexusException {
+    try {
+      return computeChainMetadataJson(segmentDAO.readMany(access, ImmutableList.of(chain.getId())));
+
+    } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
+      throw new NexusException(e);
+    }
+  }
+
+  @Override
+  public String getChainMetadataFullKey() {
+    return fileStoreProvider.getChainStorageKey(Chains.getFullKey(computeChainBaseKey()), FileStoreProvider.EXTENSION_JSON);
+  }
+
+  @Override
+  public String getChainMetadataJson() throws NexusException {
+    try {
+      var now = Instant.now();
+      var beforeThreshold = now.plusSeconds(workBufferAheadSeconds);
+      var afterThreshold = now.minusSeconds(workBufferBeforeSeconds);
+      return computeChainMetadataJson(segmentDAO.readMany(access, ImmutableList.of(chain.getId())).stream()
+        .filter(segment ->
+          Instant.parse(segment.getBeginAt()).isBefore(beforeThreshold)
+            && Instant.parse(segment.getEndAt()).isAfter(afterThreshold))
+        .collect(Collectors.toList()));
+
+    } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
+      throw new NexusException(e);
+    }
+  }
+
+  @Override
+  public String getChainMetadataKey() {
+    return fileStoreProvider.getChainStorageKey(computeChainBaseKey(), FileStoreProvider.EXTENSION_JSON);
+  }
+
+  @Override
+  public Collection<SegmentChoice> getChoices() {
+    return workbench.getSegmentChoices();
   }
 
   @Override
@@ -314,18 +341,92 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<SegmentChoice> getCurrentRhythmChoice() {
-    return workbench.getChoiceOfType(Program.Type.Rhythm);
-  }
-
-  @Override
   public Collection<SegmentChoice> getCurrentDetailChoices() {
     return workbench.getChoicesOfType(Program.Type.Rhythm);
   }
 
   @Override
+  public Optional<SegmentChoice> getCurrentRhythmChoice() {
+    return workbench.getChoiceOfType(Program.Type.Rhythm);
+  }
+
+  @Override
+  public List<Instrument.Type> getDistinctChordVoicingTypes() {
+    var mainChoice = getCurrentMainChoice();
+    if (mainChoice.isEmpty()) return ImmutableList.of();
+    var voicings = sourceMaterial
+      .getProgramSequenceChordVoicings(mainChoice.get().getProgramId());
+    return voicings.stream()
+      .map(ProgramSequenceChordVoicing::getType)
+      .distinct()
+      .collect(Collectors.toList());
+  }
+
+  @Override
   public Double getElapsedSeconds() {
     return (System.nanoTime() - startTime) / NANOS_PER_SECOND;
+  }
+
+  @Override
+  public String getFullQualityAudioOutputFilePath() {
+    return String.format("%s%s", workTempFilePathPrefix, getSegmentOutputWaveformKey());
+  }
+
+  @Override
+  public Optional<Instrument> getInstrument(SegmentChoiceArrangementPick pick) {
+    return sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId())
+      .flatMap(audio -> sourceMaterial.getInstrument(audio.getInstrumentId()));
+  }
+
+  @Override
+  public InstrumentConfig getInstrumentConfig(Instrument instrument) throws NexusException {
+    try {
+      return new InstrumentConfig(instrument, config);
+    } catch (ValueException e) {
+      throw new NexusException(e);
+    }
+  }
+
+  @Override
+  public Optional<String> getInstrumentIdChosenForVoiceOfSameMainProgram(ProgramVoice voice) {
+    try {
+      return retrospective.getChoices()
+        .stream()
+        .filter(choice -> {
+          var candidateVoice = sourceMaterial.getProgramVoice(choice.getProgramVoiceId());
+          return candidateVoice.isPresent()
+            && candidateVoice.get().getName().equals(voice.getName())
+            && candidateVoice.get().getType().equals(voice.getType());
+        })
+        .map(SegmentChoice::getInstrumentId)
+        .findFirst();
+
+    } catch (Exception e) {
+      LOG.warn(formatLog(String.format("Could not get previous voice instrumentId for voiceName=%s", voice.getName())), e);
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  public String getKeyByVoiceTrack(SegmentChoiceArrangementPick pick) {
+    String voiceId =
+      getSourceMaterial().getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId())
+        .map(event -> getSourceMaterial().getTrack(event)
+          .map(ProgramVoiceTrack::getProgramVoiceId)
+          .orElse(UNKNOWN_KEY))
+        .orElse(UNKNOWN_KEY);
+
+    return String.format(KEY_VOICE_TRACK_TEMPLATE, voiceId, pick.getName());
+  }
+
+  @Override
+  public String getKeyByVoiceTrack(ProgramSequencePatternEvent event) {
+    String voiceId =
+      getSourceMaterial().getVoice(event)
+        .map(ProgramVoice::getId)
+        .orElse(UNKNOWN_KEY);
+
+    return String.format(KEY_VOICE_TRACK_TEMPLATE, voiceId, getTrackName(event));
   }
 
   @Override
@@ -343,101 +444,13 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Collection<SegmentChoiceArrangementPick> getChoiceArrangementPicksOfPreviousSegments() throws NexusException {
-    Collection<SegmentChoiceArrangementPick> out = Lists.newArrayList();
-    for (Segment seg : getPreviousSegmentsWithSameMainProgram())
-      out.addAll(retrospective.getSegmentChoiceArrangementPicks(seg, false));
-    return out;
+  public Optional<SegmentChoice> getMacroChoiceOfPreviousSegment() {
+    return retrospective.getPreviousChoiceOfType(Program.Type.Macro);
   }
 
   @Override
-  public Collection<SegmentChoice> getChoicesOfPreviousSegmentsWithSameMainProgram() {
-    Collection<SegmentChoice> out = Lists.newArrayList();
-    for (Segment seg : getPreviousSegmentsWithSameMainProgram())
-      out.addAll(retrospective.getSegmentChoices(seg, false));
-    return out;
-  }
-
-  @Override
-  public Collection<SegmentChoiceArrangementPick> getPicksOfPreviousSegmentsWithSameMainProgram() {
-    Collection<SegmentChoiceArrangementPick> out = Lists.newArrayList();
-    for (Segment seg : getPreviousSegmentsWithSameMainProgram())
-      out.addAll(retrospective.getSegmentChoiceArrangementPicks(seg, false));
-    return out;
-  }
-
-  @Override
-  public Map<String, InstrumentAudio> getPreviousInstrumentAudio() {
-    // this map is built once from the retrospective, and from then on is modified by its accessors--
-    // FUTURE it's not great ^^ that we are modifying this map externally
-    if (Objects.isNull(previousInstrumentAudio))
-      try {
-        previousInstrumentAudio = Maps.newHashMap();
-        for (SegmentChoiceArrangementPick pick : getChoiceArrangementPicksOfPreviousSegments()) {
-          getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
-            .ifPresent(audio -> previousInstrumentAudio.put(keyByVoiceTrack(pick), audio));
-        }
-
-      } catch (NexusException e) {
-        LOG.error("Unable to build map create previous instrument audio", e);
-      }
-
-    return previousInstrumentAudio;
-  }
-
-
-  @Override
-  public String keyByVoiceTrack(SegmentChoiceArrangementPick pick) {
-    String voiceId =
-      getSourceMaterial().getProgramSequencePatternEvent(pick.getProgramSequencePatternEventId())
-        .map(event -> getSourceMaterial().getTrack(event)
-          .map(ProgramVoiceTrack::getProgramVoiceId)
-          .orElse(UNKNOWN_KEY))
-        .orElse(UNKNOWN_KEY);
-
-    return String.format(KEY_VOICE_TRACK_TEMPLATE, voiceId, pick.getName());
-  }
-
-  @Override
-  public String keyByVoiceTrack(ProgramSequencePatternEvent event) {
-    String voiceId =
-      getSourceMaterial().getVoice(event)
-        .map(ProgramVoice::getId)
-        .orElse(UNKNOWN_KEY);
-
-    return String.format(KEY_VOICE_TRACK_TEMPLATE, voiceId, getTrackName(event));
-  }
-
-  @Override
-  public String keyByTrackNote(String track, String note) {
-    return String.format(KEY_VOICE_NOTE_TEMPLATE, track, note);
-  }
-
-  @Override
-  public String getTrackName(ProgramSequencePatternEvent event) {
-    return getSourceMaterial().getTrack(event)
-      .map(ProgramVoiceTrack::getName)
-      .orElse(UNKNOWN_KEY);
-  }
-
-  @Override
-  public Optional<String> getInstrumentIdChosenForVoiceOfSameMainProgram(ProgramVoice voice) {
-    try {
-      return getChoicesOfPreviousSegmentsWithSameMainProgram()
-        .stream()
-        .filter(choice -> {
-          var candidateVoice = sourceMaterial.getProgramVoice(choice.getProgramVoiceId());
-          return candidateVoice.isPresent()
-            && candidateVoice.get().getName().equals(voice.getName())
-            && candidateVoice.get().getType().equals(voice.getType());
-        })
-        .map(SegmentChoice::getInstrumentId)
-        .findFirst();
-
-    } catch (Exception e) {
-      LOG.warn(formatLog(String.format("Could not get previous voice instrumentId for voiceName=%s", voice.getName())), e);
-      return Optional.empty();
-    }
+  public Optional<SegmentChoice> getMainChoiceOfPreviousSegment() {
+    return retrospective.getPreviousChoiceOfType(Program.Type.Main);
   }
 
   @Override
@@ -496,7 +509,7 @@ class FabricatorImpl implements Fabricator {
         .setSegmentId(choice.getSegmentId())
         .build()));
     if (Value.isSet(choice.getProgramSequenceBindingId())) {
-      var sequenceBinding = getSequenceBinding(choice);
+      var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
       sequenceBinding.ifPresent(programSequenceBinding -> sourceMaterial.getMemes(programSequenceBinding)
         .forEach(meme -> result.add(SegmentMeme.newBuilder()
           .setName(meme.getName())
@@ -511,7 +524,7 @@ class FabricatorImpl implements Fabricator {
     if (Value.isEmpty(choice.getProgramSequenceBindingId()))
       return 0L;
 
-    var sequenceBinding = getSequenceBinding(choice);
+    var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
     Long sequenceBindingOffset = getSequenceBindingOffsetForChoice(choice);
     Long offset = null;
     if (sequenceBinding.isEmpty()) return 0L;
@@ -527,6 +540,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public Collection<String> getNotes(SegmentChordVoicing voicing) {
+    return new ArrayList<>(CSV.split(voicing.getNotes()));
+  }
+
+  @Override
   public AudioFormat getOutputAudioFormat() {
     return new AudioFormat(
       chainConfig.getOutputEncoding(),
@@ -539,272 +557,52 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public String getFullQualityAudioOutputFilePath() {
-    return String.format("%s%s", workTempFilePathPrefix, getSegmentOutputWaveformKey());
+  public Collection<InstrumentAudio> getPickedAudios() {
+    Collection<InstrumentAudio> audios = Lists.newArrayList();
+    for (SegmentChoiceArrangementPick pick : workbench.getSegmentChoiceArrangementPicks())
+      sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId())
+        .ifPresent(audios::add);
+    return audios;
   }
 
   @Override
-  public Collection<Segment> getPreviousSegmentsWithSameMainProgram() {
-    return retrospective.getSegments();
+  public Collection<SegmentChoiceArrangementPick> getPicks() {
+    return workbench.getSegmentChoiceArrangementPicks();
+  }
+
+  @Override
+  public Optional<InstrumentAudio> getPreferredAudio(ProgramSequencePatternEvent event, String note) {
+    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, event.getProgramVoiceTrackId(), note);
+
+    if (preferredAudios.containsKey(key)) return Optional.of(preferredAudios.get(key));
+
+    return Optional.empty();
+  }
+
+  @Override
+  public Optional<Set<String>> getPreferredNotes(String eventId, String chordName) {
+    try {
+      var key = computeEventChordKey(eventId, chordName);
+      if (preferredNotes.containsKey(key))
+        return Optional.of(new HashSet<>(preferredNotes.get(key)));
+
+    } catch (NexusException | EntityStoreException e) {
+      LOG.warn("Can't find chord of previous event and chord id", e);
+    }
+
+    return Optional.empty();
+  }
+
+  @Override
+  public List<String> getPreferredProgramIds(Program.Type programType, Instrument.Type instrumentType) {
+    if (!preferredProgramIds.containsKey(programType)) return ImmutableList.of();
+    if (!preferredProgramIds.get(programType).containsKey(instrumentType)) return ImmutableList.of();
+    return preferredProgramIds.get(programType).get(instrumentType);
   }
 
   @Override
   public Optional<Program> getProgram(SegmentChoice choice) {
     return sourceMaterial.getProgram(choice.getProgramId());
-  }
-
-  @Override
-  public Optional<SegmentChoice> getMacroChoiceOfPreviousSegment() {
-    return retrospective.getPreviousSegmentChoiceOfType(Program.Type.Macro);
-  }
-
-  @Override
-  public Optional<SegmentChoice> getMainChoiceOfPreviousSegment() {
-    return retrospective.getPreviousSegmentChoiceOfType(Program.Type.Main);
-  }
-
-  @Override
-  public Collection<SegmentChoice> getChoicesOfPreviousMainChoice() {
-    return getSegmentsOfPreviousMainChoice()
-      .stream()
-      .flatMap(segment -> retrospective.getSegmentChoices(segment, false).stream())
-      .collect(Collectors.toList());
-  }
-
-  @Override
-  public Collection<Segment> getSegmentsOfPreviousMainChoice() {
-    if (segmentsOfPreviousMainChoice.isEmpty()) {
-      if (getCurrentMainChoice().isEmpty()) return ImmutableList.of();
-      String currentMainProgramId = getCurrentMainChoice().get().getProgramId();
-      String previousMainProgramId = null;
-      var segments = retrospective.getSegments().stream().sorted(Comparator.comparing(Segment::getOffset).reversed()).collect(Collectors.toList());
-      for (Segment segment : segments) {
-        var mainChoice = retrospective.getChoiceOfType(segment, Program.Type.Main);
-        if (mainChoice.isEmpty()) continue;
-        var mainProgramId = mainChoice.get().getProgramId();
-        if (Objects.equals(currentMainProgramId, mainProgramId)) continue;
-        if (Strings.isNullOrEmpty(previousMainProgramId)) previousMainProgramId = mainProgramId;
-        if (Objects.equals(previousMainProgramId, mainProgramId)) segmentsOfPreviousMainChoice.add(segment);
-      }
-    }
-    return segmentsOfPreviousMainChoice;
-  }
-
-  @Override
-  public Segment getPreviousSegment() throws NexusException {
-    if (isInitialSegment() || retrospective.getPreviousSegment().isEmpty())
-      throw new NexusException("Initial Segment has no previous Segment");
-
-    return retrospective.getPreviousSegment()
-      .orElseThrow(() -> new NexusException("Can't get previous segment"));
-  }
-
-  @Override
-  public Segment getSegment() {
-    return workbench.getSegment();
-  }
-
-  @Override
-  public void updateSegment(Segment segment) {
-    try {
-      segmentDAO.update(access, segment.getId(), segment);
-      workbench.setSegment(segment);
-
-    } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException | DAOValidationException e) {
-      LOG.error("Failed to update Segment", e);
-    }
-  }
-
-  @Override
-  public String getSegmentOutputWaveformKey() {
-    return getSegmentStorageKey(getSegment().getOutputEncoder().toLowerCase(Locale.ENGLISH));
-  }
-
-  @Override
-  public String getSegmentOutputMetadataKey() {
-    return getSegmentStorageKey(FileStoreProvider.EXTENSION_JSON);
-  }
-
-  @Override
-  public String getChainFullOutputMetadataKey() {
-    return fileStoreProvider.getChainStorageKey(Chains.getFullKey(getChainBaseKey()), FileStoreProvider.EXTENSION_JSON);
-  }
-
-  @Override
-  public String getChainOutputMetadataKey() {
-    return fileStoreProvider.getChainStorageKey(getChainBaseKey(), FileStoreProvider.EXTENSION_JSON);
-  }
-
-  @Override
-  public String getSegmentStorageKey(String extension) {
-    return fileStoreProvider.getSegmentStorageKey(getSegment().getStorageKey(), extension);
-  }
-
-  @Override
-  public Optional<ProgramSequence> getSequence(SegmentChoice choice) {
-    Optional<Program> program = getProgram(choice);
-    if (program.isEmpty()) return Optional.empty();
-    if (Value.isSet(choice.getProgramSequenceBindingId())) {
-      var sequenceBinding = getSequenceBinding(choice);
-      if (sequenceBinding.isPresent())
-        return sourceMaterial.getProgramSequence(sequenceBinding.get().getProgramSequenceId());
-    }
-
-    if (!sequenceForChoice.containsKey(choice))
-      randomlySelectSequence(program.get())
-        .ifPresent(programSequence -> sequenceForChoice.put(choice, programSequence));
-
-    return Optional.of(sequenceForChoice.get(choice));
-  }
-
-  @Override
-  public Long getSequenceBindingOffsetForChoice(SegmentChoice choice) {
-    if (Value.isEmpty(choice.getProgramSequenceBindingId()))
-      return 0L;
-    var sequenceBinding = getSequenceBinding(choice);
-    return sequenceBinding.map(ProgramSequenceBinding::getOffset).orElse(0L);
-  }
-
-  @Override
-  public HubContent getSourceMaterial() {
-    return sourceMaterial;
-  }
-
-  @Override
-  public Segment.Type getType() {
-    if (Value.isEmpty(type))
-      type = determineType();
-    return type;
-  }
-
-  @Override
-  public boolean hasOneMoreSequenceBindingOffset(SegmentChoice choice) {
-    return hasMoreSequenceBindingOffsets(choice, 1);
-  }
-
-  @Override
-  public boolean hasTwoMoreSequenceBindingOffsets(SegmentChoice choice) {
-    return hasMoreSequenceBindingOffsets(choice, 2);
-  }
-
-  @Override
-  public Boolean isInitialSegment() {
-    return 0L == workbench.getSegment().getOffset();
-  }
-
-  @Override
-  public void putReport(String key, Object value) {
-    workbench.putReport(key, value);
-  }
-
-  @Override
-  public void done() throws NexusException {
-    try {
-      workbench.setSegment(workbench.getSegment().toBuilder()
-        .setType(getType())
-        .build());
-      workbench.done();
-    } catch (JsonApiException | ValueException e) {
-      throw new NexusException("Could not complete Segment fabrication", e);
-    }
-    switch (getType()) {
-      case Continue:
-        // transitions only once, of empty to non-empty
-        LOG.debug("[segId={}] continues main sequence create previous segments: {}",
-          workbench.getSegment().getId(),
-          Entities.csvIdsOf(getPreviousSegmentsWithSameMainProgram()));
-        break;
-      case Initial:
-      case NextMain:
-      case NextMacro:
-        break;
-    }
-  }
-
-  @Override
-  public Optional<ProgramSequenceBinding> randomlySelectSequenceBindingAtOffset(Program program, Long offset) {
-    EntityScorePicker<ProgramSequenceBinding> entityScorePicker = new EntityScorePicker<>();
-    for (ProgramSequenceBinding sequenceBinding : sourceMaterial.getProgramSequenceBindingsAtOffset(program, offset))
-      entityScorePicker.add(sequenceBinding, Chance.normallyAround(0.0, 1.0));
-
-    return entityScorePicker.getTop();
-  }
-
-  @Override
-  public Optional<ProgramSequence> randomlySelectSequence(Program program) {
-    EntityScorePicker<ProgramSequence> entityScorePicker = new EntityScorePicker<>();
-    sourceMaterial.getAllProgramSequences().stream()
-      .filter(s -> s.getProgramId().equals(program.getId()))
-      .forEach(sequence -> entityScorePicker.add(sequence, Chance.normallyAround(0.0, 1.0)));
-    return entityScorePicker.getTop();
-
-  }
-
-  @Override
-  public Optional<ProgramSequencePattern> randomlySelectPatternOfSequenceByVoiceAndType(SegmentChoice choice, ProgramSequencePattern.Type patternType) {
-    EntityScorePicker<ProgramSequencePattern> rank = new EntityScorePicker<>();
-    sourceMaterial.getAllProgramSequencePatterns().stream()
-      .filter(pattern -> pattern.getProgramSequenceId().equals(choice.getProgramSequenceId()))
-      .filter(pattern -> pattern.getProgramVoiceId().equals(choice.getProgramVoiceId()))
-      .filter(pattern -> pattern.getType() == patternType)
-      .forEach(pattern ->
-        rank.add(pattern, Chance.normallyAround(0.0, 1.0)));
-    if (Objects.equals(0, rank.size()))
-      return Optional.empty();
-    return rank.getTop();
-  }
-
-  @Override
-  public String getSegmentMetadataJson() throws NexusException {
-    try {
-      return jsonapiPayloadFactory.serialize(jsonapiPayloadFactory.newJsonapiPayload()
-        .setDataOne(jsonapiPayloadFactory.toPayloadObject(workbench.getSegment()))
-        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentArrangements()))
-        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoices()))
-        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChords()))
-        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMemes()))
-        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMessages())));
-
-    } catch (JsonApiException e) {
-      throw new NexusException(e);
-    }
-  }
-
-  @Override
-  public String getChainFullMetadataJson() throws NexusException {
-    try {
-      return getChainMetadataJson(segmentDAO.readMany(access, ImmutableList.of(chain.getId())));
-
-    } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
-      throw new NexusException(e);
-    }
-  }
-
-  @Override
-  public String getChainMetadataJson() throws NexusException {
-    try {
-      var now = Instant.now();
-      var beforeThreshold = now.plusSeconds(workBufferAheadSeconds);
-      var afterThreshold = now.minusSeconds(workBufferBeforeSeconds);
-      return getChainMetadataJson(segmentDAO.readMany(access, ImmutableList.of(chain.getId())).stream()
-        .filter(segment ->
-          Instant.parse(segment.getBeginAt()).isBefore(beforeThreshold)
-            && Instant.parse(segment.getEndAt()).isAfter(afterThreshold))
-        .collect(Collectors.toList()));
-
-    } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
-      throw new NexusException(e);
-    }
-  }
-
-  @Override
-  public boolean isDirectlyBound(Program program) {
-    return boundProgramIds.contains(program.getId());
-  }
-
-  @Override
-  public boolean isDirectlyBound(Instrument instrument) {
-    return boundInstrumentIds.contains(instrument.getId());
   }
 
   @Override
@@ -817,137 +615,27 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public InstrumentConfig getInstrumentConfig(Instrument instrument) throws NexusException {
-    try {
-      return new InstrumentConfig(instrument, config);
-    } catch (ValueException e) {
-      throw new NexusException(e);
-    }
-  }
-
-  @Override
-  public List<Instrument.Type> getDistinctChordVoicingTypes() {
-    var mainChoice = getCurrentMainChoice();
-    if (mainChoice.isEmpty()) return ImmutableList.of();
-    var voicings = sourceMaterial
-      .getProgramSequenceChordVoicings(mainChoice.get().getProgramId());
-    return voicings.stream()
-      .map(ProgramSequenceChordVoicing::getType)
-      .distinct()
-      .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<String> getPreviouslyChosenProgramIds(Program.Type programType, Instrument.Type instrumentType) {
-    if (previouslyChosenProgramIds.containsKey(programType) &&
-      previouslyChosenProgramIds.get(programType).containsKey(instrumentType))
-      return previouslyChosenProgramIds.get(programType).get(instrumentType);
-
-    else return ImmutableList.of();
-  }
-
-  @Override
-  public Optional<Set<String>> getPreviouslyPickedNotes(String programSequencePatternEventId, String segmentChordName) {
-    try {
-      var key = keyEventChord(programSequencePatternEventId, segmentChordName);
-      if (previouslyPickedNotes.containsKey(key))
-        return Optional.of(new HashSet<>(previouslyPickedNotes.get(key)));
-
-    } catch (NexusException | EntityStoreException e) {
-      LOG.warn("Can't find chord of previous event and chord id", e);
+  public Collection<ProgramSequenceChord> getProgramSequenceChords(ProgramSequence programSequence) {
+    if (!completeChordsForProgramSequence.containsKey(programSequence.getId())) {
+      Map<Double, ProgramSequenceChord> chordForPosition = Maps.newHashMap();
+      Map<Double, Integer> validVoicingsForPosition = Maps.newHashMap();
+      for (ProgramSequenceChord chord : sourceMaterial.getChords(programSequence)) {
+        int validVoicings = sourceMaterial.getVoicings(chord)
+          .stream().map(V -> CSV.split(V.getNotes()).size()).reduce(0, Integer::sum);
+        if (!validVoicingsForPosition.containsKey(chord.getPosition()) ||
+          validVoicingsForPosition.get(chord.getPosition()) < validVoicings) {
+          validVoicingsForPosition.put(chord.getPosition(), validVoicings);
+          chordForPosition.put(chord.getPosition(), chord);
+        }
+      }
+      completeChordsForProgramSequence.put(programSequence.getId(), chordForPosition.values());
     }
 
-    return Optional.empty();
+    return completeChordsForProgramSequence.get(programSequence.getId());
   }
 
   @Override
-  public Set<String> rememberPickedNotes(String programSequencePatternEventId, String chordName, Set<String> notes) {
-    try {
-      previouslyPickedNotes.put(keyEventChord(programSequencePatternEventId, chordName),
-        new HashSet<>(notes));
-    } catch (NexusException | EntityStoreException e) {
-      LOG.warn("Can't find chord of previous event and chord id", e);
-    }
-
-    return notes;
-  }
-
-  @Override
-  public double getAmplitudeForInstrumentType(SegmentChoiceArrangementPick pick) {
-    return switch (getInstrument(pick).map(Instrument::getType).orElse(UNRECOGNIZED)) {
-      case Percussive -> chainConfig.getDubMasterVolumeInstrumentTypePercussive();
-      case Bass -> chainConfig.getDubMasterVolumeInstrumentTypeBass();
-      case Pad -> chainConfig.getDubMasterVolumeInstrumentTypePad();
-      case Sticky -> chainConfig.getDubMasterVolumeInstrumentTypeSticky();
-      case Stripe -> chainConfig.getDubMasterVolumeInstrumentTypeStripe();
-      case Stab -> chainConfig.getDubMasterVolumeInstrumentTypeStab();
-      default -> 1.0;
-    };
-  }
-
-  @Override
-  public NoteRange computeVoicingNoteRange(Instrument.Type type) {
-    if (!voicingNoteRange.containsKey(type)) {
-      voicingNoteRange.put(type, new NoteRange(workbench.getSegmentChordVoicings()
-        .stream()
-        .filter(segmentChordVoicing -> segmentChordVoicing.getType().equals(type))
-        .flatMap(segmentChordVoicing -> getNotes(segmentChordVoicing).stream())
-        .collect(Collectors.toList())));
-    }
-
-    return voicingNoteRange.get(type);
-  }
-
-  @Override
-  public Optional<Instrument> getInstrument(SegmentChoiceArrangementPick pick) {
-    return sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId())
-      .flatMap(audio -> sourceMaterial.getInstrument(audio.getInstrumentId()));
-  }
-
-  @Override
-  public Collection<SegmentChoice> getChoices() {
-    return workbench.getSegmentChoices();
-  }
-
-  @Override
-  public Collection<SegmentChoiceArrangement> getArrangements() {
-    return workbench.getSegmentArrangements();
-  }
-
-  @Override
-  public Collection<SegmentChoiceArrangementPick> getPicks() {
-    return workbench.getSegmentChoiceArrangementPicks();
-  }
-
-  @Override
-  public Collection<SegmentChoiceArrangement> getArrangements(Collection<SegmentChoice> choices) {
-    Collection<String> choiceIds = Entities.idsOf(choices);
-    return getArrangements().stream()
-      .filter(arrangement -> choiceIds.contains(String.valueOf(arrangement.getSegmentChoiceId())))
-      .collect(Collectors.toList());
-  }
-
-  @Override
-  public Collection<SegmentChord> getSegmentChords() {
-    return workbench.getSegmentChords();
-  }
-
-  @Override
-  public Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, Instrument.Type type) {
-    Collection<SegmentChordVoicing> voicings = workbench.getSegmentChordVoicings();
-    return voicings.stream()
-      .filter(voicing -> type.equals(voicing.getType()))
-      .filter(voicing -> Objects.equals(chord.getId(), voicing.getSegmentChordId()))
-      .findAny();
-  }
-
-  @Override
-  public Collection<String> getNotes(SegmentChordVoicing voicing) {
-    return new ArrayList<>(CSV.split(voicing.getNotes()));
-  }
-
-  @Override
-  public NoteRange computeProgramRange(String programId, Instrument.Type instrumentType) {
+  public NoteRange getProgramRange(String programId, Instrument.Type instrumentType) {
     var key = String.format("%s__%s", programId, instrumentType);
 
     if (!rangeForChoice.containsKey(key)) {
@@ -971,52 +659,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public boolean continuesMacroProgram() {
-    return
-      Segment.Type.Continue.equals(getType()) ||
-        Segment.Type.NextMain.equals(getType());
-  }
-
-  @Override
-  public boolean hasMoreSequenceBindingOffsets(SegmentChoice choice, int N) {
-    if (Value.isEmpty(choice.getProgramSequenceBindingId()))
-      return false;
-    var sequenceBinding = getSequenceBinding(choice);
-
-    if (sequenceBinding.isEmpty())
-      return false;
-    List<Long> avlOfs = ImmutableList.copyOf(sourceMaterial.getAvailableOffsets(sequenceBinding.get()));
-
-    // if we locate the target and still have two offsets remaining, result is true
-    for (int i = 0; i < avlOfs.size(); i++)
-      if (avlOfs.get(i).equals(sequenceBinding.get().getOffset()) && i < avlOfs.size() - N)
-        return true;
-
-    return false;
-  }
-
-  @Override
-  public Segment.Type determineType() {
-    if (isInitialSegment())
-      return Segment.Type.Initial;
-
-    // previous main choice having at least one more pattern?
-    var previousMainChoice = getMainChoiceOfPreviousSegment();
-
-    if (previousMainChoice.isPresent() && hasOneMoreSequenceBindingOffset(previousMainChoice.get()))
-      return Segment.Type.Continue;
-
-    // previous macro choice having at least two more patterns?
-    var previousMacroChoice = getMacroChoiceOfPreviousSegment();
-
-    if (previousMacroChoice.isPresent() && hasTwoMoreSequenceBindingOffsets(previousMacroChoice.get()))
-      return Segment.Type.NextMain;
-
-    return Segment.Type.NextMacro;
-  }
-
-  @Override
-  public int computeRangeShiftOctaves(Instrument.Type type, NoteRange sourceRange, NoteRange targetRange) throws NexusException {
+  public int getProgramRangeShiftOctaves(Instrument.Type type, NoteRange sourceRange, NoteRange targetRange) throws NexusException {
     var key = String.format("%s__%s__%s", type,
       sourceRange.toString(AdjSymbol.None), targetRange.toString(AdjSymbol.None));
 
@@ -1043,7 +686,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public int computeTargetShift(Key fromKey, Chord toChord) {
+  public int getProgramTargetShift(Key fromKey, Chord toChord) {
     if (!fromKey.isPresent()) return 0;
     var key = String.format("%s__%s", fromKey, toChord.toString());
     if (!targetShift.containsKey(key))
@@ -1053,45 +696,247 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public double getAudioVolume(SegmentChoiceArrangementPick pick) {
-    return getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
-      .stream().map(InstrumentAudio::getVolume)
-      .findAny()
-      .orElse(1.0);
-  }
-
-  @Override
-  public Collection<ProgramSequenceChord> getProgramSequenceChords(ProgramSequence programSequence) {
-    if (!completeChordsForProgramSequence.containsKey(programSequence.getId())) {
-      Map<Double, ProgramSequenceChord> chordForPosition = Maps.newHashMap();
-      Map<Double, Integer> validVoicingsForPosition = Maps.newHashMap();
-      for (ProgramSequenceChord chord : sourceMaterial.getChords(programSequence)) {
-        int validVoicings = sourceMaterial.getVoicings(chord)
-          .stream().map(V -> CSV.split(V.getNotes()).size()).reduce(0, Integer::sum);
-        if (!validVoicingsForPosition.containsKey(chord.getPosition()) ||
-          validVoicingsForPosition.get(chord.getPosition()) < validVoicings) {
-          validVoicingsForPosition.put(chord.getPosition(), validVoicings);
-          chordForPosition.put(chord.getPosition(), chord);
-        }
-      }
-      completeChordsForProgramSequence.put(programSequence.getId(), chordForPosition.values());
+  public NoteRange getProgramVoicingNoteRange(Instrument.Type type) {
+    if (!voicingNoteRange.containsKey(type)) {
+      voicingNoteRange.put(type, new NoteRange(workbench.getSegmentChordVoicings()
+        .stream()
+        .filter(segmentChordVoicing -> segmentChordVoicing.getType().equals(type))
+        .flatMap(segmentChordVoicing -> getNotes(segmentChordVoicing).stream())
+        .collect(Collectors.toList())));
     }
 
-    return completeChordsForProgramSequence.get(programSequence.getId());
+    return voicingNoteRange.get(type);
   }
 
   @Override
-  public Boolean isInertiaActive() {
-    return config.getBoolean("fabrication.isInertiaActive");
+  public Optional<ProgramSequence> getRandomlySelectedSequence(Program program) {
+    EntityScorePicker<ProgramSequence> entityScorePicker = new EntityScorePicker<>();
+    sourceMaterial.getAllProgramSequences().stream()
+      .filter(s -> s.getProgramId().equals(program.getId()))
+      .forEach(sequence -> entityScorePicker.add(sequence, Chance.normallyAround(0.0, 1.0)));
+    return entityScorePicker.getTop();
+
+  }
+
+  @Override
+  public Optional<ProgramSequenceBinding> getRandomlySelectedSequenceBindingAtOffset(Program program, Long offset) {
+    EntityScorePicker<ProgramSequenceBinding> entityScorePicker = new EntityScorePicker<>();
+    for (ProgramSequenceBinding sequenceBinding : sourceMaterial.getProgramSequenceBindingsAtOffset(program, offset))
+      entityScorePicker.add(sequenceBinding, Chance.normallyAround(0.0, 1.0));
+
+    return entityScorePicker.getTop();
+  }
+
+  @Override
+  public Optional<ProgramSequencePattern> getRandomlySelectedPatternOfSequenceByVoiceAndType(SegmentChoice choice, ProgramSequencePattern.Type patternType) {
+    EntityScorePicker<ProgramSequencePattern> rank = new EntityScorePicker<>();
+    sourceMaterial.getAllProgramSequencePatterns().stream()
+      .filter(pattern -> pattern.getProgramSequenceId().equals(choice.getProgramSequenceId()))
+      .filter(pattern -> pattern.getProgramVoiceId().equals(choice.getProgramVoiceId()))
+      .filter(pattern -> pattern.getType() == patternType)
+      .forEach(pattern ->
+        rank.add(pattern, Chance.normallyAround(0.0, 1.0)));
+    if (Objects.equals(0, rank.size()))
+      return Optional.empty();
+    return rank.getTop();
+  }
+
+  @Override
+  public Double getSecondsAtPosition(double p) throws NexusException {
+    return buildTimeComputer().getSecondsAtPosition(p);
+  }
+
+  @Override
+  public Segment getSegment() {
+    return workbench.getSegment();
+  }
+
+  @Override
+  public Collection<SegmentChord> getSegmentChords() {
+    return workbench.getSegmentChords();
+  }
+
+  @Override
+  public String getSegmentMetadataJson() throws NexusException {
+    try {
+      return jsonapiPayloadFactory.serialize(jsonapiPayloadFactory.newJsonapiPayload()
+        .setDataOne(jsonapiPayloadFactory.toPayloadObject(workbench.getSegment()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentArrangements()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChoices()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentChords()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMemes()))
+        .addAllToIncluded(jsonapiPayloadFactory.toPayloadObjects(workbench.getSegmentMessages())));
+
+    } catch (JsonApiException e) {
+      throw new NexusException(e);
+    }
+  }
+
+  @Override
+  public String getSegmentOutputMetadataKey() {
+    return getSegmentStorageKey(FileStoreProvider.EXTENSION_JSON);
+  }
+
+  @Override
+  public String getSegmentOutputWaveformKey() {
+    return getSegmentStorageKey(getSegment().getOutputEncoder().toLowerCase(Locale.ENGLISH));
+  }
+
+  @Override
+  public String getSegmentStorageKey(String extension) {
+    return fileStoreProvider.getSegmentStorageKey(getSegment().getStorageKey(), extension);
+  }
+
+  @Override
+  public Optional<ProgramSequence> getSequence(SegmentChoice choice) {
+    Optional<Program> program = getProgram(choice);
+    if (program.isEmpty()) return Optional.empty();
+    if (Value.isSet(choice.getProgramSequenceBindingId())) {
+      var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
+      if (sequenceBinding.isPresent())
+        return sourceMaterial.getProgramSequence(sequenceBinding.get().getProgramSequenceId());
+    }
+
+    if (!sequenceForChoice.containsKey(choice))
+      getRandomlySelectedSequence(program.get())
+        .ifPresent(programSequence -> sequenceForChoice.put(choice, programSequence));
+
+    return Optional.of(sequenceForChoice.get(choice));
+  }
+
+  @Override
+  public Long getSequenceBindingOffsetForChoice(SegmentChoice choice) {
+    if (Value.isEmpty(choice.getProgramSequenceBindingId()))
+      return 0L;
+    var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
+    return sequenceBinding.map(ProgramSequenceBinding::getOffset).orElse(0L);
+  }
+
+  @Override
+  public HubContent getSourceMaterial() {
+    return sourceMaterial;
+  }
+
+  @Override
+  public String getTrackName(ProgramSequencePatternEvent event) {
+    return getSourceMaterial().getTrack(event)
+      .map(ProgramVoiceTrack::getName)
+      .orElse(UNKNOWN_KEY);
+  }
+
+  @Override
+  public Segment.Type getType() {
+    if (Value.isEmpty(type))
+      type = computeType();
+    return type;
+  }
+
+  @Override
+  public Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, Instrument.Type type) {
+    Collection<SegmentChordVoicing> voicings = workbench.getSegmentChordVoicings();
+    return voicings.stream()
+      .filter(voicing -> type.equals(voicing.getType()))
+      .filter(voicing -> Objects.equals(chord.getId(), voicing.getSegmentChordId()))
+      .findAny();
+  }
+
+  @Override
+  public boolean hasMoreSequenceBindingOffsets(SegmentChoice choice, int N) {
+    if (Value.isEmpty(choice.getProgramSequenceBindingId()))
+      return false;
+    var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
+
+    if (sequenceBinding.isEmpty())
+      return false;
+    List<Long> avlOfs = ImmutableList.copyOf(sourceMaterial.getAvailableOffsets(sequenceBinding.get()));
+
+    // if we locate the target and still have two offsets remaining, result is true
+    for (int i = 0; i < avlOfs.size(); i++)
+      if (avlOfs.get(i).equals(sequenceBinding.get().getOffset()) && i < avlOfs.size() - N)
+        return true;
+
+    return false;
+  }
+
+  @Override
+  public boolean hasOneMoreSequenceBindingOffset(SegmentChoice choice) {
+    return hasMoreSequenceBindingOffsets(choice, 1);
+  }
+
+  @Override
+  public boolean hasTwoMoreSequenceBindingOffsets(SegmentChoice choice) {
+    return hasMoreSequenceBindingOffsets(choice, 2);
+  }
+
+  @Override
+  public boolean isContinuationOfMacroProgram() {
+    return
+      Segment.Type.Continue.equals(getType()) ||
+        Segment.Type.NextMain.equals(getType());
+  }
+
+  @Override
+  public boolean isDirectlyBound(Program program) {
+    return boundProgramIds.contains(program.getId());
+  }
+
+  @Override
+  public boolean isDirectlyBound(Instrument instrument) {
+    return boundInstrumentIds.contains(instrument.getId());
+  }
+
+  @Override
+  public Boolean isInitialSegment() {
+    return 0L == workbench.getSegment().getOffset();
+  }
+
+  @Override
+  public Set<String> rememberPickedNotes(String programSequencePatternEventId, String chordName, Set<String> notes) {
+    try {
+      preferredNotes.put(computeEventChordKey(programSequencePatternEventId, chordName),
+        new HashSet<>(notes));
+    } catch (NexusException | EntityStoreException e) {
+      LOG.warn("Can't find chord of previous event and chord id", e);
+    }
+
+    return notes;
+  }
+
+  @Override
+  public void putReport(String key, Object value) {
+    workbench.putReport(key, value);
+  }
+
+  @Override
+  public void updateSegment(Segment segment) {
+    try {
+      segmentDAO.update(access, segment.getId(), segment);
+      workbench.setSegment(segment);
+
+    } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException | DAOValidationException e) {
+      LOG.error("Failed to update Segment", e);
+    }
+  }
+
+  @Override
+  public SegmentRetrospective retrospective() {
+    return retrospective;
+  }
+
+  @Override
+  public void setPreferredAudio(ProgramSequencePatternEvent event, String note, InstrumentAudio instrumentAudio) {
+    String key = String.format(KEY_VOICE_NOTE_TEMPLATE, event.getProgramVoiceTrackId(), note);
+
+    preferredAudios.put(key, instrumentAudio);
   }
 
   /**
    @return Chain base key
    */
-  private String getChainBaseKey() {
+  private String computeChainBaseKey() {
     return
       Strings.isNullOrEmpty(getChain().getEmbedKey()) ?
-        String.format("chain-%s", getChainId())
+        String.format("chain-%s", chain.getId())
         : getChain().getEmbedKey();
   }
 
@@ -1163,22 +1008,12 @@ class FabricatorImpl implements Fabricator {
    @param segment to generate URL for
    @return URL as string
    */
-  private String generateStorageKey(Chain chain, Segment segment) {
+  private String computeStorageKey(Chain chain, Segment segment) {
     String chainName = Strings.isNullOrEmpty(chain.getEmbedKey()) ?
       "chain" + NAME_SEPARATOR + chain.getId() :
       chain.getEmbedKey();
     String segmentName = segmentNameFormat.format(Instant.parse(segment.getBeginAt()).toEpochMilli());
     return fileStoreProvider.generateKey(chainName + NAME_SEPARATOR + segmentName);
-  }
-
-  /**
-   Get a Sequence Binding for a given Choice
-
-   @param choice to get sequence binding for
-   @return Sequence Binding for the given Choice
-   */
-  private Optional<ProgramSequenceBinding> getSequenceBinding(SegmentChoice choice) {
-    return sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
   }
 
   /**
@@ -1198,7 +1033,7 @@ class FabricatorImpl implements Fabricator {
    @return metadata JSON
    @throws NexusException on failure
    */
-  private String getChainMetadataJson(Collection<Segment> segments) throws NexusException {
+  private String computeChainMetadataJson(Collection<Segment> segments) throws NexusException {
     try {
       JsonapiPayload jsonapiPayload = new JsonapiPayload();
       jsonapiPayload.setDataOne(jsonapiPayloadFactory.toPayloadObject(chain));
@@ -1220,7 +1055,7 @@ class FabricatorImpl implements Fabricator {
    @param chordName to get key for
    @return key for chord + event
    */
-  private String keyEventChord(String eventId, String chordName) throws NexusException, EntityStoreException {
+  private String computeEventChordKey(String eventId, String chordName) throws NexusException, EntityStoreException {
     return String.format("%s__%s", chordName, eventId);
   }
 
@@ -1230,16 +1065,9 @@ class FabricatorImpl implements Fabricator {
 
    @return Time Computer
    */
-  private TimeComputer getTimeComputer() throws NexusException {
+  private TimeComputer buildTimeComputer() throws NexusException {
     double toTempo = workbench.getSegment().getTempo(); // velocity at current segment tempo
-    double fromTempo;
-    try {
-      Segment previous = getPreviousSegment();
-      // velocity at previous segment tempo
-      fromTempo = previous.getTempo();
-    } catch (Exception ignored) {
-      fromTempo = toTempo;
-    }
+    double fromTempo = retrospective.getPreviousSegment().isPresent() ? retrospective.getPreviousSegment().get().getTempo() : toTempo;
     double totalBeats = workbench.getSegment().getTotal();
     putReport("totalBeats", totalBeats);
     putReport("fromTempo", fromTempo);
@@ -1257,10 +1085,92 @@ class FabricatorImpl implements Fabricator {
     if (Value.isEmpty(workbench.getSegment().getStorageKey()) || workbench.getSegment().getStorageKey().isEmpty()) {
       workbench.setSegment(
         workbench.getSegment().toBuilder()
-          .setStorageKey(generateStorageKey(workbench.getChain(), workbench.getSegment()))
+          .setStorageKey(computeStorageKey(workbench.getChain(), workbench.getSegment()))
           .build());
       LOG.debug("[segId={}] Generated storage key {}", workbench.getSegment().getId(), workbench.getSegment().getStorageKey());
     }
   }
 
+  /**
+   Compute the type of the current segment
+
+   @return type of the current segment
+   */
+  private Segment.Type computeType() {
+    if (isInitialSegment())
+      return Segment.Type.Initial;
+
+    // previous main choice having at least one more pattern?
+    var previousMainChoice = getMainChoiceOfPreviousSegment();
+
+    if (previousMainChoice.isPresent() && hasOneMoreSequenceBindingOffset(previousMainChoice.get()))
+      return Segment.Type.Continue;
+
+    // previous macro choice having at least two more patterns?
+    var previousMacroChoice = getMacroChoiceOfPreviousSegment();
+
+    if (previousMacroChoice.isPresent() && hasTwoMoreSequenceBindingOffsets(previousMacroChoice.get()))
+      return Segment.Type.NextMain;
+
+    return Segment.Type.NextMacro;
+  }
+
+  /**
+   Digest all previously chosen programs for the same main program
+
+   @return map of program types to instrument types to list of programs chosen
+   */
+  private Map<Program.Type, Map<Instrument.Type, List<String>>> computePreferredProgramIds() {
+    Map<Program.Type, Map<Instrument.Type, List<String>>> programIds = Maps.newHashMap();
+    retrospective.getChoices().forEach(choice -> {
+      if (!programIds.containsKey(choice.getProgramType()))
+        programIds.put(choice.getProgramType(), Maps.newHashMap());
+      if (!programIds.get(choice.getProgramType()).containsKey(choice.getInstrumentType()))
+        programIds.get(choice.getProgramType()).put(choice.getInstrumentType(), Lists.newArrayList());
+      programIds.get(choice.getProgramType()).get(choice.getInstrumentType())
+        .add(choice.getProgramId());
+    });
+
+    return programIds;
+  }
+
+  /**
+   Digest all previously picked events for the same main program
+
+   @return map of program types to instrument types to list of programs chosen
+   */
+  private Map<String, Set<String>> computePreferredNotes() {
+    Map<String, Set<String>> notes = Maps.newHashMap();
+
+    retrospective.getPicks()
+      .forEach(pick -> {
+        try {
+          var key = computeEventChordKey(pick.getProgramSequencePatternEventId(), pick.getSegmentChordVoicingId());
+          if (!notes.containsKey(key))
+            notes.put(key, Sets.newHashSet());
+          notes.get(key).add(pick.getNote());
+
+        } catch (NexusException | EntityStoreException e) {
+          LOG.warn("Can't find chord of previous event and chord id", e);
+        }
+      });
+
+    return notes;
+  }
+
+  /**
+   Compute the preferred instrument audio
+
+   @return preferred instrument audio
+   */
+  private Map<String, InstrumentAudio> computePreferredInstrumentAudio() {
+    Map<String, InstrumentAudio> audios = Maps.newHashMap();
+
+    retrospective.getPicks()
+      .forEach(pick ->
+        getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
+          .ifPresent(audio -> audios.put(getKeyByVoiceTrack(pick), audio)));
+
+    return audios;
+  }
 }

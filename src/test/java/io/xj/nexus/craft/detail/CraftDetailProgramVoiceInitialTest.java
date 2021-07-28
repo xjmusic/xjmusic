@@ -49,16 +49,15 @@ import static org.junit.Assert.assertFalse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftDetailProgramVoiceInitialTest {
+  @Mock
+  public HubClient hubClient;
   private Chain chain2;
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
   private HubContent sourceMaterial;
   private NexusEntityStore store;
   private NexusIntegrationTestingFixtures fake;
-  private Segment segment6;
-
-  @Mock
-  public HubClient hubClient;
+  private Segment segment1;
 
   @Before
   public void setUp() throws Exception {
@@ -86,11 +85,11 @@ public class CraftDetailProgramVoiceInitialTest {
     // Mock request via HubClient returns fake generated library of hub content
     fake = new NexusIntegrationTestingFixtures();
     sourceMaterial = new HubContent(Streams.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB3().stream(),
-        fake.setupFixtureB4_DetailBass().stream())
-        .filter(entity -> !Entities.isSame(entity, fake.program35) && !Entities.isChild(entity, fake.program35))
-        .collect(Collectors.toList()));
+      fake.setupFixtureB1().stream(),
+      fake.setupFixtureB3().stream(),
+      fake.setupFixtureB4_DetailBass().stream())
+      .filter(entity -> !Entities.isSame(entity, fake.program35) && !Entities.isChild(entity, fake.program35))
+      .collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     chain2 = store.put(Chain.newBuilder()
@@ -118,7 +117,7 @@ public class CraftDetailProgramVoiceInitialTest {
   public void craftDetailVoiceInitial() throws Exception {
     insertSegments();
 
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment1);
 
     craftFactory.detail(fabricator).doWork();
 
@@ -136,7 +135,7 @@ public class CraftDetailProgramVoiceInitialTest {
   @Test
   public void craftDetailVoiceInitial_okWhenNoDetailChoice() throws Exception {
     insertSegments();
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment1);
 
     craftFactory.detail(fabricator).doWork();
   }
@@ -146,10 +145,11 @@ public class CraftDetailProgramVoiceInitialTest {
    */
   private void insertSegments() throws NexusException {
     // segment crafted
-    Segment segment5 = store.put(Segment.newBuilder()
+    Segment segment0 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain2.getId())
-      .setOffset(2L)
+      .setType(Segment.Type.Initial)
+      .setOffset(0L)
       .setState(Segment.State.Crafted)
       .setBeginAt("2017-02-14T12:01:07.384616Z")
       .setEndAt("2017-02-14T12:01:27.384616Z")
@@ -161,24 +161,25 @@ public class CraftDetailProgramVoiceInitialTest {
       .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment5.getId())
+      .setSegmentId(segment0.getId())
       .setProgramId(fake.program4.getId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-            .build());
+      .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment5.getId())
+      .setSegmentId(segment0.getId())
       .setProgramId(fake.program5.getId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
-            .build());
+      .build());
 
     // segment crafting
-    segment6 = store.put(Segment.newBuilder()
+    segment1 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain2.getId())
-      .setOffset(3L)
+      .setOffset(1L)
+      .setType(Segment.Type.Continue)
       .setState(Segment.State.Crafting)
       .setBeginAt("2017-02-14T12:01:00.000001Z")
       .setEndAt("2017-02-14T12:01:07.384616Z")
@@ -190,49 +191,49 @@ public class CraftDetailProgramVoiceInitialTest {
       .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment6.getId())
+      .setSegmentId(segment1.getId())
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program4.getId())
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
-            .build());
+      .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment6.getId())
+      .setSegmentId(segment1.getId())
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program5.getId())
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
-            .build());
+      .build());
     for (String memeName : ImmutableList.of("Special", "Wild", "Pessimism", "Outlook"))
       store.put(SegmentMeme.newBuilder()
         .setId(UUID.randomUUID().toString())
-        .setSegmentId(segment6.getId()).setName(memeName)
+        .setSegmentId(segment1.getId()).setName(memeName)
         .build());
     SegmentChord chord0 = store.put(SegmentChord.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment6.getId())
+      .setSegmentId(segment1.getId())
       .setPosition(0.0)
       .setName("C minor")
       .build());
     store.put(SegmentChordVoicing.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment6.getId())
+      .setSegmentId(segment1.getId())
       .setSegmentChordId(chord0.getId())
       .setType(Instrument.Type.Bass)
       .setNotes("C2, Eb2, G2")
       .build());
     SegmentChord chord1 = store.put(SegmentChord.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment6.getId())
+      .setSegmentId(segment1.getId())
       .setPosition(8.0)
       .setName("Db minor")
       .build());
     store.put(SegmentChordVoicing.newBuilder()
       .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment6.getId())
+      .setSegmentId(segment1.getId())
       .setSegmentChordId(chord1.getId())
       .setType(Instrument.Type.Bass)
       .setNotes("Db2, E2, Ab2")

@@ -4,8 +4,8 @@ package org.xiph.libvorbis;
 
 public class vorbis_info {
 
-  int version;
   public int channels;
+  int version;
   int rate;        // long rate
   int bitrate_upper;    // long bitrate_upper
   int bitrate_nominal;  // long bitrate_nominal

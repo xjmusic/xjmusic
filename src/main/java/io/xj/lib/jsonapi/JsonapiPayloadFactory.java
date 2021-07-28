@@ -2,8 +2,7 @@
 
 package io.xj.lib.jsonapi;
 
-import com.google.protobuf.MessageLite ;
-import io.xj.lib.entity.EntityException;
+import com.google.protobuf.MessageLite;
 
 import java.io.BufferedReader;
 import java.util.Collection;
@@ -33,7 +32,7 @@ public interface JsonapiPayloadFactory {
    + Adding any available sub-entities
    + Re-index relationships and prune orphaned entities
 
-   @param target  into which payload will be consumed
+   @param target         into which payload will be consumed
    @param jsonapiPayload to consume
    @return target Entity (for chaining methods)
    @throws JsonApiException on failure to consume payload
@@ -55,7 +54,7 @@ public interface JsonapiPayloadFactory {
    |  }
    |
 
-   @param target        into which payload object will be consumed
+   @param target               into which payload object will be consumed
    @param jsonapiPayloadObject of which to get attributes
    @return target Entity (for chaining methods)
    @throws JsonApiException on failure to set
@@ -136,8 +135,8 @@ public interface JsonapiPayloadFactory {
    Add all sub-entities of given entity to included resource objects
    + cross-references all entities and adds hasMany references to payloads
 
-   @param jsonapiPayload   on which to add included resources
-   @param resources to be added
+   @param jsonapiPayload on which to add included resources
+   @param resources      to be added
    @return this Payload (for chaining methods)
    */
   <N> JsonapiPayload addIncluded(JsonapiPayload jsonapiPayload, Collection<N> resources) throws JsonApiException;
@@ -188,9 +187,9 @@ public interface JsonapiPayloadFactory {
   /**
    Add one payload to a has-many relationship of this resource object
 
-   @param obj              payload object to which relationship will be added
-   @param relationshipName for which object will be added
-   @param jsonapiPayloadObject    relationship to add
+   @param obj                  payload object to which relationship will be added
+   @param relationshipName     for which object will be added
+   @param jsonapiPayloadObject relationship to add
    @return the payload object after the relationship has been added
    */
   JsonapiPayloadObject add(JsonapiPayloadObject obj, String relationshipName, JsonapiPayloadObject jsonapiPayloadObject) throws JsonApiException;

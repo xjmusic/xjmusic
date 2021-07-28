@@ -76,34 +76,29 @@ public class DemoIT {
    @param referenceName name
    @throws Exception on failure
    */
+  @SuppressWarnings("UnstableApiUsage")
   private static void assertMixOutputEqualsReferenceAudio(OutputEncoder encoder, AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, String referenceName) throws Exception {
     String filename = getUniqueTempFilename(referenceName);
     mixAndWriteOutput(encoder, encoding, frameRate, sampleBits, channels, filename);
     switch (encoder) {
-      case WAV:
-        assertTrue("Demo output does not match reference audio for " + referenceName + "!",
-          Files.equal(new File(filename), resourceFile(getReferenceAudioFilename(referenceName))));
-        break;
-      case OGG:
-      case AAC:
-        assertTrue("Demo output does not match file size +/-2% of reference audio for " + referenceName + "!",
-          isFileSizeWithin(new File(filename), resourceFile(getReferenceAudioFilename(referenceName)), 0.02f)
-        );
-        break;
+      case WAV -> assertTrue("Demo output does not match reference audio for " + referenceName + "!",
+        Files.equal(new File(filename), resourceFile(getReferenceAudioFilename(referenceName))));
+      case OGG -> assertTrue("Demo output does not match file size +/-2% of reference audio for " + referenceName + "!",
+        isFileSizeWithin(new File(filename), resourceFile(getReferenceAudioFilename(referenceName)))
+      );
     }
   }
 
   /**
    Assert size of two different files is within a tolerated threshold
 
-   @param f1        to compare
-   @param f2        to compare
-   @param threshold ratio +/- to tolerate, where 0.0 is perfect equality, 0.1 is 10 percent deviation.
+   @param f1 to compare
+   @param f2 to compare
    @return true if within tolerance
    */
-  private static boolean isFileSizeWithin(File f1, File f2, float threshold) {
-    Float deviance = (float) f1.getTotalSpace() / f2.getTotalSpace();
-    return (1 - threshold) < deviance && (1 + threshold) > deviance;
+  private static boolean isFileSizeWithin(File f1, File f2) {
+    float deviance = (float) f1.getTotalSpace() / f2.getTotalSpace();
+    return (1 - (float) 0.02) < deviance && (1 + (float) 0.02) > deviance;
   }
 
   /**
@@ -214,14 +209,6 @@ public class DemoIT {
   @Test
   public void demo_48000Hz_2ch_OggVorbis() throws Exception {
     assertMixOutputEqualsReferenceAudio(OutputEncoder.OGG, AudioFormat.Encoding.PCM_FLOAT, 48000, 32, 2, "48000Hz_Float_32bit_2ch.ogg");
-  }
-
-  /**
-   [#162361712] AAC output
-   */
-  @Test
-  public void demo_48000Hz_2ch_AAC() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.AAC, AudioFormat.Encoding.PCM_SIGNED, 48000, 16, 2, "48000Hz_Signed_16bit_2ch.aac");
   }
 
 }

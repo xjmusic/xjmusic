@@ -96,38 +96,38 @@ segment:
 
 assertPicks:
   bass:
-    - { start: 0.00, length: 0.25, count: 1, notes: "F1"}
-    - { start: 0.25, length: 0.25, count: 1, notes: "F1"}
-    - { start: 0.50, length: 0.25, count: 1, notes: "F1"}
-    - { start: 0.75, length: 0.25, count: 1, notes: "F1"}
-    - { start: 1.00, length: 0.25, count: 1, notes: "F1"}
-    - { start: 1.25, length: 0.25, count: 1, notes: "F1"}
-    - { start: 1.50, length: 0.25, count: 1, notes: "F1"}
-    - { start: 1.75, length: 0.25, count: 1, notes: "A1"}
-    - { start: 2.00, length: 0.25, count: 1, notes: "A1"}
-    - { start: 2.25, length: 0.25, count: 1, notes: "A1"}
-    - { start: 2.50, length: 0.25, count: 1, notes: "A1"}
-    - { start: 2.75, length: 0.25, count: 1, notes: "A1"}
-    - { start: 3.00, length: 0.25, count: 1, notes: "A1"}
-    - { start: 3.25, length: 0.25, count: 1, notes: "A1"}
-    - { start: 3.50, length: 0.25, count: 1, notes: "A1"}
-    - { start: 3.75, length: 0.25, count: 1, notes: "C1"}
-    - { start: 4.00, length: 0.25, count: 1, notes: "C1"}
-    - { start: 4.25, length: 0.25, count: 1, notes: "C1"}
-    - { start: 4.50, length: 0.25, count: 1, notes: "C1"}
-    - { start: 4.75, length: 0.25, count: 1, notes: "C1"}
-    - { start: 5.00, length: 0.25, count: 1, notes: "C1"}
-    - { start: 5.25, length: 0.25, count: 1, notes: "C1"}
-    - { start: 5.50, length: 0.25, count: 1, notes: "C1"}
-    - { start: 5.75, length: 0.25, count: 1, notes: "D1"}
-    - { start: 6.00, length: 0.25, count: 1, notes: "D1"}
-    - { start: 6.25, length: 0.25, count: 1, notes: "D1"}
-    - { start: 6.50, length: 0.25, count: 1, notes: "D1"}
-    - { start: 6.75, length: 0.25, count: 1, notes: "D1"}
-    - { start: 7.00, length: 0.25, count: 1, notes: "D1"}
-    - { start: 7.25, length: 0.25, count: 1, notes: "D1"}
-    - { start: 7.50, length: 0.25, count: 1, notes: "D1"}
-    - { start: 7.75, length: 0.25, count: 1, notes: "D1"}
+    - { start: 0.00, length: 0.25, count: 1, notes: "F1" }
+    - { start: 0.25, length: 0.25, count: 1, notes: "F1" }
+    - { start: 0.50, length: 0.25, count: 1, notes: "F1" }
+    - { start: 0.75, length: 0.25, count: 1, notes: "F1" }
+    - { start: 1.00, length: 0.25, count: 1, notes: "F1" }
+    - { start: 1.25, length: 0.25, count: 1, notes: "F1" }
+    - { start: 1.50, length: 0.25, count: 1, notes: "F1" }
+    - { start: 1.75, length: 0.25, count: 1, notes: "A1" }
+    - { start: 2.00, length: 0.25, count: 1, notes: "A1" }
+    - { start: 2.25, length: 0.25, count: 1, notes: "A1" }
+    - { start: 2.50, length: 0.25, count: 1, notes: "A1" }
+    - { start: 2.75, length: 0.25, count: 1, notes: "A1" }
+    - { start: 3.00, length: 0.25, count: 1, notes: "A1" }
+    - { start: 3.25, length: 0.25, count: 1, notes: "A1" }
+    - { start: 3.50, length: 0.25, count: 1, notes: "A1" }
+    - { start: 3.75, length: 0.25, count: 1, notes: "C1" }
+    - { start: 4.00, length: 0.25, count: 1, notes: "C1" }
+    - { start: 4.25, length: 0.25, count: 1, notes: "C1" }
+    - { start: 4.50, length: 0.25, count: 1, notes: "C1" }
+    - { start: 4.75, length: 0.25, count: 1, notes: "C1" }
+    - { start: 5.00, length: 0.25, count: 1, notes: "C1" }
+    - { start: 5.25, length: 0.25, count: 1, notes: "C1" }
+    - { start: 5.50, length: 0.25, count: 1, notes: "C1" }
+    - { start: 5.75, length: 0.25, count: 1, notes: "D1" }
+    - { start: 6.00, length: 0.25, count: 1, notes: "D1" }
+    - { start: 6.25, length: 0.25, count: 1, notes: "D1" }
+    - { start: 6.50, length: 0.25, count: 1, notes: "D1" }
+    - { start: 6.75, length: 0.25, count: 1, notes: "D1" }
+    - { start: 7.00, length: 0.25, count: 1, notes: "D1" }
+    - { start: 7.25, length: 0.25, count: 1, notes: "D1" }
+    - { start: 7.50, length: 0.25, count: 1, notes: "D1" }
+    - { start: 7.75, length: 0.25, count: 1, notes: "D1" }
   pad:
     - { start: 0.00, length: 1.75, count: 4, notes: "A3, C4, E4, A4" }
     - { start: 1.75, length: 2.00, count: 4, notes: "C4, D4, G4, C5" }

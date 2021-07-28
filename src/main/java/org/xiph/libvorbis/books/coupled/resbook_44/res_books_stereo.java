@@ -2,10 +2,10 @@
 
 package org.xiph.libvorbis.books.coupled.resbook_44;
 
-import org.xiph.libvorbis.vorbis_residue_template;
 import org.xiph.libvorbis.vorbis_info_mapping0;
 import org.xiph.libvorbis.vorbis_info_residue0;
 import org.xiph.libvorbis.vorbis_mapping_template;
+import org.xiph.libvorbis.vorbis_residue_template;
 
 public class res_books_stereo {
 

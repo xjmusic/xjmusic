@@ -2,7 +2,6 @@
 package io.xj.nexus.craft.arrangement;
 
 import com.google.common.collect.Sets;
-import io.xj.lib.app.AppException;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Note;
 import org.junit.After;

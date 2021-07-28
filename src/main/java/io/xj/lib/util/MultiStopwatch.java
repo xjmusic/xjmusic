@@ -14,13 +14,6 @@ import java.util.stream.Collectors;
  Measures a series of named sections of time
  */
 public class MultiStopwatch {
-  private String section;
-  private final Map<String, Double> sectionLapSeconds = Maps.newHashMap();
-  private final Map<String, Double> sectionTotalSeconds = Maps.newHashMap();
-  private final long startedMillis;
-  private double lapTotalSeconds;
-  private long lapStartedMillis;
-  private long sectionStartedMillis;
   public static final long SECONDS_PER_MINUTE = 60;
   public static final long MINUTES_PER_HOUR = 60;
   public static final long HOURS_PER_DAY = 24;
@@ -28,7 +21,13 @@ public class MultiStopwatch {
   public static final long SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
   public static final long SECONDS_PER_DAY = SECONDS_PER_HOUR * HOURS_PER_DAY;
   public static final String STANDBY = "Standby";
-
+  private final Map<String, Double> sectionLapSeconds = Maps.newHashMap();
+  private final Map<String, Double> sectionTotalSeconds = Maps.newHashMap();
+  private final long startedMillis;
+  private String section;
+  private double lapTotalSeconds;
+  private long lapStartedMillis;
+  private long sectionStartedMillis;
   @Nullable
   private Double totalSeconds = null;
 

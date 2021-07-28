@@ -45,12 +45,12 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
+  public static final Double LENGTH_MINIMUM = 0.01; //
+  public static final Double AMPLITUDE_MINIMUM = 0.0; //
   private static final long MILLIS_PER_SECOND = 1000;
   private final ChainDAO chainDAO;
   private final int workBufferAheadSeconds;
   private final int workBufferBeforeSeconds;
-  public static final Double LENGTH_MINIMUM = 0.01; //
-  public static final Double AMPLITUDE_MINIMUM = 0.0; //
 
   @Inject
   public SegmentDAOImpl(
@@ -503,7 +503,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   private void validateSegmentChoice(SegmentChoice.Builder record) throws ValueException {
-    if (Value.isEmpty(record.getIsInertial())) record.setIsInertial(false);
+    if (Value.isEmpty(record.getType())) record.setType(SegmentChoice.Type.Primary);
     Value.require(record.getSegmentId(), "Segment ID");
     Value.require(record.getProgramId(), "Program ID");
     Value.require(record.getProgramType(), "Program Type");

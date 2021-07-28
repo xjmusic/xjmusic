@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import io.xj.UserRole;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
-import io.xj.lib.util.ValueException;
 
 import java.util.Collection;
 import java.util.Objects;

@@ -4,11 +4,6 @@ package org.xiph.libogg;
 
 public class ogg_page {
 
-  public byte[] header;    // unsigned char
-  public int header_len;    // long
-  public byte[] body;      // unsigned char
-  public int body_len;    // long
-
   // static ogg_uint32_t crc_lookup[256]={
   private static int[] crc_lookup = new int[256];
 
@@ -16,6 +11,14 @@ public class ogg_page {
     for (int i = 0; i < crc_lookup.length; i++) {
       crc_lookup[i] = crc_entry(i);
     }
+  }
+
+  public byte[] header;    // unsigned char
+  public int header_len;    // long
+  public byte[] body;      // unsigned char
+  public int body_len;    // long
+
+  public ogg_page() {
   }
 
   private static int crc_entry(int index) {
@@ -34,9 +37,6 @@ public class ogg_page {
       }
     }
     return (r & 0xffffffff);
-  }
-
-  public ogg_page() {
   }
 
   public int ogg_page_eos() {

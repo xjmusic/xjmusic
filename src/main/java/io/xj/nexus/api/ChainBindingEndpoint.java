@@ -4,11 +4,11 @@ package io.xj.nexus.api;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
-import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.nexus.dao.ChainBindingDAO;
+import io.xj.lib.jsonapi.MediaType;
 import io.xj.nexus.NexusEndpoint;
+import io.xj.nexus.dao.ChainBindingDAO;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;

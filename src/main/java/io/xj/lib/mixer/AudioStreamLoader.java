@@ -11,9 +11,8 @@ import java.io.IOException;
  Load audio data from input stream
  */
 public class AudioStreamLoader {
-  private static final int READ_BUFFER_BYTE_SIZE = 1024;
   public static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
-
+  private static final int READ_BUFFER_BYTE_SIZE = 1024;
   private final AudioFormat audioFormat;
   private final AudioInputStream audioInputStream;
   private final double[][] frames;

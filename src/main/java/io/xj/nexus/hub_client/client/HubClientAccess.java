@@ -74,52 +74,6 @@ public class HubClientAccess {
   }
 
   /**
-   Set RoleTypes
-
-   @param roleTypes to set
-   @return this HubClientAccess (for chaining setters)
-   */
-  public HubClientAccess setRoleTypes(Collection<UserRole.Type> roleTypes) {
-    this.roleTypes.clear();
-    this.roleTypes.addAll(roleTypes);
-    return this;
-  }
-
-  /**
-   Set AccountIds
-
-   @param accountIds to set
-   @return this HubClientAccess (for chaining setters)
-   */
-  public HubClientAccess setAccountIds(Collection<String> accountIds) {
-    this.accountIds.clear();
-    this.accountIds.addAll(accountIds);
-    return this;
-  }
-
-  /**
-   Set User Id
-
-   @param userId to set
-   @return this HubClientAccess (for chaining setters)
-   */
-  public HubClientAccess setUserId(@Nullable String userId) {
-    this.userId = userId;
-    return this;
-  }
-
-  /**
-   Set UserAuth Id
-
-   @param userAuthId to set
-   @return this HubClientAccess (for chaining setters)
-   */
-  public HubClientAccess setUserAuthId(@Nullable String userAuthId) {
-    this.userAuthId = userAuthId;
-    return this;
-  }
-
-  /**
    Put this access to the container request context.
    Mirror of fromContext()
 
@@ -161,6 +115,17 @@ public class HubClientAccess {
   }
 
   /**
+   Set User Id
+
+   @param userId to set
+   @return this HubClientAccess (for chaining setters)
+   */
+  public HubClientAccess setUserId(@Nullable String userId) {
+    this.userId = userId;
+    return this;
+  }
+
+  /**
    Get Accounts
 
    @return array of account id
@@ -170,12 +135,36 @@ public class HubClientAccess {
   }
 
   /**
+   Set AccountIds
+
+   @param accountIds to set
+   @return this HubClientAccess (for chaining setters)
+   */
+  public HubClientAccess setAccountIds(Collection<String> accountIds) {
+    this.accountIds.clear();
+    this.accountIds.addAll(accountIds);
+    return this;
+  }
+
+  /**
    Get user role types
 
    @return user role types
    */
   public Collection<UserRole.Type> getRoleTypes() {
     return Collections.unmodifiableCollection(roleTypes);
+  }
+
+  /**
+   Set RoleTypes
+
+   @param roleTypes to set
+   @return this HubClientAccess (for chaining setters)
+   */
+  public HubClientAccess setRoleTypes(Collection<UserRole.Type> roleTypes) {
+    this.roleTypes.clear();
+    this.roleTypes.addAll(roleTypes);
+    return this;
   }
 
   /**
@@ -207,6 +196,17 @@ public class HubClientAccess {
   @Nullable
   public String getUserAuthId() {
     return userAuthId;
+  }
+
+  /**
+   Set UserAuth Id
+
+   @param userAuthId to set
+   @return this HubClientAccess (for chaining setters)
+   */
+  public HubClientAccess setUserAuthId(@Nullable String userAuthId) {
+    this.userAuthId = userAuthId;
+    return this;
   }
 
   /**

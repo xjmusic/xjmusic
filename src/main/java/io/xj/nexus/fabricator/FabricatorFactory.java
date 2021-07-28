@@ -39,7 +39,7 @@ public interface FabricatorFactory {
    content.putReport();
 
    @param access         control
-   @param segment Segment that's on the workbench
+   @param segment        Segment that's on the workbench
    @param sourceMaterial to get answers about the segment content
    @return SegmentRetrospective
    @throws NexusException on failure

@@ -62,13 +62,14 @@ public class ArrangementCraftTests extends YamlTest {
     Instrument.Type.Stab,
     Instrument.Type.Stripe
   );
+  // this is how we provide content for fabrication
+  @Mock
+  public HubClient hubClient;
   private FabricatorFactory fabrication;
   private NexusEntityStore store;
   private Fabricator fabricator;
-
   // list of all entities to return from Hub
   private List<Object> content;
-
   // maps with specific entities that will reference each other
   private Map<Instrument.Type, Instrument> instruments;
   private Map<Instrument.Type, Program> detailPrograms;
@@ -78,10 +79,6 @@ public class ArrangementCraftTests extends YamlTest {
   private Segment segment;
   private Map<Instrument.Type, SegmentChoice> segmentChoices;
   private Injector injector;
-
-  // this is how we provide content for fabrication
-  @Mock
-  public HubClient hubClient;
 
   @Test
   public void arrangementCraft1() {

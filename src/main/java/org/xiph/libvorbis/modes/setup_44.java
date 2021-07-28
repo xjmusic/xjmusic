@@ -16,15 +16,10 @@ import org.xiph.libvorbis.vp_adjblock;
 
 public class setup_44 {
 
-  public ve_setup_data_template data;
-
-
   static float[] rate_mapping_44_stereo = new float[]{22500.f, 32000.f, 40000.f, 48000.f, 56000.f, 64000.f, 80000.f, 96000.f, 112000.f, 128000.f, 160000.f, 250001.f};
   static float[] quality_mapping_44 = new float[]{-.1f, .0f, .1f, .2f, .3f, .4f, .5f, .6f, .7f, .8f, .9f, 1.0f};
-
   static int[] blocksize_short_44 = new int[]{512, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256};
   static int[] blocksize_long_44 = new int[]{4096, 2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048};
-
   static att3[] _psy_tone_masteratt_44 = new att3[]{
 
     new att3(new int[]{35, 21, 9}, 0, 0), /* -1 */
@@ -42,10 +37,8 @@ public class setup_44 {
     new att3(new int[]{18, -2, -16}, 0, 0), /* 9 */
     new att3(new int[]{12, -2, -20}, 0, 0), /* 10 */
   };
-
   static int[] _psy_tone_0dB = new int[]{90, 90, 95, 95, 95, 95, 105, 105, 105, 105, 105, 105};
   static int[] _psy_tone_suppress = new int[]{-20, -20, -20, -20, -20, -24, -30, -40, -40, -45, -45, -45};
-
   static vp_adjblock[] _vp_tonemask_adj_otherblock = new vp_adjblock[]{
 
     /* 63     125     250     500       1       2       4       8      16 */
@@ -73,7 +66,6 @@ public class setup_44 {
     /* {{-20,-20,-20,-20,-20,-18,-16,-14,-10,  0,  0,  0,  0,  0,  0,  0,  0}},    10 */
     new vp_adjblock(new int[]{-16, -16, -16, -16, -16, -16, -16, -15, -14, -14, -14, -12, -9, -4, -2, -2, 0}), /* 10 */
   };
-
   static vp_adjblock[] _vp_tonemask_adj_longblock = new vp_adjblock[]{
 
     /* 63     125     250     500       1       2       4       8      16 */
@@ -101,7 +93,6 @@ public class setup_44 {
     /* {{-15,-15,-15,-15,-15,-12,-10, -8,  0,  0,  0,  0,  0,  0,  0,  0,  0}},    10 */
     new vp_adjblock(new int[]{-16, -16, -16, -16, -16, -16, -16, -15, -14, -14, -14, -12, -9, -4, -2, -2, 0}), /* 10 */
   };
-
   static noiseguard[] _psy_noiseguards_44 = new noiseguard[]{
 
     new noiseguard(3, 3, 15),
@@ -109,7 +100,6 @@ public class setup_44 {
     new noiseguard(10, 10, 100),
     new noiseguard(10, 10, 100),
   };
-
   static noise3[] _psy_noisebias_impulse = new noise3[]{
 
     /*  63     125     250     500      1k      2k      4k      8k     16k*/
@@ -177,7 +167,6 @@ public class setup_44 {
       {-40, -40, -40, -40, -40, -40, -40, -40, -35, -30, -30, -30, -30, -30, -30, -30, -26},
       {-40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40}}),
   };
-
   static noise3[] _psy_noisebias_padding = new noise3[]{
 
     /*  63     125     250     500      1k       2k      4k      8k     16k*/
@@ -233,7 +222,6 @@ public class setup_44 {
       {-40, -40, -40, -40, -40, -40, -40, -40, -35, -30, -25, -25, -25, -25, -25, -25, -15},
       {-40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40}}),
   };
-
   static noise3[] _psy_noisebias_trans = new noise3[]{
 
     /*  63     125     250     500      1k       2k      4k      8k     16k*/
@@ -316,7 +304,6 @@ public class setup_44 {
       {-40, -40, -40, -40, -40, -40, -40, -40, -35, -30, -30, -30, -30, -30, -30, -30, -20},
       {-40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40}}),
   };
-
   static noise3[] _psy_noisebias_long = new noise3[]{
 
     /*63     125     250     500      1k       2k      4k      8k     16k*/
@@ -390,9 +377,7 @@ public class setup_44 {
       {-30, -30, -30, -30, -30, -30, -30, -30, -30, -30, -30, -30, -30, -30, -30, -30, -20},
       {-40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40, -40}}),
   };
-
   static int[] _psy_noise_suppress = new int[]{-20, -20, -24, -24, -24, -24, -30, -40, -40, -45, -45, -45,};
-
   static compandblock[] _psy_compand_44 = new compandblock[]{
 
     /* sub-mode Z short */
@@ -444,21 +429,16 @@ public class setup_44 {
       11, 12, 13, 14, 15, 16, 17, 18,     /* 39dB */
     })
   };
-
   static float _psy_compand_short_mapping[] = new float[]{0.5f, 1.f, 1.f, 1.3f, 1.6f, 2.f, 2.f, 2.f, 2.f, 2.f, 2.f, 2.f};
   static float _psy_compand_long_mapping[] = new float[]{3.5f, 4.f, 4.f, 4.3f, 4.6f, 5.f, 5.f, 5.f, 5.f, 5.f, 5.f, 5.f};
-
   static int[] _noise_start_short_44 = new int[]{32, 16, 16, 16, 32, 9999, 9999, 9999, 9999, 9999, 9999};
   static int[] _noise_start_long_44 = new int[]{256, 128, 128, 256, 512, 9999, 9999, 9999, 9999, 9999, 9999};
   static int[] _noise_part_short_44 = new int[]{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
   static int[] _noise_part_long_44 = new int[]{32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32};
   static float[] _noise_thresh_44 = new float[]{.2f, .2f, .2f, .4f, .6f, 9999.f, 9999.f, 9999.f, 9999.f, 9999.f, 9999.f};
-
   static int[] _psy_ath_floater = new int[]{-100, -100, -100, -100, -100, -100, -105, -105, -105, -105, -110, -120};
   static int[] _psy_ath_abs = new int[]{-130, -130, -130, -130, -140, -140, -140, -140, -140, -140, -140, -150,};
-
   static float[] _psy_lowpass_44 = new float[]{13.9f, 15.1f, 15.8f, 16.5f, 17.2f, 18.9f, 20.1f, 48.f, 999.f, 999.f, 999.f, 999.f};
-
   static vorbis_info_psy_global[] _psy_global_44 = new vorbis_info_psy_global[]{
 
     new vorbis_info_psy_global(8, new float[]{20.f, 14.f, 12.f, 12.f, 12.f, 12.f, 12.f}, new float[]{-60.f, -30.f, -40.f, -40.f, -40.f, -40.f, -40.f}, 2.f, -75.f, -6.f, new int[]{99}, new int[][]{{99, 99}}, new int[]{0}, new int[]{0}, new int[][]{{0, 0}}),
@@ -467,9 +447,7 @@ public class setup_44 {
     new vorbis_info_psy_global(8, new float[]{10.f, 8.f, 8.f, 8.f, 8.f, 8.f, 8.f}, new float[]{-20.f, -15.f, -12.f, -12.f, -12.f, -12.f, -12.f}, 0, -80.f, -6.f, new int[]{99}, new int[][]{{99, 99}}, new int[]{0}, new int[]{0}, new int[][]{{0, 0}}),
     new vorbis_info_psy_global(8, new float[]{10.f, 6.f, 6.f, 6.f, 6.f, 6.f, 6.f}, new float[]{-15.f, -15.f, -12.f, -12.f, -12.f, -12.f, -12.f}, 0, -85.f, -6.f, new int[]{99}, new int[][]{{99, 99}}, new int[]{0}, new int[]{0}, new int[][]{{0, 0}}),
   };
-
   static float[] _global_mapping_44 = new float[]{0.f, 1.f, 1.f, 1.5f, 2.f, 2.f, 2.5f, 2.7f, 3.0f, 3.7f, 4.f, 4.f};
-
   static adj_stereo[] _psy_stereo_modes_44 = new adj_stereo[]{
 
     /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14         -1  */
@@ -557,7 +535,6 @@ public class setup_44 {
       new float[]{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
       new float[]{99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}),
   };
-
   static vorbis_info_floor1[] _floor = new vorbis_info_floor1[]{
 
     /* 128 x 4 */
@@ -614,9 +591,9 @@ public class setup_44 {
       7, 23, 39, 55, 79, 110, 156, 232, 360},
       60, 30, 500, 1, 18, -1),
   };
-
   static int _floor_short_mapping_44[] = new int[]{1, 0, 0, 2, 2, 4, 5, 5, 5, 5, 5};
   static int _floor_long_mapping_44[] = new int[]{8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
+  public ve_setup_data_template data;
 
 
   public setup_44() {

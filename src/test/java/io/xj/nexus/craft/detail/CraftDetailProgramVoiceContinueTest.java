@@ -211,6 +211,7 @@ public class CraftDetailProgramVoiceContinueTest {
     segment4 = store.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain1.getId())
+      .setType(Segment.Type.Continue)
       .setOffset(3L)
       .setState(Segment.State.Crafting)
       .setBeginAt("2017-02-14T12:03:08.000001Z")

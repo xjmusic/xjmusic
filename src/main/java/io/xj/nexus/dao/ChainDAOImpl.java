@@ -149,16 +149,14 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
       // logic based on Chain Type
       switch (chain.getType()) {
-
-        case Production:
+        case Production -> {
           requireAccount(access, chain.getAccountId(), UserRole.Type.Engineer);
           requireUniqueEmbedKey(access, chain);
-          break;
-
-        case Preview:
+        }
+        case Preview -> {
           requireAccount(access, chain.getAccountId(), UserRole.Type.Artist);
           chain.setEmbedKey(generatePreviewEmbedKey());
-          break;
+        }
       }
 
       // Give model a fresh unique ID and Validate
@@ -335,7 +333,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         .setChainId(chain.getId())
         .setBeginAt(chain.getStartAt())
         .setOffset(0L)
-        .setOffsetMain(0)
+        .setDelta(0)
         .setType(Segment.Type.Pending)
         .setState(Segment.State.Planned)
         .build());
@@ -363,7 +361,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       .setChainId(chain.getId())
       .setBeginAt(lastSegmentInChain.getEndAt())
       .setOffset(lastSegmentInChain.getOffset() + 1)
-      .setOffsetMain(lastSegmentInChain.getOffsetMain() + 1)
+      .setDelta(lastSegmentInChain.getDelta() + 1)
       .setType(Segment.Type.Pending)
       .setState(Segment.State.Planned)
       .build();
@@ -393,13 +391,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   @Override
   public void requireAccount(HubClientAccess access, Chain chain) throws DAOPrivilegeException {
     switch (chain.getType()) {
-      case Production:
-        requireAccount(access, chain.getAccountId(), UserRole.Type.Engineer);
-        break;
-
-      case Preview:
-        requireAccount(access, chain.getAccountId(), UserRole.Type.Engineer, UserRole.Type.Artist);
-        break;
+      case Production -> requireAccount(access, chain.getAccountId(), UserRole.Type.Engineer);
+      case Preview -> requireAccount(access, chain.getAccountId(), UserRole.Type.Engineer, UserRole.Type.Artist);
     }
   }
 
@@ -503,29 +496,19 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     // Conditions based on Chain state
     switch (fromState) {
-      case Draft:
+      case Draft -> {
         onlyAllowTransitions(chain.getState(), Chain.State.Draft, Chain.State.Ready);
         // block update of Chain away from draft unless Chain is bound to at least one Library, Sequence, or Instrument
         if (Chain.State.Ready.equals(chain.getState()))
           if (chainBindingDAO.readMany(access, ImmutableList.of(chain.getId())).isEmpty())
             throw new DAOValidationException("Chain must be bound to at least one Library, Sequence, or Instrument");
-        break;
-
-      case Ready:
-        onlyAllowTransitions(chain.getState(), Chain.State.Draft, Chain.State.Ready, Chain.State.Fabricate);
-        break;
-
-      case Fabricate:
-        onlyAllowTransitions(chain.getState(), Chain.State.Fabricate, Chain.State.Failed, Chain.State.Complete);
-        break;
-
-      case Complete:
-        onlyAllowTransitions(chain.getState(), Chain.State.Complete);
-        break;
-
-      case Failed:
-        onlyAllowTransitions(chain.getState(), Chain.State.Failed);
-        break;
+      }
+      case Ready -> onlyAllowTransitions(chain.getState(), Chain.State.Draft, Chain.State.Ready, Chain.State.Fabricate);
+      case Fabricate -> onlyAllowTransitions(chain.getState(), Chain.State.Fabricate, Chain.State.Failed, Chain.State.Complete);
+      case Complete -> onlyAllowTransitions(chain.getState(), Chain.State.Complete);
+      case Failed -> onlyAllowTransitions(chain.getState(), Chain.State.Failed);
+      case UNRECOGNIZED -> {
+      }
     }
 
     // If state is changing, there may be field updates based on the new state

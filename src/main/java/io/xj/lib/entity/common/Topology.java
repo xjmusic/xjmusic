@@ -1,8 +1,37 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.entity.common;
 
+import io.xj.Account;
+import io.xj.AccountUser;
+import io.xj.Chain;
+import io.xj.ChainBinding;
+import io.xj.Instrument;
+import io.xj.InstrumentAudio;
+import io.xj.InstrumentMeme;
+import io.xj.Library;
+import io.xj.Program;
+import io.xj.ProgramMeme;
+import io.xj.ProgramSequence;
+import io.xj.ProgramSequenceBinding;
+import io.xj.ProgramSequenceBindingMeme;
+import io.xj.ProgramSequenceChord;
+import io.xj.ProgramSequenceChordVoicing;
+import io.xj.ProgramSequencePattern;
+import io.xj.ProgramSequencePatternEvent;
+import io.xj.ProgramVoice;
+import io.xj.ProgramVoiceTrack;
+import io.xj.Segment;
+import io.xj.SegmentChoice;
+import io.xj.SegmentChoiceArrangement;
+import io.xj.SegmentChoiceArrangementPick;
+import io.xj.SegmentChord;
+import io.xj.SegmentChordVoicing;
+import io.xj.SegmentMeme;
+import io.xj.SegmentMessage;
 import io.xj.User;
-import io.xj.*;
+import io.xj.UserAuth;
+import io.xj.UserAuthToken;
+import io.xj.UserRole;
 import io.xj.lib.entity.EntityFactory;
 
 /**
@@ -254,7 +283,7 @@ public enum Topology {
       .withAttribute("key")
       .withAttribute("total")
       .withAttribute("offset")
-      .withAttribute("offsetMain")
+      .withAttribute("delta")
       .withAttribute("density")
       .withAttribute("tempo")
       .withAttribute("storageKey")
@@ -273,9 +302,10 @@ public enum Topology {
     // SegmentChoice
     entityFactory.register(SegmentChoice.class)
       .createdBy(SegmentChoice::getDefaultInstance)
+      .withAttribute("type")
       .withAttribute("programType")
       .withAttribute("segmentType")
-      .withAttribute("isInertial")
+      .withAttribute("delta")
       .belongsTo(Instrument.class)
       .belongsTo(Program.class)
       .belongsTo(ProgramSequenceBinding.class)

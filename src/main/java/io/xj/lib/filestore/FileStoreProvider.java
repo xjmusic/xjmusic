@@ -131,8 +131,8 @@ public interface FileStoreProvider {
   /**
    Get the storage key for a Chain
 
-   @param chainKey for which to get storage key
-   @param extension  of key
+   @param chainKey  for which to get storage key
+   @param extension of key
    @return chain storage key
    */
   String getChainStorageKey(String chainKey, String extension);
