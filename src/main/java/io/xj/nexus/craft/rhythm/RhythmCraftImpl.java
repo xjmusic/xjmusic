@@ -77,6 +77,10 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
           .setSegmentId(fabricator.getSegment().getId())
           .build());
 
+/*
+
+FUTURE: this is on the right track, but for rhythm craft we'll need to pay more attention to the individual arrangements
+
         // Optionally, use the inertial choice that corresponds to this primary one, instead.
         var inertialChoice = computeInertialChoice(primaryChoice);
 
@@ -84,6 +88,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
         if (inertialChoice.isPresent())
           this.craftArrangements(fabricator.add(inertialChoice.get()));
         else
+*/
           this.craftArrangements(primaryChoice);
       }
 
