@@ -253,6 +253,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
           candidate.getProgramType().equals(source.getProgramType())
             && candidate.getInstrumentType().equals(source.getInstrumentType()))
         .map(candidate -> new InertialCandidate(fabricator, candidate, source))
+        .filter(InertialCandidate::isValid)
         .max(Comparator.comparing(InertialCandidate::getScore))
         .map(InertialCandidate::getTarget)
         .orElse(null));

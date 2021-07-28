@@ -9,7 +9,6 @@ import io.xj.nexus.fabricator.NameIsometry;
  */
 public class InertialCandidate {
   double score;
-
   SegmentChoice target;
 
   public InertialCandidate(Fabricator fabricator, SegmentChoice target, SegmentChoice source) {
@@ -26,5 +25,9 @@ public class InertialCandidate {
 
   public SegmentChoice getTarget() {
     return target;
+  }
+
+  public boolean isValid() {
+    return 0 < score;
   }
 }
