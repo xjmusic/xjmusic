@@ -230,13 +230,17 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @return inertial choice if it ought to be used, otherwise, empty.
    */
   protected Optional<SegmentChoice> computeInertialChoice(SegmentChoice source) throws NexusException {
-    return switch (fabricator.getSegment().getType()) {
-      case Pending, UNRECOGNIZED -> throw new NexusException(
-        String.format("Can't compute inertial choice for %s-type Segment!", fabricator.getSegment().getType()));
-      case Initial -> Optional.empty();
-      case Continue -> computeInertialChoice(source, fabricator.retrospective().getInertialChoices());
-      case NextMacro, NextMain -> computeInertialChoice(source, fabricator.retrospective().getPrimaryChoices());
-    };
+    return
+      switch (fabricator.getChain().getType()) {
+        case Preview, UNRECOGNIZED -> Optional.empty();
+        case Production -> switch (fabricator.getSegment().getType()) {
+          case Pending, UNRECOGNIZED -> throw new NexusException(
+            String.format("Can't compute inertial choice for %s-type Segment!", fabricator.getSegment().getType()));
+          case Initial -> Optional.empty();
+          case Continue -> computeInertialChoice(source, fabricator.retrospective().getInertialChoices());
+          case NextMacro, NextMain -> computeInertialChoice(source, fabricator.retrospective().getPrimaryChoices());
+        };
+      };
   }
 
   /**
