@@ -52,7 +52,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final HubClientAccess access;
   private final Map<String, Object> report = Maps.newConcurrentMap();
-  private final EntityStore bench;
+  private final EntityStore benchStore;
   private Segment segment;
   private Collection<SegmentChord> segmentChords;
 
@@ -70,7 +70,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     this.segment = segment;
     this.segmentDAO = segmentDAO;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
-    this.bench = entityStore;
+    this.benchStore = entityStore;
 
     // fetch all sub entities of all segments and store the results in the corresponding entity cache
     try {
@@ -82,18 +82,18 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
 
   @Override
   public Collection<SegmentChoiceArrangement> getSegmentArrangements() {
-    return bench.getAll(SegmentChoiceArrangement.class);
+    return benchStore.getAll(SegmentChoiceArrangement.class);
   }
 
   @Override
   public Collection<SegmentChoice> getSegmentChoices() {
-    return bench.getAll(SegmentChoice.class);
+    return benchStore.getAll(SegmentChoice.class);
   }
 
   @Override
   public Collection<SegmentChord> getSegmentChords() {
     if (Objects.isNull(segmentChords)) {
-      segmentChords = bench.getAll(SegmentChord.class)
+      segmentChords = benchStore.getAll(SegmentChord.class)
         .stream()
         .sorted(Comparator.comparing((SegmentChord::getPosition)))
         .collect(Collectors.toList());
@@ -104,22 +104,22 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
 
   @Override
   public Collection<SegmentChordVoicing> getSegmentChordVoicings() {
-    return bench.getAll(SegmentChordVoicing.class);
+    return benchStore.getAll(SegmentChordVoicing.class);
   }
 
   @Override
   public Collection<SegmentMeme> getSegmentMemes() {
-    return bench.getAll(SegmentMeme.class);
+    return benchStore.getAll(SegmentMeme.class);
   }
 
   @Override
   public Collection<SegmentMessage> getSegmentMessages() {
-    return bench.getAll(SegmentMessage.class);
+    return benchStore.getAll(SegmentMessage.class);
   }
 
   @Override
   public Collection<SegmentChoiceArrangementPick> getSegmentChoiceArrangementPicks() {
-    return bench.getAll(SegmentChoiceArrangementPick.class);
+    return benchStore.getAll(SegmentChoiceArrangementPick.class);
   }
 
   @Override
@@ -144,13 +144,13 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
 
       segmentDAO.update(access, getSegment().getId(), getSegment());
 
-      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentMessage.class));
-      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentMeme.class));
-      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentChord.class));
-      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentChordVoicing.class));
-      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentChoice.class));
-      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentChoiceArrangement.class)); // after choices
-      segmentDAO.createAllSubEntities(access, bench.getAll(SegmentChoiceArrangementPick.class)); // after arrangements
+      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentMessage.class));
+      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentMeme.class));
+      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentChord.class));
+      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentChordVoicing.class));
+      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentChoice.class));
+      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentChoiceArrangement.class)); // after choices
+      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentChoiceArrangementPick.class)); // after arrangements
 
     } catch (JsonApiException | DAOFatalException | DAOExistenceException | DAOPrivilegeException | DAOValidationException e) {
       throw new NexusException("Failed to build and update payload for Segment!", e);
@@ -178,7 +178,9 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public <N extends MessageLite> N add(N entity) throws NexusException {
     try {
-      return bench.put(entity);
+      // [#179078453] Segment shouldn't have two of the same meme
+      if (SegmentMeme.class.equals(entity.getClass()) && alreadyHasMeme((SegmentMeme) entity)) return entity;
+      return benchStore.put(entity);
     } catch (EntityStoreException e) {
       throw new NexusException(e);
     }
@@ -198,4 +200,13 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     report.clear();
   }
 
+  /**
+   Whether the workbench already has a meme of this name
+
+   @param meme to test for existence
+   @return true if a meme already exists with this name
+   */
+  private boolean alreadyHasMeme(SegmentMeme meme) {
+    return getSegmentMemes().stream().anyMatch(existing -> existing.getName().equals(meme.getName()));
+  }
 }
