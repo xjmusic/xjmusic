@@ -129,7 +129,7 @@ public class CraftFoundationInitialTest {
     assertEquals(130.0, result.getTempo(), 0.01);
     // assert memes
     assertSameItems(
-      Lists.newArrayList("Tropical", "Wild", "Outlook", "Optimism"),
+      Lists.newArrayList("TROPICAL", "WILD", "OUTLOOK", "OPTIMISM"),
       Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     // assert chords
     assertSameItems(Lists.newArrayList("G major", "Ab minor"),

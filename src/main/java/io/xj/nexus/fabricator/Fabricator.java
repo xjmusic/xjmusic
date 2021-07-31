@@ -671,9 +671,7 @@ public interface Fabricator {
   /**
    Add all memes of this instrument to the workbench
    <p>
-   [#179078533] Straightforward meme logic
-
-   @param p instrument for which to add memes
+   [#179078533] Straightforward meme logic@param p instrument for which to add memes
    */
-  Instrument addMemes(Instrument p) throws NexusException;
+  void addMemes(Instrument p) throws NexusException;
 }

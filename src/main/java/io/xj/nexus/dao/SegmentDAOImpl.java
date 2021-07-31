@@ -21,6 +21,7 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.entity.common.MessageEntity;
 import io.xj.lib.util.CSV;
+import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
@@ -476,6 +477,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   private void validateSegmentMeme(SegmentMeme.Builder record) throws ValueException {
     Value.require(record.getSegmentId(), "Segment ID");
     Value.require(record.getName(), "Meme name");
+    record.setName(Text.toMeme(record.getName()));
   }
 
   private void validateSegmentChord(SegmentChord.Builder record) throws ValueException {

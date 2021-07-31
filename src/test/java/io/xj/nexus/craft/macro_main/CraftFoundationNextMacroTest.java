@@ -160,7 +160,7 @@ public class CraftFoundationNextMacroTest {
       assertEquals(125, result.getTempo(), 0.01);
       // assert memes
       assertSameItems(
-        Lists.newArrayList("Regret", "Chunky", "Hindsight", "Tangy"),
+        Lists.newArrayList("REGRET", "CHUNKY", "HINDSIGHT", "TANGY"),
         Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
       // assert chords
       assertSameItems(Lists.newArrayList("Ab minor", "G minor"),

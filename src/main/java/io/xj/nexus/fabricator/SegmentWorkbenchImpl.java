@@ -20,6 +20,7 @@ import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.jsonapi.JsonApiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;
@@ -207,6 +208,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
    @return true if a meme already exists with this name
    */
   private boolean alreadyHasMeme(SegmentMeme meme) {
-    return getSegmentMemes().stream().anyMatch(existing -> existing.getName().equals(meme.getName()));
+    var name = Text.toProperSlug(meme.getName());
+    return getSegmentMemes().stream().anyMatch(existing -> existing.getName().equals(name));
   }
 }

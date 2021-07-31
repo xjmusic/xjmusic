@@ -191,7 +191,7 @@ public class CraftFoundationContinueTest {
     assertEquals(Segment.Type.Continue, result.getType());
     // assert memes
     assertSameItems(
-      Lists.newArrayList("Outlook", "Tropical", "Cozy", "Wild", "Pessimism"),
+      Lists.newArrayList("OUTLOOK", "TROPICAL", "COZY", "WILD", "PESSIMISM"),
       Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     // assert chords
     assertSameItems(Lists.newArrayList("Bb minor", "C major"),

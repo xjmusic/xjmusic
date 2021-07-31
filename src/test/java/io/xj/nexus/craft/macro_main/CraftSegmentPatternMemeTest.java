@@ -117,7 +117,7 @@ public class CraftSegmentPatternMemeTest {
 
       var result = store.getSegment(segment.getId()).orElseThrow();
       assertEquals(Segment.Type.NextMacro, result.getType());
-      assertSameItems(Lists.newArrayList("Regret", "Hindsight", "Chunky", "Tangy"),
+      assertSameItems(Lists.newArrayList("REGRET", "HINDSIGHT", "CHUNKY", "TANGY"),
         Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     }
   }

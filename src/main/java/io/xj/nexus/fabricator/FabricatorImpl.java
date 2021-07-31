@@ -50,6 +50,7 @@ import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.PitchClass;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
+import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
@@ -909,7 +910,7 @@ class FabricatorImpl implements Fabricator {
       add(SegmentMeme.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(getSegment().getId())
-        .setName(meme.getName())
+        .setName(Text.toMeme(meme.getName()))
         .build());
     return p;
   }
@@ -920,20 +921,19 @@ class FabricatorImpl implements Fabricator {
       add(SegmentMeme.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(getSegment().getId())
-        .setName(meme.getName())
+        .setName(Text.toMeme(meme.getName()))
         .build());
     return psb;
   }
 
   @Override
-  public Instrument addMemes(Instrument p) throws NexusException {
+  public void addMemes(Instrument p) throws NexusException {
     for (InstrumentMeme meme : getSourceMaterial().getMemes(p))
       add(SegmentMeme.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(getSegment().getId())
-        .setName(meme.getName())
+        .setName(Text.toMeme(meme.getName()))
         .build());
-    return p;
   }
 
   /**

@@ -170,7 +170,7 @@ public class CraftFoundationNextMainTest {
     assertEquals("G minor", result.getKey());
     assertEquals(125, result.getTempo(), 0.01);
     // assert memes
-    assertSameItems(Lists.newArrayList("Hindsight", "Tropical", "Cozy", "Wild", "Regret"),
+    assertSameItems(Lists.newArrayList("HINDSIGHT", "TROPICAL", "COZY", "WILD", "REGRET"),
       Entities.namesOf(store.getAll(result.getId(), SegmentMeme.class)));
     // assert chords
     assertSameItems(Lists.newArrayList("G minor", "Ab minor"),
