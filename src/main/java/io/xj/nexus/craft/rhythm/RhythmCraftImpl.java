@@ -14,6 +14,7 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.fabricator.MemeIsometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,17 +41,16 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
   @Override
   public void doWork() throws NexusException {
-    // program
-    Optional<Program> program = chooseRhythmProgram();
-    if (program.isEmpty()) return;
+    Program program = fabricator.addMemes(chooseRhythmProgram()
+      .orElseThrow(() -> new NexusException("Failed to choose any rhythm program!")));
 
     // rhythm sequence is selected at random of the current program
     // FUTURE: [#166855956] Rhythm Program with multiple Sequences
-    var sequence = fabricator.getRandomlySelectedSequence(program.get());
+    var sequence = fabricator.getRandomlySelectedSequence(program);
 
     // voice arrangements
     if (sequence.isPresent())
-      for (ProgramVoice voice : fabricator.getSourceMaterial().getVoices(program.get())) {
+      for (ProgramVoice voice : fabricator.getSourceMaterial().getVoices(program)) {
         Optional<String> instrumentId = fabricator.getInstrumentIdChosenForVoiceOfSameMainProgram(voice);
 
         // if no previous instrument found, choose a fresh one
@@ -64,14 +64,17 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
           return;
         }
 
+        // add memes of instrument
+        fabricator.addMemes(instrument.get());
+
         // build primary choice from new ideas
         var primaryChoice = fabricator.add(SegmentChoice.newBuilder()
           .setId(UUID.randomUUID().toString())
           .setType(SegmentChoice.Type.Primary)
           .setInstrumentId(instrument.get().getId())
-          .setProgramId(program.get().getId())
+          .setProgramId(program.getId())
           .setProgramSequenceId(sequence.get().getId())
-          .setProgramType(program.get().getType())
+          .setProgramType(program.getType())
           .setInstrumentType(instrument.get().getType())
           .setProgramVoiceId(voice.getId())
           .setSegmentId(fabricator.getSegment().getId())
@@ -89,7 +92,7 @@ FUTURE: this is on the right track, but for rhythm craft we'll need to pay more 
           this.craftArrangements(fabricator.add(inertialChoice.get()));
         else
 */
-          this.craftArrangements(primaryChoice);
+        this.craftArrangements(primaryChoice);
       }
 
     // Finally, update the segment with the crafted content
@@ -146,8 +149,9 @@ FUTURE: this is on the right track, but for rhythm craft we'll need to pay more 
 
     // (2) retrieve programs bound to chain and
     // (3) score each source program based on meme isometry
+    MemeIsometry rhythmIsometry = fabricator.getMemeIsometryOfSegment();
     for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Rhythm))
-      superEntityScorePicker.add(program, scoreRhythm(program));
+      superEntityScorePicker.add(program, scoreRhythm(program, rhythmIsometry));
 
     // report
     fabricator.putReport("rhythmChoice", superEntityScorePicker.report());
@@ -163,15 +167,16 @@ FUTURE: this is on the right track, but for rhythm craft we'll need to pay more 
    Returns ZERO if the program has no memes, in order to fix:
    [#162040109] Artist expects program with no memes will never be selected for chain craft.
 
-   @param program to score
+   @param program        to score
+   @param rhythmIsometry from which to score programs
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
   @SuppressWarnings("DuplicatedCode")
-  private Double scoreRhythm(Program program) {
+  private Double scoreRhythm(Program program, MemeIsometry rhythmIsometry) {
     double score = 0;
     Collection<String> memes = fabricator.getSourceMaterial().getMemesAtBeginning(program);
     if (!memes.isEmpty())
-      score += fabricator.getMemeIsometryOfSegment().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_RHYTHM);
+      score += rhythmIsometry.score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_RHYTHM);
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
@@ -198,8 +203,9 @@ FUTURE: this is on the right track, but for rhythm craft we'll need to pay more 
     log.debug("[segId={}] not currently in use: {}", fabricator.getSegment().getId(), voice);
 
     // (3) score each source instrument based on meme isometry
+    MemeIsometry percussiveIsometry = fabricator.getMemeIsometryOfSegment();
     for (Instrument instrument : sourceInstruments)
-      superEntityScorePicker.add(instrument, scorePercussive(instrument));
+      superEntityScorePicker.add(instrument, scorePercussive(instrument, percussiveIsometry));
 
     // (4) prefer same instrument choices throughout a main program
     // Instrument choice inertia
@@ -226,16 +232,16 @@ FUTURE: this is on the right track, but for rhythm craft we'll need to pay more 
   /**
    Score a candidate for percussive instrument, given current fabricator
 
-   @param instrument to score
+   @param instrument         to score
+   @param percussiveIsometry from which to score percussive instruments
    @return score, including +/- entropy
    */
-  private double scorePercussive(Instrument instrument) {
+  private double scorePercussive(Instrument instrument, MemeIsometry percussiveIsometry) {
     double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
 
     // Score includes matching memes, previous segment to macro instrument first pattern
     score += SCORE_MATCHED_MEMES *
-      fabricator.getMemeIsometryOfSegment().score(
-        Entities.namesOf(fabricator.getSourceMaterial().getMemes(instrument)));
+      percussiveIsometry.score(Entities.namesOf(fabricator.getSourceMaterial().getMemes(instrument)));
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(instrument))

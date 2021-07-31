@@ -14,6 +14,7 @@ import io.xj.Chain;
 import io.xj.ChainBinding;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
+import io.xj.InstrumentMeme;
 import io.xj.Program;
 import io.xj.ProgramMeme;
 import io.xj.ProgramSequence;
@@ -79,6 +80,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static io.xj.Instrument.Type.UNRECOGNIZED;
@@ -454,13 +456,6 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public MemeIsometry getMemeIsometryOfCurrentMacro() {
-    var macroChoice = getCurrentMacroChoice();
-    if (macroChoice.isEmpty()) return MemeIsometry.none();
-    return MemeIsometry.ofMemes(toStrings(getMemesOfChoice(macroChoice.get())));
-  }
-
-  @Override
   public MemeIsometry getMemeIsometryOfNextSequenceInPreviousMacro() {
     try {
       var previousMacroChoice =
@@ -495,28 +490,6 @@ class FabricatorImpl implements Fabricator {
   @Override
   public MemeIsometry getMemeIsometryOfSegment() {
     return MemeIsometry.ofMemes(Entities.namesOf(workbench.getSegmentMemes()));
-  }
-
-  @Override
-  public Collection<SegmentMeme> getMemesOfChoice(SegmentChoice choice) {
-    Collection<SegmentMeme> result = Lists.newArrayList();
-    var program = getProgram(choice);
-    if (program.isEmpty())
-      return ImmutableList.of();
-    sourceMaterial.getMemes(program.get())
-      .forEach(meme -> result.add(SegmentMeme.newBuilder()
-        .setName(meme.getName())
-        .setSegmentId(choice.getSegmentId())
-        .build()));
-    if (Value.isSet(choice.getProgramSequenceBindingId())) {
-      var sequenceBinding = sourceMaterial.getProgramSequenceBinding(choice.getProgramSequenceBindingId());
-      sequenceBinding.ifPresent(programSequenceBinding -> sourceMaterial.getMemes(programSequenceBinding)
-        .forEach(meme -> result.add(SegmentMeme.newBuilder()
-          .setName(meme.getName())
-          .setSegmentId(choice.getSegmentId())
-          .build())));
-    }
-    return result;
   }
 
   @Override
@@ -930,6 +903,39 @@ class FabricatorImpl implements Fabricator {
     preferredAudios.put(key, instrumentAudio);
   }
 
+  @Override
+  public Program addMemes(Program p) throws NexusException {
+    for (ProgramMeme meme : getSourceMaterial().getMemes(p))
+      add(SegmentMeme.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setSegmentId(getSegment().getId())
+        .setName(meme.getName())
+        .build());
+    return p;
+  }
+
+  @Override
+  public ProgramSequenceBinding addMemes(ProgramSequenceBinding psb) throws NexusException {
+    for (ProgramSequenceBindingMeme meme : getSourceMaterial().getMemes(psb))
+      add(SegmentMeme.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setSegmentId(getSegment().getId())
+        .setName(meme.getName())
+        .build());
+    return psb;
+  }
+
+  @Override
+  public Instrument addMemes(Instrument p) throws NexusException {
+    for (InstrumentMeme meme : getSourceMaterial().getMemes(p))
+      add(SegmentMeme.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setSegmentId(getSegment().getId())
+        .setName(meme.getName())
+        .build());
+    return p;
+  }
+
   /**
    @return Chain base key
    */
@@ -989,16 +995,6 @@ class FabricatorImpl implements Fabricator {
       }
     }
     return shiftOctave;
-  }
-
-  /**
-   Collection Strings from collection of of Segment Memes
-
-   @param memes to get strings of
-   @return strings
-   */
-  private Collection<String> toStrings(Collection<SegmentMeme> memes) {
-    return memes.stream().map(SegmentMeme::getName).collect(Collectors.toList());
   }
 
   /**

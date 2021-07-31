@@ -15,6 +15,7 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.arrangement.ArrangementCraftImpl;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.fabricator.MemeIsometry;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -53,6 +54,9 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
         continue;
       }
 
+      // add memes of program to segment in order to affect further choice
+      fabricator.addMemes(program.get());
+
       // detail sequence is selected at random of the current program
       // FUTURE: [#166855956] Detail Program with multiple Sequences
       var detailSequence = fabricator.getRandomlySelectedSequence(program.get());
@@ -78,6 +82,9 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
             reportMissing(Instrument.class, String.format("Detail-type like %s", voice.getName()));
             return;
           }
+
+          // add memes of instrument to segment in order to affect further choice
+          fabricator.addMemes(instrument.get());
 
           var primaryChoice = fabricator.add(SegmentChoice.newBuilder()
             .setId(UUID.randomUUID().toString())
@@ -156,7 +163,8 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       .collect(Collectors.toList());
 
     // (3) score each source program based on meme isometry
-    for (Program program : sourcePrograms) superEntityScorePicker.add(program, scoreDetail(program));
+    MemeIsometry detailIsometry = fabricator.getMemeIsometryOfSegment();
+    for (Program program : sourcePrograms) superEntityScorePicker.add(program, scoreDetail(program, detailIsometry));
 
     // report
     fabricator.putReport("detailChoice", superEntityScorePicker.report());
@@ -289,15 +297,16 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    Returns ZERO if the program has no memes, in order to fix:
    [#162040109] Artist expects program with no memes will never be selected for chain craft.
 
-   @param program to score
+   @param program        to score
+   @param detailIsometry from which to score detail programs
    @return score, including +/- entropy; empty if this program has no memes, and isn't directly bound
    */
   @SuppressWarnings("DuplicatedCode")
-  private Double scoreDetail(Program program) {
+  private Double scoreDetail(Program program, MemeIsometry detailIsometry) {
     double score = 0;
     Collection<String> memes = fabricator.getSourceMaterial().getMemesAtBeginning(program);
     if (!memes.isEmpty())
-      score += fabricator.getMemeIsometryOfSegment().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_DETAIL);
+      score += detailIsometry.score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_DETAIL);
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))

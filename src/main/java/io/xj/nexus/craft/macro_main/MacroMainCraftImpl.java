@@ -1,9 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.macro_main;
 
-import com.google.common.collect.ConcurrentHashMultiset;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multiset;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.Program;
@@ -13,7 +10,6 @@ import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChord;
 import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMeme;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
@@ -23,9 +19,9 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.fabricator.MemeIsometry;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -94,16 +90,15 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
   @Override
   public void doWork() throws NexusException {
-    var macroProgram = chooseNextMacroProgram()
-      .orElseThrow(() -> new NexusException("Failed to choose a Macro-program by any means!"));
-
+    var macroProgram = fabricator.addMemes(chooseNextMacroProgram()
+      .orElseThrow(() -> new NexusException("Failed to choose a Macro-program by any means!")));
     Long macroSequenceBindingOffset = computeMacroProgramSequenceBindingOffset();
-    var macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
+    var macroSequenceBinding = fabricator.addMemes(fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
         "Unable to determine sequence binding offset for macro Program \"%s\" %s",
         macroProgram.getName(),
         apiUrlProvider.getAppUrl(String.format("/programs/%s", macroProgram.getId()))
-      )));
+      ))));
     var macroSequence = fabricator.getSourceMaterial().getProgramSequence(macroSequenceBinding);
     fabricator.add(
       SegmentChoice.newBuilder()
@@ -115,20 +110,21 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
         .build());
 
     // 2. Main
-    Program mainProgram = chooseMainProgram()
+    Program mainProgram = fabricator.addMemes(chooseMainProgram()
       .orElseThrow(() -> new NexusException(String.format(
         "Unable to choose main program based on macro Program \"%s\" at offset %s %s",
         macroProgram.getName(),
         macroSequenceBindingOffset,
         apiUrlProvider.getAppUrl(String.format("/programs/%s", macroProgram.getId()))
-      )));
+      ))));
+    fabricator.addMemes(macroProgram); // [#179078533] Straightforward meme logic
     Long mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
-    var mainSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
+    var mainSequenceBinding = fabricator.addMemes(fabricator.getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
       .orElseThrow(() -> new NexusException(String.format(
         "Unable to determine sequence binding offset for main Program \"%s\" %s",
         mainProgram.getName(),
         apiUrlProvider.getAppUrl(String.format("/programs/%s", mainProgram.getId()))
-      )));
+      ))));
     var mainSequence = fabricator.getSourceMaterial().getProgramSequence(mainSequenceBinding);
     fabricator.add(
       SegmentChoice.newBuilder()
@@ -164,10 +160,6 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
               .build());
         }
       }
-
-    // 4. Memes
-    for (SegmentMeme segmentMeme : segmentMemes())
-      fabricator.add(segmentMeme);
 
     // Update the segment with fabricated content
     if (macroSequence.isPresent() && mainSequence.isPresent())
@@ -253,8 +245,9 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
     // (1) retrieve programs bound to chain and
     // (3) score each source program
+    MemeIsometry macroIsometry = fabricator.getMemeIsometryOfNextSequenceInPreviousMacro();
     for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Macro))
-      superEntityScorePicker.add(program, scoreMacro(program));
+      superEntityScorePicker.add(program, scoreMacro(program, macroIsometry));
 
     // (3b) Avoid previous macro program
     if (previousMacroChoice.isPresent()) {
@@ -303,8 +296,9 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
     // (2) retrieve programs bound to chain and
     // (3) score each source program based on meme isometry
+    MemeIsometry mainIsometry = fabricator.getMemeIsometryOfSegment();
     for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Main))
-      superEntityScorePicker.add(program, scoreMain(program));
+      superEntityScorePicker.add(program, scoreMain(program, mainIsometry));
 
     // report
     fabricator.putReport("mainChoice", superEntityScorePicker.report());
@@ -316,10 +310,11 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   /**
    Score a candidate for next macro program, given current fabricator
 
-   @param program to score
+   @param program       to score
+   @param macroIsometry from which to score macro programs
    @return score, including +/- entropy
    */
-  private double scoreMacro(Program program) {
+  private double scoreMacro(Program program, MemeIsometry macroIsometry) {
     double score = Chance.normallyAround(0, SCORE_MACRO_ENTROPY);
 
     if (fabricator.isInitialSegment()) {
@@ -327,8 +322,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     }
 
     // Score includes matching memes to previous segment's macro-program's next pattern
-    score += fabricator.getMemeIsometryOfNextSequenceInPreviousMacro()
-      .score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCH;
+    score += macroIsometry.score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCH;
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
@@ -340,10 +334,11 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   /**
    Score a candidate for next main program, given current fabricator
 
-   @param program to score
+   @param program      to score
+   @param mainIsometry from which to score main programs
    @return score, including +/- entropy
    */
-  private double scoreMain(Program program) {
+  private double scoreMain(Program program, MemeIsometry mainIsometry) {
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
       return SCORE_DIRECT;
@@ -351,7 +346,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // Score includes matching memes, previous segment to macro program first pattern
     AtomicReference<Double> score = new AtomicReference<>(
       Chance.normallyAround(0, SCORE_MAIN_ENTROPY) + SCORE_MATCH *
-        fabricator.getMemeIsometryOfCurrentMacro().score(fabricator.getSourceMaterial().getMemesAtBeginning(program)));
+        mainIsometry.score(fabricator.getSourceMaterial().getMemesAtBeginning(program)));
 
     // Avoid previous main program
     if (!fabricator.isInitialSegment())
@@ -361,27 +356,6 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
         .map(previousMainProgram -> score.updateAndGet(v -> v + SCORE_AVOID));
 
     return score.get();
-  }
-
-  /**
-   all memes of all choices for the segment.
-   cache results in fabricator, to avoid race condition causing [#153888310] During craft, instruments should be chosen based on combined memes of all chosen sequences for that segment.
-
-   @return map of meme name to SegmentMeme entity
-   */
-  private Collection<SegmentMeme> segmentMemes() throws NexusException {
-    Multiset<String> uniqueResults = ConcurrentHashMultiset.create();
-    for (SegmentChoice choice : fabricator.getChoices())
-      for (SegmentMeme meme : fabricator.getMemesOfChoice(choice))
-        uniqueResults.add(meme.getName());
-    Collection<SegmentMeme> result = Lists.newArrayList();
-    uniqueResults.elementSet().forEach(memeName -> result.add(
-      SegmentMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(fabricator.getSegment().getId())
-        .setName(memeName)
-        .build()));
-    return result;
   }
 
   /**

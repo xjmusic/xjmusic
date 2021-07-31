@@ -56,6 +56,7 @@ public class MemeIsometryTest {
 
     assertEquals(1.0, subject.score(ImmutableList.of("Smooth")), 0.1);
     assertEquals(-20, subject.score(ImmutableList.of("Busy")), 0.1);
+    assertEquals(1.0, subject.score(ImmutableList.of("!Busy")), 0.1);
   }
 
   @Test

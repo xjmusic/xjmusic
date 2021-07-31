@@ -18,7 +18,6 @@ import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
 import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMeme;
 import io.xj.lib.entity.common.InstrumentConfig;
 import io.xj.lib.entity.common.ProgramConfig;
 import io.xj.lib.music.Chord;
@@ -273,13 +272,6 @@ public interface Fabricator {
   Optional<SegmentChoice> getMainChoiceOfPreviousSegment();
 
   /**
-   Get meme isometry for the current offset in this macro-choice
-
-   @return MemeIsometry for macro-choice
-   */
-  MemeIsometry getMemeIsometryOfCurrentMacro();
-
-  /**
    Get meme isometry for the next offset in the previous segment's macro-choice
 
    @return MemeIsometry for previous macro-choice
@@ -292,16 +284,6 @@ public interface Fabricator {
    @return MemeIsometry for current segment
    */
   MemeIsometry getMemeIsometryOfSegment();
-
-  /**
-   Get all memes for a given Choice id
-   [#165954619] Memes include by sequence-pattern (macro- or main-type sequences) and by sequence (all sequences)
-
-   @param choice to get memes for
-   @return memes for choice
-   @throws NexusException on failure
-   */
-  Collection<SegmentMeme> getMemesOfChoice(SegmentChoice choice) throws NexusException;
 
   /**
    Given a Choice having a SequenceBinding,
@@ -667,4 +649,31 @@ public interface Fabricator {
    @param instrumentAudio value to set
    */
   void setPreferredAudio(ProgramSequencePatternEvent event, String note, InstrumentAudio instrumentAudio);
+
+  /**
+   Add all memes of this program to the workbench
+   <p>
+   [#179078533] Straightforward meme logic
+
+   @param p program for which to add memes
+   */
+  Program addMemes(Program p) throws NexusException;
+
+  /**
+   Add all memes of this program sequence binding to the workbench
+   <p>
+   [#179078533] Straightforward meme logic
+
+   @param psb program sequence binding for which to add memes
+   */
+  ProgramSequenceBinding addMemes(ProgramSequenceBinding psb) throws NexusException;
+
+  /**
+   Add all memes of this instrument to the workbench
+   <p>
+   [#179078533] Straightforward meme logic
+
+   @param p instrument for which to add memes
+   */
+  Instrument addMemes(Instrument p) throws NexusException;
 }
