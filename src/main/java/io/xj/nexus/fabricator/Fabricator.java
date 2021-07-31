@@ -667,11 +667,4 @@ public interface Fabricator {
    @param psb program sequence binding for which to add memes
    */
   ProgramSequenceBinding addMemes(ProgramSequenceBinding psb) throws NexusException;
-
-  /**
-   Add all memes of this instrument to the workbench
-   <p>
-   [#179078533] Straightforward meme logic@param p instrument for which to add memes
-   */
-  void addMemes(Instrument p) throws NexusException;
 }

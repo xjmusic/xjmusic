@@ -926,16 +926,6 @@ class FabricatorImpl implements Fabricator {
     return psb;
   }
 
-  @Override
-  public void addMemes(Instrument p) throws NexusException {
-    for (InstrumentMeme meme : getSourceMaterial().getMemes(p))
-      add(SegmentMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(getSegment().getId())
-        .setName(Text.toMeme(meme.getName()))
-        .build());
-  }
-
   /**
    @return Chain base key
    */

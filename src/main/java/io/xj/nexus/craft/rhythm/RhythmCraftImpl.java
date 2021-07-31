@@ -64,9 +64,6 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
           return;
         }
 
-        // add memes of instrument
-        fabricator.addMemes(instrument.get());
-
         // build primary choice from new ideas
         var primaryChoice = fabricator.add(SegmentChoice.newBuilder()
           .setId(UUID.randomUUID().toString())

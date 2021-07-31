@@ -83,9 +83,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
             return;
           }
 
-          // add memes of instrument to segment in order to affect further choice
-          fabricator.addMemes(instrument.get());
-
           var primaryChoice = fabricator.add(SegmentChoice.newBuilder()
             .setId(UUID.randomUUID().toString())
             .setType(SegmentChoice.Type.Primary)
