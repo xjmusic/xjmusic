@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -186,9 +187,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
     // If the type is not Continue, we will reset the offset main
     if (!Segment.Type.Continue.equals(fabricator.getType()))
-      fabricator.updateSegment(fabricator.getSegment().toBuilder()
-        .setDelta(0)
-        .build());
+      fabricator.updateSegment(fabricator.getSegment().toBuilder().setDelta(0).build());
 
     // done
     fabricator.done();
@@ -345,29 +344,23 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return score, including +/- entropy
    */
   private double scoreMain(Program program) {
-    double score = Chance.normallyAround(0, SCORE_MAIN_ENTROPY);
-
-    if (!fabricator.isInitialSegment()) {
-      var previousMainChoice = fabricator.getMainChoiceOfPreviousSegment();
-
-      // Avoid previous main program
-      if (previousMainChoice.isPresent()) {
-        var previousMainProgram = fabricator.getProgram(previousMainChoice.get());
-        if (previousMainProgram.isPresent())
-          if (Objects.equals(program.getId(), previousMainProgram.get().getId()))
-            score += SCORE_AVOID;
-      }
-    }
-
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
-      score += SCORE_DIRECT;
+      return SCORE_DIRECT;
 
     // Score includes matching memes, previous segment to macro program first pattern
-    score += fabricator.getMemeIsometryOfCurrentMacro()
-      .score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCH;
+    AtomicReference<Double> score = new AtomicReference<>(
+      Chance.normallyAround(0, SCORE_MAIN_ENTROPY) + SCORE_MATCH *
+        fabricator.getMemeIsometryOfCurrentMacro().score(fabricator.getSourceMaterial().getMemesAtBeginning(program)));
 
-    return score;
+    // Avoid previous main program
+    if (!fabricator.isInitialSegment())
+      fabricator.getMainChoiceOfPreviousSegment()
+        .flatMap(previousMainChoice -> fabricator.getProgram(previousMainChoice))
+        .filter(previousMainProgram -> Objects.equals(program.getId(), previousMainProgram.getId()))
+        .map(previousMainProgram -> score.updateAndGet(v -> v + SCORE_AVOID));
+
+    return score.get();
   }
 
   /**

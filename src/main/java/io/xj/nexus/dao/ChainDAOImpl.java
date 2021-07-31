@@ -356,7 +356,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     }
 
     // Build the template of the segment that follows the last known one
-    Segment pilotTemplate = Segment.newBuilder()
+    return Optional.of(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain.getId())
       .setBeginAt(lastSegmentInChain.getEndAt())
@@ -364,8 +364,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       .setDelta(lastSegmentInChain.getDelta() + 1)
       .setType(Segment.Type.Pending)
       .setState(Segment.State.Planned)
-      .build();
-    return Optional.of(pilotTemplate);
+      .build());
   }
 
   @Override
