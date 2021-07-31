@@ -36,8 +36,8 @@ import java.util.stream.Collectors;
  */
 public class ArrangementCraftImpl extends FabricationWrapperImpl {
   protected static final double SCORE_DIRECTLY_BOUND = 100;
-  protected static final double SCORE_ENTROPY_CHOICE_DETAIL = 12.0;
-  protected static final double SCORE_ENTROPY_CHOICE_INSTRUMENT = 12.0;
+  protected static final double SCORE_ENTROPY_CHOICE_DETAIL = 8.0;
+  protected static final double SCORE_ENTROPY_CHOICE_INSTRUMENT = 8.0;
   protected static final double SCORE_ENTROPY_CHOICE_RHYTHM = 8.0;
   protected static final double SCORE_MATCHED_MEMES = 1.0;
   protected static final double SCORE_MATCHED_MAIN_PROGRAM = 10;
