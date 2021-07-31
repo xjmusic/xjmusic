@@ -334,11 +334,6 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<SegmentChoice> getCurrentMacroChoice() {
-    return workbench.getChoiceOfType(Program.Type.Macro);
-  }
-
-  @Override
   public Optional<SegmentChoice> getCurrentMainChoice() {
     return workbench.getChoiceOfType(Program.Type.Main);
   }
@@ -420,16 +415,6 @@ class FabricatorImpl implements Fabricator {
         .orElse(UNKNOWN_KEY);
 
     return String.format(KEY_VOICE_TRACK_TEMPLATE, voiceId, pick.getName());
-  }
-
-  @Override
-  public String getKeyByVoiceTrack(ProgramSequencePatternEvent event) {
-    String voiceId =
-      getSourceMaterial().getVoice(event)
-        .map(ProgramVoice::getId)
-        .orElse(UNKNOWN_KEY);
-
-    return String.format(KEY_VOICE_TRACK_TEMPLATE, voiceId, getTrackName(event));
   }
 
   @Override

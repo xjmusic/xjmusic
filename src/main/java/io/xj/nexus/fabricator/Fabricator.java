@@ -156,13 +156,6 @@ public interface Fabricator {
   Optional<SegmentChord> getChordAt(double position);
 
   /**
-   fetch the macro-type choice for the current segment in the chain
-
-   @return macro-type segment choice
-   */
-  Optional<SegmentChoice> getCurrentMacroChoice();
-
-  /**
    fetch the main-type choice for the current segment in the chain
 
    @return main-type segment choice
@@ -237,14 +230,6 @@ public interface Fabricator {
    @return unique key for pattern event
    */
   String getKeyByVoiceTrack(SegmentChoiceArrangementPick pick) throws NexusException;
-
-  /**
-   Key for any pattern event designed to collide at same voice id + track name
-
-   @param event to get key of
-   @return unique key for pattern event
-   */
-  String getKeyByVoiceTrack(ProgramSequencePatternEvent event) throws NexusException;
 
   /**
    Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
