@@ -149,7 +149,7 @@ class MixerImpl implements Mixer {
     applyBandpass(buf);
 
     // Compression is more predictable within the logarithmic range
-    applyCompressor(buf);
+    // FUTURE: multi-band compressor, but for now skip: applyCompressor(buf);
 
     // Final step ensures the broadcast signal has an exact constant maximum amplitude
     applyNormalization(buf);

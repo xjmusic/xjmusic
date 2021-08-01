@@ -81,9 +81,9 @@ public class DemoIT {
     String filename = getUniqueTempFilename(referenceName);
     mixAndWriteOutput(encoder, encoding, frameRate, sampleBits, channels, filename);
     switch (encoder) {
-      case WAV -> assertTrue("Demo output does not match reference audio for " + referenceName + "!",
+      case WAV -> assertTrue("Demo output " + filename + " does not match reference audio for " + referenceName + "!",
         Files.equal(new File(filename), resourceFile(getReferenceAudioFilename(referenceName))));
-      case OGG -> assertTrue("Demo output does not match file size +/-2% of reference audio for " + referenceName + "!",
+      case OGG -> assertTrue("Demo output " + filename + " does not match file size +/-2% of reference audio for " + referenceName + "!",
         isFileSizeWithin(new File(filename), resourceFile(getReferenceAudioFilename(referenceName)))
       );
     }
