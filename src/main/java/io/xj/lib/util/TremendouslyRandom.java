@@ -37,6 +37,8 @@ public interface TremendouslyRandom {
    @return a marble from the bag
    */
   static boolean beatOddsAgainstOne(int odds) {
+    if (0 >= odds) return false;
+    if (1 == odds) return true;
     return zeroToLimit(odds) == 0;
   }
 

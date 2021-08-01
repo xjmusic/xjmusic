@@ -3,6 +3,7 @@ package io.xj.nexus.craft.detail;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import io.xj.Chain;
 import io.xj.Instrument;
 import io.xj.Program;
 import io.xj.ProgramVoice;
@@ -97,6 +98,18 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
           // Optionally, use the inertial choice that corresponds to this primary one, instead.
           var inertialChoice = computeInertialChoice(primaryChoice);
+
+          // TEMPORARY
+          //   Arcs Alpha: % chance of playing each layer
+          //   https://www.pivotaltracker.com/story/show/179081564
+          if (Chain.Type.Production.equals(fabricator.getChain().getType()) &&
+            TremendouslyRandom.beatOddsAgainstOne(switch (voicingType) {
+              case UNRECOGNIZED, Percussive, Bass -> 0;
+              case Pad -> 8 + fabricator.getSegment().getDelta();
+              case Sticky -> 2 + fabricator.getSegment().getDelta();
+              case Stripe -> 4 + fabricator.getSegment().getDelta();
+              case Stab -> 6 + fabricator.getSegment().getDelta();
+            })) return;
 
           // If there's an inertial choice, use it
           if (inertialChoice.isPresent())
