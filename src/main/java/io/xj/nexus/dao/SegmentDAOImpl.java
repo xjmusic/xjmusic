@@ -48,7 +48,6 @@ import java.util.stream.Collectors;
 public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   public static final Double LENGTH_MINIMUM = 0.01; //
   public static final Double AMPLITUDE_MINIMUM = 0.0; //
-  private static final long MILLIS_PER_SECOND = 1000;
   private final ChainDAO chainDAO;
   private final int workBufferAheadSeconds;
   private final int workBufferBeforeSeconds;
@@ -374,24 +373,11 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   public Optional<Segment> readLastDubbedSegment(HubClientAccess access, String chainId) throws DAOPrivilegeException, DAOFatalException {
     try {
       requireTopLevel(access);
-      return getLastDubbed(store.getAllSegments(chainId));
+      return Segments.getLastDubbed(store.getAllSegments(chainId));
 
     } catch (NexusException e) {
       throw new DAOFatalException(e);
     }
-  }
-
-  @Override
-  public Optional<Segment> getLastDubbed(Collection<Segment> segments) {
-    return segments
-      .stream()
-      .filter(segment -> Segment.State.Dubbed == segment.getState())
-      .max(Comparator.comparing(Segment::getOffset));
-  }
-
-  @Override
-  public float getLengthSeconds(Segment segment) {
-    return (float) (Instant.parse(segment.getEndAt()).toEpochMilli() - Instant.parse(segment.getBeginAt()).toEpochMilli()) / MILLIS_PER_SECOND;
   }
 
   @Override

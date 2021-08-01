@@ -97,7 +97,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
             .build());
 
           // Optionally, use the inertial choice that corresponds to this primary one, instead.
-          var inertialChoice = computeInertialChoice(primaryChoice);
+          //          var inertialChoice = computeInertialChoice(primaryChoice);
 
           // TEMPORARY
           //   Arcs Alpha: % chance of playing each layer
@@ -105,16 +105,16 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
           if (Chain.Type.Production.equals(fabricator.getChain().getType()) &&
             TremendouslyRandom.beatOddsAgainstOne(switch (voicingType) {
               case UNRECOGNIZED, Percussive, Bass -> 0;
-              case Pad -> 8 + fabricator.getSegment().getDelta();
-              case Sticky -> 2 + fabricator.getSegment().getDelta();
-              case Stripe -> 4 + fabricator.getSegment().getDelta();
-              case Stab -> 6 + fabricator.getSegment().getDelta();
+              case Pad -> 5 + fabricator.getSegment().getDelta();
+              case Sticky -> 1 + fabricator.getSegment().getDelta();
+              case Stripe -> 2 + fabricator.getSegment().getDelta();
+              case Stab -> 3 + fabricator.getSegment().getDelta();
             })) return;
 
           // If there's an inertial choice, use it
-          if (inertialChoice.isPresent())
-            this.craftArrangements(fabricator.add(inertialChoice.get()));
-          else
+//          if (inertialChoice.isPresent())
+//            this.craftArrangements(fabricator.add(inertialChoice.get()));
+//          else
             this.craftArrangements(primaryChoice);
         }
       }

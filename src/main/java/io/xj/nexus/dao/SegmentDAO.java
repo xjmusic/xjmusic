@@ -163,21 +163,4 @@ public interface SegmentDAO extends DAO<Segment> {
    @return Last Dubbed-state Segment in Chain
    */
   Optional<Segment> readLastDubbedSegment(HubClientAccess access, String chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
-
-  /**
-   Get the last dubbed from any collection of Segments
-
-   @param segments to get last dubbed from
-   @return last dubbed segment from collection
-   */
-  Optional<Segment> getLastDubbed(Collection<Segment> segments);
-
-
-  /**
-   Get the length of a Segment in seconds
-
-   @param segment for which to get length
-   @return length of segment in seconds
-   */
-  float getLengthSeconds(Segment segment);
 }

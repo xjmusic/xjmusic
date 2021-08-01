@@ -9,15 +9,19 @@ import io.xj.SegmentChoice;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 
 import javax.annotation.Nullable;
+import java.time.Instant;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  Utilities for working with segments
  */
 public enum Segments {
   ;
+  private static final long MILLIS_PER_SECOND = 1000;
 
   /**
    Find first segment choice of a given type in a collection of segment choices
@@ -41,5 +45,51 @@ public enum Segments {
   public static String getIdentifier(@Nullable Segment segment) {
     if (Objects.isNull(segment)) return "N/A";
     return Strings.isNullOrEmpty(segment.getStorageKey()) ? segment.getId() : segment.getStorageKey();
+  }
+
+
+  /**
+   Get the last dubbed from any collection of Segments
+
+   @param segments to get last dubbed from
+   @return last dubbed segment from collection
+   */
+  public static Optional<Segment> getLastDubbed(Collection<Segment> segments) {
+    return getLast(getDubbed(segments));
+  }
+
+  /**
+   Get the last from any collection of Segments
+
+   @param segments to get last from
+   @return last segment from collection
+   */
+  public static Optional<Segment> getLast(Collection<Segment> segments) {
+    return segments
+      .stream()
+      .max(Comparator.comparing(Segment::getOffset));
+  }
+
+  /**
+   Get only the dubbed from any collection of Segments
+
+   @param segments to get dubbed from
+   @return dubbed segments from collection
+   */
+  public static Collection<Segment> getDubbed(Collection<Segment> segments) {
+    return segments
+      .stream()
+      .filter(segment -> Segment.State.Dubbed == segment.getState())
+      .collect(Collectors.toList());
+  }
+
+  /**
+   Get the length of a Segment in seconds
+
+   @param segment for which to get length
+   @return length of segment in seconds
+   */
+  public static float getLengthSeconds(Segment segment) {
+    return (float) (Instant.parse(segment.getEndAt()).toEpochMilli() - Instant.parse(segment.getBeginAt()).toEpochMilli()) / MILLIS_PER_SECOND;
   }
 }

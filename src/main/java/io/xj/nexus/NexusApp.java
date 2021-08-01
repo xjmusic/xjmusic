@@ -25,6 +25,7 @@ import io.xj.lib.util.Text;
 import io.xj.nexus.api.NexusAccessLogFilter;
 import io.xj.nexus.dao.ChainDAO;
 import io.xj.nexus.dao.Chains;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
@@ -195,7 +196,8 @@ public class NexusApp extends App {
             LOG.error("Could not deserialize ChainBinding from shipped Chain JSON because {}", e.getMessage());
           }
         });
-      chainPayload.getIncluded().stream()
+
+      var segments = chainPayload.getIncluded().stream()
         .filter(po -> po.isType(Segment.class))
         .flatMap(po -> {
           try {
@@ -206,6 +208,16 @@ public class NexusApp extends App {
             return Stream.empty();
           }
         })
+        .filter(seg -> Segment.State.Dubbed.equals(seg.getState()))
+        .collect(Collectors.toList());
+
+      // Don't rehydrate last segment-- just in case it was malformed.
+      // https://www.pivotaltracker.com/story/show/179081624
+      var lastSeg = Segments.getLast(segments).orElseThrow(() -> new NexusException("Failed to get last Segment"));
+
+      segments
+        .stream()
+        .filter(segment -> !lastSeg.getId().equals(segment.getId()))
         .forEach(segment -> {
           try {
             var segmentStorageKey = fileStoreProvider.getSegmentStorageKey(segment.getStorageKey(), EXTENSION_JSON);
@@ -245,16 +257,18 @@ public class NexusApp extends App {
           .filter(e -> Entities.isType(e, Segment.class))
           .map(e -> (Segment) e)
           .collect(Collectors.toList()));
-      if (fabricatedAheadSeconds > rehydrateFabricatedAheadThreshold) {
-        entityStore.putAll(entities);
-        LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s",
-          entities.size(), Chains.getIdentifier(chain), fabricatedAheadSeconds);
-        return true;
-      } else {
+
+      if (fabricatedAheadSeconds < rehydrateFabricatedAheadThreshold) {
         LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (not > {}s)",
           Chains.getIdentifier(chain), fabricatedAheadSeconds, rehydrateFabricatedAheadThreshold);
         return false;
       }
+
+      // Okay to rehydrate
+      entityStore.putAll(entities);
+      LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s",
+        entities.size(), Chains.getIdentifier(chain), fabricatedAheadSeconds);
+      return true;
 
     } catch (FileStoreException | JsonApiException | NexusException | IOException e) {
       LOG.error("Failed to rehydrate store because {}", e.getMessage());

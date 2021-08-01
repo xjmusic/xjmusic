@@ -347,7 +347,7 @@ public class NexusWorkImpl implements NexusWork {
       }
 
       // Update the chain fabricated-ahead seconds before shipping data
-      var segmentLengthSeconds = segmentDAO.getLengthSeconds(segment);
+      var segmentLengthSeconds = Segments.getLengthSeconds(segment);
       fabricatedAheadSeconds += segmentLengthSeconds;
       chain = updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
 
@@ -395,7 +395,7 @@ public class NexusWorkImpl implements NexusWork {
 
   @Override
   public float computeFabricatedAheadSeconds(Chain chain, Collection<Segment> segments) {
-    var lastDubbedSegment = segmentDAO.getLastDubbed(segments);
+    var lastDubbedSegment = Segments.getLastDubbed(segments);
     var dubbedUntil = lastDubbedSegment.isPresent() ?
       Instant.parse(lastDubbedSegment.get().getEndAt()) :
       Instant.parse(chain.getStartAt());

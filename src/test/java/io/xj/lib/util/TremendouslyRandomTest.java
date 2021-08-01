@@ -25,7 +25,6 @@ public class TremendouslyRandomTest {
 
   @Test
   public void beatOddsAgainstOne() {
-    assertTrue(TremendouslyRandom.beatOddsAgainstOne(1));
     assertFalse(TremendouslyRandom.beatOddsAgainstOne(0));
     assertFalse(TremendouslyRandom.beatOddsAgainstOne(-1));
   }
