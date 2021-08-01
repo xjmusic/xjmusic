@@ -13,7 +13,6 @@ import static org.junit.Assert.assertTrue;
 
 public class TextTest {
 
-
   @Test
   public void formatMultiline() {
     assertEquals("Line One\nLine Two", Text.formatMultiline(new String[]{"Line One", "Line Two"}));
@@ -170,6 +169,11 @@ public class TextTest {
   }
 
   @Test
+  public void toStrings() {
+    // FUTURE test Text.toStrings()
+  }
+
+  @Test
   public void toUpperScored() {
     assertEquals("JAMMY_BUNS", Text.toUpperScored("jaMMy b#!uns"));
     assertEquals("JAMMY_BUNS", Text.toUpperScored("  jaMMy    b#!uns   "));
@@ -190,6 +194,7 @@ public class TextTest {
     assertEquals("NEUF", Text.toMeme("%&(#", "neuf"));
     assertEquals("P", Text.toMeme("%&(#p"));
     assertEquals("", Text.toMeme("%&(#"));
+    assertEquals("$UNIQUE", Text.toMeme("$UNIQUE"));
   }
 
   @Test

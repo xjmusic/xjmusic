@@ -60,6 +60,16 @@ public class MemeIsometryTest {
   }
 
   @Test
+  public void uniqueMeme() {
+    subject = MemeIsometry.ofMemes(ImmutableList.of(
+      "$UNIQUE"
+    ));
+
+    assertEquals(-20, subject.score(ImmutableList.of("$UNIQUE")), 0.1);
+    assertEquals(0, subject.score(ImmutableList.of("UNIQUE")), 0.1);
+  }
+
+  @Test
   public void score() {
     subject = MemeIsometry.ofMemes(ImmutableList.of(
       "Smooth",

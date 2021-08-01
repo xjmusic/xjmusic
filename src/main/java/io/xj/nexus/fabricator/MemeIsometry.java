@@ -14,8 +14,9 @@ import java.util.Collection;
 public class MemeIsometry extends Isometry {
   private static final String KEY_NAME = "name";
   private static final String NOT_PREFIX = "!";
+  private static final String UNIQUE_PREFIX = "$";
   private static final int WEIGHT_MATCH = 1;
-  private static final int WEIGHT_ANTI_MATCH = 20;
+  private static final int WEIGHT_ANTI_MATCH = -20;
 
   /**
    Instantiate a new MemeIsometry of a group of source Memes,
@@ -61,11 +62,14 @@ public class MemeIsometry extends Isometry {
    @return score
    */
   private int score(String source, String target) {
-    if (Objects.equal(source, target)) return WEIGHT_MATCH;
+    if (Objects.equal(source, target))
+      return
+        UNIQUE_PREFIX.equals(source.substring(0, 1)) && UNIQUE_PREFIX.equals(target.substring(0, 1)) ?
+          WEIGHT_ANTI_MATCH : WEIGHT_MATCH;
     if (NOT_PREFIX.equals(source.substring(0, 1)) && source.substring(1).equals(target))
-      return -WEIGHT_ANTI_MATCH;
+      return WEIGHT_ANTI_MATCH;
     if (NOT_PREFIX.equals(target.substring(0, 1)) && target.substring(1).equals(source))
-      return -WEIGHT_ANTI_MATCH;
+      return WEIGHT_ANTI_MATCH;
     return 0;
   }
 

@@ -27,7 +27,7 @@ public interface Text {
   Pattern nonAlphanumeric = Pattern.compile("[^a-zA-Z0-9.\\-]"); // include decimal and sign
   Pattern nonNumeric = Pattern.compile("[^0-9.\\-]"); // include decimal and sign
   Pattern nonSlug = Pattern.compile("[^a-zA-Z0-9]");
-  Pattern nonMeme = Pattern.compile("[^a-zA-Z0-9!]");
+  Pattern nonMeme = Pattern.compile("[^a-zA-Z0-9!$]");
   Pattern nonScored = Pattern.compile("[^a-zA-Z0-9_]");
   Pattern nonNote = Pattern.compile("[^#0-9a-zA-Z ]");
   Pattern isInteger = Pattern.compile("[0-9]+");
