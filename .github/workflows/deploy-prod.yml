@@ -1,9 +1,9 @@
-name: "Integration"
+name: "Deploy Production"
 
 on:
   push:
     branches:
-      - main
+      - deploy/prod
 
 jobs:
   Gradle:
@@ -63,3 +63,14 @@ jobs:
 
       - name: Nothing left TODO
         run: .github/nothing_left_todo.sh
+
+      - name: Build & Push Docker Image
+        id: jib
+        run: "./gradlew --info --no-daemon jib"
+        continue-on-error: false
+
+      - name: Kubernetes rollout deployment/nexus
+        run: |
+          kubectl -n lab rollout restart deployment/nexus
+          kubectl -n yard rollout restart deployment/coolair
+
