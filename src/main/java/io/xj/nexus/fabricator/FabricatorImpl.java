@@ -14,7 +14,6 @@ import io.xj.Chain;
 import io.xj.ChainBinding;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
-import io.xj.InstrumentMeme;
 import io.xj.Program;
 import io.xj.ProgramMeme;
 import io.xj.ProgramSequence;
@@ -83,8 +82,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static io.xj.Instrument.Type.UNRECOGNIZED;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -224,19 +221,6 @@ class FabricatorImpl implements Fabricator {
   @Override
   public HubClientAccess getAccess() {
     return access;
-  }
-
-  @Override
-  public double getAmplitudeForInstrumentType(SegmentChoiceArrangementPick pick) {
-    return switch (getInstrument(pick).map(Instrument::getType).orElse(UNRECOGNIZED)) {
-      case Percussive -> chainConfig.getDubMasterVolumeInstrumentTypePercussive();
-      case Bass -> chainConfig.getDubMasterVolumeInstrumentTypeBass();
-      case Pad -> chainConfig.getDubMasterVolumeInstrumentTypePad();
-      case Sticky -> chainConfig.getDubMasterVolumeInstrumentTypeSticky();
-      case Stripe -> chainConfig.getDubMasterVolumeInstrumentTypeStripe();
-      case Stab -> chainConfig.getDubMasterVolumeInstrumentTypeStab();
-      default -> 1.0;
-    };
   }
 
   @Override

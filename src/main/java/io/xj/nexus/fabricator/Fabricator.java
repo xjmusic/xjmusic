@@ -60,16 +60,6 @@ public interface Fabricator {
   HubClientAccess getAccess() throws NexusException;
 
   /**
-   Get the mix amplitude (ratio) for the instrument type of a given pick, based on chain config
-   <p>
-   [#176651700] Chain config includes proprietary mix % modifiers for different instrument types
-
-   @param pick to get amplitude of
-   @return amplitude of instrument type
-   */
-  double getAmplitudeForInstrumentType(SegmentChoiceArrangementPick pick) throws NexusException;
-
-  /**
    Get arrangements for segment
 
    @return arrangements for segment
