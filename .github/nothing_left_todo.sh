@@ -4,7 +4,7 @@
 
 check() {
   TARGET=${1}
-  if grep --recursive -i todo ${TARGET}
+  if grep --recursive -ie "\\btodo\\b" ${TARGET}
     then
       echo "There are remaining items TODO"
       exit 1;
