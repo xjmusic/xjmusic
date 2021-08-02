@@ -146,7 +146,7 @@ class MixerImpl implements Mixer {
 
     // The low-pass filter ensures there are no screeching extra-high tones in the mix.
     // The high-pass filter ensures there are no distorting ultra-low tones in the mix.
-    applyBandpass(buf);
+    // FUTURE: skipping for now, this is apparently where kick flam comes from: applyBandpass(buf);
 
     // Compression is more predictable within the logarithmic range
     // FUTURE: multi-band compressor, but for now skip: applyCompressor(buf);
