@@ -1,5 +1,7 @@
 [![Integration](https://github.com/xjmusic/nexus/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/xjmusic/nexus/actions/workflows/main.yml)
 
+[![Deploy Production](https://github.com/xjmusic/nexus/actions/workflows/deploy-prod.yml/badge.svg)](https://github.com/xjmusic/nexus/actions/workflows/deploy-prod.yml)
+
 # Nexus
 
 *Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.*
@@ -72,7 +74,7 @@ To compile the Java server-side applications and package them for deployment:
 There is an example configuration called **env.example.conf** in the root of the project. It is up to you, the
 developer, to obtain keys and fill in the values of your own environment variables, in a new file called **.env**
 which is never checked in to version control or released with the distribution. Developers modify their local
-**.env** file with private keys and ceonfiguration. The **.env** file is never committed to the repository, because it
+**.env** file with private keys and configuration. The **.env** file is never committed to the repository, because it
 contains secrets. The **env.example.conf** file is kept up-to-date with all environment variables required for the
 developer to configure.
 
