@@ -10,8 +10,11 @@ import org.slf4j.LoggerFactory;
 import javax.sound.sampled.AudioFormat;
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 class MixerImpl implements Mixer {
   private static final Logger log = LoggerFactory.getLogger(MixerImpl.class);
@@ -98,8 +101,8 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public void put(String sourceId, long startAtMicros, long stopAtMicros, long attackMicros, long releaseMicros, double velocity, double pan) throws PutException {
-    readyPuts.put(nextPutId(), factory.createPut(sourceId, startAtMicros, stopAtMicros, attackMicros, releaseMicros, velocity, pan));
+  public void put(String busId, String sourceId, long startAtMicros, long stopAtMicros, long attackMicros, long releaseMicros, double velocity, double pan) throws PutException {
+    readyPuts.put(nextPutId(), factory.createPut(busId, sourceId, startAtMicros, stopAtMicros, attackMicros, releaseMicros, velocity, pan));
   }
 
   @Override
@@ -118,9 +121,14 @@ class MixerImpl implements Mixer {
       .map(Put::getStopAtMicros)
       .max(Long::compare)
       .orElse(0L) / MICROS_PER_SECOND;
+    String[] busIds = readyPuts.values().stream()
+      .map(Put::getBusId)
+      .collect(Collectors.toSet())
+      .toArray(new String[]{});
     int totalFrames = (int) Math.floor(totalSeconds * outputFrameRate);
     int totalBytes = totalFrames * outputFrameSize;
-    double[][] buf = new double[totalFrames][outputChannels];
+    double[][][] busBuf = new double[busIds.length][totalFrames][outputChannels];
+    double[][] outBuf = new double[totalFrames][outputChannels];
 
     if (!Objects.equals(state, MixerState.Ready))
       throw new MixerException(config.getLogPrefix() + "can't mix again; only one mix allowed per Mixer");
@@ -137,22 +145,31 @@ class MixerImpl implements Mixer {
       numInstances,
       numSources);
 
-    // Start with original sources summed up verbatim
-    applySources(buf);
 
-    // The dynamic range is forced into gentle logarithmic decay.
-    // This alters the relative amplitudes from the previous step, implicitly normalizing them well below amplitude 1.0
-    applyLogarithmicDynamicRange(buf);
+    // Initial mix steps are done on individual busses
+    // Multi-bus output with individual normalization REF https://www.pivotaltracker.com/story/show/179081795
+    for (int b = 0; b < busIds.length; b++) {
+      // The low-pass filter ensures there are no screeching extra-high tones in the mix.
+      // The high-pass filter ensures there are no distorting ultra-low tones in the mix.
+      applyBandpass(busBuf[b]);
+      // Start with original sources summed up verbatim
+      applySources(busIds[b], busBuf[b]);
+      // The dynamic range is forced into gentle logarithmic decay.
+      // This alters the relative amplitudes from the previous step, implicitly normalizing them well below amplitude 1.0
+      applyLogarithmicDynamicRange(busBuf[b]);
+      // Final step ensures the broadcast signal has an exact constant maximum amplitude
+      applyNormalization(busBuf[b]);
+    }
 
-    // The low-pass filter ensures there are no screeching extra-high tones in the mix.
-    // The high-pass filter ensures there are no distorting ultra-low tones in the mix.
-    applyBandpass(buf);
+    // Individual busses are summed to the output bus
+    // Multi-bus output with individual normalization REF https://www.pivotaltracker.com/story/show/179081795
+    mixOutputBus(busBuf, outBuf);
 
     // Compression is more predictable within the logarithmic range
     // FUTURE: multi-band compressor, but for now skip: applyCompressor(buf);
 
     // Final step ensures the broadcast signal has an exact constant maximum amplitude
-    applyNormalization(buf);
+    applyNormalization(outBuf);
 
     //
     state = MixerState.Done;
@@ -163,10 +180,29 @@ class MixerImpl implements Mixer {
       numSources,
       String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
-    startedAt = System.nanoTime();
-    log.debug(config.getLogPrefix() + "Will write {} bytes of output audio", totalBytes);
-    new AudioStreamWriter(buf, quality).writeToFile(outputFilePath, config.getOutputFormat(), outputEncoder, totalFrames);
-    log.debug(config.getLogPrefix() + "Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
+    if (0 < outBuf.length) {
+      startedAt = System.nanoTime();
+      log.debug(config.getLogPrefix() + "Will write {} bytes of output audio", totalBytes);
+      new AudioStreamWriter(outBuf, quality).writeToFile(outputFilePath, config.getOutputFormat(), outputEncoder, totalFrames);
+      log.debug(config.getLogPrefix() + "Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
+    } else {
+      log.debug(config.getLogPrefix() + "Will not write empty output audio");
+    }
+  }
+
+  /**
+   Mix input buffers to output buffer
+
+   @param inBufs buffers from which to read input
+   @param outBuf to which summed output will be written
+   */
+  private void mixOutputBus(final double[][][] inBufs, double[][] outBuf) {
+    for (AtomicInteger f = new AtomicInteger(); f.get() < outBuf.length; f.incrementAndGet())
+      for (AtomicInteger c = new AtomicInteger(); c.get() < outBuf[0].length; c.incrementAndGet())
+        outBuf[f.get()][c.get()] =
+          Arrays.stream(inBufs)
+            .mapToDouble(inBuf -> inBuf[f.get()][c.get()])
+            .sum();
   }
 
   @Override
@@ -247,9 +283,9 @@ class MixerImpl implements Mixer {
    apply original sources to mixing buffer
    addition of all sources into initial mixed source frames@param buf
    */
-  private void applySources(double[][] buf) {
+  private void applySources(String busId, double[][] buf) {
     for (int i = 0; i < buf.length; i++)
-      buf[i] = mixSourceFrame(i);
+      buf[i] = mixSourceFrame(busId, i);
   }
 
   /**
@@ -326,15 +362,17 @@ class MixerImpl implements Mixer {
    so the Mixer has to use that reference source id along with other variables from the Put,
    in order to arrive at the final source output value at any given microsecond
 
+   @param busId       to mix (exclude puts not matching this)
    @param offsetFrame of frame from start of mix
    @return array of samples (one per channel) constituting a frame of audio
    */
-  private double[] mixSourceFrame(long offsetFrame) {
+  private double[] mixSourceFrame(String busId, long offsetFrame) {
     mixCycleBeforeEveryNthFrame(offsetFrame);
     long atMicros = getMicros(offsetFrame);
 
     double[] frame = new double[outputChannels];
     livePuts.forEach((id, livePut) -> {
+      if (!busId.equals(livePut.getBusId())) return;
       long sourceOffsetMicros = livePut.sourceOffsetMicros(atMicros);
       if (0 < sourceOffsetMicros) {
         double[] inSamples = mixSourceFrameAtMicros(livePut.getSourceId(), livePut.getVelocity(), livePut.getPan(), sourceOffsetMicros);

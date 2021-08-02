@@ -126,7 +126,7 @@ public class DemoIT {
     // setup the music
     int iL = demoSequence.length;
     for (int i = 0; i < iL; i++) {
-      demoMixer.put(demoSequence[i], atMicros(i), atMicros(i + 3), attackMicros, releaseMicros, 1.0, 0);
+      demoMixer.put("Default", demoSequence[i], atMicros(i), atMicros(i + 3), attackMicros, releaseMicros, 1.0, 0);
     }
 
     // mix it

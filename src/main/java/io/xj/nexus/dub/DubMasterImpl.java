@@ -144,7 +144,9 @@ public class DubMasterImpl implements DubMaster {
    @param pick    to set playback for
    */
   private void setupTarget(Double preroll, SegmentChoiceArrangementPick pick) throws Exception {
-    mixer().put(pick.getInstrumentAudioId(),
+    mixer().put(
+      fabricator.getSourceMaterial().getInstrumentTypeForAudioId(pick.getInstrumentAudioId()).toString(),
+      pick.getInstrumentAudioId(),
       toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
       toMicros(preroll + pick.getStart() + pick.getLength()) +
         fabricator.getChainConfig().getMixerSampleReleaseMicros(),

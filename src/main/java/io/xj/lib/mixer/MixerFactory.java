@@ -30,6 +30,7 @@ public interface MixerFactory {
   /**
    Create a single Put to represent a single audio source playing at a specific time in the future.
 
+   @param busId         to output into
    @param sourceId      to reference source by
    @param startAtMicros duration from beginning of mix
    @param stopAtMicros  duration from beginning of mix
@@ -41,6 +42,7 @@ public interface MixerFactory {
    @throws PutException on failure
    */
   Put createPut(
+    @Assisted("busId") String busId,
     @Assisted("sourceId") String sourceId,
     @Assisted("startAtMicros") long startAtMicros,
     @Assisted("stopAtMicros") long stopAtMicros,

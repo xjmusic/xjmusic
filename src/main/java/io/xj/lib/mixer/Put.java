@@ -97,4 +97,11 @@ public interface Put {
    @return microseconds
    */
   long getReleaseMicros();
+
+  /**
+   Get the bus id to output
+
+   @return output bus id
+   */
+  String getBusId();
 }

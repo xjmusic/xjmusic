@@ -16,7 +16,7 @@ public class PutImplTest {
 
   @Before
   public void setUp() throws Exception {
-    testPut = mixerFactory.createPut("bun1", 1000000, 2000000, 10000, 50000, 1.0, 0);
+    testPut = mixerFactory.createPut("Default", "bun1", 1000000, 2000000, 10000, 50000, 1.0, 0);
   }
 
   @Test

@@ -678,4 +678,12 @@ public class HubContent {
       .flatMap(map -> map.values().stream()).collect(Collectors.toList());
   }
 
+  public Instrument.Type getInstrumentTypeForAudioId(String instrumentAudioId) throws HubClientException {
+    return getInstrument(
+      getInstrumentAudio(instrumentAudioId)
+        .orElseThrow(() -> new HubClientException("Can't get Instrument Audio!"))
+        .getId())
+      .orElseThrow(() -> new HubClientException("Can't get Instrument!"))
+      .getType();
+  }
 }

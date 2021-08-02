@@ -10,6 +10,7 @@ import java.util.Objects;
  Put to represent a single audio source playing at a specific time in the future.
  */
 class PutImpl implements Put {
+  private final String busId;
   private final String sourceId;
   private final long startAtMicros;
   private final long stopAtMicros;
@@ -21,6 +22,7 @@ class PutImpl implements Put {
 
   @Inject
   public PutImpl(
+    @Assisted("busId") String busId,
     @Assisted("sourceId") String sourceId,
     @Assisted("startAtMicros") long startAtMicros,
     @Assisted("stopAtMicros") long stopAtMicros,
@@ -29,6 +31,7 @@ class PutImpl implements Put {
     @Assisted("velocity") double velocity,
     @Assisted("pan") double pan
   ) {
+    this.busId = busId;
     this.sourceId = sourceId;
     this.startAtMicros = startAtMicros;
     this.stopAtMicros = stopAtMicros;
@@ -116,4 +119,8 @@ class PutImpl implements Put {
     return releaseMicros;
   }
 
+  @Override
+  public String getBusId() {
+    return busId;
+  }
 }
