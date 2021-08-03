@@ -512,7 +512,7 @@ public interface Fabricator {
 
    @return macro-craft type
    */
-  Segment.Type getType();
+  Segment.Type getType() throws NexusException;
 
   /**
    Get segment chord voicing for a given chord
@@ -554,7 +554,7 @@ public interface Fabricator {
 
    @return true if this segment continues the same macro-program
    */
-  boolean isContinuationOfMacroProgram();
+  boolean isContinuationOfMacroProgram() throws NexusException;
 
   /**
    Whether a given Instrument is directly bound to the Chain,

@@ -67,11 +67,8 @@ public class ChainConfig {
   private final double mixerNormalizationMax;
   private final String KEY_MIXER_NORMALIZATION_MAX = "mixerNormalizationMax";
 
-  private final long mixerSampleAttackMicros;
-  private final String KEY_MIXER_SAMPLE_ATTACK_MICROS = "mixerSampleAttackMicros";
-
-  private final long mixerSampleReleaseMicros;
-  private final String KEY_MIXER_SAMPLE_RELEASE_MICROS = "mixerSampleReleaseMicros";
+  private final double mainProgramLengthMaxDelta;
+  private final String KEY_MAIN_PROGRAM_LENGTH_MAX_DELTA = "mainProgramLengthMaxDelta";
 
   private final double dubMasterVolumeInstrumentTypePercussive;
   private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE = "dubMasterVolumeInstrumentTypePercussive";
@@ -124,8 +121,7 @@ public class ChainConfig {
       mixerHighpassThresholdHz = config.getDouble(chPfx(KEY_MIXER_HIGHPASS_THRESHOLD_HZ));
       mixerLowpassThresholdHz = config.getDouble(chPfx(KEY_MIXER_LOWPASS_THRESHOLD_HZ));
       mixerNormalizationMax = config.getDouble(chPfx(KEY_MIXER_NORMALIZATION_MAX));
-      mixerSampleAttackMicros = config.getLong(chPfx(KEY_MIXER_SAMPLE_ATTACK_MICROS));
-      mixerSampleReleaseMicros = config.getLong(chPfx(KEY_MIXER_SAMPLE_RELEASE_MICROS));
+      mainProgramLengthMaxDelta = config.getInt(chPfx(KEY_MAIN_PROGRAM_LENGTH_MAX_DELTA));
       outputChannels = config.getInt(chPfx(KEY_OUTPUT_CHANNELS));
       outputContainer = config.getString(chPfx(KEY_OUTPUT_CONTAINER));
       outputEncoding = new AudioFormat.Encoding(config.getString(chPfx(KEY_OUTPUT_ENCODING)));
@@ -168,8 +164,7 @@ public class ChainConfig {
     config.put(KEY_MIXER_HIGHPASS_THRESHOLD_HZ, String.valueOf(mixerHighpassThresholdHz));
     config.put(KEY_MIXER_LOWPASS_THRESHOLD_HZ, String.valueOf(mixerLowpassThresholdHz));
     config.put(KEY_MIXER_NORMALIZATION_MAX, String.valueOf(mixerNormalizationMax));
-    config.put(KEY_MIXER_SAMPLE_ATTACK_MICROS, String.valueOf(mixerSampleAttackMicros));
-    config.put(KEY_MIXER_SAMPLE_RELEASE_MICROS, String.valueOf(mixerSampleReleaseMicros));
+    config.put(KEY_MAIN_PROGRAM_LENGTH_MAX_DELTA, String.valueOf(mainProgramLengthMaxDelta));
     config.put(KEY_OUTPUT_CHANNELS, String.valueOf(outputChannels));
     config.put(KEY_OUTPUT_CONTAINER, Text.doubleQuoted(outputContainer));
     config.put(KEY_OUTPUT_ENCODING, Text.doubleQuoted(outputEncoding.toString()));
@@ -330,23 +325,16 @@ public class ChainConfig {
   }
 
   /**
-   @return mixer Sample Attack Micros
-   */
-  public long getMixerSampleAttackMicros() {
-    return mixerSampleAttackMicros;
-  }
-
-  /**
-   @return mixer Sample Release Micros
-   */
-  public long getMixerSampleReleaseMicros() {
-    return mixerSampleReleaseMicros;
-  }
-
-  /**
    @return percent chance of making an inertial choice
    */
   public int getCraftChoiceInertiaPercent() {
     return craftChoiceInertiaPercent;
+  }
+
+  /**
+   @return max length (delta) for a main program to run
+   */
+  public double getMainProgramLengthMaxDelta() {
+    return mainProgramLengthMaxDelta;
   }
 }

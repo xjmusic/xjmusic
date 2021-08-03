@@ -29,7 +29,6 @@ public class ChainConfigTest {
         "mixerNormalizationMax = 0.999\n" +
         "mixerCompressAheadSeconds = 0.05\n" +
         "mixerDspBufferSize = 1024\n" +
-        "mixerSampleAttackMicros = 1000\n" +
         "dubMasterVolumeInstrumentTypeBass = 1.0\n" +
         "outputEncoding = \"PCM_SIGNED\"\n" +
         "mixerCompressRatioMin = 0.5\n" +
@@ -39,7 +38,6 @@ public class ChainConfigTest {
         "outputChannels = 2\n" +
         "dubMasterVolumeInstrumentTypeStab = 0.8\n" +
         "mixerLowpassThresholdHz = 6000.0\n" +
-        "mixerSampleReleaseMicros = 60000\n" +
         "outputFrameRate = 48000")
       .build(), config);
   }
@@ -56,6 +54,7 @@ public class ChainConfigTest {
         "dubMasterVolumeInstrumentTypeStab = 0.8\n" +
         "dubMasterVolumeInstrumentTypeSticky = 0.8\n" +
         "dubMasterVolumeInstrumentTypeStripe = 0.5\n" +
+        "mainProgramLengthMaxDelta = 220.0\n" +
         "mixerCompressAheadSeconds = 0.05\n" +
         "mixerCompressDecaySeconds = 0.125\n" +
         "mixerCompressRatioMax = 10.0\n" +
@@ -65,8 +64,6 @@ public class ChainConfigTest {
         "mixerHighpassThresholdHz = 60.0\n" +
         "mixerLowpassThresholdHz = 6000.0\n" +
         "mixerNormalizationMax = 0.999\n" +
-        "mixerSampleAttackMicros = 1000\n" +
-        "mixerSampleReleaseMicros = 60000\n" +
         "outputChannels = 2\n" +
         "outputContainer = \"OGG\"\n" +
         "outputEncoding = \"PCM_SIGNED\"\n" +

@@ -768,7 +768,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Segment.Type getType() {
+  public Segment.Type getType() throws NexusException {
     if (Value.isEmpty(type))
       type = computeType();
     return type;
@@ -812,7 +812,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public boolean isContinuationOfMacroProgram() {
+  public boolean isContinuationOfMacroProgram() throws NexusException {
     return
       Segment.Type.Continue.equals(getType()) ||
         Segment.Type.NextMain.equals(getType());
@@ -1051,14 +1051,15 @@ class FabricatorImpl implements Fabricator {
 
    @return type of the current segment
    */
-  private Segment.Type computeType() {
+  private Segment.Type computeType() throws NexusException {
     if (isInitialSegment())
       return Segment.Type.Initial;
 
     // previous main choice having at least one more pattern?
     var previousMainChoice = getMainChoiceOfPreviousSegment();
 
-    if (previousMainChoice.isPresent() && hasOneMoreSequenceBindingOffset(previousMainChoice.get()))
+    if (previousMainChoice.isPresent() && hasOneMoreSequenceBindingOffset(previousMainChoice.get())
+      && getChainConfig().getMainProgramLengthMaxDelta() > getPreviousSegmentDelta())
       return Segment.Type.Continue;
 
     // previous macro choice having at least two more patterns?
@@ -1068,6 +1069,17 @@ class FabricatorImpl implements Fabricator {
       return Segment.Type.NextMain;
 
     return Segment.Type.NextMacro;
+  }
+
+  /**
+   Get the delta of the previous segment
+
+   @return delta from previous segment
+   */
+  private int getPreviousSegmentDelta() throws NexusException {
+    return retrospective.getPreviousSegment()
+      .orElseThrow(() -> new NexusException("Failed to get previous segment!"))
+      .getDelta();
   }
 
   /**

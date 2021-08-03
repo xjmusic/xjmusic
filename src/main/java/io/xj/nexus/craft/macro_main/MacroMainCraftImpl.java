@@ -234,7 +234,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return macro-type program
    */
-  public Optional<Program> chooseNextMacroProgram() {
+  public Optional<Program> chooseNextMacroProgram() throws NexusException {
     if (fabricator.isInitialSegment()) return chooseRandomMacroProgram();
 
     // if continuing the macro program, use the same one
@@ -285,7 +285,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
 
    @return main-type Program
    */
-  private Optional<Program> chooseMainProgram() {
+  private Optional<Program> chooseMainProgram() throws NexusException {
     // if continuing the macro program, use the same one
     var previousMainChoice = fabricator.getMainChoiceOfPreviousSegment();
     if (Segment.Type.Continue == fabricator.getType())

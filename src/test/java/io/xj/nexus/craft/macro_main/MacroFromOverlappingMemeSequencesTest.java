@@ -23,6 +23,7 @@ import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.json.ApiUrlProvider;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
@@ -194,7 +195,7 @@ public class MacroFromOverlappingMemeSequencesTest {
   }
 
   @Test
-  public void chooseNextMacroProgram_alwaysBasedOnOverlappingMemes() {
+  public void chooseNextMacroProgram_alwaysBasedOnOverlappingMemes() throws NexusException {
     // This test is repeated many times to ensure the correct function of macro choice
     // At 100 repetitions, false positive is 2^100:1 against
     for (int i = 0; i < REPEAT_TIMES; i++) {
