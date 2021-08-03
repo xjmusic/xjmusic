@@ -178,7 +178,9 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
         .build());
 
     // If the type is not Continue, we will reset the offset main
-    if (!Segment.Type.Continue.equals(fabricator.getType()))
+    if (Segment.Type.Continue.equals(fabricator.getType()))
+      fabricator.updateSegment(fabricator.getSegment().toBuilder().setDelta(fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal()).build());
+    else
       fabricator.updateSegment(fabricator.getSegment().toBuilder().setDelta(0).build());
 
     // done

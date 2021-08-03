@@ -361,7 +361,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       .setChainId(chain.getId())
       .setBeginAt(lastSegmentInChain.getEndAt())
       .setOffset(lastSegmentInChain.getOffset() + 1)
-      .setDelta(lastSegmentInChain.getDelta() + 1)
+      .setDelta(lastSegmentInChain.getDelta())
       .setType(Segment.Type.Pending)
       .setState(Segment.State.Planned)
       .build());
