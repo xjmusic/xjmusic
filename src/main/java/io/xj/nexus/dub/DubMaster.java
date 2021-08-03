@@ -16,6 +16,6 @@ public interface DubMaster {
    - During dub work, the waveform preroll required for the current segment is determined by finding the earliest positioned audio sample. **This process must factor in the transient of each audio sample.**
    - During dub work, output audio includes the head start, and `waveform_preroll` value is persisted to segment
    */
-  void doWork() throws NexusException, NexusException, NexusException;
+  void doWork() throws NexusException;
 
 }

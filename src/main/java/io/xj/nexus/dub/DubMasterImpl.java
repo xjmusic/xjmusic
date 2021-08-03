@@ -144,14 +144,13 @@ public class DubMasterImpl implements DubMaster {
    @param pick    to set playback for
    */
   private void setupTarget(Double preroll, SegmentChoiceArrangementPick pick) throws Exception {
-    mixer().put(pick.getInstrumentAudioId(),
+    mixer().put(
+      fabricator.getSourceMaterial().getInstrumentTypeForAudioId(pick.getInstrumentAudioId()).toString(),
+      pick.getInstrumentAudioId(),
       toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
       toMicros(preroll + pick.getStart() + pick.getLength()) +
         fabricator.getChainConfig().getMixerSampleReleaseMicros(),
-      fabricator.getChainConfig().getMixerSampleAttackMicros(),
-      fabricator.getChainConfig().getMixerSampleReleaseMicros(),
-      pick.getAmplitude() * fabricator.getAudioVolume(pick),
-      0);
+      pick.getAmplitude() * fabricator.getAudioVolume(pick));
   }
 
   /**
@@ -199,6 +198,13 @@ public class DubMasterImpl implements DubMaster {
 
       mixer = mixerFactory.createMixer(config);
     }
+
+    mixer.setBusLevel("Percussive", fabricator.getChainConfig().getDubMasterVolumeInstrumentTypePercussive());
+    mixer.setBusLevel("Bass", fabricator.getChainConfig().getDubMasterVolumeInstrumentTypeBass());
+    mixer.setBusLevel("Pad", fabricator.getChainConfig().getDubMasterVolumeInstrumentTypePad());
+    mixer.setBusLevel("Sticky", fabricator.getChainConfig().getDubMasterVolumeInstrumentTypeSticky());
+    mixer.setBusLevel("Stripe", fabricator.getChainConfig().getDubMasterVolumeInstrumentTypeStripe());
+    mixer.setBusLevel("Stab", fabricator.getChainConfig().getDubMasterVolumeInstrumentTypeStab());
 
     return mixer;
   }

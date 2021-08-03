@@ -20,15 +20,6 @@ public interface Put {
   long sourceOffsetMicros(long atMixOffsetMicros);
 
   /**
-   [#150279617] Engineer wants XJ to dub using an Attack/Release envelope, in order to enhance quality.
-   // FUTURE: smooth (non-linear) envelope
-
-   @param atMixOffsetMicros a moment in the final mix
-   @return corresponding envelope (ratio from 0 to 1) to multiply this source audio by at that instant
-   */
-  Double envelope(long atMixOffsetMicros);
-
-  /**
    Is the put alive?
 
    @return true if not done
@@ -78,23 +69,9 @@ public interface Put {
   double getVelocity();
 
   /**
-   get Pan
+   Get the bus id to output
 
-   @return Pan
+   @return output bus id
    */
-  double getPan();
-
-  /**
-   Get the length of the attack envelope
-
-   @return microseconds
-   */
-  long getAttackMicros();
-
-  /**
-   Get the length of the release envelope
-
-   @return microseconds
-   */
-  long getReleaseMicros();
+  int getBus();
 }

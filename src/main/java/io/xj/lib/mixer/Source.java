@@ -13,18 +13,6 @@ public interface Source {
   String READY = "ready";
 
   /**
-   audio frame at a specific Tz, volume (0 to 1), and pan (-1 to +1)
-   Also [#150279617] Attack/Release envelope
-
-   @param atMicros    since beginning of source
-   @param volume      to mix output to
-   @param pan         to mix output to
-   @param outChannels to mix output to
-   @return array of samples
-   */
-  double[] frameAt(long atMicros, double volume, double pan, int outChannels);
-
-  /**
    lengthMicros of the source audio
 
    @return lengthMicros
@@ -63,4 +51,13 @@ public interface Source {
    @return samples[frame][channel]
    */
   double[][] getData();
+
+  /**
+   Get the value for a given frame and channel
+
+   @param atMicros to get frame
+   @param c channel
+   @return value
+   */
+  double getValue(long atMicros, int c);
 }

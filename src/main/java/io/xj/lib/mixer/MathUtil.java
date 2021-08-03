@@ -72,11 +72,12 @@ public interface MathUtil {
   /**
    Get the maximum absolute value found in an entire two-dimensional buffer of double values
 
-   @param buf to search for maximum absolute value
+   @param buf                to search for maximum absolute value
+   @param normalizationGrain samples to skip
    @return maximum absolute value found in buffer
    */
-  static double maxAbs(double[][] buf) {
-    return maxAbs(buf, 0, buf.length);
+  static double maxAbs(double[][] buf, int normalizationGrain) {
+    return maxAbs(buf, 0, buf.length, normalizationGrain);
   }
 
   /**
@@ -88,11 +89,11 @@ public interface MathUtil {
    @param iTo index to search to
    @return maximum absolute value found in buffer
    */
-  static double maxAbs(double[][] buf, int iFr, int iTo) {
+  static double maxAbs(double[][] buf, int iFr, int iTo, int normalizationGrain) {
     double M = 0;
     int iF = Math.max(iFr, 0);
     int iT = Math.min(iTo, buf.length);
-    for (int i = iF; i < iT; i++) {
+    for (int i = iF; i < iT; i += normalizationGrain) {
       for (double v : buf[i])
         M = Math.max(M, Math.abs(v));
     }

@@ -208,7 +208,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
    @return true if a meme already exists with this name
    */
   private boolean alreadyHasMeme(SegmentMeme meme) {
-    var name = Text.toProperSlug(meme.getName());
+    var name = Text.toMeme(meme.getName());
     return getSegmentMemes().stream().anyMatch(existing -> existing.getName().equals(name));
   }
 }

@@ -10,32 +10,26 @@ import java.util.Objects;
  Put to represent a single audio source playing at a specific time in the future.
  */
 class PutImpl implements Put {
+  private final int bus;
   private final String sourceId;
   private final long startAtMicros;
   private final long stopAtMicros;
-  private final long attackMicros;
-  private final long releaseMicros;
   private final double velocity;
-  private final double pan;
   private String state;
 
   @Inject
   public PutImpl(
+    @Assisted("bus") int bus,
     @Assisted("sourceId") String sourceId,
     @Assisted("startAtMicros") long startAtMicros,
     @Assisted("stopAtMicros") long stopAtMicros,
-    @Assisted("attackMicros") long attackMicros,
-    @Assisted("releaseMicros") long releaseMicros,
-    @Assisted("velocity") double velocity,
-    @Assisted("pan") double pan
+    @Assisted("velocity") double velocity
   ) {
+    this.bus = bus;
     this.sourceId = sourceId;
     this.startAtMicros = startAtMicros;
     this.stopAtMicros = stopAtMicros;
     this.velocity = velocity;
-    this.pan = pan;
-    this.attackMicros = attackMicros;
-    this.releaseMicros = releaseMicros;
 
     state = READY;
   }
@@ -57,13 +51,6 @@ class PutImpl implements Put {
       default:
         return 0;
     }
-  }
-
-  public Double envelope(long atMixOffsetMicros) {
-    if (!Objects.equals(PLAY, state)) return 0.0;
-    double envIn = (atMixOffsetMicros - (double) startAtMicros) / attackMicros;
-    double envOut = ((double) stopAtMicros - atMixOffsetMicros) / releaseMicros;
-    return Math.max(0, Math.min(1.0, Math.min(envIn, envOut)));
   }
 
   @Override
@@ -102,18 +89,7 @@ class PutImpl implements Put {
   }
 
   @Override
-  public double getPan() {
-    return pan;
+  public int getBus() {
+    return bus;
   }
-
-  @Override
-  public long getAttackMicros() {
-    return attackMicros;
-  }
-
-  @Override
-  public long getReleaseMicros() {
-    return releaseMicros;
-  }
-
 }

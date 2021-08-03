@@ -22,8 +22,6 @@ import java.time.Duration;
 import static org.junit.Assert.assertTrue;
 
 public class DemoIT {
-  private static final long attackMicros = 1000;
-  private static final long releaseMicros = 5000;
   private static final long bpm = 121;
   private static final Duration beat = Duration.ofMinutes(1).dividedBy(bpm);
   private static final Duration step = beat.dividedBy(4);
@@ -126,7 +124,7 @@ public class DemoIT {
     // setup the music
     int iL = demoSequence.length;
     for (int i = 0; i < iL; i++) {
-      demoMixer.put(demoSequence[i], atMicros(i), atMicros(i + 3), attackMicros, releaseMicros, 1.0, 0);
+      demoMixer.put("Default", demoSequence[i], atMicros(i), atMicros(i + 3), 1.0);
     }
 
     // mix it

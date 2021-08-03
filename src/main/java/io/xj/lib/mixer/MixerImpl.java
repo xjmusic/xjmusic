@@ -1,22 +1,26 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer;
 
+import com.google.api.client.util.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sound.sampled.AudioFormat;
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 class MixerImpl implements Mixer {
   private static final Logger log = LoggerFactory.getLogger(MixerImpl.class);
   private static final float MICROS_PER_SECOND = 1000000;
   private static final float NANOS_PER_SECOND = 1000 * MICROS_PER_SECOND;
+  private static final int NORMALIZATION_GRAIN = 20;
+  private static final int COMPRESSION_GRAIN = 20;
   // fields: output file
   private final float microsPerFrame;
   private final float outputFrameRate;
@@ -24,9 +28,7 @@ class MixerImpl implements Mixer {
   private final int outputFrameSize;
   // fields: in-memory storage via concurrent maps
   private final Map<String, Source> sources = Maps.newConcurrentMap(); // concurrency required
-  private final Map<Long, Put> readyPuts = Maps.newConcurrentMap(); // concurrency required
-  private final Map<Long, Put> livePuts = Maps.newConcurrentMap(); // concurrency required
-  private final Map<Long, Put> donePuts = Maps.newConcurrentMap(); // concurrency required
+  private final Map<Long, Put> puts = Maps.newConcurrentMap(); // concurrency required
   // fields: mix macro and audio format
   private final MixerFactory factory;
   private final MixerConfig config;
@@ -37,15 +39,11 @@ class MixerImpl implements Mixer {
   private final int framesAhead;
   private final int dspBufferSize;
   private final int framesDecay;
-  private final double highpassThresholdHz;
-  private final double lowpassThresholdHz;
-  // field: debugging
-  private boolean debugging;
   // fields: playback state-machine
-  private long nextCycleFrame;
-  private long cycleDurFrames = 1000;
   private MixerState state = MixerState.Ready;
   private int uniquePutId; // key for storage in map of Puts
+  private final List<String> busIds = Lists.newArrayList();
+  private final Map<String, Double> busLevel = Maps.newHashMap();
 
   /**
    Instantiate a single Mix instance
@@ -67,8 +65,6 @@ class MixerImpl implements Mixer {
     minRatio = config.getCompressRatioMin();
     framesAhead = config.getCompressAheadFrames();
     framesDecay = config.getCompressDecayFrames();
-    highpassThresholdHz = config.getHighpassThresholdHz();
-    lowpassThresholdHz = config.getLowpassThresholdHz();
 
     try {
       outputChannels = config.getOutputFormat().getChannels();
@@ -98,8 +94,13 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public void put(String sourceId, long startAtMicros, long stopAtMicros, long attackMicros, long releaseMicros, double velocity, double pan) throws PutException {
-    readyPuts.put(nextPutId(), factory.createPut(sourceId, startAtMicros, stopAtMicros, attackMicros, releaseMicros, velocity, pan));
+  public void put(String busId, String sourceId, long startAtMicros, long stopAtMicros, double velocity) throws PutException {
+    puts.put(nextPutId(), factory.createPut(getBusNumber(busId), sourceId, startAtMicros, stopAtMicros, velocity));
+  }
+
+  @Override
+  public void setBusLevel(String busId, double level) {
+    busLevel.put(busId, level);
   }
 
   @Override
@@ -114,13 +115,14 @@ class MixerImpl implements Mixer {
 
   @Override
   public void mixToFile(OutputEncoder outputEncoder, String outputFilePath, Float quality) throws Exception {
-    double totalSeconds = readyPuts.values().stream()
+    double totalSeconds = puts.values().stream()
       .map(Put::getStopAtMicros)
       .max(Long::compare)
       .orElse(0L) / MICROS_PER_SECOND;
     int totalFrames = (int) Math.floor(totalSeconds * outputFrameRate);
     int totalBytes = totalFrames * outputFrameSize;
-    double[][] buf = new double[totalFrames][outputChannels];
+    double[][][] busBuf = new double[busIds.size()][totalFrames][outputChannels];
+    double[][] outBuf = new double[totalFrames][outputChannels];
 
     if (!Objects.equals(state, MixerState.Ready))
       throw new MixerException(config.getLogPrefix() + "can't mix again; only one mix allowed per Mixer");
@@ -128,31 +130,32 @@ class MixerImpl implements Mixer {
     // start the mixer
     state = MixerState.Mixing;
     long startedAt = System.nanoTime();
-    var numInstances = readyPuts.size();
+    var numInstances = puts.size();
     var numSources = sources.size();
     log.debug(config.getLogPrefix() + "Will mix {} seconds of output audio at {} Hz frame rate from {} instances of {} sources",
       String.format("%.9f", totalSeconds),
       outputFrameRate,
-      readyPuts.size(),
+      puts.size(),
       numInstances,
       numSources);
 
     // Start with original sources summed up verbatim
-    applySources(buf);
+    // Initial mix steps are done on individual busses
+    // Multi-bus output with individual normalization REF https://www.pivotaltracker.com/story/show/179081795
+    applySources(busBuf);
+    for (int b = 0; b < busIds.size(); b++)
+      applyCompressor(outBuf);
+    mixOutputBus(busBuf, outBuf);
 
     // The dynamic range is forced into gentle logarithmic decay.
     // This alters the relative amplitudes from the previous step, implicitly normalizing them well below amplitude 1.0
-    applyLogarithmicDynamicRange(buf);
-
-    // The low-pass filter ensures there are no screeching extra-high tones in the mix.
-    // The high-pass filter ensures there are no distorting ultra-low tones in the mix.
-    // FUTURE: skipping for now, this is apparently where kick flam comes from: applyBandpass(buf);
+    applyLogarithmicDynamicRange(outBuf);
 
     // Compression is more predictable within the logarithmic range
-    // FUTURE: multi-band compressor, but for now skip: applyCompressor(buf);
+    applyCompressor(outBuf);
 
     // Final step ensures the broadcast signal has an exact constant maximum amplitude
-    applyNormalization(buf);
+    applyNormalization(outBuf);
 
     //
     state = MixerState.Done;
@@ -163,10 +166,27 @@ class MixerImpl implements Mixer {
       numSources,
       String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
+    if (0 == outBuf.length)
+      throw new MixerException(config.getLogPrefix() + "Output buffer is empty!");
+
     startedAt = System.nanoTime();
     log.debug(config.getLogPrefix() + "Will write {} bytes of output audio", totalBytes);
-    new AudioStreamWriter(buf, quality).writeToFile(outputFilePath, config.getOutputFormat(), outputEncoder, totalFrames);
+    new AudioStreamWriter(outBuf, quality).writeToFile(outputFilePath, config.getOutputFormat(), outputEncoder, totalFrames);
     log.debug(config.getLogPrefix() + "Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
+  }
+
+  /**
+   Mix input buffers to output buffer@param inBufs buffers from which to read input
+
+   @param outBuf to which summed output will be written
+   */
+  private void mixOutputBus(final double[][][] inBufs, double[][] outBuf) {
+    double[] level = busIds.stream().mapToDouble(b -> busLevel.getOrDefault(b, 1.0)).toArray();
+    IntStream.range(0, inBufs.length).forEach(b ->
+      IntStream.range(0, inBufs[0].length).forEach(f ->
+        IntStream.range(0, inBufs[0][0].length).forEach(c ->
+          outBuf[f][c] += inBufs[b][f][c] * level[b]
+        )));
   }
 
   @Override
@@ -181,36 +201,8 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public void setCycleMicros(long micros) throws MixerException {
-    if (0 == microsPerFrame) {
-      throw new MixerException(config.getLogPrefix() + "Must specify mixing frequency before setting cycle duration!");
-    }
-    cycleDurFrames = (long) Math.floor(micros / microsPerFrame);
-  }
-
-  @Override
   public int getSourceCount() {
     return sources.size();
-  }
-
-  @Override
-  public int getPutCount() {
-    return readyPuts.size() + livePuts.size();
-  }
-
-  @Override
-  public int getPutReadyCount() {
-    return readyPuts.size();
-  }
-
-  @Override
-  public int getPutLiveCount() {
-    return livePuts.size();
-  }
-
-  @Override
-  public int getPutDoneCount() {
-    return donePuts.size();
   }
 
   @Override
@@ -219,37 +211,34 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public float getFrameRate() {
-    return outputFrameRate;
-  }
-
-  @Override
-  public AudioFormat getOutputFormat() {
-    return config.getOutputFormat();
-  }
-
-  @Override
   public boolean hasLoadedSource(String sourceId) {
     return sources.containsKey(sourceId);
   }
 
-  @Override
-  public boolean isDebugging() {
-    return debugging;
-  }
-
-  @Override
-  public void setDebugging(boolean debugging) {
-    this.debugging = debugging;
-  }
-
   /**
    apply original sources to mixing buffer
-   addition of all sources into initial mixed source frames@param buf
+   addition of all sources into initial mixed source frames
+   <p>
+   mix the 64-bit floating-point sample values for the next frame across all output channels.
+   <p>
+   the Put only has a reference to the source--
+   so the Mixer has to use that reference source id along with other variables from the Put,
+   in order to arrive at the final source output value at any given microsecond
+
+   @param busBuf is array[bus][frame][channel]
    */
-  private void applySources(double[][] buf) {
-    for (int i = 0; i < buf.length; i++)
-      buf[i] = mixSourceFrame(i);
+  private void applySources(double[][][] busBuf) {
+    puts.values().forEach(put -> {
+      int from = (int) (put.getStartAtMicros() / microsPerFrame);
+      var span = (int) (put.getStopAtMicros() / microsPerFrame) - from;
+      IntStream.range(0, span).forEach(f ->
+        IntStream.range(0, busBuf[0][0].length).forEach(c -> {
+          if (from + f < busBuf[0].length)
+            busBuf[put.getBus()][from + f][c] +=
+              Envelope.at(Math.min(f, span - f),
+                sources.get(put.getSourceId()).getValue((long) (f * microsPerFrame), c) * put.getVelocity());
+        }));
+    });
   }
 
   /**
@@ -280,14 +269,15 @@ class MixerImpl implements Mixer {
     }
   }
 
-  /**
+  /*
    [#161670248] Engineer wants high-pass and low-pass filters with gradual thresholds, in order to be optimally heard but not listened to.
    The lowpass filter ensures there are no screeching extra-high tones in the mix.
    The highpass filter ensures there are no distorting ultra-low tones in the mix.
-   */
+   *
   private void applyBandpass(double[][] buf) throws MixerException {
     FrequencyRangeLimiter.filter(buf, outputFrameRate, dspBufferSize, (float) highpassThresholdHz, (float) lowpassThresholdHz);
   }
+   */
 
   /**
    apply logarithmic dynamic range to mixing buffer
@@ -302,149 +292,20 @@ class MixerImpl implements Mixer {
    [#154112129] normalize final buffer to normalization threshold@param buf
    */
   private void applyNormalization(double[][] buf) {
-    double normRatio = config.getNormalizationMax() / MathUtil.maxAbs(buf);
+    double normRatio = config.getNormalizationMax() / MathUtil.maxAbs(buf, NORMALIZATION_GRAIN);
     for (int i = 0; i < buf.length; i++)
       for (int k = 0; k < outputChannels; k++)
         buf[i][k] *= normRatio;
   }
 
   /**
-   Compute the target amplitude for the compressor
    [#154112129] lookahead-attack compressor compresses entire buffer towards target amplitude
 
    @return target amplitude
    */
   private double computeCompressorTarget(double[][] input, int iFr, int iTo) {
-    double currentAmplitude = MathUtil.maxAbs(input, iFr, iTo);
+    double currentAmplitude = MathUtil.maxAbs(input, iFr, iTo, COMPRESSION_GRAIN);
     return MathUtil.limit(minRatio, maxRatio, compressToAmplitude / currentAmplitude);
-  }
-
-  /**
-   mix the 64-bit floating-point sample values for the next frame across all output channels.
-   <p>
-   the Put only has a reference to the source--
-   so the Mixer has to use that reference source id along with other variables from the Put,
-   in order to arrive at the final source output value at any given microsecond
-
-   @param offsetFrame of frame from start of mix
-   @return array of samples (one per channel) constituting a frame of audio
-   */
-  private double[] mixSourceFrame(long offsetFrame) {
-    mixCycleBeforeEveryNthFrame(offsetFrame);
-    long atMicros = getMicros(offsetFrame);
-
-    double[] frame = new double[outputChannels];
-    livePuts.forEach((id, livePut) -> {
-      long sourceOffsetMicros = livePut.sourceOffsetMicros(atMicros);
-      if (0 < sourceOffsetMicros) {
-        double[] inSamples = mixSourceFrameAtMicros(livePut.getSourceId(), livePut.getVelocity(), livePut.getPan(), sourceOffsetMicros);
-        double envelope = livePut.envelope(atMicros);
-        for (int i = 0; i < outputChannels; i++)
-          frame[i] += inSamples[i] * envelope;
-      }
-    });
-
-    return frame;
-  }
-
-  /**
-   mix a particular source frame to the output specifications, including volume & pan
-
-   @param sourceId of source
-   @param volume   to mix output to
-   @param pan      to mix output to
-   @param atMicros at which to get source frame
-   @return mixed source frame
-   */
-  private double[] mixSourceFrameAtMicros(String sourceId, double volume, double pan, long atMicros) {
-    Source source = sources.get(sourceId);
-    if (null == source)
-      return new double[outputChannels];
-
-    return source.frameAt(atMicros, volume, pan, outputChannels);
-  }
-
-  /**
-   THE "MIX CYCLE"
-   <p>
-   move puts from ready -> live -> done
-   <p>
-   get rid of sources not used by ready/live puts
-
-   @param frameOffset of frame from start of mix
-   */
-  private void mixCycleBeforeEveryNthFrame(long frameOffset) {
-    if (frameOffset < nextCycleFrame) {
-      return;
-    }
-    long offsetMicros = getMicros(frameOffset);
-
-    // for garbage collection of unused sources:
-    Map<String, Boolean> sourceUsage = buildMapAllSourceIdToFalse();
-
-    // iterate through ready Puts
-    readyPuts.forEach((putId, readyPut) -> {
-
-      // keep track of sources in-use by ready Puts
-      sourceUsage.put(readyPut.getSourceId(), true);
-
-      // if a put is near-to-playback, move it to the live fire queue
-      // double a mix cycle is considered near-playback enough to move a put from "ready" to "live"
-      if (readyPut.getStartAtMicros() < offsetMicros + cycleDurFrames * microsPerFrame * 2) {
-        readyPuts.remove(putId);
-        livePuts.put(putId, readyPut);
-      }
-    });
-
-    // iterate through live Puts
-    livePuts.forEach((putId, livePut) -> {
-
-      // keep track of sources in-use by live Puts
-      sourceUsage.put(livePut.getSourceId(), true);
-
-      // if a put is no longer alive, move it to the done queue
-      if (!livePut.isAlive()) {
-        livePuts.remove(putId);
-        donePuts.put(putId, livePut);
-      }
-
-    });
-
-    // iterate through not-used sources and destroy them
-    sourceUsage.forEach((sourceId, used) -> {
-      if (!used) {
-        sources.remove(sourceId);
-      }
-    });
-
-    // advance to next cycle
-    nextCycleFrame = frameOffset + cycleDurFrames;
-
-    // if debug mode
-    if (debugging && 0 < getSourceCount()) {
-      log.debug(config.getLogPrefix() + "mix [{}ns] puts-ready:{} puts-live:{} sources:{}", offsetMicros, getPutReadyCount(), getPutLiveCount(), getSourceCount());
-    }
-  }
-
-  /**
-   Get microsecond value of a frame offset
-
-   @param frameOffset offset
-   @return microseconds
-   */
-  private long getMicros(long frameOffset) {
-    return (long) Math.floor(MICROS_PER_SECOND * frameOffset / outputFrameRate);
-  }
-
-  /**
-   build a map of all source id to boolean value
-
-   @return map
-   */
-  private Map<String, Boolean> buildMapAllSourceIdToFalse() {
-    Map<String, Boolean> result = Maps.newHashMap();
-    sources.keySet().forEach((sourceId) -> result.put(sourceId, false));
-    return result;
   }
 
   /**
@@ -457,6 +318,17 @@ class MixerImpl implements Mixer {
     return uniquePutId;
   }
 
+  /**
+   Each new bus ID maps to a number
+
+   @param busId to get number for
+   @return number of bus id
+   */
+  private int getBusNumber(String busId) {
+    if (!busIds.contains(busId))
+      busIds.add(busId);
+    return busIds.indexOf(busId);
+  }
 }
 
 

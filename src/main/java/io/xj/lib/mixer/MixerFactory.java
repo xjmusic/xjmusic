@@ -30,24 +30,20 @@ public interface MixerFactory {
   /**
    Create a single Put to represent a single audio source playing at a specific time in the future.
 
+   @param bus           to output into
    @param sourceId      to reference source by
    @param startAtMicros duration from beginning of mix
    @param stopAtMicros  duration from beginning of mix
-   @param attackMicros  length of the attack envelope
-   @param releaseMicros length of the release envelope
    @param velocity      0 to 1
-   @param pan           -1 to +1 = Left to Right (stereo), or however many channels there actually are
-   @return Mix
+   @return Put
    @throws PutException on failure
    */
   Put createPut(
+    @Assisted("bus") int bus,
     @Assisted("sourceId") String sourceId,
     @Assisted("startAtMicros") long startAtMicros,
     @Assisted("stopAtMicros") long stopAtMicros,
-    @Assisted("attackMicros") long attackMicros,
-    @Assisted("releaseMicros") long releaseMicros,
-    @Assisted("velocity") double velocity,
-    @Assisted("pan") double pan
+    @Assisted("velocity") double velocity
   ) throws PutException;
 
   /**

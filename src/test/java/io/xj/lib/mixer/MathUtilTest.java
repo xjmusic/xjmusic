@@ -65,12 +65,12 @@ public class MathUtilTest {
 
   @Test
   public void maxAbs() {
-    assertEquals(0.97953, MathUtil.maxAbs(buf, 0, 10), 0.001);
-    assertEquals(0.92381, MathUtil.maxAbs(buf, 5, 17), 0.001);
-    assertEquals(0.97953, MathUtil.maxAbs(buf), 0.001);
+    assertEquals(0.97953, MathUtil.maxAbs(buf, 0, 10, 1), 0.001);
+    assertEquals(0.92381, MathUtil.maxAbs(buf, 5, 17, 1), 0.001);
+    assertEquals(0.97953, MathUtil.maxAbs(buf, 1), 0.001);
 
     // ok to specify end past the buffer, or beginning before it
-    assertEquals(0.97953, MathUtil.maxAbs(buf, -27, 774), 0.001);
+    assertEquals(0.97953, MathUtil.maxAbs(buf, -27, 774, 1), 0.001);
   }
 
 

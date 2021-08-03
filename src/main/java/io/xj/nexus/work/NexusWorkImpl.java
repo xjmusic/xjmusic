@@ -524,13 +524,12 @@ public class NexusWorkImpl implements NexusWork {
    @param chainType fabricating
    */
   private void didFailWhile(String message, Exception e, String segmentId, String chainId, String chainType) {
-    var body = String.format("Failed while %s for Segment[%s] of Chain[%s] (%s) because %s\n\n%s",
+    var body = String.format("Failed while %s for Segment[%s] of Chain[%s] (%s) because %s",
       message,
       segmentId,
       chainId,
       chainType,
-      e.getMessage(),
-      Text.formatStackTrace(e));
+      e.getMessage());
 
     createSegmentErrorMessage(body, segmentId);
 

@@ -9,7 +9,6 @@ import javax.sound.sampled.AudioFormat;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -63,14 +62,14 @@ public class SourceImplTest {
 
   @Test
   public void frameAt_F32LSB_48kHz_Stereo() {
-    double[] frameAt = F32LSB_48kHz_Stereo.frameAt(243, 0.9, 0, 2);
-    assertArrayEquals(new double[]{-0.002029318059794605, -0.0013323662686161696}, frameAt, 0);
+    assertEquals(-0.0022547978442162275, F32LSB_48kHz_Stereo.getValue(243, 0), 0.00000001);
+    assertEquals(-0.0014804069651290774, F32LSB_48kHz_Stereo.getValue(243, 1), 0.00000001);
   }
 
   @Test
   public void frameAt_S16LSB_44100Hz_Mono() {
-    double[] frameAt = S16LSB_44100Hz_Mono.frameAt(125, 0.9, 0, 2);
-    assertArrayEquals(new double[]{0.0010986328125, 0.0010986328125}, frameAt, 0);
+    assertEquals(0.001220703125, S16LSB_44100Hz_Mono.getValue(125, 0), 0.00000001);
+    assertEquals(0.001220703125, S16LSB_44100Hz_Mono.getValue(125, 1), 0.00000001);
   }
 
   @Test
