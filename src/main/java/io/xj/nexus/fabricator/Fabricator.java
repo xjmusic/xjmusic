@@ -18,6 +18,7 @@ import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
 import io.xj.SegmentChordVoicing;
+import io.xj.SegmentMessage;
 import io.xj.lib.entity.common.InstrumentConfig;
 import io.xj.lib.entity.common.ProgramConfig;
 import io.xj.lib.music.Chord;
@@ -61,6 +62,18 @@ public interface Fabricator {
    @param psb program sequence binding for which to add memes
    */
   ProgramSequenceBinding addMemes(ProgramSequenceBinding psb) throws NexusException;
+
+  /**
+   Add an info message to the segment, with the given body
+   @param body to include in message
+   */
+  void addMessageInfo(String body) throws NexusException;
+
+  /**
+   Add a message of the given type to the segment, with the given body
+   @param body to include in message
+   */
+  void addMessage(SegmentMessage.Type messageType, String body) throws NexusException;
 
   /**
    Update the original Segment submitted for craft,
@@ -203,15 +216,6 @@ public interface Fabricator {
    @return High-quality Audio output file path
    */
   String getFullQualityAudioOutputFilePath() throws NexusException;
-
-  /**
-   Get instrument for a given segment pick
-
-   @param pick to get instrument for
-   @return instrument for pick
-   @throws NexusException on failure
-   */
-  Optional<Instrument> getInstrument(SegmentChoiceArrangementPick pick) throws NexusException;
 
   /**
    Get the InstrumentConfig from a given instrument, with fallback to instrument section of guice-injected config values
@@ -666,4 +670,5 @@ public interface Fabricator {
    @return source material
    */
   HubContent sourceMaterial();
+
 }

@@ -32,6 +32,7 @@ import io.xj.SegmentChoiceArrangementPick;
 import io.xj.SegmentChord;
 import io.xj.SegmentChordVoicing;
 import io.xj.SegmentMeme;
+import io.xj.SegmentMessage;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStoreException;
@@ -70,7 +71,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
-import javax.swing.text.html.Option;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -227,6 +227,21 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
+  public void addMessageInfo(String body) throws NexusException {
+    addMessage(SegmentMessage.Type.Info, body);
+  }
+
+  @Override
+  public void addMessage(SegmentMessage.Type messageType, String body) throws NexusException {
+    add(SegmentMessage.newBuilder()
+      .setId(UUID.randomUUID().toString())
+      .setSegmentId(getSegment().getId())
+      .setType(messageType)
+      .setBody(body)
+      .build());
+  }
+
+  @Override
   public void done() throws NexusException {
     try {
       workbench.setSegment(workbench.getSegment().toBuilder()
@@ -372,12 +387,6 @@ class FabricatorImpl implements Fabricator {
   @Override
   public String getFullQualityAudioOutputFilePath() {
     return String.format("%s%s", workTempFilePathPrefix, getSegmentOutputWaveformKey());
-  }
-
-  @Override
-  public Optional<Instrument> getInstrument(SegmentChoiceArrangementPick pick) {
-    return sourceMaterial.getInstrumentAudio(pick.getInstrumentAudioId())
-      .flatMap(audio -> sourceMaterial.getInstrument(audio.getInstrumentId()));
   }
 
   @Override

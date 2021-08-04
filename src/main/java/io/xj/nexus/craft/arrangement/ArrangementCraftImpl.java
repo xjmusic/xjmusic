@@ -306,10 +306,11 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       Optional.empty();
 
     // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
-    if ((Segments.DELTA_UNLIMITED != choice.getDeltaIn() && fabricator.getSegment().getDelta() + segmentPosition < choice.getDeltaIn())
-      || (Segments.DELTA_UNLIMITED != choice.getDeltaOut() && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut())) {
+    if (Segments.DELTA_UNLIMITED != choice.getDeltaIn() && fabricator.getSegment().getDelta() + segmentPosition < choice.getDeltaIn())
       return;
-    }
+
+    var volRatio = Segments.DELTA_UNLIMITED != choice.getDeltaOut() && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut() ?
+      1.0 - (segmentPosition - choice.getDeltaOut()) / (fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() - choice.getDeltaOut()) : 1.0;
 
     // The final note is voiced from the chord voicing (if found) or else the default is used
     Set<String> notes = voicing.isPresent() ?
@@ -323,7 +324,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // pick an audio for each note
     for (var note : notes)
       pickInstrumentAudio(note, instrument, event, arrangement, startSeconds, lengthSeconds,
-        voicing.map(SegmentChordVoicing::getId).orElse(null));
+        voicing.map(SegmentChordVoicing::getId).orElse(null), volRatio);
   }
 
   /**
@@ -340,6 +341,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param segmentChoiceArrangement arranging this instrument for a program
    @param startSeconds             of audio
    @param lengthSeconds            of audio
+   @param volRatio                 ratio of volume
    @throws NexusException on failure
    */
   private void pickInstrumentAudio(
@@ -349,7 +351,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     SegmentChoiceArrangement segmentChoiceArrangement,
     double startSeconds,
     double lengthSeconds,
-    @Nullable String segmentChordVoicingId
+    @Nullable String segmentChordVoicingId,
+    double volRatio
   ) throws NexusException {
     var audio =
       fabricator.getInstrumentConfig(instrument).isMultiphonic() ?
@@ -369,7 +372,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       .setName(fabricator.getTrackName(event))
       .setStart(startSeconds)
       .setLength(lengthSeconds)
-      .setAmplitude(event.getVelocity())
+      .setAmplitude(event.getVelocity() * volRatio)
       .setNote(fabricator.getInstrumentConfig(instrument).isTonal() ? note : Note.ATONAL);
     if (Objects.nonNull(segmentChordVoicingId))
       builder.setSegmentChordVoicingId(segmentChordVoicingId);
@@ -690,6 +693,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
           double unit = (double) (limit / 3) / voices.size();
           for (int i = 0; i < voices.size(); i++)
             rhythmDeltaIns.put(voices.get(i).getId(), (int) Chance.normallyAround((i + 1) * unit, unit));
+          fabricator.addMessageInfo(String.format("Computed Rhythm Delta In: %s", csv(rhythmDeltaIns)));
         }
         yield rhythmDeltaIns.getOrDefault(voice.getId(), Segments.DELTA_UNLIMITED);
       }
@@ -699,6 +703,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
           var types = DETAIL_INSTRUMENT_TYPES.stream().sorted(TremendouslyRandom.comparator()).collect(Collectors.toList());
           for (int i = 0; i < types.size(); i++)
             detailDeltaIns.put(types.get(i), (int) Chance.normallyAround((i + 1) * unit, unit / 2));
+          fabricator.addMessageInfo(String.format("Computed Detail Delta In: %s", csv(detailDeltaIns)));
         }
         yield detailDeltaIns.getOrDefault(voice.getType(), Segments.DELTA_UNLIMITED);
       }
@@ -730,6 +735,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
           double unit = (double) (limit / 3) / voices.size();
           for (int i = 0; i < voices.size(); i++)
             rhythmDeltaOuts.put(voices.get(i).getId(), (int) Chance.normallyAround((double) (2 * limit / 3) + (i + 1) * unit, unit / 3));
+          fabricator.addMessageInfo(String.format("Computed Rhythm Delta Out: %s", csv(rhythmDeltaIns)));
         }
         yield rhythmDeltaOuts.getOrDefault(voice.getId(), Segments.DELTA_UNLIMITED);
       }
@@ -739,10 +745,23 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
           var types = DETAIL_INSTRUMENT_TYPES.stream().sorted(TremendouslyRandom.comparator()).collect(Collectors.toList());
           for (int i = 0; i < types.size(); i++)
             detailDeltaOuts.put(types.get(i), (int) Chance.normallyAround((double) (limit / 2) + (i + 1) * unit, unit / 2));
+          fabricator.addMessageInfo(String.format("Computed Detail Delta Out: %s", csv(detailDeltaIns)));
         }
         yield detailDeltaOuts.getOrDefault(voice.getType(), Segments.DELTA_UNLIMITED);
       }
     };
+  }
+
+  /**
+   Get a CSV of the map like "key@value, key@value"
+
+   @param map for which to get CSV string
+   @return CSV string
+   */
+  private String csv(Map<?, Integer> map) {
+    return map.entrySet().stream()
+      .map(di -> String.format("%s@%s", di.getKey(), di.getValue()))
+      .collect(Collectors.joining(", "));
   }
 
   /**
