@@ -12,6 +12,7 @@ import io.xj.ProgramSequence;
 import io.xj.ProgramSequencePattern;
 import io.xj.ProgramSequencePatternEvent;
 import io.xj.ProgramVoice;
+import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
@@ -57,6 +58,11 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     Instrument.Type.Pad,
     Instrument.Type.Sticky,
     Instrument.Type.Stab
+  );
+  private static final List<Segment.Type> PRECOMPUTE_FOR_TYPES = ImmutableList.of(
+    Segment.Type.Initial,
+    Segment.Type.NextMain,
+    Segment.Type.NextMacro
   );
   private String rhythmIntroVoiceName;
   private String rhythmOutroVoiceName;
@@ -170,6 +176,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @throws NexusException on failure
    */
   protected void precomputeRhythmDeltas(String programId) throws NexusException {
+    if (!PRECOMPUTE_FOR_TYPES.contains(fabricator.getType())) return;
+
     var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
     var voices = fabricator.sourceMaterial().getAllProgramVoices()
       .stream().filter(candidate -> programId.equals(candidate.getProgramId()))
@@ -197,6 +205,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @throws NexusException on failure
    */
   protected void precomputeDetailDeltas() throws NexusException {
+    if (!PRECOMPUTE_FOR_TYPES.contains(fabricator.getType())) return;
+
     var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
     double unit = (double) (limit / 2) / DETAIL_INSTRUMENT_TYPES.size();
 
