@@ -187,12 +187,12 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     Collections.shuffle(voices);
     for (int i = 0; i < voices.size(); i++)
-      deltaRhythmIns.put(voices.get(i).getId(), (int) Chance.normallyAround((i + 1) * unit, unit));
+      deltaRhythmIns.put(voices.get(i).getName(), (int) Chance.normallyAround((i + 1) * unit, unit));
     fabricator.addMessageInfo(String.format("Computed Rhythm Delta In: %s", csv(deltaRhythmIns)));
 
     Collections.shuffle(voices);
     for (int i = 0; i < voices.size(); i++)
-      deltaRhythmOuts.put(voices.get(i).getId(), (int) Chance.normallyAround((double) (2 * limit / 3) + (i + 1) * unit, unit / 3));
+      deltaRhythmOuts.put(voices.get(i).getName(), (int) Chance.normallyAround((double) (2 * limit / 3) + (i + 1) * unit, unit / 3));
     fabricator.addMessageInfo(String.format("Computed Rhythm Delta Out: %s", csv(deltaRhythmIns)));
   }
 
@@ -769,9 +769,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param voice for which to make determination
    @return true if this voice is the Intro
    */
-  private int computeDelta(ProgramVoice voice, Map<String, Integer> map) {
+  private int computeDelta(ProgramVoice voice, Map<String, Integer> map) throws NexusException {
     if (!fabricator.getChainConfig().isChoiceDeltaEnabled()) return Segments.DELTA_UNLIMITED;
-    return map.getOrDefault(voice.getType().toString(), Segments.DELTA_UNLIMITED);
+    return switch (fabricator.getProgramType(voice)) {
+      case UNRECOGNIZED, Macro, Main -> Segments.DELTA_UNLIMITED;
+      case Rhythm -> map.getOrDefault(voice.getName(), Segments.DELTA_UNLIMITED);
+      case Detail -> map.getOrDefault(voice.getType().toString(), Segments.DELTA_UNLIMITED);
+    };
   }
 
   /**
