@@ -65,8 +65,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   private Instrument.Type detailOutroVoiceType;
   private final Map<String, Integer> rhythmDeltaIns = Maps.newHashMap();
   private final Map<String, Integer> rhythmDeltaOuts = Maps.newHashMap();
-  private final Map<Instrument.Type, Integer> detailDeltaIns = Maps.newHashMap();
-  private final Map<Instrument.Type, Integer> detailDeltaOuts = Maps.newHashMap();
+  private final Map<String, Integer> detailDeltaIns = Maps.newHashMap();
+  private final Map<String, Integer> detailDeltaOuts = Maps.newHashMap();
 
   /**
    Must extend this class and inject
@@ -703,14 +703,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         yield rhythmDeltaIns.getOrDefault(voice.getId(), Segments.DELTA_UNLIMITED);
       }
       case Detail -> {
-        if (!detailDeltaIns.containsKey(voice.getType())) {
+        if (!detailDeltaIns.containsKey(voice.getType().toString())) {
           double unit = (double) (limit / 2) / DETAIL_INSTRUMENT_TYPES.size();
           var types = DETAIL_INSTRUMENT_TYPES.stream().sorted(TremendouslyRandom.comparator()).collect(Collectors.toList());
           for (int i = 0; i < types.size(); i++)
-            detailDeltaIns.put(types.get(i), (int) Chance.normallyAround((i + 1) * unit, unit / 2));
+            detailDeltaIns.put(types.get(i).toString(), (int) Chance.normallyAround((i + 1) * unit, unit / 2));
           fabricator.addMessageInfo(String.format("Computed Detail Delta In: %s", csv(detailDeltaIns)));
         }
-        yield detailDeltaIns.getOrDefault(voice.getType(), Segments.DELTA_UNLIMITED);
+        yield detailDeltaIns.getOrDefault(voice.getType().toString(), Segments.DELTA_UNLIMITED);
       }
     };
   }
@@ -745,14 +745,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         yield rhythmDeltaOuts.getOrDefault(voice.getId(), Segments.DELTA_UNLIMITED);
       }
       case Detail -> {
-        if (!detailDeltaOuts.containsKey(voice.getType())) {
+        if (!detailDeltaOuts.containsKey(voice.getType().toString())) {
           double unit = (double) (limit / 2) / DETAIL_INSTRUMENT_TYPES.size();
           var types = DETAIL_INSTRUMENT_TYPES.stream().sorted(TremendouslyRandom.comparator()).collect(Collectors.toList());
           for (int i = 0; i < types.size(); i++)
-            detailDeltaOuts.put(types.get(i), (int) Chance.normallyAround((double) (limit / 2) + (i + 1) * unit, unit / 2));
+            detailDeltaOuts.put(types.get(i).toString(), (int) Chance.normallyAround((double) (limit / 2) + (i + 1) * unit, unit / 2));
           fabricator.addMessageInfo(String.format("Computed Detail Delta Out: %s", csv(detailDeltaIns)));
         }
-        yield detailDeltaOuts.getOrDefault(voice.getType(), Segments.DELTA_UNLIMITED);
+        yield detailDeltaOuts.getOrDefault(voice.getType().toString(), Segments.DELTA_UNLIMITED);
       }
     };
   }
@@ -763,7 +763,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param map for which to get CSV string
    @return CSV string
    */
-  private String csv(Map<?, Integer> map) {
+  private String csv(Map<String, Integer> map) {
     return map.entrySet().stream()
       .map(di -> String.format("%s@%s", di.getKey(), di.getValue()))
       .collect(Collectors.joining(", "));
