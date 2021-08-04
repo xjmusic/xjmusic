@@ -24,7 +24,6 @@ import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
-import io.xj.lib.util.TremendouslyRandom;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.Segments;
 import io.xj.nexus.fabricator.EntityScorePicker;
@@ -33,7 +32,9 @@ import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.NameIsometry;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -52,13 +53,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   protected static final double SCORE_ENTROPY_CHOICE_RHYTHM = 8.0;
   protected static final double SCORE_MATCHED_MEMES = 1.0;
   protected static final double SCORE_MATCHED_MAIN_PROGRAM = 10;
-  private static final List<Instrument.Type> DETAIL_INSTRUMENT_TYPES = ImmutableList.of(
+  private static final List<Instrument.Type> DETAIL_INSTRUMENT_TYPES = new ArrayList<>(ImmutableList.of(
     Instrument.Type.Bass,
     Instrument.Type.Stripe,
     Instrument.Type.Pad,
     Instrument.Type.Sticky,
     Instrument.Type.Stab
-  );
+  ));
   private static final List<Segment.Type> PRECOMPUTE_FOR_TYPES = ImmutableList.of(
     Segment.Type.Initial,
     Segment.Type.NextMain,
@@ -184,18 +185,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       .collect(Collectors.toList());
     double unit = (double) (limit / 3) / voices.size();
 
-    var voicesIn = voices.stream()
-      .sorted(TremendouslyRandom.comparator())
-      .collect(Collectors.toList());
-    for (int i = 0; i < voicesIn.size(); i++)
-      deltaRhythmIns.put(voicesIn.get(i).getId(), (int) Chance.normallyAround((i + 1) * unit, unit));
+    Collections.shuffle(voices);
+    for (int i = 0; i < voices.size(); i++)
+      deltaRhythmIns.put(voices.get(i).getId(), (int) Chance.normallyAround((i + 1) * unit, unit));
     fabricator.addMessageInfo(String.format("Computed Rhythm Delta In: %s", csv(deltaRhythmIns)));
 
-    var voicesOut = voices.stream()
-      .sorted(TremendouslyRandom.comparator())
-      .collect(Collectors.toList());
-    for (int i = 0; i < voicesOut.size(); i++)
-      deltaRhythmOuts.put(voicesOut.get(i).getId(), (int) Chance.normallyAround((double) (2 * limit / 3) + (i + 1) * unit, unit / 3));
+    Collections.shuffle(voices);
+    for (int i = 0; i < voices.size(); i++)
+      deltaRhythmOuts.put(voices.get(i).getId(), (int) Chance.normallyAround((double) (2 * limit / 3) + (i + 1) * unit, unit / 3));
     fabricator.addMessageInfo(String.format("Computed Rhythm Delta Out: %s", csv(deltaRhythmIns)));
   }
 
@@ -210,14 +207,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
     double unit = (double) (limit / 2) / DETAIL_INSTRUMENT_TYPES.size();
 
-    var typesIn = DETAIL_INSTRUMENT_TYPES.stream().sorted(TremendouslyRandom.comparator()).collect(Collectors.toList());
-    for (int i = 0; i < typesIn.size(); i++)
-      deltaDetailIns.put(typesIn.get(i).toString(), (int) Chance.normallyAround((i + 1) * unit, unit / 2));
+    Collections.shuffle(DETAIL_INSTRUMENT_TYPES);
+    for (int i = 0; i < DETAIL_INSTRUMENT_TYPES.size(); i++)
+      deltaDetailIns.put(DETAIL_INSTRUMENT_TYPES.get(i).toString(), (int) Chance.normallyAround((i + 1) * unit, unit / 2));
     fabricator.addMessageInfo(String.format("Computed Detail Delta In: %s", csv(deltaDetailIns)));
 
-    var typesOut = DETAIL_INSTRUMENT_TYPES.stream().sorted(TremendouslyRandom.comparator()).collect(Collectors.toList());
-    for (int i = 0; i < typesOut.size(); i++)
-      deltaDetailOuts.put(typesOut.get(i).toString(), (int) Chance.normallyAround((double) (limit / 2) + (i + 1) * unit, unit / 2));
+    Collections.shuffle(DETAIL_INSTRUMENT_TYPES);
+    for (int i = 0; i < DETAIL_INSTRUMENT_TYPES.size(); i++)
+      deltaDetailOuts.put(DETAIL_INSTRUMENT_TYPES.get(i).toString(), (int) Chance.normallyAround((double) (limit / 2) + (i + 1) * unit, unit / 2));
     fabricator.addMessageInfo(String.format("Computed Detail Delta Out: %s", csv(deltaDetailIns)));
   }
 

@@ -64,18 +64,4 @@ public interface TremendouslyRandom {
   static boolean beatOddsPercent(int percent) {
     return percent >= zeroToLimit(100);
   }
-
-  /**
-   Create a comparator to put a set of things in random order
-   @return random comparator
-   */
-  static Comparator<Object> comparator() {
-    //noinspection ComparatorMethodParameterNotUsed
-    return (ignored1, ignored2) -> {
-      int n = zeroToLimit(100);
-      if (n <= 33) return -1;
-      if (n >= 66) return 1;
-      return 0;
-    };
-  }
 }
