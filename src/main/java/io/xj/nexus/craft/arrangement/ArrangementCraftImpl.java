@@ -53,13 +53,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   protected static final double SCORE_ENTROPY_CHOICE_RHYTHM = 8.0;
   protected static final double SCORE_MATCHED_MEMES = 1.0;
   protected static final double SCORE_MATCHED_MAIN_PROGRAM = 10;
-  private static final List<Instrument.Type> DETAIL_INSTRUMENT_TYPES = new ArrayList<>(ImmutableList.of(
+  private static final List<Instrument.Type> DETAIL_INSTRUMENT_TYPES = ImmutableList.of(
     Instrument.Type.Bass,
     Instrument.Type.Stripe,
     Instrument.Type.Pad,
     Instrument.Type.Sticky,
     Instrument.Type.Stab
-  ));
+  );
   private static final List<Segment.Type> PRECOMPUTE_FOR_TYPES = ImmutableList.of(
     Segment.Type.Initial,
     Segment.Type.NextMain,
@@ -182,7 +182,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
     var voices = fabricator.sourceMaterial().getAllProgramVoices()
       .stream().filter(candidate -> programId.equals(candidate.getProgramId()))
-      .collect(Collectors.toList());
+      .collect(Collectors.toCollection(ArrayList::new));
     double unit = (double) (limit / 3) / voices.size();
 
     Collections.shuffle(voices);
@@ -207,14 +207,16 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
     double unit = (double) (limit / 2) / DETAIL_INSTRUMENT_TYPES.size();
 
-    Collections.shuffle(DETAIL_INSTRUMENT_TYPES);
-    for (int i = 0; i < DETAIL_INSTRUMENT_TYPES.size(); i++)
-      deltaDetailIns.put(DETAIL_INSTRUMENT_TYPES.get(i).toString(), (int) Chance.normallyAround((i + 1) * unit, unit / 2));
+    var types = new ArrayList<>(DETAIL_INSTRUMENT_TYPES);
+
+    Collections.shuffle(types);
+    for (int i = 0; i < types.size(); i++)
+      deltaDetailIns.put(types.get(i).toString(), (int) Chance.normallyAround((i + 1) * unit, unit / 2));
     fabricator.addMessageInfo(String.format("Computed Detail Delta In: %s", csv(deltaDetailIns)));
 
-    Collections.shuffle(DETAIL_INSTRUMENT_TYPES);
-    for (int i = 0; i < DETAIL_INSTRUMENT_TYPES.size(); i++)
-      deltaDetailOuts.put(DETAIL_INSTRUMENT_TYPES.get(i).toString(), (int) Chance.normallyAround((double) (limit / 2) + i * unit, unit / 2));
+    Collections.shuffle(types);
+    for (int i = 0; i < types.size(); i++)
+      deltaDetailOuts.put(types.get(i).toString(), (int) Chance.normallyAround((double) (limit / 2) + i * unit, unit / 2));
     fabricator.addMessageInfo(String.format("Computed Detail Delta Out: %s", csv(deltaDetailIns)));
   }
 
