@@ -67,7 +67,7 @@ public class ChainConfig {
   private final double mixerNormalizationMax;
   private final String KEY_MIXER_NORMALIZATION_MAX = "mixerNormalizationMax";
 
-  private final double mainProgramLengthMaxDelta;
+  private final int mainProgramLengthMaxDelta;
   private final String KEY_MAIN_PROGRAM_LENGTH_MAX_DELTA = "mainProgramLengthMaxDelta";
 
   private final double dubMasterVolumeInstrumentTypePercussive;
@@ -334,7 +334,7 @@ public class ChainConfig {
   /**
    @return max length (delta) for a main program to run
    */
-  public double getMainProgramLengthMaxDelta() {
+  public int getMainProgramLengthMaxDelta() {
     return mainProgramLengthMaxDelta;
   }
 }

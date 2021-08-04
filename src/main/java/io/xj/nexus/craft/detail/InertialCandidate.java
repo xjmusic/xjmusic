@@ -13,8 +13,8 @@ public class InertialCandidate {
 
   public InertialCandidate(Fabricator fabricator, SegmentChoice target, SegmentChoice source) {
     this.target = target;
-    var candidateVoice = fabricator.getSourceMaterial().getProgramVoice(target.getProgramVoiceId());
-    var voice = fabricator.getSourceMaterial().getProgramVoice(source.getProgramVoiceId());
+    var candidateVoice = fabricator.sourceMaterial().getProgramVoice(target.getProgramVoiceId());
+    var voice = fabricator.sourceMaterial().getProgramVoice(source.getProgramVoiceId());
     score = candidateVoice.isPresent() && voice.isPresent() ?
       NameIsometry.similarity(candidateVoice.get().getName(), voice.get().getName()) : 0;
   }

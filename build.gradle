@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
   //
-  implementation 'io.xj:protocol:v0.30'
+  implementation 'io.xj:protocol:v0.31'
   // vendor
   implementation 'ch.qos.logback:logback-classic:1.2.3'
   implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.7'

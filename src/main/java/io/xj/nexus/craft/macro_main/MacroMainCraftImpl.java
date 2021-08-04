@@ -16,6 +16,7 @@ import io.xj.lib.music.Key;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -99,12 +100,14 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
         macroProgram.getName(),
         apiUrlProvider.getAppUrl(String.format("/programs/%s", macroProgram.getId()))
       ))));
-    var macroSequence = fabricator.getSourceMaterial().getProgramSequence(macroSequenceBinding);
+    var macroSequence = fabricator.sourceMaterial().getProgramSequence(macroSequenceBinding);
     fabricator.add(
       SegmentChoice.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(fabricator.getSegment().getId())
         .setProgramId(macroProgram.getId())
+        .setDeltaIn(Segments.DELTA_UNLIMITED)
+        .setDeltaOut(Segments.DELTA_UNLIMITED)
         .setProgramType(Program.Type.Macro)
         .setProgramSequenceBindingId(macroSequenceBinding.getId())
         .build());
@@ -125,12 +128,14 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
         mainProgram.getName(),
         apiUrlProvider.getAppUrl(String.format("/programs/%s", mainProgram.getId()))
       ))));
-    var mainSequence = fabricator.getSourceMaterial().getProgramSequence(mainSequenceBinding);
+    var mainSequence = fabricator.sourceMaterial().getProgramSequence(mainSequenceBinding);
     fabricator.add(
       SegmentChoice.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(fabricator.getSegment().getId())
         .setProgramId(mainProgram.getId())
+        .setDeltaIn(Segments.DELTA_UNLIMITED)
+        .setDeltaOut(Segments.DELTA_UNLIMITED)
         .setProgramType(Program.Type.Main)
         .setProgramSequenceBindingId(mainSequenceBinding.getId())
         .build());
@@ -150,7 +155,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
             .setPosition(sequenceChord.getPosition())
             .setName(name)
             .build());
-          for (var voicing : fabricator.getSourceMaterial().getVoicings(sequenceChord))
+          for (var voicing : fabricator.sourceMaterial().getVoicings(sequenceChord))
             fabricator.add(SegmentChordVoicing.newBuilder()
               .setId(UUID.randomUUID().toString())
               .setSegmentId(fabricator.getSegment().getId())
@@ -248,7 +253,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // (1) retrieve programs bound to chain and
     // (3) score each source program
     MemeIsometry macroIsometry = fabricator.getMemeIsometryOfNextSequenceInPreviousMacro();
-    for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Macro))
+    for (Program program : fabricator.sourceMaterial().getProgramsOfType(Program.Type.Macro))
       superEntityScorePicker.add(program, scoreMacro(program, macroIsometry));
 
     // (3b) Avoid previous macro program
@@ -272,7 +277,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   public Optional<Program> chooseRandomMacroProgram() {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
-    for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Macro))
+    for (Program program : fabricator.sourceMaterial().getProgramsOfType(Program.Type.Macro))
       superEntityScorePicker.add(program, Chance.normallyAround(0, SCORE_MACRO_ENTROPY));
 
     return superEntityScorePicker.getTop();
@@ -299,7 +304,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // (2) retrieve programs bound to chain and
     // (3) score each source program based on meme isometry
     MemeIsometry mainIsometry = fabricator.getMemeIsometryOfSegment();
-    for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Main))
+    for (Program program : fabricator.sourceMaterial().getProgramsOfType(Program.Type.Main))
       superEntityScorePicker.add(program, scoreMain(program, mainIsometry));
 
     // report
@@ -324,7 +329,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     }
 
     // Score includes matching memes to previous segment's macro-program's next pattern
-    score += macroIsometry.score(fabricator.getSourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCH;
+    score += macroIsometry.score(fabricator.sourceMaterial().getMemesAtBeginning(program)) * SCORE_MATCH;
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
@@ -348,7 +353,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // Score includes matching memes, previous segment to macro program first pattern
     AtomicReference<Double> score = new AtomicReference<>(
       Chance.normallyAround(0, SCORE_MAIN_ENTROPY) + SCORE_MATCH *
-        mainIsometry.score(fabricator.getSourceMaterial().getMemesAtBeginning(program)));
+        mainIsometry.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
 
     // Avoid previous main program
     if (!fabricator.isInitialSegment())

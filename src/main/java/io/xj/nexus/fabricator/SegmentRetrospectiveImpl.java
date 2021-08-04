@@ -22,7 +22,6 @@ import io.xj.nexus.hub_client.client.HubContent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  The SegmentRetrospective is a delegate to look back on previous segments, read-only
@@ -109,19 +108,5 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   @Override
   public Collection<SegmentChoice> getChoices() {
     return store.getAll(SegmentChoice.class);
-  }
-
-  @Override
-  public Collection<SegmentChoice> getInertialChoices() {
-    return getChoices().stream()
-      .filter(choice -> SegmentChoice.Type.Inertial.equals(choice.getType()))
-      .collect(Collectors.toList());
-  }
-
-  @Override
-  public Collection<SegmentChoice> getPrimaryChoices() {
-    return getChoices().stream()
-      .filter(choice -> SegmentChoice.Type.Primary.equals(choice.getType()))
-      .collect(Collectors.toList());
   }
 }

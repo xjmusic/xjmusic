@@ -491,11 +491,12 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   private void validateSegmentChoice(SegmentChoice.Builder record) throws ValueException {
-    if (Value.isEmpty(record.getType())) record.setType(SegmentChoice.Type.Primary);
     Value.require(record.getSegmentId(), "Segment ID");
     Value.require(record.getProgramId(), "Program ID");
     Value.require(record.getProgramType(), "Program Type");
     Value.require(record.getInstrumentId(), "Instrument ID");
+    if (Value.isUnset(record.getDeltaIn())) record.setDeltaIn(Segments.DELTA_UNLIMITED);
+    if (Value.isUnset(record.getDeltaOut())) record.setDeltaOut(Segments.DELTA_UNLIMITED);
   }
 
   private void validateSegment(Segment.Builder record) throws ValueException {

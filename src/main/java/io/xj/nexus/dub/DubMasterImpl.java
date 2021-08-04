@@ -145,7 +145,7 @@ public class DubMasterImpl implements DubMaster {
    */
   private void setupTarget(Double preroll, SegmentChoiceArrangementPick pick) throws Exception {
     mixer().put(
-      fabricator.getSourceMaterial().getInstrumentTypeForAudioId(pick.getInstrumentAudioId()).toString(),
+      fabricator.sourceMaterial().getInstrumentTypeForAudioId(pick.getInstrumentAudioId()).toString(),
       pick.getInstrumentAudioId(),
       toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
       toMicros(preroll + pick.getStart() + pick.getLength()),
@@ -161,7 +161,7 @@ public class DubMasterImpl implements DubMaster {
   private Double computeOffsetStart(SegmentChoiceArrangementPick pick) throws NexusException {
     if (!pickOffsetStart.containsKey(pick.getId()))
       pickOffsetStart.put(pick.getId(),
-        fabricator.getSourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
+        fabricator.sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
           .orElseThrow(() -> new NexusException("compute offset start"))
           .getStart());
     return pickOffsetStart.get(pick.getId());

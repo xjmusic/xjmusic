@@ -54,7 +54,7 @@ public class ChainConfigTest {
         "dubMasterVolumeInstrumentTypeStab = 0.8\n" +
         "dubMasterVolumeInstrumentTypeSticky = 0.8\n" +
         "dubMasterVolumeInstrumentTypeStripe = 0.5\n" +
-        "mainProgramLengthMaxDelta = 220.0\n" +
+        "mainProgramLengthMaxDelta = 220\n" +
         "mixerCompressAheadSeconds = 0.05\n" +
         "mixerCompressDecaySeconds = 0.125\n" +
         "mixerCompressRatioMax = 10.0\n" +

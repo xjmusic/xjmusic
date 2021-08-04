@@ -302,10 +302,10 @@ public enum Topology {
     // SegmentChoice
     entityFactory.register(SegmentChoice.class)
       .createdBy(SegmentChoice::getDefaultInstance)
-      .withAttribute("type")
       .withAttribute("programType")
       .withAttribute("segmentType")
-      .withAttribute("delta")
+      .withAttribute("deltaIn")
+      .withAttribute("deltaOut")
       .belongsTo(Instrument.class)
       .belongsTo(Program.class)
       .belongsTo(ProgramSequenceBinding.class)

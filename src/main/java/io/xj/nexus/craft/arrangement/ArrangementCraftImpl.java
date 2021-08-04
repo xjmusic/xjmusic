@@ -1,12 +1,17 @@
 package io.xj.nexus.craft.arrangement;
 
+import com.google.api.client.util.Maps;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
+import io.xj.Program;
+import io.xj.ProgramSequence;
 import io.xj.ProgramSequencePattern;
 import io.xj.ProgramSequencePatternEvent;
+import io.xj.ProgramVoice;
 import io.xj.SegmentChoice;
 import io.xj.SegmentChoiceArrangement;
 import io.xj.SegmentChoiceArrangementPick;
@@ -17,7 +22,10 @@ import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.util.CSV;
+import io.xj.lib.util.Chance;
+import io.xj.lib.util.TremendouslyRandom;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
@@ -25,6 +33,8 @@ import io.xj.nexus.fabricator.NameIsometry;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -41,6 +51,21 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   protected static final double SCORE_ENTROPY_CHOICE_RHYTHM = 8.0;
   protected static final double SCORE_MATCHED_MEMES = 1.0;
   protected static final double SCORE_MATCHED_MAIN_PROGRAM = 10;
+  private static final List<Instrument.Type> DETAIL_INSTRUMENT_TYPES = ImmutableList.of(
+    Instrument.Type.Bass,
+    Instrument.Type.Stripe,
+    Instrument.Type.Pad,
+    Instrument.Type.Sticky,
+    Instrument.Type.Stab
+  );
+  private String rhythmIntroVoiceName;
+  private String rhythmOutroVoiceName;
+  private Instrument.Type detailIntroVoiceType;
+  private Instrument.Type detailOutroVoiceType;
+  private final Map<String, Integer> rhythmDeltaIns = Maps.newHashMap();
+  private final Map<String, Integer> rhythmDeltaOuts = Maps.newHashMap();
+  private final Map<Instrument.Type, Integer> detailDeltaIns = Maps.newHashMap();
+  private final Map<Instrument.Type, Integer> detailDeltaOuts = Maps.newHashMap();
 
   /**
    Must extend this class and inject
@@ -50,6 +75,55 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   @Inject
   public ArrangementCraftImpl(Fabricator fabricator) {
     super(fabricator);
+  }
+
+  /**
+   Segments have intensity arcs; automate mixer layers in and out of each main program
+   https://www.pivotaltracker.com/story/show/178240332
+
+   @param sequence           for which to craft choices
+   @param voices             for which to craft choices
+   @param instrumentProvider from which to get instruments
+   @throws NexusException on failure
+   */
+  protected void craftChoices(ProgramSequence sequence, Collection<ProgramVoice> voices, InstrumentProvider instrumentProvider) throws NexusException {
+    // Craft each voice into choice
+    for (ProgramVoice voice : voices) {
+      var choiceBuilder = SegmentChoice.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId())
+          .orElseThrow(() -> new NexusException("Can't get program for voice")).getType())
+        .setInstrumentType(voice.getType())
+        .setProgramId(voice.getProgramId())
+        .setProgramSequenceId(sequence.getId())
+        .setProgramVoiceId(voice.getId())
+        .setSegmentId(fabricator.getSegment().getId());
+
+      // Whether there is a prior choice for this voice
+      Optional<SegmentChoice> priorChoice = fabricator.getChoiceOfSameMainProgram(voice);
+
+      if (priorChoice.isPresent()) {
+        this.craftArrangements(fabricator.add(choiceBuilder
+          .setDeltaIn(priorChoice.get().getDeltaIn())
+          .setDeltaOut(priorChoice.get().getDeltaOut())
+          .setInstrumentId(priorChoice.get().getInstrumentId())
+          .build()));
+        continue;
+      }
+
+      var instrument = instrumentProvider.get(voice);
+      if (instrument.isEmpty()) {
+        reportMissing(Instrument.class, String.format("%s-type instrument", voice.getType()));
+        continue;
+      }
+
+      // make new choices
+      this.craftArrangements(fabricator.add(choiceBuilder
+        .setDeltaIn(isIntro(voice) ? Segments.DELTA_UNLIMITED : computeDeltaIn(voice))
+        .setDeltaOut(isOutro(voice) ? Segments.DELTA_UNLIMITED : computeDeltaOut(voice))
+        .setInstrumentId(instrument.get().getId())
+        .build()));
+    }
   }
 
   /**
@@ -187,7 +261,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   ) throws NexusException {
     if (Objects.isNull(pattern)) throw new NexusException("Cannot craft create null pattern");
     double totalBeats = toSegmentPosition - fromSegmentPosition;
-    Collection<ProgramSequencePatternEvent> events = fabricator.getSourceMaterial().getEvents(pattern);
+    Collection<ProgramSequencePatternEvent> events = fabricator.sourceMaterial().getEvents(pattern);
 
     SegmentChoiceArrangement arrangement = fabricator.add(SegmentChoiceArrangement.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -196,7 +270,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       .setProgramSequencePatternId(pattern.getId())
       .build());
 
-    var instrument = fabricator.getSourceMaterial().getInstrument(choice.getInstrumentId())
+    var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId())
       .orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
     for (ProgramSequencePatternEvent event : events)
       pickNotesAndInstrumentAudioForEvent(instrument, choice, arrangement, event, fromSegmentPosition, toSegmentPosition, range);
@@ -229,6 +303,11 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     Optional<SegmentChordVoicing> voicing = chord.isPresent() ?
       fabricator.getVoicing(chord.get(), instrument.getType()) :
       Optional.empty();
+
+    // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
+    if ((Segments.DELTA_UNLIMITED != choice.getDeltaIn() && fabricator.getSegment().getDelta() + segmentPosition < choice.getDeltaIn())
+      || (Segments.DELTA_UNLIMITED != choice.getDeltaOut() && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut()))
+      return;
 
     // The final note is voiced from the chord voicing (if found) or else the default is used
     Set<String> notes = voicing.isPresent() ?
@@ -405,10 +484,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     EntityScorePicker<InstrumentAudio> audioEntityScorePicker = new EntityScorePicker<>();
 
     // add all audio to chooser
-    audioEntityScorePicker.addAll(fabricator.getSourceMaterial().getAudios(instrument));
+    audioEntityScorePicker.addAll(fabricator.sourceMaterial().getAudios(instrument));
 
     // score each audio against the current voice event, with some variability
-    for (InstrumentAudio audio : fabricator.getSourceMaterial().getAudios(instrument))
+    for (InstrumentAudio audio : fabricator.sourceMaterial().getAudios(instrument))
       if (instrument.getType() == Instrument.Type.Percussive)
         audioEntityScorePicker.score(audio.getId(), NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
       else
@@ -431,7 +510,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     Instrument instrument,
     String note
   ) {
-    var instrumentAudios = fabricator.getSourceMaterial().getAudios(instrument);
+    var instrumentAudios = fabricator.sourceMaterial().getAudios(instrument);
     var audio = instrumentAudios
       .stream()
       .filter(A -> Note.of(A.getNote()).sameAs(Note.of(note)))
@@ -452,7 +531,212 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       return Optional.empty();
     }
 
-    return fabricator.getSourceMaterial().getInstrumentAudio(audio.get().getId());
+    return fabricator.sourceMaterial().getInstrumentAudio(audio.get().getId());
+  }
+
+  /**
+   Determine whether the given voice is the featured Intro of the segment, based on:
+   - for an Initial-type segment, chosen at random
+   - for a Continue-type segment, carry over choices that were featured in the previous segment
+   - for a NextMain/NextMacro-type segment, carry over from the outro of the previous segment
+
+   @param voice for which to make determination
+   @return true if this voice is the Intro
+   */
+  private boolean isIntro(ProgramVoice voice) throws NexusException {
+    var programType = fabricator.getProgramType(voice);
+    return switch (programType) {
+      case UNRECOGNIZED, Macro, Main -> false;
+      case Rhythm -> {
+        if (Objects.isNull(rhythmIntroVoiceName))
+          findIntroChoice(programType, voice)
+            .flatMap(c -> fabricator.sourceMaterial().getProgramVoice(c.getProgramVoiceId()))
+            .ifPresent(v -> rhythmIntroVoiceName = v.getName());
+        if (Objects.isNull(rhythmIntroVoiceName))
+          rhythmIntroVoiceName = fabricator.getRandomlySelectedVoiceForProgramId(voice.getProgramId(), ImmutableList.of())
+            .orElseThrow(() -> new NexusException("Failed to randomly select voice!"))
+            .getName();
+        yield rhythmIntroVoiceName.equals(voice.getName());
+      }
+      case Detail -> {
+        if (Objects.isNull(detailIntroVoiceType))
+          findIntroChoice(programType, voice)
+            .ifPresent(c -> detailIntroVoiceType = c.getInstrumentType());
+        if (Objects.isNull(detailIntroVoiceType))
+          detailIntroVoiceType = selectRandomDetailInstrumentType(ImmutableList.of())
+            .orElseThrow(() -> new NexusException("Failed to randomly select instrument type!"));
+        yield detailIntroVoiceType.equals(voice.getType());
+      }
+    };
+  }
+
+  /**
+   Determine whether the given voice is the featured Outro of the segment, based on:
+   - for an Initial-type segment, chosen at random
+   - for a NextMain/NextMacro/Continue-type segment, carry over choices that were featured in the previous segment
+
+   @param voice for which to make determination
+   @return true if this voice is the Outro
+   */
+  private boolean isOutro(ProgramVoice voice) throws NexusException {
+    var programType = fabricator.getProgramType(voice);
+    return switch (programType) {
+      case UNRECOGNIZED, Macro, Main -> false;
+      case Rhythm -> {
+        if (Objects.isNull(rhythmOutroVoiceName))
+          findOutroChoice(programType, voice)
+            .flatMap(c -> fabricator.sourceMaterial().getProgramVoice(c.getProgramVoiceId()))
+            .ifPresent(v -> rhythmOutroVoiceName = v.getName());
+        if (Objects.isNull(rhythmOutroVoiceName))
+          rhythmOutroVoiceName = fabricator.getRandomlySelectedVoiceForProgramId(voice.getProgramId(), ImmutableList.of(rhythmIntroVoiceName))
+            .orElseThrow(() -> new NexusException("Failed to randomly select voice!"))
+            .getName();
+        yield rhythmOutroVoiceName.equals(voice.getName());
+      }
+      case Detail -> {
+        if (Objects.isNull(detailOutroVoiceType))
+          findOutroChoice(programType, voice)
+            .ifPresent(c -> detailOutroVoiceType = c.getInstrumentType());
+        if (Objects.isNull(detailOutroVoiceType))
+          detailOutroVoiceType = selectRandomDetailInstrumentType(ImmutableList.of(detailIntroVoiceType))
+            .orElseThrow(() -> new NexusException("Failed to randomly select instrument type!"));
+        yield detailOutroVoiceType.equals(voice.getType());
+      }
+    };
+  }
+
+  /**
+   Compute the intro for a given voice
+
+   @param programType for which to compute intro
+   @param voice       for which to get intro
+   @return intro
+   @throws NexusException on failure
+   */
+  private Optional<SegmentChoice> findIntroChoice(Program.Type programType, ProgramVoice voice) throws NexusException {
+    return switch (fabricator.getType()) {
+      case UNRECOGNIZED, Pending, Initial -> Optional.empty();
+      case Continue -> fabricator.retrospective().getChoices().stream()
+        .filter(choice -> Segments.DELTA_UNLIMITED == choice.getDeltaIn()
+          && choice.getProgramType().equals(programType)
+          && choice.getInstrumentType().equals(voice.getType()))
+        .findFirst();
+      case NextMain, NextMacro -> fabricator.retrospective().getChoices().stream()
+        .filter(choice -> Segments.DELTA_UNLIMITED == choice.getDeltaOut()
+          && choice.getProgramType().equals(programType)
+          && choice.getInstrumentType().equals(voice.getType()))
+        .findFirst();
+    };
+  }
+
+  /**
+   Compute the outro for a given voice
+
+   @param programType for which to get outro
+   @param voice       for which to get outro
+   @return outro
+   @throws NexusException on failure
+   */
+  private Optional<SegmentChoice> findOutroChoice(Program.Type programType, ProgramVoice voice) throws NexusException {
+    return switch (fabricator.getType()) {
+      case UNRECOGNIZED, Pending, Initial, NextMain, NextMacro -> Optional.empty();
+      case Continue -> fabricator.retrospective().getChoices().stream()
+        .filter(choice -> Segments.DELTA_UNLIMITED == choice.getDeltaOut()
+          && choice.getProgramType().equals(programType)
+          && choice.getInstrumentType().equals(voice.getType()))
+        .findFirst();
+    };
+  }
+
+  /**
+   Select a detail instrument type at random
+
+   @param excludeTypes to exclude from random selection
+   @return instrument type
+   */
+  private Optional<Instrument.Type> selectRandomDetailInstrumentType(Collection<Instrument.Type> excludeTypes) {
+    EntityScorePicker<Instrument.Type> entityScorePicker = new EntityScorePicker<>();
+    DETAIL_INSTRUMENT_TYPES.stream()
+      .filter(type -> !excludeTypes.contains(type))
+      .forEach(entityScorePicker::add);
+
+    return entityScorePicker.getTop();
+  }
+
+  /**
+   Compute the delta in for the given voice.
+   The thing here is to stagger the delta ins,
+   with some randomness, but essentially spread even throughout
+   the first half of any given main program.
+
+   @param voice for which to make determination
+   @return true if this voice is the Intro
+   */
+  private int computeDeltaIn(ProgramVoice voice) throws NexusException {
+    var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
+    var programType = fabricator.getProgramType(voice);
+    return switch (programType) {
+      case UNRECOGNIZED, Macro, Main -> -1;
+      case Rhythm -> {
+        if (!rhythmDeltaIns.containsKey(voice.getId())) {
+          var voices = fabricator.sourceMaterial().getAllProgramVoices()
+            .stream().filter(candidate -> voice.getProgramId().equals(candidate.getProgramId()))
+            .sorted(TremendouslyRandom.comparator())
+            .collect(Collectors.toList());
+          double unit = (double) (limit / 2) / voices.size();
+          for (int i = 0; i < voices.size(); i++)
+            rhythmDeltaIns.put(voices.get(i).getId(), (int) Chance.normallyAround(i * unit, unit / 2));
+        }
+        yield rhythmDeltaIns.getOrDefault(voice.getId(), Segments.DELTA_UNLIMITED);
+      }
+      case Detail -> {
+        if (!detailDeltaIns.containsKey(voice.getType())) {
+          double unit = (double) (limit / 2) / DETAIL_INSTRUMENT_TYPES.size();
+          var types = DETAIL_INSTRUMENT_TYPES.stream().sorted(TremendouslyRandom.comparator()).collect(Collectors.toList());
+          for (int i = 0; i < types.size(); i++)
+            detailDeltaIns.put(types.get(i), (int) Chance.normallyAround(i * unit, unit / 2));
+        }
+        yield detailDeltaIns.getOrDefault(voice.getType(), Segments.DELTA_UNLIMITED);
+      }
+    };
+  }
+
+  /**
+   Compute the delta out for the given voice.
+   The thing here is to stagger the delta outs,
+   with some randomness, but essentially spread even throughout
+   the second half (delta outs) of any given main program.
+
+   @param voice for which to make determination
+   @return true if this voice is the Intro
+   */
+  private int computeDeltaOut(ProgramVoice voice) throws NexusException {
+    var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
+    var programType = fabricator.getProgramType(voice);
+    return switch (programType) {
+      case UNRECOGNIZED, Macro, Main -> -1;
+      case Rhythm -> {
+        if (!rhythmDeltaOuts.containsKey(voice.getId())) {
+          var voices = fabricator.sourceMaterial().getAllProgramVoices()
+            .stream().filter(candidate -> voice.getProgramId().equals(candidate.getProgramId()))
+            .sorted(TremendouslyRandom.comparator())
+            .collect(Collectors.toList());
+          double unit = (double) (limit / 3) / voices.size();
+          for (int i = 0; i < voices.size(); i++)
+            rhythmDeltaOuts.put(voices.get(i).getId(), (int) Chance.normallyAround((double) (2 * limit / 3) + (i + 1) * unit, unit / 3));
+        }
+        yield rhythmDeltaOuts.getOrDefault(voice.getId(), Segments.DELTA_UNLIMITED);
+      }
+      case Detail -> {
+        if (!detailDeltaOuts.containsKey(voice.getType())) {
+          double unit = (double) (limit / 2) / DETAIL_INSTRUMENT_TYPES.size();
+          var types = DETAIL_INSTRUMENT_TYPES.stream().sorted(TremendouslyRandom.comparator()).collect(Collectors.toList());
+          for (int i = 0; i < types.size(); i++)
+            detailDeltaOuts.put(types.get(i), (int) Chance.normallyAround((double) (limit / 2) + i * unit, unit / 2));
+        }
+        yield detailDeltaOuts.getOrDefault(voice.getType(), Segments.DELTA_UNLIMITED);
+      }
+    };
   }
 
   /**
@@ -462,5 +746,12 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     public SegmentChord chord;
     public double fromPos;
     public double toPos;
+  }
+
+  /**
+   Instrument provider to make some code more portable
+   */
+  public interface InstrumentProvider {
+    Optional<Instrument> get(ProgramVoice voice) throws NexusException;
   }
 }

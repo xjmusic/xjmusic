@@ -66,14 +66,4 @@ public interface SegmentRetrospective {
    @return all choices
    */
   Collection<SegmentChoice> getChoices();
-
-  /**
-   @return all inertial choices
-   */
-  Collection<SegmentChoice> getInertialChoices();
-
-  /**
-   @return all primary choices
-   */
-  Collection<SegmentChoice> getPrimaryChoices();
 }

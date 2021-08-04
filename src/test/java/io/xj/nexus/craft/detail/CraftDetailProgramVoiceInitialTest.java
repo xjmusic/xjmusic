@@ -25,6 +25,7 @@ import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
@@ -163,12 +164,16 @@ public class CraftDetailProgramVoiceInitialTest {
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment0.getId())
       .setProgramId(fake.program4.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
       .setProgramType(Program.Type.Macro)
       .build());
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment0.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramId(fake.program5.getId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
       .setProgramType(Program.Type.Main)
@@ -192,6 +197,8 @@ public class CraftDetailProgramVoiceInitialTest {
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment1.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program4.getId())
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
@@ -201,6 +208,8 @@ public class CraftDetailProgramVoiceInitialTest {
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment1.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setId(UUID.randomUUID().toString())
       .setProgramId(fake.program5.getId())
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())

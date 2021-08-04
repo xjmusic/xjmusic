@@ -21,7 +21,8 @@ import java.util.stream.Collectors;
  */
 public enum Segments {
   ;
-  private static final long MILLIS_PER_SECOND = 1000;
+    public static final int DELTA_UNLIMITED = -1;
+    private static final long MILLIS_PER_SECOND = 1000;
 
   /**
    Find first segment choice of a given type in a collection of segment choices

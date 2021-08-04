@@ -1,6 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
+import io.xj.ProgramVoice;
+
+import java.util.Comparator;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -17,6 +20,17 @@ public interface TremendouslyRandom {
   static Integer zeroToLimit(Integer limit) {
     if (0 >= limit) return 0;
     return ThreadLocalRandom.current().nextInt(0, limit);
+  }
+
+  /**
+   Make a tremendously random selection of an integer n, where 0 <= n < limit
+
+   @param origin <= N
+   @param bound > N
+   @return random integer n, where origin <= N < bound
+   */
+  static Integer from(Integer origin, Integer bound) {
+    return ThreadLocalRandom.current().nextInt(origin, bound);
   }
 
   /**
@@ -49,5 +63,14 @@ public interface TremendouslyRandom {
    */
   static boolean beatOddsPercent(int percent) {
     return percent >= zeroToLimit(100);
+  }
+
+  /**
+   Create a comparator to put a set of things in random order
+   @return random comparator
+   */
+  static Comparator<Object> comparator() {
+    //noinspection ComparatorMethodParameterNotUsed
+    return (ignored1, ignored2) -> zeroToLimit(2) - 1;
   }
 }

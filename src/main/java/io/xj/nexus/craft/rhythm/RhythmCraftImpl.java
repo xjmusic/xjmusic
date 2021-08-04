@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  Rhythm craft for the current segment
@@ -41,98 +40,38 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
   @Override
   public void doWork() throws NexusException {
-    Program program = fabricator.addMemes(chooseRhythmProgram()
-      .orElseThrow(() -> new NexusException("Failed to choose any rhythm program!")));
+    Optional<SegmentChoice> priorChoice = fabricator.getChoiceOfSameMainProgram(Program.Type.Rhythm);
+
+    // Program is from prior choice, or freshly chosen
+    Optional<Program> program = priorChoice.isPresent() ?
+      fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) :
+      chooseFreshRhythmProgram();
+
+    // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
+    if (program.isEmpty()) {
+      reportMissing(Program.class, "Rhythm-type program");
+      return;
+    }
+
+    // add memes of program to segment in order to affect further choice
+    fabricator.addMemes(program.get());
 
     // rhythm sequence is selected at random of the current program
     // FUTURE: [#166855956] Rhythm Program with multiple Sequences
-    var sequence = fabricator.getRandomlySelectedSequence(program);
+    var sequence = fabricator.getRandomlySelectedSequence(program.get());
 
     // voice arrangements
-    if (sequence.isPresent())
-      for (ProgramVoice voice : fabricator.getSourceMaterial().getVoices(program)) {
-        Optional<String> instrumentId = fabricator.getInstrumentIdChosenForVoiceOfSameMainProgram(voice);
+    if (sequence.isPresent()) {
+      var voices = fabricator.sourceMaterial().getVoices(program.get());
+      if (voices.isEmpty())
+        reportMissing(ProgramVoice.class,
+          String.format("in Rhythm-choice Program[%s]", program.get().getId()));
 
-        // if no previous instrument found, choose a fresh one
-        var instrument = instrumentId.isPresent() ?
-          fabricator.getSourceMaterial().getInstrument(instrumentId.get()) :
-          chooseFreshPercussiveInstrument(voice);
-
-        // [#176373977] Should gracefully skip voicing type if unfulfilled by rhythm program
-        if (instrument.isEmpty()) {
-          reportMissing(Instrument.class, String.format("Rhythm-type like %s", voice.getName()));
-          return;
-        }
-
-        // build primary choice from new ideas
-        var primaryChoice = fabricator.add(SegmentChoice.newBuilder()
-          .setId(UUID.randomUUID().toString())
-          .setType(SegmentChoice.Type.Primary)
-          .setInstrumentId(instrument.get().getId())
-          .setProgramId(program.getId())
-          .setProgramSequenceId(sequence.get().getId())
-          .setProgramType(program.getType())
-          .setInstrumentType(instrument.get().getType())
-          .setProgramVoiceId(voice.getId())
-          .setSegmentId(fabricator.getSegment().getId())
-          .build());
-
-/*
-
-FUTURE: this is on the right track, but for rhythm craft we'll need to pay more attention to the individual arrangements
-
-        // Optionally, use the inertial choice that corresponds to this primary one, instead.
-        var inertialChoice = computeInertialChoice(primaryChoice);
-
-        // If there's an inertial choice, use it
-        if (inertialChoice.isPresent())
-          this.craftArrangements(fabricator.add(inertialChoice.get()));
-        else
-*/
-        this.craftArrangements(primaryChoice);
-      }
+      craftChoices(sequence.get(), voices, this::chooseFreshPercussiveInstrument);
+    }
 
     // Finally, update the segment with the crafted content
     fabricator.done();
-  }
-
-  /**
-   compute (and cache) the mainProgram
-
-   @return mainProgram
-   */
-  private Optional<Program> chooseRhythmProgram() throws NexusException {
-    Segment.Type type;
-    type = fabricator.getType();
-
-    switch (type) {
-      case Continue:
-        Optional<Program> selectedPreviously = getRhythmProgramSelectedPreviouslyForMainProgram();
-        return selectedPreviously.isPresent() ? selectedPreviously : chooseFreshRhythm();
-
-      case Initial:
-      case NextMain:
-      case NextMacro:
-        return chooseFreshRhythm();
-
-      default:
-        throw new NexusException(String.format("Cannot get Rhythm-type program for unknown fabricator type=%s", type));
-    }
-  }
-
-  /**
-   Determine if a rhythm program has been previously selected
-   in one of the previous segments of the current main program
-   <p>
-   [#176468964] Rhythm and Detail choices are kept for an entire Main Program
-
-   @return rhythm program if previously selected, or null if none is found
-   */
-  private Optional<Program> getRhythmProgramSelectedPreviouslyForMainProgram() {
-    return fabricator.getPreferredProgramIds(Program.Type.Rhythm, Instrument.Type.Percussive)
-      .stream()
-      .flatMap(choice -> fabricator.getSourceMaterial().getProgram(choice).stream())
-      .findFirst();
   }
 
   /**
@@ -141,13 +80,13 @@ FUTURE: this is on the right track, but for rhythm craft we'll need to pay more 
 
    @return rhythm-type Program
    */
-  private Optional<Program> chooseFreshRhythm() {
+  private Optional<Program> chooseFreshRhythmProgram() {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve programs bound to chain and
     // (3) score each source program based on meme isometry
     MemeIsometry rhythmIsometry = fabricator.getMemeIsometryOfSegment();
-    for (Program program : fabricator.getSourceMaterial().getProgramsOfType(Program.Type.Rhythm))
+    for (Program program : fabricator.sourceMaterial().getProgramsOfType(Program.Type.Rhythm))
       superEntityScorePicker.add(program, scoreRhythm(program, rhythmIsometry));
 
     // report
@@ -171,7 +110,7 @@ FUTURE: this is on the right track, but for rhythm craft we'll need to pay more 
   @SuppressWarnings("DuplicatedCode")
   private Double scoreRhythm(Program program, MemeIsometry rhythmIsometry) {
     double score = 0;
-    Collection<String> memes = fabricator.getSourceMaterial().getMemesAtBeginning(program);
+    Collection<String> memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
     if (!memes.isEmpty())
       score += rhythmIsometry.score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_RHYTHM);
 
@@ -190,11 +129,11 @@ FUTURE: this is on the right track, but for rhythm craft we'll need to pay more 
    @param voice to choose instrument for
    @return percussive-type Instrument
    */
-  private Optional<Instrument> chooseFreshPercussiveInstrument(ProgramVoice voice) {
+  private Optional<Instrument> chooseFreshPercussiveInstrument(ProgramVoice voice) throws NexusException {
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve instruments bound to chain
-    Collection<Instrument> sourceInstruments = fabricator.getSourceMaterial().getInstrumentsOfType(Instrument.Type.Percussive);
+    Collection<Instrument> sourceInstruments = fabricator.sourceMaterial().getInstrumentsOfType(Instrument.Type.Percussive);
 
     // future: [#258] Instrument selection is based on Text Isometry between the voice name and the instrument name
     log.debug("[segId={}] not currently in use: {}", fabricator.getSegment().getId(), voice);
@@ -209,11 +148,11 @@ FUTURE: this is on the right track, but for rhythm craft we'll need to pay more 
     // https://www.pivotaltracker.com/story/show/178442889
     // If the previously chosen instruments are for the same main program as the current segment,
     // score them all at 95% inertia (almost definitely will choose again)
-    if (Segment.Type.Continue.equals(fabricator.getSegment().getType()))
+    if (Segment.Type.Continue.equals(fabricator.getType()))
       fabricator.retrospective().getChoices().stream()
         .filter(candidate ->
           candidate.getInstrumentType().equals(Instrument.Type.Percussive) &&
-            fabricator.getSourceMaterial().getProgramVoice(candidate.getProgramVoiceId())
+            fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId())
               .stream().map(pv -> Objects.equals(voice.getName(), pv.getName()))
               .findFirst()
               .orElse(false))
@@ -238,7 +177,7 @@ FUTURE: this is on the right track, but for rhythm craft we'll need to pay more 
 
     // Score includes matching memes, previous segment to macro instrument first pattern
     score += SCORE_MATCHED_MEMES *
-      percussiveIsometry.score(Entities.namesOf(fabricator.getSourceMaterial().getMemes(instrument)));
+      percussiveIsometry.score(Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument)));
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(instrument))

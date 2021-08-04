@@ -24,6 +24,7 @@ import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.craft.CraftFactory;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
@@ -176,6 +177,8 @@ public class CraftDetailProgramVoiceNextMainTest {
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment3.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramId(fake.program4.getId())
       .setProgramId(fake.program4_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
@@ -184,6 +187,8 @@ public class CraftDetailProgramVoiceNextMainTest {
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment3.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramId(fake.program15.getId())
       .setProgramId(fake.program15_sequence1_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program15_sequence1_binding0.getId())
@@ -215,6 +220,8 @@ public class CraftDetailProgramVoiceNextMainTest {
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment4.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramId(fake.program4.getId())
       .setProgramId(fake.program4_sequence1_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
@@ -223,6 +230,8 @@ public class CraftDetailProgramVoiceNextMainTest {
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment4.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramId(fake.program15.getId())
       .setProgramId(fake.program15_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program15_sequence0_binding0.getId())

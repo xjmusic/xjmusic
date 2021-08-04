@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface Fabricator {
+
   /**
    Add a new Entity
 
@@ -42,6 +43,24 @@ public interface Fabricator {
    @return entity added
    */
   <N extends MessageLite> N add(N entity) throws NexusException;
+
+  /**
+   Add all memes of this program to the workbench
+   <p>
+   [#179078533] Straightforward meme logic
+
+   @param p program for which to add memes
+   */
+  Program addMemes(Program p) throws NexusException;
+
+  /**
+   Add all memes of this program sequence binding to the workbench
+   <p>
+   [#179078533] Straightforward meme logic
+
+   @param psb program sequence binding for which to add memes
+   */
+  ProgramSequenceBinding addMemes(ProgramSequenceBinding psb) throws NexusException;
 
   /**
    Update the original Segment submitted for craft,
@@ -203,15 +222,30 @@ public interface Fabricator {
   InstrumentConfig getInstrumentConfig(Instrument instrument) throws NexusException;
 
   /**
-   Determine if an arrangement has been previously crafted
+   Determine if a choice has been previously crafted
    in one of the previous segments of the current main sequence
-   wherein the current pattern of the selected main sequence
    <p>
    [#176468964] Rhythm and Detail choices are kept for an entire Main Program
 
-   @return rhythm sequence if previously selected, or null if none is found
+   @return choice if previously made, or null if none is found
    */
-  Optional<String> getInstrumentIdChosenForVoiceOfSameMainProgram(ProgramVoice voice);
+  Optional<SegmentChoice> getChoiceOfSameMainProgram(ProgramVoice voice);
+
+  /**
+   Determine if a choice has been previously crafted
+   in one of the previous segments of the current main sequence
+
+   @return choice if previously made, or null if none is found
+   */
+  Optional<SegmentChoice> getChoiceOfSameMainProgram(Program.Type programType);
+
+  /**
+   Determine if a choice has been previously crafted
+   in one of the previous segments of the current main sequence
+
+   @return choice if previously made, or null if none is found
+   */
+  Optional<SegmentChoice> getChoiceOfSameMainProgram(Instrument.Type instrumentType);
 
   /**
    Key for any pick designed to collide at same voice id + name
@@ -317,15 +351,6 @@ public interface Fabricator {
   Optional<Set<String>> getPreferredNotes(String eventId, String chordName);
 
   /**
-   Get preferred (previously chosen) program ids
-
-   @param programType    to search for preferred ids
-   @param instrumentType to search for preferred ids
-   @return preferred program ids
-   */
-  List<String> getPreferredProgramIds(Program.Type programType, Instrument.Type instrumentType);
-
-  /**
    Get Program for any given choice
 
    @param choice to get program for
@@ -382,6 +407,14 @@ public interface Fabricator {
   int getProgramTargetShift(Key fromKey, Chord toChord);
 
   /**
+   Get the program type of a given voice
+
+   @param voice for which to get program type
+   @return program type
+   */
+  Program.Type getProgramType(ProgramVoice voice) throws NexusException;
+
+  /**
    Get the lowest note present in any voicing of all the segment chord voicings for this segment and instrument type
 
    @param type to get voicing threshold low of
@@ -416,6 +449,15 @@ public interface Fabricator {
    @return randomly selected sequence binding
    */
   Optional<ProgramSequenceBinding> getRandomlySelectedSequenceBindingAtOffset(Program program, Long offset);
+
+  /**
+   Get a randomly selected voice of the given program id
+
+   @return randomly selected voice
+   @param programId for which to randomly select voice
+   @param excludeVoiceIds to exclude from random selection
+   */
+  Optional<ProgramVoice> getRandomlySelectedVoiceForProgramId(String programId, Collection<String> excludeVoiceIds);
 
   /**
    Compute using an integral
@@ -491,13 +533,6 @@ public interface Fabricator {
    @return sequence pattern offset
    */
   Long getSequenceBindingOffsetForChoice(SegmentChoice choice);
-
-  /**
-   Get the ingested source material for fabrication
-
-   @return source material
-   */
-  HubContent getSourceMaterial();
 
   /**
    Get the Voice ID of a given event
@@ -626,20 +661,9 @@ public interface Fabricator {
   void setPreferredAudio(ProgramSequencePatternEvent event, String note, InstrumentAudio instrumentAudio);
 
   /**
-   Add all memes of this program to the workbench
-   <p>
-   [#179078533] Straightforward meme logic
+   Get the ingested source material for fabrication
 
-   @param p program for which to add memes
+   @return source material
    */
-  Program addMemes(Program p) throws NexusException;
-
-  /**
-   Add all memes of this program sequence binding to the workbench
-   <p>
-   [#179078533] Straightforward meme logic
-
-   @param psb program sequence binding for which to add memes
-   */
-  ProgramSequenceBinding addMemes(ProgramSequenceBinding psb) throws NexusException;
+  HubContent sourceMaterial();
 }

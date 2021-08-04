@@ -40,6 +40,7 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -310,6 +311,8 @@ public class NexusIntegrationTestingFixtures {
     return SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramId(programSequenceBinding.getProgramId())
       .setProgramSequenceBindingId(programSequenceBinding.getId())
       .setProgramType(programType)
@@ -320,6 +323,8 @@ public class NexusIntegrationTestingFixtures {
     return SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramId(program.getId())
       .setProgramType(program.getType())
       .build();
@@ -331,6 +336,8 @@ public class NexusIntegrationTestingFixtures {
       .setProgramVoiceId(voice.getId())
       .setInstrumentId(instrument.getId())
       .setInstrumentType(instrument.getType())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setSegmentId(segment.getId())
       .setProgramId(program.getId())
       .setProgramSequenceId(programSequence.getId())
