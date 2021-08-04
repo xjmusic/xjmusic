@@ -47,7 +47,7 @@ public class ChainConfigTest {
     var result = subject.toString();
 
     assertEquals(
-      "craftChoiceInertiaPercent = 62\n" +
+      "choiceDeltaEnabled = true\n" +
         "dubMasterVolumeInstrumentTypeBass = 1.0\n" +
         "dubMasterVolumeInstrumentTypePad = 0.95\n" +
         "dubMasterVolumeInstrumentTypePercussive = 1.2\n" +
