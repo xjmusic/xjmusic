@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import io.xj.Chain;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
 import io.xj.Program;
@@ -675,6 +676,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    */
   private int computeDeltaIn(ProgramVoice voice) throws NexusException {
     if (!fabricator.getChainConfig().isChoiceDeltaEnabled()) return Segments.DELTA_UNLIMITED;
+    if (!Chain.Type.Production.equals(fabricator.getChain().getType())) return Segments.DELTA_UNLIMITED;
     var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
     var programType = fabricator.getProgramType(voice);
     return switch (programType) {
@@ -714,6 +716,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    */
   private int computeDeltaOut(ProgramVoice voice) throws NexusException {
     if (!fabricator.getChainConfig().isChoiceDeltaEnabled()) return Segments.DELTA_UNLIMITED;
+    if (!Chain.Type.Production.equals(fabricator.getChain().getType())) return Segments.DELTA_UNLIMITED;
     var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
     var programType = fabricator.getProgramType(voice);
     return switch (programType) {
