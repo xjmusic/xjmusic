@@ -214,7 +214,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     Collections.shuffle(DETAIL_INSTRUMENT_TYPES);
     for (int i = 0; i < DETAIL_INSTRUMENT_TYPES.size(); i++)
-      deltaDetailOuts.put(DETAIL_INSTRUMENT_TYPES.get(i).toString(), (int) Chance.normallyAround((double) (limit / 2) + (i + 1) * unit, unit / 2));
+      deltaDetailOuts.put(DETAIL_INSTRUMENT_TYPES.get(i).toString(), (int) Chance.normallyAround((double) (limit / 2) + i * unit, unit / 2));
     fabricator.addMessageInfo(String.format("Computed Detail Delta Out: %s", csv(deltaDetailIns)));
   }
 
