@@ -71,6 +71,11 @@ public interface TremendouslyRandom {
    */
   static Comparator<Object> comparator() {
     //noinspection ComparatorMethodParameterNotUsed
-    return (ignored1, ignored2) -> zeroToLimit(3) - 1;
+    return (ignored1, ignored2) -> {
+      int n = zeroToLimit(100);
+      if (n <= 33) return -1;
+      if (n >= 66) return 1;
+      return 0;
+    };
   }
 }
