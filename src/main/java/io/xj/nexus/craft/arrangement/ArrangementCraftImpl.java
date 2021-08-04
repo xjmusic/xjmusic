@@ -310,7 +310,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       return;
 
     var volRatio = Segments.DELTA_UNLIMITED != choice.getDeltaOut() && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut() ?
-      1.0 - (segmentPosition - choice.getDeltaOut()) / (fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() - choice.getDeltaOut()) : 1.0;
+      1.0 - (segmentPosition - (choice.getDeltaOut() - fabricator.getSegment().getDelta())) / (fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() - choice.getDeltaOut()) : 1.0;
 
     // The final note is voiced from the chord voicing (if found) or else the default is used
     Set<String> notes = voicing.isPresent() ?
