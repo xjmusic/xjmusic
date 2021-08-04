@@ -36,6 +36,7 @@ import io.xj.nexus.dao.ChainBindingDAO;
 import io.xj.nexus.dao.ChainDAO;
 import io.xj.nexus.dao.NexusDAOModule;
 import io.xj.nexus.dao.SegmentDAO;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
@@ -263,6 +264,8 @@ public class FabricatorImplTest {
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramType(Program.Type.Main)
       .setProgramId(fake.program5.getId())
       .build());
@@ -270,6 +273,8 @@ public class FabricatorImplTest {
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment.getId())
       .setProgramType(Program.Type.Rhythm)
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramId(fake.program35.getId())
       .setProgramVoiceId(fake.program35_voice0.getId())
       .setInstrumentId(fake.instrument8.getId())
@@ -368,6 +373,8 @@ public class FabricatorImplTest {
     SegmentChoice mainChoice = store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramType(Program.Type.Main)
       .setProgramId(fake.program5.getId())
       .build());
@@ -432,6 +439,8 @@ public class FabricatorImplTest {
     var previousMacroChoice = // second-to-last sequence of macro program
       store.put(SegmentChoice.newBuilder()
         .setId(UUID.randomUUID().toString())
+        .setDeltaIn(Segments.DELTA_UNLIMITED)
+        .setDeltaOut(Segments.DELTA_UNLIMITED)
         .setSegmentId(previousSegment.getId())
         .setProgramType(Program.Type.Macro)
         .setProgramId(fake.program4.getId())
@@ -441,6 +450,8 @@ public class FabricatorImplTest {
       store.put(SegmentChoice.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(previousSegment.getId())
+        .setDeltaIn(Segments.DELTA_UNLIMITED)
+        .setDeltaOut(Segments.DELTA_UNLIMITED)
         .setProgramType(Program.Type.Main)
         .setProgramId(fake.program5.getId())
         .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
@@ -514,6 +525,8 @@ public class FabricatorImplTest {
     var previousMacroChoice = // second-to-last sequence of macro program
       store.put(SegmentChoice.newBuilder()
         .setId(UUID.randomUUID().toString())
+        .setDeltaIn(Segments.DELTA_UNLIMITED)
+        .setDeltaOut(Segments.DELTA_UNLIMITED)
         .setSegmentId(previousSegment.getId())
         .setProgramType(Program.Type.Macro)
         .setProgramId(fake.program4.getId())
@@ -523,6 +536,8 @@ public class FabricatorImplTest {
       store.put(SegmentChoice.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(previousSegment.getId())
+        .setDeltaIn(Segments.DELTA_UNLIMITED)
+        .setDeltaOut(Segments.DELTA_UNLIMITED)
         .setProgramType(Program.Type.Main)
         .setProgramId(fake.program5.getId())
         .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())

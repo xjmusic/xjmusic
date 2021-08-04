@@ -16,11 +16,10 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusException;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -28,11 +27,10 @@ import java.util.Collection;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NexusEntityStoreImplTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   private NexusEntityStore subject;
   private EntityFactory entityFactory;
 
@@ -143,47 +141,49 @@ public class NexusEntityStoreImplTest {
   }
 
   @Test
-  public void put_failsIfNotNexusEntity() throws NexusException {
-    failure.expect(NexusException.class);
-    failure.expectMessage("Can't store Library");
+  public void put_failsIfNotNexusEntity() {
+    var failure = assertThrows(NexusException.class,
+      () -> subject.put(Library.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setAccountId(UUID.randomUUID().toString())
+        .setName("helm")
+        .build()));
 
-    subject.put(Library.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(UUID.randomUUID().toString())
-      .setName("helm")
-      .build());
+    assertEquals("Can't store Library!", failure.getMessage());
   }
 
   @Test
-  public void put_failsWithoutId() throws NexusException {
-    failure.expect(NexusException.class);
-    failure.expectMessage("Can't store Segment with null id");
+  public void put_failsWithoutId() {
+    var failure = assertThrows(NexusException.class,
+      () -> subject.put(Segment.newBuilder()
+        .setChainId(UUID.randomUUID().toString())
+        .setOffset(0L)
+        .setState(Segment.State.Dubbed)
+        .setBeginAt("2017-02-14T12:01:00.000001Z")
+        .setEndAt("2017-02-14T12:01:32.000001Z")
+        .setKey("D Major")
+        .setTotal(64)
+        .setDensity(0.73)
+        .setTempo(120.0)
+        .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
+        .build()));
 
-    subject.put(Segment.newBuilder()
-      .setChainId(UUID.randomUUID().toString())
-      .setOffset(0L)
-      .setState(Segment.State.Dubbed)
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setEndAt("2017-02-14T12:01:32.000001Z")
-      .setKey("D Major")
-      .setTotal(64)
-      .setDensity(0.73)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .build());
+    assertEquals("Can't store Segment with null id", failure.getMessage());
   }
 
   @Test
-  public void put_subEntityFailsWithoutSegmentId() throws NexusException {
-    failure.expect(NexusException.class);
-    failure.expectMessage("Can't store SegmentChoice without Segment ID");
+  public void put_subEntityFailsWithoutSegmentId() {
+    var failure = assertThrows(NexusException.class,
+      () -> subject.put(SegmentChoice.newBuilder()
+        .setId(UUID.randomUUID().toString())
+        .setProgramId(UUID.randomUUID().toString())
+        .setDeltaIn(Segments.DELTA_UNLIMITED)
+        .setDeltaOut(Segments.DELTA_UNLIMITED)
+        .setProgramSequenceBindingId(UUID.randomUUID().toString())
+        .setProgramType(Program.Type.Macro)
+        .build()));
 
-    subject.put(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramId(UUID.randomUUID().toString())
-      .setProgramSequenceBindingId(UUID.randomUUID().toString())
-      .setProgramType(Program.Type.Macro)
-      .build());
+    assertEquals("Can't store SegmentChoice without Segment ID!", failure.getMessage());
   }
 
   @Test
@@ -210,7 +210,7 @@ public class NexusEntityStoreImplTest {
       .setStartAt("2014-08-12T12:17:02.527142Z")
       .setStopAt("2014-09-11T12:17:01.047563Z")
       .build());
-    Segment chain2_segment0 = subject.put(Segment.newBuilder()
+    subject.put(Segment.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setChainId(chain2.getId())
       .setOffset(12L)
@@ -238,6 +238,8 @@ public class NexusEntityStoreImplTest {
       .build());
     subject.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setSegmentId(chain3_segment0.getId())
       .setProgramId(UUID.randomUUID().toString())
       .setProgramSequenceBindingId(UUID.randomUUID().toString())

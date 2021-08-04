@@ -20,6 +20,7 @@ import io.xj.lib.mixer.InternalResource;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
+import io.xj.nexus.dao.Segments;
 import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
@@ -146,6 +147,8 @@ public class DubDubMasterContinueTest {
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment3.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramType(Program.Type.Macro)
       .setProgramId(fake.program4_sequence1_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
@@ -153,6 +156,8 @@ public class DubDubMasterContinueTest {
     store.put(SegmentChoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment3.getId())
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramType(Program.Type.Main)
       .setProgramId(fake.program5_sequence0_binding0.getProgramId())
       .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())

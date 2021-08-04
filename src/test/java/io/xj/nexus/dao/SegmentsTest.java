@@ -84,9 +84,13 @@ public class SegmentsTest extends TestCase {
 
   public void testFindFirstOfType() throws DAOExistenceException {
     var ch0 = SegmentChoice.newBuilder()
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramType(Program.Type.Main)
       .build();
     var ch1 = SegmentChoice.newBuilder()
+      .setDeltaIn(Segments.DELTA_UNLIMITED)
+      .setDeltaOut(Segments.DELTA_UNLIMITED)
       .setProgramType(Program.Type.Macro)
       .build();
     assertEquals(ch0, Segments.findFirstOfType(ImmutableList.of(ch0, ch1), Program.Type.Main));

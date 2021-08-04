@@ -9,6 +9,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigValueFactory;
 import io.xj.Chain;
 import io.xj.ChainBinding;
 import io.xj.Instrument;
@@ -81,7 +82,8 @@ public class CraftRhythm_LayeredVoicesTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = NexusTestConfiguration.getDefault();
+    Config config = NexusTestConfiguration.getDefault()
+      .withValue("chain.choiceDeltaEnabled", ConfigValueFactory.fromAnyRef(false));
     Environment env = Environment.getDefault();
     Injector injector = AppConfiguration.inject(config, env,
       ImmutableSet.of(Modules.override(new NexusWorkModule())

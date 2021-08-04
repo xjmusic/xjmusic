@@ -306,8 +306,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
     if ((Segments.DELTA_UNLIMITED != choice.getDeltaIn() && fabricator.getSegment().getDelta() + segmentPosition < choice.getDeltaIn())
-      || (Segments.DELTA_UNLIMITED != choice.getDeltaOut() && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut()))
+      || (Segments.DELTA_UNLIMITED != choice.getDeltaOut() && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut())) {
+      var iNeedTP = true; // TODO no no no
       return;
+    }
 
     // The final note is voiced from the chord voicing (if found) or else the default is used
     Set<String> notes = voicing.isPresent() ?
@@ -673,6 +675,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @return true if this voice is the Intro
    */
   private int computeDeltaIn(ProgramVoice voice) throws NexusException {
+    if (!fabricator.getChainConfig().isChoiceDeltaEnabled()) return Segments.DELTA_UNLIMITED;
     var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
     var programType = fabricator.getProgramType(voice);
     return switch (programType) {
@@ -683,9 +686,9 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
             .stream().filter(candidate -> voice.getProgramId().equals(candidate.getProgramId()))
             .sorted(TremendouslyRandom.comparator())
             .collect(Collectors.toList());
-          double unit = (double) (limit / 2) / voices.size();
+          double unit = (double) (limit / 3) / voices.size();
           for (int i = 0; i < voices.size(); i++)
-            rhythmDeltaIns.put(voices.get(i).getId(), (int) Chance.normallyAround(i * unit, unit / 2));
+            rhythmDeltaIns.put(voices.get(i).getId(), (int) Chance.normallyAround((i + 1) * unit, unit));
         }
         yield rhythmDeltaIns.getOrDefault(voice.getId(), Segments.DELTA_UNLIMITED);
       }
@@ -711,6 +714,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @return true if this voice is the Intro
    */
   private int computeDeltaOut(ProgramVoice voice) throws NexusException {
+    if (!fabricator.getChainConfig().isChoiceDeltaEnabled()) return Segments.DELTA_UNLIMITED;
     var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
     var programType = fabricator.getProgramType(voice);
     return switch (programType) {

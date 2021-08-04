@@ -70,6 +70,9 @@ public class ChainConfig {
   private final int mainProgramLengthMaxDelta;
   private final String KEY_MAIN_PROGRAM_LENGTH_MAX_DELTA = "mainProgramLengthMaxDelta";
 
+  private final boolean choiceDeltaEnabled;
+  private final String KEY_CHOICE_DELTA_ENABLED = "choiceDeltaEnabled";
+
   private final double dubMasterVolumeInstrumentTypePercussive;
   private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE = "dubMasterVolumeInstrumentTypePercussive";
 
@@ -88,9 +91,6 @@ public class ChainConfig {
   private final double dubMasterVolumeInstrumentTypeStab;
   private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB = "dubMasterVolumeInstrumentTypeStab";
 
-  private final int craftChoiceInertiaPercent;
-  private final String KEY_CRAFT_CHOICE_INERTIA_PERCENT = "craftChoiceInertiaPercent";
-
   /**
    Instantiate a Chain configuration from a string of typesafe config.
    Said string will be embedded in a `chain{...}` block such that
@@ -105,13 +105,14 @@ public class ChainConfig {
         defaultConfig :
         ConfigFactory.parseString(String.format("chain {\n%s\n}", chain.getConfig()))
           .withFallback(defaultConfig);
-      craftChoiceInertiaPercent = config.getInt(chPfx(KEY_CRAFT_CHOICE_INERTIA_PERCENT));
+      choiceDeltaEnabled = config.getBoolean(chPfx(KEY_CHOICE_DELTA_ENABLED));
       dubMasterVolumeInstrumentTypeBass = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS));
       dubMasterVolumeInstrumentTypePad = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD));
       dubMasterVolumeInstrumentTypePercussive = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE));
       dubMasterVolumeInstrumentTypeStab = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB));
       dubMasterVolumeInstrumentTypeSticky = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY));
       dubMasterVolumeInstrumentTypeStripe = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE));
+      mainProgramLengthMaxDelta = config.getInt(chPfx(KEY_MAIN_PROGRAM_LENGTH_MAX_DELTA));
       mixerCompressAheadSeconds = config.getDouble(chPfx(KEY_MIXER_COMPRESS_AHEAD_SECONDS));
       mixerCompressDecaySeconds = config.getDouble(chPfx(KEY_MIXER_COMPRESS_DECAY_SECONDS));
       mixerCompressRatioMax = config.getDouble(chPfx(KEY_MIXER_COMPRESS_RATIO_MAX));
@@ -121,7 +122,6 @@ public class ChainConfig {
       mixerHighpassThresholdHz = config.getDouble(chPfx(KEY_MIXER_HIGHPASS_THRESHOLD_HZ));
       mixerLowpassThresholdHz = config.getDouble(chPfx(KEY_MIXER_LOWPASS_THRESHOLD_HZ));
       mixerNormalizationMax = config.getDouble(chPfx(KEY_MIXER_NORMALIZATION_MAX));
-      mainProgramLengthMaxDelta = config.getInt(chPfx(KEY_MAIN_PROGRAM_LENGTH_MAX_DELTA));
       outputChannels = config.getInt(chPfx(KEY_OUTPUT_CHANNELS));
       outputContainer = config.getString(chPfx(KEY_OUTPUT_CONTAINER));
       outputEncoding = new AudioFormat.Encoding(config.getString(chPfx(KEY_OUTPUT_ENCODING)));
@@ -148,13 +148,14 @@ public class ChainConfig {
   @Override
   public String toString() {
     Map<String, String> config = Maps.newHashMap();
-    config.put(KEY_CRAFT_CHOICE_INERTIA_PERCENT, String.valueOf(craftChoiceInertiaPercent));
+    config.put(KEY_CHOICE_DELTA_ENABLED, String.valueOf(choiceDeltaEnabled));
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS, String.valueOf(dubMasterVolumeInstrumentTypeBass));
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD, String.valueOf(dubMasterVolumeInstrumentTypePad));
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE, String.valueOf(dubMasterVolumeInstrumentTypePercussive));
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB, String.valueOf(dubMasterVolumeInstrumentTypeStab));
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY, String.valueOf(dubMasterVolumeInstrumentTypeSticky));
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE, String.valueOf(dubMasterVolumeInstrumentTypeStripe));
+    config.put(KEY_MAIN_PROGRAM_LENGTH_MAX_DELTA, String.valueOf(mainProgramLengthMaxDelta));
     config.put(KEY_MIXER_COMPRESS_AHEAD_SECONDS, String.valueOf(mixerCompressAheadSeconds));
     config.put(KEY_MIXER_COMPRESS_DECAY_SECONDS, String.valueOf(mixerCompressDecaySeconds));
     config.put(KEY_MIXER_COMPRESS_RATIO_MAX, String.valueOf(mixerCompressRatioMax));
@@ -164,7 +165,6 @@ public class ChainConfig {
     config.put(KEY_MIXER_HIGHPASS_THRESHOLD_HZ, String.valueOf(mixerHighpassThresholdHz));
     config.put(KEY_MIXER_LOWPASS_THRESHOLD_HZ, String.valueOf(mixerLowpassThresholdHz));
     config.put(KEY_MIXER_NORMALIZATION_MAX, String.valueOf(mixerNormalizationMax));
-    config.put(KEY_MAIN_PROGRAM_LENGTH_MAX_DELTA, String.valueOf(mainProgramLengthMaxDelta));
     config.put(KEY_OUTPUT_CHANNELS, String.valueOf(outputChannels));
     config.put(KEY_OUTPUT_CONTAINER, Text.doubleQuoted(outputContainer));
     config.put(KEY_OUTPUT_ENCODING, Text.doubleQuoted(outputEncoding.toString()));
@@ -325,16 +325,17 @@ public class ChainConfig {
   }
 
   /**
-   @return percent chance of making an inertial choice
-   */
-  public int getCraftChoiceInertiaPercent() {
-    return craftChoiceInertiaPercent;
-  }
-
-  /**
    @return max length (delta) for a main program to run
    */
   public int getMainProgramLengthMaxDelta() {
     return mainProgramLengthMaxDelta;
   }
+
+  /**
+   @return true if choice delta is enabled
+   */
+  public boolean isChoiceDeltaEnabled() {
+    return choiceDeltaEnabled;
+  }
+
 }

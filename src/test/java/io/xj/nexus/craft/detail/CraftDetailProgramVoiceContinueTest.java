@@ -208,6 +208,8 @@ public class CraftDetailProgramVoiceContinueTest {
         .setId(UUID.randomUUID().toString())
         .setSegmentId(segment3.getId())
         .setId(UUID.randomUUID().toString())
+        .setDeltaIn(Segments.DELTA_UNLIMITED)
+        .setDeltaOut(Segments.DELTA_UNLIMITED)
         .setProgramId(fake.program10.getId())
         .setProgramType(Program.Type.Detail)
         .build());

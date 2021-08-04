@@ -198,6 +198,8 @@ public class CraftDetailProgramVoiceNextMainTest {
       store.put(SegmentChoice.newBuilder()
         .setId(UUID.randomUUID().toString())
         .setSegmentId(segment3.getId())
+        .setDeltaIn(Segments.DELTA_UNLIMITED)
+        .setDeltaOut(Segments.DELTA_UNLIMITED)
         .setProgramId(fake.program10.getId())
         .setProgramType(Program.Type.Detail)
         .build());
