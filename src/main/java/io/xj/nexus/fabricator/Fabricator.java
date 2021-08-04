@@ -64,16 +64,22 @@ public interface Fabricator {
   ProgramSequenceBinding addMemes(ProgramSequenceBinding psb) throws NexusException;
 
   /**
-   Add an info message to the segment, with the given body
-   @param body to include in message
-   */
-  void addMessageInfo(String body) throws NexusException;
-
-  /**
    Add a message of the given type to the segment, with the given body
    @param body to include in message
    */
   void addMessage(SegmentMessage.Type messageType, String body) throws NexusException;
+
+  /**
+   Add an error message to the segment, with the given body
+   @param body to include in message
+   */
+  void addMessageError(String body) throws NexusException;
+
+  /**
+   Add an info message to the segment, with the given body
+   @param body to include in message
+   */
+  void addMessageInfo(String body) throws NexusException;
 
   /**
    Update the original Segment submitted for craft,

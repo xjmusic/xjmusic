@@ -227,11 +227,6 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public void addMessageInfo(String body) throws NexusException {
-    addMessage(SegmentMessage.Type.Info, body);
-  }
-
-  @Override
   public void addMessage(SegmentMessage.Type messageType, String body) throws NexusException {
     add(SegmentMessage.newBuilder()
       .setId(UUID.randomUUID().toString())
@@ -239,6 +234,16 @@ class FabricatorImpl implements Fabricator {
       .setType(messageType)
       .setBody(body)
       .build());
+  }
+
+  @Override
+  public void addMessageError(String body) throws NexusException {
+    addMessage(SegmentMessage.Type.Error, body);
+  }
+
+  @Override
+  public void addMessageInfo(String body) throws NexusException {
+    addMessage(SegmentMessage.Type.Info, body);
   }
 
   @Override
@@ -401,6 +406,7 @@ class FabricatorImpl implements Fabricator {
   @Override
   public Optional<SegmentChoice> getChoiceOfSameMainProgram(ProgramVoice voice) {
     try {
+      if (!Segment.Type.Continue.equals(getSegment().getType())) return Optional.empty();
       return retrospective.getChoices()
         .stream()
         .filter(choice -> {

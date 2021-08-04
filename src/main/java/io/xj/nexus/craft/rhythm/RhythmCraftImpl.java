@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  Rhythm craft for the current segment
@@ -57,7 +59,15 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     fabricator.addMemes(program.get());
 
     // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
-    precomputeRhythmDeltas(program.get().getId());
+    ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) ->
+      fabricator.sourceMaterial().getProgramVoice(choice.getProgramVoiceId())
+        .orElseThrow(() -> new NexusException("Could not get program voice"))
+        .getName();
+    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Program.Type.Rhythm.equals(choice.getProgramType());
+    var programNames = fabricator.sourceMaterial().getVoices(program.get()).stream()
+      .map(ProgramVoice::getName)
+      .collect(Collectors.toList());
+    precomputeDeltas(choiceFilter, choiceIndexProvider, programNames, 0.4);
 
     // rhythm sequence is selected at random of the current program
     // FUTURE: [#166855956] Rhythm Program with multiple Sequences

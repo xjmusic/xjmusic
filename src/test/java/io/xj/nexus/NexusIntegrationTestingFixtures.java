@@ -688,6 +688,7 @@ public class NexusIntegrationTestingFixtures {
   public static Chain makeChain(Account account, String name, Chain.Type type, Chain.State state, Instant startAt, @Nullable Instant stopAt, @Nullable String embedKey) {
     Chain.Builder builder = Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
+      .setConfig("choiceDeltaEnabled=false")
       .setAccountId(account.getId())
       .setName(name)
       .setType(type)

@@ -267,6 +267,4 @@ public class CraftRhythm_LayeredVoicesTest {
     assertEquals(8, pickedSnare);
     assertEquals(64, pickedHihat);
   }
-
-
 }

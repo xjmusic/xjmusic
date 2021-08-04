@@ -97,6 +97,7 @@ public class CraftRhythmProgramVoiceNextMainTest {
     // Chain "Test Print #1" has 5 total segments
     chain1 = store.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
+      .setConfig("choiceDeltaEnabled=false")
       .setAccountId(fake.account1.getId())
       .setName("Test Print #1")
       .setType(Chain.Type.Production)

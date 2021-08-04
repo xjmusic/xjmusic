@@ -99,6 +99,7 @@ public class ComplexLibraryTest {
     chain1 = test.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(fake.account1.getId())
+      .setConfig("choiceDeltaEnabled=false")
       .setName("Test Print #1")
       .setType(Chain.Type.Preview)
       .setState(Chain.State.Fabricate)

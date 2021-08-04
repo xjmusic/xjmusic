@@ -96,6 +96,7 @@ public class CraftDetailProgramVoiceInitialTest {
     chain2 = store.put(Chain.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setAccountId(fake.account1.getId())
+      .setConfig("choiceDeltaEnabled=false")
       .setName("Print #2")
       .setType(Chain.Type.Production)
       .setState(Chain.State.Fabricate)

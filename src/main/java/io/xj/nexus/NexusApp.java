@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -176,14 +177,24 @@ public class NexusApp extends App {
    */
   private Boolean attemptToRehydrateFrom(NexusChainBootstrapPayload bootstrap) {
     var success = new AtomicBoolean(true);
+    Collection<Object> entities = Lists.newArrayList();
+    String chainStorageKey;
+    InputStream chainStream;
+    JsonapiPayload chainPayload;
+    Chain chain;
     try {
-      Collection<Object> entities = Lists.newArrayList();
       LOG.info("Will check for last shipped data");
-      var chainStorageKey = fileStoreProvider.getChainStorageKey(Chains.getFullKey(bootstrap.getChain().getEmbedKey()), EXTENSION_JSON);
-      var chainStream = fileStoreProvider.streamS3Object(env.getSegmentFileBucket(), chainStorageKey);
-      var chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
-      var chain = (Chain) jsonapiPayloadFactory.toOne(chainPayload);
+      chainStorageKey = fileStoreProvider.getChainStorageKey(Chains.getFullKey(bootstrap.getChain().getEmbedKey()), EXTENSION_JSON);
+      chainStream = fileStoreProvider.streamS3Object(env.getSegmentFileBucket(), chainStorageKey);
+      chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
+      chain = jsonapiPayloadFactory.toOne(chainPayload);
       entities.add(chain);
+    } catch (FileStoreException | JsonApiException | IOException e) {
+      LOG.error("Failed to retrieve previously fabricated chain because {}", e.getMessage());
+      return false;
+    }
+
+    try {
       LOG.info("Will load Chain[{}] for embed key \"{}\"", chain.getId(), bootstrap.getChain().getEmbedKey());
       chainPayload.getIncluded().stream()
         .filter(po -> po.isType(ChainBinding.class))
@@ -260,7 +271,7 @@ public class NexusApp extends App {
         entities.size(), Chains.getIdentifier(chain), fabricatedAheadSeconds);
       return true;
 
-    } catch (FileStoreException | JsonApiException | NexusException | IOException e) {
+    } catch (NexusException e) {
       LOG.error("Failed to rehydrate store because {}", e.getMessage());
       return false;
     }

@@ -6,6 +6,7 @@ import io.xj.Chain;
 import io.xj.Program;
 import io.xj.ProgramVoice;
 import io.xj.Segment;
+import io.xj.SegmentChoice;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.ChainConfig;
 import io.xj.nexus.fabricator.Fabricator;
@@ -15,22 +16,19 @@ import io.xj.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
+import static io.xj.nexus.craft.detail.DetailCraftImpl.DETAIL_INSTRUMENT_TYPES;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ArrangementCraftImplTest {
   private ArrangementCraftImpl subject;
-  private ProgramVoice programVoice1;
 
   @Mock
   public Fabricator fabricator;
@@ -50,7 +48,7 @@ public class ArrangementCraftImplTest {
     Program program = Program.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
-    programVoice1 = ProgramVoice.newBuilder()
+    ProgramVoice programVoice1 = ProgramVoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(program.getId())
       .build();
@@ -67,19 +65,10 @@ public class ArrangementCraftImplTest {
   }
 
   @Test
-  public void precomputeRhythmDeltas() throws NexusException {
+  public void precomputeDeltas() throws NexusException {
     when(fabricator.getType()).thenReturn(Segment.Type.NextMain);
-    when(fabricator.getRandomlySelectedVoiceForProgramId(any(), any())).thenReturn(Optional.of(programVoice1));
-    String programId = UUID.randomUUID().toString();
-    subject.precomputeRhythmDeltas(programId);
-  }
-
-  @Test
-  public void precomputeDetailDeltas() throws NexusException {
-    when(fabricator.getType()).thenReturn(Segment.Type.NextMain);
-    subject.precomputeDetailDeltas();
-
-    ArgumentCaptor<String> arg = ArgumentCaptor.forClass(String.class);
-    verify(fabricator,times(2)).addMessageInfo(arg.capture());
+    ArrangementCraftImpl.ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> choice.getInstrumentType().toString();
+    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Program.Type.Detail.equals(choice.getProgramType());
+    subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, 0.38);
   }
 }

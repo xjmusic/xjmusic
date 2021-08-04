@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.detail;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.Instrument;
@@ -17,8 +18,10 @@ import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -26,6 +29,14 @@ import java.util.stream.Collectors;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft {
+  public static final List<String> DETAIL_INSTRUMENT_TYPES =
+    ImmutableList.of(
+      Instrument.Type.Bass,
+      Instrument.Type.Stripe,
+      Instrument.Type.Pad,
+      Instrument.Type.Sticky,
+      Instrument.Type.Stab
+    ).stream().map(Instrument.Type::toString).collect(Collectors.toList());
 
   @Inject
   public DetailCraftImpl(
@@ -37,7 +48,9 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   @Override
   public void doWork() throws NexusException {
     // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
-    precomputeDetailDeltas();
+    ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> choice.getInstrumentType().toString();
+    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Program.Type.Detail.equals(choice.getProgramType());
+    precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, 0.2);
 
     for (Instrument.Type voicingType : fabricator.getDistinctChordVoicingTypes()) {
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceOfSameMainProgram(voicingType);
