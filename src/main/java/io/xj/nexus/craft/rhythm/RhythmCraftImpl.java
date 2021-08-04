@@ -61,8 +61,8 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) ->
       fabricator.sourceMaterial().getProgramVoice(choice.getProgramVoiceId())
-        .orElseThrow(() -> new NexusException("Could not get program voice"))
-        .getName();
+        .map(ProgramVoice::getName)
+        .orElse("Unknown");
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Program.Type.Rhythm.equals(choice.getProgramType());
     var programNames = fabricator.sourceMaterial().getVoices(program.get()).stream()
       .map(ProgramVoice::getName)
