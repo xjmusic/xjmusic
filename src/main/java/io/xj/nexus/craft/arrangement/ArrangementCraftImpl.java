@@ -309,6 +309,11 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     if (Segments.DELTA_UNLIMITED != choice.getDeltaIn() && fabricator.getSegment().getDelta() + segmentPosition < choice.getDeltaIn())
       return;
 
+    // layer is not playing this whole segment
+    if (Segments.DELTA_UNLIMITED != choice.getDeltaOut() && choice.getDeltaOut() < fabricator.getSegment().getDelta())
+      return;
+
+    // layer is fading out during this segment
     var volRatio = Segments.DELTA_UNLIMITED != choice.getDeltaOut() && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut() ?
       1.0 - (segmentPosition - (choice.getDeltaOut() - fabricator.getSegment().getDelta())) / (fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() - choice.getDeltaOut()) : 1.0;
 

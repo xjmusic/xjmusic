@@ -2,12 +2,7 @@
 
 package io.xj.nexus.fabricator;
 
-import com.google.common.collect.ConcurrentHashMultiset;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multiset;
 import com.google.inject.Inject;
-import io.xj.SegmentChoice;
-import io.xj.SegmentMeme;
 import io.xj.SegmentMessage;
 import io.xj.lib.util.CSV;
 import io.xj.nexus.NexusException;
@@ -15,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
-import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
