@@ -307,7 +307,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
     if ((Segments.DELTA_UNLIMITED != choice.getDeltaIn() && fabricator.getSegment().getDelta() + segmentPosition < choice.getDeltaIn())
       || (Segments.DELTA_UNLIMITED != choice.getDeltaOut() && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut())) {
-      var iNeedTP = true; // TODO no no no
       return;
     }
 
