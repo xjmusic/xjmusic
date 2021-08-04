@@ -177,7 +177,15 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @throws NexusException on failure
    */
   protected void precomputeRhythmDeltas(String programId) throws NexusException {
-    if (!PRECOMPUTE_FOR_TYPES.contains(fabricator.getType())) return;
+    if (!PRECOMPUTE_FOR_TYPES.contains(fabricator.getType())) {
+      rhythmIntroVoiceName = fabricator.retrospective().getChoices().stream()
+        .filter(c -> Segments.DELTA_UNLIMITED == c.getDeltaIn())
+        .flatMap(c -> fabricator.sourceMaterial().getProgramVoice(c.getProgramVoiceId()).stream())
+        .map(ProgramVoice::getName)
+        .findAny()
+        .orElse("");
+      return;
+    }
 
     var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
     var voices = fabricator.sourceMaterial().getAllProgramVoices()
@@ -194,6 +202,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     for (int i = 0; i < voices.size(); i++)
       deltaRhythmOuts.put(voices.get(i).getName(), (int) Chance.normallyAround((double) (2 * limit / 3) + (i + 1) * unit, unit / 3));
     fabricator.addMessageInfo(String.format("Computed Rhythm Delta Out: %s", csv(deltaRhythmIns)));
+
+    findIntroChoice(Program.Type.Rhythm, Instrument.Type.Percussive)
+      .flatMap(c -> fabricator.sourceMaterial().getProgramVoice(c.getProgramVoiceId()))
+      .ifPresent(v -> rhythmIntroVoiceName = v.getName());
+    if (Objects.isNull(rhythmIntroVoiceName))
+      rhythmIntroVoiceName = fabricator.getRandomlySelectedVoiceForProgramId(programId, ImmutableList.of())
+        .orElseThrow(() -> new NexusException("Failed to randomly select voice!"))
+        .getName();
   }
 
   /**
@@ -202,7 +218,15 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @throws NexusException on failure
    */
   protected void precomputeDetailDeltas() throws NexusException {
-    if (!PRECOMPUTE_FOR_TYPES.contains(fabricator.getType())) return;
+    if (!PRECOMPUTE_FOR_TYPES.contains(fabricator.getType())) {
+      detailIntroVoiceType = fabricator.retrospective().getChoices().stream()
+        .filter(c -> Segments.DELTA_UNLIMITED == c.getDeltaIn())
+        .map(SegmentChoice::getInstrumentType)
+        .findFirst()
+        .orElse(selectRandomDetailInstrumentType(ImmutableList.of())
+          .orElseThrow(() -> new NexusException("Can't get instrument type")));
+      return;
+    }
 
     var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
     double unit = (double) (limit / 2) / DETAIL_INSTRUMENT_TYPES.size();
@@ -218,6 +242,12 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     for (int i = 0; i < types.size(); i++)
       deltaDetailOuts.put(types.get(i).toString(), (int) Chance.normallyAround((double) (limit / 2) + i * unit, unit / 2));
     fabricator.addMessageInfo(String.format("Computed Detail Delta Out: %s", csv(deltaDetailIns)));
+
+    findIntroChoice(Program.Type.Detail, null)
+      .ifPresent(c -> detailIntroVoiceType = c.getInstrumentType());
+    if (Objects.isNull(detailIntroVoiceType))
+      detailIntroVoiceType = selectRandomDetailInstrumentType(ImmutableList.of())
+        .orElseThrow(() -> new NexusException("Failed to randomly select instrument type!"));
   }
 
   /**
@@ -616,26 +646,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var programType = fabricator.getProgramType(voice);
     return switch (programType) {
       case UNRECOGNIZED, Macro, Main -> false;
-      case Rhythm -> {
-        if (Objects.isNull(rhythmIntroVoiceName))
-          findIntroChoice(programType, voice)
-            .flatMap(c -> fabricator.sourceMaterial().getProgramVoice(c.getProgramVoiceId()))
-            .ifPresent(v -> rhythmIntroVoiceName = v.getName());
-        if (Objects.isNull(rhythmIntroVoiceName))
-          rhythmIntroVoiceName = fabricator.getRandomlySelectedVoiceForProgramId(voice.getProgramId(), ImmutableList.of())
-            .orElseThrow(() -> new NexusException("Failed to randomly select voice!"))
-            .getName();
-        yield rhythmIntroVoiceName.equals(voice.getName());
-      }
-      case Detail -> {
-        if (Objects.isNull(detailIntroVoiceType))
-          findIntroChoice(programType, voice)
-            .ifPresent(c -> detailIntroVoiceType = c.getInstrumentType());
-        if (Objects.isNull(detailIntroVoiceType))
-          detailIntroVoiceType = selectRandomDetailInstrumentType(ImmutableList.of())
-            .orElseThrow(() -> new NexusException("Failed to randomly select instrument type!"));
-        yield detailIntroVoiceType.equals(voice.getType());
-      }
+      case Rhythm -> rhythmIntroVoiceName.equals(voice.getName());
+      case Detail -> detailIntroVoiceType.equals(voice.getType());
     };
   }
 
@@ -677,23 +689,23 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   /**
    Compute the intro for a given voice
 
-   @param programType for which to compute intro
-   @param voice       for which to get intro
+   @param programType    for which to compute intro
+   @param instrumentType for which to get intro
    @return intro
    @throws NexusException on failure
    */
-  private Optional<SegmentChoice> findIntroChoice(Program.Type programType, ProgramVoice voice) throws NexusException {
+  private Optional<SegmentChoice> findIntroChoice(Program.Type programType, @Nullable Instrument.Type instrumentType) throws NexusException {
     return switch (fabricator.getType()) {
       case UNRECOGNIZED, Pending, Initial -> Optional.empty();
       case Continue -> fabricator.retrospective().getChoices().stream()
         .filter(choice -> Segments.DELTA_UNLIMITED == choice.getDeltaIn()
           && choice.getProgramType().equals(programType)
-          && choice.getInstrumentType().equals(voice.getType()))
+          && (Objects.isNull(instrumentType) || choice.getInstrumentType().equals(instrumentType)))
         .findFirst();
       case NextMain, NextMacro -> fabricator.retrospective().getChoices().stream()
         .filter(choice -> Segments.DELTA_UNLIMITED == choice.getDeltaOut()
           && choice.getProgramType().equals(programType)
-          && choice.getInstrumentType().equals(voice.getType()))
+          && (Objects.isNull(instrumentType) || choice.getInstrumentType().equals(instrumentType)))
         .findFirst();
     };
   }

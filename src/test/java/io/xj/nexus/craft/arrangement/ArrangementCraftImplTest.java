@@ -9,6 +9,7 @@ import io.xj.Segment;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.ChainConfig;
 import io.xj.nexus.fabricator.Fabricator;
+import io.xj.nexus.fabricator.SegmentRetrospective;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
@@ -18,8 +19,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Optional;
 import java.util.UUID;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,12 +30,16 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ArrangementCraftImplTest {
   private ArrangementCraftImpl subject;
+  private ProgramVoice programVoice1;
 
   @Mock
   public Fabricator fabricator;
 
   @Mock
   public HubContent hubContent;
+
+  @Mock
+  public SegmentRetrospective retrospective;
 
   @Before
   public void setUp() throws Exception {
@@ -43,7 +50,7 @@ public class ArrangementCraftImplTest {
     Program program = Program.newBuilder()
       .setId(UUID.randomUUID().toString())
       .build();
-    ProgramVoice programVoice1 = ProgramVoice.newBuilder()
+    programVoice1 = ProgramVoice.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setProgramId(program.getId())
       .build();
@@ -54,6 +61,7 @@ public class ArrangementCraftImplTest {
     ChainConfig chainConfig = new ChainConfig(chain, config);
     when(fabricator.getChainConfig()).thenReturn(chainConfig);
     when(fabricator.sourceMaterial()).thenReturn(hubContent);
+    when(fabricator.retrospective()).thenReturn(retrospective);
     when(hubContent.getAllProgramVoices()).thenReturn(ImmutableList.of(programVoice1, programVoice2));
     subject = new ArrangementCraftImpl(fabricator);
   }
@@ -61,6 +69,7 @@ public class ArrangementCraftImplTest {
   @Test
   public void precomputeRhythmDeltas() throws NexusException {
     when(fabricator.getType()).thenReturn(Segment.Type.NextMain);
+    when(fabricator.getRandomlySelectedVoiceForProgramId(any(), any())).thenReturn(Optional.of(programVoice1));
     String programId = UUID.randomUUID().toString();
     subject.precomputeRhythmDeltas(programId);
   }

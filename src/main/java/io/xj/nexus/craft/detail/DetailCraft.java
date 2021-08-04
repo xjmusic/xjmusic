@@ -13,6 +13,6 @@ public interface DetailCraft {
   /**
    perform craft for the current segment
    */
-  void doWork() throws NexusException, NexusException;
+  void doWork() throws NexusException;
 
 }
