@@ -195,7 +195,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     add(SegmentMessage.newBuilder()
       .setId(UUID.randomUUID().toString())
       .setSegmentId(segment.getId())
-      .setType(SegmentMessage.Type.Info)
+      .setType(SegmentMessage.Type.Debug)
       .setBody(reported)
       .build());
     report.clear();
