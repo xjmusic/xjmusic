@@ -25,7 +25,6 @@ import io.xj.lib.util.Text;
 import io.xj.nexus.api.NexusAccessLogFilter;
 import io.xj.nexus.dao.ChainDAO;
 import io.xj.nexus.dao.Chains;
-import io.xj.nexus.dao.Segments;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
@@ -197,7 +196,7 @@ public class NexusApp extends App {
           }
         });
 
-      var segments = chainPayload.getIncluded().stream()
+      chainPayload.getIncluded().stream()
         .filter(po -> po.isType(Segment.class))
         .flatMap(po -> {
           try {
@@ -209,15 +208,6 @@ public class NexusApp extends App {
           }
         })
         .filter(seg -> Segment.State.Dubbed.equals(seg.getState()))
-        .collect(Collectors.toList());
-
-      // Don't rehydrate last segment-- just in case it was malformed.
-      // https://www.pivotaltracker.com/story/show/179081624
-      var lastSeg = Segments.getLast(segments).orElseThrow(() -> new NexusException("Failed to get last Segment"));
-
-      segments
-        .stream()
-        .filter(segment -> !lastSeg.getId().equals(segment.getId()))
         .forEach(segment -> {
           try {
             var segmentStorageKey = fileStoreProvider.getSegmentStorageKey(segment.getStorageKey(), EXTENSION_JSON);

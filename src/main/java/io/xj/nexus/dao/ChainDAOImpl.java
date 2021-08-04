@@ -516,9 +516,10 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       case Ready:
       case Fabricate:
         chain.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
-        if (Chain.Type.Preview.equals(chain.getType()))
+        if (Chain.Type.Preview.equals(chain.getType())) {
           chain.setStopAt(Value.formatIso8601UTC(
             Instant.parse(chain.getStartAt()).plus(previewLengthMaxHours, HOURS))); // [#174153691]
+          }
       case Complete:
       case Failed:
       default:

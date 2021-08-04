@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import io.xj.Chain;
 import io.xj.Instrument;
 import io.xj.InstrumentAudio;
 import io.xj.Program;
@@ -63,10 +62,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   private String rhythmOutroVoiceName;
   private Instrument.Type detailIntroVoiceType;
   private Instrument.Type detailOutroVoiceType;
-  private final Map<String, Integer> rhythmDeltaIns = Maps.newHashMap();
-  private final Map<String, Integer> rhythmDeltaOuts = Maps.newHashMap();
-  private final Map<String, Integer> detailDeltaIns = Maps.newHashMap();
-  private final Map<String, Integer> detailDeltaOuts = Maps.newHashMap();
+  private final Map<String, Integer> deltaRhythmIns = Maps.newHashMap();
+  private final Map<String, Integer> deltaRhythmOuts = Maps.newHashMap();
+  private final Map<String, Integer> deltaDetailIns = Maps.newHashMap();
+  private final Map<String, Integer> deltaDetailOuts = Maps.newHashMap();
 
   /**
    Must extend this class and inject
@@ -76,6 +75,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   @Inject
   public ArrangementCraftImpl(Fabricator fabricator) {
     super(fabricator);
+    deltaRhythmIns.clear();
+    deltaRhythmOuts.clear();
+    deltaDetailIns.clear();
+    deltaDetailOuts.clear();
   }
 
   /**
@@ -159,6 +162,53 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     else
       craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal(), range);
+  }
+
+  /**
+   Precompute all deltas for a given program
+
+   @throws NexusException on failure
+   */
+  protected void precomputeRhythmDeltas(String programId) throws NexusException {
+    var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
+    var voices = fabricator.sourceMaterial().getAllProgramVoices()
+      .stream().filter(candidate -> programId.equals(candidate.getProgramId()))
+      .collect(Collectors.toList());
+    double unit = (double) (limit / 3) / voices.size();
+
+    var voicesIn = voices.stream()
+      .sorted(TremendouslyRandom.comparator())
+      .collect(Collectors.toList());
+    for (int i = 0; i < voicesIn.size(); i++)
+      deltaRhythmIns.put(voicesIn.get(i).getId(), (int) Chance.normallyAround((i + 1) * unit, unit));
+    fabricator.addMessageInfo(String.format("Computed Rhythm Delta In: %s", csv(deltaRhythmIns)));
+
+    var voicesOut = voices.stream()
+      .sorted(TremendouslyRandom.comparator())
+      .collect(Collectors.toList());
+    for (int i = 0; i < voicesOut.size(); i++)
+      deltaRhythmOuts.put(voicesOut.get(i).getId(), (int) Chance.normallyAround((double) (2 * limit / 3) + (i + 1) * unit, unit / 3));
+    fabricator.addMessageInfo(String.format("Computed Rhythm Delta Out: %s", csv(deltaRhythmIns)));
+  }
+
+  /**
+   Precompute all deltas for a given program
+
+   @throws NexusException on failure
+   */
+  protected void precomputeDetailDeltas() throws NexusException {
+    var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
+    double unit = (double) (limit / 2) / DETAIL_INSTRUMENT_TYPES.size();
+
+    var typesIn = DETAIL_INSTRUMENT_TYPES.stream().sorted(TremendouslyRandom.comparator()).collect(Collectors.toList());
+    for (int i = 0; i < typesIn.size(); i++)
+      deltaDetailIns.put(typesIn.get(i).toString(), (int) Chance.normallyAround((i + 1) * unit, unit / 2));
+    fabricator.addMessageInfo(String.format("Computed Detail Delta In: %s", csv(deltaDetailIns)));
+
+    var typesOut = DETAIL_INSTRUMENT_TYPES.stream().sorted(TremendouslyRandom.comparator()).collect(Collectors.toList());
+    for (int i = 0; i < typesOut.size(); i++)
+      deltaDetailOuts.put(typesOut.get(i).toString(), (int) Chance.normallyAround((double) (limit / 2) + (i + 1) * unit, unit / 2));
+    fabricator.addMessageInfo(String.format("Computed Detail Delta Out: %s", csv(deltaDetailIns)));
   }
 
   /**
@@ -674,44 +724,30 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   Compute the delta in for the given voice.
-   The thing here is to stagger the delta ins,
-   with some randomness, but essentially spread even throughout
-   the first half of any given main program.
+   Compute the rhythm delta out
+
+   @param voice for which to make determination
+   @return true if this voice is the Intro
+   */
+  private int computeDeltaOut(ProgramVoice voice) throws NexusException {
+    return switch (fabricator.getProgramType(voice)) {
+      case UNRECOGNIZED, Macro, Main -> Segments.DELTA_UNLIMITED;
+      case Detail -> computeDelta(voice, deltaDetailOuts);
+      case Rhythm -> computeDelta(voice, deltaRhythmOuts);
+    };
+  }
+
+  /**
+   Compute the rhythm delta in
 
    @param voice for which to make determination
    @return true if this voice is the Intro
    */
   private int computeDeltaIn(ProgramVoice voice) throws NexusException {
-    if (!fabricator.getChainConfig().isChoiceDeltaEnabled()) return Segments.DELTA_UNLIMITED;
-    if (!Chain.Type.Production.equals(fabricator.getChain().getType())) return Segments.DELTA_UNLIMITED;
-    var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
-    var programType = fabricator.getProgramType(voice);
-    return switch (programType) {
-      case UNRECOGNIZED, Macro, Main -> -1;
-      case Rhythm -> {
-        if (!rhythmDeltaIns.containsKey(voice.getId())) {
-          var voices = fabricator.sourceMaterial().getAllProgramVoices()
-            .stream().filter(candidate -> voice.getProgramId().equals(candidate.getProgramId()))
-            .sorted(TremendouslyRandom.comparator())
-            .collect(Collectors.toList());
-          double unit = (double) (limit / 3) / voices.size();
-          for (int i = 0; i < voices.size(); i++)
-            rhythmDeltaIns.put(voices.get(i).getId(), (int) Chance.normallyAround((i + 1) * unit, unit));
-          fabricator.addMessageInfo(String.format("Computed Rhythm Delta In: %s", csv(rhythmDeltaIns)));
-        }
-        yield rhythmDeltaIns.getOrDefault(voice.getId(), Segments.DELTA_UNLIMITED);
-      }
-      case Detail -> {
-        if (!detailDeltaIns.containsKey(voice.getType().toString())) {
-          double unit = (double) (limit / 2) / DETAIL_INSTRUMENT_TYPES.size();
-          var types = DETAIL_INSTRUMENT_TYPES.stream().sorted(TremendouslyRandom.comparator()).collect(Collectors.toList());
-          for (int i = 0; i < types.size(); i++)
-            detailDeltaIns.put(types.get(i).toString(), (int) Chance.normallyAround((i + 1) * unit, unit / 2));
-          fabricator.addMessageInfo(String.format("Computed Detail Delta In: %s", csv(detailDeltaIns)));
-        }
-        yield detailDeltaIns.getOrDefault(voice.getType().toString(), Segments.DELTA_UNLIMITED);
-      }
+    return switch (fabricator.getProgramType(voice)) {
+      case UNRECOGNIZED, Macro, Main -> Segments.DELTA_UNLIMITED;
+      case Detail -> computeDelta(voice, deltaDetailIns);
+      case Rhythm -> computeDelta(voice, deltaRhythmIns);
     };
   }
 
@@ -724,37 +760,9 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param voice for which to make determination
    @return true if this voice is the Intro
    */
-  private int computeDeltaOut(ProgramVoice voice) throws NexusException {
+  private int computeDelta(ProgramVoice voice, Map<String, Integer> map) {
     if (!fabricator.getChainConfig().isChoiceDeltaEnabled()) return Segments.DELTA_UNLIMITED;
-    if (!Chain.Type.Production.equals(fabricator.getChain().getType())) return Segments.DELTA_UNLIMITED;
-    var limit = fabricator.getChainConfig().getMainProgramLengthMaxDelta();
-    var programType = fabricator.getProgramType(voice);
-    return switch (programType) {
-      case UNRECOGNIZED, Macro, Main -> -1;
-      case Rhythm -> {
-        if (!rhythmDeltaOuts.containsKey(voice.getId())) {
-          var voices = fabricator.sourceMaterial().getAllProgramVoices()
-            .stream().filter(candidate -> voice.getProgramId().equals(candidate.getProgramId()))
-            .sorted(TremendouslyRandom.comparator())
-            .collect(Collectors.toList());
-          double unit = (double) (limit / 3) / voices.size();
-          for (int i = 0; i < voices.size(); i++)
-            rhythmDeltaOuts.put(voices.get(i).getId(), (int) Chance.normallyAround((double) (2 * limit / 3) + (i + 1) * unit, unit / 3));
-          fabricator.addMessageInfo(String.format("Computed Rhythm Delta Out: %s", csv(rhythmDeltaIns)));
-        }
-        yield rhythmDeltaOuts.getOrDefault(voice.getId(), Segments.DELTA_UNLIMITED);
-      }
-      case Detail -> {
-        if (!detailDeltaOuts.containsKey(voice.getType().toString())) {
-          double unit = (double) (limit / 2) / DETAIL_INSTRUMENT_TYPES.size();
-          var types = DETAIL_INSTRUMENT_TYPES.stream().sorted(TremendouslyRandom.comparator()).collect(Collectors.toList());
-          for (int i = 0; i < types.size(); i++)
-            detailDeltaOuts.put(types.get(i).toString(), (int) Chance.normallyAround((double) (limit / 2) + (i + 1) * unit, unit / 2));
-          fabricator.addMessageInfo(String.format("Computed Detail Delta Out: %s", csv(detailDeltaIns)));
-        }
-        yield detailDeltaOuts.getOrDefault(voice.getType().toString(), Segments.DELTA_UNLIMITED);
-      }
-    };
+    return map.getOrDefault(voice.getType().toString(), Segments.DELTA_UNLIMITED);
   }
 
   /**

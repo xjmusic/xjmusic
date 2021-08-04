@@ -56,6 +56,9 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // add memes of program to segment in order to affect further choice
     fabricator.addMemes(program.get());
 
+    // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
+    precomputeRhythmDeltas(program.get().getId());
+
     // rhythm sequence is selected at random of the current program
     // FUTURE: [#166855956] Rhythm Program with multiple Sequences
     var sequence = fabricator.getRandomlySelectedSequence(program.get());

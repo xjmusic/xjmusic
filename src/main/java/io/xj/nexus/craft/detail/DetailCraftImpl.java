@@ -36,6 +36,9 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
   @Override
   public void doWork() throws NexusException {
+    // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
+    precomputeDetailDeltas();
+
     for (Instrument.Type voicingType : fabricator.getDistinctChordVoicingTypes()) {
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceOfSameMainProgram(voicingType);
 
@@ -70,32 +73,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     // Finally, update the segment with the crafted content
     fabricator.done();
   }
-
-   /*
-   Choose a detail program having voice(s) of the given type
-
-   @param voicingType of voicing to choose detail program for
-   @return Chosen Detail Program
-   *
-  private Optional<Program> chooseDetailProgram(Instrument.Type voicingType) throws NexusException {
-    Segment.Type type;
-    type = fabricator.getType();
-
-    switch (type) {
-      case Continue:
-        Optional<Program> selectedPreviously = getDetailProgramSelectedPreviouslyForSegmentMainProgram(voicingType);
-        return selectedPreviously.isPresent() ? selectedPreviously : chooseFreshDetailProgram(voicingType);
-
-      case Initial:
-      case NextMain:
-      case NextMacro:
-        return chooseFreshDetailProgram(voicingType);
-
-      default:
-        throw new NexusException(String.format("Cannot get Detail-type program for unknown fabricator type=%s", type));
-    }
-  }
-   */
 
   /**
    Choose a fresh detail based on a set of memes
