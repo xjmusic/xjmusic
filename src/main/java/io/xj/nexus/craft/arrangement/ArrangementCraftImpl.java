@@ -698,7 +698,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
           double unit = (double) (limit / 2) / DETAIL_INSTRUMENT_TYPES.size();
           var types = DETAIL_INSTRUMENT_TYPES.stream().sorted(TremendouslyRandom.comparator()).collect(Collectors.toList());
           for (int i = 0; i < types.size(); i++)
-            detailDeltaIns.put(types.get(i), (int) Chance.normallyAround(i * unit, unit / 2));
+            detailDeltaIns.put(types.get(i), (int) Chance.normallyAround((i + 1) * unit, unit / 2));
         }
         yield detailDeltaIns.getOrDefault(voice.getType(), Segments.DELTA_UNLIMITED);
       }

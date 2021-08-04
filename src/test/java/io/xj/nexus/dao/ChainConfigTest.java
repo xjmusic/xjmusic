@@ -26,7 +26,7 @@ public class ChainConfigTest {
         "dubMasterVolumeInstrumentTypeStripe = 0.5\n" +
         "outputSampleBits = 16\n" +
         "mixerHighpassThresholdHz = 60.0\n" +
-        "mixerNormalizationMax = 0.999\n" +
+        "mixerNormalizationCeiling = 0.999\n" +
         "mixerCompressAheadSeconds = 0.05\n" +
         "mixerDspBufferSize = 1024\n" +
         "dubMasterVolumeInstrumentTypeBass = 1.0\n" +
@@ -63,7 +63,8 @@ public class ChainConfigTest {
         "mixerDspBufferSize = 1024\n" +
         "mixerHighpassThresholdHz = 60.0\n" +
         "mixerLowpassThresholdHz = 6000.0\n" +
-        "mixerNormalizationMax = 0.999\n" +
+        "mixerNormalizationBoostThreshold = 1.38\n" +
+        "mixerNormalizationCeiling = 0.999\n" +
         "outputChannels = 2\n" +
         "outputContainer = \"OGG\"\n" +
         "outputEncoding = \"PCM_SIGNED\"\n" +

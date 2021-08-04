@@ -16,7 +16,7 @@
         "name": "Cool Air",
         "state": "Fabricate",
         "type": "Production",
-        "config": "dubMasterVolumeInstrumentTypeBass = 0.9\ndubMasterVolumeInstrumentTypePad = 0.6\ndubMasterVolumeInstrumentTypePercussive = 0.9\ndubMasterVolumeInstrumentTypeStab = 0.3\ndubMasterVolumeInstrumentTypeSticky = 0.4\ndubMasterVolumeInstrumentTypeStripe = 0.5\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 8.0\nmixerCompressRatioMin = 2.0\nmixerCompressToAmplitude = 2.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30.0\nmixerLowpassThresholdHz = 15000.0\nmixerNormalizationMax = 0.999"
+        "config": "dubMasterVolumeInstrumentTypeBass = 0.9\ndubMasterVolumeInstrumentTypePad = 0.6\ndubMasterVolumeInstrumentTypePercussive = 0.9\ndubMasterVolumeInstrumentTypeStab = 0.3\ndubMasterVolumeInstrumentTypeSticky = 0.4\ndubMasterVolumeInstrumentTypeStripe = 0.5\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 8.0\nmixerCompressRatioMin = 2.0\nmixerCompressToAmplitude = 2.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30.0\nmixerLowpassThresholdHz = 15000.0\nmixerNormalizationCeiling = 0.999"
       }
     }
   ],

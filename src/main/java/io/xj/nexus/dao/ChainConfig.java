@@ -64,8 +64,11 @@ public class ChainConfig {
   private final double mixerLowpassThresholdHz;
   private final String KEY_MIXER_LOWPASS_THRESHOLD_HZ = "mixerLowpassThresholdHz";
 
-  private final double mixerNormalizationMax;
-  private final String KEY_MIXER_NORMALIZATION_MAX = "mixerNormalizationMax";
+  private final double mixerNormalizationCeiling;
+  private final String KEY_MIXER_NORMALIZATION_MAX = "mixerNormalizationCeiling";
+
+  private final double mixerNormalizationBoostThreshold;
+  private final String KEY_MIXER_NORMALIZATION_BOOST_THRESHOLD = "mixerNormalizationBoostThreshold";
 
   private final int mainProgramLengthMaxDelta;
   private final String KEY_MAIN_PROGRAM_LENGTH_MAX_DELTA = "mainProgramLengthMaxDelta";
@@ -121,7 +124,8 @@ public class ChainConfig {
       mixerDspBufferSize = config.getInt(chPfx(KEY_MIXER_DSP_BUFFER_SIZE));
       mixerHighpassThresholdHz = config.getDouble(chPfx(KEY_MIXER_HIGHPASS_THRESHOLD_HZ));
       mixerLowpassThresholdHz = config.getDouble(chPfx(KEY_MIXER_LOWPASS_THRESHOLD_HZ));
-      mixerNormalizationMax = config.getDouble(chPfx(KEY_MIXER_NORMALIZATION_MAX));
+      mixerNormalizationCeiling = config.getDouble(chPfx(KEY_MIXER_NORMALIZATION_MAX));
+      mixerNormalizationBoostThreshold = config.getDouble(chPfx(KEY_MIXER_NORMALIZATION_BOOST_THRESHOLD));
       outputChannels = config.getInt(chPfx(KEY_OUTPUT_CHANNELS));
       outputContainer = config.getString(chPfx(KEY_OUTPUT_CONTAINER));
       outputEncoding = new AudioFormat.Encoding(config.getString(chPfx(KEY_OUTPUT_ENCODING)));
@@ -164,7 +168,8 @@ public class ChainConfig {
     config.put(KEY_MIXER_DSP_BUFFER_SIZE, String.valueOf(mixerDspBufferSize));
     config.put(KEY_MIXER_HIGHPASS_THRESHOLD_HZ, String.valueOf(mixerHighpassThresholdHz));
     config.put(KEY_MIXER_LOWPASS_THRESHOLD_HZ, String.valueOf(mixerLowpassThresholdHz));
-    config.put(KEY_MIXER_NORMALIZATION_MAX, String.valueOf(mixerNormalizationMax));
+    config.put(KEY_MIXER_NORMALIZATION_MAX, String.valueOf(mixerNormalizationCeiling));
+    config.put(KEY_MIXER_NORMALIZATION_BOOST_THRESHOLD, String.valueOf(mixerNormalizationBoostThreshold));
     config.put(KEY_OUTPUT_CHANNELS, String.valueOf(outputChannels));
     config.put(KEY_OUTPUT_CONTAINER, Text.doubleQuoted(outputContainer));
     config.put(KEY_OUTPUT_ENCODING, Text.doubleQuoted(outputEncoding.toString()));
@@ -320,8 +325,16 @@ public class ChainConfig {
   /**
    @return mixer Normalization Max
    */
-  public double getMixerNormalizationMax() {
-    return mixerNormalizationMax;
+  public double getMixerNormalizationCeiling() {
+    return mixerNormalizationCeiling;
+  }
+
+  /**
+   @return mixer limit of how much to boost during normalization
+
+   */
+  public double getMixerNormalizationBoostThreshold() {
+    return mixerNormalizationBoostThreshold;
   }
 
   /**
@@ -337,5 +350,4 @@ public class ChainConfig {
   public boolean isChoiceDeltaEnabled() {
     return choiceDeltaEnabled;
   }
-
 }

@@ -10,16 +10,18 @@ import javax.sound.sampled.AudioFormat;
  */
 public class MixerConfig {
   private AudioFormat outputFormat;
-  private Double compressToAmplitude = 5.0;
   private Double compressAheadSeconds = 0.1;
   private Double compressDecaySeconds = 0.01;
   private Double compressRatioMax = 10.0;
   private Double compressRatioMin = 0.5;
-  private Double normalizationMax = 1.0;
+  private Double compressToAmplitude = 5.0;
+  private Double normalizationCeiling = 1.0;
   private Integer dspBufferSize = 1024; // DSP buffer size must be a power of 2
   private String logPrefix = "";
-  private double lowpassThresholdHz = 12000;
   private double highpassThresholdHz = 20.0;
+  private double lowpassThresholdHz = 12000;
+
+  private double normalizationBoostThreshold = 1.38;
 
   /**
    Instantiate a new mixer configuration with format and length (and default compression settings)
@@ -193,18 +195,35 @@ public class MixerConfig {
 
    @return normalization max value
    */
-  public Double getNormalizationMax() {
-    return normalizationMax;
+  public Double getNormalizationCeiling() {
+    return normalizationCeiling;
+  }
+
+  /**
+   @return normalization boost threshold
+   */
+  public Double getNormalizationBoostThreshold() {
+    return normalizationBoostThreshold;
+  }
+
+  /**
+   Set the normalization boost threshold
+
+   @param normalizationBoostThreshold limit of how much to boost during normalization
+   */
+  public MixerConfig setNormalizationBoostThreshold(double normalizationBoostThreshold) {
+    this.normalizationBoostThreshold = normalizationBoostThreshold;
+    return this;
   }
 
   /**
    Set normalization max value
 
-   @param normalizationMax value
+   @param normalizationCeiling value
    @return MixerConfig to chain setters
    */
-  public MixerConfig setNormalizationMax(Double normalizationMax) {
-    this.normalizationMax = normalizationMax;
+  public MixerConfig setNormalizationCeiling(Double normalizationCeiling) {
+    this.normalizationCeiling = normalizationCeiling;
     return this;
   }
 
@@ -265,5 +284,4 @@ public class MixerConfig {
     this.lowpassThresholdHz = lowpassThresholdHz;
     return this;
   }
-
 }

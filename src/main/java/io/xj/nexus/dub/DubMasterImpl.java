@@ -185,8 +185,9 @@ public class DubMasterImpl implements DubMaster {
     if (Objects.isNull(mixer)) {
       MixerConfig config = new MixerConfig(fabricator.getOutputAudioFormat())
         .setLogPrefix(String.format("[segId=%s] ", fabricator.getSegment().getId()))
-        .setNormalizationMax(fabricator.getChainConfig().getMixerNormalizationMax())
+        .setNormalizationCeiling(fabricator.getChainConfig().getMixerNormalizationCeiling())
         .setDSPBufferSize(fabricator.getChainConfig().getMixerDspBufferSize())
+        .setNormalizationBoostThreshold(fabricator.getChainConfig().getMixerNormalizationBoostThreshold())
         .setCompressRatioMax(fabricator.getChainConfig().getMixerCompressRatioMax())
         .setCompressRatioMin(fabricator.getChainConfig().getMixerCompressRatioMin())
         .setHighpassThresholdHz(fabricator.getChainConfig().getMixerHighpassThresholdHz())

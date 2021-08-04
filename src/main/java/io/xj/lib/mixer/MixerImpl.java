@@ -292,7 +292,7 @@ class MixerImpl implements Mixer {
    [#154112129] normalize final buffer to normalization threshold@param buf
    */
   private void applyNormalization(double[][] buf) {
-    double normRatio = config.getNormalizationMax() / MathUtil.maxAbs(buf, NORMALIZATION_GRAIN);
+    double normRatio = Math.min(config.getNormalizationBoostThreshold(), config.getNormalizationCeiling() / MathUtil.maxAbs(buf, NORMALIZATION_GRAIN));
     for (int i = 0; i < buf.length; i++)
       for (int k = 0; k < outputChannels; k++)
         buf[i][k] *= normRatio;
