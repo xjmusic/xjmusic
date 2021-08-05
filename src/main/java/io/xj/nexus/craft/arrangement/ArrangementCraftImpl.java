@@ -198,11 +198,11 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // random order in
     Collections.shuffle(order);
     for (int i = 0; i < order.size(); i++)
-      deltaIns.put(order.get(i), (int) Chance.normallyAround((i + 0.5) * bFadeLayer, bFadeLayer * 0.5));
+      deltaIns.put(order.get(i), (int) Chance.normallyAround((i + 0.5) * bFadeLayer, bFadeLayer * 0.3));
     // different random order out
     Collections.shuffle(order);
     for (int i = 0; i < order.size(); i++)
-      deltaOuts.put(order.get(i), (int) Chance.normallyAround(bPreFadeout + (i + 1.5) * bFadeLayer, bFadeLayer * 0.5));
+      deltaOuts.put(order.get(i), (int) Chance.normallyAround(bPreFadeout + (i + 0.5) * bFadeLayer, bFadeLayer * 0.3));
 
     // then we overwrite the wall-to-wall random values with more specific values depending on the situation
     switch (fabricator.getType()) {
