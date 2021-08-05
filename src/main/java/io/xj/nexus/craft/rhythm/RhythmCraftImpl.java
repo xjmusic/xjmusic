@@ -6,7 +6,6 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.Instrument;
 import io.xj.Program;
 import io.xj.ProgramVoice;
-import io.xj.Segment;
 import io.xj.SegmentChoice;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
@@ -23,6 +22,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static io.xj.nexus.dao.Segments.DELTA_UNLIMITED;
 
 /**
  Rhythm craft for the current segment
@@ -159,20 +160,27 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     for (Instrument instrument : sourceInstruments)
       superEntityScorePicker.add(instrument, scorePercussive(instrument, percussiveIsometry));
 
-    // (4) prefer same instrument choices throughout a main program
-    // Instrument choice inertia
-    // https://www.pivotaltracker.com/story/show/178442889
-    // If the previously chosen instruments are for the same main program as the current segment,
-    // score them all at 95% inertia (almost definitely will choose again)
-    if (Segment.Type.Continue.equals(fabricator.getType()))
-      fabricator.retrospective().getChoices().stream()
-        .filter(candidate ->
-          candidate.getInstrumentType().equals(Instrument.Type.Percussive) &&
-            fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId())
-              .stream().map(pv -> Objects.equals(voice.getName(), pv.getName()))
-              .findFirst()
-              .orElse(false))
-        .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_MAIN_PROGRAM));
+    switch (fabricator.getType()) {
+      case Continue ->
+        // Instrument choice inertia: prefer same instrument choices throughout a main program
+        // https://www.pivotaltracker.com/story/show/178442889
+        fabricator.retrospective().getChoices().stream()
+          .filter(candidate -> candidate.getInstrumentType().equals(voice.getType())
+          && fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId())
+            .stream().map(pv -> Objects.equals(voice.getName(), pv.getName()))
+            .findFirst()
+            .orElse(false))
+          .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_MAIN_PROGRAM));
+
+      case NextMain, NextMacro ->
+        // Keep same instruments when carrying outgoing choices to incoming choices of next segment
+        // https://www.pivotaltracker.com/story/show/179126302
+        fabricator.retrospective().getChoices().stream()
+          .filter(candidate -> candidate.getInstrumentType().equals(voice.getType())
+            && DELTA_UNLIMITED == candidate.getDeltaOut())
+          .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_OUTGOING_TO_INCOMING));
+    }
+
 
     // report
     fabricator.putReport("percussiveChoice", superEntityScorePicker.report());
