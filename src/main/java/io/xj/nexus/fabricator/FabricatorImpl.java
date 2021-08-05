@@ -59,7 +59,6 @@ import io.xj.nexus.dao.ChainConfig;
 import io.xj.nexus.dao.ChainDAO;
 import io.xj.nexus.dao.Chains;
 import io.xj.nexus.dao.SegmentDAO;
-import io.xj.nexus.dao.Segments;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
@@ -404,7 +403,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<SegmentChoice> getChoiceOfSameMainProgram(ProgramVoice voice) {
+  public Optional<SegmentChoice> getChoiceIfContinued(ProgramVoice voice) {
     try {
       if (!Segment.Type.Continue.equals(getSegment().getType())) return Optional.empty();
       return retrospective.getChoices()
@@ -424,16 +423,10 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<SegmentChoice> getChoiceOfSameMainProgram(Instrument.Type instrumentType) {
+  public Optional<SegmentChoice> getChoiceIfContinued(Instrument.Type instrumentType) {
     try {
       return switch (getSegment().getType()) {
-        case Pending, UNRECOGNIZED -> Optional.empty();
-        case Initial, NextMain, NextMacro -> retrospective.getChoices()
-          .stream()
-          .filter(choice ->
-            instrumentType.equals(choice.getInstrumentType())
-              && Segments.DELTA_UNLIMITED == choice.getDeltaOut())
-          .findFirst();
+        case Initial, NextMain, NextMacro, Pending, UNRECOGNIZED -> Optional.empty();
         case Continue -> retrospective.getChoices()
           .stream()
           .filter(choice -> instrumentType.equals(choice.getInstrumentType()))
@@ -447,7 +440,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Optional<SegmentChoice> getChoiceOfSameMainProgram(Program.Type programType) {
+  public Optional<SegmentChoice> getChoiceIfContinued(Program.Type programType) {
     try {
       return switch (getSegment().getType()) {
         case Pending, UNRECOGNIZED, Initial, NextMain, NextMacro -> Optional.empty();

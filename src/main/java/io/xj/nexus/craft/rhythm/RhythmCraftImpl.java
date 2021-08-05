@@ -43,7 +43,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
   @Override
   public void doWork() throws NexusException {
-    Optional<SegmentChoice> priorChoice = fabricator.getChoiceOfSameMainProgram(Program.Type.Rhythm);
+    Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(Program.Type.Rhythm);
 
     // Program is from prior choice, or freshly chosen
     Optional<Program> program = priorChoice.isPresent() ?
@@ -126,7 +126,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     double score = 0;
     Collection<String> memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
     if (!memes.isEmpty())
-      score += rhythmIsometry.score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_RHYTHM);
+      score += rhythmIsometry.score(memes) * SCORE_MATCH_MEMES + Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_RHYTHM);
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
@@ -172,7 +172,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
               .stream().map(pv -> Objects.equals(voice.getName(), pv.getName()))
               .findFirst()
               .orElse(false))
-        .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCHED_MAIN_PROGRAM));
+        .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_MAIN_PROGRAM));
 
     // report
     fabricator.putReport("percussiveChoice", superEntityScorePicker.report());
@@ -192,7 +192,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
 
     // Score includes matching memes, previous segment to macro instrument first pattern
-    score += SCORE_MATCHED_MEMES *
+    score += SCORE_MATCH_MEMES *
       percussiveIsometry.score(Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument)));
 
     // [#174435421] Chain bindings specify Program & Instrument within Library

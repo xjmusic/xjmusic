@@ -239,7 +239,7 @@ public interface Fabricator {
 
    @return choice if previously made, or null if none is found
    */
-  Optional<SegmentChoice> getChoiceOfSameMainProgram(ProgramVoice voice);
+  Optional<SegmentChoice> getChoiceIfContinued(ProgramVoice voice);
 
   /**
    Determine if a choice has been previously crafted
@@ -247,7 +247,7 @@ public interface Fabricator {
 
    @return choice if previously made, or null if none is found
    */
-  Optional<SegmentChoice> getChoiceOfSameMainProgram(Program.Type programType);
+  Optional<SegmentChoice> getChoiceIfContinued(Program.Type programType);
 
   /**
    Determine if a choice has been previously crafted
@@ -255,7 +255,7 @@ public interface Fabricator {
 
    @return choice if previously made, or null if none is found
    */
-  Optional<SegmentChoice> getChoiceOfSameMainProgram(Instrument.Type instrumentType);
+  Optional<SegmentChoice> getChoiceIfContinued(Instrument.Type instrumentType);
 
   /**
    Key for any pick designed to collide at same voice id + name

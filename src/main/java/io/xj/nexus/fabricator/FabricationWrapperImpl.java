@@ -21,8 +21,9 @@ public abstract class FabricationWrapperImpl {
   protected static final double SCORE_ENTROPY_CHOICE_DETAIL = 8.0;
   protected static final double SCORE_ENTROPY_CHOICE_INSTRUMENT = 8.0;
   protected static final double SCORE_ENTROPY_CHOICE_RHYTHM = 8.0;
-  protected static final double SCORE_MATCHED_MEMES = 1.0;
-  protected static final double SCORE_MATCHED_MAIN_PROGRAM = 10;
+  protected static final double SCORE_MATCH_MEMES = 1.0;
+  protected static final double SCORE_MATCH_MAIN_PROGRAM = 15;
+  protected static final double SCORE_MATCH_OUTGOING_TO_INCOMING = 15;
   private final Logger log = LoggerFactory.getLogger(FabricationWrapperImpl.class);
   protected Fabricator fabricator;
 

@@ -86,7 +86,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         .setSegmentId(fabricator.getSegment().getId());
 
       // Whether there is a prior choice for this voice
-      Optional<SegmentChoice> priorChoice = fabricator.getChoiceOfSameMainProgram(voice);
+      Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voice);
 
       if (priorChoice.isPresent()) {
         this.craftArrangements(fabricator.add(choiceBuilder
