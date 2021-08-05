@@ -246,6 +246,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         var priorOutgoing = fabricator.retrospective().getChoices().stream()
           .filter(choiceFilter)
           .filter(choice -> DELTA_UNLIMITED == choice.getDeltaOut())
+          .filter(choice -> {
+            try {
+              return indexes.contains(choiceIndexProvider.get(choice));
+            } catch (NexusException ignored) {
+              return false;
+            }
+          })
           .findAny();
         deltaIns.put(
           priorOutgoing.isPresent()
