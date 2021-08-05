@@ -9,7 +9,6 @@ import io.xj.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.SecureRandom;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,7 +16,13 @@ import java.util.UUID;
  Fabrication wrapper is a common foundation for all craft
  */
 public abstract class FabricationWrapperImpl {
-  private static final SecureRandom random = new SecureRandom();
+  protected static final double SCORE_DIRECTLY_BOUND = 100;
+  protected static final double SCORE_UNPUBLISHED = -100;
+  protected static final double SCORE_ENTROPY_CHOICE_DETAIL = 8.0;
+  protected static final double SCORE_ENTROPY_CHOICE_INSTRUMENT = 8.0;
+  protected static final double SCORE_ENTROPY_CHOICE_RHYTHM = 8.0;
+  protected static final double SCORE_MATCHED_MEMES = 1.0;
+  protected static final double SCORE_MATCHED_MAIN_PROGRAM = 10;
   private final Logger log = LoggerFactory.getLogger(FabricationWrapperImpl.class);
   protected Fabricator fabricator;
 

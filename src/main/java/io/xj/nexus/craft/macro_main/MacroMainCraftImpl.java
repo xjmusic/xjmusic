@@ -334,6 +334,8 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
       score += SCORE_DIRECT;
+    else if (program.getState().equals(Program.State.Draft))
+      score += SCORE_UNPUBLISHED;
 
     return score;
   }
@@ -349,6 +351,8 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
       return SCORE_DIRECT;
+    else if (program.getState().equals(Program.State.Draft))
+      return SCORE_UNPUBLISHED;
 
     // Score includes matching memes, previous segment to macro program first pattern
     AtomicReference<Double> score = new AtomicReference<>(

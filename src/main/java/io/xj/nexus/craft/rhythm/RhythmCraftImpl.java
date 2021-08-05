@@ -130,6 +130,8 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
       score += SCORE_DIRECTLY_BOUND;
+    else if (program.getState().equals(Program.State.Draft))
+      score += SCORE_UNPUBLISHED;
 
     // score is above zero, else empty
     return score;
@@ -195,6 +197,8 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(instrument))
       score += SCORE_DIRECTLY_BOUND;
+    else if (instrument.getState().equals(Instrument.State.Draft))
+      score += SCORE_UNPUBLISHED;
 
     return score;
   }
