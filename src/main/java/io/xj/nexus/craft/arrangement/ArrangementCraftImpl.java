@@ -99,7 +99,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
       var instrument = instrumentProvider.get(voice);
       if (instrument.isEmpty()) {
-        reportMissing(Instrument.class, String.format("%s-type instrument", voice.getType()));
+        reportMissingInstrumentAudio(Instrument.class, String.format("%s-type instrument", voice.getType()));
         continue;
       }
 
@@ -640,11 +640,11 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var instrumentAudios = fabricator.sourceMaterial().getAudios(instrument);
     var audio = instrumentAudios
       .stream()
-      .filter(A -> Note.of(A.getNote()).sameAs(Note.of(note)))
+      .filter(A -> Note.of(A.getNote()).isAtonal() || Note.of(A.getNote()).sameAs(Note.of(note)))
       .findAny();
 
     if (audio.isEmpty()) {
-      reportMissing(ImmutableMap.of(
+      reportMissingInstrumentAudio(ImmutableMap.of(
         "instrumentId", instrument.getId(),
         "searchForNote", note,
         "availableNotes", CSV.from(instrumentAudios

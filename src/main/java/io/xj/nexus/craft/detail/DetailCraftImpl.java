@@ -64,7 +64,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
       // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
       if (program.isEmpty()) {
-        reportMissing(Program.class, String.format("Detail-type with voicing-type %s", voicingType));
+        reportMissingInstrumentAudio(Program.class, String.format("Detail-type with voicing-type %s", voicingType));
         continue;
       }
 
@@ -79,7 +79,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       if (sequence.isPresent()) {
         var voices = fabricator.sourceMaterial().getVoices(program.get());
         if (voices.isEmpty())
-          reportMissing(ProgramVoice.class,
+          reportMissingInstrumentAudio(ProgramVoice.class,
             String.format("in Detail-choice Program[%s]", program.get().getId()));
         craftChoices(sequence.get(), voices, this::chooseFreshDetailInstrument);
       }

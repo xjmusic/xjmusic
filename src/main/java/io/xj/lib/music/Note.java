@@ -254,4 +254,13 @@ public class Note {
   public boolean isHigher(Note target) {
     return 1 == compareTo(target);
   }
+
+  /**
+   Whether this note is atonal
+
+   @return true if the pitch class is none
+   */
+  public boolean isAtonal() {
+    return PitchClass.None.equals(pitchClass);
+  }
 }

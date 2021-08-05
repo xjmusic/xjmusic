@@ -52,7 +52,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
     // [#176373977] Should gracefully skip voicing type if unfulfilled by detail program
     if (program.isEmpty()) {
-      reportMissing(Program.class, "Rhythm-type program");
+      reportMissingInstrumentAudio(Program.class, "Rhythm-type program");
       return;
     }
 
@@ -78,7 +78,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     if (sequence.isPresent()) {
       var voices = fabricator.sourceMaterial().getVoices(program.get());
       if (voices.isEmpty())
-        reportMissing(ProgramVoice.class,
+        reportMissingInstrumentAudio(ProgramVoice.class,
           String.format("in Rhythm-choice Program[%s]", program.get().getId()));
 
       craftChoices(sequence.get(), voices, this::chooseFreshPercussiveInstrument);

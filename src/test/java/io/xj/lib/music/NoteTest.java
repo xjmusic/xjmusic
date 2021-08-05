@@ -156,19 +156,19 @@ public class NoteTest {
     assertEquals(
       "C1,D1,D#1,E1,F#1,C2,D2,D#2,E2,F#2,C3,D3,D#3,E3",
       ImmutableList.of(Note.of("C1"),
-        Note.of("F#1"),
-        Note.of("E1"),
-        Note.of("C3"),
-        Note.of("D#3"),
-        Note.of("D1"),
-        Note.of("D2"),
-        Note.of("D3"),
-        Note.of("E2"),
-        Note.of("C2"),
-        Note.of("D#2"),
-        Note.of("E3"),
-        Note.of("D#1"),
-        Note.of("F#2"))
+          Note.of("F#1"),
+          Note.of("E1"),
+          Note.of("C3"),
+          Note.of("D#3"),
+          Note.of("D1"),
+          Note.of("D2"),
+          Note.of("D3"),
+          Note.of("E2"),
+          Note.of("C2"),
+          Note.of("D#2"),
+          Note.of("E3"),
+          Note.of("D#1"),
+          Note.of("F#2"))
         .stream()
         .sorted(Note::compareTo)
         .map(note -> note.toString(AdjSymbol.Sharp))
@@ -194,5 +194,11 @@ public class NoteTest {
   @Test
   public void atonal() {
     assertEquals(PitchClass.None, Note.atonal().getPitchClass());
+  }
+
+  @Test
+  public void isAtonal() {
+    assertTrue(Note.atonal().isAtonal());
+    assertTrue(Note.of("X0").isAtonal());
   }
 }

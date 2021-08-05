@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.Objects;
 
+import static io.xj.lib.music.Note.ATONAL;
+
 /**
  PitchClass of pitch for a note (across all octaves)
  In music, a pitch class is a set of all pitches that are a whole number of octaves apart, e.g., the pitch class C consists of the Cs in all octaves.
@@ -271,7 +273,7 @@ public enum PitchClass {
     else if (with == AdjSymbol.Flat)
       return stringFlatOf(from);
     else
-      return "X";
+      return ATONAL;
   }
 
   /**
@@ -293,7 +295,7 @@ public enum PitchClass {
       case As:
         return "A#";
       default:
-        return "X";
+        return ATONAL;
     }
   }
 
@@ -316,7 +318,7 @@ public enum PitchClass {
       case As:
         return "Bb";
       default:
-        return "X";
+        return ATONAL;
     }
   }
 }
