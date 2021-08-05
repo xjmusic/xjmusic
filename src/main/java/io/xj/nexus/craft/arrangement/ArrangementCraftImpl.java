@@ -186,6 +186,9 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    <p>
    Shift deltas so 2x more time is spent on construction than deconstruction
    https://www.pivotaltracker.com/story/show/179138295
+   <p>
+   Vary the high plateau between delta in and out across layers
+   https://www.pivotaltracker.com/story/show/179126967
 
    @throws NexusException on failure
    */
@@ -197,8 +200,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     double bPlateau = bTotal * plateauRatio; // plateau section in middle with no transitions
     double bFadesTotal = bTotal - bPlateau;
     double bFadeShiftRatio = DELTA_SHIFT_FRONTEND_RATIO + TremendouslyRandom.zeroToLimit(1 - DELTA_SHIFT_FRONTEND_RATIO);
-    double bFadeIn = bFadeShiftRatio * bFadesTotal / 2;
-    double bFadeOut = (1 - bFadeShiftRatio) * bFadesTotal / 2;
+    double bFadeIn = bFadeShiftRatio * bFadesTotal;
+    double bFadeOut = (1 - bFadeShiftRatio) * bFadesTotal;
     double bFadeInLayer = bFadeIn / indexes.size(); // space between transitions in
     double bFadeOutLayer = bFadeOut / indexes.size(); // space between transitions out
     double bPreFadeout = bTotal - bFadeOut;
