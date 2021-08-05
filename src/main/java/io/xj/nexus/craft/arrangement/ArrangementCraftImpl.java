@@ -432,8 +432,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // layer is fading out during this segment
     var volRatio = fabricator.getChainConfig().isChoiceDeltaEnabled()
       && DELTA_UNLIMITED != choice.getDeltaOut()
-      && fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() > choice.getDeltaOut()
-      ? 1.0 - segmentPosition / fabricator.getSegment().getTotal()
+      && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut()
+      ? 1.0 - (segmentPosition - (choice.getDeltaOut() - fabricator.getSegment().getDelta())) / (fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() - choice.getDeltaOut())
       : 1.0;
 
     // The final note is voiced from the chord voicing (if found) or else the default is used
