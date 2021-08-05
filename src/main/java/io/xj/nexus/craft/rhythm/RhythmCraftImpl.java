@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
  [#176625174] RhythmCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
  */
 public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
+  private static final double PLATEAU_RATIO = 0.3;
   private final Logger log = LoggerFactory.getLogger(RhythmCraftImpl.class);
 
   @Inject
@@ -67,7 +68,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     var programNames = fabricator.sourceMaterial().getVoices(program.get()).stream()
       .map(ProgramVoice::getName)
       .collect(Collectors.toList());
-    precomputeDeltas(choiceFilter, choiceIndexProvider, programNames, 0.4);
+    precomputeDeltas(choiceFilter, choiceIndexProvider, programNames, PLATEAU_RATIO);
 
     // rhythm sequence is selected at random of the current program
     // FUTURE: [#166855956] Rhythm Program with multiple Sequences
