@@ -166,8 +166,10 @@ class MixerImpl implements Mixer {
       numSources,
       String.format("%.9f", (double) (System.nanoTime() - startedAt) / NANOS_PER_SECOND));
 
-    if (0 == outBuf.length)
-      throw new MixerException(config.getLogPrefix() + "Output buffer is empty!");
+    if (0 == outBuf.length) {
+      log.warn(config.getLogPrefix() + "Output buffer is empty!");
+      outBuf = new double[][]{new double[]{0, 0}, new double[]{0, 0}};
+    }
 
     startedAt = System.nanoTime();
     log.debug(config.getLogPrefix() + "Will write {} bytes of output audio", totalBytes);
