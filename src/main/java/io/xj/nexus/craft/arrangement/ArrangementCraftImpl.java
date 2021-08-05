@@ -48,7 +48,7 @@ import static io.xj.nexus.dao.Segments.DELTA_UNLIMITED;
  Arrangement of Segment Events is a common foundation for both Detail and Rhythm craft
  */
 public class ArrangementCraftImpl extends FabricationWrapperImpl {
-  private static final double DELTA_SHIFT_FRONTEND_RATIO = 0.38;
+  private static final double DELTA_SHIFT_FRONTEND_RATIO = 0.62;
   private final Logger LOG = LoggerFactory.getLogger(ArrangementCraftImpl.class);
   private final Map<String, Integer> deltaIns = Maps.newHashMap();
   private final Map<String, Integer> deltaOuts = Maps.newHashMap();
