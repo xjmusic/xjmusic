@@ -6,6 +6,18 @@
 
 *Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.*
 
+
+
+## Production Deployment
+
+Just push to the `deploy/prod` branch:
+
+```shell
+git push origin main:deploy/prod
+```
+
+
+
 ## Art
 
 See the **/art** folder. By Accessing the contents of that folder, you agree to these terms:
