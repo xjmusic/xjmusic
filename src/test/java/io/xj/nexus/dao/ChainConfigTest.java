@@ -63,7 +63,7 @@ public class ChainConfigTest {
         "mixerDspBufferSize = 1024\n" +
         "mixerHighpassThresholdHz = 60.0\n" +
         "mixerLowpassThresholdHz = 6000.0\n" +
-        "mixerNormalizationBoostThreshold = 1.38\n" +
+        "mixerNormalizationBoostThreshold = 1.1\n" +
         "mixerNormalizationCeiling = 0.999\n" +
         "outputChannels = 2\n" +
         "outputContainer = \"OGG\"\n" +

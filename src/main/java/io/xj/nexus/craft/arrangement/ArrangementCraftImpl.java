@@ -48,6 +48,7 @@ import static io.xj.nexus.dao.Segments.DELTA_UNLIMITED;
  Arrangement of Segment Events is a common foundation for both Detail and Rhythm craft
  */
 public class ArrangementCraftImpl extends FabricationWrapperImpl {
+  private static final double DELTA_SHIFT_FRONTEND_RATIO = 0.38;
   private final Logger LOG = LoggerFactory.getLogger(ArrangementCraftImpl.class);
   private final Map<String, Integer> deltaIns = Maps.newHashMap();
   private final Map<String, Integer> deltaOuts = Maps.newHashMap();
@@ -175,11 +176,16 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   Precompute all deltas for a given program
+   Precompute all deltas for a given program. This is where deltaIns and deltaOuts values come from.
    <p>
    Precompute deltas dynamically based on whatever is extending the arranger--
-   <p>
    Don't have anything in this class that's proprietary to rhythm or detail-- abstract that out into provider interfaces
+   <p>
+   Segments have intensity arcs; automate mixer layers in and out of each main program
+   https://www.pivotaltracker.com/story/show/178240332
+   <p>
+   Shift deltas so 2x more time is spent on construction than deconstruction
+   https://www.pivotaltracker.com/story/show/179138295
 
    @throws NexusException on failure
    */
@@ -189,20 +195,24 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     deltaOuts.clear();
     var bTotal = fabricator.getChainConfig().getMainProgramLengthMaxDelta(); // total arc length
     double bPlateau = bTotal * plateauRatio; // plateau section in middle with no transitions
-    double bFadeTotal = ((bTotal - bPlateau) / 2);
-    double bFadeLayer = bFadeTotal / indexes.size(); // space between transitions
-    double bPreFadeout = bTotal - bFadeTotal;
+    double bFadesTotal = bTotal - bPlateau;
+    double bFadeShiftRatio = DELTA_SHIFT_FRONTEND_RATIO + TremendouslyRandom.zeroToLimit(1 - DELTA_SHIFT_FRONTEND_RATIO);
+    double bFadeIn = bFadeShiftRatio * bFadesTotal / 2;
+    double bFadeOut = (1 - bFadeShiftRatio) * bFadesTotal / 2;
+    double bFadeInLayer = bFadeIn / indexes.size(); // space between transitions in
+    double bFadeOutLayer = bFadeOut / indexes.size(); // space between transitions out
+    double bPreFadeout = bTotal - bFadeOut;
     var order = new ArrayList<>(indexes);
 
     // everyone gets the same order at first-- wall-to-wall random deltas
     // random order in
     Collections.shuffle(order);
     for (int i = 0; i < order.size(); i++)
-      deltaIns.put(order.get(i), (int) Chance.normallyAround((i + 0.5) * bFadeLayer, bFadeLayer * 0.3));
+      deltaIns.put(order.get(i), (int) Chance.normallyAround((i + 0.5) * bFadeInLayer, bFadeInLayer * 0.3));
     // different random order out
     Collections.shuffle(order);
     for (int i = 0; i < order.size(); i++)
-      deltaOuts.put(order.get(i), (int) Chance.normallyAround(bPreFadeout + (i + 0.5) * bFadeLayer, bFadeLayer * 0.3));
+      deltaOuts.put(order.get(i), (int) Chance.normallyAround(bPreFadeout + (i + 0.5) * bFadeOutLayer, bFadeOutLayer * 0.3));
 
     // then we overwrite the wall-to-wall random values with more specific values depending on the situation
     switch (fabricator.getType()) {
