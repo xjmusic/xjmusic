@@ -166,7 +166,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
         // https://www.pivotaltracker.com/story/show/178442889
         fabricator.retrospective().getChoices().stream()
           .filter(candidate -> candidate.getInstrumentType().equals(voice.getType())
-          && fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId())
+            && fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId())
             .stream().map(pv -> Objects.equals(voice.getName(), pv.getName()))
             .findFirst()
             .orElse(false))
@@ -177,7 +177,8 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
         // https://www.pivotaltracker.com/story/show/179126302
         fabricator.retrospective().getChoices().stream()
           .filter(candidate -> candidate.getInstrumentType().equals(voice.getType())
-            && DELTA_UNLIMITED == candidate.getDeltaOut())
+            && DELTA_UNLIMITED == candidate.getDeltaOut()
+            && DELTA_UNLIMITED == getDeltaIn(SegmentChoice.newBuilder().setProgramVoiceId(voice.getId()).build()))
           .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_OUTGOING_TO_INCOMING));
     }
 

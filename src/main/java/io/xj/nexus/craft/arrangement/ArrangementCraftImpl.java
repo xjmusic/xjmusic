@@ -119,7 +119,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param choice for which to get delta in
    @return delta in for given voice
    */
-  private int getDeltaIn(SegmentChoice choice) {
+  protected int getDeltaIn(SegmentChoice choice) {
     try {
       return deltaIns.get(choiceIndexProvider.get(choice));
     } catch (NexusException e) {
@@ -133,7 +133,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param choice for which to get delta out
    @return delta out for given voice
    */
-  private int getDeltaOut(SegmentChoice choice) {
+  protected int getDeltaOut(SegmentChoice choice) {
     try {
       return deltaOuts.get(choiceIndexProvider.get(choice));
     } catch (NexusException e) {
