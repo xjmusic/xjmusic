@@ -638,9 +638,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     String note
   ) {
     var instrumentAudios = fabricator.sourceMaterial().getAudios(instrument);
+    var a = Note.of(note);
     var audio = instrumentAudios
       .stream()
-      .filter(A -> Note.of(A.getNote()).isAtonal() || Note.of(A.getNote()).sameAs(Note.of(note)))
+      .filter(candidate -> {
+        var b = Note.of(candidate.getNote());
+        return a.isAtonal() || b.isAtonal() || a.sameAs(b);
+      })
       .findAny();
 
     if (audio.isEmpty()) {
