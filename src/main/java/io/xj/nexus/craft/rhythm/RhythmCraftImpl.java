@@ -23,8 +23,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.dao.Segments.DELTA_UNLIMITED;
-
 /**
  Rhythm craft for the current segment
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -172,14 +170,15 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
             .orElse(false))
           .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_MAIN_PROGRAM));
 
-      case NextMain, NextMacro ->
+      case NextMain, NextMacro -> {
         // Keep same instruments when carrying outgoing choices to incoming choices of next segment
         // https://www.pivotaltracker.com/story/show/179126302
-        fabricator.retrospective().getChoices().stream()
-          .filter(candidate -> candidate.getInstrumentType().equals(voice.getType())
-            && DELTA_UNLIMITED == candidate.getDeltaOut()
-            && DELTA_UNLIMITED == getDeltaIn(SegmentChoice.newBuilder().setProgramVoiceId(voice.getId()).build()))
-          .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_OUTGOING_TO_INCOMING));
+        if (isUnlimitedIn(SegmentChoice.newBuilder().setProgramVoiceId(voice.getId()).build()))
+          fabricator.retrospective().getChoices().stream()
+            .filter(candidate -> candidate.getInstrumentType().equals(voice.getType()))
+            .filter(this::isUnlimitedOut)
+            .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_OUTGOING_TO_INCOMING));
+      }
     }
 
 

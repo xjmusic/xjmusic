@@ -258,7 +258,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         // select one incoming (deltaIn unlimited) based on whichever was the outgoing (deltaOut unlimited) in the segments of the previous main program
         var priorOutgoing = fabricator.retrospective().getChoices().stream()
           .filter(choiceFilter)
-          .filter(choice -> DELTA_UNLIMITED == choice.getDeltaOut())
+          .filter(this::isUnlimitedOut)
           .filter(choice -> {
             try {
               return indexes.contains(choiceIndexProvider.get(choice));
@@ -430,24 +430,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       ? fabricator.getVoicing(chord.get(), instrument.getType())
       : Optional.empty();
 
-    // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
-    if (fabricator.getChainConfig().isChoiceDeltaEnabled()
-      && DELTA_UNLIMITED != choice.getDeltaIn()
-      && fabricator.getSegment().getDelta() + segmentPosition < choice.getDeltaIn())
-      return;
-
-    // layer is not playing this whole segment
-    if (fabricator.getChainConfig().isChoiceDeltaEnabled()
-      && DELTA_UNLIMITED != choice.getDeltaOut()
-      && choice.getDeltaOut() < fabricator.getSegment().getDelta())
-      return;
-
-    // layer is fading out during this segment
-    var volRatio = fabricator.getChainConfig().isChoiceDeltaEnabled()
-      && DELTA_UNLIMITED != choice.getDeltaOut()
-      && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut()
-      ? 1.0 - (segmentPosition - (choice.getDeltaOut() - fabricator.getSegment().getDelta())) / (fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() - choice.getDeltaOut())
-      : 1.0;
+    var volRatio = computeVolumeRatioForPickedNote(choice, segmentPosition);
+    if (0 >= volRatio) return;
 
     // The final note is voiced from the chord voicing (if found) or else the default is used
     Set<String> notes = voicing.isPresent()
@@ -462,6 +446,91 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     for (var note : notes)
       pickInstrumentAudio(note, instrument, event, arrangement, startSeconds, lengthSeconds,
         voicing.map(SegmentChordVoicing::getId).orElse(null), volRatio);
+  }
+
+  /**
+   Compute the volume ratio of a picked note
+
+   @param choice          for which to compute volume ratio
+   @param segmentPosition at which to compute
+   @return volume ratio
+   */
+  private double computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition) {
+    return switch (choice.getInstrumentType()) {
+      case Percussive, Stab -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, true);
+      case Bass -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false);
+      case UNRECOGNIZED, Pad, Sticky, Stripe -> computeVolumeRatioForPickedNote(choice, segmentPosition, true, true);
+    };
+  }
+
+  /**
+   Compute the volume ratio of a picked note
+   <p>
+   [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
+
+   @param choice          for which to compute volume ratio
+   @param segmentPosition at which to compute
+   @param fadeIn          if deltaIn should fade in, else start right on cue
+   @param fadeOut         if deltaOut should fade out, else stop right on cue
+   @return volume ratio
+   */
+  private double computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition, boolean fadeIn, boolean fadeOut) {
+    if (!fabricator.getChainConfig().isChoiceDeltaEnabled()) return 1.0;
+
+    // if deltaIn is before the beginning of this segment and deltaOut is after, include it
+    if (choice.getDeltaIn() < fabricator.getSegment().getDelta()
+      && choice.getDeltaOut() > fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal())
+      return 1;
+
+    // if deltaIn is past the end of this segment, exclude
+    if (!isUnlimitedIn(choice)
+      && choice.getDeltaIn() > fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal())
+      return 0;
+
+    // if deltaOut is before the beginning of this segment, exclude
+    if (!isUnlimitedOut(choice)
+      && choice.getDeltaOut() < fabricator.getSegment().getDelta())
+      return 0;
+
+    // If position is between the beginning of the segment at the deltaIn, either fade in or silence
+    if (!isUnlimitedIn(choice)
+      && choice.getDeltaIn() > fabricator.getSegment().getDelta()
+      && fabricator.getSegment().getDelta() + segmentPosition < choice.getDeltaIn())
+      if (fadeIn)
+        return segmentPosition / (choice.getDeltaIn() - fabricator.getSegment().getDelta());
+      else
+        return 0;
+
+    // If position is between the deltaOut and the end of the segment, either fade out or silence
+    if (!isUnlimitedOut(choice)
+      && choice.getDeltaOut() < fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal()
+      && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut())
+      if (fadeOut)
+        return 1.0 - (segmentPosition - (choice.getDeltaOut() - fabricator.getSegment().getDelta())) / (fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() - choice.getDeltaOut());
+      else
+        return 0;
+
+    return 1.0;
+  }
+
+  /**
+   Whether a given choice has deltaIn unlimited
+
+   @param choice to test
+   @return true if deltaIn is unlimited
+   */
+  protected boolean isUnlimitedIn(SegmentChoice choice) {
+    return DELTA_UNLIMITED == choice.getDeltaIn();
+  }
+
+  /**
+   Whether a given choice has deltaOut unlimited
+
+   @param choice to test
+   @return true if deltaOut is unlimited
+   */
+  protected boolean isUnlimitedOut(SegmentChoice choice) {
+    return DELTA_UNLIMITED == choice.getDeltaOut();
   }
 
   /**
