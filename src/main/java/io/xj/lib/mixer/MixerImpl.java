@@ -34,8 +34,8 @@ class MixerImpl implements Mixer {
   private final MixerConfig config;
   // fields: from mixer config
   private final double compressToAmplitude;
-  private final double minRatio;
-  private final double maxRatio;
+  private final double compressRatioMin;
+  private final double compressRatioMax;
   private final int framesAhead;
   private final int dspBufferSize;
   private final int framesDecay;
@@ -61,8 +61,8 @@ class MixerImpl implements Mixer {
     factory = mixerFactory;
     compressToAmplitude = config.getCompressToAmplitude();
     dspBufferSize = config.getDSPBufferSize();
-    maxRatio = config.getCompressRatioMax();
-    minRatio = config.getCompressRatioMin();
+    compressRatioMax = config.getCompressRatioMax();
+    compressRatioMin = config.getCompressRatioMin();
     framesAhead = config.getCompressAheadFrames();
     framesDecay = config.getCompressDecayFrames();
 
@@ -307,7 +307,7 @@ class MixerImpl implements Mixer {
    */
   private double computeCompressorTarget(double[][] input, int iFr, int iTo) {
     double currentAmplitude = MathUtil.maxAbs(input, iFr, iTo, COMPRESSION_GRAIN);
-    return MathUtil.limit(minRatio, maxRatio, compressToAmplitude / currentAmplitude);
+    return MathUtil.limit(compressRatioMin, compressRatioMax, compressToAmplitude / currentAmplitude);
   }
 
   /**

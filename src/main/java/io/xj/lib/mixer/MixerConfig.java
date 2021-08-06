@@ -12,9 +12,9 @@ public class MixerConfig {
   private AudioFormat outputFormat;
   private Double compressAheadSeconds = 0.1;
   private Double compressDecaySeconds = 0.01;
-  private Double compressRatioMax = 10.0;
-  private Double compressRatioMin = 0.5;
-  private Double compressToAmplitude = 5.0;
+  private Double compressRatioMax = 1.38;
+  private Double compressRatioMin = 0.62;
+  private Double compressToAmplitude = 1.0;
   private Double normalizationCeiling = 1.0;
   private Integer dspBufferSize = 1024; // DSP buffer size must be a power of 2
   private String logPrefix = "";
