@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  [#176625174] RhythmCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
  */
 public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
-  private static final double RHYTHM_PLATEAU_RATIO = 0.2;
+  private static final double RHYTHM_PLATEAU_RATIO = 0.62;
   private final Logger log = LoggerFactory.getLogger(RhythmCraftImpl.class);
 
   @Inject

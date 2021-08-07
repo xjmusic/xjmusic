@@ -36,7 +36,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       Instrument.Type.Sticky,
       Instrument.Type.Stab
     ).stream().map(Instrument.Type::toString).collect(Collectors.toList());
-  private static final double DETAIL_PLATEAU_RATIO = 0.05;
+  private static final double DETAIL_PLATEAU_RATIO = 0.38;
 
   @Inject
   public DetailCraftImpl(
