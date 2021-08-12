@@ -50,4 +50,16 @@ public enum Chains {
     return chainBindings.stream().filter(chainBinding -> chainBinding.getType().equals(type))
       .map(ChainBinding::getTargetId).collect(Collectors.toSet());
   }
+
+  /**
+   Describe a collection of chainbindings like Type[id###], Type[id###}, etc
+
+   @param chainBindings to describe
+   @return description of chain bindings
+   */
+  public static String describe(Collection<ChainBinding> chainBindings) {
+    return chainBindings.stream()
+      .map(b -> String.format("%s[%s]", b.getType().toString(), b.getTargetId()))
+      .collect(Collectors.joining(", "));
+  }
 }

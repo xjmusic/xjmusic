@@ -162,7 +162,8 @@ public class NexusApp extends App {
 
     if (!successfulRehydration)
       try {
-        LOG.info("Will bootstrap Chain[{}]", Chains.getIdentifier(bootstrap.getChain()));
+        LOG.info("Will bootstrap Chain[{}] bound to {}", Chains.getIdentifier(bootstrap.getChain()),
+          Chains.describe(bootstrap.getChainBindings()));
         chainDAO.bootstrap(access, bootstrap.getChain(), bootstrap.getChainBindings());
       } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
         LOG.error("Failed to add binding to bootstrap Chain!", e);
