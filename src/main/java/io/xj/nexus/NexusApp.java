@@ -172,8 +172,8 @@ public class NexusApp extends App {
   }
 
   /**
-   Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
-   
+   Attempt to rehydrate the store from a bootstrap, and return true if successful so we can skip other stuff
+
    @param bootstrap to rehydrate from
    @return true if successful
    */
@@ -191,8 +191,8 @@ public class NexusApp extends App {
       chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
       entities.add(chain);
-    } catch (Exception e) {
-      LOG.error("Failed to retrieve previously fabricated", e);
+    } catch (FileStoreException | JsonapiException | ClassCastException | IOException e) {
+      LOG.error("Failed to retrieve previously fabricated chain because {}", e.getMessage());
       return false;
     }
 
@@ -214,7 +214,7 @@ public class NexusApp extends App {
         .flatMap(po -> {
           try {
             return Stream.of((Segment) jsonapiPayloadFactory.toOne(po));
-          } catch (JsonapiException e) {
+          } catch (JsonapiException | ClassCastException e) {
             LOG.error("Could not deserialize Segment from shipped Chain JSON because {}", e.getMessage());
             success.set(false);
             return Stream.empty();
@@ -244,7 +244,7 @@ public class NexusApp extends App {
               });
             LOG.info("Read Segment[{}] and {} child entities", segment.getStorageKey(), childCount);
 
-          } catch (FileStoreException | IOException e) {
+          } catch (FileStoreException | IOException | ClassCastException e) {
             LOG.error("Could not load Segment[{}] because {}", segment.getStorageKey(), e.getMessage());
             success.set(false);
           }
