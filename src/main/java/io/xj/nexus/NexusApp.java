@@ -172,8 +172,8 @@ public class NexusApp extends App {
   }
 
   /**
-   Attempt to rehydrate the store from a bootstrap, and return true if successful so we can skip other stuff
-
+   Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
+   
    @param bootstrap to rehydrate from
    @return true if successful
    */
@@ -191,8 +191,8 @@ public class NexusApp extends App {
       chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
       entities.add(chain);
-    } catch (FileStoreException | JsonapiException | IOException e) {
-      LOG.error("Failed to retrieve previously fabricated chain because {}", e.getMessage());
+    } catch (Exception e) {
+      LOG.error("Failed to retrieve previously fabricated", e);
       return false;
     }
 
