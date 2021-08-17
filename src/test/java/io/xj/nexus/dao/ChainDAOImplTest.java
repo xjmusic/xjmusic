@@ -162,6 +162,23 @@ public class ChainDAOImplTest {
   }
 
   @Test
+  public void create_typeNotSpecified_defaultsToPreview() throws Exception {
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
+    var input = new Chain()
+      .id(UUID.randomUUID())
+      .accountId(account1.getId())
+      .name("coconuts")
+      .state(ChainState.DRAFT)
+      .startAt("2009-08-12T12:17:02.527142Z")
+      .stopAt("2009-09-11T12:17:01.047563Z");
+
+    var result = subject.create(access, input);
+
+    assertNotNull(result);
+    assertEquals(ChainType.PREVIEW, result.getType());
+  }
+
+  @Test
   public void create_failsWithInvalidConfig() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
     var input = new Chain()

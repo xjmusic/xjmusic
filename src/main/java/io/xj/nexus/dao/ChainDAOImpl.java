@@ -146,7 +146,11 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       // [#126] Chains are always created in DRAFT state
       entity.setState(ChainState.DRAFT);
 
-      // logic based on Chain Type
+      // Give model a fresh unique ID and Validate
+      entity.setId(UUID.randomUUID());
+      validate(entity);
+
+      // Further logic based on Chain Type
       switch (entity.getType()) {
         case PRODUCTION -> {
           requireAccount(access, entity.getAccountId(), UserRoleType.ENGINEER);
@@ -157,10 +161,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
           entity.setEmbedKey(generatePreviewEmbedKey());
         }
       }
-
-      // Give model a fresh unique ID and Validate
-      entity.setId(UUID.randomUUID());
-      validate(entity);
 
       // store and return sanitized payload comprising only the valid Chain
       return store.put(entity);
