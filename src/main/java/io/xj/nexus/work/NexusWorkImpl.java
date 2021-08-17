@@ -245,7 +245,7 @@ public class NexusWorkImpl implements NexusWork {
         chainDAO.destroy(access, stalledChainId);
       }
 
-      telemetryProvider.put(METRIC_CHAIN_REVIVED, StandardUnit.Count, (double) stalledChainIds.size());
+      telemetryProvider.put(METRIC_CHAIN_REVIVED, StandardUnit.Count, stalledChainIds.size());
       LOG.info("Total elapsed time: {}", timer.totalsToString());
 
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
@@ -286,10 +286,7 @@ public class NexusWorkImpl implements NexusWork {
       }
     }
 
-    telemetryProvider.put(new MetricDatum()
-      .withMetricName(METRIC_SEGMENT_ERASED)
-      .withUnit(StandardUnit.Count)
-      .withValue((double) segmentIdsToErase.size()));
+    telemetryProvider.put(METRIC_SEGMENT_ERASED, StandardUnit.Count, segmentIdsToErase.size());
   }
 
   /**
@@ -323,10 +320,7 @@ public class NexusWorkImpl implements NexusWork {
 
       Segment segment = segmentDAO.create(access, nextSegment.get());
       LOG.debug("Created Segment {}", segment);
-      telemetryProvider.put(new MetricDatum()
-        .withMetricName(getChainMetricName(chain, METRIC_SEGMENT_CREATED))
-        .withUnit(StandardUnit.Count)
-        .withValue(1.0));
+      telemetryProvider.put(getChainMetricName(chain, METRIC_SEGMENT_CREATED), StandardUnit.Count, 1.0);
 
       Fabricator fabricator;
       timer.section("Prepare");
@@ -665,10 +659,7 @@ public class NexusWorkImpl implements NexusWork {
    @throws DAOExistenceException  on failure
    */
   private Chain updateFabricatedAheadSeconds(Chain chain, float fabricatedAheadSeconds) throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
-    telemetryProvider.put(new MetricDatum()
-      .withMetricName(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS))
-      .withUnit(StandardUnit.Count)
-      .withValue((double) fabricatedAheadSeconds));
+    telemetryProvider.put(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), StandardUnit.Seconds, fabricatedAheadSeconds);
 
     return chainDAO.update(access, chain.getId(), chain.fabricatedAheadSeconds((double) fabricatedAheadSeconds));
   }

@@ -111,14 +111,14 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     try {
 
       // Chains are always bootstrapped in FABRICATED state and PRODUCTION type
-      entity.state(ChainState.FABRICATE);
-      entity.type(ChainType.PRODUCTION);
-      entity.startAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
+      entity.setState(ChainState.FABRICATE);
+      entity.setType(ChainType.PRODUCTION);
+      entity.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
       requireAccount(access, entity.getAccountId(), UserRoleType.ENGINEER);
       requireUniqueEmbedKey(access, entity);
 
       // Give model a fresh unique ID and Validate
-      entity.id(UUID.randomUUID());
+      entity.setId(UUID.randomUUID());
       validate(entity);
 
       // store and valid Chain
@@ -126,10 +126,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
       // Create all chain bindings of bootstrap chain
       for (ChainBinding chainBinding : bindings)
-        chainBindingDAO.create(access,
-          chainBinding
-            .chainId(entity.getId())
-        );
+        chainBindingDAO.create(access, chainBinding.chainId(entity.getId()));
 
       // return chain
       return chain;
@@ -147,7 +144,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     try {
 
       // [#126] Chains are always created in DRAFT state
-      entity.state(ChainState.DRAFT);
+      entity.setState(ChainState.DRAFT);
 
       // logic based on Chain Type
       switch (entity.getType()) {
@@ -157,12 +154,12 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         }
         case PREVIEW -> {
           requireAccount(access, entity.getAccountId(), UserRoleType.ARTIST);
-          entity.embedKey(generatePreviewEmbedKey());
+          entity.setEmbedKey(generatePreviewEmbedKey());
         }
       }
 
       // Give model a fresh unique ID and Validate
-      entity.id(UUID.randomUUID());
+      entity.setId(UUID.randomUUID());
       validate(entity);
 
       // store and return sanitized payload comprising only the valid Chain
@@ -303,7 +300,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       ChainState fromState = chain.getState();
 
       // update to chain state only
-      chain.state(state);
+      chain.setState(state);
 
       // all standard before-update tests
       beforeUpdate(access, chain, fromState);
@@ -516,7 +513,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       case FABRICATE:
         chain.startAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
         if (ChainType.PREVIEW.equals(chain.getType())) {
-          chain.stopAt(Value.formatIso8601UTC(
+          chain.setStopAt(Value.formatIso8601UTC(
             Instant.parse(chain.getStartAt()).plus(previewLengthMaxHours, HOURS))); // [#174153691]
         }
       case COMPLETE:
