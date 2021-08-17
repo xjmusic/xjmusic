@@ -245,10 +245,7 @@ public class NexusWorkImpl implements NexusWork {
         chainDAO.destroy(access, stalledChainId);
       }
 
-      telemetryProvider.put(new MetricDatum()
-        .withMetricName(METRIC_CHAIN_REVIVED)
-        .withUnit(StandardUnit.Count)
-        .withValue((double) stalledChainIds.size()));
+      telemetryProvider.put(METRIC_CHAIN_REVIVED, StandardUnit.Count, (double) stalledChainIds.size());
       LOG.info("Total elapsed time: {}", timer.totalsToString());
 
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {

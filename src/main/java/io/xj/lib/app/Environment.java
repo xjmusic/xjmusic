@@ -48,7 +48,7 @@ public class Environment {
   private final String segmentBaseURL;
   private final String tempFilePathPrefix;
   private final String segmentFileBucket;
-  private final String namespace;
+  private final String telemetryNamespace;
 
   /**
    Zero-argument construction defaults to system environment
@@ -90,11 +90,11 @@ public class Environment {
     ingestTokenName = getStr(vars, "INGEST_TOKEN_NAME", "access_token");
     ingestTokenValue = getStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
     ingestURL = getStr(vars, "INGEST_URL", "http://localhost/");
-    namespace = getStr(vars, "NAMESPACE", "nexus");
     platformEnvironment = getStr(vars, "ENVIRONMENT", "dev");
     playerBaseURL = getStr(vars, "PLAYER_BASE_URL", "http://localhost/");
     segmentBaseURL = getStr(vars, "SEGMENT_BASE_URL", "https://ship.dev.xj.io/");
     segmentFileBucket = getStr(vars, "SEGMENT_FILE_BUCKET", "xj-dev-ship");
+    telemetryNamespace = getStr(vars, "TELEMETRY_NAMESPACE", "Lab/Nexus");
     tempFilePathPrefix = getStr(vars, "TEMP_FILE_PATH_PREFIX", "/tmp/");
   }
 
@@ -389,7 +389,7 @@ public class Environment {
   /**
    @return the namespace
    */
-  public String getNamespace() {
-    return namespace;
+  public String getTelemetryNamespace() {
+    return telemetryNamespace;
   }
 }
