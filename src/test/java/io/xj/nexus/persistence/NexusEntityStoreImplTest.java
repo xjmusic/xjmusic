@@ -4,12 +4,16 @@ package io.xj.nexus.persistence;
 
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
-import io.xj.Account;
-import io.xj.Chain;
-import io.xj.Library;
-import io.xj.Program;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
+import io.xj.api.Account;
+import io.xj.api.Chain;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
+import io.xj.api.Library;
+import io.xj.api.ProgramType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentState;
+import io.xj.api.SegmentType;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityException;
@@ -55,44 +59,43 @@ public class NexusEntityStoreImplTest {
    */
   @Test
   public void internal_entityFactoryClonesSegmentTypeOK() throws EntityException {
-    Segment segment = Segment.newBuilder().setType(Segment.Type.NextMacro).build();
+    Segment segment = new Segment().type(SegmentType.NEXTMACRO);
 
     Segment result = entityFactory.clone(segment);
 
-    assertEquals(Segment.Type.NextMacro, result.getType());
+    assertEquals(SegmentType.NEXTMACRO, result.getType());
   }
 
 
   @Test
   public void put_get_Segment() throws NexusException {
-    String chainId = UUID.randomUUID().toString();
-    Segment segment = Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chainId)
-      .setOffset(0L)
-      .setType(Segment.Type.NextMacro)
-      .setState(Segment.State.Dubbed)
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setEndAt("2017-02-14T12:01:32.000001Z")
-      .setKey("D Major")
-      .setTotal(64)
-      .setDensity(0.73)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .build();
+    UUID chainId = UUID.randomUUID();
+    Segment segment = new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chainId)
+      .offset(0L)
+      .type(SegmentType.NEXTMACRO)
+      .state(SegmentState.DUBBED)
+      .beginAt("2017-02-14T12:01:00.000001Z")
+      .endAt("2017-02-14T12:01:32.000001Z")
+      .key("D Major")
+      .total(64)
+      .density(0.73)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav");
 
     subject.put(segment);
     Segment result = subject.getSegment(segment.getId()).orElseThrow();
 
     assertEquals(segment.getId(), result.getId());
     assertEquals(chainId, result.getChainId());
-    assertEquals(0, result.getOffset());
-    assertEquals(Segment.Type.NextMacro, result.getType());
-    assertEquals(Segment.State.Dubbed, result.getState());
+    assertEquals(Long.valueOf(0), result.getOffset());
+    assertEquals(SegmentType.NEXTMACRO, result.getType());
+    assertEquals(SegmentState.DUBBED, result.getState());
     assertEquals("2017-02-14T12:01:00.000001Z", result.getBeginAt());
     assertEquals("2017-02-14T12:01:32.000001Z", result.getEndAt());
     assertEquals("D Major", result.getKey());
-    assertEquals(64, result.getTotal());
+    assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(0.73, result.getDensity(), 0.01);
     assertEquals(120.0, result.getTempo(), 0.01);
     assertEquals("chains-1-segments-9f7s89d8a7892.wav", result.getStorageKey());
@@ -100,24 +103,23 @@ public class NexusEntityStoreImplTest {
 
   @Test
   public void put_get_Chain() throws NexusException {
-    String accountId = UUID.randomUUID().toString();
-    var chain = Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(accountId)
-      .setType(Chain.Type.Preview)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2017-02-14T12:01:00.000001Z")
-      .setStopAt("2017-02-14T12:01:32.000001Z")
-      .setEmbedKey("super")
-      .build();
+    UUID accountId = UUID.randomUUID();
+    var chain = new Chain()
+      .id(UUID.randomUUID())
+      .accountId(accountId)
+      .type(ChainType.PREVIEW)
+      .state(ChainState.FABRICATE)
+      .startAt("2017-02-14T12:01:00.000001Z")
+      .stopAt("2017-02-14T12:01:32.000001Z")
+      .embedKey("super");
 
     subject.put(chain);
     var result = subject.getChain(chain.getId()).orElseThrow();
 
     assertEquals(chain.getId(), result.getId());
     assertEquals(accountId, result.getAccountId());
-    assertEquals(Chain.Type.Preview, result.getType());
-    assertEquals(Chain.State.Fabricate, result.getState());
+    assertEquals(ChainType.PREVIEW, result.getType());
+    assertEquals(ChainState.FABRICATE, result.getState());
     assertEquals("2017-02-14T12:01:00.000001Z", result.getStartAt());
     assertEquals("2017-02-14T12:01:32.000001Z", result.getStopAt());
     assertEquals("super", result.getEmbedKey());
@@ -125,29 +127,29 @@ public class NexusEntityStoreImplTest {
 
   @Test
   public void put() throws NexusException {
-    subject.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(UUID.randomUUID().toString())
-      .setOffset(0L)
-      .setState(Segment.State.Dubbed)
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setEndAt("2017-02-14T12:01:32.000001Z")
-      .setKey("D Major")
-      .setTotal(64)
-      .setDensity(0.73)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .build());
+    subject.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(UUID.randomUUID())
+      .offset(0L)
+      .state(SegmentState.DUBBED)
+      .beginAt("2017-02-14T12:01:00.000001Z")
+      .endAt("2017-02-14T12:01:32.000001Z")
+      .key("D Major")
+      .total(64)
+      .density(0.73)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      );
   }
 
   @Test
   public void put_failsIfNotNexusEntity() {
     var failure = assertThrows(NexusException.class,
-      () -> subject.put(Library.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setAccountId(UUID.randomUUID().toString())
-        .setName("helm")
-        .build()));
+      () -> subject.put(new Library()
+        .id(UUID.randomUUID())
+        .accountId(UUID.randomUUID())
+        .name("helm")
+        ));
 
     assertEquals("Can't store Library!", failure.getMessage());
   }
@@ -155,18 +157,18 @@ public class NexusEntityStoreImplTest {
   @Test
   public void put_failsWithoutId() {
     var failure = assertThrows(NexusException.class,
-      () -> subject.put(Segment.newBuilder()
-        .setChainId(UUID.randomUUID().toString())
-        .setOffset(0L)
-        .setState(Segment.State.Dubbed)
-        .setBeginAt("2017-02-14T12:01:00.000001Z")
-        .setEndAt("2017-02-14T12:01:32.000001Z")
-        .setKey("D Major")
-        .setTotal(64)
-        .setDensity(0.73)
-        .setTempo(120.0)
-        .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-        .build()));
+      () -> subject.put(new Segment()
+        .chainId(UUID.randomUUID())
+        .offset(0L)
+        .state(SegmentState.DUBBED)
+        .beginAt("2017-02-14T12:01:00.000001Z")
+        .endAt("2017-02-14T12:01:32.000001Z")
+        .key("D Major")
+        .total(64)
+        .density(0.73)
+        .tempo(120.0)
+        .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+        ));
 
     assertEquals("Can't store Segment with null id", failure.getMessage());
   }
@@ -174,91 +176,89 @@ public class NexusEntityStoreImplTest {
   @Test
   public void put_subEntityFailsWithoutSegmentId() {
     var failure = assertThrows(NexusException.class,
-      () -> subject.put(SegmentChoice.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramId(UUID.randomUUID().toString())
-        .setDeltaIn(Segments.DELTA_UNLIMITED)
-        .setDeltaOut(Segments.DELTA_UNLIMITED)
-        .setProgramSequenceBindingId(UUID.randomUUID().toString())
-        .setProgramType(Program.Type.Macro)
-        .build()));
+      () -> subject.put(new SegmentChoice()
+        .id(UUID.randomUUID())
+        .programId(UUID.randomUUID())
+        .deltaIn(Segments.DELTA_UNLIMITED)
+        .deltaOut(Segments.DELTA_UNLIMITED)
+        .programSequenceBindingId(UUID.randomUUID())
+        .programType(ProgramType.MACRO)
+        ));
 
     assertEquals("Can't store SegmentChoice without Segment ID!", failure.getMessage());
   }
 
   @Test
   public void putAll_getAll() throws NexusException {
-    var account1 = Account.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("fish")
-      .build();
-    var chain2 = subject.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(account1.getId())
-      .setName("Test Print #2")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2014-08-12T12:17:02.527142Z")
-      .setStopAt("2014-09-11T12:17:01.047563Z")
-      .build());
-    var chain3 = subject.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(account1.getId())
-      .setName("Test Print #3")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2014-08-12T12:17:02.527142Z")
-      .setStopAt("2014-09-11T12:17:01.047563Z")
-      .build());
-    subject.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain2.getId())
-      .setOffset(12L)
-      .setState(Segment.State.Dubbed)
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setEndAt("2017-02-14T12:01:32.000001Z")
-      .setKey("G minor")
-      .setTotal(32)
-      .setDensity(0.3)
-      .setTempo(10.0)
-      .setStorageKey("chains-2-segments-8929f7sd8a789.wav")
-      .build());
-    Segment chain3_segment0 = subject.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setOffset(0L)
-      .setState(Segment.State.Dubbed)
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setEndAt("2017-02-14T12:01:32.000001Z")
-      .setKey("D Major")
-      .setTotal(64)
-      .setDensity(0.73)
-      .setTempo(120.0)
-      .setStorageKey("chains-3-segments-9f7s89d8a7892.wav")
-      .build());
-    subject.put(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setDeltaIn(Segments.DELTA_UNLIMITED)
-      .setDeltaOut(Segments.DELTA_UNLIMITED)
-      .setSegmentId(chain3_segment0.getId())
-      .setProgramId(UUID.randomUUID().toString())
-      .setProgramSequenceBindingId(UUID.randomUUID().toString())
-      .setProgramType(Program.Type.Macro)
-      .build());
+    var account1 = new Account()
+      .id(UUID.randomUUID())
+      .name("fish");
+    var chain2 = subject.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(account1.getId())
+      .name("Test Print #2")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2014-08-12T12:17:02.527142Z")
+      .stopAt("2014-09-11T12:17:01.047563Z")
+      );
+    var chain3 = subject.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(account1.getId())
+      .name("Test Print #3")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2014-08-12T12:17:02.527142Z")
+      .stopAt("2014-09-11T12:17:01.047563Z")
+      );
+    subject.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain2.getId())
+      .offset(12L)
+      .state(SegmentState.DUBBED)
+      .beginAt("2017-02-14T12:01:00.000001Z")
+      .endAt("2017-02-14T12:01:32.000001Z")
+      .key("G minor")
+      .total(32)
+      .density(0.3)
+      .tempo(10.0)
+      .storageKey("chains-2-segments-8929f7sd8a789.wav")
+      );
+    Segment chain3_segment0 = subject.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain3.getId())
+      .offset(0L)
+      .state(SegmentState.DUBBED)
+      .beginAt("2017-02-14T12:01:00.000001Z")
+      .endAt("2017-02-14T12:01:32.000001Z")
+      .key("D Major")
+      .total(64)
+      .density(0.73)
+      .tempo(120.0)
+      .storageKey("chains-3-segments-9f7s89d8a7892.wav")     );
+    subject.put(new SegmentChoice()
+      .id(UUID.randomUUID())
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .segmentId(chain3_segment0.getId())
+      .programId(UUID.randomUUID())
+      .programSequenceBindingId(UUID.randomUUID())
+      .programType(ProgramType.MACRO)
+      );
     // not in the above chain, won't be retrieved with it
-    subject.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setOffset(0L)
-      .setState(Segment.State.Dubbed)
-      .setBeginAt("2017-02-14T12:01:32.000001Z")
-      .setEndAt("2017-02-14T12:01:48.000001Z")
-      .setKey("D Major")
-      .setTotal(48)
-      .setDensity(0.73)
-      .setTempo(120.0)
-      .setStorageKey("chains-3-segments-d8a78929f7s89.wav")
-      .build());
+    subject.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain3.getId())
+      .offset(0L)
+      .state(SegmentState.DUBBED)
+      .beginAt("2017-02-14T12:01:32.000001Z")
+      .endAt("2017-02-14T12:01:48.000001Z")
+      .key("D Major")
+      .total(48)
+      .density(0.73)
+      .tempo(120.0)
+      .storageKey("chains-3-segments-d8a78929f7s89.wav")
+      );
 
     Collection<Segment> result = subject.getAllSegments(chain3.getId());
     assertEquals(2, result.size());

@@ -2,7 +2,6 @@
 
 package io.xj.nexus.dao;
 
-import com.google.protobuf.MessageLite;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
@@ -10,6 +9,7 @@ import io.xj.nexus.dao.exception.DAOValidationException;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 
 import java.util.Collection;
+import java.util.UUID;
 
 /**
  Nexus base DAO interface
@@ -17,7 +17,7 @@ import java.util.Collection;
  [#171553408] XJ Lab Distributed Architecture
  Chains, ChainBindings, ChainConfigs, Segments and all Segment content sub-entities persisted in memory
  */
-public interface DAO<E extends MessageLite> {
+public interface DAO<E> {
 
   /**
    Create a new Record
@@ -32,46 +32,46 @@ public interface DAO<E extends MessageLite> {
   /**
    Delete a specified Entity@param access control
 
-   @param access control
-   @param id     of specific Entity to delete.
    @throws DAOFatalException     on failure
    @throws DAOExistenceException if the entity does not exist
    @throws DAOPrivilegeException if access is prohibited
+   @param access control
+   @param id     of specific Entity to delete.
    */
-  void destroy(HubClientAccess access, String id) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException;
+  void destroy(HubClientAccess access, UUID id) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException;
 
   /**
    Fetch many records for many parents by id, if accessible
 
-   @param access    control
-   @param parentIds to fetch records for.
    @return collection of retrieved records
    @throws DAOFatalException     on failure
    @throws DAOPrivilegeException if access is prohibited
+   @param access    control
+   @param parentIds to fetch records for.
    */
-  Collection<E> readMany(HubClientAccess access, Collection<String> parentIds) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException;
+  Collection<E> readMany(HubClientAccess access, Collection<UUID> parentIds) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException;
 
   /**
    Fetch one record  if accessible
 
-   @param access control
-   @param id     of record to fetch
    @return retrieved record
    @throws DAOPrivilegeException if access is prohibited
+   @param access control
+   @param id     of record to fetch
    */
-  E readOne(HubClientAccess access, String id) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
+  E readOne(HubClientAccess access, UUID id) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
 
   /**
    Update a specified Entity
 
-   @param access control
-   @param id     of specific Entity to update.
-   @param entity for the updated Entity.
    @throws DAOFatalException     on failure
    @throws DAOExistenceException if the entity does not exist
    @throws DAOPrivilegeException if access is prohibited
+   @param access control
+   @param id     of specific Entity to update.
+   @param entity for the updated Entity.
    */
-  E update(HubClientAccess access, String id, E entity) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException;
+  E update(HubClientAccess access, UUID id, E entity) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException;
 
   /**
    New instance of the primary expected Entity class for a given DAO

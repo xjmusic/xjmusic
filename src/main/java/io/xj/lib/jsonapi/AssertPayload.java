@@ -9,6 +9,7 @@ import io.xj.lib.util.ValueException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 
 import static io.xj.lib.util.Assert.assertEquals;
@@ -49,9 +50,9 @@ public class AssertPayload {
    @param resourceType to assert
    @param resourceIds  to assert
    @return this Payload assertion utility (for chaining methods)
-   @throws JsonApiException if assertion fails
+   @throws JsonapiException if assertion fails
    */
-  public AssertPayload hasDataMany(String resourceType, Collection<String> resourceIds) throws JsonApiException {
+  public AssertPayload hasDataMany(String resourceType, Collection<String> resourceIds) throws JsonapiException {
     try {
       assertEquals("payload data type", PayloadDataType.Many, jsonapiPayload.getDataType());
       assertEquals("same number of ids", resourceIds.size(), jsonapiPayload.getDataMany().size());
@@ -65,22 +66,22 @@ public class AssertPayload {
       return this;
 
     } catch (ValueException e) {
-      throw new JsonApiException(e);
+      throw new JsonapiException(e);
     }
   }
 
   /**
    Assert the Payload has-many data, with an empty set
 
-   @throws JsonApiException if assertion fails
+   @throws JsonapiException if assertion fails
    */
-  public void hasDataManyEmpty() throws JsonApiException {
+  public void hasDataManyEmpty() throws JsonapiException {
     try {
       assertEquals("payload data type", PayloadDataType.Many, jsonapiPayload.getDataType());
       assertEquals("empty set", 0, jsonapiPayload.getDataMany().size());
 
     } catch (ValueException e) {
-      throw new JsonApiException(e);
+      throw new JsonapiException(e);
     }
   }
 
@@ -90,9 +91,9 @@ public class AssertPayload {
    @param resourceType to assert
    @param resourceId   to assert
    @return PayloadObject assertion utility, for further assertions on that payload object
-   @throws JsonApiException if assertion fails
+   @throws JsonapiException if assertion fails
    */
-  public AssertPayloadObject hasDataOne(String resourceType, String resourceId) throws JsonApiException {
+  public AssertPayloadObject hasDataOne(String resourceType, String resourceId) throws JsonapiException {
     try {
       assertEquals("payload data type", PayloadDataType.One, jsonapiPayload.getDataType());
       Optional<JsonapiPayloadObject> dataOne = jsonapiPayload.getDataOne();
@@ -102,7 +103,7 @@ public class AssertPayload {
       return new AssertPayloadObject(dataOne.get());
 
     } catch (ValueException e) {
-      throw new JsonApiException(e);
+      throw new JsonapiException(e);
     }
   }
 
@@ -111,9 +112,9 @@ public class AssertPayload {
 
    @param resource to assert
    @return PayloadObject assertion utility, for further assertions on that payload object
-   @throws JsonApiException if assertion fails
+   @throws JsonapiException if assertion fails
    */
-  public <N> AssertPayloadObject hasDataOne(N resource) throws JsonApiException {
+  public <N> AssertPayloadObject hasDataOne(N resource) throws JsonapiException {
     try {
       assertEquals("payload data type", PayloadDataType.One, jsonapiPayload.getDataType());
       Optional<JsonapiPayloadObject> dataOne = jsonapiPayload.getDataOne();
@@ -122,23 +123,23 @@ public class AssertPayload {
       return new AssertPayloadObject(dataOne.orElseThrow());
 
     } catch (EntityException | ValueException e) {
-      throw new JsonApiException(e);
+      throw new JsonapiException(e);
     }
   }
 
   /**
    Assert the Payload has-one data, with empty (null) specified
 
-   @throws JsonApiException if assertion fails
+   @throws JsonapiException if assertion fails
    */
-  public void hasDataOneEmpty() throws JsonApiException {
+  public void hasDataOneEmpty() throws JsonapiException {
     try {
       assertEquals("payload data type", PayloadDataType.One, jsonapiPayload.getDataType());
       Optional<JsonapiPayloadObject> dataOne = jsonapiPayload.getDataOne();
       assertTrue("has empty data", dataOne.isEmpty());
 
     } catch (ValueException e) {
-      throw new JsonApiException(e);
+      throw new JsonapiException(e);
     }
   }
 
@@ -147,15 +148,15 @@ public class AssertPayload {
 
    @param errorCount to assert
    @return this Payload assertion utility (for chaining methods)
-   @throws JsonApiException if assertion fails
+   @throws JsonapiException if assertion fails
    */
-  public AssertPayload hasErrorCount(int errorCount) throws JsonApiException {
+  public AssertPayload hasErrorCount(int errorCount) throws JsonapiException {
     try {
       assertEquals("payload errors count", errorCount, jsonapiPayload.getErrors().size());
       return this;
 
     } catch (ValueException e) {
-      throw new JsonApiException(e);
+      throw new JsonapiException(e);
     }
   }
 
@@ -166,7 +167,7 @@ public class AssertPayload {
    @param <N>      type of resource
    @return payload object assertion utility
    */
-  public <N> AssertPayloadObject hasIncluded(N resource) throws JsonApiException {
+  public <N> AssertPayloadObject hasIncluded(N resource) throws JsonapiException {
     try {
       Optional<JsonapiPayloadObject> payloadObject = jsonapiPayload.getIncluded().stream().filter(obj -> obj.isSame(resource)).findFirst();
       assertTrue(String.format("has included %s id=%s", Entities.toType(resource), Entities.getId(resource)), payloadObject.isPresent());
@@ -174,7 +175,7 @@ public class AssertPayload {
       return new AssertPayloadObject(payloadObject.orElseThrow());
 
     } catch (EntityException | ValueException e) {
-      throw new JsonApiException(e);
+      throw new JsonapiException(e);
     }
   }
 
@@ -185,15 +186,16 @@ public class AssertPayload {
    @param resources    to assert
    @return this Payload assertion utility (for chaining methods)
    */
-  public <N> AssertPayload hasIncluded(String resourceType, ImmutableList<N> resources) throws JsonApiException {
+  public <N> AssertPayload hasIncluded(String resourceType, ImmutableList<N> resources) throws JsonapiException {
     try {
       Collection<JsonapiPayloadObject> included = jsonapiPayload.getIncludedOfType(resourceType);
       assertEquals("same number of ids", resources.size(), included.size());
       Collection<String> foundIds = Lists.newArrayList();
       Collection<String> resourceIds = new ArrayList<>();
       for (N resource : resources) {
-        String resourceId = Entities.getId(resource);
-        resourceIds.add(resourceId);
+        var resourceId = Entities.getId(resource);
+        if (Objects.nonNull(resourceId))
+          resourceIds.add(resourceId.toString());
       }
       for (JsonapiPayloadObject jsonapiPayloadObject : included) {
         assertFalse("already found id", foundIds.contains(jsonapiPayloadObject.getId()));
@@ -203,7 +205,7 @@ public class AssertPayload {
       }
       return this;
     } catch (EntityException | ValueException e) {
-      throw new JsonApiException(e);
+      throw new JsonapiException(e);
     }
   }
 

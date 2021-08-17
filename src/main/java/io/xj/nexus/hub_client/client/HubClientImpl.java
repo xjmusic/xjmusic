@@ -2,15 +2,13 @@
 
 package io.xj.nexus.hub_client.client;
 
+import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.json.JsonProviderImpl;
-import io.xj.lib.jsonapi.JsonApiException;
-import io.xj.lib.jsonapi.JsonapiPayload;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -26,9 +24,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -43,17 +43,14 @@ public class HubClientImpl implements HubClient {
   private final CloseableHttpClient httpClient;
   private final String ingestUrl;
   private final String ingestTokenName;
-  private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final JsonProviderImpl jsonProvider;
   private final String ingestTokenValue;
 
   @Inject
   public HubClientImpl(
     Environment env,
-    JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProviderImpl jsonProvider
   ) {
-    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonProvider = jsonProvider;
     httpClient = HttpClients.createDefault();
 
@@ -66,7 +63,7 @@ public class HubClientImpl implements HubClient {
   }
 
   @Override
-  public HubContent ingest(HubClientAccess access, Set<String> libraryIds, Set<String> programIds, Set<String> instrumentIds) throws HubClientException {
+  public HubContent ingest(HubClientAccess access, Set<UUID> libraryIds, Set<UUID> programIds, Set<UUID> instrumentIds) throws HubClientException {
     try {
       HttpGet request = new HttpGet(buildURI(HubClientImpl.API_PATH_INGEST, ImmutableMap.of(
         "libraryIds", Entities.csvOf(libraryIds),
@@ -78,9 +75,24 @@ public class HubClientImpl implements HubClient {
 
       // return content if successful.
       if (Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
-        String entity = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
-        JsonapiPayload jsonapiPayload = jsonapiPayloadFactory.deserialize(entity);
-        return new HubContent(jsonapiPayloadFactory.toMany(jsonapiPayload));
+        var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
+        HubContentPayload content = jsonProvider.getObjectMapper().readValue(json, HubContentPayload.class);
+        List<Object> entities = Lists.newArrayList();
+        entities.addAll(content.getInstruments());
+        entities.addAll(content.getInstrumentAudios());
+        entities.addAll(content.getInstrumentMemes());
+        entities.addAll(content.getPrograms());
+        entities.addAll(content.getProgramMemes());
+        entities.addAll(content.getProgramSequences());
+        entities.addAll(content.getProgramSequenceBindings());
+        entities.addAll(content.getProgramSequenceBindingMemes());
+        entities.addAll(content.getProgramSequenceChords());
+        entities.addAll(content.getProgramSequenceChordVoicings());
+        entities.addAll(content.getProgramSequencePatterns());
+        entities.addAll(content.getProgramSequencePatternEvents());
+        entities.addAll(content.getProgramVoices());
+        entities.addAll(content.getProgramVoiceTracks());
+        return new HubContent(entities);
       }
 
       // if we got here, it's a failure
@@ -88,7 +100,7 @@ public class HubClientImpl implements HubClient {
       throw new HubClientException(String.format("Failed to request %s because %s",
         request.getURI(), response.getStatusLine().getReasonPhrase()));
 
-    } catch (IOException | JsonApiException e) {
+    } catch (IOException e) {
       throw new HubClientException(e);
     }
   }

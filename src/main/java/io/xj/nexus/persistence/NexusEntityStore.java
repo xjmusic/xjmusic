@@ -2,13 +2,14 @@
 
 package io.xj.nexus.persistence;
 
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Segment;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.Segment;
 import io.xj.nexus.NexusException;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  [#175880468] NexusEntityStore segments and child entities partitioned by segment id for rapid addressing
@@ -43,40 +44,38 @@ public interface NexusEntityStore {
 
    @param id of Chain   to delete
    */
-  void deleteChain(String id) throws NexusException;
+  void deleteChain(UUID id) throws NexusException;
 
   /**
    Delete a Chain Binding specified by id
 
    @param id of ChainBinding to delete
    */
-  void deleteChainBinding(String id) throws NexusException;
+  void deleteChainBinding(UUID id) throws NexusException;
 
   /**
    Delete a Segment specified by id
 
    @param id of Segment   to delete
    */
-  void deleteSegment(String id) throws NexusException;
+  void deleteSegment(UUID id) throws NexusException;
 
   /**
-   Delete a Segment entity specified by partition (segment id), class and id
-
+   Delete a Segment entity specified by partition (segment id), class and id@param <N>       type of entity
    @param segmentId partition (segment id) of entity
    @param type      of class to delete
    @param id        to delete
-   @param <N>       type of entity
+
+
    */
-  <N> void delete(String segmentId, Class<N> type, String id) throws NexusException;
+  <N> void delete(UUID segmentId, Class<N> type, UUID id) throws NexusException;
 
   /**
-   Delete all entities for a Segment of a given type
-
+   Delete all entities for a Segment of a given type@param <N>       type of entities
    @param segmentId partition (segment id) of entity
    @param type      of class to delete
-   @param <N>       type of entities
    */
-  <N> void deleteAll(String segmentId, Class<N> type) throws NexusException;
+  <N> void deleteAll(UUID segmentId, Class<N> type) throws NexusException;
 
   /**
    Delete all records in the store (e.g. during integration testing)
@@ -89,7 +88,7 @@ public interface NexusEntityStore {
    @param id of chain to retrieve
    @throws NexusException on failure to retrieve the requested key
    */
-  Optional<Chain> getChain(String id) throws NexusException;
+  Optional<Chain> getChain(UUID id) throws NexusException;
 
   /**
    Retrieve a chainBinding by id
@@ -97,7 +96,7 @@ public interface NexusEntityStore {
    @param id of chainBinding to retrieve
    @throws NexusException on failure to retrieve the requested key
    */
-  Optional<ChainBinding> getChainBinding(String id) throws NexusException;
+  Optional<ChainBinding> getChainBinding(UUID id) throws NexusException;
 
   /**
    Retrieve a segment by id
@@ -105,7 +104,7 @@ public interface NexusEntityStore {
    @param id of segment to retrieve
    @throws NexusException on failure to retrieve the requested key
    */
-  Optional<Segment> getSegment(String id) throws NexusException;
+  Optional<Segment> getSegment(UUID id) throws NexusException;
 
   /**
    Get all chains
@@ -118,65 +117,65 @@ public interface NexusEntityStore {
   /**
    Get all chainBindings for a chain id
 
-   @param chainId to get chainBindings for
    @return collection of chainBindings
    @throws NexusException on failure to retrieve the requested key
+   @param chainId to get chainBindings for
    */
   Collection<ChainBinding> getAllChainBindings(
-    String chainId
+    UUID chainId
   ) throws NexusException;
 
   /**
    Get all segments for a chain id
 
-   @param chainId to get segments for
    @return collection of segments
    @throws NexusException on failure to retrieve the requested key
+   @param chainId to get segments for
    */
   Collection<Segment> getAllSegments(
-    String chainId
+    UUID chainId
   ) throws NexusException;
 
   /**
    Get an entity by partition (segment id), type, and id from the record store
 
-   @param segmentId partition (segment id) of entity
-   @param <N>       type of entity
    @return N of given type and id
    @throws NexusException on failure to retrieve the requested key
+   @param <N>       type of entity
+   @param segmentId partition (segment id) of entity
    */
-  <N> Optional<N> get(String segmentId, Class<N> type, String id) throws NexusException;
+  <N> Optional<N> get(UUID segmentId, Class<N> type, UUID id) throws NexusException;
 
   /**
    Get all entities by partition (segment id) and type from the record store
 
-   @param segmentId partition (segment id) of entity
-   @param <N>       types of entities
-   @param type      of entities
    @return collection of given type
    @throws NexusException on failure to retrieve the requested key
+   @param <N>       types of entities
+   @param segmentId partition (segment id) of entity
+   @param type      of entities
    */
   <N> Collection<N> getAll(
-    String segmentId,
+    UUID segmentId,
     Class<N> type
   ) throws NexusException;
 
   /**
    Get all entities by partition (segment id), type, and a belongs-to relationship from the record store
 
-   @param segmentId     partition (segment id) of entity
+   @return collection of given type
+   @throws NexusException on failure to retrieve the requested key
    @param <N>           types of entities
    @param <B>           types of belongs-to entities
+   @param segmentId     partition (segment id) of entity
    @param type          of entity
    @param belongsToType type of belongs-to entity
    @param belongsToIds  ids of belongs-to entity
-   @return collection of given type
-   @throws NexusException on failure to retrieve the requested key
    */
   <N, B> Collection<N> getAll(
-    String segmentId, Class<N> type,
+    UUID segmentId, Class<N> type,
     Class<B> belongsToType,
-    Collection<String> belongsToIds
+    Collection<UUID> belongsToIds
   ) throws NexusException;
 
   /**

@@ -1,24 +1,27 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import com.google.protobuf.MessageLite;
-import io.xj.Chain;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.Program;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceBinding;
-import io.xj.ProgramSequenceChord;
-import io.xj.ProgramSequencePattern;
-import io.xj.ProgramSequencePatternEvent;
-import io.xj.ProgramVoice;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMessage;
+import io.xj.api.Chain;
+import io.xj.api.Instrument;
+import io.xj.api.InstrumentAudio;
+import io.xj.api.InstrumentType;
+import io.xj.api.Program;
+import io.xj.api.ProgramSequence;
+import io.xj.api.ProgramSequenceBinding;
+import io.xj.api.ProgramSequenceChord;
+import io.xj.api.ProgramSequencePattern;
+import io.xj.api.ProgramSequencePatternEvent;
+import io.xj.api.ProgramSequencePatternType;
+import io.xj.api.ProgramType;
+import io.xj.api.ProgramVoice;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentChord;
+import io.xj.api.SegmentChordVoicing;
+import io.xj.api.SegmentMessageType;
+import io.xj.api.SegmentType;
 import io.xj.lib.entity.common.InstrumentConfig;
 import io.xj.lib.entity.common.ProgramConfig;
 import io.xj.lib.music.Chord;
@@ -34,6 +37,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 public interface Fabricator {
 
@@ -43,7 +47,7 @@ public interface Fabricator {
    @param entity to add
    @return entity added
    */
-  <N extends MessageLite> N add(N entity) throws NexusException;
+  <N> N add(N entity) throws NexusException;
 
   /**
    Add all memes of this program to the workbench
@@ -67,7 +71,7 @@ public interface Fabricator {
    Add a message of the given type to the segment, with the given body
    @param body to include in message
    */
-  void addMessage(SegmentMessage.Type messageType, String body) throws NexusException;
+  void addMessage(SegmentMessageType messageType, String body) throws NexusException;
 
   /**
    Add an error message to the segment, with the given body
@@ -209,7 +213,7 @@ public interface Fabricator {
 
    @return list of voicing (instrument) types
    */
-  List<Instrument.Type> getDistinctChordVoicingTypes() throws NexusException;
+  List<InstrumentType> getDistinctChordVoicingTypes() throws NexusException;
 
   /**
    @return Seconds elapsed since fabricator was instantiated
@@ -247,7 +251,7 @@ public interface Fabricator {
 
    @return choice if previously made, or null if none is found
    */
-  Optional<SegmentChoice> getChoiceIfContinued(Program.Type programType);
+  Optional<SegmentChoice> getChoiceIfContinued(ProgramType programType);
 
   /**
    Determine if a choice has been previously crafted
@@ -255,7 +259,7 @@ public interface Fabricator {
 
    @return choice if previously made, or null if none is found
    */
-  Optional<SegmentChoice> getChoiceIfContinued(Instrument.Type instrumentType);
+  Optional<SegmentChoice> getChoiceIfContinued(InstrumentType instrumentType);
 
   /**
    Key for any pick designed to collide at same voice id + name
@@ -309,10 +313,10 @@ public interface Fabricator {
    determine the next available SequenceBinding offset of the chosen sequence,
    or loop back to zero (if past the end of the available SequenceBinding offsets)
 
-   @param choice having a SequenceBinding
    @return next available SequenceBinding offset of the chosen sequence, or zero (if past the end of the available SequenceBinding offsets)
+   @param choice having a SequenceBinding
    */
-  Long getNextSequenceBindingOffset(SegmentChoice choice);
+  Integer getNextSequenceBindingOffset(SegmentChoice choice);
 
   /**
    Get the Notes from a Voicing
@@ -354,11 +358,11 @@ public interface Fabricator {
   /**
    Get preferred (previously chosen) notes
 
+   @return notes
    @param eventId   of event
    @param chordName of chord
-   @return notes
    */
-  Optional<Set<String>> getPreferredNotes(String eventId, String chordName);
+  Optional<Set<String>> getPreferredNotes(UUID eventId, String chordName);
 
   /**
    Get Program for any given choice
@@ -389,11 +393,11 @@ public interface Fabricator {
   /**
    Get the note range for an arrangement based on all the events in its program
 
+   @return Note range of arrangement
    @param programId      to get range of
    @param instrumentType to get range of
-   @return Note range of arrangement
    */
-  NoteRange getProgramRange(String programId, Instrument.Type instrumentType) throws NexusException;
+  NoteRange getProgramRange(UUID programId, InstrumentType instrumentType) throws NexusException;
 
   /**
    [#176696738] Detail craft shifts source program events into the target range
@@ -405,7 +409,7 @@ public interface Fabricator {
    @param targetRange to compute required # of octaves to shift into
    @return +/- octaves required to shift from source to target range
    */
-  int getProgramRangeShiftOctaves(Instrument.Type type, NoteRange sourceRange, NoteRange targetRange) throws NexusException;
+  int getProgramRangeShiftOctaves(InstrumentType type, NoteRange sourceRange, NoteRange targetRange) throws NexusException;
 
   /**
    Compute the target shift from a key toward a chord
@@ -422,7 +426,7 @@ public interface Fabricator {
    @param voice for which to get program type
    @return program type
    */
-  Program.Type getProgramType(ProgramVoice voice) throws NexusException;
+  ProgramType getProgramType(ProgramVoice voice) throws NexusException;
 
   /**
    Get the lowest note present in any voicing of all the segment chord voicings for this segment and instrument type
@@ -430,7 +434,7 @@ public interface Fabricator {
    @param type to get voicing threshold low of
    @return low voicing threshold
    */
-  NoteRange getProgramVoicingNoteRange(Instrument.Type type) throws NexusException;
+  NoteRange getProgramVoicingNoteRange(InstrumentType type) throws NexusException;
 
   /**
    Randomly select any sequence
@@ -450,15 +454,15 @@ public interface Fabricator {
    @return Pattern model, or null if no pattern of this type is found
    @throws NexusException on failure
    */
-  Optional<ProgramSequencePattern> getRandomlySelectedPatternOfSequenceByVoiceAndType(SegmentChoice choice, ProgramSequencePattern.Type patternType) throws NexusException;
+  Optional<ProgramSequencePattern> getRandomlySelectedPatternOfSequenceByVoiceAndType(SegmentChoice choice, ProgramSequencePatternType patternType) throws NexusException;
 
   /**
    Randomly select any sequence binding at the given offset
 
-   @param offset to get sequence binding at
    @return randomly selected sequence binding
+   @param offset to get sequence binding at
    */
-  Optional<ProgramSequenceBinding> getRandomlySelectedSequenceBindingAtOffset(Program program, Long offset);
+  Optional<ProgramSequenceBinding> getRandomlySelectedSequenceBindingAtOffset(Program program, Integer offset);
 
   /**
    Get a randomly selected voice of the given program id
@@ -467,7 +471,7 @@ public interface Fabricator {
    @param programId for which to randomly select voice
    @param excludeVoiceIds to exclude from random selection
    */
-  Optional<ProgramVoice> getRandomlySelectedVoiceForProgramId(String programId, Collection<String> excludeVoiceIds);
+  Optional<ProgramVoice> getRandomlySelectedVoiceForProgramId(UUID programId, Collection<UUID> excludeVoiceIds);
 
   /**
    Compute using an integral
@@ -539,10 +543,10 @@ public interface Fabricator {
   /**
    Get the sequence pattern offset of a given Choice
 
-   @param choice having a SequenceBinding
    @return sequence pattern offset
+   @param choice having a SequenceBinding
    */
-  Long getSequenceBindingOffsetForChoice(SegmentChoice choice);
+  Integer getSequenceBindingOffsetForChoice(SegmentChoice choice);
 
   /**
    Get the Voice ID of a given event
@@ -557,7 +561,7 @@ public interface Fabricator {
 
    @return macro-craft type
    */
-  Segment.Type getType() throws NexusException;
+  SegmentType getType() throws NexusException;
 
   /**
    Get segment chord voicing for a given chord
@@ -565,7 +569,7 @@ public interface Fabricator {
    @param chord to get voicing for
    @return chord voicing for chord
    */
-  Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, Instrument.Type type);
+  Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, InstrumentType type);
 
   /**
    Does the program of the specified Choice have at least N more sequence binding offsets available?
@@ -638,12 +642,12 @@ public interface Fabricator {
   /**
    Remember which notes were picked for a given event
 
+   @return notes to pass  through for chaining method calls
    @param programSequencePatternEventId to remember notes picked for
    @param chordName                     to remember notes picked for
    @param notes                         to remember were picked
-   @return notes to pass  through for chaining method calls
    */
-  Set<String> rememberPickedNotes(String programSequencePatternEventId, String chordName, Set<String> notes);
+  Set<String> rememberPickedNotes(UUID programSequencePatternEventId, String chordName, Set<String> notes);
 
   /**
    Set the Segment.

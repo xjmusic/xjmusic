@@ -3,6 +3,7 @@ package io.xj.lib.entity;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  Entity store interface
@@ -34,11 +35,12 @@ public interface EntityStore {
   /**
    Get an entity by type and id from the store
 
-   @param <N> types of entities
    @return N of given type and id
    @throws EntityStoreException on failure to retrieve the requested key
+   @param <N> types of entities
+   @param id
    */
-  <N> Optional<N> get(Class<N> type, String id) throws EntityStoreException;
+  <N> Optional<N> get(Class<N> type, UUID id) throws EntityStoreException;
 
   /**
    Get all entities by type from the store
@@ -52,24 +54,24 @@ public interface EntityStore {
   /**
    Get all entities by type and a belongs-to relationship from the store
 
+   @return collection of given type
+   @throws EntityStoreException on failure to retrieve the requested key
    @param <N>           types of entities
    @param <B>           types of belongs-to entities
    @param type          of entity
    @param belongsToType type of belongs-to entity
    @param belongsToIds  ids of belongs-to entity
-   @return collection of given type
-   @throws EntityStoreException on failure to retrieve the requested key
    */
-  <N, B> Collection<N> getAll(Class<N> type, Class<B> belongsToType, Collection<String> belongsToIds) throws EntityStoreException;
+  <N, B> Collection<N> getAll(Class<N> type, Class<B> belongsToType, Collection<UUID> belongsToIds) throws EntityStoreException;
 
   /**
-   Delete an entity specified by class and id
-
-   @param <N>  types of entities
+   Delete an entity specified by class and id@param <N>  types of entities
    @param type of class to delete
    @param id   to delete
+
+
    */
-  <N> void delete(Class<N> type, String id);
+  <N> void delete(Class<N> type, UUID id);
 
   /**
    Delete all records in the store (e.g. during integration testing)
@@ -77,15 +79,15 @@ public interface EntityStore {
   void deleteAll();
 
   /**
-   Delete all records in the store of a given type belonging to a specified record
-
-   @param <N>           types of entities
+   Delete all records in the store of a given type belonging to a specified record@param <N>           types of entities
    @param <B>           types of belongs-to entities
    @param type          of record to delete all of
    @param belongsToType type of parent to filter entities by
    @param belongsToId   id of parent to filter entities by
+
+
    */
-  <N, B> void deleteAll(Class<N> type, Class<B> belongsToType, String belongsToId) throws EntityStoreException;
+  <N, B> void deleteAll(Class<N> type, Class<B> belongsToType, UUID belongsToId) throws EntityStoreException;
 
   /**
    Delete all records in the store of a given type

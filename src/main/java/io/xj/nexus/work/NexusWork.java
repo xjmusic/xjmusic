@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.work;
 
-import io.xj.Chain;
-import io.xj.Segment;
+import io.xj.api.Chain;
+import io.xj.api.Segment;
 
 import java.util.Collection;
 

@@ -1,9 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.dao;
 
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Segment;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.ChainState;
+import io.xj.api.Segment;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
@@ -13,6 +14,7 @@ import io.xj.nexus.hub_client.client.HubClientAccess;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ChainDAO extends DAO<Chain> {
 
@@ -26,7 +28,7 @@ public interface ChainDAO extends DAO<Chain> {
    @throws DAOFatalException     on failure
    @throws DAOPrivilegeException if access is prohibited
    */
-  Collection<Chain> readManyInState(HubClientAccess access, Chain.State state) throws DAOFatalException, DAOPrivilegeException;
+  Collection<Chain> readManyInState(HubClientAccess access, ChainState state) throws DAOFatalException, DAOPrivilegeException;
 
   /**
    [#176285826] Nexus bootstraps Chains from JSON file on startup
@@ -58,14 +60,14 @@ public interface ChainDAO extends DAO<Chain> {
   /**
    Update the state of a specified Chain
 
-   @param access control
-   @param id     of specific Chain to update.
-   @param state  for the updated Chain.
    @throws DAOFatalException     on failure
    @throws DAOExistenceException if the entity does not exist
    @throws DAOPrivilegeException if access is prohibited
+   @param access control
+   @param id     of specific Chain to update.
+   @param state  for the updated Chain.
    */
-  void updateState(HubClientAccess access, String id, Chain.State state) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException;
+  void updateState(HubClientAccess access, UUID id, ChainState state) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException;
 
   /**
    [INTERNAL USE ONLY]
@@ -96,12 +98,12 @@ public interface ChainDAO extends DAO<Chain> {
    [#160299309] Engineer wants a *revived* action for a live production chain, in case the chain has become stuck, in order to ensure the Chain remains in an operable state.
    [#170273871] Revived chain should always start now
 
+   @return newly created revived chain
    @param access       control
    @param priorChainId to revived
    @param reason       provided description why we are reviving this chain
-   @return newly created revived chain
    */
-  Chain revive(HubClientAccess access, String priorChainId, String reason) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
+  Chain revive(HubClientAccess access, UUID priorChainId, String reason) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
 
 
 }

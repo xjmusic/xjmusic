@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  EntityScorePicker is a collection of one type of Entity (e.g. Instrument or Program),
@@ -29,7 +30,7 @@ import java.util.Optional;
 public class EntityScorePicker<E> {
   private static final Logger log = LoggerFactory.getLogger(EntityScorePicker.class);
   private final List<E> entities;
-  private final HashMap<String, Double> scores;
+  private final HashMap<UUID, Double> scores;
 
   /**
    Constructor instantiates a new inner hash map
@@ -85,7 +86,7 @@ public class EntityScorePicker<E> {
 
    @param entityId to add
    */
-  public void score(String entityId, Double Q) {
+  public void score(UUID entityId, Double Q) {
     if (scores.containsKey(entityId))
       scores.put(entityId, scores.get(entityId) + Q);
     else
@@ -106,7 +107,7 @@ public class EntityScorePicker<E> {
 
    @return all entities
    */
-  public Map<String, Double> getScores() {
+  public Map<UUID, Double> getScores() {
     return Collections.unmodifiableMap(scores);
   }
 

@@ -6,10 +6,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.InstrumentAudio;
-import io.xj.Segment;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentMessage;
+import io.xj.api.InstrumentAudio;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentMessage;
+import io.xj.api.SegmentMessageType;
+import io.xj.api.SegmentType;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerConfig;
 import io.xj.lib.mixer.MixerFactory;
@@ -34,7 +35,7 @@ public class DubMasterImpl implements DubMaster {
   private final Fabricator fabricator;
   private final MixerFactory mixerFactory;
   private final List<String> warnings = Lists.newArrayList();
-  private final Map<String, Double> pickOffsetStart = Maps.newHashMap();
+  private final Map<UUID, Double> pickOffsetStart = Maps.newHashMap();
   private final DubAudioCache dubAudioCache;
   private Mixer mixer;
 
@@ -61,7 +62,7 @@ public class DubMasterImpl implements DubMaster {
 
   @Override
   public void doWork() throws NexusException {
-    Segment.Type type = null;
+    SegmentType type = null;
     try {
       type = fabricator.getType();
       doMixerSourceLoading();
@@ -72,8 +73,8 @@ public class DubMasterImpl implements DubMaster {
       report();
 
       // write updated segment with waveform preroll
-      fabricator.updateSegment(fabricator.getSegment().toBuilder()
-        .setWaveformPreroll(preroll).build());
+      fabricator.updateSegment(fabricator.getSegment()
+        .waveformPreroll(preroll));
       fabricator.done();
 
     } catch (Exception e) {
@@ -91,8 +92,8 @@ public class DubMasterImpl implements DubMaster {
       String key = audio.getWaveformKey();
       if (Strings.isNullOrEmpty(key)) continue;
 
-      if (!mixer().hasLoadedSource(audio.getId()))
-        mixer().loadSource(audio.getId(), dubAudioCache.get(key));
+      if (!mixer().hasLoadedSource(audio.getId().toString()))
+        mixer().loadSource(audio.getId().toString(), dubAudioCache.get(key));
     }
   }
 
@@ -146,7 +147,7 @@ public class DubMasterImpl implements DubMaster {
   private void setupTarget(Double preroll, SegmentChoiceArrangementPick pick) throws Exception {
     mixer().put(
       fabricator.sourceMaterial().getInstrumentTypeForAudioId(pick.getInstrumentAudioId()).toString(),
-      pick.getInstrumentAudioId(),
+      pick.getInstrumentAudioId().toString(),
       toMicros(preroll + pick.getStart() - computeOffsetStart(pick)),
       toMicros(preroll + pick.getStart() + pick.getLength()),
       pick.getAmplitude() * fabricator.getAudioVolume(pick));
@@ -228,12 +229,12 @@ public class DubMasterImpl implements DubMaster {
         body.append(String.format("%n%n%s", warning));
       }
 
-      fabricator.add(SegmentMessage.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(fabricator.getSegment().getId())
-        .setType(SegmentMessage.Type.Warning)
-        .setBody(body.toString())
-        .build());
+      fabricator.add(new SegmentMessage()
+        .id(UUID.randomUUID())
+        .segmentId(fabricator.getSegment().getId())
+        .type(SegmentMessageType.WARNING)
+        .body(body.toString())
+        );
     } catch (Exception e1) {
       log.warn("Failed to create SegmentMessage", e1);
     }

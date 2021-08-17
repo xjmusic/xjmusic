@@ -8,13 +8,18 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Program;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChord;
-import io.xj.SegmentMeme;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.ChainBindingType;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
+import io.xj.api.ProgramType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChord;
+import io.xj.api.SegmentMeme;
+import io.xj.api.SegmentState;
+import io.xj.api.SegmentType;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
@@ -84,32 +89,32 @@ public class CraftFoundationInitialTest {
     ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial planned segment
-    Chain chain2 = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(fake.account1.getId())
-      .setName("Print #2")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2014-08-12T12:17:02.527142Z")
-      .build());
-    store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain2.getId())
-      .setTargetId(fake.library2.getId())
-      .setType(ChainBinding.Type.Library)
-      .build());
-    segment6 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain2.getId())
-      .setOffset(0L)
-      .setState(Segment.State.Planned)
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setKey("C")
-      .setTotal(8)
-      .setDensity(0.8)
-      .setTempo(120)
-      .setStorageKey("chain-1-waveform-12345.wav")
-      .build());
+    Chain chain2 = store.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(fake.account1.getId())
+      .name("Print #2")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2014-08-12T12:17:02.527142Z")
+      );
+    store.put(new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain2.getId())
+      .targetId(fake.library2.getId())
+      .type(ChainBindingType.LIBRARY)
+      );
+    segment6 = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain2.getId())
+      .offset(0L)
+      .state(SegmentState.PLANNED)
+      .beginAt("2017-02-14T12:01:00.000001Z")
+      .key("C")
+      .total(8)
+      .density(0.8)
+      .tempo(120.0)
+      .storageKey("chain-1-waveform-12345.wav")
+      );
   }
 
   @Test
@@ -121,9 +126,9 @@ public class CraftFoundationInitialTest {
     Segment result = store.getSegment(segment6.getId()).orElseThrow();
     assertEquals(segment6.getId(), result.getId());
     assertEquals("OGG", result.getOutputEncoder());
-    assertEquals(Segment.Type.Initial, result.getType());
+    assertEquals(SegmentType.INITIAL, result.getType());
     assertEquals("2017-02-14T12:01:07.384616Z", result.getEndAt());
-    assertEquals(16, result.getTotal());
+    assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals(0.55, result.getDensity(), 0.01);
     assertEquals("G major", result.getKey());
     assertEquals(130.0, result.getTempo(), 0.01);
@@ -137,11 +142,11 @@ public class CraftFoundationInitialTest {
     // assert choices
     Collection<SegmentChoice> segmentChoices =
       store.getAll(result.getId(), SegmentChoice.class);
-    SegmentChoice macroChoice = Segments.findFirstOfType(segmentChoices, Program.Type.Macro);
+    SegmentChoice macroChoice = Segments.findFirstOfType(segmentChoices, ProgramType.MACRO);
     assertEquals(fake.program4_sequence0_binding0.getId(), macroChoice.getProgramSequenceBindingId());
-    assertEquals(Long.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
-    SegmentChoice mainChoice = Segments.findFirstOfType(segmentChoices, Program.Type.Main);
+    assertEquals(Integer.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
+    SegmentChoice mainChoice = Segments.findFirstOfType(segmentChoices, ProgramType.MAIN);
     assertEquals(fake.program5_sequence0_binding0.getId(), mainChoice.getProgramSequenceBindingId());
-    assertEquals(Long.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
+    assertEquals(Integer.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
   }
 }

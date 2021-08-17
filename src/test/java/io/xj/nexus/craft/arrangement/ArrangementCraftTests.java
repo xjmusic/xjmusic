@@ -8,21 +8,23 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.Instrument;
-import io.xj.Program;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequencePattern;
-import io.xj.ProgramVoice;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangementPick;
+import io.xj.api.Chain;
+import io.xj.api.Instrument;
+import io.xj.api.InstrumentType;
+import io.xj.api.Program;
+import io.xj.api.ProgramSequence;
+import io.xj.api.ProgramSequencePatternType;
+import io.xj.api.ProgramVoice;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.util.CSV;
+import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.fabricator.Fabricator;
@@ -46,9 +48,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChord;
+import static org.junit.Assert.assertEquals;
 
 /**
  [#176696738] XJ has a serviceable voicing algorithm
@@ -56,11 +60,11 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.makeChord;
 @RunWith(MockitoJUnitRunner.class)
 public class ArrangementCraftTests extends YamlTest {
   private static final int REPEAT_EACH_TEST_TIMES = 7;
-  private static final Set<Instrument.Type> INSTRUMENT_TYPES = ImmutableSet.of(
-    Instrument.Type.Bass,
-    Instrument.Type.Pad,
-    Instrument.Type.Stab,
-    Instrument.Type.Stripe
+  private static final Set<InstrumentType> INSTRUMENT_TYPES = ImmutableSet.of(
+    InstrumentType.BASS,
+    InstrumentType.PAD,
+    InstrumentType.STAB,
+    InstrumentType.STRIPE
   );
   // this is how we provide content for fabrication
   @Mock
@@ -71,14 +75,23 @@ public class ArrangementCraftTests extends YamlTest {
   // list of all entities to return from Hub
   private List<Object> content;
   // maps with specific entities that will reference each other
-  private Map<Instrument.Type, Instrument> instruments;
-  private Map<Instrument.Type, Program> detailPrograms;
-  private Map<Instrument.Type, ProgramVoice> detailProgramVoices;
-  private Map<Instrument.Type, ProgramSequence> detailProgramSequences;
+  private Map<InstrumentType, Instrument> instruments;
+  private Map<InstrumentType, Program> detailPrograms;
+  private Map<InstrumentType, ProgramVoice> detailProgramVoices;
+  private Map<InstrumentType, ProgramSequence> detailProgramSequences;
   private Chain chain;
   private Segment segment;
-  private Map<Instrument.Type, SegmentChoice> segmentChoices;
+  private Map<InstrumentType, SegmentChoice> segmentChoices;
   private Injector injector;
+
+  @Test
+  public void arrangementBaseline() {
+    var baseline = new Program()
+      .id(UUID.randomUUID())
+      .name("Baseline");
+
+    assertEquals("Modified", baseline.name("Modified").getName());
+  }
 
   @Test
   public void arrangementCraft1() {
@@ -156,7 +169,7 @@ public class ArrangementCraftTests extends YamlTest {
         loadAndPerformAssertions(data);
 
       } catch (Exception e) {
-        failures.add(String.format("[%s] Exception: %s", filename, e.getMessage()));
+        failures.add(String.format("[%s] Exception: %s", filename, Text.formatStackTrace(e)));
       }
   }
 
@@ -191,7 +204,7 @@ public class ArrangementCraftTests extends YamlTest {
    @param data YAML file wrapper
    @param type of instrument to read
    */
-  private void loadInstrument(Map<?, ?> data, Instrument.Type type) {
+  private void loadInstrument(Map<?, ?> data, InstrumentType type) {
     Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sInstrument", type.name().toLowerCase(Locale.ROOT)));
     if (Objects.isNull(obj)) return;
 
@@ -212,7 +225,7 @@ public class ArrangementCraftTests extends YamlTest {
    @param data YAML file wrapper
    @param type of instrument to read
    */
-  private void loadDetailProgram(Map<?, ?> data, Instrument.Type type) {
+  private void loadDetailProgram(Map<?, ?> data, InstrumentType type) {
     Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sDetailProgram", type.name().toLowerCase(Locale.ROOT)));
     if (Objects.isNull(obj)) return;
 
@@ -238,7 +251,7 @@ public class ArrangementCraftTests extends YamlTest {
     //noinspection unchecked
     for (Map<?, ?> pObj : (List<Map<?, ?>>) sObj.get("patterns")) {
       var pattern = NexusIntegrationTestingFixtures.makePattern(sequence, voice,
-        ProgramSequencePattern.Type.valueOf(getStr(pObj, "type")),
+        ProgramSequencePatternType.fromValue(getStr(pObj, "type")),
         Objects.requireNonNull(getInt(pObj, "total")));
       content.add(pattern);
       //noinspection unchecked
@@ -300,7 +313,7 @@ public class ArrangementCraftTests extends YamlTest {
     for (var type : INSTRUMENT_TYPES) loadAndPerformAssertions(obj, type);
   }
 
-  private void loadAndPerformAssertions(Map<?, ?> data, Instrument.Type type) {
+  private void loadAndPerformAssertions(Map<?, ?> data, InstrumentType type) {
     @Nullable
     @SuppressWarnings("unchecked")
     List<Map<?, ?>> objs = (List<Map<?, ?>>) data.get(type.name().toLowerCase(Locale.ROOT));
@@ -318,8 +331,8 @@ public class ArrangementCraftTests extends YamlTest {
 
       var picks = fabricator.getPicks().stream()
         .filter(pick -> pick.getName().equals(type.name()) &&
-          (Objects.isNull(start) || start == pick.getStart()) &&
-          (Objects.isNull(length) || length == pick.getLength()))
+          (Objects.isNull(start) || start.equals(pick.getStart())) &&
+          (Objects.isNull(length) || length.equals(pick.getLength())))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toList());
 

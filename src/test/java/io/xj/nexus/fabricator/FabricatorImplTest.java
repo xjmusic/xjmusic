@@ -8,24 +8,29 @@ import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.Library;
-import io.xj.Program;
-import io.xj.ProgramSequencePattern;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.ChainBindingType;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
+import io.xj.api.InstrumentType;
+import io.xj.api.Library;
+import io.xj.api.ProgramSequencePatternType;
+import io.xj.api.ProgramType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentChord;
+import io.xj.api.SegmentState;
+import io.xj.api.SegmentType;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.music.Note;
@@ -114,7 +119,7 @@ public class FabricatorImplTest {
   @Before
   public void setUp() throws Exception {
     config = NexusTestConfiguration.getDefault();
-    var injector = AppConfiguration.inject(config, env, ImmutableSet.of(Modules.override(new FileStoreModule(), new NexusDAOModule(), new HubClientModule(), new NexusEntityStoreModule(), new MixerModule(), new JsonApiModule(), new NexusWorkModule()).with(
+    var injector = AppConfiguration.inject(config, env, ImmutableSet.of(Modules.override(new FileStoreModule(), new NexusDAOModule(), new HubClientModule(), new NexusEntityStoreModule(), new MixerModule(), new JsonapiModule(), new NexusWorkModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -145,50 +150,49 @@ public class FabricatorImplTest {
 
   @Test
   public void usesTimeComputer() throws Exception {
-    Library library = Library.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .build();
-    var chain = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(UUID.randomUUID().toString())
-      .setName("test")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2017-12-12T01:00:08.000000Z")
-      .setConfig("outputEncoding=\"PCM_SIGNED\"")
-      .build());
-    Segment previousSegment = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setOffset(1)
-      .setState(Segment.State.Crafted)
-      .setBeginAt("2017-12-12T01:00:08.000000Z")
-      .setEndAt("2017-12-12T01:00:16.000000Z")
-      .setKey("F major")
-      .setTotal(8)
-      .setDensity(0.6)
-      .setTempo(120)
-      .setStorageKey("seg123.ogg")
-      .build());
-    Segment segment = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setOffset(2)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("2017-12-12T01:00:16.000000Z")
-      .setEndAt("2017-12-12T01:00:22.000000Z")
-      .setKey("G major")
-      .setTotal(8)
-      .setDensity(0.6)
-      .setTempo(240)
-      .setStorageKey("seg123.ogg")
-      .build());
-    store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setType(ChainBinding.Type.Library)
-      .setTargetId(library.getId())
-      .build());
+    Library library = new Library()
+      .id(UUID.randomUUID());
+    var chain = store.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(UUID.randomUUID())
+      .name("test")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2017-12-12T01:00:08.000000Z")
+      .config("outputEncoding=\"PCM_SIGNED\"")
+    );
+    Segment previousSegment = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .offset(1L)
+      .state(SegmentState.CRAFTED)
+      .beginAt("2017-12-12T01:00:08.000000Z")
+      .endAt("2017-12-12T01:00:16.000000Z")
+      .key("F major")
+      .total(8)
+      .density(0.6)
+      .tempo(120.0)
+      .storageKey("seg123.ogg")
+    );
+    Segment segment = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .offset(2L)
+      .state(SegmentState.CRAFTING)
+      .beginAt("2017-12-12T01:00:16.000000Z")
+      .endAt("2017-12-12T01:00:22.000000Z")
+      .key("G major")
+      .total(8)
+      .density(0.6)
+      .tempo(240.0)
+      .storageKey("seg123.ogg")
+    );
+    store.put(new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .type(ChainBindingType.LIBRARY)
+      .targetId(library.getId())
+    );
     when(mockFabricatorFactory.createTimeComputer(anyDouble(), anyDouble(), anyDouble()))
       .thenReturn(mockTimeComputer);
     when(mockTimeComputer.getSecondsAtPosition(anyDouble()))
@@ -214,89 +218,80 @@ public class FabricatorImplTest {
 
   @Test
   public void pick_returned_by_picks() throws Exception {
-    var chain = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(UUID.randomUUID().toString())
-      .setName("test")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2017-12-12T01:00:08.000000Z")
-      .setConfig("outputEncoding=\"PCM_SIGNED\"")
-      .build());
-    Segment previousSegment = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setOffset(1)
-      .setState(Segment.State.Crafted)
-      .setBeginAt("2017-12-12T01:00:08.000000Z")
-      .setEndAt("2017-12-12T01:00:16.000000Z")
-      .setKey("F major")
-      .setTotal(8)
-      .setDensity(0.6)
-      .setTempo(120)
-      .setStorageKey("seg123.ogg")
-      .build());
-    Segment segment = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setOffset(2)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("2017-12-12T01:00:16.000000Z")
-      .setEndAt("2017-12-12T01:00:22.000000Z")
-      .setKey("G major")
-      .setTotal(8)
-      .setDensity(0.6)
-      .setTempo(240)
-      .setStorageKey("seg123.ogg")
-      .build());
-    store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setTargetId(fake.library2.getId())
-      .setType(ChainBinding.Type.Library)
-      .build());
-    store.put(SegmentChord.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setName("A")
-      .setPosition(0)
-      .build());
-    store.put(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setDeltaIn(Segments.DELTA_UNLIMITED)
-      .setDeltaOut(Segments.DELTA_UNLIMITED)
-      .setProgramType(Program.Type.Main)
-      .setProgramId(fake.program5.getId())
-      .build());
-    SegmentChoice rhythmChoice = store.put(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setProgramType(Program.Type.Rhythm)
-      .setDeltaIn(Segments.DELTA_UNLIMITED)
-      .setDeltaOut(Segments.DELTA_UNLIMITED)
-      .setProgramId(fake.program35.getId())
-      .setProgramVoiceId(fake.program35_voice0.getId())
-      .setInstrumentId(fake.instrument8.getId())
-      .build());
-    SegmentChoiceArrangement rhythmArrangement = store.put(SegmentChoiceArrangement.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setSegmentChoiceId(rhythmChoice.getId())
-      .build());
+    var chain = store.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(UUID.randomUUID())
+      .name("test")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2017-12-12T01:00:08.000000Z")
+      .config("outputEncoding=\"PCM_SIGNED\""));
+    Segment previousSegment = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .offset(1L)
+      .state(SegmentState.CRAFTED)
+      .beginAt("2017-12-12T01:00:08.000000Z")
+      .endAt("2017-12-12T01:00:16.000000Z")
+      .key("F major")
+      .total(8)
+      .density(0.6)
+      .tempo(120.0)
+      .storageKey("seg123.ogg"));
+    Segment segment = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .offset(2L)
+      .state(SegmentState.CRAFTING)
+      .beginAt("2017-12-12T01:00:16.000000Z")
+      .endAt("2017-12-12T01:00:22.000000Z")
+      .key("G major")
+      .total(8)
+      .density(0.6)
+      .tempo(240.0)
+      .storageKey("seg123.ogg"));
+    store.put(new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .targetId(fake.library2.getId())
+      .type(ChainBindingType.LIBRARY));
+    store.put(new SegmentChord()
+      .id(UUID.randomUUID())
+      .segmentId(segment.getId())
+      .name("A")
+      .position(0.0));
+    store.put(new SegmentChoice()
+      .id(UUID.randomUUID())
+      .segmentId(segment.getId())
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .programType(ProgramType.MAIN)
+      .programId(fake.program5.getId()));
+    SegmentChoice rhythmChoice = store.put(new SegmentChoice()
+      .id(UUID.randomUUID())
+      .segmentId(segment.getId())
+      .programType(ProgramType.RHYTHM)
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .programId(fake.program35.getId())
+      .programVoiceId(fake.program35_voice0.getId())
+      .instrumentId(fake.instrument8.getId()));
+    SegmentChoiceArrangement rhythmArrangement = store.put(new SegmentChoiceArrangement()
+      .id(UUID.randomUUID())
+      .segmentId(segment.getId())
+      .segmentChoiceId(rhythmChoice.getId()));
     SegmentChoiceArrangementPick rhythmPick = store.put(
-      SegmentChoiceArrangementPick.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(rhythmArrangement.getSegmentId())
-        .setSegmentChoiceArrangementId(rhythmArrangement.getId())
-        .setProgramSequencePatternEventId(fake.program35_sequence0_pattern0_event0.getId())
-        .setInstrumentAudioId(fake.instrument8_audio8kick.getId())
-        .setName("CLANG")
-        .setStart(0.273)
-        .setLength(1.571)
-        .setAmplitude(0.8)
-        .setNote("A4")
-        .build());
+      new SegmentChoiceArrangementPick()
+        .id(UUID.randomUUID())
+        .segmentId(rhythmArrangement.getSegmentId())
+        .segmentChoiceArrangementId(rhythmArrangement.getId())
+        .programSequencePatternEventId(fake.program35_sequence0_pattern0_event0.getId())
+        .instrumentAudioId(fake.instrument8_audio8kick.getId())
+        .name("CLANG")
+        .start(0.273)
+        .length(1.571)
+        .amplitude(0.8)
+        .note("A4"));
     when(mockFabricatorFactory.createTimeComputer(anyDouble(), anyDouble(), anyDouble()))
       .thenReturn(mockTimeComputer);
     when(mockTimeComputer.getSecondsAtPosition(anyDouble()))
@@ -329,55 +324,55 @@ public class FabricatorImplTest {
 
   @Test
   public void getDistinctChordVoicingTypes() throws Exception {
-    var chain = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(UUID.randomUUID().toString())
-      .setName("test")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2017-12-12T01:00:08.000000Z")
-      .setConfig("outputEncoding=\"PCM_SIGNED\"")
-      .build());
-    Segment previousSegment = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setOffset(1)
-      .setState(Segment.State.Crafted)
-      .setBeginAt("2017-12-12T01:00:08.000000Z")
-      .setEndAt("2017-12-12T01:00:16.000000Z")
-      .setKey("F major")
-      .setTotal(8)
-      .setDensity(0.6)
-      .setTempo(120)
-      .setStorageKey("seg123.ogg")
-      .build());
-    Segment segment = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setOffset(2)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("2017-12-12T01:00:16.000000Z")
-      .setEndAt("2017-12-12T01:00:22.000000Z")
-      .setKey("G major")
-      .setTotal(8)
-      .setDensity(0.6)
-      .setTempo(240)
-      .setStorageKey("seg123.ogg")
-      .build());
-    store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setTargetId(fake.library2.getId())
-      .setType(ChainBinding.Type.Library)
-      .build());
-    SegmentChoice mainChoice = store.put(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setDeltaIn(Segments.DELTA_UNLIMITED)
-      .setDeltaOut(Segments.DELTA_UNLIMITED)
-      .setProgramType(Program.Type.Main)
-      .setProgramId(fake.program5.getId())
-      .build());
+    var chain = store.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(UUID.randomUUID())
+      .name("test")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2017-12-12T01:00:08.000000Z")
+      .config("outputEncoding=\"PCM_SIGNED\"")
+    );
+    Segment previousSegment = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .offset(1L)
+      .state(SegmentState.CRAFTED)
+      .beginAt("2017-12-12T01:00:08.000000Z")
+      .endAt("2017-12-12T01:00:16.000000Z")
+      .key("F major")
+      .total(8)
+      .density(0.6)
+      .tempo(120.0)
+      .storageKey("seg123.ogg")
+    );
+    Segment segment = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .offset(2L)
+      .state(SegmentState.CRAFTING)
+      .beginAt("2017-12-12T01:00:16.000000Z")
+      .endAt("2017-12-12T01:00:22.000000Z")
+      .key("G major")
+      .total(8)
+      .density(0.6)
+      .tempo(240.0)
+      .storageKey("seg123.ogg")
+    );
+    store.put(new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .targetId(fake.library2.getId())
+      .type(ChainBindingType.LIBRARY)
+    );
+    SegmentChoice mainChoice = store.put(new SegmentChoice()
+      .id(UUID.randomUUID())
+      .segmentId(segment.getId())
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .programType(ProgramType.MAIN)
+      .programId(fake.program5.getId())
+    );
     when(mockFabricatorFactory.createTimeComputer(anyDouble(), anyDouble(), anyDouble()))
       .thenReturn(mockTimeComputer);
     when(mockTimeComputer.getSecondsAtPosition(anyDouble()))
@@ -388,7 +383,7 @@ public class FabricatorImplTest {
       .thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
-    when(mockSegmentWorkbench.getChoiceOfType(Program.Type.Main))
+    when(mockSegmentWorkbench.getChoiceOfType(ProgramType.MAIN))
       .thenReturn(Optional.of(mainChoice));
     when(mockSegmentRetrospective.getPreviousSegment())
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
@@ -396,10 +391,10 @@ public class FabricatorImplTest {
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
     subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
 
-    List<Instrument.Type> result = subject.getDistinctChordVoicingTypes();
+    List<InstrumentType> result = subject.getDistinctChordVoicingTypes();
 
     assertEquals(ImmutableList.of(
-      Instrument.Type.Bass
+      InstrumentType.BASS
     ), result);
   }
 
@@ -408,67 +403,67 @@ public class FabricatorImplTest {
    */
   @Test
   public void getType() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    var chain = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(UUID.randomUUID().toString())
-      .setName("test")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2017-12-12T01:00:08.000000Z")
-      .setConfig("outputEncoding=\"PCM_SIGNED\"")
-      .build());
-    store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setTargetId(fake.library2.getId())
-      .setType(ChainBinding.Type.Library)
-      .build());
-    Segment previousSegment = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setOffset(1)
-      .setState(Segment.State.Crafted)
-      .setBeginAt("2017-12-12T01:00:08.000000Z")
-      .setEndAt("2017-12-12T01:00:16.000000Z")
-      .setKey("F major")
-      .setTotal(8)
-      .setDensity(0.6)
-      .setTempo(120)
-      .setStorageKey("seg123.ogg")
-      .build());
+    var chain = store.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(UUID.randomUUID())
+      .name("test")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2017-12-12T01:00:08.000000Z")
+      .config("outputEncoding=\"PCM_SIGNED\"")
+    );
+    store.put(new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .targetId(fake.library2.getId())
+      .type(ChainBindingType.LIBRARY)
+    );
+    Segment previousSegment = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .offset(1L)
+      .state(SegmentState.CRAFTED)
+      .beginAt("2017-12-12T01:00:08.000000Z")
+      .endAt("2017-12-12T01:00:16.000000Z")
+      .key("F major")
+      .total(8)
+      .density(0.6)
+      .tempo(120.0)
+      .storageKey("seg123.ogg")
+    );
     var previousMacroChoice = // second-to-last sequence of macro program
-      store.put(SegmentChoice.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setDeltaIn(Segments.DELTA_UNLIMITED)
-        .setDeltaOut(Segments.DELTA_UNLIMITED)
-        .setSegmentId(previousSegment.getId())
-        .setProgramType(Program.Type.Macro)
-        .setProgramId(fake.program4.getId())
-        .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
-        .build());
+      store.put(new SegmentChoice()
+        .id(UUID.randomUUID())
+        .deltaIn(Segments.DELTA_UNLIMITED)
+        .deltaOut(Segments.DELTA_UNLIMITED)
+        .segmentId(previousSegment.getId())
+        .programType(ProgramType.MACRO)
+        .programId(fake.program4.getId())
+        .programSequenceBindingId(fake.program4_sequence1_binding0.getId())
+      );
     var previousMainChoice = // last sequence of main program
-      store.put(SegmentChoice.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(previousSegment.getId())
-        .setDeltaIn(Segments.DELTA_UNLIMITED)
-        .setDeltaOut(Segments.DELTA_UNLIMITED)
-        .setProgramType(Program.Type.Main)
-        .setProgramId(fake.program5.getId())
-        .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
-        .build());
-    Segment segment = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setOffset(2)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("2017-12-12T01:00:16.000000Z")
-      .setEndAt("2017-12-12T01:00:22.000000Z")
-      .setKey("G major")
-      .setTotal(8)
-      .setDensity(0.6)
-      .setTempo(240)
-      .setStorageKey("seg123.ogg")
-      .build());
+      store.put(new SegmentChoice()
+        .id(UUID.randomUUID())
+        .segmentId(previousSegment.getId())
+        .deltaIn(Segments.DELTA_UNLIMITED)
+        .deltaOut(Segments.DELTA_UNLIMITED)
+        .programType(ProgramType.MAIN)
+        .programId(fake.program5.getId())
+        .programSequenceBindingId(fake.program5_sequence1_binding0.getId())
+      );
+    Segment segment = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .offset(2L)
+      .state(SegmentState.CRAFTING)
+      .beginAt("2017-12-12T01:00:16.000000Z")
+      .endAt("2017-12-12T01:00:22.000000Z")
+      .key("G major")
+      .total(8)
+      .density(0.6)
+      .tempo(240.0)
+      .storageKey("seg123.ogg")
+    );
     when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
@@ -477,9 +472,9 @@ public class FabricatorImplTest {
       .thenReturn(segment);
     when(mockSegmentRetrospective.getPreviousSegment())
       .thenReturn(Optional.of(previousSegment));
-    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Main))
+    when(mockSegmentRetrospective.getPreviousChoiceOfType(ProgramType.MAIN))
       .thenReturn(Optional.of(previousMainChoice));
-    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Macro))
+    when(mockSegmentRetrospective.getPreviousChoiceOfType(ProgramType.MACRO))
       .thenReturn(Optional.of(previousMacroChoice));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
@@ -487,74 +482,74 @@ public class FabricatorImplTest {
 
     var result = subject.getType();
 
-    assertEquals(Segment.Type.NextMacro, result);
+    assertEquals(SegmentType.NEXTMACRO, result);
   }
 
   // FUTURE: test getChoicesOfPreviousSegments
 
   @Test
   public void getMemeIsometryOfNextSequenceInPreviousMacro() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    var chain = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(UUID.randomUUID().toString())
-      .setName("test")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2017-12-12T01:00:08.000000Z")
-      .setConfig("outputEncoding=\"PCM_SIGNED\"")
-      .build());
-    store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setTargetId(fake.library2.getId())
-      .setType(ChainBinding.Type.Library)
-      .build());
-    Segment previousSegment = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setOffset(1)
-      .setState(Segment.State.Crafted)
-      .setBeginAt("2017-12-12T01:00:08.000000Z")
-      .setEndAt("2017-12-12T01:00:16.000000Z")
-      .setKey("F major")
-      .setTotal(8)
-      .setDensity(0.6)
-      .setTempo(120)
-      .setStorageKey("seg123.ogg")
-      .build());
+    var chain = store.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(UUID.randomUUID())
+      .name("test")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2017-12-12T01:00:08.000000Z")
+      .config("outputEncoding=\"PCM_SIGNED\"")
+    );
+    store.put(new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .targetId(fake.library2.getId())
+      .type(ChainBindingType.LIBRARY)
+    );
+    Segment previousSegment = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .offset(1L)
+      .state(SegmentState.CRAFTED)
+      .beginAt("2017-12-12T01:00:08.000000Z")
+      .endAt("2017-12-12T01:00:16.000000Z")
+      .key("F major")
+      .total(8)
+      .density(0.6)
+      .tempo(120.0)
+      .storageKey("seg123.ogg")
+    );
     var previousMacroChoice = // second-to-last sequence of macro program
-      store.put(SegmentChoice.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setDeltaIn(Segments.DELTA_UNLIMITED)
-        .setDeltaOut(Segments.DELTA_UNLIMITED)
-        .setSegmentId(previousSegment.getId())
-        .setProgramType(Program.Type.Macro)
-        .setProgramId(fake.program4.getId())
-        .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
-        .build());
+      store.put(new SegmentChoice()
+        .id(UUID.randomUUID())
+        .deltaIn(Segments.DELTA_UNLIMITED)
+        .deltaOut(Segments.DELTA_UNLIMITED)
+        .segmentId(previousSegment.getId())
+        .programType(ProgramType.MACRO)
+        .programId(fake.program4.getId())
+        .programSequenceBindingId(fake.program4_sequence1_binding0.getId())
+      );
     var previousMainChoice = // last sequence of main program
-      store.put(SegmentChoice.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(previousSegment.getId())
-        .setDeltaIn(Segments.DELTA_UNLIMITED)
-        .setDeltaOut(Segments.DELTA_UNLIMITED)
-        .setProgramType(Program.Type.Main)
-        .setProgramId(fake.program5.getId())
-        .setProgramSequenceBindingId(fake.program5_sequence1_binding0.getId())
-        .build());
-    Segment segment = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setOffset(2)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("2017-12-12T01:00:16.000000Z")
-      .setEndAt("2017-12-12T01:00:22.000000Z")
-      .setKey("G major")
-      .setTotal(8)
-      .setDensity(0.6)
-      .setTempo(240)
-      .setStorageKey("seg123.ogg")
-      .build());
+      store.put(new SegmentChoice()
+        .id(UUID.randomUUID())
+        .segmentId(previousSegment.getId())
+        .deltaIn(Segments.DELTA_UNLIMITED)
+        .deltaOut(Segments.DELTA_UNLIMITED)
+        .programType(ProgramType.MAIN)
+        .programId(fake.program5.getId())
+        .programSequenceBindingId(fake.program5_sequence1_binding0.getId())
+      );
+    Segment segment = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .offset(2L)
+      .state(SegmentState.CRAFTING)
+      .beginAt("2017-12-12T01:00:16.000000Z")
+      .endAt("2017-12-12T01:00:22.000000Z")
+      .key("G major")
+      .total(8)
+      .density(0.6)
+      .tempo(240.0)
+      .storageKey("seg123.ogg")
+    );
     when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
@@ -563,9 +558,9 @@ public class FabricatorImplTest {
       .thenReturn(segment);
     when(mockSegmentRetrospective.getPreviousSegment())
       .thenReturn(Optional.of(previousSegment));
-    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Main))
+    when(mockSegmentRetrospective.getPreviousChoiceOfType(ProgramType.MAIN))
       .thenReturn(Optional.of(previousMainChoice));
-    when(mockSegmentRetrospective.getPreviousChoiceOfType(Program.Type.Macro))
+    when(mockSegmentRetrospective.getPreviousChoiceOfType(ProgramType.MACRO))
       .thenReturn(Optional.of(previousMacroChoice));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
@@ -578,52 +573,52 @@ public class FabricatorImplTest {
 
   @Test
   public void getChordAt() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    var chain = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(UUID.randomUUID().toString())
-      .setName("test")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2017-12-12T01:00:08.000000Z")
-      .setConfig("outputEncoding=\"PCM_SIGNED\"")
-      .build());
-    Segment segment = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setOffset(2)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("2017-12-12T01:00:16.000000Z")
-      .setEndAt("2017-12-12T01:00:22.000000Z")
-      .setKey("G major")
-      .setTotal(8)
-      .setDensity(0.6)
-      .setTempo(240)
-      .setStorageKey("seg123.ogg")
-      .build());
+    var chain = store.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(UUID.randomUUID())
+      .name("test")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2017-12-12T01:00:08.000000Z")
+      .config("outputEncoding=\"PCM_SIGNED\"")
+    );
+    Segment segment = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .offset(2L)
+      .state(SegmentState.CRAFTING)
+      .beginAt("2017-12-12T01:00:16.000000Z")
+      .endAt("2017-12-12T01:00:22.000000Z")
+      .key("G major")
+      .total(8)
+      .density(0.6)
+      .tempo(240.0)
+      .storageKey("seg123.ogg")
+    );
     when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
       .thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegmentChords())
       .thenReturn(ImmutableList.of(
-        SegmentChord.newBuilder()
-          .setId(UUID.randomUUID().toString())
-          .setSegmentId(segment.getId())
-          .setName("C")
-          .setPosition(0)
-          .build(),
-        SegmentChord.newBuilder()
-          .setId(UUID.randomUUID().toString())
-          .setSegmentId(segment.getId())
-          .setName("F")
-          .setPosition(2)
-          .build(),
-        SegmentChord.newBuilder()
-          .setId(UUID.randomUUID().toString())
-          .setSegmentId(segment.getId())
-          .setName("Gm")
-          .setPosition(5.5)
-          .build()
+        new SegmentChord()
+          .id(UUID.randomUUID())
+          .segmentId(segment.getId())
+          .name("C")
+          .position(0.0)
+        ,
+        new SegmentChord()
+          .id(UUID.randomUUID())
+          .segmentId(segment.getId())
+          .name("F")
+          .position(2.0)
+        ,
+        new SegmentChord()
+          .id(UUID.randomUUID())
+          .segmentId(segment.getId())
+          .name("Gm")
+          .position(5.5)
+
       ));
     var access = HubClientAccess.internal();
     when(mockSegmentWorkbench.getSegment())
@@ -643,28 +638,28 @@ public class FabricatorImplTest {
 
   @Test
   public void computeProgramRange() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException, HubClientException {
-    var chain = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(UUID.randomUUID().toString())
-      .setName("test")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2017-12-12T01:00:08.000000Z")
-      .setConfig("outputEncoding=\"PCM_SIGNED\"")
-      .build());
-    Segment segment = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setOffset(2)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("2017-12-12T01:00:16.000000Z")
-      .setEndAt("2017-12-12T01:00:22.000000Z")
-      .setKey("G major")
-      .setTotal(8)
-      .setDensity(0.6)
-      .setTempo(240)
-      .setStorageKey("seg123.ogg")
-      .build());
+    var chain = store.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(UUID.randomUUID())
+      .name("test")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2017-12-12T01:00:08.000000Z")
+      .config("outputEncoding=\"PCM_SIGNED\"")
+    );
+    Segment segment = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .offset(2L)
+      .state(SegmentState.CRAFTING)
+      .beginAt("2017-12-12T01:00:16.000000Z")
+      .endAt("2017-12-12T01:00:22.000000Z")
+      .key("G major")
+      .total(8)
+      .density(0.6)
+      .tempo(240.0)
+      .storageKey("seg123.ogg")
+    );
     when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
@@ -675,11 +670,11 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    var program = makeProgram(Program.Type.Detail, "C", 120.0, 1.0);
-    var voice = makeVoice(program, Instrument.Type.Bass);
+    var program = makeProgram(ProgramType.DETAIL, "C", 120.0, 1.0);
+    var voice = makeVoice(program, InstrumentType.BASS);
     var track = makeTrack(voice);
     var sequence = makeSequence(program, 4);
-    var pattern = makePattern(sequence, voice, ProgramSequencePattern.Type.Loop, 4);
+    var pattern = makePattern(sequence, voice, ProgramSequencePatternType.LOOP, 4);
     sourceMaterial = new HubContent(ImmutableList.of(
       program,
       voice,
@@ -691,7 +686,7 @@ public class FabricatorImplTest {
     ));
     subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
 
-    var result = subject.getProgramRange(program.getId(), Instrument.Type.Bass);
+    var result = subject.getProgramRange(program.getId(), InstrumentType.BASS);
 
     assertTrue(Note.of("C1").sameAs(result.getLow().orElseThrow()));
     assertTrue(Note.of("D2").sameAs(result.getHigh().orElseThrow()));
@@ -699,28 +694,28 @@ public class FabricatorImplTest {
 
   @Test
   public void computeProgramRange_ignoresAtonalNotes() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException, HubClientException {
-    var chain = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(UUID.randomUUID().toString())
-      .setName("test")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2017-12-12T01:00:08.000000Z")
-      .setConfig("outputEncoding=\"PCM_SIGNED\"")
-      .build());
-    Segment segment = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setOffset(2)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("2017-12-12T01:00:16.000000Z")
-      .setEndAt("2017-12-12T01:00:22.000000Z")
-      .setKey("G major")
-      .setTotal(8)
-      .setDensity(0.6)
-      .setTempo(240)
-      .setStorageKey("seg123.ogg")
-      .build());
+    var chain = store.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(UUID.randomUUID())
+      .name("test")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2017-12-12T01:00:08.000000Z")
+      .config("outputEncoding=\"PCM_SIGNED\"")
+    );
+    Segment segment = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .offset(2L)
+      .state(SegmentState.CRAFTING)
+      .beginAt("2017-12-12T01:00:16.000000Z")
+      .endAt("2017-12-12T01:00:22.000000Z")
+      .key("G major")
+      .total(8)
+      .density(0.6)
+      .tempo(240.0)
+      .storageKey("seg123.ogg")
+    );
     when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
@@ -731,11 +726,11 @@ public class FabricatorImplTest {
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    var program = makeProgram(Program.Type.Detail, "C", 120.0, 1.0);
-    var voice = makeVoice(program, Instrument.Type.Bass);
+    var program = makeProgram(ProgramType.DETAIL, "C", 120.0, 1.0);
+    var voice = makeVoice(program, InstrumentType.BASS);
     var track = makeTrack(voice);
     var sequence = makeSequence(program, 4);
-    var pattern = makePattern(sequence, voice, ProgramSequencePattern.Type.Loop, 4);
+    var pattern = makePattern(sequence, voice, ProgramSequencePatternType.LOOP, 4);
     sourceMaterial = new HubContent(ImmutableList.of(
       program,
       voice,
@@ -748,7 +743,7 @@ public class FabricatorImplTest {
     ));
     subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
 
-    var result = subject.getProgramRange(program.getId(), Instrument.Type.Bass);
+    var result = subject.getProgramRange(program.getId(), InstrumentType.BASS);
 
     assertTrue(Note.of("C1").sameAs(result.getLow().orElseThrow()));
     assertTrue(Note.of("D2").sameAs(result.getHigh().orElseThrow()));

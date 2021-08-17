@@ -1,6 +1,6 @@
 package io.xj.nexus.dao;
 
-import io.xj.Chain;
+import io.xj.api.Chain;
 import io.xj.lib.util.ValueException;
 import io.xj.nexus.testing.NexusTestConfiguration;
 import org.junit.Before;
@@ -17,8 +17,8 @@ public class ChainConfigTest {
   @Before
   public void setUp() throws ValueException {
     var config = NexusTestConfiguration.getDefault();
-    subject = new ChainConfig(Chain.newBuilder()
-      .setConfig("mixerCompressToAmplitude = 5.0\n" +
+    subject = new ChainConfig(new Chain()
+      .config("mixerCompressToAmplitude = 5.0\n" +
         "mixerCompressDecaySeconds = 0.125\n" +
         "mixerCompressRatioMax = 10.0\n" +
         "dubMasterVolumeInstrumentTypeSticky = 0.8\n" +
@@ -39,7 +39,7 @@ public class ChainConfigTest {
         "dubMasterVolumeInstrumentTypeStab = 0.8\n" +
         "mixerLowpassThresholdHz = 6000.0\n" +
         "outputFrameRate = 48000")
-      .build(), config);
+      , config);
   }
 
   @Test

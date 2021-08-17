@@ -7,9 +7,14 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Segment;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.ChainBindingType;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentState;
+import io.xj.api.SegmentType;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -74,33 +79,33 @@ public class CraftSegmentOutputEncoderTest {
     ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial planned segment
-    Chain chain2 = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(fake.account1.getId())
-      .setName("Print #2")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2014-08-12T12:17:02.527142Z")
-      .setConfig("outputContainer=\"WAV\"")
-      .build());
-    store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain2.getId())
-      .setTargetId(fake.library2.getId())
-      .setType(ChainBinding.Type.Library)
-      .build());
-    segment6 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain2.getId())
-      .setOffset(0L)
-      .setState(Segment.State.Planned)
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setKey("C")
-      .setTotal(8)
-      .setDensity(0.8)
-      .setTempo(120)
-      .setStorageKey("chain-1-waveform-12345.wav")
-      .build());
+    Chain chain2 = store.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(fake.account1.getId())
+      .name("Print #2")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2014-08-12T12:17:02.527142Z")
+      .config("outputContainer=\"WAV\"")
+      );
+    store.put(new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain2.getId())
+      .targetId(fake.library2.getId())
+      .type(ChainBindingType.LIBRARY)
+      );
+    segment6 = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain2.getId())
+      .offset(0L)
+      .state(SegmentState.PLANNED)
+      .beginAt("2017-02-14T12:01:00.000001Z")
+      .key("C")
+      .total(8)
+      .density(0.8)
+      .tempo(120.0)
+      .storageKey("chain-1-waveform-12345.wav")
+      );
   }
 
   @Test
@@ -112,6 +117,6 @@ public class CraftSegmentOutputEncoderTest {
     Segment result = store.getSegment(segment6.getId()).orElseThrow();
     assertEquals(segment6.getId(), result.getId());
     assertEquals("WAV", result.getOutputEncoder());
-    assertEquals(Segment.Type.Initial, result.getType());
+    assertEquals(SegmentType.INITIAL, result.getType());
   }
 }

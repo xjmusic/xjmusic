@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.protobuf.MessageLite;
 import io.xj.lib.json.JsonProviderImpl;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
@@ -19,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
@@ -29,6 +29,7 @@ import java.util.function.Supplier;
 @Singleton
 public class EntityFactoryImpl implements EntityFactory {
   private static final Logger log = LoggerFactory.getLogger(EntityFactoryImpl.class);
+  private static final String ATTR_ID = "id";
   private final JsonProviderImpl jsonProvider;
   Map<String, EntitySchema> schema = Maps.newConcurrentMap();
 
@@ -58,7 +59,7 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   @Override
-  public <N extends MessageLite> N getInstance(String type) throws EntityException {
+  public <N> N getInstance(String type) throws EntityException {
     String key = Entities.toType(type);
     ensureSchemaExists("get instance", key);
     @SuppressWarnings("unchecked") Supplier<N> creator = (Supplier<N>) schema.get(key).getCreator();
@@ -68,7 +69,7 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   @Override
-  public <N extends MessageLite> N getInstance(Class<N> type) throws EntityException {
+  public <N> N getInstance(Class<N> type) throws EntityException {
     return getInstance(Entities.toType(type));
   }
 
@@ -99,10 +100,8 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   @Override
-  public <N> Map<String, Object> getResourceAttributes(N target) throws EntityException {
-    String targetType = Entities.toType(target);
+  public <N> Map<String, Object> getResourceAttributes(N target) {
     Map<String, Object> attributes = Maps.newHashMap();
-    Set<String> resourceAttributeNames = getAttributes(targetType);
     //noinspection unchecked
     ReflectionUtils.getAllMethods(target.getClass(),
       ReflectionUtils.withModifier(Modifier.PUBLIC),
@@ -110,10 +109,9 @@ public class EntityFactoryImpl implements EntityFactory {
       ReflectionUtils.withParametersCount(0)).forEach(method -> {
       try {
         String attributeName = Entities.toAttributeName(method);
-        if (resourceAttributeNames.contains(attributeName)) {
+        if (!Objects.equals(ATTR_ID, attributeName))
           Entities.get(target, method).ifPresentOrElse(value -> attributes.put(attributeName, value),
             () -> attributes.put(attributeName, null));
-        }
       } catch (Exception e) {
         log.warn("Failed to transmogrify value create method {} create entity {}", method, target, e);
       }
@@ -122,7 +120,7 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   @Override
-  public <N> void setAllAttributes(N source, N target) throws EntityException {
+  public <N> void setAllAttributes(N source, N target) {
     getResourceAttributes(source).forEach((Object name, Object attribute) -> {
       try {
         Entities.set(target, String.valueOf(name), attribute);
@@ -148,22 +146,22 @@ public class EntityFactoryImpl implements EntityFactory {
   }
 
   @Override
-  public <N extends MessageLite> N clone(N from) throws EntityException {
+  public <N> N clone(N from) throws EntityException {
     String className = from.getClass().getSimpleName();
-    MessageLite.Builder builder = getInstance(className).toBuilder();
+    Object builder = getInstance(className);
     Entities.setId(builder, Entities.getId(from));
     setAllAttributes(from, builder);
     for (String belongsTo : getBelongsTo(className)) {
-      Optional<String> belongsToId = Entities.getBelongsToId(from, belongsTo);
+      Optional<UUID> belongsToId = Entities.getBelongsToId(from, belongsTo);
       if (belongsToId.isPresent())
         Entities.set(builder, Entities.toIdAttribute(belongsTo), belongsToId.get());
     }
     //noinspection unchecked
-    return (N) builder.build();
+    return (N) builder;
   }
 
   @Override
-  public <N extends MessageLite> Collection<N> cloneAll(Collection<N> entities) throws EntityException {
+  public <N> Collection<N> cloneAll(Collection<N> entities) throws EntityException {
     Collection<N> clones = Lists.newArrayList();
     for (N entity : entities) clones.add(clone(entity));
     return clones;

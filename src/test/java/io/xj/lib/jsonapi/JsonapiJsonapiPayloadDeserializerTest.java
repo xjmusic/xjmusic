@@ -7,7 +7,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import io.xj.ProgramSequence;
+import io.xj.api.ProgramSequence;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
+import java.util.UUID;
 
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 
@@ -30,7 +31,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new JsonApiModule(), new AbstractModule() {
+    var injector = Guice.createInjector(new JsonapiModule(), new AbstractModule() {
       @Override
       protected void configure() {
         bind(Config.class).toInstance(ConfigFactory.empty());
@@ -40,21 +41,21 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   }
 
   @Test
-  public void deserializeOneIncludingEmbeddedEntities() throws IOException, JsonApiException {
+  public void deserializeOneIncludingEmbeddedEntities() throws IOException, JsonapiException {
     JsonapiPayload result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeOneIncludingEmbeddedEntities.json"));
 
     assertPayload(result)
       .hasDataOne("programs", "805cf759-4e94-4275-a82d-5255c9e69347")
       .belongsTo("Library", "f94290f4-537c-4444-92e5-dc0b0df352e5")
-      .hasMany("ProgramSequence", ImmutableList.of(ProgramSequence.newBuilder().setId("9b862c2f-192f-4041-b849-442a2ec50218").build()));
+      .hasMany("ProgramSequence", ImmutableList.of(new ProgramSequence().id(UUID.fromString("9b862c2f-192f-4041-b849-442a2ec50218"))));
   }
 
   @Test
-  public void deserializeOneWithRelationship() throws IOException, JsonApiException {
+  public void deserializeOneWithRelationship() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
       result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeOneWithRelationship.json"));
-    } catch (JsonApiException e) {
+    } catch (JsonapiException e) {
       e.printStackTrace();
     }
 
@@ -64,11 +65,11 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   }
 
   @Test
-  public void deserializeOne() throws IOException, JsonApiException {
+  public void deserializeOne() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
       result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeOne.json"));
-    } catch (JsonApiException e) {
+    } catch (JsonapiException e) {
       e.printStackTrace();
     }
 
@@ -77,11 +78,11 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   }
 
   @Test
-  public void deserializeErrors() throws IOException, JsonApiException {
+  public void deserializeErrors() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
       result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeErrors.json"));
-    } catch (JsonApiException e) {
+    } catch (JsonapiException e) {
       e.printStackTrace();
     }
 
@@ -90,11 +91,11 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   }
 
   @Test
-  public void deserializeOneWithNullAttributeValue() throws IOException, JsonApiException {
+  public void deserializeOneWithNullAttributeValue() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
       result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeOneWithNullAttributeValue.json"));
-    } catch (JsonApiException e) {
+    } catch (JsonapiException e) {
       e.printStackTrace();
     }
 
@@ -103,11 +104,11 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   }
 
   @Test
-  public void deserializeMany() throws IOException, JsonApiException {
+  public void deserializeMany() throws IOException, JsonapiException {
     JsonapiPayload result = null;
     try {
       result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeMany.json"));
-    } catch (JsonApiException e) {
+    } catch (JsonapiException e) {
       e.printStackTrace();
     }
 
@@ -116,13 +117,13 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   }
 
   @Test
-  public void deserializeMany_emptyTypeHasMany() throws JsonApiException {
+  public void deserializeMany_emptyTypeHasMany() throws JsonapiException {
     String json = "{\"data\":[]}";
 
     JsonapiPayload result = null;
     try {
       result = jsonapiPayloadFactory.deserialize(json);
-    } catch (JsonApiException e) {
+    } catch (JsonapiException e) {
       e.printStackTrace();
     }
 
@@ -131,13 +132,13 @@ public class JsonapiJsonapiPayloadDeserializerTest {
   }
 
   @Test
-  public void deserializeOne_nullDataSetsTypeToHasOne() throws JsonApiException {
+  public void deserializeOne_nullDataSetsTypeToHasOne() throws JsonapiException {
     String json = "{\"data\":null}";
 
     JsonapiPayload result = null;
     try {
       result = jsonapiPayloadFactory.deserialize(json);
-    } catch (JsonApiException e) {
+    } catch (JsonapiException e) {
       e.printStackTrace();
     }
 

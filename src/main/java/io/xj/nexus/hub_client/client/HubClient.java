@@ -3,6 +3,7 @@
 package io.xj.nexus.hub_client.client;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  Interface of a Hub Client for connecting to Hub and accessing contents
@@ -16,14 +17,14 @@ public interface HubClient {
    <p>
    HubAccess entity contains the token itself, such that one of these entities can also be used (e.g. by a HubClient) in order to make a request to a Hub API
 
+   @return HubClient comprising ingested entities, including all child sub-entities
+   @throws HubClientException on failure to perform request
    @param access        control
    @param libraryIds    to ingest
    @param programIds    to ingest
    @param instrumentIds on ingest
-   @return HubClient comprising ingested entities, including all child sub-entities
-   @throws HubClientException on failure to perform request
    */
-  HubContent ingest(HubClientAccess access, Set<String> libraryIds, Set<String> programIds, Set<String> instrumentIds) throws HubClientException;
+  HubContent ingest(HubClientAccess access, Set<UUID> libraryIds, Set<UUID> programIds, Set<UUID> instrumentIds) throws HubClientException;
 
   /**
    Retrieve a HubClientAccess entity from Hub via the /auth endpoint

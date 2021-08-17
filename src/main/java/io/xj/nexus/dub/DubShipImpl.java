@@ -3,7 +3,7 @@ package io.xj.nexus.dub;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.Segment;
+import io.xj.api.SegmentType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -33,7 +33,7 @@ public class DubShipImpl implements DubShip {
 
   @Override
   public void doWork() throws NexusException {
-    Segment.Type type = null;
+    SegmentType type = null;
     try {
       type = fabricator.getType();
       shipSegmentMetadata();

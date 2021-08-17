@@ -4,12 +4,17 @@ package io.xj.nexus.craft.detail;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.Instrument;
-import io.xj.Program;
-import io.xj.ProgramVoice;
-import io.xj.SegmentChoice;
+import io.xj.api.Instrument;
+import io.xj.api.InstrumentState;
+import io.xj.api.InstrumentType;
+import io.xj.api.Program;
+import io.xj.api.ProgramState;
+import io.xj.api.ProgramType;
+import io.xj.api.ProgramVoice;
+import io.xj.api.SegmentChoice;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
+import io.xj.lib.util.Value;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.arrangement.ArrangementCraftImpl;
 import io.xj.nexus.fabricator.EntityScorePicker;
@@ -19,7 +24,9 @@ import io.xj.nexus.fabricator.MemeIsometry;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -30,12 +37,12 @@ import java.util.stream.Collectors;
 public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft {
   public static final List<String> DETAIL_INSTRUMENT_TYPES =
     ImmutableList.of(
-      Instrument.Type.Bass,
-      Instrument.Type.Stripe,
-      Instrument.Type.Pad,
-      Instrument.Type.Sticky,
-      Instrument.Type.Stab
-    ).stream().map(Instrument.Type::toString).collect(Collectors.toList());
+      InstrumentType.BASS,
+      InstrumentType.STRIPE,
+      InstrumentType.PAD,
+      InstrumentType.STICKY,
+      InstrumentType.STAB
+    ).stream().map(InstrumentType::toString).collect(Collectors.toList());
   private static final double DETAIL_PLATEAU_RATIO = 0.38;
 
   @Inject
@@ -48,11 +55,11 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   @Override
   public void doWork() throws NexusException {
     // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
-    ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> choice.getInstrumentType().toString();
-    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Program.Type.Detail.equals(choice.getProgramType());
+    ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> Value.stringOrDefault(choice.getInstrumentType(),choice.getId().toString());
+    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.DETAIL, choice.getProgramType());
     precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, DETAIL_PLATEAU_RATIO);
 
-    for (Instrument.Type voicingType : fabricator.getDistinctChordVoicingTypes()) {
+    for (InstrumentType voicingType : fabricator.getDistinctChordVoicingTypes()) {
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voicingType);
 
       // Program is from prior choice, or freshly chosen
@@ -94,12 +101,12 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    @param voicingType to choose a fresh detail program for-- meaning the detail program will have this type of voice
    @return detail-type Program
    */
-  private Optional<Program> chooseFreshDetailProgram(Instrument.Type voicingType) {
+  private Optional<Program> chooseFreshDetailProgram(InstrumentType voicingType) {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
     // Retrieve programs bound to chain having a voice of the specified type
-    Map<String/*ID*/, Program> programMap = fabricator.sourceMaterial()
-      .getProgramsOfType(Program.Type.Detail).stream()
+    Map<UUID/*ID*/, Program> programMap = fabricator.sourceMaterial()
+      .getProgramsOfType(ProgramType.DETAIL).stream()
       .collect(Collectors.toMap(Program::getId, program -> program));
     Collection<Program> sourcePrograms = fabricator.sourceMaterial()
       .getAllProgramVoices().stream()
@@ -141,18 +148,18 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
         superEntityScorePicker.add(instrument, scoreDetail(instrument));
 
     switch (fabricator.getType()) {
-      case Continue ->
+      case CONTINUE ->
         // Instrument choice inertia: prefer same instrument choices throughout a main program
         // https://www.pivotaltracker.com/story/show/178442889
         fabricator.retrospective().getChoices().stream()
-          .filter(candidate -> candidate.getInstrumentType().equals(voice.getType()))
+          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType()))
           .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_MAIN_PROGRAM));
 
-      case NextMain, NextMacro ->
+      case NEXTMAIN, NEXTMACRO ->
         // Keep same instruments when carrying outgoing choices to incoming choices of next segment
         // https://www.pivotaltracker.com/story/show/179126302
         fabricator.retrospective().getChoices().stream()
-          .filter(candidate -> candidate.getInstrumentType().equals(voice.getType()))
+          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType()))
           .filter(this::isUnlimitedOut)
           .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_OUTGOING_TO_INCOMING));
     }
@@ -181,7 +188,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(instrument))
       score += SCORE_DIRECTLY_BOUND;
-    else if (instrument.getState().equals(Instrument.State.Draft))
+    else if (instrument.getState().equals(InstrumentState.DRAFT))
       score += SCORE_UNPUBLISHED;
 
     return score;
@@ -208,7 +215,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
       score += SCORE_DIRECTLY_BOUND;
-    else if (program.getState().equals(Program.State.Draft))
+    else if (program.getState().equals(ProgramState.DRAFT))
       score += SCORE_UNPUBLISHED;
 
     // score is above zero, else empty

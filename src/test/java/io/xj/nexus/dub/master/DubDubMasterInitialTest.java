@@ -6,11 +6,15 @@ import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Program;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.ChainBindingType;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
+import io.xj.api.ProgramType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentState;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -86,24 +90,24 @@ public class DubDubMasterInitialTest {
     ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in dubbing state - DubMaster is complete
-    Chain chain2 = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(fake.account1.getId())
-      .setName("Print #2")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2014-08-12T12:17:02.527142Z")
-      .build());
-    store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain2.getId())
-      .setTargetId(fake.library2.getId())
-      .setType(ChainBinding.Type.Library)
-      .build());
+    Chain chain2 = store.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(fake.account1.getId())
+      .name("Print #2")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2014-08-12T12:17:02.527142Z")
+      );
+    store.put(new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain2.getId())
+      .targetId(fake.library2.getId())
+      .type(ChainBindingType.LIBRARY)
+      );
 
-    segment6 = store.put(NexusIntegrationTestingFixtures.makeSegment(chain2, 0, Segment.State.Dubbing, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:07.384616Z"), "C minor", 16, 0.55, 130, "chains-1-segments-9f7s89d8a7892", "wav"));
-    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment6, Program.Type.Macro, fake.program4_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment6, Program.Type.Main, fake.program5_sequence0_binding0));
+    segment6 = store.put(NexusIntegrationTestingFixtures.makeSegment(chain2, 0, SegmentState.DUBBING, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:07.384616Z"), "C minor", 16, 0.55, 130, "chains-1-segments-9f7s89d8a7892", "wav"));
+    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment6, ProgramType.MACRO, fake.program4_sequence0_binding0));
+    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment6, ProgramType.MAIN, fake.program5_sequence0_binding0));
     SegmentChoice choice1 = store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment6, fake.program35, fake.program35_sequence0, fake.program35_voice0, fake.instrument8));
     store.put(NexusIntegrationTestingFixtures.makeMeme(segment6, "Special"));
     store.put(NexusIntegrationTestingFixtures.makeMeme(segment6, "Wild"));

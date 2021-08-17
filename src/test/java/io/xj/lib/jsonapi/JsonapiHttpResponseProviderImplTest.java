@@ -7,7 +7,7 @@ import com.google.inject.Guice;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-import io.xj.Program;
+import io.xj.api.Program;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ public class JsonapiHttpResponseProviderImplTest {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new JsonApiModule(), new AbstractModule() {
+    var injector = Guice.createInjector(new JsonapiModule(), new AbstractModule() {
       @Override
       protected void configure() {
         bind(Config.class).toInstance(ConfigFactory.empty()
@@ -61,21 +61,21 @@ public class JsonapiHttpResponseProviderImplTest {
 
   @Test
   public void notFound() {
-    Response result = subject.notFound(Program.newBuilder().setId(UUID.randomUUID().toString()));
+    Response result = subject.notFound(new Program().id(UUID.randomUUID()));
 
     assertEquals(404, result.getStatus());
   }
 
   @Test
   public void failure() {
-    Response result = subject.failure(new JsonApiException("Fails"));
+    Response result = subject.failure(new JsonapiException("Fails"));
 
     assertEquals(400, result.getStatus());
   }
 
   @Test
   public void failure_andCode() {
-    Response result = subject.failure(Response.Status.NOT_ACCEPTABLE, new JsonApiException("Fails"));
+    Response result = subject.failure(Response.Status.NOT_ACCEPTABLE, new JsonapiException("Fails"));
 
     assertEquals(406, result.getStatus());
   }
@@ -89,14 +89,14 @@ public class JsonapiHttpResponseProviderImplTest {
 
   @Test
   public void failureToCreate() {
-    Response result = subject.notAcceptable(new JsonApiException("Fails"));
+    Response result = subject.notAcceptable(new JsonapiException("Fails"));
 
     assertEquals(406, result.getStatus());
   }
 
   @Test
   public void failureToUpdate() {
-    Response result = subject.notAcceptable(new JsonApiException("Fails"));
+    Response result = subject.notAcceptable(new JsonapiException("Fails"));
 
     assertEquals(406, result.getStatus());
   }
@@ -114,7 +114,7 @@ public class JsonapiHttpResponseProviderImplTest {
   @Test
   public void notAcceptable_surfacesUnderlyingCauses() {
     var d = new IOException("I am the real cause");
-    var e = new JsonApiException("I am the outer cause", d);
+    var e = new JsonapiException("I am the outer cause", d);
     Response result = subject.notAcceptable(e);
 
     assertEquals(406, result.getStatus());

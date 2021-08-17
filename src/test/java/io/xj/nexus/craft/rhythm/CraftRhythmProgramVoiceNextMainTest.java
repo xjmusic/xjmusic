@@ -9,17 +9,23 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.InstrumentMeme;
-import io.xj.Program;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentMeme;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
+import io.xj.api.Instrument;
+import io.xj.api.InstrumentAudio;
+import io.xj.api.InstrumentMeme;
+import io.xj.api.InstrumentState;
+import io.xj.api.InstrumentType;
+import io.xj.api.ProgramType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentChord;
+import io.xj.api.SegmentMeme;
+import io.xj.api.SegmentState;
+import io.xj.api.SegmentType;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
@@ -95,49 +101,49 @@ public class CraftRhythmProgramVoiceNextMainTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setConfig("choiceDeltaEnabled=false")
-      .setAccountId(fake.account1.getId())
-      .setName("Test Print #1")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2014-08-12T12:17:02.527142Z")
-      .build());
-    store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setTargetId(fake.library2.getId())
-      .build());
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setType(Segment.Type.Initial)
-      .setOffset(0)
-      .setState(Segment.State.Dubbed)
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setEndAt("2017-02-14T12:01:32.000001Z")
-      .setKey("D major")
-      .setTotal(64)
-      .setDensity(0.73)
-      .setTempo(120)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892")
-      .setOutputEncoder("wav")
-      .build());
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setType(Segment.Type.Continue)
-      .setOffset(1)
-      .setState(Segment.State.Dubbing)
-      .setBeginAt("2017-02-14T12:01:32.000001Z")
-      .setEndAt("2017-02-14T12:02:04.000001Z")
-      .setKey("Db minor")
-      .setTotal(64)
-      .setDensity(0.85)
-      .setTempo(120)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .build());
+    chain1 = store.put(new Chain()
+      .id(UUID.randomUUID())
+      .config("choiceDeltaEnabled=false")
+      .accountId(fake.account1.getId())
+      .name("Test Print #1")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2014-08-12T12:17:02.527142Z")
+      );
+    store.put(new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .targetId(fake.library2.getId())
+      );
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .type(SegmentType.INITIAL)
+      .offset(0L)
+      .state(SegmentState.DUBBED)
+      .beginAt("2017-02-14T12:01:00.000001Z")
+      .endAt("2017-02-14T12:01:32.000001Z")
+      .key("D major")
+      .total(64)
+      .density(0.73)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892")
+      .outputEncoder("wav")
+      );
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .type(SegmentType.CONTINUE)
+      .offset(1L)
+      .state(SegmentState.DUBBING)
+      .beginAt("2017-02-14T12:01:32.000001Z")
+      .endAt("2017-02-14T12:02:04.000001Z")
+      .key("Db minor")
+      .total(64)
+      .density(0.85)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      );
   }
 
   /**
@@ -149,46 +155,46 @@ public class CraftRhythmProgramVoiceNextMainTest {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    Instrument instrument1 = Entities.add(entities, Instrument.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setLibraryId(fake.library2.getId())
-      .setType(Instrument.Type.Percussive)
-      .setState(Instrument.State.Published)
-      .setName("808 Drums")
-      .build());
-    Entities.add(entities, InstrumentMeme.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setInstrumentId(instrument1.getId())
-      .setName("heavy")
-      .build());
+    Instrument instrument1 = Entities.add(entities, new Instrument()
+      .id(UUID.randomUUID())
+      .libraryId(fake.library2.getId())
+      .type(InstrumentType.PERCUSSIVE)
+      .state(InstrumentState.PUBLISHED)
+      .name("808 Drums")
+      );
+    Entities.add(entities, new InstrumentMeme()
+      .id(UUID.randomUUID())
+      .instrumentId(instrument1.getId())
+      .name("heavy")
+      );
     //
-    audioKick = Entities.add(entities, InstrumentAudio.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setInstrumentId(instrument1.getId())
-      .setName("Kick")
-      .setWaveformKey("19801735098q47895897895782138975898.wav")
-      .setStart(0.01)
-      .setLength(2.123)
-      .setTempo(120.0)
-      .setDensity(0.6)
-      .setEvent("KICK")
-      .setNote("Eb")
-      .setVolume(1.0)
-      .build());
+    audioKick = Entities.add(entities, new InstrumentAudio()
+      .id(UUID.randomUUID())
+      .instrumentId(instrument1.getId())
+      .name("Kick")
+      .waveformKey("19801735098q47895897895782138975898.wav")
+      .start(0.01)
+      .length(2.123)
+      .tempo(120.0)
+      .density(0.6)
+      .event("KICK")
+      .note("Eb")
+      .volume(1.0)
+      );
     //
-    audioSnare = Entities.add(entities, InstrumentAudio.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setInstrumentId(instrument1.getId())
-      .setName("Snare")
-      .setWaveformKey("a1g9f8u0k1v7f3e59o7j5e8s98.wav")
-      .setStart(0.01)
-      .setLength(1.5)
-      .setTempo(120.0)
-      .setDensity(0.6)
-      .setEvent("SNARE")
-      .setNote("Ab")
-      .setVolume(1.0)
-      .build());
+    audioSnare = Entities.add(entities, new InstrumentAudio()
+      .id(UUID.randomUUID())
+      .instrumentId(instrument1.getId())
+      .name("Snare")
+      .waveformKey("a1g9f8u0k1v7f3e59o7j5e8s98.wav")
+      .start(0.01)
+      .length(1.5)
+      .tempo(120.0)
+      .density(0.6)
+      .event("SNARE")
+      .note("Ab")
+      .volume(1.0)
+      );
 
     return entities;
   }
@@ -232,105 +238,105 @@ public class CraftRhythmProgramVoiceNextMainTest {
   private void insertSegments3and4(boolean excludeRhythmChoiceForSegment3) throws NexusException {
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setType(Segment.Type.Continue)
-      .setOffset(2L)
-      .setState(Segment.State.Crafted)
-      .setBeginAt("2017-02-14T12:02:04.000001Z")
-      .setEndAt("2017-02-14T12:02:36.000001Z")
-      .setKey("F Major")
-      .setTotal(64)
-      .setDensity(0.30)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892")
-      .setOutputEncoder("wav")
-      .build());
-    store.put(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment3.getId())
-      .setDeltaIn(Segments.DELTA_UNLIMITED)
-      .setDeltaOut(Segments.DELTA_UNLIMITED)
-      .setProgramId(fake.program4.getId())
-      .setProgramId(fake.program4_sequence0_binding0.getProgramId())
-      .setProgramSequenceBindingId(fake.program4_sequence0_binding0.getId())
-      .setProgramType(Program.Type.Macro)
-      .build());
-    store.put(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment3.getId())
-      .setDeltaIn(Segments.DELTA_UNLIMITED)
-      .setDeltaOut(Segments.DELTA_UNLIMITED)
-      .setProgramId(fake.program15.getId())
-      .setProgramId(fake.program15_sequence1_binding0.getProgramId())
-      .setProgramSequenceBindingId(fake.program15_sequence1_binding0.getId())
-      .setProgramType(Program.Type.Main)
-      .build());
+    Segment segment3 = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .type(SegmentType.CONTINUE)
+      .offset(2L)
+      .state(SegmentState.CRAFTED)
+      .beginAt("2017-02-14T12:02:04.000001Z")
+      .endAt("2017-02-14T12:02:36.000001Z")
+      .key("F Major")
+      .total(64)
+      .density(0.30)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892")
+      .outputEncoder("wav")
+      );
+    store.put(new SegmentChoice()
+      .id(UUID.randomUUID())
+      .segmentId(segment3.getId())
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .programId(fake.program4.getId())
+      .programId(fake.program4_sequence0_binding0.getProgramId())
+      .programSequenceBindingId(fake.program4_sequence0_binding0.getId())
+      .programType(ProgramType.MACRO)
+      );
+    store.put(new SegmentChoice()
+      .id(UUID.randomUUID())
+      .segmentId(segment3.getId())
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .programId(fake.program15.getId())
+      .programId(fake.program15_sequence1_binding0.getProgramId())
+      .programSequenceBindingId(fake.program15_sequence1_binding0.getId())
+      .programType(ProgramType.MAIN)
+      );
     if (!excludeRhythmChoiceForSegment3)
-      store.put(SegmentChoice.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(segment3.getId())
-        .setDeltaIn(Segments.DELTA_UNLIMITED)
-        .setDeltaOut(Segments.DELTA_UNLIMITED)
-        .setProgramId(fake.program35.getId())
-        .setProgramType(Program.Type.Rhythm)
-        .build());
+      store.put(new SegmentChoice()
+        .id(UUID.randomUUID())
+        .segmentId(segment3.getId())
+        .deltaIn(Segments.DELTA_UNLIMITED)
+        .deltaOut(Segments.DELTA_UNLIMITED)
+        .programId(fake.program35.getId())
+        .programType(ProgramType.RHYTHM)
+        );
 
     // segment crafting
-    segment4 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setType(Segment.Type.NextMain)
-      .setOffset(3L)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("2017-02-14T12:03:08.000001Z")
-      .setEndAt("2017-02-14T12:03:15.836735Z")
-      .setKey("G minor")
-      .setTotal(16)
-      .setDensity(0.45)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .build());
-    store.put(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment4.getId())
-      .setDeltaIn(Segments.DELTA_UNLIMITED)
-      .setDeltaOut(Segments.DELTA_UNLIMITED)
-      .setProgramId(fake.program4.getId())
-      .setProgramId(fake.program4_sequence1_binding0.getProgramId())
-      .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
-      .setProgramType(Program.Type.Macro)
-      .build());
-    store.put(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment4.getId())
-      .setDeltaIn(Segments.DELTA_UNLIMITED)
-      .setDeltaOut(Segments.DELTA_UNLIMITED)
-      .setProgramId(fake.program15.getId())
-      .setProgramId(fake.program15_sequence0_binding0.getProgramId())
-      .setProgramSequenceBindingId(fake.program15_sequence0_binding0.getId())
-      .setProgramType(Program.Type.Main)
-      .build());
+    segment4 = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .type(SegmentType.NEXTMAIN)
+      .offset(3L)
+      .state(SegmentState.CRAFTING)
+      .beginAt("2017-02-14T12:03:08.000001Z")
+      .endAt("2017-02-14T12:03:15.836735Z")
+      .key("G minor")
+      .total(16)
+      .density(0.45)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      );
+    store.put(new SegmentChoice()
+      .id(UUID.randomUUID())
+      .segmentId(segment4.getId())
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .programId(fake.program4.getId())
+      .programId(fake.program4_sequence1_binding0.getProgramId())
+      .programSequenceBindingId(fake.program4_sequence1_binding0.getId())
+      .programType(ProgramType.MACRO)
+      );
+    store.put(new SegmentChoice()
+      .id(UUID.randomUUID())
+      .segmentId(segment4.getId())
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .programId(fake.program15.getId())
+      .programId(fake.program15_sequence0_binding0.getProgramId())
+      .programSequenceBindingId(fake.program15_sequence0_binding0.getId())
+      .programType(ProgramType.MAIN)
+      );
     for (String memeName : ImmutableList.of("Regret", "Sky", "Hindsight", "Tropical"))
-      store.put(SegmentMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(segment4.getId())
-        .setName(memeName)
-        .build());
+      store.put(new SegmentMeme()
+        .id(UUID.randomUUID())
+        .segmentId(segment4.getId())
+        .name(memeName)
+        );
 
-    store.put(SegmentChord.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment4.getId())
-      .setPosition(0.0)
-      .setName("G minor")
-      .build());
-    store.put(SegmentChord.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment4.getId())
-      .setPosition(8.0)
-      .setName("Ab minor")
-      .build());
+    store.put(new SegmentChord()
+      .id(UUID.randomUUID())
+      .segmentId(segment4.getId())
+      .position(0.0)
+      .name("G minor")
+      );
+    store.put(new SegmentChord()
+      .id(UUID.randomUUID())
+      .segmentId(segment4.getId())
+      .position(8.0)
+      .name("Ab minor")
+      );
   }
 
 }

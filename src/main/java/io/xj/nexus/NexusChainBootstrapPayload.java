@@ -2,8 +2,8 @@
 
 package io.xj.nexus;
 
-import io.xj.Chain;
-import io.xj.ChainBinding;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
 
 import java.util.Collection;
 

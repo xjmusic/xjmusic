@@ -6,14 +6,14 @@ package io.xj.lib.jsonapi;
  <p>
  Created by Charney Kaye on 2020/03/05
  */
-public class JsonApiException extends Exception {
+public class JsonapiException extends Exception {
 
   /**
    Construct XJ Music service REST API exception with message
 
    @param message for exception
    */
-  public JsonApiException(String message) {
+  public JsonapiException(String message) {
     super(message);
   }
 
@@ -23,7 +23,7 @@ public class JsonApiException extends Exception {
    @param message   for exception
    @param throwable throwable to wrap in exception
    */
-  public JsonApiException(String message, Throwable throwable) {
+  public JsonapiException(String message, Throwable throwable) {
     super(message, throwable);
   }
 
@@ -32,7 +32,7 @@ public class JsonApiException extends Exception {
 
    @param cause exception from which to create a REST API exception
    */
-  public JsonApiException(Throwable cause) {
+  public JsonapiException(Throwable cause) {
     super(cause);
   }
 }

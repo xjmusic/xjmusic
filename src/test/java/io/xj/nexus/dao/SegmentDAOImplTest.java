@@ -3,9 +3,13 @@ package io.xj.nexus.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import io.xj.Account;
-import io.xj.Chain;
-import io.xj.Segment;
+import io.xj.api.Account;
+import io.xj.api.Chain;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentState;
+import io.xj.api.SegmentType;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -30,6 +34,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -65,84 +70,94 @@ public class SegmentDAOImplTest {
     // test subject
     testDAO = injector.getInstance(SegmentDAO.class);
 
-    // Account "Testing" has chain "Test Print #1"
+    // Account "Testing" has a chain "Test Print #1"
     account1 = NexusIntegrationTestingFixtures.makeAccount("Testing");
-    chain3 = store.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(account1.getId())
-      .setName("Test Print #1")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt("2014-08-12T12:17:02.527142Z")
-      .build());
+    chain3 = store.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(account1.getId())
+      .name("Test Print #1")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt("2014-08-12T12:17:02.527142Z")
+    );
 
     // Chain "Test Print #1" has 5 sequential segments
-    segment1 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setOffset(0L)
-      .setState(Segment.State.Dubbed)
-      .setKey("D major")
-      .setTotal(64)
-      .setDensity(0.73)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setEndAt("2017-02-14T12:01:32.000001Z")
-      .build());
-    segment2 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setOffset(1L)
-      .setState(Segment.State.Dubbing)
-      .setKey("Db minor")
-      .setTotal(64)
-      .setDensity(0.85)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:01:32.000001Z")
-      .setWaveformPreroll(1.523)
-      .setEndAt("2017-02-14T12:02:04.000001Z")
-      .build());
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setOffset(2L)
-      .setState(Segment.State.Crafted)
-      .setKey("F major")
-      .setTotal(64)
-      .setDensity(0.30)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:02:04.000001Z")
-      .setEndAt("2017-02-14T12:02:36.000001Z")
-      .build());
-    segment4 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setOffset(3L)
-      .setState(Segment.State.Crafting)
-      .setKey("E minor")
-      .setTotal(64)
-      .setDensity(0.41)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:02:36.000001Z")
-      .setEndAt("2017-02-14T12:03:08.000001Z")
-      .build());
-    segment5 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setBeginAt("2017-02-14T12:03:08.000001Z")
-      .setOffset(4L)
-      .setState(Segment.State.Planned)
-      .setKey("E minor")
-      .setTotal(64)
-      .setDensity(0.41)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892")
-      .setOutputEncoder("wav")
-      .build());
+    segment1 = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain3.getId())
+      .offset(0L)
+      .delta(0)
+      .type(SegmentType.INITIAL)
+      .state(SegmentState.DUBBED)
+      .key("D major")
+      .total(64)
+      .density(0.73)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .beginAt("2017-02-14T12:01:00.000001Z")
+      .endAt("2017-02-14T12:01:32.000001Z")
+    );
+    segment2 = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain3.getId())
+      .offset(1L)
+      .delta(64)
+      .type(SegmentType.CONTINUE)
+      .state(SegmentState.DUBBING)
+      .key("Db minor")
+      .total(64)
+      .density(0.85)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .beginAt("2017-02-14T12:01:32.000001Z")
+      .waveformPreroll(1.523)
+      .endAt("2017-02-14T12:02:04.000001Z")
+    );
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain3.getId())
+      .offset(2L)
+      .delta(256)
+      .type(SegmentType.CONTINUE)
+      .state(SegmentState.CRAFTED)
+      .key("F major")
+      .total(64)
+      .density(0.30)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .beginAt("2017-02-14T12:02:04.000001Z")
+      .endAt("2017-02-14T12:02:36.000001Z")
+    );
+    segment4 = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain3.getId())
+      .offset(3L)
+      .state(SegmentState.CRAFTING)
+      .key("E minor")
+      .total(64)
+      .delta(192)
+      .type(SegmentType.CONTINUE)
+      .density(0.41)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .beginAt("2017-02-14T12:02:36.000001Z")
+      .endAt("2017-02-14T12:03:08.000001Z")
+    );
+    segment5 = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain3.getId())
+      .beginAt("2017-02-14T12:03:08.000001Z")
+      .offset(4L)
+      .delta(245)
+      .type(SegmentType.CONTINUE)
+      .state(SegmentState.PLANNED)
+      .key("E minor")
+      .total(64)
+      .density(0.41)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892")
+      .outputEncoder("wav")
+    );
   }
 
   /**
@@ -151,20 +166,21 @@ public class SegmentDAOImplTest {
   @Test
   public void create() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
-    Segment inputData = Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setOffset(5L)
-      .setState(Segment.State.Planned)
-      .setBeginAt("1995-04-28T11:23:00.000001Z")
-      .setEndAt("1995-04-28T11:23:32.000001Z")
-      .setTotal(64)
-      .setDensity(0.74)
-      .setWaveformPreroll(2.898)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setKey("C# minor 7 b9")
-      .setTempo(120.0)
-      .build();
+    Segment inputData = new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain3.getId())
+      .offset(5L)
+      .state(SegmentState.PLANNED)
+      .delta(0)
+      .type(SegmentType.CONTINUE)
+      .beginAt("1995-04-28T11:23:00.000001Z")
+      .endAt("1995-04-28T11:23:32.000001Z")
+      .total(64)
+      .density(0.74)
+      .waveformPreroll(2.898)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .key("C# minor 7 b9")
+      .tempo(120.0);
 
     when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
@@ -173,11 +189,11 @@ public class SegmentDAOImplTest {
 
     assertNotNull(result);
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(5L, result.getOffset());
-    assertEquals(Segment.State.Planned, result.getState());
+    assertEquals(Long.valueOf(5), result.getOffset());
+    assertEquals(SegmentState.PLANNED, result.getState());
     assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt());
     assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt());
-    assertEquals(64, result.getTotal());
+    assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(120.0, result.getTempo(), 0.01);
@@ -192,19 +208,20 @@ public class SegmentDAOImplTest {
   @Test
   public void create_alwaysInPlannedState() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
-    Segment inputData = Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setOffset(5L)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("1995-04-28T11:23:00.000001Z")
-      .setEndAt("1995-04-28T11:23:32.000001Z")
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setTotal(64)
-      .setDensity(0.74)
-      .setKey("C# minor 7 b9")
-      .setTempo(120.0)
-      .build();
+    Segment inputData = new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain3.getId())
+      .offset(5L)
+      .state(SegmentState.CRAFTING)
+      .delta(0)
+      .type(SegmentType.CONTINUE)
+      .beginAt("1995-04-28T11:23:00.000001Z")
+      .endAt("1995-04-28T11:23:32.000001Z")
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .total(64)
+      .density(0.74)
+      .key("C# minor 7 b9")
+      .tempo(120.0);
 
     when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
@@ -213,11 +230,11 @@ public class SegmentDAOImplTest {
 
     assertNotNull(result);
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(5L, result.getOffset());
-    assertEquals(Segment.State.Planned, result.getState());
+    assertEquals(Long.valueOf(5), result.getOffset());
+    assertEquals(SegmentState.PLANNED, result.getState());
     assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt());
     assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt());
-    assertEquals(64, result.getTotal());
+    assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(120.0, result.getTempo(), 0.1);
@@ -227,18 +244,19 @@ public class SegmentDAOImplTest {
   @Test
   public void create_FailsIfNotUniqueChainOffset() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
-    Segment inputData = Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setOffset(4L)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("1995-04-28T11:23:00.000001Z")
-      .setEndAt("1995-04-28T11:23:32.000001Z")
-      .setTotal(64)
-      .setDensity(0.74)
-      .setKey("C# minor 7 b9")
-      .setTempo(120.0)
-      .build();
+    Segment inputData = new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain3.getId())
+      .offset(4L)
+      .delta(0)
+      .type(SegmentType.CONTINUE)
+      .state(SegmentState.CRAFTING)
+      .beginAt("1995-04-28T11:23:00.000001Z")
+      .endAt("1995-04-28T11:23:32.000001Z")
+      .total(64)
+      .density(0.74)
+      .key("C# minor 7 b9")
+      .tempo(120.0);
 
     when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
@@ -252,17 +270,17 @@ public class SegmentDAOImplTest {
   @Test
   public void create_FailsWithoutTopLevelAccess() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("User");
-    Segment inputData = Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setOffset(4L)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("1995-04-28T11:23:00.000001Z")
-      .setEndAt("1995-04-28T11:23:32.000001Z")
-      .setTotal(64)
-      .setDensity(0.74)
-      .setKey("C# minor 7 b9")
-      .setTempo(120.0).build();
+    Segment inputData = new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain3.getId())
+      .offset(4L)
+      .state(SegmentState.CRAFTING)
+      .beginAt("1995-04-28T11:23:00.000001Z")
+      .endAt("1995-04-28T11:23:32.000001Z")
+      .total(64)
+      .density(0.74)
+      .key("C# minor 7 b9")
+      .tempo(120.0);
 
     when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
@@ -276,15 +294,17 @@ public class SegmentDAOImplTest {
   @Test
   public void create_FailsWithoutChainID() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
-    Segment inputData = Segment.newBuilder()
-      .setOffset(4L)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("1995-04-28T11:23:00.000001Z")
-      .setEndAt("1995-04-28T11:23:32.000001Z")
-      .setTotal(64)
-      .setDensity(0.74)
-      .setKey("C# minor 7 b9")
-      .setTempo(120.0).build();
+    Segment inputData = new Segment()
+      .offset(4L)
+      .delta(0)
+      .type(SegmentType.CONTINUE)
+      .state(SegmentState.CRAFTING)
+      .beginAt("1995-04-28T11:23:00.000001Z")
+      .endAt("1995-04-28T11:23:32.000001Z")
+      .total(64)
+      .density(0.74)
+      .key("C# minor 7 b9")
+      .tempo(120.0);
 
     when(fileStoreProvider.generateKey("chains-1-segments"))
       .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
@@ -304,11 +324,11 @@ public class SegmentDAOImplTest {
     assertNotNull(result);
     assertEquals(segment2.getId(), result.getId());
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(1L, result.getOffset());
-    assertEquals(Segment.State.Dubbing, result.getState());
+    assertEquals(Long.valueOf(1L), result.getOffset());
+    assertEquals(SegmentState.DUBBING, result.getState());
     assertEquals("2017-02-14T12:01:32.000001Z", result.getBeginAt());
     assertEquals("2017-02-14T12:02:04.000001Z", result.getEndAt());
-    assertEquals(64, result.getTotal());
+    assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(0.85, result.getDensity(), 0.01);
     assertEquals("Db minor", result.getKey());
     assertEquals(120.0, result.getTempo(), 0.01);
@@ -317,9 +337,9 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readOne_failsWhenUserIsNotInChain() {
-    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(Account.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .build()), "User");
+    HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess(ImmutableList.of(new Account()
+      .id(UUID.randomUUID())
+    ), "User");
 
     Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
       testDAO.readOne(access, segment1.getId()));
@@ -338,19 +358,19 @@ public class SegmentDAOImplTest {
     Iterator<Segment> it = result.iterator();
 
     Segment result0 = it.next();
-    assertEquals(Segment.State.Dubbed, result0.getState());
+    assertEquals(SegmentState.DUBBED, result0.getState());
 
     Segment result1 = it.next();
-    assertEquals(Segment.State.Dubbing, result1.getState());
+    assertEquals(SegmentState.DUBBING, result1.getState());
 
     Segment result2 = it.next();
-    assertEquals(Segment.State.Crafted, result2.getState());
+    assertEquals(SegmentState.CRAFTED, result2.getState());
 
     Segment result3 = it.next();
-    assertEquals(Segment.State.Crafting, result3.getState());
+    assertEquals(SegmentState.CRAFTING, result3.getState());
 
     Segment result4 = it.next();
-    assertEquals(Segment.State.Planned, result4.getState());
+    assertEquals(SegmentState.PLANNED, result4.getState());
   }
 
   /**
@@ -358,20 +378,20 @@ public class SegmentDAOImplTest {
    */
   @Test
   public void readMany_hasNoLimit() throws Exception {
-    chain5 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
+    chain5 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
     for (int i = 0; i < 20; i++)
-      store.put(Segment.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setChainId(chain5.getId())
-        .setOffset(4L)
-        .setState(Segment.State.Crafting)
-        .setBeginAt("1995-04-28T11:23:00.000001Z")
-        .setEndAt("1995-04-28T11:23:32.000001Z")
-        .setTotal(64)
-        .setDensity(0.74)
-        .setKey("C# minor 7 b9")
-        .setTempo(120.0)
-        .build());
+      store.put(new Segment()
+        .id(UUID.randomUUID())
+        .chainId(chain5.getId())
+        .offset(4L)
+        .state(SegmentState.CRAFTING)
+        .beginAt("1995-04-28T11:23:00.000001Z")
+        .endAt("1995-04-28T11:23:32.000001Z")
+        .total(64)
+        .density(0.74)
+        .key("C# minor 7 b9")
+        .tempo(120.0)
+      );
 
     Collection<Segment> result = testDAO.readMany(HubClientAccess.internal(), ImmutableList.of(chain5.getId()));
 
@@ -381,86 +401,86 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readMany_byChainEmbedKey() throws Exception {
-    chain5 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain5.getId())
-      .setOffset(0L)
-      .setState(Segment.State.Dubbed)
-      .setKey("D major")
-      .setTotal(64)
-      .setDensity(0.73)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .build()
+    chain5 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain5.getId())
+      .offset(0L)
+      .state(SegmentState.DUBBED)
+      .key("D major")
+      .total(64)
+      .density(0.73)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .beginAt("2017-02-14T12:01:00.000001Z")
+
     );
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain5.getId())
-      .setOffset(1L)
-      .setState(Segment.State.Dubbing)
-      .setKey("Db minor")
-      .setTotal(64)
-      .setDensity(0.85)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:01:32.000001Z")
-      .build()
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain5.getId())
+      .offset(1L)
+      .state(SegmentState.DUBBING)
+      .key("Db minor")
+      .total(64)
+      .density(0.85)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .beginAt("2017-02-14T12:01:32.000001Z")
+
     );
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain5.getId())
-      .setOffset(2L)
-      .setState(Segment.State.Crafted)
-      .setKey("F major")
-      .setTotal(64)
-      .setDensity(0.30)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:02:04.000001Z")
-      .build()
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain5.getId())
+      .offset(2L)
+      .state(SegmentState.CRAFTED)
+      .key("F major")
+      .total(64)
+      .density(0.30)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .beginAt("2017-02-14T12:02:04.000001Z")
+
     );
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain5.getId())
-      .setOffset(3L)
-      .setState(Segment.State.Crafting)
-      .setKey("E minor")
-      .setTotal(64)
-      .setDensity(0.41)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:02:36.000001Z")
-      .build()
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain5.getId())
+      .offset(3L)
+      .state(SegmentState.CRAFTING)
+      .key("E minor")
+      .total(64)
+      .density(0.41)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .beginAt("2017-02-14T12:02:36.000001Z")
+
     );
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain5.getId())
-      .setBeginAt("2017-02-14T12:03:08.000001Z")
-      .setOffset(4L)
-      .setState(Segment.State.Planned)
-      .setKey("E minor")
-      .setTotal(64)
-      .setDensity(0.41)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .build());
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain5.getId())
+      .beginAt("2017-02-14T12:03:08.000001Z")
+      .offset(4L)
+      .state(SegmentState.PLANNED)
+      .key("E minor")
+      .total(64)
+      .density(0.41)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+    );
 
     Collection<Segment> result = testDAO.readManyByEmbedKey(HubClientAccess.internal(), "barnacles");
 
     assertEquals(5L, result.size());
     Iterator<Segment> it = result.iterator();
     Segment actualResult0 = it.next();
-    assertEquals(Segment.State.Planned, actualResult0.getState());
+    assertEquals(SegmentState.PLANNED, actualResult0.getState());
     Segment result1 = it.next();
-    assertEquals(Segment.State.Crafting, result1.getState());
+    assertEquals(SegmentState.CRAFTING, result1.getState());
     Segment result2 = it.next();
-    assertEquals(Segment.State.Crafted, result2.getState());
+    assertEquals(SegmentState.CRAFTED, result2.getState());
     Segment result3 = it.next();
-    assertEquals(Segment.State.Dubbing, result3.getState());
+    assertEquals(SegmentState.DUBBING, result3.getState());
     Segment result4 = it.next();
-    assertEquals(Segment.State.Dubbed, result4.getState());
+    assertEquals(SegmentState.DUBBED, result4.getState());
   }
 
   @Test
@@ -472,9 +492,9 @@ public class SegmentDAOImplTest {
     assertEquals(2L, result.size());
     Iterator<Segment> it = result.iterator();
     Segment result1 = it.next();
-    assertEquals(Segment.State.Crafted, result1.getState());
+    assertEquals(SegmentState.CRAFTED, result1.getState());
     Segment result2 = it.next();
-    assertEquals(Segment.State.Crafting, result2.getState());
+    assertEquals(SegmentState.CRAFTING, result2.getState());
   }
 
   @Test
@@ -495,11 +515,11 @@ public class SegmentDAOImplTest {
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
     Segment actualResult0 = it.next();
-    assertEquals(Segment.State.Dubbing, actualResult0.getState());
+    assertEquals(SegmentState.DUBBING, actualResult0.getState());
     Segment result1 = it.next();
-    assertEquals(Segment.State.Crafted, result1.getState());
+    assertEquals(SegmentState.CRAFTED, result1.getState());
     Segment result2 = it.next();
-    assertEquals(Segment.State.Crafting, result2.getState());
+    assertEquals(SegmentState.CRAFTING, result2.getState());
   }
 
   /**
@@ -513,10 +533,10 @@ public class SegmentDAOImplTest {
     int numSegmentsToGenerate = 50;
     int total = 16;
     int tempo = 120;
-    chain5 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, beginAt, null, "barnacles"));
+    chain5 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, beginAt, null, "barnacles"));
     for (int offset = 0; offset < numSegmentsToGenerate; offset++) {
       Instant endAt = beginAt.plusMillis(1000 * total * 60 / tempo);
-      store.put(NexusIntegrationTestingFixtures.makeSegment(chain5, offset, Segment.State.Dubbed,
+      store.put(NexusIntegrationTestingFixtures.makeSegment(chain5, offset, SegmentState.DUBBED,
         beginAt, endAt, "D major", total, 0.73, tempo,
         "chains-1-segments-9f7s89d8a7892.wav", "OGG"));
       beginAt = endAt;
@@ -534,102 +554,112 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readManyFromSecondsUTC_byChainEmbedKey() throws Exception {
-    chain5 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain5.getId())
-      .setOffset(0L)
-      .setState(Segment.State.Dubbed)
-      .setKey("D major")
-      .setTotal(64)
-      .setDensity(0.73)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setEndAt("2017-02-14T12:01:32.000001Z")
-      .build());
-    store.put(Segment.newBuilder().setChainId(chain5.getId())
-      .setId(UUID.randomUUID().toString())
-      .setOffset(1L)
-      .setState(Segment.State.Dubbing)
-      .setKey("Db minor")
-      .setTotal(64)
-      .setDensity(0.85)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:01:32.000001Z")
-      .setEndAt("2017-02-14T12:02:04.000001Z")
-      .build());
-    store.put(Segment.newBuilder().setChainId(chain5.getId())
-      .setId(UUID.randomUUID().toString())
-      .setOffset(2L)
-      .setState(Segment.State.Crafted)
-      .setKey("F major")
-      .setTotal(64)
-      .setDensity(0.30)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:02:04.000001Z")
-      .setEndAt("2017-02-14T12:02:36.000001Z")
-      .build());
-    store.put(Segment.newBuilder().setChainId(chain5.getId())
-      .setId(UUID.randomUUID().toString())
-      .setOffset(3L)
-      .setState(Segment.State.Crafting)
-      .setKey("E minor")
-      .setTotal(64)
-      .setDensity(0.41)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setBeginAt("2017-02-14T12:02:36.000001Z")
-      .setEndAt("2017-02-14T12:03:08.000001Z")
-      .build());
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain5.getId())
-      .setBeginAt("2017-02-14T12:03:08.000001Z")
-      .setOffset(4L)
-      .setState(Segment.State.Planned)
-      .setKey("E minor")
-      .setTotal(64)
-      .setDensity(0.41)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .build());
+    chain5 = store.put(NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain5.getId())
+      .offset(0L)
+      .delta(0)
+      .type(SegmentType.CONTINUE)
+      .state(SegmentState.DUBBED)
+      .key("D major")
+      .total(64)
+      .density(0.73)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .beginAt("2017-02-14T12:01:00.000001Z")
+      .endAt("2017-02-14T12:01:32.000001Z")
+    );
+    store.put(new Segment().chainId(chain5.getId())
+      .id(UUID.randomUUID())
+      .offset(1L)
+      .delta(0)
+      .type(SegmentType.CONTINUE)
+      .state(SegmentState.DUBBING)
+      .key("Db minor")
+      .total(64)
+      .density(0.85)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .beginAt("2017-02-14T12:01:32.000001Z")
+      .endAt("2017-02-14T12:02:04.000001Z")
+    );
+    store.put(new Segment().chainId(chain5.getId())
+      .id(UUID.randomUUID())
+      .offset(2L)
+      .delta(0)
+      .type(SegmentType.CONTINUE)
+      .state(SegmentState.CRAFTED)
+      .key("F major")
+      .total(64)
+      .density(0.30)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .beginAt("2017-02-14T12:02:04.000001Z")
+      .endAt("2017-02-14T12:02:36.000001Z")
+    );
+    store.put(new Segment().chainId(chain5.getId())
+      .id(UUID.randomUUID())
+      .offset(3L)
+      .delta(0)
+      .type(SegmentType.CONTINUE)
+      .state(SegmentState.CRAFTING)
+      .key("E minor")
+      .total(64)
+      .density(0.41)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .beginAt("2017-02-14T12:02:36.000001Z")
+      .endAt("2017-02-14T12:03:08.000001Z")
+    );
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain5.getId())
+      .beginAt("2017-02-14T12:03:08.000001Z")
+      .offset(4L)
+        .delta(0)
+        .type(SegmentType.CONTINUE)
+      .state(SegmentState.PLANNED)
+      .key("E minor")
+      .total(64)
+      .density(0.41)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+    );
 
     Collection<Segment> result = testDAO.readManyFromSecondsUTCbyEmbedKey(HubClientAccess.internal(), "barnacles", 1487073724L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
     Segment result0 = it.next();
-    assertEquals(Segment.State.Dubbing, result0.getState());
+    assertEquals(SegmentState.DUBBING, result0.getState());
     Segment result1 = it.next();
-    assertEquals(Segment.State.Crafted, result1.getState());
+    assertEquals(SegmentState.CRAFTED, result1.getState());
     Segment result2 = it.next();
-    assertEquals(Segment.State.Crafting, result2.getState());
+    assertEquals(SegmentState.CRAFTING, result2.getState());
   }
 
   @Test
   public void readOneInState() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Internal");
 
-    Segment result = testDAO.readOneInState(access, chain3.getId(), Segment.State.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"));
+    Segment result = testDAO.readOneInState(access, chain3.getId(), SegmentState.PLANNED, Instant.parse("2017-02-14T12:03:08.000001Z"));
 
     assertEquals(segment5.getId(), result.getId());
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(4L, result.getOffset());
-    assertEquals(Segment.State.Planned, result.getState());
+    assertEquals(Long.valueOf(4), result.getOffset());
+    assertEquals(SegmentState.PLANNED, result.getState());
     assertEquals("2017-02-14T12:03:08.000001Z", result.getBeginAt());
-    assertEquals("", result.getEndAt());
+    assertNull(result.getEndAt());
   }
 
   @Test
   public void readOneInState_failIfNoneInChain() {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Internal");
-    NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #2", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
+    NexusIntegrationTestingFixtures.makeChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
 
     Exception thrown = assertThrows(DAOExistenceException.class, () ->
-      testDAO.readOneInState(access, segment2.getId(), Segment.State.Planned, Instant.parse("2017-02-14T12:03:08.000001Z")));
+      testDAO.readOneInState(access, segment2.getId(), SegmentState.PLANNED, Instant.parse("2017-02-14T12:03:08.000001Z")));
 
     assertTrue(thrown.getMessage().contains("Found no Segment"));
   }
@@ -637,20 +667,21 @@ public class SegmentDAOImplTest {
   @Test
   public void update() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
-    Segment inputData = Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setOffset(5L)
-      .setState(Segment.State.Dubbed)
-      .setBeginAt("1995-04-28T11:23:00.000001Z")
-      .setEndAt("1995-04-28T11:23:32.000001Z")
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setTotal(64)
-      .setDensity(0.74)
-      .setWaveformPreroll(0.0123)
-      .setKey("C# minor 7 b9")
-      .setTempo(120.0)
-      .build();
+    Segment inputData = new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain3.getId())
+      .offset(5L)
+      .state(SegmentState.DUBBED)
+      .delta(0)
+      .type(SegmentType.CONTINUE)
+      .beginAt("1995-04-28T11:23:00.000001Z")
+      .endAt("1995-04-28T11:23:32.000001Z")
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .total(64)
+      .density(0.74)
+      .waveformPreroll(0.0123)
+      .key("C# minor 7 b9")
+      .tempo(120.0);
 
     testDAO.update(access, segment2.getId(), inputData);
 
@@ -658,7 +689,7 @@ public class SegmentDAOImplTest {
     assertNotNull(result);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(chain3.getId(), result.getChainId());
-    assertEquals(Segment.State.Dubbed, result.getState());
+    assertEquals(SegmentState.DUBBED, result.getState());
     assertEquals(0.0123, result.getWaveformPreroll(), 0.001);
     assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt());
     assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt());
@@ -670,19 +701,20 @@ public class SegmentDAOImplTest {
   @Test
   public void persistPriorSegmentContent() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
-    segment4 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setOffset(5L)
-      .setState(Segment.State.Dubbed)
-      .setBeginAt("1995-04-28T11:23:00.000001Z")
-      .setEndAt("1995-04-28T11:23:32.000001Z")
-      .setTotal(64)
-      .setDensity(0.74)
-      .setKey("C# minor 7 b9")
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .setTempo(120.0)
-      .build());
+    segment4 = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .type(SegmentType.CONTINUE)
+      .delta(0)
+      .chainId(chain3.getId())
+      .offset(5L)
+      .state(SegmentState.DUBBED)
+      .beginAt("1995-04-28T11:23:00.000001Z")
+      .endAt("1995-04-28T11:23:32.000001Z")
+      .total(64)
+      .density(0.74)
+      .key("C# minor 7 b9")
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      .tempo(120.0));
 
     testDAO.update(access, segment4.getId(), segment4);
 
@@ -696,7 +728,7 @@ public class SegmentDAOImplTest {
 
     Exception thrown = assertThrows(DAOValidationException.class, () ->
       testDAO.update(access, segment2.getId(),
-        entityFactory.clone(segment2).toBuilder().setState(Segment.State.Crafting).build()));
+        entityFactory.clone(segment2).state(SegmentState.CRAFTING)));
 
     assertTrue(thrown.getMessage().contains("transition to Crafting not in allowed"));
   }
@@ -704,17 +736,18 @@ public class SegmentDAOImplTest {
   @Test
   public void update_FailsWithoutChainID() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
-    Segment inputData = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setOffset(4L)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("1995-04-28T11:23:00.000001Z")
-      .setEndAt("1995-04-28T11:23:32.000001Z")
-      .setTotal(64)
-      .setDensity(0.74)
-      .setKey("C# minor 7 b9")
-      .setTempo(120.0)
-      .build());
+    Segment inputData = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .offset(4L)
+      .state(SegmentState.CRAFTING)
+      .delta(0)
+      .type(SegmentType.CONTINUE)
+      .beginAt("1995-04-28T11:23:00.000001Z")
+      .endAt("1995-04-28T11:23:32.000001Z")
+      .total(64)
+      .density(0.74)
+      .key("C# minor 7 b9")
+      .tempo(120.0));
 
     Exception thrown = assertThrows(DAOValidationException.class, () ->
       testDAO.update(access, segment2.getId(), inputData));
@@ -725,18 +758,19 @@ public class SegmentDAOImplTest {
   @Test
   public void update_FailsToChangeChain() throws Exception {
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
-    Segment inputData = Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain3.getId())
-      .setOffset(4L)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("1995-04-28T11:23:00.000001Z")
-      .setEndAt("1995-04-28T11:23:32.000001Z")
-      .setTotal(64)
-      .setDensity(0.74)
-      .setKey("C# minor 7 b9")
-      .setTempo(120.0)
-      .build();
+    Segment inputData = new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain3.getId())
+      .offset(4L)
+      .delta(0)
+      .type(SegmentType.CONTINUE)
+      .state(SegmentState.CRAFTING)
+      .beginAt("1995-04-28T11:23:00.000001Z")
+      .endAt("1995-04-28T11:23:32.000001Z")
+      .total(64)
+      .density(0.74)
+      .key("C# minor 7 b9")
+      .tempo(120.0);
 
     Exception thrown = assertThrows(DAOValidationException.class, () ->
       testDAO.update(access, segment2.getId(), inputData));

@@ -84,9 +84,9 @@ public interface Mixer {
   /**
    Whether the mixer has loaded a specified source
 
-   @param sourceId to check for
+   @param sourceKey to check for
    @return true if source has been loaded
    */
-  boolean hasLoadedSource(String sourceId);
+  boolean hasLoadedSource(String sourceKey);
 
 }

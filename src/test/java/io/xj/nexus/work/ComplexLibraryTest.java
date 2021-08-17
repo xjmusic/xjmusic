@@ -6,8 +6,11 @@ import com.google.inject.AbstractModule;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
-import io.xj.Chain;
-import io.xj.ChainBinding;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.ChainBindingType;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -96,22 +99,22 @@ public class ComplexLibraryTest {
       .thenReturn(new HubContent(fake.generatedFixture(3)));
 
     // Chain "Test Print #1" is ready to begin
-    chain1 = test.put(Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(fake.account1.getId())
-      .setConfig("choiceDeltaEnabled=false")
-      .setName("Test Print #1")
-      .setType(Chain.Type.Preview)
-      .setState(Chain.State.Fabricate)
-      .setStartAt(Value.formatIso8601UTC(Instant.now().minusSeconds(MAXIMUM_TEST_WAIT_SECONDS)))
-      .build());
+    chain1 = test.put(new Chain()
+      .id(UUID.randomUUID())
+      .accountId(fake.account1.getId())
+      .config("choiceDeltaEnabled=false")
+      .name("Test Print #1")
+      .type(ChainType.PREVIEW)
+      .state(ChainState.FABRICATE)
+      .startAt(Value.formatIso8601UTC(Instant.now().minusSeconds(MAXIMUM_TEST_WAIT_SECONDS)))
+      );
 
-    test.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setTargetId(fake.library1.getId())
-      .setType(ChainBinding.Type.Library)
-      .build());
+    test.put(new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .targetId(fake.library1.getId())
+      .type(ChainBindingType.LIBRARY)
+      );
 
     app = new NexusApp(injector);
 
@@ -159,12 +162,12 @@ public class ComplexLibraryTest {
   }
 
   /**
-   Does a specified Chain have at least N segments?
+   Does a specified Chain contain at least N segments?
 
    @param chainId to test
-   @return true if has at least N segments
+   @return true if it has at least N segments
    */
-  private boolean hasSegmentsDubbedPastMinimumOffset(String chainId) {
+  private boolean hasSegmentsDubbedPastMinimumOffset(UUID chainId) {
     try {
       return segmentDAO.readLastDubbedSegment(HubClientAccess.internal(), chainId)
         .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getOffset()).isPresent();

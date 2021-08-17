@@ -23,7 +23,7 @@ public class InstantSerdesTest {
 
   @Before
   public void setUp() {
-    entityFactory = Guice.createInjector(new JsonApiModule(), new AbstractModule() {
+    entityFactory = Guice.createInjector(new JsonapiModule(), new AbstractModule() {
       @Override
       protected void configure() {
         bind(Config.class).toInstance(ConfigFactory.empty());

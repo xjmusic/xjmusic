@@ -7,7 +7,7 @@ import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
-import io.xj.Instrument;
+import io.xj.api.Instrument;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 

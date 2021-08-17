@@ -9,13 +9,18 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Program;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChord;
-import io.xj.SegmentMeme;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.ChainBindingType;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
+import io.xj.api.ProgramType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChord;
+import io.xj.api.SegmentMeme;
+import io.xj.api.SegmentState;
+import io.xj.api.SegmentType;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
@@ -90,89 +95,89 @@ public class CraftFoundationContinueTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setTargetId(fake.library2.getId())
-      .setType(ChainBinding.Type.Library)
-      .build());
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setOffset(0L)
-      .setState(Segment.State.Dubbed)
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setEndAt("2017-02-14T12:01:32.000001Z")
-      .setKey("D major")
-      .setTotal(64)
-      .setDensity(0.73)
-      .setTempo(120)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892")
-      .setOutputEncoder("wav")
-      .build());
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setOffset(1L)
-      .setState(Segment.State.Dubbing)
-      .setBeginAt("2017-02-14T12:01:32.000001Z")
-      .setEndAt("2017-02-14T12:02:04.000001Z")
-      .setKey("Db minor")
-      .setTotal(64)
-      .setDensity(0.85)
-      .setTempo(120)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892")
-      .setOutputEncoder("wav")
-      .build());
+    Chain chain1 = store.put(makeChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    store.put(new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .targetId(fake.library2.getId())
+      .type(ChainBindingType.LIBRARY)
+      );
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .offset(0L)
+      .state(SegmentState.DUBBED)
+      .beginAt("2017-02-14T12:01:00.000001Z")
+      .endAt("2017-02-14T12:01:32.000001Z")
+      .key("D major")
+      .total(64)
+      .density(0.73)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892")
+      .outputEncoder("wav")
+      );
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .offset(1L)
+      .state(SegmentState.DUBBING)
+      .beginAt("2017-02-14T12:01:32.000001Z")
+      .endAt("2017-02-14T12:02:04.000001Z")
+      .key("Db minor")
+      .total(64)
+      .density(0.85)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892")
+      .outputEncoder("wav")
+      );
 
     // Chain "Test Print #1" has this segment that was just crafted
-    Segment segment3 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setOffset(2L)
-      .setState(Segment.State.Crafted)
-      .setBeginAt("2017-02-14T12:02:04.000001Z")
-      .setEndAt("2017-02-14T12:02:36.000001Z")
-      .setKey("F Major")
-      .setTotal(64)
-      .setDensity(0.30)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .build());
-    store.put(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment3.getId())
-      .setDeltaIn(Segments.DELTA_UNLIMITED)
-      .setDeltaOut(Segments.DELTA_UNLIMITED)
-      .setProgramType(Program.Type.Macro)
-      .setProgramId(fake.program4_sequence1_binding0.getProgramId())
-      .setProgramSequenceBindingId(fake.program4_sequence1_binding0.getId())
-      .build());
-    store.put(SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment3.getId())
-      .setDeltaIn(Segments.DELTA_UNLIMITED)
-      .setDeltaOut(Segments.DELTA_UNLIMITED)
-      .setProgramType(Program.Type.Main)
-      .setProgramId(fake.program5_sequence0_binding0.getProgramId())
-      .setProgramSequenceBindingId(fake.program5_sequence0_binding0.getId())
-      .build());
+    Segment segment3 = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .offset(2L)
+      .state(SegmentState.CRAFTED)
+      .beginAt("2017-02-14T12:02:04.000001Z")
+      .endAt("2017-02-14T12:02:36.000001Z")
+      .key("F Major")
+      .total(64)
+      .density(0.30)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      );
+    store.put(new SegmentChoice()
+      .id(UUID.randomUUID())
+      .segmentId(segment3.getId())
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .programType(ProgramType.MACRO)
+      .programId(fake.program4_sequence1_binding0.getProgramId())
+      .programSequenceBindingId(fake.program4_sequence1_binding0.getId())
+      );
+    store.put(new SegmentChoice()
+      .id(UUID.randomUUID())
+      .segmentId(segment3.getId())
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .programType(ProgramType.MAIN)
+      .programId(fake.program5_sequence0_binding0.getProgramId())
+      .programSequenceBindingId(fake.program5_sequence0_binding0.getId())
+      );
 
     // Chain "Test Print #1" has a planned segment
-    segment4 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setOffset(3L)
-      .setState(Segment.State.Planned)
-      .setBeginAt("2017-02-14T12:03:08.000001Z")
-      .setKey("C")
-      .setTotal(4)
-      .setDensity(1.0)
-      .setTempo(120)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892")
-      .setOutputEncoder("wav")
-      .build());
+    segment4 = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .offset(3L)
+      .state(SegmentState.PLANNED)
+      .beginAt("2017-02-14T12:03:08.000001Z")
+      .key("C")
+      .total(4)
+      .density(1.0)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892")
+      .outputEncoder("wav")
+      );
   }
 
   /**
@@ -185,14 +190,14 @@ public class CraftFoundationContinueTest {
     craftFactory.macroMain(fabricator).doWork();
 
     Segment result = store.getSegment(segment4.getId()).orElseThrow();
-    assertEquals(Segment.Type.Continue, result.getType());
+    assertEquals(SegmentType.CONTINUE, result.getType());
     assertEquals("2017-02-14T12:03:23.680157Z", result.getEndAt());
-    assertEquals(32, result.getTotal());
+    assertEquals(Integer.valueOf(32), result.getTotal());
     assertEquals("OGG", result.getOutputEncoder());
     assertEquals(0.45, result.getDensity(), 0.001);
     assertEquals("G minor", result.getKey());
     assertEquals(125, result.getTempo(), 0.001);
-    assertEquals(Segment.Type.Continue, result.getType());
+    assertEquals(SegmentType.CONTINUE, result.getType());
     // assert memes
     assertSameItems(
       Lists.newArrayList("OUTLOOK", "TROPICAL", "COZY", "WILD", "PESSIMISM"),
@@ -204,13 +209,13 @@ public class CraftFoundationContinueTest {
     Collection<SegmentChoice> segmentChoices =
       store.getAll(result.getId(), SegmentChoice.class);
     // assert macro choice
-    SegmentChoice macroChoice = Segments.findFirstOfType(segmentChoices, Program.Type.Macro);
+    SegmentChoice macroChoice = Segments.findFirstOfType(segmentChoices, ProgramType.MACRO);
     assertEquals(fake.program4_sequence1_binding0.getId(), macroChoice.getProgramSequenceBindingId());
-    assertEquals(Long.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
+    assertEquals(Integer.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
     // assert main choice
-    SegmentChoice mainChoice = Segments.findFirstOfType(segmentChoices, Program.Type.Main);
+    SegmentChoice mainChoice = Segments.findFirstOfType(segmentChoices, ProgramType.MAIN);
     assertEquals(fake.program5_sequence1_binding0.getId(), mainChoice.getProgramSequenceBindingId()); // next main sequence binding in same program as previous sequence
-    assertEquals(Long.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
+    assertEquals(Integer.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
   }
 
 }

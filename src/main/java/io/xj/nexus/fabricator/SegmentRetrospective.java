@@ -1,13 +1,14 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import io.xj.Program;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangementPick;
+import io.xj.api.ProgramType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangementPick;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  Digest segments of the previous main program
@@ -26,7 +27,15 @@ public interface SegmentRetrospective {
    @param type of choice to get
    @return choice of given type
    */
-  Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, Program.Type type);
+  Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, ProgramType type);
+
+  /**
+   Get the choice of a given voice by id
+
+   @param programVoiceId of voice for which to get choice
+   @return choice of given type
+   */
+  Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, UUID programVoiceId);
 
   /**
    Get the picks of any previous segments which selected the same main sequence
@@ -50,7 +59,15 @@ public interface SegmentRetrospective {
    @param type of choice to get
    @return choice of given type
    */
-  Optional<SegmentChoice> getPreviousChoiceOfType(Program.Type type);
+  Optional<SegmentChoice> getPreviousChoiceOfType(ProgramType type);
+
+  /**
+   Get the previous-segment choice of a given voice by id
+
+   @param programVoiceId of voice for which to get choice
+   @return choice of given type
+   */
+  Optional<SegmentChoice> getPreviousChoiceOfVoice(UUID programVoiceId);
 
   /**
    @return all cached segments

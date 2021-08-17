@@ -5,9 +5,10 @@ import com.google.api.client.util.Lists;
 import com.google.api.client.util.Strings;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Segment;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.Segment;
+import io.xj.api.SegmentState;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
@@ -17,7 +18,7 @@ import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.json.JsonProvider;
-import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.TempFile;
@@ -190,7 +191,7 @@ public class NexusApp extends App {
       chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
       entities.add(chain);
-    } catch (FileStoreException | JsonApiException | IOException e) {
+    } catch (FileStoreException | JsonapiException | IOException e) {
       LOG.error("Failed to retrieve previously fabricated chain because {}", e.getMessage());
       return false;
     }
@@ -202,7 +203,7 @@ public class NexusApp extends App {
         .forEach(chainBinding -> {
           try {
             entities.add(jsonapiPayloadFactory.toOne(chainBinding));
-          } catch (JsonApiException e) {
+          } catch (JsonapiException e) {
             success.set(false);
             LOG.error("Could not deserialize ChainBinding from shipped Chain JSON because {}", e.getMessage());
           }
@@ -213,13 +214,13 @@ public class NexusApp extends App {
         .flatMap(po -> {
           try {
             return Stream.of((Segment) jsonapiPayloadFactory.toOne(po));
-          } catch (JsonApiException e) {
+          } catch (JsonapiException e) {
             LOG.error("Could not deserialize Segment from shipped Chain JSON because {}", e.getMessage());
             success.set(false);
             return Stream.empty();
           }
         })
-        .filter(seg -> Segment.State.Dubbed.equals(seg.getState()))
+        .filter(seg -> SegmentState.DUBBED.equals(seg.getState()))
         .forEach(segment -> {
           try {
             var segmentStorageKey = fileStoreProvider.getSegmentStorageKey(segment.getStorageKey(), EXTENSION_JSON);
@@ -231,7 +232,7 @@ public class NexusApp extends App {
               .flatMap(po -> {
                 try {
                   return Stream.of(jsonapiPayloadFactory.toOne(po));
-                } catch (JsonApiException e) {
+                } catch (JsonapiException e) {
                   LOG.error("Could not deserialize Segment from shipped Chain JSON because {}", e.getMessage());
                   success.set(false);
                   return Stream.empty();

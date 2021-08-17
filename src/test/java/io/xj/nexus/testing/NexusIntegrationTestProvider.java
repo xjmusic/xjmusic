@@ -2,7 +2,7 @@
 
 package io.xj.nexus.testing;
 
-import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.nexus.NexusException;
 
 import java.util.Collection;
@@ -33,7 +33,7 @@ public interface NexusIntegrationTestProvider {
    @param <E>    type of entity
    @return entity (for chaining methods)
    */
-  <E> E put(E entity) throws JsonApiException, NexusException;
+  <E> E put(E entity) throws JsonapiException, NexusException;
 
   /**
    Put an entity into the record store, including child entities
@@ -44,5 +44,5 @@ public interface NexusIntegrationTestProvider {
    @param included entities to put with the record
    @return entity (for chaining methods)
    */
-  <E, I> E put(E entity, Collection<I> included) throws JsonApiException, NexusException;
+  <E, I> E put(E entity, Collection<I> included) throws JsonapiException, NexusException;
 }

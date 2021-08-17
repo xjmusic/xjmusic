@@ -2,7 +2,7 @@
 package io.xj.nexus.fabricator;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.ProgramSequence;
+import io.xj.api.ProgramSequence;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,25 +23,21 @@ public class EntityScorePickerTest {
 
   @Before
   public void setUp() {
-    sequenceB = ProgramSequence.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("Super Jam")
-      .build();
+    sequenceB = new ProgramSequence()
+      .id(UUID.randomUUID())
+      .name("Super Jam");
 
-    sequenceC = ProgramSequence.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("Dope Beat")
-      .build();
+    sequenceC = new ProgramSequence()
+      .id(UUID.randomUUID())
+      .name("Dope Beat");
 
-    sequenceD = ProgramSequence.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("The Illest")
-      .build();
+    sequenceD = new ProgramSequence()
+      .id(UUID.randomUUID())
+      .name("The Illest");
 
-    sequenceE = ProgramSequence.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("Good News")
-      .build();
+    sequenceE = new ProgramSequence()
+      .id(UUID.randomUUID())
+      .name("Good News");
 
     entityScorePicker = new EntityScorePicker<>();
 
@@ -127,14 +123,14 @@ public class EntityScorePickerTest {
   public void score_adjustExisting() {
     entityScorePicker.score(sequenceC, 2.0);
 
-    Map<String, Double> result = entityScorePicker.getScores();
+    Map<UUID, Double> result = entityScorePicker.getScores();
     assertEquals(Double.valueOf(2.25), result.get(sequenceC.getId()));
   }
 
 
   @Test
   public void getScores() {
-    Map<String, Double> result = entityScorePicker.getScores();
+    Map<UUID, Double> result = entityScorePicker.getScores();
 
     assertEquals(Double.valueOf(0.75), result.get(sequenceB.getId()));
     assertEquals(Double.valueOf(0.25), result.get(sequenceC.getId()));

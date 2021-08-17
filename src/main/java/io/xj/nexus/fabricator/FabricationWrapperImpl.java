@@ -3,7 +3,9 @@
 package io.xj.nexus.fabricator;
 
 import com.google.inject.Inject;
-import io.xj.SegmentMessage;
+import io.xj.api.InstrumentAudio;
+import io.xj.api.SegmentMessage;
+import io.xj.api.SegmentMessageType;
 import io.xj.lib.util.CSV;
 import io.xj.nexus.NexusException;
 import org.slf4j.Logger;
@@ -76,12 +78,12 @@ public abstract class FabricationWrapperImpl {
    */
   protected void reportMissingInstrumentAudio(Class<?> type, String detail) {
     try {
-      fabricator.add(SegmentMessage.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(fabricator.getSegment().getId())
-        .setType(SegmentMessage.Type.Warning)
-        .setBody(String.format("%s not found %s", type.getSimpleName(), detail))
-        .build());
+      fabricator.add(new SegmentMessage()
+        .id(UUID.randomUUID())
+        .segmentId(fabricator.getSegment().getId())
+        .type(SegmentMessageType.WARNING)
+        .body(String.format("%s not found %s", type.getSimpleName(), detail))
+      );
 
     } catch (Exception e) {
       log.warn("Failed to create SegmentMessage", e);
@@ -93,12 +95,11 @@ public abstract class FabricationWrapperImpl {
    */
   protected void reportMissingInstrumentAudio(Map<String, String> traces) {
     try {
-      fabricator.add(SegmentMessage.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setSegmentId(fabricator.getSegment().getId())
-        .setType(SegmentMessage.Type.Warning)
-        .setBody(String.format("%s not found! %s", io.xj.InstrumentAudio.class.getSimpleName(), CSV.from(traces)))
-        .build());
+      fabricator.add(new SegmentMessage()
+        .id(UUID.randomUUID())
+        .segmentId(fabricator.getSegment().getId())
+        .type(SegmentMessageType.WARNING)
+        .body(String.format("%s not found! %s", InstrumentAudio.class.getSimpleName(), CSV.from(traces))));
 
     } catch (Exception e) {
       log.warn("Failed to create SegmentMessage", e);

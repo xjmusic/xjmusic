@@ -4,10 +4,10 @@ package io.xj.nexus.fabricator;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.Program;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangementPick;
+import io.xj.api.ProgramType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
@@ -21,7 +21,9 @@ import io.xj.nexus.hub_client.client.HubContent;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  The SegmentRetrospective is a delegate to look back on previous segments, read-only
@@ -53,14 +55,14 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
 
       // previous segment must have a main choice to continue past here.
       SegmentChoice previousSegmentMainChoice = store.getAll(SegmentChoice.class).stream()
-        .filter(segmentChoice -> Program.Type.Main.equals(segmentChoice.getProgramType()))
+        .filter(segmentChoice -> ProgramType.MAIN.equals(segmentChoice.getProgramType()))
         .findFirst()
-        .orElseThrow(() -> new NexusException("No main choice!"));
+        .orElseThrow(() -> new NexusException("Retrospective sees no main choice!"));
 
       // if relevant populate the retrospective with the previous segments with the same main sequence as this one
       long sequenceBindingOffset = sourceMaterial
         .getProgramSequenceBinding(previousSegmentMainChoice.getProgramSequenceBindingId())
-        .orElseThrow(() -> new DAOExistenceException("Cannot find sequence binding"))
+        .orElseThrow(() -> new DAOExistenceException("Retrospective cannot find sequence binding"))
         .getOffset();
       if (0 >= sequenceBindingOffset) return;
       long oF = segment.getOffset() - sequenceBindingOffset;
@@ -76,11 +78,21 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, Program.Type type) {
+  public Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, ProgramType type) {
     return
       store.getAll(SegmentChoice.class).stream().filter(c ->
         c.getSegmentId().equals(segment.getId()) &&
           c.getProgramType().equals(type)).findFirst();
+  }
+
+  @Override
+  public Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, UUID programVoiceId) {
+    return
+      store.getAll(SegmentChoice.class).stream()
+        .filter(c -> Objects.nonNull(c.getProgramVoiceId())
+          && c.getSegmentId().equals(segment.getId())
+          && c.getProgramVoiceId().equals(programVoiceId))
+        .findFirst();
   }
 
   @Override
@@ -94,10 +106,17 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   }
 
   @Override
-  public Optional<SegmentChoice> getPreviousChoiceOfType(Program.Type type) {
+  public Optional<SegmentChoice> getPreviousChoiceOfType(ProgramType type) {
     Optional<Segment> seg = getPreviousSegment();
     if (seg.isEmpty()) return Optional.empty();
     return getPreviousChoiceOfType(seg.get(), type);
+  }
+
+  @Override
+  public Optional<SegmentChoice> getPreviousChoiceOfVoice(UUID programVoiceId) {
+    Optional<Segment> seg = getPreviousSegment();
+    if (seg.isEmpty()) return Optional.empty();
+    return getPreviousChoiceOfType(seg.get(), programVoiceId);
   }
 
   @Override

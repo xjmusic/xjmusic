@@ -1,18 +1,17 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import com.google.protobuf.MessageLite;
-import io.xj.Chain;
-import io.xj.Program;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMeme;
-import io.xj.SegmentMessage;
-import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.api.Chain;
+import io.xj.api.ProgramType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentChord;
+import io.xj.api.SegmentChordVoicing;
+import io.xj.api.SegmentMeme;
+import io.xj.api.SegmentMessage;
+import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
 
@@ -87,7 +86,7 @@ public interface SegmentWorkbench {
    Called at the end of Segment fabrication.
    Sends added records to segmentDAO batch insert method
    */
-  void done() throws NexusException, JsonApiException, ValueException;
+  void done() throws NexusException, JsonapiException, ValueException;
 
   /**
    Get the choice of a given type
@@ -95,7 +94,7 @@ public interface SegmentWorkbench {
    @param type of choice to get
    @return choice of given type
    */
-  Optional<SegmentChoice> getChoiceOfType(Program.Type type);
+  Optional<SegmentChoice> getChoiceOfType(ProgramType type);
 
   /**
    Get the choices of a given program and instrument type
@@ -103,7 +102,7 @@ public interface SegmentWorkbench {
    @param type of choice to get
    @return choices of a given type
    */
-  Collection<SegmentChoice> getChoicesOfType(Program.Type type);
+  Collection<SegmentChoice> getChoicesOfType(ProgramType type);
 
   /**
    Get the Chain this Segment Workbench is working within
@@ -120,5 +119,5 @@ public interface SegmentWorkbench {
    @return entity that was added
    @throws NexusException on failure
    */
-  <N extends MessageLite> N add(N entity) throws NexusException;
+  <N> N add(N entity) throws NexusException;
 }

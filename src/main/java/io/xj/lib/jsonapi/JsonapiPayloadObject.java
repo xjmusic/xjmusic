@@ -291,7 +291,7 @@ public class JsonapiPayloadObject {
    */
   public <N> boolean belongsTo(N resource) {
     try {
-      return belongsTo(Entities.toType(resource), Entities.getId(resource));
+      return belongsTo(Entities.toType(resource), String.valueOf(Entities.getId(resource)));
     } catch (EntityException e) {
       return false;
     }
@@ -304,7 +304,7 @@ public class JsonapiPayloadObject {
    @param resources to assert has-many of
    @return payloadObject assertion utility (for chaining methods)
    */
-  public <N> boolean hasMany(Class<?> type, Collection<N> resources) throws JsonApiException {
+  public <N> boolean hasMany(Class<?> type, Collection<N> resources) throws JsonapiException {
     return hasMany(type.getSimpleName(), resources);
   }
 
@@ -315,18 +315,19 @@ public class JsonapiPayloadObject {
    @param resources to assert has-many of
    @return payloadObject assertion utility (for chaining methods)
    */
-  public <N> boolean hasMany(String type, Collection<N> resources) throws JsonApiException {
+  public <N> boolean hasMany(String type, Collection<N> resources) throws JsonapiException {
     try {
       String key = Entities.toHasMany(type);
       if (!relationships.containsKey(key)) return false;
       List<String> list = new ArrayList<>();
       for (N resource : resources) {
-        String resourceId = Entities.getId(resource);
-        list.add(resourceId);
+        var resourceId = Entities.getId(resource);
+        if (Objects.nonNull(resourceId))
+          list.add(resourceId.toString());
       }
       return relationships.get(key).hasDataMany(Entities.toType(type), list);
     } catch (EntityException e) {
-      throw new JsonApiException(e);
+      throw new JsonapiException(e);
     }
   }
 

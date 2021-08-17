@@ -5,17 +5,18 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.protobuf.MessageLite;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMeme;
-import io.xj.SegmentMessage;
+import io.xj.api.Chain;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentChord;
+import io.xj.api.SegmentChordVoicing;
+import io.xj.api.SegmentMeme;
+import io.xj.api.SegmentMessage;
+import io.xj.api.SegmentState;
+import io.xj.api.SegmentType;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
@@ -73,9 +74,9 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
    @param allowedStates required to be in
    @throws ValueException if not in required states
    */
-  public static void onlyAllowSegmentStateTransitions(Segment.State toState, Segment.State... allowedStates) throws ValueException {
+  public static void onlyAllowSegmentStateTransitions(SegmentState toState, SegmentState... allowedStates) throws ValueException {
     List<String> allowedStateNames = Lists.newArrayList();
-    for (Segment.State search : allowedStates) {
+    for (SegmentState search : allowedStates) {
       allowedStateNames.add(search.toString());
       if (Objects.equals(search, toState)) {
         return;
@@ -92,34 +93,33 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
    @param toState   to test transition to
    @throws ValueException on prohibited transition
    */
-  public static void protectSegmentStateTransition(Segment.State fromState, Segment.State toState) throws ValueException {
+  public static void protectSegmentStateTransition(SegmentState fromState, SegmentState toState) throws ValueException {
     switch (fromState) {
-      case Planned -> onlyAllowSegmentStateTransitions(toState, Segment.State.Planned, Segment.State.Crafting);
-      case Crafting -> onlyAllowSegmentStateTransitions(toState, Segment.State.Crafting, Segment.State.Crafted, Segment.State.Dubbing, Segment.State.Failed, Segment.State.Planned);
-      case Crafted -> onlyAllowSegmentStateTransitions(toState, Segment.State.Crafted, Segment.State.Dubbing);
-      case Dubbing -> onlyAllowSegmentStateTransitions(toState, Segment.State.Dubbing, Segment.State.Dubbed, Segment.State.Failed);
-      case Dubbed -> onlyAllowSegmentStateTransitions(toState, Segment.State.Dubbed);
-      case Failed -> onlyAllowSegmentStateTransitions(toState, Segment.State.Failed);
-      default -> onlyAllowSegmentStateTransitions(toState, Segment.State.Planned);
+      case PLANNED -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED, SegmentState.CRAFTING);
+      case CRAFTING -> onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTING, SegmentState.CRAFTED, SegmentState.DUBBING, SegmentState.FAILED, SegmentState.PLANNED);
+      case CRAFTED -> onlyAllowSegmentStateTransitions(toState, SegmentState.CRAFTED, SegmentState.DUBBING);
+      case DUBBING -> onlyAllowSegmentStateTransitions(toState, SegmentState.DUBBING, SegmentState.DUBBED, SegmentState.FAILED);
+      case DUBBED -> onlyAllowSegmentStateTransitions(toState, SegmentState.DUBBED);
+      case FAILED -> onlyAllowSegmentStateTransitions(toState, SegmentState.FAILED);
+      default -> onlyAllowSegmentStateTransitions(toState, SegmentState.PLANNED);
     }
   }
 
   @Override
   public Segment create(HubClientAccess access, Segment entity) throws DAOPrivilegeException, DAOFatalException, DAOValidationException {
     try {
-      Segment.Builder segment = entity.toBuilder();
-      segment.setId(UUID.randomUUID().toString());
+      entity.setId(UUID.randomUUID());
       requireTopLevel(access);
-      validate(segment);
+      validate(entity);
 
       // [#126] Segments are always readMany in PLANNED state
-      segment.setState(Segment.State.Planned);
+      entity.state(SegmentState.PLANNED);
 
       // create segment with Chain ID and offset are read-only, set at creation
       requireNot("Found Segment at same offset in Chain!",
-        () -> readOneAtChainOffset(access, segment.getChainId(), segment.getOffset()));
+        () -> readOneAtChainOffset(access, entity.getChainId(), entity.getOffset()));
 
-      return store.put(segment.build());
+      return store.put(entity);
 
     } catch (NexusException e) {
       throw new DAOFatalException(e);
@@ -130,9 +130,8 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   public SegmentMessage create(HubClientAccess access, SegmentMessage entity) throws DAOPrivilegeException, DAOValidationException, DAOFatalException {
     try {
       requireTopLevel(access);
-      SegmentMessage.Builder builder = entity.toBuilder();
-      validate(builder);
-      return store.put(builder.build());
+      validate(entity);
+      return store.put(entity);
 
     } catch (NexusException e) {
       throw new DAOFatalException(e);
@@ -140,10 +139,10 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public Segment readOne(HubClientAccess access, String id) throws DAOPrivilegeException, DAOExistenceException, DAOFatalException {
+  public Segment readOne(HubClientAccess access, UUID id) throws DAOPrivilegeException, DAOExistenceException, DAOFatalException {
     try {
       Segment segment = store.getSegment(id)
-        .orElseThrow(() -> new DAOExistenceException(Segment.class, id));
+        .orElseThrow(() -> new DAOExistenceException(Segment.class, id.toString()));
       requireChainAccount(access, segment.getChainId());
       return segment;
 
@@ -154,7 +153,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
 
 
   @Override
-  public Segment readOneAtChainOffset(HubClientAccess access, String chainId, Long offset) throws DAOPrivilegeException, DAOExistenceException, DAOFatalException {
+  public Segment readOneAtChainOffset(HubClientAccess access, UUID chainId, Long offset) throws DAOPrivilegeException, DAOExistenceException, DAOFatalException {
     try {
       requireTopLevel(access);
       return store.getAllSegments(chainId)
@@ -168,8 +167,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     }
   }
 
-  @Override
-  public Segment readOneInState(HubClientAccess access, String chainId, Segment.State segmentState, Instant segmentBeginBefore) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public Segment readOneInState(HubClientAccess access, UUID chainId, SegmentState segmentState, Instant segmentBeginBefore) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     try {
       requireTopLevel(access);
       return store.getAllSegments(chainId)
@@ -189,7 +187,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   @Override
   public Collection<Segment> readManyByEmbedKey(HubClientAccess access, String chainEmbedKey) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     try {
-      String chainId = chainDAO.readOneByEmbedKey(access, chainEmbedKey).getId();
+      var chainId = chainDAO.readOneByEmbedKey(access, chainEmbedKey).getId();
       return store.getAllSegments(chainId)
         .stream()
         .sorted(Comparator.comparing(Segment::getOffset).reversed())
@@ -201,11 +199,11 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public <N> Collection<N> readManySubEntities(HubClientAccess access, Collection<String> segmentIds, Boolean includePicks) throws DAOPrivilegeException, DAOFatalException {
+  public <N> Collection<N> readManySubEntities(HubClientAccess access, Collection<UUID> segmentIds, Boolean includePicks) throws DAOPrivilegeException, DAOFatalException {
     try {
       requireTopLevel(access);
       Collection<Object> entities = Lists.newArrayList();
-      for (String sId : segmentIds) {
+      for (UUID sId : segmentIds) {
         entities.addAll(store.getAll(sId, SegmentMeme.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentChord.class, Segment.class, segmentIds));
         entities.addAll(store.getAll(sId, SegmentChordVoicing.class, Segment.class, segmentIds));
@@ -235,10 +233,10 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public Collection<Segment> readMany(HubClientAccess access, Collection<String> chainIds) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public Collection<Segment> readMany(HubClientAccess access, Collection<UUID> chainIds) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     try {
       Collection<Segment> segments = Lists.newArrayList();
-      for (String chainId : chainIds)
+      for (UUID chainId : chainIds)
         store.getAllSegments(requireChainAccount(access, chainId))
           .stream()
           .sorted(Comparator.comparing(Segment::getOffset))
@@ -251,7 +249,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public Collection<Segment> readManyFromToOffset(HubClientAccess access, String chainId, Long fromOffset, Long toOffset) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException {
+  public Collection<Segment> readManyFromToOffset(HubClientAccess access, UUID chainId, Long fromOffset, Long toOffset) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException {
     try {
       requireChainAccount(access, chainId);
       return 0 > toOffset ?
@@ -268,7 +266,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public Collection<Segment> readManyFromSecondsUTC(HubClientAccess access, String chainId, Long fromSecondsUTC) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public Collection<Segment> readManyFromSecondsUTC(HubClientAccess access, UUID chainId, Long fromSecondsUTC) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     try {
       Instant from = Instant.ofEpochSecond(fromSecondsUTC);
       Instant maxBeginAt = from.plusSeconds(workBufferAheadSeconds);
@@ -296,35 +294,33 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public Segment update(HubClientAccess access, String id, Segment entity) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException, DAOValidationException {
+  public Segment update(HubClientAccess access, UUID id, Segment entity) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException, DAOValidationException {
     try {
       requireTopLevel(access);
-      Segment.Builder builder = entity.toBuilder();
 
       // validate and cache to-state
-      validate(builder);
-      Segment.State toState = builder.getState();
+      validate(entity);
+      SegmentState toState = entity.getState();
 
       // fetch existing segment; further logic is based on its current state
       Segment existing = store.getSegment(id)
-        .orElseThrow(() -> new DAOExistenceException(Segment.class, id));
+        .orElseThrow(() -> new DAOExistenceException(Segment.class, id.toString()));
       requireExists("Segment #" + id, existing);
 
       // logic based on existing Segment State
       protectSegmentStateTransition(existing.getState(), toState);
 
       // fail if attempt to [#128] change chainId of a segment
-      Object updateChainId = builder.getChainId();
+      Object updateChainId = entity.getChainId();
       if (Value.isSet(updateChainId) && !Objects.equals(updateChainId, existing.getChainId()))
         throw new DAOValidationException("cannot change chainId create a segment");
 
       // Never change id
-      builder.setId(id);
+      entity.setId(id);
 
       // save segment
-      var record = builder.build();
-      store.put(record);
-      return record;
+      store.put(entity);
+      return entity;
 
     } catch (NexusException e) {
       throw new DAOFatalException(e);
@@ -335,7 +331,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public void revert(HubClientAccess access, String id) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException, DAOValidationException {
+  public void revert(HubClientAccess access, UUID id) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException, DAOValidationException {
     try {
       requireTopLevel(access);
 
@@ -357,7 +353,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public Optional<Segment> readLastSegment(HubClientAccess access, String chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public Optional<Segment> readLastSegment(HubClientAccess access, UUID chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
     try {
       requireChainAccount(access, chainId);
       return store.getAllSegments(chainId)
@@ -370,7 +366,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public Optional<Segment> readLastDubbedSegment(HubClientAccess access, String chainId) throws DAOPrivilegeException, DAOFatalException {
+  public Optional<Segment> readLastDubbedSegment(HubClientAccess access, UUID chainId) throws DAOPrivilegeException, DAOFatalException {
     try {
       requireTopLevel(access);
       return Segments.getLastDubbed(store.getAllSegments(chainId));
@@ -381,7 +377,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   }
 
   @Override
-  public void destroy(HubClientAccess access, String id) throws DAOPrivilegeException, DAOFatalException {
+  public void destroy(HubClientAccess access, UUID id) throws DAOPrivilegeException, DAOFatalException {
     try {
       requireTopLevel(access);
 
@@ -399,7 +395,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     try {
       return entityFactory.getInstance(Segment.class);
     } catch (EntityException ignored) {
-      return Segment.getDefaultInstance();
+      return new Segment();
     }
   }
 
@@ -413,11 +409,11 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
    @throws DAOPrivilegeException if we don't have access
    @throws DAOFatalException     on critical internal failure
    */
-  private String requireChainAccount(HubClientAccess access, String chainId) throws DAOExistenceException, DAOPrivilegeException, DAOFatalException {
+  private UUID requireChainAccount(HubClientAccess access, UUID chainId) throws DAOExistenceException, DAOPrivilegeException, DAOFatalException {
     try {
       chainDAO.requireAccount(access,
         store.getChain(chainId)
-          .orElseThrow(() -> new DAOExistenceException(Chain.class, chainId)));
+          .orElseThrow(() -> new DAOExistenceException(Chain.class, chainId.toString())));
       return chainId;
 
     } catch (NexusException e) {
@@ -432,46 +428,46 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
    @param entity to validate
    @throws DAOValidationException if invalid
    */
-  public void validate(MessageLite.Builder entity) throws DAOValidationException {
+  public void validate(Object entity) throws DAOValidationException {
     try {
-      if (entity instanceof Segment.Builder)
-        validateSegment((Segment.Builder) entity);
-      else if (entity instanceof SegmentChoice.Builder)
-        validateSegmentChoice((SegmentChoice.Builder) entity);
-      else if (entity instanceof SegmentChoiceArrangement.Builder)
-        validateSegmentChoiceArrangement((SegmentChoiceArrangement.Builder) entity);
-      else if (entity instanceof SegmentChoiceArrangementPick.Builder)
-        validateSegmentChoiceArrangementPick((SegmentChoiceArrangementPick.Builder) entity);
-      else if (entity instanceof SegmentChord.Builder)
-        validateSegmentChord((SegmentChord.Builder) entity);
-      else if (entity instanceof SegmentMeme.Builder)
-        validateSegmentMeme((SegmentMeme.Builder) entity);
-      else if (entity instanceof SegmentMessage.Builder)
-        validateSegmentMessage((SegmentMessage.Builder) entity);
+      if (entity instanceof Segment)
+        validateSegment((Segment) entity);
+      else if (entity instanceof SegmentChoice)
+        validateSegmentChoice((SegmentChoice) entity);
+      else if (entity instanceof SegmentChoiceArrangement)
+        validateSegmentChoiceArrangement((SegmentChoiceArrangement) entity);
+      else if (entity instanceof SegmentChoiceArrangementPick)
+        validateSegmentChoiceArrangementPick((SegmentChoiceArrangementPick) entity);
+      else if (entity instanceof SegmentChord)
+        validateSegmentChord((SegmentChord) entity);
+      else if (entity instanceof SegmentMeme)
+        validateSegmentMeme((SegmentMeme) entity);
+      else if (entity instanceof SegmentMessage)
+        validateSegmentMessage((SegmentMessage) entity);
 
     } catch (ValueException e) {
       throw new DAOValidationException(e);
     }
   }
 
-  private void validateSegmentMessage(SegmentMessage.Builder record) throws ValueException {
+  private void validateSegmentMessage(SegmentMessage record) throws ValueException {
     Value.require(record.getSegmentId(), "Segment ID");
     Value.require(record.getType(), "Type");
     MessageEntity.validate(record);
   }
 
-  private void validateSegmentMeme(SegmentMeme.Builder record) throws ValueException {
+  private void validateSegmentMeme(SegmentMeme record) throws ValueException {
     Value.require(record.getSegmentId(), "Segment ID");
     Value.require(record.getName(), "Meme name");
-    record.setName(Text.toMeme(record.getName()));
+    record.name(Text.toMeme(record.getName()));
   }
 
-  private void validateSegmentChord(SegmentChord.Builder record) throws ValueException {
+  private void validateSegmentChord(SegmentChord record) throws ValueException {
     Value.require(record.getSegmentId(), "Segment ID");
     ChordEntity.validate(record);
   }
 
-  private void validateSegmentChoiceArrangementPick(SegmentChoiceArrangementPick.Builder record) throws ValueException {
+  private void validateSegmentChoiceArrangementPick(SegmentChoiceArrangementPick record) throws ValueException {
     Value.require(record.getSegmentId(), "Segment ID");
     Value.require(record.getSegmentChoiceArrangementId(), "Arrangement ID");
     Value.require(record.getProgramSequencePatternEventId(), "Pattern Event ID");
@@ -484,13 +480,13 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     Value.require(record.getNote(), "Note");
   }
 
-  private void validateSegmentChoiceArrangement(SegmentChoiceArrangement.Builder record) throws ValueException {
+  private void validateSegmentChoiceArrangement(SegmentChoiceArrangement record) throws ValueException {
     Value.require(record.getSegmentId(), "Segment ID");
     Value.require(record.getSegmentChoiceId(), "Choice ID");
     Value.require(record.getProgramSequencePatternId(), "Program Sequence Pattern ID");
   }
 
-  private void validateSegmentChoice(SegmentChoice.Builder record) throws ValueException {
+  private void validateSegmentChoice(SegmentChoice record) throws ValueException {
     Value.require(record.getSegmentId(), "Segment ID");
     Value.require(record.getProgramId(), "Program ID");
     Value.require(record.getProgramType(), "Program Type");
@@ -499,13 +495,15 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
     if (Value.isUnset(record.getDeltaOut())) record.setDeltaOut(Segments.DELTA_UNLIMITED);
   }
 
-  private void validateSegment(Segment.Builder record) throws ValueException {
+  private void validateSegment(Segment record) throws ValueException {
     Value.require(record.getChainId(), "Chain ID");
     Value.require(record.getOffset(), "Offset");
     if (Value.isEmpty(record.getWaveformPreroll())) record.setWaveformPreroll(0.0);
+    if (Value.isEmpty(record.getDelta())) record.setDelta(0);
     Value.require(record.getType(), "Type");
     Value.require(record.getState(), "State");
-    Value.require(record.getBeginAt(), "Begin-at");
+    if (!SegmentType.PENDING.equals(record.getType()))
+      Value.require(record.getBeginAt(), "Begin-at");
   }
 
 

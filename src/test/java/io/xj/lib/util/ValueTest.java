@@ -107,4 +107,10 @@ public class ValueTest {
     assertFalse(Value.isUnset(0));
   }
 
+  @Test
+  public void stringOrEmpty() {
+    assertEquals("", Value.stringOrEmpty(null));
+    assertEquals("4797a799-827f-4543-9e0e-65a6cb6b382f",
+      Value.stringOrEmpty(UUID.fromString("4797a799-827f-4543-9e0e-65a6cb6b382f")));
+  }
 }

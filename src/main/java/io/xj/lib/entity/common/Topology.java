@@ -1,37 +1,37 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.entity.common;
 
-import io.xj.Account;
-import io.xj.AccountUser;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.InstrumentMeme;
-import io.xj.Library;
-import io.xj.Program;
-import io.xj.ProgramMeme;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceBinding;
-import io.xj.ProgramSequenceBindingMeme;
-import io.xj.ProgramSequenceChord;
-import io.xj.ProgramSequenceChordVoicing;
-import io.xj.ProgramSequencePattern;
-import io.xj.ProgramSequencePatternEvent;
-import io.xj.ProgramVoice;
-import io.xj.ProgramVoiceTrack;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMeme;
-import io.xj.SegmentMessage;
-import io.xj.User;
-import io.xj.UserAuth;
-import io.xj.UserAuthToken;
-import io.xj.UserRole;
+import io.xj.api.Account;
+import io.xj.api.AccountUser;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.Instrument;
+import io.xj.api.InstrumentAudio;
+import io.xj.api.InstrumentMeme;
+import io.xj.api.Library;
+import io.xj.api.Program;
+import io.xj.api.ProgramMeme;
+import io.xj.api.ProgramSequence;
+import io.xj.api.ProgramSequenceBinding;
+import io.xj.api.ProgramSequenceBindingMeme;
+import io.xj.api.ProgramSequenceChord;
+import io.xj.api.ProgramSequenceChordVoicing;
+import io.xj.api.ProgramSequencePattern;
+import io.xj.api.ProgramSequencePatternEvent;
+import io.xj.api.ProgramVoice;
+import io.xj.api.ProgramVoiceTrack;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentChord;
+import io.xj.api.SegmentChordVoicing;
+import io.xj.api.SegmentMeme;
+import io.xj.api.SegmentMessage;
+import io.xj.api.User;
+import io.xj.api.UserAuth;
+import io.xj.api.UserAuthToken;
+import io.xj.api.UserRole;
 import io.xj.lib.entity.EntityFactory;
 
 /**
@@ -50,20 +50,20 @@ public enum Topology {
   public static void buildHubApiTopology(EntityFactory entityFactory) {
     // Account
     entityFactory.register(Account.class)
-      .createdBy(Account::getDefaultInstance)
+      .createdBy(Account::new)
       .withAttribute("name")
       .hasMany(Library.class)
       .hasMany(AccountUser.class);
 
     // AccountUser
     entityFactory.register(AccountUser.class)
-      .createdBy(AccountUser::getDefaultInstance)
+      .createdBy(AccountUser::new)
       .belongsTo(Account.class)
       .belongsTo(User.class);
 
     // Instrument
     entityFactory.register(Instrument.class)
-      .createdBy(Instrument::getDefaultInstance)
+      .createdBy(Instrument::new)
       .withAttribute("state")
       .withAttribute("type")
       .withAttribute("name")
@@ -76,7 +76,7 @@ public enum Topology {
 
     // InstrumentAudio
     entityFactory.register(InstrumentAudio.class)
-      .createdBy(InstrumentAudio::getDefaultInstance)
+      .createdBy(InstrumentAudio::new)
       .withAttribute("waveformKey")
       .withAttribute("name")
       .withAttribute("start")
@@ -90,13 +90,13 @@ public enum Topology {
 
     // InstrumentMeme
     entityFactory.register(InstrumentMeme.class)
-      .createdBy(InstrumentMeme::getDefaultInstance)
+      .createdBy(InstrumentMeme::new)
       .withAttribute("name")
       .belongsTo(Instrument.class);
 
     // Library
     entityFactory.register(Library.class)
-      .createdBy(Library::getDefaultInstance)
+      .createdBy(Library::new)
       .withAttribute("name")
       .belongsTo(Account.class)
       .hasMany(Instrument.class)
@@ -104,7 +104,7 @@ public enum Topology {
 
     // Program
     entityFactory.register(Program.class)
-      .createdBy(Program::getDefaultInstance)
+      .createdBy(Program::new)
       .withAttribute("state")
       .withAttribute("key")
       .withAttribute("tempo")
@@ -126,13 +126,13 @@ public enum Topology {
 
     // ProgramMeme
     entityFactory.register(ProgramMeme.class)
-      .createdBy(ProgramMeme::getDefaultInstance)
+      .createdBy(ProgramMeme::new)
       .withAttribute("name")
       .belongsTo(Program.class);
 
     // ProgramSequence
     entityFactory.register(ProgramSequence.class)
-      .createdBy(ProgramSequence::getDefaultInstance)
+      .createdBy(ProgramSequence::new)
       .withAttribute("name")
       .withAttribute("key")
       .withAttribute("density")
@@ -145,7 +145,7 @@ public enum Topology {
 
     // ProgramSequenceBinding
     entityFactory.register(ProgramSequenceBinding.class)
-      .createdBy(ProgramSequenceBinding::getDefaultInstance)
+      .createdBy(ProgramSequenceBinding::new)
       .withAttribute("offset")
       .belongsTo(Program.class)
       .belongsTo(ProgramSequence.class)
@@ -153,14 +153,14 @@ public enum Topology {
 
     // ProgramSequenceBindingMeme
     entityFactory.register(ProgramSequenceBindingMeme.class)
-      .createdBy(ProgramSequenceBindingMeme::getDefaultInstance)
+      .createdBy(ProgramSequenceBindingMeme::new)
       .withAttribute("name")
       .belongsTo(Program.class)
       .belongsTo(ProgramSequenceBinding.class);
 
     // ProgramSequenceChord
     entityFactory.register(ProgramSequenceChord.class)
-      .createdBy(ProgramSequenceChord::getDefaultInstance)
+      .createdBy(ProgramSequenceChord::new)
       .withAttribute("name")
       .withAttribute("position")
       .belongsTo(Program.class)
@@ -168,7 +168,7 @@ public enum Topology {
 
     // ProgramSequenceChordVoicing
     entityFactory.register(ProgramSequenceChordVoicing.class)
-      .createdBy(ProgramSequenceChordVoicing::getDefaultInstance)
+      .createdBy(ProgramSequenceChordVoicing::new)
       .withAttribute("type")
       .withAttribute("notes")
       .belongsTo(Program.class)
@@ -176,7 +176,7 @@ public enum Topology {
 
     // ProgramSequencePattern
     entityFactory.register(ProgramSequencePattern.class)
-      .createdBy(ProgramSequencePattern::getDefaultInstance)
+      .createdBy(ProgramSequencePattern::new)
       .withAttribute("type")
       .withAttribute("total")
       .withAttribute("name")
@@ -187,7 +187,7 @@ public enum Topology {
 
     // ProgramSequencePatternEvent
     entityFactory.register(ProgramSequencePatternEvent.class)
-      .createdBy(ProgramSequencePatternEvent::getDefaultInstance)
+      .createdBy(ProgramSequencePatternEvent::new)
       .withAttribute("duration")
       .withAttribute("note")
       .withAttribute("position")
@@ -198,7 +198,7 @@ public enum Topology {
 
     // ProgramVoice
     entityFactory.register(ProgramVoice.class)
-      .createdBy(ProgramVoice::getDefaultInstance)
+      .createdBy(ProgramVoice::new)
       .withAttribute("type")
       .withAttribute("name")
       .withAttribute("order")
@@ -207,7 +207,7 @@ public enum Topology {
 
     // ProgramVoiceTrack
     entityFactory.register(ProgramVoiceTrack.class)
-      .createdBy(ProgramVoiceTrack::getDefaultInstance)
+      .createdBy(ProgramVoiceTrack::new)
       .withAttribute("name")
       .withAttribute("order")
       .belongsTo(Program.class)
@@ -216,7 +216,7 @@ public enum Topology {
 
     // User
     entityFactory.register(User.class)
-      .createdBy(User::getDefaultInstance)
+      .createdBy(User::new)
       .withAttribute("name")
       .withAttribute("roles")
       .withAttribute("email")
@@ -226,7 +226,7 @@ public enum Topology {
 
     // UserAuth
     entityFactory.register(UserAuth.class)
-      .createdBy(UserAuth::getDefaultInstance)
+      .createdBy(UserAuth::new)
       .withAttribute("type")
       .withAttribute("externalAccessToken")
       .withAttribute("externalRefreshToken")
@@ -235,14 +235,14 @@ public enum Topology {
 
     // UserAuthToken
     entityFactory.register(UserAuthToken.class)
-      .createdBy(UserAuthToken::getDefaultInstance)
+      .createdBy(UserAuthToken::new)
       .withAttribute("accessToken")
       .belongsTo(User.class)
       .belongsTo(UserAuth.class);
 
     // UserRole
     entityFactory.register(UserRole.class)
-      .createdBy(UserRole::getDefaultInstance)
+      .createdBy(UserRole::new)
       .withAttribute("type")
       .belongsTo(User.class);
   }
@@ -255,7 +255,7 @@ public enum Topology {
   public static void buildNexusApiTopology(EntityFactory entityFactory) {
     // Chain
     entityFactory.register(Chain.class)
-      .createdBy(Chain::getDefaultInstance)
+      .createdBy(Chain::new)
       .withAttribute("name")
       .withAttribute("config")
       .withAttribute("state")
@@ -269,14 +269,14 @@ public enum Topology {
 
     // ChainBinding
     entityFactory.register(ChainBinding.class)
-      .createdBy(ChainBinding::getDefaultInstance)
+      .createdBy(ChainBinding::new)
       .withAttribute("type")
       .withAttribute("targetId")
       .belongsTo(Chain.class);
 
     // Segment
     entityFactory.register(Segment.class)
-      .createdBy(Segment::getDefaultInstance)
+      .createdBy(Segment::new)
       .withAttribute("state")
       .withAttribute("beginAt")
       .withAttribute("endAt")
@@ -301,7 +301,7 @@ public enum Topology {
 
     // SegmentChoice
     entityFactory.register(SegmentChoice.class)
-      .createdBy(SegmentChoice::getDefaultInstance)
+      .createdBy(SegmentChoice::new)
       .withAttribute("programType")
       .withAttribute("segmentType")
       .withAttribute("deltaIn")
@@ -315,7 +315,7 @@ public enum Topology {
 
     // SegmentChoiceArrangement
     entityFactory.register(SegmentChoiceArrangement.class)
-      .createdBy(SegmentChoiceArrangement::getDefaultInstance)
+      .createdBy(SegmentChoiceArrangement::new)
       .belongsTo(ProgramSequencePattern.class)
       .belongsTo(Segment.class)
       .belongsTo(SegmentChoice.class)
@@ -323,19 +323,21 @@ public enum Topology {
 
     // SegmentChoiceArrangementPick
     entityFactory.register(SegmentChoiceArrangementPick.class)
-      .createdBy(SegmentChoiceArrangementPick::getDefaultInstance)
+      .createdBy(SegmentChoiceArrangementPick::new)
       .withAttribute("start")
       .withAttribute("length")
       .withAttribute("amplitude")
       .withAttribute("name")
+      .withAttribute("note")
       .belongsTo(Segment.class)
       .belongsTo(SegmentChordVoicing.class)
+      .belongsTo(SegmentChoiceArrangement.class)
       .belongsTo(InstrumentAudio.class)
       .belongsTo(ProgramSequencePatternEvent.class);
 
     // SegmentChord
     entityFactory.register(SegmentChord.class)
-      .createdBy(SegmentChord::getDefaultInstance)
+      .createdBy(SegmentChord::new)
       .withAttribute("name")
       .withAttribute("position")
       .hasMany(SegmentChordVoicing.class)
@@ -343,7 +345,7 @@ public enum Topology {
 
     // SegmentChordVoicing
     entityFactory.register(SegmentChordVoicing.class)
-      .createdBy(SegmentChord::getDefaultInstance)
+      .createdBy(SegmentChordVoicing::new)
       .withAttribute("notes")
       .withAttribute("type")
       .belongsTo(Segment.class)
@@ -351,13 +353,13 @@ public enum Topology {
 
     // SegmentMeme
     entityFactory.register(SegmentMeme.class)
-      .createdBy(SegmentMeme::getDefaultInstance)
+      .createdBy(SegmentMeme::new)
       .withAttribute("name")
       .belongsTo(Segment.class);
 
     // SegmentMessage
     entityFactory.register(SegmentMessage.class)
-      .createdBy(SegmentMessage::getDefaultInstance)
+      .createdBy(SegmentMessage::new)
       .withAttribute("body")
       .withAttribute("type")
       .belongsTo(Segment.class);

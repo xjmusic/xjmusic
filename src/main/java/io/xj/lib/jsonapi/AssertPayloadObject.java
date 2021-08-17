@@ -5,10 +5,10 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.ValueException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static io.xj.lib.util.Assert.assertTrue;
 
@@ -34,9 +34,8 @@ public class AssertPayloadObject {
 
    @param jsonapiPayloadObject to parse
    @return payloadObject assertion utility
-   @throws IOException on failure to parse JSON
    */
-  public static AssertPayloadObject assertPayloadObject(JsonapiPayloadObject jsonapiPayloadObject) throws IOException {
+  public static AssertPayloadObject assertPayloadObject(JsonapiPayloadObject jsonapiPayloadObject) {
     return new AssertPayloadObject(jsonapiPayloadObject);
   }
 
@@ -46,9 +45,9 @@ public class AssertPayloadObject {
    @param type of relationship
    @param id   of relationship
    @return payloadObject assertion utility (for chaining methods)
-   @throws JsonApiException if assertion fails
+   @throws JsonapiException if assertion fails
    */
-  public AssertPayloadObject belongsTo(Class<?> type, String id) throws JsonApiException, ValueException {
+  public AssertPayloadObject belongsTo(Class<?> type, String id) throws JsonapiException, ValueException {
     String key = Entities.toBelongsTo(type);
     assertTrue(String.format("Belongs to %s id=%s", type, id), jsonapiPayloadObject.getRelationships().containsKey(key));
     new AssertPayload(jsonapiPayloadObject.getRelationships().get(key))
@@ -62,9 +61,9 @@ public class AssertPayloadObject {
    @param type of relationship
    @param id   of relationship
    @return payloadObject assertion utility (for chaining methods)
-   @throws JsonApiException if assertion fails
+   @throws JsonapiException if assertion fails
    */
-  public AssertPayloadObject belongsTo(String type, String id) throws JsonApiException {
+  public AssertPayloadObject belongsTo(String type, String id) throws JsonapiException {
     try {
       String key = Entities.toBelongsTo(type);
       assertTrue(String.format("Belongs to %s id=%s", type, id), jsonapiPayloadObject.getRelationships().containsKey(key));
@@ -73,7 +72,7 @@ public class AssertPayloadObject {
       return this;
 
     } catch (ValueException e) {
-      throw new JsonApiException(e);
+      throw new JsonapiException(e);
     }
   }
 
@@ -83,7 +82,7 @@ public class AssertPayloadObject {
    @param resource to assert belongs-to
    @return payloadObject assertion utility (for chaining methods)
    */
-  public <N> AssertPayloadObject belongsTo(N resource) throws JsonApiException {
+  public <N> AssertPayloadObject belongsTo(N resource) throws JsonapiException {
     try {
       String key = Entities.toBelongsTo(resource);
       assertTrue(String.format("Belongs to %s id=%s", Entities.toType(resource), Entities.getId(resource)), jsonapiPayloadObject.getRelationships().containsKey(key));
@@ -92,7 +91,7 @@ public class AssertPayloadObject {
       return this;
 
     } catch (EntityException | ValueException e) {
-      throw new JsonApiException(e);
+      throw new JsonapiException(e);
     }
   }
 
@@ -103,7 +102,7 @@ public class AssertPayloadObject {
    @param resources to assert has-many of
    @return payloadObject assertion utility (for chaining methods)
    */
-  public <N> AssertPayloadObject hasMany(Class<?> type, Collection<N> resources) throws JsonApiException {
+  public <N> AssertPayloadObject hasMany(Class<?> type, Collection<N> resources) throws JsonapiException {
     return hasMany(Entities.toHasMany(type), resources);
   }
 
@@ -114,21 +113,22 @@ public class AssertPayloadObject {
    @param resources to assert has-many of
    @return payloadObject assertion utility (for chaining methods)
    */
-  public <N> AssertPayloadObject hasMany(String type, Collection<N> resources) throws JsonApiException {
+  public <N> AssertPayloadObject hasMany(String type, Collection<N> resources) throws JsonapiException {
     try {
       String key = Entities.toHasMany(type);
       assertTrue(String.format("Has relationship %s", key), jsonapiPayloadObject.getRelationships().containsKey(key));
       List<String> list = new ArrayList<>();
       for (N resource : resources) {
-        String resourceId = Entities.getId(resource);
-        list.add(resourceId);
+        var resourceId = Entities.getId(resource);
+        if (Objects.nonNull(resourceId))
+          list.add(resourceId.toString());
       }
       new AssertPayload(jsonapiPayloadObject.getRelationships().get(key))
         .hasDataMany(Entities.toType(type), list);
       return this;
 
     } catch (EntityException | ValueException e) {
-      throw new JsonApiException(e);
+      throw new JsonapiException(e);
     }
   }
 

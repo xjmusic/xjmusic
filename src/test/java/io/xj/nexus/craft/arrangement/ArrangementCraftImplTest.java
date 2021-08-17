@@ -2,11 +2,12 @@ package io.xj.nexus.craft.arrangement;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
-import io.xj.Chain;
-import io.xj.Program;
-import io.xj.ProgramVoice;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
+import io.xj.api.Chain;
+import io.xj.api.Program;
+import io.xj.api.ProgramType;
+import io.xj.api.ProgramVoice;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentType;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.dao.ChainConfig;
 import io.xj.nexus.fabricator.Fabricator;
@@ -23,7 +24,6 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 import static io.xj.nexus.craft.detail.DetailCraftImpl.DETAIL_INSTRUMENT_TYPES;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,20 +42,16 @@ public class ArrangementCraftImplTest {
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault();
-    Chain chain = Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .build();
-    Program program = Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .build();
-    ProgramVoice programVoice1 = ProgramVoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramId(program.getId())
-      .build();
-    ProgramVoice programVoice2 = ProgramVoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramId(program.getId())
-      .build();
+    Chain chain = new Chain()
+      .id(UUID.randomUUID());
+    Program program = new Program()
+      .id(UUID.randomUUID());
+    ProgramVoice programVoice1 = new ProgramVoice()
+      .id(UUID.randomUUID())
+      .programId(program.getId());
+    ProgramVoice programVoice2 = new ProgramVoice()
+      .id(UUID.randomUUID())
+      .programId(program.getId());
     ChainConfig chainConfig = new ChainConfig(chain, config);
     when(fabricator.getChainConfig()).thenReturn(chainConfig);
     when(fabricator.sourceMaterial()).thenReturn(hubContent);
@@ -66,9 +62,9 @@ public class ArrangementCraftImplTest {
 
   @Test
   public void precomputeDeltas() throws NexusException {
-    when(fabricator.getType()).thenReturn(Segment.Type.NextMain);
+    when(fabricator.getType()).thenReturn(SegmentType.NEXTMAIN);
     ArrangementCraftImpl.ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> choice.getInstrumentType().toString();
-    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Program.Type.Detail.equals(choice.getProgramType());
+    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.DETAIL.equals(choice.getProgramType());
     subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, 0.38);
   }
 }

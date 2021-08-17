@@ -4,8 +4,8 @@ package io.xj.lib.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
-import io.xj.Library;
-import io.xj.Program;
+import io.xj.api.Library;
+import io.xj.api.Program;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,7 +32,7 @@ public class EntityStoreImplTest {
     entityFactory.register("Program")
       .withAttribute("name")
       .belongsTo(Library.class)
-      .createdBy(Program::getDefaultInstance);
+      .createdBy(Program::new);
 
     // Instantiate the test subject and put the payload
     subject = injector.getInstance(EntityStore.class);
@@ -40,10 +40,9 @@ public class EntityStoreImplTest {
 
   @Test
   public void put_get_Program() throws EntityStoreException {
-    Program program = Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("bingo")
-      .build();
+    Program program = new Program()
+      .id(UUID.randomUUID())
+      .name("bingo");
 
     subject.put(program);
     Program result = subject.get(Program.class, program.getId()).orElseThrow();
@@ -54,35 +53,29 @@ public class EntityStoreImplTest {
 
   @Test
   public void putAll_getAll() throws EntityStoreException {
-    Library library = Library.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("parent5")
-      .build();
-    Program program2 = Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setLibraryId(library.getId())
-      .setName("Test2")
-      .build();
-    Program program3 = Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setLibraryId(library.getId())
-      .setName("Test7")
-      .build();
-    Program program2_program0 = Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setLibraryId(program2.getId())
-      .setName("Test2_A")
-      .build();
-    Program program3_program0 = Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setLibraryId(program3.getId())
-      .setName("Test7_B")
-      .build();
-    Program program3_program1 = Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setLibraryId(program3.getId())
-      .setName("Test7_C")
-      .build();
+    Library library = new Library()
+      .id(UUID.randomUUID())
+      .name("parent5");
+    Program program2 = new Program()
+      .id(UUID.randomUUID())
+      .libraryId(library.getId())
+      .name("Test2");
+    Program program3 = new Program()
+      .id(UUID.randomUUID())
+      .libraryId(library.getId())
+      .name("Test7");
+    Program program2_program0 = new Program()
+      .id(UUID.randomUUID())
+      .libraryId(program2.getId())
+      .name("Test2_A");
+    Program program3_program0 = new Program()
+      .id(UUID.randomUUID())
+      .libraryId(program3.getId())
+      .name("Test7_B");
+    Program program3_program1 = new Program()
+      .id(UUID.randomUUID())
+      .libraryId(program3.getId())
+      .name("Test7_C");
     assertEquals(5, subject.putAll(ImmutableList.of(program2, program3, program2_program0, program3_program0, program3_program1)).size());
 
     Collection<Program> result = subject.getAll(Program.class, Library.class, ImmutableList.of(library.getId()));

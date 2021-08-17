@@ -3,13 +3,15 @@
 package io.xj.nexus.dao;
 
 import com.google.common.base.Strings;
-import io.xj.Chain;
-import io.xj.ChainBinding;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.ChainBindingType;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +38,7 @@ public enum Chains {
    */
   public static String getIdentifier(@Nullable Chain chain) {
     if (Objects.isNull(chain)) return "N/A";
-    return Strings.isNullOrEmpty(chain.getEmbedKey()) ? chain.getId() : chain.getEmbedKey();
+    return Strings.isNullOrEmpty(chain.getEmbedKey()) ? chain.getId().toString() : chain.getEmbedKey();
   }
 
   /**
@@ -46,8 +48,8 @@ public enum Chains {
    @param type          to include
    @return set of target ids of the specified type of chain binding targets
    */
-  public static Set<String> targetIdsOfType(Collection<ChainBinding> chainBindings, ChainBinding.Type type) {
-    return chainBindings.stream().filter(chainBinding -> chainBinding.getType().equals(type))
+  public static Set<UUID> targetIdsOfType(Collection<ChainBinding> chainBindings, ChainBindingType type) {
+    return chainBindings.stream().filter(chainBinding -> Objects.equals(chainBinding.getType(), type))
       .map(ChainBinding::getTargetId).collect(Collectors.toSet());
   }
 

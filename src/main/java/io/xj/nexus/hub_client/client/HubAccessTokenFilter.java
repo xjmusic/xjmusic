@@ -70,7 +70,7 @@ public class HubAccessTokenFilter implements ContainerRequestFilter {
    @return null if allowed -- String message on failure
    */
   @Nullable
-  private String authenticate(ContainerRequestContext context) throws Exception {
+  private String authenticate(ContainerRequestContext context) {
     // use reflection to get resource method annotation values
     Method method = resourceInfo.getResourceMethod();
     RolesAllowed aRolesAllowed = method.getAnnotation(RolesAllowed.class);

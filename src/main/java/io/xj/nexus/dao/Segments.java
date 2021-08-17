@@ -3,9 +3,10 @@
 package io.xj.nexus.dao;
 
 import com.google.common.base.Strings;
-import io.xj.Program;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
+import io.xj.api.ProgramType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentState;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 
 import javax.annotation.Nullable;
@@ -31,7 +32,7 @@ public enum Segments {
    @param type           to find one of
    @return segment choice of given type
    */
-  public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, Program.Type type) throws DAOExistenceException {
+  public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, ProgramType type) throws DAOExistenceException {
     Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getProgramType().equals(type)).findFirst();
     if (found.isEmpty()) throw new DAOExistenceException(String.format("No %s-type choice found", type));
     return found.get();
@@ -45,7 +46,7 @@ public enum Segments {
    */
   public static String getIdentifier(@Nullable Segment segment) {
     if (Objects.isNull(segment)) return "N/A";
-    return Strings.isNullOrEmpty(segment.getStorageKey()) ? segment.getId() : segment.getStorageKey();
+    return Strings.isNullOrEmpty(segment.getStorageKey()) ? segment.getId().toString() : segment.getStorageKey();
   }
 
 
@@ -80,7 +81,7 @@ public enum Segments {
   public static Collection<Segment> getDubbed(Collection<Segment> segments) {
     return segments
       .stream()
-      .filter(segment -> Segment.State.Dubbed == segment.getState())
+      .filter(segment -> SegmentState.DUBBED == segment.getState())
       .collect(Collectors.toList());
   }
 

@@ -4,7 +4,6 @@ package io.xj.lib.entity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.protobuf.MessageLite;
 import io.xj.lib.util.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -22,16 +22,11 @@ import java.util.stream.Collectors;
  */
 public class EntityStoreImpl implements EntityStore {
   private static final Logger log = LoggerFactory.getLogger(EntityStoreImpl.class);
-  private final Map<Class<?>/*Type*/, Map<String/*ID*/, Object>> store = Maps.newConcurrentMap();
+  private final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = Maps.newConcurrentMap();
 
   public <N> N put(N entity) throws EntityStoreException {
-    // fail to store builder
-    if (entity instanceof MessageLite.Builder)
-      throw new EntityStoreException(String.format("Can't store builder %s!",
-        entity.getClass().getSimpleName()));
-
     // fail to store entity without id
-    String id;
+    UUID id;
     try {
       id = Entities.getId(entity);
     } catch (EntityException e) {
@@ -55,7 +50,7 @@ public class EntityStoreImpl implements EntityStore {
     return results;
   }
 
-  public <N> Optional<N> get(Class<N> type, String id) throws EntityStoreException {
+  public <N> Optional<N> get(Class<N> type, UUID id) throws EntityStoreException {
     try {
       if (!store.containsKey(type)) return Optional.empty();
       if (!store.get(type).containsKey(id)) return Optional.empty();
@@ -73,7 +68,7 @@ public class EntityStoreImpl implements EntityStore {
     return (Collection<N>) store.get(type).values();
   }
 
-  public <N, B> Collection<N> getAll(Class<N> type, Class<B> belongsToType, Collection<String> belongsToIds) throws EntityStoreException {
+  public <N, B> Collection<N> getAll(Class<N> type, Class<B> belongsToType, Collection<UUID> belongsToIds) throws EntityStoreException {
     try {
       if (!store.containsKey(type)) return ImmutableList.of();
       //noinspection unchecked
@@ -86,7 +81,7 @@ public class EntityStoreImpl implements EntityStore {
     }
   }
 
-  public <N> void delete(Class<N> type, String id) {
+  public <N> void delete(Class<N> type, UUID id) {
     if (store.containsKey(type))
       store.get(type).remove(id);
   }
@@ -96,7 +91,7 @@ public class EntityStoreImpl implements EntityStore {
     log.debug("Did delete all records in store");
   }
 
-  public <N, B> void deleteAll(Class<N> type, Class<B> belongsToType, String belongsToId) throws EntityStoreException {
+  public <N, B> void deleteAll(Class<N> type, Class<B> belongsToType, UUID belongsToId) throws EntityStoreException {
     for (N entity : getAll(type, belongsToType, ImmutableList.of(belongsToId))) {
       try {
         delete(type, Entities.getId(entity));

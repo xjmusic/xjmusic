@@ -55,7 +55,7 @@ class JsonapiHttpResponseProviderImpl implements JsonapiHttpResponseProvider {
           .type(MediaType.APPLICATION_JSON)
           .build();
 
-    } catch (JsonApiException e) {
+    } catch (JsonapiException e) {
       log.error("Failed to create {}", jsonapiPayload, e);
       return notAcceptable(e);
     }
@@ -161,7 +161,7 @@ class JsonapiHttpResponseProviderImpl implements JsonapiHttpResponseProvider {
         .entity(jsonapiPayloadFactory.serialize(jsonapiPayload))
         .build();
 
-    } catch (JsonApiException e2) {
+    } catch (JsonapiException e2) {
       log.error("Failed to serialize original failure {} code {}", status, e2);
       return Response.serverError().build();
     }
@@ -187,7 +187,7 @@ class JsonapiHttpResponseProviderImpl implements JsonapiHttpResponseProvider {
         .type(MediaType.APPLICATION_JSON)
         .build();
 
-    } catch (JsonApiException e) {
+    } catch (JsonapiException e) {
       log.error("Failed to serialize payload {}", jsonapiPayload, e);
       return failure(e);
     }

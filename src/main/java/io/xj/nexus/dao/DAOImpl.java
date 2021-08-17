@@ -3,8 +3,7 @@
 package io.xj.nexus.dao;
 
 import com.google.inject.Inject;
-import com.google.protobuf.MessageLite;
-import io.xj.UserRole;
+import io.xj.api.UserRoleType;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.Value;
 import io.xj.nexus.dao.exception.DAOExistenceException;
@@ -15,10 +14,11 @@ import io.xj.nexus.persistence.NexusEntityStore;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-public abstract class DAOImpl<E extends MessageLite> implements DAO<E> {
+public abstract class DAOImpl<E> implements DAO<E> {
   protected final EntityFactory entityFactory;
   protected final NexusEntityStore store;
 
@@ -104,7 +104,7 @@ public abstract class DAOImpl<E extends MessageLite> implements DAO<E> {
    @throws DAOPrivilegeException if does not have access
    */
   protected void requireArtist(HubClientAccess access) throws DAOPrivilegeException {
-    require(access, UserRole.Type.Artist);
+    require(access, UserRoleType.ARTIST);
   }
 
   /**
@@ -136,7 +136,7 @@ public abstract class DAOImpl<E extends MessageLite> implements DAO<E> {
    @param accountId to check for access to
    @throws DAOPrivilegeException if not admin
    */
-  protected void requireAccount(HubClientAccess access, String accountId) throws DAOPrivilegeException {
+  protected void requireAccount(HubClientAccess access, UUID accountId) throws DAOPrivilegeException {
     if (access.isTopLevel()) return;
     require("Account access", access.hasAccount(accountId));
   }
@@ -148,7 +148,7 @@ public abstract class DAOImpl<E extends MessageLite> implements DAO<E> {
    @param accountId to check for access to
    @throws DAOPrivilegeException if not admin
    */
-  protected void requireAccount(HubClientAccess access, String accountId, UserRole.Type... allowedRoles) throws DAOPrivilegeException {
+  protected void requireAccount(HubClientAccess access, UUID accountId, UserRoleType... allowedRoles) throws DAOPrivilegeException {
     requireAccount(access, accountId);
     require(access, allowedRoles);
   }
@@ -162,7 +162,7 @@ public abstract class DAOImpl<E extends MessageLite> implements DAO<E> {
    @param allowedRoles to require
    @throws DAOPrivilegeException if access does not have any one of the specified roles
    */
-  protected void require(HubClientAccess access, UserRole.Type... allowedRoles) throws DAOPrivilegeException {
+  protected void require(HubClientAccess access, UserRoleType... allowedRoles) throws DAOPrivilegeException {
     if (access.isTopLevel()) return;
     if (3 < allowedRoles.length)
       require(
@@ -187,7 +187,7 @@ public abstract class DAOImpl<E extends MessageLite> implements DAO<E> {
    @throws DAOPrivilegeException if not user
    */
   protected void requireUser(HubClientAccess access) throws DAOPrivilegeException {
-    require(access, UserRole.Type.User);
+    require(access, UserRoleType.USER);
   }
 
   /**
@@ -197,7 +197,7 @@ public abstract class DAOImpl<E extends MessageLite> implements DAO<E> {
    @throws DAOPrivilegeException if not engineer
    */
   protected void requireEngineer(HubClientAccess access) throws DAOPrivilegeException {
-    require(access, UserRole.Type.Engineer);
+    require(access, UserRoleType.ENGINEER);
   }
 
   /**

@@ -7,7 +7,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import io.xj.Program;
+import io.xj.api.Program;
 import io.xj.lib.entity.EntityFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +20,7 @@ public class JsonapiPayloadErrorTest {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new JsonApiModule(), new AbstractModule() {
+    var injector = Guice.createInjector(new JsonapiModule(), new AbstractModule() {
       @Override
       protected void configure() {
         bind(Config.class).toInstance(ConfigFactory.empty());

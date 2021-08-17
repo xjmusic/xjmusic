@@ -3,7 +3,7 @@ package io.xj.nexus.testing;
 
 import com.google.inject.AbstractModule;
 import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.jsonapi.JsonApiModule;
+import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.nexus.craft.CraftModule;
 import io.xj.nexus.dao.NexusDAOModule;
@@ -24,7 +24,7 @@ public class NexusIntegrationTestModule extends AbstractModule {
     install(new DubModule());
     install(new NexusEntityStoreModule());
     install(new NexusWorkModule());
-    install(new JsonApiModule());
+    install(new JsonapiModule());
     install(new FileStoreModule());
     bind(NexusIntegrationTestProvider.class).to(NexusIntegrationTestProviderImpl.class);
   }

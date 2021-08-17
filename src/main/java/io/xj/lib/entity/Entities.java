@@ -13,7 +13,7 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -208,10 +208,10 @@ public enum Entities {
    @param target to get id from
    @return Object Id
    */
-  public static <N> String getId(N target) throws EntityException {
+  public static <N> UUID getId(N target) throws EntityException {
     Optional<Object> id = get(target, ID_KEY);
     if (id.isEmpty()) return null;
-    return (id.get().toString());
+    return UUID.fromString(String.valueOf(id.get()));
   }
 
   /**
@@ -220,7 +220,7 @@ public enum Entities {
    @param target to set id
    @param id     to set on target
    */
-  public static <N> void setId(N target, String id) throws EntityException {
+  public static <N> void setId(N target, UUID id) throws EntityException {
     set(target, ID_KEY, id);
   }
 
@@ -242,8 +242,7 @@ public enum Entities {
    */
   public static <T extends Enum<T>> T enumValue(Class<?> type, String value) {
     //noinspection unchecked
-    Class<T> enumType = (Class<T>) type;
-    return valueOf(enumType, String.valueOf(value));
+    return (T) Arrays.stream(type.getEnumConstants()).filter(n -> n.toString().equals(value)).findFirst().orElseThrow();
   }
 
   /**
@@ -527,11 +526,11 @@ public enum Entities {
    @return Optional<String> value of belongsToId attribute from given entity
    @throws EntityException on failure to get relationship value
    */
-  public static <R> Optional<String> getBelongsToId(R entity, String belongsToType) throws EntityException {
+  public static <R> Optional<UUID> getBelongsToId(R entity, String belongsToType) throws EntityException {
     Optional<Object> raw = get(entity, toIdAttribute(toBelongsTo(belongsToType)));
     if (raw.isEmpty()) return Optional.empty();
     try {
-      return Optional.of(String.valueOf(raw.get()));
+      return Optional.of(UUID.fromString(String.valueOf(raw.get())));
     } catch (Exception e) {
       throw new EntityException("Failed to get String value", e);
     }
@@ -595,7 +594,7 @@ public enum Entities {
    @param entities to get ids of
    @return ids
    */
-  public static <N> Set<String> idsOf(Collection<N> entities) {
+  public static <N> Set<UUID> idsOf(Collection<N> entities) {
     return entities.stream()
       .flatMap(Entities::flatMapIds)
       .collect(Collectors.toSet());
@@ -608,7 +607,7 @@ public enum Entities {
    @param <N>type
    @return stream of id or empty stream
    */
-  public static <N> Stream<String> flatMapIds(N n) {
+  public static <N> Stream<UUID> flatMapIds(N n) {
     try {
       return Stream.of(Entities.getId(n));
     } catch (EntityException e) {
@@ -623,24 +622,14 @@ public enum Entities {
    @param csv to parse
    @return collection of ids
    */
-  public static Collection<String> idsFromCSV(String csv) {
-    Collection<String> result = Lists.newArrayList();
+  public static Collection<UUID> idsFromCSV(String csv) {
+    Collection<UUID> result = Lists.newArrayList();
 
     if (Objects.nonNull(csv) && !csv.isEmpty()) {
-      result = new ArrayList<>(CSV.split(csv));
+      result = CSV.split(csv).stream().map(UUID::fromString).distinct().collect(Collectors.toList());
     }
 
     return result;
-  }
-
-  /**
-   Get CSV of a collection of user role types
-
-   @param ids to get CSV of
-   @return CSV of user role types
-   */
-  public static String csvOf(Collection<String> ids) {
-    return CSV.join(ids.stream().map(String::toString).collect(Collectors.toList()));
   }
 
   /**
@@ -651,12 +640,11 @@ public enum Entities {
    @param parentIds  to test whether this entity belongs to
    @return true if target belongs to the specified resource
    */
-  public static boolean isChild(Object child, Class<?> parentType, Collection<String> parentIds) {
+  public static boolean isChild(Object child, Class<?> parentType, Collection<UUID> parentIds) {
     try {
       var keyOpt = get(child, toIdAttribute(parentType));
       if (keyOpt.isEmpty()) return false;
-      String key = String.valueOf(keyOpt.get());
-      if (key.isBlank()) return false;
+      var key = UUID.fromString(String.valueOf(keyOpt.get()));
       return parentIds.contains(key);
     } catch (EntityException e) {
       return false;
@@ -731,4 +719,15 @@ public enum Entities {
   public static boolean isType(Object entity, Class<?> type) {
     return getType(entity).equals(toType(type));
   }
+
+  /**
+   Get CSV of a collection of UUIDs
+
+   @param accountIds for which to get CSV
+   @return CSV of uuids
+   */
+  public static String csvOf(Collection<UUID> accountIds) {
+    return CSV.join(accountIds.stream().map(UUID::toString).collect(Collectors.toSet()));
+  }
+
 }

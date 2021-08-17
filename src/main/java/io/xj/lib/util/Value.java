@@ -3,6 +3,7 @@ package io.xj.lib.util;
 
 import com.google.common.base.Strings;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -16,6 +17,7 @@ import java.util.stream.Stream;
 public interface Value {
   double entityPositionDecimalPlaces = 2.0;
   double roundPositionMultiplier = StrictMath.pow(10.0, entityPositionDecimalPlaces);
+  String EMPTY = "";
 
   /**
    Return the first value if it's non-null, else the second
@@ -149,7 +151,7 @@ public interface Value {
   /**
    Definitely not null, or string "null"
 
-   @param obj to ingest for non-nullness
+   @param obj to ingest for non-null
    @return true if non-null
    */
   static boolean isNonNull(Object obj) {
@@ -214,5 +216,24 @@ public interface Value {
     return (O[]) Stream.of(values)
       .filter(v -> !Objects.equals(v, removed))
       .toArray();
+  }
+
+  /**
+   String representation of value, or pass through null as empty string
+   @param value to parse
+   @return string or empty
+   */
+  static String stringOrEmpty(@Nullable Object value) {
+   return stringOrDefault(value, EMPTY);
+  }
+
+  /**
+   String representation of value, or pass through a default value
+   @param value to parse
+   @param defaultValue to return if value is null
+   @return string or default value
+   */
+  static String stringOrDefault(@Nullable Object value, String defaultValue) {
+    return Objects.nonNull(value) ? String.valueOf(value) : defaultValue;
   }
 }

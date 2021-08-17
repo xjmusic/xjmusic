@@ -2,7 +2,7 @@
 
 package io.xj.lib.entity;
 
-import io.xj.ProgramSequenceChord;
+import io.xj.api.ProgramSequenceChord;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,9 +25,9 @@ public class EntityTest {
    */
   @Test
   public void exactPosition() {
-    Assert.assertEquals(1.25179957, ProgramSequenceChord.newBuilder()
-      .setPosition(1.25179957)
-      .build()
+    Assert.assertEquals(1.25179957, new ProgramSequenceChord()
+      .position(1.25179957)
+
       .getPosition(), 0.0000001);
   }
 }

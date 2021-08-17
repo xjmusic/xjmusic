@@ -405,14 +405,15 @@ public class JsonapiPayload {
       Collection<String> foundIds = Lists.newArrayList();
       Collection<String> resourceIds = new ArrayList<>();
       for (N resource : resources) {
-        String resourceId = Entities.getId(resource);
+        var resourceId = Entities.getId(resource);
         for (JsonapiPayloadObject jsonapiPayloadObject : included) {
           if (foundIds.contains(jsonapiPayloadObject.getId())) return false;
           if (!Objects.equals(resourceType, jsonapiPayloadObject.getType())) return false;
           if (!resourceIds.contains(jsonapiPayloadObject.getId())) return false;
           foundIds.add(jsonapiPayloadObject.getId());
         }
-        resourceIds.add(resourceId);
+        if (Objects.nonNull(resourceId))
+          resourceIds.add(resourceId.toString());
       }
       return true;
     } catch (EntityException e) {

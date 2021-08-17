@@ -2,8 +2,8 @@
 package io.xj.nexus.fabricator;
 
 import com.google.inject.assistedinject.Assisted;
-import io.xj.Chain;
-import io.xj.Segment;
+import io.xj.api.Chain;
+import io.xj.api.Segment;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;

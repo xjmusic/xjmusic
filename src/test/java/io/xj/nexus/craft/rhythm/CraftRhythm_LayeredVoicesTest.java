@@ -10,16 +10,25 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.Program;
-import io.xj.ProgramSequencePattern;
-import io.xj.ProgramVoice;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangementPick;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.ChainBindingType;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
+import io.xj.api.Instrument;
+import io.xj.api.InstrumentAudio;
+import io.xj.api.InstrumentState;
+import io.xj.api.InstrumentType;
+import io.xj.api.Program;
+import io.xj.api.ProgramSequencePatternType;
+import io.xj.api.ProgramState;
+import io.xj.api.ProgramType;
+import io.xj.api.ProgramVoice;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentState;
+import io.xj.api.SegmentType;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
@@ -111,80 +120,80 @@ public class CraftRhythm_LayeredVoicesTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(makeChain(fake.account1, "Test Print #1", Chain.Type.Production, Chain.State.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    store.put(ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setTargetId(fake.library2.getId())
-      .setType(ChainBinding.Type.Library)
-      .build());
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setType(Segment.Type.Initial)
-      .setOffset(0)
-      .setState(Segment.State.Dubbed)
-      .setBeginAt("2017-02-14T12:01:00.000001Z")
-      .setEndAt("2017-02-14T12:01:32.000001Z")
-      .setKey("D major")
-      .setTotal(64)
-      .setDensity(0.73)
-      .setTempo(120)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892")
-      .setOutputEncoder("wav")
-      .build());
-    store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setType(Segment.Type.Continue)
-      .setOffset(1)
-      .setState(Segment.State.Dubbing)
-      .setBeginAt("2017-02-14T12:01:32.000001Z")
-      .setEndAt("2017-02-14T12:02:04.000001Z")
-      .setKey("Db minor")
-      .setTotal(64)
-      .setDensity(0.85)
-      .setTempo(120)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .build());
+    Chain chain1 = store.put(makeChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    store.put(new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .targetId(fake.library2.getId())
+      .type(ChainBindingType.LIBRARY)
+      );
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .type(SegmentType.INITIAL)
+      .offset(0L)
+      .state(SegmentState.DUBBED)
+      .beginAt("2017-02-14T12:01:00.000001Z")
+      .endAt("2017-02-14T12:01:32.000001Z")
+      .key("D major")
+      .total(64)
+      .density(0.73)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892")
+      .outputEncoder("wav")
+      );
+    store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .type(SegmentType.CONTINUE)
+      .offset(1L)
+      .state(SegmentState.DUBBING)
+      .beginAt("2017-02-14T12:01:32.000001Z")
+      .endAt("2017-02-14T12:02:04.000001Z")
+      .key("Db minor")
+      .total(64)
+      .density(0.85)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      );
 
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setType(Segment.Type.Continue)
-      .setOffset(2L)
-      .setState(Segment.State.Crafted)
-      .setBeginAt("2017-02-14T12:02:04.000001Z")
-      .setEndAt("2017-02-14T12:02:36.000001Z")
-      .setKey("F Major")
-      .setTotal(64)
-      .setDensity(0.30)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .build());
-    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment3, Program.Type.Macro, fake.program4_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment3, Program.Type.Main, fake.program5_sequence0_binding0));
+    Segment segment3 = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .type(SegmentType.CONTINUE)
+      .offset(2L)
+      .state(SegmentState.CRAFTED)
+      .beginAt("2017-02-14T12:02:04.000001Z")
+      .endAt("2017-02-14T12:02:36.000001Z")
+      .key("F Major")
+      .total(64)
+      .density(0.30)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      );
+    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment3, ProgramType.MACRO, fake.program4_sequence0_binding0));
+    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment3, ProgramType.MAIN, fake.program5_sequence0_binding0));
     store.put(makeSegmentChoice(segment3, program42));
 
     // segment crafting
-    segment4 = store.put(Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain1.getId())
-      .setType(Segment.Type.Continue)
-      .setOffset(3L)
-      .setState(Segment.State.Crafting)
-      .setBeginAt("2017-02-14T12:03:08.000001Z")
-      .setEndAt("2017-02-14T12:03:15.836735Z")
-      .setKey("D Major")
-      .setTotal(16)
-      .setDensity(0.45)
-      .setTempo(120.0)
-      .setStorageKey("chains-1-segments-9f7s89d8a7892.wav")
-      .build());
-    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment4, Program.Type.Macro, fake.program4_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment4, Program.Type.Main, fake.program5_sequence1_binding0));
+    segment4 = store.put(new Segment()
+      .id(UUID.randomUUID())
+      .chainId(chain1.getId())
+      .type(SegmentType.CONTINUE)
+      .offset(3L)
+      .state(SegmentState.CRAFTING)
+      .beginAt("2017-02-14T12:03:08.000001Z")
+      .endAt("2017-02-14T12:03:15.836735Z")
+      .key("D Major")
+      .total(16)
+      .density(0.45)
+      .tempo(120.0)
+      .storageKey("chains-1-segments-9f7s89d8a7892.wav")
+      );
+    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment4, ProgramType.MACRO, fake.program4_sequence0_binding0));
+    store.put(NexusIntegrationTestingFixtures.makeSegmentChoice(segment4, ProgramType.MAIN, fake.program5_sequence1_binding0));
 
     for (String memeName : ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy"))
       store.put(NexusIntegrationTestingFixtures.makeMeme(segment4, memeName));
@@ -203,7 +212,7 @@ public class CraftRhythm_LayeredVoicesTest {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    Instrument instrument1 = Entities.add(entities, makeInstrument(fake.library2, Instrument.Type.Percussive, Instrument.State.Published, "808 Drums"));
+    Instrument instrument1 = Entities.add(entities, makeInstrument(fake.library2, InstrumentType.PERCUSSIVE, InstrumentState.PUBLISHED, "808 Drums"));
     Entities.add(entities, makeMeme(instrument1, "heavy"));
     //
     audioKick = Entities.add(entities, makeAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.6, "KICK", "Eb", 1.0));
@@ -213,20 +222,20 @@ public class CraftRhythm_LayeredVoicesTest {
     audioHihat = Entities.add(entities, makeAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01, 1.5, 120.0, 0.6, "HIHAT", "Ab", 1.0));
 
     // A basic beat from scratch with layered voices
-    program42 = Entities.add(entities, makeProgram(fake.library2, Program.Type.Rhythm, Program.State.Published, "Basic Beat", "C", 121, 0.6));
+    program42 = Entities.add(entities, makeProgram(fake.library2, ProgramType.RHYTHM, ProgramState.PUBLISHED, "Basic Beat", "C", 121, 0.6));
     Entities.add(entities, NexusIntegrationTestingFixtures.makeMeme(program42, "Basic"));
-    ProgramVoice program42_locomotion = Entities.add(entities, makeVoice(program42, Instrument.Type.Percussive, "Locomotion"));
-    ProgramVoice program42_kickSnare = Entities.add(entities, makeVoice(program42, Instrument.Type.Percussive, "BoomBap"));
+    ProgramVoice program42_locomotion = Entities.add(entities, makeVoice(program42, InstrumentType.PERCUSSIVE, "Locomotion"));
+    ProgramVoice program42_kickSnare = Entities.add(entities, makeVoice(program42, InstrumentType.PERCUSSIVE, "BoomBap"));
     var sequence35a = Entities.add(entities, makeSequence(program42, 16, "Base", 0.5, "C", 110.3));
     //
-    var pattern35a1 = Entities.add(entities, makePattern(sequence35a, program42_locomotion, ProgramSequencePattern.Type.Loop, 1, "Hi-hat"));
+    var pattern35a1 = Entities.add(entities, makePattern(sequence35a, program42_locomotion, ProgramSequencePatternType.LOOP, 1, "Hi-hat"));
     var trackHihat = Entities.add(entities, makeTrack(program42_locomotion, "HIHAT"));
     Entities.add(entities, makeEvent(pattern35a1, trackHihat, 0.0, 1.0, "C2", 1.0));
     Entities.add(entities, makeEvent(pattern35a1, trackHihat, 0.25, 1.0, "G5", 0.4));
     Entities.add(entities, makeEvent(pattern35a1, trackHihat, 0.5, 1.0, "C2", 0.6));
     Entities.add(entities, makeEvent(pattern35a1, trackHihat, 0.75, 1.0, "C2", 0.3));
     //
-    var pattern35a2 = Entities.add(entities, makePattern(sequence35a, program42_kickSnare, ProgramSequencePattern.Type.Loop, 4, "Kick/Snare"));
+    var pattern35a2 = Entities.add(entities, makePattern(sequence35a, program42_kickSnare, ProgramSequencePatternType.LOOP, 4, "Kick/Snare"));
     var trackKick = Entities.add(entities, makeTrack(program42_kickSnare, "KICK"));
     var trackSnare = Entities.add(entities, makeTrack(program42_kickSnare, "SNARE"));
     Entities.add(entities, makeEvent(pattern35a2, trackKick, 0.0, 1.0, "B5", 0.9));

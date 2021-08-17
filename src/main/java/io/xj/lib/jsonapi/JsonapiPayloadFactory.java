@@ -2,7 +2,6 @@
 
 package io.xj.lib.jsonapi;
 
-import com.google.protobuf.MessageLite;
 
 import java.io.BufferedReader;
 import java.util.Collection;
@@ -35,9 +34,9 @@ public interface JsonapiPayloadFactory {
    @param target         into which payload will be consumed
    @param jsonapiPayload to consume
    @return target Entity (for chaining methods)
-   @throws JsonApiException on failure to consume payload
+   @throws JsonapiException on failure to consume payload
    */
-  <N extends MessageLite> N consume(N target, JsonapiPayload jsonapiPayload) throws JsonApiException;
+  <N> N consume(N target, JsonapiPayload jsonapiPayload) throws JsonapiException;
 
   /**
    Set all attributes of entity of a payload object
@@ -57,9 +56,9 @@ public interface JsonapiPayloadFactory {
    @param target               into which payload object will be consumed
    @param jsonapiPayloadObject of which to get attributes
    @return target Entity (for chaining methods)
-   @throws JsonApiException on failure to set
+   @throws JsonapiException on failure to set
    */
-  <N extends MessageLite> N consume(N target, JsonapiPayloadObject jsonapiPayloadObject) throws JsonApiException;
+  <N> N consume(N target, JsonapiPayloadObject jsonapiPayloadObject) throws JsonapiException;
 
   /**
    Shortcut to build payload object with no child entities
@@ -67,7 +66,7 @@ public interface JsonapiPayloadFactory {
    @param target from which to build payload object
    @return resource object
    */
-  <N> JsonapiPayloadObject toPayloadObject(N target) throws JsonApiException;
+  <N> JsonapiPayloadObject toPayloadObject(N target) throws JsonapiException;
 
   /**
    Shortcut to build a collection of payload objects with no child entities
@@ -75,7 +74,7 @@ public interface JsonapiPayloadFactory {
    @param targets from which to build collection of payload objects
    @return resource object
    */
-  <N> Collection<JsonapiPayloadObject> toPayloadObjects(Collection<N> targets) throws JsonApiException;
+  <N> Collection<JsonapiPayloadObject> toPayloadObjects(Collection<N> targets) throws JsonapiException;
 
   /**
    Build and return a Entity Object of target entity, probably for an API Payload
@@ -98,7 +97,7 @@ public interface JsonapiPayloadFactory {
    @param childResources to search for possible children-- only add matched resources
    @return resource object
    */
-  <N> JsonapiPayloadObject toPayloadObject(N target, Collection<N> childResources) throws JsonApiException;
+  <N> JsonapiPayloadObject toPayloadObject(N target, Collection<N> childResources) throws JsonapiException;
 
   /**
    Create a new Payload instance
@@ -129,7 +128,7 @@ public interface JsonapiPayloadFactory {
    @param target from while to get payload reference object
    @return resource object
    */
-  <N> JsonapiPayloadObject toPayloadReferenceObject(N target) throws JsonApiException;
+  <N> JsonapiPayloadObject toPayloadReferenceObject(N target) throws JsonapiException;
 
   /**
    Add all sub-entities of given entity to included resource objects
@@ -139,7 +138,7 @@ public interface JsonapiPayloadFactory {
    @param resources      to be added
    @return this Payload (for chaining methods)
    */
-  <N> JsonapiPayload addIncluded(JsonapiPayload jsonapiPayload, Collection<N> resources) throws JsonApiException;
+  <N> JsonapiPayload addIncluded(JsonapiPayload jsonapiPayload, Collection<N> resources) throws JsonapiException;
 
   /**
    Add a resource to the included objects
@@ -147,14 +146,14 @@ public interface JsonapiPayloadFactory {
    @param jsonapiPayloadObject which will be added to included objects
    @return this Payload (for chaining methods)
    */
-  JsonapiPayload addIncluded(JsonapiPayload jsonapiPayload, JsonapiPayloadObject jsonapiPayloadObject) throws JsonApiException;
+  JsonapiPayload addIncluded(JsonapiPayload jsonapiPayload, JsonapiPayloadObject jsonapiPayloadObject) throws JsonapiException;
 
   /**
    Add a payload object to a relationship, if it's related
 
    @param rel to potentially add
    */
-  void addIfRelated(JsonapiPayloadObject target, JsonapiPayloadObject rel) throws JsonApiException;
+  void addIfRelated(JsonapiPayloadObject target, JsonapiPayloadObject rel) throws JsonapiException;
 
   /**
    Set has-many data
@@ -166,7 +165,7 @@ public interface JsonapiPayloadFactory {
    @param entities to set
    @return this Payload (for chaining methods)
    */
-  <N> JsonapiPayload setDataEntities(JsonapiPayload jsonapiPayload, Collection<N> entities) throws JsonApiException;
+  <N> JsonapiPayload setDataEntities(JsonapiPayload jsonapiPayload, Collection<N> entities) throws JsonapiException;
 
   /**
    Set has-one data
@@ -174,7 +173,7 @@ public interface JsonapiPayloadFactory {
    @param entity to set
    @return this Payload (for chaining methods)
    */
-  <N> JsonapiPayload setDataEntity(JsonapiPayload jsonapiPayload, N entity) throws JsonApiException;
+  <N> JsonapiPayload setDataEntity(JsonapiPayload jsonapiPayload, N entity) throws JsonapiException;
 
   /**
    Set Data as references to many type and id
@@ -182,7 +181,7 @@ public interface JsonapiPayloadFactory {
    @param resources to reference
    @return this payload (for chaining methods)
    */
-  <N> JsonapiPayload setDataReferences(JsonapiPayload jsonapiPayload, Collection<N> resources) throws JsonApiException;
+  <N> JsonapiPayload setDataReferences(JsonapiPayload jsonapiPayload, Collection<N> resources) throws JsonapiException;
 
   /**
    Add one payload to a has-many relationship of this resource object
@@ -192,7 +191,7 @@ public interface JsonapiPayloadFactory {
    @param jsonapiPayloadObject relationship to add
    @return the payload object after the relationship has been added
    */
-  JsonapiPayloadObject add(JsonapiPayloadObject obj, String relationshipName, JsonapiPayloadObject jsonapiPayloadObject) throws JsonApiException;
+  JsonapiPayloadObject add(JsonapiPayloadObject obj, String relationshipName, JsonapiPayloadObject jsonapiPayloadObject) throws JsonapiException;
 
   /**
    Filter the has-many objects of this payload using the specified lambda condition,
@@ -202,7 +201,7 @@ public interface JsonapiPayloadFactory {
    @param condition predicate with which to filter has-many objects
    @return the payload object comprising a filtered set of has-many objects and included objects belonging to them
    */
-  JsonapiPayload filter(JsonapiPayload jsonapiPayload, Class<?> type, Predicate<? super JsonapiPayloadObject> condition) throws JsonApiException;
+  JsonapiPayload filter(JsonapiPayload jsonapiPayload, Class<?> type, Predicate<? super JsonapiPayloadObject> condition) throws JsonapiException;
 
   /**
    Filter the included objects of this payload using the specified lambda condition,
@@ -210,7 +209,7 @@ public interface JsonapiPayloadFactory {
    @param condition predicate with which to filter included objects
    @return the payload object comprising a filtered set of has-many objects and included objects belonging to them
    */
-  JsonapiPayload filterIncluded(JsonapiPayload jsonapiPayload, Predicate<? super JsonapiPayloadObject> condition) throws JsonApiException;
+  JsonapiPayload filterIncluded(JsonapiPayload jsonapiPayload, Predicate<? super JsonapiPayloadObject> condition) throws JsonapiException;
 
   /**
    Sort the has-many objects of this payload using the specified lambda key extactor,
@@ -220,7 +219,7 @@ public interface JsonapiPayloadFactory {
    @param keyExtractor to obtain value to compare with
    @return the payload object comprising a sorted set of has-many objects and included objects belonging to them
    */
-  JsonapiPayload sort(JsonapiPayload jsonapiPayload, Class<?> type, Function<? super JsonapiPayloadObject, Long> keyExtractor) throws JsonApiException;
+  JsonapiPayload sort(JsonapiPayload jsonapiPayload, Class<?> type, Function<? super JsonapiPayloadObject, Long> keyExtractor) throws JsonapiException;
 
   /**
    Limit the has-many objects of this payload using the specified lambda condition,
@@ -230,7 +229,7 @@ public interface JsonapiPayloadFactory {
    @param limit number of has-many objects to truncate to, from beginning of list
    @return limited set of has-many objects and included objects belonging to them
    */
-  JsonapiPayload limit(JsonapiPayload jsonapiPayload, Class<?> type, long limit) throws JsonApiException;
+  JsonapiPayload limit(JsonapiPayload jsonapiPayload, Class<?> type, long limit) throws JsonapiException;
 
   /**
    Find the first has-many objects of this payload using the specified lambda condition,
@@ -241,34 +240,34 @@ public interface JsonapiPayloadFactory {
    @param condition predicate with which to filter has-many objects, to find resulting has-one object
    @return the first has-one object matching the given predicate from the original has-many set of objects, and included objects belonging to it.
    */
-  JsonapiPayload find(JsonapiPayload jsonapiPayload, Class<?> type, Predicate<? super JsonapiPayloadObject> condition) throws JsonApiException;
+  JsonapiPayload find(JsonapiPayload jsonapiPayload, Class<?> type, Predicate<? super JsonapiPayloadObject> condition) throws JsonapiException;
 
   /**
    Parse some JSON text, deserializing it into a {@link JsonapiPayload}
 
    @param json to deserialize
    @return {@link JsonapiPayload} deserialized from JSON
-   @throws JsonApiException on failure to deserialize
+   @throws JsonapiException on failure to deserialize
    */
-  JsonapiPayload deserialize(String json) throws JsonApiException;
+  JsonapiPayload deserialize(String json) throws JsonapiException;
 
   /**
    Parse some JSON text from a buffered reader, deserializing it into a {@link JsonapiPayload}
 
    @param bufferedReader to read from, and deserialize
    @return {@link JsonapiPayload} deserialized from JSON
-   @throws JsonApiException on failure to deserialize
+   @throws JsonapiException on failure to deserialize
    */
-  JsonapiPayload deserialize(BufferedReader bufferedReader) throws JsonApiException;
+  JsonapiPayload deserialize(BufferedReader bufferedReader) throws JsonapiException;
 
   /**
    Serialize a JSON:API payload into JSON string
 
    @param obj to serialize
    @return Payload serialized as JSON text
-   @throws JsonApiException on failure to serialize
+   @throws JsonapiException on failure to serialize
    */
-  String serialize(Object obj) throws JsonApiException;
+  String serialize(Object obj) throws JsonapiException;
 
   /**
    Get an instance of an entity from a payload object comprising it.
@@ -277,7 +276,7 @@ public interface JsonapiPayloadFactory {
 
    @param jsonapiPayloadObject to get instance of
    */
-  <N extends MessageLite> N toOne(JsonapiPayloadObject jsonapiPayloadObject) throws JsonApiException;
+  <N> N toOne(JsonapiPayloadObject jsonapiPayloadObject) throws JsonapiException;
 
   /**
    Get an instance of an entity from a payload object comprising it.
@@ -288,14 +287,14 @@ public interface JsonapiPayloadFactory {
 
    @param jsonapiPayload to get instance of
    */
-  <N extends MessageLite> N toOne(JsonapiPayload jsonapiPayload) throws JsonApiException;
+  <N> N toOne(JsonapiPayload jsonapiPayload) throws JsonapiException;
 
   /**
    Get a set of instances of entities from a payload with data-many payload objects.
 
    @param jsonapiPayload to get collection of instances of payload objects of
    */
-  <N extends MessageLite> Collection<N> toMany(JsonapiPayload jsonapiPayload) throws JsonApiException;
+  <N> Collection<N> toMany(JsonapiPayload jsonapiPayload) throws JsonapiException;
 
   /**
    Get a data-one Payload from the given entity
@@ -304,7 +303,7 @@ public interface JsonapiPayloadFactory {
    @param <N>    type of entity
    @return data-one Payload of given entity
    */
-  <N extends MessageLite> JsonapiPayload from(N entity) throws JsonApiException;
+  <N> JsonapiPayload from(N entity) throws JsonapiException;
 
   /**
    Get a data-one Payload from the given entity, including the given entities
@@ -314,7 +313,7 @@ public interface JsonapiPayloadFactory {
    @param <N>      type of entity
    @return data-one Payload of given entity, including the given entities
    */
-  <N extends MessageLite> JsonapiPayload from(N entity, Collection<N> included) throws JsonApiException;
+  <N> JsonapiPayload from(N entity, Collection<N> included) throws JsonapiException;
 
   /**
    Get a data-many Payload from the given entities
@@ -323,7 +322,7 @@ public interface JsonapiPayloadFactory {
    @param <N>      type of entities
    @return data-many Payload of given entities
    */
-  <N extends MessageLite> JsonapiPayload from(Collection<N> entities) throws JsonApiException;
+  <N> JsonapiPayload from(Collection<N> entities) throws JsonapiException;
 
   /**
    Get a data-many Payload from the given entities, including the given entities
@@ -333,5 +332,5 @@ public interface JsonapiPayloadFactory {
    @param <N>      type of entities
    @return data-many Payload of given entities, including the given entities
    */
-  <N extends MessageLite> JsonapiPayload from(Collection<N> entities, Collection<N> included) throws JsonApiException;
+  <N> JsonapiPayload from(Collection<N> entities, Collection<N> included) throws JsonapiException;
 }

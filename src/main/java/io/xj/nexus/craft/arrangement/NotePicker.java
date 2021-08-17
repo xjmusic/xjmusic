@@ -1,7 +1,7 @@
 package io.xj.nexus.craft.arrangement;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.Instrument;
+import io.xj.api.InstrumentType;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
@@ -20,18 +20,18 @@ import java.util.stream.Collectors;
  */
 public class NotePicker {
   private static final int WEIGHT_MATCH_SLASH_ROOT = 10;
-  private final Instrument.Type instrumentType;
+  private final InstrumentType instrumentType;
   private final Chord chord;
   private final NoteRange range;
   private final Set<Note> eventNotes;
   private final Set<Note> voicingNotes;
   private final Set<Note> pickedNotes;
   private final SecureRandom random = new SecureRandom();
-  private final Collection<Instrument.Type> instrumentTypesToSeekInversions = ImmutableList.of(
-    Instrument.Type.Stripe,
-    Instrument.Type.Stab,
-    Instrument.Type.Pad,
-    Instrument.Type.Sticky
+  private final Collection<InstrumentType> instrumentTypesToSeekInversions = ImmutableList.of(
+    InstrumentType.STRIPE,
+    InstrumentType.STAB,
+    InstrumentType.PAD,
+    InstrumentType.STICKY
   );
 
   /**
@@ -42,7 +42,7 @@ public class NotePicker {
    @param voicingNotes to pick from, at most once each
    @param eventNotes   for which to pick exactly one voicing note each
    */
-  public NotePicker(Instrument.Type instrumentType, Chord chord, NoteRange range, Collection<Note> voicingNotes, Collection<Note> eventNotes) {
+  public NotePicker(InstrumentType instrumentType, Chord chord, NoteRange range, Collection<Note> voicingNotes, Collection<Note> eventNotes) {
     this.instrumentType = instrumentType;
     this.chord = chord;
     this.range = NoteRange.copyOf(range);
@@ -166,9 +166,9 @@ public class NotePicker {
    @return weight
    */
   @SuppressWarnings("SwitchStatementWithTooFewBranches")
-  private int weightIfMatchSlashRoot(Instrument.Type instrumentType, Note note, Chord chord) {
+  private int weightIfMatchSlashRoot(InstrumentType instrumentType, Note note, Chord chord) {
     return switch (instrumentType) {
-      case Bass -> chord.getSlashRoot().equals(note.getPitchClass()) ? WEIGHT_MATCH_SLASH_ROOT : 0;
+      case BASS -> chord.getSlashRoot().equals(note.getPitchClass()) ? WEIGHT_MATCH_SLASH_ROOT : 0;
       default -> 0;
     };
   }

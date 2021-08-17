@@ -213,8 +213,8 @@ class MixerImpl implements Mixer {
   }
 
   @Override
-  public boolean hasLoadedSource(String sourceId) {
-    return sources.containsKey(sourceId);
+  public boolean hasLoadedSource(String sourceKey) {
+    return sources.containsKey(sourceKey);
   }
 
   /**

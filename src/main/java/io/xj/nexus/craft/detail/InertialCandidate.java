@@ -1,6 +1,6 @@
 package io.xj.nexus.craft.detail;
 
-import io.xj.SegmentChoice;
+import io.xj.api.SegmentChoice;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.NameIsometry;
 

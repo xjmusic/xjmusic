@@ -4,16 +4,14 @@ package io.xj.lib.entity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
-import io.xj.InstrumentMeme;
-import io.xj.Library;
-import io.xj.Program;
-import io.xj.ProgramMeme;
-import io.xj.ProgramSequenceBindingMeme;
+import io.xj.api.InstrumentMeme;
+import io.xj.api.Library;
+import io.xj.api.Program;
+import io.xj.api.ProgramMeme;
+import io.xj.api.ProgramSequenceBindingMeme;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,6 +21,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -31,9 +30,6 @@ import static org.junit.Assert.assertTrue;
  Created by Charney Kaye on 2020/03/09
  */
 public class EntitiesTest extends TestTemplate {
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   Program program;
   private EntityFactory entityFactory;
 
@@ -96,17 +92,16 @@ public class EntitiesTest extends TestTemplate {
     entityFactory = injector.getInstance(EntityFactory.class);
     entityFactory.register(Program.class)
       .withAttribute("name");
-    program = Program.newBuilder()
-      .setId("879802e8-5856-4b1f-8c7f-09fd7f4bcde6")
-      .setName("Marv")
-      .build();
+    program = new Program()
+      .id(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"))
+      .name("Marv");
   }
 
   @Test
   public void set() throws EntityException {
-    Program.Builder program5 = Program.newBuilder()
-      .setId("879802e8-5856-4b1f-8c7f-09fd7f4bcde6")
-      .setName("Marv");
+    Program program5 = new Program()
+      .id(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"))
+      .name("Marv");
 
     Entities.set(program5, "name", "Dave");
 
@@ -114,11 +109,9 @@ public class EntitiesTest extends TestTemplate {
   }
 
   @Test
-  public void set_nonexistentAttribute() throws EntityException {
-    failure.expect(EntityException.class);
-    failure.expectMessage("Program has no attribute 'turnip'");
-
-    Entities.set(program, "turnip", 4.2);
+  public void set_nonexistentAttribute() {
+    var e = assertThrows(EntityException.class, () -> Entities.set(program, "turnip", 4.2));
+    assertEquals("Program has no attribute 'turnip'", e.getMessage());
   }
 
   @Test
@@ -130,7 +123,7 @@ public class EntitiesTest extends TestTemplate {
 
   @Test
   public void getResourceId() throws EntityException {
-    assertEquals("879802e8-5856-4b1f-8c7f-09fd7f4bcde6", Entities.getId(program));
+    assertEquals(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"), Entities.getId(program));
   }
 
   @Test
@@ -139,23 +132,19 @@ public class EntitiesTest extends TestTemplate {
   }
 
   @Test
-  public void set_willFailIfSetterAcceptsNoParameters() throws EntityException {
-    Program subject = Program.newBuilder().build();
+  public void set_willFailIfSetterAcceptsNoParameters() {
+    Program subject = new Program();
 
-    failure.expect(EntityException.class);
-    failure.expectMessage("Program has no attribute 'willFailBecauseAcceptsNoParameters'");
-
-    Entities.set(subject, "willFailBecauseAcceptsNoParameters", true);
+    var e = assertThrows(EntityException.class, () -> Entities.set(subject, "willFailBecauseAcceptsNoParameters", true));
+    assertEquals("Program has no attribute 'willFailBecauseAcceptsNoParameters'", e.getMessage());
   }
 
   @Test
-  public void set_willFailIfSetterHasProtectedAccess() throws EntityException {
-    Program subject = Program.newBuilder().build();
+  public void set_willFailIfSetterHasProtectedAccess() {
+    Program subject = new Program();
 
-    failure.expect(EntityException.class);
-    failure.expectMessage("Program has no attribute 'willFailBecauseNonexistent'");
-
-    Entities.set(subject, "willFailBecauseNonexistent", "testing");
+    var e = assertThrows(EntityException.class, () -> Entities.set(subject, "willFailBecauseNonexistent", "testing"));
+    assertEquals("Program has no attribute 'willFailBecauseNonexistent'", e.getMessage());
   }
 
   @Test
@@ -168,17 +157,16 @@ public class EntitiesTest extends TestTemplate {
 
   @Test
   public void isChild() {
-    Library parent = Library.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .build();
+    Library parent = new Library()
+      .id(UUID.randomUUID());
 
     assertTrue(Entities.isChild(
-      Program.newBuilder()
-        .setLibraryId(parent.getId()),
+      new Program()
+        .libraryId(parent.getId()),
       parent));
-    assertFalse(Entities.isChild(Program.newBuilder()
-      .setLibraryId(UUID.randomUUID().toString()), parent));
-    assertFalse(Entities.isChild(Program.newBuilder(), parent));
+    assertFalse(Entities.isChild(new Program()
+      .libraryId(UUID.randomUUID()), parent));
+    assertFalse(Entities.isChild(new Program(), parent));
   }
 
 
@@ -186,20 +174,20 @@ public class EntitiesTest extends TestTemplate {
   public void csvIdsOf() {
     assertEquals("4872f737-3526-4532-bb9f-358e3503db7e,333d6284-d7b9-4654-b79c-cafaf9330b6a",
       Entities.csvIdsOf(ImmutableList.of(
-        Program.newBuilder().setId("4872f737-3526-4532-bb9f-358e3503db7e"),
-        Program.newBuilder().setId("333d6284-d7b9-4654-b79c-cafaf9330b6a")
+        new Program().id(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
+        new Program().id(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a"))
       )));
   }
 
   @Test
   public void idsOf() {
     assertEquals(ImmutableSet.of(
-      "4872f737-3526-4532-bb9f-358e3503db7e",
-      "333d6284-d7b9-4654-b79c-cafaf9330b6a"
+        UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e"),
+        UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")
       ),
       Entities.idsOf(ImmutableList.of(
-        Program.newBuilder().setId("4872f737-3526-4532-bb9f-358e3503db7e"),
-        Program.newBuilder().setId("333d6284-d7b9-4654-b79c-cafaf9330b6a")
+        new Program().id(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
+        new Program().id(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a"))
       )));
   }
 
@@ -207,8 +195,8 @@ public class EntitiesTest extends TestTemplate {
   public void csvOf() {
     assertEquals("4872f737-3526-4532-bb9f-358e3503db7e, 333d6284-d7b9-4654-b79c-cafaf9330b6a",
       Entities.csvOf(ImmutableList.of(
-        "4872f737-3526-4532-bb9f-358e3503db7e",
-        "333d6284-d7b9-4654-b79c-cafaf9330b6a"
+        UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e"),
+        UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")
       )));
   }
 
@@ -216,49 +204,47 @@ public class EntitiesTest extends TestTemplate {
   public void idsFromCSV() {
     assertEquals(
       ImmutableList.of(
-        "4872f737-3526-4532-bb9f-358e3503db7e",
-        "333d6284-d7b9-4654-b79c-cafaf9330b6a"
+        UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e"),
+        UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")
       ),
       Entities.idsFromCSV("4872f737-3526-4532-bb9f-358e3503db7e,333d6284-d7b9-4654-b79c-cafaf9330b6a"));
   }
 
   @Test
   public void isParent() {
-    Library parent = Library.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .build();
+    Library parent = new Library()
+      .id(UUID.randomUUID());
 
-    assertTrue(Entities.isParent(parent, Program.newBuilder().setLibraryId(parent.getId())));
-    assertFalse(Entities.isParent(parent, Program.newBuilder().setLibraryId(UUID.randomUUID().toString())));
-    assertFalse(Entities.isParent(parent, Program.newBuilder()));
+    assertTrue(Entities.isParent(parent, new Program().libraryId(parent.getId())));
+    assertFalse(Entities.isParent(parent, new Program().libraryId(UUID.randomUUID())));
+    assertFalse(Entities.isParent(parent, new Program()));
   }
 
   @Test
   public void isSame() {
-    Program x = Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .build();
+    Program x = new Program()
+      .id(UUID.randomUUID());
 
-    assertTrue(Entities.isSame(x, Program.newBuilder().setId(x.getId()).build()));
-    assertFalse(Entities.isSame(x, Program.newBuilder().build()));
+    assertTrue(Entities.isSame(x, new Program().id(x.getId())));
+    assertFalse(Entities.isSame(x, new Program()));
   }
 
   @Test
   public void flatMapIds() {
-    List<String> result =
+    List<UUID> result =
       ImmutableList.of(
-        Program.newBuilder().setId("4872f737-3526-4532-bb9f-358e3503db7e"),
-        Program.newBuilder().setId("333d6284-d7b9-4654-b79c-cafaf9330b6a"),
-        Program.newBuilder().setId("e23fb542-b0fc-4773-9848-772f64cbc5a4")
-      ).stream()
+          new Program().id(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
+          new Program().id(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")),
+          new Program().id(UUID.fromString("e23fb542-b0fc-4773-9848-772f64cbc5a4"))
+        ).stream()
         .flatMap(Entities::flatMapIds)
         .collect(Collectors.toList());
 
     assertEquals(
       ImmutableList.of(
-        "4872f737-3526-4532-bb9f-358e3503db7e",
-        "333d6284-d7b9-4654-b79c-cafaf9330b6a",
-        "e23fb542-b0fc-4773-9848-772f64cbc5a4"
+        UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e"),
+        UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a"),
+        UUID.fromString("e23fb542-b0fc-4773-9848-772f64cbc5a4")
       ), result);
   }
 
@@ -266,9 +252,9 @@ public class EntitiesTest extends TestTemplate {
   public void namesOf() {
     Collection<String> result =
       Entities.namesOf(ImmutableList.of(
-        ProgramMeme.newBuilder().setName("Apples").build(),
-        ProgramSequenceBindingMeme.newBuilder().setName("Bananas").build(),
-        InstrumentMeme.newBuilder().setName("Chips").build()
+        new ProgramMeme().name("Apples"),
+        new ProgramSequenceBindingMeme().name("Bananas"),
+        new InstrumentMeme().name("Chips")
       ));
 
     assertEquals(

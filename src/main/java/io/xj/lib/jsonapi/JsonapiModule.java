@@ -11,7 +11,7 @@ import io.xj.lib.json.JsonModule;
  <p>
  Created by Charney Kaye on 2020/03/09
  */
-public class JsonApiModule extends AbstractModule {
+public class JsonapiModule extends AbstractModule {
   @Override
   protected void configure() {
     install(new EntityModule());

@@ -1,8 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.dao;
 
-import io.xj.Segment;
-import io.xj.SegmentMessage;
+import io.xj.api.Segment;
+import io.xj.api.SegmentMessage;
+import io.xj.api.SegmentState;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
@@ -12,6 +13,7 @@ import io.xj.nexus.hub_client.client.HubClientAccess;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface SegmentDAO extends DAO<Segment> {
 
@@ -31,12 +33,12 @@ public interface SegmentDAO extends DAO<Segment> {
   /**
    Fetch id for the Segment in a Chain at a given offset, if present
 
+   @return segment id
    @param access  control
    @param chainId to fetch segment for
    @param offset  to fetch segment at
-   @return segment id
    */
-  Segment readOneAtChainOffset(HubClientAccess access, String chainId, Long offset) throws DAOPrivilegeException, DAOExistenceException, DAOFatalException;
+  Segment readOneAtChainOffset(HubClientAccess access, UUID chainId, Long offset) throws DAOPrivilegeException, DAOExistenceException, DAOFatalException;
 
   /**
    Fetch one Segment by chainId and state, if present
@@ -50,7 +52,7 @@ public interface SegmentDAO extends DAO<Segment> {
    @throws DAOExistenceException if the entity does not exist
    @throws DAOPrivilegeException if access is prohibited
    */
-  Segment readOneInState(HubClientAccess access, String chainId, Segment.State segmentState, Instant segmentBeginBefore) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException;
+  Segment readOneInState(HubClientAccess access, UUID chainId, SegmentState segmentState, Instant segmentBeginBefore) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException;
 
   /**
    Fetch many records for Chain by embed key, if accessible
@@ -75,7 +77,7 @@ public interface SegmentDAO extends DAO<Segment> {
    @throws DAOFatalException     if the entity does not exist
    @throws DAOPrivilegeException if access is prohibited
    */
-  <N> Collection<N> readManySubEntities(HubClientAccess access, Collection<String> segmentIds, Boolean includePicks) throws DAOPrivilegeException, DAOFatalException;
+  <N> Collection<N> readManySubEntities(HubClientAccess access, Collection<UUID> segmentIds, Boolean includePicks) throws DAOPrivilegeException, DAOFatalException;
 
   /**
    Create all sub-entities for a given segment
@@ -99,7 +101,7 @@ public interface SegmentDAO extends DAO<Segment> {
    @throws DAOExistenceException if the entity does not exist
    @throws DAOPrivilegeException if access is prohibited
    */
-  Collection<Segment> readManyFromToOffset(HubClientAccess access, String chainId, Long fromOffset, Long toOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
+  Collection<Segment> readManyFromToOffset(HubClientAccess access, UUID chainId, Long fromOffset, Long toOffset) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
 
   /**
    Read all Segments that are accessible, by Chain Id, starting at a particular time in seconds UTC since epoch.
@@ -115,7 +117,7 @@ public interface SegmentDAO extends DAO<Segment> {
    @throws DAOExistenceException if the entity does not exist
    @throws DAOPrivilegeException if access is prohibited
    */
-  Collection<Segment> readManyFromSecondsUTC(HubClientAccess access, String chainId, Long fromSecondsUTC) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
+  Collection<Segment> readManyFromSecondsUTC(HubClientAccess access, UUID chainId, Long fromSecondsUTC) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
 
   /**
    Read all Segments that are accessible, by Chain Embed Key, starting at a particular time in seconds UTC since epoch.
@@ -137,14 +139,14 @@ public interface SegmentDAO extends DAO<Segment> {
    Reverts a segment in Planned state, by destroying all its child entities. Only the segment messages remain, for purposes of debugging.
    [#158610991] Engineer wants a Segment to be reverted, and re-queued for fabrication, in the event that such a Segment has just failed its fabrication process, in order to ensure Chain fabrication fault tolerance
 
-   @param access control
-   @param id     of segment to revert
    @throws DAOFatalException     on failure
    @throws DAOExistenceException if the entity does not exist
    @throws DAOPrivilegeException if access is prohibited
    w
+   @param access control
+   @param id     of segment to revert
    */
-  void revert(HubClientAccess access, String id) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException, DAOValidationException;
+  void revert(HubClientAccess access, UUID id) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException, DAOValidationException;
 
   /**
    Read the last segment in a Chain, Segments sorted by offset ascending
@@ -153,7 +155,7 @@ public interface SegmentDAO extends DAO<Segment> {
    @param chainId of chain
    @return Last Segment in Chain
    */
-  Optional<Segment> readLastSegment(HubClientAccess access, String chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
+  Optional<Segment> readLastSegment(HubClientAccess access, UUID chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
 
   /**
    Read the last dubbed-state segment in a Chain, Segments sorted by offset ascending
@@ -162,5 +164,5 @@ public interface SegmentDAO extends DAO<Segment> {
    @param chainId of chain
    @return Last Dubbed-state Segment in Chain
    */
-  Optional<Segment> readLastDubbedSegment(HubClientAccess access, String chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
+  Optional<Segment> readLastDubbedSegment(HubClientAccess access, UUID chainId) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException;
 }

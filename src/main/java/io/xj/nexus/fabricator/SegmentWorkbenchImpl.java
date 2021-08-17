@@ -5,20 +5,20 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.protobuf.MessageLite;
-import io.xj.Chain;
-import io.xj.Program;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMeme;
-import io.xj.SegmentMessage;
+import io.xj.api.Chain;
+import io.xj.api.ProgramType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentChord;
+import io.xj.api.SegmentChordVoicing;
+import io.xj.api.SegmentMeme;
+import io.xj.api.SegmentMessage;
+import io.xj.api.SegmentMessageType;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
-import io.xj.lib.jsonapi.JsonApiException;
+import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
@@ -153,19 +153,19 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
       segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentChoiceArrangement.class)); // after choices
       segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentChoiceArrangementPick.class)); // after arrangements
 
-    } catch (JsonApiException | DAOFatalException | DAOExistenceException | DAOPrivilegeException | DAOValidationException e) {
+    } catch (JsonapiException | DAOFatalException | DAOExistenceException | DAOPrivilegeException | DAOValidationException e) {
       throw new NexusException("Failed to build and update payload for Segment!", e);
     }
   }
 
   @Override
-  public Optional<SegmentChoice> getChoiceOfType(Program.Type type) {
+  public Optional<SegmentChoice> getChoiceOfType(ProgramType type) {
     return getSegmentChoices().stream()
       .filter(c -> c.getProgramType().equals(type)).findFirst();
   }
 
   @Override
-  public Collection<SegmentChoice> getChoicesOfType(Program.Type type) {
+  public Collection<SegmentChoice> getChoicesOfType(ProgramType type) {
     return getSegmentChoices().stream()
       .filter(c -> c.getProgramType().equals(type))
       .collect(Collectors.toList());
@@ -177,7 +177,7 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   @Override
-  public <N extends MessageLite> N add(N entity) throws NexusException {
+  public <N> N add(N entity) throws NexusException {
     try {
       // [#179078453] Segment shouldn't have two of the same meme
       if (SegmentMeme.class.equals(entity.getClass()) && alreadyHasMeme((SegmentMeme) entity)) return entity;
@@ -190,14 +190,13 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   /**
    Returns the current report map as json, and clears the report so it'll only be reported once
    */
-  private void sendReportToSegmentMessage() throws JsonApiException, NexusException {
+  private void sendReportToSegmentMessage() throws JsonapiException, NexusException {
     String reported = jsonapiPayloadFactory.serialize(report);
-    add(SegmentMessage.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setType(SegmentMessage.Type.Debug)
-      .setBody(reported)
-      .build());
+    add(new SegmentMessage()
+      .id(UUID.randomUUID())
+      .segmentId(segment.getId())
+      .type(SegmentMessageType.DEBUG)
+      .body(reported));
     report.clear();
   }
 

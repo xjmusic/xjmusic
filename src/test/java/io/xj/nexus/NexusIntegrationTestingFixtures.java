@@ -6,35 +6,45 @@ package io.xj.nexus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.xj.Account;
-import io.xj.AccountUser;
-import io.xj.Chain;
-import io.xj.ChainBinding;
-import io.xj.Instrument;
-import io.xj.InstrumentAudio;
-import io.xj.InstrumentMeme;
-import io.xj.Library;
-import io.xj.Program;
-import io.xj.ProgramMeme;
-import io.xj.ProgramSequence;
-import io.xj.ProgramSequenceBinding;
-import io.xj.ProgramSequenceBindingMeme;
-import io.xj.ProgramSequenceChord;
-import io.xj.ProgramSequenceChordVoicing;
-import io.xj.ProgramSequencePattern;
-import io.xj.ProgramSequencePatternEvent;
-import io.xj.ProgramVoice;
-import io.xj.ProgramVoiceTrack;
-import io.xj.Segment;
-import io.xj.SegmentChoice;
-import io.xj.SegmentChoiceArrangement;
-import io.xj.SegmentChoiceArrangementPick;
-import io.xj.SegmentChord;
-import io.xj.SegmentChordVoicing;
-import io.xj.SegmentMeme;
-import io.xj.User;
-import io.xj.UserAuth;
-import io.xj.UserRole;
+import io.xj.api.Account;
+import io.xj.api.AccountUser;
+import io.xj.api.Chain;
+import io.xj.api.ChainBinding;
+import io.xj.api.ChainBindingType;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
+import io.xj.api.Instrument;
+import io.xj.api.InstrumentAudio;
+import io.xj.api.InstrumentMeme;
+import io.xj.api.InstrumentState;
+import io.xj.api.InstrumentType;
+import io.xj.api.Library;
+import io.xj.api.Program;
+import io.xj.api.ProgramMeme;
+import io.xj.api.ProgramSequence;
+import io.xj.api.ProgramSequenceBinding;
+import io.xj.api.ProgramSequenceBindingMeme;
+import io.xj.api.ProgramSequenceChord;
+import io.xj.api.ProgramSequenceChordVoicing;
+import io.xj.api.ProgramSequencePattern;
+import io.xj.api.ProgramSequencePatternEvent;
+import io.xj.api.ProgramSequencePatternType;
+import io.xj.api.ProgramState;
+import io.xj.api.ProgramType;
+import io.xj.api.ProgramVoice;
+import io.xj.api.ProgramVoiceTrack;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentChord;
+import io.xj.api.SegmentChordVoicing;
+import io.xj.api.SegmentMeme;
+import io.xj.api.SegmentState;
+import io.xj.api.User;
+import io.xj.api.UserAuth;
+import io.xj.api.UserRole;
+import io.xj.api.UserRoleType;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.CSV;
@@ -234,11 +244,11 @@ public class NexusIntegrationTestingFixtures {
 
    @return randomly selected rhythm pattern type
    */
-  protected static ProgramSequencePattern.Type randomRhythmPatternType() {
-    return new ProgramSequencePattern.Type[]{
-      ProgramSequencePattern.Type.Intro,
-      ProgramSequencePattern.Type.Loop,
-      ProgramSequencePattern.Type.Outro
+  protected static ProgramSequencePatternType randomRhythmPatternType() {
+    return new ProgramSequencePatternType[]{
+      ProgramSequencePatternType.INTRO,
+      ProgramSequencePatternType.LOOP,
+      ProgramSequencePatternType.OUTRO
     }[(int) StrictMath.floor(StrictMath.random() * 3)];
   }
 
@@ -307,92 +317,84 @@ public class NexusIntegrationTestingFixtures {
     return array[(int) StrictMath.floor(StrictMath.random() * array.length)];
   }
 
-  public static SegmentChoice makeSegmentChoice(Segment segment, Program.Type programType, ProgramSequenceBinding programSequenceBinding) {
-    return SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setDeltaIn(Segments.DELTA_UNLIMITED)
-      .setDeltaOut(Segments.DELTA_UNLIMITED)
-      .setProgramId(programSequenceBinding.getProgramId())
-      .setProgramSequenceBindingId(programSequenceBinding.getId())
-      .setProgramType(programType)
-      .build();
+  public static SegmentChoice makeSegmentChoice(Segment segment, ProgramType programType, ProgramSequenceBinding programSequenceBinding) {
+    return new SegmentChoice()
+      .id(UUID.randomUUID())
+      .segmentId(segment.getId())
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .programId(programSequenceBinding.getProgramId())
+      .programSequenceBindingId(programSequenceBinding.getId())
+      .programType(programType);
   }
 
   public static SegmentChoice makeSegmentChoice(Segment segment, Program program) {
-    return SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setDeltaIn(Segments.DELTA_UNLIMITED)
-      .setDeltaOut(Segments.DELTA_UNLIMITED)
-      .setProgramId(program.getId())
-      .setProgramType(program.getType())
-      .build();
+    return new SegmentChoice()
+      .id(UUID.randomUUID())
+      .segmentId(segment.getId())
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .programId(program.getId())
+      .programType(program.getType());
   }
 
   public static SegmentChoice makeSegmentChoice(Segment segment, Program program, ProgramSequence programSequence, ProgramVoice voice, Instrument instrument) {
-    return SegmentChoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramVoiceId(voice.getId())
-      .setInstrumentId(instrument.getId())
-      .setInstrumentType(instrument.getType())
-      .setDeltaIn(Segments.DELTA_UNLIMITED)
-      .setDeltaOut(Segments.DELTA_UNLIMITED)
-      .setSegmentId(segment.getId())
-      .setProgramId(program.getId())
-      .setProgramSequenceId(programSequence.getId())
-      .setProgramType(program.getType())
-      .build();
+    return new SegmentChoice()
+      .id(UUID.randomUUID())
+      .programVoiceId(voice.getId())
+      .instrumentId(instrument.getId())
+      .instrumentType(instrument.getType())
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .segmentId(segment.getId())
+      .programId(program.getId())
+      .programSequenceId(programSequence.getId())
+      .programType(program.getType());
   }
 
   public static SegmentMeme makeMeme(Segment segment, String name) {
-    return SegmentMeme.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setName(name)
-      .build();
+    return new SegmentMeme()
+      .id(UUID.randomUUID())
+      .segmentId(segment.getId())
+      .name(name);
   }
 
   public static SegmentChord makeChord(Segment segment, Double position, String name) {
-    return SegmentChord.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segment.getId())
-      .setPosition(position)
-      .setName(name)
-      .build();
+    return new SegmentChord()
+      .id(UUID.randomUUID())
+      .segmentId(segment.getId())
+      .position(position)
+      .name(name);
   }
 
-  public static SegmentChordVoicing makeVoicing(SegmentChord chord, Instrument.Type type, String notes) {
-    return SegmentChordVoicing.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(chord.getSegmentId())
-      .setSegmentChordId(chord.getId())
-      .setType(type)
-      .setNotes(notes)
-      .build();
+  public static SegmentChordVoicing makeVoicing(SegmentChord chord, InstrumentType type, String notes) {
+    return new SegmentChordVoicing()
+      .id(UUID.randomUUID())
+      .segmentId(chord.getSegmentId())
+      .segmentChordId(chord.getId())
+      .type(type)
+      .notes(notes);
   }
 
   public static SegmentChoiceArrangement makeArrangement(SegmentChoice segmentChoice) {
-    return SegmentChoiceArrangement.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segmentChoice.getSegmentId())
-      .setSegmentChoiceId(segmentChoice.getId())
-      .build();
+    return new SegmentChoiceArrangement()
+      .id(UUID.randomUUID())
+      .segmentId(segmentChoice.getSegmentId())
+      .segmentChoiceId(segmentChoice.getId());
   }
 
   public static SegmentChoiceArrangementPick makePick(SegmentChoiceArrangement segmentChoiceArrangement, ProgramSequencePatternEvent programSequencePatternEvent, InstrumentAudio instrumentAudio, double position, double duration, double velocity, String note, String name) {
-    return SegmentChoiceArrangementPick.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setSegmentId(segmentChoiceArrangement.getSegmentId())
-      .setSegmentChoiceArrangementId(segmentChoiceArrangement.getId())
-      .setProgramSequencePatternEventId(programSequencePatternEvent.getId())
-      .setInstrumentAudioId(instrumentAudio.getId())
-      .setStart(position)
-      .setLength(duration)
-      .setAmplitude(velocity)
-      .setNote(note)
-      .setName(name)
-      .build();
+    return new SegmentChoiceArrangementPick()
+      .id(UUID.randomUUID())
+      .segmentId(segmentChoiceArrangement.getSegmentId())
+      .segmentChoiceArrangementId(segmentChoiceArrangement.getId())
+      .programSequencePatternEventId(programSequencePatternEvent.getId())
+      .instrumentAudioId(instrumentAudio.getId())
+      .start(position)
+      .length(duration)
+      .amplitude(velocity)
+      .note(note)
+      .name(name);
   }
 
   public static Collection<Object> makeInstrumentWithAudios(Instrument instrument, String notes) {
@@ -405,354 +407,327 @@ public class NexusIntegrationTestingFixtures {
   }
 
   public static InstrumentAudio makeAudio(Instrument instrument, String name, String waveformKey, double start, double length, double tempo, double density, String event, String note, double volume) {
-    return InstrumentAudio.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setInstrumentId(instrument.getId())
-      .setName(name)
-      .setWaveformKey(waveformKey)
-      .setStart(start)
-      .setLength(length)
-      .setTempo(tempo)
-      .setDensity(density)
-      .setVolume(volume)
-      .setNote(note)
-      .setEvent(event)
-      .build();
+    return new InstrumentAudio()
+      .id(UUID.randomUUID())
+      .instrumentId(instrument.getId())
+      .name(name)
+      .waveformKey(waveformKey)
+      .start(start)
+      .length(length)
+      .tempo(tempo)
+      .density(density)
+      .volume(volume)
+      .note(note)
+      .event(event);
   }
 
   public static InstrumentAudio makeAudio(Instrument instrument, String name, String note) {
-    return InstrumentAudio.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setInstrumentId(instrument.getId())
-      .setName(name)
-      .setWaveformKey("test123")
-      .setStart(0)
-      .setLength(1.0)
-      .setTempo(120)
-      .setDensity(1.0)
-      .setVolume(1.0)
-      .setEvent("X")
-      .setNote(note)
-      .build();
+    return new InstrumentAudio()
+      .id(UUID.randomUUID())
+      .instrumentId(instrument.getId())
+      .name(name)
+      .waveformKey("test123")
+      .start(0.0)
+      .length(1.0)
+      .tempo(120.0)
+      .density(1.0)
+      .volume(1.0)
+      .event("X")
+      .note(note);
   }
 
   public static User makeUser(String name, String email, String avatarUrl) {
-    return User.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setEmail(email)
-      .setAvatarUrl(avatarUrl)
-      .setName(name)
-      .build();
+    return new User()
+      .id(UUID.randomUUID())
+      .email(email)
+      .avatarUrl(avatarUrl)
+      .name(name);
   }
 
   public static Library makeLibrary(Account account, String name) {
-    return Library.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(account.getId())
-      .setName(name)
-      .build();
+    return new Library()
+      .id(UUID.randomUUID())
+      .accountId(account.getId())
+      .name(name);
   }
 
   public static Account makeAccount() {
-    return Account.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .build();
+    return new Account()
+      .id(UUID.randomUUID());
   }
 
   public static Account makeAccount(String name) {
-    return makeAccount().toBuilder()
-      .setName(name)
-      .build();
+    return makeAccount()
+      .name(name);
   }
 
-  public static UserRole makeUserRole(User user, UserRole.Type type) {
-    return UserRole.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setUserId(user.getId())
-      .setType(type)
-      .build();
+  public static UserRole makeUserRole(User user, UserRoleType type) {
+    return new UserRole()
+      .id(UUID.randomUUID())
+      .userId(user.getId())
+      .type(type);
   }
 
   public static AccountUser makeAccountUser(Account account, User user) {
-    return AccountUser.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(account.getId())
-      .setUserId(user.getId())
-      .build();
+    return new AccountUser()
+      .id(UUID.randomUUID())
+      .accountId(account.getId())
+      .userId(user.getId());
   }
 
-  public static Program makeProgram(Library library, Program.Type type, Program.State state, String name, String key, double tempo, double density) {
-    return Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setLibraryId(library.getId())
-      .setType(type)
-      .setState(state)
-      .setName(name)
-      .setKey(key)
-      .setTempo(tempo)
-      .setDensity(density)
-      .build();
+  public static Program makeProgram(Library library, ProgramType type, ProgramState state, String name, String key, double tempo, double density) {
+    return new Program()
+      .id(UUID.randomUUID())
+      .libraryId(library.getId())
+      .type(type)
+      .state(state)
+      .name(name)
+      .key(key)
+      .tempo(tempo)
+      .density(density);
   }
 
-  public static Program makeProgram(Program.Type type, String key, double tempo, double density) {
-    return Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setLibraryId(UUID.randomUUID().toString())
-      .setType(type)
-      .setState(Program.State.Published)
-      .setName(String.format("Test %s-Program", type.name()))
-      .setKey(key)
-      .setTempo(tempo)
-      .setDensity(density)
-      .build();
+  public static Program makeProgram(ProgramType type, String key, double tempo, double density) {
+    return new Program()
+      .id(UUID.randomUUID())
+      .libraryId(UUID.randomUUID())
+      .type(type)
+      .state(ProgramState.PUBLISHED)
+      .name(String.format("Test %s-Program", type.name()))
+      .key(key)
+      .tempo(tempo)
+      .density(density);
   }
 
   public static Program makeDetailProgram(String key, Boolean doPatternRestartOnChord, String name) {
-    return Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setLibraryId(UUID.randomUUID().toString())
-      .setType(Program.Type.Detail)
-      .setState(Program.State.Published)
-      .setName(name)
-      .setKey(key)
-      .setConfig(String.format("doPatternRestartOnChord=%b", doPatternRestartOnChord))
-      .build();
+    return new Program()
+      .id(UUID.randomUUID())
+      .libraryId(UUID.randomUUID())
+      .type(ProgramType.DETAIL)
+      .state(ProgramState.PUBLISHED)
+      .name(name)
+      .key(key)
+      .config(String.format("doPatternRestartOnChord=%b", doPatternRestartOnChord));
   }
 
   public static ProgramMeme makeMeme(Program program, String name) {
-    return ProgramMeme.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramId(program.getId())
-      .setName(name)
-      .build();
+    return new ProgramMeme()
+      .id(UUID.randomUUID())
+      .programId(program.getId())
+      .name(name);
   }
 
   public static ProgramSequence makeSequence(Program program, int total, String name, double density, String key, double tempo) {
-    return ProgramSequence.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramId(program.getId())
-      .setTotal(total)
-      .setName(name)
-      .setKey(key)
-      .setTempo(tempo)
-      .setDensity(density)
-      .build();
+    return new ProgramSequence()
+      .id(UUID.randomUUID())
+      .programId(program.getId())
+      .total(total)
+      .name(name)
+      .key(key)
+      .tempo(tempo)
+      .density(density);
   }
 
   public static ProgramSequence makeSequence(Program program, int total) {
-    return ProgramSequence.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramId(program.getId())
-      .setTotal(total)
-      .setName(String.format("Test %d-beat Sequence", total))
-      .build();
+    return new ProgramSequence()
+      .id(UUID.randomUUID())
+      .programId(program.getId())
+      .total(total)
+      .name(String.format("Test %d-beat Sequence", total));
   }
 
   public static ProgramSequenceBinding makeBinding(ProgramSequence programSequence, int offset) {
-    return ProgramSequenceBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramId(programSequence.getProgramId())
-      .setProgramSequenceId(programSequence.getId())
-      .setOffset(offset)
-      .build();
+    return new ProgramSequenceBinding()
+      .id(UUID.randomUUID())
+      .programId(programSequence.getProgramId())
+      .programSequenceId(programSequence.getId())
+      .offset(offset);
   }
 
   public static ProgramSequenceBindingMeme makeMeme(ProgramSequenceBinding programSequenceBinding, String name) {
-    return ProgramSequenceBindingMeme.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramId(programSequenceBinding.getProgramId())
-      .setProgramSequenceBindingId(programSequenceBinding.getId())
-      .setName(name)
-      .build();
+    return new ProgramSequenceBindingMeme()
+      .id(UUID.randomUUID())
+      .programId(programSequenceBinding.getProgramId())
+      .programSequenceBindingId(programSequenceBinding.getId())
+      .name(name);
   }
 
   public static ProgramSequenceChord makeChord(ProgramSequence programSequence, double position, String name) {
-    return ProgramSequenceChord.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramSequenceId(programSequence.getId())
-      .setProgramId(programSequence.getProgramId())
-      .setPosition(position)
-      .setName(name)
-      .build();
+    return new ProgramSequenceChord()
+      .id(UUID.randomUUID())
+      .programSequenceId(programSequence.getId())
+      .programId(programSequence.getProgramId())
+      .position(position)
+      .name(name);
   }
 
-  public static ProgramSequenceChordVoicing makeVoicing(Instrument.Type type, ProgramSequenceChord programSequenceChord, String notes) {
-    return ProgramSequenceChordVoicing.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramId(programSequenceChord.getProgramId())
-      .setProgramSequenceChordId(programSequenceChord.getId())
-      .setType(type)
-      .setNotes(notes)
-      .build();
+  public static ProgramSequenceChordVoicing makeVoicing(InstrumentType type, ProgramSequenceChord programSequenceChord, String notes) {
+    return new ProgramSequenceChordVoicing()
+      .id(UUID.randomUUID())
+      .programId(programSequenceChord.getProgramId())
+      .programSequenceChordId(programSequenceChord.getId())
+      .type(type)
+      .notes(notes);
   }
 
-  public static ProgramVoice makeVoice(Program program, Instrument.Type type, String name) {
-    return ProgramVoice.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramId(program.getId())
-      .setType(type)
-      .setName(name)
-      .build();
+  public static ProgramVoice makeVoice(Program program, InstrumentType type, String name) {
+    return new ProgramVoice()
+      .id(UUID.randomUUID())
+      .programId(program.getId())
+      .type(type)
+      .name(name);
   }
 
-  public static ProgramVoice makeVoice(Program program, Instrument.Type type) {
+  public static ProgramVoice makeVoice(Program program, InstrumentType type) {
     return makeVoice(program, type, type.name());
   }
 
   public static ProgramVoiceTrack makeTrack(ProgramVoice programVoice, String name) {
-    return ProgramVoiceTrack.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramId(programVoice.getProgramId())
-      .setProgramVoiceId(programVoice.getId())
-      .setName(name)
-      .build();
+    return new ProgramVoiceTrack()
+      .id(UUID.randomUUID())
+      .programId(programVoice.getProgramId())
+      .programVoiceId(programVoice.getId())
+      .name(name);
   }
 
   public static ProgramVoiceTrack makeTrack(ProgramVoice programVoice) {
     return makeTrack(programVoice, programVoice.getType().name());
   }
 
-  public static ProgramSequencePattern makePattern(ProgramSequence programSequence, ProgramVoice programVoice, ProgramSequencePattern.Type type, int total, String name) {
-    return ProgramSequencePattern.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramId(programSequence.getProgramId())
-      .setProgramSequenceId(programSequence.getId())
-      .setProgramVoiceId(programVoice.getId())
-      .setType(type)
-      .setTotal(total)
-      .setName(name)
-      .build();
+  public static ProgramSequencePattern makePattern(ProgramSequence programSequence, ProgramVoice programVoice, ProgramSequencePatternType type, int total, String name) {
+    return new ProgramSequencePattern()
+      .id(UUID.randomUUID())
+      .programId(programSequence.getProgramId())
+      .programSequenceId(programSequence.getId())
+      .programVoiceId(programVoice.getId())
+      .type(type)
+      .total(total)
+      .name(name);
   }
 
-  public static ProgramSequencePattern makePattern(ProgramSequence sequence, ProgramVoice voice, ProgramSequencePattern.Type type, int total) {
+  public static ProgramSequencePattern makePattern(ProgramSequence sequence, ProgramVoice voice, ProgramSequencePatternType type, int total) {
     return makePattern(sequence, voice, type, total, type.name());
   }
 
   public static ProgramSequencePatternEvent makeEvent(ProgramSequencePattern pattern, ProgramVoiceTrack track, double position, double duration, String note, double velocity) {
-    return ProgramSequencePatternEvent.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setProgramId(pattern.getProgramId())
-      .setProgramSequencePatternId(pattern.getId())
-      .setProgramVoiceTrackId(track.getId())
-      .setPosition(position)
-      .setDuration(duration)
-      .setNote(note)
-      .setVelocity(velocity)
-      .build();
+    return new ProgramSequencePatternEvent()
+      .id(UUID.randomUUID())
+      .programId(pattern.getProgramId())
+      .programSequencePatternId(pattern.getId())
+      .programVoiceTrackId(track.getId())
+      .position(position)
+      .duration(duration)
+      .note(note)
+      .velocity(velocity);
   }
 
   public static ProgramSequencePatternEvent makeEvent(ProgramSequencePattern pattern, ProgramVoiceTrack track, double position, double duration, String note) {
     return makeEvent(pattern, track, position, duration, note, 1.0);
   }
 
-  public static Instrument makeInstrument(Library library, Instrument.Type type, Instrument.State state, String name) {
-    return Instrument.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setLibraryId(library.getId())
-      .setType(type)
-      .setState(state)
-      .setName(name)
-      .build();
+  public static Instrument makeInstrument(Library library, InstrumentType type, InstrumentState state, String name) {
+    return new Instrument()
+      .id(UUID.randomUUID())
+      .libraryId(library.getId())
+      .type(type)
+      .state(state)
+      .name(name);
   }
 
-  public static Instrument makeInstrument(Instrument.Type type, Boolean isTonal, Boolean isMultiphonic) {
-    return Instrument.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setLibraryId(UUID.randomUUID().toString())
-      .setType(type)
-      .setState(Instrument.State.Published)
-      .setConfig(String.format("isTonal=%b\nisMultiphonic=%b", isTonal, isMultiphonic))
-      .setName(String.format("Test %s-Instrument", type.name()))
-      .build();
+  public static Instrument makeInstrument(InstrumentType type, Boolean isTonal, Boolean isMultiphonic) {
+    return new Instrument()
+      .id(UUID.randomUUID())
+      .libraryId(UUID.randomUUID())
+      .type(type)
+      .state(InstrumentState.PUBLISHED)
+      .config(String.format("isTonal=%b\nisMultiphonic=%b", isTonal, isMultiphonic))
+      .name(String.format("Test %s-Instrument", type.name()));
   }
 
   public static InstrumentMeme makeMeme(Instrument instrument, String name) {
-    return InstrumentMeme.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setInstrumentId(instrument.getId())
-      .setName(name)
-      .build();
+    return new InstrumentMeme()
+      .id(UUID.randomUUID())
+      .instrumentId(instrument.getId())
+      .name(name);
   }
 
   public static Chain makeChain() {
-    Chain.Builder builder = Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(UUID.randomUUID().toString())
-      .setName("Test Chain")
-      .setType(Chain.Type.Production)
-      .setState(Chain.State.Fabricate)
-      .setStartAt(Value.formatIso8601UTC(Instant.now()));
-    return builder.build();
+    Chain builder = new Chain()
+      .id(UUID.randomUUID())
+      .accountId(UUID.randomUUID())
+      .name("Test Chain")
+      .type(ChainType.PRODUCTION)
+      .state(ChainState.FABRICATE)
+      .startAt(Value.formatIso8601UTC(Instant.now()));
+    return builder;
   }
 
-  public static Chain makeChain(Account account, String name, Chain.Type type, Chain.State state, Instant startAt, @Nullable Instant stopAt, @Nullable String embedKey) {
-    Chain.Builder builder = Chain.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setConfig("choiceDeltaEnabled=false")
-      .setAccountId(account.getId())
-      .setName(name)
-      .setType(type)
-      .setState(state)
-      .setStartAt(Value.formatIso8601UTC(startAt));
+  public static Chain makeChain(Account account, String name, ChainType type, ChainState state, Instant startAt, @Nullable Instant stopAt, @Nullable String embedKey) {
+    Chain builder = new Chain()
+      .id(UUID.randomUUID())
+      .config("choiceDeltaEnabled=false")
+      .accountId(account.getId())
+      .name(name)
+      .type(type)
+      .state(state)
+      .startAt(Value.formatIso8601UTC(startAt));
     if (Objects.nonNull(stopAt))
-      builder.setStopAt(Value.formatIso8601UTC(stopAt));
+      builder.stopAt(Value.formatIso8601UTC(stopAt));
     if (Objects.nonNull(embedKey))
-      builder.setEmbedKey(embedKey);
-    return builder.build();
+      builder.embedKey(embedKey);
+    return builder;
   }
 
   public static ChainBinding makeBinding(Chain chain, Program program) {
-    return ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setTargetId(program.getId())
-      .setType(ChainBinding.Type.Program)
-      .build();
+    return new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .targetId(program.getId())
+      .type(ChainBindingType.PROGRAM);
   }
 
   public static ChainBinding makeBinding(Chain chain, Instrument instrument) {
-    return ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setTargetId(instrument.getId())
-      .setType(ChainBinding.Type.Instrument)
-      .build();
+    return new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .targetId(instrument.getId())
+      .type(ChainBindingType.INSTRUMENT);
   }
 
   public static ChainBinding makeBinding(Chain chain, Library library) {
-    return ChainBinding.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setChainId(chain.getId())
-      .setTargetId(library.getId())
-      .setType(ChainBinding.Type.Library)
-      .build();
+    return new ChainBinding()
+      .id(UUID.randomUUID())
+      .chainId(chain.getId())
+      .targetId(library.getId())
+      .type(ChainBindingType.LIBRARY);
   }
 
-  public static Segment makeSegment(Chain chain, int offset, Segment.State state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String storageKey, String outputEncoder) {
-    Segment.Builder builder = Segment.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setOutputEncoder(outputEncoder)
-      .setChainId(chain.getId())
-      .setOffset(offset)
-      .setState(state)
-      .setBeginAt(Value.formatIso8601UTC(beginAt))
-      .setKey(key)
-      .setTotal(total)
-      .setDensity(density)
-      .setTempo(tempo)
-      .setStorageKey(storageKey);
+  public static Segment makeSegment(Chain chain, int offset, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String storageKey, String outputEncoder) {
+    Segment builder = new Segment()
+      .id(UUID.randomUUID())
+      .outputEncoder(outputEncoder)
+      .chainId(chain.getId())
+      .offset((long) offset)
+      .delta(0)
+      .state(state)
+      .beginAt(Value.formatIso8601UTC(beginAt))
+      .key(key)
+      .total(total)
+      .density(density)
+      .tempo(tempo)
+      .storageKey(storageKey);
 
     if (Objects.nonNull(endAt))
-      builder.setEndAt(Value.formatIso8601UTC(endAt));
+      builder.endAt(Value.formatIso8601UTC(endAt));
 
-    return builder.build();
+    return builder;
   }
 
   public static Segment makeSegment(Chain chain, String key, int total, double density, double tempo) {
     return makeSegment(
       chain,
       0,
-      Segment.State.Crafting,
+      SegmentState.CRAFTING,
       Instant.parse(chain.getStartAt()),
       Instant.parse(chain.getStartAt()).plusNanos((long) (NANOS_PER_SECOND * total * (60 / tempo))), key, total, density, tempo, "segment123", "wav");
   }
@@ -761,7 +736,7 @@ public class NexusIntegrationTestingFixtures {
     return makeSegment(
       chain,
       offset,
-      Segment.State.Crafting,
+      SegmentState.CRAFTING,
       beginAt,
       beginAt.plusNanos((long) (NANOS_PER_SECOND * total * (60 / tempo))), key, total, density, tempo, "segment123", "wav");
   }
@@ -877,15 +852,15 @@ public class NexusIntegrationTestingFixtures {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     user2 = makeUser("john", "john@email.com", "http://pictures.com/john.gif");
-    userRole2a = makeUserRole(user2, UserRole.Type.Admin);
+    userRole2a = makeUserRole(user2, UserRoleType.ADMIN);
 
     // Jenny has a "user" role and belongs to account "bananas"
     user3 = makeUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    userRole3a = makeUserRole(user3, UserRole.Type.User);
+    userRole3a = makeUserRole(user3, UserRoleType.USER);
     accountUser1a = makeAccountUser(account1, user3);
 
     // "Tropical, Wild to Cozy" macro-program in house library
-    program4 = makeProgram(library2, Program.Type.Macro, Program.State.Published, "Tropical, Wild to Cozy", "C", 120.0, 0.6);
+    program4 = makeProgram(library2, ProgramType.MACRO, ProgramState.PUBLISHED, "Tropical, Wild to Cozy", "C", 120.0, 0.6);
     program4_meme0 = makeMeme(program4, "Tropical");
     //
     program4_sequence0 = makeSequence(program4, 0, "Start Wild", 0.6, "C", 125.0);
@@ -902,49 +877,49 @@ public class NexusIntegrationTestingFixtures {
     program4_sequence2_binding0_meme0 = makeMeme(program4_sequence2_binding0, "Cozy");
 
     // Main program
-    program5 = makeProgram(library2, Program.Type.Main, Program.State.Published, "Main Jam", "C minor", 140, 0.6);
+    program5 = makeProgram(library2, ProgramType.MAIN, ProgramState.PUBLISHED, "Main Jam", "C minor", 140, 0.6);
     program5_meme0 = makeMeme(program5, "Outlook");
     //
     program5_sequence0 = makeSequence(program5, 16, "Intro", 0.5, "G major", 135.0);
     program5_sequence0_chord0 = makeChord(program5_sequence0, 0.0, "G major");
 
-    program5_sequence0_chord0_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence0_chord0, "G3, B3, D4");
+    program5_sequence0_chord0_voicing = makeVoicing(InstrumentType.BASS, program5_sequence0_chord0, "G3, B3, D4");
     program5_sequence0_chord1 = makeChord(program5_sequence0, 8.0, "Ab minor");
 
-    program5_sequence0_chord1_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence0_chord1, "Ab3, Db3, F4");
+    program5_sequence0_chord1_voicing = makeVoicing(InstrumentType.BASS, program5_sequence0_chord1, "Ab3, Db3, F4");
     program5_sequence0_chord2 = makeChord(program5_sequence0, 75.0, "G-9"); // [#154090557] this ChordEntity should be ignored, because it's past the end of the main-pattern total
 
-    program5_sequence0_chord2_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence0_chord2, "G3, Bb3, D4, A4");
+    program5_sequence0_chord2_voicing = makeVoicing(InstrumentType.BASS, program5_sequence0_chord2, "G3, Bb3, D4, A4");
     program5_sequence0_binding0 = makeBinding(program5_sequence0, 0);
     program5_sequence0_binding0_meme0 = makeMeme(program5_sequence0_binding0, "Optimism");
     //
     program5_sequence1 = makeSequence(program5, 32, "Drop", 0.5, "G minor", 135.0);
     program5_sequence1_chord0 = makeChord(program5_sequence1, 0.0, "C major");
 
-    program5_sequence1_chord0_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence1_chord0, "Ab3, Db3, F4");
+    program5_sequence1_chord0_voicing = makeVoicing(InstrumentType.BASS, program5_sequence1_chord0, "Ab3, Db3, F4");
     program5_sequence1_chord1 = makeChord(program5_sequence1, 8.0, "Bb minor");
 
-    program5_sequence1_chord1_voicing = makeVoicing(Instrument.Type.Bass, program5_sequence1_chord1, "Ab3, Db3, F4");
+    program5_sequence1_chord1_voicing = makeVoicing(InstrumentType.BASS, program5_sequence1_chord1, "Ab3, Db3, F4");
     program5_sequence1_binding0 = makeBinding(program5_sequence1, 1);
     program5_sequence1_binding0_meme0 = makeMeme(program5_sequence1_binding0, "Pessimism");
 
     // A basic beat
-    program35 = makeProgram(library2, Program.Type.Rhythm, Program.State.Published, "Basic Beat", "C", 121, 0.6);
+    program35 = makeProgram(library2, ProgramType.RHYTHM, ProgramState.PUBLISHED, "Basic Beat", "C", 121, 0.6);
     program35_meme0 = makeMeme(program35, "Basic");
-    program35_voice0 = makeVoice(program35, Instrument.Type.Percussive, "Drums");
+    program35_voice0 = makeVoice(program35, InstrumentType.PERCUSSIVE, "Drums");
     program35_voice0_track0 = makeTrack(program35_voice0, "CLOCK");
     program35_voice0_track1 = makeTrack(program35_voice0, "SNORT");
     program35_voice0_track2 = makeTrack(program35_voice0, "KICK");
     program35_voice0_track3 = makeTrack(program35_voice0, "SNARL");
     //
     program35_sequence0 = makeSequence(program35, 16, "Base", 0.5, "C", 110.3);
-    program35_sequence0_pattern0 = makePattern(program35_sequence0, program35_voice0, ProgramSequencePattern.Type.Loop, 4, "Drop");
+    program35_sequence0_pattern0 = makePattern(program35_sequence0, program35_voice0, ProgramSequencePatternType.LOOP, 4, "Drop");
     program35_sequence0_pattern0_event0 = makeEvent(program35_sequence0_pattern0, program35_voice0_track0, 0.0, 1.0, "C2", 1.0);
     program35_sequence0_pattern0_event1 = makeEvent(program35_sequence0_pattern0, program35_voice0_track1, 1.0, 1.0, "G5", 0.8);
     program35_sequence0_pattern0_event2 = makeEvent(program35_sequence0_pattern0, program35_voice0_track2, 2.5, 1.0, "C2", 0.6);
     program35_sequence0_pattern0_event3 = makeEvent(program35_sequence0_pattern0, program35_voice0_track3, 3.0, 1.0, "G5", 0.9);
     //
-    program35_sequence0_pattern1 = makePattern(program35_sequence0, program35_voice0, ProgramSequencePattern.Type.Loop, 4, "Drop Alt");
+    program35_sequence0_pattern1 = makePattern(program35_sequence0, program35_voice0, ProgramSequencePatternType.LOOP, 4, "Drop Alt");
     program35_sequence0_pattern1_event0 = makeEvent(program35_sequence0_pattern1, program35_voice0_track0, 0.0, 1.0, "B5", 0.9);
     program35_sequence0_pattern1_event1 = makeEvent(program35_sequence0_pattern1, program35_voice0_track1, 1.0, 1.0, "D2", 1.0);
     program35_sequence0_pattern1_event2 = makeEvent(program35_sequence0_pattern1, program35_voice0_track2, 2.5, 1.0, "E4", 0.7);
@@ -1018,7 +993,7 @@ public class NexusIntegrationTestingFixtures {
    */
   public Collection<Object> setupFixtureB2() {
     // "Tangy, Chunky to Smooth" macro-program in house library
-    program3 = makeProgram(library2, Program.Type.Macro, Program.State.Published, "Tangy, Chunky to Smooth", "G minor", 120.0, 0.6);
+    program3 = makeProgram(library2, ProgramType.MACRO, ProgramState.PUBLISHED, "Tangy, Chunky to Smooth", "G minor", 120.0, 0.6);
     program3_meme0 = makeMeme(program3, "Tangy");
     //
     program3_sequence0 = makeSequence(program3, 0, "Start Chunky", 0.4, "G minor", 115.0);
@@ -1030,22 +1005,22 @@ public class NexusIntegrationTestingFixtures {
     program3_sequence1_binding0_meme0 = makeMeme(program3_sequence1_binding0, "Smooth");
 
     // Main program
-    program15 = makeProgram(library2, Program.Type.Main, Program.State.Published, "Next Jam", "Db minor", 140, 0.6);
+    program15 = makeProgram(library2, ProgramType.MAIN, ProgramState.PUBLISHED, "Next Jam", "Db minor", 140, 0.6);
     program15_meme0 = makeMeme(program15, "Hindsight");
     //
     program15_sequence0 = makeSequence(program15, 16, "Intro", 0.5, "G minor", 135.0);
     program15_sequence0_chord0 = makeChord(program15_sequence0, 0.0, "G minor");
-    program15_sequence0_chord0_voicing = makeVoicing(Instrument.Type.Bass, program15_sequence0_chord0, "G3, Bb3, D4");
+    program15_sequence0_chord0_voicing = makeVoicing(InstrumentType.BASS, program15_sequence0_chord0, "G3, Bb3, D4");
     program15_sequence0_chord1 = makeChord(program15_sequence0, 8.0, "Ab minor");
-    program15_sequence0_chord1_voicing = makeVoicing(Instrument.Type.Bass, program15_sequence0_chord1, "Ab3, C3, Eb4");
+    program15_sequence0_chord1_voicing = makeVoicing(InstrumentType.BASS, program15_sequence0_chord1, "Ab3, C3, Eb4");
     program15_sequence0_binding0 = makeBinding(program15_sequence0, 0);
     program15_sequence0_binding0_meme0 = makeMeme(program15_sequence0_binding0, "Regret");
     //
     program15_sequence1 = makeSequence(program15, 32, "Outro", 0.5, "A major", 135.0);
     program15_sequence1_chord0 = makeChord(program15_sequence1, 0.0, "C major");
-    program15_sequence1_chord0_voicing = makeVoicing(Instrument.Type.Bass, program15_sequence0_chord0, "E3, G3, C4");
+    program15_sequence1_chord0_voicing = makeVoicing(InstrumentType.BASS, program15_sequence0_chord0, "E3, G3, C4");
     program15_sequence1_chord1 = makeChord(program15_sequence1, 8.0, "Bb major");
-    program15_sequence1_chord1_voicing = makeVoicing(Instrument.Type.Bass, program15_sequence0_chord1, "F3, Bb3, D4");
+    program15_sequence1_chord1_voicing = makeVoicing(InstrumentType.BASS, program15_sequence0_chord1, "F3, Bb3, D4");
     program15_sequence1_binding0 = makeBinding(program15_sequence1, 1);
     program15_sequence1_binding0_meme0 = makeMeme(program15_sequence1_binding0, "Pride");
     program15_sequence1_binding0_meme1 = makeMeme(program15_sequence1_binding0, "Shame");
@@ -1096,10 +1071,10 @@ public class NexusIntegrationTestingFixtures {
    */
   public Collection<Object> setupFixtureB3() {
     // A basic beat
-    program9 = makeProgram(library2, Program.Type.Rhythm, Program.State.Published, "Basic Beat", "C", 121, 0.6);
+    program9 = makeProgram(library2, ProgramType.RHYTHM, ProgramState.PUBLISHED, "Basic Beat", "C", 121, 0.6);
     program9_meme0 = makeMeme(program9, "Basic");
     //
-    program9_voice0 = makeVoice(program9, Instrument.Type.Percussive, "Drums");
+    program9_voice0 = makeVoice(program9, InstrumentType.PERCUSSIVE, "Drums");
     program9_voice0_track0 = makeTrack(program9_voice0, "BLEEP");
     program9_voice0_track1 = makeTrack(program9_voice0, "BLEIP");
     program9_voice0_track2 = makeTrack(program9_voice0, "BLEAP");
@@ -1119,32 +1094,32 @@ public class NexusIntegrationTestingFixtures {
     //
     program9_sequence0 = makeSequence(program9, 16, "Base", 0.5, "C", 110.3);
     //
-    program9_sequence0_pattern0 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePattern.Type.Intro, 4, "Intro");
+    program9_sequence0_pattern0 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.INTRO, 4, "Intro");
     program9_sequence0_pattern0_event0 = makeEvent(program9_sequence0_pattern0, program9_voice0_track0, 0, 1, "C2", 1.0);
     program9_sequence0_pattern0_event1 = makeEvent(program9_sequence0_pattern0, program9_voice0_track1, 1, 1, "G5", 0.8);
     program9_sequence0_pattern0_event2 = makeEvent(program9_sequence0_pattern0, program9_voice0_track2, 2.5, 1, "C2", 0.6);
     program9_sequence0_pattern0_event3 = makeEvent(program9_sequence0_pattern0, program9_voice0_track3, 3, 1, "G5", 0.9);
     //
-    program9_sequence0_pattern1 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop A");
+    program9_sequence0_pattern1 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.LOOP, 4, "Loop A");
     program9_sequence0_pattern1_event0 = makeEvent(program9_sequence0_pattern1, program9_voice0_track4, 0, 1, "C2", 1.0);
     program9_sequence0_pattern1_event1 = makeEvent(program9_sequence0_pattern1, program9_voice0_track5, 1, 1, "G5", 0.8);
     program9_sequence0_pattern1_event2 = makeEvent(program9_sequence0_pattern1, program9_voice0_track6, 2.5, 1, "C2", 0.6);
     program9_sequence0_pattern1_event3 = makeEvent(program9_sequence0_pattern1, program9_voice0_track7, 3, 1, "G5", 0.9);
     //
-    program9_sequence0_pattern2 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop B");
+    program9_sequence0_pattern2 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.LOOP, 4, "Loop B");
     program9_sequence0_pattern2_event0 = makeEvent(program9_sequence0_pattern2, program9_voice0_track8, 0, 1, "B5", 0.9);
     program9_sequence0_pattern2_event1 = makeEvent(program9_sequence0_pattern2, program9_voice0_track9, 1, 1, "D2", 1.0);
     program9_sequence0_pattern2_event2 = makeEvent(program9_sequence0_pattern2, program9_voice0_track10, 2.5, 1, "E4", 0.7);
     program9_sequence0_pattern2_event3 = makeEvent(program9_sequence0_pattern2, program9_voice0_track11, 3, 1, "C3", 0.5);
     //
-    program9_sequence0_pattern3 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePattern.Type.Outro, 4, "Outro");
+    program9_sequence0_pattern3 = makePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.OUTRO, 4, "Outro");
     program9_sequence0_pattern3_event0 = makeEvent(program9_sequence0_pattern3, program9_voice0_track12, 0, 1, "C2", 1.0);
     program9_sequence0_pattern3_event1 = makeEvent(program9_sequence0_pattern3, program9_voice0_track13, 1, 1, "G5", 0.8);
     program9_sequence0_pattern3_event2 = makeEvent(program9_sequence0_pattern3, program9_voice0_track14, 2.5, 1, "C2", 0.6);
     program9_sequence0_pattern3_event3 = makeEvent(program9_sequence0_pattern3, program9_voice0_track15, 3, 1, "G5", 0.9);
 
     // Instrument "808"
-    instrument8 = makeInstrument(library2, Instrument.Type.Percussive, Instrument.State.Published, "808 Drums");
+    instrument8 = makeInstrument(library2, InstrumentType.PERCUSSIVE, InstrumentState.PUBLISHED, "808 Drums");
     instrument8_meme0 = makeMeme(instrument8, "heavy");
     instrument8_audio8kick = makeAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62, "KICK", "Eb", 1.0);
     instrument8_audio8snare = makeAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01, 1.5, 120.0, 0.62, "SNARE", "Ab", 0.8);
@@ -1209,40 +1184,40 @@ public class NexusIntegrationTestingFixtures {
    */
   public Collection<Object> setupFixtureB4_DetailBass() {
     // A basic bass pattern
-    program10 = makeProgram(library2, Program.Type.Detail, Program.State.Published, "Earth Bass Detail Pattern", "C", 121, 0.6);
+    program10 = makeProgram(library2, ProgramType.DETAIL, ProgramState.PUBLISHED, "Earth Bass Detail Pattern", "C", 121, 0.6);
     program10_meme0 = makeMeme(program10, "EARTH");
     //
-    program10_voice0 = makeVoice(program10, Instrument.Type.Bass, "Dirty Bass");
+    program10_voice0 = makeVoice(program10, InstrumentType.BASS, "Dirty Bass");
     program10_voice0_track0 = makeTrack(program10_voice0, "BUM");
     //
     program10_sequence0 = makeSequence(program10, 16, "Simple Walk", 0.5, "C", 110.3);
     //
-    program10_sequence0_pattern0 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Intro, 4, "Intro");
+    program10_sequence0_pattern0 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePatternType.INTRO, 4, "Intro");
     program10_sequence0_pattern0_event0 = makeEvent(program10_sequence0_pattern0, program10_voice0_track0, 0, 1, "C2", 1.0);
     program10_sequence0_pattern0_event1 = makeEvent(program10_sequence0_pattern0, program10_voice0_track0, 1, 1, "G5", 0.8);
     program10_sequence0_pattern0_event2 = makeEvent(program10_sequence0_pattern0, program10_voice0_track0, 2, 1, "C2", 0.6);
     program10_sequence0_pattern0_event3 = makeEvent(program10_sequence0_pattern0, program10_voice0_track0, 3, 1, "G5", 0.9);
     //
-    program10_sequence0_pattern1 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop A");
+    program10_sequence0_pattern1 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePatternType.LOOP, 4, "Loop A");
     program10_sequence0_pattern1_event0 = makeEvent(program10_sequence0_pattern1, program10_voice0_track0, 0, 1, "C2", 1.0);
     program10_sequence0_pattern1_event1 = makeEvent(program10_sequence0_pattern1, program10_voice0_track0, 1, 1, "G5", 0.8);
     program10_sequence0_pattern1_event2 = makeEvent(program10_sequence0_pattern1, program10_voice0_track0, 2, 1, "C2", 0.6);
     program10_sequence0_pattern1_event3 = makeEvent(program10_sequence0_pattern1, program10_voice0_track0, 3, 1, "G5", 0.9);
     //
-    program10_sequence0_pattern2 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Loop, 4, "Loop B");
+    program10_sequence0_pattern2 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePatternType.LOOP, 4, "Loop B");
     program10_sequence0_pattern2_event0 = makeEvent(program10_sequence0_pattern2, program10_voice0_track0, 0, 1, "B5", 0.9);
     program10_sequence0_pattern2_event1 = makeEvent(program10_sequence0_pattern2, program10_voice0_track0, 1, 1, "D2", 1.0);
     program10_sequence0_pattern2_event2 = makeEvent(program10_sequence0_pattern2, program10_voice0_track0, 2, 1, "E4", 0.7);
     program10_sequence0_pattern2_event3 = makeEvent(program10_sequence0_pattern2, program10_voice0_track0, 3, 1, "C3", 0.5);
     //
-    program10_sequence0_pattern3 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePattern.Type.Outro, 4, "Outro");
+    program10_sequence0_pattern3 = makePattern(program10_sequence0, program10_voice0, ProgramSequencePatternType.OUTRO, 4, "Outro");
     program10_sequence0_pattern3_event0 = makeEvent(program10_sequence0_pattern3, program10_voice0_track0, 0, 1, "C2", 1.0);
     program10_sequence0_pattern3_event1 = makeEvent(program10_sequence0_pattern3, program10_voice0_track0, 1, 1, "G5", 0.8);
     program10_sequence0_pattern3_event2 = makeEvent(program10_sequence0_pattern3, program10_voice0_track0, 2, 1, "C2", 0.6);
     program10_sequence0_pattern3_event3 = makeEvent(program10_sequence0_pattern3, program10_voice0_track0, 3, 1, "G5", 0.9);
 
     // Instrument "Bass"
-    instrument9 = makeInstrument(library2, Instrument.Type.Bass, Instrument.State.Published, "Bass");
+    instrument9 = makeInstrument(library2, InstrumentType.BASS, InstrumentState.PUBLISHED, "Bass");
     instrument9_meme0 = makeMeme(instrument9, "heavy");
     instrument9_audio8 = makeAudio(instrument9, "bass", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62, "BLOOP", "Eb", 1.0);
 
@@ -1288,26 +1263,26 @@ public class NexusIntegrationTestingFixtures {
   public Collection<Object> generatedFixture(int N) {
     Collection<Object> entities = Lists.newArrayList();
 
-    account1 = add(entities, Account.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("Generated")
-      .build());
-    user1 = add(entities, User.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("generated")
-      .setEmail("generated@email.com")
-      .setAvatarUrl("http://pictures.com/generated.gif")
-      .build());
-    add(entities, UserRole.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setUserId(user1.getId())
-      .setType(UserRole.Type.Admin)
-      .build());
-    library1 = add(entities, Library.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setAccountId(account1.getId())
-      .setName("generated")
-      .build());
+    account1 = add(entities, new Account()
+      .id(UUID.randomUUID())
+      .name("Generated")
+      );
+    user1 = add(entities, new User()
+      .id(UUID.randomUUID())
+      .name("generated")
+      .email("generated@email.com")
+      .avatarUrl("http://pictures.com/generated.gif")
+      );
+    add(entities, new UserRole()
+      .id(UUID.randomUUID())
+      .userId(user1.getId())
+      .type(UserRoleType.ADMIN)
+      );
+    library1 = add(entities, new Library()
+      .id(UUID.randomUUID())
+      .accountId(account1.getId())
+      .name("generated")
+      );
 
     // Create a N-magnitude set of unique major memes
     String[] majorMemeNames = listOfUniqueRandom(N, LoremIpsum.COLORS);
@@ -1319,17 +1294,17 @@ public class NexusIntegrationTestingFixtures {
       String majorMemeName = majorMemeNames[i];
       String minorMemeName = random(minorMemeNames);
       //
-      Instrument instrument = add(entities, makeInstrument(library1, Instrument.Type.Percussive, Instrument.State.Published, String.format("%s Drums", majorMemeName)));
-      add(entities, InstrumentMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setInstrumentId(instrument.getId())
-        .setName(majorMemeName)
-        .build());
-      add(entities, InstrumentMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setInstrumentId(instrument.getId())
-        .setName(minorMemeName)
-        .build());
+      Instrument instrument = add(entities, makeInstrument(library1, InstrumentType.PERCUSSIVE, InstrumentState.PUBLISHED, String.format("%s Drums", majorMemeName)));
+      add(entities, new InstrumentMeme()
+        .id(UUID.randomUUID())
+        .instrumentId(instrument.getId())
+        .name(majorMemeName)
+        );
+      add(entities, new InstrumentMeme()
+        .id(UUID.randomUUID())
+        .instrumentId(instrument.getId())
+        .name(minorMemeName)
+        );
       // audios of instrument
       for (int k = 0; k < N; k++)
         add(entities, makeAudio(instrument, Text.toProper(percussiveNames[k]), String.format("%s.wav", Text.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62, percussiveNames[k], "X", random(0.8, 1)));
@@ -1349,42 +1324,42 @@ public class NexusIntegrationTestingFixtures {
       double densityFrom = random(0.3, 0.9);
       double tempoFrom = random(80, 120);
       //
-      Program program = add(entities, makeProgram(library1, Program.Type.Macro, Program.State.Published, String.format("%s, create %s to %s", minorMemeName, majorMemeFromName, majorMemeToName), keyFrom, tempoFrom, 0.6));
-      add(entities, ProgramMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramId(program.getId())
-        .setName(minorMemeName)
-        .build());
+      Program program = add(entities, makeProgram(library1, ProgramType.MACRO, ProgramState.PUBLISHED, String.format("%s, create %s to %s", minorMemeName, majorMemeFromName, majorMemeToName), keyFrom, tempoFrom, 0.6));
+      add(entities, new ProgramMeme()
+        .id(UUID.randomUUID())
+        .programId(program.getId())
+        .name(minorMemeName)
+        );
       // of offset 0
       var sequence0 = add(entities, makeSequence(program, 0, String.format("Start %s", majorMemeFromName), densityFrom, keyFrom, tempoFrom));
-      var binding0 = add(entities, ProgramSequenceBinding.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramSequenceId(sequence0.getId())
-        .setProgramId(sequence0.getProgramId())
-        .setOffset(0)
-        .build());
-      add(entities, ProgramSequenceBindingMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramId(binding0.getProgramId())
-        .setProgramSequenceBindingId(binding0.getId())
-        .setName(majorMemeFromName)
-        .build());
+      var binding0 = add(entities, new ProgramSequenceBinding()
+        .id(UUID.randomUUID())
+        .programSequenceId(sequence0.getId())
+        .programId(sequence0.getProgramId())
+        .offset(0)
+        );
+      add(entities, new ProgramSequenceBindingMeme()
+        .id(UUID.randomUUID())
+        .programId(binding0.getProgramId())
+        .programSequenceBindingId(binding0.getId())
+        .name(majorMemeFromName)
+        );
       // to offset 1
       double densityTo = random(0.3, 0.9);
       double tempoTo = random(803, 120);
       var sequence1 = add(entities, makeSequence(program, 0, String.format("Finish %s", majorMemeToName), densityTo, keyTo, tempoTo));
-      var binding1 = add(entities, ProgramSequenceBinding.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramSequenceId(sequence1.getId())
-        .setProgramId(sequence1.getProgramId())
-        .setOffset(1)
-        .build());
-      add(entities, ProgramSequenceBindingMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramSequenceBindingId(binding1.getId())
-        .setProgramId(binding1.getProgramId())
-        .setName(majorMemeToName)
-        .build());
+      var binding1 = add(entities, new ProgramSequenceBinding()
+        .id(UUID.randomUUID())
+        .programSequenceId(sequence1.getId())
+        .programId(sequence1.getProgramId())
+        .offset(1)
+        );
+      add(entities, new ProgramSequenceBindingMeme()
+        .id(UUID.randomUUID())
+        .programSequenceBindingId(binding1.getId())
+        .programId(binding1.getProgramId())
+        .name(majorMemeToName)
+        );
       //
       log.debug("Generated Macro-type Program id={}, minorMeme={}, majorMemeFrom={}, majorMemeTo={}", program.getId(), minorMemeName, majorMemeFromName, majorMemeToName);
     }
@@ -1398,12 +1373,12 @@ public class NexusIntegrationTestingFixtures {
       Double[] subDensities = listOfRandomValues(N);
       double tempo = random(80, 120);
       //
-      Program program = add(entities, makeProgram(library1, Program.Type.Main, Program.State.Published, String.format("%s: %s", majorMemeName, String.join(",", sequenceNames)), subKeys[0], tempo, 0.6));
-      add(entities, ProgramMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramId(program.getId())
-        .setName(majorMemeName)
-        .build());
+      Program program = add(entities, makeProgram(library1, ProgramType.MAIN, ProgramState.PUBLISHED, String.format("%s: %s", majorMemeName, String.join(",", sequenceNames)), subKeys[0], tempo, 0.6));
+      add(entities, new ProgramMeme()
+        .id(UUID.randomUUID())
+        .programId(program.getId())
+        .name(majorMemeName)
+        );
       // sequences of program
       for (int iP = 0; iP < N; iP++) {
         Integer total = random(LoremIpsum.SEQUENCE_TOTALS);
@@ -1418,12 +1393,12 @@ public class NexusIntegrationTestingFixtures {
       // sequence sequence binding
       for (int offset = 0; offset < N << 2; offset++) {
         int num = (int) StrictMath.floor(StrictMath.random() * N);
-        var binding = add(entities, ProgramSequenceBinding.newBuilder()
-          .setId(UUID.randomUUID().toString())
-          .setProgramSequenceId(sequences[num].getId())
-          .setProgramId(sequences[num].getProgramId())
-          .setOffset(offset)
-          .build());
+        var binding = add(entities, new ProgramSequenceBinding()
+          .id(UUID.randomUUID())
+          .programSequenceId(sequences[num].getId())
+          .programId(sequences[num].getProgramId())
+          .offset(offset)
+          );
         add(entities, makeMeme(binding, random(minorMemeNames)));
       }
       log.debug("Generated Main-type Program id={}, majorMeme={} with {} sequences bound {} times", program.getId(), majorMemeName, N, N << 2);
@@ -1438,16 +1413,16 @@ public class NexusIntegrationTestingFixtures {
       String key = random(LoremIpsum.MUSICAL_KEYS);
       double density = random(0.4, 0.9);
       //
-      Program program = add(entities, makeProgram(library1, Program.Type.Rhythm, Program.State.Published, String.format("%s Beat", majorMemeName), key, tempo, 0.6));
+      Program program = add(entities, makeProgram(library1, ProgramType.RHYTHM, ProgramState.PUBLISHED, String.format("%s Beat", majorMemeName), key, tempo, 0.6));
       trackMap.clear();
-      add(entities, ProgramMeme.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setProgramId(program.getId())
-        .setName(majorMemeName)
-        .build());
+      add(entities, new ProgramMeme()
+        .id(UUID.randomUUID())
+        .programId(program.getId())
+        .name(majorMemeName)
+        );
       // voices of program
       for (int iV = 0; iV < N; iV++) {
-        voices[iV] = add(entities, makeVoice(program, Instrument.Type.Percussive, String.format("%s %s", majorMemeName, percussiveNames[iV])));
+        voices[iV] = add(entities, makeVoice(program, InstrumentType.PERCUSSIVE, String.format("%s %s", majorMemeName, percussiveNames[iV])));
       }
       var sequenceBase = add(entities, makeSequence(program, random(LoremIpsum.SEQUENCE_TOTALS), "Base", density, key, tempo));
       // patterns of program
@@ -1456,7 +1431,7 @@ public class NexusIntegrationTestingFixtures {
         int num = (int) StrictMath.floor(StrictMath.random() * N);
 
         // first pattern is always a Loop (because that's required) then the rest at random
-        ProgramSequencePattern.Type type = 0 == iP ? ProgramSequencePattern.Type.Loop : randomRhythmPatternType();
+        ProgramSequencePatternType type = 0 == iP ? ProgramSequencePatternType.LOOP : randomRhythmPatternType();
         var pattern = add(entities, makePattern(sequenceBase, voices[num], type, total, String.format("%s %s %s", majorMemeName, type.toString(), random(LoremIpsum.ELEMENTS))));
         for (int iPE = 0; iPE < N << 2; iPE++) {
           // always use first chord, then use more chords with more density

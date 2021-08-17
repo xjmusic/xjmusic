@@ -8,8 +8,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import io.xj.Library;
-import io.xj.Program;
+import io.xj.api.Library;
+import io.xj.api.Program;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.ValueException;
 import org.junit.Before;
@@ -37,7 +37,7 @@ public class JsonapiJsonapiPayloadObjectTest {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new JsonApiModule(), new AbstractModule() {
+    var injector = Guice.createInjector(new JsonapiModule(), new AbstractModule() {
       @Override
       protected void configure() {
         bind(Config.class).toInstance(ConfigFactory.empty());
@@ -50,28 +50,25 @@ public class JsonapiJsonapiPayloadObjectTest {
   }
 
   @Test
-  public void add() throws JsonApiException {
-    Program parentEntity1 = Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("Test Program")
-      .build();
+  public void add() throws JsonapiException {
+    Program parentEntity1 = new Program()
+      .id(UUID.randomUUID())
+      .name("Test Program");
     subject.add("parentEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), parentEntity1));
 
     assertTrue(subject.getRelationships().get("parentEntity").getDataOne().isPresent());
-    assertEquals(parentEntity1.getId(), subject.getRelationships().get("parentEntity").getDataOne().get().getId());
+    assertEquals(parentEntity1.getId().toString(), subject.getRelationships().get("parentEntity").getDataOne().get().getId());
   }
 
   @Test
-  public void addIfRelated() throws IOException, JsonApiException {
-    Library library1 = Library.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("test.jpg")
-      .build();
-    Program program2 = Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("sham")
-      .setLibraryId(library1.getId())
-      .build();
+  public void addIfRelated() throws IOException, JsonapiException {
+    Library library1 = new Library()
+      .id(UUID.randomUUID())
+      .name("test.jpg");
+    Program program2 = new Program()
+      .id(UUID.randomUUID())
+      .name("sham")
+      .libraryId(library1.getId());
     entityFactory.register(Library.class);
     entityFactory.register(Program.class).belongsTo(Library.class);
     subject = jsonapiPayloadFactory.toPayloadObject(library1);
@@ -94,11 +91,10 @@ public class JsonapiJsonapiPayloadObjectTest {
   }
 
   @Test
-  public void toMinimal() throws JsonApiException {
-    Program parentEntity1 = Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("Test Program")
-      .build();
+  public void toMinimal() throws JsonapiException {
+    Program parentEntity1 = new Program()
+      .id(UUID.randomUUID())
+      .name("Test Program");
     subject = jsonapiPayloadFactory.toPayloadObject(parentEntity1);
 
     JsonapiPayloadObject result = subject.toMinimal();
@@ -138,28 +134,27 @@ public class JsonapiJsonapiPayloadObjectTest {
   }
 
   @Test
-  public void getRelationshipObject() throws JsonApiException {
-    Program parentEntity1 = Program.newBuilder()
-      .setId(UUID.randomUUID().toString())
-      .setName("Test Program")
-      .build();
+  public void getRelationshipObject() throws JsonapiException {
+    Program parentEntity1 = new Program()
+      .id(UUID.randomUUID())
+      .name("Test Program");
     subject.add("parentEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), parentEntity1));
 
     assertTrue(subject.getRelationshipDataOne("parentEntity").isPresent());
-    assertEquals(parentEntity1.getId(), subject.getRelationshipDataOne("parentEntity").get().getId());
+    assertEquals(parentEntity1.getId().toString(), subject.getRelationshipDataOne("parentEntity").get().getId());
   }
 
   @Test
-  public void getRelationships_setRelationships() throws JsonApiException {
+  public void getRelationships_setRelationships() throws JsonapiException {
     subject.setRelationships(ImmutableMap.of(
-      "parentEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), Program.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setName("Test Program")
-        .build()),
-      "childEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), Program.newBuilder()
-        .setId(UUID.randomUUID().toString())
-        .setName("Test Program")
-        .build())
+      "parentEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), new Program()
+        .id(UUID.randomUUID())
+        .name("Test Program")
+        ),
+      "childEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), new Program()
+        .id(UUID.randomUUID())
+        .name("Test Program")
+        )
     ));
 
     assertEquals(2, subject.getRelationships().size());
@@ -189,20 +184,20 @@ public class JsonapiJsonapiPayloadObjectTest {
 
   @Test
   public void isSame() {
-    String id = UUID.randomUUID().toString();
-    subject.setId(id);
+    UUID id = UUID.randomUUID();
+    subject.setId(id.toString());
     subject.setType("Program");
 
-    assertTrue(subject.isSame(Program.newBuilder().setId(id).build()));
-    assertFalse(subject.isSame(Program.newBuilder().setId(UUID.randomUUID().toString()).build()));
+    assertTrue(subject.isSame(new Program().id(id)));
+    assertFalse(subject.isSame(new Program().id(UUID.randomUUID())));
   }
 
   @Test
   public void isSame_subjectStringId_compareToUuid() {
-    String id = UUID.randomUUID().toString();
-    subject.setId(id);
+    UUID id = UUID.randomUUID();
+    subject.setId(id.toString());
     subject.setType("Program");
-    Program compareTo = Program.newBuilder().setId(id).build();
+    Program compareTo = new Program().id(id);
 
     assertTrue(subject.isSame(compareTo));
   }

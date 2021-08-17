@@ -3,10 +3,14 @@ package io.xj.nexus.craft.rhythm;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.Instrument;
-import io.xj.Program;
-import io.xj.ProgramVoice;
-import io.xj.SegmentChoice;
+import io.xj.api.Instrument;
+import io.xj.api.InstrumentState;
+import io.xj.api.InstrumentType;
+import io.xj.api.Program;
+import io.xj.api.ProgramState;
+import io.xj.api.ProgramType;
+import io.xj.api.ProgramVoice;
+import io.xj.api.SegmentChoice;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
 import io.xj.nexus.NexusException;
@@ -42,7 +46,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
   @Override
   public void doWork() throws NexusException {
-    Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(Program.Type.Rhythm);
+    Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(ProgramType.RHYTHM);
 
     // Program is from prior choice, or freshly chosen
     Optional<Program> program = priorChoice.isPresent() ?
@@ -63,7 +67,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
       fabricator.sourceMaterial().getProgramVoice(choice.getProgramVoiceId())
         .map(ProgramVoice::getName)
         .orElse("Unknown");
-    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Program.Type.Rhythm.equals(choice.getProgramType());
+    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.RHYTHM.equals(choice.getProgramType());
     var programNames = fabricator.sourceMaterial().getVoices(program.get()).stream()
       .map(ProgramVoice::getName)
       .collect(Collectors.toList());
@@ -99,7 +103,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // (2) retrieve programs bound to chain and
     // (3) score each source program based on meme isometry
     MemeIsometry rhythmIsometry = fabricator.getMemeIsometryOfSegment();
-    for (Program program : fabricator.sourceMaterial().getProgramsOfType(Program.Type.Rhythm))
+    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.RHYTHM))
       superEntityScorePicker.add(program, scoreRhythm(program, rhythmIsometry));
 
     // report
@@ -130,7 +134,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
       score += SCORE_DIRECTLY_BOUND;
-    else if (program.getState().equals(Program.State.Draft))
+    else if (Objects.equals(program.getState(), ProgramState.DRAFT))
       score += SCORE_UNPUBLISHED;
 
     // score is above zero, else empty
@@ -148,7 +152,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve instruments bound to chain
-    Collection<Instrument> sourceInstruments = fabricator.sourceMaterial().getInstrumentsOfType(Instrument.Type.Percussive);
+    Collection<Instrument> sourceInstruments = fabricator.sourceMaterial().getInstrumentsOfType(InstrumentType.PERCUSSIVE);
 
     // future: [#258] Instrument selection is based on Text Isometry between the voice name and the instrument name
     log.debug("[segId={}] not currently in use: {}", fabricator.getSegment().getId(), voice);
@@ -159,26 +163,27 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
       superEntityScorePicker.add(instrument, scorePercussive(instrument, percussiveIsometry));
 
     switch (fabricator.getType()) {
-      case Continue ->
+      case CONTINUE ->
         // Instrument choice inertia: prefer same instrument choices throughout a main program
         // https://www.pivotaltracker.com/story/show/178442889
         fabricator.retrospective().getChoices().stream()
-          .filter(candidate -> candidate.getInstrumentType().equals(voice.getType())
+          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType())
             && fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId())
             .stream().map(pv -> Objects.equals(voice.getName(), pv.getName()))
             .findFirst()
             .orElse(false))
           .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_MAIN_PROGRAM));
 
-      case NextMain, NextMacro -> {
-        // Keep same instruments when carrying outgoing choices to incoming choices of next segment
+      case NEXTMAIN, NEXTMACRO -> // Keep same instruments when carrying outgoing choices to incoming choices of next segment
         // https://www.pivotaltracker.com/story/show/179126302
-        if (isUnlimitedIn(SegmentChoice.newBuilder().setProgramVoiceId(voice.getId()).build()))
-          fabricator.retrospective().getChoices().stream()
-            .filter(candidate -> candidate.getInstrumentType().equals(voice.getType()))
-            .filter(this::isUnlimitedOut)
-            .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_OUTGOING_TO_INCOMING));
-      }
+        fabricator.retrospective().getPreviousChoiceOfVoice(voice.getId())
+          .ifPresent(ch -> {
+            if (isUnlimitedIn(ch))
+              fabricator.retrospective().getChoices().stream()
+                .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType()))
+                .filter(this::isUnlimitedOut)
+                .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_OUTGOING_TO_INCOMING));
+          });
     }
 
 
@@ -206,7 +211,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(instrument))
       score += SCORE_DIRECTLY_BOUND;
-    else if (instrument.getState().equals(Instrument.State.Draft))
+    else if (Objects.equals(instrument.getState(), InstrumentState.DRAFT))
       score += SCORE_UNPUBLISHED;
 
     return score;

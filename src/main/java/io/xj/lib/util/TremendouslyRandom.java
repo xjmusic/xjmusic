@@ -1,9 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
-import io.xj.ProgramVoice;
-
-import java.util.Comparator;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**

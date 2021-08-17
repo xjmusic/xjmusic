@@ -2,7 +2,7 @@
 package io.xj.lib.entity.common;
 
 import com.google.common.collect.Lists;
-import io.xj.UserRole;
+import io.xj.api.UserRoleType;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
 
@@ -19,11 +19,11 @@ public enum User {
    @param csv to parse
    @return collection of ids
    */
-  public static Collection<UserRole.Type> userRoleTypesFromCsv(String csv) {
-    Collection<UserRole.Type> result = Lists.newArrayList();
+  public static Collection<UserRoleType> userRoleTypesFromCsv(String csv) {
+    Collection<UserRoleType> result = Lists.newArrayList();
 
     if (Objects.nonNull(csv) && !csv.isEmpty()) {
-      result = CSV.split(csv).stream().map(type -> UserRole.Type.valueOf(Text.toProperSlug(type))).collect(Collectors.toList());
+      result = CSV.split(csv).stream().map(type -> UserRoleType.fromValue(Text.toProperSlug(type))).collect(Collectors.toList());
     }
 
     return result;
@@ -35,7 +35,7 @@ public enum User {
    @param roleTypes to get CSV of
    @return CSV of user role types
    */
-  public static String csvOfUserRoleTypes(Collection<UserRole.Type> roleTypes) {
+  public static String csvOfUserRoleTypes(Collection<UserRoleType> roleTypes) {
     return CSV.join(roleTypes.stream().map(Enum::toString).collect(Collectors.toList()));
   }
 }
