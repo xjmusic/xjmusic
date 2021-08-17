@@ -16,6 +16,7 @@ import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.Value;
 import io.xj.nexus.NexusApp;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
@@ -32,7 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -52,24 +53,28 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ComplexLibraryTest {
   private static final Logger LOG = LoggerFactory.getLogger(ComplexLibraryTest.class);
-  private static final int MARATHON_NUMBER_OF_SEGMENTS = 50;
-  private static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
-  private static final int MILLIS_PER_SECOND = 1000;
-  @Mock
-  public HubClient hubClient;
-  @Mock
-  public FileStoreProvider fileStoreProvider;
   long startTime = System.currentTimeMillis();
   private AppWorkThread workThread;
   private Chain chain1;
   private NexusApp app;
   private SegmentDAO segmentDAO;
+  private static final int MARATHON_NUMBER_OF_SEGMENTS = 50;
+  private static final int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
+  private static final int MILLIS_PER_SECOND = 1000;
+
+  @Mock
+  public HubClient hubClient;
+
+  @Mock(lenient = true)
+  public FileStoreProvider fileStoreProvider;
+
+  @Mock
+  public TelemetryProvider telemetryProvider;
 
   @Before
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault()
       .withValue("app.port", ConfigValueFactory.fromAnyRef(9043))
-      .withValue("datadog.statsd.hostname", ConfigValueFactory.fromAnyRef("localhost"))
       .withValue("work.eraseSegmentsOlderThanSeconds", ConfigValueFactory.fromAnyRef(MAXIMUM_TEST_WAIT_SECONDS + 300))
       .withValue("work.bossDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.chainDelayMillis", ConfigValueFactory.fromAnyRef(1))
@@ -82,6 +87,7 @@ public class ComplexLibraryTest {
           public void configure() {
             bind(FileStoreProvider.class).toInstance(fileStoreProvider);
             bind(HubClient.class).toInstance(hubClient);
+            bind(TelemetryProvider.class).toInstance(telemetryProvider);
           }
         })));
     segmentDAO = injector.getInstance(SegmentDAO.class);

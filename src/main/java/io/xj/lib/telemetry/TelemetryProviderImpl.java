@@ -1,35 +1,44 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.telemetry;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder;
+import com.amazonaws.services.cloudwatch.model.MetricDatum;
+import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
+import com.amazonaws.services.cloudwatch.model.PutMetricDataResult;
 import com.google.inject.Inject;
-import com.timgroup.statsd.NonBlockingStatsDClient;
-import com.timgroup.statsd.NonBlockingStatsDClientBuilder;
 import io.xj.lib.app.Environment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class TelemetryProviderImpl implements TelemetryProvider {
-  final Logger LOG = LoggerFactory.getLogger(TelemetryProviderImpl.class);
-  private final NonBlockingStatsDClient statsDClient;
+  private final AmazonCloudWatch client;
+  private final String namespace;
 
   @Inject
   public TelemetryProviderImpl(
     Environment env
   ) {
-    var prefix = env.getDatadogStatsdPrefix();
-    var hostname = env.getDatadogStatsdHostname();
-    var port = env.getDatadogStatsdPort();
-    LOG.info("Will send telemetry to statsd client prefix:{} hostname:{} port:{}", prefix, hostname, port);
-    statsDClient = new NonBlockingStatsDClientBuilder()
-      .prefix(prefix)
-      .hostname(hostname)
-      .port(port)
+    String awsDefaultRegion = env.getAwsDefaultRegion();
+    String awsAccessKeyId = env.getAwsAccessKeyID();
+    String awsSecretKey = env.getAwsSecretKey();
+    namespace = env.getNamespace();
+    BasicAWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretKey);
+    client = AmazonCloudWatchClientBuilder.standard()
+      .withRegion(awsDefaultRegion)
+      .withCredentials(new AWSStaticCredentialsProvider(credentials))
       .build();
   }
 
   @Override
-  public NonBlockingStatsDClient getStatsDClient() {
-    return statsDClient;
+  public AmazonCloudWatch getClient() {
+    return client;
   }
 
+  @Override
+  public PutMetricDataResult put(MetricDatum datum) {
+    return client.putMetricData(new PutMetricDataRequest()
+      .withNamespace(namespace)
+      .withMetricData(datum));
+  }
 }

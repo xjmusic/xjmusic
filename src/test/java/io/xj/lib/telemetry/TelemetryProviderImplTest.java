@@ -7,11 +7,12 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.xj.lib.app.Environment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -23,11 +24,13 @@ public class TelemetryProviderImplTest {
   @Before
   public void setUp() {
     Config config = ConfigFactory.parseResources("config/default.conf");
+    var env = Environment.getDefault();
     var injector = Guice.createInjector(ImmutableSet.of(Modules.override(new TelemetryModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
           bind(Config.class).toInstance(config);
+          bind(Environment.class).toInstance(env);
         }
       })));
 
@@ -36,7 +39,7 @@ public class TelemetryProviderImplTest {
 
   @Test
   public void getStatsDClient() {
-    assertNotNull(telemetryProvider.getStatsDClient());
+    assertNotNull(telemetryProvider);
   }
 
 }

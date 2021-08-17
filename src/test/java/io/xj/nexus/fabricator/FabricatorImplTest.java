@@ -292,10 +292,6 @@ public class FabricatorImplTest {
         .length(1.571)
         .amplitude(0.8)
         .note("A4"));
-    when(mockFabricatorFactory.createTimeComputer(anyDouble(), anyDouble(), anyDouble()))
-      .thenReturn(mockTimeComputer);
-    when(mockTimeComputer.getSecondsAtPosition(anyDouble()))
-      .thenReturn(Double.valueOf(0));
     when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
@@ -304,8 +300,6 @@ public class FabricatorImplTest {
       .thenReturn(segment);
     when(mockSegmentWorkbench.getSegmentChoiceArrangementPicks())
       .thenReturn(ImmutableList.of(rhythmPick));
-    when(mockSegmentRetrospective.getPreviousSegment())
-      .thenReturn(java.util.Optional.ofNullable(previousSegment));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
     subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
@@ -373,10 +367,6 @@ public class FabricatorImplTest {
       .programType(ProgramType.MAIN)
       .programId(fake.program5.getId())
     );
-    when(mockFabricatorFactory.createTimeComputer(anyDouble(), anyDouble(), anyDouble()))
-      .thenReturn(mockTimeComputer);
-    when(mockTimeComputer.getSecondsAtPosition(anyDouble()))
-      .thenReturn(Double.valueOf(0));
     when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
@@ -385,8 +375,6 @@ public class FabricatorImplTest {
       .thenReturn(segment);
     when(mockSegmentWorkbench.getChoiceOfType(ProgramType.MAIN))
       .thenReturn(Optional.of(mainChoice));
-    when(mockSegmentRetrospective.getPreviousSegment())
-      .thenReturn(java.util.Optional.ofNullable(previousSegment));
     var access = HubClientAccess.internal();
     when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
     subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockChainBindingDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
@@ -470,8 +458,6 @@ public class FabricatorImplTest {
       .thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
-    when(mockSegmentRetrospective.getPreviousSegment())
-      .thenReturn(Optional.of(previousSegment));
     when(mockSegmentRetrospective.getPreviousChoiceOfType(ProgramType.MAIN))
       .thenReturn(Optional.of(previousMainChoice));
     when(mockSegmentRetrospective.getPreviousChoiceOfType(ProgramType.MACRO))
@@ -556,10 +542,6 @@ public class FabricatorImplTest {
       .thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
-    when(mockSegmentRetrospective.getPreviousSegment())
-      .thenReturn(Optional.of(previousSegment));
-    when(mockSegmentRetrospective.getPreviousChoiceOfType(ProgramType.MAIN))
-      .thenReturn(Optional.of(previousMainChoice));
     when(mockSegmentRetrospective.getPreviousChoiceOfType(ProgramType.MACRO))
       .thenReturn(Optional.of(previousMacroChoice));
     var access = HubClientAccess.internal();
@@ -664,8 +646,6 @@ public class FabricatorImplTest {
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
       .thenReturn(mockSegmentWorkbench);
-    when(mockSegmentWorkbench.getSegmentChords())
-      .thenReturn(ImmutableList.of());
     var access = HubClientAccess.internal();
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
@@ -720,8 +700,6 @@ public class FabricatorImplTest {
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
       .thenReturn(mockSegmentWorkbench);
-    when(mockSegmentWorkbench.getSegmentChords())
-      .thenReturn(ImmutableList.of());
     var access = HubClientAccess.internal();
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);

@@ -37,9 +37,6 @@ public class Environment {
   private final String awsSnsTopicArn;
   private final int awsUploadExpireMinutes;
   private final String chainBootstrapJson;
-  private final String datadogStatsdHostname;
-  private final int datadogStatsdPort;
-  private final String datadogStatsdPrefix;
   private final String platformEnvironment;
   private final String googleClientID;
   private final String googleClientSecret;
@@ -51,6 +48,7 @@ public class Environment {
   private final String segmentBaseURL;
   private final String tempFilePathPrefix;
   private final String segmentFileBucket;
+  private final String namespace;
 
   /**
    Zero-argument construction defaults to system environment
@@ -68,34 +66,32 @@ public class Environment {
   public Environment(Map<String, String> vars) {
     LOG.debug("Received values for {} keys: {}", vars.size(), CSV.join(vars.keySet()));
     accessLogFilename = getStr(vars, "ACCESS_LOG_FILENAME", "/tmp/access.log");
-    accessTokenName = getStr(vars, "ACCESS_TOKEN_NAME", "access_token");
     accessTokenDomain = getStr(vars, "ACCESS_TOKEN_DOMAIN", "");
-    accessTokenPath = getStr(vars, "ACCESS_TOKEN_PATH", "/");
     accessTokenMaxAgeSeconds = getInt(vars, "ACCESS_TOKEN_MAX_AGE_SECONDS", 2419200);
-    audioCacheFilePrefix = getStr(vars, "AUDIO_CACHE_FILE_PREFIX", "/tmp/");
+    accessTokenName = getStr(vars, "ACCESS_TOKEN_NAME", "access_token");
+    accessTokenPath = getStr(vars, "ACCESS_TOKEN_PATH", "/");
     appBaseURL = getStr(vars, "APP_BASE_URL", "http://localhost/");
     audioBaseURL = getStr(vars, "AUDIO_BASE_URL", "https://audio.dev.xj.io/");
+    audioCacheFilePrefix = getStr(vars, "AUDIO_CACHE_FILE_PREFIX", "/tmp/");
     audioFileBucket = getStr(vars, "AUDIO_FILE_BUCKET", "xj-dev-audio");
     audioUploadURL = getStr(vars, "AUDIO_UPLOAD_URL", "https://xj-dev-audio.s3.amazonaws.com/");
     awsAccessKeyID = getStr(vars, "AWS_ACCESS_KEY_ID", EMPTY);
     awsDefaultRegion = getStr(vars, "AWS_DEFAULT_REGION", EMPTY);
+    awsFileUploadACL = getStr(vars, "AWS_FILE_UPLOAD_ACL", "bucket-owner-full-control");
+    awsS3retryLimit = getInt(vars, "AWS_S3_RETRY_LIMIT", 10);
     awsSecretKey = getStr(vars, "AWS_SECRET_KEY", EMPTY);
     awsSecretName = getStr(vars, "AWS_SECRET_NAME", EMPTY);
     awsSnsTopicArn = getStr(vars, "AWS_SNS_TOPIC_ARN", EMPTY);
     awsUploadExpireMinutes = getInt(vars, "AWS_UPLOAD_EXPIRE_MINUTES", 60);
-    awsFileUploadACL = getStr(vars, "AWS_FILE_UPLOAD_ACL", "bucket-owner-full-control");
-    awsS3retryLimit = getInt(vars, "AWS_S3_RETRY_LIMIT", 10);
     chainBootstrapJson = getStr(vars, "CHAIN_BOOTSTRAP_JSON", EMPTY);
-    datadogStatsdHostname = getStr(vars, "DD_AGENT_HOST", "localhost");
-    datadogStatsdPort = getInt(vars, "DD_AGENT_PORT", 8125);
-    datadogStatsdPrefix = getStr(vars, "DD_AGENT_PREFIX", "xj");
-    platformEnvironment = getStr(vars, "ENVIRONMENT", "dev");
     googleClientID = getStr(vars, "GOOGLE_CLIENT_ID", EMPTY);
     googleClientSecret = getStr(vars, "GOOGLE_CLIENT_SECRET", EMPTY);
     hostname = getStr(vars, "HOSTNAME", "localhost");
-    ingestTokenValue = getStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
     ingestTokenName = getStr(vars, "INGEST_TOKEN_NAME", "access_token");
+    ingestTokenValue = getStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
     ingestURL = getStr(vars, "INGEST_URL", "http://localhost/");
+    namespace = getStr(vars, "NAMESPACE", "nexus");
+    platformEnvironment = getStr(vars, "ENVIRONMENT", "dev");
     playerBaseURL = getStr(vars, "PLAYER_BASE_URL", "http://localhost/");
     segmentBaseURL = getStr(vars, "SEGMENT_BASE_URL", "https://ship.dev.xj.io/");
     segmentFileBucket = getStr(vars, "SEGMENT_FILE_BUCKET", "xj-dev-ship");
@@ -258,27 +254,6 @@ public class Environment {
   }
 
   /**
-   @return the Datadog statsd prefix
-   */
-  public String getDatadogStatsdPrefix() {
-    return datadogStatsdPrefix;
-  }
-
-  /**
-   @return the Datadog statsd hostname
-   */
-  public String getDatadogStatsdHostname() {
-    return datadogStatsdHostname;
-  }
-
-  /**
-   @return the Datadog statsd port
-   */
-  public int getDatadogStatsdPort() {
-    return datadogStatsdPort;
-  }
-
-  /**
    @return the Hub internal token value
    */
   public String getIngestTokenValue() {
@@ -409,5 +384,12 @@ public class Environment {
    */
   public String getSegmentFileBucket() {
     return segmentFileBucket;
+  }
+
+  /**
+   @return the namespace
+   */
+  public String getNamespace() {
+    return namespace;
   }
 }

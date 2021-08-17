@@ -182,9 +182,6 @@ public class SegmentDAOImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    when(fileStoreProvider.generateKey("chains-1-segments"))
-      .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
-
     Segment result = testDAO.create(access, inputData);
 
     assertNotNull(result);
@@ -223,9 +220,6 @@ public class SegmentDAOImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    when(fileStoreProvider.generateKey("chains-1-segments"))
-      .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
-
     Segment result = testDAO.create(access, inputData);
 
     assertNotNull(result);
@@ -258,9 +252,6 @@ public class SegmentDAOImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    when(fileStoreProvider.generateKey("chains-1-segments"))
-      .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
-
     Exception thrown = assertThrows(DAOValidationException.class, () ->
       testDAO.create(access, inputData));
 
@@ -282,9 +273,6 @@ public class SegmentDAOImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    when(fileStoreProvider.generateKey("chains-1-segments"))
-      .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
-
     Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
       testDAO.create(access, inputData));
 
@@ -305,9 +293,6 @@ public class SegmentDAOImplTest {
       .density(0.74)
       .key("C# minor 7 b9")
       .tempo(120.0);
-
-    when(fileStoreProvider.generateKey("chains-1-segments"))
-      .thenReturn("chains-1-segments-h2a34j5s34fd987gaw3.ogg");
 
     Exception thrown = assertThrows(DAOValidationException.class, () ->
       testDAO.create(access, inputData));

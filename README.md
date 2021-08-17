@@ -173,10 +173,6 @@ A **Scale** is any set of musical notes ordered by fundamental frequency or pitc
 
 Contained in the `lib/telemetry` module.
 
-Requires this environment variable set in .env file:
-
-    DD_API_KEY=ffe6de0162d7b2903a673a33139e6604
-
 ### nexus
 
 Central structured data and business logic. Built with Java.

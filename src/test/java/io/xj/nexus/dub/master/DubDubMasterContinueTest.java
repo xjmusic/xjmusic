@@ -194,10 +194,6 @@ public class DubDubMasterContinueTest {
     // it's necessary to have two separate streams for this mock of two separate file reads
     FileInputStream audioStreamOne = FileUtils.openInputStream(testAudioResource.getFile());
     FileInputStream audioStreamTwo = FileUtils.openInputStream(testAudioResource.getFile());
-    when(fileStoreProvider.streamS3Object("my-test-bucket",
-      "19801735098q47895897895782138975898")).thenReturn(audioStreamOne);
-    when(fileStoreProvider.streamS3Object("my-test-bucket",
-      "a1g9f8u0k1v7f3e59o7j5e8s98")).thenReturn(audioStreamTwo);
 
     Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
     dubFactory.master(fabricator).doWork();

@@ -1,6 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.work;
 
+import com.amazonaws.services.cloudwatch.model.MetricDatum;
+import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -69,6 +71,8 @@ public class NexusWorkImpl implements NexusWork {
   private static final String METRIC_CHAIN_FORMAT = "chain.%s.%s";
   private static final String METRIC_FABRICATED_AHEAD_SECONDS = "fabricated_ahead_seconds";
   private static final String METRIC_SEGMENT_CREATED = "segment_created";
+  private static final String METRIC_CHAIN_REVIVED = "chain_revived";
+  private static final String METRIC_SEGMENT_ERASED = "segment_erased";
   private final ChainBindingDAO chainBindingDAO;
   private final ChainDAO chainDAO;
   private final CraftFactory craftFactory;
@@ -241,7 +245,10 @@ public class NexusWorkImpl implements NexusWork {
         chainDAO.destroy(access, stalledChainId);
       }
 
-      telemetryProvider.getStatsDClient().incrementCounter("chain.revived", stalledChainIds.size());
+      telemetryProvider.put(new MetricDatum()
+        .withMetricName(METRIC_CHAIN_REVIVED)
+        .withUnit(StandardUnit.Count)
+        .withValue((double) stalledChainIds.size()));
       LOG.info("Total elapsed time: {}", timer.totalsToString());
 
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
@@ -282,7 +289,10 @@ public class NexusWorkImpl implements NexusWork {
       }
     }
 
-    telemetryProvider.getStatsDClient().incrementCounter("segment.erased", segmentIdsToErase.size());
+    telemetryProvider.put(new MetricDatum()
+      .withMetricName(METRIC_SEGMENT_ERASED)
+      .withUnit(StandardUnit.Count)
+      .withValue((double) segmentIdsToErase.size()));
   }
 
   /**
@@ -316,8 +326,10 @@ public class NexusWorkImpl implements NexusWork {
 
       Segment segment = segmentDAO.create(access, nextSegment.get());
       LOG.debug("Created Segment {}", segment);
-      telemetryProvider.getStatsDClient().
-        incrementCounter(getChainMetricName(chain, METRIC_SEGMENT_CREATED));
+      telemetryProvider.put(new MetricDatum()
+        .withMetricName(getChainMetricName(chain, METRIC_SEGMENT_CREATED))
+        .withUnit(StandardUnit.Count)
+        .withValue(1.0));
 
       Fabricator fabricator;
       timer.section("Prepare");
@@ -656,8 +668,11 @@ public class NexusWorkImpl implements NexusWork {
    @throws DAOExistenceException  on failure
    */
   private Chain updateFabricatedAheadSeconds(Chain chain, float fabricatedAheadSeconds) throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException {
-    telemetryProvider.getStatsDClient()
-      .gauge(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), fabricatedAheadSeconds);
+    telemetryProvider.put(new MetricDatum()
+      .withMetricName(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS))
+      .withUnit(StandardUnit.Count)
+      .withValue((double) fabricatedAheadSeconds));
+
     return chainDAO.update(access, chain.getId(), chain.fabricatedAheadSeconds((double) fabricatedAheadSeconds));
   }
 

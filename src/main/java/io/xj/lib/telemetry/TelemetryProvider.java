@@ -1,18 +1,25 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.telemetry;
 
-import com.timgroup.statsd.NonBlockingStatsDClient;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
+import com.amazonaws.services.cloudwatch.model.MetricDatum;
+import com.amazonaws.services.cloudwatch.model.PutMetricDataResult;
 
 /**
- Requires these typesafe configurations to be set:
- - datadog.apiKey
+ Send custom telemetry to CloudWatch #179247968
  */
 public interface TelemetryProvider {
 
   /**
-   Get the statsd client
-
-   @return statsd client
+   Get Amazon CloudWatch Client
+   @return cloudwatch client
    */
-  NonBlockingStatsDClient getStatsDClient();
+  AmazonCloudWatch getClient();
+
+  /**
+   Put a metric datum in this app's namespace
+   @param datum to put
+   @return result
+   */
+  PutMetricDataResult put(MetricDatum datum);
 }

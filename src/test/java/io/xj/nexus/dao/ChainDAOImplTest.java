@@ -209,8 +209,6 @@ public class ChainDAOImplTest {
   public void create_withEmbedKey_failsIfEmbedKeyAlreadyExists() throws Exception {
     var first = NexusIntegrationTestingFixtures.makeChain(account1, "bucket", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "my_favorite_things");
     var second = NexusIntegrationTestingFixtures.makeChain(account1, "bucket", ChainType.PRODUCTION, ChainState.FABRICATE, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "my_favorite_things");
-    when(hubClient.ingest(any(), eq(ImmutableSet.of(library2.getId())), eq(ImmutableSet.of()), eq(ImmutableSet.of())))
-      .thenReturn(hubContent);
     HubClientAccess access = NexusIntegrationTestingFixtures.makeHubClientAccess("Admin");
     subject.create(access, first);
 

@@ -52,7 +52,6 @@ dependencies {
   implementation 'ch.qos.logback:logback-classic:1.2.3'
   implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.7'
   implementation 'com.amazonaws:aws-java-sdk:1.11.119'
-  implementation 'com.datadoghq:java-dogstatsd-client:2.11.0'
   implementation 'com.fasterxml.jackson.core:jackson-annotations:2.10.1'
   implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.10.2.1'
   implementation 'com.fasterxml.jackson.module:jackson-module-guice:2.10.3'
@@ -87,12 +86,13 @@ dependencies {
   implementation 'org.slf4j:log4j-over-slf4j:1.7.13'
   implementation 'org.slf4j:slf4j-api:1.7.5'
   implementation 'org.yaml:snakeyaml:1.18'
+  implementation 'software.amazon.awssdk:cloudwatch:2.17.20'
   testImplementation 'com.github.tomakehurst:wiremock-jre8:2.26.3'
   testImplementation 'junit:junit:4.12'
   testImplementation 'org.assertj:assertj-core:3.8.0'
   testImplementation 'org.eclipse.jetty:jetty-client:9.4.26.v20200117'
   testImplementation 'org.hamcrest:hamcrest-library:1.3'
-  testImplementation 'org.mockito:mockito-core:1.10.19'
+  testImplementation 'org.mockito:mockito-core:3.2.4'
 }
 
 jar {

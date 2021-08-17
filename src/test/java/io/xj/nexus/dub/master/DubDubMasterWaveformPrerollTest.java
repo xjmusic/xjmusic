@@ -23,7 +23,6 @@ import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerFactory;
-import io.xj.lib.mixer.Source;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.dub.DubAudioCache;
 import io.xj.nexus.dub.DubFactory;
@@ -40,7 +39,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -50,7 +49,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -68,8 +67,6 @@ public class DubDubMasterWaveformPrerollTest {
   private Segment segment6;
   @Mock
   private MixerFactory mixerFactory;
-  @Mock
-  private Source source;
 
   @Mock
   private Mixer mixer;
@@ -94,7 +91,6 @@ public class DubDubMasterWaveformPrerollTest {
     var entityFactory = injector.getInstance(EntityFactory.class);
     Topology.buildHubApiTopology(entityFactory);
     Topology.buildNexusApiTopology(entityFactory);
-    when(mixerFactory.createSource(any(), any())).thenReturn(source);
     when(mixerFactory.createMixer(any())).thenReturn(mixer);
     when(dubAudioCache.get(any()))
       .thenReturn(new BufferedInputStream(new FileInputStream(Objects.requireNonNull(

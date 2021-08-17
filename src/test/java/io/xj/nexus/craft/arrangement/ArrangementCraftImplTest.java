@@ -54,9 +54,7 @@ public class ArrangementCraftImplTest {
       .programId(program.getId());
     ChainConfig chainConfig = new ChainConfig(chain, config);
     when(fabricator.getChainConfig()).thenReturn(chainConfig);
-    when(fabricator.sourceMaterial()).thenReturn(hubContent);
     when(fabricator.retrospective()).thenReturn(retrospective);
-    when(hubContent.getAllProgramVoices()).thenReturn(ImmutableList.of(programVoice1, programVoice2));
     subject = new ArrangementCraftImpl(fabricator);
   }
 
