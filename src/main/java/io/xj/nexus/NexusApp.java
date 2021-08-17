@@ -233,7 +233,7 @@ public class NexusApp extends App {
                 try {
                   return Stream.of(jsonapiPayloadFactory.toOne(po));
                 } catch (JsonapiException e) {
-                  LOG.error("Could not deserialize Segment from shipped Chain JSON because {}", e.getMessage());
+                  LOG.error("Could not deserialize Segment from shipped Chain JSON", e);
                   success.set(false);
                   return Stream.empty();
                 }
@@ -245,7 +245,7 @@ public class NexusApp extends App {
             LOG.info("Read Segment[{}] and {} child entities", segment.getStorageKey(), childCount);
 
           } catch (FileStoreException | IOException | ClassCastException e) {
-            LOG.error("Could not load Segment[{}] because {}", segment.getStorageKey(), e.getMessage());
+            LOG.error("Could not load Segment[{}]", segment.getStorageKey(), e);
             success.set(false);
           }
         });
