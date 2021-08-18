@@ -154,8 +154,8 @@ class MixerImpl implements Mixer {
     // Compression is more predictable within the logarithmic range
     applyCompressor(outBuf);
 
-    // Final step ensures the broadcast signal has an exact constant maximum amplitude
-    applyNormalization(outBuf);
+    // NO NORMALIZATION! See #179257872
+    // applyNormalization(outBuf);
 
     //
     state = MixerState.Done;
@@ -290,8 +290,12 @@ class MixerImpl implements Mixer {
   }
 
   /**
-   apply normalization to mixing buffer
-   [#154112129] normalize final buffer to normalization threshold@param buf
+   NO NORMALIZATION! See #179257872
+   <p>
+   Previously: apply normalization to mixing buffer
+   [#154112129] normalize final buffer to normalization threshold
+
+   @param buf to normalize
    */
   private void applyNormalization(double[][] buf) {
     double normRatio = Math.min(config.getNormalizationBoostThreshold(), config.getNormalizationCeiling() / MathUtil.maxAbs(buf, NORMALIZATION_GRAIN));
