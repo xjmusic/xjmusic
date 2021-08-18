@@ -204,8 +204,8 @@ public class NexusApp extends App {
         .filter(po -> po.isType(ChainBinding.class))
         .forEach(chainBinding -> {
           try {
-            entities.add(entityFactory.clone(jsonapiPayloadFactory).toOne(chainBinding));
-          } catch (JsonapiException | EntityException e) {
+            entities.add(entityFactory.clone(jsonapiPayloadFactory.toOne(chainBinding)));
+          } catch (JsonapiException | EntityException | ClassCastException e) {
             success.set(false);
             LOG.error("Could not deserialize ChainBinding from shipped Chain JSON because {}", e.getMessage());
           }
@@ -230,22 +230,14 @@ public class NexusApp extends App {
             var segmentPayload = jsonProvider.getObjectMapper().readValue(segmentStream, JsonapiPayload.class);
             AtomicInteger childCount = new AtomicInteger();
             entities.add(entityFactory.clone(segment));
-            segmentPayload.getIncluded().stream()
-              .flatMap(po -> {
+            segmentPayload.getIncluded()
+              .forEach(po -> {
                 try {
-                  return Stream.of(jsonapiPayloadFactory.toOne(po));
-                } catch (JsonapiException e) {
-                  LOG.error("Could not deserialize Segment from shipped Chain JSON", e);
-                  success.set(false);
-                  return Stream.empty();
-                }
-              })
-              .forEach(entity -> {
-                try {
-                  entities.add(entityFactory.clone(entity));
+                  var entity = jsonapiPayloadFactory.toOne(po);
+                  entities.add(entity);
                   childCount.getAndIncrement();
-                } catch (EntityException e) {
-                  LOG.error("Could not deserialize Entity from shipped Segment JSON", e);
+                } catch (JsonapiException | ClassCastException e) {
+                  LOG.error("Could not deserialize Segment from shipped Chain JSON", e);
                   success.set(false);
                 }
               });
