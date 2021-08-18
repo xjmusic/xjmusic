@@ -13,6 +13,7 @@ import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
+import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreException;
@@ -70,14 +71,15 @@ import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
  */
 public class NexusApp extends App {
   private final org.slf4j.Logger LOG = LoggerFactory.getLogger(NexusApp.class);
-  private final NexusWork work;
-  private final String platformRelease;
-  private final JsonProvider jsonProvider;
+  private final EntityFactory entityFactory;
   private final Environment env;
   private final FileStoreProvider fileStoreProvider;
-  private final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final NexusEntityStore entityStore;
   private final int rehydrateFabricatedAheadThreshold;
+  private final JsonapiPayloadFactory jsonapiPayloadFactory;
+  private final JsonProvider jsonProvider;
+  private final NexusEntityStore entityStore;
+  private final NexusWork work;
+  private final String platformRelease;
 
   /**
    Construct a new application by providing
@@ -108,7 +110,7 @@ public class NexusApp extends App {
     jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
 
     // Setup Entity topology
-    var entityFactory = injector.getInstance(EntityFactory.class);
+    entityFactory = injector.getInstance(EntityFactory.class);
     Topology.buildHubApiTopology(entityFactory);
     Topology.buildNexusApiTopology(entityFactory);
 
@@ -172,7 +174,7 @@ public class NexusApp extends App {
   }
 
   /**
-   Attempt to rehydrate the store from a bootstrap, and return true if successful so we can skip other stuff
+   Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
 
    @param bootstrap to rehydrate from
    @return true if successful
@@ -190,8 +192,8 @@ public class NexusApp extends App {
       chainStream = fileStoreProvider.streamS3Object(env.getSegmentFileBucket(), chainStorageKey);
       chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
-      entities.add(chain);
-    } catch (FileStoreException | JsonapiException | ClassCastException | IOException e) {
+      entities.add(entityFactory.clone(chain));
+    } catch (FileStoreException | JsonapiException | ClassCastException | IOException | EntityException e) {
       LOG.error("Failed to retrieve previously fabricated chain because {}", e.getMessage());
       return false;
     }
@@ -202,8 +204,8 @@ public class NexusApp extends App {
         .filter(po -> po.isType(ChainBinding.class))
         .forEach(chainBinding -> {
           try {
-            entities.add(jsonapiPayloadFactory.toOne(chainBinding));
-          } catch (JsonapiException e) {
+            entities.add(entityFactory.clone(jsonapiPayloadFactory).toOne(chainBinding));
+          } catch (JsonapiException | EntityException e) {
             success.set(false);
             LOG.error("Could not deserialize ChainBinding from shipped Chain JSON because {}", e.getMessage());
           }
@@ -227,7 +229,7 @@ public class NexusApp extends App {
             var segmentStream = fileStoreProvider.streamS3Object(env.getSegmentFileBucket(), segmentStorageKey);
             var segmentPayload = jsonProvider.getObjectMapper().readValue(segmentStream, JsonapiPayload.class);
             AtomicInteger childCount = new AtomicInteger();
-            entities.add(segment);
+            entities.add(entityFactory.clone(segment));
             segmentPayload.getIncluded().stream()
               .flatMap(po -> {
                 try {
@@ -239,12 +241,17 @@ public class NexusApp extends App {
                 }
               })
               .forEach(entity -> {
-                entities.add(entity);
-                childCount.getAndIncrement();
+                try {
+                  entities.add(entityFactory.clone(entity));
+                  childCount.getAndIncrement();
+                } catch (EntityException e) {
+                  LOG.error("Could not deserialize Entity from shipped Segment JSON", e);
+                  success.set(false);
+                }
               });
             LOG.info("Read Segment[{}] and {} child entities", segment.getStorageKey(), childCount);
 
-          } catch (FileStoreException | IOException | ClassCastException e) {
+          } catch (FileStoreException | IOException | ClassCastException | EntityException e) {
             LOG.error("Could not load Segment[{}]", segment.getStorageKey(), e);
             success.set(false);
           }
