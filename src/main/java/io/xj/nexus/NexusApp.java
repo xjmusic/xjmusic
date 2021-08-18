@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus;
 
+import com.google.api.client.util.Lists;
 import com.google.api.client.util.Strings;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
@@ -11,9 +12,8 @@ import io.xj.api.SegmentState;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
+import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.EntityStore;
-import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -40,9 +40,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
@@ -74,9 +76,8 @@ public class NexusApp extends App {
   private final Environment env;
   private final FileStoreProvider fileStoreProvider;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final NexusEntityStore nexusEntityStore;
+  private final NexusEntityStore entityStore;
   private final int rehydrateFabricatedAheadThreshold;
-  private final EntityStore rehydrationStore;
 
   /**
    Construct a new application by providing
@@ -91,7 +92,6 @@ public class NexusApp extends App {
 
     Config config = injector.getInstance(Config.class);
     env = injector.getInstance(Environment.class);
-    rehydrationStore = injector.getInstance(EntityStore.class);
 
     // Configuration
     platformRelease = env.getPlatformEnvironment();
@@ -104,7 +104,7 @@ public class NexusApp extends App {
     work = injector.getInstance(NexusWork.class);
     jsonProvider = injector.getInstance(JsonProvider.class);
     fileStoreProvider = injector.getInstance(FileStoreProvider.class);
-    nexusEntityStore = injector.getInstance(NexusEntityStore.class);
+    entityStore = injector.getInstance(NexusEntityStore.class);
     jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
 
     // Setup Entity topology
@@ -172,13 +172,14 @@ public class NexusApp extends App {
   }
 
   /**
-   Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
+   Attempt to rehydrate the store from a bootstrap, and return true if successful so we can skip other stuff
 
    @param bootstrap to rehydrate from
    @return true if successful
    */
   private Boolean attemptToRehydrateFrom(NexusChainBootstrapPayload bootstrap) {
     var success = new AtomicBoolean(true);
+    Collection<Object> entities = Lists.newArrayList();
     String chainStorageKey;
     InputStream chainStream;
     JsonapiPayload chainPayload;
@@ -189,8 +190,8 @@ public class NexusApp extends App {
       chainStream = fileStoreProvider.streamS3Object(env.getSegmentFileBucket(), chainStorageKey);
       chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
-      rehydrationStore.put(chain);
-    } catch (FileStoreException | JsonapiException | ClassCastException | IOException | EntityStoreException e) {
+      entities.add(chain);
+    } catch (FileStoreException | JsonapiException | ClassCastException | IOException e) {
       LOG.error("Failed to retrieve previously fabricated chain because {}", e.getMessage());
       return false;
     }
@@ -201,8 +202,8 @@ public class NexusApp extends App {
         .filter(po -> po.isType(ChainBinding.class))
         .forEach(chainBinding -> {
           try {
-            rehydrationStore.put(jsonapiPayloadFactory.toOne(chainBinding));
-          } catch (JsonapiException | EntityStoreException e) {
+            entities.add(jsonapiPayloadFactory.toOne(chainBinding));
+          } catch (JsonapiException e) {
             success.set(false);
             LOG.error("Could not deserialize ChainBinding from shipped Chain JSON because {}", e.getMessage());
           }
@@ -226,7 +227,7 @@ public class NexusApp extends App {
             var segmentStream = fileStoreProvider.streamS3Object(env.getSegmentFileBucket(), segmentStorageKey);
             var segmentPayload = jsonProvider.getObjectMapper().readValue(segmentStream, JsonapiPayload.class);
             AtomicInteger childCount = new AtomicInteger();
-            rehydrationStore.put(segment);
+            entities.add(segment);
             segmentPayload.getIncluded().stream()
               .flatMap(po -> {
                 try {
@@ -238,17 +239,12 @@ public class NexusApp extends App {
                 }
               })
               .forEach(entity -> {
-                try {
-                  rehydrationStore.put(entity);
-                  childCount.getAndIncrement();
-                } catch (EntityStoreException e) {
-                  LOG.error("Could not persist entity in rehydration store", e);
-                  e.printStackTrace();
-                }
+                entities.add(entity);
+                childCount.getAndIncrement();
               });
             LOG.info("Read Segment[{}] and {} child entities", segment.getStorageKey(), childCount);
 
-          } catch (FileStoreException | IOException | ClassCastException | EntityStoreException e) {
+          } catch (FileStoreException | IOException | ClassCastException e) {
             LOG.error("Could not load Segment[{}]", segment.getStorageKey(), e);
             success.set(false);
           }
@@ -259,7 +255,11 @@ public class NexusApp extends App {
 
       // Nexus with bootstrap won't rehydrate stale Chain
       // https://www.pivotaltracker.com/story/show/178727631
-      var fabricatedAheadSeconds = work.computeFabricatedAheadSeconds(chain, rehydrationStore.getAll(Segment.class));
+      var fabricatedAheadSeconds = work.computeFabricatedAheadSeconds(chain,
+        entities.stream()
+          .filter(e -> Entities.isType(e, Segment.class))
+          .map(e -> (Segment) e)
+          .collect(Collectors.toList()));
 
       if (fabricatedAheadSeconds < rehydrateFabricatedAheadThreshold) {
         LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (not > {}s)",
@@ -268,9 +268,9 @@ public class NexusApp extends App {
       }
 
       // Okay to rehydrate
-      nexusEntityStore.putAll(rehydrationStore.getAll());
+      entityStore.putAll(entities);
       LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s",
-        rehydrationStore.getAll().size(), Chains.getIdentifier(chain), fabricatedAheadSeconds);
+        entities.size(), Chains.getIdentifier(chain), fabricatedAheadSeconds);
       return true;
 
     } catch (NexusException e) {
