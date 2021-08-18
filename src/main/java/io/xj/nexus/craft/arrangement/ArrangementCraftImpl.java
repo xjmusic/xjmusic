@@ -503,14 +503,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       else
         return 0;
 
-    // If position is between the deltaOut and the end of the segment, either fade out or silence
+    // If position is between the deltaOut and the end of the segment, either fade out or leave it alone
     if (!isUnlimitedOut(choice)
       && choice.getDeltaOut() < fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal()
       && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut())
       if (fadeOut)
         return 1.0 - (segmentPosition - (choice.getDeltaOut() - fabricator.getSegment().getDelta())) / (fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() - choice.getDeltaOut());
       else
-        return 0;
+        return 1.0;
 
     return 1.0;
   }
