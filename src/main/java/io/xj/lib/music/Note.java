@@ -1,6 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.music;
 
+import com.google.api.client.util.Strings;
+
 /**
  A Note is used to represent the relative duration and pitch of a sound.
  <p>
@@ -46,7 +48,9 @@ public class Note {
    @return note
    */
   public static Note of(String name) {
-    return new Note(name.trim());
+    return Strings.isNullOrEmpty(name)
+      ? Note.atonal()
+      : new Note(name.trim());
   }
 
   /**
