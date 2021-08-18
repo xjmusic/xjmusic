@@ -1,5 +1,6 @@
 package io.xj.nexus.craft.arrangement;
 
+import com.google.api.client.util.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -725,6 +726,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var audio = instrumentAudios
       .stream()
       .filter(candidate -> {
+        if (Objects.isNull(candidate) || Strings.isNullOrEmpty(candidate.getNote())) return false;
         var b = Note.of(candidate.getNote());
         return a.isAtonal() || b.isAtonal() || a.sameAs(b);
       })
