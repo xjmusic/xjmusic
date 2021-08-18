@@ -491,7 +491,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // if deltaOut is before the beginning of this segment, exclude
     if (!isUnlimitedOut(choice)
-      && choice.getDeltaOut() < fabricator.getSegment().getDelta())
+      && choice.getDeltaOut() <= fabricator.getSegment().getDelta())
       return 0;
 
     // If position is between the beginning of the segment at the deltaIn, either fade in or silence
@@ -505,7 +505,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // If position is between the deltaOut and the end of the segment, either fade out or leave it alone
     if (!isUnlimitedOut(choice)
-      && choice.getDeltaOut() < fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal()
+      && choice.getDeltaOut() <= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal()
       && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut())
       if (fadeOut)
         return 1.0 - (segmentPosition - (choice.getDeltaOut() - fabricator.getSegment().getDelta())) / (fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() - choice.getDeltaOut());
