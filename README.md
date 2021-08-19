@@ -32,6 +32,8 @@ LabStreamingSegmentsArchitecture.pdf)
 
 ![XJ Lab Streaming Segments Architecture](art/XJLabStreamingSegmentsArchitecture.svg)
 
+![Mixer Design v6](art/MixerDesignV6_XJ_Music.jpg)
+
 ## Axioms
 
 * Any network connection can and will fail.
