@@ -1,0 +1,230 @@
+//  Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+
+import org.ajoberstar.grgit.Credentials
+import org.ajoberstar.grgit.Grgit
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
+plugins {
+    id 'application'
+    id 'jacoco'
+    id 'java'
+    id 'org.ajoberstar.grgit'
+    id 'de.undercouch.download'
+    id "org.openapi.generator"
+}
+
+final name = "spec"
+
+dependencies {
+  implementation 'com.fasterxml.jackson.core:jackson-annotations:2.10.1'
+  implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.10.2.1'
+  implementation 'com.fasterxml.jackson.module:jackson-module-guice:2.10.3'
+  implementation 'javax.activation:activation:1.1'
+  implementation 'javax.annotation:javax.annotation-api:1.3.1'
+  implementation 'javax.cache:cache-api:1.1.1'
+  implementation 'javax.validation:validation-api:2.0.1.Final'
+  implementation 'javax.ws.rs:javax.ws.rs-api:2.1.1'
+}
+
+// Compile each input .yaml file TO THE SAME OUTPUT DIR
+// so that duplicate classes are overwritten.
+// wipeOutputDir = false so that everyone writes their files to the same destination
+// REF https://app.asana.com/0/1128782737102755/1200411113458752/f
+task generateCommon(type: GenerateTask) {
+  generatorName = "jaxrs-spec"
+  inputSpec = "${buildDir.absolutePath}/api-spec/common.yaml".toString()
+  outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
+  apiPackage = "io.xj.api"
+  invokerPackage = "io.xj.api"
+  modelPackage = "io.xj.api"
+  configOptions = [
+    validateSpec         : "false",
+    dateLibrary          : "java14",
+    useGenericResponse   : "true",
+    openApiNullable      : "true",
+    useSwaggerAnnotations: "false"
+  ]
+}
+
+task generateTemplates(type: GenerateTask) {
+  generatorName = "jaxrs-spec"
+  inputSpec = "${buildDir.absolutePath}/api-spec/templates.yaml".toString()
+  outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
+  apiPackage = "io.xj.api.template"
+  invokerPackage = "io.xj.api"
+  modelPackage = "io.xj.api"
+  configOptions = [
+    validateSpec         : "false",
+    dateLibrary          : "java14",
+    useGenericResponse   : "true",
+    openApiNullable      : "true",
+    useSwaggerAnnotations: "false"
+  ]
+}
+
+task generateInstruments(type: GenerateTask) {
+  generatorName = "jaxrs-spec"
+  inputSpec = "${buildDir.absolutePath}/api-spec/instruments.yaml".toString()
+  outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
+  apiPackage = "io.xj.api.instrument"
+  invokerPackage = "io.xj.api"
+  modelPackage = "io.xj.api"
+  configOptions = [
+    validateSpec         : "false",
+    dateLibrary          : "java14",
+    useGenericResponse   : "true",
+    openApiNullable      : "true",
+    useSwaggerAnnotations: "false"
+  ]
+}
+
+task generatePrograms(type: GenerateTask) {
+  generatorName = "jaxrs-spec"
+  inputSpec = "${buildDir.absolutePath}/api-spec/programs.yaml".toString()
+  outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
+  apiPackage = "io.xj.api.program"
+  invokerPackage = "io.xj.api"
+  modelPackage = "io.xj.api"
+  configOptions = [
+    validateSpec         : "false",
+    dateLibrary          : "java14",
+    useGenericResponse   : "true",
+    openApiNullable      : "true",
+    useSwaggerAnnotations: "false"
+  ]
+}
+
+task generateLibraries(type: GenerateTask) {
+  generatorName = "jaxrs-spec"
+  inputSpec = "${buildDir.absolutePath}/api-spec/libraries.yaml".toString()
+  outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
+  apiPackage = "io.xj.api.library"
+  invokerPackage = "io.xj.api"
+  modelPackage = "io.xj.api"
+  configOptions = [
+    validateSpec         : "false",
+    dateLibrary          : "java14",
+    useGenericResponse   : "true",
+    openApiNullable      : "true",
+    useSwaggerAnnotations: "false"
+  ]
+}
+
+task generateAccounts(type: GenerateTask) {
+  generatorName = "jaxrs-spec"
+  inputSpec = "${buildDir.absolutePath}/api-spec/accounts.yaml".toString()
+  outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
+  apiPackage = "io.xj.api.account"
+  invokerPackage = "io.xj.api"
+  modelPackage = "io.xj.api"
+  configOptions = [
+    validateSpec         : "false",
+    dateLibrary          : "java14",
+    useGenericResponse   : "true",
+    openApiNullable      : "true",
+    useSwaggerAnnotations: "false"
+  ]
+}
+
+task generateUsers(type: GenerateTask) {
+  generatorName = "jaxrs-spec"
+  inputSpec = "${buildDir.absolutePath}/api-spec/users.yaml".toString()
+  outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
+  apiPackage = "io.xj.api.user"
+  invokerPackage = "io.xj.api"
+  modelPackage = "io.xj.api"
+  configOptions = [
+    validateSpec         : "false",
+    dateLibrary          : "java14",
+    useGenericResponse   : "true",
+    openApiNullable      : "true",
+    useSwaggerAnnotations: "false"
+  ]
+}
+
+task generateChains(type: GenerateTask) {
+  generatorName = "jaxrs-spec"
+  inputSpec = "${buildDir.absolutePath}/api-spec/chains.yaml".toString()
+  outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
+  apiPackage = "io.xj.api.chain"
+  invokerPackage = "io.xj.api"
+  modelPackage = "io.xj.api"
+  configOptions = [
+    validateSpec         : "false",
+    dateLibrary          : "java14",
+    useGenericResponse   : "true",
+    openApiNullable      : "true",
+    useSwaggerAnnotations: "false"
+  ]
+}
+
+task generateSegments(type: GenerateTask) {
+  generatorName = "jaxrs-spec"
+  inputSpec = "${buildDir.absolutePath}/api-spec/segments.yaml".toString()
+  outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
+  apiPackage = "io.xj.api.segment"
+  invokerPackage = "io.xj.api"
+  modelPackage = "io.xj.api"
+  configOptions = [
+    validateSpec         : "false",
+    dateLibrary          : "java14",
+    useGenericResponse   : "true",
+    openApiNullable      : "true",
+    useSwaggerAnnotations: "false"
+  ]
+}
+
+sourceSets {
+  main {
+    java {
+      srcDir "${buildDir.absolutePath}/openapi-codegen/src/gen/java"
+    }
+    resources {
+      srcDir "${buildDir.absolutePath}/openapi-codegen/src/gen/resources"
+    }
+  }
+}
+
+String githubUsername = project.githubUsername
+String githubPassword = project.githubPassword
+
+task cloneSpecs {
+  def folder = new File("${buildDir.absolutePath}/api-spec")
+  if (!folder.exists()) {
+    println "Cloning specs repo."
+    //noinspection GroovyAccessibility,GroovyAssignabilityCheck
+    Grgit.clone(dir: "${buildDir.absolutePath}/api-spec", uri: "https://github.com/xjmusic/api-spec", credentials: new Credentials(githubUsername, githubPassword))
+  } else {
+    if (System.getenv("CI") == "true") {
+      return
+    }
+
+    // Always keep up to date with master if we're developing locally.
+    println "Updating specs repo."
+    def specRepo = Grgit.open(dir: "${buildDir.absolutePath}/api-spec", credentials: new Credentials(githubUsername, githubPassword))
+    specRepo.pull()
+  }
+}
+
+// All generators depend on cloning the specs
+tasks.generateCommon.dependsOn project.cloneSpecs
+tasks.generateInstruments.dependsOn project.cloneSpecs
+tasks.generatePrograms.dependsOn project.cloneSpecs
+tasks.generateLibraries.dependsOn project.cloneSpecs
+tasks.generateAccounts.dependsOn project.cloneSpecs
+tasks.generateUsers.dependsOn project.cloneSpecs
+tasks.generateChains.dependsOn project.cloneSpecs
+tasks.generateSegments.dependsOn project.cloneSpecs
+tasks.generateTemplates.dependsOn project.cloneSpecs
+
+// Compilation depends on generating all specs
+compileJava.dependsOn tasks.generateCommon
+compileJava.dependsOn tasks.generateInstruments
+compileJava.dependsOn tasks.generatePrograms
+compileJava.dependsOn tasks.generateLibraries
+compileJava.dependsOn tasks.generateAccounts
+compileJava.dependsOn tasks.generateUsers
+compileJava.dependsOn tasks.generateChains
+compileJava.dependsOn tasks.generateSegments
+compileJava.dependsOn tasks.generateTemplates

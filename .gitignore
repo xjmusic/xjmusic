@@ -22,7 +22,8 @@ docs/public/
 
 # Gradle build files
 .gradle
-/build/
+build/
+*/build/
 /out/
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -44,6 +45,7 @@ kafka.properties
 
 # Audio data
 data/
+*/data/
 
 # Bootstrap chains
 bootstrap-chains.json

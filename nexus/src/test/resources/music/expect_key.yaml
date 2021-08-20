@@ -1,0 +1,38 @@
+---
+keys:
+
+  C:
+    root: C
+    mode: Major
+
+  C major:
+    root: C
+    mode: Major
+
+  C minor:
+    root: C
+    mode: Minor
+
+  C maj:
+    root: C
+    mode: Major
+
+  C min:
+    root: C
+    mode: Minor
+
+  Cm:
+    root: C
+    mode: Minor
+
+  "C#m":
+    root: C#
+    mode: Minor
+
+  DbM:
+    root: Db
+    mode: Major
+
+  Gm:
+    root: G
+    mode: Minor

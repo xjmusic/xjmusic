@@ -1,4 +1,4 @@
-name: "Integration"
+name: "Production CI"
 
 on:
   push:
@@ -8,15 +8,45 @@ on:
 jobs:
   Gradle:
     env:
-      GITHUB_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
-      GITHUB_USERNAME: ${{ secrets.CI_BOT_USERNAME }}
+      CI_BOT_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
+      CI_BOT_USERNAME: ${{ secrets.CI_BOT_USERNAME }}
     name: Gradle
     runs-on: ubuntu-latest
 
-    steps:
+    #
+    services:
+      #
+      redis:
+        # Docker Hub image
+        image: redis
+        # Set health checks to wait until redis has started
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+      #
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
+    steps:
       - name: Install system packages
         run: |
+          sudo apt-get -y install postgresql-client
           sudo apt-get -y install amazon-ecr-credential-helper
 
       - name: Configure AWS Credentials
@@ -39,13 +69,14 @@ jobs:
           java-version: 14
           java-package: jdk
 
+      - name: Create Postgres databases
+        run: |
+          createdb -h localhost -p 5432 -U postgres xj_test
+        env:
+          PGPASSWORD: postgres
+
       - name: Checkout
         uses: actions/checkout@v2
-
-      - uses: jwalton/gh-find-current-pr@v1
-        id: findPr
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/cache@v2
         with:
@@ -69,7 +100,11 @@ jobs:
         run: "./gradlew --info --no-daemon jib"
         continue-on-error: false
 
-      - name: Kubernetes rollout deployment/nexus
-        run: |
-          kubectl -n lab rollout restart deployment/nexus
-          kubectl -n yard rollout restart deployment/coolair
+      - name: Kubernetes rollout Lab/Hub
+        run: "kubectl -n lab rollout restart deployment/hub"
+
+      - name: Kubernetes rollout Lab/Nexus
+        run: "kubectl -n lab rollout restart deployment/nexus"
+
+      - name: Kubernetes rollout Yard/Nexus
+        run: "kubectl -n yard rollout restart deployment/coolair"

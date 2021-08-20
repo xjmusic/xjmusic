@@ -1,20 +1,16 @@
-[![Integration](https://github.com/xjmusic/nexus/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/xjmusic/nexus/actions/workflows/main.yml)
+[![Development CI](https://github.com/xjmusic/services/actions/workflows/dev.yml/badge.svg?branch=dev)](https://github.com/xjmusic/services/actions/workflows/dev.yml?branch=dev)
 
-[![Deploy Production](https://github.com/xjmusic/nexus/actions/workflows/deploy-prod.yml/badge.svg)](https://github.com/xjmusic/nexus/actions/workflows/deploy-prod.yml)
+[![Production CI](https://github.com/xjmusic/services/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/xjmusic/services/actions/workflows/main.yml?branch=main)
 
-# Nexus
+# XJ Music Backend (Java) Services
 
 *Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.*
 
 
 
-## Production Deployment
+## Deployment
 
-Just push to the `deploy/prod` branch:
-
-```shell
-git push origin main:deploy/prod
-```
+Just push to the `main` branch to deploy to Production CI, or `dev` branch for Development CI.
 
 
 
