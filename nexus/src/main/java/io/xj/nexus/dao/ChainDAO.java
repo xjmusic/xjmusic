@@ -109,5 +109,5 @@ public interface ChainDAO extends DAO<Chain> {
    @return all chains
    @param access
    */
-  Collection<Chain> readAll(HubClientAccess access) throws DAOPrivilegeException, DAOFatalException;
+  Collection<Chain> readAllFabricating(HubClientAccess access) throws DAOPrivilegeException, DAOFatalException;
 }

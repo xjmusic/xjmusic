@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -414,10 +413,12 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   }
 
   @Override
-  public Collection<Chain> readAll(HubClientAccess access) throws DAOPrivilegeException, DAOFatalException {
+  public Collection<Chain> readAllFabricating(HubClientAccess access) throws DAOPrivilegeException, DAOFatalException {
     try {
       requireTopLevel(access);
-      return new ArrayList<>(store.getAllChains());
+      return store.getAllChains().stream()
+        .filter(chain -> ChainState.FABRICATE.equals(chain.getState()))
+        .collect(Collectors.toList());
 
     } catch (NexusException e) {
       throw new DAOFatalException(e);

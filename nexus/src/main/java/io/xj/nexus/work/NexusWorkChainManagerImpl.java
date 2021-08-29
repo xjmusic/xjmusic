@@ -227,7 +227,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     // Maintain chain for all templates
     Collection<Chain> chains;
     try {
-      chains = chainDAO.readAll(access);
+      chains = chainDAO.readAllFabricating(access);
       Set<UUID> chainTemplateIds = chains.stream().map(Chain::getTemplateId).collect(Collectors.toSet());
       for (Template template : templates)
         if (!chainTemplateIds.contains(template.getId())) {

@@ -9,15 +9,10 @@ import com.typesafe.config.Config;
 import io.xj.api.Account;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.Library;
-import io.xj.api.Program;
-import io.xj.api.ProgramState;
-import io.xj.api.ProgramType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
 import io.xj.api.Template;
-import io.xj.api.TemplateBinding;
 import io.xj.api.TemplateType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -28,14 +23,12 @@ import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
-import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
@@ -45,16 +38,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildAccount;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildBinding;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildHubClientAccess;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildLibrary;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildProgram;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSequence;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildUser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -65,8 +53,6 @@ import static org.junit.Assert.fail;
 @SuppressWarnings("HttpUrlsUsage")
 @RunWith(MockitoJUnitRunner.class)
 public class ChainDAOImplTest {
-  @Mock
-  HubClient hubClient;
   private NexusEntityStore test;
   private ChainDAO subject;
   private Account account1;
@@ -97,28 +83,9 @@ public class ChainDAOImplTest {
 
     // hub entities as basis
     account1 = buildAccount("fish");
-    Library library1 = buildLibrary(account1, "test");
-    Library library2 = buildLibrary(account1, "test");
-    buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    Program program1 = buildProgram(library2, ProgramType.RHYTHM, ProgramState.PUBLISHED, "fonds", "C#", 0.286, 0.6);
-    var sequence1 = buildSequence(program1, 16, "epic beat part 1", 0.342, "C#", 0.286);
-    var binding1_0 = buildBinding(sequence1, 0);
+    buildLibrary(account1, "test");
     template1 = buildTemplate(account1, "Test Template 1", "test1");
-    TemplateBinding templateBinding1 = buildTemplateBinding(template1, library2);
     template2 = buildTemplate(account1, "Test Template 2", "test2");
-
-/*
-    when(hubClient.ingest(any(), eq(template1.getId()))).thenReturn(new HubContent(ImmutableSet.of(
-      program1,
-      library1,
-      library2,
-      sequence1,
-      binding1_0,
-      template1,
-      templateBinding1,
-      template2
-    )));
-*/
 
     // Payload comprising Nexus entities
     chain1 = test.put(buildChain(account1, "school", TemplateType.PRODUCTION, ChainState.READY, template1,
@@ -424,6 +391,30 @@ public class ChainDAOImplTest {
     Collection<Chain> result = subject.readMany(access, ImmutableList.of(account1.getId()));
 
     assertEquals(2L, result.size());
+  }
+
+  @Test
+  public void readAllFabricating() throws Exception {
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "Admin");
+    test.put(buildChain(template2).state(ChainState.FABRICATE));
+    test.put(buildChain(template2).state(ChainState.FABRICATE));
+    test.put(buildChain(template2).state(ChainState.FABRICATE));
+    test.put(buildChain(template2).state(ChainState.DRAFT));
+    test.put(buildChain(template2).state(ChainState.COMPLETE));
+    test.put(buildChain(template2).state(ChainState.READY));
+    test.put(buildChain(template2).state(ChainState.FAILED));
+
+    Collection<Chain> result = subject.readAllFabricating(access);
+
+    assertEquals(4L, result.size());
+  }
+
+  @Test
+  public void readAllFabricating_requiresTopLevelAccess() {
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Artist");
+
+    var e = assertThrows(DAOPrivilegeException.class, () -> subject.readAllFabricating(access));
+    assertEquals("top-level access is required.", e.getMessage());
   }
 
   @Test
@@ -867,7 +858,7 @@ public class ChainDAOImplTest {
   }
 
   /**
-   [#160299309] Engineer wants a *revived* action, require exists chain of which to revived, throw error if not found.
+   [#160299309] Engineer wants a *revived* action, require existing to be revived, throws error if not found.
    */
   @Test
   public void revive_failsIfNotExistPriorChain() {

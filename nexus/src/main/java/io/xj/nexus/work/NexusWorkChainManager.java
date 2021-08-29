@@ -1,7 +1,5 @@
 package io.xj.nexus.work;
 
-import io.xj.nexus.NexusException;
-
 /**
  The Nexus Work Chain Bootstrap operates in one of two modes,
  depending on whether Nexus is being run as a Hub sidecar or for Yard production.
@@ -16,8 +14,6 @@ public interface NexusWorkChainManager {
   /**
    Check current status, change states if necessary, perform actions or blow up.
    Called from within the Nexus Work loop.
-
-   @throws NexusException on failure
    */
   void poll();
 
