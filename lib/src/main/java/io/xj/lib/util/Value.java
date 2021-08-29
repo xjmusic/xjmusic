@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -276,5 +277,21 @@ public interface Value {
    */
   static String stringOrDefault(@Nullable Object value, String defaultValue) {
     return Objects.nonNull(value) ? String.valueOf(value) : defaultValue;
+  }
+
+  /**
+   Get a UUID from the input string, or return null if the input is null or invalid
+
+   @param id from which to compute uuid
+   @return uuid or null
+   */
+  static @Nullable
+  UUID uuidOrNull(@Nullable String id) {
+    if (Strings.isNullOrEmpty(id)) return null;
+    try {
+      return UUID.fromString(id);
+    } catch (Exception ignored) {
+      return null;
+    }
   }
 }

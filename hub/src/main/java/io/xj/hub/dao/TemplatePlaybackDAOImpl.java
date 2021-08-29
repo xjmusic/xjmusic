@@ -27,21 +27,15 @@ import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
 
 public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implements TemplatePlaybackDAO {
 
-  private final long playbackExpireSeconds;
-  private final TemplateDAO templateDAO;
-
   @Inject
   public TemplatePlaybackDAOImpl(
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
-    TemplateDAO templateDAO,
     HubDatabaseProvider dbProvider,
     Environment env
   ) {
     super(payloadFactory, entityFactory);
-    this.templateDAO = templateDAO;
     this.dbProvider = dbProvider;
-    playbackExpireSeconds = env.getPlaybackExpireSeconds();
   }
 
   @Override
@@ -51,9 +45,17 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
     TemplatePlayback record = validate(raw);
     requireArtist(hubAccess);
 
-    var template = templateDAO.readOne(hubAccess, record.getTemplateId());
-    require("Access to Template", Objects.nonNull(template));
-    require("Preview-type Template", TemplateType.PREVIEW.equals(template.getType()));
+    if (hubAccess.isTopLevel())
+      requireExists("preview-type Template", db.selectCount().from(TEMPLATE)
+        .where(TEMPLATE.ID.eq(record.getTemplateId()))
+        .and(TEMPLATE.TYPE.eq(TemplateType.PREVIEW.toString()))
+        .fetchOne(0, int.class));
+    else
+      requireExists("preview-type Template", db.selectCount().from(TEMPLATE)
+        .where(TEMPLATE.ID.eq(record.getTemplateId()))
+        .and(TEMPLATE.TYPE.eq(TemplateType.PREVIEW.toString()))
+        .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .fetchOne(0, int.class));
 
     for (var prior : modelsFrom(TemplatePlayback.class,
       db.selectFrom(TEMPLATE_PLAYBACK)
@@ -85,17 +87,6 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
         .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne());
     return Objects.nonNull(playback) ? Optional.of(playback) : Optional.empty();
-  }
-
-  @Override
-  public Collection<TemplatePlayback> readAll(HubAccess hubAccess) throws DAOException {
-    requireTopLevel(hubAccess);
-    DSLContext db = dbProvider.getDSL();
-
-    return modelsFrom(TemplatePlayback.class, db.select(TEMPLATE_PLAYBACK.fields())
-      .from(TEMPLATE_PLAYBACK)
-      .where(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds))))
-      .fetch());
   }
 
   @Override

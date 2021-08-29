@@ -49,6 +49,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -81,36 +85,15 @@ public class ProgramIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(new Account()
-      .id(UUID.randomUUID())
-      .name("bananas")
-    );
+    fake.account1 = test.insert(buildAccount("bananas"));
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("john")
-      .email("john@email.com")
-      .avatarUrl("http://pictures.com/john.gif"));
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.ADMIN)
-    );
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
+    test.insert(buildUserRole(fake.user2,UserRoleType.ADMIN));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("jenny")
-      .email("jenny@email.com")
-      .avatarUrl("http://pictures.com/jenny.gif"));
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.USER));
-    test.insert(new AccountUser()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .userId(fake.user3.getId()));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
+    test.insert(buildUserRole(fake.user3,UserRoleType.USER));
+    test.insert(buildAccountUser(fake.account1,fake.user3));
 
     // Library "palm tree" has program "fonds" and program "nuts"
     fake.library1 = test.insert(new Library()
@@ -125,8 +108,7 @@ public class ProgramIT {
       .name("fonds")
       .key("C#")
       .tempo(120.0)
-      .density(0.6)
-    );
+      .density(0.6));
     fake.program1_sequence1 = test.insert(new ProgramSequence()
       .id(UUID.randomUUID())
       .programId(fake.program1.getId())
@@ -134,14 +116,12 @@ public class ProgramIT {
       .name("Ants")
       .density(0.583)
       .key("D minor")
-      .tempo(120.0)
-    );
+      .tempo(120.0));
     var sequenceBinding1a_0 = test.insert(new ProgramSequenceBinding()
       .id(UUID.randomUUID())
       .programId(fake.program1_sequence1.getProgramId())
       .programSequenceId(fake.program1_sequence1.getId())
-      .offset(0)
-    );
+      .offset(0));
     test.insert(new ProgramSequenceBindingMeme()
       .id(UUID.randomUUID())
       .programId(sequenceBinding1a_0.getProgramId())
@@ -435,34 +415,29 @@ public class ProgramIT {
     test.insert(new ProgramMeme()
       .id(UUID.randomUUID())
       .programId(fake.program1.getId())
-      .name("cinnamon")
-    );
+      .name("cinnamon"));
     var voice = test.insert(new ProgramVoice()
       .id(UUID.randomUUID())
       .programId(fake.program1.getId())
       .type(InstrumentType.PERCUSSIVE)
-      .name("drums")
-    );
+      .name("drums"));
     var track = test.insert(new ProgramVoiceTrack()
       .id(UUID.randomUUID())
       .programId(voice.getProgramId())
       .programVoiceId(voice.getId())
-      .name("Kick")
-    );
+      .name("Kick"));
     var programSequenceChord = test.insert(new ProgramSequenceChord()
       .id(UUID.randomUUID())
       .programId(fake.program1_sequence1.getProgramId())
       .programSequenceId(fake.program1_sequence1.getId())
       .position(0.0)
-      .name("D")
-    );
+      .name("D"));
     test.insert(new ProgramSequenceChordVoicing()
       .id(UUID.randomUUID())
       .type(InstrumentType.STICKY)
       .programId(fake.program1_sequence1.getProgramId())
       .programSequenceChordId(programSequenceChord.getId())
-      .notes("D2,F#2,A2")
-    );
+      .notes("D2,F#2,A2"));
     var pattern = test.insert(new ProgramSequencePattern()
       .id(UUID.randomUUID())
       .programId(fake.program1_sequence1.getProgramId())
@@ -470,8 +445,7 @@ public class ProgramIT {
       .programSequenceId(fake.program1_sequence1.getId())
       .type(ProgramSequencePatternType.LOOP)
       .total(8)
-      .name("jam")
-    );
+      .name("jam"));
     test.insert(new ProgramSequencePatternEvent()
       .id(UUID.randomUUID())
       .programId(pattern.getProgramId())
@@ -480,8 +454,7 @@ public class ProgramIT {
       .position(0.0)
       .duration(1.0)
       .note("C")
-      .velocity(1.0)
-    );
+      .velocity(1.0));
 
     Collection<Object> results = testDAO.readManyWithChildEntities(hubAccess, ImmutableList.of(fake.program1.getId()));
 
@@ -577,8 +550,7 @@ public class ProgramIT {
       .id(UUID.randomUUID())
       .programId(fake.program2.getId())
       .type(InstrumentType.PERCUSSIVE)
-      .name("Drums")
-    );
+      .name("Drums"));
     Program subject = new Program()
       .id(fake.program2.getId())
       .density(1.0)
@@ -641,8 +613,7 @@ public class ProgramIT {
       .name("fonds")
       .key("C#")
       .tempo(120.0)
-      .density(0.6)
-    );
+      .density(0.6));
 
     testDAO.destroy(hubAccess, fake.program35.getId());
 
@@ -677,18 +648,15 @@ public class ProgramIT {
       .name("fonds")
       .key("C#")
       .tempo(120.0)
-      .density(0.6)
-    );
+      .density(0.6));
     test.insert(new ProgramMeme()
       .id(UUID.randomUUID())
       .programId(program.getId())
-      .name("frozen")
-    );
+      .name("frozen"));
     test.insert(new ProgramMeme()
       .id(UUID.randomUUID())
       .programId(program.getId())
-      .name("ham")
-    );
+      .name("ham"));
 
     var e = assertThrows(DAOException.class, () -> testDAO.destroy(hubAccess, program.getId()));
     assertEquals("Found Program Memes", e.getMessage());
@@ -708,8 +676,7 @@ public class ProgramIT {
       .name("fonds")
       .key("C#")
       .tempo(120.0)
-      .density(0.6)
-    );
+      .density(0.6));
     var programSequence = test.insert(new ProgramSequence()
       .id(UUID.randomUUID())
       .programId(program.getId())
@@ -717,33 +684,28 @@ public class ProgramIT {
       .name("Ants")
       .density(0.583)
       .key("D minor")
-      .tempo(120.0)
-    );
+      .tempo(120.0));
     test.insert(new ProgramSequenceBinding()
       .id(UUID.randomUUID())
       .programId(programSequence.getProgramId())
       .programSequenceId(programSequence.getId())
-      .offset(0)
-    );
+      .offset(0));
     var voice = test.insert(new ProgramVoice()
       .id(UUID.randomUUID())
       .programId(program.getId())
       .type(InstrumentType.PERCUSSIVE)
-      .name("drums")
-    );
+      .name("drums"));
     var track = test.insert(new ProgramVoiceTrack()
       .id(UUID.randomUUID())
       .programId(voice.getProgramId())
       .programVoiceId(voice.getId())
-      .name("Kick")
-    );
+      .name("Kick"));
     test.insert(new ProgramSequenceChord()
       .id(UUID.randomUUID())
       .programId(programSequence.getProgramId())
       .programSequenceId(programSequence.getId())
       .position(0.0)
-      .name("D")
-    );
+      .name("D"));
     var pattern = test.insert(new ProgramSequencePattern()
       .id(UUID.randomUUID())
       .programId(programSequence.getProgramId())
@@ -751,8 +713,7 @@ public class ProgramIT {
       .programVoiceId(voice.getId())
       .type(ProgramSequencePatternType.LOOP)
       .total(8)
-      .name("jam")
-    );
+      .name("jam"));
     test.insert(new ProgramSequencePatternEvent()
       .id(UUID.randomUUID())
       .programId(pattern.getProgramId())
@@ -761,8 +722,7 @@ public class ProgramIT {
       .position(0.0)
       .duration(1.0)
       .note("C")
-      .velocity(1.0)
-    );
+      .velocity(1.0));
 
     testDAO.destroy(hubAccess, program.getId());
 

@@ -32,6 +32,7 @@ import org.junit.rules.ExpectedException;
 import java.util.Collection;
 import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -61,10 +62,7 @@ public class AccountIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(new Account()
-      .id(UUID.randomUUID())
-      .name("bananas")
-      );
+    fake.account1 = test.insert(buildAccount("bananas"));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AccountDAO.class);
@@ -162,8 +160,7 @@ public class AccountIT {
     test.insert(new Library()
       .id(UUID.randomUUID())
       .accountId(fake.account1.getId())
-      .name("Testing")
-      );
+      .name("Testing"));
 
     failure.expect(DAOException.class);
     failure.expectMessage("Found Library in Account");
@@ -178,13 +175,11 @@ public class AccountIT {
       .id(UUID.randomUUID())
       .name("jim")
       .email("jim@jim.com")
-      .avatarUrl("http://www.jim.com/jim.png")
-      );
+      .avatarUrl("http://www.jim.com/jim.png"));
     test.insert(new AccountUser()
       .id(UUID.randomUUID())
       .accountId(fake.account1.getId())
-      .userId(fake.user1.getId())
-      );
+      .userId(fake.user1.getId()));
 
     failure.expect(DAOException.class);
     failure.expectMessage("Found User in Account");

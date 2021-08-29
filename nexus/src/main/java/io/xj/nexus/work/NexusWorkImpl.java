@@ -99,6 +99,7 @@ public class NexusWorkImpl implements NexusWork {
   private long nextJanitorMillis = 0;
   private long nextMedicMillis = 0;
   private boolean alive = true;
+  private final NexusWorkChainManager chainManager;
 
   @Inject
   public NexusWorkImpl(
@@ -111,7 +112,8 @@ public class NexusWorkImpl implements NexusWork {
     NexusEntityStore store,
     NotificationProvider notification,
     SegmentDAO segmentDAO,
-    TelemetryProvider telemetryProvider
+    TelemetryProvider telemetryProvider,
+    NexusWorkChainManager nexusWorkChainManager
   ) {
     this.chainDAO = chainDAO;
     this.craftFactory = craftFactory;
@@ -122,6 +124,7 @@ public class NexusWorkImpl implements NexusWork {
     this.segmentDAO = segmentDAO;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
+    this.chainManager = nexusWorkChainManager;
 
     bufferPreviewSeconds = config.getInt("work.bufferPreviewSeconds");
     bufferProductionSeconds = config.getInt("work.bufferProductionSeconds");
@@ -146,6 +149,9 @@ public class NexusWorkImpl implements NexusWork {
   public void run() {
     if (System.currentTimeMillis() < nextCycleMillis) return;
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
+
+    // Poll the chain manager
+    chainManager.poll();
 
     // Replace an empty list so there is no possibility of nonexistence
     Collection<Chain> activeChains = Lists.newArrayList();
@@ -388,16 +394,6 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   @Override
-  public float computeFabricatedAheadSeconds(Chain chain, Collection<Segment> segments) {
-    var lastDubbedSegment = Segments.getLastDubbed(segments);
-    var dubbedUntil = lastDubbedSegment.isPresent() ?
-      Instant.parse(lastDubbedSegment.get().getEndAt()) :
-      Instant.parse(chain.getStartAt());
-    var now = Instant.now();
-    return (float) (dubbedUntil.toEpochMilli() - now.toEpochMilli()) / MILLIS_PER_SECOND;
-  }
-
-  @Override
   public void work() {
     timer = MultiStopwatch.start();
     while (alive) this.run();
@@ -634,7 +630,8 @@ public class NexusWorkImpl implements NexusWork {
 
   @Override
   public boolean isHealthy() {
-    return nextCycleMillis > System.currentTimeMillis() - healthCycleStalenessThresholdMillis;
+    return chainManager.isHealthy()
+      && nextCycleMillis > System.currentTimeMillis() - healthCycleStalenessThresholdMillis;
   }
 
   /**
@@ -660,6 +657,6 @@ public class NexusWorkImpl implements NexusWork {
    @param chain fabricating
    */
   private float computeFabricatedAheadSeconds(Chain chain) throws DAOPrivilegeException, DAOFatalException, DAOExistenceException {
-    return computeFabricatedAheadSeconds(chain, segmentDAO.readMany(access, ImmutableList.of(chain.getId())));
+    return Chains.computeFabricatedAheadSeconds(chain, segmentDAO.readMany(access, ImmutableList.of(chain.getId())));
   }
 }

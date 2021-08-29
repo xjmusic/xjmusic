@@ -10,16 +10,15 @@ import com.typesafe.config.Config;
 import io.xj.api.Account;
 import io.xj.api.AccountUser;
 import io.xj.api.User;
-import io.xj.api.UserRole;
 import io.xj.api.UserRoleType;
+import io.xj.hub.HubIntegrationTestModule;
+import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -32,6 +31,10 @@ import org.junit.rules.ExpectedException;
 import java.util.Collection;
 import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -63,39 +66,17 @@ public class AccountUserIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(new Account()
-      .id(UUID.randomUUID())
-      .name("bananas")     );
+    fake.account1 = test.insert(buildAccount("bananas"));
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("john")
-      .email("john@email.com")
-      .avatarUrl("http://pictures.com/john.gif")     );
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.ADMIN)     );
-    accountUser_1_2 = test.insert(new AccountUser()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .userId(fake.user2.getId())     );
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
+    test.insert(buildUserRole(fake.user2, UserRoleType.ADMIN));
+    accountUser_1_2 = test.insert(buildAccountUser(fake.account1,fake.user2));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("jenny")
-      .email("jenny@email.com")
-      .avatarUrl("http://pictures.com/jenny.gif")     );
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.USER)     );
-    test.insert(new AccountUser()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .userId(fake.user3.getId())     );
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
+    test.insert(buildUserRole(fake.user3, UserRoleType.USER));
+    test.insert(buildAccountUser(fake.account1, fake.user3));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AccountUserDAO.class);
@@ -113,7 +94,7 @@ public class AccountUserIT {
       .id(UUID.randomUUID())
       .name("Jim")
       .email("jim@email.com")
-      .avatarUrl("http://pictures.com/jim.gif")     );
+      .avatarUrl("http://pictures.com/jim.gif"));
     var inputData = new AccountUser()
       .accountId(fake.account1.getId())
       .userId(fake.user5.getId());
@@ -223,7 +204,7 @@ public class AccountUserIT {
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
       .id(UUID.randomUUID())
-      ), "Artist");
+    ), "Artist");
 
     Collection<AccountUser> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
 

@@ -54,36 +54,6 @@ public class TemplatePlaybackEndpoint extends HubEndpoint {
   /**
    Get all templatePlaybacks.
 
-   @return set of all templatePlaybacks
-   */
-  @GET
-  @Path("template-playbacks")
-  @RolesAllowed(USER)
-  public Response readAll(
-    @Context ContainerRequestContext crc
-  ) {
-    try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
-      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
-      Collection<TemplatePlayback> templatePlaybacks;
-
-      // how we source templatePlaybacks depends on the query parameters
-      templatePlaybacks = dao().readAll(hubAccess);
-
-      // add templatePlaybacks as plural data in payload
-      for (TemplatePlayback templatePlayback : templatePlaybacks)
-        jsonapiPayload.addData(payloadFactory.toPayloadObject(templatePlayback));
-
-      return response.ok(jsonapiPayload);
-
-    } catch (Exception e) {
-      return response.failure(e);
-    }
-  }
-
-  /**
-   Get all templatePlaybacks.
-
    @param templateId to get templatePlaybacks for
    @return set of all templatePlaybacks
    */

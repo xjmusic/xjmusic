@@ -1,56 +1,27 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus;
 
-import com.google.api.client.util.Lists;
-import com.google.api.client.util.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
-import io.xj.api.Chain;
-import io.xj.api.Segment;
-import io.xj.api.SegmentState;
-import io.xj.api.TemplateBinding;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
-import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.Topology;
-import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.json.JsonProvider;
-import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.TempFile;
 import io.xj.lib.util.Text;
 import io.xj.nexus.api.NexusAccessLogFilter;
 import io.xj.nexus.api.NexusAppHealthEndpoint;
-import io.xj.nexus.dao.ChainDAO;
-import io.xj.nexus.dao.Chains;
-import io.xj.nexus.dao.Segments;
-import io.xj.nexus.dao.exception.DAOExistenceException;
-import io.xj.nexus.dao.exception.DAOFatalException;
-import io.xj.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.nexus.dao.exception.DAOValidationException;
 import io.xj.nexus.hub_client.client.HubAccessTokenFilter;
-import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWork;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
 
 /**
  Base application for XJ services.
@@ -129,159 +100,6 @@ public class NexusApp extends App {
     getResourceConfig()
       .register(hubAccessTokenFilter)
       .register(nexusAppHealthEndpoint);
-
-    // [#176285826] Nexus bootstraps Chains from JSON file on startup
-    var chainDAO = injector.getInstance(ChainDAO.class);
-    var access = HubClientAccess.internal();
-
-    //[#176374643] Chains bootstrapped by Nexus are delayed by N seconds
-    if (!Strings.isNullOrEmpty(env.getBootstrapTemplateId()))
-      try {
-        LOG.info("Will bootstrap Chain from Template[{}]", env.getBootstrapTemplateId());
-        bootstrapFromJson(env.getBootstrapTemplateId(), chainDAO, access);
-      } catch (IOException e) {
-        LOG.error("Failed to bootstrap!", e);
-      }
-    else
-      LOG.info("No Chain Bootstrap specified! {}", env.getBootstrapTemplateId());
-  }
-
-
-  /**
-   Bootstrap a chain from JSON chain bootstrap data,
-   first rehydrating store from last shipped JSON matching this embed key.
-   <p>
-   Nexus with bootstrap chain rehydrates store on startup from shipped JSON files
-   https://www.pivotaltracker.com/story/show/178718006
-
-   @param chainBootstrapJson from which to bootstrap
-   @param chainDAO           to access
-   @param access             control
-   @throws IOException on failure
-   */
-  private void bootstrapFromJson(String chainBootstrapJson, ChainDAO chainDAO, HubClientAccess access) throws IOException {
-    var bootstrap = jsonProvider.getObjectMapper().readValue(chainBootstrapJson, NexusChainBootstrapPayload.class);
-
-    if (Strings.isNullOrEmpty(bootstrap.getChain().getEmbedKey())) {
-      LOG.error("Can't bootstrap chain with no embed key!");
-      return;
-    }
-
-    var successfulRehydration = attemptToRehydrateFrom(bootstrap);
-
-    if (!successfulRehydration)
-      try {
-        LOG.info("Will bootstrap Chain[{}] bound to {}", Chains.getIdentifier(bootstrap.getChain()),
-          Chains.describe(bootstrap.getChainBindings()));
-        chainDAO.bootstrap(access, bootstrap.getChain());
-      } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
-        LOG.error("Failed to add binding to bootstrap Chain!", e);
-      }
-  }
-
-  /**
-   Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
-
-   @param bootstrap to rehydrate from
-   @return true if successful
-   */
-  private Boolean attemptToRehydrateFrom(NexusChainBootstrapPayload bootstrap) {
-    var success = new AtomicBoolean(true);
-    Collection<Object> entities = Lists.newArrayList();
-    String chainStorageKey;
-    InputStream chainStream;
-    JsonapiPayload chainPayload;
-    Chain chain;
-    try {
-      LOG.info("Will check for last shipped data");
-      chainStorageKey = Chains.getStorageKey(Chains.getFullKey(bootstrap.getChain().getEmbedKey()), EXTENSION_JSON);
-      chainStream = fileStoreProvider.streamS3Object(env.getSegmentFileBucket(), chainStorageKey);
-      chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
-      chain = jsonapiPayloadFactory.toOne(chainPayload);
-      entities.add(entityFactory.clone(chain));
-    } catch (FileStoreException | JsonapiException | ClassCastException | IOException | EntityException e) {
-      LOG.error("Failed to retrieve previously fabricated chain because {}", e.getMessage());
-      return false;
-    }
-
-    try {
-      LOG.info("Will load Chain[{}] for embed key \"{}\"", chain.getId(), bootstrap.getChain().getEmbedKey());
-      chainPayload.getIncluded().stream()
-        .filter(po -> po.isType(TemplateBinding.class))
-        .forEach(templateBinding -> {
-          try {
-            entities.add(entityFactory.clone(jsonapiPayloadFactory.toOne(templateBinding)));
-          } catch (JsonapiException | EntityException | ClassCastException e) {
-            success.set(false);
-            LOG.error("Could not deserialize TemplateBinding from shipped Chain JSON because {}", e.getMessage());
-          }
-        });
-
-      chainPayload.getIncluded().stream()
-        .filter(po -> po.isType(Segment.class))
-        .flatMap(po -> {
-          try {
-            return Stream.of((Segment) jsonapiPayloadFactory.toOne(po));
-          } catch (JsonapiException | ClassCastException e) {
-            LOG.error("Could not deserialize Segment from shipped Chain JSON because {}", e.getMessage());
-            success.set(false);
-            return Stream.empty();
-          }
-        })
-        .filter(seg -> SegmentState.DUBBED.equals(seg.getState()))
-        .forEach(segment -> {
-          try {
-            var segmentStorageKey = Segments.getStorageKey(segment.getStorageKey(), EXTENSION_JSON);
-            var segmentStream = fileStoreProvider.streamS3Object(env.getSegmentFileBucket(), segmentStorageKey);
-            var segmentPayload = jsonProvider.getObjectMapper().readValue(segmentStream, JsonapiPayload.class);
-            AtomicInteger childCount = new AtomicInteger();
-            entities.add(entityFactory.clone(segment));
-            segmentPayload.getIncluded()
-              .forEach(po -> {
-                try {
-                  var entity = jsonapiPayloadFactory.toOne(po);
-                  entities.add(entity);
-                  childCount.getAndIncrement();
-                } catch (JsonapiException | ClassCastException e) {
-                  LOG.error("Could not deserialize Segment from shipped Chain JSON", e);
-                  success.set(false);
-                }
-              });
-            LOG.info("Read Segment[{}] and {} child entities", segment.getStorageKey(), childCount);
-
-          } catch (FileStoreException | IOException | ClassCastException | EntityException e) {
-            LOG.error("Could not load Segment[{}]", segment.getStorageKey(), e);
-            success.set(false);
-          }
-        });
-
-      // Quit if anything failed up to here
-      if (!success.get()) return false;
-
-      // Nexus with bootstrap won't rehydrate stale Chain
-      // https://www.pivotaltracker.com/story/show/178727631
-      var fabricatedAheadSeconds = work.computeFabricatedAheadSeconds(chain,
-        entities.stream()
-          .filter(e -> Entities.isType(e, Segment.class))
-          .map(e -> (Segment) e)
-          .collect(Collectors.toList()));
-
-      if (fabricatedAheadSeconds < rehydrateFabricatedAheadThreshold) {
-        LOG.info("Will not rehydrate Chain[{}] fabricated ahead {}s (not > {}s)",
-          Chains.getIdentifier(chain), fabricatedAheadSeconds, rehydrateFabricatedAheadThreshold);
-        return false;
-      }
-
-      // Okay to rehydrate
-      entityStore.putAll(entities);
-      LOG.info("Rehydrated {} entities OK. Chain[{}] is fabricated ahead {}s",
-        entities.size(), Chains.getIdentifier(chain), fabricatedAheadSeconds);
-      return true;
-
-    } catch (NexusException e) {
-      LOG.error("Failed to rehydrate store because {}", e.getMessage());
-      return false;
-    }
   }
 
   /**

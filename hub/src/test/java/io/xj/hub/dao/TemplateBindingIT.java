@@ -37,8 +37,12 @@ import java.util.Collection;
 import java.util.UUID;
 
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
 import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
@@ -74,34 +78,15 @@ public class TemplateBindingIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(new Account()
-      .id(UUID.randomUUID())
-      .name("bananas"));
+    fake.account1 = test.insert(buildAccount("bananas"));
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("john")
-      .email("john@email.com")
-      .avatarUrl("http://pictures.com/john.gif"));
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.ADMIN));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
+    test.insert(buildUserRole(fake.user2,UserRoleType.ADMIN));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("jenny")
-      .email("jenny@email.com")
-      .avatarUrl("http://pictures.com/jenny.gif"));
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.USER));
-    test.insert(new AccountUser()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .userId(fake.user3.getId()));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
+    test.insert(buildUserRole(fake.user3,UserRoleType.USER));
+    test.insert(buildAccountUser(fake.account1,fake.user3));
 
     // Template "sandwich" has templateBinding "jams" and templateBinding "buns"
     fake.template1 = test.insert(new Template()

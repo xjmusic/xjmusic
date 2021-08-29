@@ -45,6 +45,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -87,69 +91,40 @@ public class InstrumentAudioIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(new Account()
-      .id(UUID.randomUUID())
-      .name("bananas")
-    );
+    fake.account1 = test.insert(buildAccount("bananas"));
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("john")
-      .email("john@email.com")
-      .avatarUrl("http://pictures.com/john.gif")
-    );
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.ADMIN)
-    );
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
+    test.insert(buildUserRole(fake.user2,UserRoleType.ADMIN));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("jenny")
-      .email("jenny@email.com")
-      .avatarUrl("http://pictures.com/jenny.gif")
-    );
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.USER)
-    );
-    test.insert(new AccountUser()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .userId(fake.user3.getId())
-    );
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
+    test.insert(buildUserRole(fake.user3,UserRoleType.USER));
+    test.insert(buildAccountUser(fake.account1,fake.user3));
 
     // Library "sandwich" has instrument "jams" and instrument "buns"
     fake.library1 = test.insert(new Library()
       .id(UUID.randomUUID())
       .accountId(fake.account1.getId())
-      .name("sandwich")
-    );
+      .name("sandwich"));
     fake.instrument201 = test.insert(new Instrument()
       .id(UUID.randomUUID())
       .libraryId(fake.library1.getId())
       .type(InstrumentType.PAD)
       .state(InstrumentState.PUBLISHED)
       .density(0.6)
-      .name("buns")
-    );
+      .name("buns"));
     fake.instrument202 = test.insert(new Instrument()
       .id(UUID.randomUUID())
       .libraryId(fake.library1.getId())
       .type(InstrumentType.PERCUSSIVE)
       .state(InstrumentState.PUBLISHED)
       .density(0.6)
-      .name("jams")
-    );
+      .name("jams"));
     test.insert(new InstrumentMeme()
       .id(UUID.randomUUID())
       .instrumentId(fake.instrument202.getId())
-      .name("smooth")
-    );
+      .name("smooth"));
     fake.audio1 = test.insert(new InstrumentAudio()
       .id(UUID.randomUUID())
       .instrumentId(fake.instrument202.getId())
@@ -173,8 +148,7 @@ public class InstrumentAudioIT {
       .density(0.5)
       .event("bang")
       .note("E")
-      .volume(1.0)
-    );
+      .volume(1.0));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(InstrumentAudioDAO.class);

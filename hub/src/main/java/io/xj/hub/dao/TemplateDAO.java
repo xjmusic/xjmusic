@@ -1,10 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.dao;
 
-import io.xj.api.Chain;
 import io.xj.api.Template;
 import io.xj.hub.access.HubAccess;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -22,4 +22,12 @@ public interface TemplateDAO extends DAO<Template> {
    @return template if found
    */
   Optional<Template> readOneByEmbedKey(HubAccess access, String rawEmbedKey) throws DAOException;
+
+  /**
+   Read all Templates having an active template playback
+
+   @param hubAccess control
+   @return templates currently playing
+   */
+  Collection<Template> readAllPlaying(HubAccess hubAccess) throws DAOException;
 }

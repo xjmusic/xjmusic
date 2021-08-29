@@ -26,15 +26,6 @@ import java.util.Collection;
  DEPRECATED: [#286] True Chain-Segment work management
  */
 public interface NexusWork extends Runnable {
-
-  /**
-   Compute the fabricated-ahead seconds for any collection of Segments
-
-   @param segments for which to get fabricated-ahead seconds
-   @return fabricated-ahead seconds for this collection of Segments
-   */
-  float computeFabricatedAheadSeconds(Chain chain, Collection<Segment> segments);
-
   /**
    This method just does work until failure, blocks until interrupted
    */

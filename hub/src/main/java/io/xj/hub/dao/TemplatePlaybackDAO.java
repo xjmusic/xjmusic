@@ -25,13 +25,4 @@ public interface TemplatePlaybackDAO extends DAO<TemplatePlayback> {
    @param userId    for which to read playback
    */
   Optional<TemplatePlayback> readOneForUser(HubAccess hubAccess, UUID userId) throws DAOException;
-
-  /**
-   Fetch all playbacks newer than the default threshold
-
-   @return collection of retrieved records
-   @throws DAOException on failure
-   @param hubAccess control
-   */
-  Collection<TemplatePlayback> readAll(HubAccess hubAccess) throws DAOException;
 }

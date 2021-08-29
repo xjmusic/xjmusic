@@ -7,7 +7,11 @@ import org.junit.Test;
 import java.time.Instant;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ValueTest {
   @Test
@@ -111,4 +115,13 @@ public class ValueTest {
       Value.stringOrEmpty(UUID.fromString("4797a799-827f-4543-9e0e-65a6cb6b382f")));
   }
 
+  @Test
+  public void uuidOrNull() {
+    assertEquals(UUID.fromString("4797a799-827f-4543-9e0e-65a6cb6b382f"), Value.uuidOrNull("4797a799-827f-4543-9e0e-65a6cb6b382f"));
+    assertNull(Value.uuidOrNull("4797a799-827f-4543-9e0e"));
+    assertNull(Value.uuidOrNull("yodel"));
+    assertNull(Value.uuidOrNull("x"));
+    assertNull(Value.uuidOrNull(""));
+    assertNull(Value.uuidOrNull(null));
+  }
 }

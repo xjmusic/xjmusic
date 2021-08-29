@@ -8,6 +8,7 @@ import io.xj.api.Template;
 import io.xj.api.TemplateType;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
@@ -21,6 +22,8 @@ import io.xj.lib.util.ValueException;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,15 +37,18 @@ import static io.xj.hub.tables.Account.ACCOUNT;
 public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
   private static final int GENERATED_EMBED_KEY_LENGTH = 9;
   private final Config config;
+  private final long playbackExpireSeconds;
 
   @Inject
   public TemplateDAOImpl(
-    JsonapiPayloadFactory payloadFactory,
+    Config config,
     EntityFactory entityFactory,
+    Environment env,
     HubDatabaseProvider dbProvider,
-    Config config
+    JsonapiPayloadFactory payloadFactory
   ) {
     super(payloadFactory, entityFactory);
+    playbackExpireSeconds = env.getPlaybackExpireSeconds();
     this.config = config;
     this.dbProvider = dbProvider;
   }
@@ -95,6 +101,18 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
         .where(TEMPLATE.EMBED_KEY.eq(key))
         .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne()));
+  }
+
+  @Override
+  public Collection<Template> readAllPlaying(HubAccess hubAccess) throws DAOException {
+    requireTopLevel(hubAccess);
+    DSLContext db = dbProvider.getDSL();
+
+    return modelsFrom(Template.class, db.select(TEMPLATE.fields())
+      .from(TEMPLATE)
+      .join(TEMPLATE_PLAYBACK).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
+      .where(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds))))
+      .fetch());
   }
 
   @Override

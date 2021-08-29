@@ -71,34 +71,28 @@ public class LibraryIT {
     // Account "palm tree" has library "leaves" and library "coconuts"
     fake.account1 = test.insert(new Account()
       .id(UUID.randomUUID())
-      .name("palm tree")
-      );
+      .name("palm tree"));
     fake.library1a = test.insert(new Library()
       .id(UUID.randomUUID())
       .accountId(fake.account1.getId())
-      .name("leaves")
-      );
+      .name("leaves"));
     fake.library1b = test.insert(new Library()
       .id(UUID.randomUUID())
       .accountId(fake.account1.getId())
-      .name("coconuts")
-      );
+      .name("coconuts"));
 
     // Account "boat" has library "helm" and library "sail"
     fake.account2 = test.insert(new Account()
       .id(UUID.randomUUID())
-      .name("boat")
-      );
+      .name("boat"));
     fake.library2a = test.insert(new Library()
       .id(UUID.randomUUID())
       .accountId(fake.account2.getId())
-      .name("helm")
-      );
+      .name("helm"));
     fake.library2b = test.insert(new Library()
       .id(UUID.randomUUID())
       .accountId(fake.account2.getId())
-      .name("sail")
-      );
+      .name("sail"));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(LibraryDAO.class);
@@ -387,8 +381,7 @@ public class LibraryIT {
       .id(UUID.randomUUID())
       .name("bill")
       .email("bill@email.com")
-      .avatarUrl("http://pictures.com/bill.gif")
-      );
+      .avatarUrl("http://pictures.com/bill.gif"));
     test.insert(new Program()
       .id(UUID.randomUUID())
       .libraryId(fake.library2b.getId())
@@ -397,8 +390,7 @@ public class LibraryIT {
       .name("brilliant")
       .key("C#")
       .tempo(120.0)
-      .density(0.6)
-    );
+      .density(0.6));
 
     try {
       testDAO.destroy(hubAccess, fake.library2b.getId());
@@ -417,8 +409,7 @@ public class LibraryIT {
       .id(UUID.randomUUID())
       .name("bill")
       .email("bill@email.com")
-      .avatarUrl("http://pictures.com/bill.gif")
-      );
+      .avatarUrl("http://pictures.com/bill.gif"));
     test.insert(new Instrument()
       .id(UUID.randomUUID())
       .libraryId(fake.library2b.getId())

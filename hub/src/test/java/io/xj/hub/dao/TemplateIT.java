@@ -10,6 +10,7 @@ import com.typesafe.config.Config;
 import io.xj.api.Account;
 import io.xj.api.Program;
 import io.xj.api.Template;
+import io.xj.api.TemplateType;
 import io.xj.api.User;
 import io.xj.hub.HubException;
 import io.xj.hub.HubIntegrationTestModule;
@@ -28,13 +29,18 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePlayback;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -67,16 +73,16 @@ public class TemplateIT {
     test.reset();
 
     // Account "palm tree" has template "leaves" and template "coconuts"
-    fake.account1 = test.insert(new Account()
-      .id(UUID.randomUUID())
-      .name("palm tree"));
+    fake.account1 = test.insert(buildAccount("palm tree"));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
+    test.insert(buildAccountUser(fake.account1, fake.user2));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
+    test.insert(buildAccountUser(fake.account1, fake.user3));
     template1a = test.insert(buildTemplate(fake.account1, "leaves", "embed5leaves"));
     template1b = test.insert(buildTemplate(fake.account1, "coconuts", "embed5coconuts"));
 
     // Account "boat" has template "helm" and template "sail"
-    fake.account2 = test.insert(new Account()
-      .id(UUID.randomUUID())
-      .name("boat"));
+    fake.account2 = test.insert(buildAccount("boat"));
     template2a = test.insert(buildTemplate(fake.account2, "helm", UUID.randomUUID().toString()));
     test.insert(buildTemplate(fake.account2, "sail", UUID.randomUUID().toString()));
 
@@ -227,6 +233,29 @@ public class TemplateIT {
     Collection<Template> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
 
     assertEquals(0L, result.size());
+  }
+
+
+  @Test
+  public void readAllPlaying() throws Exception {
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    test.insert(buildTemplatePlayback(template1a, fake.user3));
+    test.insert(buildTemplatePlayback(template1a, fake.user2));
+
+    Collection<Template> result = testDAO.readAllPlaying(hubAccess);
+
+    assertEquals(2L, result.size());
+  }
+
+  @Test
+  public void readAllPlaying_noneOlderThanThreshold() throws Exception {
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    test.insert(buildTemplatePlayback(template1a, fake.user2));
+    test.insert(buildTemplatePlayback(template1a, fake.user3).createdAt(Date.from(Instant.now().minusSeconds(60 * 60 * 12))));
+
+    Collection<Template> result = testDAO.readAllPlaying(hubAccess);
+
+    assertEquals(1L, result.size());
   }
 
   @Test

@@ -10,6 +10,7 @@ import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.MediaType;
+import io.xj.lib.jsonapi.PayloadDataType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -112,6 +113,33 @@ public class TemplateEndpoint extends HubEndpoint {
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }
+
+  /**
+   Get all templatePlaybacks.
+
+   @return set of all templatePlaybacks
+   */
+  @GET
+  @Path("templates/playing")
+  @RolesAllowed(USER)
+  public Response readAllPlaying(
+    @Context ContainerRequestContext crc
+  ) {
+    try {
+      HubAccess hubAccess = HubAccess.fromContext(crc);
+      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
+
+      // add templatePlaybacks as plural data in payload
+      for (var template : dao().readAllPlaying(hubAccess))
+        jsonapiPayload.addData(payloadFactory.toPayloadObject(template));
+
+      return response.ok(jsonapiPayload);
+
+    } catch (Exception e) {
+      return response.failure(e);
+    }
+  }
+
 
   /**
    Get DAO of injector

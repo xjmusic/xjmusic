@@ -2,6 +2,11 @@
 
 package io.xj.nexus.hub_client.client;
 
+import io.xj.api.Template;
+import io.xj.api.TemplatePlayback;
+
+import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -33,4 +38,17 @@ public interface HubClient {
    @throws HubClientException on failure to authenticate
    */
   HubClientAccess auth(String accessToken) throws HubClientException;
+
+  /**
+   Read a Template from Hub by id
+   @return template if found
+   @param templateId to read
+   */
+  Template readTemplate(UUID templateId) throws HubClientException;
+
+  /**
+   Read all Templates playing from Hub
+   @return Templates currently playing
+   */
+  Collection<Template> readAllTemplatesPlaying() throws HubClientException;
 }

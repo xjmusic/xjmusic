@@ -75,8 +75,7 @@ public class HubEndpointTest {
         .setAttribute("name", "test5"));
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
     when(dao.newInstance()).thenReturn(new Account()
-      .id(UUID.randomUUID())
-      );
+      .id(UUID.randomUUID()));
     var createdAccount = new Account()
       .id(UUID.randomUUID())
       .name("test5")

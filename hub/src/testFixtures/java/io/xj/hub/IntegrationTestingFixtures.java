@@ -1,6 +1,8 @@
 //  Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.hub;import io.xj.api.Account;
+package io.xj.hub;
+
+import io.xj.api.Account;
 import io.xj.api.AccountUser;
 import io.xj.api.ContentBindingType;
 import io.xj.api.Instrument;
@@ -320,17 +322,21 @@ public class IntegrationTestingFixtures {
 
   /**
    NOTE: it's crucial tht a test template configuration disable certain aleatory features,
-         e.g. `choiceDeltaEnabled = false` to disable choice delta randomness,
-         otherwise tests may sporadically fail.
+   e.g. `choiceDeltaEnabled = false` to disable choice delta randomness,
+   otherwise tests may sporadically fail.
    */
-  public static Template buildTemplate(Account account1, String name, String embedKey) {
+  public static Template buildTemplate(Account account1, TemplateType type, String name, String embedKey) {
     return new Template()
       .id(UUID.randomUUID())
       .embedKey(embedKey)
-      .type(TemplateType.PREVIEW)
+      .type(type)
       .config("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\nchoiceDeltaEnabled = false\n")
       .accountId(account1.getId())
       .name(name);
+  }
+
+  public static Template buildTemplate(Account account1, String name, String embedKey) {
+    return buildTemplate(account1, TemplateType.PREVIEW, name, embedKey);
   }
 
   public static TemplateBinding buildTemplateBinding(Template template, Library library) {

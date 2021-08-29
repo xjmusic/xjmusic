@@ -71,9 +71,8 @@ public class ComplexLibraryTest {
   public void setUp() throws Exception {
     Config config = NexusTestConfiguration.getDefault()
       .withValue("app.port", ConfigValueFactory.fromAnyRef(9043))
+      .withValue("work.chainManagementEnabled", ConfigValueFactory.fromAnyRef(false)) // because we are going to manually operate the chain for this test
       .withValue("work.eraseSegmentsOlderThanSeconds", ConfigValueFactory.fromAnyRef(MAXIMUM_TEST_WAIT_SECONDS + 300))
-      .withValue("work.bossDelayMillis", ConfigValueFactory.fromAnyRef(1))
-      .withValue("work.chainDelayMillis", ConfigValueFactory.fromAnyRef(1))
       .withValue("work.cycleMillis", ConfigValueFactory.fromAnyRef(50));
     Environment env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(new NexusWorkModule())
@@ -112,7 +111,6 @@ public class ComplexLibraryTest {
       .type(TemplateType.PREVIEW)
       .state(ChainState.FABRICATE)
       .startAt(Value.formatIso8601UTC(Instant.now().minusSeconds(MAXIMUM_TEST_WAIT_SECONDS))));
-
 
     app = injector.getInstance(NexusApp.class);
 

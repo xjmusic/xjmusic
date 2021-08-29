@@ -42,6 +42,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -72,48 +76,22 @@ public class ProgramMemeIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(new Account()
-      .id(UUID.randomUUID())
-      .name("bananas")
-    );
+    fake.account1 = test.insert(buildAccount("bananas"));
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("john")
-      .email("john@email.com")
-      .avatarUrl("http://pictures.com/john.gif")
-    );
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.ADMIN)
-    );
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
+    test.insert(buildUserRole(fake.user2,UserRoleType.ADMIN));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("jenny")
-      .email("jenny@email.com")
-      .avatarUrl("http://pictures.com/jenny.gif")
-    );
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.USER)
-    );
-    test.insert(new AccountUser()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .userId(fake.user3.getId())
-    );
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
+    test.insert(buildUserRole(fake.user3,UserRoleType.USER));
+    test.insert(buildAccountUser(fake.account1,fake.user3));
 
     // Library "palm tree" has program "ANTS" and program "ANTS"
     fake.library1 = test.insert(new Library()
       .id(UUID.randomUUID())
       .accountId(fake.account1.getId())
-      .name("palm tree")
-    );
+      .name("palm tree"));
     fake.program1 = test.insert(new Program()
       .id(UUID.randomUUID())
       .libraryId(fake.library1.getId())
@@ -122,13 +100,11 @@ public class ProgramMemeIT {
       .name("ANTS")
       .key("C#")
       .tempo(120.0)
-      .density(0.6)
-    );
+      .density(0.6));
     fake.programMeme1 = test.insert(new ProgramMeme()
       .id(UUID.randomUUID())
       .programId(fake.program1.getId())
-      .name("ANTS")
-    );
+      .name("ANTS"));
     fake.program2 = test.insert(new Program()
       .id(UUID.randomUUID())
       .libraryId(fake.library1.getId())
@@ -137,21 +113,18 @@ public class ProgramMemeIT {
       .name("ANTS")
       .key("C#")
       .tempo(120.0)
-      .density(0.6)
-    );
+      .density(0.6));
     fake.program2_voice1 = test.insert(new ProgramVoice()
       .id(UUID.randomUUID())
       .programId(fake.program2.getId())
       .type(InstrumentType.PERCUSSIVE)
-      .name("Drums")
-    );
+      .name("Drums"));
 
     // Library "boat" has program "helm" and program "sail"
     fake.library2 = test.insert(new Library()
       .id(UUID.randomUUID())
       .accountId(fake.account1.getId())
-      .name("boat")
-    );
+      .name("boat"));
     fake.program3 = test.insert(new Program()
       .id(UUID.randomUUID())
       .libraryId(fake.library2.getId())
@@ -160,13 +133,11 @@ public class ProgramMemeIT {
       .name("helm")
       .key("C#")
       .tempo(120.0)
-      .density(0.6)
-    );
+      .density(0.6));
     fake.programMeme3 = test.insert(new ProgramMeme()
       .id(UUID.randomUUID())
       .programId(fake.program3.getId())
-      .name("ANTS")
-    );
+      .name("ANTS"));
     fake.program4 = test.insert(new Program()
       .id(UUID.randomUUID())
       .libraryId(fake.library2.getId())
@@ -175,8 +146,7 @@ public class ProgramMemeIT {
       .name("sail")
       .key("C#")
       .tempo(120.0)
-      .density(0.6)
-    );
+      .density(0.6));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(ProgramMemeDAO.class);
@@ -364,8 +334,7 @@ public class ProgramMemeIT {
     fake.programMeme35 = test.insert(new ProgramMeme()
       .id(UUID.randomUUID())
       .programId(fake.program2.getId())
-      .name("ANTS")
-    );
+      .name("ANTS"));
 
     testDAO.destroy(hubAccess, fake.programMeme35.getId());
 

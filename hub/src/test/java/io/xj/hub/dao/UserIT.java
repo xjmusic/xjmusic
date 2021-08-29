@@ -7,22 +7,20 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
-import io.xj.api.AccountUser;
 import io.xj.api.User;
 import io.xj.api.UserAuth;
 import io.xj.api.UserAuthToken;
 import io.xj.api.UserAuthType;
 import io.xj.api.UserRole;
 import io.xj.api.UserRoleType;
+import io.xj.hub.HubIntegrationTestModule;
+import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -37,6 +35,10 @@ import org.junit.rules.ExpectedException;
 import java.util.Collection;
 import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -67,33 +69,13 @@ public class UserIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(new Account()
-      .id(UUID.randomUUID())
-      .name("bananas")
-    );
+    fake.account1 = test.insert(buildAccount("bananas"));
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("john")
-      .email("john@email.com")
-      .avatarUrl("http://pictures.com/john.gif")
-    );
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.USER)
-    );
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.ADMIN)
-    );
-    test.insert(new AccountUser()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .userId(fake.user2.getId())
-    );
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
+    test.insert(buildUserRole(fake.user2,UserRoleType.USER));
+    test.insert(buildUserRole(fake.user2,UserRoleType.ADMIN));
+    test.insert(buildAccountUser(fake.account1,fake.user2));
     UserAuth userAuth = test.insert(new UserAuth()
       .id(UUID.randomUUID())
       .userId(fake.user2.getId())
@@ -108,35 +90,23 @@ public class UserIT {
       .accessToken("this-is-my-actual-access-token"));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("jenny")
-      .email("jenny@email.com")
-      .avatarUrl("http://pictures.com/jenny.gif")
-    );
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
     test.insert(new UserRole()
       .id(UUID.randomUUID())
       .userId(fake.user3.getId())
-      .type(UserRoleType.USER)
-    );
-    test.insert(new AccountUser()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .userId(fake.user3.getId())
-    );
+      .type(UserRoleType.USER));
+    test.insert(buildAccountUser(fake.account1,fake.user3));
 
     // Bill has a "user" role but no account membership
     fake.user4 = test.insert(new User()
       .id(UUID.randomUUID())
       .name("bill")
       .email("bill@email.com")
-      .avatarUrl("http://pictures.com/bill.gif")
-    );
+      .avatarUrl("http://pictures.com/bill.gif"));
     test.insert(new UserRole()
       .id(UUID.randomUUID())
       .userId(fake.user4.getId())
-      .type(UserRoleType.USER)
-    );
+      .type(UserRoleType.USER));
 
     // Instantiate the test subject
     subjectDAO = injector.getInstance(UserDAO.class);
@@ -340,18 +310,15 @@ public class UserIT {
       .id(UUID.randomUUID())
       .name("julio")
       .email("julio.rodriguez@xj.io")
-      .avatarUrl("http://pictures.com/julio.gif")
-    );
+      .avatarUrl("http://pictures.com/julio.gif"));
     test.insert(new UserRole()
       .id(UUID.randomUUID())
       .userId(fake.user53.getId())
-      .type(UserRoleType.USER)
-    );
+      .type(UserRoleType.USER));
     test.insert(new UserRole()
       .id(UUID.randomUUID())
       .userId(fake.user53.getId())
-      .type(UserRoleType.ARTIST)
-    );
+      .type(UserRoleType.ARTIST));
     HubAccess hubAccess = HubAccess.create("Admin");
     User inputData = new User()
       .roles("User,Artist,Engineer,Admin");
@@ -372,18 +339,15 @@ public class UserIT {
       .id(UUID.randomUUID())
       .name("julio")
       .email("julio.rodriguez@xj.io")
-      .avatarUrl("http://pictures.com/julio.gif")
-    );
+      .avatarUrl("http://pictures.com/julio.gif"));
     test.insert(new UserRole()
       .id(UUID.randomUUID())
       .userId(fake.user53.getId())
-      .type(UserRoleType.USER)
-    );
+      .type(UserRoleType.USER));
     test.insert(new UserRole()
       .id(UUID.randomUUID())
       .userId(fake.user53.getId())
-      .type(UserRoleType.ARTIST)
-    );
+      .type(UserRoleType.ARTIST));
     HubAccess hubAccess = HubAccess.create("Admin");
     User inputData = new User()
       .roles(",");
@@ -401,18 +365,15 @@ public class UserIT {
       .id(UUID.randomUUID())
       .name("julio")
       .email("julio.rodriguez@xj.io")
-      .avatarUrl("http://pictures.com/julio.gif")
-    );
+      .avatarUrl("http://pictures.com/julio.gif"));
     test.insert(new UserRole()
       .id(UUID.randomUUID())
       .userId(fake.user53.getId())
-      .type(UserRoleType.USER)
-    );
+      .type(UserRoleType.USER));
     test.insert(new UserRole()
       .id(UUID.randomUUID())
       .userId(fake.user53.getId())
-      .type(UserRoleType.ARTIST)
-    );
+      .type(UserRoleType.ARTIST));
     HubAccess hubAccess = HubAccess.create("Admin");
     User inputData = new User()
       .roles("duke");

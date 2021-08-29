@@ -113,8 +113,7 @@ public class HubIngestIT {
       .name("cups")
       .key("B")
       .tempo(120.4)
-      .density(0.6)
-    );
+      .density(0.6));
     test.insert(new Program()
       .id(UUID.randomUUID())
       .libraryId(fake.library10000001.getId())
@@ -123,8 +122,7 @@ public class HubIngestIT {
       .name("plates")
       .key("Bb")
       .tempo(120.4)
-      .density(0.6)
-    );
+      .density(0.6));
     test.insert(new Program()
       .id(UUID.randomUUID())
       .libraryId(fake.library10000001.getId())
@@ -133,8 +131,7 @@ public class HubIngestIT {
       .name("bowls")
       .key("A")
       .tempo(120.4)
-      .density(0.6)
-    );
+      .density(0.6));
     HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), fake.template1.getId());
 
     assertEquals(3, ingest.getProgramsOfType(ProgramType.MAIN).size());

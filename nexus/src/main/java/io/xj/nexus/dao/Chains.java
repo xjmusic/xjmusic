@@ -4,15 +4,20 @@ package io.xj.nexus.dao;
 
 import com.google.common.base.Strings;
 import io.xj.api.Chain;
-import io.xj.api.TemplateBinding;
 import io.xj.api.ContentBindingType;
+import io.xj.api.Segment;
+import io.xj.api.Template;
+import io.xj.api.TemplateBinding;
 
 import javax.annotation.Nullable;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
 
 /**
  Utilities for working with chains
@@ -75,5 +80,35 @@ public enum Chains {
    */
   public static String getStorageKey(String chainKey, String extension) {
     return String.format("%s%s%s", chainKey, EXTENSION_SEPARATOR, extension);
+  }
+
+
+  /**
+   Compute the fabricated-ahead seconds for any collection of Segments
+
+   @param segments for which to get fabricated-ahead seconds
+   @return fabricated-ahead seconds for this collection of Segments
+   */
+  public static float computeFabricatedAheadSeconds(Chain chain, Collection<Segment> segments) {
+    var lastDubbedSegment = Segments.getLastDubbed(segments);
+    var dubbedUntil = lastDubbedSegment.isPresent() ?
+      Instant.parse(lastDubbedSegment.get().getEndAt()) :
+      Instant.parse(chain.getStartAt());
+    var now = Instant.now();
+    return (float) (dubbedUntil.toEpochMilli() - now.toEpochMilli()) / MILLIS_PER_SECOND;
+  }
+
+  /**
+   Get a chain based on a template
+   @param template from which to get chain
+   @return chain from template
+   */
+  public static Chain fromTemplate(Template template) {
+    return new Chain()
+      .templateId(template.getId())
+      .embedKey(template.getEmbedKey())
+      .accountId(template.getAccountId())
+      .type(template.getType())
+      .name(template.getName());
   }
 }

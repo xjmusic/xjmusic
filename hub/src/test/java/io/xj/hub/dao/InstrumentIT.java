@@ -38,6 +38,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Collection;
 import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static io.xj.hub.tables.InstrumentAudio.INSTRUMENT_AUDIO;
 import static io.xj.hub.tables.InstrumentMeme.INSTRUMENT_MEME;
 import static org.junit.Assert.assertEquals;
@@ -74,68 +78,38 @@ public class InstrumentIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(new Account()
-      .id(UUID.randomUUID())
-      .name("bananas")
-    );
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("john")
-      .email("john@email.com")
-      .avatarUrl("http://pictures.com/john.gif")
-    );
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.ADMIN)
-    );
+    fake.account1 = test.insert(buildAccount("bananas"));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
+    test.insert(buildUserRole(fake.user2,UserRoleType.ADMIN));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("jenny")
-      .email("jenny@email.com")
-      .avatarUrl("http://pictures.com/jenny.gif")
-    );
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.USER)
-    );
-    test.insert(new AccountUser()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .userId(fake.user3.getId())
-    );
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
+    test.insert(buildUserRole(fake.user3,UserRoleType.USER));
+    test.insert(buildAccountUser(fake.account1,fake.user3));
 
     // Library "sandwich" has instrument "jams" and instrument "buns"
     fake.library1 = test.insert(new Library()
       .id(UUID.randomUUID())
       .accountId(fake.account1.getId())
-      .name("sandwich")
-    );
+      .name("sandwich"));
     fake.instrument201 = test.insert(new Instrument()
       .id(UUID.randomUUID())
       .libraryId(fake.library1.getId())
       .type(InstrumentType.PAD)
       .density(0.6)
       .state(InstrumentState.PUBLISHED)
-      .name("buns")
-    );
+      .name("buns"));
     fake.instrument202 = test.insert(new Instrument()
       .id(UUID.randomUUID())
       .libraryId(fake.library1.getId())
       .type(InstrumentType.PERCUSSIVE)
       .density(0.6)
       .state(InstrumentState.PUBLISHED)
-      .name("jams")
-    );
+      .name("jams"));
     test.insert(new InstrumentMeme()
       .id(UUID.randomUUID())
       .instrumentId(fake.instrument202.getId())
-      .name("smooth")
-    );
+      .name("smooth"));
     fake.audio1 = test.insert(new InstrumentAudio()
       .id(UUID.randomUUID())
       .instrumentId(fake.instrument202.getId())
@@ -144,8 +118,7 @@ public class InstrumentIT {
       .start(0.0)
       .length(2.0)
       .tempo(120.0)
-      .density(0.5)
-    );
+      .density(0.5));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(InstrumentDAO.class);
@@ -295,8 +268,7 @@ public class InstrumentIT {
       .name("shimmy")
       .density(0.42)
       .state(InstrumentState.PUBLISHED)
-      .type(InstrumentType.PERCUSSIVE)
-    );
+      .type(InstrumentType.PERCUSSIVE));
     test.insert(new InstrumentAudio()
       .id(UUID.randomUUID())
       .instrumentId(subject.getId())
@@ -305,8 +277,7 @@ public class InstrumentIT {
       .start(0.0)
       .length(2.0)
       .tempo(120.0)
-      .density(0.42)
-    );
+      .density(0.42));
 
     testDAO.update(hubAccess, fake.instrument201.getId(), subject);
 
@@ -326,8 +297,7 @@ public class InstrumentIT {
       .type(InstrumentType.PAD)
       .density(0.6)
       .state(InstrumentState.PUBLISHED)
-      .name("jub")
-    );
+      .name("jub"));
 
     testDAO.destroy(hubAccess, fake.instrument251.getId());
 
@@ -351,18 +321,15 @@ public class InstrumentIT {
       .density(0.6)
       .type(InstrumentType.PAD)
       .state(InstrumentState.PUBLISHED)
-      .name("sandwich")
-    );
+      .name("sandwich"));
     test.insert(new InstrumentMeme()
       .id(UUID.randomUUID())
       .instrumentId(instrument.getId())
-      .name("frozen")
-    );
+      .name("frozen"));
     test.insert(new InstrumentMeme()
       .id(UUID.randomUUID())
       .instrumentId(instrument.getId())
-      .name("ham")
-    );
+      .name("ham"));
 
     var e = assertThrows(DAOException.class, () -> testDAO.destroy(hubAccess, instrument.getId()));
     assertEquals("Found Instrument Memes", e.getMessage());
@@ -381,8 +348,7 @@ public class InstrumentIT {
       .type(InstrumentType.PAD)
       .density(0.6)
       .state(InstrumentState.PUBLISHED)
-      .name("sandwich")
-    );
+      .name("sandwich"));
     test.insert(new InstrumentAudio()
       .id(UUID.randomUUID())
       .instrumentId(instrument.getId())
@@ -394,8 +360,7 @@ public class InstrumentIT {
       .density(0.6)
       .event("bing")
       .note("D")
-      .volume(1.0)
-    );
+      .volume(1.0));
 
     testDAO.destroy(hubAccess, instrument.getId());
   }

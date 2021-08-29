@@ -143,7 +143,7 @@ public class ChainDAOImplTest {
       .state(ChainState.DRAFT)
       .type(TemplateType.PRODUCTION);
 
-    var result = subject.bootstrap(access, input);
+    var result = subject.bootstrap(access, TemplateType.PRODUCTION, input);
 
     assertNotNull(result);
     assertEquals(account1.getId(), result.getAccountId());

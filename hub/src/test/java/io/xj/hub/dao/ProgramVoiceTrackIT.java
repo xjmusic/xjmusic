@@ -48,6 +48,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -83,46 +87,21 @@ public class ProgramVoiceTrackIT {
     test.reset();
 
     // Account "bananas"
-    fake.account1 = test.insert(new Account()
-      .id(UUID.randomUUID())
-      .name("bananas")
-    );
+    fake.account1 = test.insert(buildAccount("bananas"));
 // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("john")
-      .email("john@email.com")
-      .avatarUrl("http://pictures.com/john.gif")
-    );
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.ADMIN));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
+    test.insert(buildUserRole(fake.user2,UserRoleType.ADMIN));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("jenny")
-      .email("jenny@email.com")
-      .avatarUrl("http://pictures.com/jenny.gif")
-    );
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserRoleType.USER)
-    );
-    test.insert(new AccountUser()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .userId(fake.user3.getId())
-    );
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
+    test.insert(buildUserRole(fake.user3,UserRoleType.USER));
+    test.insert(buildAccountUser(fake.account1,fake.user3));
 
     // Library "palm tree" has program "Ants" and program "Ants"
     fake.library1 = test.insert(new Library()
       .id(UUID.randomUUID())
       .accountId(fake.account1.getId())
-      .name("palm tree")
-    );
+      .name("palm tree"));
     fake.program1 = test.insert(new Program()
       .id(UUID.randomUUID())
       .libraryId(fake.library1.getId())
@@ -131,8 +110,7 @@ public class ProgramVoiceTrackIT {
       .name("ANTS")
       .key("C#")
       .tempo(120.0)
-      .density(0.6)
-    );
+      .density(0.6));
     fake.program1_sequence1 = test.insert(new ProgramSequence()
       .id(UUID.randomUUID())
       .programId(fake.program1.getId())
@@ -140,8 +118,7 @@ public class ProgramVoiceTrackIT {
       .name("Ants")
       .density(0.583)
       .key("D minor")
-      .tempo(120.0)
-    );
+      .tempo(120.0));
     fake.program2 = test.insert(new Program()
       .id(UUID.randomUUID())
       .libraryId(fake.library1.getId())
@@ -150,14 +127,12 @@ public class ProgramVoiceTrackIT {
       .name("ANTS")
       .key("C#")
       .tempo(120.0)
-      .density(0.6)
-    );
+      .density(0.6));
     fake.program2_voice1 = test.insert(new ProgramVoice()
       .id(UUID.randomUUID())
       .programId(fake.program2.getId())
       .type(InstrumentType.PERCUSSIVE)
-      .name("Drums")
-    );
+      .name("Drums"));
     fake.program2_sequence1_pattern1 = test.insert(new ProgramSequencePattern()
       .id(UUID.randomUUID())
       .programId(fake.program1_sequence1.getProgramId())
@@ -165,14 +140,12 @@ public class ProgramVoiceTrackIT {
       .programVoiceId(fake.program2_voice1.getId())
       .type(ProgramSequencePatternType.LOOP)
       .total(4)
-      .name("BOOMS")
-    );
+      .name("BOOMS"));
     voiceTrack1a_0 = test.insert(new ProgramVoiceTrack()
       .id(UUID.randomUUID())
       .programId(fake.program2_voice1.getProgramId())
       .programVoiceId(fake.program2_voice1.getId())
-      .name("JAMS")
-    );
+      .name("JAMS"));
     voiceTrack1a_0_event0 = test.insert(new ProgramSequencePatternEvent()
       .id(UUID.randomUUID())
       .programSequencePatternId(fake.program2_sequence1_pattern1.getId())
@@ -181,8 +154,7 @@ public class ProgramVoiceTrackIT {
       .position(0.0)
       .duration(1.0)
       .note("C")
-      .velocity(1.0)
-    );
+      .velocity(1.0));
     voiceTrack1a_0_event1 = test.insert(new ProgramSequencePatternEvent()
       .id(UUID.randomUUID())
       .programSequencePatternId(fake.program2_sequence1_pattern1.getId())
@@ -191,15 +163,13 @@ public class ProgramVoiceTrackIT {
       .position(1.0)
       .duration(1.0)
       .note("C")
-      .velocity(1.0)
-    );
+      .velocity(1.0));
 
     // Library "boat" has program "helm" and program "sail"
     fake.library2 = test.insert(new Library()
       .id(UUID.randomUUID())
       .accountId(fake.account1.getId())
-      .name("boat")
-    );
+      .name("boat"));
     fake.program3 = test.insert(new Program()
       .id(UUID.randomUUID())
       .libraryId(fake.library2.getId())
@@ -208,8 +178,7 @@ public class ProgramVoiceTrackIT {
       .name("helm")
       .key("C#")
       .tempo(120.0)
-      .density(0.6)
-    );
+      .density(0.6));
     fake.program3_sequence1 = test.insert(new ProgramSequence()
       .id(UUID.randomUUID())
       .programId(fake.program3.getId())
@@ -217,14 +186,12 @@ public class ProgramVoiceTrackIT {
       .name("Ants")
       .density(0.583)
       .key("D minor")
-      .tempo(120.0)
-    );
+      .tempo(120.0));
     test.insert(new ProgramSequenceBinding()
       .id(UUID.randomUUID())
       .programId(fake.program3_sequence1.getProgramId())
       .programSequenceId(fake.program3_sequence1.getId())
-      .offset(0)
-    );
+      .offset(0));
     fake.program4 = test.insert(new Program()
       .id(UUID.randomUUID())
       .libraryId(fake.library2.getId())
@@ -233,8 +200,7 @@ public class ProgramVoiceTrackIT {
       .name("sail")
       .key("C#")
       .tempo(120.0)
-      .density(0.6)
-    );
+      .density(0.6));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(ProgramVoiceTrackDAO.class);
@@ -393,8 +359,7 @@ public class ProgramVoiceTrackIT {
       .id(UUID.randomUUID())
       .programId(fake.program2.getId())
       .type(InstrumentType.PERCUSSIVE)
-      .name("Cans")
-    );
+      .name("Cans"));
     voiceTrack1a_0 = voiceTrack1a_0.programVoiceId(fake.program2_voice2.getId());
 
     testDAO.update(hubAccess, voiceTrack1a_0.getId(), voiceTrack1a_0);

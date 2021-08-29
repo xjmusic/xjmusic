@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -101,16 +102,17 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   @Override
   public Chain bootstrap(
     HubClientAccess access,
+    TemplateType type,
     Chain entity
   ) throws DAOFatalException, DAOPrivilegeException, DAOValidationException {
     try {
 
       // Chains are always bootstrapped in FABRICATED state and PRODUCTION type
       entity.setState(ChainState.FABRICATE);
-      entity.setType(TemplateType.PRODUCTION);
       entity.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
       requireAccount(access, entity.getAccountId(), UserRoleType.ENGINEER);
       requireUniqueEmbedKey(access, entity);
+      require(String.format("%s-type", type.toString()), type.equals(entity.getType()));
 
       // Give model a fresh unique ID and Validate
       entity.setId(UUID.randomUUID());
@@ -408,6 +410,17 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       return created;
     } catch (EntityException e) {
       throw new DAOFatalException("Failed to clone prior chain", e);
+    }
+  }
+
+  @Override
+  public Collection<Chain> readAll(HubClientAccess access) throws DAOPrivilegeException, DAOFatalException {
+    try {
+      requireTopLevel(access);
+      return new ArrayList<>(store.getAllChains());
+
+    } catch (NexusException e) {
+      throw new DAOFatalException(e);
     }
   }
 

@@ -5,9 +5,12 @@ package io.xj.nexus.hub_client.client;
 import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.xj.api.Template;
 import io.xj.hub.ingest.HubContentPayload;
 import io.xj.lib.app.Environment;
 import io.xj.lib.json.JsonProviderImpl;
+import io.xj.lib.jsonapi.JsonapiException;
+import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -23,6 +26,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -33,7 +37,9 @@ import java.util.stream.Collectors;
  */
 @Singleton
 public class HubClientImpl implements HubClient {
-  private static final String API_PATH_INGEST_PREFIX = "api/1/ingest";
+  private static final String API_PATH_INGEST_PREFIX = "api/1/ingest/";
+  private static final String API_PATH_TEMPLATES_PREFIX = "api/1/templates/";
+  private static final String API_PATH_TEMPLATES_PLAYING = "api/1/templates/playing";
   private static final String API_PATH_AUTH = "auth";
   private static final String HEADER_COOKIE = "Cookie";
   private final Logger LOG = LoggerFactory.getLogger(HubClientImpl.class);
@@ -41,14 +47,17 @@ public class HubClientImpl implements HubClient {
   private final String ingestUrl;
   private final String ingestTokenName;
   private final JsonProviderImpl jsonProvider;
+  private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final String ingestTokenValue;
 
   @Inject
   public HubClientImpl(
     Environment env,
-    JsonProviderImpl jsonProvider
+    JsonProviderImpl jsonProvider,
+    JsonapiPayloadFactory jsonapiPayloadFactory
   ) {
     this.jsonProvider = jsonProvider;
+    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     httpClient = HttpClients.createDefault();
 
     ingestUrl = env.getIngestURL();
@@ -63,7 +72,7 @@ public class HubClientImpl implements HubClient {
   public HubContent ingest(HubClientAccess access, UUID templateId) throws HubClientException {
     try {
       HttpGet request = new HttpGet(buildURI(String.format("%s%s",
-        HubClientImpl.API_PATH_INGEST_PREFIX, templateId.toString())));
+        API_PATH_INGEST_PREFIX, templateId.toString())));
       setAccessCookie(request, ingestTokenValue);
       CloseableHttpResponse response = httpClient.execute(request);
 
@@ -103,7 +112,7 @@ public class HubClientImpl implements HubClient {
 
   @Override
   public HubClientAccess auth(String accessToken) throws HubClientException {
-    HttpGet request = new HttpGet(buildURI(HubClientImpl.API_PATH_AUTH));
+    HttpGet request = new HttpGet(buildURI(API_PATH_AUTH));
     setAccessCookie(request, accessToken);
     HubClientAccess access;
     CloseableHttpResponse response;
@@ -114,6 +123,51 @@ public class HubClientImpl implements HubClient {
       throw new HubClientException("Failed to authenticate with Hub API", e);
     }
     return access;
+  }
+
+  @Override
+  public Template readTemplate(UUID templateId) throws HubClientException {
+    try {
+      HttpGet request = new HttpGet(buildURI(String.format("%s%s",
+        API_PATH_TEMPLATES_PREFIX, templateId.toString())));
+      setAccessCookie(request, ingestTokenValue);
+      CloseableHttpResponse response = httpClient.execute(request);
+
+      // return template if found
+      if (Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
+        var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
+        var payload = jsonapiPayloadFactory.deserialize(json);
+        return jsonapiPayloadFactory.toOne(payload);
+      }
+
+      throw new HubClientException(String.format("Failed to request %s because %s",
+        request.getURI(), response.getStatusLine().getReasonPhrase()));
+
+    } catch (IOException | JsonapiException e) {
+      throw new HubClientException(e);
+    }
+  }
+
+  @Override
+  public Collection<Template> readAllTemplatesPlaying() throws HubClientException {
+    try {
+      HttpGet request = new HttpGet(buildURI(API_PATH_TEMPLATES_PLAYING));
+      setAccessCookie(request, ingestTokenValue);
+      CloseableHttpResponse response = httpClient.execute(request);
+
+      // return templates if OK
+      if (Objects.equals(Response.Status.OK.getStatusCode(), response.getStatusLine().getStatusCode())) {
+        var json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
+        var payload = jsonapiPayloadFactory.deserialize(json);
+        return jsonapiPayloadFactory.toMany(payload);
+      }
+
+      throw new HubClientException(String.format("Failed to request %s because %s",
+        request.getURI(), response.getStatusLine().getReasonPhrase()));
+
+    } catch (IOException | JsonapiException e) {
+      throw new HubClientException(e);
+    }
   }
 
   /**

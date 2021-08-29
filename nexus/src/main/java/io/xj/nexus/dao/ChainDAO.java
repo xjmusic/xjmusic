@@ -4,6 +4,7 @@ package io.xj.nexus.dao;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
 import io.xj.api.Segment;
+import io.xj.api.TemplateType;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
@@ -37,11 +38,12 @@ public interface ChainDAO extends DAO<Chain> {
    @throws DAOPrivilegeException  if access is prohibited
    @throws DAOValidationException on invalid data
    @param access   control
+   @param type
    @param chain    to bootstrap
    */
   Chain bootstrap(
     HubClientAccess access,
-    Chain chain
+    TemplateType type, Chain chain
   ) throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException;
 
   /**
@@ -102,5 +104,10 @@ public interface ChainDAO extends DAO<Chain> {
    */
   Chain revive(HubClientAccess access, UUID priorChainId, String reason) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
 
-
+  /**
+   Read all chains
+   @return all chains
+   @param access
+   */
+  Collection<Chain> readAll(HubClientAccess access) throws DAOPrivilegeException, DAOFatalException;
 }
