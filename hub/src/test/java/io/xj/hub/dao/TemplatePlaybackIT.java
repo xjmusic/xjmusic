@@ -129,7 +129,7 @@ public class TemplatePlaybackIT {
     TemplatePlayback subject = buildTemplatePlayback(template5, fake.user3); // user will be overridden by hub access user id
 
     var e = assertThrows(DAOException.class, () -> testDAO.create(hubAccess, subject));
-    assertEquals("preview-type Template does not exist", e.getMessage());
+    assertEquals("Preview-type Template is required", e.getMessage());
   }
 
   @Test

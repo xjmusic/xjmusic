@@ -196,6 +196,12 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
       return false;
     }
 
+    // Cannot bootstrap a preview template in the yard
+    if (!TemplateType.PRODUCTION.equals(template.getType())) {
+      LOG.error("Yard cannot bootstrap {}-type Template[{}]!", template.getType().toString(), yardTemplateId);
+      return false;
+    }
+
     // If rehydration was successful, return success
     if (rehydrateYardTemplate(template)) return true;
 

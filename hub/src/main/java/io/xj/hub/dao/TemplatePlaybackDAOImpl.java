@@ -2,6 +2,7 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
+import io.xj.api.Template;
 import io.xj.api.TemplatePlayback;
 import io.xj.api.TemplateType;
 import io.xj.hub.access.HubAccess;
@@ -15,8 +16,6 @@ import io.xj.lib.util.ValueException;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,17 +44,16 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
     TemplatePlayback record = validate(raw);
     requireArtist(hubAccess);
 
-    if (hubAccess.isTopLevel())
-      requireExists("preview-type Template", db.selectCount().from(TEMPLATE)
+    if (!hubAccess.isTopLevel())
+      requireExists("Access to template", db.selectCount().from(TEMPLATE)
         .where(TEMPLATE.ID.eq(record.getTemplateId()))
-        .and(TEMPLATE.TYPE.eq(TemplateType.PREVIEW.toString()))
-        .fetchOne(0, int.class));
-    else
-      requireExists("preview-type Template", db.selectCount().from(TEMPLATE)
-        .where(TEMPLATE.ID.eq(record.getTemplateId()))
-        .and(TEMPLATE.TYPE.eq(TemplateType.PREVIEW.toString()))
         .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne(0, int.class));
+
+    var template = modelFrom(Template.class, dbProvider.getDSL().selectFrom(TEMPLATE)
+      .where(TEMPLATE.ID.eq(record.getTemplateId()))
+      .fetchOne());
+    require("Preview-type Template", TemplateType.PREVIEW.equals(template.getType()));
 
     for (var prior : modelsFrom(TemplatePlayback.class,
       db.selectFrom(TEMPLATE_PLAYBACK)
