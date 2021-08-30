@@ -54,15 +54,15 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
   }
 
   @Override
-  public Template create(HubAccess hubAccess, Template entity) throws DAOException, JsonapiException, ValueException {
-    Template record = validate(entity);
+  public Template create(HubAccess access, Template entity) throws DAOException, JsonapiException, ValueException {
+    Template record = validate(access, entity);
 
     var db = dbProvider.getDSL();
 
-    if (!hubAccess.isTopLevel())
+    if (!access.isTopLevel())
       requireExists("Account",
         db.selectCount().from(ACCOUNT)
-          .where(ACCOUNT.ID.in(hubAccess.getAccountIds()))
+          .where(ACCOUNT.ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
 
     requireNotExists("Template with same Embed Key",
@@ -144,8 +144,8 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
   }
 
   @Override
-  public Template update(HubAccess hubAccess, UUID id, Template rawTemplate) throws DAOException, JsonapiException, ValueException {
-    Template record = validate(rawTemplate);
+  public Template update(HubAccess access, UUID id, Template rawTemplate) throws DAOException, JsonapiException, ValueException {
+    Template record = validate(access, rawTemplate);
     try {
       Entities.setId(record, id); //prevent changing id
     } catch (EntityException e) {
@@ -154,14 +154,14 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
 
     var db = dbProvider.getDSL();
 
-    if (!hubAccess.isTopLevel()) {
+    if (!access.isTopLevel()) {
       requireExists("Template",
         db.selectCount().from(TEMPLATE)
           .where(TEMPLATE.ID.eq(id))
           .fetchOne(0, int.class));
       requireExists("Account",
         db.selectCount().from(ACCOUNT)
-          .where(ACCOUNT.ID.in(hubAccess.getAccountIds()))
+          .where(ACCOUNT.ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
     }
 
@@ -201,10 +201,11 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
   /**
    Validate a template record
 
+   @param access control
    @param record to validate
    @throws DAOException if invalid
    */
-  public Template validate(Template record) throws DAOException {
+  public Template validate(HubAccess access, Template record) throws DAOException {
     try {
       Value.require(record.getAccountId(), "Account ID");
       Value.require(record.getName(), "Name");
@@ -225,6 +226,10 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
         record.setConfig(new TemplateConfig(config).toString());
       else
         record.setConfig(new TemplateConfig(record, config).toString());
+
+      // [#178457569] Only Engineer can set template to Production type, or modify a Production-type template
+      if (TemplateType.PRODUCTION.equals(record.getType()))
+        requireEngineer(access);
 
       return record;
 

@@ -191,16 +191,6 @@ public abstract class DAOImpl<E> implements DAO<E> {
   }
 
   /**
-   Require has engineer-level access
-
-   @param access to validate
-   @throws DAOPrivilegeException if not engineer
-   */
-  protected void requireEngineer(HubClientAccess access) throws DAOPrivilegeException {
-    require(access, UserRoleType.ENGINEER);
-  }
-
-  /**
    Require the the given runnable throws an exception.
 
    @param message            for real failure, if the given runnable does not fail

@@ -33,6 +33,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
@@ -283,6 +284,35 @@ public class TemplateIT {
     assertNotNull(result);
     assertEquals("cannons", result.getName());
     assertEquals(fake.account1.getId(), result.getAccountId());
+  }
+
+  @Test
+  public void update_toProductionTypeChain_asAdmin() throws Exception {
+    HubAccess hubAccess = HubAccess.create("Admin");
+    Template inputData = new Template()
+      .name("cannons")
+      .type(TemplateType.PRODUCTION)
+      .embedKey("embed5leaves")
+      .accountId(fake.account1.getId());
+
+    testDAO.update(hubAccess, template1a.getId(), inputData);
+
+    Template result = testDAO.readOne(HubAccess.internal(), template1a.getId());
+    assertNotNull(result);
+    assertEquals(TemplateType.PRODUCTION, result.getType());
+  }
+
+  @Test
+  public void update_toProductionTypeChain_cannotWithoutAdmin() {
+    HubAccess hubAccess = HubAccess.create(fake.user2, List.of(fake.account1),"User");
+    Template inputData = new Template()
+      .name("cannons")
+      .type(TemplateType.PRODUCTION)
+      .embedKey("embed5leaves")
+      .accountId(fake.account1.getId());
+
+    var e = assertThrows(DAOException.class, () -> testDAO.update(hubAccess, template1a.getId(), inputData));
+    assertEquals("Engineer role required", e.getMessage());
   }
 
   @Test

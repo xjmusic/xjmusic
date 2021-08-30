@@ -184,16 +184,16 @@ public abstract class DAOImpl<E> implements DAO<E> {
     if (hubAccess.isTopLevel()) return;
     if (3 < allowedRoles.length)
       require(
-        String.format("%s role required", Arrays.stream(allowedRoles).map(Enum::toString).collect(Collectors.joining("/"))),
+        String.format("%s role", Arrays.stream(allowedRoles).map(Enum::toString).collect(Collectors.joining("/"))),
         hubAccess.isAllowed(allowedRoles));
     else if (2 < allowedRoles.length)
-      require(String.format("%s/%s/%s role required", allowedRoles[0], allowedRoles[1], allowedRoles[2]),
+      require(String.format("%s/%s/%s role", allowedRoles[0], allowedRoles[1], allowedRoles[2]),
         hubAccess.isAllowed(allowedRoles));
     else if (1 < allowedRoles.length)
-      require(String.format("%s/%s role required", allowedRoles[0], allowedRoles[1]),
+      require(String.format("%s/%s role", allowedRoles[0], allowedRoles[1]),
         hubAccess.isAllowed(allowedRoles));
     else if (0 < allowedRoles.length)
-      require(String.format("%s role required", allowedRoles[0]),
+      require(String.format("%s role", allowedRoles[0]),
         hubAccess.isAllowed(allowedRoles));
     else throw new DAOException("No roles allowed.");
   }
@@ -347,25 +347,14 @@ public abstract class DAOImpl<E> implements DAO<E> {
       setter.invoke(null);
 
     switch (Text.getSimpleName(setter.getParameterTypes()[0])) {
-      case "String":
-        setter.invoke(target, (String) null);
-        break;
-
-      case "Float":
-        setter.invoke(target, (Float) null);
-        break;
-
-      case "Short":
-        setter.invoke(target, (Short) null);
-        break;
-
-      case "Timestamp":
-        setter.invoke(target, (Timestamp) null);
-        break;
-
-      default:
+      case "String" -> setter.invoke(target, (String) null);
+      case "Float" -> setter.invoke(target, (Float) null);
+      case "Short" -> setter.invoke(target, (Short) null);
+      case "Timestamp" -> setter.invoke(target, (Timestamp) null);
+      default -> {
         log.error(String.format("Don't know how to set null value via %s on\n%s", setter, target));
         throw new DAOException(String.format("Don't know how to set null value via %s", setter));
+      }
     }
   }
 
@@ -507,6 +496,17 @@ public abstract class DAOImpl<E> implements DAO<E> {
     }
 
     return entity;
+  }
+
+
+  /**
+   Require has engineer-level access
+
+   @param access to validate
+   @throws DAOException if not engineer
+   */
+  protected void requireEngineer(HubAccess access) throws DAOException {
+    require(access, UserRoleType.ENGINEER);
   }
 
 }

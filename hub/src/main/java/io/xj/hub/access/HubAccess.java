@@ -19,6 +19,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -110,7 +111,7 @@ public class HubAccess {
    @param rolesCSV for access
    @return access control object
    */
-  public static HubAccess create(User user, ImmutableList<Account> accounts, String rolesCSV) {
+  public static HubAccess create(User user, List<Account> accounts, String rolesCSV) {
     return new HubAccess()
       .setUserId(user.getId())
       .setAccountIds(Entities.idsOf(accounts))
@@ -125,7 +126,7 @@ public class HubAccess {
    @param accounts for access
    @return access control object
    */
-  public static HubAccess create(User user, UserAuth userAuth, ImmutableList<Account> accounts) {
+  public static HubAccess create(User user, UserAuth userAuth, List<Account> accounts) {
     return new HubAccess()
       .setUserId(user.getId())
       .setUserAuthId(userAuth.getId())
