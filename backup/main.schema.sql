@@ -4,7 +4,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.3 (Debian 13.3-1.pgdg100+1)
+-- Dumped from database version 13.4 (Debian 13.4-1.pgdg100+1)
 -- Dumped by pg_dump version 13.3
 
 SET statement_timeout = 0;
@@ -383,6 +383,49 @@ CREATE TABLE xj.program_voice_track (
 
 
 ALTER TABLE xj.program_voice_track OWNER TO postgres;
+
+--
+-- Name: template; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.template (
+    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
+    account_id uuid NOT NULL,
+    name character varying(255) NOT NULL,
+    config text DEFAULT ''::text NOT NULL,
+    embedkey character varying(255) NOT NULL
+);
+
+
+ALTER TABLE xj.template OWNER TO postgres;
+
+--
+-- Name: template_binding; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.template_binding (
+    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
+    type character varying(255) NOT NULL,
+    template_id uuid NOT NULL,
+    target_id uuid NOT NULL
+);
+
+
+ALTER TABLE xj.template_binding OWNER TO postgres;
+
+--
+-- Name: template_playback; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.template_playback (
+    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
+    template_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    state character varying(255) NOT NULL
+);
+
+
+ALTER TABLE xj.template_playback OWNER TO postgres;
 
 --
 -- Name: user; Type: TABLE; Schema: xj; Owner: postgres
@@ -901,7 +944,7 @@ ALTER TABLE ONLY xj.user_role
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.3 (Debian 13.3-1.pgdg100+1)
+-- Dumped from database version 13.4 (Debian 13.4-1.pgdg100+1)
 -- Dumped by pg_dump version 13.3
 
 SET statement_timeout = 0;
@@ -969,6 +1012,7 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 46	47	update instrument types	SQL	V47__update_instrument_types.sql	-438215389	postgres	2021-01-22 03:13:34.422717	62	t
 47	48	remove pitch	SQL	V48__remove_pitch.sql	-2076774207	postgres	2021-03-19 04:10:28.345175	20	t
 48	49	migrate instrument audio event	SQL	V49__migrate_instrument_audio_event.sql	-959935337	postgres	2021-06-02 06:58:43.736841	46	t
+49	50	templates	SQL	V50__templates.sql	2026759432	postgres	2021-08-23 22:28:24.675487	360	t
 \.
 
 
