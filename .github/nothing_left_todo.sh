@@ -26,3 +26,5 @@ check nexus/src
 
 check spec/build.gradle
 check spec/src
+
+check tf

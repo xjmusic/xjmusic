@@ -1,0 +1,52 @@
+name: "Terraform Apply"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Apply:
+    name: Apply
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v2
+
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Terraform has been formatted correctly with `terraform fmt`
+        id: fmt
+        working-directory: ./tf
+        run: terraform fmt -check
+        continue-on-error: false
+
+      - name: Terraform Init
+        id: init
+        working-directory: ./tf
+        run: terraform init
+        continue-on-error: false
+
+      - name: Terraform Validate
+        id: validate
+        working-directory: ./tf
+        run: terraform validate -no-color
+        continue-on-error: false
+
+      - name: Nothing left TODO
+        run: .github/nothing_left_todo.sh
+        continue-on-error: false
+
+      - name: Terraform Apply
+        id: apply
+        working-directory: ./tf
+        run: terraform apply -auto-approve -no-color
+        continue-on-error: false
