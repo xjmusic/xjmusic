@@ -117,7 +117,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
           case Lab -> state.set(State.Active);
           case Yard -> {
             state.set(State.Loading);
-            if (createChainForTemplate(yardTemplateId))
+            if (createChainForTemplate(yardTemplateId, TemplateType.PRODUCTION))
               state.set(State.Active);
             else
               state.set(State.Fail);
@@ -135,7 +135,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
             if (Instant.now().isAfter(labPollNext.get())) {
               state.set(State.Loading);
               labPollNext.set(Instant.now().plusSeconds(labPollSeconds));
-              if (maintainChainsForLabTemplatesPlaying())
+              if (maintainPreviewChains())
                 state.set(State.Active);
               else
                 state.set(State.Fail);
@@ -182,7 +182,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
 
    @return true if all is well, false if something has failed
    */
-  private boolean maintainChainsForLabTemplatesPlaying() {
+  private boolean maintainPreviewChains() {
     Collection<Template> templates;
     try {
       templates = hubClient.readAllTemplatesPlaying();
@@ -198,7 +198,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
       Set<UUID> chainTemplateIds = chains.stream().map(Chain::getTemplateId).collect(Collectors.toSet());
       for (Template template : templates)
         if (!chainTemplateIds.contains(template.getId()))
-          createChainForTemplate(template.getId());
+          createChainForTemplate(template.getId(), TemplateType.PREVIEW);
     } catch (DAOFatalException | DAOPrivilegeException e) {
       LOG.error("Failed to start Chain(s) for playing Template(s)!", e);
       return false;
@@ -229,7 +229,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
 
    @return true if successful
    */
-  private Boolean createChainForTemplate(UUID templateId) {
+  private Boolean createChainForTemplate(UUID templateId, TemplateType type) {
     Template template;
     try {
       LOG.info("Will load Template[{}]", templateId);
@@ -245,7 +245,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     // Only if rehydration was unsuccessful
     try {
       LOG.info("Will bootstrap yard Template[{}]", Templates.getIdentifier(template));
-      chainDAO.bootstrap(access, TemplateType.PRODUCTION, Chains.fromTemplate(template));
+      chainDAO.bootstrap(access, type, Chains.fromTemplate(template));
       return true;
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
       LOG.error("Failed to add binding to bootstrap Chain!", e);
