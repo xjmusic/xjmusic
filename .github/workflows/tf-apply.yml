@@ -7,15 +7,14 @@ on:
       - main
 
 jobs:
-  Apply:
-    name: Apply
+  TerraformApply:
+    name: "Terraform Apply"
     runs-on: ubuntu-latest
 
     steps:
 
-      - uses: actions/checkout@v2
-
-      - uses: hashicorp/setup-terraform@v1
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -24,30 +23,30 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Terraform has been formatted correctly with `terraform fmt`
-        id: fmt
-        working-directory: ./tf
-        run: terraform fmt -check
-        continue-on-error: false
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        working-directory: tf
 
       - name: Terraform Init
         id: init
-        working-directory: ./tf
         run: terraform init
         continue-on-error: false
+        working-directory: tf
+
+      - name: Terraform has been formatted correctly with `terraform fmt`
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: false
+        working-directory: tf
 
       - name: Terraform Validate
         id: validate
-        working-directory: ./tf
         run: terraform validate -no-color
         continue-on-error: false
-
-      - name: Nothing left TODO
-        run: .github/nothing_left_todo.sh
-        continue-on-error: false
+        working-directory: tf
 
       - name: Terraform Apply
         id: apply
-        working-directory: ./tf
         run: terraform apply -auto-approve -no-color
         continue-on-error: false
+        working-directory: tf
