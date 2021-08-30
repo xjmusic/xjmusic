@@ -3,6 +3,7 @@ name: "Terraform Apply"
 on:
   push:
     branches:
+      - dev
       - main
 
 jobs:
