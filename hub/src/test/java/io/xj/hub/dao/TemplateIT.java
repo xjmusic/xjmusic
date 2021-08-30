@@ -312,7 +312,7 @@ public class TemplateIT {
       .accountId(fake.account1.getId());
 
     var e = assertThrows(DAOException.class, () -> testDAO.update(hubAccess, template1a.getId(), inputData));
-    assertEquals("Engineer role required", e.getMessage());
+    assertEquals("Engineer role is required", e.getMessage());
   }
 
   @Test

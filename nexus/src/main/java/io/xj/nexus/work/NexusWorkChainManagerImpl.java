@@ -117,7 +117,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
           case Lab -> state.set(State.Active);
           case Yard -> {
             state.set(State.Loading);
-            if (createChainForYardTemplate())
+            if (createChainForTemplate(yardTemplateId))
               state.set(State.Active);
             else
               state.set(State.Fail);
@@ -178,45 +178,6 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   }
 
   /**
-   Bootstrap a chain from JSON chain bootstrap data,
-   first rehydrating store from last shipped JSON matching this embed key.
-   <p>
-   Nexus with bootstrap chain rehydrates store on startup from shipped JSON files
-   https://www.pivotaltracker.com/story/show/178718006
-
-   @return true if successful
-   */
-  private Boolean createChainForYardTemplate() {
-    Template template;
-    try {
-      LOG.info("Will load Template[{}]", yardTemplateId);
-      template = hubClient.readTemplate(yardTemplateId);
-    } catch (HubClientException e) {
-      LOG.error("Failed to load yard Template[{}]!", yardTemplateId, e);
-      return false;
-    }
-
-    // Cannot bootstrap a preview template in the yard
-    if (!TemplateType.PRODUCTION.equals(template.getType())) {
-      LOG.error("Yard cannot bootstrap {}-type Template[{}]!", template.getType().toString(), yardTemplateId);
-      return false;
-    }
-
-    // If rehydration was successful, return success
-    if (rehydrateYardTemplate(template)) return true;
-
-    // Only if rehydration was unsuccessful
-    try {
-      LOG.info("Will bootstrap yard Template[{}]", Templates.getIdentifier(template));
-      chainDAO.bootstrap(access, TemplateType.PRODUCTION, Chains.fromTemplate(template));
-      return true;
-    } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
-      LOG.error("Failed to add binding to bootstrap Chain!", e);
-      return false;
-    }
-  }
-
-  /**
    Maintain a chain for each current hub template playback
 
    @return true if all is well, false if something has failed
@@ -236,11 +197,9 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
       chains = chainDAO.readAllFabricating(access);
       Set<UUID> chainTemplateIds = chains.stream().map(Chain::getTemplateId).collect(Collectors.toSet());
       for (Template template : templates)
-        if (!chainTemplateIds.contains(template.getId())) {
-          LOG.info("Will bootstrap Chain from Template[{}]", Templates.getIdentifier(template));
-          chainDAO.bootstrap(access, TemplateType.PREVIEW, Chains.fromTemplate(template));
-        }
-    } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
+        if (!chainTemplateIds.contains(template.getId()))
+          createChainForTemplate(template.getId());
+    } catch (DAOFatalException | DAOPrivilegeException e) {
       LOG.error("Failed to start Chain(s) for playing Template(s)!", e);
       return false;
     }
@@ -262,12 +221,45 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   }
 
   /**
+   Bootstrap a chain from JSON chain bootstrap data,
+   first rehydrating store from last shipped JSON matching this embed key.
+   <p>
+   Nexus with bootstrap chain rehydrates store on startup from shipped JSON files
+   https://www.pivotaltracker.com/story/show/178718006
+
+   @return true if successful
+   */
+  private Boolean createChainForTemplate(UUID templateId) {
+    Template template;
+    try {
+      LOG.info("Will load Template[{}]", templateId);
+      template = hubClient.readTemplate(templateId);
+    } catch (HubClientException e) {
+      LOG.error("Failed to load Template[{}]!", templateId, e);
+      return false;
+    }
+
+    // If rehydration was successful, return success
+    if (rehydrateTemplate(template)) return true;
+
+    // Only if rehydration was unsuccessful
+    try {
+      LOG.info("Will bootstrap yard Template[{}]", Templates.getIdentifier(template));
+      chainDAO.bootstrap(access, TemplateType.PRODUCTION, Chains.fromTemplate(template));
+      return true;
+    } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
+      LOG.error("Failed to add binding to bootstrap Chain!", e);
+      return false;
+    }
+  }
+
+  /**
    Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
 
    @param template from which to rehydrate
    @return true if the rehydration was successful
    */
-  private Boolean rehydrateYardTemplate(Template template) {
+  private Boolean rehydrateTemplate(Template template) {
     var success = new AtomicBoolean(true);
     Collection<Object> entities = Lists.newArrayList();
     String chainStorageKey;
