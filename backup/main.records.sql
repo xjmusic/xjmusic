@@ -122,6 +122,7 @@ dd314d8a-29e4-11eb-9bf6-abcffbc671ff	488ada38-16ea-11ea-88e3-573050fbaae5	14e468
 8d4797a2-2a2f-11eb-8247-1b74d688bfe9	54e4def4-e3cd-11ea-a7af-27c0ab128d5a	14e468ba-16eb-11ea-8a37-53e6360023c1
 14fab8e0-16eb-11ea-8a37-cbb6377b0b44	1b299a74-f187-11eb-8314-cf9697b34927	14e58a74-16eb-11ea-8a37-27b15e9fd30c
 1501b96a-16eb-11ea-8a37-b3d65ec2fb9c	1b299a74-f187-11eb-8314-cf9697b34927	14e623e4-16eb-11ea-8a37-671d88a1c344
+5c669e68-09bc-11ec-85ee-d36a5a86477c	488ada38-16ea-11ea-88e3-573050fbaae5	14e58a74-16eb-11ea-8a37-27b15e9fd30c
 \.
 
 
@@ -151,8 +152,8 @@ f07d8882-fb25-11eb-afc6-578905fc6ef1	Cool Program Loop	14e58a74-16eb-11ea-8a37-2
 1509102a-16eb-11ea-8a37-4764c2a771db	Cool Program Main	14e58a74-16eb-11ea-8a37-27b15e9fd30c
 3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Cool Instrument Percussive	14e58a74-16eb-11ea-8a37-27b15e9fd30c
 c40012d4-fb20-11eb-a2de-278de10ba0a8	Cool Instrument Percussive Loop 	14e58a74-16eb-11ea-8a37-27b15e9fd30c
-fecebd38-fb26-11eb-8bbd-df3edf17a61b	Cool Program Rhythm	14e58a74-16eb-11ea-8a37-27b15e9fd30c
 55ab659c-fb3c-11eb-85f4-87f8295902e9	Cool Program Macro	14e58a74-16eb-11ea-8a37-27b15e9fd30c
+fecebd38-fb26-11eb-8bbd-df3edf17a61b	Cool Program Rhythm (delete me)	14e58a74-16eb-11ea-8a37-27b15e9fd30c
 \.
 
 
@@ -655,26 +656,21 @@ cc61379a-0a72-11eb-a84c-47775e50759e	1860788a-16eb-11ea-8a37-87eb83753fe4	Test	i
 17b4323c-16eb-11ea-8a37-03d379e3e10b	17b34ca0-16eb-11ea-8a37-6b86e3816409	Dun.Dun.Kick.Short	00610417-608b-4105-8528-583ed910a0c2-instrument-42-audio.wav	0	0.193	121	0.6	KICK	1	E9
 17b5f040-16eb-11ea-8a37-87b7743c2341	17b34ca0-16eb-11ea-8a37-6b86e3816409	Dun.Dun.Kick.Hype.Short	9526f54e-54b9-4590-a5d2-60c897d2dd1c-instrument-42-audio.wav	0.004	0.31	121	0.6	KICK	1	E9
 17b75c64-16eb-11ea-8a37-87dee6c24b2c	17b34ca0-16eb-11ea-8a37-6b86e3816409	Xylo.Tom.4	d157a565-4237-4b5e-b54d-0827ea9fa236-instrument-42-audio.wav	0	0.067	121	0.6	TOMMID	1	D5
-17b892c8-16eb-11ea-8a37-ef89e7400133	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.Riser	87c74cb2-ca46-43be-b890-9b1a7a4cc607-instrument-42-audio.wav	1.85	1.996	121	0.6	CRASH	1	C#6
 17b9dd0e-16eb-11ea-8a37-1fea83405dd4	17b34ca0-16eb-11ea-8a37-6b86e3816409	Brushy.Snare.Short	6576f0c7-83e0-42ce-97bf-01f5d5194339-instrument-42-audio.wav	0	0.152	121	0.6	SNARE	1	B3
 17bb1872-16eb-11ea-8a37-6b94466ed28a	17b34ca0-16eb-11ea-8a37-6b86e3816409	Xylo.Tom.2	9967e4f9-6690-41da-9cff-589f984be34d-instrument-42-audio.wav	0	0.083	121	0.6	TOMHI	1	Eb5
 17bcbc0e-16eb-11ea-8a37-ab01e41a42fc	17b34ca0-16eb-11ea-8a37-6b86e3816409	Dun.Dun.Tom	561a97ee-cde4-482e-9c1e-589e09ababb9-instrument-42-audio.wav	0	0.174	121	0.6	TOMLOW	1	B2
 17bed494-16eb-11ea-8a37-f3ceeb7a542d	17b34ca0-16eb-11ea-8a37-6b86e3816409	Flam.Clap.3	3acc0db1-f258-4698-99cb-ece7851231c9-instrument-42-audio.wav	0	0.238	121	0.6	SNARE	1	Ab2
 17c10566-16eb-11ea-8a37-c35d1325da8b	17b34ca0-16eb-11ea-8a37-6b86e3816409	Dun.Dun.Tom.2	45909cf6-829d-4860-9299-f5194eaeebf5-instrument-42-audio.wav	0	0.754	121	0.6	TOMMID	1	F#3
 17c35168-16eb-11ea-8a37-030c81dc176e	17b34ca0-16eb-11ea-8a37-6b86e3816409	Snare.w/Tambo.Tail	8c643b60-a107-4b88-9fac-554105112236-instrument-42-audio.wav	0	0.325	121	0.6	SNARE	1	F8
-17c7dc24-16eb-11ea-8a37-d772101739bb	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.1	8fdee415-877a-4920-94e9-49cf501ceaae-instrument-42-audio.wav	0	0.576	121	0.6	HIHATOPEN	1	F7
 17ca6aca-16eb-11ea-8a37-538f4de9cd61	17b34ca0-16eb-11ea-8a37-6b86e3816409	Xylo.Tom.1	60585413-bdea-4303-90c0-479ae7ad2eaa-instrument-42-audio.wav	0	0.089	121	0.6	TOMHI	1	G5
 17cc73a6-16eb-11ea-8a37-57ecfc36022c	17b34ca0-16eb-11ea-8a37-6b86e3816409	Flam.Clap.1	5cfa8003-1ee8-4d4f-81e1-5c51f5cbda65-instrument-42-audio.wav	0	0.101	121	0.6	SNARE	1	B5
 17ce5db0-16eb-11ea-8a37-dbe5fda57766	17b34ca0-16eb-11ea-8a37-6b86e3816409	Brushy.Snare	f50a9ce5-ab94-421e-823e-c4e6b911dd74-instrument-42-audio.wav	0	0.501	121	0.6	SNARE	1	B3
 17d064b6-16eb-11ea-8a37-9f09e0179b6f	17b34ca0-16eb-11ea-8a37-6b86e3816409	Dun.Dun.Kick	6d86fdf8-1c65-41a7-b3fa-571bf05451e3-instrument-42-audio.wav	0.011	0.496	121	0.6	KICK	1	E9
 18896baa-16eb-11ea-8a37-c7be844d34ad	18860e06-16eb-11ea-8a37-1fe3e47ff5a8	Kick 3	cb9f17ef-6206-44a7-85c2-4284b1cbe024-instrument-31-audio.wav	0	0.772	121	0.6	KICK	1	Bb1
-17d29a24-16eb-11ea-8a37-130bfa446871	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.4	ca7878ac-d25b-480f-9abc-286f5eafa867-instrument-42-audio.wav	0	0.271	121	0.6	HIHATCLOSED	1	D7
 17d44f04-16eb-11ea-8a37-bb03de076008	17b34ca0-16eb-11ea-8a37-6b86e3816409	Snare.w/Tambo.Tail.Short	db928de2-0d88-4bc6-89cf-91e72366d59f-instrument-42-audio.wav	0	0.155	121	0.6	SNARE	1	F#8
 17d602fe-16eb-11ea-8a37-a3d42762c3f9	17b34ca0-16eb-11ea-8a37-6b86e3816409	Xylo.Tom.6	38910daa-0fa4-4c10-a49d-53560df19b76-instrument-42-audio.wav	0	0.112	121	0.6	TOMMID	1	D#4
-17d79470-16eb-11ea-8a37-87bde0ef00a2	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.2	cd1b24a3-2261-4964-b7c4-93ebc7930127-instrument-42-audio.wav	0	0.327	121	0.6	HIHATCLOSED	1	Eb7
 17d93e9c-16eb-11ea-8a37-8b0783be039e	17b34ca0-16eb-11ea-8a37-6b86e3816409	Xylo.Tom.3	63eabc53-9273-468e-8f9a-8396ef172767-instrument-42-audio.wav	0	0.083	121	0.6	TOMHI	1	Eb5
 17dbc860-16eb-11ea-8a37-5f5cb584fc6c	17b34ca0-16eb-11ea-8a37-6b86e3816409	Flam.Clap.2	67d001b9-7279-4dc0-9800-26b1e086c16a-instrument-42-audio.wav	0	0.088	121	0.6	SNARE	1	E6
-17e21e4a-16eb-11ea-8a37-efc901c1178c	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.3	d400fe01-c7ce-4bf2-83f6-70034e77fa83-instrument-42-audio.wav	0	0.238	121	0.6	HIHATCLOSED	1	Eb7
 17e37952-16eb-11ea-8a37-d39722108c1a	17b34ca0-16eb-11ea-8a37-6b86e3816409	Xylo.Tom.5	a91858d9-8306-4bb9-9285-3c53828738ff-instrument-42-audio.wav	0	0.101	121	0.6	TOMMID	1	Ab4
 17ea4fc0-16eb-11ea-8a37-3f1406b853f5	17e50f74-16eb-11ea-8a37-e3561e92fad1	Conga M_1	983fc7a1-a1ef-466f-be44-cc1e227ae449-instrument-5-audio.wav	0	0.318	120	0.6	TOM	1	X
 17ed0d8c-16eb-11ea-8a37-af44db6912b1	17e50f74-16eb-11ea-8a37-e3561e92fad1	Tom L_7	b51678cb-50a0-4994-980a-62bf126ca445-instrument-5-audio.wav	0.001	0.674	120	0.6	TOM	1	X
@@ -717,6 +713,8 @@ cc61379a-0a72-11eb-a84c-47775e50759e	1860788a-16eb-11ea-8a37-87eb83753fe4	Test	i
 182c5802-16eb-11ea-8a37-6f25b8020933	17e50f74-16eb-11ea-8a37-e3561e92fad1	Hihat Open F_2	13db8e43-4266-444a-9edd-c5a5cb2442b4-instrument-5-audio.wav	0	1.506	120	0.6	HIHATOPEN	1	X
 182dec4e-16eb-11ea-8a37-a3ff3312c6b9	17e50f74-16eb-11ea-8a37-e3561e92fad1	Conga M_1	faf2e9c6-6b12-445e-9b2c-93966451ff5e-instrument-5-audio.wav	0	0.318	120	0.6	TOM	1	X
 182f7fa0-16eb-11ea-8a37-df905c96912f	17e50f74-16eb-11ea-8a37-e3561e92fad1	Snare Q_5	62536d52-8600-4941-ac04-a72106079610-instrument-5-audio.wav	0.002	0.405	120	0.6	SNARE	1	X
+17d29a24-16eb-11ea-8a37-130bfa446871	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.4	ca7878ac-d25b-480f-9abc-286f5eafa867-instrument-42-audio.wav	0	0.271	121	0.6	HIHATCLOSED	0.6	D7
+17d79470-16eb-11ea-8a37-87bde0ef00a2	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.2	cd1b24a3-2261-4964-b7c4-93ebc7930127-instrument-42-audio.wav	0	0.327	121	0.6	HIHATCLOSED	0.6	Eb7
 18311a9a-16eb-11ea-8a37-7f9c48dfd5a1	17e50f74-16eb-11ea-8a37-e3561e92fad1	Vocal Watch Me	649a2969-6b98-4201-89fc-968d6414f578-instrument-5-audio.wav	0.05	0.807	120	0.6	HIHATOPEN	1	X
 18338726-16eb-11ea-8a37-cb22a831d9ef	17e50f74-16eb-11ea-8a37-e3561e92fad1	Hihat Open F_3	3f0dbe3a-d11a-4e9f-a642-befe5747dd01-instrument-5-audio.wav	0	2.567	120	0.6	HIHATOPEN	1	X
 1835f362-16eb-11ea-8a37-6b23eb216767	17e50f74-16eb-11ea-8a37-e3561e92fad1	Hihat Open F_4	57ff6b97-fedb-4e3f-b963-840ba8fd101b-instrument-5-audio.wav	0.035	2.617	120	0.6	HIHATOPEN	1	X
@@ -3132,6 +3130,9 @@ d084c7aa-02de-11ec-9525-ab099145dee9	bfd5a5d2-02de-11ec-ad7a-f77d2854066a	Snaps.
 e6fdd412-02df-11ec-9cd8-8ba8727b90b2	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 1 Loop	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-9e997178-0768-4213-a273-bbac749a2897	0	2	120	0.5	BONGOLOOP	1	X
 52f8e7f6-02e0-11ec-a0b6-0b0c0d30dc15	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 1	instrument-39582db6-02e0-11ec-9cd8-138a25e9d4dc-audio-e4b26af0-f64a-47d8-929e-1aec821b665a	0	2	120	0.5	TRILOOP	1	X
 8d6e3792-02e0-11ec-9cd8-478d52e4b5d4	76de8b1c-02e0-11ec-9cd8-e764c2cad43d	Go-go Bell Pattern 1 Loop	instrument-76de8b1c-02e0-11ec-9cd8-e764c2cad43d-audio-5a22cd33-4009-4eac-bfec-d3fd39cbbfe9	0	2	120	0.5	BELLLOOP	1	X
+17e21e4a-16eb-11ea-8a37-efc901c1178c	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.3	d400fe01-c7ce-4bf2-83f6-70034e77fa83-instrument-42-audio.wav	0	0.238	121	0.6	HIHATCLOSED	0.6	Eb7
+17b892c8-16eb-11ea-8a37-ef89e7400133	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.Riser	87c74cb2-ca46-43be-b890-9b1a7a4cc607-instrument-42-audio.wav	1.85	1.996	121	0.6	CRASH	0.6	C#6
+17c7dc24-16eb-11ea-8a37-d772101739bb	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.1	8fdee415-877a-4920-94e9-49cf501ceaae-instrument-42-audio.wav	0	0.576	121	0.6	HIHATOPEN	0.6	F7
 \.
 
 
@@ -14860,7 +14861,9 @@ e1f0a086-030b-11ec-adc7-7b08971cd4d6	203da628-0301-11ec-932b-bf95e1ab6e63	4a9b4a
 -- Data for Name: template; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
-COPY xj.template (id, account_id, name, config, embedkey) FROM stdin;
+COPY xj.template (id, account_id, name, config, embed_key, type) FROM stdin;
+eb0cf5ce-09ba-11ec-8016-d72d36e2270c	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Cool Air	choiceDeltaEnabled = true\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercussive = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30.0\nmixerLowpassThresholdHz = 15000.0\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16	coolair	Production
+a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Charney's Preview Template	choiceDeltaEnabled = true\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercussive = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30.0\nmixerLowpassThresholdHz = 15000.0\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16	sknlgibpz	Preview
 \.
 
 
@@ -14869,6 +14872,36 @@ COPY xj.template (id, account_id, name, config, embedkey) FROM stdin;
 --
 
 COPY xj.template_binding (id, type, template_id, target_id) FROM stdin;
+f2db0a0c-09ba-11ec-966b-57891f6dc534	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef
+f4e0a2d0-09ba-11ec-966b-77c7e307773f	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	53b95f54-fb24-11eb-ad24-8f1c28086c69
+f6e1999a-09ba-11ec-966b-07e0b41b167c	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe
+fa8e4d22-09ba-11ec-8016-2bb32542591a	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	ede3b224-fb23-11eb-ad24-1bf1b475662e
+fd077a42-09ba-11ec-8016-4b83e9260d1d	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	460830b0-fb24-11eb-80a6-7b4f92dccaea
+fece2cea-09ba-11ec-966b-bfe0b2e2cbf2	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	2f621894-fb24-11eb-80a6-63ed42857ac1
+01475d2a-09bb-11ec-966b-5f3eb4e9ce24	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	5545dcfe-fb23-11eb-80a6-4372a28aca52
+0408b9c8-09bb-11ec-966b-ab66d2f17bdd	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	d124e460-fb22-11eb-b9ed-a36c2b39adb7
+06704820-09bb-11ec-966b-2fe2e5523441	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	ff8ce21c-fb22-11eb-981d-37143596a20d
+08a5888a-09bb-11ec-966b-a3f290c3c4f4	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	55461ec6-fb23-11eb-ad24-972f33ad9115
+0a979d9a-09bb-11ec-966b-0314a1442a3e	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	ff8def18-fb22-11eb-928c-2b02f39362fc
+0f535a36-09bb-11ec-966b-8fe9e4e006c6	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	55ab659c-fb3c-11eb-85f4-87f8295902e9
+11848ca8-09bb-11ec-8016-73093a2090af	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	1509102a-16eb-11ea-8a37-4764c2a771db
+1495c434-09bb-11ec-966b-eb040564694b	Library	eb0cf5ce-09ba-11ec-8016-d72d36e2270c	9d966418-fb20-11eb-a2de-172ecc754afd
+b16c552c-09be-11ec-aabe-c75ca26a1ff7	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef
+b448e4d6-09be-11ec-b793-5b1ea7884352	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	53b95f54-fb24-11eb-ad24-8f1c28086c69
+b6d8525e-09be-11ec-a5bf-1f23d4fed422	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe
+b8b92ada-09be-11ec-acaf-138c553ec2ac	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	ede3b224-fb23-11eb-ad24-1bf1b475662e
+ba9e0726-09be-11ec-9de1-c3090ecd7bbf	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	460830b0-fb24-11eb-80a6-7b4f92dccaea
+bc6dc92e-09be-11ec-a5bc-f72f4ce81b9a	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	2f621894-fb24-11eb-80a6-63ed42857ac1
+be530d44-09be-11ec-a780-97fe2014666b	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	5545dcfe-fb23-11eb-80a6-4372a28aca52
+c088a5a6-09be-11ec-b9a9-d30eee67b1ab	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	d124e460-fb22-11eb-b9ed-a36c2b39adb7
+c26c64de-09be-11ec-85ee-23cc40889a7b	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	ff8ce21c-fb22-11eb-981d-37143596a20d
+c5c2c31c-09be-11ec-b575-7fbc58d16151	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	55461ec6-fb23-11eb-ad24-972f33ad9115
+c7f3e170-09be-11ec-a5bc-1f45afa84670	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	ff8def18-fb22-11eb-928c-2b02f39362fc
+caf2fd52-09be-11ec-acaf-4fe00edaf39f	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	f07d8882-fb25-11eb-afc6-578905fc6ef1
+cdf06ee0-09be-11ec-9de1-23f9f2d3e27c	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	55ab659c-fb3c-11eb-85f4-87f8295902e9
+d00b965a-09be-11ec-aabe-5fe646ba63b9	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	1509102a-16eb-11ea-8a37-4764c2a771db
+d249a5d8-09be-11ec-b609-8714b5c24700	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	9d966418-fb20-11eb-a2de-172ecc754afd
+d683cf16-09be-11ec-90c4-9bd5691a3338	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	fecebd38-fb26-11eb-8bbd-df3edf17a61b
 \.
 
 
@@ -14876,7 +14909,7 @@ COPY xj.template_binding (id, type, template_id, target_id) FROM stdin;
 -- Data for Name: template_playback; Type: TABLE DATA; Schema: xj; Owner: postgres
 --
 
-COPY xj.template_playback (id, template_id, user_id, state) FROM stdin;
+COPY xj.template_playback (id, template_id, user_id, created_at) FROM stdin;
 \.
 
 

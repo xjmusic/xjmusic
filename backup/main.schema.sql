@@ -392,8 +392,9 @@ CREATE TABLE xj.template (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     account_id uuid NOT NULL,
     name character varying(255) NOT NULL,
-    config text DEFAULT ''::text NOT NULL,
-    embedkey character varying(255) NOT NULL
+    config text DEFAULT ''::text,
+    embed_key character varying(255) DEFAULT ''::character varying,
+    type character varying(255) DEFAULT 'Preview'::character varying
 );
 
 
@@ -421,7 +422,7 @@ CREATE TABLE xj.template_playback (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     template_id uuid NOT NULL,
     user_id uuid NOT NULL,
-    state character varying(255) NOT NULL
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -634,6 +635,30 @@ ALTER TABLE ONLY xj.program_voice
 
 ALTER TABLE ONLY xj.program_voice_track
     ADD CONSTRAINT program_voice_track_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: template_binding template_binding_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.template_binding
+    ADD CONSTRAINT template_binding_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: template template_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.template
+    ADD CONSTRAINT template_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: template_playback template_playback_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.template_playback
+    ADD CONSTRAINT template_playback_pkey PRIMARY KEY (id);
 
 
 --
@@ -1012,7 +1037,10 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 46	47	update instrument types	SQL	V47__update_instrument_types.sql	-438215389	postgres	2021-01-22 03:13:34.422717	62	t
 47	48	remove pitch	SQL	V48__remove_pitch.sql	-2076774207	postgres	2021-03-19 04:10:28.345175	20	t
 48	49	migrate instrument audio event	SQL	V49__migrate_instrument_audio_event.sql	-959935337	postgres	2021-06-02 06:58:43.736841	46	t
-49	50	templates	SQL	V50__templates.sql	2026759432	postgres	2021-08-23 22:28:24.675487	360	t
+49	50	templates	SQL	V50__templates.sql	-1571497899	postgres	2021-08-30 17:48:51.037965	181	t
+50	51	template playback stateless	SQL	V51__template_playback_stateless.sql	-1969369120	postgres	2021-08-30 17:48:51.249366	4	t
+51	52	template playback created at	SQL	V52__template_playback_created_at.sql	-155540697	postgres	2021-08-30 17:48:51.276355	7	t
+52	53	template type	SQL	V53__template_type.sql	1695445248	postgres	2021-08-30 17:48:51.301977	2	t
 \.
 
 
