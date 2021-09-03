@@ -379,6 +379,7 @@ class FabricatorImpl implements Fabricator {
     var voicings = sourceMaterial
       .getProgramSequenceChordVoicings(mainChoice.get().getProgramId());
     return voicings.stream()
+      .filter(v->!Strings.isNullOrEmpty(v.getNotes()))
       .map(ProgramSequenceChordVoicing::getType)
       .distinct()
       .collect(Collectors.toList());
