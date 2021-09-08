@@ -59,7 +59,7 @@ public class TemplatePlaybackEndpoint extends HubEndpoint {
    */
   @GET
   @Path("templates/{templateId}/playback")
-  @RolesAllowed(USER)
+  @RolesAllowed(ARTIST)
   public Response readManyForTemplate(
     @Context ContainerRequestContext crc,
     @PathParam("templateId") String templateId
@@ -117,7 +117,7 @@ public class TemplatePlaybackEndpoint extends HubEndpoint {
    */
   @GET
   @Path("users/{userId}/playback")
-  @RolesAllowed(USER)
+  @RolesAllowed(ARTIST)
   public Response readOneForUser(@Context ContainerRequestContext crc, @PathParam("userId") String userId) {
     try {
       Optional<TemplatePlayback> playback = dao.readOneForUser(HubAccess.fromContext(crc), UUID.fromString(String.valueOf(userId)));
@@ -156,7 +156,7 @@ public class TemplatePlaybackEndpoint extends HubEndpoint {
    */
   @DELETE
   @Path("template-playbacks/{id}")
-  @RolesAllowed(ADMIN)
+  @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

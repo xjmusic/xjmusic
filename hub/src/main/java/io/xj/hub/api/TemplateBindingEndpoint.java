@@ -59,7 +59,7 @@ public class TemplateBindingEndpoint extends HubEndpoint {
    @return set of all templateBindings
    */
   @GET
-  @RolesAllowed(USER)
+  @RolesAllowed(ARTIST)
   public Response readMany(
     @Context ContainerRequestContext crc,
     @QueryParam("accountId") String accountId,
@@ -118,7 +118,7 @@ public class TemplateBindingEndpoint extends HubEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed(USER)
+  @RolesAllowed(ARTIST)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -144,7 +144,7 @@ public class TemplateBindingEndpoint extends HubEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed(ADMIN)
+  @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }
