@@ -85,7 +85,6 @@ public class ArrangementCraftTests extends YamlTest {
   private Segment segment;
   private Map<InstrumentType, SegmentChoice> segmentChoices;
   private Injector injector;
-  private Template template1;
 
   @Test
   public void arrangementBaseline() {
@@ -141,9 +140,8 @@ public class ArrangementCraftTests extends YamlTest {
   }
 
   /**
-   Load the specified test YAML file and run it repeatedly.
+   Load the specified test YAML file and run it repeatedly.@param filename of test YAML file
 
-   @param filename of test YAML file
    */
   private void loadAndRunTest(String filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
@@ -166,7 +164,7 @@ public class ArrangementCraftTests extends YamlTest {
         var sourceMaterial = new HubContent(content);
         fabricator = fabrication.fabricate(HubClientAccess.internal(), sourceMaterial, segment);
         ArrangementCraftImpl subject = new ArrangementCraftImpl(fabricator);
-        for (var choice : segmentChoices.values()) subject.craftArrangements(choice);
+        for (var choice : segmentChoices.values()) subject.craftArrangements(choice, false);
 
         // assert final picks
         loadAndPerformAssertions(data);
@@ -190,7 +188,7 @@ public class ArrangementCraftTests extends YamlTest {
     store.deleteAll();
 
     var account1 = buildAccount("fish");
-    template1 = buildTemplate(account1, "Test Template 1", "test1");
+    Template template1 = buildTemplate(account1, "Test Template 1", "test1");
     chain = store.put(NexusIntegrationTestingFixtures.buildChain(template1));
 
     // prepare list of all entities to return from Hub

@@ -86,7 +86,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
         if (voices.isEmpty())
           reportMissingInstrumentAudio(ProgramVoice.class,
             String.format("in Detail-choice Program[%s]", program.get().getId()));
-        craftChoices(sequence.get(), voices, this::chooseFreshDetailInstrument);
+        craftChoices(sequence.get(), voices, this::chooseFreshDetailInstrument, false);
       }
     }
 

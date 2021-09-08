@@ -2,7 +2,6 @@ package io.xj.nexus.craft.arrangement;
 
 import com.google.api.client.util.Strings;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import io.xj.api.Instrument;
@@ -71,12 +70,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    Segments have intensity arcs; automate mixer layers in and out of each main program
    https://www.pivotaltracker.com/story/show/178240332
 
+   @throws NexusException on failure
    @param sequence           for which to craft choices
    @param voices             for which to craft choices
    @param instrumentProvider from which to get instruments
-   @throws NexusException on failure
+   @param defaultAtonal       whether to default to a single atonal note, if no voicings are available
    */
-  protected void craftChoices(ProgramSequence sequence, Collection<ProgramVoice> voices, InstrumentProvider instrumentProvider) throws NexusException {
+  protected void craftChoices(ProgramSequence sequence, Collection<ProgramVoice> voices, InstrumentProvider instrumentProvider, boolean defaultAtonal) throws NexusException {
     // Craft each voice into choice
     for (ProgramVoice voice : voices) {
       var choiceBuilder = new SegmentChoice()
@@ -97,7 +97,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
           .deltaIn(priorChoice.get().getDeltaIn())
           .deltaOut(priorChoice.get().getDeltaOut())
           .instrumentId(priorChoice.get().getInstrumentId())
-        ));
+        ), defaultAtonal);
         continue;
       }
 
@@ -112,7 +112,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         .deltaIn(getDeltaIn(choiceBuilder))
         .deltaOut(getDeltaOut(choiceBuilder))
         .instrumentId(instrument.get().getId())
-      ));
+      ), defaultAtonal);
     }
   }
 
@@ -157,10 +157,11 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    thus the new choices have been made, we know *where* we're going next,
    but we aren't actually using them yet until we hit the next main program in full, N segments later.
 
-   @param choice to craft arrangements for
    @throws NexusException on failure
+   @param choice to craft arrangements for
+   @param defaultAtonal       whether to default to a single atonal note, if no voicings are available
    */
-  protected void craftArrangements(SegmentChoice choice) throws NexusException {
+  protected void craftArrangements(SegmentChoice choice, boolean defaultAtonal) throws NexusException {
     // this is used to invert voicings into the tightest possible range
     // passed to each iteration of note voicing arrangement in order to move as little as possible from the previous
     NoteRange range = new NoteRange();
@@ -169,13 +170,13 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       .orElseThrow(() -> new NexusException("Can't get program config")));
 
     if (fabricator.getSegmentChords().isEmpty())
-      craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal(), range);
+      craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
 
     else if (programConfig.doPatternRestartOnChord())
-      craftArrangementForVoiceSectionRestartingEachChord(choice, range);
+      craftArrangementForVoiceSectionRestartingEachChord(choice, range, defaultAtonal);
 
     else
-      craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal(), range);
+      craftArrangementForVoiceSection(choice, 0, fabricator.getSegment().getTotal(), range, defaultAtonal);
   }
 
   /**
@@ -293,13 +294,15 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    <p>
    [#176468993] Detail programs can be made to repeat every chord change
 
+   @throws NexusException on failure
    @param choice from which to craft events
    @param range  used to keep voicing in the tightest range possible
-   @throws NexusException on failure
+   @param defaultAtonal       whether to default to a single atonal note, if no voicings are available
    */
   private void craftArrangementForVoiceSectionRestartingEachChord(
     SegmentChoice choice,
-    NoteRange range
+    NoteRange range,
+    boolean defaultAtonal
   ) throws NexusException {
     // guaranteed to be in order of position ascending
     SegmentChord[] chords = new SegmentChord[fabricator.getSegmentChords().size()];
@@ -318,23 +321,25 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         : fabricator.getSegment().getTotal();
     }
     for (var section : sections)
-      craftArrangementForVoiceSection(choice, section.fromPos, section.toPos, range);
+      craftArrangementForVoiceSection(choice, section.fromPos, section.toPos, range, defaultAtonal);
   }
 
   /**
    Craft events for a section of one detail voice
 
-   @param choice  from which to craft events
-   @param fromPos position (in beats)
-   @param maxPos  position (in beats)
-   @param range   used to keep voicing in the tightest range possible
+   @param choice        from which to craft events
+   @param fromPos       position (in beats)
+   @param maxPos        position (in beats)
+   @param range         used to keep voicing in the tightest range possible
+   @param defaultAtonal       whether to default to a single atonal note, if no voicings are available
    @throws NexusException on failure
    */
   private void craftArrangementForVoiceSection(
     SegmentChoice choice,
     double fromPos,
     double maxPos,
-    NoteRange range
+    NoteRange range,
+    boolean defaultAtonal
   ) throws NexusException {
     // choose intro pattern (if available)
     Optional<ProgramSequencePattern> introPattern =
@@ -352,14 +357,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // if intro pattern, fabricate those voice event first
     if (introPattern.isPresent())
-      curPos += craftPatternEvents(choice, introPattern.get(), curPos, loopOutPos, range);
+      curPos += craftPatternEvents(choice, introPattern.get(), curPos, loopOutPos, range, defaultAtonal);
 
     // choose loop patterns until arrive at the out point or end of segment
     while (curPos < loopOutPos) {
       Optional<ProgramSequencePattern> loopPattern =
         fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.LOOP);
       if (loopPattern.isPresent())
-        curPos += craftPatternEvents(choice, loopPattern.get(), curPos, loopOutPos, range);
+        curPos += craftPatternEvents(choice, loopPattern.get(), curPos, loopOutPos, range, defaultAtonal);
       else
         curPos = loopOutPos;
     }
@@ -367,7 +372,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // if outro pattern, fabricate those voice event last
     // [#161466708] compute how much to go for it in the outro
     if (outroPattern.isPresent())
-      craftPatternEvents(choice, outroPattern.get(), curPos, maxPos, range);
+      craftPatternEvents(choice, outroPattern.get(), curPos, maxPos, range, defaultAtonal);
   }
 
   /**
@@ -378,6 +383,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param fromSegmentPosition to write events to segment
    @param toSegmentPosition   to write events to segment
    @param range               used to keep voicing in the tightest range possible
+   @param defaultAtonal       whether to default to a single atonal note, if no voicings are available
    @return deltaPos of start, after crafting this batch of pattern events
    */
   private double craftPatternEvents(
@@ -385,7 +391,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     ProgramSequencePattern pattern,
     double fromSegmentPosition,
     double toSegmentPosition,
-    NoteRange range
+    NoteRange range,
+    boolean defaultAtonal
   ) throws NexusException {
     if (Objects.isNull(pattern)) throw new NexusException("Cannot craft create null pattern");
     double totalBeats = toSegmentPosition - fromSegmentPosition;
@@ -401,19 +408,19 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId())
       .orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
     for (ProgramSequencePatternEvent event : events)
-      pickNotesAndInstrumentAudioForEvent(instrument, choice, arrangement, event, fromSegmentPosition, toSegmentPosition, range);
+      pickNotesAndInstrumentAudioForEvent(instrument, choice, arrangement, event, fromSegmentPosition, toSegmentPosition, range, defaultAtonal);
     return Math.min(totalBeats, pattern.getTotal());
   }
 
   /**
    of a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
-   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
+   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement@param choice              to pick notes for
 
-   @param choice              to pick notes for
    @param event               to pick audio for
    @param fromSegmentPosition to pick notes for
    @param toSegmentPosition   to pick notes for
    @param range               used to keep voicing in the tightest range possible
+   @param defaultAtonal       whether to default to a single atonal note, if no voicings are available
    */
   private void pickNotesAndInstrumentAudioForEvent(
     Instrument instrument,
@@ -422,7 +429,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     ProgramSequencePatternEvent event,
     Double fromSegmentPosition,
     Double toSegmentPosition,
-    NoteRange range
+    NoteRange range,
+    boolean defaultAtonal
   ) throws NexusException {
     // Morph & Point attributes are expressed in beats
     double segmentPosition = fromSegmentPosition + event.getPosition();
@@ -438,7 +446,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // The final note is voiced from the chord voicing (if found) or else the default is used
     Set<String> notes = voicing.isPresent()
       ? pickNotesForEvent(instrument.getType(), choice, event, chord.get(), voicing.get(), range)
-      : ImmutableSet.of(Note.ATONAL);
+      : (defaultAtonal ? Set.of(Note.ATONAL) : Set.of());
 
     // Pick attributes are expressed "rendered" as actual seconds
     double startSeconds = fabricator.getSecondsAtPosition(segmentPosition);
@@ -618,7 +626,9 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     var targetRange = fabricator.getProgramVoicingNoteRange(instrumentType);
     var targetShiftSemitones = fabricator.getProgramTargetShift(sourceKey, Chord.of(chord.getName()));
     var targetShiftOctaves = fabricator.getProgramRangeShiftOctaves(instrumentType, sourceRange, targetRange);
-    var voicingNotes = fabricator.getNotes(voicing).stream().map(Note::of).collect(Collectors.toList());
+    var voicingNotes = fabricator.getNotes(voicing).stream()
+      .flatMap(Note::ofValid)
+      .collect(Collectors.toList());
 
     var notePicker = new NotePicker(instrumentType, chord, range, voicingNotes,
       CSV.split(event.getNote())

@@ -201,4 +201,16 @@ public class NoteTest {
     assertTrue(Note.atonal().isAtonal());
     assertTrue(Note.of("X0").isAtonal());
   }
+
+  /**
+   NC sections should not cache notes from the previous section #179409784
+   */
+  @Test
+  public void onlyValid() {
+    assertEquals(PitchClass.G, Note.ofValid("G6").findAny().orElseThrow().getPitchClass());
+    assertEquals(PitchClass.Gs, Note.ofValid("G#6").findAny().orElseThrow().getPitchClass());
+    assertEquals(PitchClass.None, Note.ofValid("X").findAny().orElseThrow().getPitchClass());
+    assertFalse(Note.ofValid("(None)").findAny().isPresent());
+    assertFalse(Note.ofValid("abc").findAny().isPresent());
+  }
 }

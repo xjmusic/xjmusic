@@ -78,9 +78,9 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildVoice;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -156,7 +156,7 @@ public class FabricatorImplTest {
     var account1 = buildAccount("fish");
     Library library1 = buildLibrary(account1, "test");
     var template1 = buildTemplate(account1, "Test Template 1", "test1");
-    TemplateBinding templateBinding1 = buildTemplateBinding(template1, library1);
+    buildTemplateBinding(template1, library1);
     var chain = store.put(new Chain()
       .id(UUID.randomUUID())
       .accountId(UUID.randomUUID())
@@ -227,7 +227,7 @@ public class FabricatorImplTest {
       .type(TemplateType.PRODUCTION)
       .state(ChainState.FABRICATE)
       .startAt("2017-12-12T01:00:08.000000Z"));
-    Segment previousSegment = store.put(new Segment()
+    store.put(new Segment()
       .id(UUID.randomUUID())
       .chainId(chain.getId())
       .offset(1L)
@@ -327,7 +327,7 @@ public class FabricatorImplTest {
       .type(TemplateType.PRODUCTION)
       .state(ChainState.FABRICATE)
       .startAt("2017-12-12T01:00:08.000000Z"));
-    Segment previousSegment = store.put(new Segment()
+    store.put(new Segment()
       .id(UUID.randomUUID())
       .chainId(chain.getId())
       .offset(1L)
@@ -376,6 +376,7 @@ public class FabricatorImplTest {
       InstrumentType.BASS
     ), result);
   }
+
 
   /**
    [#176728582] Choose next Macro program based on the memes of the last sequence from the previous Macro program
@@ -484,15 +485,14 @@ public class FabricatorImplTest {
         .programType(ProgramType.MACRO)
         .programId(fake.program4.getId())
         .programSequenceBindingId(fake.program4_sequence1_binding0.getId()));
-    var previousMainChoice = // last sequence of main program
-      store.put(new SegmentChoice()
-        .id(UUID.randomUUID())
-        .segmentId(previousSegment.getId())
-        .deltaIn(Segments.DELTA_UNLIMITED)
-        .deltaOut(Segments.DELTA_UNLIMITED)
-        .programType(ProgramType.MAIN)
-        .programId(fake.program5.getId())
-        .programSequenceBindingId(fake.program5_sequence1_binding0.getId()));
+    store.put(new SegmentChoice()
+      .id(UUID.randomUUID())
+      .segmentId(previousSegment.getId())
+      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaOut(Segments.DELTA_UNLIMITED)
+      .programType(ProgramType.MAIN)
+      .programId(fake.program5.getId())
+      .programSequenceBindingId(fake.program5_sequence1_binding0.getId()));
     Segment segment = store.put(new Segment()
       .id(UUID.randomUUID())
       .chainId(chain.getId())

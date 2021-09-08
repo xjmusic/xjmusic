@@ -24,8 +24,8 @@ public class Root {
     this.pitchClass = PitchClass.None;
     this.remainingText = name;
 
-    evaluate(rgxNote, name, true);
-    evaluate(rgxNoteModified, name, true);
+    evaluate(rgxNote, name);
+    evaluate(rgxNoteModified, name);
   }
 
   /**
@@ -41,12 +41,11 @@ public class Root {
   }
 
   /**
-   First group matching pattern in text, else null@param pattern to in
+   First group matching pattern in text, else null@param pattern to in@param text              to search
 
-   @param text              to search
-   @param withRemainingText whether to store remaining text from this evaluation
+
    */
-  private void evaluate(Pattern pattern, String text, Boolean withRemainingText) {
+  private void evaluate(Pattern pattern, String text) {
     Matcher matcher = pattern.matcher(text);
     if (!matcher.find())
       return;
@@ -56,8 +55,7 @@ public class Root {
       return;
 
     this.pitchClass = PitchClass.of(match);
-    if (withRemainingText)
-      this.remainingText = text.substring(match.length()).trim();
+    this.remainingText = text.substring(match.length()).trim();
   }
 
   /**

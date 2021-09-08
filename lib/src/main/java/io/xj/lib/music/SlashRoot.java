@@ -14,12 +14,12 @@ public class SlashRoot {
   private PitchClass pitchClass;
 
   /**
-   Parse root and remaining string, using regular expressions
+   Parse slash root string, using regular expressions
 
-   @param name to parse root and remaining of
+   @param name to parse slash root
    */
   private SlashRoot(String name) {
-    // as a default, the whole thing is remaining text, and pitch class is None
+    // as a default, the pitch class is None
     this.pitchClass = PitchClass.None;
 
     evaluate(rgxSlashNote, name);

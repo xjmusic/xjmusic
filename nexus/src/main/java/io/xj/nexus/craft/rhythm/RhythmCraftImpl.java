@@ -84,7 +84,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
         reportMissingInstrumentAudio(ProgramVoice.class,
           String.format("in Rhythm-choice Program[%s]", program.get().getId()));
 
-      craftChoices(sequence.get(), voices, this::chooseFreshPercussiveInstrument);
+      craftChoices(sequence.get(), voices, this::chooseFreshPercussiveInstrument, true);
     }
 
     // Finally, update the segment with the crafted content
