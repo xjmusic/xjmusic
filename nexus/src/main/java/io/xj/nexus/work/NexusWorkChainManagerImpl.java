@@ -242,9 +242,12 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     // If rehydration was successful, return success
     if (rehydrateTemplate(template)) return true;
 
+    // If the template is already playing, return success
+    if (chainDAO.existsForEmbedKey(template.getEmbedKey())) return true;
+
     // Only if rehydration was unsuccessful
     try {
-      LOG.info("Will bootstrap yard Template[{}]", Templates.getIdentifier(template));
+      LOG.info("Will bootstrap Template[{}]", Templates.getIdentifier(template));
       chainDAO.bootstrap(access, type, Chains.fromTemplate(template));
       return true;
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {

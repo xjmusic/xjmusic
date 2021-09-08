@@ -606,6 +606,20 @@ public class ChainDAOImplTest {
     assertEquals("2009-09-11T12:17:01.989941Z", result.getStopAt());
   }
 
+  @Test
+  public void existsForEmbedKey() throws Exception {
+    test.put(buildChain(account1, "school", TemplateType.PRODUCTION, ChainState.READY, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky"));
+    new Chain()
+      .id(UUID.randomUUID())
+      .accountId(account1.getId())
+      .name("coconuts")
+      .type(TemplateType.PRODUCTION)
+      .state(ChainState.READY)
+      .embedKey("jabberwocky")
+      .startAt("2009-08-12T12:17:02.687327Z")
+      .stopAt("2009-09-11T12:17:01.989941Z");
+  }
+
 
   @Test
   public void update_cannotChangeType() {

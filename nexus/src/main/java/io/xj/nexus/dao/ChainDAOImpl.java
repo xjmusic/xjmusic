@@ -70,7 +70,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     ChainState.COMPLETE,
     ChainState.FAILED
   );
-  private final Config config;
   private final SegmentDAO segmentDAO;
   private final int previewLengthMaxHours;
   private final NotificationProvider pubSub;
@@ -89,7 +88,6 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     NotificationProvider notificationProvider
   ) {
     super(entityFactory, nexusEntityStore);
-    this.config = config;
     this.segmentDAO = segmentDAO;
     this.pubSub = notificationProvider;
 
@@ -230,7 +228,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   }
 
   @Override
-  public Chain update(HubClientAccess access, UUID id, Chain entity)
+  public Chain update(HubClientAccess access, UUID id, Chain chain)
     throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException {
     try {
       // cache existing chain from-state
@@ -238,34 +236,34 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       ChainState fromState = existing.getState();
 
       // cannot change type of chain
-      if (existing.getType() != entity.getType())
+      if (existing.getType() != chain.getType())
         throw new DAOValidationException("Cannot modify Chain Type");
 
       // [#174153691] Cannot change stop-at time or Embed Key of Preview chain
       if (TemplateType.PREVIEW == existing.getType()) {
-        entity.setStopAt(existing.getStopAt());
-        entity.setEmbedKey(existing.getEmbedKey());
+        chain.setStopAt(existing.getStopAt());
+        chain.setEmbedKey(existing.getEmbedKey());
       }
 
       // override id (cannot be changed) from existing chain, and then validate
-      entity.setId(id);
-      validate(entity);
+      chain.setId(id);
+      validate(chain);
 
       // If we have an embed key, it must not belong to another chain
-      requireUniqueEmbedKey(access, entity);
+      requireUniqueEmbedKey(access, chain);
 
       // Final before-update validation, then store
-      beforeUpdate(access, entity, fromState);
+      beforeUpdate(access, chain, fromState);
 
       // [#116] block update Chain state: cannot change chain startAt time after has segments
-      if (Value.isSet(entity.getStartAt()))
-        if (!existing.getStartAt().equals(entity.getStartAt()))
-          if (!segmentDAO.readMany(access, ImmutableList.of(entity.getId())).isEmpty())
+      if (Value.isSet(chain.getStartAt()))
+        if (!existing.getStartAt().equals(chain.getStartAt()))
+          if (!segmentDAO.readMany(access, ImmutableList.of(chain.getId())).isEmpty())
             throw new DAOValidationException("cannot change chain startAt time after it has segments");
 
       // Commit changes
-      store.put(entity);
-      return entity;
+      store.put(chain);
+      return chain;
 
     } catch (ValueException e) {
       throw new DAOValidationException(e);
@@ -422,6 +420,16 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
     } catch (NexusException e) {
       throw new DAOFatalException(e);
+    }
+  }
+
+  @Override
+  public boolean existsForEmbedKey(String key) {
+    try {
+      return store.getAllChains().stream()
+        .anyMatch(c -> Objects.equals(key, c.getEmbedKey()));
+    } catch (NexusException e) {
+      return false;
     }
   }
 

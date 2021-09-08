@@ -110,4 +110,11 @@ public interface ChainDAO extends DAO<Chain> {
    @param access
    */
   Collection<Chain> readAllFabricating(HubClientAccess access) throws DAOPrivilegeException, DAOFatalException;
+
+  /**
+   Whether the chain is playing for the given template
+   @return true if playing, else false
+   @param key for which to lookup chain
+   */
+  boolean existsForEmbedKey(String key);
 }
