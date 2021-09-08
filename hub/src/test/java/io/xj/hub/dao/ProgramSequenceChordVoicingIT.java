@@ -8,7 +8,6 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.api.Account;
-import io.xj.api.AccountUser;
 import io.xj.api.InstrumentType;
 import io.xj.api.Library;
 import io.xj.api.Program;
@@ -18,25 +17,21 @@ import io.xj.api.ProgramSequenceChordVoicing;
 import io.xj.api.ProgramState;
 import io.xj.api.ProgramType;
 import io.xj.api.ProgramVoice;
-import io.xj.api.User;
-import io.xj.api.UserRole;
 import io.xj.api.UserRoleType;
+import io.xj.hub.HubIntegrationTestModule;
+import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -50,12 +45,11 @@ import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 // future test: permissions of different users to readMany vs. of vs. update or destroy programs
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramSequenceChordVoicingIT {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   private ProgramSequenceChordVoicingDAO testDAO;
 
   private HubIntegrationTestProvider test;
@@ -84,14 +78,14 @@ public class ProgramSequenceChordVoicingIT {
     fake.account1 = test.insert(buildAccount("bananas"));
 // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
-    test.insert(buildUserRole(fake.user2,UserRoleType.ADMIN));
+    test.insert(buildUserRole(fake.user2, UserRoleType.ADMIN));
 
     // Jenny has a "user" role and belongs to account "bananas"
     fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
-    test.insert(buildUserRole(fake.user3,UserRoleType.USER));
-    test.insert(buildAccountUser(fake.account1,fake.user3));
+    test.insert(buildUserRole(fake.user3, UserRoleType.USER));
+    test.insert(buildAccountUser(fake.account1, fake.user3));
 
-    // Library "palm tree" has program "Ants" and program "Ants"
+    // Library "palm tree" has a program "Ants" and program "Ants"
     fake.library1 = test.insert(new Library()
       .id(UUID.randomUUID())
       .accountId(fake.account1.getId())
@@ -146,7 +140,7 @@ public class ProgramSequenceChordVoicingIT {
       .type(InstrumentType.PERCUSSIVE)
       .name("Drums"));
 
-    // Library "boat" has program "helm" and program "sail"
+    // Library "boat" has a program "helm" and program "sail"
     fake.library2 = test.insert(new Library()
       .id(UUID.randomUUID())
       .accountId(fake.account1.getId())
@@ -201,8 +195,7 @@ public class ProgramSequenceChordVoicingIT {
       .programId(fake.program3.getId())
       .programSequenceChordId(fake.program3_chord1.getId())
       .type(InstrumentType.PAD)
-      .notes("C5, Eb5, G5")
-      ;
+      .notes("C5, Eb5, G5");
 
     var result = testDAO.create(
       hubAccess, subject);
@@ -225,7 +218,7 @@ public class ProgramSequenceChordVoicingIT {
       sequenceChord1a_0_voicing0
         .type(InstrumentType.STICKY)
         .notes("G1,G2,G3")
-        );
+    );
 
     var result = testDAO.readOne(hubAccess, sequenceChord1a_0_voicing0.getId());
     assertNotNull(result);
@@ -246,8 +239,7 @@ public class ProgramSequenceChordVoicingIT {
       .programId(fake.program3.getId())
       .programSequenceChordId(fake.program3_chord1.getId())
       .type(InstrumentType.BASS)
-      .notes("C5, Eb5, G5")
-      ;
+      .notes("C5, Eb5, G5");
 
     var result = testDAO.create(
       hubAccess, inputData);
@@ -277,10 +269,10 @@ public class ProgramSequenceChordVoicingIT {
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
       .id(UUID.randomUUID())), "User, Artist");
-    failure.expect(DAOException.class);
-    failure.expectMessage("does not exist");
 
-    testDAO.readOne(hubAccess, sequenceChord1a_0_voicing0.getId());
+    var e = assertThrows(DAOException.class,
+      () -> testDAO.readOne(hubAccess, sequenceChord1a_0_voicing0.getId()));
+    assertEquals("Record does not exist", e.getMessage());
   }
 
   // future test: readManyInAccount vs readManyInLibraries, positive and negative cases
@@ -310,14 +302,12 @@ public class ProgramSequenceChordVoicingIT {
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
     fake.account2 = new Account()
-      .id(UUID.randomUUID())
-      ;
+      .id(UUID.randomUUID());
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
 
-    failure.expect(DAOException.class);
-    failure.expectMessage("Voicing belongs to Program in Account you have hubAccess to does not exist");
-
-    testDAO.destroy(hubAccess, sequenceChord1a_0_voicing0.getId());
+    var e = assertThrows(DAOException.class,
+      () -> testDAO.destroy(hubAccess, sequenceChord1a_0_voicing0.getId()));
+    assertEquals("Voicing belongs to Program in Account you have hubAccess to does not exist", e.getMessage());
   }
 
 }

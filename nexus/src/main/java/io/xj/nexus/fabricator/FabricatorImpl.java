@@ -54,6 +54,7 @@ import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.PitchClass;
+import io.xj.lib.music.Voicing;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Text;
@@ -379,7 +380,7 @@ class FabricatorImpl implements Fabricator {
     var voicings = sourceMaterial
       .getProgramSequenceChordVoicings(mainChoice.get().getProgramId());
     return voicings.stream()
-      .filter(v->!Strings.isNullOrEmpty(v.getNotes()))
+      .filter(Voicing::containsAnyValidNotes)
       .map(ProgramSequenceChordVoicing::getType)
       .distinct()
       .collect(Collectors.toList());

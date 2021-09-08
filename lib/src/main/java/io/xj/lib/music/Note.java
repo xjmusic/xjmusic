@@ -281,6 +281,15 @@ public class Note {
    @return valid note stream, or empty stream (if invalid)
    */
   public static Stream<Note> ofValid(String name) {
-    return rgxValidNote.matcher(name).find() ? Stream.of(Note.of(name)) : Stream.empty();
+    return isValid(name) ? Stream.of(Note.of(name)) : Stream.empty();
+  }
+
+  /**
+   Whether the current note is valid
+   @param name of note to test
+   @return true if valid
+   */
+  public static boolean isValid(String name) {
+    return rgxValidNote.matcher(name).find();
   }
 }

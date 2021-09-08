@@ -25,7 +25,6 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
-        working-directory: tf
 
       - name: Terraform Init
         id: init
@@ -35,18 +34,15 @@ jobs:
 
       - name: Terraform has been formatted correctly with `terraform fmt`
         id: fmt
-        run: terraform fmt -check
+        run: terraform fmt -check -chdir=tf
         continue-on-error: false
-        working-directory: tf
 
       - name: Terraform Validate
         id: validate
-        run: terraform validate -no-color
+        run: terraform validate -no-color -chdir=tf
         continue-on-error: false
-        working-directory: tf
 
       - name: Terraform Apply
         id: apply
-        run: terraform apply -auto-approve -no-color
+        run: terraform apply -auto-approve -no-color -chdir=tf
         continue-on-error: false
-        working-directory: tf

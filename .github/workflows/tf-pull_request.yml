@@ -36,19 +36,16 @@ jobs:
 
       - name: Terraform has been formatted correctly with `terraform fmt`
         id: fmt
-        run: terraform fmt -check
+        run: terraform fmt -check -chdir=tf
         continue-on-error: false
-        working-directory: tf
 
       - name: Terraform Validate
         id: validate
-        run: terraform validate -no-color
+        run: terraform validate -no-color -chdir=tf
         continue-on-error: false
-        working-directory: tf
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -no-color
+        run: terraform plan -no-color -chdir=tf
         continue-on-error: false
-        working-directory: tf
 

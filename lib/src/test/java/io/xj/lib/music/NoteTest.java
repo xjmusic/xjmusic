@@ -213,4 +213,17 @@ public class NoteTest {
     assertFalse(Note.ofValid("(None)").findAny().isPresent());
     assertFalse(Note.ofValid("abc").findAny().isPresent());
   }
+
+  /**
+   NC sections should not cache notes from the previous section #179409784
+   */
+  @Test
+  public void isValid() {
+    assertTrue(Note.isValid("G6"));
+    assertTrue(Note.isValid("G#6"));
+    assertTrue(Note.isValid("X"));
+    assertFalse(Note.isValid("(None)"));
+    assertFalse(Note.isValid("abc"));
+  }
+
 }
