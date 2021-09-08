@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
@@ -94,6 +95,31 @@ public class TemplateIT {
   @After
   public void tearDown() {
     test.shutdown();
+  }
+
+  @Test
+  public void create_embedKeyConvertedToLowercase() throws Exception {
+    HubAccess hubAccess = HubAccess.create("Admin");
+    Template inputData = new Template()
+      .name("coconuts")
+      .embedKey("dXUZhm")
+      .accountId(fake.account1.getId());
+
+    Template result = testDAO.create(hubAccess, inputData);
+
+    assertEquals("dxuzhm", result.getEmbedKey());
+  }
+
+  @Test
+  public void create_embedKeyGeneratedLowercase() throws Exception {
+    HubAccess hubAccess = HubAccess.create("Admin");
+    Template inputData = new Template()
+      .name("coconuts")
+      .accountId(fake.account1.getId());
+
+    Template result = testDAO.create(hubAccess, inputData);
+
+    assertEquals(result.getEmbedKey(), result.getEmbedKey().toLowerCase(Locale.ROOT));
   }
 
   @Test
@@ -304,7 +330,7 @@ public class TemplateIT {
 
   @Test
   public void update_toProductionTypeChain_cannotWithoutAdmin() {
-    HubAccess hubAccess = HubAccess.create(fake.user2, List.of(fake.account1),"User");
+    HubAccess hubAccess = HubAccess.create(fake.user2, List.of(fake.account1), "User");
     Template inputData = new Template()
       .name("cannons")
       .type(TemplateType.PRODUCTION)

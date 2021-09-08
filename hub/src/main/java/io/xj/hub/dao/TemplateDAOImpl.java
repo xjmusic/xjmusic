@@ -212,7 +212,7 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
 
       // Generate an embed key if none is set
       if (Strings.isNullOrEmpty(record.getEmbedKey()))
-        record.setEmbedKey(TremendouslyRandom.generateEmbedKey(GENERATED_EMBED_KEY_LENGTH));
+        record.setEmbedKey(Text.toEmbedKey(TremendouslyRandom.generateEmbedKey(GENERATED_EMBED_KEY_LENGTH)));
       else
         record.setEmbedKey(Text.toEmbedKey(record.getEmbedKey()));
 
