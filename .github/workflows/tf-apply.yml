@@ -34,15 +34,15 @@ jobs:
 
       - name: Terraform has been formatted correctly with `terraform fmt`
         id: fmt
-        run: terraform fmt -check -chdir=tf
+        run: terraform -chdir=tf fmt -check
         continue-on-error: false
 
       - name: Terraform Validate
         id: validate
-        run: terraform validate -no-color -chdir=tf
+        run: terraform -chdir=tf validate -no-color
         continue-on-error: false
 
       - name: Terraform Apply
         id: apply
-        run: terraform apply -auto-approve -no-color -chdir=tf
+        run: terraform -chdir=tf apply -auto-approve -no-color
         continue-on-error: false

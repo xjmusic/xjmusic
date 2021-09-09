@@ -67,7 +67,7 @@ resource "kubernetes_deployment" "xj-prod-yard-coolair" {
           }
 
           env {
-            name = "BOOTSTRAP_TEMPLATE_ID"
+            name  = "BOOTSTRAP_TEMPLATE_ID"
             value = "eb0cf5ce-09ba-11ec-8016-d72d36e2270c"
           }
 

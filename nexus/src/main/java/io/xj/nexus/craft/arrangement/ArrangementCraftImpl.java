@@ -70,11 +70,11 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    Segments have intensity arcs; automate mixer layers in and out of each main program
    https://www.pivotaltracker.com/story/show/178240332
 
-   @throws NexusException on failure
    @param sequence           for which to craft choices
    @param voices             for which to craft choices
    @param instrumentProvider from which to get instruments
-   @param defaultAtonal       whether to default to a single atonal note, if no voicings are available
+   @param defaultAtonal      whether to default to a single atonal note, if no voicings are available
+   @throws NexusException on failure
    */
   protected void craftChoices(ProgramSequence sequence, Collection<ProgramVoice> voices, InstrumentProvider instrumentProvider, boolean defaultAtonal) throws NexusException {
     // Craft each voice into choice
@@ -157,9 +157,9 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    thus the new choices have been made, we know *where* we're going next,
    but we aren't actually using them yet until we hit the next main program in full, N segments later.
 
+   @param choice        to craft arrangements for
+   @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    @throws NexusException on failure
-   @param choice to craft arrangements for
-   @param defaultAtonal       whether to default to a single atonal note, if no voicings are available
    */
   protected void craftArrangements(SegmentChoice choice, boolean defaultAtonal) throws NexusException {
     // this is used to invert voicings into the tightest possible range
@@ -294,10 +294,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    <p>
    [#176468993] Detail programs can be made to repeat every chord change
 
+   @param choice        from which to craft events
+   @param range         used to keep voicing in the tightest range possible
+   @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    @throws NexusException on failure
-   @param choice from which to craft events
-   @param range  used to keep voicing in the tightest range possible
-   @param defaultAtonal       whether to default to a single atonal note, if no voicings are available
    */
   private void craftArrangementForVoiceSectionRestartingEachChord(
     SegmentChoice choice,
@@ -331,7 +331,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param fromPos       position (in beats)
    @param maxPos        position (in beats)
    @param range         used to keep voicing in the tightest range possible
-   @param defaultAtonal       whether to default to a single atonal note, if no voicings are available
+   @param defaultAtonal whether to default to a single atonal note, if no voicings are available
    @throws NexusException on failure
    */
   private void craftArrangementForVoiceSection(
@@ -402,8 +402,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       .id(UUID.randomUUID())
       .segmentId(choice.getSegmentId())
       .segmentChoiceId(choice.getId())
-      .programSequencePatternId(pattern.getId())
-    );
+      .programSequencePatternId(pattern.getId()));
 
     var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId())
       .orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
@@ -544,6 +543,56 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   }
 
   /**
+   Pick final note based on instrument type, voice event, transposition and current chord
+   <p>
+   [#176695166] XJ should choose correct instrument note based on detail program note
+
+   @param instrumentType comprising audios
+   @param choice         for reference
+   @param event          of program to pick instrument note for
+   @param segmentChord   to use for interpreting the voicing
+   @param voicing        to choose a note from
+   @param range          used to keep voicing in the tightest range possible
+   @return note picked from the available voicing
+   */
+  private Set<String> pickNotesForEvent(
+    InstrumentType instrumentType,
+    SegmentChoice choice,
+    ProgramSequencePatternEvent event,
+    SegmentChord segmentChord,
+    SegmentChordVoicing voicing,
+    NoteRange range
+  ) throws NexusException {
+    var previous = fabricator.getPreferredNotes(event.getId(), segmentChord.getName());
+    if (previous.isPresent()) return previous.get();
+
+    // Various computations to prepare for picking
+    var chord = Chord.of(segmentChord.getName());
+    var sourceKey = fabricator.getKeyForChoice(choice);
+    var sourceRange = fabricator.getProgramRange(choice.getProgramId(), instrumentType);
+    var targetRange = fabricator.getProgramVoicingNoteRange(instrumentType);
+    var targetShiftSemitones = fabricator.getProgramTargetShift(sourceKey, Chord.of(chord.getName()));
+    var targetShiftOctaves = fabricator.getProgramRangeShiftOctaves(instrumentType, sourceRange, targetRange);
+    var voicingNotes = fabricator.getNotes(voicing).stream()
+      .flatMap(Note::ofValid)
+      .collect(Collectors.toList());
+
+    var notePicker = new NotePicker(instrumentType, chord, range, voicingNotes,
+      CSV.split(event.getNote())
+        .stream()
+        .map(n -> Note.of(n).shift(targetShiftSemitones + 12 * targetShiftOctaves))
+        .collect(Collectors.toList()));
+
+    notePicker.pick();
+    range.expand(notePicker.getRange());
+
+    var notes = notePicker.getPickedNotes().stream()
+      .map(n -> n.toString(chord.getAdjSymbol())).collect(Collectors.toSet());
+
+    return fabricator.rememberPickedNotes(event.getId(), chord.getName(), notes);
+  }
+
+  /**
    [#176696738] XJ has a serviceable voicing algorithm
    <p>
    [#176474113] Artist can edit comma-separated notes into detail program events
@@ -593,56 +642,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     if (Objects.nonNull(segmentChordVoicingId))
       pick.setSegmentChordVoicingId(segmentChordVoicingId);
     fabricator.add(pick);
-  }
-
-  /**
-   Pick final note based on instrument type, voice event, transposition and current chord
-   <p>
-   [#176695166] XJ should choose correct instrument note based on detail program note
-
-   @param instrumentType comprising audios
-   @param choice         for reference
-   @param event          of program to pick instrument note for
-   @param segmentChord   to use for interpreting the voicing
-   @param voicing        to choose a note from
-   @param range          used to keep voicing in the tightest range possible
-   @return note picked from the available voicing
-   */
-  private Set<String> pickNotesForEvent(
-    InstrumentType instrumentType,
-    SegmentChoice choice,
-    ProgramSequencePatternEvent event,
-    SegmentChord segmentChord,
-    SegmentChordVoicing voicing,
-    NoteRange range
-  ) throws NexusException {
-    var previous = fabricator.getPreferredNotes(event.getId(), segmentChord.getName());
-    if (previous.isPresent()) return previous.get();
-
-    // Various computations to prepare for picking
-    var chord = Chord.of(segmentChord.getName());
-    var sourceKey = fabricator.getKeyForChoice(choice);
-    var sourceRange = fabricator.getProgramRange(choice.getProgramId(), instrumentType);
-    var targetRange = fabricator.getProgramVoicingNoteRange(instrumentType);
-    var targetShiftSemitones = fabricator.getProgramTargetShift(sourceKey, Chord.of(chord.getName()));
-    var targetShiftOctaves = fabricator.getProgramRangeShiftOctaves(instrumentType, sourceRange, targetRange);
-    var voicingNotes = fabricator.getNotes(voicing).stream()
-      .flatMap(Note::ofValid)
-      .collect(Collectors.toList());
-
-    var notePicker = new NotePicker(instrumentType, chord, range, voicingNotes,
-      CSV.split(event.getNote())
-        .stream()
-        .map(n -> Note.of(n).shift(targetShiftSemitones + 12 * targetShiftOctaves))
-        .collect(Collectors.toList()));
-
-    notePicker.pick();
-    range.expand(notePicker.getRange());
-
-    var notes = notePicker.getPickedNotes().stream()
-      .map(n -> n.toString(chord.getAdjSymbol())).collect(Collectors.toSet());
-
-    return fabricator.rememberPickedNotes(event.getId(), chord.getName(), notes);
   }
 
   /**

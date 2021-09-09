@@ -1,6 +1,6 @@
 package io.xj.lib.music;
 
-import io.xj.api.ProgramSequenceChordVoicing;
+import io.xj.api.SegmentChordVoicing;
 import io.xj.lib.util.CSV;
 
 public enum Voicing {
@@ -10,7 +10,7 @@ public enum Voicing {
     return CSV.split(notes).stream().anyMatch(Note::isValid);
   }
 
-  public static boolean containsAnyValidNotes(ProgramSequenceChordVoicing programSequenceChordVoicing) {
-    return containsAnyValidNotes(programSequenceChordVoicing.getNotes());
+  public static boolean containsAnyValidNotes(SegmentChordVoicing voicing) {
+    return containsAnyValidNotes(voicing.getNotes());
   }
 }

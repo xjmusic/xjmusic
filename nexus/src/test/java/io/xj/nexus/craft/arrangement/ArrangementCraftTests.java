@@ -125,6 +125,11 @@ public class ArrangementCraftTests extends YamlTest {
     loadAndRunTest("arrangement_craft_6.yaml");
   }
 
+  @Test
+  public void arrangementCraft7NoChordSections() {
+    loadAndRunTest("arrangement_craft_7_no_chord_sections.yaml");
+  }
+
   @Before
   public void setUp() throws AppException {
     Config config = NexusTestConfiguration.getDefault();

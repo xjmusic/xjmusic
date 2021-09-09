@@ -1,23 +1,9 @@
 # Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user
-resource "aws_iam_user" "xj-infra-terraform" {
-  name = "xj-infra-terraform"
-
-  tags = {
-    Environment = "infra"
-  }
-}
-
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_access_key
-resource "aws_iam_access_key" "xj-infra-terraform" {
-  user = aws_iam_user.xj-infra-terraform.name
-}
-
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy
 resource "aws_iam_user_policy" "xj-infra-terraform" {
   name = "xj-infra-terraform"
-  user = aws_iam_user.xj-infra-terraform.name
+  user = aws_iam_user.xj-ci.name
 
   policy = jsonencode({
     "Version" : "2012-10-17",
@@ -76,25 +62,25 @@ resource "aws_iam_user_policy" "xj-infra-terraform" {
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment
 resource "aws_iam_user_policy_attachment" "xj-infra-terraform-AmazonEKSClusterPolicy" {
-  user       = aws_iam_user.xj-infra-terraform.name
+  user       = aws_iam_user.xj-ci.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment
 resource "aws_iam_user_policy_attachment" "xj-infra-terraform-AmazonEKSWorkerNodePolicy" {
-  user       = aws_iam_user.xj-infra-terraform.name
+  user       = aws_iam_user.xj-ci.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment
 resource "aws_iam_user_policy_attachment" "xj-infra-terraform-AmazonEC2ContainerRegistryReadOnly" {
-  user       = aws_iam_user.xj-infra-terraform.name
+  user       = aws_iam_user.xj-ci.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment
 resource "aws_iam_user_policy_attachment" "xj-infra-terraform-AmazonEKS_CNI_Policy" {
-  user       = aws_iam_user.xj-infra-terraform.name
+  user       = aws_iam_user.xj-ci.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
 

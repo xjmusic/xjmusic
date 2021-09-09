@@ -380,7 +380,6 @@ class FabricatorImpl implements Fabricator {
     var voicings = sourceMaterial
       .getProgramSequenceChordVoicings(mainChoice.get().getProgramId());
     return voicings.stream()
-      .filter(Voicing::containsAnyValidNotes)
       .map(ProgramSequenceChordVoicing::getType)
       .distinct()
       .collect(Collectors.toList());
@@ -713,6 +712,7 @@ class FabricatorImpl implements Fabricator {
     if (!voicingNoteRange.containsKey(type)) {
       voicingNoteRange.put(type, new NoteRange(workbench.getSegmentChordVoicings()
         .stream()
+        .filter(Voicing::containsAnyValidNotes)
         .filter(segmentChordVoicing -> Objects.equals(segmentChordVoicing.getType(), type))
         .flatMap(segmentChordVoicing -> getNotes(segmentChordVoicing).stream())
         .collect(Collectors.toList())));
@@ -855,6 +855,7 @@ class FabricatorImpl implements Fabricator {
   public Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, InstrumentType type) {
     Collection<SegmentChordVoicing> voicings = workbench.getSegmentChordVoicings();
     return voicings.stream()
+      .filter(Voicing::containsAnyValidNotes)
       .filter(voicing -> Objects.equals(type, voicing.getType()))
       .filter(voicing -> Objects.equals(chord.getId(), voicing.getSegmentChordId()))
       .findAny();

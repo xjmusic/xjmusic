@@ -36,13 +36,6 @@ module "xj-prod-eks" {
 
   map_users = [
     {
-      userarn  = aws_iam_user.xj-infra-terraform.arn
-      username = aws_iam_user.xj-infra-terraform.name
-      groups = [
-        "system:masters"
-      ]
-    },
-    {
       userarn  = aws_iam_user.xj-ci.arn
       username = aws_iam_user.xj-ci.name
       groups = [
