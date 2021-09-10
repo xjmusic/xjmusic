@@ -126,10 +126,10 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    */
   @SuppressWarnings("DuplicatedCode")
   private Double scoreRhythm(Program program, MemeIsometry rhythmIsometry) {
-    double score = 0;
+    double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_RHYTHM);
     Collection<String> memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
     if (!memes.isEmpty())
-      score += rhythmIsometry.score(memes) * SCORE_MATCH_MEMES + Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_RHYTHM);
+      score += rhythmIsometry.score(memes) * SCORE_MATCH_MEMES;
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))

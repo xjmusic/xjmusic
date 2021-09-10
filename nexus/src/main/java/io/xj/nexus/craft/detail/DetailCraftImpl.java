@@ -207,10 +207,10 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
    */
   @SuppressWarnings("DuplicatedCode")
   private Double scoreDetail(Program program, MemeIsometry detailIsometry) {
-    double score = 0;
+    double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_DETAIL);
     Collection<String> memes = fabricator.sourceMaterial().getMemesAtBeginning(program);
     if (!memes.isEmpty())
-      score += detailIsometry.score(memes) * SCORE_MATCH_MEMES + Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_DETAIL);
+      score += detailIsometry.score(memes) * SCORE_MATCH_MEMES;
 
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
