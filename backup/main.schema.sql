@@ -1041,6 +1041,7 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 50	51	template playback stateless	SQL	V51__template_playback_stateless.sql	-1969369120	postgres	2021-08-30 17:48:51.249366	4	t
 51	52	template playback created at	SQL	V52__template_playback_created_at.sql	-155540697	postgres	2021-08-30 17:48:51.276355	7	t
 52	53	template type	SQL	V53__template_type.sql	1695445248	postgres	2021-08-30 17:48:51.301977	2	t
+53	54	refactor percussive to drum	SQL	V54__refactor_percussive_to_drum.sql	-912722638	postgres	2021-09-10 03:39:10.815487	43	t
 \.
 
 

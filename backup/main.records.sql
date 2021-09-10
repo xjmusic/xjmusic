@@ -97,6 +97,8 @@ COPY xj."user" (id, name, email, avatar_url) FROM stdin;
 53d857b6-6cbc-11eb-aa45-fb4149603399	Voodoo Lion	voodoolionproduction@gmail.com	https://lh3.googleusercontent.com/a-/AOh14GgB60xLTDLghBqKTw7XHXJlhMkJm4ntFkEKklzTTQ=s50
 f3f84f10-8866-11eb-bdb9-131400c7c86d	Ian Hersey	ianherseyianherseyianhersey@gmail.com	https://lh4.googleusercontent.com/-qVdKhqGFuUc/AAAAAAAAAAI/AAAAAAAAAAA/AMZuucntX2DpvzHryxK2YN5FEchEiFQjGg/s50/photo.jpg
 1b299a74-f187-11eb-8314-cf9697b34927	David Cole	davecolemusic@gmail.com	https://lh3.googleusercontent.com/a-/AOh14Ghz3YJ1DRihWcJggvfBTuFR6-IJNJ6CdZ7ZFuXFeQ=s50
+04fd1aae-0b28-11ec-9c0e-a3439b9d83f3	Rana Waqar	ranawaqar7550@gmail.com	https://lh3.googleusercontent.com/a/AATXAJwaFra4fpDJNqFrg3IH3osfDK63YpFrfdvGVe5d=s50-mo
+d7d1932a-0bfe-11ec-849f-cba5043dcd83	Waqar	rana.waqar@arbisoft.com	https://lh3.googleusercontent.com/a-/AOh14GgCKOsuRLZInUsc8eh0oUGset3u2aJ9nSu5egAzww=s50
 \.
 
 
@@ -150,8 +152,8 @@ ede3b224-fb23-11eb-ad24-1bf1b475662e	Cool Instrument Stab	14e58a74-16eb-11ea-8a3
 53b95f54-fb24-11eb-ad24-8f1c28086c69	Cool Instrument Bass	14e58a74-16eb-11ea-8a37-27b15e9fd30c
 f07d8882-fb25-11eb-afc6-578905fc6ef1	Cool Program Loop	14e58a74-16eb-11ea-8a37-27b15e9fd30c
 1509102a-16eb-11ea-8a37-4764c2a771db	Cool Program Main	14e58a74-16eb-11ea-8a37-27b15e9fd30c
-3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Cool Instrument Drum	14e58a74-16eb-11ea-8a37-27b15e9fd30c
-c40012d4-fb20-11eb-a2de-278de10ba0a8	Cool Instrument Drum Loop 	14e58a74-16eb-11ea-8a37-27b15e9fd30c
+3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Cool Instrument Percussive	14e58a74-16eb-11ea-8a37-27b15e9fd30c
+c40012d4-fb20-11eb-a2de-278de10ba0a8	Cool Instrument Percussive Loop 	14e58a74-16eb-11ea-8a37-27b15e9fd30c
 55ab659c-fb3c-11eb-85f4-87f8295902e9	Cool Program Macro	14e58a74-16eb-11ea-8a37-27b15e9fd30c
 fecebd38-fb26-11eb-8bbd-df3edf17a61b	Cool Program Rhythm (delete me)	14e58a74-16eb-11ea-8a37-27b15e9fd30c
 \.
@@ -162,27 +164,6 @@ fecebd38-fb26-11eb-8bbd-df3edf17a61b	Cool Program Rhythm (delete me)	14e58a74-16
 --
 
 COPY xj.instrument (id, library_id, type, state, name, density, config) FROM stdin;
-152fbc70-16eb-11ea-8a37-2f91c79f438d	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Acoustic	0.6	isTonal=false
-158a6738-16eb-11ea-8a37-3706e5d25249	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Earth A (legacy)	0.6	isTonal=false
-15cd8374-16eb-11ea-8a37-8f22eedc54b2	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Earth B (legacy)	0.6	isTonal=false
-166815c4-16eb-11ea-8a37-634bb3ccef01	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Electronic	0.6	isTonal=false
-169ea38c-16eb-11ea-8a37-b799503ae436	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Fire A  (legacy)	0.6	isTonal=false
-17af4286-16eb-11ea-8a37-7f9963e0dfa2	1509b610-16eb-11ea-8a37-731d17ba5549	Drum	Published	Flammy Clap	0.6	isTonal=false
-17e50f74-16eb-11ea-8a37-e3561e92fad1	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Pots & Pans	0.6	isTonal=false
-1860788a-16eb-11ea-8a37-87eb83753fe4	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Water B (legacy)	0.6	isTonal=false
-1884dbb2-16eb-11ea-8a37-077ec33cd155	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Water Basic X	0	isTonal=false
-193a8eee-16eb-11ea-8a37-4f72c68eb48d	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Wind A (legacy)	0.6	isTonal=false
-196d485c-16eb-11ea-8a37-3b9fc50a2c86	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Wind B (legacy)	0.6	isTonal=false
-40766298-60de-11ea-a612-43b1bb19e32a	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Draft	Earth Large Kit A	0.6	isTonal=false
-06121a8e-60d4-11ea-ba4d-8786ea357f01	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Earth Large (Archive)	0.6	isTonal=false
-234c30f8-60d4-11ea-b41e-3fc9fed63772	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Earth Small (Archive)	0.6	isTonal=false
-2616bad8-60d4-11ea-b41e-0f5122693b78	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Fire Large (Archive)	0.6	isTonal=false
-290c072a-60d4-11ea-b41e-9f5b206a8b5e	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Fire Small (Archive)	0.6	isTonal=false
-2b9945b6-60d4-11ea-b41e-db0695b1e9a0	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Water Large (Archive)	0.6	isTonal=false
-2e0447e2-60d4-11ea-b41e-8bb683db6049	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Water Small (Archive)	0.6	isTonal=false
-30933234-60d4-11ea-b41e-af865edbb83e	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Wind Large (Archive)	0.6	isTonal=false
-337d06d2-60d4-11ea-b41e-4fbf8d13a55a	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Wind Small (Archive)	0.6	isTonal=false
-c7699edc-bb51-11ea-9785-2f49dfce551e	5b300b6a-ab94-11ea-8655-67738fabcb32	Drum	Draft	Wind Large 1	1	isTonal=false
 c0c58ade-0b31-11eb-a297-d313824ce482	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Earth Small Pad	0.6	isTonal=true\nisMultiphonic=true
 af8c6ba0-1baf-11eb-a1a3-7bbaed480f84	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Fire Large Pad	0.6	isTonal=true\nisMultiphonic=true
 15162544-16eb-11ea-8a37-5f8791ecc0c1	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Draft	Fire String Hits	0.6	isTonal=true
@@ -198,33 +179,18 @@ faf05330-1efd-11eb-90fb-c334b746da1c	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky
 c285e3a8-1ba0-11eb-aab8-1f13fdf1284f	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Earth Large Bass	0.6	isMultiphonic=true\nisTonal=true
 e694d3ac-1bbf-11eb-a4ae-afa8e30b1947	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Wind Large Bass	0.6	isTonal=true\nisMultiphonic=true\n
 c2eb3bea-1bb9-11eb-8d30-3bee4bcc082d	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Fire Small Bass V2	0.6	isMultiphonic = true\nisTonal = true
-a24a029a-62a4-11eb-bf98-9b95e451e8fc	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Draft	Test failure instrument	0	isMultiphonic=false\nisTonal=false\nnoneiuasdfsdf=123
-8120e618-7953-11eb-a1df-cb852fd6a755	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Draft	Wind Small 1 Kit sandbox	0
-e5dba318-7953-11eb-9e16-ffa577a6f380	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Draft	New Wind Small Sandbox	0
-bd273c54-c6b9-11ea-bf1e-6f4a50ee66c3	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Wind Small 1 Kit	0.6	isTonal=false
 090c7776-205e-11eb-bd64-431b46a4aa7b	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Wind Large Sticky	0.6	isTonal=true\nisMultiphonic=true\n
 a8653b5e-1efc-11eb-9680-37ebbadae3e5	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Fire Large Sticky	0.6	isTonal=true\nisMultiphonic=true
 b65f643e-1eff-11eb-90fb-8b0472d1d3ed	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Water Small Sticky	0.6	isTonal=true\nisMultiphonic=true
 7de67650-1ef6-11eb-8df3-bf5a46b7b953	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Earth Large Sticky	0.6	isTonal=true\nisMultiphonic=true
 92220d48-2061-11eb-a29a-9f2dfa197751	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Draft	Water Large Sticky	0.6	isMultiphonic = true\nisTonal = true
 1efc6726-1efb-11eb-aec8-83fff6175034	460830b0-fb24-11eb-80a6-7b4f92dccaea	Sticky	Published	Earth Small Sticky V2	0.6	isMultiphonic = true\nisTonal = true
-17b34ca0-16eb-11ea-8a37-6b86e3816409	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	New Earth Large	0.6	isTonal=false
-19138e3e-16eb-11ea-8a37-0b2895a9ceb9	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Water Small (Legacy)	0.6	isTonal=false
-18860e06-16eb-11ea-8a37-1fe3e47ff5a8	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Water Large (Legacy)	0.6	isTonal=false
-1787297c-16eb-11ea-8a37-6f3014c0a6fc	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Fire Small (Legacy)	0.6	isTonal=false
-16c8d008-16eb-11ea-8a37-dbdfe140dd35	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Fire Large (Legacy)	0.6	isTonal=false
-1637e066-16eb-11ea-8a37-c7f42ae039d6	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Earth Small (Legacy)	0.6	isTonal=false
-15f4f92c-16eb-11ea-8a37-2f529693f38a	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Earth Large (Legacy)	0.6	isTonal=false
-0c668776-64d5-11ea-acd9-c772fe2ee43d	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	New Fire Large	0.6	isTonal=false
-199a5e8c-16eb-11ea-8a37-0f841ec0351d	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Wind Large (Legacy)	0.6	isTonal=false
-19ea21a6-16eb-11ea-8a37-cb712a6674d9	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Wind Small (Legacy)	0.6	isTonal=false
-d8de4aec-6317-11ea-a6db-9f44c189845f	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	New Water Large	0.6	isTonal=false
-55d46a34-6360-11ea-8872-97bb23901000	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	New Water Small	0.6	isTonal=false
 4a356e84-1bc6-11eb-b892-5b094429574c	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Water Large Pad	0.6	isTonal=true\nisMultiphonic=true
 ae01c97a-1bd6-11eb-8fc1-bb9e8af14f4c	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Water Small Pad	0.6	isTonal=true\nisMultiphonic=true
 391b1c64-1bdc-11eb-b0f8-c72c947963aa	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Published	Wind Small Pad	0.6	isTonal=true\nisMultiphonic=true
 150bc66c-16eb-11ea-8a37-83d91cc4d60b	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Draft	Earth Bass Pad	0.6	isTonal=true\nisMultiphonic=true\n
 35657db2-1ba5-11eb-a9a2-c3b8f00bc440	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Draft	Earth Large Pad	0.6	isTonal=true\nisMultiphonic=true\n
+152fbc70-16eb-11ea-8a37-2f91c79f438d	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Acoustic	0.6	isTonal=false
 5994cdd0-1bd9-11eb-ac93-ff6d32f9237a	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef	Pad	Draft	Wind Large Pad	0.6	isMultiphonic = true\nisTonal = true
 4646f998-1caa-11eb-9a3f-c798c68ee101	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Earth Large Stab	0.6	isTonal=true\nisMultiphonic=true
 707f4994-1cb0-11eb-bb72-9fa0d813a844	ede3b224-fb23-11eb-ad24-1bf1b475662e	Stab	Published	Water Large Stab	0.6	isTonal=true\nisMultiphonic=true
@@ -246,11 +212,51 @@ e372870e-bcd3-11eb-a28c-c30235bba0f5	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	P
 b640f744-bcd7-11eb-b822-3f7e40a8dddb	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Wind Long Bass 01	0.6	isMultiphonic = true\nisTonal = true
 d87afd76-bcde-11eb-8a1a-7b06cdef172a	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Wind Long Bass 02	0.6	isMultiphonic = true\nisTonal = true
 64c05f1c-bd78-11eb-84d8-df6d40a217ce	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Water Long Bass 01	0.6	isMultiphonic = true\nisTonal = true
+212cb21a-bd7c-11eb-b952-3b36714174d2	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Water Long Bass 02	0.6	isMultiphonic = true\nisTonal = true
+c806a4fe-1bc1-11eb-aba2-53552d52758d	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Wind Small Bass V2	0.6	isMultiphonic = true\nisTonal = true
+e26c67f4-1bb5-11eb-92b0-8bc1117eadc7	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Fire Large Bass V2	0.6	isMultiphonic = true\nisTonal = true
+3f48ab02-a4c0-11eb-998b-0b5596347fa9	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Earth Large Stripe - nope, too high	0.6	isMultiphonic = true\nisTonal = true
+158a6738-16eb-11ea-8a37-3706e5d25249	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Earth A (legacy)	0.6	isTonal=false
+15cd8374-16eb-11ea-8a37-8f22eedc54b2	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Earth B (legacy)	0.6	isTonal=false
+166815c4-16eb-11ea-8a37-634bb3ccef01	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Electronic	0.6	isTonal=false
+169ea38c-16eb-11ea-8a37-b799503ae436	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Fire A  (legacy)	0.6	isTonal=false
+17af4286-16eb-11ea-8a37-7f9963e0dfa2	1509b610-16eb-11ea-8a37-731d17ba5549	Drum	Published	Flammy Clap	0.6	isTonal=false
+17e50f74-16eb-11ea-8a37-e3561e92fad1	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Pots & Pans	0.6	isTonal=false
+1860788a-16eb-11ea-8a37-87eb83753fe4	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Water B (legacy)	0.6	isTonal=false
+1884dbb2-16eb-11ea-8a37-077ec33cd155	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Water Basic X	0	isTonal=false
 eacd388c-c6b6-11ea-ac95-d3dfd467468b	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Wind Large 2 Kit	0.6	isTonal=false
 00d18760-c6bb-11ea-bf1e-db7a46faf8c4	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Earth Small 1 Kit	0.6	isTonal=false
 054f4b0e-c6bd-11ea-8d9b-d3bfd03b9b0f	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Earth Small 2 Kit	0.6	isTonal=false
 3d18232e-c6bf-11ea-8d9b-03b3b304f97b	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Earth Large 2 Kit	0.6	isTonal=false
 e3183eaa-c6bd-11ea-9c82-57f1aff96cac	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Earth Large 1 Kit	0.6	isTonal=false
+193a8eee-16eb-11ea-8a37-4f72c68eb48d	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Wind A (legacy)	0.6	isTonal=false
+196d485c-16eb-11ea-8a37-3b9fc50a2c86	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Published	Wind B (legacy)	0.6	isTonal=false
+40766298-60de-11ea-a612-43b1bb19e32a	15085f36-16eb-11ea-8a37-57a336f886a8	Drum	Draft	Earth Large Kit A	0.6	isTonal=false
+06121a8e-60d4-11ea-ba4d-8786ea357f01	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Earth Large (Archive)	0.6	isTonal=false
+234c30f8-60d4-11ea-b41e-3fc9fed63772	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Earth Small (Archive)	0.6	isTonal=false
+2616bad8-60d4-11ea-b41e-0f5122693b78	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Fire Large (Archive)	0.6	isTonal=false
+290c072a-60d4-11ea-b41e-9f5b206a8b5e	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Fire Small (Archive)	0.6	isTonal=false
+2b9945b6-60d4-11ea-b41e-db0695b1e9a0	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Water Large (Archive)	0.6	isTonal=false
+2e0447e2-60d4-11ea-b41e-8bb683db6049	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Water Small (Archive)	0.6	isTonal=false
+30933234-60d4-11ea-b41e-af865edbb83e	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Wind Large (Archive)	0.6	isTonal=false
+337d06d2-60d4-11ea-b41e-4fbf8d13a55a	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Published	Wind Small (Archive)	0.6	isTonal=false
+c7699edc-bb51-11ea-9785-2f49dfce551e	5b300b6a-ab94-11ea-8655-67738fabcb32	Drum	Draft	Wind Large 1	1	isTonal=false
+a24a029a-62a4-11eb-bf98-9b95e451e8fc	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Draft	Test failure instrument	0	isMultiphonic=false\nisTonal=false\nnoneiuasdfsdf=123
+8120e618-7953-11eb-a1df-cb852fd6a755	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Draft	Wind Small 1 Kit sandbox	0	
+e5dba318-7953-11eb-9e16-ffa577a6f380	fa0556b6-60d3-11ea-9dae-b7b87ea4a93f	Drum	Draft	New Wind Small Sandbox	0	
+bd273c54-c6b9-11ea-bf1e-6f4a50ee66c3	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Wind Small 1 Kit	0.6	isTonal=false
+17b34ca0-16eb-11ea-8a37-6b86e3816409	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	New Earth Large	0.6	isTonal=false
+19138e3e-16eb-11ea-8a37-0b2895a9ceb9	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Water Small (Legacy)	0.6	isTonal=false
+18860e06-16eb-11ea-8a37-1fe3e47ff5a8	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Water Large (Legacy)	0.6	isTonal=false
+1787297c-16eb-11ea-8a37-6f3014c0a6fc	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Fire Small (Legacy)	0.6	isTonal=false
+16c8d008-16eb-11ea-8a37-dbdfe140dd35	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Fire Large (Legacy)	0.6	isTonal=false
+1637e066-16eb-11ea-8a37-c7f42ae039d6	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Earth Small (Legacy)	0.6	isTonal=false
+15f4f92c-16eb-11ea-8a37-2f529693f38a	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Earth Large (Legacy)	0.6	isTonal=false
+0c668776-64d5-11ea-acd9-c772fe2ee43d	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	New Fire Large	0.6	isTonal=false
+199a5e8c-16eb-11ea-8a37-0f841ec0351d	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Wind Large (Legacy)	0.6	isTonal=false
+19ea21a6-16eb-11ea-8a37-cb712a6674d9	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	Wind Small (Legacy)	0.6	isTonal=false
+d8de4aec-6317-11ea-a6db-9f44c189845f	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	New Water Large	0.6	isTonal=false
+55d46a34-6360-11ea-8872-97bb23901000	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	New Water Small	0.6	isTonal=false
 d247d096-c6c1-11ea-a4db-538e1ac4667f	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Fire Large 2 Kit	0.6	isTonal=false
 430097b4-c6b8-11ea-bf1e-5f5392f83f6a	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Wind Small 2 Kit	0.6	isTonal=false
 a940a2c8-c6c0-11ea-a4db-27c57fde98ce	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Fire Large 1 Kit	0.6	isTonal=false
@@ -263,17 +269,13 @@ d9dd91c6-c6c9-11ea-a21e-0bcae3c78831	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	P
 3e55da8a-bb55-11ea-bec8-83d3620b01db	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Published	Wind Large 1 Kit	0.6	isTonal=false
 34c05028-696f-11ea-b45e-6b770285d799	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Wind Small	0.6	isTonal=false
 28806cbc-64ec-11ea-acb5-7f27befb1aad	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	Draft	New Fire Small	0.6	isMultiphonic = false\nisTonal = false
-212cb21a-bd7c-11eb-b952-3b36714174d2	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Water Long Bass 02	0.6	isMultiphonic = true\nisTonal = true
-c806a4fe-1bc1-11eb-aba2-53552d52758d	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Wind Small Bass V2	0.6	isMultiphonic = true\nisTonal = true
-e26c67f4-1bb5-11eb-92b0-8bc1117eadc7	53b95f54-fb24-11eb-ad24-8f1c28086c69	Bass	Published	Fire Large Bass V2	0.6	isMultiphonic = true\nisTonal = true
-3f48ab02-a4c0-11eb-998b-0b5596347fa9	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Draft	Earth Large Stripe - nope, too high	0.6	isMultiphonic = true\nisTonal = true
-30b0600e-fb22-11eb-ac21-3fdc6eba2bf0	c40012d4-fb20-11eb-a2de-278de10ba0a8	Drum	Draft	Shaker Loops	1	isMultiphonic = false\nisTonal = false
-04940888-02dc-11ec-aff9-0fbc509153f6	c40012d4-fb20-11eb-a2de-278de10ba0a8	Drum	Draft	Clap Loops	1	isMultiphonic = false\nisTonal = false
-bfd5a5d2-02de-11ec-ad7a-f77d2854066a	c40012d4-fb20-11eb-a2de-278de10ba0a8	Drum	Draft	Snap Loops	1	isMultiphonic = false\nisTonal = false
-1f23f66e-02db-11ec-aff9-cf63193f1099	c40012d4-fb20-11eb-a2de-278de10ba0a8	Drum	Draft	Tamborine Loops	1	isMultiphonic = false\nisTonal = false
-5994a4de-02df-11ec-9cd8-83626e718f0f	c40012d4-fb20-11eb-a2de-278de10ba0a8	Drum	Draft	Bongo Loops	1	isMultiphonic = false\nisTonal = false
-39582db6-02e0-11ec-9cd8-138a25e9d4dc	c40012d4-fb20-11eb-a2de-278de10ba0a8	Drum	Draft	Triangle Loops	1	isMultiphonic = false\nisTonal = false
-76de8b1c-02e0-11ec-9cd8-e764c2cad43d	c40012d4-fb20-11eb-a2de-278de10ba0a8	Drum	Draft	Go-go Bells Loops	1	isMultiphonic = false\nisTonal = false
+5994a4de-02df-11ec-9cd8-83626e718f0f	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Bongo Loops	1	isMultiphonic = false\nisTonal = false
+04940888-02dc-11ec-aff9-0fbc509153f6	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Clap Loops	1	isMultiphonic = false\nisTonal = false
+76de8b1c-02e0-11ec-9cd8-e764c2cad43d	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Go-go Bells Loops	1	isMultiphonic = false\nisTonal = false
+30b0600e-fb22-11eb-ac21-3fdc6eba2bf0	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Shaker Loops	1	isMultiphonic = false\nisTonal = false
+bfd5a5d2-02de-11ec-ad7a-f77d2854066a	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Snap Loops	1	isMultiphonic = false\nisTonal = false
+1f23f66e-02db-11ec-aff9-cf63193f1099	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Tamborine Loops	1	isMultiphonic = false\nisTonal = false
+39582db6-02e0-11ec-9cd8-138a25e9d4dc	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Triangle Loops	1	isMultiphonic = false\nisTonal = false
 \.
 
 
@@ -944,7 +946,7 @@ de16f67e-1ba6-11eb-a9a2-2fe5dad6cfdf	35657db2-1ba5-11eb-a9a2-c3b8f00bc440	D#4	in
 19f0ffe4-16eb-11ea-8a37-0fcf3caf46f9	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Basketball-like Snare	446caeea-a77e-47d8-a69f-1a44ec1f4f74-instrument-30-audio.wav	0.0002	0.25	121	0.6	SNARE	1	D8
 19f2b686-16eb-11ea-8a37-6bc4b64fb8a8	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Undulating Low Tom/Kick	c23128ff-fe96-4e9b-b356-f1b3cb951a2d-instrument-30-audio.wav	0	0.625	121	0.6	KICK	1	Db4
 19f47368-16eb-11ea-8a37-0fb19d8234df	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Knocky Muted Tom	95d5369a-71aa-4b2f-be0e-c72044091307-instrument-30-audio.wav	0.0006	0.219	121	0.6	TOM	1	X
-19f6f0a2-16eb-11ea-8a37-0fa3b0fe765b	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Drum Flam	9bd6fafa-0363-45d5-a17d-05ee8a40095b-instrument-30-audio.wav	0.0075	0.281	121	0.6	TOM	1	Eb6
+19f6f0a2-16eb-11ea-8a37-0fa3b0fe765b	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Percussive Flam	9bd6fafa-0363-45d5-a17d-05ee8a40095b-instrument-30-audio.wav	0.0075	0.281	121	0.6	TOM	1	Eb6
 19f9771e-16eb-11ea-8a37-0744d009b542	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Dead Studio Snare	0c460941-c090-4f71-9ff5-a632319cb5c9-instrument-30-audio.wav	0	0.25	121	0.6	SNARE	1	X
 19fb7f78-16eb-11ea-8a37-0fd586076f20	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Tight Dead Snare 2	5ff14782-bf9b-4f0d-8529-bba612872b1d-instrument-30-audio.wav	0.0003	0.25	121	0.6	SNARE	1	F2
 19fdd28c-16eb-11ea-8a37-634ce52786ca	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Electronic Tom w/ Slapback	c9221c0a-7748-4d54-ba67-6edf709fd42b-instrument-30-audio.wav	0.001	0.875	121	0.6	TOM	1	A7
@@ -952,7 +954,7 @@ de16f67e-1ba6-11eb-a9a2-2fe5dad6cfdf	35657db2-1ba5-11eb-a9a2-c3b8f00bc440	D#4	in
 1a011cda-16eb-11ea-8a37-3f5e45f90d2f	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Hi-Hat 2	f19c9101-1ad1-43c9-8fc0-8a18fe116e64-instrument-40-audio.wav	0	0.175	121	0.6	HIHATOPEN	1	B9
 1a02a4b0-16eb-11ea-8a37-df7a3301b53f	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Metallic Snare	417cfa8c-f708-44e7-b06f-497dcc56d4a6-instrument-30-audio.wav	0.0001	0.25	121	0.6	SNARE	1	E4
 1a04455e-16eb-11ea-8a37-d399bca5ce76	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Clap-like Percussion	9acfb60f-9112-4a6c-9697-f5270583c81b-instrument-30-audio.wav	0.0001	0.25	121	0.6	SNARE	1	B8
-1a06cbc6-16eb-11ea-8a37-0bde5ac53b8e	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Digital Drum Flam	fecb3546-cd26-4ffe-a226-6822a653b9de-instrument-30-audio.wav	0.0004	0.25	121	0.6	TOM	1	A3
+1a06cbc6-16eb-11ea-8a37-0bde5ac53b8e	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Digital Percussive Flam	fecb3546-cd26-4ffe-a226-6822a653b9de-instrument-30-audio.wav	0.0004	0.25	121	0.6	TOM	1	A3
 1a0942b6-16eb-11ea-8a37-ff37076807a7	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Hi-Hat 1	9a91b6f0-1a14-48c7-933b-5a53c7824e3d-instrument-40-audio.wav	0	0.068	121	0.6	HIHAT	1	B9
 1a0b789c-16eb-11ea-8a37-67acb9c83761	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Dubbed Out Clave	20e27f8a-914f-4091-a2df-769069497ae8-instrument-30-audio.wav	0	6.215	121	0.6	TOM	1	A6
 1a0d9f50-16eb-11ea-8a37-f7c230db0ff1	19ea21a6-16eb-11ea-8a37-cb712a6674d9	Hi-Hat 1	adb40492-919f-46ff-808f-83465a6fb5d6-instrument-40-audio.wav	0	0.068	121	0.6	HIHAT	1	B9
@@ -1293,7 +1295,7 @@ cea230f9-9f0d-427b-b349-0afd45c6413e	30933234-60d4-11ea-b41e-af865edbb83e	Mid To
 572f2c38-a017-43a9-a0ef-212243c00036	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Basketball-like Snare	446caeea-a77e-47d8-a69f-1a44ec1f4f74-instrument-30-audio.wav	0.0002	0.25	121	0.6	SNARE	1	D8
 f6f07b39-9073-4c70-b8de-9ed66fb0f819	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Undulating Low Tom/Kick	c23128ff-fe96-4e9b-b356-f1b3cb951a2d-instrument-30-audio.wav	0	0.625	121	0.6	KICK	1	Db4
 311e11a6-fa4b-4d0a-9796-007a098e9d82	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Knocky Muted Tom	95d5369a-71aa-4b2f-be0e-c72044091307-instrument-30-audio.wav	0.0006	0.219	121	0.6	TOM	1	X
-294b26b0-c736-4424-987a-9c24752267da	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Drum Flam	9bd6fafa-0363-45d5-a17d-05ee8a40095b-instrument-30-audio.wav	0.0075	0.281	121	0.6	TOM	1	Eb6
+294b26b0-c736-4424-987a-9c24752267da	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Percussive Flam	9bd6fafa-0363-45d5-a17d-05ee8a40095b-instrument-30-audio.wav	0.0075	0.281	121	0.6	TOM	1	Eb6
 0601f859-fd9c-4d85-8e1f-713c2f44f1cb	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Dead Studio Snare	0c460941-c090-4f71-9ff5-a632319cb5c9-instrument-30-audio.wav	0	0.25	121	0.6	SNARE	1	X
 e30ae5a1-a212-425c-a119-3b197a46541d	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Tight Dead Snare 2	5ff14782-bf9b-4f0d-8529-bba612872b1d-instrument-30-audio.wav	0.0003	0.25	121	0.6	SNARE	1	F2
 16ca7930-4c20-4dd4-967e-6982f17d4944	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Electronic Tom w/ Slapback	c9221c0a-7748-4d54-ba67-6edf709fd42b-instrument-30-audio.wav	0.001	0.875	121	0.6	TOM	1	A7
@@ -1301,7 +1303,7 @@ fc1a84ef-4ac3-41ba-902e-31379c4a6848	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Electr
 02c77f80-be7d-4a25-ab16-1c798b292853	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Hi-Hat 2	f19c9101-1ad1-43c9-8fc0-8a18fe116e64-instrument-40-audio.wav	0	0.175	121	0.6	HIHATOPEN	1	B9
 b7384cc8-0f6f-412b-9225-6c7a26f22b50	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Metallic Snare	417cfa8c-f708-44e7-b06f-497dcc56d4a6-instrument-30-audio.wav	0.0001	0.25	121	0.6	SNARE	1	E4
 c5332c6f-dd41-4813-8737-f7e926c139a8	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Clap-like Percussion	9acfb60f-9112-4a6c-9697-f5270583c81b-instrument-30-audio.wav	0.0001	0.25	121	0.6	SNARE	1	B8
-9fa2ad49-2fde-49fb-9f2e-8aad8a1b7eae	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Digital Drum Flam	fecb3546-cd26-4ffe-a226-6822a653b9de-instrument-30-audio.wav	0.0004	0.25	121	0.6	TOM	1	A3
+9fa2ad49-2fde-49fb-9f2e-8aad8a1b7eae	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Digital Percussive Flam	fecb3546-cd26-4ffe-a226-6822a653b9de-instrument-30-audio.wav	0.0004	0.25	121	0.6	TOM	1	A3
 5df25a2e-28ef-4bf0-8a4f-c8dd2b4938f7	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Hi-Hat 1	9a91b6f0-1a14-48c7-933b-5a53c7824e3d-instrument-40-audio.wav	0	0.068	121	0.6	HIHAT	1	B9
 2e1e7e08-2dda-4ec0-9996-bf924c7e624b	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Dubbed Out Clave	20e27f8a-914f-4091-a2df-769069497ae8-instrument-30-audio.wav	0	6.215	121	0.6	TOM	1	A6
 aa3cc7f9-f63b-4bd9-ac4c-e445556138ab	337d06d2-60d4-11ea-b41e-4fbf8d13a55a	Hi-Hat 1	adb40492-919f-46ff-808f-83465a6fb5d6-instrument-40-audio.wav	0	0.068	121	0.6	HIHAT	1	B9
@@ -1317,8 +1319,6 @@ da02d982-60de-11ea-a612-83e502f82975	40766298-60de-11ea-a612-43b1bb19e32a	Water 
 ab026b8c-6969-11ea-860b-03e0fd8c5594	28806cbc-64ec-11ea-acb5-7f27befb1aad	Fire.Rim.Click	instrument-28806cbc-64ec-11ea-acb5-7f27befb1aad-audio-3977735e-5796-4876-85da-5511d5164f12	0.012	1.099	121	0.5	SNARE	1	X
 1c2931c6-696d-11ea-aad8-2f838b4ad7da	28806cbc-64ec-11ea-acb5-7f27befb1aad	Fire.S.Snare.1	instrument-28806cbc-64ec-11ea-acb5-7f27befb1aad-audio-6c2c1cf2-3c24-40c6-bca3-7718176f0ef8	0	0.072	121	0.5	SNARE	1	X
 ff3fe6a2-64eb-11ea-8888-678bae918d1e	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Rim.Click	e746ff84-09c8-46f1-a394-60e20a7f67db-instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio.wav	0.012	1.099	121	0.5	SNARE	1	X
-aaf5c936-64eb-11ea-8888-4b863b462a00	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Open.Hat.1	51472116-e369-4c9b-b798-112af51d5129-instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio.wav	0	0.23	121	0.5	HIHATOPEN	1	X
-ce4e3c10-64eb-11ea-8888-ab0eed7bd989	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Open.Hat.2	5cdcd4b7-1709-4569-b3ed-e8c74e934271-instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio.wav	0	0.168	121	0.5	HIHATOPEN	1	X
 48efd3e0-6319-11ea-a76a-bb374e26336c	d8de4aec-6317-11ea-a6db-9f44c189845f	W.B.Clave.2.Wet	5bd0e842-3bd5-4271-801c-04c7156d6238-instrument-d8de4aec-6317-11ea-a6db-9f44c189845f-audio.wav	0.002	1.42	121	0.5	SNARE	1	X
 e696ebf8-631c-11ea-a330-3347a36bd9d8	d8de4aec-6317-11ea-a6db-9f44c189845f	W.B.Clave.Wet	06519baa-2449-4e94-b4ae-f050b33741c3-instrument-d8de4aec-6317-11ea-a6db-9f44c189845f-audio.wav	0	1.418	121	0.5	SNARE	1	X
 6e564180-6357-11ea-98fc-bf17b6f8d96a	d8de4aec-6317-11ea-a6db-9f44c189845f	Wat.B.Clave.2	6a743525-1d9f-496c-a669-f1ae0d2add71-instrument-d8de4aec-6317-11ea-a6db-9f44c189845f-audio.wav	0	0.377	121	0.5	SNARE	1	X
@@ -1338,14 +1338,12 @@ ab7a9ad4-696a-11ea-90a3-0316c8398189	28806cbc-64ec-11ea-acb5-7f27befb1aad	Fire.S
 72292d86-696a-11ea-90a3-dbcd5febb4fd	28806cbc-64ec-11ea-acb5-7f27befb1aad	Fire.S.Cumbusting.Tom.2	fdd4858a-d35b-4784-87d1-fe302aea7eef-instrument-28806cbc-64ec-11ea-acb5-7f27befb1aad-audio.wav	0	0.596	121	0.5	NONE	1	X
 ce1e0944-635d-11ea-ad65-7fe2ae07a258	d8de4aec-6317-11ea-a6db-9f44c189845f	Wat.B.Kick.4.Short	b5932d5f-95c8-4551-b7cd-a9c74be56959-instrument-d8de4aec-6317-11ea-a6db-9f44c189845f-audio.wav	0	0.149	121	0.5	KICK	1.5	X
 25bfda70-696b-11ea-a3cf-bba8a9a4504c	28806cbc-64ec-11ea-acb5-7f27befb1aad	Fire.S.Med.Tom	c0425938-a607-4afe-b604-4571235d4bb1-instrument-28806cbc-64ec-11ea-acb5-7f27befb1aad-audio.wav	0.005	0.544	121	0.5	TOMMID	1	X
+ce4e3c10-64eb-11ea-8888-ab0eed7bd989	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Open.Hat.2	5cdcd4b7-1709-4569-b3ed-e8c74e934271-instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio.wav	0	0.168	121	0.5	HIHATOPEN	0.5	X
 f0b6a910-696c-11ea-aad8-0705d40efa87	28806cbc-64ec-11ea-acb5-7f27befb1aad	Fire.S.Short.Riser	a57f6548-201f-4792-8bf3-b7bfe59ca287-instrument-28806cbc-64ec-11ea-acb5-7f27befb1aad-audio.wav	0	0.859	121	0.5	NONE	1	X
 f7965674-696a-11ea-9c97-1b585aeb328e	28806cbc-64ec-11ea-acb5-7f27befb1aad	Fire.S.Gas.Hat	af39e22f-1478-4fad-8471-2a9eace8eef1-instrument-28806cbc-64ec-11ea-acb5-7f27befb1aad-audio.wav	0.005	0.186	121	0.5	NONE	1	X
 771b301a-635b-11ea-9228-4b749ba0bb4b	d8de4aec-6317-11ea-a6db-9f44c189845f	Wat.B.Hi.Tom.1	6c6bb036-0aae-43e2-bc50-ce9cecaffbc4-instrument-d8de4aec-6317-11ea-a6db-9f44c189845f-audio.wav	0	0.083	121	0.5	TOMHI	1	X
-f9b7042e-64e9-11ea-8888-633bbc7d8c11	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Closed.Hat.1	068fe03f-8021-41a4-a6bc-cf4f8d545517-instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio.wav	0	0.113	121	0.5	HIHATCL	1	X
-2ea2be58-64ea-11ea-8888-eb197afcf166	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Closed.Hat.2	31d438e4-7fc8-4c7c-929c-35df88e1ad4a-instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio.wav	0.0004	0.063	121	0.5	HIHATCL	1	X
 77f07bee-6969-11ea-860b-737446fa17df	28806cbc-64ec-11ea-acb5-7f27befb1aad	Fire.Open.Hat.1	08e403ce-0a3d-4370-a6af-e640a2a8b858-instrument-28806cbc-64ec-11ea-acb5-7f27befb1aad-audio.wav	0	0.23	121	0.5	HIHATOP	0.5	X
 4acd64f0-635c-11ea-ad65-278bf9ff3df6	d8de4aec-6317-11ea-a6db-9f44c189845f	Wat.B.Hi.Tom.2.Wet	9b5eff79-6257-4ba1-93c7-7a2a6f2a0f38-instrument-d8de4aec-6317-11ea-a6db-9f44c189845f-audio.wav	0	1.297	121	0.5	TOMHI	1	X
-7f797418-64e8-11ea-a513-0b42be7bd64d	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Clave.1	instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio-7b2924e8-eeda-4d6f-8810-10ffaeadf8b5	0.001	0.267	121	0.5	SNARE	1.5	X
 f3def4e4-635e-11ea-ad65-6f02a29e3653	d8de4aec-6317-11ea-a6db-9f44c189845f	Wat.B.Low.Tom	a94b99bc-d9c2-450a-8004-b0272b62f830-instrument-d8de4aec-6317-11ea-a6db-9f44c189845f-audio.wav	0	0.173	121	0.5	TOM	1	X
 267960f6-635f-11ea-a42b-e7cd687148f9	d8de4aec-6317-11ea-a6db-9f44c189845f	Wat.B.Med.Tom.1	4b5bd4e7-94dd-4091-aba1-fe042b798340-instrument-d8de4aec-6317-11ea-a6db-9f44c189845f-audio.wav	0	0.078	121	0.5	TOM	1	X
 7f72fef6-635f-11ea-9f23-33f218264760	d8de4aec-6317-11ea-a6db-9f44c189845f	Wat.B.Med.Tom.2	03a20082-9870-49b6-805e-bbcf4f14d798-instrument-d8de4aec-6317-11ea-a6db-9f44c189845f-audio.wav	0.002	0.071	121	0.5	TOM	1	X
@@ -1377,6 +1375,8 @@ fd686958-6afe-11ea-8547-2bd44ab6a533	34c05028-696f-11ea-b45e-6b770285d799	Wind.S
 76f64ade-64eb-11ea-8888-cf21cb3b3053	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Med.Tom	85308aa0-4a19-4959-82a1-9e86e1232359-instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio.wav	0	0.56	121	0.5	TOMMID	0.2	X
 40e4bb28-c6b7-11ea-a869-ef01e801d117	eacd388c-c6b6-11ea-ac95-d3dfd467468b	Wind.Large.2.Snare	241ae87a-bd72-42e2-9d41-c84bb7d9f74d-instrument-eacd388c-c6b6-11ea-ac95-d3dfd467468b-audio.wav	0	2	130	0.5	SNARE	1	x
 a5bfc4ac-c6b7-11ea-bd74-1b994fd6caa7	eacd388c-c6b6-11ea-ac95-d3dfd467468b	Wind.Large.2.Crash	02a7bb44-085f-4d61-91c7-349915399f60-instrument-eacd388c-c6b6-11ea-ac95-d3dfd467468b-audio.wav	0	5	130	0.5	CRASH	1	x
+f9b7042e-64e9-11ea-8888-633bbc7d8c11	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Closed.Hat.1	068fe03f-8021-41a4-a6bc-cf4f8d545517-instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio.wav	0	0.113	121	0.5	HIHATCL	0.5	X
+2ea2be58-64ea-11ea-8888-eb197afcf166	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Closed.Hat.2	31d438e4-7fc8-4c7c-929c-35df88e1ad4a-instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio.wav	0.0004	0.063	121	0.5	HIHATCL	0.5	X
 c6c0f072-c6b7-11ea-a53d-0354eb977779	eacd388c-c6b6-11ea-ac95-d3dfd467468b	Wind.Large.2.TomHi	fa9de1c7-1203-49ac-8bb1-e648e1ff1175-instrument-eacd388c-c6b6-11ea-ac95-d3dfd467468b-audio.wav	0	2	130	0.5	TOMHI	1	x
 e76c41d2-c6b7-11ea-bf1e-bf48264b5aa3	eacd388c-c6b6-11ea-ac95-d3dfd467468b	Wind.Large.2.TomMid	cbc4c704-2202-4b7d-93f7-2ec2a2e4f713-instrument-eacd388c-c6b6-11ea-ac95-d3dfd467468b-audio.wav	0	2	130	0.5	TOMMID	1	x
 28c637dc-c6b8-11ea-bf1e-37a42e8f13c2	eacd388c-c6b6-11ea-ac95-d3dfd467468b	Wind.Large.2.TomLo	b9fd7692-95ce-4ee5-a204-d0384bd0f776-instrument-eacd388c-c6b6-11ea-ac95-d3dfd467468b-audio.wav	0	2	130	0.5	TOMLO	1	x
@@ -3133,6 +3133,8 @@ e6fdd412-02df-11ec-9cd8-8ba8727b90b2	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo 
 17e21e4a-16eb-11ea-8a37-efc901c1178c	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.3	d400fe01-c7ce-4bf2-83f6-70034e77fa83-instrument-42-audio.wav	0	0.238	121	0.6	HIHATCLOSED	0.6	Eb7
 17b892c8-16eb-11ea-8a37-ef89e7400133	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.Riser	87c74cb2-ca46-43be-b890-9b1a7a4cc607-instrument-42-audio.wav	1.85	1.996	121	0.6	CRASH	0.6	C#6
 17c7dc24-16eb-11ea-8a37-d772101739bb	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.1	8fdee415-877a-4920-94e9-49cf501ceaae-instrument-42-audio.wav	0	0.576	121	0.6	HIHATOPEN	0.6	F7
+7f797418-64e8-11ea-a513-0b42be7bd64d	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Clave.1	instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio-7b2924e8-eeda-4d6f-8810-10ffaeadf8b5	0.001	0.267	121	0.5	SNARE	1	X
+aaf5c936-64eb-11ea-8888-4b863b462a00	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Open.Hat.1	51472116-e369-4c9b-b798-112af51d5129-instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio.wav	0	0.23	121	0.5	HIHATOPEN	0.5	X
 \.
 
 
@@ -3381,7 +3383,6 @@ e0c2eb06-91a5-11eb-becc-477d10371283	ff8def18-fb22-11eb-928c-2b02f39362fc	Draft	
 82976b8a-40c7-11eb-92cb-734144473006	55461ec6-fb23-11eb-ad24-972f33ad9115	Published	C	120	Detail	Sticky rhumba 3-2	0.5	doTranspose=false
 2ce45ac2-40c7-11eb-9fce-c7d1e5c4f919	55461ec6-fb23-11eb-ad24-972f33ad9115	Published	C-	120	Detail	Sticky 6	0.5	doPatternRestartOnChord = false
 68f0d702-78b2-11eb-bae4-ffdd0aad5a84	55461ec6-fb23-11eb-ad24-972f33ad9115	Published	C	120	Detail	Sticky 1.0	0.5	doTranspose=false
-e2bbcbd8-40c6-11eb-92cb-8f74763afefd	55461ec6-fb23-11eb-ad24-972f33ad9115	Published	C	120	Detail	Sticky 10	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 ab70cb9a-78b3-11eb-96bb-cb9a0f336ff5	55461ec6-fb23-11eb-ad24-972f33ad9115	Published	C	120	Detail	Sticky 8.0	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 c6323d10-78b3-11eb-96bb-cb75052f8d70	55461ec6-fb23-11eb-ad24-972f33ad9115	Published	C	120	Detail	Sticky 9.0	0.5	doPatternRestartOnChord=false\ndoTranspose=false
 9750f3f2-26f5-11eb-ad83-db721fa965da	5545dcfe-fb23-11eb-80a6-4372a28aca52	Published	A-	120	Detail	Bass 4.0	0.5	doPatternRestartOnChord=false\ndoTranspose=false
@@ -3697,6 +3698,7 @@ cc76e6fa-05e7-11ec-a289-1fabb7e24f2c	1509102a-16eb-11ea-8a37-4764c2a771db	Publis
 30149296-05ea-11ec-80bc-8341a0c803fb	1509102a-16eb-11ea-8a37-4764c2a771db	Published	Bb-	120	Main	Water Home 3 2step	0.5	doPatternRestartOnChord = false
 6a8e2408-05ec-11ec-9ddf-1398c298c5aa	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Main	Earth Home 3 4fl	0.5	doPatternRestartOnChord = false
 948fb806-05ed-11ec-ae22-a72b6af3ef00	1509102a-16eb-11ea-8a37-4764c2a771db	Published	A-	120	Main	Earth Home 3 2step	0.5	doPatternRestartOnChord = false
+e2bbcbd8-40c6-11eb-92cb-8f74763afefd	55461ec6-fb23-11eb-ad24-972f33ad9115	Published	C	120	Detail	Sticky 10	0.5	doPatternRestartOnChord = false
 \.
 
 
@@ -4863,7 +4865,6 @@ a31582ce-9eed-4519-889c-9049d6d6e007	5f9aa564-fb27-11eb-b054-ef28142e5301	Disco	
 caca2c44-ff99-11eb-90a2-4b0704d1bf81	fd79ea1a-7936-11eb-b4db-13f6ee945e8b	New Sequence	C	0.6	16	120
 4f5468dc-70dc-11eb-a9c7-531c712b07ee	277fad9c-2f9d-11eb-9636-ef2c12e1d833	SeqB	C	0.6	16	120
 43425dc6-0301-11ec-932b-2b8922e1384d	203da628-0301-11ec-932b-bf95e1ab6e63	Main	C	0.6	16	120
-fc7425ba-04a3-11ec-afc2-b780db5e8294	c3725926-04a3-11ec-958a-ff4b062221e7	New Sequence	C	0.6	16	120
 bd53faea-b561-45fd-a883-1de57209bd6b	7fe42ec6-05d6-11ec-a911-07123801a8f7	New Sequence	E-	0.6	32	120
 683e786e-05d4-11ec-83a4-2743fc68c461	5800b516-05d4-11ec-83a4-87c9314f43af	New Sequence	E-	0.6	32	120
 57b70502-f9c3-492c-ab14-d92fe48d72b5	316ee426-05e9-11ec-a289-0f33ea78b113	New Sequence	F-	0.6	32	120
@@ -4874,6 +4875,8 @@ d1194dc4-05e7-11ec-a289-9f4101305b9d	cc76e6fa-05e7-11ec-a289-1fabb7e24f2c	New Se
 5dfd14fb-9fec-429d-9e9a-bc7681d5f4c0	4ef40ed4-05eb-11ec-be9f-cb00d2fc3157	New Sequence	E-	0.6	32	120
 02d5bd44-6b78-4717-8c9e-ce2ecd05f077	6a8e2408-05ec-11ec-9ddf-1398c298c5aa	New Sequence	A-	0.6	32	120
 7022a3bc-5004-4460-8fc0-42c10741c8a8	948fb806-05ed-11ec-ae22-a72b6af3ef00	New Sequence	A-	0.6	32	120
+fc7425ba-04a3-11ec-afc2-b780db5e8294	c3725926-04a3-11ec-958a-ff4b062221e7	Main	C	0.6	16	120
+96fb6c34-112d-11ec-8c89-970c712a0504	21b19a88-beb8-11eb-bfe7-57378173d721	New Sequence	C	0.6	16	120
 \.
 
 
@@ -8474,12 +8477,6 @@ ab7270d3-bccc-49a3-8e7d-11fa47275958	6a8e2408-05ec-11ec-9ddf-1398c298c5aa	02d5bd
 --
 
 COPY xj.program_sequence_chord_voicing (id, program_id, program_sequence_chord_id, type, notes) FROM stdin;
-d30016b4-29dc-11eb-bc2f-274026307a17	1ddd768c-16eb-11ea-8a37-ab599777e83d	1de6e1cc-16eb-11ea-8a37-83b11b4ff841	Drum	(None)
-d302d6c4-29dc-11eb-8221-8b04e47b2815	1ddd768c-16eb-11ea-8a37-ab599777e83d	1deaf46a-16eb-11ea-8a37-8bf41620e9ec	Drum	(None)
-6570c2e6-29e7-11eb-9b65-6f03beea975d	1ddd768c-16eb-11ea-8a37-ab599777e83d	1deba2fc-16eb-11ea-8a37-17788fe0d749	Drum	(None)
-656e6186-29e7-11eb-a1ba-9bdf4119f2f3	1ddd768c-16eb-11ea-8a37-ab599777e83d	1dee0d80-16eb-11ea-8a37-af0e6e7546c0	Drum	G2,B3,D3
-65710e86-29e7-11eb-9c41-0351da60c797	1ddd768c-16eb-11ea-8a37-ab599777e83d	489f0c22-1d85-11eb-bb04-6b8a80a1cb2d	Drum	N
-65717920-29e7-11eb-9c41-a321156fb744	1ddd768c-16eb-11ea-8a37-ab599777e83d	1df05342-16eb-11ea-8a37-3b69c4dc9666	Drum	C, E, G
 d0d5e2de-2aa8-11eb-9080-577d9042f74e	af626230-2aa8-11eb-b64d-37407d0cd07d	be58248c-2aa8-11eb-b64d-6f82f8b2cdd0	Bass	C#1, E1, A1, C#2, E2, A2
 d0d54f2c-2aa8-11eb-9848-db273a713852	af626230-2aa8-11eb-b64d-37407d0cd07d	c6e05318-2aa8-11eb-b64d-db3e7cd9bb78	Bass	D1, F#1, A1, B1, D2, F#2, A2, B2
 f68a78cc-2aa9-11eb-9080-2bf4fa0050fa	af626230-2aa8-11eb-b64d-37407d0cd07d	f655274e-2aa9-11eb-9080-6f8864f1df82	Bass	asdjhkf
@@ -8487,13 +8484,9 @@ f68a78cc-2aa9-11eb-9080-2bf4fa0050fa	af626230-2aa8-11eb-b64d-37407d0cd07d	f65527
 2d4fc870-2aab-11eb-bc2a-03e3030f0e7d	0aea65ba-2aab-11eb-bc2a-371df12e13e5	19f19376-2aab-11eb-bc2a-737d393e72f3	Bass	D5
 2d5019a6-2aab-11eb-b5b3-b749433e9bab	0aea65ba-2aab-11eb-bc2a-371df12e13e5	233089ec-2aab-11eb-bc2a-374f89e28778	Bass	F1
 76a62838-2aac-11eb-bb7c-d3c3dfc4ba9c	0aea65ba-2aab-11eb-bc2a-371df12e13e5	6c761760-2aac-11eb-bb7c-f370d0ee703b	Bass	C1
-fb2a2f56-2dd5-11eb-a653-b72f1da41512	af626230-2aa8-11eb-b64d-37407d0cd07d	84315962-0c89-4726-acc0-d7173ba5c361	Drum	(None)
 eecf86d3-4f69-454b-977c-931a0e18a02b	ba53c80e-351c-11eb-9993-07b38c152208	cc70a592-40dd-4f43-9849-34bddb9a39aa	Bass	C#1, E1, A1, C#2, E2, A2
 d96d43a9-cbf2-45ae-a02a-03e54b0343c6	ba53c80e-351c-11eb-9993-07b38c152208	34e93628-a3cf-4f95-99c5-a790e4d72cb8	Bass	D1, F#1, A1, B1, D2, F#2, A2, B2
 66af2af0-4ccf-49c5-82f0-50d8442630cb	ba53c80e-351c-11eb-9993-07b38c152208	cc028dd3-dce3-4a30-98ca-3f8d60e1aa55	Bass	asdjhkf
-ada3e605-5941-4a63-a20e-0bfa5196ee21	ba53c80e-351c-11eb-9993-07b38c152208	7fec0a3d-06f2-446f-98bc-b7d053dbf989	Drum	(None)
-407aa4dc-89a0-4753-93d8-2f9a2ee2676e	ba53c80e-351c-11eb-9993-07b38c152208	98eb543c-7a68-46be-a864-6d062f68c1e3	Drum	(None)
-b599a2f6-2467-4d53-b160-d2d48a517e14	ba53c80e-351c-11eb-9993-07b38c152208	6bf9870a-595d-46e1-a632-9cce82b579e3	Drum	A, C#, E
 05b3373e-3929-11eb-89d1-27fed1bf6063	1aa1ad62-16eb-11ea-8a37-e3635cda90ac	1aaf23fc-16eb-11ea-8a37-4fe27c30ca22	Bass	(None)
 e14daaa6-39c2-11eb-ae26-176e819f6d68	1ad8543e-16eb-11ea-8a37-d3089a6baf4d	1ae2d472-16eb-11ea-8a37-573ded3f6d32	Bass	C1, E1, G1, A1, C2, D2, E2, G2, A2, C3, D3, E3, G3
 e14fcd9a-39c2-11eb-8871-2fb36bafc9d3	1ad8543e-16eb-11ea-8a37-d3089a6baf4d	1adc6be6-16eb-11ea-8a37-af215593fafa	Bass	E1, G1, A1, B1, D2, E2, G2, A2, B2, D3, E3
@@ -8540,6 +8533,7 @@ b040a612-3b33-11eb-910b-d33a2293e78f	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdf56
 316343ce-3a82-11eb-8247-dbd786386f17	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fae7290-16eb-11ea-8a37-e798bd293ccf	Bass	D1, F1, G1, Bb1, C2, D2, F2, G2, Bb2, C3, D3, F3, G3
 31696006-3a82-11eb-8247-27c0ae06eb73	1fa2fc08-16eb-11ea-8a37-8f1da5e6fd60	1fb4aa70-16eb-11ea-8a37-5b4ad382c686	Bass	C1, Eb1, F1, Ab1, Bb1, C2, Eb2, F2, Ab2, Bb2, C3, Eb3, F3
 6dedc986-3a82-11eb-8247-0b029a2d61e4	1fe8b9fa-16eb-11ea-8a37-8f9c75beb6ff	1fec4ab6-16eb-11ea-8a37-77ec9598470b	Bass	F1, A1, Bb1, C2, F2, A2, Bb2, C3, F3
+65710e86-29e7-11eb-9c41-0351da60c797	1ddd768c-16eb-11ea-8a37-ab599777e83d	489f0c22-1d85-11eb-bb04-6b8a80a1cb2d	Drum	N
 92265a04-3ab7-11eb-b8fc-eb722c2c2af6	8a271cfc-3928-11eb-8b82-63db8b0d3e83	120e5a56-0006-4913-9bf4-d5eb1a693c64	Stripe	Eb5, F5, Ab5, Eb6, F6, Ab6
 3b23d352-3ab8-11eb-915a-434b242b0b04	a2f0be8c-3928-11eb-8b82-6b71023fc623	700e9432-1047-4ec5-9919-b42ff3c74bcc	Stripe	C5, D5, F5, C6, D6, F6, C7
 79c93ff6-3ab9-11eb-930e-ffc2eb53ad63	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1bdb72e4-16eb-11ea-8a37-6b538f17b81f	Stripe	(None)
@@ -8859,10 +8853,6 @@ f166d330-3ab8-11eb-b8fc-4baabdc5bae4	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b5bc8
 f1684ab2-3ab8-11eb-b8fc-57e9d280ccb6	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b647464-16eb-11ea-8a37-0336d9ad3c0b	Stripe	F5, F6
 f1694dfe-3ab8-11eb-b8fc-1332e7263053	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b5c8d9e-16eb-11ea-8a37-17e8e939c0e8	Stripe	F5, F6
 6011ef0e-3b31-11eb-b0a7-bf9fb767f1f2	1c46f5aa-16eb-11ea-8a37-d3b0641778a1	1c59074a-16eb-11ea-8a37-5b1429313a86	Stripe	E5, B5, E6, B6
-e68f4708-3f3b-11eb-9575-1b7715d3ddc3	af626230-2aa8-11eb-b64d-37407d0cd07d	be58248c-2aa8-11eb-b64d-6f82f8b2cdd0	Drum	(None)
-e6921014-3f3b-11eb-9575-af50e19b8d4d	af626230-2aa8-11eb-b64d-37407d0cd07d	f655274e-2aa9-11eb-9080-6f8864f1df82	Drum	(None)
-e697b82a-3f3b-11eb-9575-c7334ea37b23	af626230-2aa8-11eb-b64d-37407d0cd07d	c6e05318-2aa8-11eb-b64d-db3e7cd9bb78	Drum	(None)
-f9f3602c-3f3b-11eb-9575-8f6fc058c1bf	af626230-2aa8-11eb-b64d-37407d0cd07d	f9d47c5c-3f3b-11eb-9575-5724615c28ff	Drum	(None)
 f9f62f14-3f3b-11eb-9575-cf177e7ec66f	af626230-2aa8-11eb-b64d-37407d0cd07d	f9d47c5c-3f3b-11eb-9575-5724615c28ff	Bass	(None)
 5b495da0-40b2-11eb-948a-cba5003da1aa	1bd515ac-16eb-11ea-8a37-2711b44f5abc	1be75fb4-16eb-11ea-8a37-8f303f2d83ae	Stripe	C#5, F#5, G#5, C#6, F#6, G#6, C#7
 6a46dcd0-40b5-11eb-ad00-4324d26527ba	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdd9a82-16eb-11ea-8a37-5f8b0b4b973f	Stripe	Eb5, Ab5, Eb6, Ab6
@@ -8873,7 +8863,6 @@ c3f30bfe-3a80-11eb-b147-7f194062e9fa	1f55b3f8-16eb-11ea-8a37-b30fd772ba12	1f5c71
 43da4960-3ab6-11eb-b8fc-6739b932a5b9	1ad8543e-16eb-11ea-8a37-d3089a6baf4d	1ae2d472-16eb-11ea-8a37-573ded3f6d32	Stripe	D5, E5, G5, D6, E6, G6
 f167e284-3ab8-11eb-8074-b3a367b26f43	1b561f0e-16eb-11ea-8a37-2373d7d5daa1	1b60d002-16eb-11ea-8a37-1be6403786d1	Stripe	F5, F6
 27e77260-3aba-11eb-8268-dfb5982e2de2	1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	1b83cf26-16eb-11ea-8a37-63ac6388584b	Stripe	Db5, Db6, Db7
-53bc2a0c-3f4c-11eb-9728-535c75e5eead	af626230-2aa8-11eb-b64d-37407d0cd07d	53a3219c-3f4c-11eb-9728-030a77316d0a	Drum	(None)
 60136ff0-3b31-11eb-bf40-b7994df431bf	1c46f5aa-16eb-11ea-8a37-d3b0641778a1	1c53fb06-16eb-11ea-8a37-1398dfac8c81	Stripe	E5, B5, E6, B6
 53bdae18-3f4c-11eb-9728-dff1c4af54d1	af626230-2aa8-11eb-b64d-37407d0cd07d	53a3219c-3f4c-11eb-9728-030a77316d0a	Bass	(None)
 6a477abe-40b5-11eb-9890-6bd641859f2d	1cd6c720-16eb-11ea-8a37-772e7139de8e	1cdd9a82-16eb-11ea-8a37-5f8b0b4b973f	Bass	Db1, F1, Ab1, Db2, Eb2, F2, Ab2, Db3, Eb3, F3
@@ -11079,6 +11068,20 @@ e32f7ba9-46a9-4a32-8bcd-295e3fbad336	948fb806-05ed-11ec-ae22-a72b6af3ef00	84ac4c
 128b9f60-465a-48ee-97a1-70a319a04e4a	948fb806-05ed-11ec-ae22-a72b6af3ef00	84ac4cb6-5678-421c-8f58-1f7766bc6baa	Sticky	G3, A3, D4, E4, G4, A4, C5
 8e01f6af-fb59-407b-b91e-9e15e07f3947	948fb806-05ed-11ec-ae22-a72b6af3ef00	84ac4cb6-5678-421c-8f58-1f7766bc6baa	Stripe	D5, G5, A5, B5, C6
 cfe63c64-5c5f-11eb-b430-6b47fbedbc0d	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206985bc-16eb-11ea-8a37-8bbc6b058158	Stab	Ab3, C4, Eb4, Ab4, C5, Eb5, Ab5, C5
+d30016b4-29dc-11eb-bc2f-274026307a17	1ddd768c-16eb-11ea-8a37-ab599777e83d	1de6e1cc-16eb-11ea-8a37-83b11b4ff841	Drum	(None)
+d302d6c4-29dc-11eb-8221-8b04e47b2815	1ddd768c-16eb-11ea-8a37-ab599777e83d	1deaf46a-16eb-11ea-8a37-8bf41620e9ec	Drum	(None)
+6570c2e6-29e7-11eb-9b65-6f03beea975d	1ddd768c-16eb-11ea-8a37-ab599777e83d	1deba2fc-16eb-11ea-8a37-17788fe0d749	Drum	(None)
+656e6186-29e7-11eb-a1ba-9bdf4119f2f3	1ddd768c-16eb-11ea-8a37-ab599777e83d	1dee0d80-16eb-11ea-8a37-af0e6e7546c0	Drum	G2,B3,D3
+65717920-29e7-11eb-9c41-a321156fb744	1ddd768c-16eb-11ea-8a37-ab599777e83d	1df05342-16eb-11ea-8a37-3b69c4dc9666	Drum	C, E, G
+fb2a2f56-2dd5-11eb-a653-b72f1da41512	af626230-2aa8-11eb-b64d-37407d0cd07d	84315962-0c89-4726-acc0-d7173ba5c361	Drum	(None)
+ada3e605-5941-4a63-a20e-0bfa5196ee21	ba53c80e-351c-11eb-9993-07b38c152208	7fec0a3d-06f2-446f-98bc-b7d053dbf989	Drum	(None)
+407aa4dc-89a0-4753-93d8-2f9a2ee2676e	ba53c80e-351c-11eb-9993-07b38c152208	98eb543c-7a68-46be-a864-6d062f68c1e3	Drum	(None)
+b599a2f6-2467-4d53-b160-d2d48a517e14	ba53c80e-351c-11eb-9993-07b38c152208	6bf9870a-595d-46e1-a632-9cce82b579e3	Drum	A, C#, E
+e68f4708-3f3b-11eb-9575-1b7715d3ddc3	af626230-2aa8-11eb-b64d-37407d0cd07d	be58248c-2aa8-11eb-b64d-6f82f8b2cdd0	Drum	(None)
+e6921014-3f3b-11eb-9575-af50e19b8d4d	af626230-2aa8-11eb-b64d-37407d0cd07d	f655274e-2aa9-11eb-9080-6f8864f1df82	Drum	(None)
+e697b82a-3f3b-11eb-9575-c7334ea37b23	af626230-2aa8-11eb-b64d-37407d0cd07d	c6e05318-2aa8-11eb-b64d-db3e7cd9bb78	Drum	(None)
+f9f3602c-3f3b-11eb-9575-8f6fc058c1bf	af626230-2aa8-11eb-b64d-37407d0cd07d	f9d47c5c-3f3b-11eb-9575-5724615c28ff	Drum	(None)
+53bc2a0c-3f4c-11eb-9728-535c75e5eead	af626230-2aa8-11eb-b64d-37407d0cd07d	53a3219c-3f4c-11eb-9728-030a77316d0a	Drum	(None)
 \.
 
 
@@ -11087,49 +11090,6 @@ cfe63c64-5c5f-11eb-b430-6b47fbedbc0d	20630ebc-16eb-11ea-8a37-af1c14cc01bc	206985
 --
 
 COPY xj.program_voice (id, program_id, type, name, "order") FROM stdin;
-20d856c2-16eb-11ea-8a37-2fd6619fce2a	20d07cc2-16eb-11ea-8a37-c32a94270435	Drum	Extra	1000
-20d987c2-16eb-11ea-8a37-032944d7a9c6	20d07cc2-16eb-11ea-8a37-c32a94270435	Drum	Kick/Snare B	1000
-20daa580-16eb-11ea-8a37-e30ce507d974	20d07cc2-16eb-11ea-8a37-c32a94270435	Drum	Kick/Snare A	1000
-20dbbce0-16eb-11ea-8a37-db74fc12222b	20d07cc2-16eb-11ea-8a37-c32a94270435	Drum	Locomotion	1000
-2164b0f4-16eb-11ea-8a37-5786ce3b6f25	215f31b0-16eb-11ea-8a37-4359224b0012	Drum	Kick/Snare A	1000
-2165e71c-16eb-11ea-8a37-d30b988f0dd2	215f31b0-16eb-11ea-8a37-4359224b0012	Drum	Kick/Snare B	1000
-2166f922-16eb-11ea-8a37-d38e96aaead0	215f31b0-16eb-11ea-8a37-4359224b0012	Drum	Extra	1000
-2168075e-16eb-11ea-8a37-67d1e2c88db5	215f31b0-16eb-11ea-8a37-4359224b0012	Drum	Locomotion	1000
-22a696f8-16eb-11ea-8a37-0ff33069a589	2298444a-16eb-11ea-8a37-5389fe5c6d7c	Drum	Clave	1000
-756bbb8c-8e57-4777-8d4a-cb8374b280cc	8e09d454-4e91-11ea-b949-5bb81903f1a1	Drum	Kick/Snare A	1000
-2351dccb-b45c-4317-8f22-6aa308f20e22	8e09d454-4e91-11ea-b949-5bb81903f1a1	Drum	Kick/Snare B	1000
-312edea0-d75d-4693-9f75-4f101cd481c5	8e09d454-4e91-11ea-b949-5bb81903f1a1	Drum	Extra	1000
-0f6f0ab9-27cb-4b74-bdda-8a2334b83c14	8e09d454-4e91-11ea-b949-5bb81903f1a1	Drum	Locomotion	1000
-a96ba836-aecc-4ae9-a3b0-92f86462171e	b9adee8a-59ca-11ea-84cb-77344de568df	Drum	Kick/Snare A	1000
-68eb8840-60e2-4290-8038-f4cdb458bc05	b9adee8a-59ca-11ea-84cb-77344de568df	Drum	Kick/Snare B	1000
-8d8f79c1-022b-44c7-8d88-aa680bf1bfaa	b9adee8a-59ca-11ea-84cb-77344de568df	Drum	Extra	1000
-a7d44445-11b9-476c-9f69-680aeae314d9	b9adee8a-59ca-11ea-84cb-77344de568df	Drum	Locomotion	1000
-ba9af8d6-ab98-11ea-8abf-0757db0681bc	7ff9e534-ab98-11ea-aeee-133657b44529	Drum	New	1000
-bbe21224-ab98-11ea-8abf-bbda08f2712b	7ff9e534-ab98-11ea-aeee-133657b44529	Drum	New	1000
-7cce01ce-b75a-11ea-98ba-f7c1c6364b47	7a001d1a-b75a-11ea-98ba-47fa6707ff76	Drum	New	1000
-7da0fc1e-b75a-11ea-98ba-eb7eecf3be1d	7a001d1a-b75a-11ea-98ba-47fa6707ff76	Drum	New	1000
-7e47edd0-b75a-11ea-98ba-935df36ff69b	7a001d1a-b75a-11ea-98ba-47fa6707ff76	Drum	New	1000
-620a8f74-bd63-11ea-8eba-1f7076138d89	20d07cc2-16eb-11ea-8a37-c32a94270435	Drum	New Voice	1000
-691fd208-ab73-11ea-862b-7fa7b585830c	9e0ab8e6-ab70-11ea-87d0-cb03e8df1e44	Drum	Kick	1000
-22a5ea00-16eb-11ea-8a37-a3f05f374e8d	2298444a-16eb-11ea-8a37-5389fe5c6d7c	Drum	Locomotion	1000
-65e2eef0-bd6f-11ea-9000-1bb3d1299469	2298444a-16eb-11ea-8a37-5389fe5c6d7c	Drum	New	1000
-3daca19c-bfb8-11ea-8ab8-b3794c8e2dc5	39fadb7c-bfb8-11ea-8ab8-679371f0fd1a	Drum	Kick + Snare	1000
-d18eae86-bfb9-11ea-9e34-3f8fa96db0ca	39fadb7c-bfb8-11ea-8ab8-679371f0fd1a	Drum	Hi Hats	1000
-f4f82fda-c4bb-11ea-a6dc-439aeb27cfab	ef799b66-c4bb-11ea-a6dc-ff18af2544a3	Drum	Kick + Snare	1000
-f5c21c0a-c4bb-11ea-a6dc-cbcf3d62668b	ef799b66-c4bb-11ea-a6dc-ff18af2544a3	Drum	Hi Hats	1000
-f6533b9a-c4bb-11ea-a6dc-5f30b399d120	ef799b66-c4bb-11ea-a6dc-ff18af2544a3	Drum	Toms	1000
-aa1d8cc6-c858-11ea-b84b-cff022a604f8	a7365dbc-c858-11ea-b84b-73b9ff2e930e	Drum	New	1000
-a6183e8c-ca38-11ea-bdcf-3f2b25be5cc7	8b73aa9e-ca38-11ea-bdcf-67c8042da422	Drum	Kick + Snare	1000
-a7004718-ca38-11ea-bdcf-7b9ba9aa2e07	8b73aa9e-ca38-11ea-bdcf-67c8042da422	Drum	Toms	1000
-a8338b36-ca38-11ea-bdcf-d3fb409ab99a	8b73aa9e-ca38-11ea-bdcf-67c8042da422	Drum	Hi Hats	1000
-a7a03c46-ca38-11ea-bdcf-4f554024b06a	8b73aa9e-ca38-11ea-bdcf-67c8042da422	Drum	Crash	1000
-28ed743e-d520-11ea-be47-077493350026	e4b5408e-d381-11ea-b4dd-8304deea5ed4	Drum	Toms	1000
-2981c396-d520-11ea-be47-cf9bebfd301d	e4b5408e-d381-11ea-b4dd-8304deea5ed4	Drum	Hi Hats	1000
-4646fe4c-d520-11ea-be47-bb76376163d1	e4b5408e-d381-11ea-b4dd-8304deea5ed4	Drum	Crash	1000
-f22fbd16-d381-11ea-9e73-670b868434de	e4b5408e-d381-11ea-b4dd-8304deea5ed4	Drum	KickSnare	1000
-f82cb8f8-c6cb-11ea-b6c0-1b9e9063ade3	f4f21566-c6cb-11ea-b6c0-cb45bfcd2c4b	Drum	NewLoop	1000
-8075b9e6-0810-11eb-8696-87fabbeaf9bb	47de6e0c-0810-11eb-8696-b750b1583f1c	Drum	Drums	1000
-795a0d80-1b05-11eb-95f7-27699d9f9e30	76a97f4e-1b05-11eb-95f7-e7d79c3460ae	Drum	New Voice	1000
 b409b42e-1e3b-11eb-85ab-1340b957b9c1	ad00552a-1e3b-11eb-85ab-c3e5c9ce91dd	Bass	Bass	1000
 22a460a4-16eb-11ea-8a37-330dcac758d5	2298444a-16eb-11ea-8a37-5389fe5c6d7c	Bass	Kick+Snare	1000
 b01b18aa-2550-11eb-ab18-376948d473ea	a3593a3e-2550-11eb-ab18-033a09f5590b	Bass	New Voice	1000
@@ -11154,23 +11114,12 @@ aa739d70-b901-11ea-934d-d7242a474652	a464a3ac-b901-11ea-934d-6b904d1e2fda	Bass	N
 6b24c2d4-3381-11eb-ae86-db57d8d7eb69	60c90b92-3381-11eb-ae86-2b36c07884a8	Bass	New Voice	0
 1de1b9a6-f6ff-4573-b34d-5387141c6ea3	7f8fef4e-3928-11eb-8b82-675eeaf6e161	Bass	New Voice	0
 1c577ea6-3ff6-4bb0-9417-461dcfbbaddb	8a271cfc-3928-11eb-8b82-63db8b0d3e83	Bass	New Voice	0
-86c53590-2086-11eb-ae1f-b7707a58a617	8418039a-2086-11eb-ae1f-e370e0b297f7	Drum	Crash	2
-875d7cb0-2086-11eb-ae1f-c3b62b87f06a	8418039a-2086-11eb-ae1f-e370e0b297f7	Drum	Hi Hats	1
-b32112a8-2086-11eb-90e2-af63e964de01	8418039a-2086-11eb-ae1f-e370e0b297f7	Drum	Toms	4
-87f14c06-2086-11eb-ae1f-0fb192f51c8f	8418039a-2086-11eb-ae1f-e370e0b297f7	Drum	Kick Snare	3
-96179142-4f15-11eb-b0e1-2bfe06d075b3	159ff83a-4b1c-11eb-a2fd-b743b8a357d6	Drum	VoiceA	2
-6c768e1a-4f15-11eb-a2ac-e3699d8d4a35	159ff83a-4b1c-11eb-a2fd-b743b8a357d6	Drum	VoiceB	1
 5ff1dc7a-5484-11eb-bf85-7ff8e2a49b5e	3c865ef0-5484-11eb-bf85-333839de0667	Stripe	New Voice	0
 d39a1904-5618-11eb-9685-1f02ec4f4202	a9eaf002-5617-11eb-9416-3b77c117493e	Bass	New Voice	0
 ea382aa4-5ac1-11eb-80c6-1376c47de919	d3b8e502-5ac1-11eb-b192-8f7e2e17a465	Bass	New Voice	0
 7fd09cd4-93a9-4e8a-8c4a-4fb43f00a68e	2ea865ea-5ac3-11eb-b192-fb1b1d31d03a	Bass	New Voice	0
 34d53d38-5ac5-11eb-8ed4-bfdbb0929ff1	30689664-5ac5-11eb-8ed4-07fef51d8934	Bass	New Voice	0
 73f929e0-3138-11eb-9959-b3174b44ac96	6e77a7a8-3138-11eb-9959-d3334864d283	Sticky	New Voice	0
-01931c68-d3c9-4987-913b-aa87892f253e	f60cdd2a-561b-11eb-baf6-2bae74f43b89	Drum	Crash	2
-d0a3d89e-c943-40d3-873f-6216b6d5cb69	f60cdd2a-561b-11eb-baf6-2bae74f43b89	Drum	Hi Hats	1
-62d2d092-f944-426c-bd9d-e33f68903623	f60cdd2a-561b-11eb-baf6-2bae74f43b89	Drum	Toms	4
-90640b42-dc20-4f00-9d70-1cf002a8f4c6	f60cdd2a-561b-11eb-baf6-2bae74f43b89	Drum	Kick Snare	3
-bd9082e2-562c-11eb-9615-b37f940bfe7d	b795e724-562c-11eb-9615-8b1802744729	Drum	New Voice	0
 f025e92b-d8e5-4f65-b771-ee3c946a22fe	b86e81e2-585c-11eb-b4ff-c32c85ebe240	Bass	New Voice	1000
 a5a147c0-5818-4f5b-90ea-3e45eff1fcf1	9c5265b6-585f-11eb-8577-675ef9bc49e8	Bass	New Voice	0
 46908a87-d7f8-43a6-a555-a94534886a0a	c868f8e0-585f-11eb-a23d-677e2fdddd2b	Bass	New Voice	0
@@ -11185,10 +11134,6 @@ c34c699f-a9fc-4bb3-a62f-e456778e951a	fc0fb3e2-586d-11eb-a3f6-3fc78957470e	Bass	N
 4c8436d5-56e1-49c2-ba5f-47f381b2f254	dde57504-586e-11eb-a3f6-b796d73e0300	Bass	New Voice	1000
 be1545a8-ba06-4572-b641-2f73c71a9a12	2f0cf8c6-586f-11eb-a3f6-e72a2aa1a394	Bass	New Voice	1000
 d0f3b5f1-42da-4099-9cc1-64da014d3102	739f0b96-586f-11eb-9038-67093503101e	Bass	New Voice	1000
-b319625e-561b-11eb-bb66-a3cab8c49ecd	9629aa6e-561b-11eb-baf6-4b0cad4d0c2d	Drum	Hi Hats	1
-b3c39bac-561b-11eb-bb66-5be66432d3a8	9629aa6e-561b-11eb-baf6-4b0cad4d0c2d	Drum	Crash	2
-b45ee6ac-561b-11eb-bb66-93853c86dd89	9629aa6e-561b-11eb-baf6-4b0cad4d0c2d	Drum	Kick Snare	3
-cc3e46be-561b-11eb-bb66-4fabedde4d62	9629aa6e-561b-11eb-baf6-4b0cad4d0c2d	Drum	Tom	4
 702c17ee-5ab1-11eb-a799-6b37d1360193	6a231a32-5ab1-11eb-a799-a7cbb14b3ab8	Bass	New Voice	0
 9186cc93-735c-43b3-a103-89426a35583b	a97c5986-5ab2-11eb-a9c1-d3cf24cd4a43	Bass	New Voice	0
 faf6d00c-5ab2-11eb-94a3-db92f1d118b3	f5004dc2-5ab2-11eb-94a3-772b877091c6	Bass	New Voice	0
@@ -11243,26 +11188,11 @@ fcdc8fc4-2966-11eb-9ef6-eb1b03438c15	1b7ddd46-16eb-11ea-8a37-e7aece5a6e4f	Pad	Ne
 d63d7eb8-b900-11ea-934d-a3f12000d564	d395eede-b900-11ea-934d-db757ed200f1	Pad	New	1000
 918e2dc2-b1aa-4b12-8c99-142c894c326d	bae08b3e-40c7-11eb-9fce-b308447aa03c	Pad	New Voice	0
 ad1941b8-5499-11eb-b5d7-f7d94229ae48	a2e7ec8a-5499-11eb-b5d7-930382ad8522	Pad	New Voice	0
-d3f80b6a-5e81-11eb-be85-679e9ef0e232	c4644486-5baf-11eb-a452-efb02535c8c4	Drum	Kick and Snare	0
-d63d386e-5e81-11eb-be85-67fe46059e40	c4644486-5baf-11eb-a452-efb02535c8c4	Drum	Toms	0
-d51f36c6-5e81-11eb-be85-8b51c6a0ad72	c4644486-5baf-11eb-a452-efb02535c8c4	Drum	Hi Hats	0
 c8857098-6321-11eb-b49d-3b096b4b6c18	afd37900-6321-11eb-b49d-cff3a0428d0d	Pad	New Voice	0
 264b4df6-4c19-484f-acb2-3d3097d5e956	f0ade442-6321-11eb-aab1-532a1e1c447b	Stab	New Voice	0
 81ec9e96-723d-4974-a1de-63f1003564b8	265f6b56-6322-11eb-b49d-ebbfa600c951	Bass	New Voice	0
 d9239b9c-5d69-4e6c-b63b-bc30591393cf	38ad6114-6322-11eb-b49d-f3c4d9199536	Sticky	New Voice	0
 2c3f5f57-ed42-425c-a68a-841807fc70fb	4ec1b586-6322-11eb-aab1-f35bb88e4dfb	Stripe	New Voice	0
-52fbac96-684b-11eb-97a7-9bf8b5f44935	4d920f5c-684b-11eb-97a7-fb73aa2237d4	Drum	Kick and Snare	0
-5687d1a0-684b-11eb-97a7-47754539954c	4d920f5c-684b-11eb-97a7-fb73aa2237d4	Drum	Crash	0
-83681d4a-6cbc-11eb-94b3-77dcac3df971	7a19f2d6-6cbc-11eb-94b3-1322185915d0	Drum	Hi Hats	0
-54cfca16-684b-11eb-97a7-ef0e9ec839f6	4d920f5c-684b-11eb-97a7-fb73aa2237d4	Drum	Toms	0
-840e6cd6-6cbc-11eb-94b3-cfccd9588488	7a19f2d6-6cbc-11eb-94b3-1322185915d0	Drum	Kick and Snare	0
-53d7fa7a-684b-11eb-97a7-eb6d62c18344	4d920f5c-684b-11eb-97a7-fb73aa2237d4	Drum	Hi Hats	0
-829bf904-6cbc-11eb-94b3-1f3b08d2d594	7a19f2d6-6cbc-11eb-94b3-1322185915d0	Drum	Toms	0
-84cdf77c-6cbc-11eb-94b3-d7bc4eaa2299	7a19f2d6-6cbc-11eb-94b3-1322185915d0	Drum	Crash	0
-76a50ffa-73f1-11eb-abcc-2b35e1bc5874	72a545dc-73f1-11eb-abcc-9b2a3f444ce8	Drum	Toms	2
-774cbd2c-73f1-11eb-abcc-db89d1607589	72a545dc-73f1-11eb-abcc-9b2a3f444ce8	Drum	Hi Hats	4
-77f6198a-73f1-11eb-abcc-b70ccec31aef	72a545dc-73f1-11eb-abcc-9b2a3f444ce8	Drum	Kick Snare	3
-757b0bca-73f1-11eb-abcc-dbfae3b4b4d5	72a545dc-73f1-11eb-abcc-9b2a3f444ce8	Drum	Crash	1
 2c42e5af-499d-4156-a1e8-b415da448552	68f0d702-78b2-11eb-bae4-ffdd0aad5a84	Sticky	New	1000
 cba960e9-49b8-4a4d-9ff3-2f190d362b92	8e95e240-78b2-11eb-95d8-ab4369465fd2	Sticky	New Voice	0
 a6d1e21f-d5e1-4751-8b53-251aaed9049c	b4e420c4-78b2-11eb-a5dc-9353dbc27329	Sticky	New	1000
@@ -11274,24 +11204,8 @@ fd1d0005-3758-4fb6-aaa8-7160a786b66c	66d03606-78b3-11eb-b614-7b2f850c124e	Sticky
 1b650042-5357-462d-8840-44e7a1d274d3	87dc64c8-78b3-11eb-96bb-3bb2581bce31	Sticky	New Voice	0
 5c70775e-5118-4fa7-b6dc-07e3c3720387	ab70cb9a-78b3-11eb-96bb-cb9a0f336ff5	Sticky	New Voice	0
 de7a0ed2-c494-411b-a1ef-bce7083d491f	c6323d10-78b3-11eb-96bb-cb75052f8d70	Sticky	New Voice	0
-3cb1b32c-c6d6-4aba-ba09-93fe4778eae7	78192c08-7d5c-11eb-b8c8-c3c5131de38d	Drum	Kick Snare	3
-67e57a3b-2b47-4366-b9ba-dd40cbd67039	78192c08-7d5c-11eb-b8c8-c3c5131de38d	Drum	Hi Hats	2
-a66ceb17-2dd9-4266-ae74-e85cdc76dabd	78192c08-7d5c-11eb-b8c8-c3c5131de38d	Drum	Crash	1
-b36200f7-c5a7-4b5b-adfe-54e6de9cd0a9	78192c08-7d5c-11eb-b8c8-c3c5131de38d	Drum	Toms	4
-cdda3b9c-c9af-4581-96a2-47a8bb8ff4c0	6d4baa54-8238-11eb-86c7-e77755c7db68	Drum	Hi Hats	1
-e1397e61-3cd3-46dc-b354-74b6b64e74ac	6d4baa54-8238-11eb-86c7-e77755c7db68	Drum	Crash	2
-8cc231ef-50ae-4a94-91a3-259b00ab27ba	6d4baa54-8238-11eb-86c7-e77755c7db68	Drum	Kick Snare	3
-c98555bc-2c5c-405b-a9a8-2ebf8ebe7c32	6d4baa54-8238-11eb-86c7-e77755c7db68	Drum	Tom	4
 b8e5f44e-860f-11eb-b123-675256ea6aa4	b3f7af40-860f-11eb-b123-379a9bfda5c1	Pad	New Voice	0
-6f362b5e-ff6e-47df-9dfb-bb7238a22382	6f51ce2c-8559-11eb-a71d-2795d6097b17	Drum	Kick Snare	4
-25d0f0ff-f7a4-4645-a5c6-73c0b631c445	6f51ce2c-8559-11eb-a71d-2795d6097b17	Drum	Hi Hats	1
-c3adfb0e-2470-421b-9e08-fa83ec258204	6f51ce2c-8559-11eb-a71d-2795d6097b17	Drum	Crash	2
-b7f57da6-3716-4d61-8a91-c2d510225eb8	6f51ce2c-8559-11eb-a71d-2795d6097b17	Drum	Tom	3
 1a79c011-dbec-4c66-a2b7-c25f30c7c13a	fd6e640e-40c6-11eb-9fce-d74dbfc5db55	Stab	New	1000
-f71ef2b0-8849-11eb-a337-8f21bc308459	ed464fcc-8849-11eb-bf80-0f0b7ba1f39c	Drum	Hi Hats	3
-f7f6ba24-8849-11eb-a337-23e0482d3c20	ed464fcc-8849-11eb-bf80-0f0b7ba1f39c	Drum	Crash	4
-f8b73312-8849-11eb-a337-77bd601e20a5	ed464fcc-8849-11eb-bf80-0f0b7ba1f39c	Drum	Toms	2
-f61cc81a-8849-11eb-a337-d3ba1b30dbd5	ed464fcc-8849-11eb-bf80-0f0b7ba1f39c	Drum	Kick Snare	1
 b625cb41-b238-4c6a-8489-b1533fcc94ad	fbcaf7a2-8b80-11eb-b523-2bafc960bd87	Pad	New Voice	0
 6bcd9245-effa-4dbc-a65c-e764525ed73f	1aa77060-8b81-11eb-8439-0395150f86fa	Pad	New Voice	0
 c4d8cd16-8086-471e-9acf-ffaa918f5159	3bd0831c-8b81-11eb-a962-f74f3f3978a2	Pad	New Voice	0
@@ -11336,24 +11250,10 @@ f8729c97-c00c-4631-a4b0-0c1118fb8936	7bf4d36a-91a5-11eb-becc-cb330fc0f60a	Stripe
 fdd8f3d1-c365-4fb2-84cf-441f8a4a683a	f35d0896-91a5-11eb-becc-e7154f927062	Stripe	New Voice	0
 d9d06d2b-b0af-49f5-b2e6-0f344a13778b	ff13d52a-91a5-11eb-8605-23b893f6dc73	Stripe	New Voice	0
 8c9f5406-a4d1-4057-8742-80171f860857	0bfdb8be-91a6-11eb-aa43-3b9131f6628d	Stripe	New Voice	0
-5ea1afc6-5958-4341-a460-88124ee239bc	4e001996-950c-11eb-933c-fb4581ea2431	Drum	Extra	1
-9234677e-f85a-4250-8a83-763623501727	4e001996-950c-11eb-933c-fb4581ea2431	Drum	Kick	2
-85961a01-0a96-4721-9a9a-ef749f1b0b45	4e001996-950c-11eb-933c-fb4581ea2431	Drum	Snare	3
-ccae0bf6-d292-4790-b69b-d7d3b80b8a4a	4e001996-950c-11eb-933c-fb4581ea2431	Drum	Locomotion	4
-ff8b9754-9cbd-11eb-820b-83e7314b98a4	f92116fa-9cbd-11eb-820b-afa35ebe06a6	Drum	Kick + Snare	0
-00b94cc0-9cbe-11eb-820b-af89c8b34443	f92116fa-9cbd-11eb-820b-afa35ebe06a6	Drum	Hi Hats	0
-015c4c22-9cbe-11eb-820b-0ba6dd866ed3	f92116fa-9cbd-11eb-820b-afa35ebe06a6	Drum	Crash	0
-01f29d62-9cbe-11eb-b8ea-935e6b1e1a5c	f92116fa-9cbd-11eb-820b-afa35ebe06a6	Drum	Toms	0
 b59e4e34-9d67-11eb-92e9-97b9b408688e	ac1c3f92-9d67-11eb-92e9-1345b5af3df7	Bass	New Voice	0
 e931496e-9b68-41e0-b549-e682f49989ac	3a9796ea-9d68-11eb-92e9-e7ef9b7fe28c	Bass	New Voice	0
-80fe635e-a243-11eb-a91a-ffc93ead408d	ba139ae8-a233-11eb-be01-3b6e8914c26d	Drum	KICK SNARE	0
-9bd408fa-a243-11eb-a91a-2bafc940176e	ba139ae8-a233-11eb-be01-3b6e8914c26d	Drum	HI HATS	0
-9c97808c-a243-11eb-a91a-b3d9f1207641	ba139ae8-a233-11eb-be01-3b6e8914c26d	Drum	CRASH	0
-9d2a7cc0-a243-11eb-a91a-27476c0382cd	ba139ae8-a233-11eb-be01-3b6e8914c26d	Drum	TOMS	0
 06fd2c98-a31a-11eb-8492-2bbf6e8bbae1	f16b41b2-a319-11eb-8492-3be4764dd05f	Sticky	New Voice	0
 f4ade193-b995-4db9-bca0-c58431a00d35	36835122-a31a-11eb-ac20-2fb0043c9bdd	Sticky	New Voice	0
-4230cefb-5948-4c80-b83f-c311d8534b0c	c72de3b4-904a-11eb-abd3-af7e20374a42	Drum	Kick	3
-4cc76896-693a-4cb1-8a6d-4b183832184b	c72de3b4-904a-11eb-abd3-af7e20374a42	Drum	Snare	4
 933559ec-a31a-11eb-ac20-0f79be4a4c9b	76f70dac-a31a-11eb-ac20-4ff3832589ef	Sticky	New Voice	0
 bb0ff2f7-29f1-4a56-9559-217464984c4f	f9e42a42-a31a-11eb-ac20-8b187ce1bdf0	Sticky	New Voice	0
 63bfcaec-c775-4423-abbe-c5ae0889f577	16d58056-a31b-11eb-ba55-770e76c346af	Sticky	New Voice	0
@@ -11363,10 +11263,10 @@ bb0ff2f7-29f1-4a56-9559-217464984c4f	f9e42a42-a31a-11eb-ac20-8b187ce1bdf0	Sticky
 f5ea55e3-c3a4-4aaf-b815-f22c3050ac64	660efea8-a321-11eb-a421-9fc9a383c453	Bass	New Voice	0
 da573ee3-f9fb-4982-862d-62add725581f	fa7079b4-a3d5-11eb-8adc-6f4d79c6b6e5	Sticky	New	1000
 efdd6e50-e055-4e4e-bf5e-e9a6e708a8e0	fa9b1664-a3d6-11eb-8adc-bb2d0db3864e	Sticky	New	1000
+3cb1b32c-c6d6-4aba-ba09-93fe4778eae7	78192c08-7d5c-11eb-b8c8-c3c5131de38d	Drum	Kick Snare	3
+67e57a3b-2b47-4366-b9ba-dd40cbd67039	78192c08-7d5c-11eb-b8c8-c3c5131de38d	Drum	Hi Hats	2
 2bd10a9a-edd9-4b03-b21c-7e36a4fbea81	7254d5fa-a3d7-11eb-b8a2-bfa9173ce2a4	Sticky	New Voice	0
 3e654e8a-f11e-4239-8df1-76388b565cf2	acf32666-a3d8-11eb-8e30-774762dec30e	Sticky	New	1000
-8a6f1e86-6767-4979-bfd6-7babb6f10153	c72de3b4-904a-11eb-abd3-af7e20374a42	Drum	Locomotion	2
-5874366d-0e52-4df8-b12a-fdc5a4756aef	c72de3b4-904a-11eb-abd3-af7e20374a42	Drum	Extra	1
 ea7f9bcb-6188-402d-af63-ca3e3efed3d1	2f450e10-ae95-11eb-a239-175e7ee9d8c6	Bass	New Voice	0
 19810ea0-b7de-47e4-92f5-947c4346345b	6b44a9c0-ae95-11eb-8675-8bca6eed734d	Bass	New Voice	0
 65b76364-8611-11eb-b123-6f4777e310f6	5a34a844-8611-11eb-b123-aff1c420512d	Sticky	New Voice	0
@@ -11377,7 +11277,111 @@ b430c828-8843-4008-9b16-9c7eac6f318b	39a4c5c4-b081-11eb-b7f3-5fb966137ef5	Bass	N
 18f53383-dece-4a34-8095-bba318ea4cb3	ef181e34-bd0a-11eb-b5c7-535a78752965	Bass	New Voice	0
 6edd1614-b6b3-11eb-afaf-7720b398f0e0	6831f6a4-b6b3-11eb-8237-378b1537cec8	Bass	New Voice	0
 2513365d-1ff8-4010-9acb-73e508ddceac	66db5442-bd0e-11eb-bac9-cf5f996aed96	Bass	New Voice	0
+55c898a8-d2df-4c30-9503-6dd22c22fa9e	59efedba-f242-11eb-a4a8-d3503f3b9d3b	Pad	New Voice	0
+20d856c2-16eb-11ea-8a37-2fd6619fce2a	20d07cc2-16eb-11ea-8a37-c32a94270435	Drum	Extra	1000
+20d987c2-16eb-11ea-8a37-032944d7a9c6	20d07cc2-16eb-11ea-8a37-c32a94270435	Drum	Kick/Snare B	1000
+8a6f1e86-6767-4979-bfd6-7babb6f10153	c72de3b4-904a-11eb-abd3-af7e20374a42	Drum	Locomotion	2
+20daa580-16eb-11ea-8a37-e30ce507d974	20d07cc2-16eb-11ea-8a37-c32a94270435	Drum	Kick/Snare A	1000
+20dbbce0-16eb-11ea-8a37-db74fc12222b	20d07cc2-16eb-11ea-8a37-c32a94270435	Drum	Locomotion	1000
+2164b0f4-16eb-11ea-8a37-5786ce3b6f25	215f31b0-16eb-11ea-8a37-4359224b0012	Drum	Kick/Snare A	1000
+2165e71c-16eb-11ea-8a37-d30b988f0dd2	215f31b0-16eb-11ea-8a37-4359224b0012	Drum	Kick/Snare B	1000
+2166f922-16eb-11ea-8a37-d38e96aaead0	215f31b0-16eb-11ea-8a37-4359224b0012	Drum	Extra	1000
+2168075e-16eb-11ea-8a37-67d1e2c88db5	215f31b0-16eb-11ea-8a37-4359224b0012	Drum	Locomotion	1000
+22a696f8-16eb-11ea-8a37-0ff33069a589	2298444a-16eb-11ea-8a37-5389fe5c6d7c	Drum	Clave	1000
+756bbb8c-8e57-4777-8d4a-cb8374b280cc	8e09d454-4e91-11ea-b949-5bb81903f1a1	Drum	Kick/Snare A	1000
+2351dccb-b45c-4317-8f22-6aa308f20e22	8e09d454-4e91-11ea-b949-5bb81903f1a1	Drum	Kick/Snare B	1000
+312edea0-d75d-4693-9f75-4f101cd481c5	8e09d454-4e91-11ea-b949-5bb81903f1a1	Drum	Extra	1000
+0f6f0ab9-27cb-4b74-bdda-8a2334b83c14	8e09d454-4e91-11ea-b949-5bb81903f1a1	Drum	Locomotion	1000
+a96ba836-aecc-4ae9-a3b0-92f86462171e	b9adee8a-59ca-11ea-84cb-77344de568df	Drum	Kick/Snare A	1000
+68eb8840-60e2-4290-8038-f4cdb458bc05	b9adee8a-59ca-11ea-84cb-77344de568df	Drum	Kick/Snare B	1000
+8d8f79c1-022b-44c7-8d88-aa680bf1bfaa	b9adee8a-59ca-11ea-84cb-77344de568df	Drum	Extra	1000
+a7d44445-11b9-476c-9f69-680aeae314d9	b9adee8a-59ca-11ea-84cb-77344de568df	Drum	Locomotion	1000
+5874366d-0e52-4df8-b12a-fdc5a4756aef	c72de3b4-904a-11eb-abd3-af7e20374a42	Drum	Extra	1
 cb9132f3-6974-4411-ab33-20ad08b4b6cd	21b19a88-beb8-11eb-bfe7-57378173d721	Drum	Hi Hats	1
+ba9af8d6-ab98-11ea-8abf-0757db0681bc	7ff9e534-ab98-11ea-aeee-133657b44529	Drum	New	1000
+bbe21224-ab98-11ea-8abf-bbda08f2712b	7ff9e534-ab98-11ea-aeee-133657b44529	Drum	New	1000
+7cce01ce-b75a-11ea-98ba-f7c1c6364b47	7a001d1a-b75a-11ea-98ba-47fa6707ff76	Drum	New	1000
+7da0fc1e-b75a-11ea-98ba-eb7eecf3be1d	7a001d1a-b75a-11ea-98ba-47fa6707ff76	Drum	New	1000
+7e47edd0-b75a-11ea-98ba-935df36ff69b	7a001d1a-b75a-11ea-98ba-47fa6707ff76	Drum	New	1000
+620a8f74-bd63-11ea-8eba-1f7076138d89	20d07cc2-16eb-11ea-8a37-c32a94270435	Drum	New Voice	1000
+691fd208-ab73-11ea-862b-7fa7b585830c	9e0ab8e6-ab70-11ea-87d0-cb03e8df1e44	Drum	Kick	1000
+22a5ea00-16eb-11ea-8a37-a3f05f374e8d	2298444a-16eb-11ea-8a37-5389fe5c6d7c	Drum	Locomotion	1000
+65e2eef0-bd6f-11ea-9000-1bb3d1299469	2298444a-16eb-11ea-8a37-5389fe5c6d7c	Drum	New	1000
+3daca19c-bfb8-11ea-8ab8-b3794c8e2dc5	39fadb7c-bfb8-11ea-8ab8-679371f0fd1a	Drum	Kick + Snare	1000
+d18eae86-bfb9-11ea-9e34-3f8fa96db0ca	39fadb7c-bfb8-11ea-8ab8-679371f0fd1a	Drum	Hi Hats	1000
+f4f82fda-c4bb-11ea-a6dc-439aeb27cfab	ef799b66-c4bb-11ea-a6dc-ff18af2544a3	Drum	Kick + Snare	1000
+f5c21c0a-c4bb-11ea-a6dc-cbcf3d62668b	ef799b66-c4bb-11ea-a6dc-ff18af2544a3	Drum	Hi Hats	1000
+f6533b9a-c4bb-11ea-a6dc-5f30b399d120	ef799b66-c4bb-11ea-a6dc-ff18af2544a3	Drum	Toms	1000
+aa1d8cc6-c858-11ea-b84b-cff022a604f8	a7365dbc-c858-11ea-b84b-73b9ff2e930e	Drum	New	1000
+a6183e8c-ca38-11ea-bdcf-3f2b25be5cc7	8b73aa9e-ca38-11ea-bdcf-67c8042da422	Drum	Kick + Snare	1000
+a7004718-ca38-11ea-bdcf-7b9ba9aa2e07	8b73aa9e-ca38-11ea-bdcf-67c8042da422	Drum	Toms	1000
+a8338b36-ca38-11ea-bdcf-d3fb409ab99a	8b73aa9e-ca38-11ea-bdcf-67c8042da422	Drum	Hi Hats	1000
+a7a03c46-ca38-11ea-bdcf-4f554024b06a	8b73aa9e-ca38-11ea-bdcf-67c8042da422	Drum	Crash	1000
+28ed743e-d520-11ea-be47-077493350026	e4b5408e-d381-11ea-b4dd-8304deea5ed4	Drum	Toms	1000
+2981c396-d520-11ea-be47-cf9bebfd301d	e4b5408e-d381-11ea-b4dd-8304deea5ed4	Drum	Hi Hats	1000
+4646fe4c-d520-11ea-be47-bb76376163d1	e4b5408e-d381-11ea-b4dd-8304deea5ed4	Drum	Crash	1000
+f22fbd16-d381-11ea-9e73-670b868434de	e4b5408e-d381-11ea-b4dd-8304deea5ed4	Drum	KickSnare	1000
+f82cb8f8-c6cb-11ea-b6c0-1b9e9063ade3	f4f21566-c6cb-11ea-b6c0-cb45bfcd2c4b	Drum	NewLoop	1000
+8075b9e6-0810-11eb-8696-87fabbeaf9bb	47de6e0c-0810-11eb-8696-b750b1583f1c	Drum	Drums	1000
+795a0d80-1b05-11eb-95f7-27699d9f9e30	76a97f4e-1b05-11eb-95f7-e7d79c3460ae	Drum	New Voice	1000
+86c53590-2086-11eb-ae1f-b7707a58a617	8418039a-2086-11eb-ae1f-e370e0b297f7	Drum	Crash	2
+875d7cb0-2086-11eb-ae1f-c3b62b87f06a	8418039a-2086-11eb-ae1f-e370e0b297f7	Drum	Hi Hats	1
+b32112a8-2086-11eb-90e2-af63e964de01	8418039a-2086-11eb-ae1f-e370e0b297f7	Drum	Toms	4
+87f14c06-2086-11eb-ae1f-0fb192f51c8f	8418039a-2086-11eb-ae1f-e370e0b297f7	Drum	Kick Snare	3
+96179142-4f15-11eb-b0e1-2bfe06d075b3	159ff83a-4b1c-11eb-a2fd-b743b8a357d6	Drum	VoiceA	2
+6c768e1a-4f15-11eb-a2ac-e3699d8d4a35	159ff83a-4b1c-11eb-a2fd-b743b8a357d6	Drum	VoiceB	1
+01931c68-d3c9-4987-913b-aa87892f253e	f60cdd2a-561b-11eb-baf6-2bae74f43b89	Drum	Crash	2
+d0a3d89e-c943-40d3-873f-6216b6d5cb69	f60cdd2a-561b-11eb-baf6-2bae74f43b89	Drum	Hi Hats	1
+62d2d092-f944-426c-bd9d-e33f68903623	f60cdd2a-561b-11eb-baf6-2bae74f43b89	Drum	Toms	4
+90640b42-dc20-4f00-9d70-1cf002a8f4c6	f60cdd2a-561b-11eb-baf6-2bae74f43b89	Drum	Kick Snare	3
+bd9082e2-562c-11eb-9615-b37f940bfe7d	b795e724-562c-11eb-9615-8b1802744729	Drum	New Voice	0
+b319625e-561b-11eb-bb66-a3cab8c49ecd	9629aa6e-561b-11eb-baf6-4b0cad4d0c2d	Drum	Hi Hats	1
+b3c39bac-561b-11eb-bb66-5be66432d3a8	9629aa6e-561b-11eb-baf6-4b0cad4d0c2d	Drum	Crash	2
+b45ee6ac-561b-11eb-bb66-93853c86dd89	9629aa6e-561b-11eb-baf6-4b0cad4d0c2d	Drum	Kick Snare	3
+cc3e46be-561b-11eb-bb66-4fabedde4d62	9629aa6e-561b-11eb-baf6-4b0cad4d0c2d	Drum	Tom	4
+d3f80b6a-5e81-11eb-be85-679e9ef0e232	c4644486-5baf-11eb-a452-efb02535c8c4	Drum	Kick and Snare	0
+d63d386e-5e81-11eb-be85-67fe46059e40	c4644486-5baf-11eb-a452-efb02535c8c4	Drum	Toms	0
+d51f36c6-5e81-11eb-be85-8b51c6a0ad72	c4644486-5baf-11eb-a452-efb02535c8c4	Drum	Hi Hats	0
+52fbac96-684b-11eb-97a7-9bf8b5f44935	4d920f5c-684b-11eb-97a7-fb73aa2237d4	Drum	Kick and Snare	0
+5687d1a0-684b-11eb-97a7-47754539954c	4d920f5c-684b-11eb-97a7-fb73aa2237d4	Drum	Crash	0
+83681d4a-6cbc-11eb-94b3-77dcac3df971	7a19f2d6-6cbc-11eb-94b3-1322185915d0	Drum	Hi Hats	0
+54cfca16-684b-11eb-97a7-ef0e9ec839f6	4d920f5c-684b-11eb-97a7-fb73aa2237d4	Drum	Toms	0
+840e6cd6-6cbc-11eb-94b3-cfccd9588488	7a19f2d6-6cbc-11eb-94b3-1322185915d0	Drum	Kick and Snare	0
+53d7fa7a-684b-11eb-97a7-eb6d62c18344	4d920f5c-684b-11eb-97a7-fb73aa2237d4	Drum	Hi Hats	0
+829bf904-6cbc-11eb-94b3-1f3b08d2d594	7a19f2d6-6cbc-11eb-94b3-1322185915d0	Drum	Toms	0
+84cdf77c-6cbc-11eb-94b3-d7bc4eaa2299	7a19f2d6-6cbc-11eb-94b3-1322185915d0	Drum	Crash	0
+76a50ffa-73f1-11eb-abcc-2b35e1bc5874	72a545dc-73f1-11eb-abcc-9b2a3f444ce8	Drum	Toms	2
+774cbd2c-73f1-11eb-abcc-db89d1607589	72a545dc-73f1-11eb-abcc-9b2a3f444ce8	Drum	Hi Hats	4
+77f6198a-73f1-11eb-abcc-b70ccec31aef	72a545dc-73f1-11eb-abcc-9b2a3f444ce8	Drum	Kick Snare	3
+757b0bca-73f1-11eb-abcc-dbfae3b4b4d5	72a545dc-73f1-11eb-abcc-9b2a3f444ce8	Drum	Crash	1
+a66ceb17-2dd9-4266-ae74-e85cdc76dabd	78192c08-7d5c-11eb-b8c8-c3c5131de38d	Drum	Crash	1
+b36200f7-c5a7-4b5b-adfe-54e6de9cd0a9	78192c08-7d5c-11eb-b8c8-c3c5131de38d	Drum	Toms	4
+cdda3b9c-c9af-4581-96a2-47a8bb8ff4c0	6d4baa54-8238-11eb-86c7-e77755c7db68	Drum	Hi Hats	1
+e1397e61-3cd3-46dc-b354-74b6b64e74ac	6d4baa54-8238-11eb-86c7-e77755c7db68	Drum	Crash	2
+8cc231ef-50ae-4a94-91a3-259b00ab27ba	6d4baa54-8238-11eb-86c7-e77755c7db68	Drum	Kick Snare	3
+c98555bc-2c5c-405b-a9a8-2ebf8ebe7c32	6d4baa54-8238-11eb-86c7-e77755c7db68	Drum	Tom	4
+6f362b5e-ff6e-47df-9dfb-bb7238a22382	6f51ce2c-8559-11eb-a71d-2795d6097b17	Drum	Kick Snare	4
+25d0f0ff-f7a4-4645-a5c6-73c0b631c445	6f51ce2c-8559-11eb-a71d-2795d6097b17	Drum	Hi Hats	1
+c3adfb0e-2470-421b-9e08-fa83ec258204	6f51ce2c-8559-11eb-a71d-2795d6097b17	Drum	Crash	2
+b7f57da6-3716-4d61-8a91-c2d510225eb8	6f51ce2c-8559-11eb-a71d-2795d6097b17	Drum	Tom	3
+f71ef2b0-8849-11eb-a337-8f21bc308459	ed464fcc-8849-11eb-bf80-0f0b7ba1f39c	Drum	Hi Hats	3
+f7f6ba24-8849-11eb-a337-23e0482d3c20	ed464fcc-8849-11eb-bf80-0f0b7ba1f39c	Drum	Crash	4
+f8b73312-8849-11eb-a337-77bd601e20a5	ed464fcc-8849-11eb-bf80-0f0b7ba1f39c	Drum	Toms	2
+f61cc81a-8849-11eb-a337-d3ba1b30dbd5	ed464fcc-8849-11eb-bf80-0f0b7ba1f39c	Drum	Kick Snare	1
+5ea1afc6-5958-4341-a460-88124ee239bc	4e001996-950c-11eb-933c-fb4581ea2431	Drum	Extra	1
+9234677e-f85a-4250-8a83-763623501727	4e001996-950c-11eb-933c-fb4581ea2431	Drum	Kick	2
+85961a01-0a96-4721-9a9a-ef749f1b0b45	4e001996-950c-11eb-933c-fb4581ea2431	Drum	Snare	3
+ccae0bf6-d292-4790-b69b-d7d3b80b8a4a	4e001996-950c-11eb-933c-fb4581ea2431	Drum	Locomotion	4
+ff8b9754-9cbd-11eb-820b-83e7314b98a4	f92116fa-9cbd-11eb-820b-afa35ebe06a6	Drum	Kick + Snare	0
+00b94cc0-9cbe-11eb-820b-af89c8b34443	f92116fa-9cbd-11eb-820b-afa35ebe06a6	Drum	Hi Hats	0
+015c4c22-9cbe-11eb-820b-0ba6dd866ed3	f92116fa-9cbd-11eb-820b-afa35ebe06a6	Drum	Crash	0
+01f29d62-9cbe-11eb-b8ea-935e6b1e1a5c	f92116fa-9cbd-11eb-820b-afa35ebe06a6	Drum	Toms	0
+80fe635e-a243-11eb-a91a-ffc93ead408d	ba139ae8-a233-11eb-be01-3b6e8914c26d	Drum	KICK SNARE	0
+9bd408fa-a243-11eb-a91a-2bafc940176e	ba139ae8-a233-11eb-be01-3b6e8914c26d	Drum	HI HATS	0
+9c97808c-a243-11eb-a91a-b3d9f1207641	ba139ae8-a233-11eb-be01-3b6e8914c26d	Drum	CRASH	0
+9d2a7cc0-a243-11eb-a91a-27476c0382cd	ba139ae8-a233-11eb-be01-3b6e8914c26d	Drum	TOMS	0
+4230cefb-5948-4c80-b83f-c311d8534b0c	c72de3b4-904a-11eb-abd3-af7e20374a42	Drum	Kick	3
+4cc76896-693a-4cb1-8a6d-4b183832184b	c72de3b4-904a-11eb-abd3-af7e20374a42	Drum	Snare	4
 252e27b3-c9ba-4da7-ad83-180e3083dcd9	21b19a88-beb8-11eb-bfe7-57378173d721	Drum	Crash	2
 bf3c3017-89d6-4ab1-973b-669cc3f00086	21b19a88-beb8-11eb-bfe7-57378173d721	Drum	Kick Snare	3
 805499d4-b4f3-4d56-84ea-bd20738a82ee	21b19a88-beb8-11eb-bfe7-57378173d721	Drum	Tom	4
@@ -11403,7 +11407,6 @@ fd044a58-698d-4367-803a-869c373d3d3f	8c79e680-cf08-11eb-9c57-c7ea2d3ee03a	Drum	H
 d5f3559b-5e9f-4b20-a90a-182036b596b0	4c52f9ca-d700-11eb-b894-eb2cb4823867	Drum	Hi Hats	2
 49accd6a-eeda-406e-a2d9-7cf2ddf0bede	4c52f9ca-d700-11eb-b894-eb2cb4823867	Drum	Toms	1
 f57c46e4-a4e2-4c8f-8c61-1fb1a0dda34d	4c52f9ca-d700-11eb-b894-eb2cb4823867	Drum	Kick Snare	3
-55c898a8-d2df-4c30-9503-6dd22c22fa9e	59efedba-f242-11eb-a4a8-d3503f3b9d3b	Pad	New Voice	0
 5f0182ee-e5dd-11eb-adf0-af0d65101397	4b280e8c-e5dd-11eb-adf0-7b8e4947fc80	Drum	Hi Hats	2
 5e671358-e5dd-11eb-adf0-4f89dcd79320	4b280e8c-e5dd-11eb-adf0-7b8e4947fc80	Drum	Toms	4
 58d12e06-e5dd-11eb-adf0-cba9f8f79b07	4b280e8c-e5dd-11eb-adf0-7b8e4947fc80	Drum	Crash	1
@@ -11896,10 +11899,11 @@ fabf3692-ff99-11eb-90a2-9305471d4bf4	fd79ea1a-7936-11eb-b4db-13f6ee945e8b	7a5f36
 4bcfe33c-0301-11ec-932b-6f145656be06	203da628-0301-11ec-932b-bf95e1ab6e63	43425dc6-0301-11ec-932b-2b8922e1384d	3b740f18-0301-11ec-932b-2f53f181fcb5	Main	Loop	32
 4a9b4a06-0301-11ec-932b-af127960682e	203da628-0301-11ec-932b-bf95e1ab6e63	43425dc6-0301-11ec-932b-2b8922e1384d	3addb0f4-0301-11ec-932b-ff6de14a41f3	Main	Loop	16
 fff604c4-04a3-11ec-afc2-73f98b5970a0	c3725926-04a3-11ec-958a-ff4b062221e7	fc7425ba-04a3-11ec-afc2-b780db5e8294	c9fb03ec-04a3-11ec-a71c-0fef7e71f9e3	Xxx	Loop	4
-01d3ea18-04a4-11ec-afc2-13537775b464	c3725926-04a3-11ec-958a-ff4b062221e7	fc7425ba-04a3-11ec-afc2-b780db5e8294	cb27c02a-04a3-11ec-a71c-471294b70bc5	Xxx	Loop	4
 fed0f9be-04a3-11ec-afc2-fb0eefe38606	c3725926-04a3-11ec-958a-ff4b062221e7	fc7425ba-04a3-11ec-afc2-b780db5e8294	c8359c8e-04a3-11ec-a71c-9ff8282a5ca4	Xxx	Loop	8
 00b8d184-04a4-11ec-afc2-bbd8d9775d31	c3725926-04a3-11ec-958a-ff4b062221e7	fc7425ba-04a3-11ec-afc2-b780db5e8294	ca965b58-04a3-11ec-a71c-9be91b22afa1	Xxx	Loop	16
 2adf9988-9cc2-11eb-a59f-6f7d6a3783b3	f92116fa-9cbd-11eb-820b-afa35ebe06a6	fc8e2800-9cbd-11eb-820b-af4726780edc	015c4c22-9cbe-11eb-820b-0ba6dd866ed3	New Pattern	Loop	16
+01d3ea18-04a4-11ec-afc2-13537775b464	c3725926-04a3-11ec-958a-ff4b062221e7	fc7425ba-04a3-11ec-afc2-b780db5e8294	cb27c02a-04a3-11ec-a71c-471294b70bc5	Xxx	Loop	16
+56191712-0c4a-11ec-93d2-37401dedef35	c3725926-04a3-11ec-958a-ff4b062221e7	fc7425ba-04a3-11ec-afc2-b780db5e8294	ca965b58-04a3-11ec-a71c-9be91b22afa1	Xxx	Loop	4
 \.
 
 
@@ -14862,7 +14866,9 @@ e1f0a086-030b-11ec-adc7-7b08971cd4d6	203da628-0301-11ec-932b-bf95e1ab6e63	4a9b4a
 --
 
 COPY xj.template (id, account_id, name, config, embed_key, type) FROM stdin;
+2325dabe-0c2e-11ec-9d13-cbf3461a3ded	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Jay Whitaker's Preview Template	choiceDeltaEnabled = true\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercussive = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30.0\nmixerLowpassThresholdHz = 15000.0\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16	kxakf8fvc	Preview
 eb0cf5ce-09ba-11ec-8016-d72d36e2270c	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Cool Air	choiceDeltaEnabled = true\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercussive = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30.0\nmixerLowpassThresholdHz = 15000.0\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16	coolair	Production
+5d7f23c6-105e-11ec-bee8-f7be79aa5352	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Ian Hersey's Preview Template	choiceDeltaEnabled = true\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercussive = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30.0\nmixerLowpassThresholdHz = 15000.0\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16	dxuzhmbum	Preview
 a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Charney's Preview Template	choiceDeltaEnabled = true\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercussive = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30.0\nmixerLowpassThresholdHz = 15000.0\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16	sknlgibpz	Preview
 \.
 
@@ -14902,6 +14908,39 @@ cdf06ee0-09be-11ec-9de1-23f9f2d3e27c	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec99
 d00b965a-09be-11ec-aabe-5fe646ba63b9	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	1509102a-16eb-11ea-8a37-4764c2a771db
 d249a5d8-09be-11ec-b609-8714b5c24700	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	9d966418-fb20-11eb-a2de-172ecc754afd
 d683cf16-09be-11ec-90c4-9bd5691a3338	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	fecebd38-fb26-11eb-8bbd-df3edf17a61b
+28bf955a-0c2e-11ec-9d13-c718ed1df2a5	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef
+2ac4ff0c-0c2e-11ec-ad57-cb5ccdf8e4aa	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	53b95f54-fb24-11eb-ad24-8f1c28086c69
+2c6771aa-0c2e-11ec-8ee2-3ffdd96e21b7	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe
+2e71e2fa-0c2e-11ec-9553-57ac39633c91	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	c40012d4-fb20-11eb-a2de-278de10ba0a8
+3083351c-0c2e-11ec-b20c-13bdecf165b2	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	ede3b224-fb23-11eb-ad24-1bf1b475662e
+32c7c3d8-0c2e-11ec-8ee2-3796773f10c3	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	460830b0-fb24-11eb-80a6-7b4f92dccaea
+343ab3ec-0c2e-11ec-ad57-d3a505fa5c4d	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	2f621894-fb24-11eb-80a6-63ed42857ac1
+37790f40-0c2e-11ec-8ee2-8b519c3634d5	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	5545dcfe-fb23-11eb-80a6-4372a28aca52
+39ce8f2c-0c2e-11ec-9d13-4fd1bb40779b	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	d124e460-fb22-11eb-b9ed-a36c2b39adb7
+3d27f3e8-0c2e-11ec-b20c-73dab4abf065	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	ff8ce21c-fb22-11eb-981d-37143596a20d
+41555d02-0c2e-11ec-9d13-4bb82fa5f118	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	55461ec6-fb23-11eb-ad24-972f33ad9115
+43ab8c70-0c2e-11ec-ad57-f7024fc609f1	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	ff8def18-fb22-11eb-928c-2b02f39362fc
+4605b1c6-0c2e-11ec-9553-0f57b0512aa3	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	f07d8882-fb25-11eb-afc6-578905fc6ef1
+48553564-0c2e-11ec-ad57-bf6245c1acc9	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	55ab659c-fb3c-11eb-85f4-87f8295902e9
+4a4cdc28-0c2e-11ec-ad57-fba0d558ca8d	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	1509102a-16eb-11ea-8a37-4764c2a771db
+4d00e342-0c2e-11ec-9553-e75191a32e8f	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	9d966418-fb20-11eb-a2de-172ecc754afd
+8d72cabc-0c2e-11ec-9553-7bef1da2b41c	Instrument	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	0c668776-64d5-11ea-acd9-c772fe2ee43d
+8743674e-0c49-11ec-bd23-bb017064d13f	Library	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	fecebd38-fb26-11eb-8bbd-df3edf17a61b
+95de6ea2-105e-11ec-8f90-eb2f20d52bfa	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	ede3384e-fb23-11eb-80a6-4f4aa09cf3ef
+9a782aca-105e-11ec-956e-6fbadfeb6222	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	53b95f54-fb24-11eb-ad24-8f1c28086c69
+9d9a0a3e-105e-11ec-a36b-a37ddffe4c99	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe
+a08ebd84-105e-11ec-8970-17f58357d44c	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	ede3b224-fb23-11eb-ad24-1bf1b475662e
+a301a036-105e-11ec-956e-3be10cb585ec	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	460830b0-fb24-11eb-80a6-7b4f92dccaea
+a5fa6c1e-105e-11ec-9614-0310408146c7	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	2f621894-fb24-11eb-80a6-63ed42857ac1
+cf964ed0-105e-11ec-b801-9b8f57ce6602	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	1509102a-16eb-11ea-8a37-4764c2a771db
+e99a16cc-105e-11ec-9967-6790cca32557	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	55ab659c-fb3c-11eb-85f4-87f8295902e9
+73499096-105f-11ec-9e43-23bf398b40d1	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	9d966418-fb20-11eb-a2de-172ecc754afd
+c2cd6fc2-1062-11ec-836a-cfd6e089817f	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	5545dcfe-fb23-11eb-80a6-4372a28aca52
+ed5f1812-1062-11ec-80b3-8fb8b8eefaf2	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	d124e460-fb22-11eb-b9ed-a36c2b39adb7
+f0a164bc-1062-11ec-96c5-d3345b61cef8	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	ff8ce21c-fb22-11eb-981d-37143596a20d
+f37c2f6e-1062-11ec-a007-e7989b04d79e	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	55461ec6-fb23-11eb-ad24-972f33ad9115
+f6609b66-1062-11ec-a007-3729697bf567	Library	5d7f23c6-105e-11ec-bee8-f7be79aa5352	ff8def18-fb22-11eb-928c-2b02f39362fc
+5b738728-111e-11ec-8d3b-5b247cdde787	Program	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	28caecc2-d3c9-11eb-8b5f-07a729946847
 \.
 
 
@@ -14910,6 +14949,8 @@ d683cf16-09be-11ec-90c4-9bd5691a3338	Library	a5ffa7a2-09be-11ec-b9a9-0b37c89ec99
 --
 
 COPY xj.template_playback (id, template_id, user_id, created_at) FROM stdin;
+6a3309c6-1067-11ec-bf82-9fc9105043e4	5d7f23c6-105e-11ec-bee8-f7be79aa5352	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	2021-09-08 05:41:29.104157
+80009998-111c-11ec-8754-b3f7b1a02b1f	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	14e0e8c0-16eb-11ea-8a37-336eae21d833	2021-09-09 03:17:44.591472
 \.
 
 
@@ -14928,6 +14969,8 @@ COPY xj.user_auth (id, type, external_access_token, external_refresh_token, exte
 53e6f5be-6cbc-11eb-aa45-9fba8e352050	Google	ya29.A0AfH6SMCrGTJesx9Tohul2IbrsGRcIYSvd-Bl2KPLtsUF0s-jkICOE35jyGYEOzccrRNRrikEtBz0tJC1nMfOPYYJVm6AdbxddbqDomSdFObnSJT-G7kOHcwfasLqxTlGrNPZTYYXeI1PpvnPljLslf6Tf8Xb	\N	109581461753202930475	53d857b6-6cbc-11eb-aa45-fb4149603399
 f3fabf34-8866-11eb-bdb9-fb546653409b	Google	ya29.a0AfH6SMCkyMuYgwMTAd7iLWTA6jFpsJ0zTK_u8SUa97GeJV0Vu8OXyezgfFCJPwNGwBudL3LhhqIG6FqowbCvzwiua5PfbsacK5SYacxnX8t6_8pETfx9-8-Ml9bK8qUIokzkOHKJCjRa6zF8_lVqS37cNcar	\N	102514923168713258212	f3f84f10-8866-11eb-bdb9-131400c7c86d
 1b350d78-f187-11eb-8314-db91e69d556b	Google	ya29.a0ARrdaM-YsQC4UQaVJts6PbP14hOeZHDfCO_kIfwtjLvUOjOliiaOqbHfpR1nKO1YCizFf315MVsbnK4igsu7i_SdGGAqAWoicutK4p23ggZgqwDYOwpVvjpOmRer8af2IZzNanh8NK1baBRgEMfXBwcRpCiB	\N	103309768654812025135	1b299a74-f187-11eb-8314-cf9697b34927
+05030824-0b28-11ec-9c0e-8f376cd129c5	Google	ya29.a0ARrdaM_UBZQlHh1Ji5N8mjs4qEZoZ3KUKVdGu4x-3l7W6LueROmOH9nTHHbTDjCjUgnY66Nbejo8YjEBZMGhO52SV7U_WHj0jD-na7krMA8VdyPuE67rLSGmn5yLl3Lt6qUH6S2onOPjXLku081tqgoHO68Q	\N	115090487693493762677	04fd1aae-0b28-11ec-9c0e-a3439b9d83f3
+d7d542d6-0bfe-11ec-849f-7b7688400ab0	Google	ya29.a0ARrdaM8keP3Z4YD6Slb2VIz9rzQg4wdIoZUdP9lW6WH6YOUJ81b9Kpeslr8-7KRiAMO1ZBACZ_lIpgjoGeo052p51yJDdqLnuSPaxKnEtEPqS14ohCu1RWMdxMgEg5gUAHEeCP9nc-dAtr9DxV2U6KP9V9-O	\N	109967978711340059710	d7d1932a-0bfe-11ec-849f-cba5043dcd83
 \.
 
 
@@ -15002,6 +15045,15 @@ e17d7874-01fb-11ec-b4ac-87da25aa3154	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8
 a71d45b6-053d-11ec-bab1-a79f27683d3f	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8c0-16eb-11ea-8a37-336eae21d833	1629852289633-262882c7-34ba-4b9f-a30f-bc3c8bddac62-0102291081921674
 aaede526-074d-11ec-9107-0bc1d71a4511	06920d56-8f3d-11ea-ab8d-979cef4f3286	06901f6e-8f3d-11ea-ab8d-836f6e9422f1	1630079070318-5880394b-32eb-4581-9ba2-3b2d2f2deee9-2265556842708894
 e02702dc-0788-11ec-a7fd-e7c0cf032d9e	5188959c-8514-11ea-962a-87e0456d6ec9	14c688fe-16eb-11ea-8a37-a798275d637c	1630104499917-8577b820-25ad-49b2-b76a-0b70a8da0609-4383455802053105
+d9a5a8a6-09e4-11ec-910e-27b218ca92dc	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1630363904981-f8baf55b-dec7-477d-9add-e29e00ac0544-8429500616292725
+f6ff2950-0aab-11ec-b5b1-83184b55a20d	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1630449424114-dfaad54a-380d-4114-9cee-9166f0facb4a-4843352925448535
+0505afe8-0b28-11ec-9c0e-63b920c4d5e0	05030824-0b28-11ec-9c0e-8f376cd129c5	04fd1aae-0b28-11ec-9c0e-a3439b9d83f3	1630502705242-e70d9ea5-534e-48ad-b080-da5e7bda2c79-9095270246271145
+ca43b634-0bfe-11ec-899a-dfd5c7d492cd	05030824-0b28-11ec-9c0e-8f376cd129c5	04fd1aae-0b28-11ec-9c0e-a3439b9d83f3	1630594948462-8cd00e25-9c39-4248-aa2d-4754b3f9185b-4369560469693055
+d7d77ab0-0bfe-11ec-849f-4793d55dbe2f	d7d542d6-0bfe-11ec-849f-7b7688400ab0	d7d1932a-0bfe-11ec-849f-cba5043dcd83	1630594971240-0559bca8-0a30-4aae-83e0-55f0424f3380-9940639142993055
+0d8cec9c-0c01-11ec-8db7-7f866719a378	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1630595920339-6b5082e7-72f8-4736-a4df-9646550ad06d-8890928151494055
+18be9710-0c23-11ec-a358-df0c24a8b28f	05030824-0b28-11ec-9c0e-8f376cd129c5	04fd1aae-0b28-11ec-9c0e-a3439b9d83f3	1630610542011-3243b068-511b-4fc9-b6cc-f50cf3463b7d-6980200913659155
+a711c75c-1106-11ec-99bd-fb9dfd85a517	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	1631148081182-31f8bfac-1893-41d6-bbd3-cdf0e3e4fd10-1139341632017506
+2e5f9b8c-112d-11ec-abae-2384927897bf	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8c0-16eb-11ea-8a37-336eae21d833	1631164629072-14f43c09-dcfa-48e0-88ac-f3dd2b4cc412-2121121520563706
 \.
 
 
@@ -15100,6 +15152,8 @@ f3f913f0-8866-11eb-bdb9-f7fd2ecedc53	User	f3f84f10-8866-11eb-bdb9-131400c7c86d
 1b319a94-f187-11eb-8314-0f5f84fca8ac	User	1b299a74-f187-11eb-8314-cf9697b34927
 ab8dbbcc-f187-11eb-8314-1f3c5c51f577	Engineer	1b299a74-f187-11eb-8314-cf9697b34927
 ab8f33f8-f187-11eb-8314-2397c24dd532	Artist	1b299a74-f187-11eb-8314-cf9697b34927
+0500ef30-0b28-11ec-9c0e-370d42424c1e	User	04fd1aae-0b28-11ec-9c0e-a3439b9d83f3
+d7d39968-0bfe-11ec-849f-1309fd51bc33	User	d7d1932a-0bfe-11ec-849f-cba5043dcd83
 \.
 
 

@@ -18,17 +18,6 @@ OUTPUT_SQL="${6}"
 
 #
 EXCLUDED_TABLES=(
-xj.chain
-xj.chain_config
-xj.chain_binding
-xj.platform_message
-xj.segment
-xj.segment_choice
-xj.segment_choice_arrangement
-xj.segment_choice_arrangement_pick
-xj.segment_chord
-xj.segment_meme
-xj.segment_message
 xj.flyway_schema_history
 )
 
