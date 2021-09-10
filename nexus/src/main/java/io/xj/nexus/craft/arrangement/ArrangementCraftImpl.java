@@ -468,7 +468,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     return switch (choice.getInstrumentType()) {
       case DRUM, STAB -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false, true);
       case BASS -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false, false);
-      case PERCUSSIONLOOP -> computeVolumeRatioForPickedNote(choice, segmentPosition, true, false, false);
+      case PERCLOOP -> computeVolumeRatioForPickedNote(choice, segmentPosition, true, false, false);
       case PAD, STICKY, STRIPE -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, true, true);
     };
   }
