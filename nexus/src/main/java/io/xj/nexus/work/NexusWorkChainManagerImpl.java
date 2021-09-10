@@ -319,14 +319,14 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
                   var entity = jsonapiPayloadFactory.toOne(po);
                   entities.add(entity);
                   childCount.getAndIncrement();
-                } catch (JsonapiException | ClassCastException e) {
+                } catch (Exception e) {
                   LOG.error("Could not deserialize Segment from shipped Chain JSON", e);
                   success.set(false);
                 }
               });
             LOG.info("Read Segment[{}] and {} child entities", segment.getStorageKey(), childCount);
 
-          } catch (FileStoreException | IOException | ClassCastException | EntityException e) {
+          } catch (Exception e) {
             LOG.error("Could not load Segment[{}]", segment.getStorageKey(), e);
             success.set(false);
           }
