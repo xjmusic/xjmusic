@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 public class NoteTest {
 
   /**
-   [#303] Craft calculates percussive audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
+   [#303] Craft calculates drum audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
    */
   @Test
   public void setOctaveNearest() {

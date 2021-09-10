@@ -117,7 +117,7 @@ public class InstrumentAudioIT {
     fake.instrument202 = test.insert(new Instrument()
       .id(UUID.randomUUID())
       .libraryId(fake.library1.getId())
-      .type(InstrumentType.PERCUSSIVE)
+      .type(InstrumentType.DRUM)
       .state(InstrumentState.PUBLISHED)
       .density(0.6)
       .name("jams"));
@@ -453,7 +453,7 @@ fake.user2, fake.library1, ProgramType.MACRO, ProgramState.PUBLISHED, "epic conc
 110, 1, 1, 0);
     test.insert(new ProgramVoice()
 .id(UUID.randomUUID())
-8, 1, InstrumentType.PERCUSSIVE, "This is a percussive voice");
+8, 1, InstrumentType.DRUM, "This is a drum voice");
 
     testDAO.destroy(access, fake.audio1.getId());
 
@@ -503,8 +503,8 @@ fake.user2, fake.library1, ProgramType.MACRO, ProgramState.PUBLISHED, "epic conc
     insert(of(1, 1, "palm tree",now()));
 
     // Sequence "leaves" has instruments "808" and "909"
-    insertInstrument(1, 1, 2, "808 Drums", InstrumentType.PERCUSSIVE, 0.9);
-    insertInstrument(2, 1, 2, "909 Drums", InstrumentType.PERCUSSIVE, 0.8);
+    insertInstrument(1, 1, 2, "808 Drums", InstrumentType.DRUM, 0.9);
+    insertInstrument(2, 1, 2, "909 Drums", InstrumentType.DRUM, 0.8);
 
     // Instrument "808" has Audios "Kick" and "Snare"
     insertAudio(1, 1, "Published", "Kick", "instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "kick1.wav", 0.01, 2.123, 120.0, 440.0);
@@ -691,8 +691,8 @@ access, inputData);
     insert(of(1, 1, "palm tree",now()));
 
     // Sequence "leaves" has instruments "808" and "909"
-    insertInstrument(1, 1, 2, "808 Drums", InstrumentType.PERCUSSIVE, 0.9);
-    insertInstrument(2, 1, 2, "909 Drums", InstrumentType.PERCUSSIVE, 0.8);
+    insertInstrument(1, 1, 2, "808 Drums", InstrumentType.DRUM, 0.9);
+    insertInstrument(2, 1, 2, "909 Drums", InstrumentType.DRUM, 0.8);
 
     // Instrument "808" has InstrumentAudio "Beat"
     insertAudio(1, 1, "Published", "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440.0);
@@ -834,8 +834,8 @@ access, inputData);
   public void readManyOfInstrument_SeesNothingOutsideOfLibrary() throws Exception {
     insert(of(6, "bananas");
     insert(of(61, 6, "palm tree", now()));
-    insertInstrument(61, 61, 2, "808 Drums", InstrumentType.PERCUSSIVE, 0.9);
-    insertInstrument(62, 61, 2, "909 Drums", InstrumentType.PERCUSSIVE, 0.8);
+    insertInstrument(61, 61, 2, "808 Drums", InstrumentType.DRUM, 0.9);
+    insertInstrument(62, 61, 2, "909 Drums", InstrumentType.DRUM, 0.8);
     insertAudio(61, 61, "Published", "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440.0);
     insertAudioEvent(61, 2.5, 1.0, "ASS", "Eb", 0.8, 1.0);
     insertAudioEvent(61, 3.0, 1.0, "ASS", "Ab", 0.1, 0.8);

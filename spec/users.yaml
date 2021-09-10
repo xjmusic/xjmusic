@@ -1,0 +1,124 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: XJ Music Users API
+servers:
+  - url: http://hub.lab.svc.cluster.local:3001/api/v2
+    description: XJ Music API (Service Cluster Local)
+tags:
+  - name: users
+paths:
+  #
+  #
+  "/users/{userId}":
+    get:
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "332db756-4288-499d-bdf4-b919b4ea30e1"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+#
+#
+# Components
+#
+components:
+  schemas:
+
+    #
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+        roles:
+          type: string
+        avatarUrl:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    #
+    UserRole:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/UserRoleType"
+
+    #
+    UserRoleType:
+      type: string
+      enum:
+        [
+            Internal,
+            Admin,
+            Engineer,
+            Artist,
+            User,
+            Banned,
+        ]
+
+    #
+    UserAuth:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/UserAuthType"
+        externalAccessToken:
+          type: string
+        externalRefreshToken:
+          type: string
+        externalAccount:
+          type: string
+
+    #
+    UserAuthType:
+      type: string
+      enum:
+        [
+            Google,
+        ]
+
+    #
+    UserAuthToken:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        userAuthId:
+          type: string
+          format: uuid
+        accessToken:
+          type: string

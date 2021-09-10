@@ -1,0 +1,311 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: XJ Music Programs API
+servers:
+  - url: http://hub.lab.svc.cluster.local:3001/api/v2
+    description: XJ Music API (Service Cluster Local)
+tags:
+  - name: programs
+paths:
+  #
+  #
+  "/programs/{programId}":
+    get:
+      parameters:
+        - name: programId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "332db756-4288-499d-bdf4-b919b4ea30e1"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+#
+#
+# Components
+#
+components:
+  schemas:
+
+    #
+    Program:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        libraryId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/ProgramType"
+        state:
+          $ref: "#/components/schemas/ProgramState"
+        name:
+          type: string
+        key:
+          type: string
+        config:
+          type: string
+        tempo:
+          type: number
+          format: double
+        density:
+          type: number
+          format: double
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    #
+    ProgramType:
+      type: string
+      enum:
+        [
+            Macro,
+            Main,
+            Rhythm,
+            Detail,
+        ]
+
+    #
+    ProgramState:
+      type: string
+      enum:
+        [
+            Draft,
+            Published,
+        ]
+
+
+    #
+    ProgramAuthor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        programId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        contribution:
+          type: number
+          format: double
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    #
+    ProgramMeme:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        programId:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    #
+    ProgramVoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        programId:
+          type: string
+          format: uuid
+        type:
+          $ref: "./instruments.yaml#/components/schemas/InstrumentType"
+        name:
+          type: string
+        order:
+          type: number
+          format: float
+
+    #
+    ProgramVoiceTrack:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        programId:
+          type: string
+          format: uuid
+        programVoiceId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        order:
+          type: number
+          format: float
+
+    #
+    ProgramSequence:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        programId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        key:
+          type: string
+        density:
+          type: number
+          format: double
+        total:
+          type: integer
+        tempo:
+          type: number
+          format: double
+
+    #
+    ProgramSequenceChord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        programId:
+          type: string
+          format: uuid
+        programSequenceId:
+          type: string
+          format: uuid
+        position:
+          type: number
+          format: double
+        name:
+          type: string
+
+    #
+    ProgramSequenceChordVoicing:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        programId:
+          type: string
+          format: uuid
+        programSequenceChordId:
+          type: string
+          format: uuid
+        type:
+          $ref: "./instruments.yaml#/components/schemas/InstrumentType"
+        notes:
+          type: string
+
+    #
+    ProgramSequenceBinding:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        programId:
+          type: string
+          format: uuid
+        programSequenceId:
+          type: string
+          format: uuid
+        offset:
+          type: integer
+
+    #
+    ProgramSequenceBindingMeme:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        programId:
+          type: string
+          format: uuid
+        programSequenceBindingId:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    #
+    ProgramSequencePattern:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        programId:
+          type: string
+          format: uuid
+        programSequenceId:
+          type: string
+          format: uuid
+        programVoiceId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/ProgramSequencePatternType'
+        total:
+          type: integer
+        name:
+          type: string
+
+    #
+    ProgramSequencePatternType:
+      type: string
+      enum:
+        [
+            Intro,
+            Loop,
+            Outro,
+        ]
+
+    #
+    ProgramSequencePatternEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        programId:
+          type: string
+          format: uuid
+        programSequencePatternId:
+          type: string
+          format: uuid
+        programVoiceTrackId:
+          type: string
+          format: uuid
+        duration:
+          type: number
+          format: double
+        note:
+          type: string
+        position:
+          type: number
+          format: double
+        velocity:
+          type: number
+          format: double

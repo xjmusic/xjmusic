@@ -137,7 +137,7 @@ public class IntegrationTestingFixtures {
     templateBinding1 = test.insert(buildTemplateBinding(template1, library10000001));
 
     // Instrument 201
-    instrument201 = test.insert(buildInstrument(library10000001, InstrumentType.PERCUSSIVE, InstrumentState.PUBLISHED, "808 Drums"));
+    instrument201 = test.insert(buildInstrument(library10000001, InstrumentType.DRUM, InstrumentState.PUBLISHED, "808 Drums"));
     test.insert(buildInstrumentMeme(instrument201, "Ants"));
     test.insert(buildInstrumentMeme(instrument201, "Mold"));
     //
@@ -146,7 +146,7 @@ public class IntegrationTestingFixtures {
     var audio401 = test.insert(buildInstrumentAudio(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62, "KICK", "Eb", 1.0));
 
     // Instrument 202
-    instrument202 = test.insert(buildInstrument(library10000001, InstrumentType.PERCUSSIVE, InstrumentState.PUBLISHED, "909 Drums"));
+    instrument202 = test.insert(buildInstrument(library10000001, InstrumentType.DRUM, InstrumentState.PUBLISHED, "909 Drums"));
     test.insert(buildInstrumentMeme(instrument202, "Peel"));
 
     // Program 701, main-type, has sequence with chords, bound to many offsets
@@ -177,7 +177,7 @@ public class IntegrationTestingFixtures {
     // Program 702, rhythm-type, has unbound sequence with pattern with events
     program702 = test.insert(buildProgram(library10000001, ProgramType.RHYTHM, ProgramState.PUBLISHED, "coconuts", "F#", 110.3, 0.6));
     test.insert(buildProgramMeme(program702, "Ants"));
-    program2_voice1 = test.insert(buildProgramVoice(program702, InstrumentType.PERCUSSIVE, "Drums"));
+    program2_voice1 = test.insert(buildProgramVoice(program702, InstrumentType.DRUM, "Drums"));
     var sequence702a = test.insert(buildProgramSequence(program702, 16, "Base", 0.5, "C", 110.3));
     var pattern901 = test.insert(buildProgramSequencePattern(sequence702a, program2_voice1, ProgramSequencePatternType.LOOP, 16, "growth"));
     var trackBoom = test.insert(buildProgramVoiceTrack(program2_voice1, "BOOM"));
@@ -194,12 +194,12 @@ public class IntegrationTestingFixtures {
     // DELIBERATELY UNUSED stuff that should not get used because it's in a different library
     library10000002 = test.insert(buildLibrary(account1, "Garbage Library"));
     //
-    instrument251 = test.insert(buildInstrument(library10000002, InstrumentType.PERCUSSIVE, InstrumentState.PUBLISHED, "Garbage Instrument"));
+    instrument251 = test.insert(buildInstrument(library10000002, InstrumentType.DRUM, InstrumentState.PUBLISHED, "Garbage Instrument"));
     test.insert(buildInstrumentMeme(instrument251, "Garbage MemeObject"));
     //
     program751 = test.insert(buildProgram(library10000002, ProgramType.RHYTHM, ProgramState.PUBLISHED, "coconuts", "F#", 110.3, 0.6));
     test.insert(buildProgramMeme(program751, "Ants"));
-    var voiceGarbage = test.insert(buildProgramVoice(program751, InstrumentType.PERCUSSIVE, "Garbage"));
+    var voiceGarbage = test.insert(buildProgramVoice(program751, InstrumentType.DRUM, "Garbage"));
     var sequence751a = test.insert(buildProgramSequence(program751, 16, "Base", 0.5, "C", 110.3));
     var pattern951 = test.insert(buildProgramSequencePattern(sequence751a, voiceGarbage, ProgramSequencePatternType.LOOP, 16, "Garbage"));
     var trackGr = test.insert(buildProgramVoiceTrack(voiceGarbage, "GR"));
@@ -259,7 +259,7 @@ public class IntegrationTestingFixtures {
    [#165954673] Integration tests use shared scenario fixtures as much as possible
    */
   public void insertFixtureB_Instruments() throws HubException, JsonapiException {
-    instrument201 = test.insert(buildInstrument(library2, InstrumentType.PERCUSSIVE, InstrumentState.PUBLISHED, "808 Drums"));
+    instrument201 = test.insert(buildInstrument(library2, InstrumentType.DRUM, InstrumentState.PUBLISHED, "808 Drums"));
     test.insert(buildInstrumentMeme(instrument201, "Ants"));
     test.insert(buildInstrumentMeme(instrument201, "Mold"));
     //

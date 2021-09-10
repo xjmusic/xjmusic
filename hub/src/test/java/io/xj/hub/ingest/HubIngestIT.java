@@ -183,7 +183,7 @@ public class HubIngestIT {
       .name("Dreamy"));
     HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), fake.template1.getId());
 
-    assertEquals(2, ingest.getInstrumentsOfType(InstrumentType.PERCUSSIVE).size());
+    assertEquals(2, ingest.getInstrumentsOfType(InstrumentType.DRUM).size());
     assertEquals(1, ingest.getInstrumentsOfType(InstrumentType.PAD).size());
   }
 

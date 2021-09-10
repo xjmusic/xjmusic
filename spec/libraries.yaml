@@ -1,0 +1,48 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: XJ Music Libraries API
+servers:
+  - url: http://hub.lab.svc.cluster.local:3001/api/v2
+    description: XJ Music API (Service Cluster Local)
+tags:
+  - name: libraries
+paths:
+  #
+  #
+  "/libraries/{libraryId}":
+    get:
+      parameters:
+        - name: libraryId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "332db756-4288-499d-bdf4-b919b4ea30e1"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Library"
+#
+#
+# Components
+#
+components:
+  schemas:
+
+    #
+    Library:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        accountId:
+          type: string
+          format: uuid
+        name:
+          type: string

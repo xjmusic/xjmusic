@@ -145,7 +145,7 @@ public class Note {
    <p>
    Here we guarantee that the target note is no more than -6 or +5 semitones away from the original audio note. Note that we are arbitrarily favoring down-pitching versus up-pitching, and that is an aesthetic decision, because it just sounds good.
    <p>
-   [#303] Craft calculates percussive audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
+   [#303] Craft calculates drum audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
 
    @param fromNote to set octave nearest to
    @return this note for chaining

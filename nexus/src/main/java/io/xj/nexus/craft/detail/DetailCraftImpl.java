@@ -220,7 +220,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
     // score is above zero, else empty
     return score;
-
   }
 
 }

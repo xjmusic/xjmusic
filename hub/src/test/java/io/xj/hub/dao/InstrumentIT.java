@@ -102,7 +102,7 @@ public class InstrumentIT {
     fake.instrument202 = test.insert(new Instrument()
       .id(UUID.randomUUID())
       .libraryId(fake.library1.getId())
-      .type(InstrumentType.PERCUSSIVE)
+      .type(InstrumentType.DRUM)
       .density(0.6)
       .state(InstrumentState.PUBLISHED)
       .name("jams"));
@@ -138,7 +138,7 @@ public class InstrumentIT {
       .name("shimmy")
       .density(0.6)
       .state(InstrumentState.PUBLISHED)
-      .type(InstrumentType.PERCUSSIVE);
+      .type(InstrumentType.DRUM);
 
     Instrument result = testDAO.create(
       hubAccess, subject);
@@ -146,7 +146,7 @@ public class InstrumentIT {
     assertNotNull(result);
     assertEquals(fake.library1.getId(), result.getLibraryId());
     assertEquals("shimmy", result.getName());
-    assertEquals(InstrumentType.PERCUSSIVE, result.getType());
+    assertEquals(InstrumentType.DRUM, result.getType());
   }
 
   /**
@@ -165,7 +165,7 @@ public class InstrumentIT {
     assertNotNull(result);
     assertEquals(fake.library1.getId(), result.getLibraryId());
     assertEquals("cannons fifty nine", result.getName());
-    assertEquals(InstrumentType.PERCUSSIVE, result.getType());
+    assertEquals(InstrumentType.DRUM, result.getType());
     assertEquals(Integer.valueOf(1), test.getDSL()
       .selectCount().from(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(result.getId()))
@@ -249,7 +249,7 @@ public class InstrumentIT {
       .libraryId(fake.library1.getId())
       .name("shimmy")
       .state(InstrumentState.PUBLISHED)
-      .type(InstrumentType.PERCUSSIVE);
+      .type(InstrumentType.DRUM);
 
     testDAO.update(hubAccess, fake.instrument201.getId(), subject);
 
@@ -268,7 +268,7 @@ public class InstrumentIT {
       .name("shimmy")
       .density(0.42)
       .state(InstrumentState.PUBLISHED)
-      .type(InstrumentType.PERCUSSIVE));
+      .type(InstrumentType.DRUM));
     test.insert(new InstrumentAudio()
       .id(UUID.randomUUID())
       .instrumentId(subject.getId())

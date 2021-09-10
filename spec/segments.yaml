@@ -1,0 +1,267 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: XJ Music Segments API
+servers:
+  - url: http://hub.lab.svc.cluster.local:3001/api/v2
+    description: XJ Music API (Service Cluster Local)
+tags:
+  - name: segments
+paths:
+  #
+  #
+  "/segments/{segmentId}":
+    get:
+      parameters:
+        - name: segmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "332db756-4288-499d-bdf4-b919b4ea30e1"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Segment"
+#
+#
+# Components
+#
+components:
+  schemas:
+
+    #
+    Segment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        chainId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/SegmentType"
+        state:
+          $ref: "#/components/schemas/SegmentState"
+        beginAt:
+          type: string
+        endAt:
+          type: string
+        key:
+          type: string
+        total:
+          type: integer
+        offset:
+          type: integer
+          format: int64
+        density:
+          type: number
+          format: double
+        tempo:
+          type: number
+          format: double
+        storageKey:
+          type: string
+        waveformPreroll:
+          type: number
+          format: double
+        outputEncoder:
+          type: string
+        delta:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    #
+    SegmentType:
+      type: string
+      enum:
+        [
+            Pending, # Segments are created with this type before a real one is assigned.
+            Initial, # Only the first Segment in a Chain: Choose first Macro and Main program.
+            Continue, # Continue the Main Program (and implicitly, continue the Macro program too)
+            NextMain, # Choose the next Main program (but continue the Macro program)
+            NextMacro, # Choose the next Macro program (and implicitly, the next Main program too)
+        ]
+
+    #
+    SegmentState:
+      type: string
+      enum:
+        [
+            Planned,
+            Crafting,
+            Crafted,
+            Dubbing,
+            Dubbed,
+            Failed,
+        ]
+
+
+    #
+    SegmentMessage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        segmentId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/SegmentMessageType"
+        body:
+          type: string
+
+    #
+    SegmentMessageType:
+      type: string
+      enum:
+        [
+            Debug,
+            Info,
+            Warning,
+            Error,
+        ]
+
+    #
+    SegmentMeme:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        segmentId:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    #
+    SegmentChord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        segmentId:
+          type: string
+          format: uuid
+        position:
+          type: number
+          format: double
+        name:
+          type: string
+
+    #
+    SegmentChordVoicing:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        segmentId:
+          type: string
+          format: uuid
+        segmentChordId:
+          type: string
+          format: uuid
+        type:
+          $ref: "./instruments.yaml#/components/schemas/InstrumentType"
+        notes:
+          type: string
+
+    #
+    SegmentChoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        segmentId:
+          type: string
+          format: uuid
+        programId:
+          type: string
+          format: uuid
+        programSequenceId:
+          type: string
+          format: uuid
+        programSequenceBindingId:
+          type: string
+          format: uuid
+        programVoiceId:
+          type: string
+          format: uuid
+        instrumentId:
+          type: string
+          format: uuid
+        deltaIn:
+          type: integer
+        deltaOut:
+          type: integer
+        instrumentType:
+          $ref: "./instruments.yaml#/components/schemas/InstrumentType"
+        programType:
+          $ref: "./programs.yaml#/components/schemas/ProgramType"
+
+    #
+    SegmentChoiceArrangement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        segmentId:
+          type: string
+          format: uuid
+        segmentChoiceId:
+          type: string
+          format: uuid
+        programSequencePatternId:
+          type: string
+          format: uuid
+
+    #
+    SegmentChoiceArrangementPick:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        segmentId:
+          type: string
+          format: uuid
+        segmentChoiceArrangementId:
+          type: string
+          format: uuid
+        segmentChordVoicingId:
+          type: string
+          format: uuid
+        instrumentAudioId:
+          type: string
+          format: uuid
+        programSequencePatternEventId:
+          type: string
+          format: uuid
+        start:
+          type: number
+          format: double
+        length:
+          type: number
+          format: double
+        amplitude:
+          type: number
+          format: double
+        note:
+          type: string
+        name:
+          type: string
+

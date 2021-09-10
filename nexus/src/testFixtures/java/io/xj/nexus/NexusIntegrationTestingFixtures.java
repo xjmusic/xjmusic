@@ -919,7 +919,7 @@ public class NexusIntegrationTestingFixtures {
     // A basic beat
     program35 = buildProgram(library2, ProgramType.RHYTHM, ProgramState.PUBLISHED, "Basic Beat", "C", 121, 0.6);
     program35_meme0 = buildMeme(program35, "Basic");
-    program35_voice0 = buildVoice(program35, InstrumentType.PERCUSSIVE, "Drums");
+    program35_voice0 = buildVoice(program35, InstrumentType.DRUM, "Drums");
     program35_voice0_track0 = buildTrack(program35_voice0, "CLOCK");
     program35_voice0_track1 = buildTrack(program35_voice0, "SNORT");
     program35_voice0_track2 = buildTrack(program35_voice0, "KICK");
@@ -1089,7 +1089,7 @@ public class NexusIntegrationTestingFixtures {
     program9 = buildProgram(library2, ProgramType.RHYTHM, ProgramState.PUBLISHED, "Basic Beat", "C", 121, 0.6);
     program9_meme0 = buildMeme(program9, "Basic");
     //
-    program9_voice0 = buildVoice(program9, InstrumentType.PERCUSSIVE, "Drums");
+    program9_voice0 = buildVoice(program9, InstrumentType.DRUM, "Drums");
     program9_voice0_track0 = buildTrack(program9_voice0, "BLEEP");
     program9_voice0_track1 = buildTrack(program9_voice0, "BLEIP");
     program9_voice0_track2 = buildTrack(program9_voice0, "BLEAP");
@@ -1134,7 +1134,7 @@ public class NexusIntegrationTestingFixtures {
     program9_sequence0_pattern3_event3 = buildEvent(program9_sequence0_pattern3, program9_voice0_track15, 3, 1, "G5", 0.9);
 
     // Instrument "808"
-    instrument8 = buildInstrument(library2, InstrumentType.PERCUSSIVE, InstrumentState.PUBLISHED, "808 Drums");
+    instrument8 = buildInstrument(library2, InstrumentType.DRUM, InstrumentState.PUBLISHED, "808 Drums");
     instrument8_meme0 = buildMeme(instrument8, "heavy");
     instrument8_audio8kick = buildAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62, "KICK", "Eb", 1.0);
     instrument8_audio8snare = buildAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01, 1.5, 120.0, 0.62, "SNARE", "Ab", 0.8);
@@ -1304,12 +1304,12 @@ public class NexusIntegrationTestingFixtures {
     String[] minorMemeNames = listOfUniqueRandom((long) StrictMath.ceil(N >> 1), LoremIpsum.VARIANTS);
     String[] percussiveNames = listOfUniqueRandom(N, LoremIpsum.PERCUSSIVE_NAMES);
 
-    // Generate a Percussive Instrument for each meme
+    // Generate a Drum Instrument for each meme
     for (int i = 0; i < N; i++) {
       String majorMemeName = majorMemeNames[i];
       String minorMemeName = random(minorMemeNames);
       //
-      Instrument instrument = add(entities, buildInstrument(library1, InstrumentType.PERCUSSIVE, InstrumentState.PUBLISHED, String.format("%s Drums", majorMemeName)));
+      Instrument instrument = add(entities, buildInstrument(library1, InstrumentType.DRUM, InstrumentState.PUBLISHED, String.format("%s Drums", majorMemeName)));
       add(entities, new InstrumentMeme()
         .id(UUID.randomUUID())
         .instrumentId(instrument.getId())
@@ -1324,7 +1324,7 @@ public class NexusIntegrationTestingFixtures {
       for (int k = 0; k < N; k++)
         add(entities, buildAudio(instrument, Text.toProper(percussiveNames[k]), String.format("%s.wav", Text.toLowerSlug(percussiveNames[k])), random(0, 0.05), random(0.25, 2), random(80, 120), 0.62, percussiveNames[k], "X", random(0.8, 1)));
       //
-      log.debug("Generated Percussive-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
+      log.debug("Generated Drum-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
     }
 
     // Generate N*2 total Macro-type programs, each transitioning of one MemeEntity to another
@@ -1437,7 +1437,7 @@ public class NexusIntegrationTestingFixtures {
       );
       // voices of program
       for (int iV = 0; iV < N; iV++) {
-        voices[iV] = add(entities, buildVoice(program, InstrumentType.PERCUSSIVE, String.format("%s %s", majorMemeName, percussiveNames[iV])));
+        voices[iV] = add(entities, buildVoice(program, InstrumentType.DRUM, String.format("%s %s", majorMemeName, percussiveNames[iV])));
       }
       var sequenceBase = add(entities, buildSequence(program, random(LoremIpsum.SEQUENCE_TOTALS), "Base", density, key, tempo));
       // patterns of program

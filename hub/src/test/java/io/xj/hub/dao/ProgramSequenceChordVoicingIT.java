@@ -137,7 +137,7 @@ public class ProgramSequenceChordVoicingIT {
     fake.program2_voice1 = test.insert(new ProgramVoice()
       .id(UUID.randomUUID())
       .programId(fake.program2.getId())
-      .type(InstrumentType.PERCUSSIVE)
+      .type(InstrumentType.DRUM)
       .name("Drums"));
 
     // Library "boat" has a program "helm" and program "sail"

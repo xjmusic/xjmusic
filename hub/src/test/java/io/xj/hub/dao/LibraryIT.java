@@ -413,7 +413,7 @@ public class LibraryIT {
     test.insert(new Instrument()
       .id(UUID.randomUUID())
       .libraryId(fake.library2b.getId())
-      .type(InstrumentType.PERCUSSIVE)
+      .type(InstrumentType.DRUM)
       .state(InstrumentState.PUBLISHED)
       .name("brilliant")
       .density(0.0));

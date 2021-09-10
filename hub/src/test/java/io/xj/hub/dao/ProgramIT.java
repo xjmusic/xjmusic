@@ -259,7 +259,7 @@ public class ProgramIT {
     var voice = test.insert(new ProgramVoice()
       .id(UUID.randomUUID())
       .programId(fake.program1.getId())
-      .type(InstrumentType.PERCUSSIVE)
+      .type(InstrumentType.DRUM)
       .name("drums"));
     var track = test.insert(new ProgramVoiceTrack()
       .id(UUID.randomUUID())
@@ -419,7 +419,7 @@ public class ProgramIT {
     var voice = test.insert(new ProgramVoice()
       .id(UUID.randomUUID())
       .programId(fake.program1.getId())
-      .type(InstrumentType.PERCUSSIVE)
+      .type(InstrumentType.DRUM)
       .name("drums"));
     var track = test.insert(new ProgramVoiceTrack()
       .id(UUID.randomUUID())
@@ -549,7 +549,7 @@ public class ProgramIT {
     test.insert(new ProgramVoice()
       .id(UUID.randomUUID())
       .programId(fake.program2.getId())
-      .type(InstrumentType.PERCUSSIVE)
+      .type(InstrumentType.DRUM)
       .name("Drums"));
     Program subject = new Program()
       .id(fake.program2.getId())
@@ -693,7 +693,7 @@ public class ProgramIT {
     var voice = test.insert(new ProgramVoice()
       .id(UUID.randomUUID())
       .programId(program.getId())
-      .type(InstrumentType.PERCUSSIVE)
+      .type(InstrumentType.DRUM)
       .name("drums"));
     var track = test.insert(new ProgramVoiceTrack()
       .id(UUID.randomUUID())

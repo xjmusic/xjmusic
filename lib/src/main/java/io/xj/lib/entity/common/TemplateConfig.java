@@ -245,7 +245,7 @@ public class TemplateConfig {
   }
 
   /**
-   @return ratio of amplitude to dub audio for Percussive-type instruments
+   @return ratio of amplitude to dub audio for Drum-type instruments
    */
   public double getDubMasterVolumeInstrumentTypePercussive() {
     return dubMasterVolumeInstrumentTypePercussive;

@@ -466,9 +466,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    */
   private double computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition) {
     return switch (choice.getInstrumentType()) {
-      case PERCUSSIVE, STAB -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, true);
-      case BASS -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false);
-      case PAD, STICKY, STRIPE -> computeVolumeRatioForPickedNote(choice, segmentPosition, true, true);
+      case DRUM, STAB -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false, true);
+      case BASS -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false, false);
+      case PERCUSSIONLOOP -> computeVolumeRatioForPickedNote(choice, segmentPosition, true, false, false);
+      case PAD, STICKY, STRIPE -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, true, true);
     };
   }
 
@@ -479,11 +480,12 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
    @param choice          for which to compute volume ratio
    @param segmentPosition at which to compute
+   @param topOfSegment    if should appear at the top of the segment where its delta in appears
    @param fadeIn          if deltaIn should fade in, else start right on cue
    @param fadeOut         if deltaOut should fade out, else stop right on cue
    @return volume ratio
    */
-  private double computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition, boolean fadeIn, boolean fadeOut) {
+  private double computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition, boolean topOfSegment, boolean fadeIn, boolean fadeOut) {
     if (!fabricator.getTemplateConfig().isChoiceDeltaEnabled()) return 1.0;
 
     // if deltaIn is before the beginning of this segment and deltaOut is after, include it
@@ -507,6 +509,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       && fabricator.getSegment().getDelta() + segmentPosition < choice.getDeltaIn())
       if (fadeIn)
         return segmentPosition / (choice.getDeltaIn() - fabricator.getSegment().getDelta());
+      else if (topOfSegment)
+        return 1;
       else
         return 0;
 
@@ -708,7 +712,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // score each audio against the current voice event, with some variability
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudios(instrument))
-      if (instrument.getType() == InstrumentType.PERCUSSIVE)
+      if (instrument.getType() == InstrumentType.DRUM)
         audioEntityScorePicker.score(audio.getId(), NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
       else
         audioEntityScorePicker.score(audio.getId(), Note.of(audio.getNote()).sameAs(Note.of(event.getNote())) ? 100.0 : 0.0);

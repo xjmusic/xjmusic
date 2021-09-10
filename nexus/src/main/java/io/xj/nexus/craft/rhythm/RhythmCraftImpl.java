@@ -142,17 +142,17 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
   }
 
   /**
-   Choose percussive instrument
+   Choose drum instrument
    [#325] Possible to choose multiple instruments for different voices in the same program
 
    @param voice to choose instrument for
-   @return percussive-type Instrument
+   @return drum-type Instrument
    */
   private Optional<Instrument> chooseFreshPercussiveInstrument(ProgramVoice voice) throws NexusException {
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve instruments bound to chain
-    Collection<Instrument> sourceInstruments = fabricator.sourceMaterial().getInstrumentsOfType(InstrumentType.PERCUSSIVE);
+    Collection<Instrument> sourceInstruments = fabricator.sourceMaterial().getInstrumentsOfType(InstrumentType.DRUM);
 
     // future: [#258] Instrument selection is based on Text Isometry between the voice name and the instrument name
     log.debug("[segId={}] not currently in use: {}", fabricator.getSegment().getId(), voice);
@@ -195,10 +195,10 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
   }
 
   /**
-   Score a candidate for percussive instrument, given current fabricator
+   Score a candidate for drum instrument, given current fabricator
 
    @param instrument         to score
-   @param percussiveIsometry from which to score percussive instruments
+   @param percussiveIsometry from which to score drum instruments
    @return score, including +/- entropy
    */
   private double scorePercussive(Instrument instrument, MemeIsometry percussiveIsometry) {

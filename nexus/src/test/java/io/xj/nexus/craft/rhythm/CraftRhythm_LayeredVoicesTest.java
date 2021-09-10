@@ -192,7 +192,7 @@ public class CraftRhythm_LayeredVoicesTest {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    Instrument instrument1 = Entities.add(entities, NexusIntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.PERCUSSIVE, InstrumentState.PUBLISHED, "808 Drums"));
+    Instrument instrument1 = Entities.add(entities, NexusIntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.DRUM, InstrumentState.PUBLISHED, "808 Drums"));
     Entities.add(entities, buildMeme(instrument1, "heavy"));
     //
     audioKick = Entities.add(entities, NexusIntegrationTestingFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.6, "KICK", "Eb", 1.0));
@@ -204,8 +204,8 @@ public class CraftRhythm_LayeredVoicesTest {
     // A basic beat from scratch with layered voices
     program42 = Entities.add(entities, NexusIntegrationTestingFixtures.buildProgram(fake.library2, ProgramType.RHYTHM, ProgramState.PUBLISHED, "Basic Beat", "C", 121, 0.6));
     Entities.add(entities, NexusIntegrationTestingFixtures.buildMeme(program42, "Basic"));
-    ProgramVoice program42_locomotion = Entities.add(entities, NexusIntegrationTestingFixtures.buildVoice(program42, InstrumentType.PERCUSSIVE, "Locomotion"));
-    ProgramVoice program42_kickSnare = Entities.add(entities, NexusIntegrationTestingFixtures.buildVoice(program42, InstrumentType.PERCUSSIVE, "BoomBap"));
+    ProgramVoice program42_locomotion = Entities.add(entities, NexusIntegrationTestingFixtures.buildVoice(program42, InstrumentType.DRUM, "Locomotion"));
+    ProgramVoice program42_kickSnare = Entities.add(entities, NexusIntegrationTestingFixtures.buildVoice(program42, InstrumentType.DRUM, "BoomBap"));
     var sequence35a = Entities.add(entities, NexusIntegrationTestingFixtures.buildSequence(program42, 16, "Base", 0.5, "C", 110.3));
     //
     var pattern35a1 = Entities.add(entities, NexusIntegrationTestingFixtures.buildPattern(sequence35a, program42_locomotion, ProgramSequencePatternType.LOOP, 1, "Hi-hat"));

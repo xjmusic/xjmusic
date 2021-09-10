@@ -139,7 +139,7 @@ public class CraftRhythmProgramVoiceNextMacroTest {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    Instrument instrument1 = Entities.add(entities, NexusIntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.PERCUSSIVE, InstrumentState.PUBLISHED, "808 Drums"));
+    Instrument instrument1 = Entities.add(entities, NexusIntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.DRUM, InstrumentState.PUBLISHED, "808 Drums"));
     Entities.add(entities, NexusIntegrationTestingFixtures.buildMeme(instrument1, "heavy"));
     //
     audioKick = Entities.add(entities, NexusIntegrationTestingFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.6, "KICK", "Eb", 1.0));

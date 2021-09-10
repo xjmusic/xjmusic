@@ -147,7 +147,7 @@ public class CraftRhythmProgramVoiceNextMainTest {
     Instrument instrument1 = Entities.add(entities, new Instrument()
       .id(UUID.randomUUID())
       .libraryId(fake.library2.getId())
-      .type(InstrumentType.PERCUSSIVE)
+      .type(InstrumentType.DRUM)
       .state(InstrumentState.PUBLISHED)
       .name("808 Drums"));
     Entities.add(entities, new InstrumentMeme()

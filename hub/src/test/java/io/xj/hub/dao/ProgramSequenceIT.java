@@ -148,7 +148,7 @@ public class ProgramSequenceIT {
     fake.program2_voice1 = test.insert(new ProgramVoice()
       .id(UUID.randomUUID())
       .programId(fake.program2.getId())
-      .type(InstrumentType.PERCUSSIVE)
+      .type(InstrumentType.DRUM)
       .name("Drums"));
 
     // Library "boat" has program "helm" and program "sail"
@@ -268,7 +268,7 @@ public class ProgramSequenceIT {
     var voice = test.insert(new ProgramVoice()
       .id(UUID.randomUUID())
       .programId(fake.program1.getId())
-      .type(InstrumentType.PERCUSSIVE)
+      .type(InstrumentType.DRUM)
       .name("drums"));
     var track = test.insert(new ProgramVoiceTrack()
       .id(UUID.randomUUID())
@@ -533,7 +533,7 @@ public class ProgramSequenceIT {
     var programVoice = test.insert(new ProgramVoice()
       .id(UUID.randomUUID())
       .programId(fake.program3.getId())
-      .type(InstrumentType.PERCUSSIVE)
+      .type(InstrumentType.DRUM)
       .name("Drums"));
     var track = test.insert(new ProgramVoiceTrack()
       .id(UUID.randomUUID())

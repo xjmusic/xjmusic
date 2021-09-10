@@ -1,8 +1,6 @@
 //  Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 
-import org.ajoberstar.grgit.Credentials
-import org.ajoberstar.grgit.Grgit
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
@@ -33,7 +31,7 @@ dependencies {
 // REF https://app.asana.com/0/1128782737102755/1200411113458752/f
 task generateCommon(type: GenerateTask) {
   generatorName = "jaxrs-spec"
-  inputSpec = "${buildDir.absolutePath}/api-spec/common.yaml".toString()
+  inputSpec = "${projectDir.absolutePath}/common.yaml".toString()
   outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
   apiPackage = "io.xj.api"
   invokerPackage = "io.xj.api"
@@ -49,7 +47,7 @@ task generateCommon(type: GenerateTask) {
 
 task generateTemplates(type: GenerateTask) {
   generatorName = "jaxrs-spec"
-  inputSpec = "${buildDir.absolutePath}/api-spec/templates.yaml".toString()
+  inputSpec = "${projectDir.absolutePath}/templates.yaml".toString()
   outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
   apiPackage = "io.xj.api.template"
   invokerPackage = "io.xj.api"
@@ -65,7 +63,7 @@ task generateTemplates(type: GenerateTask) {
 
 task generateInstruments(type: GenerateTask) {
   generatorName = "jaxrs-spec"
-  inputSpec = "${buildDir.absolutePath}/api-spec/instruments.yaml".toString()
+  inputSpec = "${projectDir.absolutePath}/instruments.yaml".toString()
   outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
   apiPackage = "io.xj.api.instrument"
   invokerPackage = "io.xj.api"
@@ -81,7 +79,7 @@ task generateInstruments(type: GenerateTask) {
 
 task generatePrograms(type: GenerateTask) {
   generatorName = "jaxrs-spec"
-  inputSpec = "${buildDir.absolutePath}/api-spec/programs.yaml".toString()
+  inputSpec = "${projectDir.absolutePath}/programs.yaml".toString()
   outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
   apiPackage = "io.xj.api.program"
   invokerPackage = "io.xj.api"
@@ -97,7 +95,7 @@ task generatePrograms(type: GenerateTask) {
 
 task generateLibraries(type: GenerateTask) {
   generatorName = "jaxrs-spec"
-  inputSpec = "${buildDir.absolutePath}/api-spec/libraries.yaml".toString()
+  inputSpec = "${projectDir.absolutePath}/libraries.yaml".toString()
   outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
   apiPackage = "io.xj.api.library"
   invokerPackage = "io.xj.api"
@@ -113,7 +111,7 @@ task generateLibraries(type: GenerateTask) {
 
 task generateAccounts(type: GenerateTask) {
   generatorName = "jaxrs-spec"
-  inputSpec = "${buildDir.absolutePath}/api-spec/accounts.yaml".toString()
+  inputSpec = "${projectDir.absolutePath}/accounts.yaml".toString()
   outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
   apiPackage = "io.xj.api.account"
   invokerPackage = "io.xj.api"
@@ -129,7 +127,7 @@ task generateAccounts(type: GenerateTask) {
 
 task generateUsers(type: GenerateTask) {
   generatorName = "jaxrs-spec"
-  inputSpec = "${buildDir.absolutePath}/api-spec/users.yaml".toString()
+  inputSpec = "${projectDir.absolutePath}/users.yaml".toString()
   outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
   apiPackage = "io.xj.api.user"
   invokerPackage = "io.xj.api"
@@ -145,7 +143,7 @@ task generateUsers(type: GenerateTask) {
 
 task generateChains(type: GenerateTask) {
   generatorName = "jaxrs-spec"
-  inputSpec = "${buildDir.absolutePath}/api-spec/chains.yaml".toString()
+  inputSpec = "${projectDir.absolutePath}/chains.yaml".toString()
   outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
   apiPackage = "io.xj.api.chain"
   invokerPackage = "io.xj.api"
@@ -161,7 +159,7 @@ task generateChains(type: GenerateTask) {
 
 task generateSegments(type: GenerateTask) {
   generatorName = "jaxrs-spec"
-  inputSpec = "${buildDir.absolutePath}/api-spec/segments.yaml".toString()
+  inputSpec = "${projectDir.absolutePath}/segments.yaml".toString()
   outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
   apiPackage = "io.xj.api.segment"
   invokerPackage = "io.xj.api"
@@ -185,38 +183,6 @@ sourceSets {
     }
   }
 }
-
-String githubUsername = project.githubUsername
-String githubPassword = project.githubPassword
-
-task cloneSpecs {
-  def folder = new File("${buildDir.absolutePath}/api-spec")
-  if (!folder.exists()) {
-    println "Cloning specs repo."
-    //noinspection GroovyAccessibility,GroovyAssignabilityCheck
-    Grgit.clone(dir: "${buildDir.absolutePath}/api-spec", uri: "https://github.com/xjmusic/api-spec", credentials: new Credentials(githubUsername, githubPassword))
-  } else {
-    if (System.getenv("CI") == "true") {
-      return
-    }
-
-    // Always keep up to date with master if we're developing locally.
-    println "Updating specs repo."
-    def specRepo = Grgit.open(dir: "${buildDir.absolutePath}/api-spec", credentials: new Credentials(githubUsername, githubPassword))
-    specRepo.pull()
-  }
-}
-
-// All generators depend on cloning the specs
-tasks.generateCommon.dependsOn project.cloneSpecs
-tasks.generateInstruments.dependsOn project.cloneSpecs
-tasks.generatePrograms.dependsOn project.cloneSpecs
-tasks.generateLibraries.dependsOn project.cloneSpecs
-tasks.generateAccounts.dependsOn project.cloneSpecs
-tasks.generateUsers.dependsOn project.cloneSpecs
-tasks.generateChains.dependsOn project.cloneSpecs
-tasks.generateSegments.dependsOn project.cloneSpecs
-tasks.generateTemplates.dependsOn project.cloneSpecs
 
 // Compilation depends on generating all specs
 compileJava.dependsOn tasks.generateCommon

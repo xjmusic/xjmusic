@@ -675,7 +675,7 @@ class FabricatorImpl implements Fabricator {
           rangeShiftOctave.put(key, computeLowestOptimalRangeShiftOctaves(sourceRange, targetRange));
           break;
 
-        case PERCUSSIVE:
+        case DRUM:
           return 0;
 
         case PAD:

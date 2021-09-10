@@ -1,0 +1,53 @@
+name: "Validate API Spec"
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    branches:
+      - dev
+      - main
+
+jobs:
+  Validate:
+    name: "Validate API Spec"
+    env:
+      GITHUB_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
+      GITHUB_USERNAME: ${{ secrets.CI_BOT_USERNAME }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 12.x ]
+
+    #
+    steps:
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: jwalton/gh-find-current-pr@v1
+        id: findPr
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Swagger CLI
+        run: npm install -g @apidevtools/swagger-cli
+
+      - name: Validate Swagger schema
+        run: for f in $(find . -type f -name "*.yaml"); do swagger-cli validate $f; done
+        working-directory: spec

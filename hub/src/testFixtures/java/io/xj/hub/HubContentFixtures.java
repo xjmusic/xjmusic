@@ -261,7 +261,7 @@ public class HubContentFixtures {
     // A basic beat
     program35 = IntegrationTestingFixtures.buildProgram(library2, ProgramType.RHYTHM, ProgramState.PUBLISHED, "Basic Beat", "C", 121, 0.6);
     program35_meme0 = IntegrationTestingFixtures.buildProgramMeme(program35, "Basic");
-    program35_voice0 = IntegrationTestingFixtures.buildProgramVoice(program35, InstrumentType.PERCUSSIVE, "Drums");
+    program35_voice0 = IntegrationTestingFixtures.buildProgramVoice(program35, InstrumentType.DRUM, "Drums");
     program35_voice0_track0 = IntegrationTestingFixtures.buildProgramVoiceTrack(program35_voice0, "CLOCK");
     program35_voice0_track1 = IntegrationTestingFixtures.buildProgramVoiceTrack(program35_voice0, "SNORT");
     program35_voice0_track2 = IntegrationTestingFixtures.buildProgramVoiceTrack(program35_voice0, "KICK");
@@ -434,7 +434,7 @@ public class HubContentFixtures {
     program9 = IntegrationTestingFixtures.buildProgram(library2, ProgramType.RHYTHM, ProgramState.PUBLISHED, "Basic Beat", "C", 121, 0.6);
     program9_meme0 = IntegrationTestingFixtures.buildProgramMeme(program9, "Basic");
     //
-    program9_voice0 = IntegrationTestingFixtures.buildProgramVoice(program9, InstrumentType.PERCUSSIVE, "Drums");
+    program9_voice0 = IntegrationTestingFixtures.buildProgramVoice(program9, InstrumentType.DRUM, "Drums");
     program9_voice0_track0 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "BLEEP");
     program9_voice0_track1 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "BLEIP");
     program9_voice0_track2 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "BLEAP");
@@ -479,7 +479,7 @@ public class HubContentFixtures {
     program9_sequence0_pattern3_event3 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern3, program9_voice0_track15, 3, 1, "G5", 0.9);
 
     // Instrument "808"
-    instrument8 = IntegrationTestingFixtures.buildInstrument(library2, InstrumentType.PERCUSSIVE, InstrumentState.PUBLISHED, "808 Drums");
+    instrument8 = IntegrationTestingFixtures.buildInstrument(library2, InstrumentType.DRUM, InstrumentState.PUBLISHED, "808 Drums");
     instrument8_meme0 = IntegrationTestingFixtures.buildInstrumentMeme(instrument8, "heavy");
     instrument8_audio8kick = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62, "KICK", "Eb", 1.0);
     instrument8_audio8snare = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01, 1.5, 120.0, 0.62, "SNARE", "Eb", 1.0);
