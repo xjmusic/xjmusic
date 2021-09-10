@@ -213,7 +213,7 @@ public class ProgramEndpoint extends HubEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed(ADMIN)
+  @RolesAllowed(ARTIST)
   public Response destroy(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     try {
       dao().destroy(HubAccess.fromContext(crc), UUID.fromString(id));

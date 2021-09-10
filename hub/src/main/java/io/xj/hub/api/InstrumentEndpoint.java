@@ -167,7 +167,7 @@ public class InstrumentEndpoint extends HubEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed(ADMIN)
+  @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }
