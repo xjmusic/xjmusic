@@ -242,8 +242,8 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     // If rehydration was successful, return success
     if (rehydrateTemplate(template)) return true;
 
-    // If the template is already playing, return success
-    if (chainDAO.existsForEmbedKey(template.getEmbedKey())) return true;
+    // If the template already exists, destroy it
+    chainDAO.destroyIfExistsForEmbedKey(access, template.getEmbedKey());
 
     // Only if rehydration was unsuccessful
     try {

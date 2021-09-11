@@ -112,9 +112,9 @@ public interface ChainDAO extends DAO<Chain> {
   Collection<Chain> readAllFabricating(HubClientAccess access) throws DAOPrivilegeException, DAOFatalException;
 
   /**
-   Whether the chain is playing for the given template
-   @return true if playing, else false
+   Destroy a chain if it exists for the given embed key@param access
    @param key for which to lookup chain
+
    */
-  boolean existsForEmbedKey(String key);
+  void destroyIfExistsForEmbedKey(HubClientAccess access, String key);
 }

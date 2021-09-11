@@ -12,7 +12,7 @@ public class FileStoreException extends Exception {
   }
 
   public FileStoreException(String msg, Exception e) {
-    super(String.format("%s %s\n%s", msg, e.toString(), formatStackTrace(e)));
+    super(String.format("%s %s because %s", msg, e.toString(), e.getMessage()));
   }
 
   public FileStoreException(Throwable targetException) {

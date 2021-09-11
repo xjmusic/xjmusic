@@ -424,12 +424,15 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   }
 
   @Override
-  public boolean existsForEmbedKey(String key) {
+  public void destroyIfExistsForEmbedKey(HubClientAccess access, String key) {
     try {
-      return store.getAllChains().stream()
-        .anyMatch(c -> Objects.equals(key, c.getEmbedKey()));
-    } catch (NexusException e) {
-      return false;
+      var chain = store.getAllChains().stream()
+        .filter(c -> Objects.equals(key, c.getEmbedKey()))
+        .findAny();
+      if (chain.isPresent())
+        destroy(access, chain.get().getId());
+    } catch (NexusException | DAOFatalException | DAOPrivilegeException | DAOExistenceException e) {
+      LOG.error("Failed to destroy chain for embed key {}", key, e);
     }
   }
 
