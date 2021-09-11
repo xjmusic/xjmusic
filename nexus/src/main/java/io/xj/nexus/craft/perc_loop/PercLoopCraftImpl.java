@@ -10,6 +10,8 @@ import io.xj.api.InstrumentType;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;
 import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentMessage;
+import io.xj.api.SegmentMessageType;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.TremendouslyRandom;
@@ -49,7 +51,7 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
   @Override
   public void doWork() throws NexusException {
     List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.PERCLOOP);
-    List<UUID> percLoopIds = previousChoices.stream().map(SegmentChoice::getInstrumentId).collect(Collectors.toList());
+    List<UUID> instrumentIds = previousChoices.stream().map(SegmentChoice::getInstrumentId).collect(Collectors.toList());
 
     int targetLayers = (int) Math.floor(
       fabricator.getTemplateConfig().getPercLoopLayerMin() +
@@ -57,25 +59,24 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
           (fabricator.getTemplateConfig().getPercLoopLayerMax() -
             fabricator.getTemplateConfig().getPercLoopLayerMin()));
 
-    if (percLoopIds.size() < targetLayers)
-      percLoopIds = withIdsAdded(percLoopIds, targetLayers - percLoopIds.size());
-    else if (percLoopIds.size() > targetLayers)
-      percLoopIds = withIdsRemoved(percLoopIds, targetLayers - percLoopIds.size());
+    fabricator.add(new SegmentMessage()
+      .id(UUID.randomUUID())
+      .segmentId(fabricator.getSegment().getId())
+      .type(SegmentMessageType.INFO)
+      .body(String.format("Targeting %d layers of percussion loop", targetLayers)));
 
-    craftAllPercLoops(percLoopIds);
+    if (instrumentIds.size() < targetLayers)
+      instrumentIds = withIdsAdded(instrumentIds, targetLayers - instrumentIds.size());
+    else if (instrumentIds.size() > targetLayers)
+      instrumentIds = withIdsRemoved(instrumentIds, targetLayers - instrumentIds.size());
+
+    for (UUID percLoopId : instrumentIds)
+      craftPercLoop(percLoopId);
 
     // Finally, update the segment with the crafted content
     fabricator.done();
   }
 
-  /**
-   Craft all percussion loops
-
-   @param instrumentIds ids of percussion loop instruments to craft
-   */
-  private void craftAllPercLoops(List<UUID> instrumentIds) throws NexusException {
-    for (UUID percLoopId : instrumentIds) craftPercLoop(percLoopId);
-  }
 
   /**
    Craft percussion loop

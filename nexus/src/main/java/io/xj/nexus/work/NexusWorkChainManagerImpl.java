@@ -251,7 +251,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
       chainDAO.bootstrap(access, type, Chains.fromTemplate(template));
       return true;
     } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
-      LOG.error("Failed to add binding to bootstrap Chain!", e);
+      LOG.error("Failed bootstrap Template[{}]!", Templates.getIdentifier(template), e);
       return false;
     }
   }
@@ -277,7 +277,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
       chain = jsonapiPayloadFactory.toOne(chainPayload);
       entities.add(entityFactory.clone(chain));
     } catch (FileStoreException | JsonapiException | ClassCastException | IOException | EntityException e) {
-      LOG.error("Failed to retrieve previously fabricated chain because {}", e.getMessage());
+      LOG.error("Failed to retrieve previously fabricated chain for Template[{}] because {}", template.getEmbedKey(), e.getMessage());
       return false;
     }
 
