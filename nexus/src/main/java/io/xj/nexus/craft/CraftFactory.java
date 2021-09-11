@@ -5,6 +5,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.detail.DetailCraft;
 import io.xj.nexus.craft.macro_main.MacroMainCraft;
+import io.xj.nexus.craft.perc_loop.PercLoopCraft;
 import io.xj.nexus.craft.rhythm.RhythmCraft;
 import io.xj.nexus.fabricator.Fabricator;
 
@@ -55,5 +56,17 @@ public interface CraftFactory {
   DetailCraft detail(
     @Assisted("basis") Fabricator fabricator
   ) throws NexusException;
+
+  /**
+   Create Percussion Loop Craft instance for a particular segment
+
+   @param fabricator of craft
+   @return PercLoopCraft
+   @throws NexusException on failure
+   */
+  PercLoopCraft percLoop(
+    @Assisted("basis") Fabricator fabricator
+  ) throws NexusException;
+
 
 }

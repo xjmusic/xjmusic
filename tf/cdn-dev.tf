@@ -726,9 +726,9 @@ resource "aws_cloudfront_distribution" "xj-dev-ship" {
       "OPTIONS"
     ]
     compress               = true
-    default_ttl            = 3600
-    max_ttl                = 86400
-    min_ttl                = 0
+    default_ttl            = 10
+    max_ttl                = 20
+    min_ttl                = 1
     path_pattern           = "*-*.*"
     target_origin_id       = "ship-dev-xj-io-s3-origin"
     viewer_protocol_policy = "redirect-to-https"

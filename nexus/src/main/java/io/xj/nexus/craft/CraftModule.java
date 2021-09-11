@@ -7,6 +7,8 @@ import io.xj.nexus.craft.detail.DetailCraft;
 import io.xj.nexus.craft.detail.DetailCraftImpl;
 import io.xj.nexus.craft.macro_main.MacroMainCraft;
 import io.xj.nexus.craft.macro_main.MacroMainCraftImpl;
+import io.xj.nexus.craft.perc_loop.PercLoopCraft;
+import io.xj.nexus.craft.perc_loop.PercLoopCraftImpl;
 import io.xj.nexus.craft.rhythm.RhythmCraft;
 import io.xj.nexus.craft.rhythm.RhythmCraftImpl;
 
@@ -17,6 +19,7 @@ public class CraftModule extends AbstractModule {
       .implement(MacroMainCraft.class, MacroMainCraftImpl.class)
       .implement(RhythmCraft.class, RhythmCraftImpl.class)
       .implement(DetailCraft.class, DetailCraftImpl.class)
+      .implement(PercLoopCraft.class, PercLoopCraftImpl.class)
       .build(CraftFactory.class));
   }
 }

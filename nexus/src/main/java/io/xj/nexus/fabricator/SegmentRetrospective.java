@@ -1,12 +1,14 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
+import io.xj.api.InstrumentType;
 import io.xj.api.ProgramType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangementPick;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -60,6 +62,14 @@ public interface SegmentRetrospective {
    @return choice of given type
    */
   Optional<SegmentChoice> getPreviousChoiceOfType(ProgramType type);
+
+  /**
+   Get the previous-segment choices of a given instrument type
+
+   @param instrumentType for which to get previous-segment choices
+   @return choices
+   */
+  List<SegmentChoice> getPreviousChoicesOfType(InstrumentType instrumentType);
 
   /**
    Get the previous-segment choice of a given voice by id

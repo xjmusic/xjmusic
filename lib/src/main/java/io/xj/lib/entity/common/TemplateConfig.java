@@ -94,6 +94,12 @@ public class TemplateConfig {
   private final double dubMasterVolumeInstrumentTypeStab;
   private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB = "dubMasterVolumeInstrumentTypeStab";
 
+  private final double percLoopLayerMin;
+  private final String KEY_PERC_LOOP_LAYER_MIN = "percLoopLayerMin";
+
+  private final double percLoopLayerMax;
+  private final String KEY_PERC_LOOP_LAYER_MAX = "percLoopLayerMax";
+
   /**
    Get a template config from only the default config
 
@@ -113,7 +119,7 @@ public class TemplateConfig {
    @param template to get Config from
    */
   public TemplateConfig(Template template, Config defaultConfig) throws ValueException {
-   this(template.getConfig(), defaultConfig);
+    this(template.getConfig(), defaultConfig);
   }
 
   /**
@@ -128,31 +134,32 @@ public class TemplateConfig {
         defaultConfig :
         ConfigFactory.parseString(String.format("template {\n%s\n}", configText))
           .withFallback(defaultConfig);
-      choiceDeltaEnabled = config.getBoolean(chPfx(KEY_CHOICE_DELTA_ENABLED));
-      dubMasterVolumeInstrumentTypeBass = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS));
-      dubMasterVolumeInstrumentTypePad = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD));
-      dubMasterVolumeInstrumentTypePercussive = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE));
-      dubMasterVolumeInstrumentTypeStab = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB));
-      dubMasterVolumeInstrumentTypeSticky = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY));
-      dubMasterVolumeInstrumentTypeStripe = config.getDouble(chPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE));
-      mainProgramLengthMaxDelta = config.getInt(chPfx(KEY_MAIN_PROGRAM_LENGTH_MAX_DELTA));
-      mixerCompressAheadSeconds = config.getDouble(chPfx(KEY_MIXER_COMPRESS_AHEAD_SECONDS));
-      mixerCompressDecaySeconds = config.getDouble(chPfx(KEY_MIXER_COMPRESS_DECAY_SECONDS));
-      mixerCompressRatioMax = config.getDouble(chPfx(KEY_MIXER_COMPRESS_RATIO_MAX));
-      mixerCompressRatioMin = config.getDouble(chPfx(KEY_MIXER_COMPRESS_RATIO_MIN));
-      mixerCompressToAmplitude = config.getDouble(chPfx(KEY_MIXER_COMPRESS_TO_AMPLITUDE));
-      mixerDspBufferSize = config.getInt(chPfx(KEY_MIXER_DSP_BUFFER_SIZE));
-      mixerHighpassThresholdHz = config.getDouble(chPfx(KEY_MIXER_HIGHPASS_THRESHOLD_HZ));
-      mixerLowpassThresholdHz = config.getDouble(chPfx(KEY_MIXER_LOWPASS_THRESHOLD_HZ));
-      mixerNormalizationCeiling = config.getDouble(chPfx(KEY_MIXER_NORMALIZATION_MAX));
-      mixerNormalizationBoostThreshold = config.getDouble(chPfx(KEY_MIXER_NORMALIZATION_BOOST_THRESHOLD));
-      outputChannels = config.getInt(chPfx(KEY_OUTPUT_CHANNELS));
-      outputContainer = config.getString(chPfx(KEY_OUTPUT_CONTAINER));
-      outputEncoding = new AudioFormat.Encoding(config.getString(chPfx(KEY_OUTPUT_ENCODING)));
-      outputEncodingQuality = config.getDouble(chPfx(KEY_OUTPUT_ENCODING_QUALITY));
-      outputFrameRate = config.getInt(chPfx(KEY_OUTPUT_FRAME_RATE));
-      outputSampleBits = config.getInt(chPfx(KEY_OUTPUT_SAMPLE_BITS));
-
+      choiceDeltaEnabled = config.getBoolean(tmplPfx(KEY_CHOICE_DELTA_ENABLED));
+      dubMasterVolumeInstrumentTypeBass = config.getDouble(tmplPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS));
+      dubMasterVolumeInstrumentTypePad = config.getDouble(tmplPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD));
+      dubMasterVolumeInstrumentTypePercussive = config.getDouble(tmplPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE));
+      dubMasterVolumeInstrumentTypeStab = config.getDouble(tmplPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB));
+      dubMasterVolumeInstrumentTypeSticky = config.getDouble(tmplPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY));
+      dubMasterVolumeInstrumentTypeStripe = config.getDouble(tmplPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE));
+      mainProgramLengthMaxDelta = config.getInt(tmplPfx(KEY_MAIN_PROGRAM_LENGTH_MAX_DELTA));
+      mixerCompressAheadSeconds = config.getDouble(tmplPfx(KEY_MIXER_COMPRESS_AHEAD_SECONDS));
+      mixerCompressDecaySeconds = config.getDouble(tmplPfx(KEY_MIXER_COMPRESS_DECAY_SECONDS));
+      mixerCompressRatioMax = config.getDouble(tmplPfx(KEY_MIXER_COMPRESS_RATIO_MAX));
+      mixerCompressRatioMin = config.getDouble(tmplPfx(KEY_MIXER_COMPRESS_RATIO_MIN));
+      mixerCompressToAmplitude = config.getDouble(tmplPfx(KEY_MIXER_COMPRESS_TO_AMPLITUDE));
+      mixerDspBufferSize = config.getInt(tmplPfx(KEY_MIXER_DSP_BUFFER_SIZE));
+      mixerHighpassThresholdHz = config.getDouble(tmplPfx(KEY_MIXER_HIGHPASS_THRESHOLD_HZ));
+      mixerLowpassThresholdHz = config.getDouble(tmplPfx(KEY_MIXER_LOWPASS_THRESHOLD_HZ));
+      mixerNormalizationCeiling = config.getDouble(tmplPfx(KEY_MIXER_NORMALIZATION_MAX));
+      mixerNormalizationBoostThreshold = config.getDouble(tmplPfx(KEY_MIXER_NORMALIZATION_BOOST_THRESHOLD));
+      outputChannels = config.getInt(tmplPfx(KEY_OUTPUT_CHANNELS));
+      outputContainer = config.getString(tmplPfx(KEY_OUTPUT_CONTAINER));
+      outputEncoding = new AudioFormat.Encoding(config.getString(tmplPfx(KEY_OUTPUT_ENCODING)));
+      outputEncodingQuality = config.getDouble(tmplPfx(KEY_OUTPUT_ENCODING_QUALITY));
+      outputFrameRate = config.getInt(tmplPfx(KEY_OUTPUT_FRAME_RATE));
+      outputSampleBits = config.getInt(tmplPfx(KEY_OUTPUT_SAMPLE_BITS));
+      percLoopLayerMin = config.getInt(tmplPfx(KEY_PERC_LOOP_LAYER_MIN));
+      percLoopLayerMax = config.getInt(tmplPfx(KEY_PERC_LOOP_LAYER_MAX));
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
     }
@@ -164,7 +171,7 @@ public class TemplateConfig {
    @param key to prefix
    @return template-prefixed key
    */
-  private String chPfx(String key) {
+  private String tmplPfx(String key) {
     return String.format("%s%s", KEY_PREFIX, key);
   }
 
@@ -196,6 +203,8 @@ public class TemplateConfig {
     config.put(KEY_OUTPUT_ENCODING_QUALITY, String.valueOf(outputEncodingQuality));
     config.put(KEY_OUTPUT_FRAME_RATE, String.valueOf(outputFrameRate));
     config.put(KEY_OUTPUT_SAMPLE_BITS, String.valueOf(outputSampleBits));
+    config.put(KEY_PERC_LOOP_LAYER_MIN, String.valueOf(percLoopLayerMin));
+    config.put(KEY_PERC_LOOP_LAYER_MAX, String.valueOf(percLoopLayerMax));
     return Text.formatMultiline(config.entrySet().stream()
       .sorted(Map.Entry.comparingByKey())
       .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
@@ -351,7 +360,6 @@ public class TemplateConfig {
 
   /**
    @return mixer limit of how much to boost during normalization
-
    */
   public double getMixerNormalizationBoostThreshold() {
     return mixerNormalizationBoostThreshold;
@@ -369,5 +377,20 @@ public class TemplateConfig {
    */
   public boolean isChoiceDeltaEnabled() {
     return choiceDeltaEnabled;
+  }
+
+
+  /**
+   @ return the minimum # of layers of percussive loops
+   */
+  public double getPercLoopLayerMin() {
+    return percLoopLayerMin;
+  }
+
+  /**
+   @ return the maximum # of layers of percussive loops
+   */
+  public double getPercLoopLayerMax() {
+    return percLoopLayerMax;
   }
 }

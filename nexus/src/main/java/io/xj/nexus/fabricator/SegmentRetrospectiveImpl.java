@@ -4,6 +4,7 @@ package io.xj.nexus.fabricator;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import io.xj.api.InstrumentType;
 import io.xj.api.ProgramType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
@@ -21,9 +22,11 @@ import io.xj.nexus.hub_client.client.HubContent;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  The SegmentRetrospective is a delegate to look back on previous segments, read-only
@@ -80,9 +83,10 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   @Override
   public Optional<SegmentChoice> getPreviousChoiceOfType(Segment segment, ProgramType type) {
     return
-      store.getAll(SegmentChoice.class).stream().filter(c ->
-        c.getSegmentId().equals(segment.getId()) &&
-          c.getProgramType().equals(type)).findFirst();
+      store.getAll(SegmentChoice.class).stream()
+        .filter(c -> c.getSegmentId().equals(segment.getId())
+          && c.getProgramType().equals(type))
+        .findFirst();
   }
 
   @Override
@@ -110,6 +114,18 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     Optional<Segment> seg = getPreviousSegment();
     if (seg.isEmpty()) return Optional.empty();
     return getPreviousChoiceOfType(seg.get(), type);
+  }
+
+  @Override
+  public List<SegmentChoice> getPreviousChoicesOfType(InstrumentType instrumentType) {
+    Optional<Segment> seg = getPreviousSegment();
+    if (seg.isEmpty()) return List.of();
+    return
+      store.getAll(SegmentChoice.class).stream()
+        .filter(c -> c.getSegmentId().equals(seg.get().getId())
+          && Objects.nonNull(c.getInstrumentType())
+          && c.getInstrumentType().equals(instrumentType))
+        .collect(Collectors.toList());
   }
 
   @Override

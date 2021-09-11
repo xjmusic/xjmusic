@@ -24,11 +24,14 @@ import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static java.lang.Math.PI;
 
 /**
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
@@ -40,6 +43,8 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   private static final double SCORE_MACRO_ENTROPY = 1.0;
   private static final double SCORE_MAIN_ENTROPY = 1.0;
   private static final long NANOS_PER_SECOND = 1_000_000_000;
+  private static final double DENSITY_FLOOR = 0.38;
+  private static final double DENSITY_CEILING_DELTA = 1 - DENSITY_FLOOR;
   private final ApiUrlProvider apiUrlProvider;
 
   @Inject
@@ -57,11 +62,10 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @param mainSequence of which to compute key
    @return key
    */
-  private static String computeSegmentKey(ProgramSequence mainSequence) {
+  private String computeSegmentKey(ProgramSequence mainSequence) {
     String mainKey = mainSequence.getKey();
-    if (null == mainKey || mainKey.isEmpty()) {
-      mainKey = mainSequence.getKey();
-    }
+    if (null == mainKey || mainKey.isEmpty())
+      mainKey = fabricator.sourceMaterial().getProgram(mainSequence.getProgramId()).orElseThrow().getKey();
     return Key.of(mainKey).getFullDescription();
   }
 
@@ -72,22 +76,75 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @param mainSequence  of which to compute segment tempo
    @return tempo
    */
-  private static double computeSegmentTempo(ProgramSequence macroSequence, ProgramSequence mainSequence) {
-    return (Value.eitherOr(macroSequence.getTempo(), macroSequence.getTempo()) +
-      Value.eitherOr(mainSequence.getTempo(), mainSequence.getTempo())) / 2;
+  private double computeSegmentTempo(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
+    @Nullable Double macroTempo =
+      Objects.nonNull(macroSequence) ?
+        (Objects.nonNull(macroSequence.getTempo()) ?
+          macroSequence.getTempo()
+          : fabricator.sourceMaterial().getProgram(macroSequence.getProgramId()).orElseThrow().getTempo())
+        : null;
+    @Nullable Double mainTempo =
+      Objects.nonNull(mainSequence) ?
+        (Objects.nonNull(mainSequence.getTempo()) ?
+          mainSequence.getTempo()
+          : fabricator.sourceMaterial().getProgram(mainSequence.getProgramId()).orElseThrow().getTempo())
+        : null;
+    if (Objects.nonNull(macroTempo) && Objects.nonNull(mainTempo))
+      return (macroTempo + mainTempo) / 2;
+    if (Objects.nonNull(macroTempo))
+      return macroTempo;
+    if (Objects.nonNull(mainTempo))
+      return mainTempo;
+    throw new NexusException("Failed to compute Segment Tempo!");
   }
 
   /**
    Compute the final density of the current segment
    future: Segment Density = average of macro and main-sequence patterns
+   <p>
+   Segment is assigned a density during macro-main craft. It's going to be used to determine a target # of perc loops
+   Percussion Loops Alpha #179534065
 
    @param macroSequence of which to compute segment tempo
    @param mainSequence  of which to compute segment tempo
    @return density
    */
-  private static Double computeSegmentDensity(ProgramSequence macroSequence, ProgramSequence mainSequence) {
-    return (Value.eitherOr(macroSequence.getDensity(), macroSequence.getDensity()) +
-      Value.eitherOr(mainSequence.getDensity(), mainSequence.getDensity())) / 2;
+  private Double computeSegmentDensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
+    return
+      Math.floor(
+        100 * (DENSITY_FLOOR + DENSITY_CEILING_DELTA * (0.5 + Math.cos(-PI + 2 * PI * delta / fabricator.getTemplateConfig().getMainProgramLengthMaxDelta()) / 2))
+          *
+          computeDensity(macroSequence, mainSequence)
+      ) / 100;
+  }
+
+  /**
+   Compute the average density of the two given sequences
+
+   @param macroSequence of which to compute segment tempo
+   @param mainSequence  of which to compute segment tempo
+   @return density
+   */
+  private Double computeDensity(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
+    @Nullable Double macroDensity =
+      Objects.nonNull(macroSequence) ?
+        (Objects.nonNull(macroSequence.getDensity()) ?
+          macroSequence.getDensity()
+          : fabricator.sourceMaterial().getProgram(macroSequence.getProgramId()).orElseThrow().getDensity())
+        : null;
+    @Nullable Double mainDensity =
+      Objects.nonNull(mainSequence) ?
+        (Objects.nonNull(mainSequence.getDensity()) ?
+          mainSequence.getDensity()
+          : fabricator.sourceMaterial().getProgram(mainSequence.getProgramId()).orElseThrow().getDensity())
+        : null;
+    if (Objects.nonNull(macroDensity) && Objects.nonNull(mainDensity))
+      return (macroDensity + mainDensity) / 2;
+    if (Objects.nonNull(macroDensity))
+      return macroDensity;
+    if (Objects.nonNull(mainDensity))
+      return mainDensity;
+    throw new NexusException("Failed to compute Density!");
   }
 
   @Override
@@ -172,7 +229,6 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
       fabricator.updateSegment(fabricator.getSegment()
         .type(fabricator.getType())
         .outputEncoder(fabricator.getTemplateConfig().getOutputContainer())
-        .density(computeSegmentDensity(macroSequence.get(), mainSequence.get()))
         .tempo(computeSegmentTempo(macroSequence.get(), mainSequence.get()))
         .key(computeSegmentKey(mainSequence.get()).strip())
         .total(mainSequence.get().getTotal()));
@@ -188,6 +244,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
       segment.setDelta(fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal());
     else
       segment.setDelta(0);
+    segment.density(computeSegmentDensity(segment.getDelta(), macroSequence.orElse(null), mainSequence.orElse(null)));
     fabricator.updateSegment(segment);
 
     // done
