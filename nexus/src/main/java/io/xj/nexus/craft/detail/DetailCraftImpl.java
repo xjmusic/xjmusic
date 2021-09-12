@@ -43,7 +43,6 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
       InstrumentType.STICKY,
       InstrumentType.STAB
     ).stream().map(InstrumentType::toString).collect(Collectors.toList());
-  private static final double DETAIL_PLATEAU_RATIO = 0.38;
 
   @Inject
   public DetailCraftImpl(
@@ -57,7 +56,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> Value.stringOrDefault(choice.getInstrumentType(),choice.getId().toString());
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.DETAIL, choice.getProgramType());
-    precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, DETAIL_PLATEAU_RATIO);
+    precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, fabricator.getTemplateConfig().getDeltaArcDetailPlateauRatio());
 
     for (InstrumentType voicingType : fabricator.getDistinctChordVoicingTypes()) {
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voicingType);

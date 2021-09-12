@@ -543,7 +543,11 @@ public class NexusWorkImpl implements NexusWork {
    @param e       exception (optional)
    */
   private void didFailWhile(String message, Exception e) {
-    didFailWhile(message, Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage(), Text.formatStackTrace(e));
+    var detail = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
+
+    LOG.error("Failed while {} because {}", message, detail, e);
+
+    notification.publish(String.format("Failed while %s because %s\n\n%s", message, detail, Text.formatStackTrace(e)), "Failure");
   }
 
   /**
@@ -554,9 +558,6 @@ public class NexusWorkImpl implements NexusWork {
    @param debug   to include in body
    */
   private void didFailWhile(String message, String detail, String debug) {
-    LOG.error("Failed while {} because {}", message, detail);
-
-    notification.publish(String.format("Failed while %s because %s\n\n%s", message, detail, debug), "Failure");
   }
 
   /**

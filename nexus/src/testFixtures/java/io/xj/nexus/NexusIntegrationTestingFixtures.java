@@ -1327,6 +1327,12 @@ public class NexusIntegrationTestingFixtures {
       log.debug("Generated Drum-type Instrument id={}, minorMeme={}, majorMeme={}", instrument.getId(), minorMemeName, majorMemeName);
     }
 
+    // Generate Perc Loop Instruments
+    for (int i = 0; i < N; i++) {
+      Instrument instrument = add(entities, buildInstrument(library1, InstrumentType.PERCLOOP, InstrumentState.PUBLISHED, "Perc Loop"));
+      log.debug("Generated PercLoop-type Instrument id={}", instrument.getId());
+    }
+
     // Generate N*2 total Macro-type programs, each transitioning of one MemeEntity to another
     for (int i = 0; i < N << 1; i++) {
       String[] twoMemeNames = listOfUniqueRandom(2, majorMemeNames);

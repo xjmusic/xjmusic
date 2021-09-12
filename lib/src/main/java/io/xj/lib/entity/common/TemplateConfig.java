@@ -22,23 +22,32 @@ import java.util.Map;
 public class TemplateConfig {
   private static final String KEY_PREFIX = "template.";
 
-  private final int outputChannels;
-  private final String KEY_OUTPUT_CHANNELS = "outputChannels";
+  private final boolean choiceDeltaEnabled;
+  private final String KEY_CHOICE_DELTA_ENABLED = "choiceDeltaEnabled";
 
-  private final String outputContainer;
-  private final String KEY_OUTPUT_CONTAINER = "outputContainer";
+  private final double deltaArcDetailPlateauRatio;
+  private final String KEY_DELTA_ARC_DETAIL_PLATEAU_RATIO = "deltaArcDetailPlateauRatio";
 
-  private final AudioFormat.Encoding outputEncoding;
-  private final String KEY_OUTPUT_ENCODING = "outputEncoding";
+  private final double deltaArcRhythmPlateauRatio;
+  private final String KEY_DELTA_ARC_RHYTHM_PLATEAU_RATIO = "deltaArcRhythmPlateauRatio";
 
-  private final double outputEncodingQuality;
-  private final String KEY_OUTPUT_ENCODING_QUALITY = "outputEncodingQuality";
+  private final double dubMasterVolumeInstrumentTypePercussive;
+  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE = "dubMasterVolumeInstrumentTypePercussive";
 
-  private final int outputFrameRate;
-  private final String KEY_OUTPUT_FRAME_RATE = "outputFrameRate";
+  private final double dubMasterVolumeInstrumentTypeBass;
+  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS = "dubMasterVolumeInstrumentTypeBass";
 
-  private final int outputSampleBits;
-  private final String KEY_OUTPUT_SAMPLE_BITS = "outputSampleBits";
+  private final double dubMasterVolumeInstrumentTypePad;
+  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD = "dubMasterVolumeInstrumentTypePad";
+
+  private final double dubMasterVolumeInstrumentTypeSticky;
+  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY = "dubMasterVolumeInstrumentTypeSticky";
+
+  private final double dubMasterVolumeInstrumentTypeStripe;
+  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE = "dubMasterVolumeInstrumentTypeStripe";
+
+  private final double dubMasterVolumeInstrumentTypeStab;
+  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB = "dubMasterVolumeInstrumentTypeStab";
 
   private final double mixerCompressAheadSeconds;
   private final String KEY_MIXER_COMPRESS_AHEAD_SECONDS = "mixerCompressAheadSeconds";
@@ -73,32 +82,32 @@ public class TemplateConfig {
   private final int mainProgramLengthMaxDelta;
   private final String KEY_MAIN_PROGRAM_LENGTH_MAX_DELTA = "mainProgramLengthMaxDelta";
 
-  private final boolean choiceDeltaEnabled;
-  private final String KEY_CHOICE_DELTA_ENABLED = "choiceDeltaEnabled";
+  private final int outputChannels;
+  private final String KEY_OUTPUT_CHANNELS = "outputChannels";
 
-  private final double dubMasterVolumeInstrumentTypePercussive;
-  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE = "dubMasterVolumeInstrumentTypePercussive";
+  private final String outputContainer;
+  private final String KEY_OUTPUT_CONTAINER = "outputContainer";
 
-  private final double dubMasterVolumeInstrumentTypeBass;
-  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS = "dubMasterVolumeInstrumentTypeBass";
+  private final AudioFormat.Encoding outputEncoding;
+  private final String KEY_OUTPUT_ENCODING = "outputEncoding";
 
-  private final double dubMasterVolumeInstrumentTypePad;
-  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD = "dubMasterVolumeInstrumentTypePad";
+  private final double outputEncodingQuality;
+  private final String KEY_OUTPUT_ENCODING_QUALITY = "outputEncodingQuality";
 
-  private final double dubMasterVolumeInstrumentTypeSticky;
-  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STICKY = "dubMasterVolumeInstrumentTypeSticky";
+  private final int outputFrameRate;
+  private final String KEY_OUTPUT_FRAME_RATE = "outputFrameRate";
 
-  private final double dubMasterVolumeInstrumentTypeStripe;
-  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STRIPE = "dubMasterVolumeInstrumentTypeStripe";
-
-  private final double dubMasterVolumeInstrumentTypeStab;
-  private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_STAB = "dubMasterVolumeInstrumentTypeStab";
+  private final int outputSampleBits;
+  private final String KEY_OUTPUT_SAMPLE_BITS = "outputSampleBits";
 
   private final double percLoopLayerMin;
   private final String KEY_PERC_LOOP_LAYER_MIN = "percLoopLayerMin";
 
   private final double percLoopLayerMax;
   private final String KEY_PERC_LOOP_LAYER_MAX = "percLoopLayerMax";
+
+  private final double percLoopFixedSizeBeats;
+  private final String KEY_PERC_LOOP_FIXED_SIZE_BEATS = "percLoopFixedSizeBeats";
 
   /**
    Get a template config from only the default config
@@ -135,6 +144,8 @@ public class TemplateConfig {
         ConfigFactory.parseString(String.format("template {\n%s\n}", configText))
           .withFallback(defaultConfig);
       choiceDeltaEnabled = config.getBoolean(tmplPfx(KEY_CHOICE_DELTA_ENABLED));
+      deltaArcDetailPlateauRatio = config.getDouble(tmplPfx(KEY_DELTA_ARC_DETAIL_PLATEAU_RATIO));
+      deltaArcRhythmPlateauRatio = config.getDouble(tmplPfx(KEY_DELTA_ARC_RHYTHM_PLATEAU_RATIO));
       dubMasterVolumeInstrumentTypeBass = config.getDouble(tmplPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS));
       dubMasterVolumeInstrumentTypePad = config.getDouble(tmplPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD));
       dubMasterVolumeInstrumentTypePercussive = config.getDouble(tmplPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE));
@@ -150,16 +161,17 @@ public class TemplateConfig {
       mixerDspBufferSize = config.getInt(tmplPfx(KEY_MIXER_DSP_BUFFER_SIZE));
       mixerHighpassThresholdHz = config.getDouble(tmplPfx(KEY_MIXER_HIGHPASS_THRESHOLD_HZ));
       mixerLowpassThresholdHz = config.getDouble(tmplPfx(KEY_MIXER_LOWPASS_THRESHOLD_HZ));
-      mixerNormalizationCeiling = config.getDouble(tmplPfx(KEY_MIXER_NORMALIZATION_MAX));
       mixerNormalizationBoostThreshold = config.getDouble(tmplPfx(KEY_MIXER_NORMALIZATION_BOOST_THRESHOLD));
+      mixerNormalizationCeiling = config.getDouble(tmplPfx(KEY_MIXER_NORMALIZATION_MAX));
       outputChannels = config.getInt(tmplPfx(KEY_OUTPUT_CHANNELS));
       outputContainer = config.getString(tmplPfx(KEY_OUTPUT_CONTAINER));
       outputEncoding = new AudioFormat.Encoding(config.getString(tmplPfx(KEY_OUTPUT_ENCODING)));
       outputEncodingQuality = config.getDouble(tmplPfx(KEY_OUTPUT_ENCODING_QUALITY));
       outputFrameRate = config.getInt(tmplPfx(KEY_OUTPUT_FRAME_RATE));
       outputSampleBits = config.getInt(tmplPfx(KEY_OUTPUT_SAMPLE_BITS));
-      percLoopLayerMin = config.getInt(tmplPfx(KEY_PERC_LOOP_LAYER_MIN));
+      percLoopFixedSizeBeats = config.getInt(tmplPfx(KEY_PERC_LOOP_FIXED_SIZE_BEATS));
       percLoopLayerMax = config.getInt(tmplPfx(KEY_PERC_LOOP_LAYER_MAX));
+      percLoopLayerMin = config.getInt(tmplPfx(KEY_PERC_LOOP_LAYER_MIN));
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
     }
@@ -180,6 +192,8 @@ public class TemplateConfig {
   public String toString() {
     Map<String, String> config = Maps.newHashMap();
     config.put(KEY_CHOICE_DELTA_ENABLED, String.valueOf(choiceDeltaEnabled));
+    config.put(KEY_DELTA_ARC_DETAIL_PLATEAU_RATIO, String.valueOf(deltaArcDetailPlateauRatio));
+    config.put(KEY_DELTA_ARC_RHYTHM_PLATEAU_RATIO, String.valueOf(deltaArcRhythmPlateauRatio));
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS, String.valueOf(dubMasterVolumeInstrumentTypeBass));
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD, String.valueOf(dubMasterVolumeInstrumentTypePad));
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE, String.valueOf(dubMasterVolumeInstrumentTypePercussive));
@@ -195,16 +209,17 @@ public class TemplateConfig {
     config.put(KEY_MIXER_DSP_BUFFER_SIZE, String.valueOf(mixerDspBufferSize));
     config.put(KEY_MIXER_HIGHPASS_THRESHOLD_HZ, String.valueOf(mixerHighpassThresholdHz));
     config.put(KEY_MIXER_LOWPASS_THRESHOLD_HZ, String.valueOf(mixerLowpassThresholdHz));
-    config.put(KEY_MIXER_NORMALIZATION_MAX, String.valueOf(mixerNormalizationCeiling));
     config.put(KEY_MIXER_NORMALIZATION_BOOST_THRESHOLD, String.valueOf(mixerNormalizationBoostThreshold));
+    config.put(KEY_MIXER_NORMALIZATION_MAX, String.valueOf(mixerNormalizationCeiling));
     config.put(KEY_OUTPUT_CHANNELS, String.valueOf(outputChannels));
     config.put(KEY_OUTPUT_CONTAINER, Text.doubleQuoted(outputContainer));
     config.put(KEY_OUTPUT_ENCODING, Text.doubleQuoted(outputEncoding.toString()));
     config.put(KEY_OUTPUT_ENCODING_QUALITY, String.valueOf(outputEncodingQuality));
     config.put(KEY_OUTPUT_FRAME_RATE, String.valueOf(outputFrameRate));
     config.put(KEY_OUTPUT_SAMPLE_BITS, String.valueOf(outputSampleBits));
-    config.put(KEY_PERC_LOOP_LAYER_MIN, String.valueOf(percLoopLayerMin));
+    config.put(KEY_PERC_LOOP_FIXED_SIZE_BEATS, String.valueOf(percLoopFixedSizeBeats));
     config.put(KEY_PERC_LOOP_LAYER_MAX, String.valueOf(percLoopLayerMax));
+    config.put(KEY_PERC_LOOP_LAYER_MIN, String.valueOf(percLoopLayerMin));
     return Text.formatMultiline(config.entrySet().stream()
       .sorted(Map.Entry.comparingByKey())
       .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
@@ -212,45 +227,24 @@ public class TemplateConfig {
   }
 
   /**
-   @return Output Sample Bits
+   @return true if choice delta is enabled
    */
-  public int getOutputSampleBits() {
-    return outputSampleBits;
+  public boolean isChoiceDeltaEnabled() {
+    return choiceDeltaEnabled;
   }
 
   /**
-   @return Output Frame Rate (Hz)
+   @return the plateau ratio of detail-layer detail arcs
    */
-  public int getOutputFrameRate() {
-    return outputFrameRate;
+  public double getDeltaArcDetailPlateauRatio() {
+    return deltaArcDetailPlateauRatio;
   }
 
   /**
-   @return Output Encoding Quality (ratio from 0 to 1)
+   @return the plateau ratio of rhythm-layer detail arcs
    */
-  public double getOutputEncodingQuality() {
-    return outputEncodingQuality;
-  }
-
-  /**
-   @return Output Encoding
-   */
-  public AudioFormat.Encoding getOutputEncoding() {
-    return outputEncoding;
-  }
-
-  /**
-   @return Output Container
-   */
-  public String getOutputContainer() {
-    return outputContainer;
-  }
-
-  /**
-   @return # of Output Channels
-   */
-  public int getOutputChannels() {
-    return outputChannels;
+  public double getDeltaArcRhythmPlateauRatio() {
+    return deltaArcRhythmPlateauRatio;
   }
 
   /**
@@ -293,6 +287,13 @@ public class TemplateConfig {
    */
   public double getDubMasterVolumeInstrumentTypeStab() {
     return dubMasterVolumeInstrumentTypeStab;
+  }
+
+  /**
+   @return max length (delta) for a main program to run
+   */
+  public int getMainProgramLengthMaxDelta() {
+    return mainProgramLengthMaxDelta;
   }
 
   /**
@@ -366,31 +367,65 @@ public class TemplateConfig {
   }
 
   /**
-   @return max length (delta) for a main program to run
+   @return # of Output Channels
    */
-  public int getMainProgramLengthMaxDelta() {
-    return mainProgramLengthMaxDelta;
+  public int getOutputChannels() {
+    return outputChannels;
   }
 
   /**
-   @return true if choice delta is enabled
+   @return Output Container
    */
-  public boolean isChoiceDeltaEnabled() {
-    return choiceDeltaEnabled;
-  }
-
-
-  /**
-   @ return the minimum # of layers of percussive loops
-   */
-  public double getPercLoopLayerMin() {
-    return percLoopLayerMin;
+  public String getOutputContainer() {
+    return outputContainer;
   }
 
   /**
-   @ return the maximum # of layers of percussive loops
+   @return Output Encoding
+   */
+  public AudioFormat.Encoding getOutputEncoding() {
+    return outputEncoding;
+  }
+
+  /**
+   @return Output Encoding Quality (ratio from 0 to 1)
+   */
+  public double getOutputEncodingQuality() {
+    return outputEncodingQuality;
+  }
+
+  /**
+   @return Output Frame Rate (Hz)
+   */
+  public int getOutputFrameRate() {
+    return outputFrameRate;
+  }
+
+  /**
+   @return Output Sample Bits
+   */
+  public int getOutputSampleBits() {
+    return outputSampleBits;
+  }
+
+  /**
+   @return the fixed size of a percussion loop, in # beats
+   */
+  public double getPercLoopFixedSizeBeats() {
+    return percLoopFixedSizeBeats;
+  }
+
+  /**
+   @return the maximum # of layers of percussive loops
    */
   public double getPercLoopLayerMax() {
     return percLoopLayerMax;
+  }
+
+  /**
+   @return the minimum # of layers of percussive loops
+   */
+  public double getPercLoopLayerMin() {
+    return percLoopLayerMin;
   }
 }

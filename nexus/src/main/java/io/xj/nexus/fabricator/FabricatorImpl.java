@@ -76,6 +76,7 @@ import org.glassfish.jersey.internal.guava.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.text.DecimalFormat;
 import java.time.Instant;
@@ -1071,8 +1072,10 @@ class FabricatorImpl implements Fabricator {
    @param chordName to get key for
    @return key for chord + event
    */
-  private String computeEventChordKey(UUID eventId, String chordName) throws NexusException, EntityStoreException {
-    return String.format("%s__%s", chordName, eventId.toString());
+  private String computeEventChordKey(@Nullable UUID eventId, @Nullable String chordName) throws NexusException, EntityStoreException {
+    return String.format("%s__%s",
+      Strings.isNullOrEmpty(chordName) ? UNKNOWN_KEY : chordName,
+      Objects.isNull(eventId) ? UNKNOWN_KEY : eventId.toString());
   }
 
   /**

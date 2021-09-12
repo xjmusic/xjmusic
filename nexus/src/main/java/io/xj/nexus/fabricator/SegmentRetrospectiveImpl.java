@@ -85,7 +85,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     return
       store.getAll(SegmentChoice.class).stream()
         .filter(c -> c.getSegmentId().equals(segment.getId())
-          && c.getProgramType().equals(type))
+          && type.equals(c.getProgramType()))
         .findFirst();
   }
 
@@ -95,7 +95,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       store.getAll(SegmentChoice.class).stream()
         .filter(c -> Objects.nonNull(c.getProgramVoiceId())
           && c.getSegmentId().equals(segment.getId())
-          && c.getProgramVoiceId().equals(programVoiceId))
+          && programVoiceId.equals(c.getProgramVoiceId()))
         .findFirst();
   }
 

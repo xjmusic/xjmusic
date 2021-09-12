@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
  [#176625174] PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
  */
 public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft {
-  private static final double PERC_LOOP_SIZE = 4;
   private final Logger log = LoggerFactory.getLogger(PercLoopCraftImpl.class);
 
   @Inject
@@ -68,7 +67,7 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
     if (instrumentIds.size() < targetLayers)
       instrumentIds = withIdsAdded(instrumentIds, targetLayers - instrumentIds.size());
     else if (instrumentIds.size() > targetLayers)
-      instrumentIds = withIdsRemoved(instrumentIds, targetLayers - instrumentIds.size());
+      instrumentIds = withIdsRemoved(instrumentIds, instrumentIds.size() - targetLayers);
 
     for (UUID percLoopId : instrumentIds)
       craftPercLoop(percLoopId);
@@ -104,7 +103,7 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
 
       // Pick attributes are expressed "rendered" as actual seconds
       double startSeconds = fabricator.getSecondsAtPosition(pos);
-      double lengthSeconds = fabricator.getSecondsAtPosition(pos + PERC_LOOP_SIZE) - startSeconds;
+      double lengthSeconds = fabricator.getSecondsAtPosition(pos + fabricator.getTemplateConfig().getPercLoopFixedSizeBeats()) - startSeconds;
 
       // of pick
       fabricator.add(new SegmentChoiceArrangementPick()
@@ -117,7 +116,7 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
         .name("PERCLOOP")
         .instrumentAudioId(audio.get().getId()));
 
-      pos += PERC_LOOP_SIZE;
+      pos += fabricator.getTemplateConfig().getPercLoopFixedSizeBeats();
     }
   }
 
@@ -128,7 +127,7 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
    @param count   number of ids to add
    @return list including added ids
    */
-  private List<UUID> withIdsAdded(List<UUID> fromIds, int count) {
+  public List<UUID> withIdsAdded(List<UUID> fromIds, int count) {
     var ids = new ArrayList<>(fromIds);
     for (int i = 0; i < count; i++)
       chooseFreshPercLoopInstrument(ids)
@@ -143,7 +142,7 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
    @param count   number of ids to add
    @return list including added ids
    */
-  private List<UUID> withIdsRemoved(List<UUID> fromIds, int count) {
+  public static List<UUID> withIdsRemoved(List<UUID> fromIds, int count) {
     var ids = new ArrayList<>(fromIds);
     for (int i = 0; i < count; i++)
       ids.remove((int) TremendouslyRandom.zeroToLimit(ids.size()));
