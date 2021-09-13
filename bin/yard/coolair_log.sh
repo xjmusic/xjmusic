@@ -6,5 +6,5 @@ kubectl \
     -n yard \
     -c coolair \
     logs -f ${POD} \
-    | grep -v '/-/health' \
+    | grep -v '/healthz' \
     | sed -e 's/^.*WorkImpl//g'

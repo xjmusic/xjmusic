@@ -79,7 +79,7 @@ resource "kubernetes_deployment" "xj-dev-nexus" {
 
           liveness_probe {
             http_get {
-              path = "/-/health"
+              path = "/healthz"
               port = 3002
             }
 

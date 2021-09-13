@@ -12,7 +12,7 @@ import javax.ws.rs.core.Response;
 /**
  Health resource.
  */
-@Path("-/health")
+@Path("healthz")
 public class NexusAppHealthEndpoint {
 
   private final NexusWork nexusWork;

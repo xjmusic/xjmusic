@@ -74,7 +74,7 @@ resource "kubernetes_deployment" "xj-dev-hub" {
 
           liveness_probe {
             http_get {
-              path = "/-/health"
+              path = "/healthz"
               port = 3001
             }
 

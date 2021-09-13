@@ -73,7 +73,7 @@ resource "kubernetes_deployment" "xj-prod-yard-coolair" {
 
           liveness_probe {
             http_get {
-              path = "/-/health"
+              path = "/healthz"
               port = 3002
             }
 

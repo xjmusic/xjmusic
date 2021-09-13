@@ -13,7 +13,7 @@ import java.sql.SQLException;
 /**
  Health resource.
  */
-@Path("-/health")
+@Path("healthz")
 @Singleton
 public class HealthEndpoint {
   private final HubDatabaseProvider dbProvider;

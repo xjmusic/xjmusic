@@ -171,7 +171,7 @@ public class HubAppTest {
 
   @Test
   public void checkApp() throws Exception {
-    HttpGet request = new HttpGet(new URI("http://localhost:1903/-/health"));
+    HttpGet request = new HttpGet(new URI("http://localhost:1903/healthz"));
     CloseableHttpResponse result = httpClient.execute(request);
 
     assertEquals(200, result.getStatusLine().getStatusCode());
@@ -181,7 +181,7 @@ public class HubAppTest {
 
   @Test
   public void checkApp_failsWithoutDatabaseConnection() throws Exception {
-    HttpGet request = new HttpGet(new URI("http://localhost:1903/-/health"));
+    HttpGet request = new HttpGet(new URI("http://localhost:1903/healthz"));
     doThrow(new SQLException("Failure to connect to database")).when(mockDataSource).getConnection();
     CloseableHttpResponse result = httpClient.execute(request);
 
