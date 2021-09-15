@@ -118,7 +118,7 @@ class FabricatorImpl implements Fabricator {
   private final long startTime;
   private final Map<Double, Optional<SegmentChord>> chordAtPosition;
   private final Map<InstrumentType, NoteRange> voicingNoteRange;
-  private final Map<SegmentChoice, ProgramSequence> sequenceForChoice = Maps.newHashMap();
+  private final Map<SegmentChoice, ProgramSequence> sequenceForChoice;
   private final Map<UUID, Collection<ProgramSequenceChord>> completeChordsForProgramSequence;
   private final Map<String, Integer> rangeShiftOctave;
   private final Map<String, Integer> targetShift;
@@ -164,12 +164,13 @@ class FabricatorImpl implements Fabricator {
       workBufferBeforeSeconds = config.getInt("work.bufferBeforeSeconds");
 
       // caches
-      voicingNoteRange = Maps.newHashMap();
-      rangeForChoice = Maps.newHashMap();
-      rangeShiftOctave = Maps.newHashMap();
-      targetShift = Maps.newHashMap();
       chordAtPosition = Maps.newHashMap();
       completeChordsForProgramSequence = Maps.newHashMap();
+      rangeForChoice = Maps.newHashMap();
+      rangeShiftOctave = Maps.newHashMap();
+      sequenceForChoice = Maps.newHashMap();
+      targetShift = Maps.newHashMap();
+      voicingNoteRange = Maps.newHashMap();
 
       // time
       startTime = System.nanoTime();

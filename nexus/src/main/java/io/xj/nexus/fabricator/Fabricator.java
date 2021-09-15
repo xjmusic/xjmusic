@@ -680,5 +680,4 @@ public interface Fabricator {
    @return source material
    */
   HubContent sourceMaterial();
-
 }

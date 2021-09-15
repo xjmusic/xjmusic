@@ -341,13 +341,18 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     NoteRange range,
     boolean defaultAtonal
   ) throws NexusException {
+
     // choose intro pattern (if available)
     Optional<ProgramSequencePattern> introPattern =
-      fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.INTRO);
+      isIntroSegment(choice)
+        ? fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.INTRO)
+        : Optional.empty();
 
     // choose outro pattern (if available)
     Optional<ProgramSequencePattern> outroPattern =
-      fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.OUTRO);
+      isOutroSegment(choice)
+        ? fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.OUTRO)
+        : Optional.empty();
 
     // compute in and out points, and length # beats for which loop patterns will be required
     double loopOutPos = maxPos - (outroPattern.map(ProgramSequencePattern::getTotal).orElse(0));
@@ -489,24 +494,15 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     if (!fabricator.getTemplateConfig().isChoiceDeltaEnabled()) return 1.0;
 
     // if deltaIn is before the beginning of this segment and deltaOut is after, include it
-    if (choice.getDeltaIn() < fabricator.getSegment().getDelta()
-      && choice.getDeltaOut() > fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal())
+    if (isActiveEntireSegment(choice))
       return 1;
 
     // if deltaIn is past the end of this segment, exclude
-    if (!isUnlimitedIn(choice)
-      && choice.getDeltaIn() > fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal())
-      return 0;
-
-    // if deltaOut is before the beginning of this segment, exclude
-    if (!isUnlimitedOut(choice)
-      && choice.getDeltaOut() <= fabricator.getSegment().getDelta())
+    if (isSilentEntireSegment(choice))
       return 0;
 
     // If position is between the beginning of the segment at the deltaIn, either fade in or silence
-    if (!isUnlimitedIn(choice)
-      && choice.getDeltaIn() > fabricator.getSegment().getDelta()
-      && fabricator.getSegment().getDelta() + segmentPosition < choice.getDeltaIn())
+    if (isIntroSegment(choice) && fabricator.getSegment().getDelta() + segmentPosition < choice.getDeltaIn())
       if (fadeIn)
         return segmentPosition / (choice.getDeltaIn() - fabricator.getSegment().getDelta());
       else if (topOfSegment)
@@ -515,15 +511,59 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         return 0;
 
     // If position is between the deltaOut and the end of the segment, either fade out or leave it alone
-    if (!isUnlimitedOut(choice)
-      && choice.getDeltaOut() <= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal()
-      && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut())
+    if (isOutroSegment(choice) && fabricator.getSegment().getDelta() + segmentPosition > choice.getDeltaOut())
       if (fadeOut)
         return 1.0 - (segmentPosition - (choice.getDeltaOut() - fabricator.getSegment().getDelta())) / (fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal() - choice.getDeltaOut());
       else
         return 1.0;
 
     return 1.0;
+  }
+
+  /**
+   Whether the current segment contains the delta in for the given choice
+
+   @param choice to test whether the current segment contains this choice delta in
+   @return true if the current segment contains the given choice's delta in
+   */
+  private boolean isIntroSegment(SegmentChoice choice) {
+    return !isUnlimitedIn(choice)
+      && choice.getDeltaIn() >= fabricator.getSegment().getDelta()
+      && choice.getDeltaIn() < fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal();
+  }
+
+  /**
+   Whether the current segment contains the delta out for the given choice
+
+   @param choice to test whether the current segment contains this choice delta out
+   @return true if the current segment contains the given choice's delta out
+   */
+  private boolean isOutroSegment(SegmentChoice choice) {
+    return !isUnlimitedOut(choice)
+      && choice.getDeltaOut() <= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal()
+      && choice.getDeltaOut() > fabricator.getSegment().getDelta();
+  }
+
+  /**
+   Whether the given choice is silent during the entire segment
+
+   @param choice to test for silence
+   @return true if choice is silent the entire segment
+   */
+  private boolean isSilentEntireSegment(SegmentChoice choice) {
+    return (!isUnlimitedIn(choice) && choice.getDeltaIn() > fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal())
+      && (!isUnlimitedOut(choice) && choice.getDeltaOut() <= fabricator.getSegment().getDelta());
+  }
+
+  /**
+   Whether the given choice is fully active during the current segment
+
+   @param choice to test for activation
+   @return true if this choice is active the entire time
+   */
+  private boolean isActiveEntireSegment(SegmentChoice choice) {
+    return choice.getDeltaIn() < fabricator.getSegment().getDelta()
+      && choice.getDeltaOut() > fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal();
   }
 
   /**

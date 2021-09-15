@@ -127,10 +127,8 @@ public class CraftRhythmProgramVoiceInitialTest {
       if (pick.getInstrumentAudioId().equals(fake.instrument8_audio8toot.getId()))
         pickedToot++;
     }
-    assertEquals(12, pickedKick);
-    assertEquals(12, pickedSnare);
-    assertEquals(4, pickedBleep);
-    assertEquals(4, pickedToot);
+    assertEquals(16, pickedKick);
+    assertEquals(16, pickedSnare);
   }
 
   @Test
@@ -162,7 +160,7 @@ public class CraftRhythmProgramVoiceInitialTest {
     store.put(new SegmentChoice()
       .id(UUID.randomUUID())
       .segmentId(segment0.getId())
-      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaIn(0)
       .deltaOut(Segments.DELTA_UNLIMITED)
       .programId(fake.program4.getId())
       .programId(fake.program4_sequence0_binding0.getProgramId())
@@ -171,7 +169,7 @@ public class CraftRhythmProgramVoiceInitialTest {
     store.put(new SegmentChoice()
       .id(UUID.randomUUID())
       .segmentId(segment0.getId())
-      .deltaIn(Segments.DELTA_UNLIMITED)
+      .deltaIn(0)
       .deltaOut(Segments.DELTA_UNLIMITED)
       .programId(fake.program5.getId())
       .programId(fake.program5_sequence0_binding0.getProgramId())
