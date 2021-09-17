@@ -3,11 +3,11 @@
 package io.xj.hub.dao;
 
 import com.google.common.base.Strings;
-import io.xj.api.Template;
-import io.xj.api.ContentBindingType;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.enums.ContentBindingType;
 import io.xj.api.Segment;
-import io.xj.api.Template;
-import io.xj.api.TemplateBinding;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -24,7 +24,7 @@ import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
  */
 public enum Templates {
   ;
-  private static final String EXTENSION_SEPARATOR = ".";
+   private static final String EXTENSION_SEPARATOR = ".";
 
   /**
    Get the full key from a key

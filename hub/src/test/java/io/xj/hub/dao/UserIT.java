@@ -7,46 +7,40 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.User;
-import io.xj.api.UserAuth;
-import io.xj.api.UserAuthToken;
-import io.xj.api.UserAuthType;
-import io.xj.api.UserRole;
-import io.xj.api.UserRoleType;
 import io.xj.hub.HubIntegrationTestModule;
 import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
+import io.xj.hub.enums.UserAuthType;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.tables.pojos.User;
+import io.xj.hub.tables.pojos.UserAuth;
+import io.xj.hub.tables.pojos.UserAuthToken;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
-import io.xj.lib.util.ValueException;
 import org.assertj.core.util.Lists;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
-import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
+import static io.xj.hub.IntegrationTestingFixtures.buildUserAuth;
+import static io.xj.hub.IntegrationTestingFixtures.buildUserAuthToken;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class UserIT {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   private UserDAO subjectDAO;
 
   private HubIntegrationTestProvider test;
@@ -72,41 +66,17 @@ public class UserIT {
     fake.account1 = test.insert(buildAccount("bananas"));
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
-    test.insert(buildUserRole(fake.user2,UserRoleType.USER));
-    test.insert(buildUserRole(fake.user2,UserRoleType.ADMIN));
-    test.insert(buildAccountUser(fake.account1,fake.user2));
-    UserAuth userAuth = test.insert(new UserAuth()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .type(UserAuthType.GOOGLE)
-      .externalAccessToken("external_access_token_123")
-      .externalRefreshToken("external_refresh_token_123")
-      .externalAccount("22222"));
-    test.insert(new UserAuthToken()
-      .id(UUID.randomUUID())
-      .userId(fake.user2.getId())
-      .userAuthId(userAuth.getId())
-      .accessToken("this-is-my-actual-access-token"));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "User, Admin"));
+    test.insert(buildAccountUser(fake.account1, fake.user2));
+    UserAuth userAuth = test.insert(buildUserAuth(fake.user2, UserAuthType.Google, "external_access_token_123", "external_refresh_token_123", "22222"));
+    test.insert(buildUserAuthToken(userAuth, "this-is-my-actual-access-token"));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user3.getId())
-      .type(UserRoleType.USER));
-    test.insert(buildAccountUser(fake.account1,fake.user3));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User"));
+    test.insert(buildAccountUser(fake.account1, fake.user3));
 
     // Bill has a "user" role but no account membership
-    fake.user4 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("bill")
-      .email("bill@email.com")
-      .avatarUrl("http://pictures.com/bill.gif"));
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user4.getId())
-      .type(UserRoleType.USER));
+    fake.user4 = test.insert(buildUser("bill", "bill@email.com", "http://pictures.com/bill.gif", "User"));
 
     // Instantiate the test subject
     subjectDAO = injector.getInstance(UserDAO.class);
@@ -120,7 +90,7 @@ public class UserIT {
   @Test
   public void authenticate_NewUser() throws Exception {
     String accessToken = subjectDAO.authenticate(
-      UserAuthType.GOOGLE,
+      UserAuthType.Google,
       "88888",
       "accessToken123",
       "refreshToken456",
@@ -141,7 +111,7 @@ public class UserIT {
     // Created User Auth
     UserAuth userAuth = subjectDAO.readOneAuth(HubAccess.internal(), userAccessToken.getUserAuthId());
     assertNotNull(userAuth);
-    assertEquals(UserAuthType.GOOGLE, userAuth.getType());
+    assertEquals(UserAuthType.Google, userAuth.getType());
     assertEquals("88888", userAuth.getExternalAccount());
     assertEquals("accessToken123", userAuth.getExternalAccessToken());
     assertEquals("refreshToken456", userAuth.getExternalRefreshToken());
@@ -157,7 +127,7 @@ public class UserIT {
   @Test
   public void authenticate_ExistingUser() throws Exception {
     String accessToken = subjectDAO.authenticate(
-      UserAuthType.GOOGLE,
+      UserAuthType.Google,
       "22222",
       "accessToken123",
       "refreshToken456",
@@ -174,7 +144,7 @@ public class UserIT {
     // Created User Auth
     UserAuth userAuth = subjectDAO.readOneAuth(HubAccess.internal(), userAccessToken.getUserAuthId());
     assertNotNull(userAuth);
-    assertEquals(UserAuthType.GOOGLE, userAuth.getType());
+    assertEquals(UserAuthType.Google, userAuth.getType());
     assertEquals("22222", userAuth.getExternalAccount());
     assertEquals("external_access_token_123", userAuth.getExternalAccessToken());
     assertEquals("external_refresh_token_123", userAuth.getExternalRefreshToken());
@@ -189,7 +159,7 @@ public class UserIT {
 
   @Test
   public void readOne() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin,User");
 
     User result = subjectDAO.readOne(hubAccess, fake.user2.getId());
 
@@ -198,16 +168,17 @@ public class UserIT {
     assertEquals("john@email.com", result.getEmail());
     assertEquals("http://pictures.com/john.gif", result.getAvatarUrl());
     assertEquals("john", result.getName());
-    assertEquals("Admin,User", result.getRoles());
+    assertEquals("User, Admin", result.getRoles());
   }
 
   @Test
-  public void readOne_UserCannotSeeUserWithoutCommonAccountMembership() throws Exception {
+  public void readOne_UserCannotSeeUserWithoutCommonAccountMembership() {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
-    failure.expect(DAOException.class);
-    failure.expectMessage("does not exist");
 
-    subjectDAO.readOne(hubAccess, fake.user4.getId());
+    var e = assertThrows(DAOException.class, () ->
+      subjectDAO.readOne(hubAccess, fake.user4.getId()));
+
+    assertEquals("Record does not exist", e.getMessage());
   }
 
   @Test
@@ -275,116 +246,4 @@ public class UserIT {
       assertTrue(e.getMessage().contains("does not exist"));
     }
   }
-
-  @Test
-  public void updateUserRolesAndDestroyTokens() throws Exception {
-    HubAccess hubAccess = HubAccess.create("Admin");
-    User inputData = new User()
-      .roles("User,Artist");
-
-    subjectDAO.updateUserRolesAndDestroyTokens(hubAccess, fake.user2.getId(), inputData);
-
-    // HubAccess Token deleted
-    try {
-      subjectDAO.readOneAuthToken(HubAccess.internal(), "this-is-my-actual-hubAccess-token");
-      fail();
-    } catch (DAOException e) {
-      assertTrue(e.getMessage().contains("does not exist"));
-    }
-    // future test: token destroyed in Redis
-    // Added artist role
-    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user2.getId(), UserRoleType.ARTIST));
-    // Removed admin role
-    try {
-      subjectDAO.readOneRole(HubAccess.internal(), fake.user2.getId(), UserRoleType.ADMIN);
-      fail();
-    } catch (DAOException e) {
-      assertTrue(e.getMessage().contains("does not exist"));
-    }
-  }
-
-  // [#154118206] Admin wants to change user roles, even if they are in lowercase legacy format
-  @Test
-  public void updateUserRoles_fromLegacyFormat() throws Exception {
-    fake.user53 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("julio")
-      .email("julio.rodriguez@xj.io")
-      .avatarUrl("http://pictures.com/julio.gif"));
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user53.getId())
-      .type(UserRoleType.USER));
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user53.getId())
-      .type(UserRoleType.ARTIST));
-    HubAccess hubAccess = HubAccess.create("Admin");
-    User inputData = new User()
-      .roles("User,Artist,Engineer,Admin");
-
-    subjectDAO.updateUserRolesAndDestroyTokens(hubAccess, fake.user53.getId(), inputData);
-
-    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user53.getId(), UserRoleType.USER));
-    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user53.getId(), UserRoleType.ARTIST));
-    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user53.getId(), UserRoleType.ENGINEER));
-    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user53.getId(), UserRoleType.ADMIN));
-  }
-
-
-  // [#154118206]should be impossible to remove all roles.
-  @Test
-  public void updateUserRoles_cannotRemoveAllRoles() throws Exception {
-    fake.user53 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("julio")
-      .email("julio.rodriguez@xj.io")
-      .avatarUrl("http://pictures.com/julio.gif"));
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user53.getId())
-      .type(UserRoleType.USER));
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user53.getId())
-      .type(UserRoleType.ARTIST));
-    HubAccess hubAccess = HubAccess.create("Admin");
-    User inputData = new User()
-      .roles(",");
-
-    failure.expect(DAOException.class);
-    failure.expectMessage("Valid Role is required");
-
-    subjectDAO.updateUserRolesAndDestroyTokens(hubAccess, fake.user53.getId(), inputData);
-  }
-
-  // [#154118206]should be impossible to remove all roles.
-  @Test
-  public void updateUserRoles_cannotRemoveAllRoles_invalidRole() throws Exception {
-    fake.user53 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("julio")
-      .email("julio.rodriguez@xj.io")
-      .avatarUrl("http://pictures.com/julio.gif"));
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user53.getId())
-      .type(UserRoleType.USER));
-    test.insert(new UserRole()
-      .id(UUID.randomUUID())
-      .userId(fake.user53.getId())
-      .type(UserRoleType.ARTIST));
-    HubAccess hubAccess = HubAccess.create("Admin");
-    User inputData = new User()
-      .roles("duke");
-
-    failure.expect(ValueException.class);
-    failure.expectMessage("Unexpected value 'Duke'");
-
-    subjectDAO.updateUserRolesAndDestroyTokens(hubAccess, fake.user53.getId(), inputData);
-
-    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user53.getId(), UserRoleType.ADMIN));
-    assertNotNull(subjectDAO.readOneRole(HubAccess.internal(), fake.user53.getId(), UserRoleType.ARTIST));
-  }
-
 }

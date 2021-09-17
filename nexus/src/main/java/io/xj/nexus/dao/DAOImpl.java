@@ -3,7 +3,7 @@
 package io.xj.nexus.dao;
 
 import com.google.inject.Inject;
-import io.xj.api.UserRoleType;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.Value;
 import io.xj.nexus.dao.exception.DAOExistenceException;
@@ -104,7 +104,7 @@ public abstract class DAOImpl<E> implements DAO<E> {
    @throws DAOPrivilegeException if does not have access
    */
   protected void requireArtist(HubClientAccess access) throws DAOPrivilegeException {
-    require(access, UserRoleType.ARTIST);
+    require(access, UserRoleType.Artist);
   }
 
   /**
@@ -187,22 +187,7 @@ public abstract class DAOImpl<E> implements DAO<E> {
    @throws DAOPrivilegeException if not user
    */
   protected void requireUser(HubClientAccess access) throws DAOPrivilegeException {
-    require(access, UserRoleType.USER);
-  }
-
-  /**
-   Require the the given runnable throws an exception.
-
-   @param message            for real failure, if the given runnable does not fail
-   @param mustThrowException when run, this must throw an exception
-   */
-  protected void requireNot(String message, Callable<?> mustThrowException) throws DAOValidationException {
-    try {
-      mustThrowException.call();
-    } catch (Exception ignored) {
-      return;
-    }
-    throw new DAOValidationException(message);
+    require(access, UserRoleType.User);
   }
 
 }

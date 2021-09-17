@@ -15,7 +15,7 @@ import io.xj.api.Segment;
 import io.xj.api.SegmentMessage;
 import io.xj.api.SegmentMessageType;
 import io.xj.api.SegmentState;
-import io.xj.api.TemplateType;
+import io.xj.hub.enums.TemplateType;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
@@ -223,7 +223,7 @@ public class NexusWorkImpl implements NexusWork {
       fabricatingChains
         .stream()
         .filter((chain) ->
-          TemplateType.PRODUCTION.equals(chain.getType()) &&
+          TemplateType.Production.toString().equals(chain.getType().toString()) &&
             Instant.parse(chain.getStartAt()).isBefore(thresholdChainProductionStartedBefore))
         .forEach(chain -> {
           if (chain.getFabricatedAheadSeconds() < reviveChainFabricatedBehindSeconds) {
@@ -304,7 +304,8 @@ public class NexusWorkImpl implements NexusWork {
       timer.section("ComputeAhead");
       var fabricatedAheadSeconds = computeFabricatedAheadSeconds(chain);
       chain = updateFabricatedAheadSeconds(chain, fabricatedAheadSeconds);
-      if (TemplateType.PREVIEW.equals(chain.getType()) && fabricatedAheadSeconds > bufferPreviewSeconds) return;
+      if (TemplateType.Preview.toString().equals(chain.getType().toString())
+        && fabricatedAheadSeconds > bufferPreviewSeconds) return;
       else if (fabricatedAheadSeconds > bufferProductionSeconds) return;
 
       timer.section("BuildNext");
@@ -435,7 +436,7 @@ public class NexusWorkImpl implements NexusWork {
    @return name for the given chain
    */
   private String getChainName(Chain chain) {
-    return TemplateType.PRODUCTION.equals(chain.getType()) ?
+    return TemplateType.Production.toString().equals(chain.getType().toString()) ?
       (!Strings.isNullOrEmpty(chain.getEmbedKey()) ? chain.getEmbedKey() : DEFAULT_NAME_PRODUCTION) :
       DEFAULT_NAME_PREVIEW;
   }
@@ -551,16 +552,6 @@ public class NexusWorkImpl implements NexusWork {
   }
 
   /**
-   Log and of segment message of error that job failed while (message)
-
-   @param message phrased like "Doing work"
-   @param detail  to include in body
-   @param debug   to include in body
-   */
-  private void didFailWhile(String message, String detail, String debug) {
-  }
-
-  /**
    Create a segment error message
    <p>
    [#177522463] Chain fabrication: segment messages broadcast somewhere the whole music team can see
@@ -570,11 +561,12 @@ public class NexusWorkImpl implements NexusWork {
    */
   protected void createSegmentErrorMessage(String body, UUID segmentId) {
     try {
-      segmentDAO.create(access, new SegmentMessage()
-        .id(UUID.randomUUID())
-        .segmentId(segmentId)
-        .type(SegmentMessageType.ERROR)
-        .body(body));
+      var msg = new SegmentMessage();
+      msg.setId(UUID.randomUUID());
+      msg.setSegmentId(segmentId);
+      msg.setType(SegmentMessageType.ERROR);
+      msg.setBody(body);
+      segmentDAO.create(access, msg);
 
     } catch (DAOValidationException | DAOPrivilegeException | DAOExistenceException | DAOFatalException e) {
       LOG.error("[segId={}] Could not create SegmentMessage, reason={}", segmentId, e.getMessage());
@@ -593,7 +585,9 @@ public class NexusWorkImpl implements NexusWork {
   private Segment updateSegmentState(Fabricator fabricator, Segment segment, SegmentState fromState, SegmentState toState) throws NexusException {
     if (fromState != segment.getState())
       throw new NexusException(String.format("Segment[%s] %s requires Segment must be in %s state.", segment.getId(), toState, fromState));
-    fabricator.updateSegment(fabricator.getSegment().state(toState));
+    var seg = fabricator.getSegment();
+    seg.setState(toState);
+    fabricator.updateSegment(seg);
     LOG.debug("[segId={}] Segment transitioned to state {} OK", segment.getId(), toState);
     return fabricator.getSegment();
   }

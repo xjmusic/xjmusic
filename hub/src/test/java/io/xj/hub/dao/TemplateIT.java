@@ -7,11 +7,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
-import io.xj.api.Program;
-import io.xj.api.Template;
-import io.xj.api.TemplateType;
-import io.xj.api.User;
 import io.xj.hub.HubException;
 import io.xj.hub.HubIntegrationTestModule;
 import io.xj.hub.HubIntegrationTestProvider;
@@ -19,8 +14,12 @@ import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.enums.TemplateType;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -29,9 +28,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -39,6 +38,8 @@ import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePlayback;
@@ -76,9 +77,9 @@ public class TemplateIT {
 
     // Account "palm tree" has template "leaves" and template "coconuts"
     fake.account1 = test.insert(buildAccount("palm tree"));
-    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin"));
     test.insert(buildAccountUser(fake.account1, fake.user2));
-    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "Admin"));
     test.insert(buildAccountUser(fake.account1, fake.user3));
     template1a = test.insert(buildTemplate(fake.account1, "leaves", "embed5leaves"));
     template1b = test.insert(buildTemplate(fake.account1, "coconuts", "embed5coconuts"));
@@ -100,10 +101,10 @@ public class TemplateIT {
   @Test
   public void create_embedKeyConvertedToLowercase() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Template inputData = new Template()
-      .name("coconuts")
-      .embedKey("dXUZhm")
-      .accountId(fake.account1.getId());
+    Template inputData = new Template();
+    inputData.setName("coconuts");
+    inputData.setEmbedKey("dXUZhm");
+    inputData.setAccountId(fake.account1.getId());
 
     Template result = testDAO.create(hubAccess, inputData);
 
@@ -113,9 +114,9 @@ public class TemplateIT {
   @Test
   public void create_embedKeyGeneratedLowercase() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Template inputData = new Template()
-      .name("coconuts")
-      .accountId(fake.account1.getId());
+    Template inputData = new Template();
+    inputData.setName("coconuts");
+    inputData.setAccountId(fake.account1.getId());
 
     Template result = testDAO.create(hubAccess, inputData);
 
@@ -125,9 +126,9 @@ public class TemplateIT {
   @Test
   public void create_hasDefaultTemplateConfig() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Template inputData = new Template()
-      .name("coconuts")
-      .accountId(fake.account1.getId());
+    Template inputData = new Template();
+    inputData.setName("coconuts");
+    inputData.setAccountId(fake.account1.getId());
 
     Template result = testDAO.create(hubAccess, inputData);
 
@@ -140,9 +141,9 @@ public class TemplateIT {
   @Test
   public void create_hasGeneratedEmbedKey() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Template inputData = new Template()
-      .name("coconuts")
-      .accountId(fake.account1.getId());
+    Template inputData = new Template();
+    inputData.setName("coconuts");
+    inputData.setAccountId(fake.account1.getId());
 
     Template result = testDAO.create(hubAccess, inputData);
 
@@ -153,8 +154,8 @@ public class TemplateIT {
   @Test
   public void create_cantHaveSameEmbedKeyAsExistingTemplate() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    test.insert(buildTemplate(fake.account1, "Prior", UUID.randomUUID().toString()).embedKey("key55"));
-    Template inputData = buildTemplate(fake.account1, "New", UUID.randomUUID().toString()).embedKey("key55");
+    test.insert(buildTemplate(fake.account1, "Prior", "key55"));
+    Template inputData = buildTemplate(fake.account1, "New", "key55");
 
     var e = assertThrows(DAOException.class, () -> testDAO.create(hubAccess, inputData));
     assertEquals("Found Template with same Embed Key", e.getMessage());
@@ -166,9 +167,9 @@ public class TemplateIT {
   @Test
   public void create_asEngineer() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
-    Template inputData = new Template()
-      .name("coconuts")
-      .accountId(fake.account1.getId());
+    Template inputData = new Template();
+    inputData.setName("coconuts");
+    inputData.setAccountId(fake.account1.getId());
 
     Template result = testDAO.create(
       hubAccess, inputData);
@@ -183,11 +184,10 @@ public class TemplateIT {
    */
   @Test
   public void create_asEngineer_failsWithoutAccountAccess() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())), "Engineer");
-    Template inputData = new Template()
-      .name("coconuts")
-      .accountId(fake.account1.getId());
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
+    Template inputData = new Template();
+    inputData.setName("coconuts");
+    inputData.setAccountId(fake.account1.getId());
 
 
     var e = assertThrows(DAOException.class, () -> testDAO.create(hubAccess, inputData));
@@ -197,8 +197,8 @@ public class TemplateIT {
   @Test
   public void create_FailsWithoutAccountID() {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Template inputData = new Template()
-      .name("coconuts");
+    Template inputData = new Template();
+    inputData.setName("coconuts");
 
 
     var e = assertThrows(DAOException.class, () -> testDAO.create(hubAccess, inputData));
@@ -219,8 +219,7 @@ public class TemplateIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
     var e = assertThrows(DAOException.class, () -> testDAO.readOne(hubAccess, fake.account1.getId()));
     assertEquals("Record does not exist", e.getMessage());
@@ -254,8 +253,7 @@ public class TemplateIT {
 
   @Test
   public void readMany_SeesNothingOutsideOfAccount() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
     Collection<Template> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.account1.getId()));
 
@@ -278,7 +276,9 @@ public class TemplateIT {
   public void readAllPlaying_noneOlderThanThreshold() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
     test.insert(buildTemplatePlayback(template1a, fake.user2));
-    test.insert(buildTemplatePlayback(template1a, fake.user3).createdAt(Date.from(Instant.now().minusSeconds(60 * 60 * 12))));
+    var later = buildTemplatePlayback(template1a, fake.user3);
+    later.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 12)));
+    test.insert(later);
 
     Collection<Template> result = testDAO.readAllPlaying(hubAccess);
 
@@ -288,8 +288,8 @@ public class TemplateIT {
   @Test
   public void update_FailsWithoutAccountID() {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Template inputData = new Template()
-      .name("cannons");
+    Template inputData = new Template();
+    inputData.setName("cannons");
 
 
     var e = assertThrows(DAOException.class, () -> testDAO.update(hubAccess, template1a.getId(), inputData));
@@ -299,10 +299,10 @@ public class TemplateIT {
   @Test
   public void update() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Template inputData = new Template()
-      .name("cannons")
-      .embedKey("embed5leaves")
-      .accountId(fake.account1.getId());
+    Template inputData = new Template();
+    inputData.setName("cannons");
+    inputData.setEmbedKey("embed5leaves");
+    inputData.setAccountId(fake.account1.getId());
 
     testDAO.update(hubAccess, template1a.getId(), inputData);
 
@@ -315,27 +315,27 @@ public class TemplateIT {
   @Test
   public void update_toProductionTypeChain_asAdmin() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Template inputData = new Template()
-      .name("cannons")
-      .type(TemplateType.PRODUCTION)
-      .embedKey("embed5leaves")
-      .accountId(fake.account1.getId());
+    Template inputData = new Template();
+    inputData.setName("cannons");
+    inputData.setType(TemplateType.Production);
+    inputData.setEmbedKey("embed5leaves");
+    inputData.setAccountId(fake.account1.getId());
 
     testDAO.update(hubAccess, template1a.getId(), inputData);
 
     Template result = testDAO.readOne(HubAccess.internal(), template1a.getId());
     assertNotNull(result);
-    assertEquals(TemplateType.PRODUCTION, result.getType());
+    assertEquals(TemplateType.Production, result.getType());
   }
 
   @Test
   public void update_toProductionTypeChain_cannotWithoutAdmin() {
     HubAccess hubAccess = HubAccess.create(fake.user2, List.of(fake.account1), "User");
-    Template inputData = new Template()
-      .name("cannons")
-      .type(TemplateType.PRODUCTION)
-      .embedKey("embed5leaves")
-      .accountId(fake.account1.getId());
+    Template inputData = new Template();
+    inputData.setName("cannons");
+    inputData.setType(TemplateType.Production);
+    inputData.setEmbedKey("embed5leaves");
+    inputData.setAccountId(fake.account1.getId());
 
     var e = assertThrows(DAOException.class, () -> testDAO.update(hubAccess, template1a.getId(), inputData));
     assertEquals("Engineer role is required", e.getMessage());
@@ -344,8 +344,8 @@ public class TemplateIT {
   @Test
   public void update_cantHaveSameEmbedKeyAsExistingTemplate() throws HubException {
     HubAccess hubAccess = HubAccess.create("Admin");
-    test.insert(buildTemplate(fake.account1, "Prior", UUID.randomUUID().toString()).embedKey("key55"));
-    Template inputData = buildTemplate(fake.account1, "New", UUID.randomUUID().toString()).embedKey("key55");
+    test.insert(buildTemplate(fake.account1, "Prior", "key55"));
+    Template inputData = buildTemplate(fake.account1, "New", "key55");
 
     var e = assertThrows(DAOException.class, () -> testDAO.update(hubAccess, template1a.getId(), inputData));
     assertEquals("Found Template with same Embed Key", e.getMessage());
@@ -354,8 +354,8 @@ public class TemplateIT {
   @Test
   public void update_FailsWithoutName() {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Template inputData = new Template()
-      .accountId(fake.account1.getId());
+    Template inputData = new Template();
+    inputData.setAccountId(fake.account1.getId());
 
 
     var e = assertThrows(DAOException.class, () -> testDAO.update(hubAccess, template1a.getId(), inputData));
@@ -368,9 +368,9 @@ public class TemplateIT {
   @Test
   public void update_asEngineer() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Engineer");
-    Template inputData = new Template()
-      .name("cannons")
-      .accountId(fake.account1.getId());
+    Template inputData = new Template();
+    inputData.setName("cannons");
+    inputData.setAccountId(fake.account1.getId());
 
     testDAO.update(hubAccess, template1a.getId(), inputData);
 
@@ -385,11 +385,10 @@ public class TemplateIT {
    */
   @Test
   public void update_asEngineer_failsWithoutAccountAccess() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())), "Engineer");
-    Template inputData = new Template()
-      .name("cannons")
-      .accountId(fake.account1.getId());
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "Engineer");
+    Template inputData = new Template();
+    inputData.setName("cannons");
+    inputData.setAccountId(fake.account1.getId());
 
 
     var e = assertThrows(DAOException.class, () -> testDAO.update(hubAccess, template1a.getId(), inputData));
@@ -399,9 +398,9 @@ public class TemplateIT {
   @Test
   public void update_FailsUpdatingToNonexistentAccount() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Template inputData = new Template()
-      .name("cannons")
-      .accountId(fake.account1.getId());
+    Template inputData = new Template();
+    inputData.setName("cannons");
+    inputData.setAccountId(fake.account1.getId());
 
     try {
       testDAO.update(hubAccess, template1a.getId(), inputData);
@@ -418,9 +417,9 @@ public class TemplateIT {
   @Test
   public void update_Name() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Template inputData = new Template()
-      .name("cannons")
-      .accountId(fake.account2.getId());
+    Template inputData = new Template();
+    inputData.setName("cannons");
+    inputData.setAccountId(fake.account2.getId());
 
     testDAO.update(hubAccess, template2a.getId(), inputData);
 
@@ -433,9 +432,9 @@ public class TemplateIT {
   @Test
   public void update_NameAndAccount() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
-    Template inputData = new Template()
-      .name("trunk")
-      .accountId(fake.account1.getId());
+    Template inputData = new Template();
+    inputData.setName("trunk");
+    inputData.setAccountId(fake.account1.getId());
 
     testDAO.update(hubAccess, template1a.getId(), inputData);
 
@@ -461,8 +460,8 @@ public class TemplateIT {
 
   @Test
   public void delete_okayEvenWithBindingsAndPlayback() throws Exception {
-    test.insert(buildTemplateBinding(template1b, new Program().id(UUID.randomUUID())));
-    test.insert(buildTemplatePlayback(template1a, new User().id(UUID.randomUUID())));
+    test.insert(buildTemplateBinding(template1b, buildProgram(buildLibrary(buildAccount("Test"), "test"), ProgramType.Detail, ProgramState.Published, "test", "C", 120.0f, 06f)));
+    test.insert(buildTemplatePlayback(template1a, buildUser("Test", "test@test.com", "test.jpg", "User")));
     HubAccess hubAccess = HubAccess.create("Admin");
 
     testDAO.destroy(hubAccess, template1a.getId());

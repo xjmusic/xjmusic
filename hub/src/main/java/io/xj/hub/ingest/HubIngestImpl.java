@@ -5,25 +5,25 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.ContentBindingType;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentAudio;
-import io.xj.api.InstrumentMeme;
-import io.xj.api.InstrumentType;
-import io.xj.api.Program;
-import io.xj.api.ProgramMeme;
-import io.xj.api.ProgramSequence;
-import io.xj.api.ProgramSequenceBinding;
-import io.xj.api.ProgramSequenceBindingMeme;
-import io.xj.api.ProgramSequenceChord;
-import io.xj.api.ProgramSequenceChordVoicing;
-import io.xj.api.ProgramSequencePattern;
-import io.xj.api.ProgramSequencePatternEvent;
-import io.xj.api.ProgramType;
-import io.xj.api.ProgramVoice;
-import io.xj.api.ProgramVoiceTrack;
-import io.xj.api.Template;
-import io.xj.api.TemplateBinding;
+import io.xj.hub.enums.ContentBindingType;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAOException;
 import io.xj.hub.dao.InstrumentDAO;
@@ -66,15 +66,15 @@ class HubIngestImpl implements HubIngest {
       store.put(templateDAO.readOne(hubAccess, templateId));
       var bindings = store.putAll(templateBindingDAO.readMany(hubAccess, ImmutableList.of(templateId)));
       List<UUID> libraryIds = bindings.stream()
-        .filter(b -> ContentBindingType.LIBRARY.equals(b.getType()))
+        .filter(b -> ContentBindingType.Library.equals(b.getType()))
         .map(TemplateBinding::getTargetId)
         .collect(Collectors.toList());
       List<UUID> programIds = bindings.stream()
-        .filter(b -> ContentBindingType.PROGRAM.equals(b.getType()))
+        .filter(b -> ContentBindingType.Program.equals(b.getType()))
         .map(TemplateBinding::getTargetId)
         .collect(Collectors.toList());
       List<UUID> instrumentIds = bindings.stream()
-        .filter(b -> ContentBindingType.INSTRUMENT.equals(b.getType()))
+        .filter(b -> ContentBindingType.Instrument.equals(b.getType()))
         .map(TemplateBinding::getTargetId)
         .collect(Collectors.toList());
 

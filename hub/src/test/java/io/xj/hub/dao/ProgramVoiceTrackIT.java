@@ -8,31 +8,20 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
-import io.xj.api.AccountUser;
-import io.xj.api.InstrumentType;
-import io.xj.api.Library;
-import io.xj.api.Program;
-import io.xj.api.ProgramSequence;
-import io.xj.api.ProgramSequenceBinding;
-import io.xj.api.ProgramSequencePattern;
-import io.xj.api.ProgramSequencePatternEvent;
-import io.xj.api.ProgramSequencePatternType;
-import io.xj.api.ProgramState;
-import io.xj.api.ProgramType;
-import io.xj.api.ProgramVoice;
-import io.xj.api.ProgramVoiceTrack;
-import io.xj.api.User;
-import io.xj.api.UserRole;
-import io.xj.api.UserRoleType;
-import io.xj.hub.IntegrationTestingFixtures;
-import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.HubIntegrationTestModule;
 import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.IntegrationTestingFixtures;
+import io.xj.hub.access.HubAccess;
+import io.xj.hub.access.HubAccessControlModule;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramSequencePatternType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.ingest.HubIngestModule;
+import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -50,8 +39,15 @@ import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePattern;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePatternEvent;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoiceTrack;
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -89,118 +85,29 @@ public class ProgramVoiceTrackIT {
     // Account "bananas"
     fake.account1 = test.insert(buildAccount("bananas"));
 // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
-    test.insert(buildUserRole(fake.user2,UserRoleType.ADMIN));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin"));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
-    test.insert(buildUserRole(fake.user3,UserRoleType.USER));
-    test.insert(buildAccountUser(fake.account1,fake.user3));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User"));
+    test.insert(buildAccountUser(fake.account1, fake.user3));
 
-    // Library "palm tree" has program "Ants" and program "Ants"
-    fake.library1 = test.insert(new Library()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .name("palm tree"));
-    fake.program1 = test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library1.getId())
-      .type(ProgramType.MAIN)
-      .state(ProgramState.PUBLISHED)
-      .name("ANTS")
-      .key("C#")
-      .tempo(120.0)
-      .density(0.6));
-    fake.program1_sequence1 = test.insert(new ProgramSequence()
-      .id(UUID.randomUUID())
-      .programId(fake.program1.getId())
-      .total(4)
-      .name("Ants")
-      .density(0.583)
-      .key("D minor")
-      .tempo(120.0));
-    fake.program2 = test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library1.getId())
-      .type(ProgramType.RHYTHM)
-      .state(ProgramState.PUBLISHED)
-      .name("ANTS")
-      .key("C#")
-      .tempo(120.0)
-      .density(0.6));
-    fake.program2_voice1 = test.insert(new ProgramVoice()
-      .id(UUID.randomUUID())
-      .programId(fake.program2.getId())
-      .type(InstrumentType.DRUM)
-      .name("Drums"));
-    fake.program2_sequence1_pattern1 = test.insert(new ProgramSequencePattern()
-      .id(UUID.randomUUID())
-      .programId(fake.program1_sequence1.getProgramId())
-      .programSequenceId(fake.program1_sequence1.getId())
-      .programVoiceId(fake.program2_voice1.getId())
-      .type(ProgramSequencePatternType.LOOP)
-      .total(4)
-      .name("BOOMS"));
-    voiceTrack1a_0 = test.insert(new ProgramVoiceTrack()
-      .id(UUID.randomUUID())
-      .programId(fake.program2_voice1.getProgramId())
-      .programVoiceId(fake.program2_voice1.getId())
-      .name("JAMS"));
-    voiceTrack1a_0_event0 = test.insert(new ProgramSequencePatternEvent()
-      .id(UUID.randomUUID())
-      .programSequencePatternId(fake.program2_sequence1_pattern1.getId())
-      .programId(fake.program2_sequence1_pattern1.getProgramId())
-      .programVoiceTrackId(voiceTrack1a_0.getId())
-      .position(0.0)
-      .duration(1.0)
-      .note("C")
-      .velocity(1.0));
-    voiceTrack1a_0_event1 = test.insert(new ProgramSequencePatternEvent()
-      .id(UUID.randomUUID())
-      .programSequencePatternId(fake.program2_sequence1_pattern1.getId())
-      .programId(fake.program2_sequence1_pattern1.getProgramId())
-      .programVoiceTrackId(voiceTrack1a_0.getId())
-      .position(1.0)
-      .duration(1.0)
-      .note("C")
-      .velocity(1.0));
+    // Library "palm tree" has a program "Ants" and program "Ants"
+    fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
+    fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
+    fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor", 120.0f));
+    fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Rhythm, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
+    fake.program2_voice1 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
+    fake.program2_sequence1_pattern1 = test.insert(buildProgramSequencePattern(fake.program1_sequence1, fake.program2_voice1, ProgramSequencePatternType.Loop, 4, "BOOMS"));
+    voiceTrack1a_0 = test.insert(buildProgramVoiceTrack(fake.program2_voice1, "JAMS"));
+    voiceTrack1a_0_event0 = test.insert(buildProgramSequencePatternEvent(fake.program2_sequence1_pattern1, voiceTrack1a_0, 0.0f, 1.0f, "C", 1.0f));
+    voiceTrack1a_0_event1 = test.insert(buildProgramSequencePatternEvent(fake.program2_sequence1_pattern1, voiceTrack1a_0, 1.0f, 1.0f, "C", 1.0f));
 
-    // Library "boat" has program "helm" and program "sail"
-    fake.library2 = test.insert(new Library()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .name("boat"));
-    fake.program3 = test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library2.getId())
-      .type(ProgramType.MACRO)
-      .state(ProgramState.PUBLISHED)
-      .name("helm")
-      .key("C#")
-      .tempo(120.0)
-      .density(0.6));
-    fake.program3_sequence1 = test.insert(new ProgramSequence()
-      .id(UUID.randomUUID())
-      .programId(fake.program3.getId())
-      .total(16)
-      .name("Ants")
-      .density(0.583)
-      .key("D minor")
-      .tempo(120.0));
-    test.insert(new ProgramSequenceBinding()
-      .id(UUID.randomUUID())
-      .programId(fake.program3_sequence1.getProgramId())
-      .programSequenceId(fake.program3_sequence1.getId())
-      .offset(0));
-    fake.program4 = test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library2.getId())
-      .type(ProgramType.DETAIL)
-      .state(ProgramState.PUBLISHED)
-      .name("sail")
-      .key("C#")
-      .tempo(120.0)
-      .density(0.6));
+    // Library "boat" has a program "helm" and program "sail"
+    fake.library2 = test.insert(buildLibrary(fake.account1, "boat"));
+    fake.program3 = test.insert(buildProgram(fake.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0f, 0.6f));
+    fake.program3_sequence1 = test.insert(buildProgramSequence(fake.program3, 16, "Ants", 0.583f, "D minor", 120.0f));
+    test.insert(buildProgramSequenceBinding(fake.program3_sequence1, 0));
+    fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(ProgramVoiceTrackDAO.class);
@@ -214,11 +121,11 @@ public class ProgramVoiceTrackIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    var subject = new ProgramVoiceTrack()
-      .id(UUID.randomUUID())
-      .programId(fake.program3.getId())
-      .programVoiceId(fake.program2_voice1.getId())
-      .name("Jams");
+    var subject = new ProgramVoiceTrack();
+      subject.setId(UUID.randomUUID());
+      subject.setProgramId(fake.program3.getId());
+      subject.setProgramVoiceId(fake.program2_voice1.getId());
+      subject.setName("Jams");
 
     var result = testDAO.create(
       hubAccess, subject);
@@ -236,11 +143,11 @@ public class ProgramVoiceTrackIT {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
-    var inputData = new ProgramVoiceTrack()
-      .id(UUID.randomUUID())
-      .programId(fake.program3.getId())
-      .programVoiceId(fake.program2_voice1.getId())
-      .name("Jams");
+    var inputData = new ProgramVoiceTrack();
+      inputData.setId(UUID.randomUUID());
+      inputData.setProgramId(fake.program3.getId());
+      inputData.setProgramVoiceId(fake.program2_voice1.getId());
+      inputData.setName("Jams");
 
     var result = testDAO.create(
       hubAccess, inputData);
@@ -265,8 +172,7 @@ public class ProgramVoiceTrackIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())), "User, Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
     failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
@@ -288,8 +194,7 @@ public class ProgramVoiceTrackIT {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())), "User, Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
     Collection<ProgramVoiceTrack> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program2_voice1.getId()));
 
@@ -336,9 +241,7 @@ public class ProgramVoiceTrackIT {
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
-    fake.account2 = new Account()
-      .id(UUID.randomUUID())
-    ;
+    fake.account2 = buildAccount("Testing");
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
     injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), voiceTrack1a_0_event0.getId());
     injector.getInstance(ProgramSequencePatternEventDAO.class).destroy(HubAccess.internal(), voiceTrack1a_0_event1.getId());
@@ -355,12 +258,8 @@ public class ProgramVoiceTrackIT {
   @Test
   public void update_moveToDifferentVoice() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    fake.program2_voice2 = test.insert(new ProgramVoice()
-      .id(UUID.randomUUID())
-      .programId(fake.program2.getId())
-      .type(InstrumentType.DRUM)
-      .name("Cans"));
-    voiceTrack1a_0 = voiceTrack1a_0.programVoiceId(fake.program2_voice2.getId());
+    fake.program2_voice2 = test.insert(buildProgramVoice(fake.program2,InstrumentType.Drum,"Cans"));
+    voiceTrack1a_0.setProgramVoiceId(fake.program2_voice2.getId());
 
     testDAO.update(hubAccess, voiceTrack1a_0.getId(), voiceTrack1a_0);
 

@@ -7,7 +7,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import io.xj.api.Program;
+import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class JsonapiPayloadErrorTest {
     });
     jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
-    entityFactory.register(Program.class);
+    entityFactory.register(Widget.class);
     subject = jsonapiPayloadFactory.newPayloadError();
   }
 

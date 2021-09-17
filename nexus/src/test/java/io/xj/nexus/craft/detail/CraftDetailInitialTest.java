@@ -7,21 +7,19 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.InstrumentType;
-import io.xj.api.ProgramType;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChord;
 import io.xj.api.SegmentChordVoicing;
-import io.xj.api.SegmentMeme;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.api.TemplateType;
+import io.xj.hub.Topology;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.craft.CraftFactory;
@@ -40,10 +38,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.Instant;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChordVoicing;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -90,77 +94,46 @@ public class CraftDetailInitialTest {
     ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
-    var chain2 = store.put(new Chain()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .templateId(fake.template1.getId())
-      .name("Print #2")
-      .type(TemplateType.PRODUCTION)
-      .state(ChainState.FABRICATE)
-      .startAt("2014-08-12T12:17:02.527142Z"));
+    var chain2 = store.put(buildChain(
+      fake.account1,
+      fake.template1,
+      "Print #2",
+      ChainType.PRODUCTION,
+      ChainState.FABRICATE,
+      Instant.parse("2014-08-12T12:17:02.527142Z")));
 
     // segment crafting
-    segment6 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain2.getId())
-      .type(SegmentType.INITIAL)
-      .offset(0L)
-      .delta(0)
-      .state(SegmentState.CRAFTING)
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .endAt("2017-02-14T12:01:07.384616Z")
-      .key("C minor")
-      .total(16)
-      .density(0.55)
-      .tempo(130.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .segmentId(segment6.getId())
-      .id(UUID.randomUUID())
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programId(fake.program4.getId())
-      .programId(fake.program4_sequence0_binding0.getProgramId())
-      .programSequenceBindingId(fake.program4_sequence0_binding0.getId())
-      .programType(ProgramType.MACRO));
-    store.put(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .segmentId(segment6.getId())
-      .id(UUID.randomUUID())
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programId(fake.program5.getId())
-      .programId(fake.program5_sequence0_binding0.getProgramId())
-      .programSequenceBindingId(fake.program5_sequence0_binding0.getId())
-      .programType(ProgramType.MAIN));
+    segment6 = store.put(buildSegment(
+      chain2,
+      SegmentType.INITIAL,
+      0,
+      0,
+      SegmentState.CRAFTING,
+      Instant.parse("2017-02-14T12:01:00.000001Z"),
+      Instant.parse("2017-02-14T12:01:07.384616Z"),
+      "C minor",
+      16,
+      0.55,
+      130.0,
+      "chains-1-segments-9f7s89d8a7892.wav"));
+    store.put(buildSegmentChoice(
+      segment6,
+      Segments.DELTA_UNLIMITED,
+      Segments.DELTA_UNLIMITED,
+      fake.program4,
+      fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(
+      segment6,
+      Segments.DELTA_UNLIMITED,
+      Segments.DELTA_UNLIMITED,
+      fake.program5,
+      fake.program5_sequence0_binding0));
     for (String memeName : ImmutableList.of("Special", "Wild", "Pessimism", "Outlook"))
-      store.put(new SegmentMeme()
-        .id(UUID.randomUUID())
-        .segmentId(segment6.getId())
-        .name(memeName));
-    SegmentChord chord0 = store.put(new SegmentChord()
-      .id(UUID.randomUUID())
-      .segmentId(segment6.getId())
-      .position(0.0)
-      .name("C minor"));
-    store.put(new SegmentChordVoicing()
-      .id(UUID.randomUUID())
-      .segmentId(segment6.getId())
-      .segmentChordId(chord0.getId())
-      .type(InstrumentType.BASS)
-      .notes("C2, Eb2, G2"));
-    SegmentChord chord1 = store.put(new SegmentChord()
-      .id(UUID.randomUUID())
-      .segmentId(segment6.getId())
-      .position(8.0)
-      .name("Db minor"));
-    store.put(new SegmentChordVoicing()
-      .id(UUID.randomUUID())
-      .segmentId(segment6.getId())
-      .segmentChordId(chord1.getId())
-      .type(InstrumentType.BASS)
-      .notes("Db2, E2, Ab2"));
+      store.put(buildSegmentMeme(segment6, memeName));
+    SegmentChord chord0 = store.put(buildSegmentChord(segment6, 0.0, "C minor"));
+    store.put(buildSegmentChordVoicing(chord0, InstrumentType.Bass, "C2, Eb2, G2"));
+    SegmentChord chord1 = store.put(buildSegmentChord(segment6, 8.0, "Db minor"));
+    store.put(buildSegmentChordVoicing(chord1, InstrumentType.Bass, "Db2, E2, Ab2"));
   }
 
   @After
@@ -176,7 +149,7 @@ public class CraftDetailInitialTest {
 
     // assert choice of detail-type sequence
     Collection<SegmentChoice> choices = store.getAll(segment6.getId(), SegmentChoice.class);
-    assertNotNull(Segments.findFirstOfType(choices, ProgramType.DETAIL));
+    assertNotNull(Segments.findFirstOfType(choices, ProgramType.Detail));
 
     // [#154464276] Detail Craft v1 -- segment chords voicings belong to chords and segments
     Collection<SegmentChordVoicing> voicings = store.getAll(segment6.getId(), SegmentChordVoicing.class);

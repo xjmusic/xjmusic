@@ -7,18 +7,16 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
-import io.xj.api.TemplatePlayback;
-import io.xj.api.TemplateType;
-import io.xj.api.UserRoleType;
 import io.xj.hub.HubIntegrationTestModule;
 import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
+import io.xj.hub.enums.TemplateType;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -36,7 +34,6 @@ import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePlayback;
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
@@ -73,18 +70,16 @@ public class TemplatePlaybackIT {
     // Account "bananas"
     fake.account1 = test.insert(buildAccount("bananas"));
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
-    test.insert(buildUserRole(fake.user2, UserRoleType.ADMIN));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin"));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
-    test.insert(buildUserRole(fake.user3, UserRoleType.USER));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User"));
     test.insert(buildAccountUser(fake.account1, fake.user3));
 
     // Template "sandwich" has templatePlayback "jams" and templatePlayback "buns"
-    fake.template1 = test.insert(buildTemplate(fake.account1, TemplateType.PREVIEW, "sandwich", "sandwich55"));
+    fake.template1 = test.insert(buildTemplate(fake.account1, TemplateType.Preview, "sandwich", "sandwich55"));
 
-    test.insert(buildTemplate(fake.account1, "Test Template", UUID.randomUUID().toString()).type(TemplateType.PREVIEW));
+    test.insert(buildTemplate(fake.account1, TemplateType.Preview, "Test Template", UUID.randomUUID().toString()));
     templatePlayback201 = test.insert(buildTemplatePlayback(fake.template1, fake.user2));
 
     // Instantiate the test subject
@@ -111,9 +106,9 @@ public class TemplatePlaybackIT {
   @Test
   public void create_withoutSpecifyingUser() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    TemplatePlayback subject = new TemplatePlayback()
-      .id(UUID.randomUUID())
-      .templateId(fake.template1.getId());
+    TemplatePlayback subject = new TemplatePlayback();
+      subject.setId(UUID.randomUUID());
+      subject.setTemplateId(fake.template1.getId());
 
     TemplatePlayback result = testDAO.create(hubAccess, subject);
 
@@ -125,7 +120,8 @@ public class TemplatePlaybackIT {
   @Test
   public void create_cannotPlaybackProductionChain() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    var template5 = test.insert(buildTemplate(fake.account1, "test", UUID.randomUUID().toString()).type(TemplateType.PRODUCTION));
+    var template5 = test.insert(buildTemplate(fake.account1, TemplateType.Production, "test", UUID.randomUUID().toString()));
+
     TemplatePlayback subject = buildTemplatePlayback(template5, fake.user3); // user will be overridden by hub access user id
 
     var e = assertThrows(DAOException.class, () -> testDAO.create(hubAccess, subject));
@@ -143,7 +139,8 @@ public class TemplatePlaybackIT {
   @Test
   public void create_archivesExistingForUser() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    var priorTemplate = test.insert(buildTemplate(fake.account1, "Prior", UUID.randomUUID().toString()).type(TemplateType.PREVIEW));
+    var priorTemplate = test.insert(buildTemplate(fake.account1, TemplateType.Preview, "Prior", UUID.randomUUID().toString()));
+
     var priorPlayback = test.insert(buildTemplatePlayback(priorTemplate, fake.user2));
     var subject = buildTemplatePlayback(fake.template1, fake.user2);
 
@@ -176,8 +173,7 @@ public class TemplatePlaybackIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInTemplate() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")
     ), "User");
 
     var e = assertThrows(DAOException.class, () -> testDAO.readOne(hubAccess, templatePlayback201.getId()));
@@ -197,8 +193,7 @@ public class TemplatePlaybackIT {
 
   @Test
   public void readMany_SeesNothingOutsideOfTemplate() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
     Collection<TemplatePlayback> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
 

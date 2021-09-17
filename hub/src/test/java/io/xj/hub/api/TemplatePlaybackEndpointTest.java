@@ -9,10 +9,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
-import io.xj.api.Template;
-import io.xj.api.TemplatePlayback;
-import io.xj.api.User;
+import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.Topology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.dao.DAOException;
@@ -20,11 +18,13 @@ import io.xj.hub.dao.DAOModule;
 import io.xj.hub.dao.TemplatePlaybackDAO;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplatePlayback;
+import io.xj.hub.tables.pojos.User;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -40,8 +40,11 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePlayback;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static org.junit.Assert.assertEquals;
@@ -78,11 +81,11 @@ public class TemplatePlaybackEndpointTest {
     }));
 
     Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
-    Account account1 = new Account().id(UUID.randomUUID());
-    user1 = new User().id(UUID.randomUUID());
-    hubAccess = HubAccess.create(user1, ImmutableList.of(account1), "User,Artist");
-    template25 = new Template().id(UUID.randomUUID());
-    template1 = new Template().id(UUID.randomUUID());
+    Account account1 = buildAccount("Testing");
+    user1 = buildUser("Joe", "joe@email.com", "joe.jpg", "User,Artist");
+    hubAccess = HubAccess.create(user1, ImmutableList.of(account1));
+    template25 = buildTemplate(account1, "Testing");
+    template1 = buildTemplate(account1, "Testing");
     subject = injector.getInstance(TemplatePlaybackEndpoint.class);
     injector.injectMembers(subject);
   }
@@ -90,14 +93,8 @@ public class TemplatePlaybackEndpointTest {
   @Test
   public void readManyForTemplate() throws DAOException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
-    TemplatePlayback templatePlayback1 = new TemplatePlayback()
-      .id(UUID.randomUUID())
-      .templateId(template25.getId())
-      .userId(user1.getId());
-    TemplatePlayback templatePlayback2 = new TemplatePlayback()
-      .id(UUID.randomUUID())
-      .templateId(template25.getId())
-      .userId(user1.getId());
+    TemplatePlayback templatePlayback1 = buildTemplatePlayback(template25, user1);
+    TemplatePlayback templatePlayback2 = buildTemplatePlayback(template25, user1);
     Collection<TemplatePlayback> templatePlaybacks = ImmutableList.of(templatePlayback1, templatePlayback2);
     when(templatePlaybackDAO.readMany(same(hubAccess), eq(ImmutableList.of(template25.getId()))))
       .thenReturn(templatePlaybacks);
@@ -114,10 +111,7 @@ public class TemplatePlaybackEndpointTest {
   @Test
   public void readOneForUser() throws DAOException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
-    TemplatePlayback templatePlayback1 = new TemplatePlayback()
-      .id(UUID.randomUUID())
-      .templateId(template1.getId())
-      .userId(user1.getId());
+    TemplatePlayback templatePlayback1 = buildTemplatePlayback(template1, user1);
     when(templatePlaybackDAO.readOneForUser(same(hubAccess), eq(user1.getId()))).thenReturn(Optional.of(templatePlayback1));
 
     Response result = subject.readOneForUser(crc, user1.getId().toString());

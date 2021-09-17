@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.craft.arrangement;
 
-import io.xj.api.InstrumentType;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
@@ -83,7 +83,7 @@ public class NotePickerTests extends YamlTest {
     var range = getOptionalNoteRange(obj);
 
     var instrumentType =
-      InstrumentType.fromValue(Objects.requireNonNull(getStr(obj, "instrumentType")));
+      InstrumentType.valueOf(Objects.requireNonNull(getStr(obj, "instrumentType")));
 
     var chord = Chord.of(Objects.requireNonNull(getStr(obj, "chord")));
 

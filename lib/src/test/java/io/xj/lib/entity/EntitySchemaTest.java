@@ -3,7 +3,7 @@
 package io.xj.lib.entity;
 
 import com.google.common.collect.ImmutableSet;
-import io.xj.api.Program;
+import io.xj.lib.Widget;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,7 @@ public class EntitySchemaTest {
   @Before
   public void setUp() {
     subject = EntitySchema.of("FunkyChicken")
-      .createdBy(Program::new)
+      .createdBy(Widget::new)
       .withAttributes("Weight", "DancingAbility")
       .belongsTo("Barnyard", "LocalUnion")
       .hasMany("Talon", "TailFeather");
@@ -35,11 +35,11 @@ public class EntitySchemaTest {
   @Test
   public void createdBy() {
     subject.createdBy(() ->
-      new Program()
-        .name("ThisIsATest")
-        );
+      new Widget()
+        .setName("ThisIsATest")
+    );
 
-    Program created = (Program) subject.getCreator().get();
+    Widget created = (Widget) subject.getCreator().get();
     Assert.assertEquals("ThisIsATest", created.getName());
   }
 
@@ -47,7 +47,7 @@ public class EntitySchemaTest {
   public void getCreator() {
     Object result = subject.getCreator().get();
 
-    assertEquals(Program.class, result.getClass());
+    assertEquals(Widget.class, result.getClass());
   }
 
   @Test

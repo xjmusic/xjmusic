@@ -8,15 +8,15 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.ProgramType;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;
 import io.xj.api.SegmentState;
-import io.xj.api.TemplateType;
+import io.xj.hub.Topology;
+import io.xj.hub.enums.ProgramType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerFactory;
@@ -42,15 +42,15 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.time.Instant;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildArrangement;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChord;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildMeme;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildPick;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangementPick;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -112,28 +112,27 @@ public class DubDubMasterWaveformPrerollTest {
     ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in dubbing state - DubMaster is complete
-    Chain chain2 = store.put(new Chain()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .name("Print #2")
-      .templateId(fake.template1.getId())
-      .type(TemplateType.PRODUCTION)
-      .state(ChainState.FABRICATE)
-      .startAt("2014-08-12T12:17:02.527142Z"));
+    Chain chain2 = store.put(buildChain(
+      fake.account1,
+      fake.template1,
+      "Print #2",
+      ChainType.PRODUCTION,
+      ChainState.FABRICATE,
+      Instant.parse("2014-08-12T12:17:02.527142Z")));
 
     segment6 = store.put(buildSegment(chain2, 0, SegmentState.DUBBING, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:07.384616Z"), "C minor", 16, 0.55, 130, "chains-1-segments-9f7s89d8a7892", "wav"));
-    store.put(buildSegmentChoice(segment6, ProgramType.MACRO, fake.program4_sequence0_binding0));
-    store.put(buildSegmentChoice(segment6, ProgramType.MAIN, fake.program5_sequence0_binding0));
+    store.put(buildSegmentChoice(segment6, ProgramType.Macro, fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(segment6, ProgramType.Main, fake.program5_sequence0_binding0));
     SegmentChoice choice1 = store.put(buildSegmentChoice(segment6, fake.program35, fake.program35_sequence0, fake.program35_voice0, fake.instrument8));
-    store.put(buildMeme(segment6, "Special"));
-    store.put(buildMeme(segment6, "Wild"));
-    store.put(buildMeme(segment6, "Pessimism"));
-    store.put(buildMeme(segment6, "Outlook"));
-    var chord0 = buildChord(segment6, 0.0, "A minor");
+    store.put(buildSegmentMeme(segment6, "Special"));
+    store.put(buildSegmentMeme(segment6, "Wild"));
+    store.put(buildSegmentMeme(segment6, "Pessimism"));
+    store.put(buildSegmentMeme(segment6, "Outlook"));
+    var chord0 = buildSegmentChord(segment6, 0.0, "A minor");
     store.put(chord0);
-    store.put(buildChord(segment6, 8.0, "D major"));
-    SegmentChoiceArrangement arr1 = store.put(buildArrangement(choice1));
-    store.put(buildPick(arr1, fake.program35_sequence0_pattern0_event0, fake.instrument8_audio8kick, 0.0, 1.0, 1.0, "A4", "BOOM"));
+    store.put(buildSegmentChord(segment6, 8.0, "D major"));
+    SegmentChoiceArrangement arr1 = store.put(buildSegmentChoiceArrangement(choice1));
+    store.put(buildSegmentChoiceArrangementPick(arr1, fake.program35_sequence0_pattern0_event0, fake.instrument8_audio8kick, "BOOM"));
 
     // future: insert arrangement of choice1
     // future: insert 8 picks of audio 1

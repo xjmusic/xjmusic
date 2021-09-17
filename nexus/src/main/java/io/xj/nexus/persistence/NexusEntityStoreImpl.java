@@ -7,7 +7,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.api.Chain;
-import io.xj.api.TemplateBinding;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;
@@ -96,7 +96,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
-  public Optional<Chain> getChain(UUID id) throws NexusException {
+  public Optional<Chain> getChain(UUID id) {
     if (!chainMap.containsKey(id)) return Optional.empty();
     return Optional.of(chainMap.get(id));
   }

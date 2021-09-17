@@ -3,7 +3,7 @@ package io.xj.hub.api;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.api.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAOCloner;
 import io.xj.hub.dao.ProgramSequencePatternDAO;

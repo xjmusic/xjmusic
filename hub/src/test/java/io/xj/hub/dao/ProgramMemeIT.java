@@ -7,26 +7,18 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
-import io.xj.api.AccountUser;
-import io.xj.api.InstrumentType;
-import io.xj.api.Library;
-import io.xj.api.Program;
-import io.xj.api.ProgramMeme;
-import io.xj.api.ProgramState;
-import io.xj.api.ProgramType;
-import io.xj.api.ProgramVoice;
-import io.xj.api.User;
-import io.xj.api.UserRole;
-import io.xj.api.UserRoleType;
-import io.xj.hub.IntegrationTestingFixtures;
-import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.HubIntegrationTestModule;
 import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.IntegrationTestingFixtures;
+import io.xj.hub.access.HubAccess;
+import io.xj.hub.access.HubAccessControlModule;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.ingest.HubIngestModule;
+import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -44,8 +36,11 @@ import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -79,74 +74,24 @@ public class ProgramMemeIT {
     fake.account1 = test.insert(buildAccount("bananas"));
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
-    test.insert(buildUserRole(fake.user2,UserRoleType.ADMIN));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin"));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
-    test.insert(buildUserRole(fake.user3,UserRoleType.USER));
-    test.insert(buildAccountUser(fake.account1,fake.user3));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User"));
+    test.insert(buildAccountUser(fake.account1, fake.user3));
 
-    // Library "palm tree" has program "ANTS" and program "ANTS"
-    fake.library1 = test.insert(new Library()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .name("palm tree"));
-    fake.program1 = test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library1.getId())
-      .type(ProgramType.MAIN)
-      .state(ProgramState.PUBLISHED)
-      .name("ANTS")
-      .key("C#")
-      .tempo(120.0)
-      .density(0.6));
-    fake.programMeme1 = test.insert(new ProgramMeme()
-      .id(UUID.randomUUID())
-      .programId(fake.program1.getId())
-      .name("ANTS"));
-    fake.program2 = test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library1.getId())
-      .type(ProgramType.RHYTHM)
-      .state(ProgramState.PUBLISHED)
-      .name("ANTS")
-      .key("C#")
-      .tempo(120.0)
-      .density(0.6));
-    fake.program2_voice1 = test.insert(new ProgramVoice()
-      .id(UUID.randomUUID())
-      .programId(fake.program2.getId())
-      .type(InstrumentType.DRUM)
-      .name("Drums"));
+    // Library "palm tree" has a program "ANTS" and program "ANTS"
+    fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
+    fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
+    fake.programMeme1 = test.insert(buildProgramMeme(fake.program1, "ANTS"));
+    fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Rhythm, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
+    fake.program2_voice1 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
 
-    // Library "boat" has program "helm" and program "sail"
-    fake.library2 = test.insert(new Library()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .name("boat"));
-    fake.program3 = test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library2.getId())
-      .type(ProgramType.MACRO)
-      .state(ProgramState.PUBLISHED)
-      .name("helm")
-      .key("C#")
-      .tempo(120.0)
-      .density(0.6));
-    fake.programMeme3 = test.insert(new ProgramMeme()
-      .id(UUID.randomUUID())
-      .programId(fake.program3.getId())
-      .name("ANTS"));
-    fake.program4 = test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library2.getId())
-      .type(ProgramType.DETAIL)
-      .state(ProgramState.PUBLISHED)
-      .name("sail")
-      .key("C#")
-      .tempo(120.0)
-      .density(0.6));
+    // Library "boat" has a program "helm" and program "sail"
+    fake.library2 = test.insert(buildLibrary(fake.account1, "boat"));
+    fake.program3 = test.insert(buildProgram(fake.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0f, 0.6f));
+    fake.programMeme3 = test.insert(buildProgramMeme(fake.program3, "ANTS"));
+    fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(ProgramMemeDAO.class);
@@ -160,10 +105,10 @@ public class ProgramMemeIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    var subject = new ProgramMeme()
-      .id(UUID.randomUUID())
-      .programId(fake.program3.getId())
-      .name("cannons");
+    var subject = new ProgramMeme();
+    subject.setId(UUID.randomUUID());
+    subject.setProgramId(fake.program3.getId());
+    subject.setName("cannons");
 
     var result = testDAO.create(
       hubAccess, subject);
@@ -179,10 +124,10 @@ public class ProgramMemeIT {
   @Test
   public void create_numerals() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    var subject = new ProgramMeme()
-      .id(UUID.randomUUID())
-      .programId(fake.program3.getId())
-      .name("3note");
+    var subject = new ProgramMeme();
+    subject.setId(UUID.randomUUID());
+    subject.setProgramId(fake.program3.getId());
+    subject.setName("3note");
 
     var result = testDAO.create(
       hubAccess, subject);
@@ -198,10 +143,10 @@ public class ProgramMemeIT {
   @Test
   public void create_notMeme() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    var subject = new ProgramMeme()
-      .id(UUID.randomUUID())
-      .programId(fake.program3.getId())
-      .name("!busy");
+    var subject = new ProgramMeme();
+    subject.setId(UUID.randomUUID());
+    subject.setProgramId(fake.program3.getId());
+    subject.setName("!busy");
 
     var result = testDAO.create(
       hubAccess, subject);
@@ -218,10 +163,10 @@ public class ProgramMemeIT {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
-    var inputData = new ProgramMeme()
-      .id(UUID.randomUUID())
-      .programId(fake.program3.getId())
-      .name("cannons");
+    var inputData = new ProgramMeme();
+    inputData.setId(UUID.randomUUID());
+    inputData.setProgramId(fake.program3.getId());
+    inputData.setName("cannons");
 
     var result = testDAO.create(
       hubAccess, inputData);
@@ -246,8 +191,7 @@ public class ProgramMemeIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())), "User, Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
     failure.expect(DAOException.class);
     failure.expectMessage("does not exist");
 
@@ -269,8 +213,7 @@ public class ProgramMemeIT {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())), "User, Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
     Collection<ProgramMeme> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program3.getId()));
 
@@ -280,10 +223,10 @@ public class ProgramMemeIT {
   @Test
   public void update_cannotChangeProgram() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User, Artist");
-    var subject = new ProgramMeme()
-      .id(UUID.randomUUID())
-      .name("cannons")
-      .programId(UUID.randomUUID());
+    var subject = new ProgramMeme();
+    subject.setId(UUID.randomUUID());
+    subject.setName("cannons");
+    subject.setProgramId(UUID.randomUUID());
 
     testDAO.update(hubAccess, fake.programMeme3.getId(), subject);
 
@@ -296,10 +239,10 @@ public class ProgramMemeIT {
   @Test
   public void update_Name() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    var subject = new ProgramMeme()
-      .id(fake.programMeme3.getId())
-      .programId(fake.program3.getId())
-      .name("cannons");
+    var subject = new ProgramMeme();
+    subject.setId(fake.programMeme3.getId());
+    subject.setProgramId(fake.program3.getId());
+    subject.setName("cannons");
 
     testDAO.update(hubAccess, fake.programMeme3.getId(), subject);
 
@@ -317,10 +260,10 @@ public class ProgramMemeIT {
   public void update_Name_PreservesOriginalOwner() throws Exception {
     // John will edit a programMeme originally belonging to Jenny
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Admin");
-    var subject = new ProgramMeme()
-      .id(fake.programMeme3.getId())
-      .programId(fake.program3.getId())
-      .name("cannons");
+    var subject = new ProgramMeme();
+    subject.setId(fake.programMeme3.getId());
+    subject.setProgramId(fake.program3.getId());
+    subject.setName("cannons");
 
     testDAO.update(hubAccess, fake.programMeme3.getId(), subject);
 
@@ -331,10 +274,7 @@ public class ProgramMemeIT {
   @Test
   public void destroy_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    fake.programMeme35 = test.insert(new ProgramMeme()
-      .id(UUID.randomUUID())
-      .programId(fake.program2.getId())
-      .name("ANTS"));
+    fake.programMeme35 = test.insert(buildProgramMeme(fake.program2, "ANTS"));
 
     testDAO.destroy(hubAccess, fake.programMeme35.getId());
 
@@ -346,9 +286,7 @@ public class ProgramMemeIT {
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
-    fake.account2 = new Account()
-      .id(UUID.randomUUID())
-    ;
+    fake.account2 = buildAccount("Testing");
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
 
     failure.expect(DAOException.class);

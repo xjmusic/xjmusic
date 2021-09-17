@@ -100,7 +100,7 @@ public class TextTest {
     assertEquals("flasks", Text.toPlural("flask"));
     assertEquals("kitties", Text.toPlural("kitty"));
     assertEquals("cats", Text.toPlural("cat"));
-    assertEquals("libraries", Text.toPlural("library"));
+    assertEquals("superwidgets", Text.toPlural("superwidget"));
     assertEquals("account-users", Text.toPlural("account-user"));
     assertEquals("accounts", Text.toPlural("account"));
     assertEquals("accounts", Text.toPlural("accounts"));
@@ -113,7 +113,7 @@ public class TextTest {
     assertEquals("flask", Text.toSingular("flasks"));
     assertEquals("kitty", Text.toSingular("kitties"));
     assertEquals("cat", Text.toSingular("cats"));
-    assertEquals("library", Text.toSingular("libraries"));
+    assertEquals("superwidget", Text.toSingular("superwidgets"));
     assertEquals("account-user", Text.toSingular("account-users"));
     assertEquals("account", Text.toSingular("accounts"));
   }

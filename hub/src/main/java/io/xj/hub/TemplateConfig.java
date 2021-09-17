@@ -1,11 +1,11 @@
-package io.xj.lib.entity.common;
+package io.xj.hub;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
-import io.xj.api.Template;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 

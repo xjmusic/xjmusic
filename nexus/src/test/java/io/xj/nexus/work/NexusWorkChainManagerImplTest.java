@@ -5,23 +5,20 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.Template;
-import io.xj.api.TemplateType;
+import io.xj.api.ChainType;
+import io.xj.hub.Topology;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityModule;
-import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.json.JsonModule;
-import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiModule;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.dao.ChainDAO;
-import io.xj.nexus.dao.NexusDAOModule;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreModule;
@@ -33,10 +30,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildAccount;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildLibrary;
 import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("HttpUrlsUsage")
@@ -90,9 +87,9 @@ public class NexusWorkChainManagerImplTest {
     template2 = buildTemplate(account1, "Test Template 2", "test2");
 
     // Payload comprising Nexus entities
-    chain1 = test.put(buildChain(account1, "school", TemplateType.PRODUCTION, ChainState.READY, template1,
+    chain1 = test.put(buildChain(account1, "school", ChainType.PRODUCTION, ChainState.READY, template1,
       Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null));
-    chain2 = test.put(buildChain(account1, "bucket", TemplateType.PRODUCTION, ChainState.FABRICATE, template2,
+    chain2 = test.put(buildChain(account1, "bucket", ChainType.PRODUCTION, ChainState.FABRICATE, template2,
       Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null));
 
     // Instantiate the test subject

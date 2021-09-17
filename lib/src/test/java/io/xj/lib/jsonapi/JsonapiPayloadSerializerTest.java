@@ -7,7 +7,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import io.xj.api.Program;
+import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,59 +35,55 @@ public class JsonapiPayloadSerializerTest {
     });
     entityFactory = injector.getInstance(EntityFactory.class);
     jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
-    entityFactory.register(Program.class);
+    entityFactory.register(Widget.class);
   }
 
   @Test
   public void serialize() throws JsonapiException {
-    Program program = new Program()
-      .id(UUID.randomUUID())
-      .name("test_print")
-      ;
-    JsonapiPayload jsonapiPayload = jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), program);
+    Widget widget = new Widget()
+      .setId(UUID.randomUUID())
+      .setName("test_print");
+    JsonapiPayload jsonapiPayload = jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), widget);
 
     String result = jsonapiPayloadFactory.serialize(jsonapiPayload);
 
     AssertPayload.assertPayload(jsonapiPayloadFactory.deserialize(result))
-      .hasDataOne("programs", program.getId().toString());
+      .hasDataOne("widgets", widget.getId().toString());
   }
 
   @Test
   public void serializeOne() throws JsonapiException {
     JsonapiPayload jsonapiPayload = jsonapiPayloadFactory.newJsonapiPayload();
-    Program library = new Program()
-      .id(UUID.randomUUID())
-      .name("Test Program")
-      ;
-    jsonapiPayloadFactory.setDataEntity(jsonapiPayload, library);
+    Widget superwidget = new Widget()
+      .setId(UUID.randomUUID())
+      .setName("Test Widget");
+    jsonapiPayloadFactory.setDataEntity(jsonapiPayload, superwidget);
 
     String result = jsonapiPayloadFactory.serialize(jsonapiPayload);
 
     AssertPayload.assertPayload(jsonapiPayloadFactory.deserialize(result))
-      .hasDataOne("programs", library.getId().toString());
+      .hasDataOne("widgets", superwidget.getId().toString());
   }
 
   @Test
   public void serializeOne_withBelongsTo() throws JsonapiException {
-    entityFactory.register("Library");
-    entityFactory.register("Program").belongsTo("Library");
+    entityFactory.register("Superwidget");
+    entityFactory.register("Widget").belongsTo("Superwidget");
     JsonapiPayload jsonapiPayload = jsonapiPayloadFactory.newJsonapiPayload();
-    Program library = new Program()
-      .id(UUID.randomUUID())
-      .name("y")
-      ;
-    Program program = new Program()
-      .id(UUID.randomUUID())
-      .libraryId(library.getId())
-      .name("x")
-      ;
-    jsonapiPayloadFactory.setDataEntity(jsonapiPayload, program);
+    Widget superwidget = new Widget()
+      .setId(UUID.randomUUID())
+      .setName("y");
+    Widget widget = new Widget()
+      .setId(UUID.randomUUID())
+      .setSuperwidgetId(superwidget.getId())
+      .setName("x");
+    jsonapiPayloadFactory.setDataEntity(jsonapiPayload, widget);
 
     String result = jsonapiPayloadFactory.serialize(jsonapiPayload);
 
     AssertPayload.assertPayload(jsonapiPayloadFactory.deserialize(result))
-      .hasDataOne("programs", program.getId().toString())
-      .belongsTo("Library", library.getId().toString());
+      .hasDataOne("widgets", widget.getId().toString())
+      .belongsTo("Superwidget", superwidget.getId().toString());
   }
 
   /**
@@ -95,81 +91,73 @@ public class JsonapiPayloadSerializerTest {
    */
   @Test
   public void serializeOne_withBelongsTo_empty() throws JsonapiException {
-    entityFactory.register("Library");
-    entityFactory.register("Program").belongsTo("Library");
+    entityFactory.register("Superwidget");
+    entityFactory.register("Widget").belongsTo("Superwidget");
     JsonapiPayload jsonapiPayload = jsonapiPayloadFactory.newJsonapiPayload();
-    Program program = new Program()
-      .id(UUID.randomUUID())
-      .libraryId(null)
-      .name("x")
-      ;
-    jsonapiPayloadFactory.setDataEntity(jsonapiPayload, program);
+    Widget widget = new Widget()
+      .setId(UUID.randomUUID())
+      .setSuperwidgetId(null)
+      .setName("x");
+    jsonapiPayloadFactory.setDataEntity(jsonapiPayload, widget);
 
     String result = jsonapiPayloadFactory.serialize(jsonapiPayload);
 
-    assertFalse(result.contains("libraries"));
+    assertFalse(result.contains("superwidgets"));
   }
 
   @Test
   public void serializeOne_withHasMany() throws JsonapiException {
-    entityFactory.register("Program").hasMany("Program");
-    Program program0 = new Program()
-      .id(UUID.randomUUID())
-      .name("y")
-      ;
-    Program program1 = new Program()
-      .id(UUID.randomUUID())
-      .libraryId(program0.getId())
-      .name("x")
-      ;
-    Program program2 = new Program()
-      .id(UUID.randomUUID())
-      .libraryId(program1.getId())
-      .name("b")
-      ;
-    Program program3 = new Program()
-      .id(UUID.randomUUID())
-      .libraryId(program1.getId())
-      .name("c")
-      ;
-    JsonapiPayloadObject mainObj = jsonapiPayloadFactory.toPayloadObject(program1, ImmutableSet.of(program2, program3));
+    entityFactory.register("Widget").hasMany("Widget");
+    Widget widget0 = new Widget()
+      .setId(UUID.randomUUID())
+      .setName("y");
+    Widget widget1 = new Widget()
+      .setId(UUID.randomUUID())
+      .setSuperwidgetId(widget0.getId())
+      .setName("x");
+    Widget widget2 = new Widget()
+      .setId(UUID.randomUUID())
+      .setSuperwidgetId(widget1.getId())
+      .setName("b");
+    Widget widget3 = new Widget()
+      .setId(UUID.randomUUID())
+      .setSuperwidgetId(widget1.getId())
+      .setName("c");
+    JsonapiPayloadObject mainObj = jsonapiPayloadFactory.toPayloadObject(widget1, ImmutableSet.of(widget2, widget3));
     JsonapiPayload jsonapiPayload = jsonapiPayloadFactory.newJsonapiPayload().setDataOne(mainObj);
-    jsonapiPayloadFactory.addIncluded(jsonapiPayload, jsonapiPayloadFactory.toPayloadObject(program2));
-    jsonapiPayloadFactory.addIncluded(jsonapiPayload, jsonapiPayloadFactory.toPayloadObject(program3));
+    jsonapiPayloadFactory.addIncluded(jsonapiPayload, jsonapiPayloadFactory.toPayloadObject(widget2));
+    jsonapiPayloadFactory.addIncluded(jsonapiPayload, jsonapiPayloadFactory.toPayloadObject(widget3));
 
     String result = jsonapiPayloadFactory.serialize(jsonapiPayload);
 
     JsonapiPayload resultJsonapiPayload = jsonapiPayloadFactory.deserialize(result);
     AssertPayload.assertPayload(resultJsonapiPayload)
-      .hasIncluded("programs", ImmutableList.of(program2, program3))
-      .hasDataOne("programs", program1.getId().toString());
+      .hasIncluded("widgets", ImmutableList.of(widget2, widget3))
+      .hasDataOne("widgets", widget1.getId().toString());
   }
 
   @Test
   public void serializeMany() throws JsonapiException {
     JsonapiPayload jsonapiPayload = jsonapiPayloadFactory.newJsonapiPayload();
-    Program accountA = new Program()
-      .id(UUID.randomUUID())
-      .name("Test Program A")
-      ;
-    Program accountB = new Program()
-      .id(UUID.randomUUID())
-      .name("Test Program B")
-      ;
-    Program accountC = new Program()
-      .id(UUID.randomUUID())
-      .name("Test Program C")
-      ;
+    Widget accountA = new Widget()
+      .setId(UUID.randomUUID())
+      .setName("Test Widget A");
+    Widget accountB = new Widget()
+      .setId(UUID.randomUUID())
+      .setName("Test Widget B");
+    Widget accountC = new Widget()
+      .setId(UUID.randomUUID())
+      .setName("Test Widget C");
     jsonapiPayloadFactory.setDataEntities(jsonapiPayload, ImmutableList.of(accountA, accountB, accountC));
 
     String result = jsonapiPayloadFactory.serialize(jsonapiPayload);
 
     AssertPayload.assertPayload(jsonapiPayloadFactory.deserialize(result))
-      .hasDataMany("programs", ImmutableList.of(
+      .hasDataMany("widgets", ImmutableList.of(
         accountA.getId().toString(),
         accountB.getId().toString(),
         accountC.getId().toString()))
-      .hasIncluded("programs", ImmutableList.of());
+      .hasIncluded("widgets", ImmutableList.of());
   }
 
 }

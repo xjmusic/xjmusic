@@ -10,17 +10,16 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
-import io.xj.api.AccountUser;
-import io.xj.api.User;
-import io.xj.api.UserAuth;
-import io.xj.api.UserRole;
-import io.xj.api.UserRoleType;
+import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.dao.DAOModule;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.persistence.HubRedisProvider;
-import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.User;
+import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -55,7 +54,6 @@ public class RedisHubAccessTokenTest {
   private HubAccessControlProvider hubAccessControlProvider;
   private UserAuth userAuth;
   private Collection<AccountUser> accountUsers;
-  private Collection<UserRole> roles;
   private User user;
   private JsonapiPayloadFactory payloadFactory;
 
@@ -84,35 +82,26 @@ public class RedisHubAccessTokenTest {
     hubAccessControlProvider = injector.getInstance(HubAccessControlProvider.class);
     payloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
 
-    user = new User()
-      .id(UUID.randomUUID())
-      ;
-    userAuth = new UserAuth()
-      .userId(user.getId())
-      .id(UUID.randomUUID())
-      ;
-    account1 = new Account()
-      .id(UUID.randomUUID())
-      ;
-    account2 = new Account()
-      .id(UUID.randomUUID())
-      ;
+    user = new User();
+    user.setId(UUID.randomUUID());
 
-    var accountUser1 = new AccountUser()
-      .accountId(account1.getId())
-      ;
-    var accountUser2 = new AccountUser()
-      .accountId(account2.getId())
-      ;
+    userAuth = new UserAuth();
+    userAuth.setId(UUID.randomUUID());
+    userAuth.setUserId(user.getId());
+
+    account1 = new Account();
+    account1.setId(UUID.randomUUID());
+
+    account2 = new Account();
+    account2.setId(UUID.randomUUID());
+
+    var accountUser1 = new AccountUser();
+    accountUser1.setAccountId(account1.getId());
+
+    var accountUser2 = new AccountUser();
+    accountUser2.setAccountId(account2.getId());
+
     accountUsers = List.of(accountUser1, accountUser2);
-
-    UserRole role1 = new UserRole()
-      .type(UserRoleType.USER)
-      ;
-    UserRole role2 = new UserRole()
-      .type(UserRoleType.ARTIST)
-      ;
-    roles = List.of(role1, role2);
   }
 
   @After
@@ -130,12 +119,12 @@ public class RedisHubAccessTokenTest {
     when(hubAccessTokenGenerator.generate())
       .thenReturn("token123");
 
-    hubAccessControlProvider.create(userAuth, accountUsers, roles);
+    hubAccessControlProvider.create(userAuth, accountUsers, "User, Artist");
 
     HubAccess expectUserAccess = new HubAccess()
       .setUserId(user.getId())
       .setUserAuthId(userAuth.getId())
-      .setRoleTypes(ImmutableList.of(UserRoleType.USER, UserRoleType.ARTIST))
+      .setRoleTypes(ImmutableList.of(UserRoleType.User, UserRoleType.Artist))
       .setAccountIds(ImmutableSet.of(account1.getId(), account2.getId()));
     verify(redisClient).set("xj_session_test:token123", payloadFactory.serialize(expectUserAccess));
   }

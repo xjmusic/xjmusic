@@ -1,14 +1,14 @@
 {
   "data": {
     "relationships": {
-      "library": {
+      "superwidget": {
         "data": {
-          "type": "libraries",
+          "type": "superwidgets",
           "id": "aec6e236-322b-4c66-bd48-8c7ce6a1ef4a"
         }
       }
     },
-    "type": "programs",
+    "type": "widgets",
     "id": "a1acee68-ade3-465c-8b07-596b179e1a51"
   }
 }

@@ -2,7 +2,7 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.api.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.EntityFactory;

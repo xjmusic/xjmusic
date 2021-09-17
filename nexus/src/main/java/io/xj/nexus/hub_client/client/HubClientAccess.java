@@ -4,7 +4,7 @@ package io.xj.nexus.hub_client.client;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import io.xj.api.UserRoleType;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.Entities;
 
 import javax.annotation.Nullable;
@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class HubClientAccess {
   public static final String CONTEXT_KEY = "hub_access";
-  private static final UserRoleType[] topLevelRoles = {UserRoleType.ADMIN, UserRoleType.INTERNAL};
+  private static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
   private final Collection<UserRoleType> roleTypes = Lists.newArrayList();
   private final Collection<UUID> accountIds = Lists.newArrayList();
   @Nullable
@@ -62,7 +62,7 @@ public class HubClientAccess {
    */
   public static HubClientAccess internal() {
     // FUTURE how does Hub plan on authenticating a request made with this "credential?"
-    return new HubClientAccess(ImmutableList.of(UserRoleType.INTERNAL));
+    return new HubClientAccess(ImmutableList.of(UserRoleType.Internal));
   }
 
   /**
@@ -102,7 +102,7 @@ public class HubClientAccess {
    */
   @SafeVarargs
   public final <T> boolean isAllowed(T... matchRoles) {
-    return Arrays.stream(matchRoles).anyMatch(matchRole -> roleTypes.stream().anyMatch(userRoleType -> userRoleType == UserRoleType.fromValue(matchRole.toString())));
+    return Arrays.stream(matchRoles).anyMatch(matchRole -> roleTypes.stream().anyMatch(userRoleType -> userRoleType == UserRoleType.valueOf(matchRole.toString())));
   }
 
   /**

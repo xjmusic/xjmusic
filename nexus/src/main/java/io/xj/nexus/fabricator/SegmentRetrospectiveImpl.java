@@ -4,8 +4,8 @@ package io.xj.nexus.fabricator;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.InstrumentType;
-import io.xj.api.ProgramType;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangementPick;
@@ -58,7 +58,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
 
       // previous segment must have a main choice to continue past here.
       SegmentChoice previousSegmentMainChoice = store.getAll(SegmentChoice.class).stream()
-        .filter(segmentChoice -> ProgramType.MAIN.equals(segmentChoice.getProgramType()))
+        .filter(segmentChoice -> ProgramType.Main.toString().equals(segmentChoice.getProgramType()))
         .findFirst()
         .orElseThrow(() -> new NexusException("Retrospective sees no main choice!"));
 
@@ -85,7 +85,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     return
       store.getAll(SegmentChoice.class).stream()
         .filter(c -> c.getSegmentId().equals(segment.getId())
-          && type.equals(c.getProgramType()))
+          && type.toString().equals(c.getProgramType()))
         .findFirst();
   }
 
@@ -124,7 +124,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       store.getAll(SegmentChoice.class).stream()
         .filter(c -> c.getSegmentId().equals(seg.get().getId())
           && Objects.nonNull(c.getInstrumentType())
-          && c.getInstrumentType().equals(instrumentType))
+          && c.getInstrumentType().equals(instrumentType.toString()))
         .collect(Collectors.toList());
   }
 

@@ -5,7 +5,7 @@ package io.xj.nexus.hub_client.client;
 import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.xj.api.Template;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.ingest.HubContentPayload;
 import io.xj.lib.app.Environment;
 import io.xj.lib.json.JsonProviderImpl;

@@ -4,11 +4,8 @@ package io.xj.lib.entity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
-import io.xj.api.InstrumentMeme;
-import io.xj.api.Library;
-import io.xj.api.Program;
-import io.xj.api.ProgramMeme;
-import io.xj.api.ProgramSequenceBindingMeme;
+import io.xj.lib.Superwidget;
+import io.xj.lib.Widget;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,55 +27,55 @@ import static org.junit.Assert.assertTrue;
  Created by Charney Kaye on 2020/03/09
  */
 public class EntitiesTest extends TestTemplate {
-  Program program;
+  Widget widget;
   private EntityFactory entityFactory;
 
   @Test
   public void toResourceBelongsTo() {
     assertEquals("entity", Entities.toBelongsTo("Entity"));
-    assertEquals("libraryProgram", Entities.toBelongsTo("LibraryProgram"));
-    assertEquals("program", Entities.toBelongsTo("program"));
-    assertEquals("program", Entities.toBelongsTo("programs"));
-    assertEquals("program", Entities.toBelongsTo(createProgram("Ding")));
-    assertEquals("program", Entities.toBelongsTo(Program.class));
-    assertEquals("library", Entities.toBelongsTo("Library"));
+    assertEquals("superwidgetWidget", Entities.toBelongsTo("SuperwidgetWidget"));
+    assertEquals("widget", Entities.toBelongsTo("widget"));
+    assertEquals("widget", Entities.toBelongsTo("widgets"));
+    assertEquals("widget", Entities.toBelongsTo(createWidget("Ding")));
+    assertEquals("widget", Entities.toBelongsTo(Widget.class));
+    assertEquals("superwidget", Entities.toBelongsTo("Superwidget"));
   }
 
   @Test
   public void toResourceHasMany() {
     assertEquals("entities", Entities.toHasMany("Entity"));
-    assertEquals("libraryPrograms", Entities.toHasMany("LibraryProgram"));
-    assertEquals("programs", Entities.toHasMany("program"));
-    assertEquals("programs", Entities.toHasMany(createProgram("Ding")));
-    assertEquals("programs", Entities.toHasMany(Program.class));
-    assertEquals("libraries", Entities.toHasMany("Library"));
+    assertEquals("superwidgetWidgets", Entities.toHasMany("SuperwidgetWidget"));
+    assertEquals("widgets", Entities.toHasMany("widget"));
+    assertEquals("widgets", Entities.toHasMany(createWidget("Ding")));
+    assertEquals("widgets", Entities.toHasMany(Widget.class));
+    assertEquals("superwidgets", Entities.toHasMany("Superwidget"));
   }
 
   @Test
   public void toResourceHasManyFromType() {
     assertEquals("entities", Entities.toHasManyFromType("entities"));
-    assertEquals("libraryPrograms", Entities.toHasManyFromType("library-programs"));
-    assertEquals("libraryPrograms", Entities.toHasManyFromType("library-program"));
-    assertEquals("libraries", Entities.toHasManyFromType("library"));
-    assertEquals("libraries", Entities.toHasManyFromType("Libraries"));
+    assertEquals("superwidgetWidgets", Entities.toHasManyFromType("superwidget-widgets"));
+    assertEquals("superwidgetWidgets", Entities.toHasManyFromType("superwidget-widget"));
+    assertEquals("superwidgets", Entities.toHasManyFromType("superwidget"));
+    assertEquals("superwidgets", Entities.toHasManyFromType("Superwidgets"));
   }
 
   @Test
   public void toResourceType() {
     assertEquals("entities", Entities.toType("Entity"));
-    assertEquals("library-programs", Entities.toType("LibraryProgram"));
-    assertEquals("library-programs", Entities.toType("libraryProgram"));
-    assertEquals("library-programs", Entities.toType("libraryPrograms"));
-    assertEquals("programs", Entities.toType(createProgram("Ding")));
-    assertEquals("programs", Entities.toType(Program.class));
-    assertEquals("libraries", Entities.toType("Library"));
+    assertEquals("superwidget-widgets", Entities.toType("SuperwidgetWidget"));
+    assertEquals("superwidget-widgets", Entities.toType("superwidgetWidget"));
+    assertEquals("superwidget-widgets", Entities.toType("superwidgetWidgets"));
+    assertEquals("widgets", Entities.toType(createWidget("Ding")));
+    assertEquals("widgets", Entities.toType(Widget.class));
+    assertEquals("superwidgets", Entities.toType("Superwidget"));
   }
 
   @Test
   public void toIdAttribute() {
     assertEquals("bilgeWaterId", Entities.toIdAttribute("BilgeWater"));
-    assertEquals("programId", Entities.toIdAttribute(createProgram("Ding")));
-    assertEquals("programId", Entities.toIdAttribute(Program.class));
+    assertEquals("widgetId", Entities.toIdAttribute(createWidget("Ding")));
+    assertEquals("widgetId", Entities.toIdAttribute(Widget.class));
   }
 
   @Test
@@ -90,40 +87,40 @@ public class EntitiesTest extends TestTemplate {
   public void setUp() {
     var injector = Guice.createInjector(new EntityModule());
     entityFactory = injector.getInstance(EntityFactory.class);
-    entityFactory.register(Program.class)
+    entityFactory.register(Widget.class)
       .withAttribute("name");
-    program = new Program()
-      .id(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"))
-      .name("Marv");
+    widget = new Widget()
+      .setId(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"))
+      .setName("Marv");
   }
 
   @Test
   public void set() throws EntityException {
-    Program program5 = new Program()
-      .id(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"))
-      .name("Marv");
+    Widget widget5 = new Widget()
+      .setId(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"))
+      .setName("Marv");
 
-    Entities.set(program5, "name", "Dave");
+    Entities.set(widget5, "name", "Dave");
 
-    Assert.assertEquals("Dave", program5.getName());
+    Assert.assertEquals("Dave", widget5.getName());
   }
 
   @Test
   public void set_nonexistentAttribute() {
-    var e = assertThrows(EntityException.class, () -> Entities.set(program, "turnip", 4.2));
-    assertEquals("Program has no attribute 'turnip'", e.getMessage());
+    var e = assertThrows(EntityException.class, () -> Entities.set(widget, "turnip", 4.2));
+    assertEquals("Widget has no attribute 'turnip'", e.getMessage());
   }
 
   @Test
   public void setAllAttributes() throws EntityException {
-    entityFactory.setAllAttributes(program, createProgram("Marv"));
+    entityFactory.setAllAttributes(widget, createWidget("Marv"));
 
-    Assert.assertEquals("Marv", program.getName());
+    Assert.assertEquals("Marv", widget.getName());
   }
 
   @Test
   public void getResourceId() throws EntityException {
-    assertEquals(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"), Entities.getId(program));
+    assertEquals(UUID.fromString("879802e8-5856-4b1f-8c7f-09fd7f4bcde6"), Entities.getId(widget));
   }
 
   @Test
@@ -133,40 +130,40 @@ public class EntitiesTest extends TestTemplate {
 
   @Test
   public void set_willFailIfSetterAcceptsNoParameters() {
-    Program subject = new Program();
+    Widget subject = new Widget();
 
     var e = assertThrows(EntityException.class, () -> Entities.set(subject, "willFailBecauseAcceptsNoParameters", true));
-    assertEquals("Program has no attribute 'willFailBecauseAcceptsNoParameters'", e.getMessage());
+    assertEquals("Widget has no attribute 'willFailBecauseAcceptsNoParameters'", e.getMessage());
   }
 
   @Test
   public void set_willFailIfSetterHasProtectedAccess() {
-    Program subject = new Program();
+    Widget subject = new Widget();
 
     var e = assertThrows(EntityException.class, () -> Entities.set(subject, "willFailBecauseNonexistent", "testing"));
-    assertEquals("Program has no attribute 'willFailBecauseNonexistent'", e.getMessage());
+    assertEquals("Widget has no attribute 'willFailBecauseNonexistent'", e.getMessage());
   }
 
   @Test
   public void testGetBelongsToId() throws EntityException {
-    Program parent = createProgram("Parent");
-    Program child = createProgram(parent.getId(), "Child");
+    Widget parent = createWidget("Parent");
+    Widget child = createWidget(parent.getId(), "Child");
 
-    assertEquals(parent.getId(), Entities.getBelongsToId(child, "library").orElseThrow());
+    assertEquals(parent.getId(), Entities.getBelongsToId(child, "superwidget").orElseThrow());
   }
 
   @Test
   public void isChild() {
-    Library parent = new Library()
-      .id(UUID.randomUUID());
+    Superwidget parent = new Superwidget()
+      .setId(UUID.randomUUID());
 
     assertTrue(Entities.isChild(
-      new Program()
-        .libraryId(parent.getId()),
+      new Widget()
+        .setSuperwidgetId(parent.getId()),
       parent));
-    assertFalse(Entities.isChild(new Program()
-      .libraryId(UUID.randomUUID()), parent));
-    assertFalse(Entities.isChild(new Program(), parent));
+    assertFalse(Entities.isChild(new Widget()
+      .setSuperwidgetId(UUID.randomUUID()), parent));
+    assertFalse(Entities.isChild(new Widget(), parent));
   }
 
 
@@ -174,8 +171,8 @@ public class EntitiesTest extends TestTemplate {
   public void csvIdsOf() {
     assertEquals("4872f737-3526-4532-bb9f-358e3503db7e,333d6284-d7b9-4654-b79c-cafaf9330b6a",
       Entities.csvIdsOf(ImmutableList.of(
-        new Program().id(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
-        new Program().id(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a"))
+        new Widget().setId(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
+        new Widget().setId(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a"))
       )));
   }
 
@@ -186,8 +183,8 @@ public class EntitiesTest extends TestTemplate {
         UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")
       ),
       Entities.idsOf(ImmutableList.of(
-        new Program().id(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
-        new Program().id(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a"))
+        new Widget().setId(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
+        new Widget().setId(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a"))
       )));
   }
 
@@ -212,30 +209,30 @@ public class EntitiesTest extends TestTemplate {
 
   @Test
   public void isParent() {
-    Library parent = new Library()
-      .id(UUID.randomUUID());
+    Superwidget parent = new Superwidget()
+      .setId(UUID.randomUUID());
 
-    assertTrue(Entities.isParent(parent, new Program().libraryId(parent.getId())));
-    assertFalse(Entities.isParent(parent, new Program().libraryId(UUID.randomUUID())));
-    assertFalse(Entities.isParent(parent, new Program()));
+    assertTrue(Entities.isParent(parent, new Widget().setSuperwidgetId(parent.getId())));
+    assertFalse(Entities.isParent(parent, new Widget().setSuperwidgetId(UUID.randomUUID())));
+    assertFalse(Entities.isParent(parent, new Widget()));
   }
 
   @Test
   public void isSame() {
-    Program x = new Program()
-      .id(UUID.randomUUID());
+    Widget x = new Widget()
+      .setId(UUID.randomUUID());
 
-    assertTrue(Entities.isSame(x, new Program().id(x.getId())));
-    assertFalse(Entities.isSame(x, new Program()));
+    assertTrue(Entities.isSame(x, new Widget().setId(x.getId())));
+    assertFalse(Entities.isSame(x, new Widget()));
   }
 
   @Test
   public void flatMapIds() {
     List<UUID> result =
       ImmutableList.of(
-          new Program().id(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
-          new Program().id(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")),
-          new Program().id(UUID.fromString("e23fb542-b0fc-4773-9848-772f64cbc5a4"))
+          new Widget().setId(UUID.fromString("4872f737-3526-4532-bb9f-358e3503db7e")),
+          new Widget().setId(UUID.fromString("333d6284-d7b9-4654-b79c-cafaf9330b6a")),
+          new Widget().setId(UUID.fromString("e23fb542-b0fc-4773-9848-772f64cbc5a4"))
         ).stream()
         .flatMap(Entities::flatMapIds)
         .collect(Collectors.toList());
@@ -252,9 +249,9 @@ public class EntitiesTest extends TestTemplate {
   public void namesOf() {
     Collection<String> result =
       Entities.namesOf(ImmutableList.of(
-        new ProgramMeme().name("Apples"),
-        new ProgramSequenceBindingMeme().name("Bananas"),
-        new InstrumentMeme().name("Chips")
+        new Widget().setName("Apples"),
+        new Widget().setName("Bananas"),
+        new Superwidget().setName("Chips")
       ));
 
     assertEquals(

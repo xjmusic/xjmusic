@@ -4,19 +4,19 @@ import com.google.api.client.util.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentAudio;
-import io.xj.api.InstrumentType;
-import io.xj.api.ProgramSequence;
-import io.xj.api.ProgramSequencePattern;
-import io.xj.api.ProgramSequencePatternEvent;
-import io.xj.api.ProgramSequencePatternType;
-import io.xj.api.ProgramVoice;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;
 import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.api.SegmentChord;
 import io.xj.api.SegmentChordVoicing;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramSequencePatternType;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
@@ -79,25 +79,25 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   protected void craftChoices(ProgramSequence sequence, Collection<ProgramVoice> voices, InstrumentProvider instrumentProvider, boolean defaultAtonal) throws NexusException {
     // Craft each voice into choice
     for (ProgramVoice voice : voices) {
-      var choiceBuilder = new SegmentChoice()
-        .id(UUID.randomUUID())
-        .programType(fabricator.sourceMaterial().getProgram(voice.getProgramId())
-          .orElseThrow(() -> new NexusException("Can't get program for voice")).getType())
-        .instrumentType(voice.getType())
-        .programId(voice.getProgramId())
-        .programSequenceId(sequence.getId())
-        .programVoiceId(voice.getId())
-        .segmentId(fabricator.getSegment().getId());
+      var choice = new SegmentChoice();
+      choice.setId(UUID.randomUUID());
+      choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId())
+        .orElseThrow(() -> new NexusException("Can't get program for voice")).getType()
+        .toString());
+      choice.setInstrumentType(voice.getType().toString());
+      choice.setProgramId(voice.getProgramId());
+      choice.setProgramSequenceId(sequence.getId());
+      choice.setProgramVoiceId(voice.getId());
+      choice.setSegmentId(fabricator.getSegment().getId());
 
       // Whether there is a prior choice for this voice
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voice);
 
       if (priorChoice.isPresent()) {
-        this.craftArrangements(fabricator.add(choiceBuilder
-          .deltaIn(priorChoice.get().getDeltaIn())
-          .deltaOut(priorChoice.get().getDeltaOut())
-          .instrumentId(priorChoice.get().getInstrumentId())
-        ), defaultAtonal);
+        choice.setDeltaIn(priorChoice.get().getDeltaIn());
+        choice.setDeltaOut(priorChoice.get().getDeltaOut());
+        choice.setInstrumentId(priorChoice.get().getInstrumentId());
+        this.craftArrangements(fabricator.add(choice), defaultAtonal);
         continue;
       }
 
@@ -108,11 +108,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
       }
 
       // make new choices
-      this.craftArrangements(fabricator.add(choiceBuilder
-        .deltaIn(getDeltaIn(choiceBuilder))
-        .deltaOut(getDeltaOut(choiceBuilder))
-        .instrumentId(instrument.get().getId())
-      ), defaultAtonal);
+      choice.setDeltaIn(getDeltaIn(choice));
+      choice.setDeltaOut(getDeltaOut(choice));
+      choice.setInstrumentId(instrument.get().getId());
+      this.craftArrangements(fabricator.add(choice), defaultAtonal);
     }
   }
 
@@ -345,17 +344,17 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // choose intro pattern (if available)
     Optional<ProgramSequencePattern> introPattern =
       isIntroSegment(choice)
-        ? fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.INTRO)
+        ? fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.Intro)
         : Optional.empty();
 
     // choose outro pattern (if available)
     Optional<ProgramSequencePattern> outroPattern =
       isOutroSegment(choice)
-        ? fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.OUTRO)
+        ? fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.Outro)
         : Optional.empty();
 
     // compute in and out points, and length # beats for which loop patterns will be required
-    double loopOutPos = maxPos - (outroPattern.map(ProgramSequencePattern::getTotal).orElse(0));
+    double loopOutPos = maxPos - (outroPattern.map(ProgramSequencePattern::getTotal).orElse((short) 0));
 
     // begin at the beginning and fabricate events for the segment of beginning to end
     double curPos = fromPos;
@@ -367,7 +366,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     // choose loop patterns until arrive at the out point or end of segment
     while (curPos < loopOutPos) {
       Optional<ProgramSequencePattern> loopPattern =
-        fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.LOOP);
+        fabricator.getRandomlySelectedPatternOfSequenceByVoiceAndType(choice, ProgramSequencePatternType.Loop);
       if (loopPattern.isPresent())
         curPos += craftPatternEvents(choice, loopPattern.get(), curPos, loopOutPos, range, defaultAtonal);
       else
@@ -403,11 +402,12 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     double totalBeats = toSegmentPosition - fromSegmentPosition;
     Collection<ProgramSequencePatternEvent> events = fabricator.sourceMaterial().getEvents(pattern);
 
-    SegmentChoiceArrangement arrangement = fabricator.add(new SegmentChoiceArrangement()
-      .id(UUID.randomUUID())
-      .segmentId(choice.getSegmentId())
-      .segmentChoiceId(choice.getId())
-      .programSequencePatternId(pattern.getId()));
+    var arrangement = new SegmentChoiceArrangement();
+    arrangement.setId(UUID.randomUUID());
+    arrangement.setSegmentId(choice.getSegmentId());
+    arrangement.segmentChoiceId(choice.getId());
+    arrangement.setProgramSequencePatternId(pattern.getId());
+    fabricator.add(arrangement);
 
     var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId())
       .orElseThrow(() -> new NexusException("Failed to retrieve instrument"));
@@ -470,11 +470,11 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @return volume ratio
    */
   private double computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition) {
-    return switch (choice.getInstrumentType()) {
-      case DRUM, STAB -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false, true);
-      case BASS -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false, false);
-      case PERCLOOP -> computeVolumeRatioForPickedNote(choice, segmentPosition, true, false, false);
-      case PAD, STICKY, STRIPE -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, true, true);
+    return switch (InstrumentType.valueOf(choice.getInstrumentType())) {
+      case Drum, Stab -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false, true);
+      case Bass -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false, false);
+      case PercLoop -> computeVolumeRatioForPickedNote(choice, segmentPosition, true, false, false);
+      case Pad, Sticky, Stripe -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, true, true);
     };
   }
 
@@ -485,7 +485,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
    @param choice          for which to compute volume ratio
    @param segmentPosition at which to compute
-   @param topOfSegment    if should appear at the top of the segment where its delta in appears
+   @param topOfSegment    if it should appear at the top of the segment where its delta in appears
    @param fadeIn          if deltaIn should fade in, else start right on cue
    @param fadeOut         if deltaOut should fade out, else stop right on cue
    @return volume ratio
@@ -672,17 +672,17 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
     if (audio.isEmpty()) return;
 
     // of pick
-    var pick = new SegmentChoiceArrangementPick()
-      .id(UUID.randomUUID())
-      .segmentId(segmentChoiceArrangement.getSegmentId())
-      .segmentChoiceArrangementId(segmentChoiceArrangement.getId())
-      .instrumentAudioId(audio.get().getId())
-      .programSequencePatternEventId(event.getId())
-      .name(fabricator.getTrackName(event))
-      .start(startSeconds)
-      .length(lengthSeconds)
-      .amplitude(event.getVelocity() * volRatio)
-      .note(fabricator.getInstrumentConfig(instrument).isTonal() ? note : Note.ATONAL);
+    var pick = new SegmentChoiceArrangementPick();
+    pick.setId(UUID.randomUUID());
+    pick.setSegmentId(segmentChoiceArrangement.getSegmentId());
+    pick.setSegmentChoiceArrangementId(segmentChoiceArrangement.getId());
+    pick.setInstrumentAudioId(audio.get().getId());
+    pick.setProgramSequencePatternEventId(event.getId());
+    pick.setName(fabricator.getTrackName(event));
+    pick.setStart(startSeconds);
+    pick.setLength(lengthSeconds);
+    pick.setAmplitude(event.getVelocity() * volRatio);
+    pick.setNote(fabricator.getInstrumentConfig(instrument).isTonal() ? note : Note.ATONAL);
     if (Objects.nonNull(segmentChordVoicingId))
       pick.setSegmentChordVoicingId(segmentChordVoicingId);
     fabricator.add(pick);
@@ -752,7 +752,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
     // score each audio against the current voice event, with some variability
     for (InstrumentAudio audio : fabricator.sourceMaterial().getAudios(instrument))
-      if (instrument.getType() == InstrumentType.DRUM)
+      if (instrument.getType() == InstrumentType.Drum)
         audioEntityScorePicker.score(audio.getId(), NameIsometry.similarity(fabricator.getTrackName(event), audio.getEvent()));
       else
         audioEntityScorePicker.score(audio.getId(), Note.of(audio.getNote()).sameAs(Note.of(event.getNote())) ? 100.0 : 0.0);

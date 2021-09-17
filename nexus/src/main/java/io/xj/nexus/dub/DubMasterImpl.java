@@ -6,11 +6,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.InstrumentAudio;
 import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.api.SegmentMessage;
 import io.xj.api.SegmentMessageType;
 import io.xj.api.SegmentType;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerConfig;
 import io.xj.lib.mixer.MixerFactory;
@@ -35,7 +35,7 @@ public class DubMasterImpl implements DubMaster {
   private final Fabricator fabricator;
   private final MixerFactory mixerFactory;
   private final List<String> warnings = Lists.newArrayList();
-  private final Map<UUID, Double> pickOffsetStart = Maps.newHashMap();
+  private final Map<UUID, Float> pickOffsetStart = Maps.newHashMap();
   private final DubAudioCache dubAudioCache;
   private Mixer mixer;
 
@@ -159,7 +159,7 @@ public class DubMasterImpl implements DubMaster {
    @param pick to get offset start for
    @return offset start, or cached result
    */
-  private Double computeOffsetStart(SegmentChoiceArrangementPick pick) throws NexusException {
+  private float computeOffsetStart(SegmentChoiceArrangementPick pick) throws NexusException {
     if (!pickOffsetStart.containsKey(pick.getId()))
       pickOffsetStart.put(pick.getId(),
         fabricator.sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
@@ -229,12 +229,12 @@ public class DubMasterImpl implements DubMaster {
         body.append(String.format("%n%n%s", warning));
       }
 
-      fabricator.add(new SegmentMessage()
-        .id(UUID.randomUUID())
-        .segmentId(fabricator.getSegment().getId())
-        .type(SegmentMessageType.WARNING)
-        .body(body.toString())
-        );
+      var msg = new SegmentMessage();
+      msg.setId(UUID.randomUUID());
+      msg.setSegmentId(fabricator.getSegment().getId());
+      msg.setType(SegmentMessageType.WARNING);
+      msg.setBody(body.toString());
+      fabricator.add(msg);
     } catch (Exception e1) {
       log.warn("Failed to create SegmentMessage", e1);
     }

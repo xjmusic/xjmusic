@@ -4,13 +4,13 @@ package io.xj.nexus.craft.detail;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentState;
-import io.xj.api.InstrumentType;
-import io.xj.api.Program;
-import io.xj.api.ProgramState;
-import io.xj.api.ProgramType;
-import io.xj.api.ProgramVoice;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.api.SegmentChoice;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
@@ -37,11 +37,11 @@ import java.util.stream.Collectors;
 public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft {
   public static final List<String> DETAIL_INSTRUMENT_TYPES =
     ImmutableList.of(
-      InstrumentType.BASS,
-      InstrumentType.STRIPE,
-      InstrumentType.PAD,
-      InstrumentType.STICKY,
-      InstrumentType.STAB
+      InstrumentType.Bass,
+      InstrumentType.Stripe,
+      InstrumentType.Pad,
+      InstrumentType.Sticky,
+      InstrumentType.Stab
     ).stream().map(InstrumentType::toString).collect(Collectors.toList());
 
   @Inject
@@ -55,7 +55,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   public void doWork() throws NexusException {
     // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> Value.stringOrDefault(choice.getInstrumentType(),choice.getId().toString());
-    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.DETAIL, choice.getProgramType());
+    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail.toString(), choice.getProgramType());
     precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, fabricator.getTemplateConfig().getDeltaArcDetailPlateauRatio());
 
     for (InstrumentType voicingType : fabricator.getDistinctChordVoicingTypes()) {
@@ -105,7 +105,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
 
     // Retrieve programs bound to chain having a voice of the specified type
     Map<UUID/*ID*/, Program> programMap = fabricator.sourceMaterial()
-      .getProgramsOfType(ProgramType.DETAIL).stream()
+      .getProgramsOfType(ProgramType.Detail).stream()
       .collect(Collectors.toMap(Program::getId, program -> program));
     Collection<Program> sourcePrograms = fabricator.sourceMaterial()
       .getAllProgramVoices().stream()
@@ -151,14 +151,14 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
         // Instrument choice inertia: prefer same instrument choices throughout a main program
         // https://www.pivotaltracker.com/story/show/178442889
         fabricator.retrospective().getChoices().stream()
-          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType()))
+          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType().toString()))
           .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_MAIN_PROGRAM));
 
       case NEXTMAIN, NEXTMACRO ->
         // Keep same instruments when carrying outgoing choices to incoming choices of next segment
         // https://www.pivotaltracker.com/story/show/179126302
         fabricator.retrospective().getChoices().stream()
-          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType()))
+          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType().toString()))
           .filter(this::isUnlimitedOut)
           .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_OUTGOING_TO_INCOMING));
     }
@@ -187,7 +187,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(instrument))
       score += SCORE_DIRECTLY_BOUND;
-    else if (instrument.getState().equals(InstrumentState.DRAFT))
+    else if (instrument.getState().equals(InstrumentState.Draft))
       score += SCORE_UNPUBLISHED;
 
     return score;
@@ -214,7 +214,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
       score += SCORE_DIRECTLY_BOUND;
-    else if (program.getState().equals(ProgramState.DRAFT))
+    else if (program.getState().equals(ProgramState.Draft))
       score += SCORE_UNPUBLISHED;
 
     // score is above zero, else empty

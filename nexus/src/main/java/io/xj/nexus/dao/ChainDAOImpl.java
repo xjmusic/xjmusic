@@ -10,11 +10,12 @@ import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.api.TemplateType;
-import io.xj.api.UserRoleType;
+import io.xj.hub.enums.TemplateType;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.MessageType;
@@ -107,9 +108,9 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       // Chains are always bootstrapped in FABRICATED state and PRODUCTION type
       entity.setState(ChainState.FABRICATE);
       entity.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
-      requireAccount(access, entity.getAccountId(), UserRoleType.ENGINEER);
+      requireAccount(access, entity.getAccountId(), UserRoleType.Engineer);
       requireUniqueEmbedKey(access, entity);
-      require(String.format("%s-type", type.toString()), type.equals(entity.getType()));
+      require(String.format("%s-type", type.toString()), type.toString().equals(entity.getType().toString()));
 
       // Give model a fresh unique ID and Validate
       entity.setId(UUID.randomUUID());
@@ -140,11 +141,11 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       // Further logic based on Chain Type
       switch (entity.getType()) {
         case PRODUCTION -> {
-          requireAccount(access, entity.getAccountId(), UserRoleType.ENGINEER);
+          requireAccount(access, entity.getAccountId(), UserRoleType.Engineer);
           requireUniqueEmbedKey(access, entity);
         }
         case PREVIEW -> {
-          requireAccount(access, entity.getAccountId(), UserRoleType.ARTIST);
+          requireAccount(access, entity.getAccountId(), UserRoleType.Artist);
           entity.setEmbedKey(generatePreviewEmbedKey());
         }
       }
@@ -165,7 +166,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     Value.require(chain.getName(), "Name");
 
     if (Value.isEmpty(chain.getType()))
-      chain.setType(TemplateType.PREVIEW);
+      chain.setType(ChainType.PREVIEW);
     if (Value.isEmpty(chain.getState()))
       chain.setState(ChainState.DRAFT);
     if (Value.isSet(chain.getEmbedKey()))
@@ -240,7 +241,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         throw new DAOValidationException("Cannot modify Chain Type");
 
       // [#174153691] Cannot change stop-at time or Embed Key of Preview chain
-      if (TemplateType.PREVIEW == existing.getType()) {
+      if (ChainType.PREVIEW == existing.getType()) {
         chain.setStopAt(existing.getStopAt());
         chain.setEmbedKey(existing.getEmbedKey());
       }
@@ -305,15 +306,17 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     // Get the last segment in the chain
     // If the chain had no last segment, it must be empty; return a template for its first segment
     var maybeLastSegmentInChain = segmentDAO.readLastSegment(access, chain.getId());
-    if (maybeLastSegmentInChain.isEmpty())
-      return Optional.of(new Segment()
-        .id(UUID.randomUUID())
-        .chainId(chain.getId())
-        .beginAt(chain.getStartAt())
-        .offset(0L)
-        .delta(0)
-        .type(SegmentType.PENDING)
-        .state(SegmentState.PLANNED));
+    if (maybeLastSegmentInChain.isEmpty()) {
+      var seg = new Segment();
+      seg.setId(UUID.randomUUID());
+      seg.setChainId(chain.getId());
+      seg.setBeginAt(chain.getStartAt());
+      seg.setOffset(0L);
+      seg.setDelta(0);
+      seg.setType(SegmentType.PENDING);
+      seg.setState(SegmentState.PLANNED);
+      return Optional.of(seg);
+    }
     var lastSegmentInChain = maybeLastSegmentInChain.get();
 
     // [#204] Craft process updates Chain to COMPLETE state when the final segment is in dubbed state.
@@ -333,14 +336,15 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     }
 
     // Build the template of the segment that follows the last known one
-    return Optional.of(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain.getId())
-      .beginAt(lastSegmentInChain.getEndAt())
-      .offset(lastSegmentInChain.getOffset() + 1)
-      .delta(lastSegmentInChain.getDelta())
-      .type(SegmentType.PENDING)
-      .state(SegmentState.PLANNED));
+    var seg = new Segment();
+    seg.setId(UUID.randomUUID());
+    seg.setChainId(chain.getId());
+    seg.setBeginAt(lastSegmentInChain.getEndAt());
+    seg.setOffset(lastSegmentInChain.getOffset() + 1);
+    seg.setDelta(lastSegmentInChain.getDelta());
+    seg.setType(SegmentType.PENDING);
+    seg.setState(SegmentState.PLANNED);
+    return Optional.of(seg);
   }
 
   @Override
@@ -363,8 +367,8 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   @Override
   public void requireAccount(HubClientAccess access, Chain chain) throws DAOPrivilegeException {
     switch (chain.getType()) {
-      case PRODUCTION -> requireAccount(access, chain.getAccountId(), UserRoleType.ENGINEER);
-      case PREVIEW -> requireAccount(access, chain.getAccountId(), UserRoleType.ENGINEER, UserRoleType.ARTIST);
+      case PRODUCTION -> requireAccount(access, chain.getAccountId(), UserRoleType.Engineer);
+      case PREVIEW -> requireAccount(access, chain.getAccountId(), UserRoleType.Engineer, UserRoleType.Artist);
     }
   }
 
@@ -386,18 +390,19 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       update(access, priorChainId, prior);
 
       // of new chain with original properties (implicitly created in draft state)
-      Chain created = create(access, entityFactory.clone(prior)
-        .id(UUID.randomUUID()) // new id
-        .embedKey(embedKey)
-        // [#170273871] Revived chain should always start now
-        .startAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)))
-        // [#177191499] When chain is revived, reset its fabricatedAheadSeconds value
-        .fabricatedAheadSeconds(0.0));
+      var cloned = entityFactory.clone(prior);
+      cloned.setId(UUID.randomUUID()); // new id
+      cloned.setEmbedKey(embedKey);
+      // [#170273871] Revived chain should always start now
+      cloned.startAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
+      // [#177191499] When chain is revived, reset its fabricatedAheadSeconds value
+      cloned.fabricatedAheadSeconds(0.0);
+      Chain created = create(access, cloned);
 
       // update new chain into ready, then fabricate, which begins the new work
       updateState(access, created.getId(), ChainState.READY);
       updateState(access, created.getId(), ChainState.FABRICATE);
-      created = created.state(ChainState.FABRICATE);
+      created.setState(ChainState.FABRICATE);
 
       // publish a notification reporting the event
       LOG.info("Revived Chain created {} from revived {} because {}", Chains.getIdentifier(created), created.getId(), reason);
@@ -507,7 +512,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       case READY:
       case FABRICATE:
         chain.startAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
-        if (TemplateType.PREVIEW.equals(chain.getType())) {
+        if (ChainType.PREVIEW.equals(chain.getType())) {
           chain.setStopAt(Value.formatIso8601UTC(
             Instant.parse(chain.getStartAt()).plus(previewLengthMaxHours, HOURS))); // [#174153691]
         }

@@ -8,15 +8,15 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.ProgramType;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.api.TemplateType;
+import io.xj.hub.Topology;
+import io.xj.hub.enums.ProgramType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.InternalResource;
 import io.xj.lib.mixer.Mixer;
@@ -43,9 +43,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.File;
 import java.io.FileInputStream;
 import java.time.Instant;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -99,76 +100,73 @@ public class DubDubMasterContinueTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.account1, "Test Print #1", TemplateType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.INITIAL)
-      .state(SegmentState.DUBBED)
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .endAt("2017-02-14T12:01:32.000001Z")
-      .offset(0L)
-      .delta(0)
-      .key("D major")
-      .total(64)
-      .density(0.73)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-97898a2sdf7892"));
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .offset(1L)
-      .state(SegmentState.DUBBING)
-      .beginAt("2017-02-14T12:01:32.000001Z")
-      .endAt("2017-02-14T12:02:04.000001Z")
-      .key("Db minor")
-      .total(64)
-      .density(0.85)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-97898a2sdf7892"));
+    Chain chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    store.put(buildSegment(
+      chain1,
+      SegmentType.INITIAL,
+      0,
+      0,
+      SegmentState.DUBBED,
+      Instant.parse("2017-02-14T12:01:00.000001Z"),
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      "D major",
+      64,
+      0.73,
+      120.0,
+      "chains-1-segments-97898a2sdf7892"));
+    store.put(buildSegment(
+      chain1,
+      SegmentType.CONTINUE,
+      1,
+      1,
+      SegmentState.DUBBING,
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      Instant.parse("2017-02-14T12:02:04.000001Z"),
+      "Db minor",
+      64,
+      0.85,
+      120.0,
+      "chains-1-segments-97898a2sdf7892"));
 
     // Chain "Test Print #1" has this segment that was just dubbed
-    Segment segment3 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .offset(2L)
-      .state(SegmentState.DUBBED)
-      .beginAt("2017-02-14T12:02:04.000001Z")
-      .endAt("2017-02-14T12:02:36.000001Z")
-      .key("F Major")
-      .total(64)
-      .density(0.30)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .segmentId(segment3.getId())
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programType(ProgramType.MACRO)
-      .programId(fake.program4_sequence1_binding0.getProgramId())
-      .programSequenceBindingId(fake.program4_sequence1_binding0.getId()));
-    store.put(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .segmentId(segment3.getId())
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programType(ProgramType.MAIN)
-      .programId(fake.program5_sequence0_binding0.getProgramId())
-      .programSequenceBindingId(fake.program5_sequence0_binding0.getId()));
+    Segment segment3 = store.put(buildSegment(
+      chain1,
+      SegmentType.CONTINUE,
+      2,
+      2,
+      SegmentState.DUBBED,
+      Instant.parse("2017-02-14T12:02:04.000001Z"),
+      Instant.parse("2017-02-14T12:02:36.000001Z"),
+      "F Major",
+      64,
+      0.30,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892.wav"));
+    store.put(buildSegmentChoice(
+      segment3,
+      Segments.DELTA_UNLIMITED,
+      Segments.DELTA_UNLIMITED,
+      fake.program4,
+      fake.program4_sequence1_binding0));
+    store.put(buildSegmentChoice(
+      segment3,
+      Segments.DELTA_UNLIMITED,
+      Segments.DELTA_UNLIMITED,
+      fake.program5,
+      fake.program5_sequence0_binding0));
 
     // Chain "Test Print #1" has this segment dubbing - Structure is complete
-    segment4 = store.put(NexusIntegrationTestingFixtures.buildSegment(chain1, 3, SegmentState.DUBBING, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:03:15.836735Z"), "D Major", 16, 0.45, 120.0, "chains-1-segments-9f7s89d8a7892", "wav"));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.MACRO, fake.program4_sequence1_binding0));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.MAIN, fake.program5_sequence1_binding0));
-    SegmentChoice choice1 = store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, fake.program35, fake.program35_sequence0, fake.program35_voice0, fake.instrument8));
-    store.put(NexusIntegrationTestingFixtures.buildMeme(segment4, "Cozy"));
-    store.put(NexusIntegrationTestingFixtures.buildMeme(segment4, "Classic"));
-    store.put(NexusIntegrationTestingFixtures.buildMeme(segment4, "Outlook"));
-    store.put(NexusIntegrationTestingFixtures.buildMeme(segment4, "Rosy"));
-    store.put(NexusIntegrationTestingFixtures.buildChord(segment4, 0.0, "A minor"));
-    store.put(NexusIntegrationTestingFixtures.buildChord(segment4, 8.0, "D major"));
-    store.put(NexusIntegrationTestingFixtures.buildArrangement(choice1));
+    segment4 = store.put(buildSegment(chain1, 3, SegmentState.DUBBING, Instant.parse("2017-02-14T12:03:08.000001Z"), Instant.parse("2017-02-14T12:03:15.836735Z"), "D Major", 16, 0.45, 120.0, "chains-1-segments-9f7s89d8a7892", "wav"));
+    store.put(buildSegmentChoice(segment4, ProgramType.Macro, fake.program4_sequence1_binding0));
+    store.put(buildSegmentChoice(segment4, ProgramType.Main, fake.program5_sequence1_binding0));
+    SegmentChoice choice1 = store.put(buildSegmentChoice(segment4, fake.program35, fake.program35_sequence0, fake.program35_voice0, fake.instrument8));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment4, "Cozy"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment4, "Classic"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment4, "Outlook"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment4, "Rosy"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment4, 0.0, "A minor"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment4, 8.0, "D major"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement(choice1));
 
     // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
   }

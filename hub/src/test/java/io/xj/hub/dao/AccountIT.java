@@ -7,18 +7,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
-import io.xj.api.AccountUser;
-import io.xj.api.Library;
-import io.xj.api.User;
+import io.xj.hub.HubIntegrationTestModule;
+import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
-import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.tables.pojos.Account;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -33,8 +30,12 @@ import java.util.Collection;
 import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -105,10 +106,9 @@ public class AccountIT {
   @Test
   public void update() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
-    var entity = new Account()
-      .id(UUID.randomUUID())
-      .name("jammers")
-      ;
+    var entity = new Account();
+    entity.setId(UUID.randomUUID());
+       entity.setName("jammers");
 
     testDAO.update(hubAccess, fake.account1.getId(), entity);
 
@@ -120,10 +120,9 @@ public class AccountIT {
   @Test
   public void update_failsIfNotAdmin() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
-    var entity = new Account()
-      .id(UUID.randomUUID())
-      .name("jammers")
-      ;
+    var entity = new Account();
+    entity.setId(UUID.randomUUID());
+    entity.setName("jammers");
 
     failure.expect(DAOException.class);
     failure.expectMessage("top-level hubAccess is required");
@@ -157,29 +156,21 @@ public class AccountIT {
   @Test
   public void delete_failsIfHasLibrary() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
-    test.insert(new Library()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .name("Testing"));
+    test.insert(buildLibrary(fake.account1, "Testing"));
 
-    failure.expect(DAOException.class);
-    failure.expectMessage("Found Library in Account");
-
-    testDAO.destroy(hubAccess, fake.account1.getId());
+    var e = assertThrows(DAOException.class, () ->
+      testDAO.destroy(hubAccess, fake.account1.getId()));
+    assertEquals("Found Library in Account", e.getMessage());
   }
 
   @Test
   public void delete_failsIfHasAccountUser() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
-    fake.user1 = test.insert(new User()
-      .id(UUID.randomUUID())
-      .name("jim")
-      .email("jim@jim.com")
-      .avatarUrl("http://www.jim.com/jim.png"));
-    test.insert(new AccountUser()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .userId(fake.user1.getId()));
+    fake.user1 = test.insert(buildUser("jim",
+      "jim@jim.com",
+      "http://www.jim.com/jim.png",
+      "User"));
+    test.insert(buildAccountUser(fake.account1, fake.user1));
 
     failure.expect(DAOException.class);
     failure.expectMessage("Found User in Account");

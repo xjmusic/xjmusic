@@ -2,9 +2,8 @@
 package io.xj.hub.access;
 
 
-import io.xj.api.AccountUser;
-import io.xj.api.UserAuth;
-import io.xj.api.UserRole;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.UserAuth;
 
 import javax.ws.rs.core.NewCookie;
 import java.util.Collection;
@@ -18,7 +17,7 @@ public interface HubAccessControlProvider {
    @param userRoles    roles that this user has access to.
    @return access token
    */
-  String create(UserAuth userAuth, Collection<AccountUser> accountUsers, Collection<UserRole> userRoles) throws HubAccessException;
+  String create(UserAuth userAuth, Collection<AccountUser> accountUsers, String userRoles) throws HubAccessException;
 
   /**
    Update an access token to grant a user access to resources.
@@ -27,7 +26,7 @@ public interface HubAccessControlProvider {
    @param userAccountRoles accounts that this user has access to.
    @param userRoles        roles that this user has access to.
    */
-  void update(String accessToken, UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws HubAccessException;
+  void update(String accessToken, UserAuth userAuth, Collection<AccountUser> userAccountRoles, String userRoles) throws HubAccessException;
 
   /**
    Expire an access token.

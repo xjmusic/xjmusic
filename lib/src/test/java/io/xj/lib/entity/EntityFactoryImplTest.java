@@ -4,13 +4,11 @@ package io.xj.lib.entity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
-import io.xj.api.Program;
-import io.xj.api.ProgramState;
+import io.xj.lib.Widget;
+import io.xj.lib.WidgetState;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -18,11 +16,10 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class EntityFactoryImplTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   private EntityFactory subject;
 
   @Before
@@ -33,52 +30,52 @@ public class EntityFactoryImplTest {
 
   @Test
   public void register_returnsSameSchema_forExistingType() {
-    subject.register("Program").createdBy(Program::new).belongsTo("OtherThing");
+    subject.register("Widget").createdBy(Widget::new).belongsTo("OtherThing");
 
-    assertEquals(ImmutableSet.of("otherThing"), subject.register("programs").getBelongsTo());
+    assertEquals(ImmutableSet.of("otherThing"), subject.register("widgets").getBelongsTo());
   }
 
   @Test
   public void register_returnsSameSchema_forExistingTypeClass() {
-    subject.register(Program.class).createdBy(Program::new).belongsTo("OtherThing");
+    subject.register(Widget.class).createdBy(Widget::new).belongsTo("OtherThing");
 
-    assertEquals(ImmutableSet.of("otherThing"), subject.register(Program.class).getBelongsTo());
+    assertEquals(ImmutableSet.of("otherThing"), subject.register(Widget.class).getBelongsTo());
   }
 
   @Test
   public void register_returnsSameSchema_forExisting_TypeThenClass() {
-    subject.register("Program").createdBy(Program::new).belongsTo("OtherThing");
+    subject.register("Widget").createdBy(Widget::new).belongsTo("OtherThing");
 
-    assertEquals(ImmutableSet.of("otherThing"), subject.register(Program.class).getBelongsTo());
+    assertEquals(ImmutableSet.of("otherThing"), subject.register(Widget.class).getBelongsTo());
   }
 
   @Test
   public void register_returnsSameSchema_forExisting_ClassThenType() {
-    subject.register(Program.class).createdBy(Program::new).belongsTo("OtherThing");
+    subject.register(Widget.class).createdBy(Widget::new).belongsTo("OtherThing");
 
-    assertEquals(ImmutableSet.of("otherThing"), subject.register("Program").getBelongsTo());
+    assertEquals(ImmutableSet.of("otherThing"), subject.register("Widget").getBelongsTo());
   }
 
   @Test
   public void register_basicTypeCreator() throws EntityException {
-    subject.register("Program").createdBy(Program::new);
+    subject.register("Widget").createdBy(Widget::new);
 
-    assertEquals(Program.class, subject.getInstance("program").getClass());
+    assertEquals(Widget.class, subject.getInstance("widget").getClass());
   }
 
   @Test
   public void register_withBelongsTo() throws EntityException {
-    subject.register("Program").belongsTo("FictionalEntity");
+    subject.register("Widget").belongsTo("FictionalEntity");
 
-    assertEquals(ImmutableSet.of("fictionalEntity"), subject.getBelongsTo("programs"));
+    assertEquals(ImmutableSet.of("fictionalEntity"), subject.getBelongsTo("widgets"));
   }
 
   @Test
   public void register_withAttributesAndBelongsTo() throws EntityException {
-    subject.register("Program");
-    subject.register("FictionalEntity").withAttribute("name").belongsTo("library").createdBy(Program::new);
+    subject.register("Widget");
+    subject.register("FictionalEntity").withAttribute("name").belongsTo("superwidget").createdBy(Widget::new);
 
-    assertEquals(ImmutableSet.of("library"),
+    assertEquals(ImmutableSet.of("superwidget"),
       subject.getBelongsTo("fictional-entity"));
 
     assertEquals(ImmutableSet.of("name"),
@@ -87,7 +84,7 @@ public class EntityFactoryImplTest {
 
   @Test
   public void register_withAttributes() throws EntityException {
-    subject.register("FictionalEntity").withAttribute("name").createdBy(Program::new);
+    subject.register("FictionalEntity").withAttribute("name").createdBy(Widget::new);
 
     assertEquals(ImmutableSet.of("name"), subject.getAttributes("fictional-entity"));
   }
@@ -95,7 +92,7 @@ public class EntityFactoryImplTest {
   @Test
   public void getBelongsToType() throws EntityException {
     subject.register("OtherEntity");
-    subject.register("FakeEntity").belongsTo("otherEntity").createdBy(Program::new);
+    subject.register("FakeEntity").belongsTo("otherEntity").createdBy(Widget::new);
 
     assertEquals(ImmutableSet.of("otherEntity"), subject.getBelongsTo("fake-entity"));
   }
@@ -108,16 +105,16 @@ public class EntityFactoryImplTest {
   }
 
   @Test
-  public void getBelongsToType_exceptionIfDoesNotExist() throws EntityException {
-    failure.expect(EntityException.class);
-    failure.expectMessage("Cannot get belongs-to type unknown type: other-entities");
+  public void getBelongsToType_exceptionIfDoesNotExist() {
+    var e = assertThrows(EntityException.class, () ->
+      subject.getBelongsTo("other-entity"));
 
-    subject.getBelongsTo("other-entity");
+    assertEquals("Cannot get belongs-to type unknown type: other-entities", e.getMessage());
   }
 
   @Test
   public void getAttributes() throws EntityException {
-    subject.register("FalseEntity").withAttribute("yarn").createdBy(Program::new);
+    subject.register("FalseEntity").withAttribute("yarn").createdBy(Widget::new);
 
     assertEquals(ImmutableSet.of("yarn"), subject.getAttributes("false-entity"));
   }
@@ -125,34 +122,32 @@ public class EntityFactoryImplTest {
 
   @Test
   public void testClone() throws EntityException {
-    subject.register("Program")
+    subject.register("Widget")
       .withAttributes("name")
-      .belongsTo("library")
-      .createdBy(Program::new);
-    Program from = new Program().name("Flight")
-      .libraryId(UUID.randomUUID())
-      ;
+      .belongsTo("superwidget")
+      .createdBy(Widget::new);
+    Widget from = new Widget().setName("Flight")
+      .setSuperwidgetId(UUID.randomUUID());
 
-    Program result = subject.clone(from);
+    Widget result = subject.clone(from);
 
     Assert.assertEquals("Flight", result.getName());
-    Assert.assertEquals(from.getLibraryId(), result.getLibraryId());
+    Assert.assertEquals(from.getSuperwidgetId(), result.getSuperwidgetId());
     Assert.assertEquals(from.getId(), result.getId());
     assertNotSame(result, from);
   }
 
   @Test
   public void testClone_withState() throws EntityException {
-    subject.register("Program")
+    subject.register("Widget")
       .withAttributes("name", "state")
-      .belongsTo("library")
-      .createdBy(Program::new);
-    Program from = new Program()
-      .name("Flight")
-      .state(ProgramState.PUBLISHED)
-      ;
+      .belongsTo("superwidget")
+      .createdBy(Widget::new);
+    Widget from = new Widget()
+      .setName("Flight")
+      .setState(WidgetState.Published);
 
-    Program result = subject.clone(from);
+    Widget result = subject.clone(from);
 
     Assert.assertEquals("Flight", result.getName());
     Assert.assertEquals(from.getState(), result.getState());
@@ -162,36 +157,35 @@ public class EntityFactoryImplTest {
 
 
   /**
-   This should ostensibly be a test inside the Entity library-- and it is, except for this bug that
-   at the time of this writing, we couldn't isolate to that library, and are therefore reproducing it here.
+   This should ostensibly be a test inside the Entity superwidget-- and it is, except for this bug that
+   at the time of this writing, we couldn't isolate to that superwidget, and are therefore reproducing it here.
 
    @throws EntityException on failure
    */
   @Test
-  public void internal_entityFactoryClonesProgramTypeOK() throws EntityException {
+  public void internal_entityFactoryClonesWidgetTypeOK() throws EntityException {
     // Some topology
-    subject.register("Program");
-    subject.register("Program")
+    subject.register("Widget");
+    subject.register("Widget")
       .withAttributes("name", "state")
-      .belongsTo("library")
-      .createdBy(Program::new);
-    Program program = new Program()
-      .id(UUID.fromString("ac5eba0a-f725-4831-9ff2-a8d92a73a09d"))
-      .state(ProgramState.PUBLISHED);
+      .belongsTo("superwidget")
+      .createdBy(Widget::new);
+    Widget widget = new Widget()
+      .setId(UUID.fromString("ac5eba0a-f725-4831-9ff2-a8d92a73a09d"))
+      .setState(WidgetState.Published);
 
-    Program result = subject.clone(program);
+    Widget result = subject.clone(widget);
 
-    Assert.assertEquals(ProgramState.PUBLISHED, result.getState());
+    Assert.assertEquals(WidgetState.Published, result.getState());
   }
 
   @Test
   public void testClone_withNullBelongsToId() throws EntityException {
-    subject.register("Program").withAttribute("name").belongsTo("library").createdBy(Program::new);
-    Program from = new Program()
-      .name("Flight")
-      ;
+    subject.register("Widget").withAttribute("name").belongsTo("superwidget").createdBy(Widget::new);
+    Widget from = new Widget()
+      .setName("Flight");
 
-    Program result = subject.clone(from);
+    Widget result = subject.clone(from);
 
     Assert.assertEquals("Flight", result.getName());
     Assert.assertEquals(from.getId(), result.getId());
@@ -200,33 +194,31 @@ public class EntityFactoryImplTest {
 
   @Test
   public void testCloneAll() throws EntityException {
-    subject.register("Program")
+    subject.register("Widget")
       .withAttribute("name")
-      .belongsTo("library")
-      .createdBy(Program::new);
-    Program fromA = new Program()
-      .name("Air")
-      .libraryId(UUID.randomUUID())
-      ;
-    Program fromB = new Program()
-      .name("Ground")
-      .libraryId(UUID.randomUUID())
-      ;
+      .belongsTo("superwidget")
+      .createdBy(Widget::new);
+    Widget fromA = new Widget()
+      .setName("Air")
+      .setSuperwidgetId(UUID.randomUUID());
+    Widget fromB = new Widget()
+      .setName("Ground")
+      .setSuperwidgetId(UUID.randomUUID());
 
-    Collection<Program> result = subject.cloneAll(ImmutableList.of(fromA, fromB));
+    Collection<Widget> result = subject.cloneAll(ImmutableList.of(fromA, fromB));
 
     assertEquals(2, result.size());
-    Iterator<Program> resultIt = result.iterator();
+    Iterator<Widget> resultIt = result.iterator();
     //
-    Program resultA = resultIt.next();
+    Widget resultA = resultIt.next();
     Assert.assertEquals("Air", resultA.getName());
-    Assert.assertEquals(fromA.getLibraryId(), resultA.getLibraryId());
+    Assert.assertEquals(fromA.getSuperwidgetId(), resultA.getSuperwidgetId());
     Assert.assertEquals(fromA.getId(), resultA.getId());
     assertNotSame(resultA, fromA);
     //
-    Program resultB = resultIt.next();
+    Widget resultB = resultIt.next();
     Assert.assertEquals("Ground", resultB.getName());
-    Assert.assertEquals(fromB.getLibraryId(), resultB.getLibraryId());
+    Assert.assertEquals(fromB.getSuperwidgetId(), resultB.getSuperwidgetId());
     Assert.assertEquals(fromB.getId(), resultB.getId());
     assertNotSame(resultB, fromB);
   }

@@ -6,22 +6,19 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.Library;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.api.Template;
-import io.xj.api.TemplateBinding;
-import io.xj.api.TemplateType;
+import io.xj.hub.Topology;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
-import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
@@ -30,7 +27,6 @@ import io.xj.nexus.persistence.NexusEntityStore;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
@@ -38,9 +34,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildLibrary;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildHubClientAccess;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -50,8 +50,6 @@ import static org.junit.Assert.fail;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SegmentDAOImplTest {
-  @Mock
-  FileStoreProvider fileStoreProvider;
   private Account account1;
   private Chain chain3;
   private Chain chain5;
@@ -62,9 +60,7 @@ public class SegmentDAOImplTest {
   private Segment segment4;
   private Segment segment5;
   private SegmentDAO testDAO;
-  private Library library1;
   private Template template1;
-  private TemplateBinding templateBinding1;
 
   @Before
   public void setUp() throws Exception {
@@ -89,16 +85,16 @@ public class SegmentDAOImplTest {
     testDAO = injector.getInstance(SegmentDAO.class);
 
     // Account "Testing" has a chain "Test Print #1"
-    account1 = NexusIntegrationTestingFixtures.buildAccount("Testing");
-    library1 = buildLibrary(account1, "test");
+    account1 = buildAccount("Testing");
+    Library library1 = buildLibrary(account1, "test");
     template1 = buildTemplate(account1, "Test Template 1", "test1");
-    templateBinding1 = buildTemplateBinding(template1, library1);
+    buildTemplateBinding(template1, library1);
 
     chain3 = store.put(new Chain()
       .id(UUID.randomUUID())
       .accountId(account1.getId())
       .name("Test Print #1")
-      .type(TemplateType.PRODUCTION)
+      .type(ChainType.PRODUCTION)
       .state(ChainState.FABRICATE)
       .startAt("2014-08-12T12:17:02.527142Z"));
 
@@ -181,7 +177,7 @@ public class SegmentDAOImplTest {
    */
   @Test
   public void create() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
@@ -220,7 +216,7 @@ public class SegmentDAOImplTest {
    */
   @Test
   public void create_alwaysInPlannedState() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
@@ -253,7 +249,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void create_FailsIfNotUniqueChainOffset() {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
@@ -276,7 +272,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void create_FailsWithoutTopLevelAccess() {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("User");
+    HubClientAccess access = buildHubClientAccess("User");
     Segment inputData = new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
@@ -297,7 +293,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void create_FailsWithoutChainID() {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = new Segment()
       .offset(4L)
       .delta(0)
@@ -318,7 +314,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readOne() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Segment result = testDAO.readOne(access, segment2.getId());
 
@@ -338,9 +334,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readOne_failsWhenUserIsNotInChain() {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())
-    ), "User");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(buildAccount()), "User");
 
     Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
       testDAO.readOne(access, segment1.getId()));
@@ -350,7 +344,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readMany() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(chain3.getId()));
 
@@ -379,7 +373,7 @@ public class SegmentDAOImplTest {
    */
   @Test
   public void readMany_hasNoLimit() throws Exception {
-    chain5 = store.put(NexusIntegrationTestingFixtures.buildChain(account1, "Test Print #1", TemplateType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
+    chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
     for (int i = 0; i < 20; i++)
       store.put(new Segment()
         .id(UUID.randomUUID())
@@ -401,7 +395,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readMany_byChainEmbedKey() throws Exception {
-    chain5 = store.put(NexusIntegrationTestingFixtures.buildChain(account1, "Test Print #1", TemplateType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
+    chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
     store.put(new Segment()
       .id(UUID.randomUUID())
       .chainId(chain5.getId())
@@ -484,7 +478,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readManyFromToOffset() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromToOffset(access, chain3.getId(), 2L, 3L);
 
@@ -498,7 +492,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readManyFromToOffset_acceptsNegativeOffsets_returnsEmptyCollection() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromToOffset(access, chain3.getId(), -1L, -1L);
 
@@ -507,7 +501,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readManyFromSecondsUTC() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromSecondsUTC(access, chain3.getId(), 1487073724L);
 
@@ -532,15 +526,15 @@ public class SegmentDAOImplTest {
     int numSegmentsToGenerate = 50;
     int total = 16;
     int tempo = 120;
-    chain5 = store.put(NexusIntegrationTestingFixtures.buildChain(account1, "Test Print #1", TemplateType.PRODUCTION, ChainState.FABRICATE, template1, beginAt, null, "barnacles"));
+    chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, beginAt, null, "barnacles"));
     for (int offset = 0; offset < numSegmentsToGenerate; offset++) {
       Instant endAt = beginAt.plusMillis(1000 * total * 60 / tempo);
-      store.put(NexusIntegrationTestingFixtures.buildSegment(chain5, offset, SegmentState.DUBBED,
+      store.put(buildSegment(chain5, offset, SegmentState.DUBBED,
         beginAt, endAt, "D major", total, 0.73, tempo,
         "chains-1-segments-9f7s89d8a7892.wav", "OGG"));
       beginAt = endAt;
     }
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
+    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
     Collection<Segment> result = testDAO.readManyFromSecondsUTC(access, chain5.getId(), fromSecondsUTC + 1);
 
@@ -553,7 +547,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readManyFromSecondsUTC_byChainEmbedKey() throws Exception {
-    chain5 = store.put(NexusIntegrationTestingFixtures.buildChain(account1, "Test Print #1", TemplateType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
+    chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
     store.put(new Segment()
       .id(UUID.randomUUID())
       .chainId(chain5.getId())
@@ -635,7 +629,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readOneInState() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("Internal");
+    HubClientAccess access = buildHubClientAccess("Internal");
 
     Segment result = testDAO.readOneInState(access, chain3.getId(), SegmentState.PLANNED, Instant.parse("2017-02-14T12:03:08.000001Z"));
 
@@ -649,8 +643,8 @@ public class SegmentDAOImplTest {
 
   @Test
   public void readOneInState_failIfNoneInChain() {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("Internal");
-    NexusIntegrationTestingFixtures.buildChain(account1, "Test Print #2", TemplateType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
+    HubClientAccess access = buildHubClientAccess("Internal");
+    buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
 
     Exception thrown = assertThrows(DAOExistenceException.class, () ->
       testDAO.readOneInState(access, segment2.getId(), SegmentState.PLANNED, Instant.parse("2017-02-14T12:03:08.000001Z")));
@@ -660,7 +654,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void update() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
@@ -694,7 +688,7 @@ public class SegmentDAOImplTest {
    */
   @Test
   public void persistPriorSegmentContent() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
     segment4 = store.put(new Segment()
       .id(UUID.randomUUID())
       .type(SegmentType.CONTINUE)
@@ -718,7 +712,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void update_failsToTransitionFromDubbingToCrafting() {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
 
     Exception thrown = assertThrows(DAOValidationException.class, () ->
       testDAO.update(access, segment2.getId(),
@@ -729,7 +723,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void update_FailsWithoutChainID() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = store.put(new Segment()
       .id(UUID.randomUUID())
       .offset(4L)
@@ -751,7 +745,7 @@ public class SegmentDAOImplTest {
 
   @Test
   public void update_FailsToChangeChain() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
@@ -792,14 +786,14 @@ public class SegmentDAOImplTest {
 
   @Test
   public void destroy_okRegardlessOfChainState() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
 
     testDAO.destroy(access, segment1.getId());
   }
 
   @Test
   public void destroy_allChildEntities() throws Exception {
-    HubClientAccess access = NexusIntegrationTestingFixtures.buildHubClientAccess("Admin");
+    HubClientAccess access = buildHubClientAccess("Admin");
 
     //
     // Go!

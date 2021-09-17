@@ -3,7 +3,7 @@ package io.xj.lib.music;
 import io.xj.api.SegmentChordVoicing;
 import io.xj.lib.util.CSV;
 
-public enum Voicing {
+public enum Voicings {
   ;
 
   public static boolean containsAnyValidNotes(String notes) {

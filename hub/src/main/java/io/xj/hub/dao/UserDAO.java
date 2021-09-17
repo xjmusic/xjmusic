@@ -1,13 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.dao;
 
-import io.xj.api.User;
-import io.xj.api.UserAuth;
-import io.xj.api.UserAuthToken;
-import io.xj.api.UserAuthType;
-import io.xj.api.UserRole;
-import io.xj.api.UserRoleType;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.enums.UserAuthType;
+import io.xj.hub.tables.pojos.User;
+import io.xj.hub.tables.pojos.UserAuth;
+import io.xj.hub.tables.pojos.UserAuthToken;
 import io.xj.lib.util.ValueException;
 
 import java.util.UUID;
@@ -72,14 +70,4 @@ public interface UserDAO extends DAO<User> {
    @param userAuthId to read
    */
   UserAuth readOneAuth(HubAccess hubAccess, UUID userAuthId) throws DAOException;
-
-  /**
-   (ADMIN ONLY) read one user role
-
-   @return model
-   @param hubAccess control
-   @param userId    having role
-   @param type      of role
-   */
-  UserRole readOneRole(HubAccess hubAccess, UUID userId, UserRoleType type) throws DAOException;
 }

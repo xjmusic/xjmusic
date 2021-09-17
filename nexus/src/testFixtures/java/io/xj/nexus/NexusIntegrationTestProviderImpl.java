@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
+import io.xj.hub.Topology;
 import io.xj.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

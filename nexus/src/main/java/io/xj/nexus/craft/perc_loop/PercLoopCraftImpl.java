@@ -3,20 +3,18 @@ package io.xj.nexus.craft.perc_loop;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentAudio;
-import io.xj.api.InstrumentState;
-import io.xj.api.InstrumentType;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;
 import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.api.SegmentMessage;
 import io.xj.api.SegmentMessageType;
-import io.xj.lib.entity.Entities;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.TremendouslyRandom;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.craft.detail.DetailCraftImpl;
+import io.xj.nexus.craft.rhythm.RhythmCraftImpl;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
@@ -26,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -37,7 +34,7 @@ import java.util.stream.Collectors;
  <p>
  [#176625174] PercLoopCraftImpl extends DetailCraftImpl to leverage all detail craft enhancements
  */
-public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft {
+public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft {
   private final Logger log = LoggerFactory.getLogger(PercLoopCraftImpl.class);
 
   @Inject
@@ -49,7 +46,7 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
 
   @Override
   public void doWork() throws NexusException {
-    List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.PERCLOOP);
+    List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.PercLoop);
     List<UUID> instrumentIds = previousChoices.stream().map(SegmentChoice::getInstrumentId).collect(Collectors.toList());
 
     int targetLayers = (int) Math.floor(
@@ -58,11 +55,12 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
           (fabricator.getTemplateConfig().getPercLoopLayerMax() -
             fabricator.getTemplateConfig().getPercLoopLayerMin()));
 
-    fabricator.add(new SegmentMessage()
-      .id(UUID.randomUUID())
-      .segmentId(fabricator.getSegment().getId())
-      .type(SegmentMessageType.INFO)
-      .body(String.format("Targeting %d layers of percussion loop", targetLayers)));
+    var msg = new SegmentMessage();
+    msg.setId(UUID.randomUUID());
+    msg.setSegmentId(fabricator.getSegment().getId());
+    msg.setType(SegmentMessageType.INFO);
+    msg.setBody(String.format("Targeting %d layers of percussion loop", targetLayers));
+    fabricator.add(msg);
 
     if (instrumentIds.size() < targetLayers)
       instrumentIds = withIdsAdded(instrumentIds, targetLayers - instrumentIds.size());
@@ -83,17 +81,19 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
    @param instrumentId of percussion loop instrument to craft
    */
   private void craftPercLoop(UUID instrumentId) throws NexusException {
-    var choice = fabricator.add(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .segmentId(fabricator.getSegment().getId())
-      .instrumentType(InstrumentType.PERCLOOP)
-      .instrumentId(instrumentId));
-    var arrangement = fabricator.add(new SegmentChoiceArrangement()
-      .id(UUID.randomUUID())
-      .segmentId(fabricator.getSegment().getId())
-      .segmentChoiceId(choice.getId()));
+    var choice = new SegmentChoice();
+    choice.setId(UUID.randomUUID());
+    choice.setSegmentId(fabricator.getSegment().getId());
+    choice.setInstrumentType(InstrumentType.PercLoop.toString());
+    choice.setInstrumentId(instrumentId);
+    fabricator.add(choice);
+    var arrangement = new SegmentChoiceArrangement();
+    arrangement.setId(UUID.randomUUID());
+    arrangement.setSegmentId(fabricator.getSegment().getId());
+    arrangement.segmentChoiceId(choice.getId());
+    fabricator.add(arrangement);
 
-    // Start at zero and keep laying down perc loops until we're outta here
+    // Start at zero and keep laying down perc loops until we're out of here
     double pos = 0;
     while (pos < fabricator.getSegment().getTotal()) {
       var audio = pickAudioForInstrument(instrumentId);
@@ -106,15 +106,16 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
       double lengthSeconds = fabricator.getSecondsAtPosition(pos + fabricator.getTemplateConfig().getPercLoopFixedSizeBeats()) - startSeconds;
 
       // of pick
-      fabricator.add(new SegmentChoiceArrangementPick()
-        .id(UUID.randomUUID())
-        .segmentId(fabricator.getSegment().getId())
-        .segmentChoiceArrangementId(arrangement.getId())
-        .start(startSeconds)
-        .length(lengthSeconds)
-        .amplitude(1.0)
-        .name("PERCLOOP")
-        .instrumentAudioId(audio.get().getId()));
+      var pick = new SegmentChoiceArrangementPick();
+      pick.setId(UUID.randomUUID());
+      pick.setSegmentId(fabricator.getSegment().getId());
+      pick.setSegmentChoiceArrangementId(arrangement.getId());
+      pick.setStart(startSeconds);
+      pick.setLength(lengthSeconds);
+      pick.setAmplitude(1.0);
+      pick.setName("PERCLOOP");
+      pick.setInstrumentAudioId(audio.get().getId());
+      fabricator.add(pick);
 
       pos += fabricator.getTemplateConfig().getPercLoopFixedSizeBeats();
     }
@@ -159,7 +160,7 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve instruments bound to chain
-    Collection<Instrument> sourceInstruments = fabricator.sourceMaterial().getInstrumentsOfType(InstrumentType.PERCLOOP);
+    Collection<Instrument> sourceInstruments = fabricator.sourceMaterial().getInstrumentsOfType(InstrumentType.PercLoop);
 
     // future: [#258] Instrument selection is based on Text Isometry between the voice name and the instrument name
     log.debug("[segId={}] not currently in use", fabricator.getSegment().getId());
@@ -168,7 +169,7 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
     MemeIsometry percussiveIsometry = fabricator.getMemeIsometryOfSegment();
     for (Instrument instrument : sourceInstruments)
       if (!avoidInstrumentIds.contains(instrument.getId()))
-        superEntityScorePicker.add(instrument, scorePercLoop(instrument, percussiveIsometry));
+        superEntityScorePicker.add(instrument, scorePercussive(instrument, percussiveIsometry));
 
     // report
     fabricator.putReport("percussiveChoice", superEntityScorePicker.report());
@@ -190,29 +191,6 @@ public class PercLoopCraftImpl extends DetailCraftImpl implements PercLoopCraft 
       superEntityScorePicker.add(audio, Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT));
 
     return superEntityScorePicker.getTop();
-  }
-
-  /**
-   Score a candidate for drum instrument, given current fabricator
-
-   @param instrument         to score
-   @param percussiveIsometry from which to score drum instruments
-   @return score, including +/- entropy
-   */
-  private double scorePercLoop(Instrument instrument, MemeIsometry percussiveIsometry) {
-    double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
-
-    // Score includes matching memes, previous segment to macro instrument first pattern
-    score += SCORE_MATCH_MEMES *
-      percussiveIsometry.score(Entities.namesOf(fabricator.sourceMaterial().getMemes(instrument)));
-
-    // [#174435421] Chain bindings specify Program & Instrument within Library
-    if (fabricator.isDirectlyBound(instrument))
-      score += SCORE_DIRECTLY_BOUND;
-    else if (Objects.equals(instrument.getState(), InstrumentState.DRAFT))
-      score += SCORE_UNPUBLISHED;
-
-    return score;
   }
 
 }

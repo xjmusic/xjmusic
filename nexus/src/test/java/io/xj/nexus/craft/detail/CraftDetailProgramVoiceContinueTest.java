@@ -9,20 +9,16 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.InstrumentType;
-import io.xj.api.ProgramType;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.api.SegmentChord;
-import io.xj.api.SegmentChordVoicing;
-import io.xj.api.SegmentMeme;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.api.TemplateType;
+import io.xj.hub.Topology;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
@@ -44,9 +40,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChordVoicing;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -94,36 +94,35 @@ public class CraftDetailProgramVoiceContinueTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.account1, "Test Print #1", TemplateType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.INITIAL)
-      .state(SegmentState.DUBBED)
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .endAt("2017-02-14T12:01:32.000001Z")
-      .offset(0L)
-      .delta(0)
-      .key("D major")
-      .total(64)
-      .density(0.73)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892")
-      .outputEncoder("wav"));
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-        .type(SegmentType.CONTINUE)
-      .state(SegmentState.DUBBING)
-      .beginAt("2017-02-14T12:01:32.000001Z")
-      .endAt("2017-02-14T12:02:04.000001Z")
-      .offset(1L)
-      .delta(1)
-      .key("Db minor")
-      .total(64)
-      .density(0.85)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
+    chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    store.put(buildSegment(
+      chain1,
+      SegmentType.INITIAL,
+      0,
+      0,
+      SegmentState.DUBBED,
+      Instant.parse("2017-02-14T12:01:00.000001Z"),
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      "D major",
+      64,
+      0.73,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892",
+      "wav"));
+    store.put(buildSegment(
+      chain1,
+      SegmentType.CONTINUE,
+      1,
+      1,
+      SegmentState.DUBBING,
+      Instant.parse("2017-02-14T12:01:00.000001Z"),
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      "Db minor",
+      64,
+      0.85,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892",
+      "wav"));
   }
 
   @After
@@ -167,111 +166,70 @@ public class CraftDetailProgramVoiceContinueTest {
   private void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws NexusException {
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.CONTINUE)
-      .state(SegmentState.CRAFTED)
-      .beginAt("2017-02-14T12:02:04.000001Z")
-      .endAt("2017-02-14T12:02:36.000001Z")
-      .offset(2L)
-      .delta(2)
-      .key("F Major")
-      .total(64)
-      .density(0.30)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .segmentId(segment3.getId())
-      .id(UUID.randomUUID())
-      .programId(fake.program4.getId())
-      .programId(fake.program4_sequence0_binding0.getProgramId())
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programSequenceBindingId(fake.program4_sequence0_binding0.getId())
-      .programType(ProgramType.MACRO));
-    store.put(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .segmentId(segment3.getId())
-      .id(UUID.randomUUID())
-      .programId(fake.program5.getId())
-      .programId(fake.program5_sequence0_binding0.getProgramId())
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programSequenceBindingId(fake.program5_sequence0_binding0.getId())
-      .programType(ProgramType.MAIN));
+    Segment segment3 = store.put(buildSegment(
+      chain1,
+      SegmentType.CONTINUE,
+      2,
+      2,
+      SegmentState.CRAFTED,
+      Instant.parse("2017-02-14T12:02:04.000001Z"),
+      Instant.parse("2017-02-14T12:02:36.000001Z"),
+      "F Major",
+      64,
+      0.30,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892.wav"));
+    store.put(buildSegmentChoice(
+      segment3,
+      Segments.DELTA_UNLIMITED,
+      Segments.DELTA_UNLIMITED,
+      fake.program4,
+      fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(
+      segment3,
+      Segments.DELTA_UNLIMITED,
+      Segments.DELTA_UNLIMITED,
+      fake.program5,
+      fake.program5_sequence0_binding0));
     if (!excludeDetailChoiceForSegment3)
-      store.put(new SegmentChoice()
-        .id(UUID.randomUUID())
-        .segmentId(segment3.getId())
-        .id(UUID.randomUUID())
-        .deltaIn(Segments.DELTA_UNLIMITED)
-        .deltaOut(Segments.DELTA_UNLIMITED)
-        .programId(fake.program10.getId())
-        .programType(ProgramType.DETAIL));
+      store.put(buildSegmentChoice(
+        segment3,
+        Segments.DELTA_UNLIMITED,
+        Segments.DELTA_UNLIMITED,
+        fake.program10));
 
     // segment crafting
-    segment4 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.CONTINUE)
-      .state(SegmentState.CRAFTING)
-      .beginAt("2017-02-14T12:03:08.000001Z")
-      .endAt("2017-02-14T12:03:15.836735Z")
-      .offset(3L)
-      .delta(3)
-      .key("D Major")
-      .total(16)
-      .density(0.45)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .segmentId(segment4.getId())
-      .id(UUID.randomUUID())
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programId(fake.program4.getId())
-      .programId(fake.program4_sequence0_binding0.getProgramId())
-      .programSequenceBindingId(fake.program4_sequence0_binding0.getId())
-      .programType(ProgramType.MACRO));
-    store.put(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .segmentId(segment4.getId())
-      .id(UUID.randomUUID())
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programId(fake.program5.getId())
-      .programId(fake.program5_sequence1_binding0.getProgramId())
-      .programSequenceBindingId(fake.program5_sequence1_binding0.getId())
-      .programType(ProgramType.MAIN));
+    segment4 = store.put(buildSegment(
+      chain1,
+      SegmentType.CONTINUE,
+      3,
+      3,
+      SegmentState.CRAFTING,
+      Instant.parse("2017-02-14T12:03:08.000001Z"),
+      Instant.parse("2017-02-14T12:03:15.836735Z"),
+      "D Major",
+      16,
+      0.45,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892.wav"));
+    store.put(buildSegmentChoice(
+      segment4,
+      Segments.DELTA_UNLIMITED,
+      Segments.DELTA_UNLIMITED,
+      fake.program4,
+      fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(
+      segment4,
+      Segments.DELTA_UNLIMITED,
+      Segments.DELTA_UNLIMITED,
+      fake.program5,
+      fake.program5_sequence1_binding0));
     for (String memeName : ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy"))
-      store.put(new SegmentMeme()
-        .id(UUID.randomUUID())
-        .segmentId(segment4.getId()).name(memeName));
-    SegmentChord chord0 = store.put(new SegmentChord()
-      .id(UUID.randomUUID())
-      .segmentId(segment4.getId())
-      .position(0.0)
-      .name("A minor"));
-    store.put(new SegmentChordVoicing()
-      .id(UUID.randomUUID())
-      .segmentId(segment4.getId())
-      .segmentChordId(chord0.getId())
-      .type(InstrumentType.BASS)
-      .notes("A2, C3, E3"));
-    SegmentChord chord1 = store.put(new SegmentChord()
-      .id(UUID.randomUUID())
-      .segmentId(segment4.getId())
-      .position(8.0)
-      .name("D Major"));
-    store.put(new SegmentChordVoicing()
-      .id(UUID.randomUUID())
-      .segmentId(segment4.getId())
-      .segmentChordId(chord1.getId())
-      .type(InstrumentType.BASS)
-      .notes("D2, F#2, A2"));
+      store.put(buildSegmentMeme(segment4, memeName));
+    SegmentChord chord0 = store.put(buildSegmentChord(segment4, 0.0, "A minor"));
+    store.put(buildSegmentChordVoicing(chord0, InstrumentType.Bass, "A2, C3, E3"));
+    SegmentChord chord1 = store.put(buildSegmentChord(segment4, 8.0, "D Major"));
+    store.put(buildSegmentChordVoicing(chord1, InstrumentType.Bass, "D2, F#2, A2"));
   }
 
 

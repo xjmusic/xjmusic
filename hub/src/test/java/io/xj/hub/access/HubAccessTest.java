@@ -7,7 +7,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.UserRoleType;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.dao.DAOModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
@@ -40,10 +40,10 @@ public class HubAccessTest {
   public void matchRoles() {
     HubAccess hubAccess = HubAccess.create("User,Artist");
 
-    assertTrue(hubAccess.isAllowed(UserRoleType.USER));
-    assertTrue(hubAccess.isAllowed(UserRoleType.ARTIST));
-    assertTrue(hubAccess.isAllowed(UserRoleType.USER, UserRoleType.ARTIST));
-    assertFalse(hubAccess.isAllowed(UserRoleType.ADMIN));
+    assertTrue(hubAccess.isAllowed(UserRoleType.User));
+    assertTrue(hubAccess.isAllowed(UserRoleType.Artist));
+    assertTrue(hubAccess.isAllowed(UserRoleType.User, UserRoleType.Artist));
+    assertFalse(hubAccess.isAllowed(UserRoleType.Admin));
   }
 
   @Test

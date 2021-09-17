@@ -1,7 +1,7 @@
 package io.xj.nexus.craft.arrangement;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.api.InstrumentType;
+import io.xj.hub.enums.InstrumentType;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
@@ -28,10 +28,10 @@ public class NotePicker {
   private final Set<Note> pickedNotes;
   private final SecureRandom random = new SecureRandom();
   private final Collection<InstrumentType> instrumentTypesToSeekInversions = ImmutableList.of(
-    InstrumentType.STRIPE,
-    InstrumentType.STAB,
-    InstrumentType.PAD,
-    InstrumentType.STICKY
+    InstrumentType.Stripe,
+    InstrumentType.Stab,
+    InstrumentType.Pad,
+    InstrumentType.Sticky
   );
 
   /**
@@ -75,7 +75,7 @@ public class NotePicker {
     // If nothing has made it through to here, pick a single atonal note.
     if (pickedNotes.isEmpty()) pickedNotes.add(Note.of(Note.ATONAL));
 
-    // Keep track of the total range of notes selected, to keep voicing in tightest possible range
+    // Keep track of the total range of notes selected, to keep voicing in the tightest possible range
     range.expand(pickedNotes);
   }
 
@@ -168,7 +168,7 @@ public class NotePicker {
   @SuppressWarnings("SwitchStatementWithTooFewBranches")
   private int weightIfMatchSlashRoot(InstrumentType instrumentType, Note note, Chord chord) {
     return switch (instrumentType) {
-      case BASS -> chord.getSlashRoot().equals(note.getPitchClass()) ? WEIGHT_MATCH_SLASH_ROOT : 0;
+      case Bass -> chord.getSlashRoot().equals(note.getPitchClass()) ? WEIGHT_MATCH_SLASH_ROOT : 0;
       default -> 0;
     };
   }

@@ -1,12 +1,12 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.entity.common;
+package io.xj.hub;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
-import io.xj.api.Program;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 

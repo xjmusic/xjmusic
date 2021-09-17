@@ -9,18 +9,13 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.InstrumentType;
-import io.xj.api.ProgramType;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChord;
-import io.xj.api.SegmentMeme;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.api.TemplateType;
+import io.xj.hub.Topology;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
@@ -41,11 +36,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertNotNull;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CraftPercLoopNextMainTest {
@@ -90,35 +86,31 @@ public class CraftPercLoopNextMainTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.account1, "Test Print #1", TemplateType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.INITIAL)
-      .offset(0L)
-      .delta(0)
-      .state(SegmentState.DUBBED)
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .endAt("2017-02-14T12:01:32.000001Z")
-      .key("D major")
-      .total(64)
-      .density(0.73)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892")
-      .outputEncoder("wav"));
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .type(SegmentType.CONTINUE)
-      .chainId(chain1.getId())
-      .offset(1L)
-      .state(SegmentState.DUBBING)
-      .beginAt("2017-02-14T12:01:32.000001Z")
-      .endAt("2017-02-14T12:02:04.000001Z")
-      .key("Db minor")
-      .total(64)
-      .density(0.85)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
+    chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    store.put(buildSegment(
+      chain1,
+      0,
+      SegmentState.DUBBED,
+      Instant.parse("2017-02-14T12:01:00.000001Z"),
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      "D major",
+      64,
+      0.73,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892",
+      "wav"));
+    store.put(buildSegment(
+      chain1,
+      1,
+      SegmentState.DUBBING,
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      Instant.parse("2017-02-14T12:02:04.000001Z"),
+      "Db minor",
+      64,
+      0.85,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892.wav",
+      "wav"));
   }
 
   @After
@@ -128,112 +120,72 @@ public class CraftPercLoopNextMainTest {
 
   @Test
   public void craftPercLoopNextMain_okEvenWithoutPreviousSegmentPercLoopChoice() throws Exception {
-    insertSegments3and4(true);
+    insertSegments3and4();
     Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
 
     craftFactory.percLoop(fabricator).doWork();
-
-//    // assert choice of percLoop-type sequence
-//    Collection<SegmentChoice> segmentChoices =
-//      store.getAll(segment4.getId(), SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.PERCLOOP));
   }
 
   /**
    Insert fixture segments 3 and 4, including the percLoop choice for segment 3 only if specified
-
-   @param excludePercLoopChoiceForSegment3 if desired for the purpose of this test
    */
-  private void insertSegments3and4(boolean excludePercLoopChoiceForSegment3) throws NexusException {
+  private void insertSegments3and4() throws NexusException {
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.CONTINUE)
-      .offset(2L)
-      .delta(2)
-      .state(SegmentState.CRAFTED)
-      .beginAt("2017-02-14T12:02:04.000001Z")
-      .endAt("2017-02-14T12:02:36.000001Z")
-      .key("F Major")
-      .total(64)
-      .density(0.30)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .segmentId(segment3.getId())
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programId(fake.program4.getId())
-      .programId(fake.program4_sequence0_binding0.getProgramId())
-      .programSequenceBindingId(fake.program4_sequence0_binding0.getId())
-      .programType(ProgramType.MACRO));
-    store.put(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .segmentId(segment3.getId())
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programId(fake.program15.getId())
-      .programId(fake.program15_sequence1_binding0.getProgramId())
-      .programSequenceBindingId(fake.program15_sequence1_binding0.getId())
-      .programType(ProgramType.MAIN));
-    if (!excludePercLoopChoiceForSegment3)
-      store.put(new SegmentChoice()
-        .id(UUID.randomUUID())
-        .segmentId(segment3.getId())
-        .deltaIn(Segments.DELTA_UNLIMITED)
-        .deltaOut(Segments.DELTA_UNLIMITED)
-        .programId(fake.program35.getId())
-        .instrumentType(InstrumentType.PERCLOOP));
+    Segment segment3 = store.put(buildSegment(
+      chain1,
+      2,
+      SegmentState.CRAFTED,
+      Instant.parse("2017-02-14T12:02:04.000001Z"),
+      Instant.parse("2017-02-14T12:02:36.000001Z"),
+      "F Major",
+      64,
+      0.30,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892.wav",
+      "aac"));
+    store.put(buildSegmentChoice(
+      segment3,
+      Segments.DELTA_UNLIMITED,
+      Segments.DELTA_UNLIMITED,
+      fake.program4,
+      fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(
+      segment3,
+      Segments.DELTA_UNLIMITED,
+      Segments.DELTA_UNLIMITED,
+      fake.program15,
+      fake.program15_sequence1_binding0));
 
     // segment crafting
-    segment4 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.NEXTMAIN)
-      .offset(3L)
-      .delta(0)
-      .state(SegmentState.CRAFTING)
-      .beginAt("2017-02-14T12:03:08.000001Z")
-      .endAt("2017-02-14T12:03:15.836735Z")
-      .key("G minor")
-      .total(16)
-      .density(0.45)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .segmentId(segment4.getId())
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programId(fake.program4.getId())
-      .programId(fake.program4_sequence1_binding0.getProgramId())
-      .programSequenceBindingId(fake.program4_sequence1_binding0.getId())
-      .programType(ProgramType.MACRO));
-    store.put(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .segmentId(segment4.getId())
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programId(fake.program15.getId())
-      .programId(fake.program15_sequence0_binding0.getProgramId())
-      .programSequenceBindingId(fake.program15_sequence0_binding0.getId())
-      .programType(ProgramType.MAIN));
+    segment4 = store.put(buildSegment(
+      chain1,
+      SegmentType.NEXTMAIN,
+      3,
+      0,
+      SegmentState.CRAFTING,
+      Instant.parse("2017-02-14T12:03:08.000001Z"),
+      Instant.parse("2017-02-14T12:03:15.836735Z"),
+      "G minor",
+      16,
+      0.45,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892.wav"));
+    store.put(buildSegmentChoice(segment4,
+      Segments.DELTA_UNLIMITED,
+      Segments.DELTA_UNLIMITED,
+      fake.program4,
+      fake.program4_sequence1_binding0));
+    store.put(buildSegmentChoice(segment4,
+      Segments.DELTA_UNLIMITED,
+      Segments.DELTA_UNLIMITED,
+      fake.program15,
+      fake.program15_sequence0_binding0));
     for (String memeName : ImmutableList.of("Regret", "Sky", "Hindsight", "Tropical")) {
-      store.put(new SegmentMeme()
-        .id(UUID.randomUUID())
-        .segmentId(segment4.getId()).name(memeName));
+      store.put(buildSegmentMeme(segment4, memeName));
     }
-    store.put(new SegmentChord()
-      .id(UUID.randomUUID())
-      .segmentId(segment4.getId())
-      .position(0.0)
-      .name("G minor"));
-    store.put(new SegmentChord()
-      .id(UUID.randomUUID())
-      .segmentId(segment4.getId()).position(8.0).name("Ab minor"));
+    store.put(buildSegmentChord(segment4, 0.0, "G minor"));
+    store.put(buildSegmentChord(segment4, 8.0, "Ab minor"));
   }
 
 

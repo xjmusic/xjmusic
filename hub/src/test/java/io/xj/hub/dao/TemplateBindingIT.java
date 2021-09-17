@@ -7,23 +7,17 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
-import io.xj.api.AccountUser;
-import io.xj.api.ContentBindingType;
-import io.xj.api.Library;
-import io.xj.api.Template;
-import io.xj.api.TemplateBinding;
-import io.xj.api.User;
-import io.xj.api.UserRole;
-import io.xj.api.UserRoleType;
-import io.xj.hub.IntegrationTestingFixtures;
-import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.HubIntegrationTestModule;
 import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.IntegrationTestingFixtures;
+import io.xj.hub.access.HubAccess;
+import io.xj.hub.access.HubAccessControlModule;
+import io.xj.hub.enums.ContentBindingType;
+import io.xj.hub.ingest.HubIngestModule;
+import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -34,15 +28,13 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collection;
-import java.util.UUID;
-
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
 import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
@@ -80,19 +72,14 @@ public class TemplateBindingIT {
     // Account "bananas"
     fake.account1 = test.insert(buildAccount("bananas"));
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
-    test.insert(buildUserRole(fake.user2,UserRoleType.ADMIN));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin"));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
-    test.insert(buildUserRole(fake.user3,UserRoleType.USER));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User"));
     test.insert(buildAccountUser(fake.account1,fake.user3));
 
     // Template "sandwich" has templateBinding "jams" and templateBinding "buns"
-    fake.template1 = test.insert(new Template()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .name("sandwich"));
+    fake.template1 = test.insert(buildTemplate(fake.account1, "sandwich"));
     targetLibrary = test.insert(buildLibrary(fake.account1, "Test Library"));
     templateBinding201 = test.insert(buildTemplateBinding(fake.template1, targetLibrary));
 
@@ -116,7 +103,7 @@ public class TemplateBindingIT {
     assertNotNull(result);
     assertEquals(fake.template1.getId(), result.getTemplateId());
     assertEquals(otherLibrary.getId(), result.getTargetId());
-    assertEquals(ContentBindingType.LIBRARY, result.getType());
+    assertEquals(ContentBindingType.Library, result.getType());
   }
 
   @Test
@@ -136,15 +123,14 @@ public class TemplateBindingIT {
     TemplateBinding result = testDAO.readOne(hubAccess, templateBinding201.getId());
 
     assertNotNull(result);
-    assertEquals(ContentBindingType.LIBRARY, result.getType());
+    assertEquals(ContentBindingType.Library, result.getType());
     assertEquals(templateBinding201.getId(), result.getId());
     assertEquals(fake.template1.getId(), result.getTemplateId());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInTemplate() {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")
     ), "User");
 
     var e = assertThrows(DAOException.class, () -> testDAO.readOne(hubAccess, templateBinding201.getId()));
@@ -162,8 +148,7 @@ public class TemplateBindingIT {
 
   @Test
   public void readMany_SeesNothingOutsideOfTemplate() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())), "User");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User");
 
     Collection<TemplateBinding> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
 

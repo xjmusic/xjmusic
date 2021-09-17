@@ -4,9 +4,9 @@ package io.xj.hub.dao;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import io.xj.api.InstrumentAudio;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -122,10 +122,8 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
     requireParentExists(db, hubAccess, audio);
 
     if (Strings.isNullOrEmpty(audio.getWaveformKey()))
-      executeUpdate(db, INSTRUMENT_AUDIO, id, audio
-        .waveformKey(readOne(db, hubAccess, id).getWaveformKey()));
-    else
-      executeUpdate(db, INSTRUMENT_AUDIO, id, audio);
+      audio.setWaveformKey(readOne(db, hubAccess, id).getWaveformKey());
+    executeUpdate(db, INSTRUMENT_AUDIO, id, audio);
 
     return audio;
   }
@@ -204,10 +202,10 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
    Read one record with the given DSL context,
    ensuring audio in instrument in library in hubAccess control account ids
 
-   @return entity
    @param db        DSL context
    @param hubAccess control
    @param id        of record to read
+   @return entity
    */
   private InstrumentAudio readOne(DSLContext db, HubAccess hubAccess, UUID id) throws DAOException {
     requireArtist(hubAccess);
@@ -245,13 +243,13 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
         builder.setWaveformKey("");
 
       if (Value.isEmpty(builder.getDensity()))
-        builder.setDensity(0.5d);
+        builder.setDensity(0.5f);
 
       if (Value.isEmpty(builder.getStart()))
-        builder.setStart(0.0d);
+        builder.setStart(0.0f);
 
       if (Value.isEmpty(builder.getLength()))
-        builder.setLength(0.0d);
+        builder.setLength(0.0f);
 
       Value.require(builder.getTempo(), "Tempo");
       Value.requireNonZero(builder.getTempo(), "Tempo");

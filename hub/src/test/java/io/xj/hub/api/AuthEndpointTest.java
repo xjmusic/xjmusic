@@ -8,17 +8,17 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
+import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.Topology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.dao.DAOModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.tables.pojos.Account;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import org.junit.Before;
@@ -29,8 +29,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
-import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -55,9 +55,7 @@ public class AuthEndpointTest {
       }
     }));
     Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
-    Account account1 = new Account()
-      .id(UUID.randomUUID())
-      ;
+    Account account1 = buildAccount("Testing");
     hubAccess = HubAccess.create(ImmutableList.of(account1), "User,Artist");
     subject = injector.getInstance(AuthEndpoint.class);
     injector.injectMembers(subject);

@@ -18,7 +18,7 @@ public class KeyTest {
   private static final Object KEY_MODE = "mode";
 
   @Test
-  public void KeyExpectationsTest() throws Exception {
+  public void KeyExpectationsTest() {
     Yaml yaml = new Yaml();
 
     Map<?, ?> wrapper = (Map<?, ?>) yaml.load(getClass().getResourceAsStream(EXPECTED_KEYS_YAML));
@@ -48,12 +48,12 @@ public class KeyTest {
   }
 
   @Test
-  public void isMatchingMode() throws Exception {
+  public void isMatchingMode() {
     assertTrue(Key.isSameMode("C minor", "G minor"));
   }
 
   @Test
-  public void delta() throws Exception {
+  public void delta() {
     assertEquals(Integer.valueOf(2), Key.delta("C", "D", 0));
     assertEquals(Integer.valueOf(-5), Key.delta("C", "G", 0));
     assertEquals(Integer.valueOf(-3), Key.delta("C", "G", 2));

@@ -2,7 +2,7 @@
 
 package io.xj.lib.entity;
 
-import io.xj.api.Program;
+import io.xj.lib.Widget;
 
 import java.util.UUID;
 
@@ -14,29 +14,28 @@ import java.util.UUID;
 public class TestTemplate {
 
   /**
-   Create a new Program with the given id and name
+   Create a new Widget with the given id and name
 
-   @param libraryId of mock entity
-   @param name      of mock entity
+   @param superwidgetId of mock entity
+   @param name          of mock entity
    @return new mock entity
    */
-  public static Program createProgram(UUID libraryId, String name) {
-    return new Program()
-      .id(UUID.randomUUID())
-      .libraryId(libraryId)
-      .name(name)
-      ;
+  public static Widget createWidget(UUID superwidgetId, String name) {
+    return new Widget()
+      .setId(UUID.randomUUID())
+      .setSuperwidgetId(superwidgetId)
+      .setName(name);
   }
 
   /**
-   Create a new Program with the given name
+   Create a new Widget with the given name
 
    @param name of mock entity
    @return new mock entity
    */
-  public static Program createProgram(String name) {
-    return new Program()
-      .id(UUID.randomUUID())
-      .name(name);
+  public static Widget createWidget(String name) {
+    return new Widget()
+      .setId(UUID.randomUUID())
+      .setName(name);
   }
 }

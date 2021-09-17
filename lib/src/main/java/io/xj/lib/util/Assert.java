@@ -15,8 +15,7 @@ import java.util.stream.Collectors;
  Created by Charney Kaye on 2020/03/05
  */
 public enum Assert {
-  ;
-
+;
 
   /**
    Assert that two collections of strings have the same items

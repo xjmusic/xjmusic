@@ -5,12 +5,11 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.plus.model.Person;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import io.xj.api.AccountUser;
-import io.xj.api.UserAuth;
-import io.xj.api.UserAuthType;
-import io.xj.api.UserRole;
 import io.xj.hub.dao.UserDAO;
 import io.xj.hub.persistence.HubRedisProvider;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.UserAuth;
+import io.xj.hub.enums.UserAuthType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import org.slf4j.Logger;
@@ -61,14 +60,14 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
   }
 
   @Override
-  public String create(UserAuth userAuth, Collection<AccountUser> accountUsers, Collection<UserRole> userRoles) throws HubAccessException {
+  public String create(UserAuth userAuth, Collection<AccountUser> accountUsers, String userRoles) throws HubAccessException {
     String accessToken = hubAccessTokenGenerator.generate();
     update(accessToken, userAuth, accountUsers, userRoles);
     return accessToken;
   }
 
   @Override
-  public void update(String token, UserAuth userAuth, Collection<AccountUser> accountUsers, Collection<UserRole> userRoles) throws HubAccessException {
+  public void update(String token, UserAuth userAuth, Collection<AccountUser> accountUsers, String userRoles) throws HubAccessException {
     HubAccess hubAccess = HubAccess.create(userAuth, accountUsers, userRoles);
     Jedis client = hubRedisProvider.getClient();
     try {
@@ -151,7 +150,7 @@ class HubAccessControlProviderImpl implements HubAccessControlProvider {
     }
 
     return userDAO.authenticate(
-      UserAuthType.GOOGLE,
+      UserAuthType.Google,
       person.getId(),
       externalAccessToken,
       externalRefreshToken,

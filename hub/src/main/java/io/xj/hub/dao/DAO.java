@@ -3,30 +3,29 @@ package io.xj.hub.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.xj.api.Account;
-import io.xj.api.AccountUser;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentAudio;
-import io.xj.api.InstrumentMeme;
-import io.xj.api.Library;
-import io.xj.api.Program;
-import io.xj.api.ProgramMeme;
-import io.xj.api.ProgramSequence;
-import io.xj.api.ProgramSequenceBinding;
-import io.xj.api.ProgramSequenceBindingMeme;
-import io.xj.api.ProgramSequenceChord;
-import io.xj.api.ProgramSequenceChordVoicing;
-import io.xj.api.ProgramSequencePattern;
-import io.xj.api.ProgramSequencePatternEvent;
-import io.xj.api.ProgramVoice;
-import io.xj.api.ProgramVoiceTrack;
-import io.xj.api.Template;
-import io.xj.api.TemplateBinding;
-import io.xj.api.TemplatePlayback;
-import io.xj.api.User;
-import io.xj.api.UserAuth;
-import io.xj.api.UserAuthToken;
-import io.xj.api.UserRole;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.TemplatePlayback;
+import io.xj.hub.tables.pojos.User;
+import io.xj.hub.tables.pojos.UserAuth;
+import io.xj.hub.tables.pojos.UserAuthToken;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.tables.records.AccountRecord;
 import io.xj.hub.tables.records.AccountUserRecord;
@@ -51,7 +50,6 @@ import io.xj.hub.tables.records.TemplateRecord;
 import io.xj.hub.tables.records.UserAuthRecord;
 import io.xj.hub.tables.records.UserAuthTokenRecord;
 import io.xj.hub.tables.records.UserRecord;
-import io.xj.hub.tables.records.UserRoleRecord;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
 import org.jooq.DSLContext;
@@ -92,13 +90,11 @@ import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
 import static io.xj.hub.Tables.USER;
 import static io.xj.hub.Tables.USER_AUTH;
 import static io.xj.hub.Tables.USER_AUTH_TOKEN;
-import static io.xj.hub.Tables.USER_ROLE;
 import static io.xj.hub.tables.Program.PROGRAM;
 
 public interface DAO<E> {
   Map<Class<?>, Table<?>> tablesInSchemaConstructionOrder = ImmutableMap.<Class<?>, Table<?>>builder() // DELIBERATE ORDER
     .put(User.class, USER)
-    .put(UserRole.class, USER_ROLE) // after user
     .put(UserAuth.class, USER_AUTH) // after user
     .put(UserAuthToken.class, USER_AUTH_TOKEN) // after user
     .put(Account.class, ACCOUNT) // after user
@@ -124,7 +120,6 @@ public interface DAO<E> {
     .build();
   Map<Class<? extends Record>, Class<?>> modelsForRecords = ImmutableMap.<Class<? extends Record>, Class<?>>builder()
     .put(UserRecord.class, User.class)
-    .put(UserRoleRecord.class, UserRole.class)
     .put(UserAuthRecord.class, UserAuth.class)
     .put(UserAuthTokenRecord.class, UserAuthToken.class)
     .put(AccountRecord.class, Account.class)

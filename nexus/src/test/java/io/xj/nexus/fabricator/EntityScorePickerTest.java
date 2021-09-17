@@ -2,7 +2,7 @@
 package io.xj.nexus.fabricator;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.api.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequence;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,21 +23,21 @@ public class EntityScorePickerTest {
 
   @Before
   public void setUp() {
-    sequenceB = new ProgramSequence()
-      .id(UUID.randomUUID())
-      .name("Super Jam");
+    sequenceB = new ProgramSequence();
+    sequenceB.setId(UUID.randomUUID());
+    sequenceB.setName("Super Jam");
 
-    sequenceC = new ProgramSequence()
-      .id(UUID.randomUUID())
-      .name("Dope Beat");
+    sequenceC = new ProgramSequence();
+    sequenceC.setId(UUID.randomUUID());
+    sequenceC.setName("Dope Beat");
 
-    sequenceD = new ProgramSequence()
-      .id(UUID.randomUUID())
-      .name("The Illest");
+    sequenceD = new ProgramSequence();
+    sequenceD.setId(UUID.randomUUID());
+    sequenceD.setName("The Illest");
 
-    sequenceE = new ProgramSequence()
-      .id(UUID.randomUUID())
-      .name("Good News");
+    sequenceE = new ProgramSequence();
+    sequenceE.setId(UUID.randomUUID());
+    sequenceE.setName("Good News");
 
     entityScorePicker = new EntityScorePicker<>();
 

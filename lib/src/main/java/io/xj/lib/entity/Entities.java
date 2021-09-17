@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  */
 public enum Entities {
   ;
-  public static final String NAME_KEY = "name";
+   public static final String NAME_KEY = "name";
   private static final String SIMPLE_NAME_OF_NULL = "null";
   private static final String ID_KEY = "id";
 

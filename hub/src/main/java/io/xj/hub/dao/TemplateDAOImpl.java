@@ -4,15 +4,15 @@ package io.xj.hub.dao;
 import com.google.api.client.util.Strings;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.api.Template;
-import io.xj.api.TemplateType;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.enums.TemplateType;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.TemplateConfig;
+import io.xj.hub.TemplateConfig;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
@@ -218,7 +218,7 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
 
       // Default to preview chain if no type specified
       if (Objects.isNull(record.getType()))
-        record.setType(TemplateType.PREVIEW);
+        record.setType(TemplateType.Preview);
 
       // [#175347578] validate TypeSafe chain config
       // [#177129498] Artist saves Template, Instrument, or Template config, validate & combine with defaults.
@@ -228,7 +228,7 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
         record.setConfig(new TemplateConfig(record, config).toString());
 
       // [#178457569] Only Engineer can set template to Production type, or modify a Production-type template
-      if (TemplateType.PRODUCTION.equals(record.getType()))
+      if (TemplateType.Production.equals(record.getType()))
         requireEngineer(access);
 
       return record;

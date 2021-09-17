@@ -3,7 +3,7 @@ package io.xj.lib.mixer;
 import java.util.stream.IntStream;
 
 /**
- Use to apply an exponential envelope fade to the ends of audio put into a mix.
+ Use this to apply an exponential envelope fade to the ends of audio put into a mix.
  */
 public enum Envelope {
   ;

@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 /**
@@ -113,10 +114,10 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       validate(entity);
 
       // [#126] Segments are always readMany in PLANNED state
-      entity.state(SegmentState.PLANNED);
+      entity.setState(SegmentState.PLANNED);
 
       // create segment with Chain ID and offset are read-only, set at creation
-      requireNot("Found Segment at same offset in Chain!",
+      requireNotSameOffsetInChain(
         () -> readOneAtChainOffset(access, entity.getChainId(), entity.getOffset()));
 
       return store.put(entity);
@@ -459,7 +460,7 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
   private void validateSegmentMeme(SegmentMeme record) throws ValueException {
     Value.require(record.getSegmentId(), "Segment ID");
     Value.require(record.getName(), "Meme name");
-    record.name(Text.toMeme(record.getName()));
+    record.setName(Text.toMeme(record.getName()));
   }
 
   private void validateSegmentChord(SegmentChord record) throws ValueException {
@@ -506,5 +507,17 @@ public class SegmentDAOImpl extends DAOImpl<Segment> implements SegmentDAO {
       Value.require(record.getBeginAt(), "Begin-at");
   }
 
+
+  /**
+   Require the given runnable throws an exception.@param mustThrowException when run, this must throw an exception
+   */
+  protected void requireNotSameOffsetInChain(Callable<?> mustThrowException) throws DAOValidationException {
+    try {
+      mustThrowException.call();
+    } catch (Exception ignored) {
+      return;
+    }
+    throw new DAOValidationException("Found Segment at same offset in Chain!");
+  }
 
 }

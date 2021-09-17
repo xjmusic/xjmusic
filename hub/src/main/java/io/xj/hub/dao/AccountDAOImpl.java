@@ -2,7 +2,7 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.api.Account;
+import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.Tables;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;

@@ -11,25 +11,25 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentAudio;
-import io.xj.api.InstrumentState;
-import io.xj.api.InstrumentType;
-import io.xj.api.Program;
-import io.xj.api.ProgramSequencePatternType;
-import io.xj.api.ProgramState;
-import io.xj.api.ProgramType;
-import io.xj.api.ProgramVoice;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.api.TemplateType;
+import io.xj.hub.Topology;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramSequencePatternType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.craft.CraftFactory;
@@ -49,11 +49,22 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAudio;
+import static io.xj.hub.IntegrationTestingFixtures.buildEvent;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildPattern;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildTrack;
+import static io.xj.hub.IntegrationTestingFixtures.buildVoice;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildMeme;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -106,80 +117,76 @@ public class CraftRhythm_LayeredVoicesTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(buildChain(fake.account1, "Test Print #1", TemplateType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.INITIAL)
-      .state(SegmentState.DUBBED)
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .endAt("2017-02-14T12:01:32.000001Z")
-      .offset(0L)
-      .delta(0)
-      .key("D major")
-      .total(64)
-      .density(0.73)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892")
-      .outputEncoder("wav"));
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.CONTINUE)
-      .offset(1L)
-      .delta(1)
-      .state(SegmentState.DUBBING)
-      .beginAt("2017-02-14T12:01:32.000001Z")
-      .endAt("2017-02-14T12:02:04.000001Z")
-      .key("Db minor")
-      .total(64)
-      .density(0.85)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
+    Chain chain1 = store.put(buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    store.put(buildSegment(
+      chain1,
+      SegmentType.INITIAL,
+      0,
+      0,
+      SegmentState.DUBBED,
+      Instant.parse("2017-02-14T12:01:00.000001Z"),
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      "D major",
+      64,
+      0.73,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892",
+      "wav"));
+    store.put(buildSegment(
+      chain1,
+      SegmentType.CONTINUE,
+      1,
+      1,
+      SegmentState.DUBBING,
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      Instant.parse("2017-02-14T12:02:04.000001Z"),
+      "Db minor",
+      64,
+      0.85,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892.wav"));
 
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.CONTINUE)
-      .offset(2L)
-      .delta(2)
-      .state(SegmentState.CRAFTED)
-      .beginAt("2017-02-14T12:02:04.000001Z")
-      .endAt("2017-02-14T12:02:36.000001Z")
-      .key("F Major")
-      .total(64)
-      .density(0.30)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.MACRO, fake.program4_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.MAIN, fake.program5_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, program42));
+    Segment segment3 = store.put(buildSegment(
+      chain1,
+      SegmentType.CONTINUE,
+      2,
+      2,
+      SegmentState.CRAFTED,
+      Instant.parse("2017-02-14T12:02:04.000001Z"),
+      Instant.parse("2017-02-14T12:02:36.000001Z"),
+      "F Major",
+      64,
+      0.30,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892.wav"));
+    store.put(buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence0_binding0));
+    store.put(buildSegmentChoice(segment3, program42));
 
     // segment crafting
-    segment4 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.CONTINUE)
-      .offset(3L)
-      .delta(3)
-      .state(SegmentState.CRAFTING)
-      .beginAt("2017-02-14T12:03:08.000001Z")
-      .endAt("2017-02-14T12:03:15.836735Z")
-      .key("D Major")
-      .total(16)
-      .density(0.45)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.MACRO, fake.program4_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.MAIN, fake.program5_sequence1_binding0));
+    segment4 = store.put(buildSegment(
+      chain1,
+      SegmentType.CONTINUE,
+      3,
+      3,
+      SegmentState.CRAFTING,
+      Instant.parse("2017-02-14T12:03:08.000001Z"),
+      Instant.parse("2017-02-14T12:03:15.836735Z"),
+      "D Major",
+      16,
+      0.45,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892.wav"));
+    store.put(buildSegmentChoice(segment4, ProgramType.Macro, fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(segment4, ProgramType.Main, fake.program5_sequence1_binding0));
 
     for (String memeName : ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy"))
-      store.put(NexusIntegrationTestingFixtures.buildMeme(segment4, memeName));
+      store.put(buildSegmentMeme(segment4, memeName));
 
-    store.put(NexusIntegrationTestingFixtures.buildChord(segment4, 0.0, "A minor"));
-    store.put(NexusIntegrationTestingFixtures.buildChord(segment4, 8.0, "D Major"));
+    store.put(buildSegmentChord(segment4, 0.0, "A minor"));
+    store.put(buildSegmentChord(segment4, 8.0, "D Major"));
   }
 
 
@@ -192,36 +199,36 @@ public class CraftRhythm_LayeredVoicesTest {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    Instrument instrument1 = Entities.add(entities, NexusIntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.DRUM, InstrumentState.PUBLISHED, "808 Drums"));
+    Instrument instrument1 = Entities.add(entities, buildInstrument(fake.library2, InstrumentType.Drum, InstrumentState.Published, "808 Drums"));
     Entities.add(entities, buildMeme(instrument1, "heavy"));
     //
-    audioKick = Entities.add(entities, NexusIntegrationTestingFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.6, "KICK", "Eb", 1.0));
+    audioKick = Entities.add(entities, buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
     //
-    audioSnare = Entities.add(entities, NexusIntegrationTestingFixtures.buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01, 1.5, 120.0, 0.6, "SNARE", "Ab", 1.0));
+    audioSnare = Entities.add(entities, buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
     //
-    audioHihat = Entities.add(entities, NexusIntegrationTestingFixtures.buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01, 1.5, 120.0, 0.6, "HIHAT", "Ab", 1.0));
+    audioHihat = Entities.add(entities, buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
 
     // A basic beat from scratch with layered voices
-    program42 = Entities.add(entities, NexusIntegrationTestingFixtures.buildProgram(fake.library2, ProgramType.RHYTHM, ProgramState.PUBLISHED, "Basic Beat", "C", 121, 0.6));
-    Entities.add(entities, NexusIntegrationTestingFixtures.buildMeme(program42, "Basic"));
-    ProgramVoice program42_locomotion = Entities.add(entities, NexusIntegrationTestingFixtures.buildVoice(program42, InstrumentType.DRUM, "Locomotion"));
-    ProgramVoice program42_kickSnare = Entities.add(entities, NexusIntegrationTestingFixtures.buildVoice(program42, InstrumentType.DRUM, "BoomBap"));
-    var sequence35a = Entities.add(entities, NexusIntegrationTestingFixtures.buildSequence(program42, 16, "Base", 0.5, "C", 110.3));
+    program42 = Entities.add(entities, buildProgram(fake.library2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f));
+    Entities.add(entities, buildMeme(program42, "Basic"));
+    ProgramVoice program42_locomotion = Entities.add(entities, buildVoice(program42, InstrumentType.Drum, "Locomotion"));
+    ProgramVoice program42_kickSnare = Entities.add(entities, buildVoice(program42, InstrumentType.Drum, "BoomBap"));
+    var sequence35a = Entities.add(entities, buildSequence(program42, 16, "Base", 0.5f, "C", 110.3f));
     //
-    var pattern35a1 = Entities.add(entities, NexusIntegrationTestingFixtures.buildPattern(sequence35a, program42_locomotion, ProgramSequencePatternType.LOOP, 1, "Hi-hat"));
-    var trackHihat = Entities.add(entities, NexusIntegrationTestingFixtures.buildTrack(program42_locomotion, "HIHAT"));
-    Entities.add(entities, NexusIntegrationTestingFixtures.buildEvent(pattern35a1, trackHihat, 0.0, 1.0, "C2", 1.0));
-    Entities.add(entities, NexusIntegrationTestingFixtures.buildEvent(pattern35a1, trackHihat, 0.25, 1.0, "G5", 0.4));
-    Entities.add(entities, NexusIntegrationTestingFixtures.buildEvent(pattern35a1, trackHihat, 0.5, 1.0, "C2", 0.6));
-    Entities.add(entities, NexusIntegrationTestingFixtures.buildEvent(pattern35a1, trackHihat, 0.75, 1.0, "C2", 0.3));
+    var pattern35a1 = Entities.add(entities, buildPattern(sequence35a, program42_locomotion, ProgramSequencePatternType.Loop, 1, "Hi-hat"));
+    var trackHihat = Entities.add(entities, buildTrack(program42_locomotion, "HIHAT"));
+    Entities.add(entities, buildEvent(pattern35a1, trackHihat, 0.0f, 1.0f, "C2", 1.0f));
+    Entities.add(entities, buildEvent(pattern35a1, trackHihat, 0.25f, 1.0f, "G5", 0.4f));
+    Entities.add(entities, buildEvent(pattern35a1, trackHihat, 0.5f, 1.0f, "C2", 0.6f));
+    Entities.add(entities, buildEvent(pattern35a1, trackHihat, 0.75f, 1.0f, "C2", 0.3f));
     //
-    var pattern35a2 = Entities.add(entities, NexusIntegrationTestingFixtures.buildPattern(sequence35a, program42_kickSnare, ProgramSequencePatternType.LOOP, 4, "Kick/Snare"));
-    var trackKick = Entities.add(entities, NexusIntegrationTestingFixtures.buildTrack(program42_kickSnare, "KICK"));
-    var trackSnare = Entities.add(entities, NexusIntegrationTestingFixtures.buildTrack(program42_kickSnare, "SNARE"));
-    Entities.add(entities, NexusIntegrationTestingFixtures.buildEvent(pattern35a2, trackKick, 0.0, 1.0, "B5", 0.9));
-    Entities.add(entities, NexusIntegrationTestingFixtures.buildEvent(pattern35a2, trackSnare, 1.0, 1.0, "D2", 1.0));
-    Entities.add(entities, NexusIntegrationTestingFixtures.buildEvent(pattern35a2, trackKick, 2.5, 1.0, "E4", 0.7));
-    Entities.add(entities, NexusIntegrationTestingFixtures.buildEvent(pattern35a2, trackSnare, 3.0, 1.0, "c3", 0.5));
+    var pattern35a2 = Entities.add(entities, buildPattern(sequence35a, program42_kickSnare, ProgramSequencePatternType.Loop, 4, "Kick/Snare"));
+    var trackKick = Entities.add(entities, buildTrack(program42_kickSnare, "KICK"));
+    var trackSnare = Entities.add(entities, buildTrack(program42_kickSnare, "SNARE"));
+    Entities.add(entities, buildEvent(pattern35a2, trackKick, 0.0f, 1.0f, "B5", 0.9f));
+    Entities.add(entities, buildEvent(pattern35a2, trackSnare, 1.0f, 1.0f, "D2", 1.0f));
+    Entities.add(entities, buildEvent(pattern35a2, trackKick, 2.5f, 1.0f, "E4", 0.7f));
+    Entities.add(entities, buildEvent(pattern35a2, trackSnare, 3.0f, 1.0f, "c3", 0.5f));
 
     return entities;
   }

@@ -9,8 +9,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
-import io.xj.api.Template;
+import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.Topology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.dao.DAOException;
@@ -18,11 +18,11 @@ import io.xj.hub.dao.DAOModule;
 import io.xj.hub.dao.TemplateDAO;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -37,8 +37,9 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
 import static org.junit.Assert.assertEquals;
@@ -73,11 +74,9 @@ public class TemplateEndpointTest {
     }));
 
     Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
-    account1 = new Account()
-      .id(UUID.randomUUID());
+    account1 = buildAccount("Testing Account 1");
     hubAccess = HubAccess.create(ImmutableList.of(account1), "User,Artist");
-    account25 = new Account()
-      .id(UUID.randomUUID());
+    account25 = buildAccount("Testing Account 25");
     subject = injector.getInstance(TemplateEndpoint.class);
     injector.injectMembers(subject);
   }
@@ -85,16 +84,8 @@ public class TemplateEndpointTest {
   @Test
   public void readMany() throws DAOException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
-    Template template1 = new Template()
-      .id(UUID.randomUUID())
-      .accountId(account25.getId())
-      .name("fonds")
-      .embedKey("ABC");
-    Template template2 = new Template()
-      .id(UUID.randomUUID())
-      .accountId(account25.getId())
-      .name("trunk")
-      .embedKey("DEF");
+    Template template1 = buildTemplate(account25, "fonds", "ABC");
+    Template template2 = buildTemplate(account25, "trunk", "DEF");
     Collection<Template> templates = ImmutableList.of(template1, template2);
     when(templateDAO.readMany(same(hubAccess), eq(ImmutableList.of(account25.getId()))))
       .thenReturn(templates);
@@ -111,16 +102,8 @@ public class TemplateEndpointTest {
   @Test
   public void readMany_forTemplateAndUser() throws DAOException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
-    Template template1 = new Template()
-      .id(UUID.randomUUID())
-      .accountId(account25.getId())
-      .name("fonds")
-      .embedKey("ABC");
-    Template template2 = new Template()
-      .id(UUID.randomUUID())
-      .accountId(account25.getId())
-      .name("trunk")
-      .embedKey("DEF");
+    Template template1 = buildTemplate(account25, "fonds", "ABC");
+    Template template2 = buildTemplate(account25, "trunk", "DEF");
     Collection<Template> templates = ImmutableList.of(template1, template2);
     when(templateDAO.readMany(same(hubAccess), eq(ImmutableList.of(account25.getId()))))
       .thenReturn(templates);
@@ -137,11 +120,7 @@ public class TemplateEndpointTest {
   @Test
   public void readOne() throws DAOException, IOException, JsonapiException {
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
-    Template template1 = new Template()
-      .id(UUID.randomUUID())
-      .accountId(account1.getId())
-      .name("fonds")
-      .embedKey("ABC");
+    Template template1 = buildTemplate(account1, "fonds", "ABC");
     when(templateDAO.readOne(same(hubAccess), eq(template1.getId()))).thenReturn(template1);
 
     Response result = subject.readOne(crc, template1.getId().toString());

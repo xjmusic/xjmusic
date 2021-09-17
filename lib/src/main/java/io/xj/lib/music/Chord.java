@@ -249,7 +249,7 @@ public class Chord extends IntervalPitchGroup {
   private Double similarityAtAnyIntervals(Chord other) {
     Map<PitchClass, Integer> pcDeltas = Maps.newHashMap();
     getPitchClasses().values().forEach((pitchClass -> {
-      if (other.getPitchClasses().values().contains(pitchClass))
+      if (other.getPitchClasses().containsValue(pitchClass))
         pcDeltas.put(pitchClass, 1);
       else
         pcDeltas.put(pitchClass, 0);

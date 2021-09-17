@@ -3,11 +3,11 @@
 package io.xj.nexus.dao;
 
 import com.google.common.base.Strings;
-import io.xj.api.InstrumentType;
-import io.xj.api.ProgramType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramType;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 
 import javax.annotation.Nullable;
@@ -35,7 +35,7 @@ public enum Segments {
    @return segment choice of given type
    */
   public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, ProgramType type) throws DAOExistenceException {
-    Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getProgramType().equals(type)).findFirst();
+    Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getProgramType().equals(type.toString())).findFirst();
     if (found.isEmpty()) throw new DAOExistenceException(String.format("No %s-type choice found", type));
     return found.get();
   }
@@ -48,7 +48,7 @@ public enum Segments {
    @return segment choice of given type
    */
   public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, InstrumentType type) throws DAOExistenceException {
-    Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getInstrumentType().equals(type)).findFirst();
+    Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getInstrumentType().equals(type.toString())).findFirst();
     if (found.isEmpty()) throw new DAOExistenceException(String.format("No %s-type choice found", type));
     return found.get();
   }

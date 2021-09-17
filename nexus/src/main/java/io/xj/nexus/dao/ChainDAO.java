@@ -4,7 +4,7 @@ package io.xj.nexus.dao;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
 import io.xj.api.Segment;
-import io.xj.api.TemplateType;
+import io.xj.hub.enums.TemplateType;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
@@ -33,17 +33,18 @@ public interface ChainDAO extends DAO<Chain> {
   /**
    [#176285826] Nexus bootstraps Chains from JSON file on startup
 
+   @param access control
+   @param type   of template
+   @param chain  to bootstrap
    @return newly bootstrapped Chain
    @throws DAOFatalException      on failure
    @throws DAOPrivilegeException  if access is prohibited
    @throws DAOValidationException on invalid data
-   @param access   control
-   @param type
-   @param chain    to bootstrap
    */
   Chain bootstrap(
     HubClientAccess access,
-    TemplateType type, Chain chain
+    TemplateType type,
+    Chain chain
   ) throws DAOFatalException, DAOPrivilegeException, DAOValidationException, DAOExistenceException;
 
   /**
@@ -59,12 +60,12 @@ public interface ChainDAO extends DAO<Chain> {
   /**
    Update the state of a specified Chain
 
-   @throws DAOFatalException     on failure
-   @throws DAOExistenceException if the entity does not exist
-   @throws DAOPrivilegeException if access is prohibited
    @param access control
    @param id     of specific Chain to update.
    @param state  for the updated Chain.
+   @throws DAOFatalException     on failure
+   @throws DAOExistenceException if the entity does not exist
+   @throws DAOPrivilegeException if access is prohibited
    */
   void updateState(HubClientAccess access, UUID id, ChainState state) throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException;
 
@@ -97,24 +98,25 @@ public interface ChainDAO extends DAO<Chain> {
    [#160299309] Engineer wants a *revived* action for a live production chain, in case the chain has become stuck, in order to ensure the Chain remains in an operable state.
    [#170273871] Revived chain should always start now
 
-   @return newly created revived chain
    @param access       control
    @param priorChainId to revived
    @param reason       provided description why we are reviving this chain
+   @return newly created revived chain
    */
   Chain revive(HubClientAccess access, UUID priorChainId, String reason) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException;
 
   /**
    Read all chains
-   @return all chains
+
    @param access
+   @return all chains
    */
   Collection<Chain> readAllFabricating(HubClientAccess access) throws DAOPrivilegeException, DAOFatalException;
 
   /**
    Destroy a chain if it exists for the given embed key@param access
-   @param key for which to lookup chain
 
+   @param key for which to lookup chain
    */
   void destroyIfExistsForEmbedKey(HubClientAccess access, String key);
 }

@@ -8,8 +8,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import io.xj.api.Library;
-import io.xj.api.Program;
+import io.xj.lib.Superwidget;
+import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.util.ValueException;
 import org.junit.Before;
@@ -45,16 +45,15 @@ public class JsonapiJsonapiPayloadObjectTest {
     });
     jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
     entityFactory = injector.getInstance(EntityFactory.class);
-    entityFactory.register(Program.class);
+    entityFactory.register(Widget.class);
     subject = jsonapiPayloadFactory.newPayloadObject();
   }
 
   @Test
   public void add() throws JsonapiException {
-    Program parentEntity1 = new Program()
-      .id(UUID.randomUUID())
-      .name("Test Program")
-      ;
+    Widget parentEntity1 = new Widget()
+      .setId(UUID.randomUUID())
+      .setName("Test Widget");
     subject.add("parentEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), parentEntity1));
 
     assertTrue(subject.getRelationships().get("parentEntity").getDataOne().isPresent());
@@ -63,24 +62,22 @@ public class JsonapiJsonapiPayloadObjectTest {
 
   @Test
   public void addIfRelated() throws IOException, JsonapiException {
-    Library library1 = new Library()
-      .id(UUID.randomUUID())
-      .name("test.jpg")
-      ;
-    Program program2 = new Program()
-      .id(UUID.randomUUID())
-      .name("sham")
-      .libraryId(library1.getId())
-      ;
-    entityFactory.register(Library.class);
-    entityFactory.register(Program.class).belongsTo(Library.class);
-    subject = jsonapiPayloadFactory.toPayloadObject(library1);
-    JsonapiPayloadObject rel = jsonapiPayloadFactory.toPayloadObject(program2);
+    Superwidget superwidget1 = new Superwidget()
+      .setId(UUID.randomUUID())
+      .setName("test.jpg");
+    Widget widget2 = new Widget()
+      .setId(UUID.randomUUID())
+      .setName("sham")
+      .setSuperwidgetId(superwidget1.getId());
+    entityFactory.register(Superwidget.class);
+    entityFactory.register(Widget.class).belongsTo(Superwidget.class);
+    subject = jsonapiPayloadFactory.toPayloadObject(superwidget1);
+    JsonapiPayloadObject rel = jsonapiPayloadFactory.toPayloadObject(widget2);
 
     jsonapiPayloadFactory.addIfRelated(subject, rel);
 
     assertPayloadObject(subject)
-      .hasMany(Program.class, ImmutableList.of(program2));
+      .hasMany(Widget.class, ImmutableList.of(widget2));
   }
 
   @Test
@@ -95,10 +92,9 @@ public class JsonapiJsonapiPayloadObjectTest {
 
   @Test
   public void toMinimal() throws JsonapiException {
-    Program parentEntity1 = new Program()
-      .id(UUID.randomUUID())
-      .name("Test Program")
-      ;
+    Widget parentEntity1 = new Widget()
+      .setId(UUID.randomUUID())
+      .setName("Test Widget");
     subject = jsonapiPayloadFactory.toPayloadObject(parentEntity1);
 
     JsonapiPayloadObject result = subject.toMinimal();
@@ -139,10 +135,9 @@ public class JsonapiJsonapiPayloadObjectTest {
 
   @Test
   public void getRelationshipObject() throws JsonapiException {
-    Program parentEntity1 = new Program()
-      .id(UUID.randomUUID())
-      .name("Test Program")
-      ;
+    Widget parentEntity1 = new Widget()
+      .setId(UUID.randomUUID())
+      .setName("Test Widget");
     subject.add("parentEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), parentEntity1));
 
     assertTrue(subject.getRelationshipDataOne("parentEntity").isPresent());
@@ -152,14 +147,14 @@ public class JsonapiJsonapiPayloadObjectTest {
   @Test
   public void getRelationships_setRelationships() throws JsonapiException {
     subject.setRelationships(ImmutableMap.of(
-      "parentEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), new Program()
-        .id(UUID.randomUUID())
-        .name("Test Program")
-        ),
-      "childEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), new Program()
-        .id(UUID.randomUUID())
-        .name("Test Program")
-        )
+      "parentEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), new Widget()
+        .setId(UUID.randomUUID())
+        .setName("Test Widget")
+      ),
+      "childEntity", jsonapiPayloadFactory.setDataEntity(jsonapiPayloadFactory.newJsonapiPayload(), new Widget()
+        .setId(UUID.randomUUID())
+        .setName("Test Widget")
+      )
     ));
 
     assertEquals(2, subject.getRelationships().size());
@@ -167,14 +162,14 @@ public class JsonapiJsonapiPayloadObjectTest {
 
   @Test
   public void getType_setType() {
-    subject.setType("programs");
+    subject.setType("widgets");
 
-    assertEquals("programs", subject.getType());
+    assertEquals("widgets", subject.getType());
   }
 
   @Test
   public void setType_fromClass() {
-    assertEquals("programs", subject.setType(Program.class).getType());
+    assertEquals("widgets", subject.setType(Widget.class).getType());
   }
 
   @Test
@@ -191,20 +186,19 @@ public class JsonapiJsonapiPayloadObjectTest {
   public void isSame() {
     UUID id = UUID.randomUUID();
     subject.setId(id.toString());
-    subject.setType("Program");
+    subject.setType("Widget");
 
-    assertTrue(subject.isSame(new Program().id(id)));
-    assertFalse(subject.isSame(new Program().id(UUID.randomUUID())));
+    assertTrue(subject.isSame(new Widget().setId(id)));
+    assertFalse(subject.isSame(new Widget().setId(UUID.randomUUID())));
   }
 
   @Test
   public void isSame_subjectStringId_compareToUuid() {
     UUID id = UUID.randomUUID();
     subject.setId(id.toString());
-    subject.setType("Program");
-    Program compareTo = new Program().id(id);
+    subject.setType("Widget");
+    Widget compareTo = new Widget().setId(id);
 
     assertTrue(subject.isSame(compareTo));
   }
-
 }

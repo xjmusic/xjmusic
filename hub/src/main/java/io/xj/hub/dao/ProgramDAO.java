@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.dao;
 
-import io.xj.api.Program;
-import io.xj.api.ProgramState;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.enums.ProgramState;
 import io.xj.hub.access.HubAccess;
 
 import java.util.Collection;

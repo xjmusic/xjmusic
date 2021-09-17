@@ -6,20 +6,19 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.Library;
-import io.xj.api.ProgramType;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.api.TemplateType;
+import io.xj.hub.Topology;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Library;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.dao.Segments;
@@ -28,9 +27,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
@@ -67,7 +75,8 @@ public class NexusEntityStoreImplTest {
    */
   @Test
   public void internal_entityFactoryClonesSegmentTypeOK() throws EntityException {
-    Segment segment = new Segment().type(SegmentType.NEXTMACRO);
+    Segment segment = new Segment();
+    segment.setType(SegmentType.NEXTMACRO);
 
     Segment result = entityFactory.clone(segment);
 
@@ -78,19 +87,19 @@ public class NexusEntityStoreImplTest {
   @Test
   public void put_get_Segment() throws NexusException {
     UUID chainId = UUID.randomUUID();
-    Segment segment = new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chainId)
-      .offset(0L)
-      .type(SegmentType.NEXTMACRO)
-      .state(SegmentState.DUBBED)
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .endAt("2017-02-14T12:01:32.000001Z")
-      .key("D Major")
-      .total(64)
-      .density(0.73)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav");
+    Segment segment = new Segment();
+    segment.setId(UUID.randomUUID());
+    segment.setChainId(chainId);
+    segment.setOffset(0L);
+    segment.setType(SegmentType.NEXTMACRO);
+    segment.setState(SegmentState.DUBBED);
+    segment.beginAt("2017-02-14T12:01:00.000001Z");
+    segment.endAt("2017-02-14T12:01:32.000001Z");
+    segment.setKey("D Major");
+    segment.setTotal(64);
+    segment.setDensity(0.73);
+    segment.setTempo(120.0);
+    segment.storageKey("chains-1-segments-9f7s89d8a7892.wav");
 
     subject.put(segment);
     Segment result = subject.getSegment(segment.getId()).orElseThrow();
@@ -112,21 +121,21 @@ public class NexusEntityStoreImplTest {
   @Test
   public void put_get_Chain() throws NexusException {
     UUID accountId = UUID.randomUUID();
-    var chain = new Chain()
-      .id(UUID.randomUUID())
-      .accountId(accountId)
-      .type(TemplateType.PREVIEW)
-      .state(ChainState.FABRICATE)
-      .startAt("2017-02-14T12:01:00.000001Z")
-      .stopAt("2017-02-14T12:01:32.000001Z")
-      .embedKey("super");
+    var chain = new Chain();
+    chain.setId(UUID.randomUUID());
+    chain.setAccountId(accountId);
+    chain.setType(ChainType.PREVIEW);
+    chain.setState(ChainState.FABRICATE);
+    chain.startAt("2017-02-14T12:01:00.000001Z");
+    chain.stopAt("2017-02-14T12:01:32.000001Z");
+    chain.embedKey("super");
 
     subject.put(chain);
     var result = subject.getChain(chain.getId()).orElseThrow();
 
     assertEquals(chain.getId(), result.getId());
     assertEquals(accountId, result.getAccountId());
-    assertEquals(TemplateType.PREVIEW, result.getType());
+    assertEquals(ChainType.PREVIEW, result.getType());
     assertEquals(ChainState.FABRICATE, result.getState());
     assertEquals("2017-02-14T12:01:00.000001Z", result.getStartAt());
     assertEquals("2017-02-14T12:01:32.000001Z", result.getStopAt());
@@ -135,136 +144,134 @@ public class NexusEntityStoreImplTest {
 
   @Test
   public void put() throws NexusException {
-    subject.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(UUID.randomUUID())
-      .offset(0L)
-      .state(SegmentState.DUBBED)
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .endAt("2017-02-14T12:01:32.000001Z")
-      .key("D Major")
-      .total(64)
-      .density(0.73)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
+    var segment = new Segment();
+    segment.setId(UUID.randomUUID());
+    segment.setChainId(UUID.randomUUID());
+    segment.setOffset(0L);
+    segment.setState(SegmentState.DUBBED);
+    segment.beginAt("2017-02-14T12:01:00.000001Z");
+    segment.endAt("2017-02-14T12:01:32.000001Z");
+    segment.setKey("D Major");
+    segment.setTotal(64);
+    segment.setDensity(0.73);
+    segment.setTempo(120.0);
+    segment.storageKey("chains-1-segments-9f7s89d8a7892.wav");
+    subject.put(segment);
   }
 
   @Test
   public void put_failsIfNotNexusEntity() {
-    var failure = assertThrows(NexusException.class,
-      () -> subject.put(new Library()
-        .id(UUID.randomUUID())
-        .accountId(UUID.randomUUID())
-        .name("helm")
-      ));
+    var library = new Library();
+    library.setId(UUID.randomUUID());
+    library.setAccountId(UUID.randomUUID());
+    library.setName("helm");
+
+    var failure = assertThrows(NexusException.class, () -> subject.put(library));
 
     assertEquals("Can't store Library!", failure.getMessage());
   }
 
   @Test
   public void put_failsWithoutId() {
+    var seg = new Segment();
+    seg.setChainId(UUID.randomUUID());
+    seg.setOffset(0L);
+    seg.setState(SegmentState.DUBBED);
+    seg.beginAt("2017-02-14T12:01:00.000001Z");
+    seg.endAt("2017-02-14T12:01:32.000001Z");
+    seg.setKey("D Major");
+    seg.setTotal(64);
+    seg.setDensity(0.73);
+    seg.setTempo(120.0);
+    seg.storageKey("chains-1-segments-9f7s89d8a7892.wav");
+
     var failure = assertThrows(NexusException.class,
-      () -> subject.put(new Segment()
-        .chainId(UUID.randomUUID())
-        .offset(0L)
-        .state(SegmentState.DUBBED)
-        .beginAt("2017-02-14T12:01:00.000001Z")
-        .endAt("2017-02-14T12:01:32.000001Z")
-        .key("D Major")
-        .total(64)
-        .density(0.73)
-        .tempo(120.0)
-        .storageKey("chains-1-segments-9f7s89d8a7892.wav")
-      ));
+      () -> subject.put(seg));
 
     assertEquals("Can't store Segment with null id", failure.getMessage());
   }
 
   @Test
   public void put_subEntityFailsWithoutSegmentId() {
+    var choice = new SegmentChoice();
+    choice.setId(UUID.randomUUID());
+    choice.setProgramId(UUID.randomUUID());
+    choice.setDeltaIn(Segments.DELTA_UNLIMITED);
+    choice.setDeltaOut(Segments.DELTA_UNLIMITED);
+    choice.setProgramSequenceBindingId(UUID.randomUUID());
+    choice.setProgramType(ProgramType.Macro.toString());
+
     var failure = assertThrows(NexusException.class,
-      () -> subject.put(new SegmentChoice()
-        .id(UUID.randomUUID())
-        .programId(UUID.randomUUID())
-        .deltaIn(Segments.DELTA_UNLIMITED)
-        .deltaOut(Segments.DELTA_UNLIMITED)
-        .programSequenceBindingId(UUID.randomUUID())
-        .programType(ProgramType.MACRO)
-      ));
+      () -> subject.put(choice));
 
     assertEquals("Can't store SegmentChoice without Segment ID!", failure.getMessage());
   }
 
   @Test
   public void putAll_getAll() throws NexusException {
-    var account1 = new Account()
-      .id(UUID.randomUUID())
-      .name("fish");
-    var chain2 = subject.put(new Chain()
-      .id(UUID.randomUUID())
-      .accountId(account1.getId())
-      .name("Test Print #2")
-      .type(TemplateType.PRODUCTION)
-      .state(ChainState.FABRICATE)
-      .startAt("2014-08-12T12:17:02.527142Z")
-      .stopAt("2014-09-11T12:17:01.047563Z"));
-    var chain3 = subject.put(new Chain()
-      .id(UUID.randomUUID())
-      .accountId(account1.getId())
-      .name("Test Print #3")
-      .type(TemplateType.PRODUCTION)
-      .state(ChainState.FABRICATE)
-      .startAt("2014-08-12T12:17:02.527142Z")
-      .stopAt("2014-09-11T12:17:01.047563Z"));
-    subject.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain2.getId())
-      .offset(12L)
-      .state(SegmentState.DUBBED)
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .endAt("2017-02-14T12:01:32.000001Z")
-      .key("G minor")
-      .total(32)
-      .density(0.3)
-      .tempo(10.0)
-      .storageKey("chains-2-segments-8929f7sd8a789.wav"));
-    Segment chain3_segment0 = subject.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain3.getId())
-      .offset(0L)
-      .state(SegmentState.DUBBED)
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .endAt("2017-02-14T12:01:32.000001Z")
-      .key("D Major")
-      .total(64)
-      .density(0.73)
-      .tempo(120.0)
-      .storageKey("chains-3-segments-9f7s89d8a7892.wav"));
-    subject.put(new SegmentChoice()
-      .id(UUID.randomUUID())
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .segmentId(chain3_segment0.getId())
-      .programId(UUID.randomUUID())
-      .programSequenceBindingId(UUID.randomUUID())
-      .programType(ProgramType.MACRO));
+    var account1 = buildAccount("fish");
+    var template = buildTemplate(account1, "fishy");
+    var chain2 = subject.put(buildChain(
+      account1,
+      "Test Print #2",
+      ChainType.PRODUCTION,
+      ChainState.FABRICATE,
+      template,
+      Instant.parse("2014-08-12T12:17:02.527142Z"),
+      null,
+      "key123"));
+    var chain3 = subject.put(buildChain(
+      account1,
+      "Test Print #3",
+      ChainType.PRODUCTION,
+      ChainState.FABRICATE,
+      template,
+      Instant.parse("2014-08-12T12:17:02.527142Z"),
+      null,
+      "key123"));
+    var program = buildProgram(ProgramType.Macro, "C", 120.0f, 0.6f);
+    var programSequence = buildProgramSequence(program, 8, "Hay", 0.6f, "G", 120.0f);
+    var programSequenceBinding = buildProgramSequenceBinding(programSequence, 0);
+    subject.put(buildSegment(chain2,
+      12,
+      SegmentState.DUBBED,
+      Instant.parse("2017-02-14T12:01:00.000001Z"),
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      "G minor",
+      32,
+      0.3,
+      10.0,
+      "chains-2-segments-8929f7sd8a789.wav",
+      "AAC"));
+    Segment chain3_segment0 = subject.put(buildSegment(chain3,
+      0,
+      SegmentState.DUBBED,
+      Instant.parse("2017-02-14T12:01:00.000001Z"),
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      "D Major",
+      64,
+      0.73,
+      120.0,
+      "chains-3-segments-9f7s89d8a7892.wav",
+      "AAC"));
+    subject.put(buildSegmentChoice(chain3_segment0, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, program, programSequenceBinding));
     // not in the above chain, won't be retrieved with it
-    subject.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain3.getId())
-      .offset(0L)
-      .state(SegmentState.DUBBED)
-      .beginAt("2017-02-14T12:01:32.000001Z")
-      .endAt("2017-02-14T12:01:48.000001Z")
-      .key("D Major")
-      .total(48)
-      .density(0.73)
-      .tempo(120.0)
-      .storageKey("chains-3-segments-d8a78929f7s89.wav"));
+    subject.put(buildSegment(chain3,
+      0,
+      SegmentState.DUBBED,
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      Instant.parse("2017-02-14T12:01:48.000001Z"),
+      "D Major",
+      48,
+      0.73,
+      120.0,
+      "chains-3-segments-d8a78929f7s89.wav",
+      "AAC"));
 
     Collection<Segment> result = subject.getAllSegments(chain3.getId());
     assertEquals(2, result.size());
     Collection<SegmentChoice> resultChoices = subject.getAll(chain3_segment0.getId(), SegmentChoice.class);
     assertEquals(1, resultChoices.size());
   }
+
 }

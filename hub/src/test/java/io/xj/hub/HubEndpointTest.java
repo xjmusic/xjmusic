@@ -7,14 +7,13 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAO;
 import io.xj.hub.dao.DAOException;
+import io.xj.hub.tables.pojos.Account;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.lib.jsonapi.AssertPayload;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -29,8 +28,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
-import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -74,12 +73,9 @@ public class HubEndpointTest {
         .setType(Account.class)
         .setAttribute("name", "test5"));
     when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
-    when(dao.newInstance()).thenReturn(new Account()
-      .id(UUID.randomUUID()));
-    var createdAccount = new Account()
-      .id(UUID.randomUUID())
-      .name("test5")
-      ;
+    when(dao.newInstance()).thenReturn(buildAccount("Testing"));
+    var createdAccount = buildAccount("Testing");
+    createdAccount.setName("test5");
     when(dao.create(same(hubAccess), any(Account.class))).thenReturn(createdAccount);
 
     Response result = subject.create(crc, dao, jsonapiPayload);

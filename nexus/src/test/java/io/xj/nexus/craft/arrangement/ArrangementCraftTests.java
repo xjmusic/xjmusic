@@ -10,20 +10,21 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.api.Chain;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentType;
-import io.xj.api.Program;
-import io.xj.api.ProgramSequence;
-import io.xj.api.ProgramSequencePatternType;
-import io.xj.api.ProgramVoice;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.Template;
+import io.xj.hub.IntegrationTestingFixtures;
+import io.xj.hub.Topology;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramSequencePatternType;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
@@ -52,8 +53,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildAccount;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -63,10 +64,10 @@ import static org.junit.Assert.assertEquals;
 public class ArrangementCraftTests extends YamlTest {
   private static final int REPEAT_EACH_TEST_TIMES = 7;
   private static final Set<InstrumentType> INSTRUMENT_TYPES = ImmutableSet.of(
-    InstrumentType.BASS,
-    InstrumentType.PAD,
-    InstrumentType.STAB,
-    InstrumentType.STRIPE
+    InstrumentType.Bass,
+    InstrumentType.Pad,
+    InstrumentType.Stab,
+    InstrumentType.Stripe
   );
   // this is how we provide content for fabrication
   @Mock
@@ -88,11 +89,12 @@ public class ArrangementCraftTests extends YamlTest {
 
   @Test
   public void arrangementBaseline() {
-    var baseline = new Program()
-      .id(UUID.randomUUID())
-      .name("Baseline");
+    var prog = new Program();
+    prog.setId(UUID.randomUUID());
+    prog.setName("Baseline");
 
-    assertEquals("Modified", baseline.name("Modified").getName());
+    prog.setName("Modified");
+    assertEquals("Modified", prog.getName());
   }
 
   @Test
@@ -146,7 +148,6 @@ public class ArrangementCraftTests extends YamlTest {
 
   /**
    Load the specified test YAML file and run it repeatedly.@param filename of test YAML file
-
    */
   private void loadAndRunTest(String filename) {
     for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
@@ -214,16 +215,16 @@ public class ArrangementCraftTests extends YamlTest {
    @param type of instrument to read
    */
   private void loadInstrument(Map<?, ?> data, InstrumentType type) {
-    Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sInstrument", type.name().toLowerCase(Locale.ROOT)));
+    Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sInstrument", type.toString().toLowerCase(Locale.ROOT)));
     if (Objects.isNull(obj)) return;
 
-    var instrument = NexusIntegrationTestingFixtures.buildInstrument(
+    var instrument = IntegrationTestingFixtures.buildInstrument(
       type,
       getBool(obj, "isTonal"),
       getBool(obj, "isMultiphonic"));
     instruments.put(type, instrument);
 
-    content.addAll(NexusIntegrationTestingFixtures.buildInstrumentWithAudios(
+    content.addAll(IntegrationTestingFixtures.buildInstrumentWithAudios(
       instrument,
       getStr(obj, "notes")));
   }
@@ -235,39 +236,39 @@ public class ArrangementCraftTests extends YamlTest {
    @param type of instrument to read
    */
   private void loadDetailProgram(Map<?, ?> data, InstrumentType type) {
-    Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sDetailProgram", type.name().toLowerCase(Locale.ROOT)));
+    Map<?, ?> obj = (Map<?, ?>) data.get(String.format("%sDetailProgram", type.toString().toLowerCase(Locale.ROOT)));
     if (Objects.isNull(obj)) return;
 
-    var program = NexusIntegrationTestingFixtures.buildDetailProgram(
+    var program = IntegrationTestingFixtures.buildDetailProgram(
       getStr(obj, "key"),
       getBool(obj, "doPatternRestartOnChord"),
-      String.format("%s Test", type.name()));
+      String.format("%s Test", type));
     detailPrograms.put(type, program);
     content.add(program);
 
-    var voice = NexusIntegrationTestingFixtures.buildVoice(program, type);
+    var voice = IntegrationTestingFixtures.buildVoice(program, type);
     detailProgramVoices.put(type, voice);
     content.add(voice);
 
-    var track = NexusIntegrationTestingFixtures.buildTrack(voice);
+    var track = IntegrationTestingFixtures.buildTrack(voice);
     content.add(track);
 
     Map<?, ?> sObj = (Map<?, ?>) obj.get("sequence");
-    var sequence = NexusIntegrationTestingFixtures.buildSequence(program, Objects.requireNonNull(getInt(sObj, "total")));
+    var sequence = IntegrationTestingFixtures.buildSequence(program, Objects.requireNonNull(getInt(sObj, "total")));
     detailProgramSequences.put(type, sequence);
     content.add(sequence);
 
     //noinspection unchecked
     for (Map<?, ?> pObj : (List<Map<?, ?>>) sObj.get("patterns")) {
-      var pattern = NexusIntegrationTestingFixtures.buildPattern(sequence, voice,
-        ProgramSequencePatternType.fromValue(getStr(pObj, "type")),
+      var pattern = IntegrationTestingFixtures.buildPattern(sequence, voice,
+        ProgramSequencePatternType.valueOf(getStr(pObj, "type")),
         Objects.requireNonNull(getInt(pObj, "total")));
       content.add(pattern);
       //noinspection unchecked
       for (Map<?, ?> eObj : (List<Map<?, ?>>) pObj.get("events")) {
-        content.add(NexusIntegrationTestingFixtures.buildEvent(pattern, track,
-          Objects.requireNonNull(getDouble(eObj, "position")),
-          Objects.requireNonNull(getDouble(eObj, "duration")),
+        content.add(IntegrationTestingFixtures.buildEvent(pattern, track,
+          Objects.requireNonNull(getFloat(eObj, "position")),
+          Objects.requireNonNull(getFloat(eObj, "duration")),
           getStr(eObj, "note")));
       }
     }
@@ -284,19 +285,19 @@ public class ArrangementCraftTests extends YamlTest {
     segment = store.put(NexusIntegrationTestingFixtures.buildSegment(chain,
       Objects.requireNonNull(getStr(obj, "key")),
       Objects.requireNonNull(getInt(obj, "total")),
-      Objects.requireNonNull(getDouble(obj, "density")),
-      Objects.requireNonNull(getDouble(obj, "tempo"))));
+      Objects.requireNonNull(getFloat(obj, "density")),
+      Objects.requireNonNull(getFloat(obj, "tempo"))));
 
     //noinspection unchecked
     for (Map<?, ?> cObj : (List<Map<?, ?>>) obj.get("chords")) {
-      var chord = store.put(NexusIntegrationTestingFixtures.buildChord(segment,
+      var chord = store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment,
         getDouble(cObj, "position"),
         getStr(cObj, "name")));
       Map<?, ?> vObj = (Map<?, ?>) cObj.get("voicings");
       for (var instrumentType : instruments.keySet()) {
-        var notes = getStr(vObj, instrumentType.name().toLowerCase(Locale.ROOT));
+        var notes = getStr(vObj, instrumentType.toString().toLowerCase(Locale.ROOT));
         if (Objects.nonNull(notes))
-          store.put(NexusIntegrationTestingFixtures.buildVoicing(chord, instrumentType, notes));
+          store.put(NexusIntegrationTestingFixtures.buildSegmentChordVoicing(chord, instrumentType, notes));
       }
     }
 
@@ -325,12 +326,12 @@ public class ArrangementCraftTests extends YamlTest {
   private void loadAndPerformAssertions(Map<?, ?> data, InstrumentType type) {
     @Nullable
     @SuppressWarnings("unchecked")
-    List<Map<?, ?>> objs = (List<Map<?, ?>>) data.get(type.name().toLowerCase(Locale.ROOT));
+    List<Map<?, ?>> objs = (List<Map<?, ?>>) data.get(type.toString().toLowerCase(Locale.ROOT));
     if (Objects.isNull(objs)) return;
 
     for (var obj : objs) {
-      Double start = getDouble(obj, "start");
-      Double length = getDouble(obj, "length");
+      Float start = getFloat(obj, "start");
+      Float length = getFloat(obj, "length");
       Integer count = getInt(obj, "count");
       String notes = getStr(obj, "notes");
 
@@ -339,9 +340,9 @@ public class ArrangementCraftTests extends YamlTest {
         (Objects.nonNull(length) ? String.format(" with length %fs", length) : "");
 
       var picks = fabricator.getPicks().stream()
-        .filter(pick -> pick.getName().equals(type.name()) &&
-          (Objects.isNull(start) || start.equals(pick.getStart())) &&
-          (Objects.isNull(length) || length.equals(pick.getLength())))
+        .filter(pick -> pick.getName().equals(type.toString()) &&
+          (Objects.isNull(start) || start.equals(pick.getStart().floatValue())) &&
+          (Objects.isNull(length) || length.equals(pick.getLength().floatValue())))
         .map(SegmentChoiceArrangementPick::getNote)
         .collect(Collectors.toList());
 

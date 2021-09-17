@@ -5,14 +5,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import io.xj.api.Account;
-import io.xj.api.AccountUser;
-import io.xj.api.User;
-import io.xj.api.UserAuth;
-import io.xj.api.UserRole;
-import io.xj.api.UserRoleType;
+import io.xj.hub.Users;
+import io.xj.hub.enums.UserRoleType;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.User;
+import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.entity.Entities;
-import io.xj.lib.entity.common.Users;
+import io.xj.lib.util.CSV;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 public class HubAccess {
   public static final String CONTEXT_KEY = "userAccess";
-  private static final UserRoleType[] topLevelRoles = {UserRoleType.ADMIN, UserRoleType.INTERNAL};
+  private static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
 
   @JsonProperty("roleTypes")
   private final Collection<UserRoleType> roleTypes = Lists.newArrayList();
@@ -61,7 +61,7 @@ public class HubAccess {
    @return access control
    */
   public static HubAccess internal() {
-    return new HubAccess().setRoleTypes(ImmutableList.of(UserRoleType.INTERNAL));
+    return new HubAccess().setRoleTypes(ImmutableList.of(UserRoleType.Internal));
   }
 
   /**
@@ -143,7 +143,8 @@ public class HubAccess {
   public static HubAccess create(User user, ImmutableList<Account> accounts) {
     return new HubAccess()
       .setUserId(user.getId())
-      .setAccountIds(Entities.idsOf(accounts));
+      .setAccountIds(Entities.idsOf(accounts))
+      .setRoleTypes(CSV.split(user.getRoles()).stream().map(UserRoleType::valueOf).collect(Collectors.toList()));
   }
 
   /**
@@ -177,15 +178,15 @@ public class HubAccess {
    @param userRoles    to use for access control
    @return new HubAccess
    */
-  public static HubAccess create(UserAuth userAuth, Collection<AccountUser> accountUsers, Collection<UserRole> userRoles) {
+  public static HubAccess create(UserAuth userAuth, Collection<AccountUser> accountUsers, String userRoles) {
     return new HubAccess()
       .setUserId(userAuth.getUserId())
       .setUserAuthId(userAuth.getId())
       .setAccountIds(accountUsers.stream()
         .map(AccountUser::getAccountId)
         .collect(Collectors.toList()))
-      .setRoleTypes(userRoles.stream()
-        .map(UserRole::getType)
+      .setRoleTypes(CSV.split(userRoles).stream()
+        .map(UserRoleType::valueOf)
         .collect(Collectors.toList()));
   }
 
@@ -211,7 +212,7 @@ public class HubAccess {
   public final <T> boolean isAllowed(T... matchRoles) {
     return Arrays.stream(matchRoles)
       .anyMatch(matchRole -> roleTypes.stream()
-        .anyMatch(userRoleType -> userRoleType == UserRoleType.fromValue(matchRole.toString())));
+        .anyMatch(userRoleType -> userRoleType == UserRoleType.valueOf(matchRole.toString())));
   }
 
   /**
@@ -243,16 +244,6 @@ public class HubAccess {
   }
 
   /**
-   Get user auth id
-
-   @return user auth id
-   */
-  @Nullable
-  public UUID getUserAuthId() {
-    return userAuthId;
-  }
-
-  /**
    Is Top Level?
 
    @return boolean
@@ -264,7 +255,7 @@ public class HubAccess {
 
   /**
    Validation
-   [#154580129] valid with no accounts, because User expects to login without having access to any accounts.
+   [#154580129] valid with no accounts, because User expects to log in without having access to any accounts.
    */
   @JsonIgnore
   public boolean isValid() {
@@ -310,7 +301,7 @@ public class HubAccess {
   }
 
   /**
-   Set UserAuth Id
+   Set User auth id
 
    @param userAuthId to set
    @return this HubAccess (for chaining setters)

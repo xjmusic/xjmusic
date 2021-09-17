@@ -7,7 +7,7 @@ import com.google.inject.Guice;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-import io.xj.api.Program;
+import io.xj.lib.Widget;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -61,7 +61,7 @@ public class JsonapiHttpResponseProviderImplTest {
 
   @Test
   public void notFound() {
-    Response result = subject.notFound(new Program().id(UUID.randomUUID()));
+    Response result = subject.notFound(new Widget().setId(UUID.randomUUID()));
 
     assertEquals(404, result.getStatus());
   }

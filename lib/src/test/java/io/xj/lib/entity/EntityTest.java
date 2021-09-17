@@ -2,19 +2,12 @@
 
 package io.xj.lib.entity;
 
-import io.xj.api.ProgramSequenceChord;
+import io.xj.lib.Widget;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import static org.junit.Assert.assertEquals;
 
 public class EntityTest {
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
 
   @Before
   public void setUp() {
@@ -27,9 +20,8 @@ public class EntityTest {
    */
   @Test
   public void exactPosition() {
-    Assert.assertEquals(1.25179957, new ProgramSequenceChord()
-      .position(1.25179957)
-
+    Assert.assertEquals(1.25179957, new Widget()
+      .setPosition(1.25179957)
       .getPosition(), 0.0000001);
   }
 }

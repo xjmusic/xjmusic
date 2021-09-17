@@ -8,7 +8,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import io.xj.api.Program;
+import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class JsonapiPayloadTest {
     });
     var entityFactory = injector.getInstance(EntityFactory.class);
     jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
-    entityFactory.register(Program.class);
+    entityFactory.register(Widget.class);
     subject = jsonapiPayloadFactory.newJsonapiPayload();
   }
 
@@ -56,18 +56,18 @@ public class JsonapiPayloadTest {
 
   @Test
   public void isEmpty_falseAfterSetDataEntity() throws JsonapiException {
-    assertFalse(jsonapiPayloadFactory.setDataEntity(subject, new Program()
-      .id(UUID.randomUUID())
-      .name("Test")
-      ).isEmpty());
+    assertFalse(jsonapiPayloadFactory.setDataEntity(subject, new Widget()
+      .setId(UUID.randomUUID())
+      .setName("Test")
+    ).isEmpty());
   }
 
   @Test
   public void isEmpty_falseAfterSetDataEntities() throws JsonapiException {
-    assertFalse(jsonapiPayloadFactory.setDataEntities(subject, ImmutableList.of(new Program()
-      .id(UUID.randomUUID())
-      .name("Test")
-      )).isEmpty());
+    assertFalse(jsonapiPayloadFactory.setDataEntities(subject, ImmutableList.of(new Widget()
+      .setId(UUID.randomUUID())
+      .setName("Test")
+    )).isEmpty());
   }
 
   @Test
@@ -98,19 +98,19 @@ public class JsonapiPayloadTest {
   @Test
   public void type_hasOne_afterSetDataEntity() throws JsonapiException {
     assertEquals(PayloadDataType.One, jsonapiPayloadFactory.setDataEntity(subject,
-      new Program()
-        .id(UUID.randomUUID())
-        .name("Test")
-        ).getDataType());
+      new Widget()
+        .setId(UUID.randomUUID())
+        .setName("Test")
+    ).getDataType());
   }
 
   @Test
   public void type_hasMany_afterSetDataEntities() throws JsonapiException {
     assertEquals(PayloadDataType.Many, jsonapiPayloadFactory.setDataEntities(subject,
-      ImmutableList.of(new Program()
-        .id(UUID.randomUUID())
-        .name("Test")
-        )).getDataType());
+      ImmutableList.of(new Widget()
+        .setId(UUID.randomUUID())
+        .setName("Test")
+      )).getDataType());
   }
 
   @Test
@@ -154,27 +154,25 @@ public class JsonapiPayloadTest {
   }
 
   /**
-   Serialize a payload comprising a Program
+   Serialize a payload comprising a Widget
 
    @throws JsonapiException on failure
    */
   @Test
-  public void setDataOne_program() throws JsonapiException {
-    Program entity1 = new Program()
-      .id(UUID.randomUUID())
-      .name("Test")
-      ;
-    Program entity2 = new Program()
-      .id(UUID.randomUUID())
-      .name("Shim")
-      ;
+  public void setDataOne_widget() throws JsonapiException {
+    Widget entity1 = new Widget()
+      .setId(UUID.randomUUID())
+      .setName("Test");
+    Widget entity2 = new Widget()
+      .setId(UUID.randomUUID())
+      .setName("Shim");
 
     jsonapiPayloadFactory.setDataEntity(subject, entity1);
     jsonapiPayloadFactory.addIncluded(subject, jsonapiPayloadFactory.toPayloadObject(entity2));
 
     assertTrue(subject.getLinks().isEmpty());
     assertTrue(subject.getDataOne().isPresent());
-    assertEquals("programs", subject.getDataOne().get().getType());
+    assertEquals("widgets", subject.getDataOne().get().getType());
     assertEquals(1, subject.getIncluded().size());
   }
 

@@ -2,7 +2,7 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.api.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.EntityFactory;
@@ -77,8 +77,8 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
     requireArtist(hubAccess);
     DSLContext db = dbProvider.getDSL();
     var original = readOne(db, hubAccess, id);
-    executeUpdate(db, PROGRAM_MEME, id, meme
-      .programId(original.getProgramId()));
+    meme.setProgramId(original.getProgramId());
+    executeUpdate(db, PROGRAM_MEME, id, meme);
     return meme;
   }
 

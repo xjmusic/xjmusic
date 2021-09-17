@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.dao;
 
-import io.xj.api.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.access.HubAccess;
 
 import java.util.UUID;

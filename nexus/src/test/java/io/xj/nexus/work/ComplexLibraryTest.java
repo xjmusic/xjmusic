@@ -8,13 +8,12 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.TemplateType;
+import io.xj.api.ChainType;
+import io.xj.hub.Topology;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
-import io.xj.lib.util.Value;
 import io.xj.nexus.NexusApp;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
@@ -41,8 +40,9 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildAccount;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
@@ -103,14 +103,13 @@ public class ComplexLibraryTest {
     when(hubClient.ingest(any(), any())).thenReturn(content);
 
     // Chain "Test Print #1" is ready to begin
-    chain1 = test.put(new Chain()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .templateId(content.getTemplate().getId())
-      .name("Test Print #1")
-      .type(TemplateType.PREVIEW)
-      .state(ChainState.FABRICATE)
-      .startAt(Value.formatIso8601UTC(Instant.now().minusSeconds(MAXIMUM_TEST_WAIT_SECONDS))));
+    chain1 = test.put(buildChain(
+      fake.account1,
+      content.getTemplate(),
+      "Test Print #1",
+      ChainType.PREVIEW,
+      ChainState.FABRICATE,
+      Instant.now().minusSeconds(MAXIMUM_TEST_WAIT_SECONDS)));
 
     app = injector.getInstance(NexusApp.class);
 

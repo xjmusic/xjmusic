@@ -2,9 +2,9 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.api.Template;
-import io.xj.api.TemplatePlayback;
-import io.xj.api.TemplateType;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplatePlayback;
+import io.xj.hub.enums.TemplateType;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.app.Environment;
@@ -53,7 +53,7 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
     var template = modelFrom(Template.class, dbProvider.getDSL().selectFrom(TEMPLATE)
       .where(TEMPLATE.ID.eq(record.getTemplateId()))
       .fetchOne());
-    require("Preview-type Template", TemplateType.PREVIEW.equals(template.getType()));
+    require("Preview-type Template", TemplateType.Preview.equals(template.getType()));
 
     for (var prior : modelsFrom(TemplatePlayback.class,
       db.selectFrom(TEMPLATE_PLAYBACK)

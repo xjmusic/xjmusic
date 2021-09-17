@@ -8,14 +8,14 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.ProgramType;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentState;
-import io.xj.api.TemplateType;
+import io.xj.hub.Topology;
+import io.xj.hub.enums.ProgramType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.lib.mixer.Mixer;
 import io.xj.lib.mixer.MixerFactory;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
@@ -36,10 +36,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.mockito.Matchers.any;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -88,26 +88,25 @@ public class DubDubMasterInitialTest {
     ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in dubbing state - DubMaster is complete
-    Chain chain2 = store.put(new Chain()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .name("Print #2")
-      .templateId(fake.template1.getId())
-      .type(TemplateType.PRODUCTION)
-      .state(ChainState.FABRICATE)
-      .startAt("2014-08-12T12:17:02.527142Z"));
+    Chain chain2 = store.put(buildChain(
+      fake.account1,
+      fake.template1,
+      "Print #2",
+      ChainType.PRODUCTION,
+      ChainState.FABRICATE,
+      Instant.parse("2014-08-12T12:17:02.527142Z")));
 
     segment6 = store.put(NexusIntegrationTestingFixtures.buildSegment(chain2, 0, SegmentState.DUBBING, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:07.384616Z"), "C minor", 16, 0.55, 130, "chains-1-segments-9f7s89d8a7892", "wav"));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment6, ProgramType.MACRO, fake.program4_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment6, ProgramType.MAIN, fake.program5_sequence0_binding0));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment6, ProgramType.Macro, fake.program4_sequence0_binding0));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment6, ProgramType.Main, fake.program5_sequence0_binding0));
     SegmentChoice choice1 = store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment6, fake.program35, fake.program35_sequence0, fake.program35_voice0, fake.instrument8));
-    store.put(NexusIntegrationTestingFixtures.buildMeme(segment6, "Special"));
-    store.put(NexusIntegrationTestingFixtures.buildMeme(segment6, "Wild"));
-    store.put(NexusIntegrationTestingFixtures.buildMeme(segment6, "Pessimism"));
-    store.put(NexusIntegrationTestingFixtures.buildMeme(segment6, "Outlook"));
-    store.put(NexusIntegrationTestingFixtures.buildChord(segment6, 0.0, "A minor"));
-    store.put(NexusIntegrationTestingFixtures.buildChord(segment6, 8.0, "D major"));
-    store.put(NexusIntegrationTestingFixtures.buildArrangement(choice1));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment6, "Special"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment6, "Wild"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment6, "Pessimism"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment6, "Outlook"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment6, 0.0, "A minor"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment6, 8.0, "D major"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement(choice1));
 
     // future: insert arrangement of choice1
     // future: insert 8 picks of audio 1

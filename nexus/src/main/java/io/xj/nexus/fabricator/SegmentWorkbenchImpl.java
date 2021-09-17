@@ -6,7 +6,6 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.api.Chain;
-import io.xj.api.ProgramType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;
@@ -16,6 +15,7 @@ import io.xj.api.SegmentChordVoicing;
 import io.xj.api.SegmentMeme;
 import io.xj.api.SegmentMessage;
 import io.xj.api.SegmentMessageType;
+import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.jsonapi.JsonapiException;
@@ -161,13 +161,13 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   @Override
   public Optional<SegmentChoice> getChoiceOfType(ProgramType type) {
     return getSegmentChoices().stream()
-      .filter(c -> c.getProgramType().equals(type)).findFirst();
+      .filter(c -> c.getProgramType().equals(type.toString())).findFirst();
   }
 
   @Override
   public Collection<SegmentChoice> getChoicesOfType(ProgramType type) {
     return getSegmentChoices().stream()
-      .filter(c -> c.getProgramType().equals(type))
+      .filter(c -> c.getProgramType().equals(type.toString()))
       .collect(Collectors.toList());
   }
 
@@ -188,15 +188,16 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   }
 
   /**
-   Returns the current report map as json, and clears the report so it'll only be reported once
+   Returns the current report map as json, and clears the report, so it'll only be reported once
    */
   private void sendReportToSegmentMessage() throws JsonapiException, NexusException {
     String reported = jsonapiPayloadFactory.serialize(report);
-    add(new SegmentMessage()
-      .id(UUID.randomUUID())
-      .segmentId(segment.getId())
-      .type(SegmentMessageType.DEBUG)
-      .body(reported));
+    var msg = new SegmentMessage();
+    msg.setId(UUID.randomUUID());
+    msg.setSegmentId(segment.getId());
+    msg.setType(SegmentMessageType.DEBUG);
+    msg.setBody(reported);
+    add(msg);
     report.clear();
   }
 

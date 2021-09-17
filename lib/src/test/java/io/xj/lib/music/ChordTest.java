@@ -167,6 +167,11 @@ public class ChordTest {
     assertEquals("NC", Chord.NO_CHORD_NAME);
   }
 
+  @Test
+  public void colloquialFormName() {
+    assertEquals("Minor Seventh", Chord.of("C#m7").colloquialFormName());
+  }
+
   /**
    [#176728338] XJ understands the root of a slash chord
    */

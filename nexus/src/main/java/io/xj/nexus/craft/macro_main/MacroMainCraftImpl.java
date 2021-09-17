@@ -3,15 +3,15 @@ package io.xj.nexus.craft.macro_main;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.Program;
-import io.xj.api.ProgramSequence;
-import io.xj.api.ProgramSequenceChord;
-import io.xj.api.ProgramState;
-import io.xj.api.ProgramType;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChord;
 import io.xj.api.SegmentChordVoicing;
 import io.xj.api.SegmentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
@@ -77,13 +77,13 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @return tempo
    */
   private double computeSegmentTempo(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
-    @Nullable Double macroTempo =
+    @Nullable Float macroTempo =
       Objects.nonNull(macroSequence) ?
         (Objects.nonNull(macroSequence.getTempo()) ?
           macroSequence.getTempo()
           : fabricator.sourceMaterial().getProgram(macroSequence.getProgramId()).orElseThrow().getTempo())
         : null;
-    @Nullable Double mainTempo =
+    @Nullable Float mainTempo =
       Objects.nonNull(mainSequence) ?
         (Objects.nonNull(mainSequence.getTempo()) ?
           mainSequence.getTempo()
@@ -109,7 +109,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @param mainSequence  of which to compute segment tempo
    @return density
    */
-  private Double computeSegmentDensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
+  private double computeSegmentDensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
     return
       Math.floor(
         100 * (DENSITY_FLOOR + DENSITY_CEILING_DELTA * (0.5 + Math.cos(-PI + 2 * PI * delta / fabricator.getTemplateConfig().getMainProgramLengthMaxDelta()) / 2))
@@ -125,14 +125,14 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
    @param mainSequence  of which to compute segment tempo
    @return density
    */
-  private Double computeDensity(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
-    @Nullable Double macroDensity =
+  private Float computeDensity(@Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws NexusException {
+    @Nullable Float macroDensity =
       Objects.nonNull(macroSequence) ?
         (Objects.nonNull(macroSequence.getDensity()) ?
           macroSequence.getDensity()
           : fabricator.sourceMaterial().getProgram(macroSequence.getProgramId()).orElseThrow().getDensity())
         : null;
-    @Nullable Double mainDensity =
+    @Nullable Float mainDensity =
       Objects.nonNull(mainSequence) ?
         (Objects.nonNull(mainSequence.getDensity()) ?
           mainSequence.getDensity()
@@ -159,16 +159,16 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
         apiUrlProvider.getAppUrl(String.format("/programs/%s", macroProgram.getId()))
       ))));
     var macroSequence = fabricator.sourceMaterial().getProgramSequence(macroSequenceBinding);
-    fabricator.add(
-      new SegmentChoice()
-        .id(UUID.randomUUID())
-        .segmentId(fabricator.getSegment().getId())
-        .programId(macroProgram.getId())
-        .deltaIn(Segments.DELTA_UNLIMITED)
-        .deltaOut(Segments.DELTA_UNLIMITED)
-        .programType(ProgramType.MACRO)
-        .programSequenceBindingId(macroSequenceBinding.getId())
-    );
+    var macroChoice = new SegmentChoice();
+    macroChoice.setId(UUID.randomUUID());
+    macroChoice.setSegmentId(fabricator.getSegment().getId());
+    macroChoice.setProgramSequenceId(macroSequence.orElseThrow().getId());
+    macroChoice.setProgramId(macroProgram.getId());
+    macroChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
+    macroChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
+    macroChoice.setProgramType(ProgramType.Macro.toString());
+    macroChoice.setProgramSequenceBindingId(macroSequenceBinding.getId());
+    fabricator.add(macroChoice);
 
     // 2. Main
     Program mainProgram = fabricator.addMemes(chooseMainProgram()
@@ -187,16 +187,15 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
         apiUrlProvider.getAppUrl(String.format("/programs/%s", mainProgram.getId()))
       ))));
     var mainSequence = fabricator.sourceMaterial().getProgramSequence(mainSequenceBinding);
-    fabricator.add(
-      new SegmentChoice()
-        .id(UUID.randomUUID())
-        .segmentId(fabricator.getSegment().getId())
-        .programId(mainProgram.getId())
-        .deltaIn(Segments.DELTA_UNLIMITED)
-        .deltaOut(Segments.DELTA_UNLIMITED)
-        .programType(ProgramType.MAIN)
-        .programSequenceBindingId(mainSequenceBinding.getId())
-    );
+    var mainChoice = new SegmentChoice();
+    mainChoice.setId(UUID.randomUUID());
+    mainChoice.setSegmentId(fabricator.getSegment().getId());
+    mainChoice.setProgramId(mainProgram.getId());
+    mainChoice.setDeltaIn(Segments.DELTA_UNLIMITED);
+    mainChoice.setDeltaOut(Segments.DELTA_UNLIMITED);
+    mainChoice.setProgramType(ProgramType.Main.toString());
+    mainChoice.setProgramSequenceBindingId(mainSequenceBinding.getId());
+    fabricator.add(mainChoice);
 
     // 3. Chords and voicings
     if (mainSequence.isPresent())
@@ -207,31 +206,34 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
           // delta the chord name
           name = new Chord(sequenceChord.getName()).getFullDescription();
           // of the final chord
-          SegmentChord chord = fabricator.add(new SegmentChord()
-            .id(UUID.randomUUID())
-            .segmentId(fabricator.getSegment().getId())
-            .position(sequenceChord.getPosition())
-            .name(name)
-          );
-          for (var voicing : fabricator.sourceMaterial().getVoicings(sequenceChord))
-            fabricator.add(new SegmentChordVoicing()
-              .id(UUID.randomUUID())
-              .segmentId(fabricator.getSegment().getId())
-              .segmentChordId(chord.getId())
-              .type(voicing.getType())
-              .notes(voicing.getNotes())
-            );
+          SegmentChord chord = new SegmentChord();
+          chord.setId(UUID.randomUUID());
+          chord.setSegmentId(fabricator.getSegment().getId());
+          chord.setPosition(sequenceChord.getPosition());
+          chord.setName(name);
+          fabricator.add(chord);
+          for (var voicing : fabricator.sourceMaterial().getVoicings(sequenceChord)) {
+            var segmentChordVoicing = new SegmentChordVoicing();
+            segmentChordVoicing.setId(UUID.randomUUID());
+            segmentChordVoicing.setSegmentId(fabricator.getSegment().getId());
+            segmentChordVoicing.segmentChordId(chord.getId());
+            segmentChordVoicing.type(voicing.getType().toString());
+            segmentChordVoicing.setNotes(voicing.getNotes());
+            fabricator.add(segmentChordVoicing);
+          }
         }
       }
 
     // Update the segment with fabricated content
-    if (macroSequence.isPresent() && mainSequence.isPresent())
-      fabricator.updateSegment(fabricator.getSegment()
-        .type(fabricator.getType())
-        .outputEncoder(fabricator.getTemplateConfig().getOutputContainer())
-        .tempo(computeSegmentTempo(macroSequence.get(), mainSequence.get()))
-        .key(computeSegmentKey(mainSequence.get()).strip())
-        .total(mainSequence.get().getTotal()));
+    if (mainSequence.isPresent()) {
+      var seg = fabricator.getSegment();
+      seg.setType(fabricator.getType());
+      seg.setOutputEncoder(fabricator.getTemplateConfig().getOutputContainer());
+      seg.setTempo(computeSegmentTempo(macroSequence.get(), mainSequence.get()));
+      seg.setKey(computeSegmentKey(mainSequence.get()).strip());
+      seg.setTotal(Integer.valueOf(mainSequence.get().getTotal()));
+      fabricator.updateSegment(seg);
+    }
 
     // then, set the end-at time.
     if (mainSequence.isPresent())
@@ -312,7 +314,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // (1) retrieve programs bound to chain and
     // (3) score each source program
     MemeIsometry macroIsometry = fabricator.getMemeIsometryOfNextSequenceInPreviousMacro();
-    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.MACRO))
+    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Macro))
       superEntityScorePicker.add(program, scoreMacro(program, macroIsometry));
 
     // (3b) Avoid previous macro program
@@ -336,7 +338,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
   public Optional<Program> chooseRandomMacroProgram() {
     EntityScorePicker<Program> superEntityScorePicker = new EntityScorePicker<>();
 
-    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.MACRO))
+    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Macro))
       superEntityScorePicker.add(program, Chance.normallyAround(0, SCORE_MACRO_ENTROPY));
 
     return superEntityScorePicker.getTop();
@@ -363,7 +365,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // (2) retrieve programs bound to chain and
     // (3) score each source program based on meme isometry
     MemeIsometry mainIsometry = fabricator.getMemeIsometryOfSegment();
-    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.MAIN))
+    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Main))
       superEntityScorePicker.add(program, scoreMain(program, mainIsometry));
 
     // report
@@ -393,7 +395,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
       score += SCORE_DIRECT;
-    else if (program.getState().equals(ProgramState.DRAFT))
+    else if (program.getState().equals(ProgramState.Draft))
       score += SCORE_UNPUBLISHED;
 
     return score;
@@ -410,7 +412,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
       return SCORE_DIRECT;
-    else if (program.getState().equals(ProgramState.DRAFT))
+    else if (program.getState().equals(ProgramState.Draft))
       return SCORE_UNPUBLISHED;
 
     // Score includes matching memes, previous segment to macro program first pattern

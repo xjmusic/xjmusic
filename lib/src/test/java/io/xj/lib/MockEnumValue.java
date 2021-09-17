@@ -1,4 +1,4 @@
-package io.xj.lib.jsonapi;
+package io.xj.lib;
 
 /**
  Mock enum value

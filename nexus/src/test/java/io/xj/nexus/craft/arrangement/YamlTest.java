@@ -96,6 +96,12 @@ public abstract class YamlTest {
   }
 
   @Nullable
+  protected Float getFloat(Map<?, ?> obj, String key) {
+    if (Objects.isNull(obj.get(key))) return null;
+    return Float.valueOf(String.valueOf(obj.get(key)));
+  }
+
+  @Nullable
   protected Double getDouble(Map<?, ?> obj, String key) {
     if (Objects.isNull(obj.get(key))) return null;
     return Double.valueOf(String.valueOf(obj.get(key)));

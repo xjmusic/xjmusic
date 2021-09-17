@@ -7,25 +7,17 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
-import io.xj.api.AccountUser;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentAudio;
-import io.xj.api.InstrumentMeme;
-import io.xj.api.InstrumentState;
-import io.xj.api.InstrumentType;
-import io.xj.api.Library;
-import io.xj.api.User;
-import io.xj.api.UserRole;
-import io.xj.api.UserRoleType;
-import io.xj.hub.IntegrationTestingFixtures;
-import io.xj.hub.access.HubAccess;
-import io.xj.hub.access.HubAccessControlModule;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.HubIntegrationTestModule;
 import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.IntegrationTestingFixtures;
+import io.xj.hub.access.HubAccess;
+import io.xj.hub.access.HubAccessControlModule;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.ingest.HubIngestModule;
+import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -47,8 +39,11 @@ import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -94,61 +89,19 @@ public class InstrumentAudioIT {
     fake.account1 = test.insert(buildAccount("bananas"));
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
-    test.insert(buildUserRole(fake.user2,UserRoleType.ADMIN));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin"));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
-    test.insert(buildUserRole(fake.user3,UserRoleType.USER));
-    test.insert(buildAccountUser(fake.account1,fake.user3));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User"));
+    test.insert(buildAccountUser(fake.account1, fake.user3));
 
-    // Library "sandwich" has instrument "jams" and instrument "buns"
-    fake.library1 = test.insert(new Library()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .name("sandwich"));
-    fake.instrument201 = test.insert(new Instrument()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library1.getId())
-      .type(InstrumentType.PAD)
-      .state(InstrumentState.PUBLISHED)
-      .density(0.6)
-      .name("buns"));
-    fake.instrument202 = test.insert(new Instrument()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library1.getId())
-      .type(InstrumentType.DRUM)
-      .state(InstrumentState.PUBLISHED)
-      .density(0.6)
-      .name("jams"));
-    test.insert(new InstrumentMeme()
-      .id(UUID.randomUUID())
-      .instrumentId(fake.instrument202.getId())
-      .name("smooth"));
-    fake.audio1 = test.insert(new InstrumentAudio()
-      .id(UUID.randomUUID())
-      .instrumentId(fake.instrument202.getId())
-      .name("Test audio")
-      .waveformKey("fake.audio5.wav")
-      .start(0.0)
-      .length(2.0)
-      .tempo(120.0)
-      .density(0.5)
-      .event("bing")
-      .note("D")
-      .volume(1.0));
-    fake.audio2 = test.insert(new InstrumentAudio()
-      .id(UUID.randomUUID())
-      .instrumentId(fake.instrument202.getId())
-      .name("Test audio2")
-      .waveformKey("fake.audio5222.wav")
-      .start(0.0)
-      .length(2.0)
-      .tempo(120.0)
-      .density(0.5)
-      .event("bang")
-      .note("E")
-      .volume(1.0));
+    // Library "sandwich" has instruments "jams" and instrument "buns"
+    fake.library1 = test.insert(buildLibrary(fake.account1, "sandwich"));
+    fake.instrument201 = test.insert(buildInstrument(fake.library1, InstrumentType.Pad, InstrumentState.Published, "buns"));
+    fake.instrument202 = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentState.Published, "jams"));
+    test.insert(buildInstrumentMeme(fake.instrument202, "smooth"));
+    fake.audio1 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio", "fake.audio5.wav", 0.0f, 2.0f, 120.0f, 0.5f, "bing", "D", 1.0f));
+    fake.audio2 = test.insert(buildInstrumentAudio(fake.instrument202, "Test audio2", "fake.audio5222.wav", 0.0f, 2.0f, 120.0f, 0.5f, "bang", "E", 1.0f));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(InstrumentAudioDAO.class);
@@ -165,13 +118,7 @@ public class InstrumentAudioIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    var inputData = new InstrumentAudio()
-      .id(UUID.randomUUID())
-      .instrumentId(fake.instrument201.getId())
-      .name("maracas")
-      .start(0.009)
-      .length(0.21)
-      .tempo(80.5);
+    var inputData = buildInstrumentAudio(fake.instrument201, "maracas", null, 0.009f, 0.21f, 80.5f);
 
     var result = testDAO.create(hubAccess, inputData);
 
@@ -188,13 +135,8 @@ public class InstrumentAudioIT {
   @Test
   public void create_FailsWithoutInstrumentID() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    var inputData = new InstrumentAudio()
-      .id(UUID.randomUUID())
-      .name("maracas")
-      .waveformKey("instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav")
-      .start(0.009)
-      .length(0.21)
-      .tempo(80.5);
+    var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav", 0.009f, 0.21f, 80.5f);
+    inputData.setInstrumentId(null);
 
     failure.expect(DAOException.class);
     failure.expectMessage("Instrument ID is required");
@@ -209,13 +151,7 @@ public class InstrumentAudioIT {
   @Test
   public void create_SucceedsWithoutWaveformKey() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    var inputData = new InstrumentAudio()
-      .id(UUID.randomUUID())
-      .instrumentId(fake.instrument202.getId())
-      .name("maracas")
-      .start(0.009)
-      .length(0.21)
-      .tempo(80.5);
+    var inputData = buildInstrumentAudio(fake.instrument202, "maracas", null, 0.009f, 0.21f, 80.5f);
 
     var result = testDAO.create(
       hubAccess, inputData);
@@ -230,14 +166,7 @@ public class InstrumentAudioIT {
   @Test
   public void clone_fromOriginal() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    var inputData = new InstrumentAudio()
-      .id(UUID.randomUUID())
-      .instrumentId(fake.instrument202.getId())
-      .tempo(120.0)
-      .density(0.6)
-      .start(0.01)
-      .length(2.0)
-      .name("cannons fifty nine");
+    var inputData = buildInstrumentAudio(fake.instrument202, "cannons fifty nine", "fake.audio5.wav", 0.01f, 2.0f, 120.0f);
 
     var result = testDAO.clone(hubAccess, fake.audio1.getId(), inputData);
 
@@ -315,13 +244,8 @@ public class InstrumentAudioIT {
   @Test
   public void update_FailsWithoutInstrumentID() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    var inputData = new InstrumentAudio()
-      .id(UUID.randomUUID())
-      .name("maracas")
-      .waveformKey("instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav")
-      .start(0.009)
-      .length(0.21)
-      .tempo(80.5);
+    var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav", 0.009f, 0.21f, 80.5f);
+    inputData.setInstrumentId(null);
 
     failure.expect(DAOException.class);
     failure.expectMessage("Instrument ID is required");
@@ -332,14 +256,14 @@ public class InstrumentAudioIT {
   @Test
   public void update_FailsUpdatingToNonexistentInstrument() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    var inputData = new InstrumentAudio()
-      .id(UUID.randomUUID())
-      .instrumentId(UUID.randomUUID())
-      .name("maracas")
-      .waveformKey("instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav")
-      .start(0.009)
-      .length(0.21)
-      .tempo(80.5);
+    var inputData = new InstrumentAudio();
+    inputData.setId(UUID.randomUUID());
+    inputData.setInstrumentId(UUID.randomUUID());
+    inputData.setName("maracas");
+    inputData.setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "demo_source_audio/808" + File.separator + "maracas.wav");
+    inputData.setStart(0.009f);
+    inputData.setLength(0.21f);
+    inputData.setTempo(80.5f);
 
     failure.expect(DAOException.class);
     failure.expectMessage("Instrument does not exist");
@@ -361,13 +285,7 @@ public class InstrumentAudioIT {
   @Test
   public void update() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    var inputData = new InstrumentAudio()
-      .id(UUID.randomUUID())
-      .instrumentId(fake.instrument201.getId())
-      .name("maracas")
-      .start(0.009)
-      .length(0.21)
-      .tempo(80.5);
+    var inputData = buildInstrumentAudio(fake.instrument201, "maracas", "fake.audio5.wav", 0.009f, 0.21f, 80.5f);
 
     testDAO.update(hubAccess, fake.audio1.getId(), inputData);
 
@@ -436,24 +354,24 @@ FUTURE address deleting audio after it has been picked
     HubAccess access = HubAccess.internal();
     // EventEntity and ChordEntity on InstrumentAudio 1
     test.insert(new InstrumentAudioEvent()
-.id(UUID.randomUUID())
+.setId(UUID.randomUUID());
 fake.audio1, 2.5, 1.0, "KICK", "Eb", 0.8);
     test.insert(new InstrumentAudioChord()
-.id(UUID.randomUUID())
+.setId(UUID.randomUUID());
 fake.audio1, 4, "D major");
     // Sequence, Pattern, Voice
     test.insert(new Program()
-.id(UUID.randomUUID())
-fake.user2, fake.library1, ProgramType.MACRO, ProgramState.PUBLISHED, "epic concept",  "C#", 0.342, 0.286);
+.setId(UUID.randomUUID());
+fake.user2, fake.library1, ProgramType.Macro, ProgramState.Published, "epic concept",  "C#", 0.342, 0.286);
     test.insert(new ProgramSequence()
-.id(UUID.randomUUID())
+.setId(UUID.randomUUID());
 1, 1, PatternType.Macro, PatternState.Published, 16, "Ants", 0.583, "D minor", 120.0);
     test.insert(new ProgramSequencePattern()
-.id(UUID.randomUUID())
+.setId(UUID.randomUUID());
 110, 1, 1, 0);
     test.insert(new ProgramVoice()
-.id(UUID.randomUUID())
-8, 1, InstrumentType.DRUM, "This is a drum voice");
+.setId(UUID.randomUUID());
+8, 1, InstrumentType.Drum, "This is a drum voice");
 
     testDAO.destroy(access, fake.audio1.getId());
 
@@ -497,14 +415,14 @@ fake.user2, fake.library1, ProgramType.MACRO, ProgramState.PUBLISHED, "epic conc
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     insert(of(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    insert(of(2, UserRoleType.ADMIN);
+    insert(of(2, UserRoleType.Admin);
 
     // Library "palm tree" has sequence "leaves" and sequence "coconuts"
     insert(of(1, 1, "palm tree",now()));
 
     // Sequence "leaves" has instruments "808" and "909"
-    insertInstrument(1, 1, 2, "808 Drums", InstrumentType.DRUM, 0.9);
-    insertInstrument(2, 1, 2, "909 Drums", InstrumentType.DRUM, 0.8);
+    insertInstrument(1, 1, 2, "808 Drums", InstrumentType.Drum, 0.9);
+    insertInstrument(2, 1, 2, "909 Drums", InstrumentType.Drum, 0.8);
 
     // Instrument "808" has Audios "Kick" and "Snare"
     insertAudio(1, 1, "Published", "Kick", "instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "kick1.wav", 0.01, 2.123, 120.0, 440.0);
@@ -521,8 +439,8 @@ fake.user2, fake.library1, ProgramType.MACRO, ProgramState.PUBLISHED, "epic conc
   public void create() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
-      .position(4.0)
-      .name("G minor 7")
+      .setPosition(4.0);
+      .setName("G minor 7")
       .setInstrumentAudioId(UUID.randomUUID());
 
     AudioChord result = testDAO.create(
@@ -538,8 +456,8 @@ access, inputData);
   public void create_FailsWithoutAudioID() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
-      .position(4.0)
-      .name("G minor 7");
+      .setPosition(4.0);
+      .setName("G minor 7");
 
     testDAO.create(
 access, inputData);
@@ -549,7 +467,7 @@ access, inputData);
   public void create_FailsWithoutName() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
-      .position(4.0)
+      .setPosition(4.0);
       .setInstrumentAudioId(UUID.randomUUID());
 
     testDAO.create(
@@ -599,8 +517,8 @@ access, inputData);
   public void update_FailsWithoutAudioID() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
-      .position(4.0)
-      .name("G minor 7");
+      .setPosition(4.0);
+      .setName("G minor 7");
 
     testDAO.update(access, 3L, inputData);
   }
@@ -609,7 +527,7 @@ access, inputData);
   public void update_FailsWithoutName() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
-      .position(4.0)
+      .setPosition(4.0);
       .setInstrumentAudioId(UUID.randomUUID());
 
     testDAO.update(access, fake.audio2.getId(), inputData);
@@ -619,9 +537,9 @@ access, inputData);
   public void update_FailsUpdatingToNonexistentAudio() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
-      .position(4.0)
+      .setPosition(4.0);
       .setInstrumentAudioId(UUID.randomUUID())
-      .name("cannons");
+      .setName("cannons");
 
     try {
       testDAO.update(access, 1001L, inputData);
@@ -640,8 +558,8 @@ access, inputData);
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioChord inputData = new AudioChord()
       .setInstrumentAudioId(UUID.randomUUID())
-      .name("POPPYCOCK")
-      .position(4.0);
+      .setName("POPPYCOCK");
+      .setPosition(4.0);
 
     testDAO.update(access, 1000L, inputData);
 
@@ -685,14 +603,14 @@ access, inputData);
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     insert(of(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    insert(of(2, UserRoleType.ADMIN);
+    insert(of(2, UserRoleType.Admin);
 
     // Library "palm tree" has sequence "leaves" and sequence "coconuts"
     insert(of(1, 1, "palm tree",now()));
 
     // Sequence "leaves" has instruments "808" and "909"
-    insertInstrument(1, 1, 2, "808 Drums", InstrumentType.DRUM, 0.9);
-    insertInstrument(2, 1, 2, "909 Drums", InstrumentType.DRUM, 0.8);
+    insertInstrument(1, 1, 2, "808 Drums", InstrumentType.Drum, 0.9);
+    insertInstrument(2, 1, 2, "909 Drums", InstrumentType.Drum, 0.8);
 
     // Instrument "808" has InstrumentAudio "Beat"
     insertAudio(1, 1, "Published", "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440.0);
@@ -712,12 +630,12 @@ access, inputData);
   public void create() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
-      .duration(1.4)
-      .name("KICK")
-      .note("C")
-      .position(0.42)
+      .setDuration(1.4);
+      .setName("KICK");
+      .setNote("C");
+      .setPosition(0.42);
       .setTonality(0.92)
-      .velocity(0.72)
+      .setVelocity(0.72);
       .setInstrumentAudioId(UUID.randomUUID());
 
     testDAO.create(
@@ -728,12 +646,12 @@ access, inputData);
   public void create_FailsWithoutAudioID() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
-      .duration(1.0)
-      .name("KICK")
-      .note("C")
-      .position(0.0)
+      .setDuration(1.0);
+      .setName("KICK");
+      .setNote("C");
+      .setPosition(0.0);
       .setTonality(1.0)
-      .velocity(1.0);
+      .setVelocity(1.0);
 
     testDAO.create(
 access, inputData);
@@ -743,11 +661,11 @@ access, inputData);
   public void create_FailsWithoutNote() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
-      .duration(1.0)
-      .name("KICK")
-      .position(0.0)
+      .setDuration(1.0);
+      .setName("KICK");
+      .setPosition(0.0);
       .setTonality(1.0)
-      .velocity(1.0)
+      .setVelocity(1.0);
       .setInstrumentAudioId(UUID.randomUUID());
 
     testDAO.create(
@@ -834,8 +752,8 @@ access, inputData);
   public void readManyOfInstrument_SeesNothingOutsideOfLibrary() throws Exception {
     insert(of(6, "bananas");
     insert(of(61, 6, "palm tree", now()));
-    insertInstrument(61, 61, 2, "808 Drums", InstrumentType.DRUM, 0.9);
-    insertInstrument(62, 61, 2, "909 Drums", InstrumentType.DRUM, 0.8);
+    insertInstrument(61, 61, 2, "808 Drums", InstrumentType.Drum, 0.9);
+    insertInstrument(62, 61, 2, "909 Drums", InstrumentType.Drum, 0.8);
     insertAudio(61, 61, "Published", "Beat", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440.0);
     insertAudioEvent(61, 2.5, 1.0, "ASS", "Eb", 0.8, 1.0);
     insertAudioEvent(61, 3.0, 1.0, "ASS", "Ab", 0.1, 0.8);
@@ -858,12 +776,12 @@ access, inputData);
   public void update_FailsWithoutAudioID() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
-      .duration(1.0)
-      .name("KICK")
-      .note("C")
-      .position(0.0)
+      .setDuration(1.0);
+      .setName("KICK");
+      .setNote("C");
+      .setPosition(0.0);
       .setTonality(1.0)
-      .velocity(1.0);
+      .setVelocity(1.0);
 
     testDAO.update(access, 1002L, inputData);
   }
@@ -872,11 +790,11 @@ access, inputData);
   public void update_FailsWithoutNote() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
-      .duration(1.0)
-      .name("KICK")
-      .position(0.0)
+      .setDuration(1.0);
+      .setName("KICK");
+      .setPosition(0.0);
       .setTonality(1.0)
-      .velocity(1.0)
+      .setVelocity(1.0);
       .setInstrumentAudioId(UUID.randomUUID());
 
     testDAO.update(access, 1001L, inputData);
@@ -886,12 +804,12 @@ access, inputData);
   public void update_FailsUpdatingToNonexistentAudio() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
-      .duration(1.0)
-      .name("SNARE")
-      .note("C")
-      .position(0.0)
+      .setDuration(1.0);
+      .setName("SNARE");
+      .setNote("C");
+      .setPosition(0.0);
       .setTonality(1.0)
-      .velocity(1.0)
+      .setVelocity(1.0);
       .setInstrumentAudioId(UUID.randomUUID());
 
     try {
@@ -910,12 +828,12 @@ access, inputData);
   public void update() throws Exception {
     HubAccess access = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
     AudioEvent inputData = new AudioEvent()
-      .duration(1.2)
-      .name("POPPYCOCK")
-      .note("C")
-      .position(0.42)
+      .setDuration(1.2);
+      .setName("POPPYCOCK");
+      .setNote("C");
+      .setPosition(0.42);
       .setTonality(0.92)
-      .velocity(0.72)
+      .setVelocity(0.72);
       .setInstrumentAudioId(UUID.randomUUID());
 
     testDAO.update(access, 1000L, inputData);

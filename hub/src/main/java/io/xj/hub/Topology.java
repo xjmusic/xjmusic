@@ -1,24 +1,24 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.lib.entity.common;
+package io.xj.hub;
 
-import io.xj.api.Account;
-import io.xj.api.AccountUser;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.api.Chain;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentAudio;
-import io.xj.api.InstrumentMeme;
-import io.xj.api.Library;
-import io.xj.api.Program;
-import io.xj.api.ProgramMeme;
-import io.xj.api.ProgramSequence;
-import io.xj.api.ProgramSequenceBinding;
-import io.xj.api.ProgramSequenceBindingMeme;
-import io.xj.api.ProgramSequenceChord;
-import io.xj.api.ProgramSequenceChordVoicing;
-import io.xj.api.ProgramSequencePattern;
-import io.xj.api.ProgramSequencePatternEvent;
-import io.xj.api.ProgramVoice;
-import io.xj.api.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;
@@ -27,13 +27,12 @@ import io.xj.api.SegmentChord;
 import io.xj.api.SegmentChordVoicing;
 import io.xj.api.SegmentMeme;
 import io.xj.api.SegmentMessage;
-import io.xj.api.Template;
-import io.xj.api.TemplateBinding;
-import io.xj.api.TemplatePlayback;
-import io.xj.api.User;
-import io.xj.api.UserAuth;
-import io.xj.api.UserAuthToken;
-import io.xj.api.UserRole;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.TemplatePlayback;
+import io.xj.hub.tables.pojos.User;
+import io.xj.hub.tables.pojos.UserAuth;
+import io.xj.hub.tables.pojos.UserAuthToken;
 import io.xj.lib.entity.EntityFactory;
 
 /**
@@ -241,12 +240,6 @@ public enum Topology {
       .withAttribute("accessToken")
       .belongsTo(User.class)
       .belongsTo(UserAuth.class);
-
-    // UserRole
-    entityFactory.register(UserRole.class)
-      .createdBy(UserRole::new)
-      .withAttribute("type")
-      .belongsTo(User.class);
 
     // Template
     entityFactory.register(Template.class)

@@ -2,7 +2,7 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.api.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.EntityFactory;
@@ -24,7 +24,7 @@ import static io.xj.hub.Tables.PROGRAM_VOICE;
 import static io.xj.hub.Tables.PROGRAM_VOICE_TRACK;
 
 public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> implements ProgramVoiceTrackDAO {
-  private static final Float DEFAULT_ORDER_VALUE = 1000.0f;
+  private static final float DEFAULT_ORDER_VALUE = 1000.0f;
 
   @Inject
   public ProgramVoiceTrackDAOImpl(
@@ -144,17 +144,17 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
   /**
    Validate data
 
-   @param builder to validate
+   @param track to validate
    @throws DAOException if invalid
    */
-  public ProgramVoiceTrack validate(ProgramVoiceTrack builder) throws DAOException {
+  public ProgramVoiceTrack validate(ProgramVoiceTrack track) throws DAOException {
     try {
-      if (Value.isEmpty(builder.getOrder())) builder.setOrder(DEFAULT_ORDER_VALUE);
-      Value.require(builder.getProgramId(), "Program ID");
-      Value.require(builder.getProgramVoiceId(), "Voice ID");
-      Value.require(builder.getName(), "Name");
-      builder.setName(Text.toMeme(builder.getName()));
-      return builder;
+      if (Value.isEmpty(track.getOrder())) track.setOrder(DEFAULT_ORDER_VALUE);
+      Value.require(track.getProgramId(), "Program ID");
+      Value.require(track.getProgramVoiceId(), "Voice ID");
+      Value.require(track.getName(), "Name");
+      track.setName(Text.toMeme(track.getName()));
+      return track;
 
     } catch (ValueException e) {
       throw new DAOException(e);

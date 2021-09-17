@@ -8,25 +8,21 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.AccountUser;
-import io.xj.api.UserAuth;
-import io.xj.api.UserAuthType;
-import io.xj.api.UserRole;
-import io.xj.api.UserRoleType;
-import io.xj.hub.dao.DAOModule;
-import io.xj.hub.ingest.HubIngestModule;
-import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.HubIntegrationTestModule;
 import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.dao.DAOModule;
+import io.xj.hub.enums.UserAuthType;
+import io.xj.hub.ingest.HubIngestModule;
+import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -40,8 +36,6 @@ import static org.junit.Assert.assertTrue;
 public class HubAccessControlIT {
 
   private static final int STRESS_TEST_ITERATIONS = 100;
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
   HubAccessControlProvider hubAccessControlProvider;
   private HubIntegrationTestProvider test;
 
@@ -77,25 +71,20 @@ public class HubAccessControlIT {
     // user auth
     UserAuth userAuth = new UserAuth();
     UUID userAuthId = UUID.randomUUID();
-    userAuth.id(userAuthId);
+    userAuth.setId(userAuthId);
     UUID userId = UUID.randomUUID();
-    userAuth.userId(userId);
-    userAuth.type(UserAuthType.GOOGLE);
-    userAuth.externalAccount("google");
-    userAuth.externalAccessToken("google-token");
-    // user role
-    UserRole userRole = new UserRole();
-    userRole.userId(userId);
-    userRole.type(UserRoleType.USER);
+    userAuth.setUserId(userId);
+    userAuth.setType(UserAuthType.Google);
+    userAuth.setExternalAccount("google");
+    userAuth.setExternalAccessToken("google-token");
     // account user
     AccountUser accountUser = new AccountUser();
-    accountUser.userId(userId);
+    accountUser.setUserId(userId);
     UUID accountId = UUID.randomUUID();
-    accountUser.accountId(accountId);
+    accountUser.setAccountId(accountId);
     // access control provider
     Collection<AccountUser> accounts = Lists.newArrayList(accountUser);
-    Collection<UserRole> roles = Lists.newArrayList(userRole);
-    String TEST_TOKEN = hubAccessControlProvider.create(userAuth, accounts, roles);
+    String TEST_TOKEN = hubAccessControlProvider.create(userAuth, accounts, "User");
 
     // now stress test
     for (int i = 0; STRESS_TEST_ITERATIONS > i; i++) {

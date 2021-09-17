@@ -7,7 +7,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import io.xj.api.Program;
+import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,29 +40,27 @@ public class JsonapiPayloadFactoryImplTest {
 
   @Test
   public void serialize() throws JsonapiException {
-    entityFactory.register("Program").createdBy(Program::new).withAttribute("name");
+    entityFactory.register("Widget").createdBy(Widget::new).withAttribute("name");
     JsonapiPayload jsonapiPayload = subject.newJsonapiPayload();
     jsonapiPayload.setDataOne(subject.toPayloadObject(
-      new Program()
-        .id(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
-        .name("Jams")
-        ));
+      new Widget()
+        .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
+        .setName("Jams")));
 
     String result = subject.serialize(jsonapiPayload);
 
-    assertEquals("{\"data\":{\"id\":\"6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7\",\"type\":\"programs\",\"attributes\":{\"name\":\"Jams\"}}}", result);
+    assertEquals("{\"data\":{\"id\":\"6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7\",\"type\":\"widgets\",\"attributes\":{\"name\":\"Jams\",\"position\":0.0}}}", result);
   }
 
   @Test
   public void deserialize() throws JsonapiException {
-    entityFactory.register("Program").createdBy(Program::new).withAttribute("name");
+    entityFactory.register("Widget").createdBy(Widget::new).withAttribute("name");
     JsonapiPayload jsonapiPayload = subject.newJsonapiPayload();
-    jsonapiPayload.setDataOne(subject.toPayloadObject(new Program()
-      .id(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
-      .name("Jams")
-      ));
+    jsonapiPayload.setDataOne(subject.toPayloadObject(new Widget()
+      .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
+      .setName("Jams")));
 
-    JsonapiPayload result = subject.deserialize("{\"data\":{\"id\":\"6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7\",\"type\":\"programs\",\"attributes\":{\"name\":\"Jams\"}}}");
+    JsonapiPayload result = subject.deserialize("{\"data\":{\"id\":\"6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7\",\"type\":\"widgets\",\"attributes\":{\"name\":\"Jams\"}}}");
 
     assertTrue(result.getDataOne().isPresent());
     assertTrue(result.getDataOne().get().getAttribute("name").isPresent());
@@ -71,10 +69,10 @@ public class JsonapiPayloadFactoryImplTest {
 
   @Test
   public void toMany_withIncluded() throws JsonapiException {
-    entityFactory.register("Program").createdBy(Program::new).withAttribute("name");
+    entityFactory.register("Widget").createdBy(Widget::new).withAttribute("name");
     JsonapiPayload jsonapiPayload = subject.newJsonapiPayload();
-    jsonapiPayload.setDataMany(ImmutableList.of(subject.toPayloadObject(new Program().id(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7")).name("Jams"))));
-    jsonapiPayload.setIncluded(ImmutableList.of(subject.toPayloadObject(new Program().id(UUID.fromString("9ec331cc-f987-4682-9975-f569949680a1")).name("Stones"))));
+    jsonapiPayload.setDataMany(ImmutableList.of(subject.toPayloadObject(new Widget().setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7")).setName("Jams"))));
+    jsonapiPayload.setIncluded(ImmutableList.of(subject.toPayloadObject(new Widget().setId(UUID.fromString("9ec331cc-f987-4682-9975-f569949680a1")).setName("Stones"))));
 
     Collection<?> result = subject.toMany(jsonapiPayload);
 
@@ -83,13 +81,12 @@ public class JsonapiPayloadFactoryImplTest {
 
   @Test
   public void deserialize_failsWithBadJson() throws JsonapiException {
-    entityFactory.register("Program").createdBy(Program::new).withAttribute("name");
+    entityFactory.register("Widget").createdBy(Widget::new).withAttribute("name");
     JsonapiPayload jsonapiPayload = subject.newJsonapiPayload();
     jsonapiPayload.setDataOne(subject.toPayloadObject(
-      new Program()
-        .id(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
-        .name("Jams")
-        ));
+      new Widget()
+        .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
+        .setName("Jams")));
 
     failure.expect(JsonapiException.class);
     failure.expectMessage("Failed to deserialize JSON");
@@ -99,32 +96,30 @@ public class JsonapiPayloadFactoryImplTest {
 
   @Test
   public void toInstance() throws JsonapiException {
-    entityFactory.register(Program.class)
-      .createdBy(Program::new)
+    entityFactory.register(Widget.class)
+      .createdBy(Widget::new)
       .withAttribute("name");
     JsonapiPayloadObject jsonapiPayloadObject = subject.toPayloadObject(
-      new Program()
-        .id(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
-        .name("Jams")
-        );
+      new Widget()
+        .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
+        .setName("Jams"));
 
-    Program result = subject.toOne(jsonapiPayloadObject);
+    Widget result = subject.toOne(jsonapiPayloadObject);
 
     assertEquals("Jams", result.getName());
   }
 
   @Test
   public void toInstance_failsWithNoInstanceProvider() throws JsonapiException {
-    entityFactory.register(Program.class)
+    entityFactory.register(Widget.class)
       .withAttribute("name");
     JsonapiPayloadObject jsonapiPayloadObject = subject.toPayloadObject(
-      new Program()
-        .id(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
-        .name("Jams")
-        );
+      new Widget()
+        .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
+        .setName("Jams"));
 
     failure.expect(JsonapiException.class);
-    failure.expectMessage("Failed to locate instance provider for programs");
+    failure.expectMessage("Failed to locate instance provider for widgets");
 
     subject.toOne(jsonapiPayloadObject);
   }

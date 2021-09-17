@@ -9,18 +9,18 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.ProgramType;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChord;
 import io.xj.api.SegmentMeme;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.api.TemplateType;
+import io.xj.hub.Topology;
+import io.xj.hub.enums.ProgramType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.craft.CraftFactory;
@@ -38,11 +38,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.Instant;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static io.xj.lib.util.Assert.assertSameItems;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -85,25 +87,25 @@ public class CraftFoundationInitialTest {
     ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial planned segment
-    Chain chain2 = store.put(new Chain()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .name("Print #2")
-      .templateId(fake.template1.getId())
-      .type(TemplateType.PRODUCTION)
-      .state(ChainState.FABRICATE)
-      .startAt("2014-08-12T12:17:02.527142Z"));
-    segment6 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain2.getId())
-      .offset(0L)
-      .state(SegmentState.PLANNED)
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .key("C")
-      .total(8)
-      .density(0.8)
-      .tempo(120.0)
-      .storageKey("chain-1-waveform-12345.wav"));
+    Chain chain2 = store.put(buildChain(
+      fake.account1,
+      fake.template1,
+      "Print #2",
+      ChainType.PRODUCTION,
+      ChainState.FABRICATE,
+      Instant.parse("2014-08-12T12:17:02.527142Z")));
+    segment6 = store.put(buildSegment(
+      chain2,
+      0,
+      SegmentState.PLANNED,
+      Instant.parse("2017-02-14T12:01:00.000001Z"),
+      null,
+      "C",
+      8,
+      0.8,
+      120.0,
+      "chain-1-waveform-12345.wav",
+      "aac"));
   }
 
   @Test
@@ -131,10 +133,10 @@ public class CraftFoundationInitialTest {
     // assert choices
     Collection<SegmentChoice> segmentChoices =
       store.getAll(result.getId(), SegmentChoice.class);
-    SegmentChoice macroChoice = Segments.findFirstOfType(segmentChoices, ProgramType.MACRO);
+    SegmentChoice macroChoice = Segments.findFirstOfType(segmentChoices, ProgramType.Macro);
     assertEquals(fake.program4_sequence0_binding0.getId(), macroChoice.getProgramSequenceBindingId());
     assertEquals(Integer.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
-    SegmentChoice mainChoice = Segments.findFirstOfType(segmentChoices, ProgramType.MAIN);
+    SegmentChoice mainChoice = Segments.findFirstOfType(segmentChoices, ProgramType.Main);
     assertEquals(fake.program5_sequence0_binding0.getId(), mainChoice.getProgramSequenceBindingId());
     assertEquals(Integer.valueOf(0), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
   }

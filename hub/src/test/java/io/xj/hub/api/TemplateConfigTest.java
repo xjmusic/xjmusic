@@ -2,9 +2,9 @@
 
 package io.xj.hub.api;
 
-import io.xj.api.Template;
 import io.xj.hub.HubTestConfiguration;
-import io.xj.lib.entity.common.TemplateConfig;
+import io.xj.hub.TemplateConfig;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.util.ValueException;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,9 +19,9 @@ public class TemplateConfigTest {
 
   @Before
   public void setUp() throws ValueException {
-    subject = new TemplateConfig(new Template()
-      .config(
-        "choiceDeltaEnabled = true\n" +
+    var template = new Template();
+    template.setConfig(
+      "choiceDeltaEnabled = true\n" +
         "dubMasterVolumeInstrumentTypeBass = 1.0\n" +
         "dubMasterVolumeInstrumentTypePad = 0.95\n" +
         "dubMasterVolumeInstrumentTypePercussive = 1.2\n" +
@@ -43,7 +43,8 @@ public class TemplateConfigTest {
         "outputEncodingQuality = 0.618\n" +
         "outputFrameRate = 48000\n" +
         "outputSampleBits = 16\n"
-      ), HubTestConfiguration.getDefault());
+    );
+    subject = new TemplateConfig(template, HubTestConfiguration.getDefault());
   }
 
   @Test

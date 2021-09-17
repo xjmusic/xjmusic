@@ -3,7 +3,7 @@
 package io.xj.nexus.persistence;
 
 import io.xj.api.Chain;
-import io.xj.api.TemplateBinding;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.api.Segment;
 import io.xj.nexus.NexusException;
 

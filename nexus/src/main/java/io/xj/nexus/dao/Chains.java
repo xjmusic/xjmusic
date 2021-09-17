@@ -4,10 +4,11 @@ package io.xj.nexus.dao;
 
 import com.google.common.base.Strings;
 import io.xj.api.Chain;
-import io.xj.api.ContentBindingType;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
-import io.xj.api.Template;
-import io.xj.api.TemplateBinding;
+import io.xj.hub.enums.ContentBindingType;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -100,15 +101,17 @@ public enum Chains {
 
   /**
    Get a chain based on a template
+
    @param template from which to get chain
    @return chain from template
    */
   public static Chain fromTemplate(Template template) {
-    return new Chain()
-      .templateId(template.getId())
-      .embedKey(template.getEmbedKey())
-      .accountId(template.getAccountId())
-      .type(template.getType())
-      .name(template.getName());
+    var chain = new Chain();
+    chain.setTemplateId(template.getId());
+    chain.setEmbedKey(template.getEmbedKey());
+    chain.setAccountId(template.getAccountId());
+    chain.setType(ChainType.fromValue(template.getType().toString()));
+    chain.setName(template.getName());
+    return chain;
   }
 }

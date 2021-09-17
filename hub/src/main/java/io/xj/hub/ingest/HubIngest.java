@@ -2,10 +2,10 @@
 package io.xj.hub.ingest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentType;
-import io.xj.api.Program;
-import io.xj.api.ProgramType;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.access.HubAccess;
 
 import java.util.Collection;

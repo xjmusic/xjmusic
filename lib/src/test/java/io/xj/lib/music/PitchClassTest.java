@@ -12,7 +12,7 @@ public class PitchClassTest {
 
 
   @Test
-  public void NameOfTest() throws Exception {
+  public void NameOfTest() {
     assertPitchClassOf("C", PitchClass.C, "C", "C");
     assertPitchClassOf("C#", PitchClass.Cs, "C#", "Db");
     assertPitchClassOf("Cb", PitchClass.B, "B", "B");

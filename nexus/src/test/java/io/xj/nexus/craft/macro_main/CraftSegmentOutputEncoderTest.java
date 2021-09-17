@@ -8,13 +8,13 @@ import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.api.TemplateType;
+import io.xj.hub.Topology;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.craft.CraftFactory;
@@ -31,9 +31,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.UUID;
+import java.time.Instant;
 import java.util.stream.Collectors;
 
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -75,26 +77,25 @@ public class CraftSegmentOutputEncoderTest {
     ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial planned segment
-    Chain chain2 = store.put(new Chain()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .name("Print #2")
-      .templateId(fake.template1.getId())
-      .type(TemplateType.PRODUCTION)
-      .state(ChainState.FABRICATE)
-      .templateId(fake.template1.getId())
-      .startAt("2014-08-12T12:17:02.527142Z"));
-    segment6 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain2.getId())
-      .offset(0L)
-      .state(SegmentState.PLANNED)
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .key("C")
-      .total(8)
-      .density(0.8)
-      .tempo(120.0)
-      .storageKey("chain-1-waveform-12345.wav"));
+    Chain chain2 = store.put(buildChain(
+      fake.account1,
+      "Print #2",
+      ChainType.PRODUCTION,
+      ChainState.FABRICATE,
+      fake.template1,
+      Instant.parse("2014-08-12T12:17:02.527142Z")));
+    segment6 = store.put(buildSegment(
+      chain2,
+      0,
+      SegmentState.PLANNED,
+      Instant.parse("2017-02-14T12:01:00.000001Z"),
+      null,
+      "C",
+      8,
+      0.8,
+      120.0,
+      "chain-1-waveform-12345.wav",
+      "aac"));
   }
 
   @Test

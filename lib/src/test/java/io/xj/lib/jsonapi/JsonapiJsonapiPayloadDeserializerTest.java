@@ -7,7 +7,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import io.xj.api.ProgramSequence;
+import io.xj.lib.Widget;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,9 +45,9 @@ public class JsonapiJsonapiPayloadDeserializerTest {
     JsonapiPayload result = jsonapiPayloadFactory.deserialize(readResourceFile("payload/deserializeOneIncludingEmbeddedEntities.json"));
 
     assertPayload(result)
-      .hasDataOne("programs", "805cf759-4e94-4275-a82d-5255c9e69347")
-      .belongsTo("Library", "f94290f4-537c-4444-92e5-dc0b0df352e5")
-      .hasMany("ProgramSequence", ImmutableList.of(new ProgramSequence().id(UUID.fromString("9b862c2f-192f-4041-b849-442a2ec50218"))));
+      .hasDataOne("widgets", "805cf759-4e94-4275-a82d-5255c9e69347")
+      .belongsTo("Superwidget", "f94290f4-537c-4444-92e5-dc0b0df352e5")
+      .hasMany("WidgetSequence", ImmutableList.of(new Widget().setId(UUID.fromString("9b862c2f-192f-4041-b849-442a2ec50218"))));
   }
 
   @Test
@@ -60,8 +60,8 @@ public class JsonapiJsonapiPayloadDeserializerTest {
     }
 
     assertPayload(result)
-      .hasDataOne("programs", "a1acee68-ade3-465c-8b07-596b179e1a51")
-      .belongsTo("Library", "aec6e236-322b-4c66-bd48-8c7ce6a1ef4a");
+      .hasDataOne("widgets", "a1acee68-ade3-465c-8b07-596b179e1a51")
+      .belongsTo("Superwidget", "aec6e236-322b-4c66-bd48-8c7ce6a1ef4a");
   }
 
   @Test
@@ -74,7 +74,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
     }
 
     assertPayload(result)
-      .hasDataOne("programs", "19f3fced-2c3f-405d-bde8-f7ef71f9ad9d");
+      .hasDataOne("widgets", "19f3fced-2c3f-405d-bde8-f7ef71f9ad9d");
   }
 
   @Test
@@ -100,7 +100,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
     }
 
     assertPayload(result)
-      .hasDataOne("programs", "5d5db584-0530-4477-8a5b-9429e779316e");
+      .hasDataOne("widgets", "5d5db584-0530-4477-8a5b-9429e779316e");
   }
 
   @Test
@@ -113,7 +113,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
     }
 
     assertPayload(result)
-      .hasDataMany("programs", ImmutableList.of("716f0033-e7fe-4242-b993-1f840e4a242f"));
+      .hasDataMany("widgets", ImmutableList.of("716f0033-e7fe-4242-b993-1f840e4a242f"));
   }
 
   @Test

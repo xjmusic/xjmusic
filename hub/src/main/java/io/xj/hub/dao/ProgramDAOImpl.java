@@ -5,25 +5,25 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.api.Program;
-import io.xj.api.ProgramMeme;
-import io.xj.api.ProgramSequence;
-import io.xj.api.ProgramSequenceBinding;
-import io.xj.api.ProgramSequenceBindingMeme;
-import io.xj.api.ProgramSequenceChord;
-import io.xj.api.ProgramSequenceChordVoicing;
-import io.xj.api.ProgramSequencePattern;
-import io.xj.api.ProgramSequencePatternEvent;
-import io.xj.api.ProgramState;
-import io.xj.api.ProgramVoice;
-import io.xj.api.ProgramVoiceTrack;
-import io.xj.api.UserRoleType;
+import io.xj.hub.ProgramConfig;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.ProgramConfig;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Value;
@@ -32,7 +32,6 @@ import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -359,13 +358,12 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
 
   @Override
   public Collection<Program> readManyInState(HubAccess hubAccess, ProgramState state) throws DAOException {
-    require(hubAccess, UserRoleType.ADMIN, UserRoleType.ENGINEER);
+    require(hubAccess, UserRoleType.Admin, UserRoleType.Engineer);
     // FUTURE: engineer should only see programs in account?
 
     return modelsFrom(Program.class, dbProvider.getDSL().select(PROGRAM.fields())
       .from(PROGRAM)
-      .where(PROGRAM.STATE.eq(state.toString()))
-      .or(PROGRAM.STATE.eq(state.toString().toLowerCase(Locale.ENGLISH)))
+      .where(PROGRAM.STATE.eq(state))
       .fetch());
   }
 
@@ -375,7 +373,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
     return DAO.idsFrom(dbProvider.getDSL().select(PROGRAM.ID)
       .from(PROGRAM)
       .where(PROGRAM.LIBRARY_ID.in(parentIds))
-      .and(PROGRAM.STATE.equal(ProgramState.PUBLISHED.toString()))
+      .and(PROGRAM.STATE.equal(ProgramState.Published))
       .fetch());
   }
 

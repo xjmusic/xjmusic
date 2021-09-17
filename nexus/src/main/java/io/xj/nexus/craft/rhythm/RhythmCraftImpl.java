@@ -3,13 +3,13 @@ package io.xj.nexus.craft.rhythm;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentState;
-import io.xj.api.InstrumentType;
-import io.xj.api.Program;
-import io.xj.api.ProgramState;
-import io.xj.api.ProgramType;
-import io.xj.api.ProgramVoice;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.api.SegmentChoice;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
@@ -45,7 +45,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
 
   @Override
   public void doWork() throws NexusException {
-    Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(ProgramType.RHYTHM);
+    Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(ProgramType.Rhythm);
 
     // Program is from prior choice, or freshly chosen
     Optional<Program> program = priorChoice.isPresent() ?
@@ -66,7 +66,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
       fabricator.sourceMaterial().getProgramVoice(choice.getProgramVoiceId())
         .map(ProgramVoice::getName)
         .orElse("Unknown");
-    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.RHYTHM.equals(choice.getProgramType());
+    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Rhythm.toString().equals(choice.getProgramType());
     var programNames = fabricator.sourceMaterial().getVoices(program.get()).stream()
       .map(ProgramVoice::getName)
       .collect(Collectors.toList());
@@ -102,7 +102,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // (2) retrieve programs bound to chain and
     // (3) score each source program based on meme isometry
     MemeIsometry rhythmIsometry = fabricator.getMemeIsometryOfSegment();
-    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.RHYTHM))
+    for (Program program : fabricator.sourceMaterial().getProgramsOfType(ProgramType.Rhythm))
       superEntityScorePicker.add(program, scoreRhythm(program, rhythmIsometry));
 
     // report
@@ -133,7 +133,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(program))
       score += SCORE_DIRECTLY_BOUND;
-    else if (Objects.equals(program.getState(), ProgramState.DRAFT))
+    else if (Objects.equals(program.getState(), ProgramState.Draft))
       score += SCORE_UNPUBLISHED;
 
     // score is above zero, else empty
@@ -151,7 +151,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     EntityScorePicker<Instrument> superEntityScorePicker = new EntityScorePicker<>();
 
     // (2) retrieve instruments bound to chain
-    Collection<Instrument> sourceInstruments = fabricator.sourceMaterial().getInstrumentsOfType(InstrumentType.DRUM);
+    Collection<Instrument> sourceInstruments = fabricator.sourceMaterial().getInstrumentsOfType(InstrumentType.Drum);
 
     // future: [#258] Instrument selection is based on Text Isometry between the voice name and the instrument name
     log.debug("[segId={}] not currently in use: {}", fabricator.getSegment().getId(), voice);
@@ -166,7 +166,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
         // Instrument choice inertia: prefer same instrument choices throughout a main program
         // https://www.pivotaltracker.com/story/show/178442889
         fabricator.retrospective().getChoices().stream()
-          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType())
+          .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType().toString())
             && fabricator.sourceMaterial().getProgramVoice(candidate.getProgramVoiceId())
             .stream().map(pv -> Objects.equals(voice.getName(), pv.getName()))
             .findFirst()
@@ -179,7 +179,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
           .ifPresent(ch -> {
             if (isUnlimitedIn(ch))
               fabricator.retrospective().getChoices().stream()
-                .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType()))
+                .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType().toString()))
                 .filter(this::isUnlimitedOut)
                 .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_OUTGOING_TO_INCOMING));
           });
@@ -200,7 +200,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
    @param percussiveIsometry from which to score drum instruments
    @return score, including +/- entropy
    */
-  private double scorePercussive(Instrument instrument, MemeIsometry percussiveIsometry) {
+  protected double scorePercussive(Instrument instrument, MemeIsometry percussiveIsometry) {
     double score = Chance.normallyAround(0, SCORE_ENTROPY_CHOICE_INSTRUMENT);
 
     // Score includes matching memes, previous segment to macro instrument first pattern
@@ -210,7 +210,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     // [#174435421] Chain bindings specify Program & Instrument within Library
     if (fabricator.isDirectlyBound(instrument))
       score += SCORE_DIRECTLY_BOUND;
-    else if (Objects.equals(instrument.getState(), InstrumentState.DRAFT))
+    else if (Objects.equals(instrument.getState(), InstrumentState.Draft))
       score += SCORE_UNPUBLISHED;
 
     return score;

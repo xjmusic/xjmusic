@@ -4,7 +4,7 @@ package io.xj.hub.dao;
 import com.google.inject.Inject;
 
 
-import io.xj.api.InstrumentMeme;
+import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.EntityFactory;

@@ -5,14 +5,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentAudio;
-import io.xj.api.InstrumentMeme;
-import io.xj.api.InstrumentState;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.InstrumentConfig;
+import io.xj.hub.InstrumentConfig;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Value;
@@ -208,7 +208,7 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
     return DAO.idsFrom(dbProvider.getDSL().select(INSTRUMENT.ID)
       .from(INSTRUMENT)
       .where(INSTRUMENT.LIBRARY_ID.in(parentIds))
-      .and(INSTRUMENT.STATE.equal(InstrumentState.PUBLISHED.toString()))
+      .and(INSTRUMENT.STATE.equal(InstrumentState.Published))
       .fetch());
   }
 

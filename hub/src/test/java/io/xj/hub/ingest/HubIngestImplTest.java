@@ -5,22 +5,24 @@ package io.xj.hub.ingest;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.typesafe.config.Config;
-import io.xj.api.Template;
+import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.InstrumentDAO;
 import io.xj.hub.dao.ProgramDAO;
 import io.xj.hub.dao.TemplateBindingDAO;
 import io.xj.hub.dao.TemplateDAO;
 import io.xj.hub.dao.TemplatePlaybackDAO;
-import io.xj.hub.HubTestConfiguration;
+import io.xj.hub.enums.TemplateType;
+import io.xj.hub.tables.pojos.Template;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
-import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -53,8 +55,7 @@ public class HubIngestImplTest {
         bind(TemplatePlaybackDAO.class).toInstance(templatePlaybackDAO);
       }
     });
-    Template template = new Template()
-      .id(UUID.randomUUID());
+    Template template = buildTemplate(buildAccount("Test"), TemplateType.Preview, "Test", "key123");
     when(templateDAO.readOne(any(), eq(template.getId())))
       .thenReturn(template);
     when(templateBindingDAO.readMany(any(), eq(List.of(template.getId()))))

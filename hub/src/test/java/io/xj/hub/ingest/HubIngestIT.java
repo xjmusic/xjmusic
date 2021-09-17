@@ -7,20 +7,18 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentState;
-import io.xj.api.InstrumentType;
-import io.xj.api.Program;
-import io.xj.api.ProgramState;
-import io.xj.api.ProgramType;
+import io.xj.hub.HubIntegrationTestModule;
+import io.xj.hub.HubIntegrationTestProvider;
+import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.dao.DAOModule;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.HubIntegrationTestModule;
-import io.xj.hub.HubIntegrationTestProvider;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -35,6 +33,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -105,38 +105,14 @@ public class HubIngestIT {
 
   @Test
   public void getProgramsOfType() throws Exception {
-    test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library10000001.getId())
-      .type(ProgramType.RHYTHM)
-      .state(ProgramState.PUBLISHED)
-      .name("cups")
-      .key("B")
-      .tempo(120.4)
-      .density(0.6));
-    test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library10000001.getId())
-      .type(ProgramType.MAIN)
-      .state(ProgramState.PUBLISHED)
-      .name("plates")
-      .key("Bb")
-      .tempo(120.4)
-      .density(0.6));
-    test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library10000001.getId())
-      .type(ProgramType.DETAIL)
-      .state(ProgramState.PUBLISHED)
-      .name("bowls")
-      .key("A")
-      .tempo(120.4)
-      .density(0.6));
+    test.insert(buildProgram(fake.library10000001, ProgramType.Rhythm, ProgramState.Published, "cups", "B", 120.4f, 0.6f));
+    test.insert(buildProgram(fake.library10000001, ProgramType.Main, ProgramState.Published, "plates", "Bb", 120.4f, 0.6f));
+    test.insert(buildProgram(fake.library10000001, ProgramType.Detail, ProgramState.Published, "bowls", "A", 120.4f, 0.6f));
     HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), fake.template1.getId());
 
-    assertEquals(3, ingest.getProgramsOfType(ProgramType.MAIN).size());
-    assertEquals(2, ingest.getProgramsOfType(ProgramType.RHYTHM).size());
-    assertEquals(1, ingest.getProgramsOfType(ProgramType.DETAIL).size());
+    assertEquals(3, ingest.getProgramsOfType(ProgramType.Main).size());
+    assertEquals(2, ingest.getProgramsOfType(ProgramType.Rhythm).size());
+    assertEquals(1, ingest.getProgramsOfType(ProgramType.Detail).size());
   }
 
   @Test
@@ -174,17 +150,11 @@ public class HubIngestIT {
 
   @Test
   public void getInstrumentsOfType() throws Exception {
-    test.insert(new Instrument()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library10000001.getId())
-      .type(InstrumentType.PAD)
-      .density(0.6)
-      .state(InstrumentState.PUBLISHED)
-      .name("Dreamy"));
+    test.insert(buildInstrument(fake.library10000001, InstrumentType.Pad, InstrumentState.Published, "Dreamy"));
     HubIngest ingest = ingestFactory.ingest(HubAccess.internal(), fake.template1.getId());
 
-    assertEquals(2, ingest.getInstrumentsOfType(InstrumentType.DRUM).size());
-    assertEquals(1, ingest.getInstrumentsOfType(InstrumentType.PAD).size());
+    assertEquals(2, ingest.getInstrumentsOfType(InstrumentType.Drum).size());
+    assertEquals(1, ingest.getInstrumentsOfType(InstrumentType.Pad).size());
   }
 
   @Test

@@ -1,19 +1,19 @@
 openapi: 3.0.3
 info:
   version: 1.0.0
-  title: XJ Music Segments API
+  title: XJ Music Chains API
 servers:
   - url: http://hub.lab.svc.cluster.local:3001/api/v2
     description: XJ Music API (Service Cluster Local)
 tags:
-  - name: segments
+  - name: chains
 paths:
   #
   #
-  "/segments/{segmentId}":
+  "/chains/{chainId}":
     get:
       parameters:
-        - name: segmentId
+        - name: chainId
           in: path
           required: true
           schema:
@@ -26,13 +26,68 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Segment"
+                $ref: "#/components/schemas/Chain"
 #
 #
 # Components
 #
 components:
   schemas:
+
+    #
+    Chain:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        accountId:
+          type: string
+          format: uuid
+        templateId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/ChainType"
+        state:
+          $ref: "#/components/schemas/ChainState"
+        embedKey:
+          type: string
+          nullable: true
+        name:
+          type: string
+        startAt:
+          type: string
+        stopAt:
+          type: string
+        fabricatedAheadSeconds:
+          type: number
+          format: double
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    #
+    ChainType:
+      type: string
+      enum:
+        [
+            Preview,
+            Production,
+        ]
+
+    #
+    ChainState:
+      type: string
+      enum:
+        [
+            Draft,
+            Ready,
+            Fabricate,
+            Complete,
+            Failed,
+        ]
 
     #
     Segment:
@@ -174,7 +229,7 @@ components:
           type: string
           format: uuid
         type:
-          $ref: "./instruments.yaml#/components/schemas/InstrumentType"
+          type: string
         notes:
           type: string
 
@@ -208,9 +263,9 @@ components:
         deltaOut:
           type: integer
         instrumentType:
-          $ref: "./instruments.yaml#/components/schemas/InstrumentType"
+          type: string
         programType:
-          $ref: "./programs.yaml#/components/schemas/ProgramType"
+          type: string
 
     #
     SegmentChoiceArrangement:
@@ -264,4 +319,15 @@ components:
           type: string
         name:
           type: string
+
+    #
+    Error:
+      type: object
+      properties:
+        title:
+          type: string
+          description: A short, human-readable summary of the problem that SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization.
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence of the problem. Like title, this field’s value can be localized.
 

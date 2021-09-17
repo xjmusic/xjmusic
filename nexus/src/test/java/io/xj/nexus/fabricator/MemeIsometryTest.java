@@ -2,7 +2,7 @@
 package io.xj.nexus.fabricator;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.api.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramMeme;
 import org.junit.Test;
 
 import java.util.Set;
@@ -29,7 +29,10 @@ public class MemeIsometryTest {
     subject = MemeIsometry.ofMemes(ImmutableList.of(
       "Smooth"
     ));
-    subject.add(new ProgramMeme().programId(UUID.randomUUID()).name("Catlike"));
+    var meme = new ProgramMeme();
+    meme.setProgramId(UUID.randomUUID());
+    meme.setName("Catlike");
+    subject.add(meme);
 
     assertArrayEquals(new String[]{"CATLIKE", "SMOOTH"}, subject.getSources().stream().sorted().toArray());
   }

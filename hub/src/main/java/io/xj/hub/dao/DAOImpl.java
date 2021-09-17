@@ -4,7 +4,7 @@ package io.xj.hub.dao;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import io.xj.api.UserRoleType;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.Entities;
@@ -168,7 +168,7 @@ public abstract class DAOImpl<E> implements DAO<E> {
    @throws DAOException if we do not have hub access
    */
   protected void requireArtist(HubAccess hubAccess) throws DAOException {
-    require(hubAccess, UserRoleType.ARTIST);
+    require(hubAccess, UserRoleType.Artist);
   }
 
   /**
@@ -506,7 +506,7 @@ public abstract class DAOImpl<E> implements DAO<E> {
    @throws DAOException if not engineer
    */
   protected void requireEngineer(HubAccess access) throws DAOException {
-    require(access, UserRoleType.ENGINEER);
+    require(access, UserRoleType.Engineer);
   }
 
 }

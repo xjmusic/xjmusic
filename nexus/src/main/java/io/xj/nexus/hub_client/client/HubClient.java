@@ -2,8 +2,8 @@
 
 package io.xj.nexus.hub_client.client;
 
-import io.xj.api.Template;
-import io.xj.api.TemplatePlayback;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplatePlayback;
 
 import java.util.Collection;
 import java.util.Optional;

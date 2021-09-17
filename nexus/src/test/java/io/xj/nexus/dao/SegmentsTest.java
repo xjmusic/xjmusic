@@ -1,79 +1,87 @@
 package io.xj.nexus.dao;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.api.ProgramType;
+import io.xj.api.Chain;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import junit.framework.TestCase;
 
+import java.time.Instant;
 import java.util.Collection;
-import java.util.UUID;
+
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 
 public class SegmentsTest extends TestCase {
-  private final UUID chainId = UUID.randomUUID();
-  private final Segment seg0 = new Segment()
-    .id(UUID.randomUUID())
-    .chainId(chainId)
-    .type(SegmentType.INITIAL)
-    .offset(0L)
-    .delta(0)
-    .state(SegmentState.DUBBED)
-    .beginAt("2017-02-14T12:02:04.000001Z")
-    .endAt("2017-02-14T12:02:36.000001Z")
-    .key("F Major")
-    .total(64)
-    .density(0.30)
-    .tempo(120.0)
-    .storageKey("chains-1-segments-9f7s89d8a7892")
-    .outputEncoder("wav");
-  private final Segment seg1 = new Segment()
-    .id(UUID.randomUUID())
-    .chainId(chainId)
-    .type(SegmentType.CONTINUE)
-    .offset(1L)
-    .delta(1)
-    .state(SegmentState.DUBBED)
-    .beginAt("2017-02-14T12:02:36.000001Z")
-    .endAt("2017-02-14T12:03:08.000001Z")
-    .key("F Major")
-    .total(64)
-    .density(0.30)
-    .tempo(120.0)
-    .storageKey("chains-1-segments-078aw34tiu5hga")
-    .outputEncoder("wav");
-  private final Segment seg2 = new Segment()
-    .id(UUID.randomUUID())
-    .chainId(chainId)
-    .type(SegmentType.NEXTMAIN)
-    .offset(2L)
-    .delta(0)
-    .state(SegmentState.DUBBED)
-    .beginAt("2017-02-14T12:03:08.000001Z")
-    .endAt("2017-02-14T12:03:40.000001Z")
-    .key("F Major")
-    .total(64)
-    .density(0.30)
-    .tempo(120.0)
-    .storageKey("chains-1-segments-jhz5sd4fgi786q")
-    .outputEncoder("wav");
-  private final Segment seg3 = new Segment()
-    .id(UUID.randomUUID())
-    .chainId(chainId)
-    .type(SegmentType.NEXTMAIN)
-    .offset(3L)
-    .delta(0)
-    .state(SegmentState.CRAFTING)
-    .beginAt("2017-02-14T12:03:40.000001Z")
-    .endAt("2017-02-14T12:04:12.000001Z")
-    .key("F Major")
-    .total(64)
-    .density(0.30)
-    .tempo(120.0)
-    .storageKey("chains-1-segments-j1hsk3dgu2yu2gyy")
-    .outputEncoder("wav");
+  private final Account account = buildAccount("Test");
+  private final Template template = buildTemplate(account, "Test");
+  private final Chain chain = buildChain(account,"Test", ChainType.PRODUCTION, ChainState.FABRICATE,template, Instant.parse("2017-02-14T12:02:04.000001Z"));
+  private final Segment seg0 = buildSegment(
+    chain,
+    SegmentType.INITIAL,
+    0,
+    0,
+    SegmentState.DUBBED,
+    Instant.parse("2017-02-14T12:02:04.000001Z"),
+    Instant.parse("2017-02-14T12:02:36.000001Z"),
+    "F Major",
+    64,
+    0.30f,
+    120.0f,
+    "chains-1-segments-9f7s89d8a7892",
+    "wav");
+  private final Segment seg1 = buildSegment(
+    chain,
+    SegmentType.CONTINUE,
+    1,
+    1,
+    SegmentState.DUBBED,
+    Instant.parse("2017-02-14T12:02:36.000001Z"),
+    Instant.parse("2017-02-14T12:03:08.000001Z"),
+    "F Major",
+    64,
+    0.30f,
+    120.0f,
+    "chains-1-segments-078aw34tiu5hga",
+    "wav");
+  private final Segment seg2 = buildSegment(
+    chain,
+    SegmentType.NEXTMAIN,
+    2,
+    0,
+    SegmentState.DUBBED,
+    Instant.parse("2017-02-14T12:03:08.000001Z"),
+    Instant.parse("2017-02-14T12:03:40.000001Z"),
+    "F Major",
+    64,
+    0.30f,
+    120.0f,
+    "chains-1-segments-jhz5sd4fgi786q",
+    "wav");
+  private final Segment seg3 = buildSegment(
+    chain,
+    SegmentType.NEXTMAIN,
+    3,
+    0,
+    SegmentState.CRAFTING,
+    Instant.parse("2017-02-14T12:03:40.000001Z"),
+    Instant.parse("2017-02-14T12:04:12.000001Z"),
+    "F Major",
+    64,
+    0.30f,
+    120.0f,
+    "chains-1-segments-j1hsk3dgu2yu2gyy",
+    "wav");
   Collection<Segment> segments = ImmutableList.of(seg0, seg1, seg2, seg3);
 
   public void setUp() throws Exception {
@@ -81,15 +89,15 @@ public class SegmentsTest extends TestCase {
   }
 
   public void testFindFirstOfType() throws DAOExistenceException {
-    var ch0 = new SegmentChoice()
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programType(ProgramType.MAIN);
-    var ch1 = new SegmentChoice()
-      .deltaIn(Segments.DELTA_UNLIMITED)
-      .deltaOut(Segments.DELTA_UNLIMITED)
-      .programType(ProgramType.MACRO);
-    assertEquals(ch0, Segments.findFirstOfType(ImmutableList.of(ch0, ch1), ProgramType.MAIN));
+    var ch0 = new SegmentChoice();
+    ch0.setDeltaIn(Segments.DELTA_UNLIMITED);
+    ch0.setDeltaOut(Segments.DELTA_UNLIMITED);
+    ch0.setProgramType(ProgramType.Main.toString());
+    var ch1 = new SegmentChoice();
+    ch1.setDeltaIn(Segments.DELTA_UNLIMITED);
+    ch1.setDeltaOut(Segments.DELTA_UNLIMITED);
+    ch1.setProgramType(ProgramType.Macro.toString());
+    assertEquals(ch0, Segments.findFirstOfType(ImmutableList.of(ch0, ch1), ProgramType.Main));
   }
 
   public void testGetIdentifier() {

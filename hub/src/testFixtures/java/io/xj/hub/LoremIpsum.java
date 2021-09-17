@@ -4,7 +4,7 @@ package io.xj.hub;
 
 public enum LoremIpsum {
   ;
-  /**
+   /**
    List of colors
    */
   public static final String[] COLORS = {

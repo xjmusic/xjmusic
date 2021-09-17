@@ -2,7 +2,7 @@
 package io.xj.nexus.fabricator;
 
 import io.xj.api.Chain;
-import io.xj.api.ProgramType;
+import io.xj.hub.enums.ProgramType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;

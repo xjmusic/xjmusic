@@ -3,7 +3,7 @@ package io.xj.hub.dao;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import io.xj.api.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.EntityFactory;
@@ -61,11 +61,11 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
       if (Objects.isNull(from))
         throw new DAOException("Can't clone nonexistent ProgramSequencePattern");
 
-      // Inherits parents, attributes if none specified
+      // Inherits parent's attributes if none specified
       entity.setTotal(from.getTotal());
       entity.setType(from.getType());
       if (Value.isUnset(entity.getName())) entity.setName(from.getName());
-      if (Value.isUnset(entity.getProgramId())) entity.programId(from.getProgramId());
+      if (Value.isUnset(entity.getProgramId())) entity.setProgramId(from.getProgramId());
       if (Value.isUnset(entity.getProgramSequenceId())) entity.setProgramSequenceId(from.getProgramSequenceId());
       if (Value.isUnset(entity.getProgramVoiceId())) entity.setProgramVoiceId(from.getProgramVoiceId());
       var record = validate(entity);

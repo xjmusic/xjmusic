@@ -6,29 +6,26 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
-import io.xj.api.Account;
-import io.xj.api.AccountUser;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.Library;
-import io.xj.api.Program;
-import io.xj.api.ProgramSequence;
-import io.xj.api.ProgramSequenceBinding;
-import io.xj.api.ProgramState;
-import io.xj.api.ProgramType;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentState;
-import io.xj.api.TemplateBinding;
-import io.xj.api.TemplateType;
-import io.xj.api.User;
-import io.xj.api.UserRole;
-import io.xj.api.UserRoleType;
+import io.xj.hub.Topology;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.User;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
@@ -43,10 +40,20 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
-import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildSequence;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -88,53 +95,49 @@ public class MacroFromOverlappingMemeSequencesTest {
 
     // Mock request via HubClient returns fake generated library of hub content
     // Account "bananas"
-    Account account1 = NexusIntegrationTestingFixtures.buildAccount("bananas");
-    Library library2 = NexusIntegrationTestingFixtures.buildLibrary(account1, "house");
+    Account account1 = buildAccount("bananas");
+    Library library2 = buildLibrary(account1, "house");
     var template1 = buildTemplate(account1, "Test Template 1", "test1");
     TemplateBinding templateBinding1 = buildTemplateBinding(template1, library2);
-    User user2 = NexusIntegrationTestingFixtures.buildUser("john", "john@email.com", "http://pictures.com/john.gif");
-    UserRole userRole2a = NexusIntegrationTestingFixtures.buildUserRole(user2, UserRoleType.ADMIN);
-    User user3 = NexusIntegrationTestingFixtures.buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    UserRole userRole3a = NexusIntegrationTestingFixtures.buildUserRole(user3, UserRoleType.USER);
-    AccountUser accountUser1a = NexusIntegrationTestingFixtures.buildAccountUser(account1, user3);
+    User user2 = buildUser("john", "john@email.com", "http://pictures.com/john.gif", "User");
+    User user3 = buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User");
+    AccountUser accountUser1a = buildAccountUser(account1, user3);
 
     // Macro Program already chosen for previous segment
-    var macro1 = NexusIntegrationTestingFixtures.buildProgram(library2, ProgramType.MACRO, ProgramState.PUBLISHED, "Chosen Macro", "C", 120.0, 0.6);
-    var macro1_meme = NexusIntegrationTestingFixtures.buildMeme(macro1, "Tropical");
-    var macro1_sequenceA = NexusIntegrationTestingFixtures.buildSequence(macro1, 0, "Start Wild", 0.6, "C", 125.0);
-    var macro1_sequenceA_binding = NexusIntegrationTestingFixtures.buildBinding(macro1_sequenceA, 0);
-    var macro1_sequenceA_bindingMeme = NexusIntegrationTestingFixtures.buildMeme(macro1_sequenceA_binding, "Red");
-    ProgramSequence macro1_sequenceB = NexusIntegrationTestingFixtures.buildSequence(macro1, 0, "Intermediate", 0.4, "Bb minor", 115.0);
-    var macro1_sequenceB_binding = NexusIntegrationTestingFixtures.buildBinding(macro1_sequenceB, 1);
-    var macro1_sequenceB_bindingMeme = NexusIntegrationTestingFixtures.buildMeme(macro1_sequenceB_binding, "Green");
+    var macro1 = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Chosen Macro", "C", 120.0f, 0.6f);
+    var macro1_meme = buildMeme(macro1, "Tropical");
+    var macro1_sequenceA = buildSequence(macro1, 0, "Start Wild", 0.6f, "C", 125.0f);
+    var macro1_sequenceA_binding = buildBinding(macro1_sequenceA, 0);
+    var macro1_sequenceA_bindingMeme = buildMeme(macro1_sequenceA_binding, "Red");
+    ProgramSequence macro1_sequenceB = buildSequence(macro1, 0, "Intermediate", 0.4f, "Bb minor", 115.0f);
+    var macro1_sequenceB_binding = buildBinding(macro1_sequenceB, 1);
+    var macro1_sequenceB_bindingMeme = buildMeme(macro1_sequenceB_binding, "Green");
 
     // Main Program already chosen for previous segment
-    var main5 = NexusIntegrationTestingFixtures.buildProgram(library2, ProgramType.MAIN, ProgramState.PUBLISHED, "Chosen Main", "C", 120.0, 0.6);
-    var main5_meme = NexusIntegrationTestingFixtures.buildMeme(main5, "Tropical");
-    var main5_sequenceA = NexusIntegrationTestingFixtures.buildSequence(main5, 0, "Start Wild", 0.6, "C", 125.0);
-    ProgramSequenceBinding main5_sequenceA_binding = NexusIntegrationTestingFixtures.buildBinding(main5_sequenceA, 0);
+    var main5 = buildProgram(library2, ProgramType.Main, ProgramState.Published, "Chosen Main", "C", 120.0f, 0.6f);
+    var main5_meme = buildMeme(main5, "Tropical");
+    var main5_sequenceA = buildSequence(main5, 0, "Start Wild", 0.6f, "C", 125.0f);
+    ProgramSequenceBinding main5_sequenceA_binding = buildBinding(main5_sequenceA, 0);
 
     // Macro Program will be chosen because of matching meme
-    macro2a = NexusIntegrationTestingFixtures.buildProgram(library2, ProgramType.MACRO, ProgramState.PUBLISHED, "Always Chosen", "C", 120.0, 0.6);
-    var macro2a_meme = NexusIntegrationTestingFixtures.buildMeme(macro2a, "Tropical");
-    var macro2a_sequenceA = NexusIntegrationTestingFixtures.buildSequence(macro2a, 0, "Start Wild", 0.6, "C", 125.0);
-    var macro2a_sequenceA_binding = NexusIntegrationTestingFixtures.buildBinding(macro2a_sequenceA, 0);
-    var macro2a_sequenceA_bindingMeme = NexusIntegrationTestingFixtures.buildMeme(macro2a_sequenceA_binding, "Green");
+    macro2a = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Always Chosen", "C", 120.0f, 0.6f);
+    var macro2a_meme = buildMeme(macro2a, "Tropical");
+    var macro2a_sequenceA = buildSequence(macro2a, 0, "Start Wild", 0.6f, "C", 125.0f);
+    var macro2a_sequenceA_binding = buildBinding(macro2a_sequenceA, 0);
+    var macro2a_sequenceA_bindingMeme = buildMeme(macro2a_sequenceA_binding, "Green");
 
     // Macro Program will NEVER be chosen because of non-matching meme
-    var macro2b = NexusIntegrationTestingFixtures.buildProgram(library2, ProgramType.MACRO, ProgramState.PUBLISHED, "Never Chosen", "C", 120.0, 0.6);
-    var macro2b_meme = NexusIntegrationTestingFixtures.buildMeme(macro2a, "Tropical");
-    var macro2b_sequenceA = NexusIntegrationTestingFixtures.buildSequence(macro2a, 0, "Start Wild", 0.6, "C", 125.0);
-    var macro2b_sequenceA_binding = NexusIntegrationTestingFixtures.buildBinding(macro2b_sequenceA, 0);
-    var macro2b_sequenceA_bindingMeme = NexusIntegrationTestingFixtures.buildMeme(macro2b_sequenceA_binding, "Purple");
+    var macro2b = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Never Chosen", "C", 120.0f, 0.6f);
+    var macro2b_meme = buildMeme(macro2a, "Tropical");
+    var macro2b_sequenceA = buildSequence(macro2a, 0, "Start Wild", 0.6f, "C", 125.0f);
+    var macro2b_sequenceA_binding = buildBinding(macro2b_sequenceA, 0);
+    var macro2b_sequenceA_bindingMeme = buildMeme(macro2b_sequenceA_binding, "Purple");
 
     HubContent sourceMaterial = new HubContent(ImmutableList.of(
       account1,
       library2,
       user2,
-      userRole2a,
       user3,
-      userRole3a,
       accountUser1a,
       macro1,
       macro1_meme,
@@ -163,35 +166,34 @@ public class MacroFromOverlappingMemeSequencesTest {
     ));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(NexusIntegrationTestingFixtures.buildChain(account1, "Test Print #1", TemplateType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    Segment segment1 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .offset(0L)
-      .state(SegmentState.DUBBED)
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .endAt("2017-02-14T12:01:32.000001Z")
-      .key("D major")
-      .total(64)
-      .density(0.73)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892")
-      .outputEncoder("wav"));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment1, ProgramType.MACRO, macro1_sequenceA_binding));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment1, ProgramType.MAIN, main5_sequenceA_binding));
+    Chain chain1 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    Segment segment1 = store.put(buildSegment(
+      chain1,
+      0,
+      SegmentState.DUBBED,
+      Instant.parse("2017-02-14T12:01:00.000001Z"),
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      "D major",
+      64,
+      0.73,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892",
+      "wav"));
+    store.put(buildSegmentChoice(segment1, ProgramType.Macro, macro1_sequenceA_binding));
+    store.put(buildSegmentChoice(segment1, ProgramType.Main, main5_sequenceA_binding));
 
-    Segment segment2 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .offset(1L)
-      .state(SegmentState.DUBBING)
-      .beginAt("2017-02-14T12:01:32.000001Z")
-      .endAt("2017-02-14T12:02:04.000001Z")
-      .key("Db minor")
-      .total(64)
-      .density(0.85)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
+    Segment segment2 = store.put(buildSegment(
+      chain1,
+      1,
+      SegmentState.DUBBING,
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      Instant.parse("2017-02-14T12:02:04.000001Z"),
+      "Db minor",
+      64,
+      0.85,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892.wav",
+      "aac"));
 
     subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment2), apiUrlProvider);
   }

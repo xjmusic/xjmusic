@@ -15,7 +15,6 @@ import io.xj.hub.persistence.HubMigration;
 import io.xj.hub.persistence.HubPersistenceException;
 import io.xj.hub.persistence.HubRedisProvider;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import org.jooq.DSLContext;
 import org.jooq.Table;

@@ -10,23 +10,6 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.typesafe.config.Config;
 import io.xj.api.Chain;
-import io.xj.api.ContentBindingType;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentAudio;
-import io.xj.api.InstrumentType;
-import io.xj.api.Program;
-import io.xj.api.ProgramMeme;
-import io.xj.api.ProgramSequence;
-import io.xj.api.ProgramSequenceBinding;
-import io.xj.api.ProgramSequenceBindingMeme;
-import io.xj.api.ProgramSequenceChord;
-import io.xj.api.ProgramSequenceChordVoicing;
-import io.xj.api.ProgramSequencePattern;
-import io.xj.api.ProgramSequencePatternEvent;
-import io.xj.api.ProgramSequencePatternType;
-import io.xj.api.ProgramType;
-import io.xj.api.ProgramVoice;
-import io.xj.api.ProgramVoiceTrack;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangement;
@@ -37,13 +20,30 @@ import io.xj.api.SegmentMeme;
 import io.xj.api.SegmentMessage;
 import io.xj.api.SegmentMessageType;
 import io.xj.api.SegmentType;
-import io.xj.api.TemplateBinding;
+import io.xj.hub.InstrumentConfig;
+import io.xj.hub.ProgramConfig;
+import io.xj.hub.TemplateConfig;
+import io.xj.hub.enums.ContentBindingType;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramSequencePatternType;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStoreException;
-import io.xj.lib.entity.common.InstrumentConfig;
-import io.xj.lib.entity.common.ProgramConfig;
-import io.xj.lib.entity.common.TemplateConfig;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
@@ -54,7 +54,7 @@ import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.PitchClass;
-import io.xj.lib.music.Voicing;
+import io.xj.lib.music.Voicings;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Text;
@@ -180,8 +180,8 @@ class FabricatorImpl implements Fabricator {
       chain = chainDAO.readOne(access, segment.getChainId());
       templateConfig = new TemplateConfig(sourceMaterial.getTemplate(), config);
       templateBindings = sourceMaterial.getAllTemplateBindings();
-      boundProgramIds = Chains.targetIdsOfType(templateBindings, ContentBindingType.PROGRAM);
-      boundInstrumentIds = Chains.targetIdsOfType(templateBindings, ContentBindingType.INSTRUMENT);
+      boundProgramIds = Chains.targetIdsOfType(templateBindings, ContentBindingType.Program);
+      boundInstrumentIds = Chains.targetIdsOfType(templateBindings, ContentBindingType.Instrument);
       LOG.debug("[segId={}] Chain {} configured with {} and bound to {} ", segment.getId(), chain.getId(),
         templateConfig,
         CSV.prettyFrom(templateBindings, "and"));
@@ -214,31 +214,36 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Program addMemes(Program p) throws NexusException {
-    for (ProgramMeme meme : sourceMaterial().getMemes(p))
-      add(new SegmentMeme()
-        .id(UUID.randomUUID())
-        .segmentId(getSegment().getId())
-        .name(Text.toMeme(meme.getName())));
+    for (ProgramMeme meme : sourceMaterial().getMemes(p)) {
+      var segMeme = new SegmentMeme();
+      segMeme.setId(UUID.randomUUID());
+      segMeme.setSegmentId(getSegment().getId());
+      segMeme.setName(Text.toMeme(meme.getName()));
+      add(segMeme);
+    }
     return p;
   }
 
   @Override
   public ProgramSequenceBinding addMemes(ProgramSequenceBinding psb) throws NexusException {
-    for (ProgramSequenceBindingMeme meme : sourceMaterial().getMemes(psb))
-      add(new SegmentMeme()
-        .id(UUID.randomUUID())
-        .segmentId(getSegment().getId())
-        .name(Text.toMeme(meme.getName())));
+    for (ProgramSequenceBindingMeme meme : sourceMaterial().getMemes(psb)) {
+      var segMeme = new SegmentMeme();
+      segMeme.setId(UUID.randomUUID());
+      segMeme.setSegmentId(getSegment().getId());
+      segMeme.setName(Text.toMeme(meme.getName()));
+      add(segMeme);
+    }
     return psb;
   }
 
   @Override
   public void addMessage(SegmentMessageType messageType, String body) throws NexusException {
-    add(new SegmentMessage()
-      .id(UUID.randomUUID())
-      .segmentId(getSegment().getId())
-      .type(messageType)
-      .body(body));
+    var msg = new SegmentMessage();
+    msg.setId(UUID.randomUUID());
+    msg.setSegmentId(getSegment().getId());
+    msg.setType(messageType);
+    msg.setBody(body);
+    add(msg);
   }
 
   @Override
@@ -284,7 +289,7 @@ class FabricatorImpl implements Fabricator {
     return sourceMaterial().getInstrumentAudio(pick.getInstrumentAudioId())
       .stream().map(InstrumentAudio::getVolume)
       .findAny()
-      .orElse(1.0);
+      .orElse(1.0f);
   }
 
   @Override
@@ -362,17 +367,17 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Optional<SegmentChoice> getCurrentMainChoice() {
-    return workbench.getChoiceOfType(ProgramType.MAIN);
+    return workbench.getChoiceOfType(ProgramType.Main);
   }
 
   @Override
   public Collection<SegmentChoice> getCurrentDetailChoices() {
-    return workbench.getChoicesOfType(ProgramType.RHYTHM);
+    return workbench.getChoicesOfType(ProgramType.Rhythm);
   }
 
   @Override
   public Optional<SegmentChoice> getCurrentRhythmChoice() {
-    return workbench.getChoiceOfType(ProgramType.RHYTHM);
+    return workbench.getChoiceOfType(ProgramType.Rhythm);
   }
 
   @Override
@@ -433,7 +438,7 @@ class FabricatorImpl implements Fabricator {
         case INITIAL, NEXTMAIN, NEXTMACRO, PENDING -> Optional.empty();
         case CONTINUE -> retrospective.getChoices()
           .stream()
-          .filter(choice -> Objects.equals(instrumentType, choice.getInstrumentType()))
+          .filter(choice -> Objects.equals(instrumentType.toString(), choice.getInstrumentType()))
           .findFirst();
       };
 
@@ -450,7 +455,7 @@ class FabricatorImpl implements Fabricator {
         case PENDING, INITIAL, NEXTMAIN, NEXTMACRO -> Optional.empty();
         case CONTINUE -> retrospective.getChoices()
           .stream()
-          .filter(choice -> Objects.equals(programType, choice.getProgramType()))
+          .filter(choice -> Objects.equals(programType.toString(), choice.getProgramType()))
           .findFirst();
       };
 
@@ -488,12 +493,12 @@ class FabricatorImpl implements Fabricator {
 
   @Override
   public Optional<SegmentChoice> getMacroChoiceOfPreviousSegment() {
-    return retrospective.getPreviousChoiceOfType(ProgramType.MACRO);
+    return retrospective.getPreviousChoiceOfType(ProgramType.Macro);
   }
 
   @Override
   public Optional<SegmentChoice> getMainChoiceOfPreviousSegment() {
-    return retrospective.getPreviousChoiceOfType(ProgramType.MAIN);
+    return retrospective.getPreviousChoiceOfType(ProgramType.Main);
   }
 
   @Override
@@ -673,17 +678,17 @@ class FabricatorImpl implements Fabricator {
     if (!rangeShiftOctave.containsKey(key))
       switch (type) {
 
-        case BASS:
+        case Bass:
           rangeShiftOctave.put(key, computeLowestOptimalRangeShiftOctaves(sourceRange, targetRange));
           break;
 
-        case DRUM:
+        case Drum:
           return 0;
 
-        case PAD:
-        case STICKY:
-        case STRIPE:
-        case STAB:
+        case Pad:
+        case Stab:
+        case Sticky:
+        case Stripe:
         default:
           rangeShiftOctave.put(key, computeMedianOptimalRangeShiftOctaves(sourceRange, targetRange));
           break;
@@ -714,8 +719,8 @@ class FabricatorImpl implements Fabricator {
     if (!voicingNoteRange.containsKey(type)) {
       voicingNoteRange.put(type, new NoteRange(workbench.getSegmentChordVoicings()
         .stream()
-        .filter(Voicing::containsAnyValidNotes)
-        .filter(segmentChordVoicing -> Objects.equals(segmentChordVoicing.getType(), type))
+        .filter(Voicings::containsAnyValidNotes)
+        .filter(segmentChordVoicing -> Objects.equals(segmentChordVoicing.getType(), type.toString()))
         .flatMap(segmentChordVoicing -> getNotes(segmentChordVoicing).stream())
         .collect(Collectors.toList())));
     }
@@ -857,8 +862,8 @@ class FabricatorImpl implements Fabricator {
   public Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, InstrumentType type) {
     Collection<SegmentChordVoicing> voicings = workbench.getSegmentChordVoicings();
     return voicings.stream()
-      .filter(Voicing::containsAnyValidNotes)
-      .filter(voicing -> Objects.equals(type, voicing.getType()))
+      .filter(Voicings::containsAnyValidNotes)
+      .filter(voicing -> Objects.equals(type.toString(), voicing.getType()))
       .filter(voicing -> Objects.equals(chord.getId(), voicing.getSegmentChordId()))
       .findAny();
   }
@@ -1008,9 +1013,11 @@ class FabricatorImpl implements Fabricator {
     var baselineDelta = 100; // optimal is the lowest possible integer zero or above
     for (var o = 10; o >= -10; o--) {
       int dLow = targetRange.getLow().orElseThrow(() -> new NexusException("Can't find low end of target range"))
-        .delta(sourceRange.getLow().orElseThrow(() -> new NexusException("Can't find low end of source range")).shiftOctave(o));
+        .delta(sourceRange.getLow().orElseThrow(() -> new NexusException("Can't find low end of source range"))
+          .shiftOctave(o));
       int dHigh = targetRange.getHigh().orElseThrow(() -> new NexusException("Can't find high end of target range"))
-        .delta(sourceRange.getHigh().orElseThrow(() -> new NexusException("Can't find high end of source range")).shiftOctave(o));
+        .delta(sourceRange.getHigh().orElseThrow(() -> new NexusException("Can't find high end of source range"))
+          .shiftOctave(o));
       if (0 <= dLow && 0 >= dHigh && Math.abs(o) < baselineDelta) {
         baselineDelta = Math.abs(o);
         shiftOctave = o;
@@ -1103,10 +1110,9 @@ class FabricatorImpl implements Fabricator {
    */
   private void ensureStorageKey() {
     if (Value.isEmpty(workbench.getSegment().getStorageKey()) || workbench.getSegment().getStorageKey().isEmpty()) {
-      workbench.setSegment(
-        workbench.getSegment()
-          .storageKey(computeStorageKey(workbench.getChain(), workbench.getSegment()))
-      );
+      var seg = workbench.getSegment();
+      seg.setStorageKey(computeStorageKey(workbench.getChain(), workbench.getSegment()));
+      workbench.setSegment(seg);
       LOG.debug("[segId={}] Generated storage key {}", workbench.getSegment().getId(), workbench.getSegment().getStorageKey());
     }
   }

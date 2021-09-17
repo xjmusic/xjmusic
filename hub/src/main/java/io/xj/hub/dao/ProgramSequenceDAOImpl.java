@@ -3,7 +3,7 @@ package io.xj.hub.dao;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import io.xj.api.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.EntityFactory;
@@ -281,7 +281,7 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
       Value.require(record.getName(), "Name");
       Value.require(record.getKey(), "Key");
       Value.require(record.getDensity(), "Density");
-      if (Value.isEmpty(record.getTotal())) record.setTotal(0);
+      if (Value.isEmpty(record.getTotal())) record.setTotal((short) 0);
       Value.require(record.getTempo(), "Tempo");
       return record;
 

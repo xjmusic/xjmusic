@@ -1,36 +1,55 @@
 //  Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.hub;import com.google.common.collect.ImmutableList;
-import io.xj.api.Account;
-import io.xj.api.AccountUser;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentAudio;
-import io.xj.api.InstrumentMeme;
-import io.xj.api.InstrumentState;
-import io.xj.api.InstrumentType;
-import io.xj.api.Library;
-import io.xj.api.Program;
-import io.xj.api.ProgramMeme;
-import io.xj.api.ProgramSequence;
-import io.xj.api.ProgramSequenceBinding;
-import io.xj.api.ProgramSequenceBindingMeme;
-import io.xj.api.ProgramSequenceChord;
-import io.xj.api.ProgramSequenceChordVoicing;
-import io.xj.api.ProgramSequencePattern;
-import io.xj.api.ProgramSequencePatternEvent;
-import io.xj.api.ProgramSequencePatternType;
-import io.xj.api.ProgramState;
-import io.xj.api.ProgramType;
-import io.xj.api.ProgramVoice;
-import io.xj.api.ProgramVoiceTrack;
-import io.xj.api.User;
-import io.xj.api.UserRole;
-import io.xj.api.UserRoleType;
+package io.xj.hub;
+
+import com.google.common.collect.ImmutableList;
+import io.xj.hub.tables.pojos.Account;
+import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.tables.pojos.Library;
+import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramSequence;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
+import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
+import io.xj.hub.enums.ProgramSequencePatternType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.User;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
+import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
+import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBindingMeme;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChord;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChordVoicing;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePattern;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePatternEvent;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoiceTrack;
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 
 /**
  [#165954673] Integration tests use shared scenario fixtures as much as possible
@@ -164,8 +183,6 @@ public class HubContentFixtures {
   public ProgramVoiceTrack program9_voice0_track9;
   public User user2;
   public User user3;
-  public UserRole userRole2a;
-  public UserRole userRole3a;
 
   /**
    Random value between A and B
@@ -207,82 +224,80 @@ public class HubContentFixtures {
   public Collection<Object> setupFixtureB1(Boolean returnParentEntities) {
 
     // Account "bananas"
-    account1 = IntegrationTestingFixtures.buildAccount("bananas");
+    account1 = buildAccount("bananas");
 
     // Library "house"
-    library2 = IntegrationTestingFixtures.buildLibrary(account1, "house");
+    library2 = buildLibrary(account1, "house");
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    user2 = IntegrationTestingFixtures.buildUser("john", "john@email.com", "http://pictures.com/john.gif");
-    userRole2a = IntegrationTestingFixtures.buildUserRole(user2, UserRoleType.ADMIN);
+    user2 = buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin");
 
     // Jenny has a "user" role and belongs to account "bananas"
-    user3 = IntegrationTestingFixtures.buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    userRole3a = IntegrationTestingFixtures.buildUserRole(user3, UserRoleType.USER);
-    accountUser1a = IntegrationTestingFixtures.buildAccountUser(account1, user3);
+    user3 = buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User");
+    accountUser1a = buildAccountUser(account1, user3);
 
     // "Tropical, Wild to Cozy" macro-program in house library
-    program4 = IntegrationTestingFixtures.buildProgram(library2, ProgramType.MACRO, ProgramState.PUBLISHED, "Tropical, Wild to Cozy", "C", 120.0, 0.6);
-    program4_meme0 = IntegrationTestingFixtures.buildProgramMeme(program4, "Tropical");
+    program4 = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tropical, Wild to Cozy", "C", 120.0f, 0.6f);
+    program4_meme0 = buildProgramMeme(program4, "Tropical");
     //
-    program4_sequence0 = IntegrationTestingFixtures.buildProgramSequence(program4, 0, "Start Wild", 0.6, "C", 125.0);
-    program3_sequence0_binding0 = IntegrationTestingFixtures.buildProgramSequenceBinding(program4_sequence0, 0);
-    program4_sequence0_binding0_meme0 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program3_sequence0_binding0, "Wild");
+    program4_sequence0 = buildProgramSequence(program4, (short) 0, "Start Wild", 0.6f, "C", 125.0f);
+    program3_sequence0_binding0 = buildProgramSequenceBinding(program4_sequence0, 0);
+    program4_sequence0_binding0_meme0 = buildProgramSequenceBindingMeme(program3_sequence0_binding0, "Wild");
     //
-    program4_sequence1 = IntegrationTestingFixtures.buildProgramSequence(program4, 0, "Intermediate", 0.4, "Bb minor", 115.0);
-    program4_sequence1_binding0 = IntegrationTestingFixtures.buildProgramSequenceBinding(program4_sequence1, 1);
-    program4_sequence1_binding0_meme0 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program4_sequence1_binding0, "Cozy");
-    program4_sequence1_binding0_meme1 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program4_sequence1_binding0, "Wild");
+    program4_sequence1 = buildProgramSequence(program4, (short) 0, "Intermediate", 0.4f, "Bb minor", 115.0f);
+    program4_sequence1_binding0 = buildProgramSequenceBinding(program4_sequence1, 1);
+    program4_sequence1_binding0_meme0 = buildProgramSequenceBindingMeme(program4_sequence1_binding0, "Cozy");
+    program4_sequence1_binding0_meme1 = buildProgramSequenceBindingMeme(program4_sequence1_binding0, "Wild");
     //
-    program4_sequence2 = IntegrationTestingFixtures.buildProgramSequence(program4, 0, "Finish Cozy", 0.4, "Ab minor", 125.0);
-    program4_sequence2_binding0 = IntegrationTestingFixtures.buildProgramSequenceBinding(program4_sequence2, 2);
-    program4_sequence2_binding0_meme0 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program4_sequence2_binding0, "Cozy");
+    program4_sequence2 = buildProgramSequence(program4, (short) 0, "Finish Cozy", 0.4f, "Ab minor", 125.0f);
+    program4_sequence2_binding0 = buildProgramSequenceBinding(program4_sequence2, 2);
+    program4_sequence2_binding0_meme0 = buildProgramSequenceBindingMeme(program4_sequence2_binding0, "Cozy");
 
     // Main program
-    program5 = IntegrationTestingFixtures.buildProgram(library2, ProgramType.MAIN, ProgramState.PUBLISHED, "Main Jam", "C minor", 140, 0.6);
-    program5_meme0 = IntegrationTestingFixtures.buildProgramMeme(program5, "Outlook");
+    program5 = buildProgram(library2, ProgramType.Main, ProgramState.Published, "Main Jam", "C minor", 140f, 0.6f);
+    program5_meme0 = buildProgramMeme(program5, "Outlook");
     //
-    program5_sequence0 = IntegrationTestingFixtures.buildProgramSequence(program5, 16, "Intro", 0.5, "G major", 135.0);
-    program5_sequence0_chord0 = IntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence0, 0.0, "G major");
-    program5_sequence0_chord0_voicing = IntegrationTestingFixtures.buildProgramSequenceChordVoicing(InstrumentType.PAD, program5_sequence0_chord0, "G3, B3, D4");
-    program5_sequence0_chord1 = IntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence0, 8.0, "Ab minor");
-    program5_sequence0_chord1_voicing = IntegrationTestingFixtures.buildProgramSequenceChordVoicing(InstrumentType.PAD, program5_sequence0_chord1, "Ab3, Db3, F4");
-    program5_sequence0_chord2 = IntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence0, 75.0, "G-9"); // [#154090557] this ChordEntity should be ignored, because it's past the end of the main-pattern total
-    program5_sequence0_chord2_voicing = IntegrationTestingFixtures.buildProgramSequenceChordVoicing(InstrumentType.PAD, program5_sequence0_chord2, "G3, Bb3, D4, A4");
-    program5_sequence0_binding0 = IntegrationTestingFixtures.buildProgramSequenceBinding(program5_sequence0, 0);
-    program5_sequence0_binding0_meme0 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program5_sequence0_binding0, "Optimism");
+    program5_sequence0 = buildProgramSequence(program5, (short) 16, "Intro", 0.5f, "G major", 135.0f);
+    program5_sequence0_chord0 = buildProgramSequenceChord(program5_sequence0, 0.0, "G major");
+    program5_sequence0_chord0_voicing = buildProgramSequenceChordVoicing(program5_sequence0_chord0, InstrumentType.Pad, "G3, B3, D4");
+    program5_sequence0_chord1 = buildProgramSequenceChord(program5_sequence0, 8.0, "Ab minor");
+    program5_sequence0_chord1_voicing = buildProgramSequenceChordVoicing(program5_sequence0_chord1, InstrumentType.Pad, "Ab3, Db3, F4");
+    program5_sequence0_chord2 = buildProgramSequenceChord(program5_sequence0, 75.0, "G-9"); // [#154090557] this ChordEntity should be ignored, because it's past the end of the main-pattern total
+    program5_sequence0_chord2_voicing = buildProgramSequenceChordVoicing(program5_sequence0_chord2, InstrumentType.Pad, "G3, Bb3, D4, A4");
+    program5_sequence0_binding0 = buildProgramSequenceBinding(program5_sequence0, 0);
+    program5_sequence0_binding0_meme0 = buildProgramSequenceBindingMeme(program5_sequence0_binding0, "Optimism");
     //
-    program5_sequence1 = IntegrationTestingFixtures.buildProgramSequence(program5, 32, "Drop", 0.5, "G minor", 135.0);
-    program5_sequence1_chord0 = IntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence1, 0.0, "C major");
-    program5_sequence1_chord1 = IntegrationTestingFixtures.buildProgramSequenceChord(program5_sequence1, 8.0, "Bb minor");
-    program5_sequence1_binding1 = IntegrationTestingFixtures.buildProgramSequenceBinding(program5_sequence1, 1);
-    program5_sequence1_binding1_meme0 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program5_sequence1_binding1, "Pessimism");
+    program5_sequence1 = buildProgramSequence(program5, (short) 32, "Drop", 0.5f, "G minor", 135.0f);
+    program5_sequence1_chord0 = buildProgramSequenceChord(program5_sequence1, 0.0, "C major");
+    program5_sequence1_chord1 = buildProgramSequenceChord(program5_sequence1, 8.0, "Bb minor");
+    program5_sequence1_binding1 = buildProgramSequenceBinding(program5_sequence1, 1);
+    program5_sequence1_binding1_meme0 = buildProgramSequenceBindingMeme(program5_sequence1_binding1, "Pessimism");
 
     // A basic beat
-    program35 = IntegrationTestingFixtures.buildProgram(library2, ProgramType.RHYTHM, ProgramState.PUBLISHED, "Basic Beat", "C", 121, 0.6);
-    program35_meme0 = IntegrationTestingFixtures.buildProgramMeme(program35, "Basic");
-    program35_voice0 = IntegrationTestingFixtures.buildProgramVoice(program35, InstrumentType.DRUM, "Drums");
-    program35_voice0_track0 = IntegrationTestingFixtures.buildProgramVoiceTrack(program35_voice0, "CLOCK");
-    program35_voice0_track1 = IntegrationTestingFixtures.buildProgramVoiceTrack(program35_voice0, "SNORT");
-    program35_voice0_track2 = IntegrationTestingFixtures.buildProgramVoiceTrack(program35_voice0, "KICK");
-    program35_voice0_track3 = IntegrationTestingFixtures.buildProgramVoiceTrack(program35_voice0, "SNARL");
+    program35 = buildProgram(library2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f);
+    program35_meme0 = buildProgramMeme(program35, "Basic");
+    program35_voice0 = buildProgramVoice(program35, InstrumentType.Drum, "Drums");
+    program35_voice0_track0 = buildProgramVoiceTrack(program35_voice0, "CLOCK");
+    program35_voice0_track1 = buildProgramVoiceTrack(program35_voice0, "SNORT");
+    program35_voice0_track2 = buildProgramVoiceTrack(program35_voice0, "KICK");
+    program35_voice0_track3 = buildProgramVoiceTrack(program35_voice0, "SNARL");
     //
-    program3_sequence0 = IntegrationTestingFixtures.buildProgramSequence(program35, 16, "Base", 0.5, "C", 110.3);
-    program35_sequence0_pattern0 = IntegrationTestingFixtures.buildProgramSequencePattern(program3_sequence0, program35_voice0, ProgramSequencePatternType.LOOP, 4, "Drop");
-    program35_sequence0_pattern0_event0 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track0, 0.0, 1.0, "C2", 1.0);
-    program35_sequence0_pattern0_event1 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track1, 1.0, 1.0, "G5", 0.8);
-    program35_sequence0_pattern0_event2 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track2, 2.5, 1.0, "C2", 0.6);
-    program35_sequence0_pattern0_event3 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track3, 3.0, 1.0, "G5", 0.9);
+    program3_sequence0 = buildProgramSequence(program35, (short) 16, "Base", 0.5f, "C", 110.3f);
+    program35_sequence0_pattern0 = buildProgramSequencePattern(program3_sequence0, program35_voice0, ProgramSequencePatternType.Loop, (short) 4, "Drop");
+    program35_sequence0_pattern0_event0 = buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track0, 0.0f, 1.0f, "C2", 1.0f);
+    program35_sequence0_pattern0_event1 = buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track1, 1.0f, 1.0f, "G5", 0.8f);
+    program35_sequence0_pattern0_event2 = buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track2, 2.5f, 1.0f, "C2", 0.6f);
+    program35_sequence0_pattern0_event3 = buildProgramSequencePatternEvent(program35_sequence0_pattern0, program35_voice0_track3, 3.0f, 1.0f, "G5", 0.9f);
     //
-    program35_sequence0_pattern1 = IntegrationTestingFixtures.buildProgramSequencePattern(program3_sequence0, program35_voice0, ProgramSequencePatternType.LOOP, 4, "Drop Alt");
-    program35_sequence0_pattern1_event0 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program35_sequence0_pattern1, program35_voice0_track0, 0.0, 1.0, "B5", 0.9);
-    program35_sequence0_pattern1_event1 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program35_sequence0_pattern1, program35_voice0_track1, 1.0, 1.0, "D2", 1.0);
-    program35_sequence0_pattern1_event2 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program35_sequence0_pattern1, program35_voice0_track2, 2.5, 1.0, "E4", 0.7);
-    program35_sequence0_pattern1_event3 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program35_sequence0_pattern1, program35_voice0_track3, 3.0, 1.0, "c3", 0.5);
+    program35_sequence0_pattern1 = buildProgramSequencePattern(program3_sequence0, program35_voice0, ProgramSequencePatternType.Loop, (short) 4, "Drop Alt");
+    program35_sequence0_pattern1_event0 = buildProgramSequencePatternEvent(program35_sequence0_pattern1, program35_voice0_track0, 0.0f, 1.0f, "B5", 0.9f);
+    program35_sequence0_pattern1_event1 = buildProgramSequencePatternEvent(program35_sequence0_pattern1, program35_voice0_track1, 1.0f, 1.0f, "D2", 1.0f);
+    program35_sequence0_pattern1_event2 = buildProgramSequencePatternEvent(program35_sequence0_pattern1, program35_voice0_track2, 2.5f, 1.0f, "E4", 0.7f);
+    program35_sequence0_pattern1_event3 = buildProgramSequencePatternEvent(program35_sequence0_pattern1, program35_voice0_track3, 3.0f, 1.0f, "c3", 0.5f);
 
     // Detail Sequence
-    program6 = IntegrationTestingFixtures.buildProgram(library2, ProgramType.DETAIL, ProgramState.PUBLISHED, "Beat Jam", "D#", 150, 0.6);
-    program7 = IntegrationTestingFixtures.buildProgram(library2, ProgramType.DETAIL, ProgramState.PUBLISHED, "Detail Jam", "Cb minor", 170, 0.6);
+    program6 = buildProgram(library2, ProgramType.Detail, ProgramState.Published, "Beat Jam", "D#", 150f, 0.6f);
+    program7 = buildProgram(library2, ProgramType.Detail, ProgramState.Published, "Detail Jam", "Cb minor", 170f, 0.6f);
 
     // List of all parent entities including the library
     // ORDER IS IMPORTANT because this list will be used for real database inserts, so ordered from parent -> child
@@ -290,9 +305,7 @@ public class HubContentFixtures {
       account1,
       library2,
       user2,
-      userRole2a,
       user3,
-      userRole3a,
       accountUser1a
     );
 
@@ -361,33 +374,33 @@ public class HubContentFixtures {
    */
   public Collection<Object> setupFixtureB2() {
     // "Tangy, Chunky to Smooth" macro-program in house library
-    program3 = IntegrationTestingFixtures.buildProgram(library2, ProgramType.MACRO, ProgramState.PUBLISHED, "Tangy, Chunky to Smooth", "G minor", 120.0, 0.6);
-    program3_meme0 = IntegrationTestingFixtures.buildProgramMeme(program3, "Tangy");
+    program3 = buildProgram(library2, ProgramType.Macro, ProgramState.Published, "Tangy, Chunky to Smooth", "G minor", 120.0f, 0.6f);
+    program3_meme0 = buildProgramMeme(program3, "Tangy");
     //
-    program3_sequence0 = IntegrationTestingFixtures.buildProgramSequence(program3, 0, "Start Chunky", 0.4, "G minor", 115.0);
-    program3_sequence0_binding0 = IntegrationTestingFixtures.buildProgramSequenceBinding(program3_sequence0, 0);
-    program3_sequence0_binding0_meme0 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program3_sequence0_binding0, "Chunky");
+    program3_sequence0 = buildProgramSequence(program3, (short) 0, "Start Chunky", 0.4f, "G minor", 115.0f);
+    program3_sequence0_binding0 = buildProgramSequenceBinding(program3_sequence0, 0);
+    program3_sequence0_binding0_meme0 = buildProgramSequenceBindingMeme(program3_sequence0_binding0, "Chunky");
     //
-    program3_sequence1 = IntegrationTestingFixtures.buildProgramSequence(program3, 0, "Finish Smooth", 0.6, "C", 125.0);
-    program3_sequence1_binding0 = IntegrationTestingFixtures.buildProgramSequenceBinding(program3_sequence1, 1);
-    program3_sequence1_binding0_meme0 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program3_sequence1_binding0, "Smooth");
+    program3_sequence1 = buildProgramSequence(program3, (short) 0, "Finish Smooth", 0.6f, "C", 125.0f);
+    program3_sequence1_binding0 = buildProgramSequenceBinding(program3_sequence1, 1);
+    program3_sequence1_binding0_meme0 = buildProgramSequenceBindingMeme(program3_sequence1_binding0, "Smooth");
 
     // Main program
-    program15 = IntegrationTestingFixtures.buildProgram(library2, ProgramType.MAIN, ProgramState.PUBLISHED, "Next Jam", "Db minor", 140, 0.6);
-    program15_meme0 = IntegrationTestingFixtures.buildProgramMeme(program15, "Hindsight");
+    program15 = buildProgram(library2, ProgramType.Main, ProgramState.Published, "Next Jam", "Db minor", 140f, 0.6f);
+    program15_meme0 = buildProgramMeme(program15, "Hindsight");
     //
-    program15_sequence0 = IntegrationTestingFixtures.buildProgramSequence(program15, 16, "Intro", 0.5, "G minor", 135.0);
-    program15_sequence0_chord0 = IntegrationTestingFixtures.buildProgramSequenceChord(program15_sequence0, 0.0, "G minor");
-    program15_sequence0_chord1 = IntegrationTestingFixtures.buildProgramSequenceChord(program15_sequence0, 8.0, "Ab minor");
-    program15_sequence0_binding0 = IntegrationTestingFixtures.buildProgramSequenceBinding(program15_sequence0, 0);
-    program15_sequence0_binding0_meme0 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program15_sequence0_binding0, "Regret");
+    program15_sequence0 = buildProgramSequence(program15, (short) 16, "Intro", 0.5f, "G minor", 135.0f);
+    program15_sequence0_chord0 = buildProgramSequenceChord(program15_sequence0, 0.0, "G minor");
+    program15_sequence0_chord1 = buildProgramSequenceChord(program15_sequence0, 8.0, "Ab minor");
+    program15_sequence0_binding0 = buildProgramSequenceBinding(program15_sequence0, 0);
+    program15_sequence0_binding0_meme0 = buildProgramSequenceBindingMeme(program15_sequence0_binding0, "Regret");
     //
-    program15_sequence1 = IntegrationTestingFixtures.buildProgramSequence(program15, 32, "Outro", 0.5, "A major", 135.0);
-    program15_sequence1_chord0 = IntegrationTestingFixtures.buildProgramSequenceChord(program15_sequence1, 0.0, "C major");
-    program15_sequence1_chord1 = IntegrationTestingFixtures.buildProgramSequenceChord(program15_sequence1, 8.0, "Bb major");
-    program15_sequence1_binding0 = IntegrationTestingFixtures.buildProgramSequenceBinding(program15_sequence1, 1);
-    program15_sequence1_binding0_meme0 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program15_sequence1_binding0, "Pride");
-    program15_sequence1_binding0_meme1 = IntegrationTestingFixtures.buildProgramSequenceBindingMeme(program15_sequence1_binding0, "Shame");
+    program15_sequence1 = buildProgramSequence(program15, (short) 32, "Outro", 0.5f, "A major", 135.0f);
+    program15_sequence1_chord0 = buildProgramSequenceChord(program15_sequence1, 0.0, "C major");
+    program15_sequence1_chord1 = buildProgramSequenceChord(program15_sequence1, 8.0, "Bb major");
+    program15_sequence1_binding0 = buildProgramSequenceBinding(program15_sequence1, 1);
+    program15_sequence1_binding0_meme0 = buildProgramSequenceBindingMeme(program15_sequence1_binding0, "Pride");
+    program15_sequence1_binding0_meme1 = buildProgramSequenceBindingMeme(program15_sequence1_binding0, "Shame");
 
     // return them all
     return ImmutableList.of(
@@ -431,60 +444,60 @@ public class HubContentFixtures {
    */
   public Collection<Object> setupFixtureB3() {
     // A basic beat
-    program9 = IntegrationTestingFixtures.buildProgram(library2, ProgramType.RHYTHM, ProgramState.PUBLISHED, "Basic Beat", "C", 121, 0.6);
-    program9_meme0 = IntegrationTestingFixtures.buildProgramMeme(program9, "Basic");
+    program9 = buildProgram(library2, ProgramType.Rhythm, ProgramState.Published, "Basic Beat", "C", 121f, 0.6f);
+    program9_meme0 = buildProgramMeme(program9, "Basic");
     //
-    program9_voice0 = IntegrationTestingFixtures.buildProgramVoice(program9, InstrumentType.DRUM, "Drums");
-    program9_voice0_track0 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "BLEEP");
-    program9_voice0_track1 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "BLEIP");
-    program9_voice0_track2 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "BLEAP");
-    program9_voice0_track3 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "BLEEEP");
-    program9_voice0_track4 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "CLOCK");
-    program9_voice0_track5 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "SNORT");
-    program9_voice0_track6 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "KICK");
-    program9_voice0_track7 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "SNARL");
-    program9_voice0_track8 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "KIICK");
-    program9_voice0_track9 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "SNARR");
-    program9_voice0_track10 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "KEICK");
-    program9_voice0_track11 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "SNAER");
-    program9_voice0_track12 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "TOOT");
-    program9_voice0_track13 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "TOOOT");
-    program9_voice0_track14 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "TOOTE");
-    program9_voice0_track15 = IntegrationTestingFixtures.buildProgramVoiceTrack(program9_voice0, "TOUT");
+    program9_voice0 = buildProgramVoice(program9, InstrumentType.Drum, "Drums");
+    program9_voice0_track0 = buildProgramVoiceTrack(program9_voice0, "BLEEP");
+    program9_voice0_track1 = buildProgramVoiceTrack(program9_voice0, "BLEIP");
+    program9_voice0_track2 = buildProgramVoiceTrack(program9_voice0, "BLEAP");
+    program9_voice0_track3 = buildProgramVoiceTrack(program9_voice0, "BLEEEP");
+    program9_voice0_track4 = buildProgramVoiceTrack(program9_voice0, "CLOCK");
+    program9_voice0_track5 = buildProgramVoiceTrack(program9_voice0, "SNORT");
+    program9_voice0_track6 = buildProgramVoiceTrack(program9_voice0, "KICK");
+    program9_voice0_track7 = buildProgramVoiceTrack(program9_voice0, "SNARL");
+    program9_voice0_track8 = buildProgramVoiceTrack(program9_voice0, "KIICK");
+    program9_voice0_track9 = buildProgramVoiceTrack(program9_voice0, "SNARR");
+    program9_voice0_track10 = buildProgramVoiceTrack(program9_voice0, "KEICK");
+    program9_voice0_track11 = buildProgramVoiceTrack(program9_voice0, "SNAER");
+    program9_voice0_track12 = buildProgramVoiceTrack(program9_voice0, "TOOT");
+    program9_voice0_track13 = buildProgramVoiceTrack(program9_voice0, "TOOOT");
+    program9_voice0_track14 = buildProgramVoiceTrack(program9_voice0, "TOOTE");
+    program9_voice0_track15 = buildProgramVoiceTrack(program9_voice0, "TOUT");
     //
-    program9_sequence0 = IntegrationTestingFixtures.buildProgramSequence(program9, 16, "Base", 0.5, "C", 110.3);
+    program9_sequence0 = buildProgramSequence(program9, (short) 16, "Base", 0.5f, "C", 110.3f);
     //
-    program9_sequence0_pattern0 = IntegrationTestingFixtures.buildProgramSequencePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.INTRO, 4, "Intro");
-    program9_sequence0_pattern0_event0 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern0, program9_voice0_track0, 0, 1, "C2", 1.0);
-    program9_sequence0_pattern0_event1 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern0, program9_voice0_track1, 1, 1, "G5", 0.8);
-    program9_sequence0_pattern0_event2 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern0, program9_voice0_track2, 2.5, 1, "C2", 0.6);
-    program9_sequence0_pattern0_event3 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern0, program9_voice0_track3, 3, 1, "G5", 0.9);
+    program9_sequence0_pattern0 = buildProgramSequencePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.Intro, (short) 4, "Intro");
+    program9_sequence0_pattern0_event0 = buildProgramSequencePatternEvent(program9_sequence0_pattern0, program9_voice0_track0, 0, 1, "C2", 1.0f);
+    program9_sequence0_pattern0_event1 = buildProgramSequencePatternEvent(program9_sequence0_pattern0, program9_voice0_track1, 1, 1, "G5", 0.8f);
+    program9_sequence0_pattern0_event2 = buildProgramSequencePatternEvent(program9_sequence0_pattern0, program9_voice0_track2, 2.5f, 1, "C2", 0.6f);
+    program9_sequence0_pattern0_event3 = buildProgramSequencePatternEvent(program9_sequence0_pattern0, program9_voice0_track3, 3, 1, "G5", 0.9f);
     //
-    program9_sequence0_pattern1 = IntegrationTestingFixtures.buildProgramSequencePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.LOOP, 4, "Loop A");
-    program9_sequence0_pattern1_event0 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern1, program9_voice0_track4, 0, 1, "C2", 1.0);
-    program9_sequence0_pattern1_event1 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern1, program9_voice0_track5, 1, 1, "G5", 0.8);
-    program9_sequence0_pattern1_event2 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern1, program9_voice0_track6, 2.5, 1, "C2", 0.6);
-    program9_sequence0_pattern1_event3 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern1, program9_voice0_track7, 3, 1, "G5", 0.9);
+    program9_sequence0_pattern1 = buildProgramSequencePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.Loop, (short) 4, "Loop A");
+    program9_sequence0_pattern1_event0 = buildProgramSequencePatternEvent(program9_sequence0_pattern1, program9_voice0_track4, 0, 1, "C2", 1.0f);
+    program9_sequence0_pattern1_event1 = buildProgramSequencePatternEvent(program9_sequence0_pattern1, program9_voice0_track5, 1, 1, "G5", 0.8f);
+    program9_sequence0_pattern1_event2 = buildProgramSequencePatternEvent(program9_sequence0_pattern1, program9_voice0_track6, 2.5f, 1, "C2", 0.6f);
+    program9_sequence0_pattern1_event3 = buildProgramSequencePatternEvent(program9_sequence0_pattern1, program9_voice0_track7, 3, 1, "G5", 0.9f);
     //
-    program9_sequence0_pattern2 = IntegrationTestingFixtures.buildProgramSequencePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.LOOP, 4, "Loop B");
-    program9_sequence0_pattern2_event0 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern2, program9_voice0_track8, 0, 1, "B5", 0.9);
-    program9_sequence0_pattern2_event1 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern2, program9_voice0_track9, 1, 1, "D2", 1.0);
-    program9_sequence0_pattern2_event2 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern2, program9_voice0_track10, 2.5, 1, "E4", 0.7);
-    program9_sequence0_pattern2_event3 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern2, program9_voice0_track11, 3, 1, "C3", 0.5);
+    program9_sequence0_pattern2 = buildProgramSequencePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.Loop, (short) 4, "Loop B");
+    program9_sequence0_pattern2_event0 = buildProgramSequencePatternEvent(program9_sequence0_pattern2, program9_voice0_track8, 0, 1, "B5", 0.9f);
+    program9_sequence0_pattern2_event1 = buildProgramSequencePatternEvent(program9_sequence0_pattern2, program9_voice0_track9, 1, 1, "D2", 1.0f);
+    program9_sequence0_pattern2_event2 = buildProgramSequencePatternEvent(program9_sequence0_pattern2, program9_voice0_track10, 2.5f, 1, "E4", 0.7f);
+    program9_sequence0_pattern2_event3 = buildProgramSequencePatternEvent(program9_sequence0_pattern2, program9_voice0_track11, 3, 1, "C3", 0.5f);
     //
-    program9_sequence0_pattern3 = IntegrationTestingFixtures.buildProgramSequencePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.OUTRO, 4, "Outro");
-    program9_sequence0_pattern3_event0 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern3, program9_voice0_track12, 0, 1, "C2", 1.0);
-    program9_sequence0_pattern3_event1 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern3, program9_voice0_track13, 1, 1, "G5", 0.8);
-    program9_sequence0_pattern3_event2 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern3, program9_voice0_track14, 2.5, 1, "C2", 0.6);
-    program9_sequence0_pattern3_event3 = IntegrationTestingFixtures.buildProgramSequencePatternEvent(program9_sequence0_pattern3, program9_voice0_track15, 3, 1, "G5", 0.9);
+    program9_sequence0_pattern3 = buildProgramSequencePattern(program9_sequence0, program9_voice0, ProgramSequencePatternType.Outro, (short) 4, "Outro");
+    program9_sequence0_pattern3_event0 = buildProgramSequencePatternEvent(program9_sequence0_pattern3, program9_voice0_track12, 0, 1, "C2", 1.0f);
+    program9_sequence0_pattern3_event1 = buildProgramSequencePatternEvent(program9_sequence0_pattern3, program9_voice0_track13, 1, 1, "G5", 0.8f);
+    program9_sequence0_pattern3_event2 = buildProgramSequencePatternEvent(program9_sequence0_pattern3, program9_voice0_track14, 2.5f, 1, "C2", 0.6f);
+    program9_sequence0_pattern3_event3 = buildProgramSequencePatternEvent(program9_sequence0_pattern3, program9_voice0_track15, 3, 1, "G5", 0.9f);
 
     // Instrument "808"
-    instrument8 = IntegrationTestingFixtures.buildInstrument(library2, InstrumentType.DRUM, InstrumentState.PUBLISHED, "808 Drums");
-    instrument8_meme0 = IntegrationTestingFixtures.buildInstrumentMeme(instrument8, "heavy");
-    instrument8_audio8kick = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.62, "KICK", "Eb", 1.0);
-    instrument8_audio8snare = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01, 1.5, 120.0, 0.62, "SNARE", "Eb", 1.0);
-    instrument8_audio8bleep = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Bleep", "17350afghjkjhaskjdfjhk9758981980.wav", 0.01, 1.5, 120.0, 0.62, "BLEEP", "Eb", 1.0);
-    instrument8_audio8toot = IntegrationTestingFixtures.buildInstrumentAudio(instrument8, "Toot", "askjdfjhk975898198017350afghjkjh.wav", 0.01, 1.5, 120.0, 0.62, "TOOT", "Eb", 1.0);
+    instrument8 = buildInstrument(library2, InstrumentType.Drum, InstrumentState.Published, "808 Drums");
+    instrument8_meme0 = buildInstrumentMeme(instrument8, "heavy");
+    instrument8_audio8kick = buildInstrumentAudio(instrument8, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f);
+    instrument8_audio8snare = buildInstrumentAudio(instrument8, "Snare", "975898198017350afghjkjhaskjdfjhk.wav", 0.01f, 1.5f, 120.0f, 0.62f, "SNARE", "Eb", 1.0f);
+    instrument8_audio8bleep = buildInstrumentAudio(instrument8, "Bleep", "17350afghjkjhaskjdfjhk9758981980.wav", 0.01f, 1.5f, 120.0f, 0.62f, "BLEEP", "Eb", 1.0f);
+    instrument8_audio8toot = buildInstrumentAudio(instrument8, "Toot", "askjdfjhk975898198017350afghjkjh.wav", 0.01f, 1.5f, 120.0f, 0.62f, "TOOT", "Eb", 1.0f);
 
     // return them all
     return ImmutableList.of(

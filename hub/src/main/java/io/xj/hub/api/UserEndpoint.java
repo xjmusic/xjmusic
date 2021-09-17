@@ -4,7 +4,7 @@ package io.xj.hub.api;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.api.User;
+import io.xj.hub.tables.pojos.User;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAO;
 import io.xj.hub.dao.UserDAO;

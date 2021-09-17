@@ -8,9 +8,9 @@ import io.xj.api.Chain;
 import io.xj.api.ChainState;
 import io.xj.api.Segment;
 import io.xj.api.SegmentState;
-import io.xj.api.Template;
-import io.xj.api.TemplateBinding;
-import io.xj.api.TemplateType;
+import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.enums.TemplateType;
 import io.xj.hub.dao.Templates;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
@@ -117,7 +117,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
           case Lab -> state.set(State.Active);
           case Yard -> {
             state.set(State.Loading);
-            if (createChainForTemplate(yardTemplateId, TemplateType.PRODUCTION))
+            if (createChainForTemplate(yardTemplateId, TemplateType.Production))
               state.set(State.Active);
             else
               state.set(State.Fail);
@@ -198,7 +198,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
       Set<UUID> chainTemplateIds = chains.stream().map(Chain::getTemplateId).collect(Collectors.toSet());
       for (Template template : templates)
         if (!chainTemplateIds.contains(template.getId()))
-          createChainForTemplate(template.getId(), TemplateType.PREVIEW);
+          createChainForTemplate(template.getId(), TemplateType.Preview);
     } catch (DAOFatalException | DAOPrivilegeException e) {
       LOG.error("Failed to start Chain(s) for playing Template(s)!", e);
       return false;

@@ -13,7 +13,7 @@ public class DAOExistenceException extends Exception {
   }
 
   public DAOExistenceException(Class<?> type, String id, String detail) {
-    super(String.format("%s %s", message(type, id.toString()), detail));
+    super(String.format("%s %s", message(type, id), detail));
   }
 
   private static String message(Class<?> type, String identifier) {

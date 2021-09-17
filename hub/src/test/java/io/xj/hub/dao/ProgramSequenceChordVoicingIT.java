@@ -7,25 +7,19 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.api.Account;
-import io.xj.api.InstrumentType;
-import io.xj.api.Library;
-import io.xj.api.Program;
-import io.xj.api.ProgramSequence;
-import io.xj.api.ProgramSequenceChord;
-import io.xj.api.ProgramSequenceChordVoicing;
-import io.xj.api.ProgramState;
-import io.xj.api.ProgramType;
-import io.xj.api.ProgramVoice;
-import io.xj.api.UserRoleType;
 import io.xj.hub.HubIntegrationTestModule;
 import io.xj.hub.HubIntegrationTestProvider;
 import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramState;
+import io.xj.hub.enums.ProgramType;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -41,8 +35,13 @@ import java.util.UUID;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
+import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChord;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChordVoicing;
+import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
 import static io.xj.hub.IntegrationTestingFixtures.buildUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildUserRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
@@ -77,106 +76,28 @@ public class ProgramSequenceChordVoicingIT {
     // Account "bananas"
     fake.account1 = test.insert(buildAccount("bananas"));
 // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif"));
-    test.insert(buildUserRole(fake.user2, UserRoleType.ADMIN));
+    fake.user2 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin"));
 
     // Jenny has a "user" role and belongs to account "bananas"
-    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif"));
-    test.insert(buildUserRole(fake.user3, UserRoleType.USER));
+    fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User"));
     test.insert(buildAccountUser(fake.account1, fake.user3));
 
     // Library "palm tree" has a program "Ants" and program "Ants"
-    fake.library1 = test.insert(new Library()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .name("palm tree"));
-    fake.program1 = test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library1.getId())
-      .type(ProgramType.MAIN)
-      .state(ProgramState.PUBLISHED)
-      .name("ANTS")
-      .key("C#")
-      .tempo(120.0)
-      .density(0.6));
-    fake.program1_sequence1 = test.insert(new ProgramSequence()
-      .id(UUID.randomUUID())
-      .programId(fake.program1.getId())
-      .total(4)
-      .name("Ants")
-      .density(0.583)
-      .key("D minor")
-      .tempo(120.0));
-    sequenceChord1a_0 = test.insert(new ProgramSequenceChord()
-      .id(UUID.randomUUID())
-      .programId(fake.program1_sequence1.getProgramId())
-      .programSequenceId(fake.program1_sequence1.getId())
-      .position(0.0)
-      .name("C minor"));
-    sequenceChord1a_0_voicing0 = test.insert(new ProgramSequenceChordVoicing()
-      .id(UUID.randomUUID())
-      .type(InstrumentType.BASS)
-      .programId(sequenceChord1a_0.getProgramId())
-      .programSequenceChordId(sequenceChord1a_0.getId())
-      .notes("C5, Eb5, G5"));
-    test.insert(new ProgramSequenceChordVoicing()
-      .id(UUID.randomUUID())
-      .type(InstrumentType.BASS)
-      .programId(sequenceChord1a_0.getProgramId())
-      .programSequenceChordId(sequenceChord1a_0.getId())
-      .notes("G,B,Db,F"));
-    fake.program2 = test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library1.getId())
-      .type(ProgramType.RHYTHM)
-      .state(ProgramState.PUBLISHED)
-      .name("ANTS")
-      .key("C#")
-      .tempo(120.0)
-      .density(0.6));
-    fake.program2_voice1 = test.insert(new ProgramVoice()
-      .id(UUID.randomUUID())
-      .programId(fake.program2.getId())
-      .type(InstrumentType.DRUM)
-      .name("Drums"));
+    fake.library1 = test.insert(buildLibrary(fake.account1, "palm tree"));
+    fake.program1 = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
+    fake.program1_sequence1 = test.insert(buildProgramSequence(fake.program1, 4, "Ants", 0.583f, "D minor", 120.0f));
+    sequenceChord1a_0 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "C minor"));
+    sequenceChord1a_0_voicing0 = test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Bass, "C5, Eb5, G5"));
+    test.insert(buildProgramSequenceChordVoicing(sequenceChord1a_0, InstrumentType.Bass, "G,B,Db,F"));
+    fake.program2 = test.insert(buildProgram(fake.library1, ProgramType.Rhythm, ProgramState.Published, "ANTS", "C#", 120.0f, 0.6f));
+    fake.program2_voice1 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
 
     // Library "boat" has a program "helm" and program "sail"
-    fake.library2 = test.insert(new Library()
-      .id(UUID.randomUUID())
-      .accountId(fake.account1.getId())
-      .name("boat"));
-    fake.program3 = test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library2.getId())
-      .type(ProgramType.MACRO)
-      .state(ProgramState.PUBLISHED)
-      .name("helm")
-      .key("C#")
-      .tempo(120.0)
-      .density(0.6));
-    fake.program3_sequence1 = test.insert(new ProgramSequence()
-      .id(UUID.randomUUID())
-      .programId(fake.program3.getId())
-      .total(16)
-      .name("Ants")
-      .density(0.583)
-      .key("D minor")
-      .tempo(120.0));
-    fake.program3_chord1 = test.insert(new ProgramSequenceChord()
-      .id(UUID.randomUUID())
-      .programId(fake.program3_sequence1.getProgramId())
-      .programSequenceId(fake.program3_sequence1.getId())
-      .position(0.0)
-      .name("G7 flat 6"));
-    fake.program4 = test.insert(new Program()
-      .id(UUID.randomUUID())
-      .libraryId(fake.library2.getId())
-      .type(ProgramType.DETAIL)
-      .state(ProgramState.PUBLISHED)
-      .name("sail")
-      .key("C#")
-      .tempo(120.0)
-      .density(0.6));
+    fake.library2 = test.insert(buildLibrary(fake.account1, "boat"));
+    fake.program3 = test.insert(buildProgram(fake.library2, ProgramType.Macro, ProgramState.Published, "helm", "C#", 120.0f, 0.6f));
+    fake.program3_sequence1 = test.insert(buildProgramSequence(fake.program3, 16, "Ants", 0.583f, "D minor", 120.0f));
+    fake.program3_chord1 = test.insert(buildProgramSequenceChord(fake.program1_sequence1, 0.0f, "G7 flat 6"));
+    fake.program4 = test.insert(buildProgram(fake.library2, ProgramType.Detail, ProgramState.Published, "sail", "C#", 120.0f, 0.6f));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(ProgramSequenceChordVoicingDAO.class);
@@ -190,12 +111,12 @@ public class ProgramSequenceChordVoicingIT {
   @Test
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
-    var subject = new ProgramSequenceChordVoicing()
-      .id(UUID.randomUUID())
-      .programId(fake.program3.getId())
-      .programSequenceChordId(fake.program3_chord1.getId())
-      .type(InstrumentType.PAD)
-      .notes("C5, Eb5, G5");
+    var subject = new ProgramSequenceChordVoicing();
+    subject.setId(UUID.randomUUID());
+    subject.setProgramId(fake.program3.getId());
+    subject.setProgramSequenceChordId(fake.program3_chord1.getId());
+    subject.setType(InstrumentType.Pad);
+    subject.setNotes("C5, Eb5, G5");
 
     var result = testDAO.create(
       hubAccess, subject);
@@ -203,7 +124,7 @@ public class ProgramSequenceChordVoicingIT {
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals(fake.program3_chord1.getId(), result.getProgramSequenceChordId());
-    assertEquals(InstrumentType.PAD, result.getType());
+    assertEquals(InstrumentType.Pad, result.getType());
     assertEquals("C5, Eb5, G5", result.getNotes());
   }
 
@@ -213,17 +134,15 @@ public class ProgramSequenceChordVoicingIT {
   @Test
   public void update() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    sequenceChord1a_0_voicing0.setType(InstrumentType.Sticky);
+    sequenceChord1a_0_voicing0.setNotes("G1,G2,G3");
 
-    testDAO.update(hubAccess, sequenceChord1a_0_voicing0.getId(),
-      sequenceChord1a_0_voicing0
-        .type(InstrumentType.STICKY)
-        .notes("G1,G2,G3")
-    );
+    testDAO.update(hubAccess, sequenceChord1a_0_voicing0.getId(), sequenceChord1a_0_voicing0);
 
     var result = testDAO.readOne(hubAccess, sequenceChord1a_0_voicing0.getId());
     assertNotNull(result);
     assertEquals(sequenceChord1a_0_voicing0.getId(), result.getId());
-    assertEquals(InstrumentType.STICKY, result.getType());
+    assertEquals(InstrumentType.Sticky, result.getType());
     assertEquals("G1,G2,G3", result.getNotes());
   }
 
@@ -234,12 +153,12 @@ public class ProgramSequenceChordVoicingIT {
   @Test
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
-    var inputData = new ProgramSequenceChordVoicing()
-      .id(UUID.randomUUID())
-      .programId(fake.program3.getId())
-      .programSequenceChordId(fake.program3_chord1.getId())
-      .type(InstrumentType.BASS)
-      .notes("C5, Eb5, G5");
+    var inputData = new ProgramSequenceChordVoicing();
+      inputData.setId(UUID.randomUUID());
+      inputData.setProgramId(fake.program3.getId());
+      inputData.setProgramSequenceChordId(fake.program3_chord1.getId());
+      inputData.setType(InstrumentType.Bass);
+      inputData.setNotes("C5, Eb5, G5");
 
     var result = testDAO.create(
       hubAccess, inputData);
@@ -247,7 +166,7 @@ public class ProgramSequenceChordVoicingIT {
     assertNotNull(result);
     assertEquals(fake.program3.getId(), result.getProgramId());
     assertEquals(fake.program3_chord1.getId(), result.getProgramSequenceChordId());
-    assertEquals(InstrumentType.BASS, result.getType());
+    assertEquals(InstrumentType.Bass, result.getType());
     assertEquals("C5, Eb5, G5", result.getNotes());
   }
 
@@ -261,14 +180,13 @@ public class ProgramSequenceChordVoicingIT {
     assertEquals(sequenceChord1a_0_voicing0.getId(), result.getId());
     assertEquals(fake.program1.getId(), result.getProgramId());
     assertEquals(sequenceChord1a_0.getId(), result.getProgramSequenceChordId());
-    assertEquals(InstrumentType.BASS, result.getType());
+    assertEquals(InstrumentType.Bass, result.getType());
     assertEquals("C5, Eb5, G5", result.getNotes());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())), "User, Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
     var e = assertThrows(DAOException.class,
       () -> testDAO.readOne(hubAccess, sequenceChord1a_0_voicing0.getId()));
@@ -291,8 +209,7 @@ public class ProgramSequenceChordVoicingIT {
 
   @Test
   public void readMany_SeesNothingOutsideOfLibrary() throws Exception {
-    HubAccess hubAccess = HubAccess.create(ImmutableList.of(new Account()
-      .id(UUID.randomUUID())), "User, Artist");
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")), "User, Artist");
 
     Collection<ProgramSequenceChordVoicing> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.program1.getId()));
 
@@ -301,8 +218,7 @@ public class ProgramSequenceChordVoicingIT {
 
   @Test
   public void destroy_failsIfNotInAccount() throws Exception {
-    fake.account2 = new Account()
-      .id(UUID.randomUUID());
+    fake.account2 = buildAccount("Testing");
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account2), "Artist");
 
     var e = assertThrows(DAOException.class,

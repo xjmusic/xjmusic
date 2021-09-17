@@ -11,21 +11,19 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
-import io.xj.api.Instrument;
-import io.xj.api.InstrumentAudio;
-import io.xj.api.InstrumentState;
-import io.xj.api.InstrumentType;
-import io.xj.api.ProgramType;
+import io.xj.api.ChainType;
 import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.api.TemplateType;
+import io.xj.hub.IntegrationTestingFixtures;
+import io.xj.hub.Topology;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Instrument;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.entity.common.Topology;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.craft.CraftFactory;
@@ -45,13 +43,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildMeme;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildMeme;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 
 /**
  [#166481918] PercLoop fabrication composited of layered Patterns
@@ -63,10 +59,6 @@ public class CraftPercLoop_LayeredVoicesTest {
   private CraftFactory craftFactory;
   private FabricatorFactory fabricatorFactory;
   private HubContent sourceMaterial;
-  private InstrumentAudio audioHihat;
-  private InstrumentAudio audioKick;
-  private InstrumentAudio audioSnare;
-  private NexusEntityStore store;
   private NexusIntegrationTestingFixtures fake;
   private Segment segment4;
 
@@ -90,7 +82,7 @@ public class CraftPercLoop_LayeredVoicesTest {
     Topology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
-    store = injector.getInstance(NexusEntityStore.class);
+    NexusEntityStore store = injector.getInstance(NexusEntityStore.class);
     store.deleteAll();
 
     // Mock request via HubClient returns fake generated library of hub content
@@ -101,79 +93,78 @@ public class CraftPercLoop_LayeredVoicesTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(buildChain(fake.account1, "Test Print #1", TemplateType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.INITIAL)
-      .state(SegmentState.DUBBED)
-      .beginAt("2017-02-14T12:01:00.000001Z")
-      .endAt("2017-02-14T12:01:32.000001Z")
-      .offset(0L)
-      .delta(0)
-      .key("D major")
-      .total(64)
-      .density(0.73)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892")
-      .outputEncoder("wav"));
-    store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.CONTINUE)
-      .offset(1L)
-      .delta(1)
-      .state(SegmentState.DUBBING)
-      .beginAt("2017-02-14T12:01:32.000001Z")
-      .endAt("2017-02-14T12:02:04.000001Z")
-      .key("Db minor")
-      .total(64)
-      .density(0.85)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
+    Chain chain1 = store.put(buildChain(fake.account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, fake.template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null));
+    store.put(buildSegment(
+      chain1,
+      SegmentType.INITIAL,
+      0,
+      0,
+      SegmentState.DUBBED,
+      Instant.parse("2017-02-14T12:01:00.000001Z"),
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      "D major",
+      64,
+      0.73,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892",
+      "wav"));
+    store.put(buildSegment(
+      chain1,
+      SegmentType.CONTINUE,
+      1,
+      1,
+      SegmentState.DUBBING,
+      Instant.parse("2017-02-14T12:01:32.000001Z"),
+      Instant.parse("2017-02-14T12:02:04.000001Z"),
+      "Db minor",
+      64,
+      0.85,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892.wav",
+      "wav"));
 
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.CONTINUE)
-      .offset(2L)
-      .delta(2)
-      .state(SegmentState.CRAFTED)
-      .beginAt("2017-02-14T12:02:04.000001Z")
-      .endAt("2017-02-14T12:02:36.000001Z")
-      .key("F Major")
-      .total(64)
-      .density(0.30)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.MACRO, fake.program4_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.MAIN, fake.program5_sequence0_binding0));
+    Segment segment3 = store.put(buildSegment(
+      chain1,
+      SegmentType.CONTINUE,
+      2,
+      2,
+      SegmentState.CRAFTED,
+      Instant.parse("2017-02-14T12:02:04.000001Z"),
+      Instant.parse("2017-02-14T12:02:36.000001Z"),
+      "F Major",
+      64,
+      0.30,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892.wav",
+      "aac"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence0_binding0));
 
     // segment crafting
-    segment4 = store.put(new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain1.getId())
-      .type(SegmentType.CONTINUE)
-      .offset(3L)
-      .delta(3)
-      .state(SegmentState.CRAFTING)
-      .beginAt("2017-02-14T12:03:08.000001Z")
-      .endAt("2017-02-14T12:03:15.836735Z")
-      .key("D Major")
-      .total(16)
-      .density(0.45)
-      .tempo(120.0)
-      .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.MACRO, fake.program4_sequence0_binding0));
-    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.MAIN, fake.program5_sequence1_binding0));
+    segment4 = store.put(buildSegment(
+      chain1,
+      SegmentType.CONTINUE,
+      3,
+      3,
+      SegmentState.CRAFTING,
+      Instant.parse("2017-02-14T12:03:08.000001Z"),
+      Instant.parse("2017-02-14T12:03:15.836735Z"),
+      "D Major",
+      16,
+      0.45,
+      120.0,
+      "chains-1-segments-9f7s89d8a7892.wav",
+      "wav"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.Macro, fake.program4_sequence0_binding0));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment4, ProgramType.Main, fake.program5_sequence1_binding0));
 
     for (String memeName : ImmutableList.of("Cozy", "Classic", "Outlook", "Rosy"))
-      store.put(NexusIntegrationTestingFixtures.buildMeme(segment4, memeName));
+      store.put(NexusIntegrationTestingFixtures.buildSegmentMeme(segment4, memeName));
 
-    store.put(NexusIntegrationTestingFixtures.buildChord(segment4, 0.0, "A minor"));
-    store.put(NexusIntegrationTestingFixtures.buildChord(segment4, 8.0, "D Major"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment4, 0.0, "A minor"));
+    store.put(NexusIntegrationTestingFixtures.buildSegmentChord(segment4, 8.0, "D Major"));
   }
 
 
@@ -186,14 +177,14 @@ public class CraftPercLoop_LayeredVoicesTest {
     Collection<Object> entities = Lists.newArrayList();
 
     // Instrument "808"
-    Instrument instrument1 = Entities.add(entities, NexusIntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.PERCLOOP, InstrumentState.PUBLISHED, "Bongo Loop"));
+    Instrument instrument1 = Entities.add(entities, IntegrationTestingFixtures.buildInstrument(fake.library2, InstrumentType.PercLoop, InstrumentState.Published, "Bongo Loop"));
     Entities.add(entities, buildMeme(instrument1, "heavy"));
     //
-    audioKick = Entities.add(entities, NexusIntegrationTestingFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 0.6, "KICK", "Eb", 1.0));
+    Entities.add(entities, IntegrationTestingFixtures.buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
     //
-    audioSnare = Entities.add(entities, NexusIntegrationTestingFixtures.buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01, 1.5, 120.0, 0.6, "SNARE", "Ab", 1.0));
+    Entities.add(entities, IntegrationTestingFixtures.buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
     //
-    audioHihat = Entities.add(entities, NexusIntegrationTestingFixtures.buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01, 1.5, 120.0, 0.6, "HIHAT", "Ab", 1.0));
+    Entities.add(entities, IntegrationTestingFixtures.buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
 
     return entities;
   }
