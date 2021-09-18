@@ -53,7 +53,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DubDubMasterContinueTest {
-  private static final String testResourceFilePath = "test_audio" + File.separator + "F32LSB_48kHz_Stereo.wav";
+  private static final String testResourceFilePath = "source_audio" + File.separator + "kick1.wav";
   @Mock
   public FileStoreProvider fileStoreProvider;
   @Mock
