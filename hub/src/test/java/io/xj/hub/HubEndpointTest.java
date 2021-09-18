@@ -45,7 +45,7 @@ public class HubEndpointTest {
   @Mock
   DAO<Account> dao; // can be any class that, we picked a simple one with no belongs-to
   //
-  HubEndpoint subject;
+  HubJsonapiEndpoint subject;
   private JsonapiPayloadFactory payloadFactory;
 
   @Before
@@ -62,7 +62,7 @@ public class HubEndpointTest {
     payloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
     Topology.buildHubApiTopology(entityFactory);
-    subject = injector.getInstance(HubEndpoint.class);
+    subject = injector.getInstance(HubJsonapiEndpoint.class);
   }
 
   @Test

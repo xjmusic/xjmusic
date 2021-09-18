@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.InstrumentDAO;
 import io.xj.hub.dao.InstrumentMemeDAO;
@@ -37,7 +37,7 @@ import java.util.UUID;
  Instruments
  */
 @Path("api/1/instruments")
-public class InstrumentEndpoint extends HubEndpoint {
+public class InstrumentEndpoint extends HubJsonapiEndpoint {
   private final InstrumentDAO dao;
   private final InstrumentMemeDAO instrumentMemeDAO;
 

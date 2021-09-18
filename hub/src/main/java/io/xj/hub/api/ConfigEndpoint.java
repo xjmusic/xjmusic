@@ -13,7 +13,7 @@ import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
@@ -33,7 +33,7 @@ import java.util.Map;
  Current platform configuration
  */
 @Path("config")
-public class ConfigEndpoint extends HubEndpoint {
+public class ConfigEndpoint extends HubJsonapiEndpoint {
   private final Map<String, Object> configMap;
 
   /**

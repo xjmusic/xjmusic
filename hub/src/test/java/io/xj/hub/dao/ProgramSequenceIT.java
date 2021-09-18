@@ -128,7 +128,7 @@ public class ProgramSequenceIT {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramSequence();
     subject.setId(UUID.randomUUID());
     subject.setKey("G minor 7");
@@ -154,7 +154,7 @@ public class ProgramSequenceIT {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramSequence();
     inputData.setId(UUID.randomUUID());
     inputData.setKey("G minor 7");
@@ -179,7 +179,7 @@ public class ProgramSequenceIT {
    */
   @Test
   public void clone_fromOriginal() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramSequence();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
@@ -312,7 +312,7 @@ public class ProgramSequenceIT {
 
   @Test
   public void update_Name() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramSequence();
     subject.setId(fake.program3_sequence1.getId());
     subject.setDensity(1.0f);
@@ -337,7 +337,7 @@ public class ProgramSequenceIT {
   @Test
   public void update_Name_PreservesOriginalOwner() throws Exception {
     // John will edit a programSequence originally belonging to Jenny
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Admin");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramSequence();
     subject.setId(fake.program3_sequence1.getId());
     subject.setKey("G minor 7");

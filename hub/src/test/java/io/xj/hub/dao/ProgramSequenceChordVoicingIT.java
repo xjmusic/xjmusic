@@ -110,7 +110,7 @@ public class ProgramSequenceChordVoicingIT {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramSequenceChordVoicing();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -133,7 +133,7 @@ public class ProgramSequenceChordVoicingIT {
    */
   @Test
   public void update() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     sequenceChord1a_0_voicing0.setType(InstrumentType.Sticky);
     sequenceChord1a_0_voicing0.setNotes("G1,G2,G3");
 
@@ -152,7 +152,7 @@ public class ProgramSequenceChordVoicingIT {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramSequenceChordVoicing();
       inputData.setId(UUID.randomUUID());
       inputData.setProgramId(fake.program3.getId());

@@ -8,7 +8,7 @@ import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -27,7 +27,7 @@ import javax.ws.rs.core.Response;
  ProgramMeme endpoint
  */
 @Path("api/1/program-memes")
-public class ProgramMemeEndpoint extends HubEndpoint {
+public class ProgramMemeEndpoint extends HubJsonapiEndpoint {
   private final ProgramMemeDAO dao;
 
   /**

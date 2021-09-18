@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.hub.dao.ProgramSequenceChordVoicingDAO;
 import io.xj.lib.jsonapi.*;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
  ProgramSequenceChordVoicing endpoint
  */
 @Path("api/1/program-sequence-chord-voicings")
-public class ProgramSequenceChordVoicingEndpoint extends HubEndpoint {
+public class ProgramSequenceChordVoicingEndpoint extends HubJsonapiEndpoint {
   private final ProgramSequenceChordVoicingDAO dao;
 
   /**

@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.hub.tables.pojos.TemplatePlayback;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAOException;
 import io.xj.hub.dao.TemplatePlaybackDAO;
@@ -34,7 +34,7 @@ import java.util.UUID;
  TemplatePlaybacks
  */
 @Path("api/1")
-public class TemplatePlaybackEndpoint extends HubEndpoint {
+public class TemplatePlaybackEndpoint extends HubJsonapiEndpoint {
   private final TemplatePlaybackDAO dao;
 
   /**

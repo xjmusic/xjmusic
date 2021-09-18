@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.TemplateBindingDAO;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
@@ -33,7 +33,7 @@ import java.util.UUID;
  TemplateBindings
  */
 @Path("api/1/template-bindings")
-public class TemplateBindingEndpoint extends HubEndpoint {
+public class TemplateBindingEndpoint extends HubJsonapiEndpoint {
   private final TemplateBindingDAO dao;
 
   /**

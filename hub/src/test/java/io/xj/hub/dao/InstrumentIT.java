@@ -97,7 +97,7 @@ public class InstrumentIT {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     Instrument subject = new Instrument();
     subject.setId(UUID.randomUUID());
     subject.setLibraryId(fake.library1.getId());
@@ -120,7 +120,7 @@ public class InstrumentIT {
    */
   @Test
   public void clone_fromOriginal() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     test.insert(buildInstrumentMeme(fake.instrument202, "chunk"));
     Instrument subject = new Instrument();
     subject.setId(UUID.randomUUID());
@@ -208,7 +208,7 @@ public class InstrumentIT {
 
   @Test
   public void update_Name() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     Instrument subject = new Instrument();
     subject.setId(UUID.randomUUID());
     subject.setLibraryId(fake.library1.getId());
@@ -226,7 +226,7 @@ public class InstrumentIT {
 
   @Test
   public void update_addAudio() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     Instrument subject = test.insert(buildInstrument(fake.library1, InstrumentType.Drum, InstrumentState.Published, "shimmy"));
     test.insert(buildInstrumentAudio(subject, "Test audio", "fake.audio5.wav", 0.0f, 20.f, 120.0f));
 

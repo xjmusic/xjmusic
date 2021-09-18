@@ -113,7 +113,7 @@ public class ProgramSequenceBindingMemeIT {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramSequenceBindingMeme();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -135,7 +135,7 @@ public class ProgramSequenceBindingMemeIT {
    */
   @Test
   public void create_numerals() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramSequenceBindingMeme();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -157,7 +157,7 @@ public class ProgramSequenceBindingMemeIT {
    */
   @Test
   public void create_notMeme() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramSequenceBindingMeme();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -180,7 +180,7 @@ public class ProgramSequenceBindingMemeIT {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramSequenceBindingMeme();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());

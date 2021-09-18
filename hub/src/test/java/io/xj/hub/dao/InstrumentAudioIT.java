@@ -313,7 +313,7 @@ public class InstrumentAudioIT {
 
   @Test
   public void destroy_SucceedsEvenWithChildren() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
 
     try {
       testDAO.destroy(hubAccess, fake.audio1.getId());

@@ -121,7 +121,7 @@ public class ProgramSequencePatternIT {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramSequencePattern();
     subject.setId(UUID.randomUUID());
     subject.setType(ProgramSequencePatternType.Loop);
@@ -146,7 +146,7 @@ public class ProgramSequencePatternIT {
    */
   @Test
   public void cloneExisting() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var input = new ProgramSequencePattern();
     input.setId(UUID.randomUUID());
     input.setType(ProgramSequencePatternType.Loop);
@@ -174,7 +174,7 @@ public class ProgramSequencePatternIT {
    */
   @Test
   public void cloneExisting_allModifications() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var input = new ProgramSequencePattern();
     input.setProgramId(fake.program3.getId());
     input.setProgramVoiceId(programVoice3.getId());
@@ -199,7 +199,7 @@ public class ProgramSequencePatternIT {
    */
   @Test
   public void cloneExisting_noModifications() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var input = new ProgramSequencePattern();
 
     DAOCloner<ProgramSequencePattern> result = subjectDAO.clone(hubAccess, fake.program2_sequence1_pattern1.getId(), input);
@@ -219,7 +219,7 @@ public class ProgramSequencePatternIT {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramSequencePattern();
     inputData.setId(UUID.randomUUID());
     inputData.setType(ProgramSequencePatternType.Loop);

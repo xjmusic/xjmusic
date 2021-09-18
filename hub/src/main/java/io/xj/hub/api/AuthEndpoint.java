@@ -14,16 +14,14 @@ import io.xj.hub.dao.UserDAO;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -36,7 +34,7 @@ import java.util.Objects;
  Current user authentication
  */
 @Path("auth")
-public class AuthEndpoint extends HubEndpoint {
+public class AuthEndpoint extends HubJsonapiEndpoint {
   private static final Logger log = LoggerFactory.getLogger(AuthEndpoint.class);
   private final UserDAO userDAO;
   private final HubAccessControlProvider hubAccessControlProvider;

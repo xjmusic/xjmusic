@@ -12,7 +12,7 @@ import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -30,7 +30,7 @@ import java.util.UUID;
  Current user
  */
 @Path("api/1")
-public class UserEndpoint extends HubEndpoint {
+public class UserEndpoint extends HubJsonapiEndpoint {
   private final UserDAO dao;
 
   /**

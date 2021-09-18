@@ -15,10 +15,14 @@ import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentAuthorship;
 import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.InstrumentMessage;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramAuthorship;
 import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramMessage;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
@@ -69,6 +73,12 @@ public class IntegrationTestingFixtures {
   public InstrumentAudio audio8snare;
   public InstrumentAudio audio8toot;
   public InstrumentAudio instrument201_audio402;
+  public InstrumentAuthorship instrumentAuthorship1;
+  public InstrumentAuthorship instrumentAuthorship35;
+  public InstrumentAuthorship instrumentAuthorship3;
+  public InstrumentMessage instrumentMessage1;
+  public InstrumentMessage instrumentMessage35;
+  public InstrumentMessage instrumentMessage3;
   public Library library10000001;
   public Library library10000002;
   public Library library1;
@@ -88,10 +98,16 @@ public class IntegrationTestingFixtures {
   public Program program703;
   public Program program751;
   public Program program9;
+  public ProgramAuthorship programAuthorship1;
+  public ProgramAuthorship programAuthorship35;
+  public ProgramAuthorship programAuthorship3;
   public ProgramMeme program701_meme0;
   public ProgramMeme programMeme1;
   public ProgramMeme programMeme35;
   public ProgramMeme programMeme3;
+  public ProgramMessage programMessage1;
+  public ProgramMessage programMessage35;
+  public ProgramMessage programMessage3;
   public ProgramSequence program1_sequence1;
   public ProgramSequence program3_sequence1;
   public ProgramSequence programSequence35;
@@ -108,6 +124,8 @@ public class IntegrationTestingFixtures {
   public ProgramVoice program2_voice2;
   public ProgramVoiceTrack program2_voice1_track0;
   public ProgramVoiceTrack program2_voice1_track1;
+  public Template template1;
+  public TemplateBinding templateBinding1;
   public User user101;
   public User user1;
   public User user2;
@@ -115,8 +133,6 @@ public class IntegrationTestingFixtures {
   public User user4;
   public User user53;
   public User user5;
-  public Template template1;
-  public TemplateBinding templateBinding1;
   //
   public HubContentFixtures content;
 
@@ -705,6 +721,25 @@ public class IntegrationTestingFixtures {
     return programMeme;
   }
 
+  public static ProgramMessage buildProgramMessage(Program program, User user, String body) {
+    var message = new ProgramMessage();
+    message.setId(UUID.randomUUID());
+    message.setProgramId(program.getId());
+    message.setUserId(user.getId());
+    message.setBody(body);
+    return message;
+  }
+
+  public static ProgramAuthorship buildProgramAuthorship(Program program, User user, String description, Float hours) {
+    var authorship = new ProgramAuthorship();
+    authorship.setId(UUID.randomUUID());
+    authorship.setProgramId(program.getId());
+    authorship.setUserId(user.getId());
+    authorship.setDescription(description);
+    authorship.setHours(hours);
+    return authorship;
+  }
+
   public static ProgramSequence buildProgramSequence(Program program, int total, String name, float density, String key, float tempo) {
     var programSequence = new ProgramSequence();
     programSequence.setId(UUID.randomUUID());
@@ -816,4 +851,24 @@ public class IntegrationTestingFixtures {
     instrumentMeme.setName(name);
     return instrumentMeme;
   }
+
+  public static InstrumentMessage buildInstrumentMessage(Instrument instrument, User user, String body) {
+    var message = new InstrumentMessage();
+    message.setId(UUID.randomUUID());
+    message.setInstrumentId(instrument.getId());
+    message.setUserId(user.getId());
+    message.setBody(body);
+    return message;
+  }
+
+  public static InstrumentAuthorship buildInstrumentAuthorship(Instrument instrument, User user, String description, Float hours) {
+    var authorship = new InstrumentAuthorship();
+    authorship.setId(UUID.randomUUID());
+    authorship.setInstrumentId(instrument.getId());
+    authorship.setUserId(user.getId());
+    authorship.setDescription(description);
+    authorship.setHours(hours);
+    return authorship;
+  }
+
 }

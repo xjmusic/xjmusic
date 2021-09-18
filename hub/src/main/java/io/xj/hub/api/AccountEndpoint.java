@@ -4,7 +4,7 @@ package io.xj.hub.api;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.dao.AccountDAO;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
@@ -27,7 +27,7 @@ import javax.ws.rs.core.Response;
  Accounts
  */
 @Path("api/1/accounts")
-public class AccountEndpoint extends HubEndpoint {
+public class AccountEndpoint extends HubJsonapiEndpoint {
   private final AccountDAO dao;
 
   /**

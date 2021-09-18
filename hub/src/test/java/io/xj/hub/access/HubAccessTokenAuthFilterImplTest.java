@@ -8,7 +8,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.dao.DAOModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
@@ -86,7 +86,7 @@ public class HubAccessTokenAuthFilterImplTest {
   public void filter_allowedWithNoAccounts() throws Exception {
     class TestResource {
       @GET
-      @RolesAllowed(HubEndpoint.USER)
+      @RolesAllowed(HubJsonapiEndpoint.USER)
       public Response get(@Context ContainerRequestContext crc) throws JsonapiException {
         HubAccess hubAccess = HubAccess.fromContext(crc);
         return Response
@@ -148,7 +148,7 @@ public class HubAccessTokenAuthFilterImplTest {
   public void filter_nullHubAccessToken() throws Exception {
     class TestResource {
       @GET
-      @RolesAllowed(HubEndpoint.USER)
+      @RolesAllowed(HubJsonapiEndpoint.USER)
       public Response get(@Context ContainerRequestContext crc) throws JsonapiException {
         HubAccess hubAccess = HubAccess.fromContext(crc);
         return Response

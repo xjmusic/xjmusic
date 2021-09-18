@@ -4,13 +4,11 @@ package io.xj.hub.api;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.hub.HubJsonapiEndpoint;
-import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.TemplateDAO;
+import io.xj.hub.dao.InstrumentMessageDAO;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.MediaType;
-import io.xj.lib.jsonapi.PayloadDataType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -24,21 +22,20 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.util.Objects;
 
 /**
- Templates
+ InstrumentMessage endpoint
  */
-@Path("api/1")
-public class TemplateEndpoint extends HubJsonapiEndpoint {
-  private final TemplateDAO dao;
+@Path("api/1/instrument-messages")
+public class InstrumentMessageEndpoint extends HubJsonapiEndpoint {
+  private final InstrumentMessageDAO dao;
 
   /**
    Constructor
    */
   @Inject
-  public TemplateEndpoint(
-    TemplateDAO dao,
+  public InstrumentMessageEndpoint(
+    InstrumentMessageDAO dao,
     JsonapiHttpResponseProvider response,
     Config config,
     JsonapiPayloadFactory payloadFactory
@@ -48,105 +45,74 @@ public class TemplateEndpoint extends HubJsonapiEndpoint {
   }
 
   /**
-   Get all templates.
+   Create new instrumentMessage binding
 
-   @return application/json response.
-   */
-  @GET
-  @Path("templates")
-  @RolesAllowed(USER)
-  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("accountId") String accountId) {
-    if (Objects.nonNull(accountId))
-      return readMany(crc, dao(), accountId);
-    else
-      return readMany(crc, dao(), HubAccess.fromContext(crc).getAccountIds());
-  }
-
-  /**
-   Create new template
-
-   @param jsonapiPayload with which to update Template record.
+   @param jsonapiPayload with which to of InstrumentMessage Binding
    @return Response
    */
   @POST
-  @Path("templates")
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({ADMIN, ENGINEER})
+  @RolesAllowed({ARTIST})
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
     return create(crc, dao(), jsonapiPayload);
   }
 
   /**
-   Get one template.
+   Get one InstrumentMessage by id
 
    @return application/json response.
    */
   @GET
-  @Path("templates/{id}")
-  @RolesAllowed(USER)
+  @Path("{id}")
+  @RolesAllowed({ARTIST})
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
 
   /**
-   Update one template
+   Get Bindings in one instrumentMessage.
 
-   @param jsonapiPayload with which to update Template record.
+   @return application/json response.
+   */
+  @GET
+  @RolesAllowed({ARTIST})
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("instrumentId") String instrumentId) {
+    return readMany(crc, dao(), instrumentId);
+  }
+
+  /**
+   Update one instrumentMessage
+
+   @param jsonapiPayload with which to update record.
    @return Response
    */
   @PATCH
-  @Path("templates/{id}")
+  @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({ADMIN, ENGINEER})
+  @RolesAllowed(ARTIST)
   public Response update(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @PathParam("id") String id) {
     return update(crc, dao(), id, jsonapiPayload);
   }
 
   /**
-   Delete one template
+   Delete one InstrumentMessage by instrumentMessageId and bindingId
 
-   @return Response
+   @return application/json response.
    */
   @DELETE
-  @Path("templates/{id}")
-  @RolesAllowed({ADMIN, ENGINEER})
+  @Path("{id}")
+  @RolesAllowed({ARTIST})
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }
-
-  /**
-   Get all templatePlaybacks.
-
-   @return set of all templatePlaybacks
-   */
-  @GET
-  @Path("templates/playing")
-  @RolesAllowed(USER)
-  public Response readAllPlaying(
-    @Context ContainerRequestContext crc
-  ) {
-    try {
-      HubAccess hubAccess = HubAccess.fromContext(crc);
-      JsonapiPayload jsonapiPayload = new JsonapiPayload().setDataType(PayloadDataType.Many);
-
-      // add templatePlaybacks as plural data in payload
-      for (var template : dao().readAllPlaying(hubAccess))
-        jsonapiPayload.addData(payloadFactory.toPayloadObject(template));
-
-      return response.ok(jsonapiPayload);
-
-    } catch (Exception e) {
-      return response.failure(e);
-    }
-  }
-
 
   /**
    Get DAO of injector
 
    @return DAO
    */
-  private TemplateDAO dao() {
+  private InstrumentMessageDAO dao() {
     return dao;
   }
+
 }

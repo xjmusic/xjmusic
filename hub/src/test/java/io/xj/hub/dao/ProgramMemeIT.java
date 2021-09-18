@@ -104,7 +104,7 @@ public class ProgramMemeIT {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramMeme();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -123,7 +123,7 @@ public class ProgramMemeIT {
    */
   @Test
   public void create_numerals() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramMeme();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -142,7 +142,7 @@ public class ProgramMemeIT {
    */
   @Test
   public void create_notMeme() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramMeme();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -162,7 +162,7 @@ public class ProgramMemeIT {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramMeme();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());
@@ -238,7 +238,7 @@ public class ProgramMemeIT {
 
   @Test
   public void update_Name() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramMeme();
     subject.setId(fake.programMeme3.getId());
     subject.setProgramId(fake.program3.getId());
@@ -259,7 +259,7 @@ public class ProgramMemeIT {
   @Test
   public void update_Name_PreservesOriginalOwner() throws Exception {
     // John will edit a programMeme originally belonging to Jenny
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Admin");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramMeme();
     subject.setId(fake.programMeme3.getId());
     subject.setProgramId(fake.program3.getId());

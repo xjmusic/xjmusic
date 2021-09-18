@@ -115,7 +115,7 @@ public class ProgramVoiceIT {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramVoice();
     subject.setId(UUID.randomUUID());
     subject.setProgramId(fake.program3.getId());
@@ -136,7 +136,7 @@ public class ProgramVoiceIT {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramVoice();
     inputData.setId(UUID.randomUUID());
     inputData.setProgramId(fake.program3.getId());

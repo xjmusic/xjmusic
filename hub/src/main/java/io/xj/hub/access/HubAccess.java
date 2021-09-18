@@ -108,14 +108,13 @@ public class HubAccess {
 
    @param user     for access
    @param accounts for access
-   @param rolesCSV for access
    @return access control object
    */
-  public static HubAccess create(User user, List<Account> accounts, String rolesCSV) {
+  public static HubAccess create(User user, List<Account> accounts) {
     return new HubAccess()
       .setUserId(user.getId())
       .setAccountIds(Entities.idsOf(accounts))
-      .setRoleTypes(Users.userRoleTypesFromCsv(rolesCSV));
+      .setRoleTypes(Users.userRoleTypesFromCsv(user.getRoles()));
   }
 
   /**

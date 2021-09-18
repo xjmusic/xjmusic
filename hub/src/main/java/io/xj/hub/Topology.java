@@ -1,15 +1,27 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub;
 
+import io.xj.api.Chain;
+import io.xj.api.Segment;
+import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChoiceArrangement;
+import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.api.SegmentChord;
+import io.xj.api.SegmentChordVoicing;
+import io.xj.api.SegmentMeme;
+import io.xj.api.SegmentMessage;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.AccountUser;
-import io.xj.api.Chain;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentAuthorship;
 import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.InstrumentMessage;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramAuthorship;
 import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramMessage;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
@@ -19,14 +31,6 @@ import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.tables.pojos.ProgramVoiceTrack;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangement;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentChord;
-import io.xj.api.SegmentChordVoicing;
-import io.xj.api.SegmentMeme;
-import io.xj.api.SegmentMessage;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.tables.pojos.TemplatePlayback;
@@ -73,7 +77,9 @@ public enum Topology {
       .belongsTo(User.class)
       .belongsTo(Library.class)
       .hasMany(InstrumentAudio.class)
-      .hasMany(InstrumentMeme.class);
+      .hasMany(InstrumentAuthorship.class)
+      .hasMany(InstrumentMeme.class)
+      .hasMany(InstrumentMessage.class);
 
     // InstrumentAudio
     entityFactory.register(InstrumentAudio.class)
@@ -93,6 +99,21 @@ public enum Topology {
     entityFactory.register(InstrumentMeme.class)
       .createdBy(InstrumentMeme::new)
       .withAttribute("name")
+      .belongsTo(Instrument.class);
+
+    // InstrumentMessage
+    entityFactory.register(InstrumentMessage.class)
+      .createdBy(InstrumentMessage::new)
+      .withAttribute("body")
+      .belongsTo(User.class)
+      .belongsTo(Instrument.class);
+
+    // InstrumentAuthorship
+    entityFactory.register(InstrumentAuthorship.class)
+      .createdBy(InstrumentAuthorship::new)
+      .withAttribute("hours")
+      .withAttribute("description")
+      .belongsTo(User.class)
       .belongsTo(Instrument.class);
 
     // Library
@@ -129,6 +150,21 @@ public enum Topology {
     entityFactory.register(ProgramMeme.class)
       .createdBy(ProgramMeme::new)
       .withAttribute("name")
+      .belongsTo(Program.class);
+
+    // ProgramMessage
+    entityFactory.register(ProgramMessage.class)
+      .createdBy(ProgramMessage::new)
+      .withAttribute("body")
+      .belongsTo(User.class)
+      .belongsTo(Program.class);
+
+    // ProgramAuthorship
+    entityFactory.register(ProgramAuthorship.class)
+      .createdBy(ProgramAuthorship::new)
+      .withAttribute("hours")
+      .withAttribute("description")
+      .belongsTo(User.class)
       .belongsTo(Program.class);
 
     // ProgramSequence
@@ -223,7 +259,11 @@ public enum Topology {
       .withAttribute("email")
       .withAttribute("avatarUrl")
       .hasMany(UserAuth.class)
-      .hasMany(UserAuthToken.class);
+      .hasMany(UserAuthToken.class)
+      .hasMany(InstrumentMessage.class)
+      .hasMany(InstrumentAuthorship.class)
+      .hasMany(ProgramMessage.class)
+      .hasMany(ProgramAuthorship.class);
 
     // UserAuth
     entityFactory.register(UserAuth.class)

@@ -3,7 +3,7 @@ package io.xj.hub.api;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.dao.ProgramSequenceBindingDAO;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
@@ -27,7 +27,7 @@ import javax.ws.rs.core.Response;
  ProgramSequenceBinding endpoint
  */
 @Path("api/1/program-sequence-bindings")
-public class ProgramSequenceBindingEndpoint extends HubEndpoint {
+public class ProgramSequenceBindingEndpoint extends HubJsonapiEndpoint {
   private final ProgramSequenceBindingDAO dao;
 
   /**

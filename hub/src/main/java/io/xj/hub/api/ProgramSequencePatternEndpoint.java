@@ -12,7 +12,7 @@ import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadObject;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -35,7 +35,7 @@ import java.util.UUID;
  ProgramSequencePattern endpoint
  */
 @Path("api/1/program-sequence-patterns")
-public class ProgramSequencePatternEndpoint extends HubEndpoint {
+public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint {
   private final ProgramSequencePatternDAO dao;
 
   /**

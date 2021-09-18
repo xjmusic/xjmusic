@@ -9,7 +9,7 @@ import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -29,7 +29,7 @@ import java.util.Objects;
  Libraries
  */
 @Path("api/1/libraries")
-public class LibraryEndpoint extends HubEndpoint {
+public class LibraryEndpoint extends HubJsonapiEndpoint {
   private final LibraryDAO dao;
 
   /**

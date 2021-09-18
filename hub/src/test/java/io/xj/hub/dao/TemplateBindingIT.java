@@ -94,7 +94,7 @@ public class TemplateBindingIT {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var otherLibrary = buildLibrary(fake.account1, "Another");
     TemplateBinding subject = buildTemplateBinding(fake.template1, otherLibrary);
 
@@ -109,7 +109,7 @@ public class TemplateBindingIT {
   @Test
   public void create_cantBindSameContentTwice() throws Exception {
     test.insert(buildTemplateBinding(fake.template1, targetLibrary));
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplateBinding subject = buildTemplateBinding(fake.template1, targetLibrary);
 
     var e = assertThrows(DAOException.class, () -> testDAO.create(hubAccess, subject));
@@ -157,7 +157,7 @@ public class TemplateBindingIT {
 
   @Test
   public void update_notAllowed() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplateBinding subject = test.insert(buildTemplateBinding(fake.template1, targetLibrary));
 
     assertThrows(DAOException.class, () -> testDAO.update(hubAccess, subject.getId(), subject));

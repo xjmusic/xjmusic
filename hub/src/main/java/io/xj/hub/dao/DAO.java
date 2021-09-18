@@ -3,14 +3,19 @@ package io.xj.hub.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.xj.hub.access.HubAccess;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
+import io.xj.hub.tables.pojos.InstrumentAuthorship;
 import io.xj.hub.tables.pojos.InstrumentMeme;
+import io.xj.hub.tables.pojos.InstrumentMessage;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
+import io.xj.hub.tables.pojos.ProgramAuthorship;
 import io.xj.hub.tables.pojos.ProgramMeme;
+import io.xj.hub.tables.pojos.ProgramMessage;
 import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
@@ -26,14 +31,17 @@ import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.hub.tables.pojos.UserAuthToken;
-import io.xj.hub.access.HubAccess;
 import io.xj.hub.tables.records.AccountRecord;
 import io.xj.hub.tables.records.AccountUserRecord;
 import io.xj.hub.tables.records.InstrumentAudioRecord;
+import io.xj.hub.tables.records.InstrumentAuthorshipRecord;
 import io.xj.hub.tables.records.InstrumentMemeRecord;
+import io.xj.hub.tables.records.InstrumentMessageRecord;
 import io.xj.hub.tables.records.InstrumentRecord;
 import io.xj.hub.tables.records.LibraryRecord;
+import io.xj.hub.tables.records.ProgramAuthorshipRecord;
 import io.xj.hub.tables.records.ProgramMemeRecord;
+import io.xj.hub.tables.records.ProgramMessageRecord;
 import io.xj.hub.tables.records.ProgramRecord;
 import io.xj.hub.tables.records.ProgramSequenceBindingMemeRecord;
 import io.xj.hub.tables.records.ProgramSequenceBindingRecord;
@@ -72,9 +80,14 @@ import static io.xj.hub.Tables.ACCOUNT;
 import static io.xj.hub.Tables.ACCOUNT_USER;
 import static io.xj.hub.Tables.INSTRUMENT;
 import static io.xj.hub.Tables.INSTRUMENT_AUDIO;
+import static io.xj.hub.Tables.INSTRUMENT_AUTHORSHIP;
 import static io.xj.hub.Tables.INSTRUMENT_MEME;
+import static io.xj.hub.Tables.INSTRUMENT_MESSAGE;
 import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.PROGRAM;
+import static io.xj.hub.Tables.PROGRAM_AUTHORSHIP;
 import static io.xj.hub.Tables.PROGRAM_MEME;
+import static io.xj.hub.Tables.PROGRAM_MESSAGE;
 import static io.xj.hub.Tables.PROGRAM_SEQUENCE;
 import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING;
 import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
@@ -90,7 +103,6 @@ import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
 import static io.xj.hub.Tables.USER;
 import static io.xj.hub.Tables.USER_AUTH;
 import static io.xj.hub.Tables.USER_AUTH_TOKEN;
-import static io.xj.hub.tables.Program.PROGRAM;
 
 public interface DAO<E> {
   Map<Class<?>, Table<?>> tablesInSchemaConstructionOrder = ImmutableMap.<Class<?>, Table<?>>builder() // DELIBERATE ORDER
@@ -104,6 +116,8 @@ public interface DAO<E> {
     .put(TemplatePlayback.class, TEMPLATE_PLAYBACK) // after template
     .put(Library.class, LIBRARY) // after account
     .put(Program.class, PROGRAM) // after library
+    .put(ProgramAuthorship.class, PROGRAM_AUTHORSHIP)
+    .put(ProgramMessage.class, PROGRAM_MESSAGE)
     .put(ProgramMeme.class, PROGRAM_MEME)
     .put(ProgramVoice.class, PROGRAM_VOICE)
     .put(ProgramVoiceTrack.class, PROGRAM_VOICE_TRACK)
@@ -115,6 +129,8 @@ public interface DAO<E> {
     .put(ProgramSequencePattern.class, PROGRAM_SEQUENCE_PATTERN)
     .put(ProgramSequencePatternEvent.class, PROGRAM_SEQUENCE_PATTERN_EVENT)
     .put(Instrument.class, INSTRUMENT) // after library
+    .put(InstrumentAuthorship.class, INSTRUMENT_AUTHORSHIP)
+    .put(InstrumentMessage.class, INSTRUMENT_MESSAGE)
     .put(InstrumentAudio.class, INSTRUMENT_AUDIO)
     .put(InstrumentMeme.class, INSTRUMENT_MEME)
     .build();
@@ -129,6 +145,8 @@ public interface DAO<E> {
     .put(TemplatePlaybackRecord.class, TemplatePlayback.class)
     .put(LibraryRecord.class, Library.class)
     .put(ProgramRecord.class, Program.class)
+    .put(ProgramAuthorshipRecord.class, ProgramAuthorship.class)
+    .put(ProgramMessageRecord.class, ProgramMessage.class)
     .put(ProgramMemeRecord.class, ProgramMeme.class)
     .put(ProgramVoiceRecord.class, ProgramVoice.class)
     .put(ProgramVoiceTrackRecord.class, ProgramVoiceTrack.class)
@@ -140,6 +158,8 @@ public interface DAO<E> {
     .put(ProgramSequencePatternRecord.class, ProgramSequencePattern.class)
     .put(ProgramSequencePatternEventRecord.class, ProgramSequencePatternEvent.class)
     .put(InstrumentRecord.class, Instrument.class)
+    .put(InstrumentAuthorshipRecord.class, InstrumentAuthorship.class)
+    .put(InstrumentMessageRecord.class, InstrumentMessage.class)
     .put(InstrumentAudioRecord.class, InstrumentAudio.class)
     .put(InstrumentMemeRecord.class, InstrumentMeme.class)
     .build();

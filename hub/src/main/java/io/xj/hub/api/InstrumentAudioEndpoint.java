@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.InstrumentAudioDAO;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
@@ -35,7 +35,7 @@ import java.util.UUID;
  InstrumentAudio endpoint
  */
 @Path("api/1/instrument-audios")
-public class InstrumentAudioEndpoint extends HubEndpoint {
+public class InstrumentAudioEndpoint extends HubJsonapiEndpoint {
   private final InstrumentAudioDAO dao;
 
   /**

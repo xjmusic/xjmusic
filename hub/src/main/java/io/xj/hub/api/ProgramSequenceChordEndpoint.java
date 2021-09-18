@@ -8,7 +8,7 @@ import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -27,7 +27,7 @@ import javax.ws.rs.core.Response;
  ProgramSequenceChord endpoint
  */
 @Path("api/1/program-sequence-chords")
-public class ProgramSequenceChordEndpoint extends HubEndpoint {
+public class ProgramSequenceChordEndpoint extends HubJsonapiEndpoint {
   private final ProgramSequenceChordDAO dao;
 
   /**

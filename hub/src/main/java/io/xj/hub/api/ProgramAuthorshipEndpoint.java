@@ -3,7 +3,7 @@ package io.xj.hub.api;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.hub.dao.InstrumentMemeDAO;
+import io.xj.hub.dao.ProgramAuthorshipDAO;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.JsonapiPayload;
@@ -24,18 +24,18 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 /**
- InstrumentMeme endpoint
+ ProgramAuthorship endpoint
  */
-@Path("api/1/instrument-memes")
-public class InstrumentMemeEndpoint extends HubJsonapiEndpoint {
-  private final InstrumentMemeDAO dao;
+@Path("api/1/program-authorships")
+public class ProgramAuthorshipEndpoint extends HubJsonapiEndpoint {
+  private final ProgramAuthorshipDAO dao;
 
   /**
    Constructor
    */
   @Inject
-  public InstrumentMemeEndpoint(
-    InstrumentMemeDAO dao,
+  public ProgramAuthorshipEndpoint(
+    ProgramAuthorshipDAO dao,
     JsonapiHttpResponseProvider response,
     Config config,
     JsonapiPayloadFactory payloadFactory
@@ -45,9 +45,9 @@ public class InstrumentMemeEndpoint extends HubJsonapiEndpoint {
   }
 
   /**
-   Create new instrumentMeme binding
+   Create new programAuthorship binding
 
-   @param jsonapiPayload with which to of InstrumentMeme Binding
+   @param jsonapiPayload with which to of ProgramAuthorship Binding
    @return Response
    */
   @POST
@@ -58,7 +58,7 @@ public class InstrumentMemeEndpoint extends HubJsonapiEndpoint {
   }
 
   /**
-   Get one InstrumentMeme by id
+   Get one ProgramAuthorship by id
 
    @return application/json response.
    */
@@ -70,18 +70,18 @@ public class InstrumentMemeEndpoint extends HubJsonapiEndpoint {
   }
 
   /**
-   Get Bindings in one instrumentMeme.
+   Get Bindings in one programAuthorship.
 
    @return application/json response.
    */
   @GET
   @RolesAllowed({ARTIST})
-  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("instrumentId") String instrumentId) {
-    return readMany(crc, dao(), instrumentId);
+  public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programId") String programId) {
+    return readMany(crc, dao(), programId);
   }
 
   /**
-   Update one instrumentMeme
+   Update one ProgramAuthorship
 
    @param jsonapiPayload with which to update record.
    @return Response
@@ -95,7 +95,7 @@ public class InstrumentMemeEndpoint extends HubJsonapiEndpoint {
   }
 
   /**
-   Delete one InstrumentMeme by instrumentMemeId and bindingId
+   Delete one ProgramAuthorship by programAuthorshipId and bindingId
 
    @return application/json response.
    */
@@ -111,7 +111,7 @@ public class InstrumentMemeEndpoint extends HubJsonapiEndpoint {
 
    @return DAO
    */
-  private InstrumentMemeDAO dao() {
+  private ProgramAuthorshipDAO dao() {
     return dao;
   }
 

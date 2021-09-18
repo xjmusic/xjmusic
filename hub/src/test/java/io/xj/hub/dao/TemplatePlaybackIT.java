@@ -93,7 +93,7 @@ public class TemplatePlaybackIT {
 
   @Test
   public void create_alwaysTakesUserFromHubAccess() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplatePlayback subject = buildTemplatePlayback(fake.template1, fake.user3); // user will be overridden by hub access user id
 
     TemplatePlayback result = testDAO.create(hubAccess, subject);
@@ -105,7 +105,7 @@ public class TemplatePlaybackIT {
 
   @Test
   public void create_withoutSpecifyingUser() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplatePlayback subject = new TemplatePlayback();
       subject.setId(UUID.randomUUID());
       subject.setTemplateId(fake.template1.getId());
@@ -119,7 +119,7 @@ public class TemplatePlaybackIT {
 
   @Test
   public void create_cannotPlaybackProductionChain() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var template5 = test.insert(buildTemplate(fake.account1, TemplateType.Production, "test", UUID.randomUUID().toString()));
 
     TemplatePlayback subject = buildTemplatePlayback(template5, fake.user3); // user will be overridden by hub access user id
@@ -130,7 +130,7 @@ public class TemplatePlaybackIT {
 
   @Test
   public void update_notAllowed() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplatePlayback subject = test.insert(buildTemplatePlayback(fake.template1, fake.user2));
 
     assertThrows(DAOException.class, () -> testDAO.update(hubAccess, subject.getId(), subject));
@@ -138,7 +138,7 @@ public class TemplatePlaybackIT {
 
   @Test
   public void create_archivesExistingForUser() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var priorTemplate = test.insert(buildTemplate(fake.account1, TemplateType.Preview, "Prior", UUID.randomUUID().toString()));
 
     var priorPlayback = test.insert(buildTemplatePlayback(priorTemplate, fake.user2));
@@ -162,7 +162,7 @@ public class TemplatePlaybackIT {
 
   @Test
   public void readOneForUser() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
 
     var result = testDAO.readOneForUser(hubAccess, fake.user2.getId());
 

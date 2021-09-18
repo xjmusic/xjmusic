@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAOCloner;
 import io.xj.hub.dao.DAOException;
@@ -44,7 +44,7 @@ import java.util.UUID;
  Programs
  */
 @Path("api/1/programs")
-public class ProgramEndpoint extends HubEndpoint {
+public class ProgramEndpoint extends HubJsonapiEndpoint {
   private final ProgramSequenceBindingMemeDAO programSequenceBindingMemeDAO;
   private final ProgramDAO dao;
   private final ProgramMemeDAO programMemeDAO;

@@ -125,7 +125,7 @@ public class ProgramIT {
 
   @Test
   public void create() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     Program subject = new Program();
     subject.setKey("G minor 7");
     subject.setLibraryId(fake.library2.getId());
@@ -152,7 +152,7 @@ public class ProgramIT {
    */
   @Test
   public void create_asArtist() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "User,Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     Program inputData = new Program();
     inputData.setId(UUID.randomUUID());
     inputData.setKey("G minor 7");
@@ -183,7 +183,7 @@ public class ProgramIT {
    */
   @Test
   public void clone_fromOriginal() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     Program inputData = new Program();
     inputData.setLibraryId(fake.library2.getId());
     inputData.setName("cannons fifty nine");
@@ -306,7 +306,7 @@ public class ProgramIT {
    */
   @Test
   public void readManyWithChildEntities() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
 
     test.insert(buildProgramMeme(fake.program1, "cinnamon"));
     var voice = test.insert(buildProgramVoice(fake.program1, InstrumentType.Drum, "drums"));
@@ -378,7 +378,7 @@ public class ProgramIT {
 
   @Test
   public void update_Name() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     Program subject = new Program();
     subject.setId(fake.program1.getId());
     subject.setDensity(1.0f);
@@ -404,7 +404,7 @@ public class ProgramIT {
    */
   @Test
   public void update_artistCanAlwaysChangeType() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Drums"));
     Program subject = new Program();
     subject.setId(fake.program2.getId());
@@ -426,7 +426,7 @@ public class ProgramIT {
   @Test
   public void update_Name_PreservesOriginalOwner() throws Exception {
     // John will edit a program originally belonging to Jenny
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Admin");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     Program subject = new Program();
     subject.setId(fake.program1.getId());
     subject.setKey("G minor 7");
@@ -498,7 +498,7 @@ public class ProgramIT {
    */
   @Test
   public void destroy_succeedsWithInnerEntitiesButNoMemes() throws Exception {
-    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1), "Artist");
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     Program program = test.insert(buildProgram(fake.library1, ProgramType.Main, ProgramState.Published, "fonds", "C#", 120.0f, 0.6f));
     var programSequence = test.insert(buildProgramSequence(program, 4, "Ants", 0.583f, "D minor", 120.0f));
     test.insert(buildProgramSequenceBinding(programSequence, 0));

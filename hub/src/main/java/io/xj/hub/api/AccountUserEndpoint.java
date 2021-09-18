@@ -8,7 +8,7 @@ import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
  Account record
  */
 @Path("api/1/account-users")
-public class AccountUserEndpoint extends HubEndpoint {
+public class AccountUserEndpoint extends HubJsonapiEndpoint {
   private AccountUserDAO dao;
 
   /**

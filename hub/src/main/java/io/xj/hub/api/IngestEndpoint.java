@@ -3,7 +3,7 @@ package io.xj.hub.api;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.hub.HubEndpoint;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
@@ -26,7 +26,7 @@ import java.util.UUID;
  [#154234716] Architect wants to ingest library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  */
 @Path("api/1/ingest")
-public class IngestEndpoint extends HubEndpoint {
+public class IngestEndpoint extends HubJsonapiEndpoint {
   private static final Logger LOG = LoggerFactory.getLogger(IngestEndpoint.class);
   private final HubIngestFactory ingestFactory;
 

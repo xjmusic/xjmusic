@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  A JAX-RS resource
  */
-public class HubEndpoint {
+public class HubJsonapiEndpoint {
   public static final String ADMIN = "Admin";
   public static final String ARTIST = "Artist";
   //  public static final String BANNED = "Banned";
@@ -37,7 +37,7 @@ public class HubEndpoint {
    Constructor
    */
   @Inject
-  public HubEndpoint(
+  public HubJsonapiEndpoint(
     JsonapiHttpResponseProvider response,
     Config config,
     JsonapiPayloadFactory payloadFactory
