@@ -45,8 +45,6 @@ flyway {
 
 dependencies {
   implementation project(":lib")
-  implementation project(":spec")
-  testFixturesImplementation(project(":spec"))
   testFixturesImplementation(project(":lib"))
   //
   // jOOq vendor

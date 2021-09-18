@@ -8,7 +8,7 @@ import com.typesafe.config.Config;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
 import io.xj.api.ChainType;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.Environment;
@@ -18,6 +18,7 @@ import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.json.JsonModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.nexus.NexusTestConfiguration;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.dao.ChainDAO;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.persistence.NexusEntityStore;
@@ -73,8 +74,8 @@ public class NexusWorkChainManagerImplTest {
         }
       }));
     var entityFactory = injector.getInstance(EntityFactory.class);
-    Topology.buildHubApiTopology(entityFactory);
-    Topology.buildNexusApiTopology(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store
     test = injector.getInstance(NexusEntityStore.class);

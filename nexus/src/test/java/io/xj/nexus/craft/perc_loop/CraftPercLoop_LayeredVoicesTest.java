@@ -16,7 +16,7 @@ import io.xj.api.Segment;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
 import io.xj.hub.IntegrationTestingFixtures;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
@@ -26,6 +26,7 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
@@ -78,8 +79,8 @@ public class CraftPercLoop_LayeredVoicesTest {
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     craftFactory = injector.getInstance(CraftFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
-    Topology.buildHubApiTopology(entityFactory);
-    Topology.buildNexusApiTopology(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     NexusEntityStore store = injector.getInstance(NexusEntityStore.class);

@@ -1,19 +1,20 @@
 //  Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
 plugins {
   id 'application'
+  id 'com.google.cloud.tools.jib'
+  id 'de.undercouch.download'
   id 'distribution'
   id 'jacoco'
   id 'java'
   id 'java-test-fixtures'
-  //
-  id "de.undercouch.download"
-  id "org.flywaydb.flyway"
-  id "org.openapi.generator"
-  id "org.sonarqube"
-  id 'com.google.cloud.tools.jib'
   id 'nu.studer.jooq'
   id 'org.ajoberstar.grgit'
+  id 'org.flywaydb.flyway'
+  id 'org.openapi.generator'
+  id 'org.sonarqube'
 }
 
 group = 'io.xj'
@@ -46,9 +47,7 @@ repositories {
 dependencies {
   implementation project(":hub")
   implementation project(":lib")
-  implementation project(":spec")
   testImplementation(testFixtures(project(":hub")))
-  testFixturesImplementation(project(":spec"))
   testFixturesImplementation(project(":lib"))
   testFixturesImplementation(project(":hub"))
   testFixturesImplementation(testFixtures(project(":hub")))
@@ -71,7 +70,9 @@ dependencies {
   implementation 'commons-codec:commons-codec:1.10'
   implementation 'commons-io:commons-io:2.6'
   implementation 'javax.activation:activation:1.1'
+  implementation 'javax.annotation:javax.annotation-api:1.3.1'
   implementation 'javax.cache:cache-api:1.1.1'
+  implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation 'javax.ws.rs:javax.ws.rs-api:2.1.1'
   implementation 'me.xdrop:fuzzywuzzy:1.1.9'
   implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
@@ -153,3 +154,33 @@ jib {
   from.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base/nexus:v0.4'
   container.jvmFlags = ["-Djava.library.path=/usr/lib/x86_64-linux-gnu"]
 }
+
+task generateNexusModels(type: GenerateTask) {
+  generatorName = "jaxrs-spec"
+  inputSpec = "${projectDir.absolutePath}/spec.yaml".toString()
+  outputDir = "${buildDir.absolutePath}/openapi-codegen".toString()
+  apiPackage = "io.xj.api.chain"
+  invokerPackage = "io.xj.api"
+  modelPackage = "io.xj.api"
+  configOptions = [
+    validateSpec         : "false",
+    dateLibrary          : "java14",
+    useGenericResponse   : "true",
+    openApiNullable      : "true",
+    useSwaggerAnnotations: "false"
+  ]
+}
+
+sourceSets {
+  main {
+    java {
+      srcDir "${buildDir.absolutePath}/openapi-codegen/src/gen/java"
+    }
+    resources {
+      srcDir "${buildDir.absolutePath}/openapi-codegen/src/gen/resources"
+    }
+  }
+}
+
+// Compilation depends on generating all specs
+compileJava.dependsOn tasks.generateNexusModels

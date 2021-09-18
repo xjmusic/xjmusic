@@ -55,7 +55,7 @@ public class HubIntegrationTestProviderImpl<O> extends DAOImpl<O> implements Hub
     this.hubAccessControlProvider = hubAccessControlProvider;
 
     // Build the Hub REST API payload topology
-    Topology.buildHubApiTopology(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
 
     // Requires that a configuration has been bound
     config.getString("app.name");

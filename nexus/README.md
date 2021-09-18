@@ -3,9 +3,9 @@
 | [![dev](https://github.com/xjmusic/api-spec/actions/workflows/validate.yml/badge.svg?branch=dev)](https://github.com/xjmusic/api-spec/actions/workflows/validate.yml) | 
 
 
-# api-spec
+# Nexus
 
-OpenAPI specification for the XJ Music API.
+There is an OpenAPI spec for the Nexus entities
 
 ## Swagger CLI
 

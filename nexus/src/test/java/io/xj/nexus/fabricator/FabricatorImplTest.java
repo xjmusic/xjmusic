@@ -16,7 +16,7 @@ import io.xj.api.SegmentChoiceArrangement;
 import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramSequencePatternType;
 import io.xj.hub.enums.ProgramType;
@@ -32,6 +32,7 @@ import io.xj.lib.music.Tuning;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.dao.ChainDAO;
 import io.xj.nexus.dao.NexusDAOModule;
 import io.xj.nexus.dao.SegmentDAO;
@@ -132,8 +133,8 @@ public class FabricatorImplTest {
         }
       }));
     var entityFactory = injector.getInstance(EntityFactory.class);
-    Topology.buildHubApiTopology(entityFactory);
-    Topology.buildNexusApiTopology(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     store = injector.getInstance(NexusEntityStore.class);

@@ -15,13 +15,14 @@ import io.xj.api.Segment;
 import io.xj.api.SegmentMeme;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
@@ -73,8 +74,8 @@ public class CraftSegmentPatternMemeTest {
       CraftFactory craftFactory = injector.getInstance(CraftFactory.class);
       FabricatorFactory fabricatorFactory = injector.getInstance(FabricatorFactory.class);
       var entityFactory = injector.getInstance(EntityFactory.class);
-      Topology.buildHubApiTopology(entityFactory);
-      Topology.buildNexusApiTopology(entityFactory);
+      HubTopology.buildHubApiTopology(entityFactory);
+      NexusTopology.buildNexusApiTopology(entityFactory);
 
       // Manipulate the underlying entity store; reset before each test
       NexusEntityStore store = injector.getInstance(NexusEntityStore.class);

@@ -10,7 +10,7 @@ import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiModule;
 import org.junit.Before;
@@ -52,7 +52,7 @@ public class ConfigEndpointTest {
         bind(ApiUrlProvider.class).toInstance(apiUrlProvider);
       }
     }));
-    Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
+    HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     subject = injector.getInstance(ConfigEndpoint.class);
   }
 

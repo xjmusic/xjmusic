@@ -12,13 +12,14 @@ import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;
 import io.xj.nexus.dao.exception.DAOValidationException;
@@ -74,8 +75,8 @@ public class SegmentDAOImplTest {
         }
       }));
     entityFactory = injector.getInstance(EntityFactory.class);
-    Topology.buildHubApiTopology(entityFactory);
-    Topology.buildNexusApiTopology(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store
     store = injector.getInstance(NexusEntityStore.class);

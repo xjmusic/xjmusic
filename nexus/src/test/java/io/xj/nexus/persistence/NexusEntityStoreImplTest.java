@@ -13,7 +13,7 @@ import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Library;
 import io.xj.lib.app.Environment;
@@ -21,6 +21,7 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTestConfiguration;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.dao.Segments;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,8 +61,8 @@ public class NexusEntityStoreImplTest {
         }
       }));
     entityFactory = injector.getInstance(EntityFactory.class);
-    Topology.buildHubApiTopology(entityFactory);
-    Topology.buildNexusApiTopology(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Instantiate the test subject and put the payload
     subject = injector.getInstance(NexusEntityStore.class);

@@ -11,7 +11,7 @@ import io.xj.api.ChainState;
 import io.xj.api.ChainType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentState;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
@@ -27,6 +27,7 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTestConfiguration;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
@@ -86,8 +87,8 @@ public class MacroFromOverlappingMemeSequencesTest {
       }));
     FabricatorFactory fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
-    Topology.buildHubApiTopology(entityFactory);
-    Topology.buildNexusApiTopology(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     NexusEntityStore store = injector.getInstance(NexusEntityStore.class);

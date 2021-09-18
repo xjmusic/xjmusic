@@ -15,13 +15,14 @@ import io.xj.api.SegmentChoiceArrangementPick;
 import io.xj.api.SegmentChord;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.dao.Segments;
 import io.xj.nexus.fabricator.Fabricator;
@@ -77,8 +78,8 @@ public class CraftDetailProgramVoiceNextMainTest {
     fabricatorFactory = injector.getInstance(FabricatorFactory.class);
     craftFactory = injector.getInstance(CraftFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
-    Topology.buildHubApiTopology(entityFactory);
-    Topology.buildNexusApiTopology(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     store = injector.getInstance(NexusEntityStore.class);

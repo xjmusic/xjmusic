@@ -8,7 +8,7 @@ import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -87,8 +87,8 @@ public class NexusApp extends App {
 
     // Setup Entity topology
     entityFactory = injector.getInstance(EntityFactory.class);
-    Topology.buildHubApiTopology(entityFactory);
-    Topology.buildNexusApiTopology(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Register JAX-RS filter for access log only registers if file succeeds to open for writing
     String pathToWriteAccessLog = 0 < env.getAccessLogFilename().length() ?

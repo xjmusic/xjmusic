@@ -46,8 +46,6 @@ repositories {
 }
 
 dependencies {
-  implementation project(":spec")
-  //
   implementation 'ch.qos.logback:logback-classic:1.2.3'
   implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.7'
   implementation 'com.amazonaws:aws-java-sdk:1.11.119'

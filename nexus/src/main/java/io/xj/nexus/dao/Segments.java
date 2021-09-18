@@ -5,9 +5,12 @@ package io.xj.nexus.dao;
 import com.google.common.base.Strings;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
+import io.xj.api.SegmentChordVoicing;
 import io.xj.api.SegmentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
+import io.xj.lib.music.Note;
+import io.xj.lib.util.CSV;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 
 import javax.annotation.Nullable;
@@ -119,5 +122,13 @@ public enum Segments {
    */
   public static String getStorageKey(String segmentKey, String extension) {
     return String.format("%s%s%s", segmentKey, EXTENSION_SEPARATOR, extension);
+  }
+
+  public static boolean containsAnyValidNotes(String notes) {
+    return CSV.split(notes).stream().anyMatch(Note::isValid);
+  }
+
+  public static boolean containsAnyValidNotes(SegmentChordVoicing voicing) {
+    return containsAnyValidNotes(voicing.getNotes());
   }
 }

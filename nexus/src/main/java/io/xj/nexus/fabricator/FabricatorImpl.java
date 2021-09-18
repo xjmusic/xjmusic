@@ -54,7 +54,6 @@ import io.xj.lib.music.Key;
 import io.xj.lib.music.Note;
 import io.xj.lib.music.NoteRange;
 import io.xj.lib.music.PitchClass;
-import io.xj.lib.music.Voicings;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Text;
@@ -719,7 +718,7 @@ class FabricatorImpl implements Fabricator {
     if (!voicingNoteRange.containsKey(type)) {
       voicingNoteRange.put(type, new NoteRange(workbench.getSegmentChordVoicings()
         .stream()
-        .filter(Voicings::containsAnyValidNotes)
+        .filter(Segments::containsAnyValidNotes)
         .filter(segmentChordVoicing -> Objects.equals(segmentChordVoicing.getType(), type.toString()))
         .flatMap(segmentChordVoicing -> getNotes(segmentChordVoicing).stream())
         .collect(Collectors.toList())));
@@ -862,7 +861,7 @@ class FabricatorImpl implements Fabricator {
   public Optional<SegmentChordVoicing> getVoicing(SegmentChord chord, InstrumentType type) {
     Collection<SegmentChordVoicing> voicings = workbench.getSegmentChordVoicings();
     return voicings.stream()
-      .filter(Voicings::containsAnyValidNotes)
+      .filter(Segments::containsAnyValidNotes)
       .filter(voicing -> Objects.equals(type.toString(), voicing.getType()))
       .filter(voicing -> Objects.equals(chord.getId(), voicing.getSegmentChordId()))
       .findAny();

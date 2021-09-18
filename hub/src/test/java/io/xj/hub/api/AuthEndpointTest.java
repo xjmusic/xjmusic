@@ -9,7 +9,7 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.hub.HubTestConfiguration;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.dao.DAOModule;
@@ -54,7 +54,7 @@ public class AuthEndpointTest {
         bind(Environment.class).toInstance(env);
       }
     }));
-    Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
+    HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     Account account1 = buildAccount("Testing");
     hubAccess = HubAccess.create(ImmutableList.of(account1), "User,Artist");
     subject = injector.getInstance(AuthEndpoint.class);

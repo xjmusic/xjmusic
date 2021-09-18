@@ -1,19 +1,17 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.api;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import io.xj.api.ChainState;
-import io.xj.hub.enums.TemplateType;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramSequencePatternType;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.api.SegmentState;
-import io.xj.api.SegmentType;
-import io.xj.hub.HubJsonapiEndpoint;
+import io.xj.hub.enums.TemplateType;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
@@ -27,6 +25,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,6 +33,32 @@ import java.util.Map;
  */
 @Path("config")
 public class ConfigEndpoint extends HubJsonapiEndpoint {
+  private static final List<String> CHAIN_STATES = ImmutableList.of(
+    "Draft",
+    "Ready",
+    "Fabricate",
+    "Complete",
+    "Failed"
+  );
+  private static final List<String> CHAIN_TYPES = ImmutableList.of(
+    "Preview",
+    "Production"
+  );
+  private static final List<String> SEGMENT_STATES = ImmutableList.of(
+    "Planned",
+    "Crafting",
+    "Crafted",
+    "Dubbing",
+    "Dubbed",
+    "Failed"
+  );
+  private static final List<String> SEGMENT_TYPES = ImmutableList.of(
+    "Pending",
+    "Initial",
+    "Continue",
+    "NextMain",
+    "NextMacro"
+  );
   private final Map<String, Object> configMap;
 
   /**
@@ -54,8 +79,8 @@ public class ConfigEndpoint extends HubJsonapiEndpoint {
       .put("apiBaseUrl", apiUrlProvider.getAppBaseUrl())
       .put("audioBaseUrl", apiUrlProvider.getAudioBaseUrl())
       .put("baseUrl", apiUrlProvider.getAppBaseUrl())
-      .put("chainStates", ChainState.values())
-      .put("templateTypes", TemplateType.values())
+      .put("chainStates", CHAIN_STATES)
+      .put("chainTypes", CHAIN_TYPES)
       .put("choiceTypes", ProgramType.values())
       .put("defaultInstrumentConfig", defaultInstrumentConfig)
       .put("defaultProgramConfig", defaultProgramConfig)
@@ -67,8 +92,9 @@ public class ConfigEndpoint extends HubJsonapiEndpoint {
       .put("programStates", ProgramState.values())
       .put("programTypes", ProgramType.values())
       .put("segmentBaseUrl", apiUrlProvider.getSegmentBaseUrl())
-      .put("segmentStates", SegmentState.values())
-      .put("segmentTypes", SegmentType.values())
+      .put("segmentStates", SEGMENT_STATES)
+      .put("segmentTypes", SEGMENT_TYPES)
+      .put("templateTypes", TemplateType.values())
       .put("voiceTypes", InstrumentType.values())
       .build();
   }

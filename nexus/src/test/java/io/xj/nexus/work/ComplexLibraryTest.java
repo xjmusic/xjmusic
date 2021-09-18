@@ -9,7 +9,7 @@ import com.typesafe.config.ConfigValueFactory;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
 import io.xj.api.ChainType;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreProvider;
@@ -17,6 +17,7 @@ import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.NexusApp;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
+import io.xj.nexus.NexusTopology;
 import io.xj.nexus.dao.SegmentDAO;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
@@ -88,8 +89,8 @@ public class ComplexLibraryTest {
       }));
     segmentDAO = injector.getInstance(SegmentDAO.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
-    Topology.buildHubApiTopology(entityFactory);
-    Topology.buildNexusApiTopology(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Manipulate the underlying entity store; reset before each test
     NexusEntityStore test = injector.getInstance(NexusEntityStore.class);

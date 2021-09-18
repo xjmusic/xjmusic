@@ -10,7 +10,7 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.hub.HubTestConfiguration;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.dao.DAOException;
@@ -80,7 +80,7 @@ public class TemplatePlaybackEndpointTest {
       }
     }));
 
-    Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
+    HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     Account account1 = buildAccount("Testing");
     user1 = buildUser("Joe", "joe@email.com", "joe.jpg", "User,Artist");
     hubAccess = HubAccess.create(user1, ImmutableList.of(account1));

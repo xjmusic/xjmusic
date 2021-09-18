@@ -3,21 +3,16 @@
 package io.xj.hub.dao;
 
 import com.google.common.base.Strings;
-import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.enums.ContentBindingType;
-import io.xj.api.Segment;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
 
 import javax.annotation.Nullable;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
 
 /**
  Utilities for working with templates

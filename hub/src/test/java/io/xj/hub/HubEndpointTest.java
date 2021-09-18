@@ -61,7 +61,7 @@ public class HubEndpointTest {
     }));
     payloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
-    Topology.buildHubApiTopology(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
     subject = injector.getInstance(HubJsonapiEndpoint.class);
   }
 

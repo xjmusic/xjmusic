@@ -5,7 +5,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.typesafe.config.Config;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.hub.Topology;
 import io.xj.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,7 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
     this.store = nexusEntityStore;
 
     // Build the Nexus REST API payload topology
-    Topology.buildNexusApiTopology(entityFactory);
+    NexusTopology.buildNexusApiTopology(entityFactory);
 
     // Requires that a configuration has been bound
     config.getString("app.name");

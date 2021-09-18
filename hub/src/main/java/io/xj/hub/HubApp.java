@@ -122,7 +122,7 @@ public class HubApp extends App {
     log.info("{} configuration:\n{}", getName(), Text.toReport(config));
 
     // Setup Entity topology
-    Topology.buildHubApiTopology(entityFactory);
+    HubTopology.buildHubApiTopology(entityFactory);
 
     // Register JAX-RS filter for access log only registers if file succeeds to open for writing
     String pathToWriteAccessLog = 0 < env.getAccessLogFilename().length() ?

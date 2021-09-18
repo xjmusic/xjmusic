@@ -10,7 +10,7 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.typesafe.config.Config;
 import io.xj.hub.HubTestConfiguration;
-import io.xj.hub.Topology;
+import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.dao.DAOException;
@@ -76,7 +76,7 @@ public class ProgramEndpointTest {
       }
     }));
 
-    Topology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
+    HubTopology.buildHubApiTopology(injector.getInstance(EntityFactory.class));
     var account1 = buildAccount("Testing");
     hubAccess = HubAccess.create(ImmutableList.of(account1), "User,Artist");
     library25 = buildLibrary(account1, "Test 25");

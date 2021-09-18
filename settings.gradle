@@ -3,6 +3,5 @@
 rootProject.name = 'services'
 include(':lib')
 include(':hub')
-include(':spec')
 include(':nexus')
 
