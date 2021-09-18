@@ -39,18 +39,3 @@ output "aws_availability_zones" {
   description = "All AWS availability zones based on current region"
   value       = data.aws_availability_zones.available.names
 }
-/*
-
-output "xj_prod_hub_lb" {
-  description = "Hostname of the production lab hub load balancer"
-  //noinspection HILUnresolvedReference
-  value = kubernetes_service.xj-prod-lab-hub.status.0.load_balancer.0
-}
-
-*/
-output "xj_prod_nexus_lb" {
-  description = "Hostname of the production lab nexus load balancer"
-  //noinspection HILUnresolvedReference
-  value = kubernetes_service.xj-prod-lab-nexus.status.0.load_balancer.0
-}
-

@@ -19,6 +19,15 @@ resource "aws_ecr_repository" "xj-nexus" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository
+resource "aws_ecr_repository" "xj-ship" {
+  name = "xj/ship"
+
+  image_scanning_configuration {
+    scan_on_push = false
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository
 resource "aws_ecr_repository" "xj-dev-hub" {
   name = "xj/dev/hub"
 
@@ -37,8 +46,17 @@ resource "aws_ecr_repository" "xj-dev-nexus" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository
-resource "aws_ecr_repository" "xj-base-nexus" {
-  name = "xj/base/nexus"
+resource "aws_ecr_repository" "xj-dev-ship" {
+  name = "xj/dev/ship"
+
+  image_scanning_configuration {
+    scan_on_push = false
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository
+resource "aws_ecr_repository" "xj-base" {
+  name = "xj/base"
 
   image_scanning_configuration {
     scan_on_push = false

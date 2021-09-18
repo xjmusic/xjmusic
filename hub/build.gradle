@@ -217,6 +217,6 @@ allprojects {
 
 jib {
   to.image = gitBranch() == 'main' ? '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/hub' : '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/dev/hub'
-  from.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base/nexus:v0.4' // future hub will have its own base image
+  from.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base:main'
   container.jvmFlags = ["-Djava.library.path=/usr/lib/x86_64-linux-gnu"]
 }
