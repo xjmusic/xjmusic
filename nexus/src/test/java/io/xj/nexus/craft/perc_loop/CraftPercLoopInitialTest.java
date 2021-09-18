@@ -23,7 +23,6 @@ import io.xj.nexus.Segments;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
@@ -106,7 +105,7 @@ public class CraftPercLoopInitialTest {
       0.55,
       130.0,
       "chains-1-segments-9f7s89d8a7892.wav",
-      "aac"));
+      "ogg"));
     store.put(buildSegmentChoice(
       segment6,
       Segments.DELTA_UNLIMITED,
@@ -133,7 +132,7 @@ public class CraftPercLoopInitialTest {
 
   @Test
   public void craftPercLoopInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6);
 
     craftFactory.percLoop(fabricator).doWork();
 

@@ -3,15 +3,8 @@
 package io.xj.ship.persistence;
 
 import io.xj.api.Chain;
-import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.api.Segment;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.nexus.NexusException;
-import io.xj.nexus.Segments;
-import io.xj.nexus.dao.exception.DAOExistenceException;
-import io.xj.nexus.dao.exception.DAOFatalException;
-import io.xj.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.ship.ShipException;
 
 import java.util.Collection;

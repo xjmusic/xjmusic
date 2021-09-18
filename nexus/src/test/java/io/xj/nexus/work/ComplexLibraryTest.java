@@ -18,10 +18,10 @@ import io.xj.nexus.NexusApp;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.dao.SegmentDAO;
-import io.xj.nexus.dao.exception.DAOExistenceException;
-import io.xj.nexus.dao.exception.DAOFatalException;
-import io.xj.nexus.dao.exception.DAOPrivilegeException;
+import io.xj.nexus.service.SegmentService;
+import io.xj.nexus.service.exception.ServiceExistenceException;
+import io.xj.nexus.service.exception.ServiceFatalException;
+import io.xj.nexus.service.exception.ServicePrivilegeException;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
@@ -66,7 +66,7 @@ public class ComplexLibraryTest {
   private AppWorkThread workThread;
   private Chain chain1;
   private NexusApp app;
-  private SegmentDAO segmentDAO;
+  private SegmentService segmentService;
 
   @Before
   public void setUp() throws Exception {
@@ -87,7 +87,7 @@ public class ComplexLibraryTest {
           bind(TelemetryProvider.class).toInstance(telemetryProvider);
         }
       }));
-    segmentDAO = injector.getInstance(SegmentDAO.class);
+    segmentService = injector.getInstance(SegmentService.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
@@ -163,10 +163,10 @@ public class ComplexLibraryTest {
    */
   private boolean hasSegmentsDubbedPastMinimumOffset(UUID chainId) {
     try {
-      return segmentDAO.readLastDubbedSegment(HubClientAccess.internal(), chainId)
+      return segmentService.readLastDubbedSegment(HubClientAccess.internal(), chainId)
         .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getOffset()).isPresent();
 
-    } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException ignored) {
+    } catch (ServicePrivilegeException | ServiceFatalException | ServiceExistenceException ignored) {
       return false;
     }
   }

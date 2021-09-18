@@ -7,7 +7,7 @@
       "type": "Production",
       "startAt": "2019-07-23T01:04:12.194172Z",
       "stopAt": null,
-      "embedKey": "coolambience"
+      "shipKey": "coolambience"
     },
     "relationships": {
       "account": {

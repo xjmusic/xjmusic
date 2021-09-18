@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.nexus.dao;
+package io.xj.nexus.service;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -15,7 +15,6 @@ import io.xj.api.Segment;
 import io.xj.api.SegmentState;
 import io.xj.api.SegmentType;
 import io.xj.hub.enums.TemplateType;
-import io.xj.hub.enums.UserRoleType;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.MessageType;
@@ -26,12 +25,11 @@ import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
 import io.xj.nexus.Chains;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.dao.exception.DAOExistenceException;
-import io.xj.nexus.dao.exception.DAOFatalException;
-import io.xj.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.nexus.dao.exception.DAOValidationException;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.service.exception.ServiceExistenceException;
+import io.xj.nexus.service.exception.ServiceFatalException;
+import io.xj.nexus.service.exception.ServicePrivilegeException;
+import io.xj.nexus.service.exception.ServiceValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,11 +56,11 @@ import static java.time.temporal.ChronoUnit.HOURS;
  Also note buildNextSegmentOrComplete(...) is one singular central implementation
  of the logic around adding segments to chain and updating chain state to complete.
  <p>
- Nexus DAOs are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
+ Nexus Services are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
  */
 @Singleton
-public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
-  private static final Logger LOG = LoggerFactory.getLogger(ChainDAOImpl.class);
+public class ChainServiceImpl extends ServiceImpl<Chain> implements ChainService {
+  private static final Logger LOG = LoggerFactory.getLogger(ChainServiceImpl.class);
   private static final Set<ChainState> NOTIFY_ON_CHAIN_STATES = ImmutableSet.of(
     ChainState.FABRICATE,
     ChainState.FAILED
@@ -72,45 +70,43 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
     ChainState.COMPLETE,
     ChainState.FAILED
   );
-  private final SegmentDAO segmentDAO;
+  private final SegmentService segmentService;
   private final int previewLengthMaxHours;
   private final NotificationProvider pubSub;
-  private final int previewEmbedKeyLength;
+  private final int previewShipKeyLength;
   private final SecureRandom secureRandom = new SecureRandom();
 
   // [#176375238] Chains should N seconds into the future
   private final int chainStartInFutureSeconds;
 
   @Inject
-  public ChainDAOImpl(
+  public ChainServiceImpl(
     Config config,
     EntityFactory entityFactory,
     NexusEntityStore nexusEntityStore,
-    SegmentDAO segmentDAO,
+    SegmentService segmentService,
     NotificationProvider notificationProvider
   ) {
     super(entityFactory, nexusEntityStore);
-    this.segmentDAO = segmentDAO;
+    this.segmentService = segmentService;
     this.pubSub = notificationProvider;
 
     previewLengthMaxHours = config.getInt("fabrication.previewLengthMaxHours");
-    previewEmbedKeyLength = config.getInt("fabrication.previewEmbedKeyLength");
+    previewShipKeyLength = config.getInt("fabrication.previewShipKeyLength");
     chainStartInFutureSeconds = config.getInt("nexus.chainStartInFutureSeconds");
   }
 
   @Override
   public Chain bootstrap(
-    HubClientAccess access,
     TemplateType type,
     Chain entity
-  ) throws DAOFatalException, DAOPrivilegeException, DAOValidationException {
+  ) throws ServiceFatalException, ServicePrivilegeException, ServiceValidationException {
     try {
 
       // Chains are always bootstrapped in FABRICATED state and PRODUCTION type
       entity.setState(ChainState.FABRICATE);
       entity.setStartAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
-      requireAccount(access, entity.getAccountId(), UserRoleType.Engineer);
-      requireUniqueEmbedKey(access, entity);
+      requireUniqueShipKey(entity);
       require(String.format("%s-type", type.toString()), type.toString().equals(entity.getType().toString()));
 
       // Give model a fresh unique ID and Validate
@@ -121,15 +117,15 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       return store.put(entity);
 
     } catch (ValueException e) {
-      throw new DAOValidationException(e);
+      throw new ServiceValidationException(e);
 
     } catch (NexusException e) {
-      throw new DAOFatalException(e);
+      throw new ServiceFatalException(e);
     }
   }
 
   @Override
-  public Chain create(HubClientAccess access, Chain entity) throws DAOFatalException, DAOPrivilegeException, DAOValidationException {
+  public Chain create(Chain entity) throws ServiceFatalException, ServicePrivilegeException, ServiceValidationException {
     try {
 
       // [#126] Chains are always created in DRAFT state
@@ -141,24 +137,18 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
 
       // Further logic based on Chain Type
       switch (entity.getType()) {
-        case PRODUCTION -> {
-          requireAccount(access, entity.getAccountId(), UserRoleType.Engineer);
-          requireUniqueEmbedKey(access, entity);
-        }
-        case PREVIEW -> {
-          requireAccount(access, entity.getAccountId(), UserRoleType.Artist);
-          entity.setEmbedKey(generatePreviewEmbedKey());
-        }
+        case PRODUCTION -> requireUniqueShipKey(entity);
+        case PREVIEW -> entity.setShipKey(generatePreviewShipKey());
       }
 
       // store and return sanitized payload comprising only the valid Chain
       return store.put(entity);
 
     } catch (ValueException e) {
-      throw new DAOValidationException(e);
+      throw new ServiceValidationException(e);
 
     } catch (NexusException e) {
-      throw new DAOFatalException(e);
+      throw new ServiceFatalException(e);
     }
   }
 
@@ -170,123 +160,117 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       chain.setType(ChainType.PREVIEW);
     if (Value.isEmpty(chain.getState()))
       chain.setState(ChainState.DRAFT);
-    if (Value.isSet(chain.getEmbedKey()))
-      chain.setEmbedKey(Text.toEmbedKey(chain.getEmbedKey()));
+    if (Value.isSet(chain.getShipKey()))
+      chain.setShipKey(Text.toShipKey(chain.getShipKey()));
   }
 
   @Override
-  public Chain readOne(HubClientAccess access, UUID id) throws DAOPrivilegeException, DAOExistenceException, DAOFatalException {
+  public Chain readOne(UUID id) throws ServiceExistenceException, ServiceFatalException {
     try {
-      var chain = store.getChain(id)
-        .orElseThrow(() -> new DAOExistenceException(Chain.class, id.toString()));
-      requireAccount(access, chain);
-      return chain;
+      return store.getChain(id)
+        .orElseThrow(() -> new ServiceExistenceException(Chain.class, id.toString()));
 
     } catch (NexusException e) {
-      throw new DAOFatalException(e);
+      throw new ServiceFatalException(e);
     }
   }
 
   @Override
-  public Chain readOneByEmbedKey(HubClientAccess access, String rawEmbedKey) throws DAOExistenceException, DAOFatalException {
+  public Chain readOneByShipKey(String rawShipKey) throws ServiceExistenceException, ServiceFatalException {
     try {
-      String key = Text.toEmbedKey(rawEmbedKey);
+      String key = Text.toShipKey(rawShipKey);
       return store.getAllChains().stream()
-        .filter(c -> Objects.equals(key, c.getEmbedKey()))
+        .filter(c -> Objects.equals(key, c.getShipKey()))
         .findFirst()
-        .orElseThrow(() -> new DAOExistenceException(Chain.class, rawEmbedKey));
+        .orElseThrow(() -> new ServiceExistenceException(Chain.class, rawShipKey));
 
     } catch (NexusException e) {
-      throw new DAOFatalException(e);
+      throw new ServiceFatalException(e);
     }
   }
 
   @Override
-  public Collection<Chain> readMany(HubClientAccess access, Collection<UUID> accountIds) throws DAOFatalException, DAOPrivilegeException {
+  public Collection<Chain> readMany(Collection<UUID> accountIds) throws ServiceFatalException {
     try {
-      for (UUID accountId : accountIds) requireAccount(access, accountId);
       return store.getAllChains().stream()
         .filter(chain -> accountIds.contains(chain.getAccountId()))
         .collect(Collectors.toList());
 
     } catch (NexusException e) {
-      throw new DAOFatalException(e);
+      throw new ServiceFatalException(e);
     }
   }
 
   @Override
-  public Collection<Chain> readManyInState(HubClientAccess access, ChainState state) throws DAOFatalException, DAOPrivilegeException {
+  public Collection<Chain> readManyInState(ChainState state) throws ServiceFatalException {
     try {
-      Collection<Chain> chains = store.getAllChains().stream()
+      return store.getAllChains().stream()
         .filter(chain -> state.equals(chain.getState()))
         .collect(Collectors.toList());
-      for (Chain chain : chains)
-        requireAccount(access, chain);
-      return chains;
 
     } catch (NexusException e) {
-      throw new DAOFatalException(e);
+      throw new ServiceFatalException(e);
     }
   }
 
   @Override
-  public Chain update(HubClientAccess access, UUID id, Chain chain)
-    throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException {
+  public Chain update(UUID id, Chain chain)
+    throws ServiceFatalException, ServiceExistenceException, ServicePrivilegeException, ServiceValidationException {
     try {
       // cache existing chain from-state
-      var existing = readOne(access, id);
+      var existing = readOne(id);
       ChainState fromState = existing.getState();
 
       // cannot change type of chain
       if (existing.getType() != chain.getType())
-        throw new DAOValidationException("Cannot modify Chain Type");
+        throw new ServiceValidationException("Cannot modify Chain Type");
 
-      // [#174153691] Cannot change stop-at time or Embed Key of Preview chain
+      // [#174153691] Cannot change stop-at time or Ship key of Preview chain
       if (ChainType.PREVIEW == existing.getType()) {
         chain.setStopAt(existing.getStopAt());
-        chain.setEmbedKey(existing.getEmbedKey());
+        chain.setShipKey(existing.getShipKey());
       }
 
       // override id (cannot be changed) from existing chain, and then validate
       chain.setId(id);
       validate(chain);
 
-      // If we have an embed key, it must not belong to another chain
-      requireUniqueEmbedKey(access, chain);
+      // If we have an ship key, it must not belong to another chain
+      requireUniqueShipKey(chain);
 
       // Final before-update validation, then store
-      beforeUpdate(access, chain, fromState);
+      beforeUpdate(chain, fromState);
 
       // [#116] block update Chain state: cannot change chain startAt time after has segments
       if (Value.isSet(chain.getStartAt()))
         if (!existing.getStartAt().equals(chain.getStartAt()))
-          if (!segmentDAO.readMany(access, ImmutableList.of(chain.getId())).isEmpty())
-            throw new DAOValidationException("cannot change chain startAt time after it has segments");
+          if (!segmentService.readMany(ImmutableList.of(chain.getId())).isEmpty())
+            throw new ServiceValidationException("cannot change chain startAt time after it has segments");
 
       // Commit changes
       store.put(chain);
       return chain;
 
     } catch (ValueException e) {
-      throw new DAOValidationException(e);
+      throw new ServiceValidationException(e);
 
     } catch (NexusException e) {
-      throw new DAOFatalException(e);
+      throw new ServiceFatalException(e);
     }
   }
 
   @Override
-  public void updateState(HubClientAccess access, UUID id, ChainState state)
-    throws DAOFatalException, DAOExistenceException, DAOPrivilegeException, DAOValidationException {
+  public void updateState(UUID id, ChainState state)
+    throws ServiceFatalException, ServiceExistenceException, ServicePrivilegeException, ServiceValidationException {
     try {
-      Chain chain = readOne(access, id);
+      Chain chain = readOne(id);
       ChainState fromState = chain.getState();
 
       // update to chain state only
       chain.setState(state);
 
       // all standard before-update tests
-      beforeUpdate(access, chain, fromState);
+      beforeUpdate(chain, fromState);
 
       // commit changes and publish notification
       store.put(chain);
@@ -296,17 +280,15 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       }
 
     } catch (NexusException e) {
-      throw new DAOFatalException(e);
+      throw new ServiceFatalException(e);
     }
   }
 
   @Override
-  public Optional<Segment> buildNextSegmentOrCompleteTheChain(HubClientAccess access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteAfter) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException {
-    requireTopLevel(access);
-
+  public Optional<Segment> buildNextSegmentOrCompleteTheChain(Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteAfter) throws ServiceFatalException, ServicePrivilegeException, ServiceExistenceException, ServiceValidationException {
     // Get the last segment in the chain
     // If the chain had no last segment, it must be empty; return a template for its first segment
-    var maybeLastSegmentInChain = segmentDAO.readLastSegment(access, chain.getId());
+    var maybeLastSegmentInChain = segmentService.readLastSegment(chain.getId());
     if (maybeLastSegmentInChain.isEmpty()) {
       var seg = new Segment();
       seg.setId(UUID.randomUUID());
@@ -330,7 +312,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       if (Instant.parse(chain.getStopAt()).isBefore(chainStopCompleteAfter)
         // and [#122] require the last segment in the chain to be in state DUBBED.
         && SegmentState.DUBBED.equals(lastSegmentInChain.getState())) {
-        updateState(access, chain.getId(), ChainState.COMPLETE);
+        updateState(chain.getId(), ChainState.COMPLETE);
       }
       LOG.info("Chain[{}] is complete.", Chains.getIdentifier(chain));
       return Optional.empty();
@@ -349,60 +331,47 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   }
 
   @Override
-  public void destroy(HubClientAccess access, UUID id) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException {
+  public void destroy(UUID id) throws ServiceFatalException, ServicePrivilegeException, ServiceExistenceException {
     try {
-      var chain = store.getChain(id)
-        .orElseThrow(() -> new DAOExistenceException(Chain.class, id.toString()));
-      requireAccount(access, chain);
-
-      for (Segment segment : segmentDAO.readMany(access, ImmutableList.of()))
-        segmentDAO.destroy(access, segment.getId());
-
+      for (Segment segment : segmentService.readMany(ImmutableList.of()))
+        segmentService.destroy(segment.getId());
       store.deleteChain(id);
 
     } catch (NexusException e) {
-      throw new DAOFatalException(e);
+      throw new ServiceFatalException(e);
     }
   }
 
   @Override
-  public void requireAccount(HubClientAccess access, Chain chain) throws DAOPrivilegeException {
-    switch (chain.getType()) {
-      case PRODUCTION -> requireAccount(access, chain.getAccountId(), UserRoleType.Engineer);
-      case PREVIEW -> requireAccount(access, chain.getAccountId(), UserRoleType.Engineer, UserRoleType.Artist);
-    }
-  }
-
-  @Override
-  public Chain revive(HubClientAccess access, UUID priorChainId, String reason) throws DAOFatalException, DAOPrivilegeException, DAOExistenceException, DAOValidationException {
+  public Chain revive(UUID priorChainId, String reason) throws ServiceFatalException, ServicePrivilegeException, ServiceExistenceException, ServiceValidationException {
     try {
-      Chain prior = readOne(access, priorChainId);
+      Chain prior = readOne(priorChainId);
 
       if (!REVIVE_FROM_STATES_ALLOWED.contains(prior.getState()))
-        throw new DAOPrivilegeException(String.format("Can't revive a Chain unless it's in %s state",
+        throw new ServicePrivilegeException(String.format("Can't revive a Chain unless it's in %s state",
           CSV.prettyFrom(REVIVE_FROM_STATES_ALLOWED, "or")));
 
-      // save the embed key to re-use on new chain
-      String embedKey = prior.getEmbedKey();
+      // save the ship key to re-use on new chain
+      String shipKey = prior.getShipKey();
 
-      // update the prior chain to failed state and null embed key
+      // update the prior chain to failed state and null ship key
       prior.setState(ChainState.FAILED);
-      prior.setEmbedKey(null);
-      update(access, priorChainId, prior);
+      prior.setShipKey(null);
+      update(priorChainId, prior);
 
       // of new chain with original properties (implicitly created in draft state)
       var cloned = entityFactory.clone(prior);
       cloned.setId(UUID.randomUUID()); // new id
-      cloned.setEmbedKey(embedKey);
+      cloned.setShipKey(shipKey);
       // [#170273871] Revived chain should always start now
       cloned.startAt(Value.formatIso8601UTC(Instant.now().plusSeconds(chainStartInFutureSeconds)));
       // [#177191499] When chain is revived, reset its fabricatedAheadSeconds value
       cloned.fabricatedAheadSeconds(0.0);
-      Chain created = create(access, cloned);
+      Chain created = create(cloned);
 
       // update new chain into ready, then fabricate, which begins the new work
-      updateState(access, created.getId(), ChainState.READY);
-      updateState(access, created.getId(), ChainState.FABRICATE);
+      updateState(created.getId(), ChainState.READY);
+      updateState(created.getId(), ChainState.FABRICATE);
       created.setState(ChainState.FABRICATE);
 
       // publish a notification reporting the event
@@ -412,33 +381,32 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
       // return newly created chain
       return created;
     } catch (EntityException e) {
-      throw new DAOFatalException("Failed to clone prior chain", e);
+      throw new ServiceFatalException("Failed to clone prior chain", e);
     }
   }
 
   @Override
-  public Collection<Chain> readAllFabricating(HubClientAccess access) throws DAOPrivilegeException, DAOFatalException {
+  public Collection<Chain> readAllFabricating() throws ServiceFatalException {
     try {
-      requireTopLevel(access);
       return store.getAllChains().stream()
         .filter(chain -> ChainState.FABRICATE.equals(chain.getState()))
         .collect(Collectors.toList());
 
     } catch (NexusException e) {
-      throw new DAOFatalException(e);
+      throw new ServiceFatalException(e);
     }
   }
 
   @Override
-  public void destroyIfExistsForEmbedKey(HubClientAccess access, String key) {
+  public void destroyIfExistsForShipKey(String key) {
     try {
       var chain = store.getAllChains().stream()
-        .filter(c -> Objects.equals(key, c.getEmbedKey()))
+        .filter(c -> Objects.equals(key, c.getShipKey()))
         .findAny();
       if (chain.isPresent())
-        destroy(access, chain.get().getId());
-    } catch (NexusException | DAOFatalException | DAOPrivilegeException | DAOExistenceException e) {
-      LOG.error("Failed to destroy chain for embed key {}", key, e);
+        destroy(chain.get().getId());
+    } catch (NexusException | ServiceFatalException | ServicePrivilegeException | ServiceExistenceException e) {
+      LOG.error("Failed to destroy chain for ship key {}", key, e);
     }
   }
 
@@ -452,54 +420,49 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
   }
 
   /**
-   Generate a Preview Chain embed key
+   Generate a Preview Chain ship key
 
-   @return generated Preview Chain embed key
+   @return generated Preview Chain ship key
    */
-  private String generatePreviewEmbedKey() {
-    byte[] L = new byte[previewEmbedKeyLength];
-    for (int i = 0; i < previewEmbedKeyLength; i++)
+  private String generatePreviewShipKey() {
+    byte[] L = new byte[previewShipKeyLength];
+    for (int i = 0; i < previewShipKeyLength; i++)
       L[i] = (byte) (secureRandom.nextInt(26) + 'a');
     return String.format("preview_%s", new String(L));
   }
 
   /**
-   Require that the provided chain is the only one existing with this embed key
+   Require that the provided chain is the only one existing with this ship key
 
-   @param access control
-   @param chain  to test embed key uniqueness of
-   @throws DAOValidationException if another Chain exists with this embed key
-   @throws DAOFatalException      on failure to determine
+   @param chain to test ship key uniqueness of
+   @throws ServiceValidationException if another Chain exists with this ship key
+   @throws ServiceFatalException      on failure to determine
    */
-  private void requireUniqueEmbedKey(HubClientAccess access, Chain chain) throws DAOValidationException, DAOFatalException {
-    if (Value.isSet(chain.getEmbedKey()))
+  private void requireUniqueShipKey(Chain chain) throws ServiceValidationException, ServiceFatalException {
+    if (Value.isSet(chain.getShipKey()))
       try {
-        var existing = readOneByEmbedKey(access, chain.getEmbedKey());
+        var existing = readOneByShipKey(chain.getShipKey());
         if (!Objects.equals(chain.getId(), existing.getId()))
-          throw new DAOValidationException(String.format("Chain already exists with embed key '%s'!", chain.getEmbedKey()));
-      } catch (DAOExistenceException ignored) {
-        // OK if no other chain exists with this embed key
+          throw new ServiceValidationException(String.format("Chain already exists with ship key '%s'!", chain.getShipKey()));
+      } catch (ServiceExistenceException ignored) {
+        // OK if no other chain exists with this ship key
       }
   }
 
   /**
    Validate access and make other modifications to a chain before update
 
-   @param access    control to test with
    @param chain     payload  to test and modify before update
    @param fromState to test for transition from
-   @throws DAOPrivilegeException on insufficient privileges
+   @throws ServicePrivilegeException on insufficient privileges
    */
-  private void beforeUpdate(HubClientAccess access, Chain chain, ChainState fromState) throws DAOPrivilegeException, DAOValidationException {
-    // Conditions based on Chain type
-    requireAccount(access, chain);
-
+  private void beforeUpdate(Chain chain, ChainState fromState) throws ServicePrivilegeException, ServiceValidationException {
     // Conditions based on Chain state
     switch (fromState) {
       case DRAFT -> {
         onlyAllowTransitions(chain.getState(), ChainState.DRAFT, ChainState.READY);
         if (ChainState.READY.equals(chain.getState()) && Objects.isNull(chain.getTemplateId()))
-          throw new DAOValidationException("Chain must come from a Template");
+          throw new ServiceValidationException("Chain must come from a Template");
       }
       case READY -> onlyAllowTransitions(chain.getState(), ChainState.DRAFT, ChainState.READY, ChainState.FABRICATE);
       case FABRICATE -> onlyAllowTransitions(chain.getState(), ChainState.FABRICATE, ChainState.FAILED, ChainState.COMPLETE);
@@ -531,7 +494,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
    @param toState       to check
    @param allowedStates required to be in
    */
-  private void onlyAllowTransitions(ChainState toState, ChainState... allowedStates) throws DAOPrivilegeException {
+  private void onlyAllowTransitions(ChainState toState, ChainState... allowedStates) throws ServicePrivilegeException {
     List<String> allowedStateNames = Lists.newArrayList();
     for (ChainState search : allowedStates) {
       allowedStateNames.add(search.toString());
@@ -539,7 +502,7 @@ public class ChainDAOImpl extends DAOImpl<Chain> implements ChainDAO {
         return;
       }
     }
-    throw new DAOPrivilegeException(String.format("transition to %s not in allowed (%s)",
+    throw new ServicePrivilegeException(String.format("transition to %s not in allowed (%s)",
       toState, CSV.join(allowedStateNames)));
   }
 

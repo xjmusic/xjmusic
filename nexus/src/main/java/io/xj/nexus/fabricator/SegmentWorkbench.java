@@ -23,7 +23,7 @@ public interface SegmentWorkbench {
   /**
    Get the segment that's being worked on.
    Modify this object's properties.
-   At the end of the fabrication process, this segment is saved via DAO
+   At the end of the fabrication process, this segment is saved via Service
 
    @return current segment
    */
@@ -84,7 +84,7 @@ public interface SegmentWorkbench {
 
   /***
    Called at the end of Segment fabrication.
-   Sends added records to segmentDAO batch insert method
+   Sends added records to segmentService batch insert method
    */
   void done() throws NexusException, JsonapiException, ValueException;
 

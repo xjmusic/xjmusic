@@ -2,6 +2,7 @@
 package io.xj.hub.access;
 
 
+import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.UserAuth;
 
@@ -12,21 +13,12 @@ public interface HubAccessControlProvider {
   /**
    Create a token to grant a user access to resources.
 
+   @param user         roles that this user has access to.
    @param userAuth     to of a token for.
    @param accountUsers accounts that this user has access to.
-   @param userRoles    roles that this user has access to.
    @return access token
    */
-  String create(UserAuth userAuth, Collection<AccountUser> accountUsers, String userRoles) throws HubAccessException;
-
-  /**
-   Update an access token to grant a user access to resources.
-
-   @param userAuth         to of a token for.
-   @param userAccountRoles accounts that this user has access to.
-   @param userRoles        roles that this user has access to.
-   */
-  void update(String accessToken, UserAuth userAuth, Collection<AccountUser> userAccountRoles, String userRoles) throws HubAccessException;
+  String create(User user, UserAuth userAuth, Collection<AccountUser> accountUsers) throws HubAccessException;
 
   /**
    Expire an access token.
@@ -74,7 +66,7 @@ public interface HubAccessControlProvider {
   String authenticate(String accessCode) throws Exception;
 
   /**
-   Compute the Redis session persistence key for any given token (it's prefixed to have an xj session namespace)
+   Compute the Redis session persistence key for any given token (it's prefixed to have a xj session namespace)
 
    @param token to compute key of
    @return key for token

@@ -60,7 +60,7 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc, @QueryParam("cloneId") String cloneId) {
     try {
       HubAccess hubAccess = HubAccess.fromContext(crc);
@@ -111,7 +111,7 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -123,7 +123,7 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response readMany(
     @Context ContainerRequestContext crc,
     @QueryParam("instrumentId") String instrumentId,
@@ -166,7 +166,7 @@ public class InstrumentAudioEndpoint extends HubJsonapiEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

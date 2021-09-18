@@ -19,7 +19,7 @@ import io.xj.lib.json.JsonModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.dao.ChainDAO;
+import io.xj.nexus.service.ChainService;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.persistence.NexusEntityStoreModule;
@@ -49,7 +49,7 @@ public class NexusWorkChainManagerImplTest {
   private Template template2;
 
   @Mock
-  private ChainDAO chainDAO;
+  private ChainService chainService;
 
   @Mock
   private FileStoreProvider fileStoreProvider;
@@ -68,7 +68,7 @@ public class NexusWorkChainManagerImplTest {
         protected void configure() {
           bind(Config.class).toInstance(config);
           bind(Environment.class).toInstance(env);
-          bind(ChainDAO.class).toInstance(chainDAO);
+          bind(ChainService.class).toInstance(chainService);
           bind(FileStoreProvider.class).toInstance(fileStoreProvider);
           bind(HubClient.class).toInstance(hubClient);
         }

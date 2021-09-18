@@ -22,7 +22,6 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
@@ -96,12 +95,12 @@ public class CraftSegmentOutputEncoderTest {
       0.8,
       120.0,
       "chain-1-waveform-12345.wav",
-      "aac"));
+      "ogg"));
   }
 
   @Test
   public void craftFoundationInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6);
 
     craftFactory.macroMain(fabricator).doWork();
 

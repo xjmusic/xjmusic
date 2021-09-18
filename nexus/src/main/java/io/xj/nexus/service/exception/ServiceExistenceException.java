@@ -1,18 +1,18 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.nexus.dao.exception;
+package io.xj.nexus.service.exception;
 
-public class DAOExistenceException extends Exception {
+public class ServiceExistenceException extends Exception {
 
-  public DAOExistenceException(String msg) {
+  public ServiceExistenceException(String msg) {
     super(msg);
   }
 
-  public DAOExistenceException(Class<?> type, String name) {
+  public ServiceExistenceException(Class<?> type, String name) {
     super(message(type, name));
   }
 
-  public DAOExistenceException(Class<?> type, String id, String detail) {
+  public ServiceExistenceException(Class<?> type, String id, String detail) {
     super(String.format("%s %s", message(type, id), detail));
   }
 

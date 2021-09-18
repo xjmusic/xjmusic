@@ -17,7 +17,7 @@
       }
     },
     "attributes": {
-      "embedKey": "test_print",
+      "shipKey": "test_print",
       "stopAt": null,
       "name": "Test Print #1",
       "state": "Fabricate",

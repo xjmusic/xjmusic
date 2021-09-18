@@ -84,6 +84,7 @@ public class RedisHubAccessTokenTest {
 
     user = new User();
     user.setId(UUID.randomUUID());
+    user.setRoles("User, Artist");
 
     userAuth = new UserAuth();
     userAuth.setId(UUID.randomUUID());
@@ -119,7 +120,7 @@ public class RedisHubAccessTokenTest {
     when(hubAccessTokenGenerator.generate())
       .thenReturn("token123");
 
-    hubAccessControlProvider.create(userAuth, accountUsers, "User, Artist");
+    hubAccessControlProvider.create(user, userAuth, accountUsers);
 
     HubAccess expectUserAccess = new HubAccess()
       .setUserId(user.getId())

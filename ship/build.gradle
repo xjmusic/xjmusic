@@ -150,6 +150,6 @@ static def gitBranch() {
 
 jib {
   to.image = gitBranch() == 'main' ? '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/ship' : '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/dev/ship'
-  from.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base:main'
+  from.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base:latest'
   container.jvmFlags = ["-Djava.library.path=/usr/lib/x86_64-linux-gnu"]
 }

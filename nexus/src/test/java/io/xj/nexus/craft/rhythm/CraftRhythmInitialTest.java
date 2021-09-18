@@ -25,7 +25,6 @@ import io.xj.nexus.Segments;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
@@ -136,7 +135,7 @@ public class CraftRhythmInitialTest {
 
   @Test
   public void craftRhythmInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6);
 
     craftFactory.rhythm(fabricator).doWork();
 

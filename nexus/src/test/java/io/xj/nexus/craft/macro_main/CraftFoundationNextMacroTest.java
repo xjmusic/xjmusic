@@ -31,7 +31,6 @@ import io.xj.nexus.Segments;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
@@ -119,7 +118,7 @@ public class CraftFoundationNextMacroTest {
         0.85,
         120.0,
         "chains-1-segments-9f7s89d8a7892.wav",
-        "aac"));
+        "ogg"));
 
       // Chain "Test Print #1" has this segment that was just crafted
       Segment segment3 = store.put(buildSegment(
@@ -133,14 +132,14 @@ public class CraftFoundationNextMacroTest {
         0.30,
         120.0,
         "chains-1-segments-9f7s89d8a7892.wav",
-        "aac"));
+        "ogg"));
       store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence2_binding0));
       store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence1_binding0));
 
       // Chain "Test Print #1" has a planned segment
       Segment segment4 = store.put(buildSegment(chain1, 3, SegmentState.PLANNED, Instant.parse("2017-02-14T12:03:08.000001Z"), null, "C", 8, 0.8, 120, "chain-1-waveform-12345", "wav"));
 
-      Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
+      Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
 
       craftFactory.macroMain(fabricator).doWork();
 

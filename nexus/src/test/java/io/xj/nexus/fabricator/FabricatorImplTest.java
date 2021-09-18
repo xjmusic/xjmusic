@@ -33,13 +33,13 @@ import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.dao.ChainDAO;
-import io.xj.nexus.dao.NexusDAOModule;
-import io.xj.nexus.dao.SegmentDAO;
+import io.xj.nexus.service.ChainService;
+import io.xj.nexus.service.NexusServiceModule;
+import io.xj.nexus.service.SegmentService;
 import io.xj.nexus.Segments;
-import io.xj.nexus.dao.exception.DAOExistenceException;
-import io.xj.nexus.dao.exception.DAOFatalException;
-import io.xj.nexus.dao.exception.DAOPrivilegeException;
+import io.xj.nexus.service.exception.ServiceExistenceException;
+import io.xj.nexus.service.exception.ServiceFatalException;
+import io.xj.nexus.service.exception.ServicePrivilegeException;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubClientException;
@@ -102,9 +102,9 @@ public class FabricatorImplTest {
   @Mock
   public HubClient mockHubClient;
   @Mock
-  public ChainDAO mockChainDAO;
+  public ChainService mockChainService;
   @Mock
-  public SegmentDAO mockSegmentDAO;
+  public SegmentService mockSegmentService;
   @Mock
   public JsonapiPayloadFactory mockJsonapiPayloadFactory;
   @Mock
@@ -118,7 +118,7 @@ public class FabricatorImplTest {
   @Before
   public void setUp() throws Exception {
     config = NexusTestConfiguration.getDefault();
-    var injector = Guice.createInjector(Modules.override(new FileStoreModule(), new NexusDAOModule(), new HubClientModule(), new NexusEntityStoreModule(), new MixerModule(), new JsonapiModule(), new NexusWorkModule()).with(
+    var injector = Guice.createInjector(Modules.override(new FileStoreModule(), new NexusServiceModule(), new HubClientModule(), new NexusEntityStoreModule(), new MixerModule(), new JsonapiModule(), new NexusWorkModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -187,17 +187,17 @@ public class FabricatorImplTest {
       .thenReturn(mockTimeComputer);
     when(mockTimeComputer.getSecondsAtPosition(anyDouble()))
       .thenReturn(Double.valueOf(0));
-    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
+    when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
-    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
+    when(mockFabricatorFactory.setupWorkbench(any(), any()))
       .thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
     when(mockSegmentRetrospective.getPreviousSegment())
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
     var access = HubClientAccess.internal();
-    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
+    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
 
     Double result = subject.getSecondsAtPosition(0); // instantiates a time computer; see expectation above
 
@@ -266,17 +266,17 @@ public class FabricatorImplTest {
         .length(1.571)
         .amplitude(0.8)
         .note("A4"));
-    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
+    when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
-    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
+    when(mockFabricatorFactory.setupWorkbench(any(), any()))
       .thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
     when(mockSegmentWorkbench.getSegmentChoiceArrangementPicks())
       .thenReturn(ImmutableList.of(rhythmPick));
     var access = HubClientAccess.internal();
-    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
+    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
 
     Collection<SegmentChoiceArrangementPick> result = subject.getPicks();
 
@@ -329,17 +329,17 @@ public class FabricatorImplTest {
       Segments.DELTA_UNLIMITED,
       Segments.DELTA_UNLIMITED,
       fake.program5));
-    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
+    when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
-    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
+    when(mockFabricatorFactory.setupWorkbench(any(), any()))
       .thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
     when(mockSegmentWorkbench.getChoiceOfType(ProgramType.Main))
       .thenReturn(Optional.of(mainChoice));
     var access = HubClientAccess.internal();
-    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
+    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
 
     List<InstrumentType> result = subject.getDistinctChordVoicingTypes();
 
@@ -353,7 +353,7 @@ public class FabricatorImplTest {
    [#176728582] Choose next Macro program based on the memes of the last sequence from the previous Macro program
    */
   @Test
-  public void getType() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public void getType() throws NexusException, ServicePrivilegeException, ServiceFatalException, ServiceExistenceException {
     var chain = store.put(buildChain(
       fake.account1,
       fake.template1,
@@ -399,9 +399,9 @@ public class FabricatorImplTest {
       240.0,
       "seg123.ogg",
       "wav"));
-    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
+    when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
-    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
+    when(mockFabricatorFactory.setupWorkbench(any(), any()))
       .thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
@@ -410,8 +410,8 @@ public class FabricatorImplTest {
     when(mockSegmentRetrospective.getPreviousChoiceOfType(ProgramType.Macro))
       .thenReturn(Optional.of(previousMacroChoice));
     var access = HubClientAccess.internal();
-    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
+    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
 
     var result = subject.getType();
 
@@ -421,7 +421,7 @@ public class FabricatorImplTest {
   // FUTURE: test getChoicesOfPreviousSegments
 
   @Test
-  public void getMemeIsometryOfNextSequenceInPreviousMacro() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public void getMemeIsometryOfNextSequenceInPreviousMacro() throws NexusException, ServicePrivilegeException, ServiceFatalException, ServiceExistenceException {
     var chain = store.put(buildChain(
       fake.account1,
       fake.template1,
@@ -466,17 +466,17 @@ public class FabricatorImplTest {
       240.0,
       "seg123.ogg",
       "wav"));
-    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
+    when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
-    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
+    when(mockFabricatorFactory.setupWorkbench(any(), any()))
       .thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
     when(mockSegmentRetrospective.getPreviousChoiceOfType(ProgramType.Macro))
       .thenReturn(Optional.of(previousMacroChoice));
     var access = HubClientAccess.internal();
-    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
+    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
 
     var result = subject.getMemeIsometryOfNextSequenceInPreviousMacro();
 
@@ -484,7 +484,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void getChordAt() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException {
+  public void getChordAt() throws NexusException, ServicePrivilegeException, ServiceFatalException, ServiceExistenceException {
     var chain = store.put(buildChain(
       fake.account1,
       fake.template1,
@@ -504,9 +504,9 @@ public class FabricatorImplTest {
       240.0,
       "seg123.ogg",
       "wav"));
-    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
+    when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
-    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
+    when(mockFabricatorFactory.setupWorkbench(any(), any()))
       .thenReturn(mockSegmentWorkbench);
     when(mockSegmentWorkbench.getSegmentChords())
       .thenReturn(ImmutableList.of(
@@ -518,8 +518,8 @@ public class FabricatorImplTest {
     var access = HubClientAccess.internal();
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
-    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
+    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
 
     assertEquals("C", subject.getChordAt(0).orElseThrow().getName());
     assertEquals("C", subject.getChordAt(1).orElseThrow().getName());
@@ -532,7 +532,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void computeProgramRange() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException, HubClientException {
+  public void computeProgramRange() throws NexusException, ServicePrivilegeException, ServiceFatalException, ServiceExistenceException, HubClientException {
     var chain = store.put(buildChain(
       fake.account1,
       fake.template1,
@@ -552,14 +552,14 @@ public class FabricatorImplTest {
       240.0,
       "seg123.ogg",
       "wav"));
-    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
+    when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
-    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
+    when(mockFabricatorFactory.setupWorkbench(any(), any()))
       .thenReturn(mockSegmentWorkbench);
     var access = HubClientAccess.internal();
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
-    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
+    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
     var program = buildProgram(ProgramType.Detail, "C", 120.0f, 1.0f);
     var voice = buildVoice(program, InstrumentType.Bass);
     var track = buildTrack(voice);
@@ -576,7 +576,7 @@ public class FabricatorImplTest {
       buildEvent(pattern, track, 0.0f, 1.0f, "C1"),
       buildEvent(pattern, track, 1.0f, 1.0f, "D2")
     ));
-    subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 
@@ -585,7 +585,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void computeProgramRange_ignoresAtonalNotes() throws NexusException, DAOPrivilegeException, DAOFatalException, DAOExistenceException, HubClientException {
+  public void computeProgramRange_ignoresAtonalNotes() throws NexusException, ServicePrivilegeException, ServiceFatalException, ServiceExistenceException, HubClientException {
     var chain = store.put(buildChain(
       fake.account1,
       fake.template1,
@@ -605,14 +605,14 @@ public class FabricatorImplTest {
       240.0,
       "seg123.ogg",
       "wav"));
-    when(mockFabricatorFactory.loadRetrospective(any(), any(), any()))
+    when(mockFabricatorFactory.loadRetrospective(any(), any()))
       .thenReturn(mockSegmentRetrospective);
-    when(mockFabricatorFactory.setupWorkbench(any(), any(), any()))
+    when(mockFabricatorFactory.setupWorkbench(any(), any()))
       .thenReturn(mockSegmentWorkbench);
     var access = HubClientAccess.internal();
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
-    when(mockChainDAO.readOne(eq(access), eq(segment.getChainId()))).thenReturn(chain);
+    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
     var program = buildProgram(ProgramType.Detail, "C", 120.0f, 1.0f);
     var voice = buildVoice(program, InstrumentType.Bass);
     var track = buildTrack(voice);
@@ -630,7 +630,7 @@ public class FabricatorImplTest {
       fake.template1,
       fake.templateBinding1
     ));
-    subject = new FabricatorImpl(access, sourceMaterial, segment, config, env, mockChainDAO, mockFileStoreProvider, mockFabricatorFactory, mockSegmentDAO, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 

@@ -29,7 +29,6 @@ import io.xj.nexus.Segments;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
@@ -117,7 +116,7 @@ public class CraftDetailProgramVoiceInitialTest {
   public void craftDetailVoiceInitial() throws Exception {
     insertSegments();
 
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment1);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment1);
 
     craftFactory.detail(fabricator).doWork();
 
@@ -135,7 +134,7 @@ public class CraftDetailProgramVoiceInitialTest {
   @Test
   public void craftDetailVoiceInitial_okWhenNoDetailChoice() throws Exception {
     insertSegments();
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment1);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment1);
 
     craftFactory.detail(fabricator).doWork();
   }

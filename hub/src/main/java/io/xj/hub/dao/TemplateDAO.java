@@ -15,13 +15,13 @@ import java.util.Optional;
 public interface TemplateDAO extends DAO<Template> {
 
   /**
-   Read one template by its embed key
+   Read one template by its ship key
 
    @param access      control
-   @param rawEmbedKey for which to read embed key
+   @param rawShipKey for which to read ship key
    @return template if found
    */
-  Optional<Template> readOneByEmbedKey(HubAccess access, String rawEmbedKey) throws DAOException;
+  Optional<Template> readOneByShipKey(HubAccess access, String rawShipKey) throws DAOException;
 
   /**
    Read all Templates having an active template playback

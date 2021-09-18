@@ -60,7 +60,7 @@ public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response create(
     JsonapiPayload jsonapiPayload,
     @Context ContainerRequestContext crc,
@@ -97,7 +97,7 @@ public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -108,7 +108,7 @@ public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programSequenceId") String programSequenceId) {
     return readMany(crc, dao(), programSequenceId);
   }
@@ -134,7 +134,7 @@ public class ProgramSequencePatternEndpoint extends HubJsonapiEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

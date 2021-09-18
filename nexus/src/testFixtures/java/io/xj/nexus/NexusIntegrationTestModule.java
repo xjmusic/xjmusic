@@ -6,7 +6,7 @@ import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.nexus.craft.CraftModule;
-import io.xj.nexus.dao.NexusDAOModule;
+import io.xj.nexus.service.NexusServiceModule;
 import io.xj.nexus.dub.DubModule;
 import io.xj.nexus.fabricator.NexusFabricatorModule;
 import io.xj.nexus.hub_client.client.HubClientModule;
@@ -20,7 +20,7 @@ public class NexusIntegrationTestModule extends AbstractModule {
     install(new MixerModule());
     install(new CraftModule());
     install(new NexusFabricatorModule());
-    install(new NexusDAOModule());
+    install(new NexusServiceModule());
     install(new DubModule());
     install(new NexusEntityStoreModule());
     install(new NexusWorkModule());

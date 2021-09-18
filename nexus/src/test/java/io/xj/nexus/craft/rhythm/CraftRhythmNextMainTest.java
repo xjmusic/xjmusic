@@ -27,7 +27,6 @@ import io.xj.nexus.Segments;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
@@ -117,7 +116,7 @@ public class CraftRhythmNextMainTest {
       0.85,
       120.0,
       "chains-1-segments-9f7s89d8a7892.wav",
-      "aac"));
+      "ogg"));
   }
 
   @After
@@ -128,7 +127,7 @@ public class CraftRhythmNextMainTest {
   @Test
   public void craftRhythmNextMain() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
 
     craftFactory.rhythm(fabricator).doWork();
 
@@ -141,7 +140,7 @@ public class CraftRhythmNextMainTest {
   @Test
   public void craftRhythmNextMain_okEvenWithoutPreviousSegmentRhythmChoice() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
 
     craftFactory.rhythm(fabricator).doWork();
 

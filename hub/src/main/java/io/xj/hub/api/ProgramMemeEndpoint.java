@@ -52,7 +52,7 @@ public class ProgramMemeEndpoint extends HubJsonapiEndpoint {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
     return create(crc, dao(), jsonapiPayload);
   }
@@ -64,7 +64,7 @@ public class ProgramMemeEndpoint extends HubJsonapiEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -75,7 +75,7 @@ public class ProgramMemeEndpoint extends HubJsonapiEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programId") String programId) {
     return readMany(crc, dao(), programId);
   }
@@ -101,7 +101,7 @@ public class ProgramMemeEndpoint extends HubJsonapiEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

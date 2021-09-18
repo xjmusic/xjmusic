@@ -51,7 +51,7 @@ components:
           $ref: "#/components/schemas/ChainType"
         state:
           $ref: "#/components/schemas/ChainState"
-        embedKey:
+        shipKey:
           type: string
           nullable: true
         name:

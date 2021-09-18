@@ -339,14 +339,14 @@ public class NexusIntegrationTestingFixtures {
   }
 
   public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template, Instant startAt) {
-    return buildChain(account, name, type, state, template, startAt, null, Text.toEmbedKey(name));
+    return buildChain(account, name, type, state, template, startAt, null, Text.toShipKey(name));
   }
 
   public static Chain buildChain(Account account, Template template, String name, ChainType type, ChainState state, Instant startAt) {
-    return buildChain(account, name, type, state, template, startAt, null, Text.toEmbedKey(name));
+    return buildChain(account, name, type, state, template, startAt, null, Text.toShipKey(name));
   }
 
-  public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template, Instant startAt, @Nullable Instant stopAt, @Nullable String embedKey) {
+  public static Chain buildChain(Account account, String name, ChainType type, ChainState state, Template template, Instant startAt, @Nullable Instant stopAt, @Nullable String shipKey) {
     var chain = new Chain();
     chain.setId(UUID.randomUUID());
     chain.setTemplateId(template.getId());
@@ -357,8 +357,8 @@ public class NexusIntegrationTestingFixtures {
     chain.startAt(Value.formatIso8601UTC(startAt));
     if (Objects.nonNull(stopAt))
       chain.stopAt(Value.formatIso8601UTC(stopAt));
-    if (Objects.nonNull(embedKey))
-      chain.embedKey(embedKey);
+    if (Objects.nonNull(shipKey))
+      chain.shipKey(shipKey);
     return chain;
   }
 
@@ -375,7 +375,7 @@ public class NexusIntegrationTestingFixtures {
   }
 
   public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String storageKey) {
-    return buildSegment(chain, type, offset, delta, state, beginAt, endAt, key, total, density, tempo, storageKey, "AAC");
+    return buildSegment(chain, type, offset, delta, state, beginAt, endAt, key, total, density, tempo, storageKey, "OGG");
 
   }
 

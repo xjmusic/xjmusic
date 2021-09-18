@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.nexus.dao;
+package io.xj.nexus.service;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
@@ -20,9 +20,8 @@ import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.dao.exception.DAOExistenceException;
-import io.xj.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.nexus.dao.exception.DAOValidationException;
+import io.xj.nexus.service.exception.ServiceExistenceException;
+import io.xj.nexus.service.exception.ServiceValidationException;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.persistence.NexusEntityStore;
 import org.junit.Before;
@@ -50,7 +49,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SegmentDAOImplTest {
+public class SegmentServiceImplTest {
   private Account account1;
   private Chain chain3;
   private Chain chain5;
@@ -60,13 +59,13 @@ public class SegmentDAOImplTest {
   private Segment segment2;
   private Segment segment4;
   private Segment segment5;
-  private SegmentDAO testDAO;
+  private SegmentService testService;
   private Template template1;
 
   @Before
   public void setUp() throws Exception {
     Environment env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(new NexusDAOModule())
+    var injector = Guice.createInjector(Modules.override(new NexusServiceModule())
       .with(new AbstractModule() {
         @Override
         protected void configure() {
@@ -83,7 +82,7 @@ public class SegmentDAOImplTest {
     store.deleteAll();
 
     // test subject
-    testDAO = injector.getInstance(SegmentDAO.class);
+    testService = injector.getInstance(SegmentService.class);
 
     // Account "Testing" has a chain "Test Print #1"
     account1 = buildAccount("Testing");
@@ -178,7 +177,6 @@ public class SegmentDAOImplTest {
    */
   @Test
   public void create() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
@@ -195,7 +193,7 @@ public class SegmentDAOImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    Segment result = testDAO.create(access, inputData);
+    Segment result = testService.create(inputData);
 
     assertNotNull(result);
     assertEquals(chain3.getId(), result.getChainId());
@@ -217,7 +215,6 @@ public class SegmentDAOImplTest {
    */
   @Test
   public void create_alwaysInPlannedState() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
@@ -233,7 +230,7 @@ public class SegmentDAOImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    Segment result = testDAO.create(access, inputData);
+    Segment result = testService.create(inputData);
 
     assertNotNull(result);
     assertEquals(chain3.getId(), result.getChainId());
@@ -250,7 +247,6 @@ public class SegmentDAOImplTest {
 
   @Test
   public void create_FailsIfNotUniqueChainOffset() {
-    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
@@ -265,36 +261,14 @@ public class SegmentDAOImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    Exception thrown = assertThrows(DAOValidationException.class, () ->
-      testDAO.create(access, inputData));
+    Exception thrown = assertThrows(ServiceValidationException.class, () ->
+      testService.create(inputData));
 
     assertEquals("Found Segment at same offset in Chain!", thrown.getMessage());
   }
 
   @Test
-  public void create_FailsWithoutTopLevelAccess() {
-    HubClientAccess access = buildHubClientAccess("User");
-    Segment inputData = new Segment()
-      .id(UUID.randomUUID())
-      .chainId(chain3.getId())
-      .offset(4L)
-      .state(SegmentState.CRAFTING)
-      .beginAt("1995-04-28T11:23:00.000001Z")
-      .endAt("1995-04-28T11:23:32.000001Z")
-      .total(64)
-      .density(0.74)
-      .key("C# minor 7 b9")
-      .tempo(120.0);
-
-    Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
-      testDAO.create(access, inputData));
-
-    assertEquals("top-level access is required.", thrown.getMessage());
-  }
-
-  @Test
   public void create_FailsWithoutChainID() {
-    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = new Segment()
       .offset(4L)
       .delta(0)
@@ -307,8 +281,8 @@ public class SegmentDAOImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    Exception thrown = assertThrows(DAOValidationException.class, () ->
-      testDAO.create(access, inputData));
+    Exception thrown = assertThrows(ServiceValidationException.class, () ->
+      testService.create(inputData));
 
     assertEquals("Chain ID is required.", thrown.getMessage());
   }
@@ -317,7 +291,7 @@ public class SegmentDAOImplTest {
   public void readOne() throws Exception {
     HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
-    Segment result = testDAO.readOne(access, segment2.getId());
+    Segment result = testService.readOne(segment2.getId());
 
     assertNotNull(result);
     assertEquals(segment2.getId(), result.getId());
@@ -334,20 +308,9 @@ public class SegmentDAOImplTest {
   }
 
   @Test
-  public void readOne_failsWhenUserIsNotInChain() {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(buildAccount()), "User");
-
-    Exception thrown = assertThrows(DAOPrivilegeException.class, () ->
-      testDAO.readOne(access, segment1.getId()));
-
-    assertEquals("Account access is required.", thrown.getMessage());
-  }
-
-  @Test
   public void readMany() throws Exception {
-    HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
-    Collection<Segment> result = testDAO.readMany(access, ImmutableList.of(chain3.getId()));
+    Collection<Segment> result = testService.readMany(ImmutableList.of(chain3.getId()));
 
     assertNotNull(result);
     assertEquals(5L, result.size());
@@ -388,14 +351,14 @@ public class SegmentDAOImplTest {
         .key("C# minor 7 b9")
         .tempo(120.0));
 
-    Collection<Segment> result = testDAO.readMany(HubClientAccess.internal(), ImmutableList.of(chain5.getId()));
+    Collection<Segment> result = testService.readMany(ImmutableList.of(chain5.getId()));
 
     assertNotNull(result);
     assertEquals(20L, result.size());
   }
 
   @Test
-  public void readMany_byChainEmbedKey() throws Exception {
+  public void readMany_byChainShipKey() throws Exception {
     chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
     store.put(new Segment()
       .id(UUID.randomUUID())
@@ -461,7 +424,7 @@ public class SegmentDAOImplTest {
       .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
 
-    Collection<Segment> result = testDAO.readManyByEmbedKey(HubClientAccess.internal(), "barnacles");
+    Collection<Segment> result = testService.readManyByShipKey(HubClientAccess.internal(), "barnacles");
 
     assertEquals(5L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -481,7 +444,7 @@ public class SegmentDAOImplTest {
   public void readManyFromToOffset() throws Exception {
     HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
-    Collection<Segment> result = testDAO.readManyFromToOffset(access, chain3.getId(), 2L, 3L);
+    Collection<Segment> result = testService.readManyFromToOffset(chain3.getId(), 2L, 3L);
 
     assertEquals(2L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -495,7 +458,7 @@ public class SegmentDAOImplTest {
   public void readManyFromToOffset_acceptsNegativeOffsets_returnsEmptyCollection() throws Exception {
     HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
-    Collection<Segment> result = testDAO.readManyFromToOffset(access, chain3.getId(), -1L, -1L);
+    Collection<Segment> result = testService.readManyFromToOffset(chain3.getId(), -1L, -1L);
 
     assertEquals(0L, result.size());
   }
@@ -504,7 +467,7 @@ public class SegmentDAOImplTest {
   public void readManyFromSecondsUTC() throws Exception {
     HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
-    Collection<Segment> result = testDAO.readManyFromSecondsUTC(access, chain3.getId(), 1487073724L);
+    Collection<Segment> result = testService.readManyFromSecondsUTC(access, chain3.getId(), 1487073724L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -537,7 +500,7 @@ public class SegmentDAOImplTest {
     }
     HubClientAccess access = buildHubClientAccess(ImmutableList.of(account1), "User,Engineer");
 
-    Collection<Segment> result = testDAO.readManyFromSecondsUTC(access, chain5.getId(), fromSecondsUTC + 1);
+    Collection<Segment> result = testService.readManyFromSecondsUTC(access, chain5.getId(), fromSecondsUTC + 1);
 
     assertEquals(12L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -547,7 +510,7 @@ public class SegmentDAOImplTest {
   }
 
   @Test
-  public void readManyFromSecondsUTC_byChainEmbedKey() throws Exception {
+  public void readManyFromSecondsUTC_byChainShipKey() throws Exception {
     chain5 = store.put(buildChain(account1, "Test Print #1", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "barnacles"));
     store.put(new Segment()
       .id(UUID.randomUUID())
@@ -616,7 +579,7 @@ public class SegmentDAOImplTest {
       .tempo(120.0)
       .storageKey("chains-1-segments-9f7s89d8a7892.wav"));
 
-    Collection<Segment> result = testDAO.readManyFromSecondsUTCbyEmbedKey(HubClientAccess.internal(), "barnacles", 1487073724L);
+    Collection<Segment> result = testService.readManyFromSecondsUTCbyShipKey(HubClientAccess.internal(), "barnacles", 1487073724L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -632,7 +595,7 @@ public class SegmentDAOImplTest {
   public void readOneInState() throws Exception {
     HubClientAccess access = buildHubClientAccess("Internal");
 
-    Segment result = testDAO.readOneInState(access, chain3.getId(), SegmentState.PLANNED, Instant.parse("2017-02-14T12:03:08.000001Z"));
+    Segment result = testService.readOneInState(access, chain3.getId(), SegmentState.PLANNED, Instant.parse("2017-02-14T12:03:08.000001Z"));
 
     assertEquals(segment5.getId(), result.getId());
     assertEquals(chain3.getId(), result.getChainId());
@@ -647,15 +610,14 @@ public class SegmentDAOImplTest {
     HubClientAccess access = buildHubClientAccess("Internal");
     buildChain(account1, "Test Print #2", ChainType.PRODUCTION, ChainState.FABRICATE, template1, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
 
-    Exception thrown = assertThrows(DAOExistenceException.class, () ->
-      testDAO.readOneInState(access, segment2.getId(), SegmentState.PLANNED, Instant.parse("2017-02-14T12:03:08.000001Z")));
+    Exception thrown = assertThrows(ServiceExistenceException.class, () ->
+      testService.readOneInState(access, segment2.getId(), SegmentState.PLANNED, Instant.parse("2017-02-14T12:03:08.000001Z")));
 
     assertTrue(thrown.getMessage().contains("Found no Segment"));
   }
 
   @Test
   public void update() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
@@ -672,9 +634,9 @@ public class SegmentDAOImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    testDAO.update(access, segment2.getId(), inputData);
+    testService.update(segment2.getId(), inputData);
 
-    Segment result = testDAO.readOne(HubClientAccess.internal(), segment2.getId());
+    Segment result = testService.readOne(segment2.getId());
     assertNotNull(result);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(chain3.getId(), result.getChainId());
@@ -689,7 +651,6 @@ public class SegmentDAOImplTest {
    */
   @Test
   public void persistPriorSegmentContent() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
     segment4 = store.put(new Segment()
       .id(UUID.randomUUID())
       .type(SegmentType.CONTINUE)
@@ -705,18 +666,17 @@ public class SegmentDAOImplTest {
       .storageKey("chains-1-segments-9f7s89d8a7892.wav")
       .tempo(120.0));
 
-    testDAO.update(access, segment4.getId(), segment4);
+    testService.update(segment4.getId(), segment4);
 
-    Segment result = testDAO.readOne(HubClientAccess.internal(), segment2.getId());
+    Segment result = testService.readOne(segment2.getId());
     assertNotNull(result);
   }
 
   @Test
   public void update_failsToTransitionFromDubbingToCrafting() {
-    HubClientAccess access = buildHubClientAccess("Admin");
 
-    Exception thrown = assertThrows(DAOValidationException.class, () ->
-      testDAO.update(access, segment2.getId(),
+    Exception thrown = assertThrows(ServiceValidationException.class, () ->
+      testService.update(segment2.getId(),
         entityFactory.clone(segment2).state(SegmentState.CRAFTING)));
 
     assertTrue(thrown.getMessage().contains("transition to Crafting not in allowed"));
@@ -724,7 +684,6 @@ public class SegmentDAOImplTest {
 
   @Test
   public void update_FailsWithoutChainID() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = store.put(new Segment()
       .id(UUID.randomUUID())
       .offset(4L)
@@ -738,15 +697,14 @@ public class SegmentDAOImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0));
 
-    Exception thrown = assertThrows(DAOValidationException.class, () ->
-      testDAO.update(access, segment2.getId(), inputData));
+    Exception thrown = assertThrows(ServiceValidationException.class, () ->
+      testService.update(segment2.getId(), inputData));
 
     assertEquals("Chain ID is required.", thrown.getMessage());
   }
 
   @Test
   public void update_FailsToChangeChain() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
     Segment inputData = new Segment()
       .id(UUID.randomUUID())
       .chainId(chain3.getId())
@@ -761,11 +719,11 @@ public class SegmentDAOImplTest {
       .key("C# minor 7 b9")
       .tempo(120.0);
 
-    Exception thrown = assertThrows(DAOValidationException.class, () ->
-      testDAO.update(access, segment2.getId(), inputData));
+    Exception thrown = assertThrows(ServiceValidationException.class, () ->
+      testService.update(segment2.getId(), inputData));
 
     assertTrue(thrown.getMessage().contains("transition to Crafting not in allowed"));
-    Segment result = testDAO.readOne(HubClientAccess.internal(), segment2.getId());
+    Segment result = testService.readOne(segment2.getId());
     assertNotNull(result);
     assertEquals("Db minor", result.getKey());
     assertEquals(chain3.getId(), result.getChainId());
@@ -775,38 +733,36 @@ public class SegmentDAOImplTest {
   public void destroy() throws Exception {
     // FUTURE use Mockito to provide content that would have been ingested from Hub, and assert results
 
-    testDAO.destroy(HubClientAccess.internal(), segment1.getId());
+    testService.destroy(segment1.getId());
 
     try {
-      testDAO.readOne(HubClientAccess.internal(), segment1.getId());
+      testService.readOne(segment1.getId());
       fail();
-    } catch (DAOExistenceException e) {
+    } catch (ServiceExistenceException e) {
       assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
     }
   }
 
   @Test
   public void destroy_okRegardlessOfChainState() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
 
-    testDAO.destroy(access, segment1.getId());
+    testService.destroy(segment1.getId());
   }
 
   @Test
   public void destroy_allChildEntities() throws Exception {
-    HubClientAccess access = buildHubClientAccess("Admin");
 
     //
     // Go!
-    testDAO.destroy(access, segment1.getId());
+    testService.destroy(segment1.getId());
     //
     //
 
     // Assert annihilation
     try {
-      testDAO.readOne(HubClientAccess.internal(), segment1.getId());
+      testService.readOne(segment1.getId());
       fail();
-    } catch (DAOExistenceException e) {
+    } catch (ServiceExistenceException e) {
       assertTrue("Record should not exist", e.getMessage().contains("does not exist"));
     }
   }

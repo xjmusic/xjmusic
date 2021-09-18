@@ -51,7 +51,7 @@ public class IngestEndpoint extends HubJsonapiEndpoint {
    */
   @GET
   @Path("{templateId}")
-  @RolesAllowed({INTERNAL})
+  @RolesAllowed(INTERNAL)
   public Response ingest(
     @Context ContainerRequestContext crc,
     @PathParam("templateId") String templateId

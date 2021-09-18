@@ -30,7 +30,6 @@ import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
@@ -194,9 +193,9 @@ public class MacroFromOverlappingMemeSequencesTest {
       0.85,
       120.0,
       "chains-1-segments-9f7s89d8a7892.wav",
-      "aac"));
+      "ogg"));
 
-    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment2), apiUrlProvider);
+    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2), apiUrlProvider);
   }
 
   @Test

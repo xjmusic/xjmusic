@@ -120,16 +120,17 @@ public class HubAccess {
   /**
    Create a new HubAccess control object
 
-   @param user     for access
-   @param userAuth for access
-   @param accounts for access
+   @param user       for access
+   @param userAuth   for access
+   @param accountIds for access
    @return access control object
    */
-  public static HubAccess create(User user, UserAuth userAuth, List<Account> accounts) {
+  public static HubAccess create(User user, UserAuth userAuth, List<UUID> accountIds) {
     return new HubAccess()
       .setUserId(user.getId())
       .setUserAuthId(userAuth.getId())
-      .setAccountIds(Entities.idsOf(accounts));
+      .setRoleTypes(Users.userRoleTypesFromCsv(user.getRoles()))
+      .setAccountIds(accountIds);
   }
 
   /**

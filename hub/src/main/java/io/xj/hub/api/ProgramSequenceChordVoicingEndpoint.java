@@ -49,7 +49,7 @@ public class ProgramSequenceChordVoicingEndpoint extends HubJsonapiEndpoint {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSONAPI)
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response create(JsonapiPayload jsonapiPayload, @Context ContainerRequestContext crc) {
     if (PayloadDataType.Many == jsonapiPayload.getDataType())
       return updateMany(crc, dao(), jsonapiPayload);
@@ -63,7 +63,7 @@ public class ProgramSequenceChordVoicingEndpoint extends HubJsonapiEndpoint {
    */
   @GET
   @Path("{id}")
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return readOne(crc, dao(), id);
   }
@@ -74,7 +74,7 @@ public class ProgramSequenceChordVoicingEndpoint extends HubJsonapiEndpoint {
    @return application/json response.
    */
   @GET
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response readMany(@Context ContainerRequestContext crc, @QueryParam("programSequenceChordId") String programSequenceChordId) {
     return readMany(crc, dao(), programSequenceChordId);
   }
@@ -100,7 +100,7 @@ public class ProgramSequenceChordVoicingEndpoint extends HubJsonapiEndpoint {
    */
   @DELETE
   @Path("{id}")
-  @RolesAllowed({ARTIST})
+  @RolesAllowed(ARTIST)
   public Response delete(@Context ContainerRequestContext crc, @PathParam("id") String id) {
     return delete(crc, dao(), id);
   }

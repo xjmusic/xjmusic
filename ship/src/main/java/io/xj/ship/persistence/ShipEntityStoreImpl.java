@@ -21,10 +21,6 @@ import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityStoreImpl;
 import io.xj.lib.util.Value;
-import io.xj.nexus.Segments;
-import io.xj.nexus.dao.exception.DAOFatalException;
-import io.xj.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.ship.ShipException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,7 +108,7 @@ public class ShipEntityStoreImpl implements ShipEntityStore {
   }
 
   @Override
-  public Optional<Segment> getSegment(UUID id) throws ShipException {
+  public Optional<Segment> getSegment(UUID id) {
     if (!segmentMap.containsKey(id)) return Optional.empty();
     return Optional.of(segmentMap.get(id));
   }

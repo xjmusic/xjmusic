@@ -22,12 +22,11 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.dao.SegmentDAO;
-import io.xj.nexus.dao.exception.DAOExistenceException;
-import io.xj.nexus.dao.exception.DAOFatalException;
-import io.xj.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.nexus.dao.exception.DAOValidationException;
-import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.service.SegmentService;
+import io.xj.nexus.service.exception.ServiceExistenceException;
+import io.xj.nexus.service.exception.ServiceFatalException;
+import io.xj.nexus.service.exception.ServicePrivilegeException;
+import io.xj.nexus.service.exception.ServiceValidationException;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -41,17 +40,16 @@ import java.util.stream.Collectors;
  The SegmentWorkbench is a delegate to manipulate the segment currently in progress during the fabrication.
  The pattern here is that all child entities of this segment are held in memory only within this delegate
  until the very end of the process, when the trigger is pulled and all the entities are written to the database
- using a special segment DAO method that does them all in one transaction.
+ using a special segment Service method that does them all in one transaction.
  <p>
  SegmentWorkbench.done()
  Called at the end of Segment fabrication.
- Sends added records to segmentDAO batch insert method
+ Sends added records to segmentService batch insert method
  */
 class SegmentWorkbenchImpl implements SegmentWorkbench {
   private final Chain chain;
-  private final SegmentDAO segmentDAO;
+  private final SegmentService segmentService;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final HubClientAccess access;
   private final Map<String, Object> report = Maps.newConcurrentMap();
   private final EntityStore benchStore;
   private Segment segment;
@@ -59,24 +57,22 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
 
   @Inject
   public SegmentWorkbenchImpl(
-    @Assisted("access") HubClientAccess access,
     @Assisted("chain") Chain chain,
     @Assisted("segment") Segment segment,
-    SegmentDAO segmentDAO,
+    SegmentService segmentService,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     EntityStore entityStore
   ) throws NexusException {
-    this.access = access;
     this.chain = chain;
     this.segment = segment;
-    this.segmentDAO = segmentDAO;
+    this.segmentService = segmentService;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.benchStore = entityStore;
 
     // fetch all sub entities of all segments and store the results in the corresponding entity cache
     try {
-      entityStore.putAll(segmentDAO.readManySubEntities(access, ImmutableList.of(segment.getId()), true));
-    } catch (DAOFatalException | DAOPrivilegeException | EntityStoreException e) {
+      entityStore.putAll(segmentService.readManySubEntities(ImmutableList.of(segment.getId()), true));
+    } catch (ServiceFatalException | ServicePrivilegeException | EntityStoreException e) {
       throw new NexusException("Failed to load Segment for Workbench!", e);
     }
   }
@@ -143,17 +139,17 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     try {
       sendReportToSegmentMessage();
 
-      segmentDAO.update(access, getSegment().getId(), getSegment());
+      segmentService.update(getSegment().getId(), getSegment());
 
-      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentMessage.class));
-      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentMeme.class));
-      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentChord.class));
-      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentChordVoicing.class));
-      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentChoice.class));
-      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentChoiceArrangement.class)); // after choices
-      segmentDAO.createAllSubEntities(access, benchStore.getAll(SegmentChoiceArrangementPick.class)); // after arrangements
+      segmentService.createAllSubEntities(benchStore.getAll(SegmentMessage.class));
+      segmentService.createAllSubEntities(benchStore.getAll(SegmentMeme.class));
+      segmentService.createAllSubEntities(benchStore.getAll(SegmentChord.class));
+      segmentService.createAllSubEntities(benchStore.getAll(SegmentChordVoicing.class));
+      segmentService.createAllSubEntities(benchStore.getAll(SegmentChoice.class));
+      segmentService.createAllSubEntities(benchStore.getAll(SegmentChoiceArrangement.class)); // after choices
+      segmentService.createAllSubEntities(benchStore.getAll(SegmentChoiceArrangementPick.class)); // after arrangements
 
-    } catch (JsonapiException | DAOFatalException | DAOExistenceException | DAOPrivilegeException | DAOValidationException e) {
+    } catch (JsonapiException | ServiceFatalException | ServiceExistenceException | ServicePrivilegeException | ServiceValidationException e) {
       throw new NexusException("Failed to build and update payload for Segment!", e);
     }
   }

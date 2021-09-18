@@ -18,7 +18,7 @@ import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.nexus.craft.CraftModule;
-import io.xj.nexus.dao.NexusDAOModule;
+import io.xj.nexus.service.NexusServiceModule;
 import io.xj.nexus.dub.DubModule;
 import io.xj.nexus.fabricator.NexusFabricatorModule;
 import io.xj.nexus.hub_client.client.HubClientModule;
@@ -36,7 +36,7 @@ public interface Main {
   Set<Module> injectorModules = ImmutableSet.of(
     new CraftModule(),
     new HubClientModule(),
-    new NexusDAOModule(),
+    new NexusServiceModule(),
     new DubModule(),
     new NexusFabricatorModule(),
     new FileStoreModule(),

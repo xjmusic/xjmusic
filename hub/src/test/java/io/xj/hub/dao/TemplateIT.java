@@ -99,20 +99,20 @@ public class TemplateIT {
   }
 
   @Test
-  public void create_embedKeyConvertedToLowercase() throws Exception {
+  public void create_shipKeyConvertedToLowercase() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("coconuts");
-    inputData.setEmbedKey("dXUZhm");
+    inputData.setShipKey("dXUZhm");
     inputData.setAccountId(fake.account1.getId());
 
     Template result = testDAO.create(hubAccess, inputData);
 
-    assertEquals("dxuzhm", result.getEmbedKey());
+    assertEquals("dxuzhm", result.getShipKey());
   }
 
   @Test
-  public void create_embedKeyGeneratedLowercase() throws Exception {
+  public void create_shipKeyGeneratedLowercase() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("coconuts");
@@ -120,7 +120,7 @@ public class TemplateIT {
 
     Template result = testDAO.create(hubAccess, inputData);
 
-    assertEquals(result.getEmbedKey(), result.getEmbedKey().toLowerCase(Locale.ROOT));
+    assertEquals(result.getShipKey(), result.getShipKey().toLowerCase(Locale.ROOT));
   }
 
   @Test
@@ -139,7 +139,7 @@ public class TemplateIT {
   }
 
   @Test
-  public void create_hasGeneratedEmbedKey() throws Exception {
+  public void create_hasGeneratedShipKey() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("coconuts");
@@ -148,17 +148,17 @@ public class TemplateIT {
     Template result = testDAO.create(hubAccess, inputData);
 
     assertNotNull(result);
-    assertEquals(9, result.getEmbedKey().length());
+    assertEquals(9, result.getShipKey().length());
   }
 
   @Test
-  public void create_cantHaveSameEmbedKeyAsExistingTemplate() throws Exception {
+  public void create_cantHaveSameShipKeyAsExistingTemplate() throws Exception {
     HubAccess hubAccess = HubAccess.create("Admin");
     test.insert(buildTemplate(fake.account1, "Prior", "key55"));
     Template inputData = buildTemplate(fake.account1, "New", "key55");
 
     var e = assertThrows(DAOException.class, () -> testDAO.create(hubAccess, inputData));
-    assertEquals("Found Template with same Embed Key", e.getMessage());
+    assertEquals("Found Template with same Ship key", e.getMessage());
   }
 
   /**
@@ -301,7 +301,7 @@ public class TemplateIT {
     HubAccess hubAccess = HubAccess.create("Admin");
     Template inputData = new Template();
     inputData.setName("cannons");
-    inputData.setEmbedKey("embed5leaves");
+    inputData.setShipKey("embed5leaves");
     inputData.setAccountId(fake.account1.getId());
 
     testDAO.update(hubAccess, template1a.getId(), inputData);
@@ -318,7 +318,7 @@ public class TemplateIT {
     Template inputData = new Template();
     inputData.setName("cannons");
     inputData.setType(TemplateType.Production);
-    inputData.setEmbedKey("embed5leaves");
+    inputData.setShipKey("embed5leaves");
     inputData.setAccountId(fake.account1.getId());
 
     testDAO.update(hubAccess, template1a.getId(), inputData);
@@ -334,7 +334,7 @@ public class TemplateIT {
     Template inputData = new Template();
     inputData.setName("cannons");
     inputData.setType(TemplateType.Production);
-    inputData.setEmbedKey("embed5leaves");
+    inputData.setShipKey("embed5leaves");
     inputData.setAccountId(fake.account1.getId());
 
     var e = assertThrows(DAOException.class, () -> testDAO.update(hubAccess, template1a.getId(), inputData));
@@ -342,13 +342,13 @@ public class TemplateIT {
   }
 
   @Test
-  public void update_cantHaveSameEmbedKeyAsExistingTemplate() throws HubException {
+  public void update_cantHaveSameShipKeyAsExistingTemplate() throws HubException {
     HubAccess hubAccess = HubAccess.create("Admin");
     test.insert(buildTemplate(fake.account1, "Prior", "key55"));
     Template inputData = buildTemplate(fake.account1, "New", "key55");
 
     var e = assertThrows(DAOException.class, () -> testDAO.update(hubAccess, template1a.getId(), inputData));
-    assertEquals("Found Template with same Embed Key", e.getMessage());
+    assertEquals("Found Template with same Ship key", e.getMessage());
   }
 
   @Test

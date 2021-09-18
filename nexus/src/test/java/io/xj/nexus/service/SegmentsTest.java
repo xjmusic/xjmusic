@@ -1,4 +1,4 @@
-package io.xj.nexus.dao;
+package io.xj.nexus.service;
 
 import com.google.common.collect.ImmutableList;
 import io.xj.api.Chain;
@@ -12,7 +12,7 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.Segments;
-import io.xj.nexus.dao.exception.DAOExistenceException;
+import io.xj.nexus.service.exception.ServiceExistenceException;
 import junit.framework.TestCase;
 
 import java.time.Instant;
@@ -89,7 +89,7 @@ public class SegmentsTest extends TestCase {
     super.setUp();
   }
 
-  public void testFindFirstOfType() throws DAOExistenceException {
+  public void testFindFirstOfType() throws ServiceExistenceException {
     var ch0 = new SegmentChoice();
     ch0.setDeltaIn(Segments.DELTA_UNLIMITED);
     ch0.setDeltaOut(Segments.DELTA_UNLIMITED);

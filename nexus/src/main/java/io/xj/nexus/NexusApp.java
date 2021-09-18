@@ -4,24 +4,16 @@ package io.xj.nexus;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
+import io.xj.hub.HubTopology;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.hub.HubTopology;
-import io.xj.lib.filestore.FileStoreProvider;
-import io.xj.lib.json.JsonProvider;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.TempFile;
 import io.xj.lib.util.Text;
-import io.xj.nexus.api.NexusAccessLogFilter;
 import io.xj.nexus.api.NexusAppHealthEndpoint;
 import io.xj.nexus.hub_client.client.HubAccessTokenFilter;
-import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWork;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 /**
  Base application for XJ services.
@@ -44,13 +36,6 @@ import java.io.File;
  */
 public class NexusApp extends App {
   private final org.slf4j.Logger LOG = LoggerFactory.getLogger(NexusApp.class);
-  private final EntityFactory entityFactory;
-  private final Environment env;
-  private final FileStoreProvider fileStoreProvider;
-  private final int rehydrateFabricatedAheadThreshold;
-  private final JsonapiPayloadFactory jsonapiPayloadFactory;
-  private final JsonProvider jsonProvider;
-  private final NexusEntityStore entityStore;
   private final NexusWork work;
   private final String platformRelease;
 
@@ -69,32 +54,20 @@ public class NexusApp extends App {
     NexusAppHealthEndpoint nexusAppHealthEndpoint
   ) {
     super(config, env);
-    this.env = env;
 
     // Configuration
     platformRelease = env.getPlatformEnvironment();
-    rehydrateFabricatedAheadThreshold = config.getInt("work.rehydrateFabricatedAheadThreshold");
 
     // non-static logger for this class, because app must init first
     LOG.info("{} configuration:\n{}", getName(), Text.toReport(config));
 
     // core delegates
     work = injector.getInstance(NexusWork.class);
-    jsonProvider = injector.getInstance(JsonProvider.class);
-    fileStoreProvider = injector.getInstance(FileStoreProvider.class);
-    entityStore = injector.getInstance(NexusEntityStore.class);
-    jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
 
     // Setup Entity topology
-    entityFactory = injector.getInstance(EntityFactory.class);
+    EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
-
-    // Register JAX-RS filter for access log only registers if file succeeds to open for writing
-    String pathToWriteAccessLog = 0 < env.getAccessLogFilename().length() ?
-      env.getAccessLogFilename() :
-      TempFile.getTempFilePathPrefix() + File.separator + env.getAccessLogFilename();
-    new NexusAccessLogFilter(pathToWriteAccessLog).registerTo(getResourceConfig());
 
     // Register JAX-RS filter for reading access control token
     getResourceConfig()

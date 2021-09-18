@@ -11,7 +11,7 @@ import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.music.Note;
 import io.xj.lib.util.CSV;
-import io.xj.nexus.dao.exception.DAOExistenceException;
+import io.xj.nexus.service.exception.ServiceExistenceException;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -37,9 +37,9 @@ public enum Segments {
    @param type           to find one of
    @return segment choice of given type
    */
-  public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, ProgramType type) throws DAOExistenceException {
+  public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, ProgramType type) throws ServiceExistenceException {
     Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getProgramType().equals(type.toString())).findFirst();
-    if (found.isEmpty()) throw new DAOExistenceException(String.format("No %s-type choice found", type));
+    if (found.isEmpty()) throw new ServiceExistenceException(String.format("No %s-type choice found", type));
     return found.get();
   }
 
@@ -50,17 +50,17 @@ public enum Segments {
    @param type           to find one of
    @return segment choice of given type
    */
-  public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, InstrumentType type) throws DAOExistenceException {
+  public static SegmentChoice findFirstOfType(Collection<SegmentChoice> segmentChoices, InstrumentType type) throws ServiceExistenceException {
     Optional<SegmentChoice> found = segmentChoices.stream().filter(c -> c.getInstrumentType().equals(type.toString())).findFirst();
-    if (found.isEmpty()) throw new DAOExistenceException(String.format("No %s-type choice found", type));
+    if (found.isEmpty()) throw new ServiceExistenceException(String.format("No %s-type choice found", type));
     return found.get();
   }
 
   /**
-   Get the identifier or a Segment: embed key if available, else ID
+   Get the identifier or a Segment: ship key if available, else ID
 
    @param segment to get identifier of
-   @return embed key if available, else ID
+   @return ship key if available, else ID
    */
   public static String getIdentifier(@Nullable Segment segment) {
     if (Objects.isNull(segment)) return "N/A";

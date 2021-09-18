@@ -32,14 +32,14 @@ public enum Templates {
   }
 
   /**
-   Get the identifier or a Template: embed key if available, else ID
+   Get the identifier or a Template: ship key if available, else ID
 
    @param template to get identifier of
-   @return embed key if available, else ID
+   @return ship key if available, else ID
    */
   public static String getIdentifier(@Nullable Template template) {
     if (Objects.isNull(template)) return "N/A";
-    return Strings.isNullOrEmpty(template.getEmbedKey()) ? template.getId().toString() : template.getEmbedKey();
+    return Strings.isNullOrEmpty(template.getShipKey()) ? template.getId().toString() : template.getShipKey();
   }
 
   /**

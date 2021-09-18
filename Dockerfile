@@ -10,5 +10,5 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install build-es
 # Install Java 14
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install openjdk-14-jdk
 
-# Install Fraunhofer
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install libfdk-aac-dev
+# Install FFMPEG
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install ffmpeg

@@ -34,7 +34,6 @@ import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
@@ -169,7 +168,7 @@ public class ArrangementCraftTests extends YamlTest {
 
         // Fabricate: Craft Arrangements for Choices
         var sourceMaterial = new HubContent(content);
-        fabricator = fabrication.fabricate(HubClientAccess.internal(), sourceMaterial, segment);
+        fabricator = fabrication.fabricate(sourceMaterial, segment);
         ArrangementCraftImpl subject = new ArrangementCraftImpl(fabricator);
         for (var choice : segmentChoices.values()) subject.craftArrangements(choice, false);
 

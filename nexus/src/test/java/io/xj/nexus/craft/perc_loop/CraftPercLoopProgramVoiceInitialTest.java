@@ -25,7 +25,6 @@ import io.xj.nexus.Segments;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
@@ -103,7 +102,7 @@ public class CraftPercLoopProgramVoiceInitialTest {
   public void craftPercLoopVoiceInitial() throws Exception {
     insertSegment();
 
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment0);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0);
 
     craftFactory.percLoop(fabricator).doWork();
 
@@ -134,7 +133,7 @@ public class CraftPercLoopProgramVoiceInitialTest {
   @Test
   public void craftPercLoopVoiceInitial_okWhenNoPercLoopChoice() throws Exception {
     insertSegment();
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment0);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0);
 
     craftFactory.percLoop(fabricator).doWork();
   }
@@ -154,7 +153,7 @@ public class CraftPercLoopProgramVoiceInitialTest {
       0.55,
       130.0,
       "chains-1-segments-9f7s89d8a7892.wav",
-      "AAC"));
+      "OGG"));
     store.put(buildSegmentChoice(segment0, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program4, fake.program4_sequence0_binding0));
     store.put(buildSegmentChoice(segment0, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, fake.program5, fake.program5_sequence0_binding0));
     for (String memeName : ImmutableList.of("Special", "Wild", "Pessimism", "Outlook"))

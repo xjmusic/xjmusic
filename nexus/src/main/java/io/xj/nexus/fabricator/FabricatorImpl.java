@@ -59,18 +59,18 @@ import io.xj.lib.util.Chance;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
-import io.xj.nexus.NexusException;
-import io.xj.nexus.dao.ChainDAO;
 import io.xj.nexus.Chains;
-import io.xj.nexus.dao.SegmentDAO;
+import io.xj.nexus.NexusException;
 import io.xj.nexus.Segments;
-import io.xj.nexus.dao.exception.DAOExistenceException;
-import io.xj.nexus.dao.exception.DAOFatalException;
-import io.xj.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.nexus.dao.exception.DAOValidationException;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubClientException;
 import io.xj.nexus.hub_client.client.HubContent;
+import io.xj.nexus.service.ChainService;
+import io.xj.nexus.service.SegmentService;
+import io.xj.nexus.service.exception.ServiceExistenceException;
+import io.xj.nexus.service.exception.ServiceFatalException;
+import io.xj.nexus.service.exception.ServicePrivilegeException;
+import io.xj.nexus.service.exception.ServiceValidationException;
 import org.glassfish.jersey.internal.guava.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +109,6 @@ class FabricatorImpl implements Fabricator {
   private final DecimalFormat segmentNameFormat;
   private final FabricatorFactory fabricatorFactory;
   private final FileStoreProvider fileStoreProvider;
-  private final HubClientAccess access;
   private final HubContent sourceMaterial;
   private final int workBufferAheadSeconds;
   private final int workBufferBeforeSeconds;
@@ -123,7 +122,7 @@ class FabricatorImpl implements Fabricator {
   private final Map<String, Integer> targetShift;
   private final Map<String, NoteRange> rangeForChoice;
   private final Map<String, Set<String>> preferredNotes;
-  private final SegmentDAO segmentDAO;
+  private final SegmentService segmentService;
   private final SegmentRetrospective retrospective;
   private final SegmentWorkbench workbench;
   private final Set<UUID> boundInstrumentIds;
@@ -134,24 +133,19 @@ class FabricatorImpl implements Fabricator {
 
   @AssistedInject
   public FabricatorImpl(
-    @Assisted("access") HubClientAccess access,
     @Assisted("sourceMaterial") HubContent sourceMaterial,
     @Assisted("segment") Segment segment,
     Config config,
     Environment env,
-    ChainDAO chainDAO,
+    ChainService chainService,
     FileStoreProvider fileStoreProvider,
     FabricatorFactory fabricatorFactory,
-    SegmentDAO segmentDAO,
+    SegmentService segmentService,
     JsonapiPayloadFactory jsonapiPayloadFactory
   ) throws NexusException {
-    this.segmentDAO = segmentDAO;
+    this.segmentService = segmentService;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     try {
-      // FUTURE: [#165815496] Chain fabrication access control
-      this.access = access;
-      LOG.debug("[segId={}] HubClientAccess {}", segment.getId(), access);
-
       this.fileStoreProvider = fileStoreProvider;
       this.fabricatorFactory = fabricatorFactory;
       this.sourceMaterial = sourceMaterial;
@@ -176,7 +170,7 @@ class FabricatorImpl implements Fabricator {
       LOG.debug("[segId={}] StartTime {}ns since epoch zulu", segment.getId(), startTime);
 
       // read the chain, configs, and bindings
-      chain = chainDAO.readOne(access, segment.getChainId());
+      chain = chainService.readOne(segment.getChainId());
       templateConfig = new TemplateConfig(sourceMaterial.getTemplate(), config);
       templateBindings = sourceMaterial.getAllTemplateBindings();
       boundProgramIds = Chains.targetIdsOfType(templateBindings, ContentBindingType.Program);
@@ -186,7 +180,7 @@ class FabricatorImpl implements Fabricator {
         CSV.prettyFrom(templateBindings, "and"));
 
       // set up the segment retrospective
-      retrospective = fabricatorFactory.loadRetrospective(access, segment, sourceMaterial);
+      retrospective = fabricatorFactory.loadRetrospective(segment, sourceMaterial);
 
       // digest previous picks
       preferredNotes = computePreferredNotes();
@@ -195,12 +189,12 @@ class FabricatorImpl implements Fabricator {
       preferredAudios = computePreferredInstrumentAudio();
 
       // get the current segment on the workbench
-      workbench = fabricatorFactory.setupWorkbench(access, chain, segment);
+      workbench = fabricatorFactory.setupWorkbench(chain, segment);
 
       // final pre-flight check
       ensureStorageKey();
 
-    } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException | ValueException | HubClientException e) {
+    } catch (ServiceFatalException | ServiceExistenceException | ServicePrivilegeException | ValueException | HubClientException e) {
       LOG.error("Failed to instantiate Fabricator!", e);
       throw new NexusException("Failed to instantiate Fabricator!", e);
     }
@@ -266,11 +260,6 @@ class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public HubClientAccess getAccess() {
-    return access;
-  }
-
-  @Override
   public Collection<SegmentChoiceArrangement> getArrangements() {
     return workbench.getSegmentArrangements();
   }
@@ -304,9 +293,9 @@ class FabricatorImpl implements Fabricator {
   @Override
   public String getChainMetadataFullJson() throws NexusException {
     try {
-      return computeChainMetadataJson(segmentDAO.readMany(access, ImmutableList.of(chain.getId())));
+      return computeChainMetadataJson(segmentService.readMany(ImmutableList.of(chain.getId())));
 
-    } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
+    } catch (ServicePrivilegeException | ServiceFatalException | ServiceExistenceException e) {
       throw new NexusException(e);
     }
   }
@@ -322,13 +311,13 @@ class FabricatorImpl implements Fabricator {
       var now = Instant.now();
       var beforeThreshold = now.plusSeconds(workBufferAheadSeconds);
       var afterThreshold = now.minusSeconds(workBufferBeforeSeconds);
-      return computeChainMetadataJson(segmentDAO.readMany(access, ImmutableList.of(chain.getId())).stream()
+      return computeChainMetadataJson(segmentService.readMany(ImmutableList.of(chain.getId())).stream()
         .filter(segment ->
           Instant.parse(segment.getBeginAt()).isBefore(beforeThreshold)
             && Instant.parse(segment.getEndAt()).isAfter(afterThreshold))
         .collect(Collectors.toList()));
 
-    } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException e) {
+    } catch (ServicePrivilegeException | ServiceFatalException | ServiceExistenceException e) {
       throw new NexusException(e);
     }
   }
@@ -937,10 +926,10 @@ class FabricatorImpl implements Fabricator {
   @Override
   public void updateSegment(Segment segment) {
     try {
-      segmentDAO.update(access, segment.getId(), segment);
+      segmentService.update(segment.getId(), segment);
       workbench.setSegment(segment);
 
-    } catch (DAOFatalException | DAOExistenceException | DAOPrivilegeException | DAOValidationException e) {
+    } catch (ServiceFatalException | ServiceExistenceException | ServicePrivilegeException | ServiceValidationException e) {
       LOG.error("Failed to update Segment", e);
     }
   }
@@ -967,9 +956,9 @@ class FabricatorImpl implements Fabricator {
    */
   private String computeChainBaseKey() {
     return
-      Strings.isNullOrEmpty(getChain().getEmbedKey()) ?
+      Strings.isNullOrEmpty(getChain().getShipKey()) ?
         String.format("chain-%s", chain.getId())
-        : getChain().getEmbedKey();
+        : getChain().getShipKey();
   }
 
   /**
@@ -1033,9 +1022,9 @@ class FabricatorImpl implements Fabricator {
    @return URL as string
    */
   private String computeStorageKey(Chain chain, Segment segment) {
-    String chainName = Strings.isNullOrEmpty(chain.getEmbedKey()) ?
+    String chainName = Strings.isNullOrEmpty(chain.getShipKey()) ?
       "chain" + NAME_SEPARATOR + chain.getId() :
-      chain.getEmbedKey();
+      chain.getShipKey();
     String segmentName = segmentNameFormat.format(Instant.parse(segment.getBeginAt()).toEpochMilli());
     return fileStoreProvider.generateKey(chainName + NAME_SEPARATOR + segmentName);
   }

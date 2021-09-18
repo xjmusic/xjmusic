@@ -38,14 +38,14 @@ public enum Chains {
   }
 
   /**
-   Get the identifier or a Chain: embed key if available, else ID
+   Get the identifier or a Chain: ship key if available, else ID
 
    @param chain to get identifier of
-   @return embed key if available, else ID
+   @return ship key if available, else ID
    */
   public static String getIdentifier(@Nullable Chain chain) {
     if (Objects.isNull(chain)) return "N/A";
-    return Strings.isNullOrEmpty(chain.getEmbedKey()) ? chain.getId().toString() : chain.getEmbedKey();
+    return Strings.isNullOrEmpty(chain.getShipKey()) ? chain.getId().toString() : chain.getShipKey();
   }
 
   /**
@@ -108,7 +108,7 @@ public enum Chains {
   public static Chain fromTemplate(Template template) {
     var chain = new Chain();
     chain.setTemplateId(template.getId());
-    chain.setEmbedKey(template.getEmbedKey());
+    chain.setShipKey(template.getShipKey());
     chain.setAccountId(template.getAccountId());
     chain.setType(ChainType.fromValue(template.getType().toString()));
     chain.setName(template.getName());

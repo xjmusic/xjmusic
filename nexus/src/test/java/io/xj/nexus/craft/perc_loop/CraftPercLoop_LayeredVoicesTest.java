@@ -31,7 +31,6 @@ import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
@@ -139,7 +138,7 @@ public class CraftPercLoop_LayeredVoicesTest {
       0.30,
       120.0,
       "chains-1-segments-9f7s89d8a7892.wav",
-      "aac"));
+      "ogg"));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Macro, fake.program4_sequence0_binding0));
     store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(segment3, ProgramType.Main, fake.program5_sequence0_binding0));
 
@@ -197,7 +196,7 @@ public class CraftPercLoop_LayeredVoicesTest {
 
   @Test
   public void craftPercLoopVoiceContinue() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4);
 
     craftFactory.percLoop(fabricator).doWork();
 

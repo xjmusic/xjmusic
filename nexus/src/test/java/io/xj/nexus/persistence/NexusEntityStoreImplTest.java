@@ -129,7 +129,7 @@ public class NexusEntityStoreImplTest {
     chain.setState(ChainState.FABRICATE);
     chain.startAt("2017-02-14T12:01:00.000001Z");
     chain.stopAt("2017-02-14T12:01:32.000001Z");
-    chain.embedKey("super");
+    chain.shipKey("super");
 
     subject.put(chain);
     var result = subject.getChain(chain.getId()).orElseThrow();
@@ -140,7 +140,7 @@ public class NexusEntityStoreImplTest {
     assertEquals(ChainState.FABRICATE, result.getState());
     assertEquals("2017-02-14T12:01:00.000001Z", result.getStartAt());
     assertEquals("2017-02-14T12:01:32.000001Z", result.getStopAt());
-    assertEquals("super", result.getEmbedKey());
+    assertEquals("super", result.getShipKey());
   }
 
   @Test
@@ -243,7 +243,7 @@ public class NexusEntityStoreImplTest {
       0.3,
       10.0,
       "chains-2-segments-8929f7sd8a789.wav",
-      "AAC"));
+      "OGG"));
     Segment chain3_segment0 = subject.put(buildSegment(chain3,
       0,
       SegmentState.DUBBED,
@@ -254,7 +254,7 @@ public class NexusEntityStoreImplTest {
       0.73,
       120.0,
       "chains-3-segments-9f7s89d8a7892.wav",
-      "AAC"));
+      "OGG"));
     subject.put(buildSegmentChoice(chain3_segment0, Segments.DELTA_UNLIMITED, Segments.DELTA_UNLIMITED, program, programSequenceBinding));
     // not in the above chain, won't be retrieved with it
     subject.put(buildSegment(chain3,
@@ -267,7 +267,7 @@ public class NexusEntityStoreImplTest {
       0.73,
       120.0,
       "chains-3-segments-d8a78929f7s89.wav",
-      "AAC"));
+      "OGG"));
 
     Collection<Segment> result = subject.getAllSegments(chain3.getId());
     assertEquals(2, result.size());

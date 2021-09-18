@@ -101,7 +101,6 @@ dependencies {
   implementation 'org.mockito:mockito-core:1.10.19'
   implementation 'org.postgresql:postgresql:42.2.23.jre7'
   implementation 'org.reflections:reflections:0.9.11'
-  implementation 'org.sheinbergon:jna-aac-encoder:0.1.4'
   implementation 'org.slf4j:slf4j-api:1.7.30'
   implementation 'org.yaml:snakeyaml:1.18'
   implementation 'redis.clients:jedis:2.9.0'
@@ -217,6 +216,6 @@ allprojects {
 
 jib {
   to.image = gitBranch() == 'main' ? '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/hub' : '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/dev/hub'
-  from.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base:main'
+  from.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base:latest'
   container.jvmFlags = ["-Djava.library.path=/usr/lib/x86_64-linux-gnu"]
 }

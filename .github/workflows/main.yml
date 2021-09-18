@@ -106,5 +106,8 @@ jobs:
       - name: Kubernetes rollout Lab/Nexus
         run: "kubectl -n lab rollout restart deployment/nexus"
 
-      - name: Kubernetes rollout Yard/Nexus
-        run: "kubectl -n yard rollout restart deployment/coolair"
+      - name: Kubernetes rollout Yard/CoolAir/Nexus
+        run: "kubectl -n yard rollout restart deployment/coolair-nexus"
+
+      - name: Kubernetes rollout Yard/CoolAir/Ship
+        run: "kubectl -n yard rollout restart deployment/coolair-ship"

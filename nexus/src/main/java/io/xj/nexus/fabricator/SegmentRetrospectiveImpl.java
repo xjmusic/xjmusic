@@ -13,11 +13,10 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.dao.SegmentDAO;
-import io.xj.nexus.dao.exception.DAOExistenceException;
-import io.xj.nexus.dao.exception.DAOFatalException;
-import io.xj.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.service.SegmentService;
+import io.xj.nexus.service.exception.ServiceExistenceException;
+import io.xj.nexus.service.exception.ServiceFatalException;
+import io.xj.nexus.service.exception.ServicePrivilegeException;
 import io.xj.nexus.hub_client.client.HubContent;
 
 import java.util.ArrayList;
@@ -37,10 +36,9 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
 
   @Inject
   public SegmentRetrospectiveImpl(
-    @Assisted("access") HubClientAccess access,
     @Assisted("segment") Segment segment,
     @Assisted("sourceMaterial") HubContent sourceMaterial,
-    SegmentDAO segmentDAO,
+    SegmentService segmentService,
     EntityStore entityStore
   ) throws NexusException {
     this.store = entityStore;
@@ -52,9 +50,9 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     try {
       // begin by getting the previous segment
       // the previous segment is the first one cached here. we may cache even further back segments below if found
-      previousSegment = store.put(segmentDAO.readOneAtChainOffset(access,
+      previousSegment = store.put(segmentService.readOneAtChainOffset(
         segment.getChainId(), segment.getOffset() - 1));
-      store.putAll(segmentDAO.readManySubEntities(access, ImmutableList.of(previousSegment.getId()), true));
+      store.putAll(segmentService.readManySubEntities(ImmutableList.of(previousSegment.getId()), true));
 
       // previous segment must have a main choice to continue past here.
       SegmentChoice previousSegmentMainChoice = store.getAll(SegmentChoice.class).stream()
@@ -65,17 +63,17 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       // if relevant populate the retrospective with the previous segments with the same main sequence as this one
       long sequenceBindingOffset = sourceMaterial
         .getProgramSequenceBinding(previousSegmentMainChoice.getProgramSequenceBindingId())
-        .orElseThrow(() -> new DAOExistenceException("Retrospective cannot find sequence binding"))
+        .orElseThrow(() -> new ServiceExistenceException("Retrospective cannot find sequence binding"))
         .getOffset();
       if (0 >= sequenceBindingOffset) return;
       long oF = segment.getOffset() - sequenceBindingOffset;
       long oT = segment.getOffset() - 1;
       if (0 > oF || 0 > oT) return;
-      Collection<Segment> previousMany = segmentDAO.readManyFromToOffset(access, segment.getChainId(), oF, oT);
+      Collection<Segment> previousMany = segmentService.readManyFromToOffset(segment.getChainId(), oF, oT);
       store.putAll(previousMany);
-      store.putAll(segmentDAO.readManySubEntities(access, Entities.idsOf(previousMany), true));
+      store.putAll(segmentService.readManySubEntities(Entities.idsOf(previousMany), true));
 
-    } catch (DAOExistenceException | DAOFatalException | DAOPrivilegeException | EntityStoreException e) {
+    } catch (ServiceExistenceException | ServiceFatalException | ServicePrivilegeException | EntityStoreException e) {
       throw new NexusException(e);
     }
   }

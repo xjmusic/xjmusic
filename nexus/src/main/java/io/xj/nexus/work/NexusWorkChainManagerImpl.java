@@ -24,13 +24,13 @@ import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Value;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.dao.ChainDAO;
+import io.xj.nexus.service.ChainService;
 import io.xj.nexus.Chains;
 import io.xj.nexus.Segments;
-import io.xj.nexus.dao.exception.DAOExistenceException;
-import io.xj.nexus.dao.exception.DAOFatalException;
-import io.xj.nexus.dao.exception.DAOPrivilegeException;
-import io.xj.nexus.dao.exception.DAOValidationException;
+import io.xj.nexus.service.exception.ServiceExistenceException;
+import io.xj.nexus.service.exception.ServiceFatalException;
+import io.xj.nexus.service.exception.ServicePrivilegeException;
+import io.xj.nexus.service.exception.ServiceValidationException;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubClientException;
@@ -64,7 +64,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final JsonProvider jsonProvider;
   private final NexusEntityStore entityStore;
-  private final ChainDAO chainDAO;
+  private final ChainService chainService;
   private final HubClientAccess access;
   private final AtomicReference<Mode> mode;
   private final String segmentFileBucket;
@@ -78,7 +78,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
 
   @Inject
   public NexusWorkChainManagerImpl(
-    ChainDAO chainDAO,
+    ChainService chainService,
     Config config,
     EntityFactory entityFactory,
     Environment env,
@@ -94,7 +94,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonProvider = jsonProvider;
     this.entityStore = entityStore;
-    this.chainDAO = chainDAO;
+    this.chainService = chainService;
 
     access = HubClientAccess.internal();
     yardTemplateId = Value.uuidOrNull(env.getBootstrapTemplateId());
@@ -194,12 +194,12 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     // Maintain chain for all templates
     Collection<Chain> chains;
     try {
-      chains = chainDAO.readAllFabricating(access);
+      chains = chainService.readAllFabricating();
       Set<UUID> chainTemplateIds = chains.stream().map(Chain::getTemplateId).collect(Collectors.toSet());
       for (Template template : templates)
         if (!chainTemplateIds.contains(template.getId()))
           createChainForTemplate(template.getId(), TemplateType.Preview);
-    } catch (DAOFatalException | DAOPrivilegeException e) {
+    } catch (ServiceFatalException | ServicePrivilegeException e) {
       LOG.error("Failed to start Chain(s) for playing Template(s)!", e);
       return false;
     }
@@ -210,9 +210,9 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
       for (var chain : chains)
         if (!templateIds.contains(chain.getTemplateId())) {
           LOG.info("Will stop lab Chain[{}] for no-longer-playing Template", Chains.getIdentifier(chain));
-          chainDAO.updateState(access, chain.getId(), ChainState.COMPLETE);
+          chainService.updateState(chain.getId(), ChainState.COMPLETE);
         }
-    } catch (DAOPrivilegeException | DAOFatalException | DAOExistenceException | DAOValidationException e) {
+    } catch (ServicePrivilegeException | ServiceFatalException | ServiceExistenceException | ServiceValidationException e) {
       LOG.error("Failed to stop non-playing Chain(s)!", e);
       return false;
     }
@@ -222,7 +222,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
 
   /**
    Bootstrap a chain from JSON chain bootstrap data,
-   first rehydrating store from last shipped JSON matching this embed key.
+   first rehydrating store from last shipped JSON matching this ship key.
    <p>
    Nexus with bootstrap chain rehydrates store on startup from shipped JSON files
    https://www.pivotaltracker.com/story/show/178718006
@@ -243,14 +243,14 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     if (rehydrateTemplate(template)) return true;
 
     // If the template already exists, destroy it
-    chainDAO.destroyIfExistsForEmbedKey(access, template.getEmbedKey());
+    chainService.destroyIfExistsForShipKey(template.getShipKey());
 
     // Only if rehydration was unsuccessful
     try {
       LOG.info("Will bootstrap Template[{}]", Templates.getIdentifier(template));
-      chainDAO.bootstrap(access, type, Chains.fromTemplate(template));
+      chainService.bootstrap(type, Chains.fromTemplate(template));
       return true;
-    } catch (DAOFatalException | DAOPrivilegeException | DAOValidationException | DAOExistenceException e) {
+    } catch (ServiceFatalException | ServicePrivilegeException | ServiceValidationException | ServiceExistenceException e) {
       LOG.error("Failed bootstrap Template[{}]!", Templates.getIdentifier(template), e);
       return false;
     }
@@ -271,18 +271,18 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     Chain chain;
     try {
       LOG.info("Will check for last shipped data");
-      chainStorageKey = Chains.getStorageKey(Chains.getFullKey(template.getEmbedKey()), EXTENSION_JSON);
+      chainStorageKey = Chains.getStorageKey(Chains.getFullKey(template.getShipKey()), EXTENSION_JSON);
       chainStream = fileStoreProvider.streamS3Object(segmentFileBucket, chainStorageKey);
       chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
       entities.add(entityFactory.clone(chain));
     } catch (FileStoreException | JsonapiException | ClassCastException | IOException | EntityException e) {
-      LOG.error("Failed to retrieve previously fabricated chain for Template[{}] because {}", template.getEmbedKey(), e.getMessage());
+      LOG.error("Failed to retrieve previously fabricated chain for Template[{}] because {}", template.getShipKey(), e.getMessage());
       return false;
     }
 
     try {
-      LOG.info("Will load Chain[{}] for embed key \"{}\"", chain.getId(), template.getEmbedKey());
+      LOG.info("Will load Chain[{}] for ship key \"{}\"", chain.getId(), template.getShipKey());
       chainPayload.getIncluded().stream()
         .filter(po -> po.isType(TemplateBinding.class))
         .forEach(templateBinding -> {

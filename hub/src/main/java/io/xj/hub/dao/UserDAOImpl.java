@@ -118,7 +118,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
    @param email     to contact new user
    @return new User record, including actual id
    */
-  private static UserRecord newUser(DSLContext db, String name, String avatarUrl, String email) throws DAOException {
+  private User newUser(DSLContext db, String name, String avatarUrl, String email) throws DAOException {
     UserRecord user = db.insertInto(USER, USER.NAME, USER.AVATAR_URL, USER.EMAIL)
       .values(name, avatarUrl, email)
       .returning(USER.ID, USER.NAME, USER.AVATAR_URL, USER.EMAIL)
@@ -128,7 +128,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
     }
 
     log.info("Created new User, id={}, name={}, email={}", user.getId(), user.getName(), user.getEmail());
-    return user;
+    return modelFrom(user);
   }
 
   /**
@@ -142,6 +142,21 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
     return modelsFrom(AccountUser.class, db.selectFrom(ACCOUNT_USER)
       .where(ACCOUNT_USER.USER_ID.equal(userId))
       .fetch());
+  }
+
+  /**
+   Select existing user by id
+
+   @param db context
+   @param id of user
+   @return user
+   @throws DAOException on failure
+   */
+  private User fetchUser(DSLContext db, UUID id) throws DAOException {
+    return modelFrom(User.class, select(db)
+      .from(USER)
+      .where(USER.ID.eq(id))
+      .fetchOne());
   }
 
   /**
@@ -191,18 +206,18 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
     DSLContext db = dbProvider.getDSL();
     Collection<AccountUser> accounts;
     UserAuth userAuth;
-    String roles = "User";
+    User user;
 
     // attempt to find existing user
     try {
       userAuth = readOneAuth(db, authType, account);
+      user = fetchUser(db, userAuth.getUserId());
       accounts = fetchAccounts(db, userAuth.getUserId());
-    }
 
-    // no user exists; create one
-    catch (DAOException ignored) {
+    } catch (DAOException ignored) {
+      // no user exists; create one
       try {
-        UserRecord user = newUser(db, name, avatarUrl, email);
+        user = newUser(db, name, avatarUrl, email);
         accounts = Lists.newArrayList();
         userAuth = newUserAuth(db, user.getId().toString(), authType, account, externalAccessToken, externalRefreshToken);
       } catch (Exception e) {
@@ -211,7 +226,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
     }
 
     try {
-      String accessToken = hubAccessControlProvider.create(userAuth, accounts, roles);
+      String accessToken = hubAccessControlProvider.create(user, userAuth, accounts);
       newUserAuthTokenRecord(db,
         userAuth.getUserId(),
         userAuth.getId(),

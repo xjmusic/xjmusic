@@ -640,10 +640,10 @@ public class IntegrationTestingFixtures {
    e.g. `choiceDeltaEnabled = false` to disable choice delta randomness,
    otherwise tests may sporadically fail.
    */
-  public static Template buildTemplate(Account account1, TemplateType type, String name, String embedKey) {
+  public static Template buildTemplate(Account account1, TemplateType type, String name, String shipKey) {
     var template = new Template();
     template.setId(UUID.randomUUID());
-    template.setEmbedKey(embedKey);
+    template.setShipKey(shipKey);
     template.setType(type);
     template.setConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\nchoiceDeltaEnabled = false\n");
     template.setAccountId(account1.getId());
@@ -651,12 +651,12 @@ public class IntegrationTestingFixtures {
     return template;
   }
 
-  public static Template buildTemplate(Account account1, String name, String embedKey) {
-    return buildTemplate(account1, TemplateType.Preview, name, embedKey);
+  public static Template buildTemplate(Account account1, String name, String shipKey) {
+    return buildTemplate(account1, TemplateType.Preview, name, shipKey);
   }
 
-  public static Template buildTemplate(Account account1, String name, String embedKey, String config) {
-    var template = buildTemplate(account1, TemplateType.Preview, name, embedKey);
+  public static Template buildTemplate(Account account1, String name, String shipKey, String config) {
+    var template = buildTemplate(account1, TemplateType.Preview, name, shipKey);
     template.setConfig(config);
     return template;
   }

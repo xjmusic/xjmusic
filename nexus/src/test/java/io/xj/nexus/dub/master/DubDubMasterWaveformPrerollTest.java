@@ -28,7 +28,6 @@ import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
@@ -147,7 +146,7 @@ public class DubDubMasterWaveformPrerollTest {
 
   @Test
   public void dubMaster_hasWaveformPrerollBeforeSegmentStart() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment6);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6);
 
     dubFactory.master(fabricator).doWork();
 

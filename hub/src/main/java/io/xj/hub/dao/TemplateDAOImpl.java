@@ -35,7 +35,7 @@ import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
 import static io.xj.hub.tables.Account.ACCOUNT;
 
 public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
-  private static final int GENERATED_EMBED_KEY_LENGTH = 9;
+  private static final int GENERATED_SHIP_KEY_LENGTH = 9;
   private final Config config;
   private final long playbackExpireSeconds;
 
@@ -65,9 +65,9 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
           .where(ACCOUNT.ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
 
-    requireNotExists("Template with same Embed Key",
+    requireNotExists("Template with same Ship key",
       db.selectCount().from(TEMPLATE)
-        .where(TEMPLATE.EMBED_KEY.eq(entity.getEmbedKey()))
+        .where(TEMPLATE.SHIP_KEY.eq(entity.getShipKey()))
         .fetchOne(0, int.class));
 
     return modelFrom(Template.class, executeCreate(dbProvider.getDSL(), TEMPLATE, record));
@@ -89,16 +89,16 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
   }
 
   @Override
-  public Optional<Template> readOneByEmbedKey(HubAccess hubAccess, String rawEmbedKey) throws DAOException {
-    String key = Text.toEmbedKey(rawEmbedKey);
+  public Optional<Template> readOneByShipKey(HubAccess hubAccess, String rawShipKey) throws DAOException {
+    String key = Text.toShipKey(rawShipKey);
     if (hubAccess.isTopLevel())
       return Optional.ofNullable(modelFrom(Template.class, dbProvider.getDSL().selectFrom(TEMPLATE)
-        .where(TEMPLATE.EMBED_KEY.eq(key))
+        .where(TEMPLATE.SHIP_KEY.eq(key))
         .fetchOne()));
     else
       return Optional.ofNullable(modelFrom(Template.class, dbProvider.getDSL().select(TEMPLATE.fields())
         .from(TEMPLATE)
-        .where(TEMPLATE.EMBED_KEY.eq(key))
+        .where(TEMPLATE.SHIP_KEY.eq(key))
         .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
         .fetchOne()));
   }
@@ -165,9 +165,9 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
           .fetchOne(0, int.class));
     }
 
-    requireNotExists("Template with same Embed Key",
+    requireNotExists("Template with same Ship key",
       db.selectCount().from(TEMPLATE)
-        .where(TEMPLATE.EMBED_KEY.eq(record.getEmbedKey()))
+        .where(TEMPLATE.SHIP_KEY.eq(record.getShipKey()))
         .and(TEMPLATE.ID.ne(record.getId()))
         .fetchOne(0, int.class));
 
@@ -210,11 +210,11 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
       Value.require(record.getAccountId(), "Account ID");
       Value.require(record.getName(), "Name");
 
-      // Generate an embed key if none is set
-      if (Strings.isNullOrEmpty(record.getEmbedKey()))
-        record.setEmbedKey(Text.toEmbedKey(TremendouslyRandom.generateEmbedKey(GENERATED_EMBED_KEY_LENGTH)));
+      // Generate an ship key if none is set
+      if (Strings.isNullOrEmpty(record.getShipKey()))
+        record.setShipKey(Text.toShipKey(TremendouslyRandom.generateShipKey(GENERATED_SHIP_KEY_LENGTH)));
       else
-        record.setEmbedKey(Text.toEmbedKey(record.getEmbedKey()));
+        record.setShipKey(Text.toShipKey(record.getShipKey()));
 
       // Default to preview chain if no type specified
       if (Objects.isNull(record.getType()))

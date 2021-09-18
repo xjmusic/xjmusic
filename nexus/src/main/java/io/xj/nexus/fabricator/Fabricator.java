@@ -94,14 +94,6 @@ public interface Fabricator {
   void done() throws NexusException;
 
   /**
-   FUTURE: [#165815496] Chain fabrication access control
-
-   @return HubClientAccess control
-   @throws NexusException on failure to establish access
-   */
-  HubClientAccess getAccess() throws NexusException;
-
-  /**
    Get arrangements for segment
 
    @return arrangements for segment

@@ -26,7 +26,6 @@ import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
 import io.xj.nexus.work.NexusWorkModule;
@@ -103,14 +102,14 @@ public class CraftSegmentPatternMemeTest {
         0.30,
         120.0,
         "chains-1-segments-9f7s89d8a7892.wav",
-        "aac"));
+        "ogg"));
       store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(previousSegment, ProgramType.Macro, fake.program4_sequence1_binding0));
       store.put(NexusIntegrationTestingFixtures.buildSegmentChoice(previousSegment, ProgramType.Main, fake.program5_sequence1_binding0));
 
       // Following Segment
       Segment segment = store.put(buildSegment(chain, 2, SegmentState.PLANNED, Instant.parse(previousSegment.getEndAt()), null, "C", 8, 0.8, 120, "chain-1-waveform-12345", "wav"));
 
-      craftFactory.macroMain(fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment)).doWork();
+      craftFactory.macroMain(fabricatorFactory.fabricate(sourceMaterial, segment)).doWork();
 
       var result = store.getSegment(segment.getId()).orElseThrow();
       assertEquals(SegmentType.NEXTMACRO, result.getType());

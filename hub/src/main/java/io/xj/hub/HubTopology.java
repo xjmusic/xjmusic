@@ -278,7 +278,7 @@ public enum HubTopology {
       .withAttribute("type")
       .withAttribute("name")
       .withAttribute("config")
-      .withAttribute("embedKey")
+      .withAttribute("shipKey")
       .belongsTo(Account.class)
       .hasMany(TemplateBinding.class);
 

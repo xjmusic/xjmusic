@@ -16,6 +16,7 @@ import io.xj.hub.enums.UserAuthType;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
 import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
@@ -29,6 +30,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Collection;
 import java.util.UUID;
 
+import static io.xj.hub.IntegrationTestingFixtures.buildUser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -68,23 +70,24 @@ public class HubAccessControlIT {
 
   @Test
   public void get() throws Exception {
+    // user
+    User user = buildUser("Test", "test@test.com", "test.jpg", "User,Artist");
     // user auth
     UserAuth userAuth = new UserAuth();
     UUID userAuthId = UUID.randomUUID();
     userAuth.setId(userAuthId);
-    UUID userId = UUID.randomUUID();
-    userAuth.setUserId(userId);
+    userAuth.setUserId(user.getId());
     userAuth.setType(UserAuthType.Google);
     userAuth.setExternalAccount("google");
     userAuth.setExternalAccessToken("google-token");
     // account user
     AccountUser accountUser = new AccountUser();
-    accountUser.setUserId(userId);
+    accountUser.setUserId(user.getId());
     UUID accountId = UUID.randomUUID();
     accountUser.setAccountId(accountId);
     // access control provider
     Collection<AccountUser> accounts = Lists.newArrayList(accountUser);
-    String TEST_TOKEN = hubAccessControlProvider.create(userAuth, accounts, "User");
+    String TEST_TOKEN = hubAccessControlProvider.create(user, userAuth, accounts);
 
     // now stress test
     for (int i = 0; STRESS_TEST_ITERATIONS > i; i++) {

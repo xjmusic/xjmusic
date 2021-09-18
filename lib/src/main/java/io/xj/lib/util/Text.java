@@ -460,13 +460,13 @@ public interface Text {
   }
 
   /**
-   Format an embed key
+   Format an ship key
 
-   @param embedKey to format
-   @return formatted embed key
+   @param shipKey to format
+   @return formatted ship key
    */
-  static String toEmbedKey(String embedKey) {
-    return toLowerScored(embedKey);
+  static String toShipKey(String shipKey) {
+    return toLowerScored(shipKey);
   }
 
   /**
