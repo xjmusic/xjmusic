@@ -18,7 +18,7 @@ import io.xj.lib.music.Key;
 import io.xj.lib.util.Chance;
 import io.xj.lib.util.Value;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.dao.Segments;
+import io.xj.nexus.Segments;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;

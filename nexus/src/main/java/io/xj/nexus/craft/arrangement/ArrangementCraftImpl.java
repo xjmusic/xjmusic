@@ -44,7 +44,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.dao.Segments.DELTA_UNLIMITED;
+import static io.xj.nexus.Segments.DELTA_UNLIMITED;
 
 /**
  Arrangement of Segment Events is a common foundation for both Detail and Rhythm craft

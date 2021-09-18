@@ -11,6 +11,7 @@ import io.xj.api.SegmentType;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
+import io.xj.nexus.Segments;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import junit.framework.TestCase;
 

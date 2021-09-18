@@ -1,6 +1,6 @@
 // Copyright (c) 1999-2021, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.nexus.dao;
+package io.xj.nexus;
 
 import com.google.common.base.Strings;
 import io.xj.api.Segment;

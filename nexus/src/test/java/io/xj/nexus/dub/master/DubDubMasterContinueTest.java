@@ -24,7 +24,7 @@ import io.xj.lib.mixer.MixerFactory;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
 import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.dao.Segments;
+import io.xj.nexus.Segments;
 import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
@@ -42,13 +42,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -181,8 +180,8 @@ public class DubDubMasterContinueTest {
   public void dubMasterContinue() throws Exception {
     InternalResource testAudioResource = new InternalResource(testResourceFilePath);
     // it's necessary to have two separate streams for this mock of two separate file reads
-    FileInputStream audioStreamOne = FileUtils.openInputStream(testAudioResource.getFile());
-    FileInputStream audioStreamTwo = FileUtils.openInputStream(testAudioResource.getFile());
+    FileUtils.openInputStream(testAudioResource.getFile());
+    FileUtils.openInputStream(testAudioResource.getFile());
 
     Fabricator fabricator = fabricatorFactory.fabricate(HubClientAccess.internal(), sourceMaterial, segment4);
     dubFactory.master(fabricator).doWork();

@@ -50,7 +50,6 @@ import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.Value;
-import io.xj.nexus.dao.Segments;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

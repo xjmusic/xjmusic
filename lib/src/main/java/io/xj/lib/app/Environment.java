@@ -40,6 +40,7 @@ public class Environment {
   private final String awsSecretKey;
   private final String awsSecretName;
   private final String awsSnsTopicArn;
+  private final String bootstrapShipKey;
   private final String bootstrapTemplateId;
   private final String googleClientID;
   private final String googleClientSecret;
@@ -139,6 +140,7 @@ public class Environment {
     awsUploadExpireMinutes = getInt(vars, "AWS_UPLOAD_EXPIRE_MINUTES", 60);
     awsFileUploadACL = getStr(vars, "AWS_FILE_UPLOAD_ACL", "bucket-owner-full-control");
     awsS3retryLimit = getInt(vars, "AWS_S3_RETRY_LIMIT", 10);
+    bootstrapShipKey = getStr(vars, "BOOTSTRAP_SHIP_KEY", EMPTY);
     bootstrapTemplateId = getStr(vars, "BOOTSTRAP_TEMPLATE_ID", EMPTY);
     platformEnvironment = getStr(vars, "ENVIRONMENT", "dev");
     googleClientID = getStr(vars, "GOOGLE_CLIENT_ID", EMPTY);
@@ -491,4 +493,14 @@ public class Environment {
   public String getTempFilePathPrefix() {
     return tempFilePathPrefix;
   }
+
+  /**
+   Ship broadcast via HTTP Live Streaming #179453189
+
+   @return the bootstrap ship key for this ship instance
+   */
+  public String getBootstrapShipKey() {
+    return bootstrapShipKey;
+  }
+
 }

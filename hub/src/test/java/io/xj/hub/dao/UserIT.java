@@ -172,6 +172,18 @@ public class UserIT {
   }
 
   @Test
+  public void readOne_inMultipleAccounts() throws Exception {
+    fake.account2 = test.insert(buildAccount("too bananas"));
+    test.insert(buildAccountUser(fake.account2, fake.user3));
+    HubAccess hubAccess = HubAccess.create(fake.user3, ImmutableList.of(fake.account1, fake.account2));
+
+    User result = subjectDAO.readOne(hubAccess, fake.user3.getId());
+
+    assertNotNull(result);
+    assertEquals(fake.user3.getId(), result.getId());
+  }
+
+  @Test
   public void readOne_UserCannotSeeUserWithoutCommonAccountMembership() {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "User");
 

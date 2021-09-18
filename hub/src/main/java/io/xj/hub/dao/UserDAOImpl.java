@@ -6,13 +6,13 @@ import com.google.inject.Inject;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlProvider;
 import io.xj.hub.access.HubAccessException;
+import io.xj.hub.enums.UserAuthType;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.AccountUser;
 import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
 import io.xj.hub.tables.pojos.UserAuthToken;
-import io.xj.hub.enums.UserAuthType;
-import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.tables.records.UserAuthRecord;
 import io.xj.hub.tables.records.UserAuthTokenRecord;
 import io.xj.hub.tables.records.UserRecord;
@@ -238,11 +238,12 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
         .where(USER.ID.eq(id))
         .fetchOne());
     } else if (!hubAccess.getAccountIds().isEmpty()) {
-      return modelFrom(User.class, select(db)
+      return modelFrom(User.class, db.select(USER.fields())
         .from(USER)
         .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(id))
         .where(USER.ID.eq(id))
         .and(ACCOUNT_USER.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .limit(1)
         .fetchOne());
     } else {
       if (Objects.equals(hubAccess.getUserId(), id)) {

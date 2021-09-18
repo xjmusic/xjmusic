@@ -36,7 +36,7 @@ import io.xj.nexus.NexusTopology;
 import io.xj.nexus.dao.ChainDAO;
 import io.xj.nexus.dao.NexusDAOModule;
 import io.xj.nexus.dao.SegmentDAO;
-import io.xj.nexus.dao.Segments;
+import io.xj.nexus.Segments;
 import io.xj.nexus.dao.exception.DAOExistenceException;
 import io.xj.nexus.dao.exception.DAOFatalException;
 import io.xj.nexus.dao.exception.DAOPrivilegeException;

@@ -22,7 +22,7 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.dao.Segments;
+import io.xj.nexus.Segments;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
