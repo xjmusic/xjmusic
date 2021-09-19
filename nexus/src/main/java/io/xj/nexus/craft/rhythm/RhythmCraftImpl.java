@@ -180,7 +180,7 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
             if (isUnlimitedIn(ch))
               fabricator.retrospective().getChoices().stream()
                 .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType().toString()))
-                .filter(this::isUnlimitedOut)
+                .filter(DetailCraftImpl::isUnlimitedOut)
                 .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_OUTGOING_TO_INCOMING));
           });
     }

@@ -159,7 +159,7 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
         // https://www.pivotaltracker.com/story/show/179126302
         fabricator.retrospective().getChoices().stream()
           .filter(candidate -> Objects.equals(candidate.getInstrumentType(), voice.getType().toString()))
-          .filter(this::isUnlimitedOut)
+          .filter(DetailCraftImpl::isUnlimitedOut)
           .forEach(choice -> superEntityScorePicker.score(choice.getInstrumentId(), SCORE_MATCH_OUTGOING_TO_INCOMING));
     }
 

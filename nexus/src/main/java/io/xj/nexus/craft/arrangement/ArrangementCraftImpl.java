@@ -260,7 +260,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
         // select one incoming (deltaIn unlimited) based on whichever was the outgoing (deltaOut unlimited) in the segments of the previous main program
         var priorOutgoing = fabricator.retrospective().getChoices().stream()
           .filter(choiceFilter)
-          .filter(this::isUnlimitedOut)
+          .filter(ArrangementCraftImpl::isUnlimitedOut)
           .filter(choice -> {
             try {
               return indexes.contains(choiceIndexProvider.get(choice));
@@ -526,7 +526,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param choice to test whether the current segment contains this choice delta in
    @return true if the current segment contains the given choice's delta in
    */
-  private boolean isIntroSegment(SegmentChoice choice) {
+  public boolean isIntroSegment(SegmentChoice choice) {
     return !isUnlimitedIn(choice)
       && choice.getDeltaIn() >= fabricator.getSegment().getDelta()
       && choice.getDeltaIn() < fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal();
@@ -538,7 +538,7 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param choice to test whether the current segment contains this choice delta out
    @return true if the current segment contains the given choice's delta out
    */
-  private boolean isOutroSegment(SegmentChoice choice) {
+  public boolean isOutroSegment(SegmentChoice choice) {
     return !isUnlimitedOut(choice)
       && choice.getDeltaOut() <= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal()
       && choice.getDeltaOut() > fabricator.getSegment().getDelta();
@@ -550,9 +550,10 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param choice to test for silence
    @return true if choice is silent the entire segment
    */
-  private boolean isSilentEntireSegment(SegmentChoice choice) {
-    return (!isUnlimitedIn(choice) && choice.getDeltaIn() > fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal())
-      && (!isUnlimitedOut(choice) && choice.getDeltaOut() <= fabricator.getSegment().getDelta());
+  public boolean isSilentEntireSegment(SegmentChoice choice) {
+    return
+      (choice.getDeltaOut() < fabricator.getSegment().getDelta())
+        || (choice.getDeltaIn() >= fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal());
   }
 
   /**
@@ -561,9 +562,9 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param choice to test for activation
    @return true if this choice is active the entire time
    */
-  private boolean isActiveEntireSegment(SegmentChoice choice) {
-    return choice.getDeltaIn() < fabricator.getSegment().getDelta()
-      && choice.getDeltaOut() > fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal();
+  public boolean isActiveEntireSegment(SegmentChoice choice) {
+    return (choice.getDeltaIn() < fabricator.getSegment().getDelta())
+      && (choice.getDeltaOut() > fabricator.getSegment().getDelta() + fabricator.getSegment().getTotal());
   }
 
   /**
@@ -572,8 +573,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param choice to test
    @return true if deltaIn is unlimited
    */
-  protected boolean isUnlimitedIn(SegmentChoice choice) {
-    return DELTA_UNLIMITED == getDeltaIn(choice);
+  protected static boolean isUnlimitedIn(SegmentChoice choice) {
+    return DELTA_UNLIMITED == choice.getDeltaIn();
   }
 
   /**
@@ -582,8 +583,8 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    @param choice to test
    @return true if deltaOut is unlimited
    */
-  protected boolean isUnlimitedOut(SegmentChoice choice) {
-    return DELTA_UNLIMITED == getDeltaOut(choice);
+  protected static boolean isUnlimitedOut(SegmentChoice choice) {
+    return DELTA_UNLIMITED == choice.getDeltaOut();
   }
 
   /**
