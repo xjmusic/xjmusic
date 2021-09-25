@@ -575,7 +575,7 @@ CREATE TABLE xj.template (
     account_id uuid NOT NULL,
     name character varying(255) NOT NULL,
     config text DEFAULT ''::text,
-    embed_key character varying(255) DEFAULT ''::character varying,
+    ship_key character varying(255) DEFAULT ''::character varying,
     type xj.template_type
 );
 
@@ -1294,6 +1294,7 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 53	54	refactor percussive to drum	SQL	V54__refactor_percussive_to_drum.sql	-912722638	postgres	2021-09-10 03:39:10.815487	43	t
 54	55	more jooq less swagger	SQL	V55__more_jooq_less_swagger.sql	-800589339	postgres	2021-09-17 21:00:02.429484	1119	t
 55	56	content authors	SQL	V56__content_authors.sql	286572797	postgres	2021-09-18 00:52:39.518455	345	t
+56	57	ship key	SQL	V57__ship_key.sql	163079654	postgres	2021-09-18 22:31:46.588341	45	t
 \.
 
 
