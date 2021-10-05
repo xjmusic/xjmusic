@@ -57,7 +57,7 @@ LabStreamingSegmentsArchitecture.pdf)
 
 ## Dependencies
 
-* Java 14
+* Java 16
 * Gradle (6+ via SDKMAN!)
 
 ## Service Ports

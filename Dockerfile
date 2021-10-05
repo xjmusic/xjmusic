@@ -7,8 +7,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install software
 # Install C Build Tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install build-essential make
 
-# Install Java 14
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install openjdk-14-jdk
+# Install Java 16
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install openjdk-16-jdk
 
 # Install FFMPEG
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install ffmpeg
