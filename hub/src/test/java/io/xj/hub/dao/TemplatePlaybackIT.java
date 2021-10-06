@@ -162,6 +162,29 @@ public class TemplatePlaybackIT {
   }
 
   @Test
+  public void readOneForUser_justCreated() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    test.insert(buildTemplatePlayback(fake.template1, fake.user3));
+
+    var result = testDAO.readOneForUser(hubAccess, fake.user3.getId());
+
+    assertTrue(result.isPresent());
+    assertEquals(fake.user3.getId(), result.get().getUserId());
+  }
+
+  @Test
+  public void readOneForUser_notIfOlderThanThreshold() throws Exception {
+    HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
+    var olderPlayback = buildTemplatePlayback(fake.template1, fake.user3);
+    olderPlayback.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)));
+    test.insert(olderPlayback);
+
+    var result = testDAO.readOneForUser(hubAccess, fake.user3.getId());
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
   public void readOne_FailsWhenUserIsNotInTemplate() {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(buildAccount("Testing")
     ), "User");

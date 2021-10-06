@@ -77,19 +77,22 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
   @Override
   public Optional<TemplatePlayback> readOneForUser(HubAccess hubAccess, UUID userId) throws DAOException {
     DSLContext db = dbProvider.getDSL();
-    var playback = hubAccess.isTopLevel()
+    var playbackRecord = hubAccess.isTopLevel()
       ?
-      modelFrom(TemplatePlayback.class, db.selectFrom(TEMPLATE_PLAYBACK)
+      db.selectFrom(TEMPLATE_PLAYBACK)
         .where(TEMPLATE_PLAYBACK.USER_ID.eq(userId))
-        .fetchOne())
+        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds))))
+        .fetchOne()
       :
-      modelFrom(TemplatePlayback.class, db.select(TEMPLATE_PLAYBACK.fields())
+      db.select(TEMPLATE_PLAYBACK.fields())
         .from(TEMPLATE_PLAYBACK)
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
         .where(TEMPLATE_PLAYBACK.USER_ID.eq(userId))
+        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds))))
         .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
-        .fetchOne());
-    return Objects.nonNull(playback) ? Optional.of(playback) : Optional.empty();
+        .fetchOne();
+
+    return Objects.nonNull(playbackRecord) ? Optional.of(modelFrom(TemplatePlayback.class, playbackRecord)) : Optional.empty();
   }
 
   @Override
@@ -137,13 +140,13 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
   }
 
   /**
-   Read one record
-
-   @param db        DSL context
-   @param hubAccess control
-   @param id        to read
-   @return record
-   @throws DAOException on failure
+   * Read one record
+   *
+   * @param db        DSL context
+   * @param hubAccess control
+   * @param id        to read
+   * @return record
+   * @throws DAOException on failure
    */
   private TemplatePlayback readOne(DSLContext db, HubAccess hubAccess, UUID id) throws DAOException {
     if (hubAccess.isTopLevel())
@@ -160,10 +163,10 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
   }
 
   /**
-   Validate data
-
-   @param builder to validate
-   @throws DAOException if invalid
+   * Validate data
+   *
+   * @param builder to validate
+   * @throws DAOException if invalid
    */
   public TemplatePlayback validate(TemplatePlayback builder) throws DAOException {
     try {
