@@ -14,7 +14,7 @@ import java.net.URI;
 public class ApiUrlProvider {
   private final String appBaseUrl;
   private final String audioBaseUrl;
-  private final String shipBaseURL;
+  private final String shipBaseUrl;
   private final String playerBaseUrl;
   private final String appPathUnauthorized;
   private final String appPathWelcome;
@@ -26,7 +26,7 @@ public class ApiUrlProvider {
     this.appPathWelcome = env.getApiWelcomeRedirectPath();
     this.audioBaseUrl = env.getAudioBaseURL();
     this.playerBaseUrl = env.getPlayerBaseURL();
-    this.shipBaseURL = env.getShipBaseUrl();
+    this.shipBaseUrl = env.getShipBaseUrl();
   }
 
   /**
@@ -77,7 +77,7 @@ public class ApiUrlProvider {
    * @return Segments base URL (for Amazon S3)
    */
   public String getShipBaseUrl() {
-    return shipBaseURL;
+    return shipBaseUrl;
   }
 
   /**

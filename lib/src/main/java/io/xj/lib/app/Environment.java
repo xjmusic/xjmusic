@@ -53,7 +53,7 @@ public class Environment {
   private final String postgresUser;
   private final String redisHost;
   private final String redisSessionNamespace;
-  private final String shipBaseURL;
+  private final String shipBaseUrl;
   private final String shipBucket;
   private final String streamBaseURL;
   private final String streamBucket;
@@ -208,7 +208,7 @@ public class Environment {
     shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 6);
     shipAheadChunks = readInt(vars, "SHIP_AHEAD_CHUNKS", 9);
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
-    shipBaseURL = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
+    shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
@@ -662,7 +662,7 @@ public class Environment {
    * @return the segment base URL
    */
   public String getShipBaseUrl() {
-    return shipBaseURL;
+    return shipBaseUrl;
   }
 
   /**

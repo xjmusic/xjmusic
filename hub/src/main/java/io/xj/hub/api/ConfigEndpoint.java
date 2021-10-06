@@ -87,7 +87,7 @@ public class ConfigEndpoint extends HubJsonapiEndpoint {
       .put("programTypes", ProgramType.values())
       .put("segmentStates", SEGMENT_STATES)
       .put("segmentTypes", SEGMENT_TYPES)
-      .put("shipBaseURL", apiUrlProvider.getShipBaseUrl())
+      .put("shipBaseUrl", apiUrlProvider.getShipBaseUrl())
       .put("templateTypes", TemplateType.values())
       .put("voiceTypes", InstrumentType.values())
       .build();
