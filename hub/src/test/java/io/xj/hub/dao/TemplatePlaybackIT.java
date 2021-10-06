@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -95,8 +97,8 @@ public class TemplatePlaybackIT {
   public void create_withoutSpecifyingUser() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     TemplatePlayback subject = new TemplatePlayback();
-      subject.setId(UUID.randomUUID());
-      subject.setTemplateId(fake.template1.getId());
+    subject.setId(UUID.randomUUID());
+    subject.setTemplateId(fake.template1.getId());
 
     TemplatePlayback result = testDAO.create(hubAccess, subject);
 
@@ -173,6 +175,28 @@ public class TemplatePlaybackIT {
   @Test
   public void readMany() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+
+    Collection<TemplatePlayback> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
+
+    assertEquals(1L, result.size());
+  }
+
+  @Test
+  public void readMany_seesAdditional() throws Exception {
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    test.insert(buildTemplatePlayback(fake.template1, fake.user3));
+
+    Collection<TemplatePlayback> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
+
+    assertEquals(2L, result.size());
+  }
+
+  @Test
+  public void readMany_seesNoneOlderThanThreshold() throws Exception {
+    HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
+    var olderPlayback = buildTemplatePlayback(fake.template1, fake.user3);
+    olderPlayback.setCreatedAt(Timestamp.from(Instant.now().minusSeconds(60 * 60 * 24)));
+    test.insert(olderPlayback);
 
     Collection<TemplatePlayback> result = testDAO.readMany(hubAccess, ImmutableList.of(fake.template1.getId()));
 

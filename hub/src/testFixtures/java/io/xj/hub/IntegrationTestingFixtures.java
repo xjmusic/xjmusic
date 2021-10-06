@@ -9,6 +9,7 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.CSV;
 
 import javax.annotation.Nullable;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -664,6 +665,7 @@ public class IntegrationTestingFixtures {
     templatePlayback.setId(UUID.randomUUID());
     templatePlayback.setUserId(user.getId());
     templatePlayback.setTemplateId(template.getId());
+    templatePlayback.setCreatedAt(Timestamp.from(Instant.now()));
     return templatePlayback;
   }
 

@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public class Environment {
   private static final Logger LOG = LoggerFactory.getLogger(Environment.class);
+  private static final int SECONDS_PER_HOUR = 60 * 60;
   private static final String EMPTY = "";
   private final String accessLogFilename;
   private final String accessTokenDomain;
@@ -189,7 +190,7 @@ public class Environment {
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
     ingestURL = readStr(vars, "INGEST_URL", "http://localhost/");
     platformEnvironment = readStr(vars, "ENVIRONMENT", "dev");
-    playbackExpireSeconds = readInt(vars, "PLAYBACK_EXPIRE_SECONDS", 60 * 60 * 8);
+    playbackExpireSeconds = readInt(vars, "PLAYBACK_EXPIRE_SECONDS", SECONDS_PER_HOUR * 8);
     playerBaseURL = readStr(vars, "PLAYER_BASE_URL", "http://localhost/");
     postgresDatabase = readStr(vars, "POSTGRES_DATABASE", "xj_test");
     postgresHost = readStr(vars, "POSTGRES_HOST", "localhost");
