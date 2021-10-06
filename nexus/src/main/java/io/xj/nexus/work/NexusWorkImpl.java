@@ -8,30 +8,17 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.typesafe.config.Config;
-import io.xj.api.Chain;
-import io.xj.api.ChainState;
-import io.xj.api.Segment;
-import io.xj.api.SegmentMessage;
-import io.xj.api.SegmentMessageType;
-import io.xj.api.SegmentState;
+import io.xj.api.*;
 import io.xj.hub.enums.TemplateType;
+import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.telemetry.MultiStopwatch;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.lib.util.Text;
-import io.xj.lib.util.Value;
+import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.service.ChainService;
-import io.xj.nexus.Chains;
-import io.xj.nexus.service.SegmentService;
-import io.xj.nexus.Segments;
-import io.xj.nexus.service.exception.ServiceExistenceException;
-import io.xj.nexus.service.exception.ServiceFatalException;
-import io.xj.nexus.service.exception.ServicePrivilegeException;
-import io.xj.nexus.service.exception.ServiceValidationException;
 import io.xj.nexus.dub.DubFactory;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
@@ -39,17 +26,12 @@ import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubClientException;
 import io.xj.nexus.hub_client.client.HubContent;
-import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
@@ -70,7 +52,7 @@ public class NexusWorkImpl implements NexusWork {
   private static final String METRIC_SEGMENT_CREATED = "segment_created";
   private static final String METRIC_CHAIN_REVIVED = "chain_revived";
   private static final String METRIC_SEGMENT_ERASED = "segment_erased";
-  private final ChainService chainService;
+  private final NexusWorkChainManager nexusWorkChainManager;
   private final CraftFactory craftFactory;
   private final DubFactory dubFactory;
   private final FabricatorFactory fabricatorFactory;
@@ -80,7 +62,7 @@ public class NexusWorkImpl implements NexusWork {
   private final Map<UUID, Long> chainNextIngestMillis = Maps.newHashMap();
   private final NexusEntityStore store;
   private final NotificationProvider notification;
-  private final SegmentService segmentService;
+  private final SegmentManager segmentManager;
   private final TelemetryProvider telemetryProvider;
   private final boolean janitorEnabled;
   private final boolean medicEnabled;
@@ -99,45 +81,45 @@ public class NexusWorkImpl implements NexusWork {
   private long nextJanitorMillis = 0;
   private long nextMedicMillis = 0;
   private boolean alive = true;
-  private final NexusWorkChainManager chainManager;
+  private final ChainManager chainManager;
 
   @Inject
   public NexusWorkImpl(
-    ChainService chainService,
-    Config config,
+    ChainManager chainManager,
+    Environment env,
     CraftFactory craftFactory,
     DubFactory dubFactory,
     FabricatorFactory fabricatorFactory,
     HubClient hubClient,
     NexusEntityStore store,
+    NexusWorkChainManager nexusWorkChainManager,
     NotificationProvider notification,
-    SegmentService segmentService,
-    TelemetryProvider telemetryProvider,
-    NexusWorkChainManager nexusWorkChainManager
+    SegmentManager segmentManager,
+    TelemetryProvider telemetryProvider
   ) {
-    this.chainService = chainService;
+    this.chainManager = chainManager;
+    this.nexusWorkChainManager = nexusWorkChainManager;
     this.craftFactory = craftFactory;
     this.dubFactory = dubFactory;
     this.fabricatorFactory = fabricatorFactory;
     this.hubClient = hubClient;
     this.notification = notification;
-    this.segmentService = segmentService;
+    this.segmentManager = segmentManager;
     this.store = store;
     this.telemetryProvider = telemetryProvider;
-    this.chainManager = nexusWorkChainManager;
 
-    bufferPreviewSeconds = config.getInt("work.bufferPreviewSeconds");
-    bufferProductionSeconds = config.getInt("work.bufferProductionSeconds");
-    cycleMillis = config.getInt("work.cycleMillis");
-    eraseSegmentsOlderThanSeconds = config.getInt("work.eraseSegmentsOlderThanSeconds");
-    healthCycleStalenessThresholdMillis = config.getInt("work.healthCycleStalenessThresholdSeconds") * MILLIS_PER_SECOND;
-    ingestCycleSeconds = config.getInt("work.ingestCycleSeconds");
-    janitorCycleSeconds = config.getInt("work.janitorCycleSeconds");
-    janitorEnabled = config.getBoolean("work.janitorEnabled");
-    medicCycleSeconds = config.getInt("work.medicCycleSeconds");
-    medicEnabled = config.getBoolean("work.medicEnabled");
-    reviveChainFabricatedBehindSeconds = config.getInt("fabrication.reviveChainFabricatedBehindSeconds");
-    reviveChainProductionGraceSeconds = config.getInt("fabrication.reviveChainProductionGraceSeconds");
+    bufferPreviewSeconds = env.getWorkBufferPreviewSeconds();
+    bufferProductionSeconds = env.getWorkBufferProductionSeconds();
+    cycleMillis = env.getWorkCycleMillis();
+    eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
+    healthCycleStalenessThresholdMillis = env.getWorkHealthCycleStalenessThresholdSeconds() * MILLIS_PER_SECOND;
+    ingestCycleSeconds = env.getWorkIngestCycleSeconds();
+    janitorCycleSeconds = env.getWorkJanitorCycleSeconds();
+    janitorEnabled = env.getWorkJanitorEnabled();
+    medicCycleSeconds = env.getWorkMedicCycleSeconds();
+    medicEnabled = env.getWorkMedicEnabled();
+    reviveChainFabricatedBehindSeconds = env.getFabricationReviveChainFabricatedBehindSeconds();
+    reviveChainProductionGraceSeconds = env.getFabricationReviveChainProductionGraceSeconds();
     Executors.newSingleThreadScheduledExecutor();
 
     LOG.debug("Instantiated OK");
@@ -151,14 +133,14 @@ public class NexusWorkImpl implements NexusWork {
     nextCycleMillis = System.currentTimeMillis() + cycleMillis;
 
     // Poll the chain manager
-    chainManager.poll();
+    nexusWorkChainManager.poll();
 
     // Replace an empty list so there is no possibility of nonexistence
     Collection<Chain> activeChains = Lists.newArrayList();
     try {
       try {
         activeChains.addAll(getActiveChains());
-      } catch (ServiceFatalException | ServicePrivilegeException e) {
+      } catch (ManagerFatalException | ManagerPrivilegeException e) {
         didFailWhile("Getting list of active chain IDs", e);
         return;
       }
@@ -217,7 +199,7 @@ public class NexusWorkImpl implements NexusWork {
       Instant thresholdChainProductionStartedBefore = Instant.now().minusSeconds(reviveChainProductionGraceSeconds);
 
       Map<UUID, String> stalledChainIds = Maps.newHashMap();
-      var fabricatingChains = chainService.readManyInState(ChainState.FABRICATE);
+      var fabricatingChains = chainManager.readManyInState(ChainState.FABRICATE);
       LOG.info("Medic will check {} fabricating {}",
         fabricatingChains.size(), 1 < fabricatingChains.size() ? "Chains" : "Chain");
       fabricatingChains
@@ -236,15 +218,15 @@ public class NexusWorkImpl implements NexusWork {
 
       // revive all stalled chains
       for (UUID stalledChainId : stalledChainIds.keySet()) {
-        chainService.revive(stalledChainId, stalledChainIds.get(stalledChainId));
+        chainManager.revive(stalledChainId, stalledChainIds.get(stalledChainId));
         // [#173968355] Nexus deletes entire chain when no current segments are left.
-        chainService.destroy(stalledChainId);
+        chainManager.destroy(stalledChainId);
       }
 
       telemetryProvider.put(METRIC_CHAIN_REVIVED, StandardUnit.Count, stalledChainIds.size());
       LOG.info("Total elapsed time: {}", timer.totalsToString());
 
-    } catch (ServiceFatalException | ServicePrivilegeException | ServiceValidationException | ServiceExistenceException e) {
+    } catch (ManagerFatalException | ManagerPrivilegeException | ManagerValidationException | ManagerExistenceException e) {
       didFailWhile("Medic checking & reviving all", e);
     }
   }
@@ -271,13 +253,13 @@ public class NexusWorkImpl implements NexusWork {
     if (segmentIdsToErase.isEmpty())
       LOG.info("Found no segments to erase");
     else
-      LOG.info("Found {} segments to erase", segmentIdsToErase.size());
+      LOG.info("Will erase {} segments", segmentIdsToErase.size());
 
     for (UUID segmentId : segmentIdsToErase) {
       try {
-        segmentService.destroy(segmentId);
-        LOG.info("Did erase Segment[{}]", segmentId);
-      } catch (ServiceFatalException | ServicePrivilegeException | ServiceExistenceException e) {
+        segmentManager.destroy(segmentId);
+        LOG.debug("collected garbage Segment[{}]", segmentId);
+      } catch (ManagerFatalException | ManagerPrivilegeException | ManagerExistenceException e) {
         LOG.warn("Error while destroying Segment[{}]", segmentId);
       }
     }
@@ -289,11 +271,11 @@ public class NexusWorkImpl implements NexusWork {
    Get the IDs of all Chains in the store whose state is currently in Fabricate
 
    @return active Chain IDS
-   @throws ServicePrivilegeException on access control failure
-   @throws ServiceFatalException     on internal failure
+   @throws ManagerPrivilegeException on access control failure
+   @throws ManagerFatalException     on internal failure
    */
-  private List<Chain> getActiveChains() throws ServicePrivilegeException, ServiceFatalException {
-    return new ArrayList<>(chainService.readManyInState(ChainState.FABRICATE));
+  private List<Chain> getActiveChains() throws ManagerPrivilegeException, ManagerFatalException {
+    return new ArrayList<>(chainManager.readManyInState(ChainState.FABRICATE));
   }
 
   /**
@@ -310,12 +292,12 @@ public class NexusWorkImpl implements NexusWork {
 
       timer.section("BuildNext");
       int workBufferSeconds = bufferSecondsFor(chain);
-      Optional<Segment> nextSegment = chainService.buildNextSegmentOrCompleteTheChain(chain,
+      Optional<Segment> nextSegment = chainManager.buildNextSegmentOrCompleteTheChain(chain,
         Instant.now().plusSeconds(workBufferSeconds),
         Instant.now().minusSeconds(workBufferSeconds));
       if (nextSegment.isEmpty()) return;
 
-      Segment segment = segmentService.create(nextSegment.get());
+      Segment segment = segmentManager.create(nextSegment.get());
       LOG.debug("Created Segment {}", segment);
       telemetryProvider.put(getChainMetricName(chain, METRIC_SEGMENT_CREATED), StandardUnit.Count, 1.0);
 
@@ -372,7 +354,7 @@ public class NexusWorkImpl implements NexusWork {
         Segments.getIdentifier(segment),
         fabricatedAheadSeconds);
 
-    } catch (ServicePrivilegeException | ServiceExistenceException | ServiceValidationException | ServiceFatalException e) {
+    } catch (ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException | ManagerFatalException e) {
       var body = String.format("Failed to create Segment of Chain[%s] (%s) because %s\n\n%s",
         Chains.getIdentifier(chain),
         chain.getType(),
@@ -387,8 +369,8 @@ public class NexusWorkImpl implements NexusWork {
       LOG.error("Failed to created Segment in Chain[{}] reason={}", Chains.getIdentifier(chain), e.getMessage());
 
       try {
-        chainService.revive(chain.getId(), body);
-      } catch (ServiceFatalException | ServicePrivilegeException | ServiceExistenceException | ServiceValidationException e2) {
+        chainManager.revive(chain.getId(), body);
+      } catch (ManagerFatalException | ManagerPrivilegeException | ManagerExistenceException | ManagerValidationException e2) {
         LOG.error("Failed to revive chain after fatal error!", e2);
       }
     }
@@ -448,8 +430,8 @@ public class NexusWorkImpl implements NexusWork {
   private void revert(Chain chain, Segment segment, Fabricator fabricator) {
     try {
       updateSegmentState(fabricator, segment, fabricator.getSegment().getState(), SegmentState.PLANNED);
-      segmentService.revert(access, segment.getId());
-    } catch (ServiceFatalException | ServicePrivilegeException | ServiceValidationException | ServiceExistenceException | NexusException e) {
+      segmentManager.revert(access, segment.getId());
+    } catch (ManagerFatalException | ManagerPrivilegeException | ManagerValidationException | ManagerExistenceException | NexusException e) {
       didFailWhile("reverting and re-queueing segment", e, segment.getId(), Chains.getIdentifier(chain), chain.getType().toString());
     }
   }
@@ -566,9 +548,9 @@ public class NexusWorkImpl implements NexusWork {
       msg.setSegmentId(segmentId);
       msg.setType(SegmentMessageType.ERROR);
       msg.setBody(body);
-      segmentService.create(access, msg);
+      segmentManager.create(access, msg);
 
-    } catch (ServiceValidationException | ServicePrivilegeException | ServiceExistenceException | ServiceFatalException e) {
+    } catch (ManagerValidationException | ManagerPrivilegeException | ManagerExistenceException | ManagerFatalException e) {
       LOG.error("[segId={}] Could not create SegmentMessage, reason={}", segmentId, e.getMessage());
     }
   }
@@ -600,7 +582,7 @@ public class NexusWorkImpl implements NexusWork {
    @return true if segment is before threshold
    */
   protected boolean isBefore(Segment segment, Instant eraseBefore) {
-    return Value.isSet(segment.getEndAt()) ?
+    return Values.isSet(segment.getEndAt()) ?
       Instant.parse(segment.getEndAt()).isBefore(eraseBefore) :
       Instant.parse(segment.getBeginAt()).isBefore(eraseBefore);
   }
@@ -626,7 +608,7 @@ public class NexusWorkImpl implements NexusWork {
 
   @Override
   public boolean isHealthy() {
-    return chainManager.isHealthy()
+    return nexusWorkChainManager.isHealthy()
       && nextCycleMillis > System.currentTimeMillis() - healthCycleStalenessThresholdMillis;
   }
 
@@ -636,15 +618,15 @@ public class NexusWorkImpl implements NexusWork {
    @param chain                  to update
    @param fabricatedAheadSeconds value to set
    @return updated chain
-   @throws ServiceFatalException      on failure
-   @throws ServicePrivilegeException  on failure
-   @throws ServiceValidationException on failure
-   @throws ServiceExistenceException  on failure
+   @throws ManagerFatalException      on failure
+   @throws ManagerPrivilegeException  on failure
+   @throws ManagerValidationException on failure
+   @throws ManagerExistenceException  on failure
    */
-  private Chain updateFabricatedAheadSeconds(Chain chain, float fabricatedAheadSeconds) throws ServiceFatalException, ServicePrivilegeException, ServiceValidationException, ServiceExistenceException {
+  private Chain updateFabricatedAheadSeconds(Chain chain, float fabricatedAheadSeconds) throws ManagerFatalException, ManagerPrivilegeException, ManagerValidationException, ManagerExistenceException {
     telemetryProvider.put(getChainMetricName(chain, METRIC_FABRICATED_AHEAD_SECONDS), StandardUnit.Seconds, fabricatedAheadSeconds);
 
-    return chainService.update(chain.getId(), chain.fabricatedAheadSeconds((double) fabricatedAheadSeconds));
+    return chainManager.update(chain.getId(), chain.fabricatedAheadSeconds((double) fabricatedAheadSeconds));
   }
 
   /**
@@ -652,7 +634,7 @@ public class NexusWorkImpl implements NexusWork {
 
    @param chain fabricating
    */
-  private float computeFabricatedAheadSeconds(Chain chain) throws ServicePrivilegeException, ServiceFatalException, ServiceExistenceException {
-    return Chains.computeFabricatedAheadSeconds(chain, segmentService.readMany(ImmutableList.of(chain.getId())));
+  private float computeFabricatedAheadSeconds(Chain chain) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
+    return Chains.computeFabricatedAheadSeconds(chain, segmentManager.readMany(ImmutableList.of(chain.getId())));
   }
 }

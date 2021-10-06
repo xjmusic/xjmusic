@@ -7,15 +7,7 @@ import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import io.xj.api.ChainState;
-import io.xj.api.ChainType;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangement;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentState;
-import io.xj.api.SegmentType;
+import io.xj.api.*;
 import io.xj.hub.HubTopology;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramSequencePatternType;
@@ -23,7 +15,6 @@ import io.xj.hub.enums.ProgramType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.filestore.FileStoreModule;
-import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.mixer.MixerModule;
@@ -31,22 +22,12 @@ import io.xj.lib.music.Note;
 import io.xj.lib.music.Tuning;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.service.ChainService;
-import io.xj.nexus.service.NexusServiceModule;
-import io.xj.nexus.service.SegmentService;
-import io.xj.nexus.Segments;
-import io.xj.nexus.service.exception.ServiceExistenceException;
-import io.xj.nexus.service.exception.ServiceFatalException;
-import io.xj.nexus.service.exception.ServicePrivilegeException;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubClientException;
 import io.xj.nexus.hub_client.client.HubClientModule;
 import io.xj.nexus.hub_client.client.HubContent;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.NexusEntityStoreModule;
+import io.xj.nexus.persistence.*;
 import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,29 +42,15 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildEvent;
-import static io.xj.hub.IntegrationTestingFixtures.buildPattern;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
-import static io.xj.hub.IntegrationTestingFixtures.buildSequence;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.hub.IntegrationTestingFixtures.buildTrack;
-import static io.xj.hub.IntegrationTestingFixtures.buildVoice;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoiceArrangement;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.ArgumentMatchers.eq;
+import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- FUTURE: [#170035559] Split the FabricatorImplTest into separate tests of the FabricatorImpl, SegmentWorkbenchImpl, SegmentRetrospectiveImpl, and IngestImpl
+ * FUTURE: [#170035559] Split the FabricatorImplTest into separate tests of the FabricatorImpl, SegmentWorkbenchImpl, SegmentRetrospectiveImpl, and IngestImpl
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FabricatorImplTest {
@@ -102,14 +69,11 @@ public class FabricatorImplTest {
   @Mock
   public HubClient mockHubClient;
   @Mock
-  public ChainService mockChainService;
+  public ChainManager mockChainManager;
   @Mock
-  public SegmentService mockSegmentService;
+  public SegmentManager mockSegmentManager;
   @Mock
   public JsonapiPayloadFactory mockJsonapiPayloadFactory;
-  @Mock
-  public FileStoreProvider mockFileStoreProvider;
-  private Config config;
   private FabricatorImpl subject;
   private HubContent sourceMaterial;
   private NexusEntityStore store;
@@ -117,12 +81,10 @@ public class FabricatorImplTest {
 
   @Before
   public void setUp() throws Exception {
-    config = NexusTestConfiguration.getDefault();
-    var injector = Guice.createInjector(Modules.override(new FileStoreModule(), new NexusServiceModule(), new HubClientModule(), new NexusEntityStoreModule(), new MixerModule(), new JsonapiModule(), new NexusWorkModule()).with(
+    var injector = Guice.createInjector(Modules.override(new FileStoreModule(), new NexusPersistenceModule(), new HubClientModule(), new NexusPersistenceModule(), new MixerModule(), new JsonapiModule(), new NexusWorkModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
-          bind(Config.class).toInstance(config);
           bind(Environment.class).toInstance(env);
           bind(Tuning.class).toInstance(mockTuning);
           bind(HubClient.class).toInstance(mockHubClient);
@@ -195,9 +157,8 @@ public class FabricatorImplTest {
       .thenReturn(segment);
     when(mockSegmentRetrospective.getPreviousSegment())
       .thenReturn(java.util.Optional.ofNullable(previousSegment));
-    var access = HubClientAccess.internal();
-    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
+    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
 
     Double result = subject.getSecondsAtPosition(0); // instantiates a time computer; see expectation above
 
@@ -274,9 +235,8 @@ public class FabricatorImplTest {
       .thenReturn(segment);
     when(mockSegmentWorkbench.getSegmentChoiceArrangementPicks())
       .thenReturn(ImmutableList.of(rhythmPick));
-    var access = HubClientAccess.internal();
-    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
+    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
 
     Collection<SegmentChoiceArrangementPick> result = subject.getPicks();
 
@@ -337,9 +297,8 @@ public class FabricatorImplTest {
       .thenReturn(segment);
     when(mockSegmentWorkbench.getChoiceOfType(ProgramType.Main))
       .thenReturn(Optional.of(mainChoice));
-    var access = HubClientAccess.internal();
-    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
+    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
 
     List<InstrumentType> result = subject.getDistinctChordVoicingTypes();
 
@@ -350,10 +309,10 @@ public class FabricatorImplTest {
 
 
   /**
-   [#176728582] Choose next Macro program based on the memes of the last sequence from the previous Macro program
+   * [#176728582] Choose next Macro program based on the memes of the last sequence from the previous Macro program
    */
   @Test
-  public void getType() throws NexusException, ServicePrivilegeException, ServiceFatalException, ServiceExistenceException {
+  public void getType() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
     var chain = store.put(buildChain(
       fake.account1,
       fake.template1,
@@ -409,9 +368,8 @@ public class FabricatorImplTest {
       .thenReturn(Optional.of(previousMainChoice));
     when(mockSegmentRetrospective.getPreviousChoiceOfType(ProgramType.Macro))
       .thenReturn(Optional.of(previousMacroChoice));
-    var access = HubClientAccess.internal();
-    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
+    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
 
     var result = subject.getType();
 
@@ -421,7 +379,7 @@ public class FabricatorImplTest {
   // FUTURE: test getChoicesOfPreviousSegments
 
   @Test
-  public void getMemeIsometryOfNextSequenceInPreviousMacro() throws NexusException, ServicePrivilegeException, ServiceFatalException, ServiceExistenceException {
+  public void getMemeIsometryOfNextSequenceInPreviousMacro() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
     var chain = store.put(buildChain(
       fake.account1,
       fake.template1,
@@ -474,9 +432,8 @@ public class FabricatorImplTest {
       .thenReturn(segment);
     when(mockSegmentRetrospective.getPreviousChoiceOfType(ProgramType.Macro))
       .thenReturn(Optional.of(previousMacroChoice));
-    var access = HubClientAccess.internal();
-    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
+    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
 
     var result = subject.getMemeIsometryOfNextSequenceInPreviousMacro();
 
@@ -484,7 +441,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void getChordAt() throws NexusException, ServicePrivilegeException, ServiceFatalException, ServiceExistenceException {
+  public void getChordAt() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {
     var chain = store.put(buildChain(
       fake.account1,
       fake.template1,
@@ -515,11 +472,10 @@ public class FabricatorImplTest {
           segment, 2.0, "F"),
         buildSegmentChord(
           segment, 5.5, "Gm")));
-    var access = HubClientAccess.internal();
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
-    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
-    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
+    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
 
     assertEquals("C", subject.getChordAt(0).orElseThrow().getName());
     assertEquals("C", subject.getChordAt(1).orElseThrow().getName());
@@ -532,7 +488,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void computeProgramRange() throws NexusException, ServicePrivilegeException, ServiceFatalException, ServiceExistenceException, HubClientException {
+  public void computeProgramRange() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, HubClientException {
     var chain = store.put(buildChain(
       fake.account1,
       fake.template1,
@@ -556,10 +512,9 @@ public class FabricatorImplTest {
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any()))
       .thenReturn(mockSegmentWorkbench);
-    var access = HubClientAccess.internal();
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
-    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     var program = buildProgram(ProgramType.Detail, "C", 120.0f, 1.0f);
     var voice = buildVoice(program, InstrumentType.Bass);
     var track = buildTrack(voice);
@@ -576,7 +531,7 @@ public class FabricatorImplTest {
       buildEvent(pattern, track, 0.0f, 1.0f, "C1"),
       buildEvent(pattern, track, 1.0f, 1.0f, "D2")
     ));
-    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 
@@ -585,7 +540,7 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void computeProgramRange_ignoresAtonalNotes() throws NexusException, ServicePrivilegeException, ServiceFatalException, ServiceExistenceException, HubClientException {
+  public void computeProgramRange_ignoresAtonalNotes() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException, HubClientException {
     var chain = store.put(buildChain(
       fake.account1,
       fake.template1,
@@ -609,10 +564,9 @@ public class FabricatorImplTest {
       .thenReturn(mockSegmentRetrospective);
     when(mockFabricatorFactory.setupWorkbench(any(), any()))
       .thenReturn(mockSegmentWorkbench);
-    var access = HubClientAccess.internal();
     when(mockSegmentWorkbench.getSegment())
       .thenReturn(segment);
-    when(mockChainService.readOne(eq(segment.getChainId()))).thenReturn(chain);
+    when(mockChainManager.readOne(eq(segment.getChainId()))).thenReturn(chain);
     var program = buildProgram(ProgramType.Detail, "C", 120.0f, 1.0f);
     var voice = buildVoice(program, InstrumentType.Bass);
     var track = buildTrack(voice);
@@ -630,7 +584,7 @@ public class FabricatorImplTest {
       fake.template1,
       fake.templateBinding1
     ));
-    subject = new FabricatorImpl(sourceMaterial, segment, config, env, mockChainService, mockFileStoreProvider, mockFabricatorFactory, mockSegmentService, mockJsonapiPayloadFactory);
+    subject = new FabricatorImpl(sourceMaterial, segment, env, mockChainManager, mockFabricatorFactory, mockSegmentManager, mockJsonapiPayloadFactory);
 
     var result = subject.getProgramRange(program.getId(), InstrumentType.Bass);
 

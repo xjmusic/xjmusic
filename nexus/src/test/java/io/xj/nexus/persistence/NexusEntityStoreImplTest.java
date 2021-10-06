@@ -5,14 +5,7 @@ package io.xj.nexus.persistence;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import io.xj.api.Chain;
-import io.xj.api.ChainState;
-import io.xj.api.ChainType;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentState;
-import io.xj.api.SegmentType;
+import io.xj.api.*;
 import io.xj.hub.HubTopology;
 import io.xj.hub.enums.ProgramType;
 import io.xj.hub.tables.pojos.Library;
@@ -20,9 +13,7 @@ import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.Segments;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,14 +23,8 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
@@ -50,13 +35,11 @@ public class NexusEntityStoreImplTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = NexusTestConfiguration.getDefault();
     Environment env = Environment.getDefault();
-    var injector = Guice.createInjector(Modules.override(new NexusEntityStoreModule())
+    var injector = Guice.createInjector(Modules.override(new NexusPersistenceModule())
       .with(new AbstractModule() {
         @Override
         protected void configure() {
-          bind(Config.class).toInstance(config);
           bind(Environment.class).toInstance(env);
         }
       }));

@@ -9,8 +9,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.dao.DAOModule;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.ingest.HubIngestModule;
@@ -59,7 +57,6 @@ public class RedisHubAccessTokenTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = HubTestConfiguration.getDefault();
     var env = Environment.from(ImmutableMap.of(
       "ACCESS_TOKEN_DOMAIN", "com.coconuts",
       "ACCESS_TOKEN_MAX_AGE_SECONDS", "60",
@@ -71,7 +68,6 @@ public class RedisHubAccessTokenTest {
       new AbstractModule() {
         @Override
         public void configure() {
-          bind(Config.class).toInstance(config);
           bind(Environment.class).toInstance(env);
           bind(HubAccessTokenGenerator.class).toInstance(hubAccessTokenGenerator);
           bind(HubRedisProvider.class).toInstance(hubRedisProvider);

@@ -4,8 +4,8 @@ package io.xj.hub.dao;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -13,12 +13,9 @@ import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
-import io.xj.lib.util.Value;
-import org.jooq.DSLContext;
+import io.xj.lib.util.Values;
 import org.jooq.Record;
-import org.jooq.Table;
-import org.jooq.TableRecord;
-import org.jooq.UpdatableRecord;
+import org.jooq.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,12 +23,7 @@ import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.xj.hub.Tables.LIBRARY;
@@ -102,7 +94,7 @@ public abstract class DAOImpl<E> implements DAO<E> {
    @throws DAOException if something goes wrong.
    */
   protected <R extends Record> void requireNotExists(String name, Collection<R> result) throws DAOException {
-    if (Value.isNonNull(result) && !result.isEmpty()) throw new DAOException("Found" + " " + name);
+    if (Values.isNonNull(result) && !result.isEmpty()) throw new DAOException("Found" + " " + name);
   }
 
   /**
@@ -125,7 +117,7 @@ public abstract class DAOImpl<E> implements DAO<E> {
    @throws DAOException if not isNonNull
    */
   protected <R extends Record> void requireExists(String name, R record) throws DAOException {
-    require(name, "does not exist", Value.isNonNull(record));
+    require(name, "does not exist", Values.isNonNull(record));
   }
 
   /**
@@ -136,7 +128,7 @@ public abstract class DAOImpl<E> implements DAO<E> {
    @throws DAOException if not isNonNull
    */
   protected void requireExists(String name, E entity) throws DAOException {
-    require(name, "does not exist", Value.isNonNull(entity));
+    require(name, "does not exist", Values.isNonNull(entity));
   }
 
   /**
@@ -443,7 +435,7 @@ public abstract class DAOImpl<E> implements DAO<E> {
 
     Map<String, Object> fieldValues = record.intoMap();
     for (Map.Entry<String, Object> field : fieldValues.entrySet())
-      if (Value.isNonNull(field.getValue())) try {
+      if (Values.isNonNull(field.getValue())) try {
         String attributeName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, field.getKey());
         Entities.set(model, attributeName, field.getValue());
       } catch (Exception e) {

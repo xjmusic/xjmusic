@@ -14,10 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class EntityFactoryImplTest {
   private EntityFactory subject;

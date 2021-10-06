@@ -1,41 +1,15 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.hub_client.client;
 
-import com.google.common.collect.ConcurrentHashMultiset;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Ordering;
+import com.google.common.collect.*;
 import com.google.inject.Inject;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.InstrumentMeme;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramMeme;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.ProgramVoiceTrack;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Text;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**

@@ -55,8 +55,7 @@ public class AudioStreamLoader {
       frames = new double[(int) expectFrames][channels];
 
     } catch (Exception e) {
-
-      throw new FormatException("unable to read audio input stream (" + e.getClass().getName() + "): " + e.getMessage());
+      throw new FormatException("unable to read audio input stream (" + e.getClass().getName() + ")", e);
     }
 
     if (MAX_INT_LENGTH_ARRAY_SIZE <= expectBytes) { // max int-length array size

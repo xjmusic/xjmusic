@@ -3,15 +3,14 @@ package io.xj.nexus.work;
 import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.typesafe.config.Config;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
 import io.xj.api.Segment;
 import io.xj.api.SegmentState;
+import io.xj.hub.dao.Templates;
+import io.xj.hub.enums.TemplateType;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.hub.enums.TemplateType;
-import io.xj.hub.dao.Templates;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
@@ -22,19 +21,10 @@ import io.xj.lib.json.JsonProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.service.ChainService;
-import io.xj.nexus.Chains;
-import io.xj.nexus.Segments;
-import io.xj.nexus.service.exception.ServiceExistenceException;
-import io.xj.nexus.service.exception.ServiceFatalException;
-import io.xj.nexus.service.exception.ServicePrivilegeException;
-import io.xj.nexus.service.exception.ServiceValidationException;
 import io.xj.nexus.hub_client.client.HubClient;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubClientException;
-import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,10 +54,9 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final JsonProvider jsonProvider;
   private final NexusEntityStore entityStore;
-  private final ChainService chainService;
-  private final HubClientAccess access;
+  private final ChainManager ChainManager;
   private final AtomicReference<Mode> mode;
-  private final String segmentFileBucket;
+  private final String shipBucket;
   private final AtomicReference<State> state;
   private final int labPollSeconds;
   private final AtomicReference<Instant> labPollNext;
@@ -78,8 +67,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
 
   @Inject
   public NexusWorkChainManagerImpl(
-    ChainService chainService,
-    Config config,
+    ChainManager ChainManager,
     EntityFactory entityFactory,
     Environment env,
     FileStoreProvider fileStoreProvider,
@@ -94,16 +82,15 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonProvider = jsonProvider;
     this.entityStore = entityStore;
-    this.chainService = chainService;
+    this.ChainManager = ChainManager;
 
-    access = HubClientAccess.internal();
-    yardTemplateId = Value.uuidOrNull(env.getBootstrapTemplateId());
+    yardTemplateId = io.xj.lib.util.Values.uuidOrNull(env.getBootstrapTemplateId());
     mode = new AtomicReference<>(Objects.nonNull(yardTemplateId) ? Mode.Yard : Mode.Lab);
     state = new AtomicReference<>(State.Init);
-    segmentFileBucket = env.getSegmentFileBucket();
-    rehydrateFabricatedAheadThreshold = config.getInt("work.rehydrateFabricatedAheadThreshold");
-    labPollSeconds = config.getInt("work.labHubLabPollSeconds");
-    enabled = config.getBoolean("work.chainManagementEnabled");
+    shipBucket = env.getShipBucket();
+    rehydrateFabricatedAheadThreshold = env.getWorkRehydrateFabricatedAheadThreshold();
+    labPollSeconds = env.getWorkLabHubLabPollSeconds();
+    enabled = env.getWorkChainManagementEnabled();
     labPollNext = new AtomicReference<>(Instant.now());
   }
 
@@ -158,9 +145,9 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   }
 
   /**
-   Whether all lab chains are healthy
-
-   @return true if all lab chains are healthy
+   * Whether all lab chains are healthy
+   *
+   * @return true if all lab chains are healthy
    */
   private boolean labChainsAllHealthy() {
     // FUTURE test healthiness of yard chain or lab chain(s)
@@ -168,9 +155,9 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   }
 
   /**
-   Whether all yard chains are healthy
-
-   @return true if all yard chains are healthy
+   * Whether all yard chains are healthy
+   *
+   * @return true if all yard chains are healthy
    */
   private boolean yardChainsAllHealthy() {
     // FUTURE test healthiness of yard chain or yard chain(s)
@@ -178,9 +165,9 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   }
 
   /**
-   Maintain a chain for each current hub template playback
-
-   @return true if all is well, false if something has failed
+   * Maintain a chain for each current hub template playback
+   *
+   * @return true if all is well, false if something has failed
    */
   private boolean maintainPreviewChains() {
     Collection<Template> templates;
@@ -194,12 +181,12 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     // Maintain chain for all templates
     Collection<Chain> chains;
     try {
-      chains = chainService.readAllFabricating();
+      chains = ChainManager.readAllFabricating();
       Set<UUID> chainTemplateIds = chains.stream().map(Chain::getTemplateId).collect(Collectors.toSet());
       for (Template template : templates)
         if (!chainTemplateIds.contains(template.getId()))
           createChainForTemplate(template.getId(), TemplateType.Preview);
-    } catch (ServiceFatalException | ServicePrivilegeException e) {
+    } catch (ManagerFatalException | ManagerPrivilegeException e) {
       LOG.error("Failed to start Chain(s) for playing Template(s)!", e);
       return false;
     }
@@ -210,9 +197,9 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
       for (var chain : chains)
         if (!templateIds.contains(chain.getTemplateId())) {
           LOG.info("Will stop lab Chain[{}] for no-longer-playing Template", Chains.getIdentifier(chain));
-          chainService.updateState(chain.getId(), ChainState.COMPLETE);
+          ChainManager.updateState(chain.getId(), ChainState.COMPLETE);
         }
-    } catch (ServicePrivilegeException | ServiceFatalException | ServiceExistenceException | ServiceValidationException e) {
+    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException | ManagerValidationException e) {
       LOG.error("Failed to stop non-playing Chain(s)!", e);
       return false;
     }
@@ -221,13 +208,13 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   }
 
   /**
-   Bootstrap a chain from JSON chain bootstrap data,
-   first rehydrating store from last shipped JSON matching this ship key.
-   <p>
-   Nexus with bootstrap chain rehydrates store on startup from shipped JSON files
-   https://www.pivotaltracker.com/story/show/178718006
-
-   @return true if successful
+   * Bootstrap a chain from JSON chain bootstrap data,
+   * first rehydrating store from last shipped JSON matching this ship key.
+   * <p>
+   * Nexus with bootstrap chain rehydrates store on startup from shipped JSON files
+   * https://www.pivotaltracker.com/story/show/178718006
+   *
+   * @return true if successful
    */
   private Boolean createChainForTemplate(UUID templateId, TemplateType type) {
     Template template;
@@ -243,36 +230,36 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     if (rehydrateTemplate(template)) return true;
 
     // If the template already exists, destroy it
-    chainService.destroyIfExistsForShipKey(template.getShipKey());
+    ChainManager.destroyIfExistsForShipKey(template.getShipKey());
 
     // Only if rehydration was unsuccessful
     try {
       LOG.info("Will bootstrap Template[{}]", Templates.getIdentifier(template));
-      chainService.bootstrap(type, Chains.fromTemplate(template));
+      ChainManager.bootstrap(type, Chains.fromTemplate(template));
       return true;
-    } catch (ServiceFatalException | ServicePrivilegeException | ServiceValidationException | ServiceExistenceException e) {
+    } catch (ManagerFatalException | ManagerPrivilegeException | ManagerValidationException | ManagerExistenceException e) {
       LOG.error("Failed bootstrap Template[{}]!", Templates.getIdentifier(template), e);
       return false;
     }
   }
 
   /**
-   Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
-
-   @param template from which to rehydrate
-   @return true if the rehydration was successful
+   * Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
+   *
+   * @param template from which to rehydrate
+   * @return true if the rehydration was successful
    */
   private Boolean rehydrateTemplate(Template template) {
     var success = new AtomicBoolean(true);
     Collection<Object> entities = Lists.newArrayList();
-    String chainStorageKey;
+    String shipKey;
     InputStream chainStream;
     JsonapiPayload chainPayload;
     Chain chain;
     try {
-      LOG.info("Will check for last shipped data");
-      chainStorageKey = Chains.getStorageKey(Chains.getFullKey(template.getShipKey()), EXTENSION_JSON);
-      chainStream = fileStoreProvider.streamS3Object(segmentFileBucket, chainStorageKey);
+      LOG.debug("will check for last shipped data");
+      shipKey = Chains.getShipKey(Chains.getFullKey(template.getShipKey()), EXTENSION_JSON);
+      chainStream = fileStoreProvider.streamS3Object(shipBucket, shipKey);
       chainPayload = jsonProvider.getObjectMapper().readValue(chainStream, JsonapiPayload.class);
       chain = jsonapiPayloadFactory.toOne(chainPayload);
       entities.add(entityFactory.clone(chain));
@@ -308,8 +295,8 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
         .filter(seg -> SegmentState.DUBBED.equals(seg.getState()))
         .forEach(segment -> {
           try {
-            var segmentStorageKey = Segments.getStorageKey(segment.getStorageKey(), EXTENSION_JSON);
-            var segmentStream = fileStoreProvider.streamS3Object(segmentFileBucket, segmentStorageKey);
+            var segmentShipKey = Segments.getStorageFilename(segment.getStorageKey(), EXTENSION_JSON);
+            var segmentStream = fileStoreProvider.streamS3Object(shipBucket, segmentShipKey);
             var segmentPayload = jsonProvider.getObjectMapper().readValue(segmentStream, JsonapiPayload.class);
             AtomicInteger childCount = new AtomicInteger();
             entities.add(entityFactory.clone(segment));
@@ -324,10 +311,10 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
                   success.set(false);
                 }
               });
-            LOG.info("Read Segment[{}] and {} child entities", segment.getStorageKey(), childCount);
+            LOG.info("Read Segment[{}] and {} child entities", Segments.getIdentifier(segment), childCount);
 
           } catch (Exception e) {
-            LOG.error("Could not load Segment[{}]", segment.getStorageKey(), e);
+            LOG.error("Could not load Segment[{}]", Segments.getIdentifier(segment), e);
             success.set(false);
           }
         });

@@ -2,7 +2,6 @@
 
 package io.xj.hub.api;
 
-import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.util.ValueException;
@@ -44,7 +43,7 @@ public class TemplateConfigTest {
         "outputFrameRate = 48000\n" +
         "outputSampleBits = 16\n"
     );
-    subject = new TemplateConfig(template, HubTestConfiguration.getDefault());
+    subject = new TemplateConfig(template);
   }
 
   @Test

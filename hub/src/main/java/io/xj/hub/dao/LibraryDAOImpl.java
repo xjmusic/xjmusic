@@ -2,16 +2,16 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.Library;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
@@ -161,8 +161,8 @@ public class LibraryDAOImpl extends DAOImpl<Library> implements LibraryDAO {
    */
   public Library validate(Library record) throws DAOException {
     try {
-      Value.require(record.getAccountId(), "Account ID");
-      Value.require(record.getName(), "Name");
+      Values.require(record.getAccountId(), "Account ID");
+      Values.require(record.getName(), "Name");
       return record;
 
     } catch (ValueException e) {

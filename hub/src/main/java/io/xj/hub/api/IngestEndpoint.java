@@ -2,7 +2,6 @@
 package io.xj.hub.api;
 
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.ingest.HubIngestFactory;
@@ -36,11 +35,10 @@ public class IngestEndpoint extends HubJsonapiEndpoint {
   @Inject
   public IngestEndpoint(
     JsonapiHttpResponseProvider response,
-    Config config,
     JsonapiPayloadFactory payloadFactory,
     HubIngestFactory ingestFactory
   ) {
-    super(response, config, payloadFactory);
+    super(response, payloadFactory);
     this.ingestFactory = ingestFactory;
   }
 

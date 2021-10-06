@@ -1,33 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub;
 
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.AccountUser;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.InstrumentAuthorship;
-import io.xj.hub.tables.pojos.InstrumentMeme;
-import io.xj.hub.tables.pojos.InstrumentMessage;
-import io.xj.hub.tables.pojos.Library;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramAuthorship;
-import io.xj.hub.tables.pojos.ProgramMeme;
-import io.xj.hub.tables.pojos.ProgramMessage;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.ProgramVoiceTrack;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.hub.tables.pojos.TemplatePlayback;
-import io.xj.hub.tables.pojos.User;
-import io.xj.hub.tables.pojos.UserAuth;
-import io.xj.hub.tables.pojos.UserAuthToken;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.EntityFactory;
 
 /**

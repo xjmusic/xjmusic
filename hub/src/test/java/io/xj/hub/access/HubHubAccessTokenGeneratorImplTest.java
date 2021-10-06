@@ -5,11 +5,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
 import io.xj.hub.dao.DAOModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -27,13 +25,11 @@ public class HubHubAccessTokenGeneratorImplTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = HubTestConfiguration.getDefault();
     var env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(),
       new FileStoreModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Config.class).toInstance(config);
         bind(Environment.class).toInstance(env);
         bind(HubAccessTokenGenerator.class).to(HubAccessTokenGeneratorImpl.class);
       }

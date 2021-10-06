@@ -8,20 +8,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
 import io.xj.api.Chain;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.HubTopology;
+import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramSequencePatternType;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.Template;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
@@ -29,7 +24,6 @@ import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
@@ -44,13 +38,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
@@ -89,12 +77,12 @@ public class ArrangementCraftTests extends YamlTest {
 
   @Test
   public void arrangementBaseline() {
-    var prog = new Program();
-    prog.setId(UUID.randomUUID());
-    prog.setName("Baseline");
+    var prg = new Program();
+    prg.setId(UUID.randomUUID());
+    prg.setName("Baseline");
 
-    prog.setName("Modified");
-    assertEquals("Modified", prog.getName());
+    prg.setName("Modified");
+    assertEquals("Modified", prg.getName());
   }
 
   @Test
@@ -134,13 +122,11 @@ public class ArrangementCraftTests extends YamlTest {
 
   @Before
   public void setUp() throws AppException {
-    Config config = NexusTestConfiguration.getDefault();
     Environment env = Environment.getDefault();
     injector = Guice.createInjector(Modules.override(new NexusWorkModule())
       .with(new AbstractModule() {
         @Override
         protected void configure() {
-          bind(Config.class).toInstance(config);
           bind(Environment.class).toInstance(env);
         }
       }));

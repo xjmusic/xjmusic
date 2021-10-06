@@ -4,29 +4,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValueFactory;
-import io.xj.api.Chain;
-import io.xj.api.ChainState;
-import io.xj.api.ChainType;
-import io.xj.api.Segment;
-import io.xj.api.SegmentState;
+import io.xj.api.*;
 import io.xj.hub.HubTopology;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.AccountUser;
-import io.xj.hub.tables.pojos.Library;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.hub.tables.pojos.User;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
@@ -41,19 +27,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildBinding;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
-import static io.xj.hub.IntegrationTestingFixtures.buildMeme;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
-import static io.xj.hub.IntegrationTestingFixtures.buildSequence;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.hub.IntegrationTestingFixtures.buildUser;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -72,15 +47,11 @@ public class MacroFromOverlappingMemeSequencesTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = NexusTestConfiguration.getDefault()
-      .withValue("program.doTranspose", ConfigValueFactory.fromAnyRef(true))
-      .withValue("instrument.isTonal", ConfigValueFactory.fromAnyRef(true));
     Environment env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(new NexusWorkModule())
       .with(new AbstractModule() {
         @Override
         protected void configure() {
-          bind(Config.class).toInstance(config);
           bind(Environment.class).toInstance(env);
         }
       }));

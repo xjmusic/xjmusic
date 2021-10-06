@@ -8,8 +8,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
@@ -41,15 +39,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePlayback;
-import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.*;
 import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static io.xj.lib.jsonapi.AssertPayload.assertPayload;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.verify;
@@ -69,12 +62,10 @@ public class TemplatePlaybackEndpointTest {
 
   @Before
   public void setUp() throws AppException {
-    Config config = HubTestConfiguration.getDefault();
     var env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Config.class).toInstance(config);
         bind(Environment.class).toInstance(env);
         bind(TemplatePlaybackDAO.class).toInstance(templatePlaybackDAO);
       }

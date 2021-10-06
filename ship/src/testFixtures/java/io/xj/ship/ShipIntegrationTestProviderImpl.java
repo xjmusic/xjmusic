@@ -3,9 +3,9 @@ package io.xj.ship;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.typesafe.config.Config;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.ship.persistence.ShipEntityStore;
+import io.xj.nexus.NexusException;
+import io.xj.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,25 +14,21 @@ import java.util.Collection;
 @Singleton
 public class ShipIntegrationTestProviderImpl implements ShipIntegrationTestProvider {
   final Logger LOG = LoggerFactory.getLogger(ShipIntegrationTestProviderImpl.class);
-  private final ShipEntityStore store;
+  private final NexusEntityStore store;
 
   /**
-   Since this class is a singleton, the process here in its constructor
-   will happen only once for a whole test suite
+   * Since this class is a singleton, the process here in its constructor
+   * will happen only once for a whole test suite
    */
   @Inject
   ShipIntegrationTestProviderImpl(
     EntityFactory entityFactory,
-    Config config,
-    ShipEntityStore shipEntityStore
+    NexusEntityStore nexusEntityStore
   ) {
-    this.store = shipEntityStore;
+    this.store = nexusEntityStore;
 
     // Build the Ship REST API payload topology
     ShipTopology.buildShipApiTopology(entityFactory);
-
-    // Requires that a configuration has been bound
-    config.getString("app.name");
 
     // Begin database prep
     LOG.debug("Will prepare integration database.");
@@ -43,25 +39,35 @@ public class ShipIntegrationTestProviderImpl implements ShipIntegrationTestProvi
 
   @Override
   public void setUp() throws ShipException {
-    store.deleteAll();
+    try {
+      store.deleteAll();
+    } catch (NexusException e) {
+      throw new ShipException(e);
+    }
   }
 
   @Override
   public <N> N put(N entity) throws ShipException {
-    store.put(entity);
-    return entity;
+    try {
+      return store.put(entity);
+    } catch (NexusException e) {
+      throw new ShipException(e);
+    }
   }
 
   @Override
   public <E, I> E put(E entity, Collection<I> included) throws ShipException {
-    store.put(entity);
-    store.putAll(included);
-    return entity;
+    try {
+      store.put(entity);
+      store.putAll(included);
+      return entity;
+    } catch (NexusException e) {
+      throw new ShipException(e);
+    }
   }
 
   @Override
   public void tearDown() {
-    System.clearProperty("work.queue.name");
   }
 
 }

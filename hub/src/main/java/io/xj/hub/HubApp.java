@@ -2,35 +2,10 @@
 package io.xj.hub;
 
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import io.xj.hub.access.HubAccessControlProvider;
 import io.xj.hub.access.HubAccessLogFilter;
 import io.xj.hub.access.HubAccessTokenAuthFilter;
-import io.xj.hub.api.AccountEndpoint;
-import io.xj.hub.api.AccountUserEndpoint;
-import io.xj.hub.api.AuthEndpoint;
-import io.xj.hub.api.ConfigEndpoint;
-import io.xj.hub.api.HealthEndpoint;
-import io.xj.hub.api.IngestEndpoint;
-import io.xj.hub.api.InstrumentAudioEndpoint;
-import io.xj.hub.api.InstrumentEndpoint;
-import io.xj.hub.api.InstrumentMemeEndpoint;
-import io.xj.hub.api.LibraryEndpoint;
-import io.xj.hub.api.ProgramEndpoint;
-import io.xj.hub.api.ProgramMemeEndpoint;
-import io.xj.hub.api.ProgramSequenceBindingEndpoint;
-import io.xj.hub.api.ProgramSequenceBindingMemeEndpoint;
-import io.xj.hub.api.ProgramSequenceChordEndpoint;
-import io.xj.hub.api.ProgramSequenceChordVoicingEndpoint;
-import io.xj.hub.api.ProgramSequenceEndpoint;
-import io.xj.hub.api.ProgramSequencePatternEndpoint;
-import io.xj.hub.api.ProgramSequencePatternEventEndpoint;
-import io.xj.hub.api.ProgramVoiceEndpoint;
-import io.xj.hub.api.ProgramVoiceTrackEndpoint;
-import io.xj.hub.api.TemplateBindingEndpoint;
-import io.xj.hub.api.TemplateEndpoint;
-import io.xj.hub.api.TemplatePlaybackEndpoint;
-import io.xj.hub.api.UserEndpoint;
+import io.xj.hub.api.*;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubMigration;
 import io.xj.hub.persistence.HubPersistenceException;
@@ -45,7 +20,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
+@SuppressWarnings("ALL")
 public class HubApp extends App {
+  private static final String APP_NAME = "hub";
   private final Logger log = LoggerFactory.getLogger(HubApp.class);
   private final String platformRelease;
   private final HubDatabaseProvider hubDatabaseProvider;
@@ -53,7 +30,6 @@ public class HubApp extends App {
 
   @Inject
   public HubApp(
-    Config config,
     EntityFactory entityFactory,
     Environment env,
     HubAccessControlProvider hubAccessControlProvider,
@@ -85,7 +61,7 @@ public class HubApp extends App {
     TemplatePlaybackEndpoint templatePlaybackEndpoint,
     UserEndpoint userEndpoint
   ) {
-    super(config, env);
+    super(APP_NAME, env);
 
     getResourceConfig().register(accountEndpoint);
     getResourceConfig().register(accountUserEndpoint);
@@ -118,9 +94,6 @@ public class HubApp extends App {
     this.hubDatabaseProvider = hubDatabaseProvider;
     this.hubMigration = hubMigration;
 
-    // Non-static logger for this class, because app must init first
-    log.info("{} configuration:\n{}", getName(), Text.toReport(config));
-
     // Setup Entity topology
     HubTopology.buildHubApiTopology(entityFactory);
 
@@ -135,8 +108,8 @@ public class HubApp extends App {
   }
 
   /**
-   Starts Grizzly HTTP server
-   exposing JAX-RS resources defined in this app.
+   * Starts Grizzly HTTP server
+   * exposing JAX-RS resources defined in this app.
    */
   public void start() throws AppException {
     // start the underlying app
@@ -145,7 +118,7 @@ public class HubApp extends App {
   }
 
   /**
-   stop App Server
+   * stop App Server
    */
   public void finish() {
     // stop the underlying app
@@ -158,16 +131,16 @@ public class HubApp extends App {
   }
 
   /**
-   Get base URI
-
-   @return base URI
+   * Get base URI
+   *
+   * @return base URI
    */
   public String getBaseURI() {
-    return "http://" + getRestHostname() + ":" + getRestPort() + "/";
+    return "http://" + getHostname() + ":" + getPort() + "/";
   }
 
   /**
-   Run database migrations
+   * Run database migrations
    */
   public void migrate() {
     // Database migrations

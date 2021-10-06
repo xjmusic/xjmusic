@@ -6,11 +6,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
 import io.xj.hub.HubException;
 import io.xj.hub.HubIntegrationTestModule;
 import io.xj.hub.HubIntegrationTestProvider;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
@@ -30,26 +28,10 @@ import org.junit.Test;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplatePlayback;
-import static io.xj.hub.IntegrationTestingFixtures.buildUser;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static io.xj.hub.IntegrationTestingFixtures.*;
+import static org.junit.Assert.*;
 
 public class TemplateIT {
   private TemplateDAO testDAO;
@@ -61,12 +43,10 @@ public class TemplateIT {
 
   @Before
   public void setUp() throws Exception {
-    Config config = HubTestConfiguration.getDefault();
     var env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule(), new HubIntegrationTestModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Config.class).toInstance(config);
         bind(Environment.class).toInstance(env);
       }
     }));

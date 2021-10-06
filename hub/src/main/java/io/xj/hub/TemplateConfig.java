@@ -13,13 +13,50 @@ import javax.sound.sampled.AudioFormat;
 import java.util.Map;
 
 /**
- Parse a TypeSafe `config` value for a Template's configuration, overriding values from top-level default.conf--
- e.g.
- if the `config` value contains only `previewLengthMaxHours = 8`
- <p>
- [#177355683] Artist saves Template config, validate & combine with defaults.
+ * Parse a TypeSafe `config` value for a Template's configuration, overriding values from top-level default.conf--
+ * e.g.
+ * if the `config` value contains only `previewLengthMaxHours = 8`
+ * <p>
+ * [#177355683] Artist saves Template config, validate & combine with defaults.
  */
 public class TemplateConfig {
+  public static final Config DEFAULT = ConfigFactory.parseString(
+    """
+      template {
+        choiceDeltaEnabled = true
+        deltaArcDetailPlateauRatio = 0.38
+        deltaArcDetailPlateauShiftRatio = 0.62
+        deltaArcRhythmPlateauRatio = 0.62
+        deltaArcRhythmPlateauShiftRatio = 0.38
+        dubMasterVolumeInstrumentTypeBass = 1.0
+        dubMasterVolumeInstrumentTypePad = 1.0
+        dubMasterVolumeInstrumentTypePercussive = 1.0
+        dubMasterVolumeInstrumentTypeStab = 1.0
+        dubMasterVolumeInstrumentTypeSticky = 1.0
+        dubMasterVolumeInstrumentTypeStripe = 1.0
+        mainProgramLengthMaxDelta = 280
+        mixerCompressAheadSeconds = 0.05
+        mixerCompressDecaySeconds = 0.125
+        mixerCompressRatioMax = 1.0
+        mixerCompressRatioMin = 0.3
+        mixerCompressToAmplitude = 1.0
+        mixerDspBufferSize = 1024
+        mixerHighpassThresholdHz = 30
+        mixerLowpassThresholdHz = 15000
+        mixerNormalizationBoostThreshold = 1.0
+        mixerNormalizationCeiling = 0.999
+        outputChannels = 2
+        outputContainer = "OGG"
+        outputEncoding = "PCM_FLOAT"
+        outputEncodingQuality = 0.618
+        outputFrameRate = 48000
+        outputSampleBits = 16
+        percLoopFixedSizeBeats = 4
+        percLoopLayerMax = 5
+        percLoopLayerMin = 1
+      }
+      """
+  );
   private static final String KEY_PREFIX = "template.";
 
   private final boolean choiceDeltaEnabled;
@@ -28,8 +65,14 @@ public class TemplateConfig {
   private final double deltaArcDetailPlateauRatio;
   private final String KEY_DELTA_ARC_DETAIL_PLATEAU_RATIO = "deltaArcDetailPlateauRatio";
 
+  private final double deltaArcDetailPlateauShiftRatio;
+  private final String KEY_DELTA_ARC_DETAIL_PLATEAU_SHIFT_RATIO = "deltaArcDetailPlateauShiftRatio";
+
   private final double deltaArcRhythmPlateauRatio;
   private final String KEY_DELTA_ARC_RHYTHM_PLATEAU_RATIO = "deltaArcRhythmPlateauRatio";
+
+  private final double deltaArcRhythmPlateauShiftRatio;
+  private final String KEY_DELTA_ARC_RHYTHM_PLATEAU_SHIFT_RATIO = "deltaArcRhythmPlateauShiftRatio";
 
   private final double dubMasterVolumeInstrumentTypePercussive;
   private final String KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE = "dubMasterVolumeInstrumentTypePercussive";
@@ -110,42 +153,43 @@ public class TemplateConfig {
   private final String KEY_PERC_LOOP_FIXED_SIZE_BEATS = "percLoopFixedSizeBeats";
 
   /**
-   Get a template config from only the default config
-
-   @param config from which to get template config
-   @throws ValueException on failure
+   * Get a template config from only the default config
+   *
+   * @throws ValueException on failure
    */
-  public TemplateConfig(Config config) throws ValueException {
-    this("", config);
+  public TemplateConfig() throws ValueException {
+    this("");
   }
 
   /**
-   Instantiate a Template configuration from a string of typesafe config.
-   Said string will be embedded in a `template{...}` block such that
-   provided simple Key=Value pairs will be understood as members of `template`
-   e.g. will override values from the `template{...}` block of the top-level **default.conf**
-
-   @param template to get Config from
+   * Instantiate a Template configuration from a string of typesafe config.
+   * Said string will be embedded in a `template{...}` block such that
+   * provided simple Key=Value pairs will be understood as members of `template`
+   * e.g. will override values from the `template{...}` block of the top-level **default.conf**
+   *
+   * @param template to get config from
    */
-  public TemplateConfig(Template template, Config defaultConfig) throws ValueException {
-    this(template.getConfig(), defaultConfig);
+  public TemplateConfig(Template template) throws ValueException {
+    this(template.getConfig());
   }
 
   /**
-   Instantiate a Template configuration from a string of typesafe config.
-   Said string will be embedded in a `template{...}` block such that
-   provided simple Key=Value pairs will be understood as members of `template`
-   e.g. will override values from the `template{...}` block of the top-level **default.conf**
+   * Instantiate a Template configuration from a string of typesafe config.
+   * Said string will be embedded in a `template{...}` block such that
+   * provided simple Key=Value pairs will be understood as members of `template`
+   * e.g. will override values from the `template{...}` block of the top-level **default.conf**
    */
-  public TemplateConfig(String configText, Config defaultConfig) throws ValueException {
+  public TemplateConfig(String configText) throws ValueException {
     try {
       Config config = Strings.isNullOrEmpty(configText) ?
-        defaultConfig :
+        DEFAULT :
         ConfigFactory.parseString(String.format("template {\n%s\n}", configText))
-          .withFallback(defaultConfig);
+          .withFallback(DEFAULT);
       choiceDeltaEnabled = config.getBoolean(tmplPfx(KEY_CHOICE_DELTA_ENABLED));
       deltaArcDetailPlateauRatio = config.getDouble(tmplPfx(KEY_DELTA_ARC_DETAIL_PLATEAU_RATIO));
+      deltaArcDetailPlateauShiftRatio = config.getDouble(tmplPfx(KEY_DELTA_ARC_DETAIL_PLATEAU_SHIFT_RATIO));
       deltaArcRhythmPlateauRatio = config.getDouble(tmplPfx(KEY_DELTA_ARC_RHYTHM_PLATEAU_RATIO));
+      deltaArcRhythmPlateauShiftRatio = config.getDouble(tmplPfx(KEY_DELTA_ARC_RHYTHM_PLATEAU_SHIFT_RATIO));
       dubMasterVolumeInstrumentTypeBass = config.getDouble(tmplPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS));
       dubMasterVolumeInstrumentTypePad = config.getDouble(tmplPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD));
       dubMasterVolumeInstrumentTypePercussive = config.getDouble(tmplPfx(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE));
@@ -178,10 +222,10 @@ public class TemplateConfig {
   }
 
   /**
-   Template-prefixed version of a key
-
-   @param key to prefix
-   @return template-prefixed key
+   * Template-prefixed version of a key
+   *
+   * @param key to prefix
+   * @return template-prefixed key
    */
   private String tmplPfx(String key) {
     return String.format("%s%s", KEY_PREFIX, key);
@@ -194,6 +238,8 @@ public class TemplateConfig {
     config.put(KEY_CHOICE_DELTA_ENABLED, String.valueOf(choiceDeltaEnabled));
     config.put(KEY_DELTA_ARC_DETAIL_PLATEAU_RATIO, String.valueOf(deltaArcDetailPlateauRatio));
     config.put(KEY_DELTA_ARC_RHYTHM_PLATEAU_RATIO, String.valueOf(deltaArcRhythmPlateauRatio));
+    config.put(KEY_DELTA_ARC_DETAIL_PLATEAU_SHIFT_RATIO, String.valueOf(deltaArcDetailPlateauShiftRatio));
+    config.put(KEY_DELTA_ARC_RHYTHM_PLATEAU_SHIFT_RATIO, String.valueOf(deltaArcRhythmPlateauShiftRatio));
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_BASS, String.valueOf(dubMasterVolumeInstrumentTypeBass));
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PAD, String.valueOf(dubMasterVolumeInstrumentTypePad));
     config.put(KEY_DUB_MASTER_VOLUME_INSTRUMENT_TYPE_PERCUSSIVE, String.valueOf(dubMasterVolumeInstrumentTypePercussive));
@@ -227,205 +273,220 @@ public class TemplateConfig {
   }
 
   /**
-   @return true if choice delta is enabled
+   * @return true if choice delta is enabled
    */
   public boolean isChoiceDeltaEnabled() {
     return choiceDeltaEnabled;
   }
 
   /**
-   @return the plateau ratio of detail-layer detail arcs
+   * @return the plateau ratio of detail-layer detail arcs
    */
   public double getDeltaArcDetailPlateauRatio() {
     return deltaArcDetailPlateauRatio;
   }
 
   /**
-   @return the plateau ratio of rhythm-layer detail arcs
+   * @return the delta arc detail plateau shift ratio
+   */
+  public double getDeltaArcDetailPlateauShiftRatio() {
+    return deltaArcDetailPlateauShiftRatio;
+  }
+
+  /**
+   * @return the plateau ratio of rhythm-layer detail arcs
    */
   public double getDeltaArcRhythmPlateauRatio() {
     return deltaArcRhythmPlateauRatio;
   }
 
   /**
-   @return ratio of amplitude to dub audio for Drum-type instruments
+   * @return the delta arc rhythm plateau shift ratio
+   */
+  public double getDeltaArcRhythmPlateauShiftRatio() {
+    return deltaArcRhythmPlateauShiftRatio;
+  }
+
+  /**
+   * @return ratio of amplitude to dub audio for Drum-type instruments
    */
   public double getDubMasterVolumeInstrumentTypePercussive() {
     return dubMasterVolumeInstrumentTypePercussive;
   }
 
   /**
-   @return ratio of amplitude to dub audio for Bass-type instruments
+   * @return ratio of amplitude to dub audio for Bass-type instruments
    */
   public double getDubMasterVolumeInstrumentTypeBass() {
     return dubMasterVolumeInstrumentTypeBass;
   }
 
   /**
-   @return ratio of amplitude to dub audio for Pad-type instruments
+   * @return ratio of amplitude to dub audio for Pad-type instruments
    */
   public double getDubMasterVolumeInstrumentTypePad() {
     return dubMasterVolumeInstrumentTypePad;
   }
 
   /**
-   @return ratio of amplitude to dub audio for Stick-type instruments
+   * @return ratio of amplitude to dub audio for Stick-type instruments
    */
   public double getDubMasterVolumeInstrumentTypeSticky() {
     return dubMasterVolumeInstrumentTypeSticky;
   }
 
   /**
-   @return ratio of amplitude to dub audio for Strip-type instruments
+   * @return ratio of amplitude to dub audio for Strip-type instruments
    */
   public double getDubMasterVolumeInstrumentTypeStripe() {
     return dubMasterVolumeInstrumentTypeStripe;
   }
 
   /**
-   @return ratio of amplitude to dub audio for Stab-type instruments
+   * @return ratio of amplitude to dub audio for Stab-type instruments
    */
   public double getDubMasterVolumeInstrumentTypeStab() {
     return dubMasterVolumeInstrumentTypeStab;
   }
 
   /**
-   @return max length (delta) for a main program to run
+   * @return max length (delta) for a main program to run
    */
   public int getMainProgramLengthMaxDelta() {
     return mainProgramLengthMaxDelta;
   }
 
   /**
-   @return mixer Compress Ahead Seconds
+   * @return mixer Compress Ahead Seconds
    */
   public double getMixerCompressAheadSeconds() {
     return mixerCompressAheadSeconds;
   }
 
   /**
-   @return mixer Compress Decay Seconds
+   * @return mixer Compress Decay Seconds
    */
   public double getMixerCompressDecaySeconds() {
     return mixerCompressDecaySeconds;
   }
 
   /**
-   @return mixer Compress Ratio Max
+   * @return mixer Compress Ratio Max
    */
   public double getMixerCompressRatioMax() {
     return mixerCompressRatioMax;
   }
 
   /**
-   @return mixer Compress Ratio Min
+   * @return mixer Compress Ratio Min
    */
   public double getMixerCompressRatioMin() {
     return mixerCompressRatioMin;
   }
 
   /**
-   @return mixer Compress To Amplitude
+   * @return mixer Compress To Amplitude
    */
   public double getMixerCompressToAmplitude() {
     return mixerCompressToAmplitude;
   }
 
   /**
-   @return mixer Dsp Buffer Size
+   * @return mixer Dsp Buffer Size
    */
   public int getMixerDspBufferSize() {
     return mixerDspBufferSize;
   }
 
   /**
-   @return mixer Highpass Threshold Hz
+   * @return mixer Highpass Threshold Hz
    */
   public double getMixerHighpassThresholdHz() {
     return mixerHighpassThresholdHz;
   }
 
   /**
-   @return mixer Lowpass Threshold Hz
+   * @return mixer Lowpass Threshold Hz
    */
   public double getMixerLowpassThresholdHz() {
     return mixerLowpassThresholdHz;
   }
 
   /**
-   @return mixer Normalization Max
+   * @return mixer Normalization Max
    */
   public double getMixerNormalizationCeiling() {
     return mixerNormalizationCeiling;
   }
 
   /**
-   @return mixer limit of how much to boost during normalization
+   * @return mixer limit of how much to boost during normalization
    */
   public double getMixerNormalizationBoostThreshold() {
     return mixerNormalizationBoostThreshold;
   }
 
   /**
-   @return # of Output Channels
+   * @return # of Output Channels
    */
   public int getOutputChannels() {
     return outputChannels;
   }
 
   /**
-   @return Output Container
+   * @return Output Container
    */
   public String getOutputContainer() {
     return outputContainer;
   }
 
   /**
-   @return Output Encoding
+   * @return Output Encoding
    */
   public AudioFormat.Encoding getOutputEncoding() {
     return outputEncoding;
   }
 
   /**
-   @return Output Encoding Quality (ratio from 0 to 1)
+   * @return Output Encoding Quality (ratio from 0 to 1)
    */
   public double getOutputEncodingQuality() {
     return outputEncodingQuality;
   }
 
   /**
-   @return Output Frame Rate (Hz)
+   * @return Output Frame Rate (Hz)
    */
   public int getOutputFrameRate() {
     return outputFrameRate;
   }
 
   /**
-   @return Output Sample Bits
+   * @return Output Sample Bits
    */
   public int getOutputSampleBits() {
     return outputSampleBits;
   }
 
   /**
-   @return the fixed size of a percussion loop, in # beats
+   * @return the fixed size of a percussion loop, in # beats
    */
   public double getPercLoopFixedSizeBeats() {
     return percLoopFixedSizeBeats;
   }
 
   /**
-   @return the maximum # of layers of percussive loops
+   * @return the maximum # of layers of percussive loops
    */
   public double getPercLoopLayerMax() {
     return percLoopLayerMax;
   }
 
   /**
-   @return the minimum # of layers of percussive loops
+   * @return the minimum # of layers of percussive loops
    */
   public double getPercLoopLayerMin() {
     return percLoopLayerMin;
   }
+
 }

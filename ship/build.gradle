@@ -55,6 +55,7 @@ dependencies {
   implementation 'ch.qos.logback:logback-classic:1.2.3'
   implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.7'
   implementation 'com.amazonaws:aws-java-sdk:1.11.119'
+  implementation 'org.jcraft:jorbis:0.0.17'
   implementation 'com.fasterxml.jackson.core:jackson-annotations:2.10.1'
   implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.10.2.1'
   implementation 'com.fasterxml.jackson.module:jackson-module-guice:2.10.3'

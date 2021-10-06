@@ -4,19 +4,10 @@ import com.google.api.client.util.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangement;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentChord;
-import io.xj.api.SegmentChordVoicing;
+import io.xj.api.*;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.enums.ProgramSequencePatternType;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.tables.pojos.ProgramVoice;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.music.AdjSymbol;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Note;
@@ -33,24 +24,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static io.xj.nexus.Segments.DELTA_UNLIMITED;
+import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
 
 /**
  Arrangement of Segment Events is a common foundation for both Detail and Rhythm craft
  */
 public class ArrangementCraftImpl extends FabricationWrapperImpl {
-  private static final double DELTA_SHIFT_FRONTEND_RATIO = 0.62;
   private final Logger LOG = LoggerFactory.getLogger(ArrangementCraftImpl.class);
   private final Map<String, Integer> deltaIns = Maps.newHashMap();
   private final Map<String, Integer> deltaOuts = Maps.newHashMap();
@@ -195,14 +178,14 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
 
    @throws NexusException on failure
    */
-  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> indexes, double plateauRatio) throws NexusException {
+  protected void precomputeDeltas(Predicate<SegmentChoice> choiceFilter, ChoiceIndexProvider choiceIndexProvider, Collection<String> indexes, double plateauRatio, double plateauShiftRatio) throws NexusException {
     this.choiceIndexProvider = choiceIndexProvider;
     deltaIns.clear();
     deltaOuts.clear();
     var bTotal = fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(); // total arc length
     double bPlateau = bTotal * plateauRatio; // plateau section in middle with no transitions
     double bFadesTotal = bTotal - bPlateau;
-    double bFadeShiftRatio = DELTA_SHIFT_FRONTEND_RATIO + TremendouslyRandom.zeroToLimit(1 - DELTA_SHIFT_FRONTEND_RATIO);
+    double bFadeShiftRatio = plateauShiftRatio + TremendouslyRandom.zeroToLimit(1 - plateauShiftRatio);
     double bFadeIn = bFadeShiftRatio * bFadesTotal;
     double bFadeOut = (1 - bFadeShiftRatio) * bFadesTotal;
     double bFadeInLayer = bFadeIn / indexes.size(); // space between transitions in
@@ -472,9 +455,9 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   private double computeVolumeRatioForPickedNote(SegmentChoice choice, double segmentPosition) {
     return switch (InstrumentType.valueOf(choice.getInstrumentType())) {
       case Drum, Stab -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false, true);
-      case Bass -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false, false);
+      case Bass, Sticky, Stripe -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, false, false);
       case PercLoop -> computeVolumeRatioForPickedNote(choice, segmentPosition, true, false, false);
-      case Pad, Sticky, Stripe -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, true, true);
+      case Pad -> computeVolumeRatioForPickedNote(choice, segmentPosition, false, true, true);
     };
   }
 

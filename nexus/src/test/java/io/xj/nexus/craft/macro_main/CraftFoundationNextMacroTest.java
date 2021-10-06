@@ -7,32 +7,21 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValueFactory;
-import io.xj.api.Chain;
-import io.xj.api.ChainState;
-import io.xj.api.ChainType;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChord;
-import io.xj.api.SegmentMeme;
-import io.xj.api.SegmentState;
-import io.xj.api.SegmentType;
+import io.xj.api.*;
 import io.xj.hub.HubTopology;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.Segments;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.Segments;
 import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,21 +46,17 @@ public class CraftFoundationNextMacroTest {
 
 
   /**
-   Test to ensure that the following Macro-Program is based on its first sequence-binding meme
-   matching the last sequence-binding meme of the preceding Macro-Program
+   * Test to ensure that the following Macro-Program is based on its first sequence-binding meme
+   * matching the last sequence-binding meme of the preceding Macro-Program
    */
   @Test
   public void craftFoundationNextMacro() throws Exception {
     for (int i = 0; i < TEST_REPEAT_ITERATIONS; i++) {
-      Config config = NexusTestConfiguration.getDefault()
-        .withValue("program.doTranspose", ConfigValueFactory.fromAnyRef(true))
-        .withValue("instrument.isTonal", ConfigValueFactory.fromAnyRef(true));
       Environment env = Environment.getDefault();
       Injector injector = Guice.createInjector(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override
           public void configure() {
-            bind(Config.class).toInstance(config);
             bind(Environment.class).toInstance(env);
             bind(HubClient.class).toInstance(hubClient);
           }

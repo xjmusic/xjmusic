@@ -2,24 +2,21 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.ProgramSequenceBinding;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.Tables.LIBRARY;
-import static io.xj.hub.Tables.PROGRAM;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
+import static io.xj.hub.Tables.*;
 
 public class ProgramSequenceBindingDAOImpl extends DAOImpl<ProgramSequenceBinding> implements ProgramSequenceBindingDAO {
 
@@ -142,9 +139,9 @@ public class ProgramSequenceBindingDAOImpl extends DAOImpl<ProgramSequenceBindin
    */
   public void validate(ProgramSequenceBinding record) throws DAOException {
     try {
-      Value.require(record.getProgramId(), "Program ID");
-      Value.require(record.getProgramSequenceId(), "Sequence ID");
-      Value.require(record.getOffset(), "Offset");
+      Values.require(record.getProgramId(), "Program ID");
+      Values.require(record.getProgramSequenceId(), "Sequence ID");
+      Values.require(record.getOffset(), "Offset");
 
     } catch (ValueException e) {
       throw new DAOException(e);

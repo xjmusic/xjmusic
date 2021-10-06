@@ -16,13 +16,13 @@ import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.util.Chance;
-import io.xj.lib.util.Value;
+import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.Segments;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.FabricationWrapperImpl;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
+import io.xj.nexus.persistence.Segments;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -238,7 +238,7 @@ public class MacroMainCraftImpl extends FabricationWrapperImpl implements MacroM
     // then, set the end-at time.
     if (mainSequence.isPresent())
       fabricator.updateSegment(fabricator.getSegment()
-        .endAt(Value.formatIso8601UTC(segmentEndInstant(mainSequence.get()))));
+        .endAt(Values.formatIso8601UTC(segmentEndInstant(mainSequence.get()))));
 
     // If the type is not Continue, we will reset the offset main
     var segment = fabricator.getSegment();

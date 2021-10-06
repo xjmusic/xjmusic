@@ -1,16 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import io.xj.api.Chain;
+import io.xj.api.*;
 import io.xj.hub.enums.ProgramType;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangement;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentChord;
-import io.xj.api.SegmentChordVoicing;
-import io.xj.api.SegmentMeme;
-import io.xj.api.SegmentMessage;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.util.ValueException;
 import io.xj.nexus.NexusException;
@@ -23,7 +15,7 @@ public interface SegmentWorkbench {
   /**
    Get the segment that's being worked on.
    Modify this object's properties.
-   At the end of the fabrication process, this segment is saved via Service
+   At the end of the fabrication process, this segment is saved via Manager
 
    @return current segment
    */
@@ -84,7 +76,7 @@ public interface SegmentWorkbench {
 
   /***
    Called at the end of Segment fabrication.
-   Sends added records to segmentService batch insert method
+   Sends added records to segmentManager batch insert method
    */
   void done() throws NexusException, JsonapiException, ValueException;
 

@@ -3,8 +3,8 @@
 package io.xj.nexus.persistence;
 
 import io.xj.api.Chain;
-import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.api.Segment;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.nexus.NexusException;
 
 import java.util.Collection;
@@ -62,16 +62,16 @@ public interface NexusEntityStore {
 
   /**
    Delete a Segment entity specified by partition (segment id), class and id@param <N>       type of entity
+
    @param segmentId partition (segment id) of entity
    @param type      of class to delete
    @param id        to delete
-
-
    */
   <N> void delete(UUID segmentId, Class<N> type, UUID id) throws NexusException;
 
   /**
    Delete all entities for a Segment of a given type@param <N>       type of entities
+
    @param segmentId partition (segment id) of entity
    @param type      of class to delete
    */
@@ -107,6 +107,14 @@ public interface NexusEntityStore {
   Optional<Segment> getSegment(UUID id) throws NexusException;
 
   /**
+   Whether the given segment exists
+
+   @param id of segment
+   @return true if exists
+   */
+  boolean segmentExists(UUID id);
+
+  /**
    Get all chains
 
    @return collection of chains
@@ -117,9 +125,9 @@ public interface NexusEntityStore {
   /**
    Get all segments for a chain id
 
+   @param chainId to get segments for
    @return collection of segments
    @throws NexusException on failure to retrieve the requested key
-   @param chainId to get segments for
    */
   Collection<Segment> getAllSegments(
     UUID chainId
@@ -128,21 +136,21 @@ public interface NexusEntityStore {
   /**
    Get an entity by partition (segment id), type, and id from the record store
 
-   @return N of given type and id
-   @throws NexusException on failure to retrieve the requested key
    @param <N>       type of entity
    @param segmentId partition (segment id) of entity
+   @return N of given type and id
+   @throws NexusException on failure to retrieve the requested key
    */
   <N> Optional<N> get(UUID segmentId, Class<N> type, UUID id) throws NexusException;
 
   /**
    Get all entities by partition (segment id) and type from the record store
 
-   @return collection of given type
-   @throws NexusException on failure to retrieve the requested key
    @param <N>       types of entities
    @param segmentId partition (segment id) of entity
    @param type      of entities
+   @return collection of given type
+   @throws NexusException on failure to retrieve the requested key
    */
   <N> Collection<N> getAll(
     UUID segmentId,
@@ -152,14 +160,14 @@ public interface NexusEntityStore {
   /**
    Get all entities by partition (segment id), type, and a belongs-to relationship from the record store
 
-   @return collection of given type
-   @throws NexusException on failure to retrieve the requested key
    @param <N>           types of entities
    @param <B>           types of belongs-to entities
    @param segmentId     partition (segment id) of entity
    @param type          of entity
    @param belongsToType type of belongs-to entity
    @param belongsToIds  ids of belongs-to entity
+   @return collection of given type
+   @throws NexusException on failure to retrieve the requested key
    */
   <N, B> Collection<N> getAll(
     UUID segmentId, Class<N> type,
@@ -173,5 +181,4 @@ public interface NexusEntityStore {
    @return size of store
    */
   int size();
-
 }

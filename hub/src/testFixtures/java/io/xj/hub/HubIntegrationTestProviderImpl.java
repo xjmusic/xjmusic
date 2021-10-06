@@ -4,7 +4,6 @@ package io.xj.hub;import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.typesafe.config.Config;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlProvider;
 import io.xj.hub.dao.DAO;
@@ -48,7 +47,6 @@ public class HubIntegrationTestProviderImpl<O> extends DAOImpl<O> implements Hub
     HubMigration hubMigration,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
-    Config config,
     HubAccessControlProvider hubAccessControlProvider) {
     super(payloadFactory, entityFactory);
     this.hubDatabaseProvider = hubDatabaseProvider;
@@ -56,9 +54,6 @@ public class HubIntegrationTestProviderImpl<O> extends DAOImpl<O> implements Hub
 
     // Build the Hub REST API payload topology
     HubTopology.buildHubApiTopology(entityFactory);
-
-    // Requires that a configuration has been bound
-    config.getString("app.name");
 
     // Begin database prep
     log.debug("Will prepare integration database.");
@@ -143,8 +138,6 @@ public class HubIntegrationTestProviderImpl<O> extends DAOImpl<O> implements Hub
     }
     redisConnection.close();
     log.debug("Did close master connection to integration database.");
-
-    System.clearProperty("work.queue.name");
   }
 
   @Override

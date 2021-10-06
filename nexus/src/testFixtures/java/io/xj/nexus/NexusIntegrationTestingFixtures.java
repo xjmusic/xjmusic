@@ -5,52 +5,18 @@ package io.xj.nexus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.xj.api.Chain;
-import io.xj.api.ChainState;
-import io.xj.api.ChainType;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangement;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentChord;
-import io.xj.api.SegmentChordVoicing;
-import io.xj.api.SegmentMeme;
-import io.xj.api.SegmentState;
-import io.xj.api.SegmentType;
+import io.xj.api.*;
 import io.xj.hub.IntegrationTestingFixtures;
 import io.xj.hub.LoremIpsum;
 import io.xj.hub.Users;
-import io.xj.hub.enums.InstrumentState;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramSequencePatternType;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.AccountUser;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.InstrumentMeme;
-import io.xj.hub.tables.pojos.Library;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramMeme;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.ProgramVoiceTrack;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.hub.tables.pojos.User;
-import io.xj.hub.tables.pojos.UserAuth;
+import io.xj.hub.enums.*;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.util.Text;
-import io.xj.lib.util.Value;
+import io.xj.lib.util.Values;
 import io.xj.nexus.hub_client.client.HubClientAccess;
+import io.xj.nexus.persistence.Segments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,12 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramMeme;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBindingMeme;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplateBinding;
+import static io.xj.hub.IntegrationTestingFixtures.*;
 
 /**
  [#165954673] Integration tests use shared scenario fixtures as much as possible
@@ -334,7 +295,7 @@ public class NexusIntegrationTestingFixtures {
     chain.setName("Test Chain");
     chain.setType(ChainType.PRODUCTION);
     chain.setState(state);
-    chain.startAt(Value.formatIso8601UTC(Instant.now()));
+    chain.startAt(Values.formatIso8601UTC(Instant.now()));
     return chain;
   }
 
@@ -354,9 +315,9 @@ public class NexusIntegrationTestingFixtures {
     chain.setName(name);
     chain.setType(type);
     chain.setState(state);
-    chain.startAt(Value.formatIso8601UTC(startAt));
+    chain.startAt(Values.formatIso8601UTC(startAt));
     if (Objects.nonNull(stopAt))
-      chain.stopAt(Value.formatIso8601UTC(stopAt));
+      chain.stopAt(Values.formatIso8601UTC(stopAt));
     if (Objects.nonNull(shipKey))
       chain.shipKey(shipKey);
     return chain;
@@ -368,18 +329,18 @@ public class NexusIntegrationTestingFixtures {
     return seg;
   }
 
-  public static Segment buildSegment(Chain chain, int offset, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String storageKey, String outputEncoder) {
+  public static Segment buildSegment(Chain chain, int offset, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String shipKey, String outputEncoder) {
     return buildSegment(chain,
       0 < offset ? SegmentType.CONTINUE : SegmentType.INITIAL,
-      offset, 0, state, beginAt, endAt, key, total, density, tempo, storageKey, outputEncoder);
+      offset, 0, state, beginAt, endAt, key, total, density, tempo, shipKey, outputEncoder);
   }
 
-  public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String storageKey) {
-    return buildSegment(chain, type, offset, delta, state, beginAt, endAt, key, total, density, tempo, storageKey, "OGG");
+  public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String shipKey) {
+    return buildSegment(chain, type, offset, delta, state, beginAt, endAt, key, total, density, tempo, shipKey, "OGG");
 
   }
 
-  public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String storageKey, String outputEncoder) {
+  public static Segment buildSegment(Chain chain, SegmentType type, int offset, int delta, SegmentState state, Instant beginAt, @Nullable Instant endAt, String key, int total, double density, double tempo, String shipKey, String outputEncoder) {
     var segment = new Segment();
     segment.setId(UUID.randomUUID());
     segment.setChainId(chain.getId());
@@ -388,15 +349,15 @@ public class NexusIntegrationTestingFixtures {
     segment.setOffset((long) offset);
     segment.setDelta(delta);
     segment.setState(state);
-    segment.setBeginAt(Value.formatIso8601UTC(beginAt));
+    segment.setBeginAt(Values.formatIso8601UTC(beginAt));
     segment.setKey(key);
     segment.setTotal(total);
     segment.setDensity(density);
     segment.setTempo(tempo);
-    segment.setStorageKey(storageKey);
+    segment.setStorageKey(shipKey);
 
     if (Objects.nonNull(endAt))
-      segment.endAt(Value.formatIso8601UTC(endAt));
+      segment.endAt(Values.formatIso8601UTC(endAt));
 
     return segment;
   }

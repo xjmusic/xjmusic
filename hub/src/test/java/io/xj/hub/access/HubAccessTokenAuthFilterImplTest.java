@@ -7,12 +7,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.dao.DAOModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiException;
@@ -29,19 +27,11 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HubAccessTokenAuthFilterImplTest {
@@ -61,7 +51,6 @@ public class HubAccessTokenAuthFilterImplTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = HubTestConfiguration.getDefault();
     var env = Environment.from(ImmutableMap.of(
       "GOOGLE_CLIENT_ID", "my-google-id",
       "GOOGLE_CLIENT_SECRET", "my-google-secret"
@@ -69,7 +58,6 @@ public class HubAccessTokenAuthFilterImplTest {
     var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new FileStoreModule(), new JsonapiModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Config.class).toInstance(config);
         bind(Environment.class).toInstance(env);
         bind(HubAccessControlProvider.class).toInstance(hubAccessControlProvider);
       }

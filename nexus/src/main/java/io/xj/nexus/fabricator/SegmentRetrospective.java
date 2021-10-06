@@ -1,11 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramType;
 
 import java.util.Collection;
 import java.util.List;

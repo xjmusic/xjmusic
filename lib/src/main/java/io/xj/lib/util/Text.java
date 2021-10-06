@@ -1,19 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
-import com.google.common.collect.Ordering;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValue;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -420,30 +414,6 @@ public interface Text {
       return defaultValue.toUpperCase(Locale.ENGLISH);
 
     return out;
-  }
-
-  /**
-   Format a config into multiline key => value, padded to align into two columns, sorted alphabetically by key name
-
-   @param config to format
-   @return multiline formatted config
-   */
-  static String toReport(Config config) {
-    Set<Map.Entry<String, ConfigValue>> entries = config.entrySet();
-
-    // there must be one longest entry, and we'll use its length as the column width for printing the whole list
-    Optional<String> longest = entries.stream().map(Map.Entry::getKey).max(Comparator.comparingInt(String::length));
-    if (longest.isEmpty()) return "";
-    int padding = longest.get().length();
-
-    // each line in the entry is padded to align into two columns, sorted alphabetically by key name
-    List<String> lines = entries.stream()
-      .map(c -> String.format("    %-" + padding + "s => %s", c.getKey(), c.getValue().unwrapped()))
-      .sorted(Ordering.natural())
-      .collect(Collectors.toList());
-
-    // join lines into one multiline output
-    return String.join("\n", lines);
   }
 
   /**

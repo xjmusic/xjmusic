@@ -3,11 +3,7 @@ package io.xj.nexus.craft.perc_loop;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangement;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentMessage;
-import io.xj.api.SegmentMessageType;
+import io.xj.api.*;
 import io.xj.hub.enums.InstrumentType;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
@@ -21,11 +17,7 @@ import io.xj.nexus.fabricator.MemeIsometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**

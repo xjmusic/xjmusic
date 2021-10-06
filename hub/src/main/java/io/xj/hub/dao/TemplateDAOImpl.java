@@ -3,22 +3,21 @@ package io.xj.hub.dao;
 
 import com.google.api.client.util.Strings;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.enums.TemplateType;
+import io.xj.hub.TemplateConfig;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.enums.TemplateType;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.hub.TemplateConfig;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
 import io.xj.lib.util.TremendouslyRandom;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
@@ -29,19 +28,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.xj.hub.Tables.TEMPLATE;
-import static io.xj.hub.Tables.TEMPLATE_BINDING;
-import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
+import static io.xj.hub.Tables.*;
 import static io.xj.hub.tables.Account.ACCOUNT;
 
 public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
   private static final int GENERATED_SHIP_KEY_LENGTH = 9;
-  private final Config config;
   private final long playbackExpireSeconds;
 
   @Inject
   public TemplateDAOImpl(
-    Config config,
     EntityFactory entityFactory,
     Environment env,
     HubDatabaseProvider dbProvider,
@@ -49,7 +44,6 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
   ) {
     super(payloadFactory, entityFactory);
     playbackExpireSeconds = env.getPlaybackExpireSeconds();
-    this.config = config;
     this.dbProvider = dbProvider;
   }
 
@@ -199,18 +193,18 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
   }
 
   /**
-   Validate a template record
-
-   @param access control
-   @param record to validate
-   @throws DAOException if invalid
+   * Validate a template record
+   *
+   * @param access control
+   * @param record to validate
+   * @throws DAOException if invalid
    */
   public Template validate(HubAccess access, Template record) throws DAOException {
     try {
-      Value.require(record.getAccountId(), "Account ID");
-      Value.require(record.getName(), "Name");
+      Values.require(record.getAccountId(), "Account ID");
+      Values.require(record.getName(), "Name");
 
-      // Generate an ship key if none is set
+      // Generate a ship key if none is set
       if (Strings.isNullOrEmpty(record.getShipKey()))
         record.setShipKey(Text.toShipKey(TremendouslyRandom.generateShipKey(GENERATED_SHIP_KEY_LENGTH)));
       else
@@ -223,9 +217,9 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
       // [#175347578] validate TypeSafe chain config
       // [#177129498] Artist saves Template, Instrument, or Template config, validate & combine with defaults.
       if (Objects.isNull(record.getConfig()))
-        record.setConfig(new TemplateConfig(config).toString());
+        record.setConfig(new TemplateConfig().toString());
       else
-        record.setConfig(new TemplateConfig(record, config).toString());
+        record.setConfig(new TemplateConfig(record).toString());
 
       // [#178457569] Only Engineer can set template to Production type, or modify a Production-type template
       if (TemplateType.Production.equals(record.getType()))

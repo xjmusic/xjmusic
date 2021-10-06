@@ -3,13 +3,12 @@
 package io.xj.nexus;
 
 import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.nexus.NexusException;
 
 import java.util.Collection;
 
 /**
  An Integration test needs to:
- 1. create injector with a Config binding
+ 1. create injector with environment bound
  2. inject IntegrationTestProvider
  AND
  3. call integrationTestProvider.shutdown()

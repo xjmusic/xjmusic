@@ -10,45 +10,35 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
-import io.xj.lib.mixer.MixerModule;
-import io.xj.ship.persistence.ShipEntityStoreModule;
-import io.xj.ship.work.ShipWorkModule;
+import io.xj.ship.work.WorkModule;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
 /**
- Ship service
+ * Ship service
  */
 public interface Main {
   Set<Module> injectorModules = ImmutableSet.of(
-    new FileStoreModule(),
     new JsonapiModule(),
-    new MixerModule(),
-    new ShipEntityStoreModule(),
-    new ShipWorkModule()
+    new WorkModule()
   );
 
   /**
-   Main method.
-
-   @param args arguments-- the first argument must be the path to the configuration file
+   * Main method.
+   *
+   * @param args arguments-- the first argument must be the path to the configuration file
    */
   @SuppressWarnings("DuplicatedCode")
   static void main(String[] args) throws AppException {
-    final var config = AppConfiguration.getDefault();
     final var env = getEnvironment();
 
     var injector = Guice.createInjector(Modules.override(injectorModules).with(new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Config.class).toInstance(config);
         bind(Environment.class).toInstance(env);
       }
     }));
@@ -82,17 +72,17 @@ public interface Main {
   }
 
   /**
-   AWS code snippet for fetching app secret.
-   If you need more information about configurations or implementing the sample code, visit the AWS docs:
-   https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-samples.html#prerequisites
-   <p>
-   In this sample we only handle the specific exceptions for the 'GetSecretValue' API.
-   See https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-   Runtime exceptions are passed through.
-
-   @param region     from which to get secret
-   @param secretName to retrieve
-   @return app secret
+   * AWS code snippet for fetching app secret.
+   * If you need more information about configurations or implementing the sample code, visit the AWS docs:
+   * https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-samples.html#prerequisites
+   * <p>
+   * In this sample we only handle the specific exceptions for the 'GetSecretValue' API.
+   * See https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+   * Runtime exceptions are passed through.
+   *
+   * @param region     from which to get secret
+   * @param secretName to retrieve
+   * @return app secret
    */
   static String getSecret(String region, String secretName) {
     AWSSecretsManager client = AWSSecretsManagerClientBuilder.standard().withRegion(region).build();

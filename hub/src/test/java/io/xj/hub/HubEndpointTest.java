@@ -6,19 +6,13 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAO;
 import io.xj.hub.dao.DAOException;
 import io.xj.hub.tables.pojos.Account;
-import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.jsonapi.AssertPayload;
-import io.xj.lib.jsonapi.JsonapiException;
-import io.xj.lib.jsonapi.JsonapiModule;
-import io.xj.lib.jsonapi.JsonapiPayload;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
+import io.xj.lib.jsonapi.*;
 import io.xj.lib.util.ValueException;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,9 +28,7 @@ import static io.xj.hub.access.HubAccess.CONTEXT_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HubEndpointTest {
@@ -50,12 +42,10 @@ public class HubEndpointTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = AppConfiguration.getDefault();
     var env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new JsonapiModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Config.class).toInstance(config);
         bind(Environment.class).toInstance(env);
       }
     }));

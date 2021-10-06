@@ -3,23 +3,18 @@ package io.xj.hub.api;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
-import io.xj.hub.tables.pojos.User;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.DAO;
 import io.xj.hub.dao.UserDAO;
+import io.xj.hub.tables.pojos.User;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
-import io.xj.lib.jsonapi.MediaType;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.HubJsonapiEndpoint;
+import io.xj.lib.jsonapi.MediaType;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -40,10 +35,9 @@ public class UserEndpoint extends HubJsonapiEndpoint {
   public UserEndpoint(
     UserDAO dao,
     JsonapiHttpResponseProvider response,
-    Config config,
     JsonapiPayloadFactory payloadFactory
   ) {
-    super(response, config, payloadFactory);
+    super(response, payloadFactory);
     this.dao = dao;
   }
 

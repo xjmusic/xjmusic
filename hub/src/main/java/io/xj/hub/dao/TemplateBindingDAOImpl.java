@@ -2,14 +2,14 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
@@ -150,9 +150,9 @@ public class TemplateBindingDAOImpl extends DAOImpl<TemplateBinding> implements 
    */
   public TemplateBinding validate(TemplateBinding builder) throws DAOException {
     try {
-      Value.require(builder.getTemplateId(), "Template ID");
-      Value.require(builder.getType(), "Type");
-      Value.require(builder.getTargetId(), "Target ID");
+      Values.require(builder.getTemplateId(), "Template ID");
+      Values.require(builder.getType(), "Type");
+      Values.require(builder.getTargetId(), "Target ID");
 
       return builder;
 

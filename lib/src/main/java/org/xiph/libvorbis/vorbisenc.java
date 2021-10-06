@@ -78,7 +78,7 @@ public class vorbisenc {
 
     vi = _vi;
 
-    float tnominal = new Integer(nominal_bitrate).floatValue();
+    float tnominal = Integer.valueOf(nominal_bitrate).floatValue();
 
     if (nominal_bitrate <= 0.) {
       if (max_bitrate > 0.) {

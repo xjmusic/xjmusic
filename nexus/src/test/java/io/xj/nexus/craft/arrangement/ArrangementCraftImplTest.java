@@ -1,13 +1,6 @@
 package io.xj.nexus.craft.arrangement;
 
-import com.typesafe.config.Config;
-import io.xj.api.Chain;
-import io.xj.api.ChainState;
-import io.xj.api.ChainType;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentState;
-import io.xj.api.SegmentType;
+import io.xj.api.*;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
@@ -16,7 +9,6 @@ import io.xj.hub.tables.pojos.Library;
 import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.SegmentRetrospective;
 import io.xj.nexus.hub_client.client.HubContent;
@@ -29,15 +21,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.time.Instant;
 import java.util.function.Predicate;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
-import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.nexus.Segments.DELTA_UNLIMITED;
+import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static io.xj.nexus.craft.detail.DetailCraftImpl.DETAIL_INSTRUMENT_TYPES;
+import static io.xj.nexus.persistence.Segments.DELTA_UNLIMITED;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -56,7 +43,6 @@ public class ArrangementCraftImplTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = NexusTestConfiguration.getDefault();
     Account account1 = buildAccount("fish");
     Library library1 = buildLibrary(account1, "sea");
     program1 = buildProgram(library1, ProgramType.Detail, ProgramState.Published, "swimming", "C", 120.0f, 0.6f);
@@ -79,7 +65,7 @@ public class ArrangementCraftImplTest {
       "chains-1-segments-9f7s89d8a7892",
       "wav");
 
-    TemplateConfig templateConfig = new TemplateConfig(template1, config);
+    TemplateConfig templateConfig = new TemplateConfig(template1);
     when(fabricator.getTemplateConfig()).thenReturn(templateConfig);
     when(fabricator.retrospective()).thenReturn(retrospective);
     when(fabricator.getSegment()).thenReturn(segment0);
@@ -91,7 +77,7 @@ public class ArrangementCraftImplTest {
     when(fabricator.getType()).thenReturn(SegmentType.NEXTMAIN);
     ArrangementCraftImpl.ChoiceIndexProvider choiceIndexProvider = SegmentChoice::getInstrumentType;
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> ProgramType.Detail.toString().equals(choice.getProgramType());
-    subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, 0.38);
+    subject.precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, 0.38, 0.62);
   }
 
   @Test

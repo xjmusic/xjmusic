@@ -54,7 +54,7 @@ public class AudioStreamWriter {
    @param totalFrames    frames
    @throws IOException on failure
    */
-  public void writeToFile(String outputFilePath, AudioFormat specs, OutputEncoder outputEncoder, int totalFrames) throws Exception {
+  public void writeToFile(String outputFilePath, AudioFormat specs, OutputEncoder outputEncoder, int totalFrames) throws IOException, FormatException {
     File outputFile = new File(outputFilePath);
 
     switch (outputEncoder) {

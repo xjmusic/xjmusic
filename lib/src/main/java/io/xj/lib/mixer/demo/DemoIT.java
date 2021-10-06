@@ -3,13 +3,7 @@ package io.xj.lib.mixer.demo;
 
 import com.google.common.io.Files;
 import com.google.inject.Guice;
-import io.xj.lib.mixer.FormatException;
-import io.xj.lib.mixer.InternalResource;
-import io.xj.lib.mixer.Mixer;
-import io.xj.lib.mixer.MixerConfig;
-import io.xj.lib.mixer.MixerFactory;
-import io.xj.lib.mixer.MixerModule;
-import io.xj.lib.mixer.OutputEncoder;
+import io.xj.lib.mixer.*;
 import org.junit.Test;
 
 import javax.sound.sampled.AudioFormat;
@@ -64,15 +58,15 @@ public class DemoIT {
   private static final MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
 
   /**
-   assert mix output equals reference audio
-
-   @param encoder       to output
-   @param encoding      encoding
-   @param frameRate     frame rate
-   @param sampleBits    sample bits
-   @param channels      channels
-   @param referenceName name
-   @throws Exception on failure
+   * assert mix output equals reference audio
+   *
+   * @param encoder       to output
+   * @param encoding      encoding
+   * @param frameRate     frame rate
+   * @param sampleBits    sample bits
+   * @param channels      channels
+   * @param referenceName name
+   * @throws Exception on failure
    */
   @SuppressWarnings("UnstableApiUsage")
   private static void assertMixOutputEqualsReferenceAudio(OutputEncoder encoder, AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, String referenceName) throws Exception {
@@ -87,11 +81,11 @@ public class DemoIT {
   }
 
   /**
-   Assert size of two different files is within a tolerated threshold
-
-   @param f1 to compare
-   @param f2 to compare
-   @return true if within tolerance
+   * Assert size of two different files is within a tolerated threshold
+   *
+   * @param f1 to compare
+   * @param f2 to compare
+   * @return true if within tolerance
    */
   private static boolean isFileSizeWithin(File f1, File f2) {
     float deviance = (float) f1.getTotalSpace() / f2.getTotalSpace();
@@ -99,15 +93,15 @@ public class DemoIT {
   }
 
   /**
-   Execute a mix and write output to file
-
-   @param outputEncoder    to encode pure floating point samples in channels to contained file output
-   @param outputEncoding   encoding
-   @param outputFrameRate  frame rate
-   @param outputSampleBits bits per sample
-   @param outputChannels   channels
-   @param outputFilePath   file path to write output
-   @throws Exception on failure
+   * Execute a mix and write output to file
+   *
+   * @param outputEncoder    to encode pure floating point samples in channels to contained file output
+   * @param outputEncoding   encoding
+   * @param outputFrameRate  frame rate
+   * @param outputSampleBits bits per sample
+   * @param outputChannels   channels
+   * @param outputFilePath   file path to write output
+   * @throws Exception on failure
    */
   private static void mixAndWriteOutput(OutputEncoder outputEncoder, AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, String outputFilePath) throws Exception {
     Mixer demoMixer = mixerFactory.createMixer(new MixerConfig(
@@ -115,37 +109,35 @@ public class DemoIT {
         (outputChannels * outputSampleBits / 8), outputFrameRate, false)
     ));
 
-    // setup the sources
-    for (String sourceName : sources) {
+    // set up the sources
+    for (String sourceName : sources)
       demoMixer.loadSource(sourceName, inputFile(filePrefix + sourceName + sourceFileSuffix));
-    }
 
-    // setup the music
+    // set up the music
     int iL = demoSequence.length;
-    for (int i = 0; i < iL; i++) {
+    for (int i = 0; i < iL; i++)
       demoMixer.put("Default", demoSequence[i], atMicros(i), atMicros(i + 3), 1.0);
-    }
 
     // mix it
     demoMixer.mixToFile(outputEncoder, outputFilePath, 1.0f);
   }
 
   /**
-   Fetch new buffered input stream from file
-
-   @param filePath to fetch
-   @return buffered stream of file
-   @throws FileNotFoundException on failure
+   * Fetch new buffered input stream from file
+   *
+   * @param filePath to fetch
+   * @return buffered stream of file
+   * @throws FileNotFoundException on failure
    */
   private static BufferedInputStream inputFile(String filePath) throws FileNotFoundException {
     return new BufferedInputStream(new FileInputStream(resourceFile(filePath)));
   }
 
   /**
-   get a file from java resources
-
-   @param filePath to get
-   @return File
+   * get a file from java resources
+   *
+   * @param filePath to get
+   * @return File
    */
   private static File resourceFile(String filePath) {
     InternalResource internalResource = new InternalResource(filePath);
@@ -153,40 +145,40 @@ public class DemoIT {
   }
 
   /**
-   get unique temp filename
-
-   @param subFilename filename within this filename
-   @return filename
+   * get unique temp filename
+   *
+   * @param subFilename filename within this filename
+   * @return filename
    */
   private static String getUniqueTempFilename(String subFilename) {
     return tempFilePrefix + System.nanoTime() + "-" + subFilename;
   }
 
   /**
-   get reference audio filename
-
-   @param referenceName within this filename
-   @return filename
+   * get reference audio filename
+   *
+   * @param referenceName within this filename
+   * @return filename
    */
   private static String getReferenceAudioFilename(String referenceName) {
     return referenceAudioFilePrefix + referenceName;
   }
 
   /**
-   get microseconds at a particular loop # and step #
-
-   @param stepNum step
-   @return microseconds
+   * get microseconds at a particular loop # and step #
+   *
+   * @param stepNum step
+   * @return microseconds
    */
   private static long atMicros(int stepNum) {
     return step.multipliedBy(stepNum).toNanos() / 1000;
   }
 
   /**
-   FLOATING-POINT OUTPUT IS NOT SUPPORTED.
-   [#137] Support for floating-point output encoding.
-
-   @throws FormatException to prevent confusion
+   * FLOATING-POINT OUTPUT IS NOT SUPPORTED.
+   * [#137] Support for floating-point output encoding.
+   *
+   * @throws FormatException to prevent confusion
    */
   @Test
   public void demo_48000Hz_Signed_32bit_2ch() throws Exception {

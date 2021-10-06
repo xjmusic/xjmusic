@@ -4,29 +4,24 @@ package io.xj.nexus.craft.detail;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.hub.tables.pojos.Instrument;
+import io.xj.api.SegmentChoice;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.api.SegmentChoice;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
-import io.xj.lib.util.Value;
+import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.craft.arrangement.ArrangementCraftImpl;
 import io.xj.nexus.fabricator.EntityScorePicker;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.MemeIsometry;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -54,9 +49,11 @@ public class DetailCraftImpl extends ArrangementCraftImpl implements DetailCraft
   @Override
   public void doWork() throws NexusException {
     // [#178240332] Segments have intensity arcs; automate mixer layers in and out of each main program
-    ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> Value.stringOrDefault(choice.getInstrumentType(),choice.getId().toString());
+    ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) -> Values.stringOrDefault(choice.getInstrumentType(),choice.getId().toString());
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Objects.equals(ProgramType.Detail.toString(), choice.getProgramType());
-    precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES, fabricator.getTemplateConfig().getDeltaArcDetailPlateauRatio());
+    precomputeDeltas(choiceFilter, choiceIndexProvider, DETAIL_INSTRUMENT_TYPES,
+      fabricator.getTemplateConfig().getDeltaArcDetailPlateauRatio(),
+      fabricator.getTemplateConfig().getDeltaArcDetailPlateauShiftRatio());
 
     for (InstrumentType voicingType : fabricator.getDistinctChordVoicingTypes()) {
       Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voicingType);

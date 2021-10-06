@@ -2,15 +2,15 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.EventEntity;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -88,9 +88,9 @@ public class ProgramSequencePatternEventDAOImpl extends DAOImpl<ProgramSequenceP
    */
   public ProgramSequencePatternEvent validate(ProgramSequencePatternEvent builder) throws DAOException {
     try {
-      Value.require(builder.getProgramId(), "Program ID");
-      Value.require(builder.getProgramSequencePatternId(), "Pattern ID");
-      Value.require(builder.getProgramVoiceTrackId(), "Track ID");
+      Values.require(builder.getProgramId(), "Program ID");
+      Values.require(builder.getProgramSequencePatternId(), "Pattern ID");
+      Values.require(builder.getProgramVoiceTrackId(), "Track ID");
       EventEntity.validate(builder);
       return builder;
 

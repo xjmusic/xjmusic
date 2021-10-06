@@ -5,8 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import io.xj.lib.app.Environment;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,17 +21,14 @@ public class TelemetryProviderImplTest {
 
   @Before
   public void setUp() {
-    Config config = ConfigFactory.parseResources("config/default.conf");
     var env = Environment.getDefault();
     var injector = Guice.createInjector(ImmutableSet.of(Modules.override(new TelemetryModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
-          bind(Config.class).toInstance(config);
           bind(Environment.class).toInstance(env);
         }
       })));
-
     telemetryProvider = injector.getInstance(TelemetryProvider.class);
   }
 

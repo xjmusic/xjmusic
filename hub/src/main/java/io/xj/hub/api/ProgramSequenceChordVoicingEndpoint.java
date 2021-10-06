@@ -2,20 +2,12 @@
 package io.xj.hub.api;
 
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.dao.ProgramSequenceChordVoicingDAO;
 import io.xj.lib.jsonapi.*;
-import io.xj.hub.HubJsonapiEndpoint;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -34,10 +26,9 @@ public class ProgramSequenceChordVoicingEndpoint extends HubJsonapiEndpoint {
   public ProgramSequenceChordVoicingEndpoint(
     ProgramSequenceChordVoicingDAO dao,
     JsonapiHttpResponseProvider response,
-    Config config,
     JsonapiPayloadFactory payloadFactory
   ) {
-    super(response, config, payloadFactory);
+    super(response, payloadFactory);
     this.dao = dao;
   }
 

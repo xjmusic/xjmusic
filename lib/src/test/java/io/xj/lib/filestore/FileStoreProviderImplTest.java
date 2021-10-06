@@ -5,8 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import io.xj.lib.app.Environment;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,9 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,14 +25,12 @@ public class FileStoreProviderImplTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = ConfigFactory.parseResources("config/default.conf");
     var injector = Guice.createInjector(ImmutableSet.of(Modules.override(new FileStoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
           bind(Environment.class).toInstance(env);
-          bind(Config.class).toInstance(config);
-        }
+          }
       })));
     when(env.getAudioUploadURL()).thenReturn("https://s3.amazonaws.com/test-bucket/");
     when(env.getAwsAccessKeyID()).thenReturn("AKIALKSFDJKGIOURTJ7H");

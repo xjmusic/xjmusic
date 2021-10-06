@@ -10,16 +10,10 @@ import com.google.inject.Singleton;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.util.Value;
+import io.xj.lib.util.Values;
 
 import java.io.BufferedReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -55,7 +49,7 @@ public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
         throw new JsonapiException(String.format("Cannot set single %s-type entity create %s-type payload object!", targetType, jsonapiPayloadObject.getType()));
 
       for (Map.Entry<String, Object> entry : jsonapiPayloadObject.getAttributes().entrySet())
-        if (Value.isNonNull(entry.getValue()))
+        if (Values.isNonNull(entry.getValue()))
           Entities.set((Object) instance, entry.getKey(), entry.getValue());
 
       // consume all belongs-to relationships
@@ -63,7 +57,7 @@ public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
         Optional<JsonapiPayloadObject> obj = jsonapiPayloadObject.getRelationshipDataOne(key);
         obj.ifPresent(object -> {
           try {
-            if (Value.isNonNull(object.getId()))
+            if (Values.isNonNull(object.getId()))
               Entities.set((Object) instance, Entities.toIdAttribute(key), object.getId());
           } catch (EntityException ignored) {
             // n/a -- objects can be created with missing relationships
@@ -72,7 +66,7 @@ public class JsonapiPayloadFactoryImpl implements JsonapiPayloadFactory {
       });
 
       // consume if set
-      if (Value.isNonNull(jsonapiPayloadObject.getId())) try {
+      if (Values.isNonNull(jsonapiPayloadObject.getId())) try {
         Entities.set((Object) instance, "id", jsonapiPayloadObject.getId());
       } catch (IllegalArgumentException ignored) {
         // n/a -- objects can be created without ID

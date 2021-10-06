@@ -8,8 +8,8 @@ import io.xj.hub.tables.pojos.ProgramAuthorship;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -83,10 +83,10 @@ public class ProgramAuthorshipDAOImpl extends DAOImpl<ProgramAuthorship> impleme
    */
   public ProgramAuthorship validate(ProgramAuthorship record) throws DAOException {
     try {
-      Value.require(record.getProgramId(), "Program ID");
-      Value.require(record.getUserId(), "User ID");
-      Value.require(record.getHours(), "Hours");
-      Value.require(record.getDescription(), "Description");
+      Values.require(record.getProgramId(), "Program ID");
+      Values.require(record.getUserId(), "User ID");
+      Values.require(record.getHours(), "Hours");
+      Values.require(record.getDescription(), "Description");
       return record;
 
     } catch (ValueException e) {

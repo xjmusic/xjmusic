@@ -3,14 +3,14 @@ package io.xj.hub.dao;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.ProgramSequencePattern;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
@@ -20,11 +20,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.LIBRARY;
-import static io.xj.hub.Tables.PROGRAM;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.hub.Tables.*;
 
 public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePattern> implements ProgramSequencePatternDAO {
 
@@ -64,10 +60,10 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
       // Inherits parent's attributes if none specified
       entity.setTotal(from.getTotal());
       entity.setType(from.getType());
-      if (Value.isUnset(entity.getName())) entity.setName(from.getName());
-      if (Value.isUnset(entity.getProgramId())) entity.setProgramId(from.getProgramId());
-      if (Value.isUnset(entity.getProgramSequenceId())) entity.setProgramSequenceId(from.getProgramSequenceId());
-      if (Value.isUnset(entity.getProgramVoiceId())) entity.setProgramVoiceId(from.getProgramVoiceId());
+      if (Values.isUnset(entity.getName())) entity.setName(from.getName());
+      if (Values.isUnset(entity.getProgramId())) entity.setProgramId(from.getProgramId());
+      if (Values.isUnset(entity.getProgramSequenceId())) entity.setProgramSequenceId(from.getProgramSequenceId());
+      if (Values.isUnset(entity.getProgramVoiceId())) entity.setProgramVoiceId(from.getProgramVoiceId());
       var record = validate(entity);
       requireParentExists(db, hubAccess, record);
 
@@ -221,12 +217,12 @@ public class ProgramSequencePatternDAOImpl extends DAOImpl<ProgramSequencePatter
    */
   public ProgramSequencePattern validate(ProgramSequencePattern record) throws DAOException {
     try {
-      Value.require(record.getProgramId(), "Program ID");
-      Value.require(record.getProgramVoiceId(), "Voice ID");
-      Value.require(record.getProgramSequenceId(), "Sequence ID");
-      Value.require(record.getName(), "Name");
-      Value.require(record.getTotal(), "Total");
-      Value.require(record.getType(), "Type");
+      Values.require(record.getProgramId(), "Program ID");
+      Values.require(record.getProgramVoiceId(), "Voice ID");
+      Values.require(record.getProgramSequenceId(), "Sequence ID");
+      Values.require(record.getName(), "Name");
+      Values.require(record.getTotal(), "Total");
+      Values.require(record.getType(), "Type");
       return record;
 
     } catch (ValueException e) {

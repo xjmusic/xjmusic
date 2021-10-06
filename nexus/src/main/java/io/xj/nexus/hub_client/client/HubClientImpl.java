@@ -5,8 +5,8 @@ package io.xj.nexus.hub_client.client;
 import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.ingest.HubContentPayload;
+import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.Environment;
 import io.xj.lib.json.JsonProviderImpl;
 import io.xj.lib.jsonapi.JsonapiException;
@@ -25,11 +25,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**

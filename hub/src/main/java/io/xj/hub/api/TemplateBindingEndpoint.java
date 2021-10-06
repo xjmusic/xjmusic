@@ -3,26 +3,14 @@ package io.xj.hub.api;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
-import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.dao.TemplateBindingDAO;
-import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
-import io.xj.lib.jsonapi.JsonapiPayload;
-import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.jsonapi.MediaType;
-import io.xj.lib.jsonapi.PayloadDataType;
+import io.xj.hub.tables.pojos.TemplateBinding;
+import io.xj.lib.jsonapi.*;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -43,10 +31,9 @@ public class TemplateBindingEndpoint extends HubJsonapiEndpoint {
   public TemplateBindingEndpoint(
     TemplateBindingDAO dao,
     JsonapiHttpResponseProvider response,
-    Config config,
     JsonapiPayloadFactory payloadFactory
   ) {
-    super(response, config, payloadFactory);
+    super(response, payloadFactory);
     this.dao = dao;
   }
 

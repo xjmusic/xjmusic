@@ -5,12 +5,10 @@ package io.xj.hub.api;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import io.xj.lib.json.ApiUrlProvider;
-import io.xj.lib.app.AppConfiguration;
+import io.xj.hub.HubTopology;
 import io.xj.lib.app.AppException;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.hub.HubTopology;
+import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiModule;
 import org.junit.Before;
@@ -22,9 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.doReturn;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,16 +35,14 @@ public class ConfigEndpointTest {
 
   @Before
   public void setUp() throws AppException, JsonapiException {
-    Config config = AppConfiguration.getDefault();
     doReturn("http://audio.xj.io/").when(apiUrlProvider).getAudioBaseUrl();
     doReturn("http://app.xj.io/").when(apiUrlProvider).getAppBaseUrl();
     doReturn("http://player.xj.io/").when(apiUrlProvider).getPlayerBaseUrl();
-    doReturn("http://ship.xj.io/").when(apiUrlProvider).getSegmentBaseUrl();
+    doReturn("http://ship.xj.io/").when(apiUrlProvider).getShipBaseUrl();
     var injector = Guice.createInjector(Modules.override(new JsonapiModule()).with(new AbstractModule() {
       @Override
       protected void configure() {
         super.configure();
-        bind(Config.class).toInstance(config);
         bind(ApiUrlProvider.class).toInstance(apiUrlProvider);
       }
     }));

@@ -1,11 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.work;
 
-import io.xj.api.Chain;
-import io.xj.api.Segment;
-
-import java.util.Collection;
-
 /**
  The Lab Nexus Distributed Work Manager
  <p>

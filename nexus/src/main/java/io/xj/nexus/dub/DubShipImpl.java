@@ -17,7 +17,7 @@ import io.xj.nexus.fabricator.Fabricator;
 public class DubShipImpl implements DubShip {
   private final Fabricator fabricator;
   private final FileStoreProvider fileStore;
-  private final String segmentFileBucket;
+  private final String shipBucket;
 
   @Inject
   public DubShipImpl(
@@ -28,7 +28,7 @@ public class DubShipImpl implements DubShip {
     this.fabricator = fabricator;
     this.fileStore = fileStore;
 
-    segmentFileBucket = env.getSegmentFileBucket();
+    shipBucket = env.getShipBucket();
   }
 
   @Override
@@ -54,7 +54,7 @@ public class DubShipImpl implements DubShip {
   private void shipSegmentAudio() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromTempFile(
       fabricator.getFullQualityAudioOutputFilePath(),
-      segmentFileBucket,
+      shipBucket,
       fabricator.getSegmentOutputWaveformKey());
   }
 
@@ -64,7 +64,7 @@ public class DubShipImpl implements DubShip {
   private void shipSegmentMetadata() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromString(
       fabricator.getSegmentMetadataJson(),
-      segmentFileBucket,
+      shipBucket,
       fabricator.getSegmentOutputMetadataKey(),
       MediaType.APPLICATION_JSONAPI);
   }
@@ -75,7 +75,7 @@ public class DubShipImpl implements DubShip {
   private void shipChainFullMetadata() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromString(
       fabricator.getChainMetadataFullJson(),
-      segmentFileBucket,
+      shipBucket,
       fabricator.getChainMetadataFullKey(),
       MediaType.APPLICATION_JSONAPI);
   }
@@ -86,7 +86,7 @@ public class DubShipImpl implements DubShip {
   private void shipChainMetadata() throws NexusException, FileStoreException {
     fileStore.putS3ObjectFromString(
       fabricator.getChainMetadataJson(),
-      segmentFileBucket,
+      shipBucket,
       fabricator.getChainMetadataKey(),
       MediaType.APPLICATION_JSONAPI);
   }

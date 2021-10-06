@@ -6,8 +6,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValueFactory;
 import io.xj.hub.HubApp;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.access.HubAccessControlProvider;
@@ -15,7 +13,6 @@ import io.xj.hub.dao.DAOModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -63,17 +60,15 @@ public class AuthGoogleResourceTest {
     var env = Environment.from(ImmutableMap.of(
       "GOOGLE_CLIENT_ID", "12345",
       "GOOGLE_CLIENT_SECRET", "ab1cd2ef3",
-      "APP_BASE_URL", "https://xj.io/"
+      "APP_BASE_URL", "https://xj.io/",
+      "APP_PORT", "1903"
     ));
-    var config = HubTestConfiguration.getDefault()
-      .withValue("app.port", ConfigValueFactory.fromAnyRef(1903));
     var injector = Guice.createInjector(ImmutableSet.of(Modules.override(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
           bind(HubDatabaseProvider.class).toInstance(hubDatabaseProvider);
           bind(HubAccessControlProvider.class).toInstance(hubAccessControlProvider);
-          bind(Config.class).toInstance(config);
           bind(Environment.class).toInstance(env);
         }
       })));

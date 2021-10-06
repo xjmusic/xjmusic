@@ -5,35 +5,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.hub.enums.ContentBindingType;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.InstrumentMeme;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramMeme;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.ProgramVoiceTrack;
-import io.xj.hub.tables.pojos.Template;
-import io.xj.hub.tables.pojos.TemplateBinding;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.DAOException;
-import io.xj.hub.dao.InstrumentDAO;
-import io.xj.hub.dao.ProgramDAO;
-import io.xj.hub.dao.TemplateBindingDAO;
-import io.xj.hub.dao.TemplateDAO;
+import io.xj.hub.dao.*;
+import io.xj.hub.enums.ContentBindingType;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.lib.json.JsonProvider;
-import io.xj.lib.util.Value;
+import io.xj.lib.util.Values;
 
 import java.util.Collection;
 import java.util.List;
@@ -79,8 +60,8 @@ class HubIngestImpl implements HubIngest {
         .collect(Collectors.toList());
 
       // library ids -> program and instrument ids; disregard library ids after this
-      Value.put(programIds, programDAO.readIdsInLibraries(hubAccess, libraryIds));
-      Value.put(instrumentIds, instrumentDAO.readIdsInLibraries(hubAccess, libraryIds));
+      Values.put(programIds, programDAO.readIdsInLibraries(hubAccess, libraryIds));
+      Values.put(instrumentIds, instrumentDAO.readIdsInLibraries(hubAccess, libraryIds));
       libraryIds.clear();
 
       // ingest programs

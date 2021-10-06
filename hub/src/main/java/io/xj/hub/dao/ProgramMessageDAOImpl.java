@@ -8,8 +8,8 @@ import io.xj.hub.tables.pojos.ProgramMessage;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -83,9 +83,9 @@ public class ProgramMessageDAOImpl extends DAOImpl<ProgramMessage> implements Pr
    */
   public ProgramMessage validate(ProgramMessage record) throws DAOException {
     try {
-      Value.require(record.getProgramId(), "Program ID");
-      Value.require(record.getProgramId(), "User ID");
-      Value.require(record.getBody(), "Body");
+      Values.require(record.getProgramId(), "Program ID");
+      Values.require(record.getProgramId(), "User ID");
+      Values.require(record.getBody(), "Body");
       return record;
 
     } catch (ValueException e) {

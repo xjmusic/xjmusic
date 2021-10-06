@@ -12,11 +12,7 @@ import io.xj.lib.entity.EntityException;
 
 import javax.annotation.Nullable;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**

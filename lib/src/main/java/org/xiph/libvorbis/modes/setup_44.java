@@ -2,17 +2,9 @@
 
 package org.xiph.libvorbis.modes;
 
-import org.xiph.libvorbis.adj_stereo;
-import org.xiph.libvorbis.att3;
+import org.xiph.libvorbis.*;
 import org.xiph.libvorbis.books.coupled.resbook_44.res_books_stereo;
 import org.xiph.libvorbis.books.floor.floor_books;
-import org.xiph.libvorbis.compandblock;
-import org.xiph.libvorbis.noise3;
-import org.xiph.libvorbis.noiseguard;
-import org.xiph.libvorbis.ve_setup_data_template;
-import org.xiph.libvorbis.vorbis_info_floor1;
-import org.xiph.libvorbis.vorbis_info_psy_global;
-import org.xiph.libvorbis.vp_adjblock;
 
 public class setup_44 {
 

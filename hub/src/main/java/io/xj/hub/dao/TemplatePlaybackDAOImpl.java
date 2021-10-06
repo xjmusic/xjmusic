@@ -2,20 +2,22 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
+import io.xj.hub.access.HubAccess;
+import io.xj.hub.enums.TemplateType;
+import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.hub.tables.pojos.TemplatePlayback;
-import io.xj.hub.enums.TemplateType;
-import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,6 +27,7 @@ import static io.xj.hub.Tables.TEMPLATE;
 import static io.xj.hub.Tables.TEMPLATE_PLAYBACK;
 
 public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implements TemplatePlaybackDAO {
+  private final long playbackExpireSeconds;
 
   @Inject
   public TemplatePlaybackDAOImpl(
@@ -35,6 +38,8 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
   ) {
     super(payloadFactory, entityFactory);
     this.dbProvider = dbProvider;
+
+    playbackExpireSeconds = env.getPlaybackExpireSeconds();
   }
 
   @Override
@@ -112,6 +117,7 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
       return modelsFrom(TemplatePlayback.class, dbProvider.getDSL().select(TEMPLATE_PLAYBACK.fields())
         .from(TEMPLATE_PLAYBACK)
         .where(TEMPLATE_PLAYBACK.TEMPLATE_ID.in(parentIds))
+        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds))))
         .orderBy(TEMPLATE_PLAYBACK.USER_ID)
         .fetch());
     else
@@ -120,6 +126,7 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
         .join(TEMPLATE).on(TEMPLATE.ID.eq(TEMPLATE_PLAYBACK.TEMPLATE_ID))
         .where(TEMPLATE_PLAYBACK.TEMPLATE_ID.in(parentIds))
         .and(TEMPLATE.ACCOUNT_ID.in(hubAccess.getAccountIds()))
+        .and(TEMPLATE_PLAYBACK.CREATED_AT.greaterThan(Timestamp.from(Instant.now().minusSeconds(playbackExpireSeconds))))
         .orderBy(TEMPLATE_PLAYBACK.USER_ID)
         .fetch());
   }
@@ -160,8 +167,8 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
    */
   public TemplatePlayback validate(TemplatePlayback builder) throws DAOException {
     try {
-      Value.require(builder.getTemplateId(), "Template ID");
-      Value.require(builder.getUserId(), "User ID");
+      Values.require(builder.getTemplateId(), "Template ID");
+      Values.require(builder.getUserId(), "User ID");
 
       return builder;
 

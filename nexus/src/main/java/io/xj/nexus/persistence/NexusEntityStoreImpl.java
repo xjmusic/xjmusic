@@ -6,30 +6,18 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.xj.api.Chain;
+import io.xj.api.*;
 import io.xj.hub.tables.pojos.TemplateBinding;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangement;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentChord;
-import io.xj.api.SegmentChordVoicing;
-import io.xj.api.SegmentMeme;
-import io.xj.api.SegmentMessage;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.EntityStoreImpl;
-import io.xj.lib.util.Value;
+import io.xj.lib.util.Values;
 import io.xj.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -114,6 +102,11 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
   }
 
   @Override
+  public boolean segmentExists(UUID id) {
+    return segmentMap.containsKey(id);
+  }
+
+  @Override
   public <N> Optional<N> get(UUID segmentId, Class<N> type, UUID id) throws NexusException {
     try {
       if (!store.containsKey(segmentId) || !store.get(segmentId).containsKey(type))
@@ -180,7 +173,7 @@ public class NexusEntityStoreImpl implements NexusEntityStore {
     }
 
     // fail to store entity with unset id
-    if (!Value.isSet(id))
+    if (!Values.isSet(id))
       throw new NexusException(String.format("Can't store %s with null id",
         entity.getClass().getSimpleName()));
 

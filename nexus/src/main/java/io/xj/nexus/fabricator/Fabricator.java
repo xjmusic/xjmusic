@@ -1,43 +1,22 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.fabricator;
 
-import io.xj.api.Chain;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.enums.ProgramSequencePatternType;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangement;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentChord;
-import io.xj.api.SegmentChordVoicing;
-import io.xj.api.SegmentMessageType;
-import io.xj.api.SegmentType;
+import io.xj.api.*;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramSequencePatternType;
+import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.music.Chord;
 import io.xj.lib.music.Key;
 import io.xj.lib.music.NoteRange;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
 
 import javax.sound.sampled.AudioFormat;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public interface Fabricator {
 
@@ -140,7 +119,7 @@ public interface Fabricator {
   String getChainMetadataFullJson() throws NexusException;
 
   /**
-   Returns the storage key concatenated with JSON as its file extension
+   Returns the ship key concatenated with JSON as its file extension
    Including ALL segments-- this allows the chain to rehydrate from this output
 
    @return Output Metadata Key
@@ -156,7 +135,7 @@ public interface Fabricator {
   String getChainMetadataJson() throws NexusException;
 
   /**
-   Returns the storage key concatenated with JSON as its file extension
+   Returns the ship key concatenated with JSON as its file extension
    Including only the next 90 seconds worth of segments- to the keep the player load focused on the near-future
 
    @return Output Metadata Key
@@ -500,25 +479,25 @@ public interface Fabricator {
   String getSegmentMetadataJson() throws NexusException;
 
   /**
-   Returns the storage key concatenated with JSON as its file extension
+   Returns the ship key concatenated with JSON as its file extension
 
    @return Output Metadata Key
    */
   String getSegmentOutputMetadataKey();
 
   /**
-   Returns the storage key concatenated with the output encoder as its file extension
+   Returns the ship key concatenated with the output encoder as its file extension
 
    @return Output Waveform Key
    */
   String getSegmentOutputWaveformKey();
 
   /**
-   Returns the segment storage key concatenated with a specified extension
+   Returns the segment ship key concatenated with a specified extension
 
    @return Output Metadata Key
    */
-  String getSegmentStorageKey(String extension);
+  String getSegmentShipKey(String extension);
 
   /**
    [#165954619] Get the sequence for a Choice either directly (rhythm- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences)

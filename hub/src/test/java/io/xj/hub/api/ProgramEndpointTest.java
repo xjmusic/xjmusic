@@ -8,8 +8,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.HubTopology;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlModule;
@@ -65,12 +63,10 @@ public class ProgramEndpointTest {
 
   @Before
   public void setUp() throws AppException {
-    Config config = HubTestConfiguration.getDefault();
     var env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(), new FileStoreModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Config.class).toInstance(config);
         bind(Environment.class).toInstance(env);
         bind(ProgramDAO.class).toInstance(programDAO);
       }

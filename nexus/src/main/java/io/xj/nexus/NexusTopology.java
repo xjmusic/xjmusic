@@ -1,24 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus;
 
-import io.xj.api.Chain;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangement;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentChord;
-import io.xj.api.SegmentChordVoicing;
-import io.xj.api.SegmentMeme;
-import io.xj.api.SegmentMessage;
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.Template;
+import io.xj.api.*;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.EntityFactory;
 
 /**
@@ -58,7 +42,7 @@ public enum NexusTopology {
       .withAttribute("delta")
       .withAttribute("density")
       .withAttribute("tempo")
-      .withAttribute("storageKey")
+      .withAttribute("shipKey")
       .withAttribute("outputEncoder")
       .withAttribute("waveformPreroll")
       .withAttribute("type")

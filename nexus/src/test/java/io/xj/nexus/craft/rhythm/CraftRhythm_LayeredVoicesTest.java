@@ -7,22 +7,9 @@ import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValueFactory;
-import io.xj.api.Chain;
-import io.xj.api.ChainState;
-import io.xj.api.ChainType;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentState;
-import io.xj.api.SegmentType;
+import io.xj.api.*;
 import io.xj.hub.HubTopology;
-import io.xj.hub.enums.InstrumentState;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramSequencePatternType;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
+import io.xj.hub.enums.*;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.Program;
@@ -31,7 +18,6 @@ import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
 import io.xj.nexus.fabricator.Fabricator;
@@ -51,25 +37,13 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAudio;
-import static io.xj.hub.IntegrationTestingFixtures.buildEvent;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
-import static io.xj.hub.IntegrationTestingFixtures.buildMeme;
-import static io.xj.hub.IntegrationTestingFixtures.buildPattern;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
-import static io.xj.hub.IntegrationTestingFixtures.buildSequence;
-import static io.xj.hub.IntegrationTestingFixtures.buildTrack;
-import static io.xj.hub.IntegrationTestingFixtures.buildVoice;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChord;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentMeme;
+import static io.xj.hub.IntegrationTestingFixtures.*;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
- [#166481918] Rhythm fabrication composited of layered Patterns
+ * [#166481918] Rhythm fabrication composited of layered Patterns
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CraftRhythm_LayeredVoicesTest {
@@ -88,14 +62,11 @@ public class CraftRhythm_LayeredVoicesTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = NexusTestConfiguration.getDefault()
-      .withValue("chain.choiceDeltaEnabled", ConfigValueFactory.fromAnyRef(false));
     Environment env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(new NexusWorkModule())
       .with(new AbstractModule() {
         @Override
         protected void configure() {
-          bind(Config.class).toInstance(config);
           bind(Environment.class).toInstance(env);
         }
       }));
@@ -191,9 +162,9 @@ public class CraftRhythm_LayeredVoicesTest {
 
 
   /**
-   Some custom fixtures for testing
-
-   @return list of all entities
+   * Some custom fixtures for testing
+   *
+   * @return list of all entities
    */
   private Collection<Object> customFixtures() {
     Collection<Object> entities = Lists.newArrayList();

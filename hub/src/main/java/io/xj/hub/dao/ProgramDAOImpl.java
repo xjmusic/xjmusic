@@ -4,30 +4,19 @@ package io.xj.hub.dao;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.persistence.HubDatabaseProvider;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramMeme;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.ProgramVoiceTrack;
+import io.xj.hub.tables.pojos.*;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
@@ -37,31 +26,16 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.LIBRARY;
-import static io.xj.hub.Tables.PROGRAM;
-import static io.xj.hub.Tables.PROGRAM_MEME;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
-import static io.xj.hub.Tables.PROGRAM_VOICE;
-import static io.xj.hub.Tables.PROGRAM_VOICE_TRACK;
+import static io.xj.hub.Tables.*;
 
 public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
-  private final Config config;
-
   @Inject
   public ProgramDAOImpl(
-    Config config,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
     super(payloadFactory, entityFactory);
-    this.config = config;
     this.dbProvider = dbProvider;
   }
 
@@ -448,19 +422,19 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
    */
   public Program validate(Program record) throws DAOException {
     try {
-      Value.require(record.getLibraryId(), "Library ID");
-      Value.require(record.getName(), "Name");
-      Value.require(record.getKey(), "Key");
-      Value.requireNonZero(record.getTempo(), "Tempo");
-      Value.require(record.getType(), "Type");
-      Value.require(record.getState(), "State");
+      Values.require(record.getLibraryId(), "Library ID");
+      Values.require(record.getName(), "Name");
+      Values.require(record.getKey(), "Key");
+      Values.requireNonZero(record.getTempo(), "Tempo");
+      Values.require(record.getType(), "Type");
+      Values.require(record.getState(), "State");
 
       // [#175347578] validate TypeSafe chain config
       // [#177129498] Artist saves Program, Instrument, or Template config, validate & combine with defaults.
       if (Objects.isNull(record.getConfig()))
-        record.setConfig(new ProgramConfig(config).toString());
+        record.setConfig(new ProgramConfig().toString());
       else
-        record.setConfig(new ProgramConfig(record, config).toString());
+        record.setConfig(new ProgramConfig(record).toString());
 
       return record;
 
@@ -480,7 +454,7 @@ public class ProgramDAOImpl extends DAOImpl<Program> implements ProgramDAO {
   private void setIfProvided(Object builder, Object source, String attr) throws DAOException {
     try {
       Optional<Object> value = Entities.get(source, attr);
-      if (value.isPresent() && Value.isSet(value.get()))
+      if (value.isPresent() && Values.isSet(value.get()))
         Entities.set(builder, attr, value.get());
 
     } catch (EntityException e) {

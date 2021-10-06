@@ -4,14 +4,8 @@ package io.xj.hub.ingest;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.typesafe.config.Config;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.access.HubAccess;
-import io.xj.hub.dao.InstrumentDAO;
-import io.xj.hub.dao.ProgramDAO;
-import io.xj.hub.dao.TemplateBindingDAO;
-import io.xj.hub.dao.TemplateDAO;
-import io.xj.hub.dao.TemplatePlaybackDAO;
+import io.xj.hub.dao.*;
 import io.xj.hub.enums.TemplateType;
 import io.xj.hub.tables.pojos.Template;
 import org.junit.Test;
@@ -43,13 +37,11 @@ public class HubIngestImplTest {
 
   @Test
   public void instantiateWithUUIDs() throws Exception {
-    Config config = HubTestConfiguration.getDefault();
     var injector = Guice.createInjector(new HubIngestModule(), new AbstractModule() {
       @Override
       protected void configure() {
         bind(InstrumentDAO.class).toInstance(instrumentDAO);
         bind(ProgramDAO.class).toInstance(programDAO);
-        bind(Config.class).toInstance(config);
         bind(TemplateDAO.class).toInstance(templateDAO);
         bind(TemplateBindingDAO.class).toInstance(templateBindingDAO);
         bind(TemplatePlaybackDAO.class).toInstance(templatePlaybackDAO);

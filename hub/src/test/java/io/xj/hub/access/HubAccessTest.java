@@ -6,12 +6,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.dao.DAOModule;
+import io.xj.hub.enums.UserRoleType;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiException;
@@ -25,10 +23,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import javax.ws.rs.container.ContainerRequestContext;
 import java.util.UUID;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -67,7 +62,6 @@ public class HubAccessTest {
 
   @Test
   public void serialize() throws JsonapiException {
-    Config config = HubTestConfiguration.getDefault();
     var env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(),
       new DAOModule(),
@@ -77,7 +71,6 @@ public class HubAccessTest {
       new FileStoreModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Config.class).toInstance(config);
         bind(Environment.class).toInstance(env);
       }
     }));

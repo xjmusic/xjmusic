@@ -3,14 +3,14 @@ package io.xj.nexus.craft.rhythm;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.hub.tables.pojos.Instrument;
+import io.xj.api.SegmentChoice;
 import io.xj.hub.enums.InstrumentState;
 import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.enums.ProgramState;
 import io.xj.hub.enums.ProgramType;
+import io.xj.hub.tables.pojos.Instrument;
+import io.xj.hub.tables.pojos.Program;
 import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.api.SegmentChoice;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.util.Chance;
 import io.xj.nexus.NexusException;
@@ -70,7 +70,9 @@ public class RhythmCraftImpl extends DetailCraftImpl implements RhythmCraft {
     var programNames = fabricator.sourceMaterial().getVoices(program.get()).stream()
       .map(ProgramVoice::getName)
       .collect(Collectors.toList());
-    precomputeDeltas(choiceFilter, choiceIndexProvider, programNames, fabricator.getTemplateConfig().getDeltaArcRhythmPlateauRatio());
+    precomputeDeltas(choiceFilter, choiceIndexProvider, programNames,
+      fabricator.getTemplateConfig().getDeltaArcRhythmPlateauRatio(),
+      fabricator.getTemplateConfig().getDeltaArcRhythmPlateauShiftRatio());
 
     // rhythm sequence is selected at random of the current program
     // FUTURE: [#166855956] Rhythm Program with multiple Sequences

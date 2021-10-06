@@ -2,24 +2,21 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.ProgramVoice;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.Tables.LIBRARY;
-import static io.xj.hub.Tables.PROGRAM;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
-import static io.xj.hub.Tables.PROGRAM_VOICE;
+import static io.xj.hub.Tables.*;
 
 public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements ProgramVoiceDAO {
   private static final Float DEFAULT_ORDER_VALUE = 1000.0f;
@@ -146,10 +143,10 @@ public class ProgramVoiceDAOImpl extends DAOImpl<ProgramVoice> implements Progra
    */
   public ProgramVoice validate(ProgramVoice record) throws DAOException {
     try {
-      if (Value.isEmpty(record.getOrder())) record.setOrder(DEFAULT_ORDER_VALUE);
-      Value.require(record.getProgramId(), "Program ID");
-      Value.require(record.getName(), "Name");
-      Value.require(record.getType(), "Type");
+      if (Values.isEmpty(record.getOrder())) record.setOrder(DEFAULT_ORDER_VALUE);
+      Values.require(record.getProgramId(), "Program ID");
+      Values.require(record.getName(), "Name");
+      Values.require(record.getType(), "Type");
       return record;
 
     } catch (ValueException e) {

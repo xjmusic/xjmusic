@@ -26,9 +26,9 @@ See the **/art** folder. By Accessing the contents of that folder, you agree to 
 Here's the general architecture of the XJ Music platform backend services. [(Download PDF)](art/XJ
 LabStreamingSegmentsArchitecture.pdf)
 
-![XJ Lab Streaming Segments Architecture](art/XJLabStreamingSegmentsArchitecture.svg)
+![XJ Lab Streaming Segments Architecture](.art/XJLabStreamingSegmentsArchitecture.svg)
 
-![Mixer Design v6](art/MixerDesignV6_XJ_Music.jpg)
+![Mixer Design v6](.art/MixerDesignV6_XJ_Music.jpg)
 
 ## Axioms
 
@@ -66,7 +66,7 @@ Each service has a unique port assignment:
 
 | Service       | Port          |
 | ------------- |---------------|
-| nexus         | 3002          |
+| nexus         | 3000          |
 
 ## Chain Work
 

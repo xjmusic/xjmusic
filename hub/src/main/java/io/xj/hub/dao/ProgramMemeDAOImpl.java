@@ -2,24 +2,22 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.ProgramMeme;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.Tables.LIBRARY;
-import static io.xj.hub.Tables.PROGRAM;
-import static io.xj.hub.Tables.PROGRAM_MEME;
+import static io.xj.hub.Tables.*;
 
 public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramMemeDAO {
 
@@ -153,8 +151,8 @@ public class ProgramMemeDAOImpl extends DAOImpl<ProgramMeme> implements ProgramM
    */
   public ProgramMeme validate(ProgramMeme record) throws DAOException {
     try {
-      Value.require(record.getProgramId(), "Program ID");
-      Value.require(record.getName(), "Name");
+      Values.require(record.getProgramId(), "Program ID");
+      Values.require(record.getName(), "Name");
       record.setName(Text.toMeme(record.getName()));
       return record;
 

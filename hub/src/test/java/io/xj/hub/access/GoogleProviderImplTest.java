@@ -13,11 +13,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
 import io.xj.hub.dao.DAOModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
@@ -38,7 +36,6 @@ public class GoogleProviderImplTest extends Mockito {
 
   @Before
   public void setUp() throws Exception {
-    Config config = HubTestConfiguration.getDefault();
     var env = Environment.from(ImmutableMap.of(
       "GOOGLE_CLIENT_ID","12345",
       "GOOGLE_CLIENT_SECRET","ab1cd2ef3",
@@ -48,7 +45,6 @@ public class GoogleProviderImplTest extends Mockito {
       new FileStoreModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Config.class).toInstance(config);
         bind(Environment.class).toInstance(env);
         bind(GoogleProvider.class).to(GoogleProviderImpl.class);
         bind(GoogleHttpProvider.class).toInstance(googleHttpProvider);

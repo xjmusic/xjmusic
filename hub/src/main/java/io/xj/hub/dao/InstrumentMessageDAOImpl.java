@@ -8,8 +8,8 @@ import io.xj.hub.tables.pojos.InstrumentMessage;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -83,9 +83,9 @@ public class InstrumentMessageDAOImpl extends DAOImpl<InstrumentMessage> impleme
    */
   public InstrumentMessage validate(InstrumentMessage record) throws DAOException {
     try {
-      Value.require(record.getInstrumentId(), "Instrument ID");
-      Value.require(record.getInstrumentId(), "User ID");
-      Value.require(record.getBody(), "Body");
+      Values.require(record.getInstrumentId(), "Instrument ID");
+      Values.require(record.getInstrumentId(), "User ID");
+      Values.require(record.getBody(), "Body");
       return record;
 
     } catch (ValueException e) {

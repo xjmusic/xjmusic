@@ -2,7 +2,7 @@
 package io.xj.ship.api;
 
 import com.google.inject.Inject;
-import io.xj.ship.work.ShipWork;
+import io.xj.ship.work.Work;
 
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.GET;
@@ -15,19 +15,19 @@ import javax.ws.rs.core.Response;
 @Path("healthz")
 public class ShipAppHealthEndpoint {
 
-  private final ShipWork shipWork;
+  private final Work work;
 
   @Inject
   public ShipAppHealthEndpoint(
-    ShipWork shipWork
+    Work work
   ) {
-    this.shipWork = shipWork;
+    this.work = work;
   }
 
   @GET
   @PermitAll
   public Response index() {
-    if (!shipWork.isHealthy()) return Response.serverError().entity("Work is stale!").build();
+    if (!work.isHealthy()) return Response.serverError().entity("Work is stale!").build();
 
     return Response.ok().entity("ok").build();
   }

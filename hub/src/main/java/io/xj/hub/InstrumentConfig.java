@@ -14,12 +14,20 @@ import io.xj.lib.util.ValueException;
 import java.util.Map;
 
 /**
- Parse a TypeSafe `config` value for a Instrument's configuration, overriding values from top-level default.conf--
+ Parse a TypeSafe `config` value for an Instrument's configuration, overriding values from top-level default.conf--
  e.g.
  if the `config` value contains only `previewLengthMaxHours = 8`
  */
 public class InstrumentConfig {
   private static final String KEY_PREFIX = "instrument.";
+  public static final Config DEFAULT = ConfigFactory.parseString(
+    """
+      instrument {
+        isMultiphonic = false
+        isTonal = false
+      }
+      """
+  );
 
   private final Boolean isTonal;
   private final String KEY_IS_TONAL = "isTonal";
@@ -28,17 +36,17 @@ public class InstrumentConfig {
   private final String KEY_IS_MULTIPHONIC = "isMultiphonic";
 
   /**
-   Instantiate a Instrument configuration from a string of typesafe config.
+   Instantiate an Instrument configuration from a string of typesafe config.
    Said string will be embedded in a `instrument{...}` block such that
    provided simple Key=Value pairs will be understood as members of `instrument`
    e.g. will override values from the `instrument{...}` block of the top-level **default.conf**
    */
-  public InstrumentConfig(String configText, Config defaultConfig) throws ValueException {
+  public InstrumentConfig(String configText) throws ValueException {
     try {
       Config config = Strings.isNullOrEmpty(configText) ?
-        defaultConfig :
+        DEFAULT :
         ConfigFactory.parseString(String.format("instrument {\n%s\n}", configText))
-          .withFallback(defaultConfig);
+          .withFallback(DEFAULT);
       isTonal = getOptionalBoolean(config, prefixed(KEY_IS_TONAL));
       isMultiphonic = getOptionalBoolean(config, prefixed(KEY_IS_MULTIPHONIC));
 
@@ -48,19 +56,19 @@ public class InstrumentConfig {
   }
 
   /**
-   Instantiate a Instrument configuration from a string of typesafe config.
+   Instantiate an Instrument configuration from a string of typesafe config.
    Said string will be embedded in a `instrument{...}` block such that
    provided simple Key=Value pairs will be understood as members of `instrument`
    e.g. will override values from the `instrument{...}` block of the top-level **default.conf**
+   * @param instrument to get config from
 
-   @param instrument to get Config from
    */
-  public InstrumentConfig(Instrument instrument, Config defaultConfig) throws ValueException {
+  public InstrumentConfig(Instrument instrument) throws ValueException {
     try {
       Config config = Strings.isNullOrEmpty(instrument.getConfig()) ?
-        defaultConfig :
+        DEFAULT :
         ConfigFactory.parseString(String.format("instrument {\n%s\n}", instrument.getConfig()))
-          .withFallback(defaultConfig);
+          .withFallback(DEFAULT);
       isTonal = getOptionalBoolean(config, prefixed(KEY_IS_TONAL));
       isMultiphonic = getOptionalBoolean(config, prefixed(KEY_IS_MULTIPHONIC));
 
@@ -70,13 +78,12 @@ public class InstrumentConfig {
   }
 
   /**
-   Get a instrument config from only the default config
+   Get an instrument config from only the default config
 
-   @param config from which to get instrument config
    @throws ValueException on failure
    */
-  public InstrumentConfig(Config config) throws ValueException {
-    this("", config);
+  public InstrumentConfig() throws ValueException {
+    this("");
   }
 
   /**

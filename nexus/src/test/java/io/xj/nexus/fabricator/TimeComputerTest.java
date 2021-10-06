@@ -5,10 +5,8 @@ package io.xj.nexus.fabricator;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
-import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.work.NexusWorkModule;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,13 +22,11 @@ public class TimeComputerTest {
 
   @Before
   public void setUp() throws AppException {
-    Config config = NexusTestConfiguration.getDefault();
     Environment env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(new NexusWorkModule(), new NexusFabricatorModule())
       .with(new AbstractModule() {
         @Override
         protected void configure() {
-          bind(Config.class).toInstance(config);
           bind(Environment.class).toInstance(env);
         }
       }));

@@ -6,10 +6,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import io.xj.hub.HubTestConfiguration;
 import io.xj.hub.dao.DAOModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
@@ -28,18 +25,15 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class GoogleHttpProviderImplTest extends Mockito {
   @Mock
   private GoogleCredential googleCredential;
-  private Injector injector;
   private GoogleHttpProvider googleHttpProvider;
 
   @Before
   public void setUp() throws Exception {
-    Config config = HubTestConfiguration.getDefault();
     var env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(),
       new FileStoreModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Config.class).toInstance(config);
         bind(Environment.class).toInstance(env);
         bind(GoogleHttpProvider.class).to(GoogleHttpProviderImpl.class);
         bind(GoogleCredential.class).toInstance(googleCredential);

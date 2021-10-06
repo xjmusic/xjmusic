@@ -430,7 +430,7 @@ class drft_lookup {
     float dcp, arg, dsp, ar1h, ar2h;
     int idp2, ipp2;
 
-    arg = tpi / new Integer(ip).floatValue();
+    arg = tpi / Integer.valueOf(ip).floatValue();
     dcp = Double.valueOf(Math.cos(arg)).floatValue();
     dsp = Double.valueOf(Math.sin(arg)).floatValue();
     ipph = (ip + 1) >> 1;
@@ -1057,7 +1057,7 @@ class drft_lookup {
 
     t10 = ip * ido;
     t0 = l1 * ido;
-    arg = tpi / new Integer(ip).floatValue();
+    arg = tpi / Integer.valueOf(ip).floatValue();
     dcp = Double.valueOf(Math.cos(arg)).floatValue();
     dsp = Double.valueOf(Math.sin(arg)).floatValue();
     nbd = (ido - 1) >> 1;

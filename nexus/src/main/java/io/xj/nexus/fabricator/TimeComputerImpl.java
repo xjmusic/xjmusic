@@ -5,24 +5,24 @@ package io.xj.nexus.fabricator;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.typesafe.config.Config;
+import io.xj.lib.app.Environment;
 import io.xj.lib.music.BPM;
 
 import java.util.Map;
 
 /**
- A TimeComputer determines the position in time, given a position in beats within a Segment.
- <p>
- An instance of a TimeComputer is configured for one segment:
- Total # of beats int the segment
- Tempo (of) at the beginning of the segment
- Tempo (to) at the end of the segment
- <p>
- Computations are done internally using Velocity, which is seconds-per-beat (NOT beats per minute)
- <p>
- [#153542275] Segment wherein velocity changes expect perfectly smooth sound of previous segment through to following segment
- <p>
- FUTURE: instead of computing a fine grain map ahead of time, compute a coarser map and interpolate to requested position.
+ * A TimeComputer determines the position in time, given a position in beats within a Segment.
+ * <p>
+ * An instance of a TimeComputer is configured for one segment:
+ * Total # of beats int the segment
+ * Tempo (of) at the beginning of the segment
+ * Tempo (to) at the end of the segment
+ * <p>
+ * Computations are done internally using Velocity, which is seconds-per-beat (NOT beats per minute)
+ * <p>
+ * [#153542275] Segment wherein velocity changes expect perfectly smooth sound of previous segment through to following segment
+ * <p>
+ * FUTURE: instead of computing a fine grain map ahead of time, compute a coarser map and interpolate to requested position.
  */
 class TimeComputerImpl implements TimeComputer {
   double totalBeats;
@@ -35,21 +35,21 @@ class TimeComputerImpl implements TimeComputer {
   double inc;
 
   /**
-   Configure a TimeComputer instance for a segment
-
-   @param totalBeats of the segment
-   @param fromTempo  at the beginning of the segment (in Beats Per Minute)
-   @param toTempo    at the end of the segment  (in Beats Per Minute)
+   * Configure a TimeComputer instance for a segment
+   *
+   * @param totalBeats of the segment
+   * @param fromTempo  at the beginning of the segment (in Beats Per Minute)
+   * @param toTempo    at the end of the segment  (in Beats Per Minute)
    */
   @Inject
   public TimeComputerImpl(
     @Assisted("totalBeats") double totalBeats,
     @Assisted("fromTempo") double fromTempo,
     @Assisted("toTempo") double toTempo,
-    Config config
+    Environment env
   ) {
-    div = config.getDouble("segment.computeTimeFramesPerBeat");
-    sub = config.getDouble("segment.computeTimeResolutionHz");
+    div = env.getSegmentComputeTimeFramesPerBeat();
+    sub = env.getSegmentComputeTimeResolutionHz();
     inc = 1 / div;
 
     this.totalBeats = totalBeats;
@@ -69,31 +69,31 @@ class TimeComputerImpl implements TimeComputer {
   }
 
   /**
-   Normalize a time value, given a resolution in Hz, such that the final floating point value has no extraneous digits.
-
-   @param time to normalize
-   @return normalized time
+   * Normalize a time value, given a resolution in Hz, such that the final floating point value has no extraneous digits.
+   *
+   * @param time to normalize
+   * @return normalized time
    */
   private double normalizeTime(double time) {
     return Math.floor(time * sub) / sub;
   }
 
   /**
-   Normalize a position value, given a number of frames that each beat is supposed to be divided into,
-   such that all possible positions form an unbroken sequence of integers beginning at 0.
-
-   @param position to normalize
-   @return normalized position
+   * Normalize a position value, given a number of frames that each beat is supposed to be divided into,
+   * such that all possible positions form an unbroken sequence of integers beginning at 0.
+   *
+   * @param position to normalize
+   * @return normalized position
    */
   private int normalizePosition(double position) {
     return (int) Math.floor(position * div);
   }
 
   /**
-   Get the velocity at any position in the segment
-
-   @param pos position to get velocity of
-   @return velocity at given position
+   * Get the velocity at any position in the segment
+   *
+   * @param pos position to get velocity of
+   * @return velocity at given position
    */
   private double velocityAtPosition(double pos) {
     return fromVelocity + velocityDelta * pos / totalBeats;

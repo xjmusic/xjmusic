@@ -2,17 +2,17 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.Tables;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.AccountUser;
 import io.xj.hub.tables.Library;
+import io.xj.hub.tables.pojos.Account;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 
 import java.util.Collection;
@@ -118,7 +118,7 @@ public class AccountDAOImpl extends DAOImpl<Account> implements AccountDAO {
    */
   public void validate(Account record) throws DAOException {
     try {
-      Value.require(record.getName(), "Account name");
+      Values.require(record.getName(), "Account name");
 
     } catch (ValueException e) {
       throw new DAOException(e);

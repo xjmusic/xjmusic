@@ -3,13 +3,11 @@ package io.xj.nexus;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.typesafe.config.Config;
 import io.xj.hub.HubTopology;
 import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.util.Text;
 import io.xj.nexus.api.NexusAppHealthEndpoint;
 import io.xj.nexus.hub_client.client.HubAccessTokenFilter;
 import io.xj.nexus.work.NexusWork;
@@ -35,6 +33,7 @@ import org.slf4j.LoggerFactory;
  - Add shutdown hook that calls application stop()
  */
 public class NexusApp extends App {
+  private static final String APP_NAME = "nexus";
   private final org.slf4j.Logger LOG = LoggerFactory.getLogger(NexusApp.class);
   private final NexusWork work;
   private final String platformRelease;
@@ -48,18 +47,14 @@ public class NexusApp extends App {
   @Inject
   public NexusApp(
     Injector injector,
-    Config config,
     Environment env,
     HubAccessTokenFilter hubAccessTokenFilter,
     NexusAppHealthEndpoint nexusAppHealthEndpoint
   ) {
-    super(config, env);
+    super(APP_NAME, env);
 
     // Configuration
     platformRelease = env.getPlatformEnvironment();
-
-    // non-static logger for this class, because app must init first
-    LOG.info("{} configuration:\n{}", getName(), Text.toReport(config));
 
     // core delegates
     work = injector.getInstance(NexusWork.class);
@@ -85,13 +80,6 @@ public class NexusApp extends App {
   }
 
   /**
-   Stop the work
-   */
-  public void stop() throws AppException {
-    work.stop();
-  }
-
-  /**
    Get the current work manager
 
    @return work manager
@@ -105,6 +93,7 @@ public class NexusApp extends App {
    stop App Server
    */
   public void finish() {
+    work.stop();
     super.finish();
     LOG.info("{} ({}}) did exit OK at {}", getName(), platformRelease, getBaseURI());
   }
@@ -116,7 +105,7 @@ public class NexusApp extends App {
    */
   public String getBaseURI() {
     //noinspection HttpUrlsUsage
-    return "http://" + getRestHostname() + ":" + getRestPort() + "/";
+    return "http://" + getHostname() + ":" + getPort() + "/";
   }
 
 }

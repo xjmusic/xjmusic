@@ -4,7 +4,7 @@ package io.xj.lib.entity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.xj.lib.util.Value;
+import io.xj.lib.util.Values;
 
 import java.util.Collection;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class EntityStoreImpl implements EntityStore {
     }
 
     // fail to store entity with unset id
-    if (!Value.isSet(id))
+    if (!Values.isSet(id))
       throw new EntityStoreException(String.format("Can't store %s with null id",
         entity.getClass().getSimpleName()));
 

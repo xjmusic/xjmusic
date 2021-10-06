@@ -4,8 +4,6 @@ package io.xj.hub.access;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.plus.model.Person;
 
-import javax.annotation.Nullable;
-
 
 public interface GoogleProvider {
   /**

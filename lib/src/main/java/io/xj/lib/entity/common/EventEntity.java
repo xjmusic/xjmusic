@@ -3,8 +3,8 @@ package io.xj.lib.entity.common;
 
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 
 public abstract class EventEntity {
   private Double duration;
@@ -20,10 +20,10 @@ public abstract class EventEntity {
    */
   public static void validate(Object event) throws ValueException {
     try {
-      Value.require(Entities.get(event, "duration"), "Duration");
-      Value.require(Entities.get(event, "note"), "Note");
-      Value.require(Entities.get(event, "position"), "Position");
-      Value.require(Entities.get(event, "velocity"), "Velocity");
+      Values.require(Entities.get(event, "duration"), "Duration");
+      Values.require(Entities.get(event, "note"), "Note");
+      Values.require(Entities.get(event, "position"), "Position");
+      Values.require(Entities.get(event, "velocity"), "Velocity");
     } catch (EntityException e) {
       throw new ValueException(e);
     }

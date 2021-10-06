@@ -30,19 +30,19 @@ jobs:
         id: init
         run: terraform init
         continue-on-error: false
-        working-directory: cluster
+        working-directory: .ops
 
       - name: Terraform has been formatted correctly with `terraform fmt`
         id: fmt
-        run: terraform -chdir=cluster fmt -check
+        run: terraform -chdir=.ops fmt -check
         continue-on-error: false
 
       - name: Terraform Validate
         id: validate
-        run: terraform -chdir=cluster validate -no-color
+        run: terraform -chdir=.ops validate -no-color
         continue-on-error: false
 
       - name: Terraform Apply
         id: apply
-        run: terraform -chdir=cluster apply -auto-approve -no-color
+        run: terraform -chdir=.ops apply -auto-approve -no-color
         continue-on-error: false

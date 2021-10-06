@@ -4,19 +4,18 @@ package io.xj.hub.dao;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
+import io.xj.hub.InstrumentConfig;
+import io.xj.hub.access.HubAccess;
+import io.xj.hub.enums.InstrumentState;
+import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.tables.pojos.Instrument;
 import io.xj.hub.tables.pojos.InstrumentAudio;
 import io.xj.hub.tables.pojos.InstrumentMeme;
-import io.xj.hub.enums.InstrumentState;
-import io.xj.hub.access.HubAccess;
-import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.hub.InstrumentConfig;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
@@ -27,24 +26,17 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.INSTRUMENT;
-import static io.xj.hub.Tables.INSTRUMENT_AUDIO;
-import static io.xj.hub.Tables.INSTRUMENT_MEME;
-import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.*;
 
 public class InstrumentDAOImpl extends DAOImpl<Instrument> implements InstrumentDAO {
 
-  private final Config config;
-
   @Inject
   public InstrumentDAOImpl(
-    Config config,
     JsonapiPayloadFactory payloadFactory,
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider
   ) {
     super(payloadFactory, entityFactory);
-    this.config = config;
     this.dbProvider = dbProvider;
   }
 
@@ -69,10 +61,10 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
         throw new DAOException("Can't clone nonexistent Instrument");
 
       // Inherits state, type if none specified
-      if (Value.isEmpty(rawInstrument.getType())) rawInstrument.setType(from.getType());
-      if (Value.isEmpty(rawInstrument.getState())) rawInstrument.setState(from.getState());
-      if (Value.isEmpty(rawInstrument.getDensity())) rawInstrument.setDensity(from.getDensity());
-      if (Value.isEmpty(rawInstrument.getName())) rawInstrument.setName(from.getName());
+      if (Values.isEmpty(rawInstrument.getType())) rawInstrument.setType(from.getType());
+      if (Values.isEmpty(rawInstrument.getState())) rawInstrument.setState(from.getState());
+      if (Values.isEmpty(rawInstrument.getDensity())) rawInstrument.setDensity(from.getDensity());
+      if (Values.isEmpty(rawInstrument.getName())) rawInstrument.setName(from.getName());
       Instrument instrument = validate(rawInstrument);
       requireParentExists(db, hubAccess, instrument);
 
@@ -274,17 +266,17 @@ public class InstrumentDAOImpl extends DAOImpl<Instrument> implements Instrument
    */
   public Instrument validate(Instrument record) throws DAOException {
     try {
-      Value.require(record.getLibraryId(), "Library ID");
-      Value.require(record.getName(), "Name");
-      Value.require(record.getType(), "Type");
-      Value.require(record.getState(), "State");
+      Values.require(record.getLibraryId(), "Library ID");
+      Values.require(record.getName(), "Name");
+      Values.require(record.getType(), "Type");
+      Values.require(record.getState(), "State");
 
       // [#175347578] validate TypeSafe chain config
       // [#177129498] Artist saves Instrument, Instrument, or Template config, validate & combine with defaults.
       if (Objects.isNull(record.getConfig()))
-        record.setConfig(new InstrumentConfig(config).toString());
+        record.setConfig(new InstrumentConfig().toString());
       else
-        record.setConfig(new InstrumentConfig(record, config).toString());
+        record.setConfig(new InstrumentConfig(record).toString());
 
       return record;
 

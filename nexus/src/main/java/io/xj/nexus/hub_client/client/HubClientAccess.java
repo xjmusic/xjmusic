@@ -9,11 +9,7 @@ import io.xj.lib.entity.Entities;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.container.ContainerRequestContext;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class HubClientAccess {
   public static final String CONTEXT_KEY = "hub_access";

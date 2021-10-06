@@ -3,7 +3,6 @@ package io.xj.nexus;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.typesafe.config.Config;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.persistence.NexusEntityStore;
 import org.slf4j.Logger;
@@ -23,16 +22,12 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
   @Inject
   NexusIntegrationTestProviderImpl(
     EntityFactory entityFactory,
-    Config config,
     NexusEntityStore nexusEntityStore
   ) {
     this.store = nexusEntityStore;
 
     // Build the Nexus REST API payload topology
     NexusTopology.buildNexusApiTopology(entityFactory);
-
-    // Requires that a configuration has been bound
-    config.getString("app.name");
 
     // Begin database prep
     LOG.debug("Will prepare integration database.");
@@ -61,7 +56,6 @@ public class NexusIntegrationTestProviderImpl implements NexusIntegrationTestPro
 
   @Override
   public void tearDown() {
-    System.clearProperty("work.queue.name");
   }
 
 }

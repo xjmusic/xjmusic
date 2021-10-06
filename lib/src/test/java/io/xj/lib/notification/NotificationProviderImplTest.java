@@ -1,13 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.notification;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.app.Environment;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,15 +18,14 @@ public class NotificationProviderImplTest {
 
   @Test
   public void instantiate() {
-    Config config = ConfigFactory.parseResources("config/default.conf")
-      .withValue("aws.accessKeyID", ConfigValueFactory.fromAnyRef("AKIALKSFDJKGIOURTJ7H"))
-      .withValue("aws.secretKey", ConfigValueFactory.fromAnyRef("jhfd897+jkhjHJJDKJF/908090JHKJJHhjhfg78h"));
-    var env = Environment.getDefault();
+    var env = Environment.from(ImmutableMap.of(
+      "AWS_ACCESS_KEY_ID", "AKIALKSFDJKGIOURTJ7H",
+      "AWS_SECRET_KEY", "jhfd897+jkhjHJJDKJF/908090JHKJJHhjhfg78h"
+    ));
     var injector = Guice.createInjector(ImmutableSet.of(Modules.override(new NotificationModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
-          bind(Config.class).toInstance(config);
           bind(Environment.class).toInstance(env);
         }
       })));

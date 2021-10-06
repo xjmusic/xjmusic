@@ -3,53 +3,15 @@
 package io.xj.hub;
 
 import com.google.common.collect.ImmutableList;
-import io.xj.hub.tables.pojos.Account;
-import io.xj.hub.tables.pojos.AccountUser;
-import io.xj.hub.tables.pojos.Instrument;
-import io.xj.hub.tables.pojos.InstrumentAudio;
-import io.xj.hub.tables.pojos.InstrumentMeme;
-import io.xj.hub.enums.InstrumentState;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.tables.pojos.Library;
-import io.xj.hub.tables.pojos.Program;
-import io.xj.hub.tables.pojos.ProgramMeme;
-import io.xj.hub.tables.pojos.ProgramSequence;
-import io.xj.hub.tables.pojos.ProgramSequenceBinding;
-import io.xj.hub.tables.pojos.ProgramSequenceBindingMeme;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
-import io.xj.hub.tables.pojos.ProgramSequencePattern;
-import io.xj.hub.tables.pojos.ProgramSequencePatternEvent;
-import io.xj.hub.enums.ProgramSequencePatternType;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.tables.pojos.ProgramVoice;
-import io.xj.hub.tables.pojos.ProgramVoiceTrack;
-import io.xj.hub.tables.pojos.User;
+import io.xj.hub.enums.*;
+import io.xj.hub.tables.pojos.*;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
-import static io.xj.hub.IntegrationTestingFixtures.buildAccountUser;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrument;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentAudio;
-import static io.xj.hub.IntegrationTestingFixtures.buildInstrumentMeme;
-import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgram;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramMeme;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequence;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBinding;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceBindingMeme;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChord;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequenceChordVoicing;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePattern;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramSequencePatternEvent;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoice;
-import static io.xj.hub.IntegrationTestingFixtures.buildProgramVoiceTrack;
-import static io.xj.hub.IntegrationTestingFixtures.buildUser;
+import static io.xj.hub.IntegrationTestingFixtures.*;
 
 /**
  [#165954673] Integration tests use shared scenario fixtures as much as possible

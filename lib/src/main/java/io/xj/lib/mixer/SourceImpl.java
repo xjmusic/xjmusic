@@ -3,6 +3,7 @@ package io.xj.lib.mixer;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import io.xj.lib.util.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +16,6 @@ import java.io.BufferedInputStream;
  */
 class SourceImpl implements Source {
   private static final Logger LOG = LoggerFactory.getLogger(SourceImpl.class);
-  private static final float microsInASecond = 1000000;
 
   private final float frameRate;
   private final String sourceId;
@@ -38,29 +38,15 @@ class SourceImpl implements Source {
     inputFormat = stream.getAudioFormat();
     frameRate = inputFormat.getFrameRate();
     inputChannels = inputFormat.getChannels();
-    enforceMax(2, "input audio channels", inputChannels);
-    microsPerFrame = microsInASecond / frameRate;
+    enforceMaxStereo(inputChannels);
+    microsPerFrame = Values.MICROS_IN_A_SECOND / frameRate;
 
     state = LOADING;
     data = stream.loadFrames();
-    inputLengthMicros = (long) (microsInASecond * stream.getActualFrames() / frameRate);
+    inputLengthMicros = (long) (Values.MICROS_IN_A_SECOND * stream.getActualFrames() / frameRate);
 
     state = READY;
     LOG.debug("Did load source {}", sourceId);
-  }
-
-  /**
-   Enforce a maximum
-
-   @param valueMax   maximum allowable value
-   @param entityName name of entity, for error message
-   @param value      actual
-   @throws SourceException if value greater than allowable
-   */
-  private static void enforceMax(int valueMax, String entityName, int value) throws SourceException {
-    if (value > valueMax) {
-      throw new SourceException("more than " + valueMax + " " + entityName + " not allowed");
-    }
   }
 
   @Override
@@ -111,6 +97,17 @@ class SourceImpl implements Source {
    */
   private int frameAtMicros(long atMicros) {
     return (int) Math.floor(atMicros / microsPerFrame);
+  }
+
+  /**
+   Enforce a maximum
+
+   @param value actual
+   @throws SourceException if value greater than allowable
+   */
+  static void enforceMaxStereo(int value) throws SourceException {
+    if (value > 2)
+      throw new SourceException("more than 2 input audio channels not allowed");
   }
 
 }

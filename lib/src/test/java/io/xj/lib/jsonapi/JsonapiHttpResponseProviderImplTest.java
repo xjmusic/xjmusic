@@ -2,12 +2,11 @@
 
 package io.xj.lib.jsonapi;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
 import io.xj.lib.Widget;
+import io.xj.lib.app.Environment;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,10 +26,7 @@ public class JsonapiHttpResponseProviderImplTest {
     var injector = Guice.createInjector(new JsonapiModule(), new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Config.class).toInstance(ConfigFactory.empty()
-          .withValue("app.name", ConfigValueFactory.fromAnyRef("testApp"))
-          .withValue("api.unauthorizedRedirectPath", ConfigValueFactory.fromAnyRef("unauthorized"))
-          .withValue("api.welcomeRedirectPath", ConfigValueFactory.fromAnyRef("")));
+        bind(Environment.class).toInstance(Environment.from(ImmutableMap.of("APP_NAME", "testApp")));
       }
     });
     subject = injector.getInstance(JsonapiHttpResponseProvider.class);
@@ -109,7 +105,7 @@ public class JsonapiHttpResponseProviderImplTest {
   }
 
   /**
-   [#175985762] 406 not-acceptable errors surface underlying causes
+   * [#175985762] 406 not-acceptable errors surface underlying causes
    */
   @Test
   public void notAcceptable_surfacesUnderlyingCauses() {

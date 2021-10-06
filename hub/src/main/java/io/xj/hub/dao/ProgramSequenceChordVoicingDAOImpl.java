@@ -2,14 +2,14 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.ProgramSequenceChordVoicing;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
@@ -17,9 +17,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.hub.Tables.LIBRARY;
-import static io.xj.hub.Tables.PROGRAM;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD_VOICING;
+import static io.xj.hub.Tables.*;
 
 public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceChordVoicing> implements ProgramSequenceChordVoicingDAO {
 
@@ -125,10 +123,10 @@ public class ProgramSequenceChordVoicingDAOImpl extends DAOImpl<ProgramSequenceC
    */
   public void validate(ProgramSequenceChordVoicing record) throws DAOException {
     try {
-      Value.require(record.getProgramId(), "Program ID");
-      Value.require(record.getProgramSequenceChordId(), "Sequence Chord ID");
-      Value.require(record.getType(), "Voice type");
-      Value.require(record.getNotes(), "Notes are required");
+      Values.require(record.getProgramId(), "Program ID");
+      Values.require(record.getProgramSequenceChordId(), "Sequence Chord ID");
+      Values.require(record.getType(), "Voice type");
+      Values.require(record.getNotes(), "Notes are required");
 
     } catch (ValueException e) {
       throw new DAOException(e);

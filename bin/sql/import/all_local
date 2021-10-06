@@ -19,7 +19,7 @@ SQL_DB_MAIN=${1:-xj_dev}
 SQL_DB_TEST="xj_test"
 
 # Source
-SOURCE_PREFIX="${PWD}/backup/"
+SOURCE_PREFIX="${PWD}/.backup/"
 SOURCE_MAIN_SCHEMA_SQL="${SOURCE_PREFIX}main.schema.sql"
 SOURCE_MAIN_RECORDS_SQL="${SOURCE_PREFIX}main.records.sql"
 SOURCE_TEST_SCHEMA_SQL="${SOURCE_PREFIX}test.schema.sql"

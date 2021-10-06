@@ -2,15 +2,15 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.ProgramSequenceChord;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.entity.common.ChordEntity;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -92,8 +92,8 @@ public class ProgramSequenceChordDAOImpl extends DAOImpl<ProgramSequenceChord> i
    */
   public void validate(ProgramSequenceChord record) throws DAOException {
     try {
-      Value.require(record.getProgramId(), "Program ID");
-      Value.require(record.getProgramSequenceId(), "Sequence ID");
+      Values.require(record.getProgramId(), "Program ID");
+      Values.require(record.getProgramSequenceId(), "Sequence ID");
       ChordEntity.validate(record);
 
     } catch (ValueException e) {

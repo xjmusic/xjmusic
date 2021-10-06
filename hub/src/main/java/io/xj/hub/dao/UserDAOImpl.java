@@ -19,8 +19,8 @@ import io.xj.hub.tables.records.UserRecord;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.CSV;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 import org.jooq.Result;
 import org.jooq.SelectSelectStep;
@@ -32,10 +32,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.hub.Tables.ACCOUNT_USER;
-import static io.xj.hub.Tables.USER;
-import static io.xj.hub.Tables.USER_AUTH;
-import static io.xj.hub.Tables.USER_AUTH_TOKEN;
+import static io.xj.hub.Tables.*;
 
 /**
  NOTE: THIS IS AN IRREGULAR D.A.O.
@@ -404,7 +401,7 @@ public class UserDAOImpl extends DAOImpl<User> implements UserDAO {
    */
   public void validate(User record) throws DAOException {
     try {
-      Value.require(record.getRoles(), "User roles");
+      Values.require(record.getRoles(), "User roles");
 
     } catch (ValueException e) {
       throw new DAOException(e);

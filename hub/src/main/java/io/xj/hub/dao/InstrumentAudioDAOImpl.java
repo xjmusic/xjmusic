@@ -13,8 +13,8 @@ import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.filestore.S3UploadPolicy;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
@@ -26,9 +26,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.INSTRUMENT;
-import static io.xj.hub.Tables.INSTRUMENT_AUDIO;
-import static io.xj.hub.Tables.LIBRARY;
+import static io.xj.hub.Tables.*;
 
 public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements InstrumentAudioDAO {
   private final FileStoreProvider fileStoreProvider;
@@ -47,7 +45,6 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
     EntityFactory entityFactory,
     HubDatabaseProvider dbProvider,
     FileStoreProvider fileStoreProvider
-//    Config config
   ) {
     super(payloadFactory, entityFactory);
     this.fileStoreProvider = fileStoreProvider;
@@ -156,8 +153,8 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
         throw new DAOException("Can't clone nonexistent InstrumentAudio");
 
       // When not set, clone inherits attribute values from original record
-      if (Value.isEmpty(rawAudio.getWaveformKey())) rawAudio.setWaveformKey(from.getWaveformKey());
-      if (Value.isEmpty(rawAudio.getName())) rawAudio.setName(from.getName());
+      if (Values.isEmpty(rawAudio.getWaveformKey())) rawAudio.setWaveformKey(from.getWaveformKey());
+      if (Values.isEmpty(rawAudio.getName())) rawAudio.setName(from.getName());
       var audio = validate(rawAudio);
       requireParentExists(db, hubAccess, audio);
 
@@ -234,7 +231,7 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
    */
   public InstrumentAudio validate(InstrumentAudio builder) throws DAOException {
     try {
-      Value.require(builder.getInstrumentId(), "Instrument ID");
+      Values.require(builder.getInstrumentId(), "Instrument ID");
 
       if (Objects.isNull(builder.getName()) || builder.getName().isEmpty())
         throw new ValueException("Name is required.");
@@ -242,17 +239,17 @@ public class InstrumentAudioDAOImpl extends DAOImpl<InstrumentAudio> implements 
       if (Objects.isNull(builder.getWaveformKey()) || builder.getWaveformKey().isEmpty())
         builder.setWaveformKey("");
 
-      if (Value.isEmpty(builder.getDensity()))
+      if (Values.isEmpty(builder.getDensity()))
         builder.setDensity(0.5f);
 
-      if (Value.isEmpty(builder.getStart()))
+      if (Values.isEmpty(builder.getStart()))
         builder.setStart(0.0f);
 
-      if (Value.isEmpty(builder.getLength()))
+      if (Values.isEmpty(builder.getLength()))
         builder.setLength(0.0f);
 
-      Value.require(builder.getTempo(), "Tempo");
-      Value.requireNonZero(builder.getTempo(), "Tempo");
+      Values.require(builder.getTempo(), "Tempo");
+      Values.requireNonZero(builder.getTempo(), "Tempo");
 
       return builder;
 

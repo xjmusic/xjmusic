@@ -3,30 +3,19 @@ info:
   version: 1.0.0
   title: XJ Music Chains API
 servers:
-  - url: http://hub.lab.svc.cluster.local:3001/api/v2
+  - url: http://hub.lab.svc.cluster.local:3000/api/v2
     description: XJ Music API (Service Cluster Local)
 tags:
   - name: chains
 paths:
   #
   #
-  "/chains/{chainId}":
+  "/healthz":
     get:
-      parameters:
-        - name: chainId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            example: "332db756-4288-499d-bdf4-b919b4ea30e1"
+      operationId: 'healthz'
       responses:
         "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Chain"
+          description: OK
 #
 #
 # Components

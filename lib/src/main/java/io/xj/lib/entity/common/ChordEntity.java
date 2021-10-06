@@ -3,8 +3,8 @@ package io.xj.lib.entity.common;
 
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityException;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 
 /**
  This represents common properties of all entities,
@@ -21,8 +21,8 @@ public class ChordEntity {
    */
   public static void validate(Object chord) throws ValueException {
     try {
-      Value.require(Entities.get(chord, "name"), "Name");
-      Value.require(Entities.get(chord, "position"), "Position");
+      Values.require(Entities.get(chord, "name"), "Name");
+      Values.require(Entities.get(chord, "position"), "Position");
     } catch (EntityException e) {
       throw new ValueException(e);
     }

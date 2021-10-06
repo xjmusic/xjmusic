@@ -6,7 +6,6 @@ import io.xj.lib.util.Text;
 import io.xj.lib.util.ValueException;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

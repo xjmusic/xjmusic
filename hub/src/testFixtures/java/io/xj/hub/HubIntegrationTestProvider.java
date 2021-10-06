@@ -1,6 +1,7 @@
 //  Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.hub;import io.xj.hub.HubException;
+package io.xj.hub;
+
 import org.jooq.DSLContext;
 import org.jooq.Table;
 
@@ -8,7 +9,7 @@ import java.util.Collection;
 
 /**
  An Integration test needs to:
- 1. create injector with a Config binding
+ 1. create injector with environment bound
  2. inject IntegrationTestProvider
  AND
  3. call integrationTestProvider.shutdown()

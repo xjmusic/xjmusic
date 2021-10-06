@@ -5,8 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import io.xj.lib.Widget;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,12 +29,7 @@ public class JsonapiJsonapiPayloadDeserializerTest {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new JsonapiModule(), new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Config.class).toInstance(ConfigFactory.empty());
-      }
-    });
+    var injector = Guice.createInjector(new JsonapiModule());
     jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
   }
 

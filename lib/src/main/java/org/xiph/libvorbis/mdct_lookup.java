@@ -37,7 +37,7 @@ class mdct_lookup {
   public void mdct_init(int _n) {
 
     n = _n;
-    log2n = Double.valueOf(Math.rint(Math.log(new Integer(n).floatValue()) / Math.log(2.f))).intValue();
+    log2n = Double.valueOf(Math.rint(Math.log(Integer.valueOf(n).floatValue()) / Math.log(2.f))).intValue();
 
     // DATA_TYPE *T=_ogg_malloc(sizeof(*T)*(n+n/4));
     trig = new float[n + n / 4];

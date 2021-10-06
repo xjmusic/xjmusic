@@ -93,7 +93,7 @@ public class static_codebook {
   public int _book_maptype1_quantvals() {
 
     // long vals
-    int vals = Double.valueOf(Math.floor(Math.pow(new Integer(entries).floatValue(), 1.0f / dim))).intValue();
+    int vals = Double.valueOf(Math.floor(Math.pow(Integer.valueOf(entries).floatValue(), 1.0f / dim))).intValue();
 
     // the above *should* be reliable, but we'll not assume that FP is
     // ever reliable when bitstream sync is at stake; verify via integer

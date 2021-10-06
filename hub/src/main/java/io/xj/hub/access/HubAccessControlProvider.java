@@ -2,8 +2,8 @@
 package io.xj.hub.access;
 
 
-import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.AccountUser;
+import io.xj.hub.tables.pojos.User;
 import io.xj.hub.tables.pojos.UserAuth;
 
 import javax.ws.rs.core.NewCookie;

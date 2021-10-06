@@ -3,14 +3,14 @@ package io.xj.hub.dao;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.ProgramSequence;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
@@ -21,14 +21,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.xj.hub.Tables.LIBRARY;
-import static io.xj.hub.Tables.PROGRAM;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_BINDING_MEME;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_CHORD;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
+import static io.xj.hub.Tables.*;
 import static io.xj.hub.tables.ProgramSequenceChordVoicing.PROGRAM_SEQUENCE_CHORD_VOICING;
 
 public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements ProgramSequenceDAO {
@@ -66,11 +59,11 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
         throw new DAOException("Can't clone nonexistent ProgramSequence");
 
       // Inherits attributes if none specified
-      if (Value.isEmpty(rawEntity.getTotal())) rawEntity.setTotal(from.getTotal());
-      if (Value.isEmpty(rawEntity.getName())) rawEntity.setName(from.getName());
-      if (Value.isEmpty(rawEntity.getTempo())) rawEntity.setTempo(from.getTempo());
-      if (Value.isEmpty(rawEntity.getDensity())) rawEntity.setDensity(from.getDensity());
-      if (Value.isEmpty(rawEntity.getKey())) rawEntity.setKey(from.getKey());
+      if (Values.isEmpty(rawEntity.getTotal())) rawEntity.setTotal(from.getTotal());
+      if (Values.isEmpty(rawEntity.getName())) rawEntity.setName(from.getName());
+      if (Values.isEmpty(rawEntity.getTempo())) rawEntity.setTempo(from.getTempo());
+      if (Values.isEmpty(rawEntity.getDensity())) rawEntity.setDensity(from.getDensity());
+      if (Values.isEmpty(rawEntity.getKey())) rawEntity.setKey(from.getKey());
       var record = validate(rawEntity);
       requireParentExists(db, hubAccess, record);
 
@@ -277,12 +270,12 @@ public class ProgramSequenceDAOImpl extends DAOImpl<ProgramSequence> implements 
    */
   public ProgramSequence validate(ProgramSequence record) throws DAOException {
     try {
-      Value.require(record.getProgramId(), "Program ID");
-      Value.require(record.getName(), "Name");
-      Value.require(record.getKey(), "Key");
-      Value.require(record.getDensity(), "Density");
-      if (Value.isEmpty(record.getTotal())) record.setTotal((short) 0);
-      Value.require(record.getTempo(), "Tempo");
+      Values.require(record.getProgramId(), "Program ID");
+      Values.require(record.getName(), "Name");
+      Values.require(record.getKey(), "Key");
+      Values.require(record.getDensity(), "Density");
+      if (Values.isEmpty(record.getTotal())) record.setTotal((short) 0);
+      Values.require(record.getTempo(), "Tempo");
       return record;
 
     } catch (ValueException e) {

@@ -4,10 +4,7 @@ package io.xj.lib.jsonapi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
 import org.junit.Before;
@@ -17,9 +14,7 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  Payload test
@@ -32,12 +27,7 @@ public class JsonapiPayloadTest {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new JsonapiModule(), new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Config.class).toInstance(ConfigFactory.empty());
-      }
-    });
+    var injector = Guice.createInjector(new JsonapiModule());
     var entityFactory = injector.getInstance(EntityFactory.class);
     jsonapiPayloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
     entityFactory.register(Widget.class);

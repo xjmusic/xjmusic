@@ -12,9 +12,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.xj.lib.util.Assert.assertEquals;
-import static io.xj.lib.util.Assert.assertFalse;
-import static io.xj.lib.util.Assert.assertTrue;
+import static io.xj.lib.util.Assert.*;
 
 
 /**

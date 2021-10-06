@@ -1,11 +1,10 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.nexus.work;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValueFactory;
 import io.xj.api.Chain;
 import io.xj.api.ChainState;
 import io.xj.api.ChainType;
@@ -16,16 +15,11 @@ import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.telemetry.TelemetryProvider;
 import io.xj.nexus.NexusApp;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
-import io.xj.nexus.service.SegmentService;
-import io.xj.nexus.service.exception.ServiceExistenceException;
-import io.xj.nexus.service.exception.ServiceFatalException;
-import io.xj.nexus.service.exception.ServicePrivilegeException;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubContent;
-import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,9 +40,7 @@ import static io.xj.hub.IntegrationTestingFixtures.buildLibrary;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComplexLibraryTest {
@@ -66,28 +58,27 @@ public class ComplexLibraryTest {
   private AppWorkThread workThread;
   private Chain chain1;
   private NexusApp app;
-  private SegmentService segmentService;
+  private SegmentManager segmentManager;
 
   @Before
   public void setUp() throws Exception {
-    Config config = NexusTestConfiguration.getDefault()
-      .withValue("app.port", ConfigValueFactory.fromAnyRef(9043))
-      .withValue("work.chainManagementEnabled", ConfigValueFactory.fromAnyRef(false)) // because we are going to manually operate the chain for this test
-      .withValue("work.eraseSegmentsOlderThanSeconds", ConfigValueFactory.fromAnyRef(MAXIMUM_TEST_WAIT_SECONDS + 300))
-      .withValue("work.cycleMillis", ConfigValueFactory.fromAnyRef(50));
-    Environment env = Environment.getDefault();
+    Environment env = Environment.from(ImmutableMap.of(
+      "APP_PORT", "9043",
+      "WORK_CHAIN_MANAGEMENT_ENABLED", "false",
+      "WORK_ERASE_SEGMENTS_OLDER_THAN_SECONDS", String.valueOf(MAXIMUM_TEST_WAIT_SECONDS + 300),
+      "WORK_CYCLE_MILLIS", "50"
+    ));
     var injector = Guice.createInjector(Modules.override(new NexusWorkModule())
       .with(new AbstractModule() {
         @Override
         public void configure() {
-          bind(Config.class).toInstance(config);
           bind(Environment.class).toInstance(env);
           bind(FileStoreProvider.class).toInstance(fileStoreProvider);
           bind(HubClient.class).toInstance(hubClient);
           bind(TelemetryProvider.class).toInstance(telemetryProvider);
         }
       }));
-    segmentService = injector.getInstance(SegmentService.class);
+    segmentManager = injector.getInstance(SegmentManager.class);
     var entityFactory = injector.getInstance(EntityFactory.class);
     HubTopology.buildHubApiTopology(entityFactory);
     NexusTopology.buildNexusApiTopology(entityFactory);
@@ -131,7 +122,7 @@ public class ComplexLibraryTest {
     while (!hasSegmentsDubbedPastMinimumOffset(chain1.getId()) && isWithinTimeLimit())
       //noinspection BusyWait
       Thread.sleep(MILLIS_PER_SECOND);
-    app.stop();
+    app.finish();
     workThread.interrupt();
 
     // assertions
@@ -144,9 +135,9 @@ public class ComplexLibraryTest {
   }
 
   /**
-   Whether this test is within the time limit
-
-   @return true if within time limit
+   * Whether this test is within the time limit
+   *
+   * @return true if within time limit
    */
   private boolean isWithinTimeLimit() {
     if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > System.currentTimeMillis() - startTime)
@@ -156,17 +147,17 @@ public class ComplexLibraryTest {
   }
 
   /**
-   Does a specified Chain contain at least N segments?
-
-   @param chainId to test
-   @return true if it has at least N segments
+   * Does a specified Chain contain at least N segments?
+   *
+   * @param chainId to test
+   * @return true if it has at least N segments
    */
   private boolean hasSegmentsDubbedPastMinimumOffset(UUID chainId) {
     try {
-      return segmentService.readLastDubbedSegment(HubClientAccess.internal(), chainId)
+      return segmentManager.readLastDubbedSegment(HubClientAccess.internal(), chainId)
         .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getOffset()).isPresent();
 
-    } catch (ServicePrivilegeException | ServiceFatalException | ServiceExistenceException ignored) {
+    } catch (ManagerPrivilegeException | ManagerFatalException | ManagerExistenceException ignored) {
       return false;
     }
   }

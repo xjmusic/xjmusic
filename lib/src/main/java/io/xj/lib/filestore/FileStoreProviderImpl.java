@@ -9,7 +9,6 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import io.xj.lib.app.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,6 @@ class FileStoreProviderImpl implements FileStoreProvider {
   private static final Logger log = LoggerFactory.getLogger(FileStoreProviderImpl.class);
   private static final float MICROS_PER_SECOND = 1000000.0F;
   private static final float NANOS_PER_SECOND = 1000.0F * MICROS_PER_SECOND;
-  private static final String EXTENSION_SEPARATOR = ".";
   private static final String NAME_SEPARATOR = "-";
   private final String awsDefaultRegion;
   private final String audioUploadUrl;
@@ -37,23 +35,22 @@ class FileStoreProviderImpl implements FileStoreProvider {
 
   @Inject
   public FileStoreProviderImpl(
-    Config config,
     Environment env
   ) {
-    audioUploadUrl = env.getAudioUploadURL();
     audioFileBucket = env.getAudioFileBucket();
-    awsFileUploadExpireMinutes = config.getInt("aws.uploadExpireMinutes");
-    awsDefaultRegion = env.getAwsDefaultRegion();
+    audioUploadUrl = env.getAudioUploadURL();
     awsAccessKeyId = env.getAwsAccessKeyID();
+    awsDefaultRegion = env.getAwsDefaultRegion();
+    awsFileUploadExpireMinutes = env.getAwsUploadExpireMinutes();
+    awsS3RetryLimit = env.getAwsS3retryLimit();
     awsSecretKey = env.getAwsSecretKey();
-    fileUploadACL = config.getString("aws.fileUploadACL");
-    awsS3RetryLimit = config.getInt("aws.s3retryLimit");
+    fileUploadACL = env.getAwsFileUploadACL();
   }
 
   /**
-   Get an Amazon S3 client
-
-   @return S3 client
+   * Get an Amazon S3 client
+   *
+   * @return S3 client
    */
   private AmazonS3 s3Client() {
     BasicAWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretKey);

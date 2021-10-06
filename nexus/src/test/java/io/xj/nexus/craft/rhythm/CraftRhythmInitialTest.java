@@ -6,27 +6,20 @@ import com.google.common.collect.Streams;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import io.xj.api.ChainState;
-import io.xj.api.ChainType;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentState;
-import io.xj.api.SegmentType;
+import io.xj.api.*;
 import io.xj.hub.HubTopology;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.nexus.NexusIntegrationTestingFixtures;
-import io.xj.nexus.NexusTestConfiguration;
 import io.xj.nexus.NexusTopology;
 import io.xj.nexus.craft.CraftFactory;
-import io.xj.nexus.Segments;
 import io.xj.nexus.fabricator.Fabricator;
 import io.xj.nexus.fabricator.FabricatorFactory;
 import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubContent;
 import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.Segments;
 import io.xj.nexus.work.NexusWorkModule;
 import org.junit.After;
 import org.junit.Before;
@@ -40,9 +33,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
-import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegmentChoice;
+import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,13 +48,11 @@ public class CraftRhythmInitialTest {
 
   @Before
   public void setUp() throws Exception {
-    Config config = NexusTestConfiguration.getDefault();
     Environment env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(new NexusWorkModule())
       .with(new AbstractModule() {
         @Override
         public void configure() {
-          bind(Config.class).toInstance(config);
           bind(Environment.class).toInstance(env);
           bind(HubClient.class).toInstance(hubClient);
         }

@@ -2,41 +2,19 @@
 
 package io.xj.hub;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValueFactory;
 import com.zaxxer.hikari.HikariDataSource;
 import io.xj.hub.access.GoogleProvider;
 import io.xj.hub.access.HubAccessControlProvider;
-import io.xj.hub.dao.AccountDAO;
-import io.xj.hub.dao.AccountUserDAO;
-import io.xj.hub.dao.InstrumentAudioDAO;
-import io.xj.hub.dao.InstrumentDAO;
-import io.xj.hub.dao.InstrumentMemeDAO;
-import io.xj.hub.dao.LibraryDAO;
-import io.xj.hub.dao.ProgramDAO;
-import io.xj.hub.dao.ProgramMemeDAO;
-import io.xj.hub.dao.ProgramSequenceBindingDAO;
-import io.xj.hub.dao.ProgramSequenceBindingMemeDAO;
-import io.xj.hub.dao.ProgramSequenceChordDAO;
-import io.xj.hub.dao.ProgramSequenceChordVoicingDAO;
-import io.xj.hub.dao.ProgramSequenceDAO;
-import io.xj.hub.dao.ProgramSequencePatternDAO;
-import io.xj.hub.dao.ProgramSequencePatternEventDAO;
-import io.xj.hub.dao.ProgramVoiceDAO;
-import io.xj.hub.dao.ProgramVoiceTrackDAO;
-import io.xj.hub.dao.TemplateBindingDAO;
-import io.xj.hub.dao.TemplateDAO;
-import io.xj.hub.dao.TemplatePlaybackDAO;
-import io.xj.hub.dao.UserDAO;
+import io.xj.hub.dao.*;
 import io.xj.hub.ingest.HubIngestFactory;
 import io.xj.hub.persistence.HubDatabaseProvider;
 import io.xj.hub.persistence.HubMigration;
 import io.xj.lib.app.App;
-import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.Environment;
 import io.xj.lib.jsonapi.JsonapiModule;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -120,15 +98,10 @@ public class HubAppTest {
   @Before
   public void setUp() throws Exception {
     httpClient = HttpClients.createDefault();
-    Config config = AppConfiguration.getDefault()
-      .withValue("audio.baseUrl", ConfigValueFactory.fromAnyRef(""))
-      .withValue("segment.baseUrl", ConfigValueFactory.fromAnyRef(""))
-      .withValue("app.port", ConfigValueFactory.fromAnyRef(1903));
-    var env = Environment.getDefault();
+    var env = Environment.from(ImmutableMap.of("APP_PORT", "1903"));
     var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new JsonapiModule())).with(new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Config.class).toInstance(config);
         bind(Environment.class).toInstance(env);
         bind(HubDatabaseProvider.class).toInstance(hubDatabaseProvider);
         bind(HubAccessControlProvider.class).toInstance(hubAccessControlProvider);

@@ -2,26 +2,22 @@
 package io.xj.hub.dao;
 
 import com.google.inject.Inject;
-import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.persistence.HubDatabaseProvider;
+import io.xj.hub.tables.pojos.ProgramVoiceTrack;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
-import io.xj.lib.util.Value;
 import io.xj.lib.util.ValueException;
+import io.xj.lib.util.Values;
 import org.jooq.DSLContext;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
-import static io.xj.hub.Tables.LIBRARY;
-import static io.xj.hub.Tables.PROGRAM;
-import static io.xj.hub.Tables.PROGRAM_SEQUENCE_PATTERN_EVENT;
-import static io.xj.hub.Tables.PROGRAM_VOICE;
-import static io.xj.hub.Tables.PROGRAM_VOICE_TRACK;
+import static io.xj.hub.Tables.*;
 
 public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> implements ProgramVoiceTrackDAO {
   private static final float DEFAULT_ORDER_VALUE = 1000.0f;
@@ -149,10 +145,10 @@ public class ProgramVoiceTrackDAOImpl extends DAOImpl<ProgramVoiceTrack> impleme
    */
   public ProgramVoiceTrack validate(ProgramVoiceTrack track) throws DAOException {
     try {
-      if (Value.isEmpty(track.getOrder())) track.setOrder(DEFAULT_ORDER_VALUE);
-      Value.require(track.getProgramId(), "Program ID");
-      Value.require(track.getProgramVoiceId(), "Voice ID");
-      Value.require(track.getName(), "Name");
+      if (Values.isEmpty(track.getOrder())) track.setOrder(DEFAULT_ORDER_VALUE);
+      Values.require(track.getProgramId(), "Program ID");
+      Values.require(track.getProgramVoiceId(), "Voice ID");
+      Values.require(track.getName(), "Name");
       track.setName(Text.toMeme(track.getName()));
       return track;
 

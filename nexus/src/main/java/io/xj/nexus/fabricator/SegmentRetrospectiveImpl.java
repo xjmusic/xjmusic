@@ -4,27 +4,22 @@ package io.xj.nexus.fabricator;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramType;
 import io.xj.api.Segment;
 import io.xj.api.SegmentChoice;
 import io.xj.api.SegmentChoiceArrangementPick;
+import io.xj.hub.enums.InstrumentType;
+import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.service.SegmentService;
-import io.xj.nexus.service.exception.ServiceExistenceException;
-import io.xj.nexus.service.exception.ServiceFatalException;
-import io.xj.nexus.service.exception.ServicePrivilegeException;
 import io.xj.nexus.hub_client.client.HubContent;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
+import io.xj.nexus.persistence.SegmentManager;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +33,7 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
   public SegmentRetrospectiveImpl(
     @Assisted("segment") Segment segment,
     @Assisted("sourceMaterial") HubContent sourceMaterial,
-    SegmentService segmentService,
+    SegmentManager segmentManager,
     EntityStore entityStore
   ) throws NexusException {
     this.store = entityStore;
@@ -50,9 +45,9 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
     try {
       // begin by getting the previous segment
       // the previous segment is the first one cached here. we may cache even further back segments below if found
-      previousSegment = store.put(segmentService.readOneAtChainOffset(
+      previousSegment = store.put(segmentManager.readOneAtChainOffset(
         segment.getChainId(), segment.getOffset() - 1));
-      store.putAll(segmentService.readManySubEntities(ImmutableList.of(previousSegment.getId()), true));
+      store.putAll(segmentManager.readManySubEntities(ImmutableList.of(previousSegment.getId()), true));
 
       // previous segment must have a main choice to continue past here.
       SegmentChoice previousSegmentMainChoice = store.getAll(SegmentChoice.class).stream()
@@ -63,17 +58,17 @@ class SegmentRetrospectiveImpl implements SegmentRetrospective {
       // if relevant populate the retrospective with the previous segments with the same main sequence as this one
       long sequenceBindingOffset = sourceMaterial
         .getProgramSequenceBinding(previousSegmentMainChoice.getProgramSequenceBindingId())
-        .orElseThrow(() -> new ServiceExistenceException("Retrospective cannot find sequence binding"))
+        .orElseThrow(() -> new ManagerExistenceException("Retrospective cannot find sequence binding"))
         .getOffset();
       if (0 >= sequenceBindingOffset) return;
       long oF = segment.getOffset() - sequenceBindingOffset;
       long oT = segment.getOffset() - 1;
       if (0 > oF || 0 > oT) return;
-      Collection<Segment> previousMany = segmentService.readManyFromToOffset(segment.getChainId(), oF, oT);
+      Collection<Segment> previousMany = segmentManager.readManyFromToOffset(segment.getChainId(), oF, oT);
       store.putAll(previousMany);
-      store.putAll(segmentService.readManySubEntities(Entities.idsOf(previousMany), true));
+      store.putAll(segmentManager.readManySubEntities(Entities.idsOf(previousMany), true));
 
-    } catch (ServiceExistenceException | ServiceFatalException | ServicePrivilegeException | EntityStoreException e) {
+    } catch (ManagerExistenceException | ManagerFatalException | ManagerPrivilegeException | EntityStoreException e) {
       throw new NexusException(e);
     }
   }

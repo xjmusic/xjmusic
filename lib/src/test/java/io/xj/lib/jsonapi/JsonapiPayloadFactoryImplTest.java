@@ -3,10 +3,7 @@
 package io.xj.lib.jsonapi;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import io.xj.lib.Widget;
 import io.xj.lib.entity.EntityFactory;
 import org.junit.Before;
@@ -28,12 +25,7 @@ public class JsonapiPayloadFactoryImplTest {
 
   @Before
   public void setUp() {
-    var injector = Guice.createInjector(new JsonapiModule(), new AbstractModule() {
-      @Override
-      protected void configure() {
-        bind(Config.class).toInstance(ConfigFactory.empty());
-      }
-    });
+    var injector = Guice.createInjector(new JsonapiModule());
     entityFactory = injector.getInstance(EntityFactory.class);
     subject = injector.getInstance(JsonapiPayloadFactory.class);
   }

@@ -10,12 +10,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
-import com.typesafe.config.Config;
 import io.xj.hub.access.HubAccessControlModule;
 import io.xj.hub.dao.DAOModule;
 import io.xj.hub.ingest.HubIngestModule;
 import io.xj.hub.persistence.HubPersistenceModule;
-import io.xj.lib.app.AppConfiguration;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityModule;
@@ -47,13 +45,11 @@ public interface Main {
    */
   @SuppressWarnings("DuplicatedCode")
   static void main(String[] args) throws AppException, UnknownHostException {
-    final var config = AppConfiguration.getDefault();
     final var env = getEnvironment();
 
     var injector = Guice.createInjector(Modules.override(injectorModules).with(new AbstractModule() {
       @Override
       protected void configure() {
-        bind(Config.class).toInstance(config);
         bind(Environment.class).toInstance(env);
       }
     }));

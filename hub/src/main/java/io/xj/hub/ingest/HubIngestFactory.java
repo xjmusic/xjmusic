@@ -4,7 +4,6 @@ package io.xj.hub.ingest;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.hub.access.HubAccess;
 
-import java.util.Collection;
 import java.util.UUID;
 
 /**

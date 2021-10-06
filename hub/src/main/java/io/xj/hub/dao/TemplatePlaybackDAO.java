@@ -1,11 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.dao;
 
-import io.xj.hub.tables.pojos.TemplatePlayback;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.tables.pojos.TemplatePlayback;
 
-import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 

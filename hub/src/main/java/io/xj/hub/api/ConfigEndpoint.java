@@ -4,14 +4,11 @@ package io.xj.hub.api;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import io.xj.hub.HubJsonapiEndpoint;
-import io.xj.hub.enums.InstrumentState;
-import io.xj.hub.enums.InstrumentType;
-import io.xj.hub.enums.ProgramSequencePatternType;
-import io.xj.hub.enums.ProgramState;
-import io.xj.hub.enums.ProgramType;
-import io.xj.hub.enums.TemplateType;
+import io.xj.hub.InstrumentConfig;
+import io.xj.hub.ProgramConfig;
+import io.xj.hub.TemplateConfig;
+import io.xj.hub.enums.*;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
@@ -67,14 +64,10 @@ public class ConfigEndpoint extends HubJsonapiEndpoint {
   @Inject
   public ConfigEndpoint(
     JsonapiHttpResponseProvider response,
-    Config config,
     JsonapiPayloadFactory payloadFactory,
     ApiUrlProvider apiUrlProvider
   ) {
-    super(response, config, payloadFactory);
-    var defaultInstrumentConfig = Text.format(config.getConfig("instrument"));
-    var defaultProgramConfig = Text.format(config.getConfig("program"));
-
+    super(response, payloadFactory);
     configMap = ImmutableMap.<String, Object>builder()
       .put("apiBaseUrl", apiUrlProvider.getAppBaseUrl())
       .put("audioBaseUrl", apiUrlProvider.getAudioBaseUrl())
@@ -82,8 +75,9 @@ public class ConfigEndpoint extends HubJsonapiEndpoint {
       .put("chainStates", CHAIN_STATES)
       .put("chainTypes", CHAIN_TYPES)
       .put("choiceTypes", ProgramType.values())
-      .put("defaultInstrumentConfig", defaultInstrumentConfig)
-      .put("defaultProgramConfig", defaultProgramConfig)
+      .put("defaultInstrumentConfig", Text.format(InstrumentConfig.DEFAULT))
+      .put("defaultProgramConfig", Text.format(ProgramConfig.DEFAULT))
+      .put("defaultTemplateConfig", Text.format(TemplateConfig.DEFAULT))
       .put("instrumentStates", InstrumentState.values())
       .put("instrumentTypes", InstrumentType.values())
       .put("patternDetailTypes", ProgramSequencePatternType.values())
@@ -91,9 +85,9 @@ public class ConfigEndpoint extends HubJsonapiEndpoint {
       .put("playerBaseUrl", apiUrlProvider.getPlayerBaseUrl())
       .put("programStates", ProgramState.values())
       .put("programTypes", ProgramType.values())
-      .put("segmentBaseUrl", apiUrlProvider.getSegmentBaseUrl())
       .put("segmentStates", SEGMENT_STATES)
       .put("segmentTypes", SEGMENT_TYPES)
+      .put("shipBaseURL", apiUrlProvider.getShipBaseUrl())
       .put("templateTypes", TemplateType.values())
       .put("voiceTypes", InstrumentType.values())
       .build();

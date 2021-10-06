@@ -3,18 +3,17 @@ package io.xj.hub.api;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
-import io.xj.lib.json.ApiUrlProvider;
+import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.GoogleProvider;
 import io.xj.hub.access.HubAccess;
 import io.xj.hub.access.HubAccessControlProvider;
 import io.xj.hub.access.HubAccessException;
 import io.xj.hub.dao.DAOException;
 import io.xj.hub.dao.UserDAO;
-import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
+import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.jsonapi.JsonapiException;
+import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
-import io.xj.hub.HubJsonapiEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +47,6 @@ public class AuthEndpoint extends HubJsonapiEndpoint {
   @Inject
   public AuthEndpoint(
     JsonapiHttpResponseProvider response,
-    Config config,
     JsonapiPayloadFactory payloadFactory,
     UserDAO userDAO,
     HubAccessControlProvider hubAccessControlProvider,
@@ -56,7 +54,7 @@ public class AuthEndpoint extends HubJsonapiEndpoint {
     ApiUrlProvider apiUrlProvider,
     JsonapiHttpResponseProvider httpResponseProvider
   ) {
-    super(response, config, payloadFactory);
+    super(response, payloadFactory);
     this.userDAO = userDAO;
     this.hubAccessControlProvider = hubAccessControlProvider;
     this.authGoogleProvider = authGoogleProvider;

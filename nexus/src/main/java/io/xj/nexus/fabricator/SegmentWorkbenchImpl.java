@@ -5,16 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.api.Chain;
-import io.xj.api.Segment;
-import io.xj.api.SegmentChoice;
-import io.xj.api.SegmentChoiceArrangement;
-import io.xj.api.SegmentChoiceArrangementPick;
-import io.xj.api.SegmentChord;
-import io.xj.api.SegmentChordVoicing;
-import io.xj.api.SegmentMeme;
-import io.xj.api.SegmentMessage;
-import io.xj.api.SegmentMessageType;
+import io.xj.api.*;
 import io.xj.hub.enums.ProgramType;
 import io.xj.lib.entity.EntityStore;
 import io.xj.lib.entity.EntityStoreException;
@@ -22,33 +13,24 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
-import io.xj.nexus.service.SegmentService;
-import io.xj.nexus.service.exception.ServiceExistenceException;
-import io.xj.nexus.service.exception.ServiceFatalException;
-import io.xj.nexus.service.exception.ServicePrivilegeException;
-import io.xj.nexus.service.exception.ServiceValidationException;
+import io.xj.nexus.persistence.*;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  The SegmentWorkbench is a delegate to manipulate the segment currently in progress during the fabrication.
  The pattern here is that all child entities of this segment are held in memory only within this delegate
  until the very end of the process, when the trigger is pulled and all the entities are written to the database
- using a special segment Service method that does them all in one transaction.
+ using a special segment Manager method that does them all in one transaction.
  <p>
  SegmentWorkbench.done()
  Called at the end of Segment fabrication.
- Sends added records to segmentService batch insert method
+ Sends added records to segmentManager batch insert method
  */
 class SegmentWorkbenchImpl implements SegmentWorkbench {
   private final Chain chain;
-  private final SegmentService segmentService;
+  private final SegmentManager segmentManager;
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final Map<String, Object> report = Maps.newConcurrentMap();
   private final EntityStore benchStore;
@@ -59,20 +41,20 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
   public SegmentWorkbenchImpl(
     @Assisted("chain") Chain chain,
     @Assisted("segment") Segment segment,
-    SegmentService segmentService,
+    SegmentManager segmentManager,
     JsonapiPayloadFactory jsonapiPayloadFactory,
     EntityStore entityStore
   ) throws NexusException {
     this.chain = chain;
     this.segment = segment;
-    this.segmentService = segmentService;
+    this.segmentManager = segmentManager;
     this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.benchStore = entityStore;
 
     // fetch all sub entities of all segments and store the results in the corresponding entity cache
     try {
-      entityStore.putAll(segmentService.readManySubEntities(ImmutableList.of(segment.getId()), true));
-    } catch (ServiceFatalException | ServicePrivilegeException | EntityStoreException e) {
+      entityStore.putAll(segmentManager.readManySubEntities(ImmutableList.of(segment.getId()), true));
+    } catch (ManagerFatalException | ManagerPrivilegeException | EntityStoreException e) {
       throw new NexusException("Failed to load Segment for Workbench!", e);
     }
   }
@@ -139,17 +121,17 @@ class SegmentWorkbenchImpl implements SegmentWorkbench {
     try {
       sendReportToSegmentMessage();
 
-      segmentService.update(getSegment().getId(), getSegment());
+      segmentManager.update(getSegment().getId(), getSegment());
 
-      segmentService.createAllSubEntities(benchStore.getAll(SegmentMessage.class));
-      segmentService.createAllSubEntities(benchStore.getAll(SegmentMeme.class));
-      segmentService.createAllSubEntities(benchStore.getAll(SegmentChord.class));
-      segmentService.createAllSubEntities(benchStore.getAll(SegmentChordVoicing.class));
-      segmentService.createAllSubEntities(benchStore.getAll(SegmentChoice.class));
-      segmentService.createAllSubEntities(benchStore.getAll(SegmentChoiceArrangement.class)); // after choices
-      segmentService.createAllSubEntities(benchStore.getAll(SegmentChoiceArrangementPick.class)); // after arrangements
+      segmentManager.createAllSubEntities(benchStore.getAll(SegmentMessage.class));
+      segmentManager.createAllSubEntities(benchStore.getAll(SegmentMeme.class));
+      segmentManager.createAllSubEntities(benchStore.getAll(SegmentChord.class));
+      segmentManager.createAllSubEntities(benchStore.getAll(SegmentChordVoicing.class));
+      segmentManager.createAllSubEntities(benchStore.getAll(SegmentChoice.class));
+      segmentManager.createAllSubEntities(benchStore.getAll(SegmentChoiceArrangement.class)); // after choices
+      segmentManager.createAllSubEntities(benchStore.getAll(SegmentChoiceArrangementPick.class)); // after arrangements
 
-    } catch (JsonapiException | ServiceFatalException | ServiceExistenceException | ServicePrivilegeException | ServiceValidationException e) {
+    } catch (JsonapiException | ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException | ManagerValidationException e) {
       throw new NexusException("Failed to build and update payload for Segment!", e);
     }
   }
