@@ -5,9 +5,11 @@ import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.lib.app.Environment;
+import io.xj.lib.filestore.FileStoreProvider;
 import io.xj.lib.mixer.AudioStreamWriter;
 import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.util.CSV;
+import io.xj.lib.util.Text;
 import io.xj.nexus.persistence.Segments;
 import io.xj.ship.ShipException;
 import io.xj.ship.persistence.*;
@@ -15,10 +17,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static io.xj.lib.util.Files.getFileSize;
 
 /**
  * Ship broadcast via HTTP Live Streaming #179453189
@@ -27,31 +35,56 @@ public class ChunkPrinterImpl extends ChunkPrinter {
   private static final Logger LOG = LoggerFactory.getLogger(ChunkPrinterImpl.class);
   private static final int AUDIO_CHANNELS = 2;
   private static final float QUALITY = 100;
-  private static final int BITS_PER_BYTE = 8;
-  private static final int SAMPLE_BITS = 16;
   private final Chunk chunk;
   private final ChunkManager chunkManager;
+  private final FileStoreProvider fileStoreProvider;
   private final SegmentAudioManager segmentAudioManager;
+  private final String mp2tsBitrate;
+  private final String streamBucket;
+  private final String streamKey;
   private final String threadName;
-  private final String tempFilePathPrefix;
+  private final String tsFilePath;
+  private final String wavFilePath;
   private final int shipChunkSeconds;
-  private int channels;
-  private int rate;
+
+  // PCM data
+  private double[][] output;
 
   @Inject
   public ChunkPrinterImpl(
     @Assisted("chunk") Chunk chunk,
     ChunkManager chunkManager,
     Environment env,
+    FileStoreProvider fileStoreProvider,
     SegmentAudioManager segmentAudioManager
   ) {
     this.chunk = chunk;
     this.chunkManager = chunkManager;
+    this.fileStoreProvider = fileStoreProvider;
     this.segmentAudioManager = segmentAudioManager;
 
-    threadName = String.format("CHUNK:%s", chunk.getStreamOutputKey());
+    mp2tsBitrate = env.getShipMp2tsBitrate();
     shipChunkSeconds = env.getShipChunkSeconds();
-    tempFilePathPrefix = env.getTempFilePathPrefix();
+    streamBucket = env.getStreamBucket();
+    streamKey = String.format("%s-%s.ts", chunk.getKey(), mp2tsBitrate);
+    threadName = String.format("CHUNK:%s", chunk.getKey());
+    tsFilePath = String.format("%s%s-%s.ts", env.getTempFilePathPrefix(), chunk.getKey(), mp2tsBitrate);
+    wavFilePath = String.format("%s%s.wav", env.getTempFilePathPrefix(), chunk.getKey());
+  }
+
+  @Override
+  public double[][] getOutputPcmData() {
+    return output;
+  }
+
+  @Override
+  public String getWavFilePath() {
+    return wavFilePath;
+  }
+
+  @Override
+  public String getTsFilePath() {
+    return tsFilePath;
   }
 
   @Override
@@ -72,12 +105,91 @@ public class ChunkPrinterImpl extends ChunkPrinter {
    * Do the work inside a named thread
    */
   private void doWork() throws ShipException {
-    switch (chunk.getState()) {
-      case Pending -> {
-        if (isSourceAudioReady()) mixAndOutput();
-      }
-      case Mixing, Shipping -> {/* no op */}
+    if (!isPending() || !isSourceAudioReady()) return;
+
+    var audios = getAllIntersectingAudios();
+
+    // fail if any of the source audios are not ready
+    var notReady = audios.stream()
+      .filter(audio -> !SegmentAudioState.Ready.equals(audio.getState()))
+      .map(SegmentAudio::getId)
+      .collect(Collectors.toList());
+    if (!notReady.isEmpty())
+      throw new ShipException(String.format("Segment%s[%s] %s not actually ready!",
+        1 < notReady.size() ? "s" : "",
+        CSV.from(notReady),
+        1 < notReady.size() ? "are" : "is"));
+
+    // use any segment to determine audio metadata
+    // NOTE: INCONSISTENCY AMONG SOURCE AUDIO RATES WILL RESULT IN A MALFORMED OUTPUT
+    var ref = audios.stream().findAny()
+      .orElseThrow(() -> new ShipException("No Segment Audio found!"))
+      .getAudioFormat();
+    int rate = (int) ref.getSampleRate();
+    int channels = ref.getChannels();
+    output = new double[rate * shipChunkSeconds][AUDIO_CHANNELS];
+
+    // get the buffer from each audio and lay it into the output buffer
+    LOG.debug("ready; will mix");
+    chunkManager.put(chunk.setState(ChunkState.Mixing));
+    for (var audio : audios) {
+      var initialSourceFrame = audio.getFrame(chunk.getFromInstant());
+      for (int f = 0; f < rate * shipChunkSeconds; f++)
+        for (var c = 0; c < channels; c++)
+          output[f][c] += read(initialSourceFrame + f, c, audio);
     }
+
+    LOG.debug("mixed; will write");
+    try {
+      var writer = new AudioStreamWriter(output, QUALITY);
+      writer.writeToFile(getWavFilePath(), computeAudioFormat(audios), OutputEncoder.WAV, output.length);
+      LOG.debug("did write {}", getWavFilePath());
+    } catch (Exception e) {
+      LOG.error("Failed to write audio", e);
+      return;
+    }
+
+    LOG.debug("mixed; will encode");
+    chunkManager.put(chunk.setState(ChunkState.Encoding));
+    try {
+      Files.deleteIfExists(Path.of(getTsFilePath()));
+      var cmd = String.format("ffmpeg -i %s -c:a mp2 -b:a %s %s", getWavFilePath(), mp2tsBitrate, getTsFilePath());
+      var proc = Runtime.getRuntime().exec(cmd);
+
+      String line;
+      List<String> output = Lists.newArrayList();
+      BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+      while ((line = stdError.readLine()) != null) output.add(line);
+      if (0 != proc.waitFor()) {
+        LOG.error("Failed: {}\n\n{}", cmd, Text.formatMultiline(output.toArray()));
+        return;
+      }
+
+      LOG.debug("did encode MPEG-2 transport stream at {} to {}", mp2tsBitrate, getTsFilePath());
+    } catch (Exception e) {
+      LOG.error("Failed to encode audio", e);
+      return;
+    }
+
+    LOG.debug("encoded; will ship");
+    chunkManager.put(chunk.setState(ChunkState.Shipping));
+    try {
+      fileStoreProvider.putS3ObjectFromTempFile(getTsFilePath(), streamBucket, streamKey);
+      LOG.info("did ship {} bytes of MPEG-2 transport stream at {} to s3://{}/{}", getFileSize(getTsFilePath()), mp2tsBitrate, streamBucket, streamKey);
+    } catch (Exception e) {
+      LOG.error("Failed to ship audio", e);
+      return;
+    }
+
+    chunk.getStreamOutputKeys().add(String.format("%s-%s.ts", chunk.getKey(), mp2tsBitrate));
+    chunkManager.put(chunk.setState(ChunkState.Done));
+  }
+
+  /**
+   * @return true if this chunk printer is ready to work
+   */
+  private boolean isPending() {
+    return ChunkState.Pending.equals(chunk.getState());
   }
 
   /**
@@ -111,84 +223,13 @@ public class ChunkPrinterImpl extends ChunkPrinter {
   }
 
   /**
-   * Mix and output the audio
-   *
-   * @throws ShipException on failure
-   */
-  private void mixAndOutput() throws ShipException {
-    var audios = getAllIntersectingAudios();
-
-    // fail if any of the source audios are not ready
-    var notReady = audios.stream()
-      .filter(audio -> !SegmentAudioState.Ready.equals(audio.getState()))
-      .map(SegmentAudio::getId)
-      .collect(Collectors.toList());
-    if (!notReady.isEmpty())
-      throw new ShipException(String.format("Segment%s[%s] %s not actually ready!",
-        1 < notReady.size() ? "s" : "",
-        CSV.from(notReady),
-        1 < notReady.size() ? "are" : "is"));
-
-    // use any segment to determine audio metadata
-    // NOTE: INCONSISTENCY AMONG SOURCE AUDIO RATES WILL RESULT IN A MALFORMED OUTPUT
-    var ref = audios.stream().findAny()
-      .orElseThrow(() -> new ShipException("No Segment Audio found!"))
-      .getInfo();
-    rate = ref.rate;
-    channels = ref.channels;
-    double[][] output = new double[ref.rate * shipChunkSeconds][AUDIO_CHANNELS];
-
-    // get the buffer from each audio and lay it into the output buffer
-    LOG.debug("ready; will mix");
-    chunkManager.put(chunk.setState(ChunkState.Mixing));
-
-    for (var audio : audios) {
-      var initialSourceFrame = audio.getFrame(chunk.getFromInstant());
-      for (int f = 0; f < rate * shipChunkSeconds; f++)
-        for (var c = 0; c < channels; c++) {
-          var dick = read(initialSourceFrame + f, c, audio);
-          output[f][c] += dick;
-        }
-    }
-
-    LOG.debug("mixed; will write");
-    try {
-      String outputFilePath = String.format("%s%s.wav", tempFilePathPrefix, chunk.getStreamOutputKey());
-      var writer = new AudioStreamWriter(output, QUALITY);
-      writer.writeToFile(outputFilePath, computeAudioFormat(audios), OutputEncoder.WAV, output.length);
-      LOG.info("did write {}", outputFilePath);
-    } catch (Exception e) {
-      LOG.error("Failed to write audio", e);
-      return;
-    }
-
-    LOG.debug("mixed; will encode");
-    chunkManager.put(chunk.setState(ChunkState.Encoding));
-    // NEXT use ffmpeg to encode the shippable audio
-
-    chunkManager.put(chunk.setState(ChunkState.Shipping));
-    // NEXT ship audio to stream.xj.io
-
-    chunkManager.put(chunk.setState(ChunkState.Done));
-  }
-
-  /**
    * Compute the audio format from the given set of audios
    *
    * @param audios from which to compute format
    * @return audio format
    */
   private AudioFormat computeAudioFormat(Collection<SegmentAudio> audios) {
-    var audio = audios.stream().findAny().orElseThrow();
-    return new AudioFormat(
-      AudioFormat.Encoding.PCM_SIGNED,
-      audio.getInfo().rate,
-      SAMPLE_BITS,
-      audio.getInfo().channels,
-      audio.getInfo().channels * SAMPLE_BITS / BITS_PER_BYTE,
-      audio.getInfo().rate,
-      false
-    );
+    return audios.stream().findAny().orElseThrow().getAudioFormat();
   }
 
   /**
@@ -199,7 +240,7 @@ public class ChunkPrinterImpl extends ChunkPrinter {
    */
   private double read(int sourceFrame, int channel, SegmentAudio audio) {
     if (sourceFrame >= 0 && sourceFrame <= audio.getTotalPcmFrames())
-      return audio.getPcmData()[channel][sourceFrame];
+      return audio.getPcmData().get(sourceFrame)[channel];
     else
       return 0;
   }

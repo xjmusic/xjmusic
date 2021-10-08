@@ -27,7 +27,7 @@ public class WorkImplTest {
     Environment env = Environment.from(ImmutableMap.of(
       "BOOTSTRAP_SHIP_KEY", "coolair"
     ));
-    var injector = Guice.createInjector(Modules.override(new WorkModule())
+    var injector = Guice.createInjector(Modules.override(new ShipWorkModule())
       .with(new AbstractModule() {
         @Override
         protected void configure() {
@@ -53,7 +53,7 @@ public class WorkImplTest {
 
   @Test
   public void isHealthy_neverWithoutShipKey() {
-    subject = Guice.createInjector(Modules.override(new WorkModule())
+    subject = Guice.createInjector(Modules.override(new ShipWorkModule())
       .with(new AbstractModule() {
         @Override
         protected void configure() {

@@ -45,6 +45,7 @@ jobs:
 
       - name: Install system packages
         run: |
+          sudo apt-get -y install ffmpeg
           sudo apt-get -y install postgresql-client
 
       - name: Setup JDK 16

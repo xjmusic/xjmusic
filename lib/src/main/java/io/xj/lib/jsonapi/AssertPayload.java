@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.xj.lib.util.Assert.*;
+import static io.xj.lib.util.Assertion.*;
 
 
 /**

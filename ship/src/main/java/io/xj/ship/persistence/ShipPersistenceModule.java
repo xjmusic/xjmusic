@@ -8,7 +8,7 @@ import io.xj.nexus.persistence.NexusPersistenceModule;
 import io.xj.nexus.persistence.SegmentManager;
 import io.xj.nexus.persistence.SegmentManagerImpl;
 
-public class PersistenceModule extends AbstractModule {
+public class ShipPersistenceModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(ChunkManager.class).to(ChunkManagerImpl.class);

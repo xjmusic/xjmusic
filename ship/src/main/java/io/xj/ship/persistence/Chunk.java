@@ -1,15 +1,18 @@
 package io.xj.ship.persistence;
 
+import com.google.api.client.util.Lists;
+
 import java.time.Instant;
+import java.util.List;
 
 /**
- An HTTP Live Streaming Media Chunk
- <p>
- SEE: https://en.m.wikipedia.org/wiki/HTTP_Live_Streaming
- <p>
- SEE: https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
- <p>
- Ship broadcast via HTTP Live Streaming #179453189
+ * An HTTP Live Streaming Media Chunk
+ * <p>
+ * SEE: https://en.m.wikipedia.org/wiki/HTTP_Live_Streaming
+ * <p>
+ * SEE: https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
+ * <p>
+ * Ship broadcast via HTTP Live Streaming #179453189
  */
 public class Chunk {
   private final Instant fromInstant;
@@ -17,6 +20,8 @@ public class Chunk {
   private final Long fromSecondsUTC;
   private final Long lengthSeconds;
   private final String shipKey;
+
+  private final List<String> streamOutputKeys;
   private ChunkState state;
 
   public Chunk(String shipKey, long fromSecondsUTC, long lengthSeconds) {
@@ -26,6 +31,7 @@ public class Chunk {
     this.state = ChunkState.Pending;
     fromInstant = Instant.ofEpochSecond(fromSecondsUTC);
     toInstant = fromInstant.plusSeconds(lengthSeconds);
+    streamOutputKeys = Lists.newArrayList();
   }
 
   public static Chunk from(String shipKey, long fromSecondsUTC, long lengthSeconds) {
@@ -53,7 +59,7 @@ public class Chunk {
     return this;
   }
 
-  public String getStreamOutputKey() {
+  public String getKey() {
     return String.format("%s-%d", shipKey, fromSecondsUTC);
   }
 
@@ -65,4 +71,7 @@ public class Chunk {
     return toInstant;
   }
 
+  public List<String> getStreamOutputKeys() {
+    return streamOutputKeys;
+  }
 }

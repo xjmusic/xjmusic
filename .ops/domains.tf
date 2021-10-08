@@ -100,6 +100,19 @@ resource "aws_route53_record" "xj-prod-ship" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "xj-prod-stream" {
+  name    = "stream.xj.io"
+  type    = "A"
+  zone_id = aws_route53_zone.xj-io.zone_id
+
+  alias {
+    name                   = aws_cloudfront_distribution.xj-prod-stream.domain_name
+    zone_id                = aws_cloudfront_distribution.xj-prod-stream.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
 resource "aws_route53_record" "xj-prod-static" {
   name    = "static.xj.io"
   type    = "A"
@@ -186,6 +199,19 @@ resource "aws_route53_record" "xj-dev-local" {
   alias {
     name                   = aws_cloudfront_distribution.xj-dev-local.domain_name
     zone_id                = aws_cloudfront_distribution.xj-dev-local.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record
+resource "aws_route53_record" "xj-dev-stream" {
+  name    = "stream.dev.xj.io"
+  type    = "A"
+  zone_id = aws_route53_zone.xj-io.zone_id
+
+  alias {
+    name                   = aws_cloudfront_distribution.xj-dev-stream.domain_name
+    zone_id                = aws_cloudfront_distribution.xj-dev-stream.hosted_zone_id
     evaluate_target_health = false
   }
 }

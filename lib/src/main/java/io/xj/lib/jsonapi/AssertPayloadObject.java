@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import static io.xj.lib.util.Assert.assertTrue;
+import static io.xj.lib.util.Assertion.assertTrue;
 
 /**
  Assertion utilities for testing Payload sent/received to/from a XJ Music REST JSON:API service

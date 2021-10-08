@@ -15,13 +15,22 @@ public interface ChunkManager {
   long computeAssembledToMillis();
 
   /**
-   Compute the expected contiguous series of chunks to be exported right now as an HTTP live stream.
+   Compute the expected contiguous series of chunks
    <p>
 
    @param shipKey of chain for which to compute planned chunks
    @return list of planned chunk
    */
   Collection<Chunk> computeAll(String shipKey);
+
+  /**
+   Compute the expected contiguous series of chunks to be exported right now as an HTTP live stream.
+   <p>
+
+   @param shipKey of chain for which to compute planned chunks
+   @return list of planned chunk
+   */
+  Collection<Chunk> computeAllContiguousDone(String shipKey);
 
   /**
    Store a Chunk

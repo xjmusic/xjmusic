@@ -18,14 +18,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
 
 /**
- Ship Work Service Implementation
- <p>
- Ship broadcast via HTTP Live Streaming #179453189
- <p>
- SEE: https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
- SEE: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ForkJoinPool.html
- <p>
- Work is performed by runnable executables in a cached thread pool, with callback functions for success and failure.
+ * Ship Work Service Implementation
+ * <p>
+ * Ship broadcast via HTTP Live Streaming #179453189
+ * <p>
+ * SEE: https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
+ * SEE: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ForkJoinPool.html
+ * <p>
+ * Work is performed by runnable executables in a cached thread pool, with callback functions for success and failure.
  */
 @Singleton
 public class WorkImpl implements Work {
@@ -99,7 +99,7 @@ public class WorkImpl implements Work {
   }
 
   /**
-   Run one work cycle
+   * Run one work cycle
    */
   private void run() {
     if (System.currentTimeMillis() < nextCycleMillis) return;
@@ -116,11 +116,9 @@ public class WorkImpl implements Work {
         }
 
         if (chunkManager.isAssembledFarEnoughAhead()) {
-          for (var chunk : chunkManager.computeAll(shipKey)) {
+          for (var chunk : chunkManager.computeAll(shipKey))
             ForkJoinPool.commonPool().execute(work.print(chunk));
-            // NEXT for each planned chunk, try to print it with a media chunk printer
-            // NEXT update chunk before putting it back
-          }
+          ForkJoinPool.commonPool().execute(work.publish(shipKey));
         }
 
         if (janitorEnabled) {

@@ -6,7 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreException;
-import io.xj.lib.util.TempFile;
+import io.xj.lib.util.Files;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ class DubAudioCacheImpl implements DubAudioCache {
     this.dubAudioCacheItemFactory = dubAudioCacheItemFactory;
     pathPrefix = 0 < env.getAudioCacheFilePrefix().length() ?
       env.getAudioCacheFilePrefix() :
-      TempFile.getTempFilePathPrefix() + "cache" + File.separator;
+      Files.getTempFilePathPrefix() + "cache" + File.separator;
 
     try {
       // make directory for cache files

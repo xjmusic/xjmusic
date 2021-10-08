@@ -1,27 +1,21 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.mixer.demo;
 
-import com.google.common.io.Files;
 import com.google.inject.Guice;
 import io.xj.lib.mixer.*;
 import org.junit.Test;
 
 import javax.sound.sampled.AudioFormat;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.time.Duration;
 
-import static org.junit.Assert.assertTrue;
+import static io.xj.lib.util.Assertion.assertFileMatchesResourceFile;
+import static io.xj.lib.util.Assertion.assertFileSizeToleranceFromResourceFile;
 
 public class DemoIT {
   private static final long bpm = 121;
   private static final Duration beat = Duration.ofMinutes(1).dividedBy(bpm);
   private static final Duration step = beat.dividedBy(4);
   private static final String filePrefix = "demo_source_audio/808/";
-  private static final String referenceAudioFilePrefix = "demo_reference_outputs/";
-  private static final String tempFilePrefix = "/tmp/";
   private static final String sourceFileSuffix = ".wav";
   private static final String kick1 = "kick1";
   private static final String kick2 = "kick2";
@@ -56,6 +50,7 @@ public class DemoIT {
     marac
   };
   private static final MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
+  private static final String referenceAudioFilePrefix = "demo_reference_outputs/";
 
   /**
    * assert mix output equals reference audio
@@ -68,28 +63,13 @@ public class DemoIT {
    * @param referenceName name
    * @throws Exception on failure
    */
-  @SuppressWarnings("UnstableApiUsage")
   private static void assertMixOutputEqualsReferenceAudio(OutputEncoder encoder, AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, String referenceName) throws Exception {
-    String filename = getUniqueTempFilename(referenceName);
+    String filename = io.xj.lib.util.Files.getUniqueTempFilename(referenceName);
     mixAndWriteOutput(encoder, encoding, frameRate, sampleBits, channels, filename);
     switch (encoder) {
-      case WAV -> assertTrue("Demo output " + filename + " does not match reference audio for " + referenceName + "!",
-        Files.equal(new File(filename), resourceFile(getReferenceAudioFilename(referenceName))));
-      case OGG -> assertTrue("Demo output " + filename + " does not match file size +/-2% of reference audio for " + referenceName + "!",
-        isFileSizeWithin(new File(filename), resourceFile(getReferenceAudioFilename(referenceName))));
+      case WAV -> assertFileMatchesResourceFile(filename, getReferenceAudioFilename(referenceName));
+      case OGG -> assertFileSizeToleranceFromResourceFile(filename, getReferenceAudioFilename(referenceName));
     }
-  }
-
-  /**
-   * Assert size of two different files is within a tolerated threshold
-   *
-   * @param f1 to compare
-   * @param f2 to compare
-   * @return true if within tolerance
-   */
-  private static boolean isFileSizeWithin(File f1, File f2) {
-    float deviance = (float) f1.getTotalSpace() / f2.getTotalSpace();
-    return (1 - (float) 0.02) < deviance && (1 + (float) 0.02) > deviance;
   }
 
   /**
@@ -111,7 +91,7 @@ public class DemoIT {
 
     // set up the sources
     for (String sourceName : sources)
-      demoMixer.loadSource(sourceName, inputFile(filePrefix + sourceName + sourceFileSuffix));
+      demoMixer.loadSource(sourceName, io.xj.lib.util.Files.inputFile(filePrefix + sourceName + sourceFileSuffix));
 
     // set up the music
     int iL = demoSequence.length;
@@ -123,35 +103,13 @@ public class DemoIT {
   }
 
   /**
-   * Fetch new buffered input stream from file
+   * get microseconds at a particular loop # and step #
    *
-   * @param filePath to fetch
-   * @return buffered stream of file
-   * @throws FileNotFoundException on failure
+   * @param stepNum step
+   * @return microseconds
    */
-  private static BufferedInputStream inputFile(String filePath) throws FileNotFoundException {
-    return new BufferedInputStream(new FileInputStream(resourceFile(filePath)));
-  }
-
-  /**
-   * get a file from java resources
-   *
-   * @param filePath to get
-   * @return File
-   */
-  private static File resourceFile(String filePath) {
-    InternalResource internalResource = new InternalResource(filePath);
-    return internalResource.getFile();
-  }
-
-  /**
-   * get unique temp filename
-   *
-   * @param subFilename filename within this filename
-   * @return filename
-   */
-  private static String getUniqueTempFilename(String subFilename) {
-    return tempFilePrefix + System.nanoTime() + "-" + subFilename;
+  private static long atMicros(int stepNum) {
+    return step.multipliedBy(stepNum).toNanos() / 1000;
   }
 
   /**
@@ -160,18 +118,8 @@ public class DemoIT {
    * @param referenceName within this filename
    * @return filename
    */
-  private static String getReferenceAudioFilename(String referenceName) {
+  public static String getReferenceAudioFilename(String referenceName) {
     return referenceAudioFilePrefix + referenceName;
-  }
-
-  /**
-   * get microseconds at a particular loop # and step #
-   *
-   * @param stepNum step
-   * @return microseconds
-   */
-  private static long atMicros(int stepNum) {
-    return step.multipliedBy(stepNum).toNanos() / 1000;
   }
 
   /**

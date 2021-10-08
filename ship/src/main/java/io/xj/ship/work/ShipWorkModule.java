@@ -8,21 +8,22 @@ import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.lib.mixer.MixerModule;
 import io.xj.lib.notification.NotificationModule;
 import io.xj.lib.telemetry.TelemetryModule;
-import io.xj.ship.persistence.PersistenceModule;
+import io.xj.ship.persistence.ShipPersistenceModule;
 
-public class WorkModule extends AbstractModule {
+public class ShipWorkModule extends AbstractModule {
   @Override
   protected void configure() {
     install(new JsonModule());
     install(new JsonapiModule());
     install(new MixerModule());
     install(new NotificationModule());
-    install(new PersistenceModule());
+    install(new ShipPersistenceModule());
     install(new TelemetryModule());
     install(new FactoryModuleBuilder()
       .implement(ChainBoss.class, ChainBossImpl.class)
-      .implement(Janitor.class, JanitorImpl.class)
       .implement(ChunkPrinter.class, ChunkPrinterImpl.class)
+      .implement(ChunksPublisher.class, ChunksPublisherImpl.class)
+      .implement(Janitor.class, JanitorImpl.class)
       .implement(SegmentLoader.class, SegmentLoaderImpl.class)
       .build(WorkFactory.class));
 

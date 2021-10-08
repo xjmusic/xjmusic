@@ -6,16 +6,16 @@ import io.xj.api.Segment;
 import io.xj.ship.persistence.Chunk;
 
 /**
- Ship broadcast via HTTP Live Streaming #179453189
+ * Ship broadcast via HTTP Live Streaming #179453189
  */
 public interface WorkFactory {
 
   /**
-   Load the chain manifest, including all its chains
-
-   @param shipKey   to load
-   @param onFailure callback
-   @return chain manifest loader
+   * Load the chain manifest, including all its chains
+   *
+   * @param shipKey   to load
+   * @param onFailure callback
+   * @return chain manifest loader
    */
   ChainBoss loadChainManifest(
     @Assisted("shipKey") String shipKey,
@@ -23,19 +23,29 @@ public interface WorkFactory {
   );
 
   /**
-   Loads the audio for a segment. These requests are idempotent; there will be no effect of multiple requests to load
-   the same segment, because the Segment Audio Manager tracks each segment id as a state machine from the moment that
-   it is first encountered, updating its state when loading is complete or failed, so that it will be retried the next
-   time the load is requested.
-   <p>
-   - If the segment has never been encountered, create a new Segment Audio in LOADING state.
-   - If the segment id exists, check its state
-   - If the existing segment is in LOADING state, take no action
-   - If the existing segment is in FAILED state, retry
-   <p>
+   * Publish the playlist for a ship key
+   *
+   * @param shipKey to publish
+   * @return playlist
+   */
+   ChunksPublisher publish(
+    @Assisted("shipKey") String shipKey
+  );
 
-   @param segment to load
-   @return segment audio loader
+  /**
+   * Loads the audio for a segment. These requests are idempotent; there will be no effect of multiple requests to load
+   * the same segment, because the Segment Audio Manager tracks each segment id as a state machine from the moment that
+   * it is first encountered, updating its state when loading is complete or failed, so that it will be retried the next
+   * time the load is requested.
+   * <p>
+   * - If the segment has never been encountered, create a new Segment Audio in LOADING state.
+   * - If the segment id exists, check its state
+   * - If the existing segment is in LOADING state, take no action
+   * - If the existing segment is in FAILED state, retry
+   * <p>
+   *
+   * @param segment to load
+   * @return segment audio loader
    */
   SegmentLoader loadSegmentAudio(
     @Assisted("shipKey") String shipKey,
@@ -43,19 +53,19 @@ public interface WorkFactory {
   );
 
   /**
-   Print one media chunk
-
-   @param chunk to print
-   @return media chunk printer
+   * Print one media chunk
+   *
+   * @param chunk to print
+   * @return media chunk printer
    */
   ChunkPrinter print(
     @Assisted("chunk") Chunk chunk
   );
 
   /**
-   Do cleanup
-
-   @return Janitor
+   * Do cleanup
+   *
+   * @return Janitor
    */
   Janitor doCleanup();
 

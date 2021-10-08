@@ -55,6 +55,8 @@ public class Environment {
   private final String redisSessionNamespace;
   private final String shipBaseUrl;
   private final String shipBucket;
+  private final String shipM3u8ContentType;
+  private final String shipMp2tsBitrate;
   private final String streamBaseURL;
   private final String streamBucket;
   private final String telemetryNamespace;
@@ -62,9 +64,6 @@ public class Environment {
   private final boolean workChainManagementEnabled;
   private final boolean workJanitorEnabled;
   private final boolean workMedicEnabled;
-  private final int segmentComputeTimeFramesPerBeat;
-  private final int segmentComputeTimeResolutionHz;
-  private final int segmentRequeueSeconds;
   private final int accessTokenMaxAgeSeconds;
   private final int appPort;
   private final int awsS3retryLimit;
@@ -78,6 +77,9 @@ public class Environment {
   private final int postgresPoolSizeMax;
   private final int postgresPort;
   private final int redisPort;
+  private final int segmentComputeTimeFramesPerBeat;
+  private final int segmentComputeTimeResolutionHz;
+  private final int segmentRequeueSeconds;
   private final int shipAheadChunks;
   private final int shipChunkSeconds;
   private final int shipReloadSeconds;
@@ -205,11 +207,13 @@ public class Environment {
     segmentComputeTimeFramesPerBeat = readInt(vars, "SEGMENT_COMPUTE_TIME_FRAMES_PER_BEAT", 64);
     segmentComputeTimeResolutionHz = readInt(vars, "SEGMENT_COMPUTE_TIME_RESOLUTION_HZ", 1000000);
     segmentRequeueSeconds = readInt(vars, "SEGMENT_REQUEUE_SECONDS", 1);
-    shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 6);
-    shipAheadChunks = readInt(vars, "SHIP_AHEAD_CHUNKS", 9);
-    shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
+    shipAheadChunks = readInt(vars, "SHIP_AHEAD_CHUNKS", 10);
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
+    shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 6);
+    shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
+    shipMp2tsBitrate = readStr(vars, "SHIP_MPEG2_TS_BITRATE", "128k");
+    shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
     telemetryNamespace = readStr(vars, "TELEMETRY_NAMESPACE", "Lab/Hub");
@@ -652,6 +656,13 @@ public class Environment {
   }
 
   /**
+   * @return the ship .m3u8 playlist content-type
+   */
+  public String getShipM3u8ContentType() {
+    return shipM3u8ContentType;
+  }
+
+  /**
    * @return the ship reload seconds
    */
   public int getShipReloadSeconds() {
@@ -670,6 +681,13 @@ public class Environment {
    */
   public String getShipBucket() {
     return shipBucket;
+  }
+
+  /**
+   * @return the ship MPEG2 TS bitrate
+   */
+  public String getShipMp2tsBitrate() {
+    return shipMp2tsBitrate;
   }
 
   /**
@@ -713,7 +731,6 @@ public class Environment {
   public int getWorkEraseSegmentsOlderThanSeconds() {
     return workEraseSegmentsOlderThanSeconds;
   }
-
 
   /**
    * @return the work buffer ahead seconds
@@ -812,6 +829,4 @@ public class Environment {
   public int getWorkRehydrateFabricatedAheadThreshold() {
     return workRehydrateFabricatedAheadThreshold;
   }
-
-
 }

@@ -13,7 +13,7 @@ import io.xj.lib.app.App;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
-import io.xj.lib.util.TempFile;
+import io.xj.lib.util.Files;
 import io.xj.lib.util.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +100,7 @@ public class HubApp extends App {
     // Register JAX-RS filter for access log only registers if file succeeds to open for writing
     String pathToWriteAccessLog = 0 < env.getAccessLogFilename().length() ?
       env.getAccessLogFilename() :
-      TempFile.getTempFilePathPrefix() + File.separator + env.getAccessLogFilename();
+      Files.getTempFilePathPrefix() + File.separator + env.getAccessLogFilename();
     new HubAccessLogFilter(pathToWriteAccessLog).registerTo(getResourceConfig());
 
     // Register JAX-RS filter for reading access control token

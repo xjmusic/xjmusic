@@ -94,7 +94,7 @@ public class JanitorImpl extends Janitor {
       LOG.debug("collected garbage Segment[{}]", segmentId);
     }
 
-    // NEXT garbage collect chunks
+    // FUTURE garbage collect chunks
 
     telemetryProvider.put(METRIC_SEGMENT_ERASED, StandardUnit.Count, segmentIdsToErase.size());
   }

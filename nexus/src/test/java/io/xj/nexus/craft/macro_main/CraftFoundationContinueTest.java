@@ -32,7 +32,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import static io.xj.lib.util.Assert.assertSameItems;
+import static io.xj.lib.util.Assertion.assertSameItems;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.*;
 import static org.junit.Assert.assertEquals;
 

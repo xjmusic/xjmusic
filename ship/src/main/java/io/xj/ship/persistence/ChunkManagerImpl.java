@@ -1,5 +1,6 @@
 package io.xj.ship.persistence;
 
+import com.google.api.client.util.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -7,6 +8,7 @@ import io.xj.lib.app.Environment;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,7 +16,7 @@ import java.util.stream.Stream;
 import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
 
 /**
- Ship broadcast via HTTP Live Streaming #179453189
+ * Ship broadcast via HTTP Live Streaming #179453189
  */
 @Singleton
 public class ChunkManagerImpl implements ChunkManager {
@@ -46,13 +48,25 @@ public class ChunkManagerImpl implements ChunkManager {
       .collect(Collectors.toList());
   }
 
-  /**
-   Compute one chunk for the given ship key, start from seconds utc, and length seconds
+  @Override
+  public Collection<Chunk> computeAllContiguousDone(String shipKey) {
+    var seeking = true;
+    List<Chunk> done = Lists.newArrayList();
+    var chunks = computeAll(shipKey);
+    for (var chunk : chunks)
+      if (seeking && ChunkState.Done.equals(chunk.getState())) {
+        done.add(chunk);
+      } else seeking = false;
+    return done;
+  }
 
-   @param shipKey        of chunk
-   @param fromSecondsUTC of chunk
-   @param lengthSeconds  of chunk
-   @return chunk
+  /**
+   * Compute one chunk for the given ship key, start from seconds utc, and length seconds
+   *
+   * @param shipKey        of chunk
+   * @param fromSecondsUTC of chunk
+   * @param lengthSeconds  of chunk
+   * @return chunk
    */
   private Chunk computeOne(String shipKey, long fromSecondsUTC, long lengthSeconds) {
     if (!chunks.containsKey(shipKey)) chunks.put(shipKey, Maps.newConcurrentMap());
@@ -61,10 +75,10 @@ public class ChunkManagerImpl implements ChunkManager {
   }
 
   /**
-   Compute the seconds UTC from which we will create chunks.
-   This number is always rounded down to the latest 6-second interval since 0 seconds UTC.
-
-   @return seconds UTC from which to create chunks
+   * Compute the seconds UTC from which we will create chunks.
+   * This number is always rounded down to the latest 6-second interval since 0 seconds UTC.
+   *
+   * @return seconds UTC from which to create chunks
    */
   private long computeFromSecondUTC() {
     return (long) (Math.floor((double) Instant.now().getEpochSecond() / shipChunkSeconds) * shipChunkSeconds);
@@ -82,10 +96,10 @@ public class ChunkManagerImpl implements ChunkManager {
   }
 
   /**
-   Get the map of chunks for a given ship key
-
-   @param shipKey for which to get chunks
-   @return chunk map
+   * Get the map of chunks for a given ship key
+   *
+   * @param shipKey for which to get chunks
+   * @return chunk map
    */
   private Map<Long, Chunk> getChunks(String shipKey) {
     if (!chunks.containsKey(shipKey)) chunks.put(shipKey, Maps.newConcurrentMap());

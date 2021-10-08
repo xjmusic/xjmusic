@@ -13,7 +13,7 @@ import com.google.inject.util.Modules;
 import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.jsonapi.JsonapiModule;
-import io.xj.ship.work.WorkModule;
+import io.xj.ship.work.ShipWorkModule;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
@@ -24,7 +24,7 @@ import java.util.Set;
 public interface Main {
   Set<Module> injectorModules = ImmutableSet.of(
     new JsonapiModule(),
-    new WorkModule()
+    new ShipWorkModule()
   );
 
   /**
