@@ -64,7 +64,7 @@ public class ChunksPublisherImpl implements ChunksPublisher {
     var content = String.join("\n", lines);
     try {
       fileStoreProvider.putS3ObjectFromString(content, streamBucket, playlistKey, m3u8ContentType);
-      LOG.info("did ship {} bytes to s3://{}/{}", content.length(), playlistKey, streamBucket);
+      LOG.info("did ship {} bytes to s3://{}/{}", content.length(), streamBucket, playlistKey);
     } catch (FileStoreException e) {
       LOG.error("failed to ship {} bytes to s3://{}/{}", content.length(), streamBucket, playlistKey);
     }
