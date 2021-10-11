@@ -195,7 +195,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       return;
     }
 
-    chunk.getStreamOutputKeys().add(String.format("%s-%s.ts", chunk.getKey(), mp2tsBitrate));
+    chunk.addStreamOutputKey(streamKey);
     chunkManager.put(chunk.setState(ChunkState.Done));
   }
 

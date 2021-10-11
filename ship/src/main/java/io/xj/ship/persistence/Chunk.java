@@ -83,4 +83,9 @@ public class Chunk {
     streamOutputKeys.clear();
     return this;
   }
+
+  public Chunk addStreamOutputKey(String streamKey) {
+    streamOutputKeys.add(streamKey);
+    return this;
+  }
 }
