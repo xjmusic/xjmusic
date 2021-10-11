@@ -22,7 +22,7 @@ public class ShipWorkModule extends AbstractModule {
     install(new FactoryModuleBuilder()
       .implement(ChainBoss.class, ChainBossImpl.class)
       .implement(ChunkPrinter.class, ChunkPrinterImpl.class)
-      .implement(ChunksPublisher.class, ChunksPublisherImpl.class)
+      .implement(PlaylistPublisher.class, PlaylistPublisherImpl.class)
       .implement(SegmentLoader.class, SegmentLoaderImpl.class)
       .build(WorkFactory.class));
     bind(Janitor.class).to(JanitorImpl.class);

@@ -79,14 +79,8 @@ public class ChunkManagerImpl implements ChunkManager {
     return put(Chunk.from(shipKey, fromSecondsUTC, lengthSeconds));
   }
 
-  /**
-   Compute the seconds UTC from which we will create chunks.
-   This number is always rounded down to the latest 6-second interval since 0 seconds UTC.
-
-   @param nowMillis from which to compute seconds UTC
-   @return seconds UTC from which to create chunks
-   */
-  private long computeFromSecondUTC(long nowMillis) {
+  @Override
+  public long computeFromSecondUTC(long nowMillis) {
     return (long) (Math.floor((double) (nowMillis / MILLIS_PER_SECOND) / shipChunkSeconds) * shipChunkSeconds);
   }
 

@@ -48,7 +48,7 @@ public interface WorkFactory {
    @param shipKey to publish
    @return playlist
    */
-  ChunksPublisher publisher(
+  PlaylistPublisher publisher(
     @Assisted("shipKey") String shipKey
   );
 

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  Ship broadcast via HTTP Live Streaming #179453189
  */
-public class ChunksPublisherImpl implements ChunksPublisher {
+public class PlaylistPublisherImpl implements PlaylistPublisher {
   private static final Logger LOG = LoggerFactory.getLogger(ChunkPrinterImpl.class);
   private final ChunkManager chunkManager;
   private final FileStoreProvider fileStoreProvider;
@@ -28,7 +28,7 @@ public class ChunksPublisherImpl implements ChunksPublisher {
   private final String m3u8ContentType;
 
   @Inject
-  public ChunksPublisherImpl(
+  public PlaylistPublisherImpl(
     @Assisted("shipKey") String shipKey,
     ChunkManager chunkManager,
     Environment env,
@@ -51,7 +51,8 @@ public class ChunksPublisherImpl implements ChunksPublisher {
     lines.add("#EXTM3U");
     lines.add(String.format("#EXT-X-TARGETDURATION:%d", shipChunkSeconds));
     lines.add("#EXT-X-VERSION:4");
-    lines.add("#EXT-X-MEDIA-SEQUENCE:1");
+    lines.add(String.format("#EXT-X-MEDIA-SEQUENCE:%d", chunkManager.computeFromSecondUTC(nowMillis) / 6));
+    lines.add("#EXT-X-PLAYLIST-TYPE:EVENT");
     LOG.info("chunks {}",
       chunkManager.getAll(shipKey, nowMillis).stream()
         .map(chunk -> String.format("%s(%s)", chunk.getKey(), chunk.getState()))

@@ -45,6 +45,15 @@ public interface ChunkManager {
   Collection<Chunk> getContiguousDone(String shipKey, long nowMillis);
 
   /**
+   Compute the seconds UTC from which we will create chunks.
+   This number is always rounded down to the latest 6-second interval since 0 seconds UTC.
+
+   @param nowMillis from which to compute seconds UTC
+   @return seconds UTC from which to create chunks
+   */
+  long computeFromSecondUTC(long nowMillis);
+
+  /**
    Store a Chunk
 
    @param chunk to store

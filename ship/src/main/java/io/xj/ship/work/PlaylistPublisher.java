@@ -6,7 +6,7 @@ package io.xj.ship.work;
  <p>
  Ship broadcast via HTTP Live Streaming #179453189
  */
-public interface ChunksPublisher {
+public interface PlaylistPublisher {
   /**
    Invoke the recursive action
    */
