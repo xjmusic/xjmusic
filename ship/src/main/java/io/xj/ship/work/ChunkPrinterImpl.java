@@ -246,7 +246,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
    * @param audio       source
    */
   private double read(int sourceFrame, int channel, SegmentAudio audio) {
-    if (sourceFrame >= 0 && sourceFrame <= audio.getTotalPcmFrames())
+    if (sourceFrame >= 0 && sourceFrame < audio.getPcmData().size())
       return audio.getPcmData().get(sourceFrame)[channel];
     else
       return 0;
