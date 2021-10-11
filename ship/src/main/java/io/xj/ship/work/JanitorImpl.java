@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * Ship broadcast via HTTP Live Streaming #179453189
  */
-public class JanitorImpl extends Janitor {
+public class JanitorImpl implements Janitor {
   private static final Logger LOG = LoggerFactory.getLogger(JanitorImpl.class);
   private static final String METRIC_SEGMENT_ERASED = "segment_erased";
   private final ChainManager chainManager;
@@ -57,7 +57,7 @@ public class JanitorImpl extends Janitor {
   }
 
   @Override
-  public void compute() {
+  public void cleanup() {
     final Thread currentThread = Thread.currentThread();
     final String oldName = currentThread.getName();
     currentThread.setName(threadName);

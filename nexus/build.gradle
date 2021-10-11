@@ -138,17 +138,8 @@ jacocoTestReport {
   }
 }
 
-static def gitBranch() {
-  def branch = ""
-  def proc = "git rev-parse --abbrev-ref HEAD".execute()
-  proc.in.eachLine { line -> branch = line }
-  proc.err.eachLine { line -> println line }
-  proc.waitFor()
-  branch
-}
-
 jib {
-  to.image = gitBranch() == 'main' ? '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/nexus' : '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/dev/nexus'
+  to.image = (project.hasProperty('environment') && project.environment == 'production') ? '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/nexus' : '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/dev/nexus'
   from.image = '027141088039.dkr.ecr.us-east-1.amazonaws.com/xj/base:latest'
   container.jvmFlags = ["-Djava.library.path=/usr/lib/x86_64-linux-gnu"]
 }

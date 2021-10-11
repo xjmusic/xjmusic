@@ -35,10 +35,6 @@ public class ConfigEndpointTest {
 
   @Before
   public void setUp() throws AppException, JsonapiException {
-    doReturn("http://audio.xj.io/").when(apiUrlProvider).getAudioBaseUrl();
-    doReturn("http://app.xj.io/").when(apiUrlProvider).getAppBaseUrl();
-    doReturn("http://player.xj.io/").when(apiUrlProvider).getPlayerBaseUrl();
-    doReturn("http://ship.xj.io/").when(apiUrlProvider).getShipBaseUrl();
     var injector = Guice.createInjector(Modules.override(new JsonapiModule()).with(new AbstractModule() {
       @Override
       protected void configure() {
@@ -51,7 +47,7 @@ public class ConfigEndpointTest {
   }
 
   /**
-   [#175771083] Enums should not have unrecognized values
+   * [#175771083] Enums should not have unrecognized values
    */
   @Test
   public void getConfig() {

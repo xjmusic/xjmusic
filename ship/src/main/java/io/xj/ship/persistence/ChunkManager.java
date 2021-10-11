@@ -6,44 +6,54 @@ import java.util.Collection;
  Ship broadcast via HTTP Live Streaming #179453189
  */
 public interface ChunkManager {
+  /**
+   Whether the chunks are assembled far enough ahead into the future
+
+   @return true if assembled far enough ahead
+   @param shipKey for which to check if assembled far enough ahead
+   @param nowMillis milliseconds since epoch, from which to compute
+   */
+  boolean isAssembledFarEnoughAhead(String shipKey, long nowMillis);
 
   /**
    Compute the farthest-future millis to which we have a contiguous series of streamed chunks
 
    @return millis to which we've assembled the contiguous series of streamed chunks
+   @param shipKey for which to compute assembled-to millis
+   @param nowMillis milliseconds since epoch, from which to compute
    */
-  long computeAssembledToMillis();
+  long computeAssembledToMillis(String shipKey, long nowMillis);
 
   /**
    Compute the expected contiguous series of chunks
    <p>
 
-   @param shipKey of chain for which to compute planned chunks
    @return list of planned chunk
+   @param shipKey of chain for which to compute planned chunks
+   @param nowMillis milliseconds since epoch, from which to compute
    */
-  Collection<Chunk> computeAll(String shipKey);
+  Collection<Chunk> getAll(String shipKey, long nowMillis);
 
   /**
    Compute the expected contiguous series of chunks to be exported right now as an HTTP live stream.
    <p>
 
-   @param shipKey of chain for which to compute planned chunks
    @return list of planned chunk
+   @param shipKey of chain for which to compute planned chunks
+   @param nowMillis milliseconds since epoch, from which to compute
    */
-  Collection<Chunk> computeAllContiguousDone(String shipKey);
+  Collection<Chunk> getContiguousDone(String shipKey, long nowMillis);
 
   /**
    Store a Chunk
 
+   @param chunk to store
    @return stored chunk
-   @param chunk   to store
    */
   Chunk put(Chunk chunk);
 
   /**
-   Whether the chunks are assembled far enough ahead into the future
-
-   @return true if assembled far enough ahead
+   Clear contents
    */
-  boolean isAssembledFarEnoughAhead();
+  void clear();
 }

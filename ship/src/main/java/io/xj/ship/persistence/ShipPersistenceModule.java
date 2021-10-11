@@ -1,6 +1,7 @@
 package io.xj.ship.persistence;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import io.xj.lib.entity.EntityModule;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.notification.NotificationModule;
@@ -18,6 +19,9 @@ public class ShipPersistenceModule extends AbstractModule {
     install(new NexusPersistenceModule());
     install(new FileStoreModule());
     install(new NotificationModule());
+    install(new FactoryModuleBuilder()
+      .implement(SegmentAudioManager.class, SegmentAudioManagerImpl.class)
+      .build(SegmentAudioFactory.class));
   }
 }
 

@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -31,7 +32,7 @@ import static io.xj.lib.util.Files.getFileSize;
 /**
  * Ship broadcast via HTTP Live Streaming #179453189
  */
-public class ChunkPrinterImpl extends ChunkPrinter {
+public class ChunkPrinterImpl implements ChunkPrinter {
   private static final Logger LOG = LoggerFactory.getLogger(ChunkPrinterImpl.class);
   private static final int AUDIO_CHANNELS = 2;
   private static final float QUALITY = 100;
@@ -46,6 +47,7 @@ public class ChunkPrinterImpl extends ChunkPrinter {
   private final String tsFilePath;
   private final String wavFilePath;
   private final int shipChunkSeconds;
+  private final int shipChunkPrintTimeoutSeconds;
 
   // PCM data
   private double[][] output;
@@ -65,6 +67,7 @@ public class ChunkPrinterImpl extends ChunkPrinter {
 
     mp2tsBitrate = env.getShipMp2tsBitrate();
     shipChunkSeconds = env.getShipChunkSeconds();
+    shipChunkPrintTimeoutSeconds = env.getShipChunkPrintTimeoutSeconds();
     streamBucket = env.getStreamBucket();
     streamKey = String.format("%s-%s.ts", chunk.getKey(), mp2tsBitrate);
     threadName = String.format("CHUNK:%s", chunk.getKey());
@@ -88,7 +91,7 @@ public class ChunkPrinterImpl extends ChunkPrinter {
   }
 
   @Override
-  public void compute() {
+  public void print() {
     final Thread currentThread = Thread.currentThread();
     final String oldName = currentThread.getName();
     currentThread.setName(threadName);
@@ -105,7 +108,18 @@ public class ChunkPrinterImpl extends ChunkPrinter {
    * Do the work inside a named thread
    */
   private void doWork() throws ShipException {
-    if (!isPending() || !isSourceAudioReady()) return;
+    switch (chunk.getState()) {
+      case Pending:
+        break;
+      case Done:
+        return;
+      case Encoding, Mixing, Shipping:
+        if (Instant.now().minusSeconds(shipChunkPrintTimeoutSeconds).isAfter(chunk.getUpdated()))
+          chunkManager.put(chunk.reset());
+        break;
+    }
+
+    if (!isSourceAudioReady()) return;
 
     var audios = getAllIntersectingAudios();
 
@@ -186,13 +200,6 @@ public class ChunkPrinterImpl extends ChunkPrinter {
   }
 
   /**
-   * @return true if this chunk printer is ready to work
-   */
-  private boolean isPending() {
-    return ChunkState.Pending.equals(chunk.getState());
-  }
-
-  /**
    * Whether all the source segments for this chunk are ready
    *
    * @return true if all segments are ready
@@ -203,7 +210,7 @@ public class ChunkPrinterImpl extends ChunkPrinter {
     var audios = getAllIntersectingAudios();
 
     if (audios.isEmpty()) {
-      LOG.debug("waiting on segments");
+      LOG.warn("waiting on segments");
       return false;
     }
 

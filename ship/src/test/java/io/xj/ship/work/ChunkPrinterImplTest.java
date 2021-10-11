@@ -4,7 +4,11 @@ import com.google.api.client.util.Lists;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
-import io.xj.api.*;
+import io.xj.api.Chain;
+import io.xj.api.ChainState;
+import io.xj.api.ChainType;
+import io.xj.api.Segment;
+import io.xj.api.SegmentState;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.Environment;
@@ -14,6 +18,7 @@ import io.xj.lib.util.ValueException;
 import io.xj.ship.persistence.Chunk;
 import io.xj.ship.persistence.ChunkManager;
 import io.xj.ship.persistence.SegmentAudio;
+import io.xj.ship.persistence.SegmentAudioFactory;
 import io.xj.ship.persistence.SegmentAudioManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +40,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChunkPrinterImplTest {
@@ -45,8 +53,9 @@ public class ChunkPrinterImplTest {
 
   // Fixture
   private static final String SHIP_KEY = "test5";
-  private Segment segment2;
   private Collection<SegmentAudio> segmentAudios;
+  private Segment segment2;
+  private SegmentAudioFactory segmentAudioFactory;
 
   @Mock
   private ChunkManager chunkManager;
@@ -81,7 +90,7 @@ public class ChunkPrinterImplTest {
       "seg123.ogg",
       "wav");
 
-    Chunk chunk = Chunk.from(SHIP_KEY, 1513040422, 6);
+    Chunk chunk = Chunk.from(SHIP_KEY, 1513040424, 6);
     segmentAudios = Lists.newArrayList();
 
     when(segmentAudioManager.getAllIntersecting(
@@ -101,37 +110,38 @@ public class ChunkPrinterImplTest {
       }
     }));
     var factory = injector.getInstance(WorkFactory.class);
-    subject = factory.print(chunk);
+    segmentAudioFactory = injector.getInstance(SegmentAudioFactory.class);
+    subject = factory.printer(chunk);
   }
 
   @Test
-  public void compute() throws ValueException, IOException, FileStoreException {
+  public void run() throws ValueException, IOException, FileStoreException {
     var loader = ChunkPrinterImplTest.class.getClassLoader();
     var input = loader.getResourceAsStream("ogg_decoding/coolair-1633586832900943.ogg");
-    segmentAudios.add(SegmentAudio.from(segment2, SHIP_KEY).loadOggVorbis(input));
+    segmentAudios.add(segmentAudioFactory.from(SHIP_KEY, segment2).loadOggVorbis(input));
 
-    subject.compute();
+    subject.print();
 
     verify(chunkManager, times(4)).put(any());
-    assertFileMatchesResourceFile("/tmp/test5-1513040422.wav", "chunk_reference_outputs/test5-1513040422.wav");
-    assertFileSizeToleranceFromResourceFile("/tmp/test5-1513040422-128k.ts", "chunk_reference_outputs/test5-1513040422-128k.ts");
+    assertFileMatchesResourceFile("/tmp/test5-1513040424.wav", "chunk_reference_outputs/test5-1513040424.wav");
+    assertFileSizeToleranceFromResourceFile("/tmp/test5-1513040424-128k.ts", "chunk_reference_outputs/test5-1513040424-128k.ts");
     verify(fileStoreProvider, times(1))
-      .putS3ObjectFromTempFile(eq("/tmp/test5-1513040422-128k.ts"), eq("xj-dev-stream"), eq("test5-1513040422-128k.ts"));
+      .putS3ObjectFromTempFile(eq("/tmp/test5-1513040424-128k.ts"), eq("xj-dev-stream"), eq("test5-1513040424-128k.ts"));
   }
 
   @Test
-  public void compute_nothingFromNothing() {
-    subject.compute();
+  public void run_nothingFromNothing() {
+    subject.print();
 
     verify(chunkManager, never()).put(any());
     assertNull(subject.getOutputPcmData());
   }
 
   @Test
-  public void compute_nothingFromUnreadyAudio() {
-    segmentAudios.add(SegmentAudio.from(segment2, SHIP_KEY));
+  public void run_nothingFromUnreadyAudio() {
+    segmentAudios.add(segmentAudioFactory.from(SHIP_KEY, segment2));
 
-    subject.compute();
+    subject.print();
 
     verify(chunkManager, never()).put(any());
     assertNull(subject.getOutputPcmData());
@@ -139,12 +149,12 @@ public class ChunkPrinterImplTest {
 
   @Test
   public void getWavFilePath() {
-    assertEquals("/tmp/test5-1513040422.wav", subject.getWavFilePath());
+    assertEquals("/tmp/test5-1513040424.wav", subject.getWavFilePath());
   }
 
   @Test
   public void getTsFilePath() {
-    assertEquals("/tmp/test5-1513040422-128k.ts", subject.getTsFilePath());
+    assertEquals("/tmp/test5-1513040424-128k.ts", subject.getTsFilePath());
   }
 
 

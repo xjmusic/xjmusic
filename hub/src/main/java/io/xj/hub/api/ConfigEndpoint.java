@@ -9,7 +9,7 @@ import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
 import io.xj.hub.TemplateConfig;
 import io.xj.hub.enums.*;
-import io.xj.lib.json.ApiUrlProvider;
+import io.xj.lib.app.Environment;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
@@ -63,15 +63,16 @@ public class ConfigEndpoint extends HubJsonapiEndpoint {
    */
   @Inject
   public ConfigEndpoint(
+    Environment env,
     JsonapiHttpResponseProvider response,
-    JsonapiPayloadFactory payloadFactory,
-    ApiUrlProvider apiUrlProvider
+    JsonapiPayloadFactory payloadFactory
   ) {
     super(response, payloadFactory);
     configMap = ImmutableMap.<String, Object>builder()
-      .put("apiBaseUrl", apiUrlProvider.getAppBaseUrl())
-      .put("audioBaseUrl", apiUrlProvider.getAudioBaseUrl())
-      .put("baseUrl", apiUrlProvider.getAppBaseUrl())
+      .put("apiBaseUrl", env.getAppBaseUrl())
+      .put("audioBaseUrl", env.getAudioBaseUrl())
+      .put("streamBaseUrl", env.getStreamBaseUrl())
+      .put("baseUrl", env.getAppBaseUrl())
       .put("chainStates", CHAIN_STATES)
       .put("chainTypes", CHAIN_TYPES)
       .put("choiceTypes", ProgramType.values())
@@ -82,12 +83,12 @@ public class ConfigEndpoint extends HubJsonapiEndpoint {
       .put("instrumentTypes", InstrumentType.values())
       .put("patternDetailTypes", ProgramSequencePatternType.values())
       .put("patternTypes", ProgramSequencePatternType.values())
-      .put("playerBaseUrl", apiUrlProvider.getPlayerBaseUrl())
+      .put("playerBaseUrl", env.getPlayerBaseUrl())
       .put("programStates", ProgramState.values())
       .put("programTypes", ProgramType.values())
       .put("segmentStates", SEGMENT_STATES)
       .put("segmentTypes", SEGMENT_TYPES)
-      .put("shipBaseUrl", apiUrlProvider.getShipBaseUrl())
+      .put("shipBaseUrl", env.getShipBaseUrl())
       .put("templateTypes", TemplateType.values())
       .put("voiceTypes", InstrumentType.values())
       .build();

@@ -8,18 +8,18 @@ import io.xj.lib.app.Environment;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
-
 /**
- * Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming #179453189
  */
 @Singleton
 public class ChunkManagerImpl implements ChunkManager {
+  private static final long MILLIS_PER_SECOND = 1000;
   private final Map<String/* shipKey */, Map<Long/* secondsUTC */, Chunk>> chunks = Maps.newConcurrentMap();
   private final int shipAheadChunks;
   private final long shipChunkSeconds;
@@ -35,13 +35,17 @@ public class ChunkManagerImpl implements ChunkManager {
   }
 
   @Override
-  public long computeAssembledToMillis() {
-    return 0;
+  public long computeAssembledToMillis(String shipKey, long nowMillis) {
+    return getContiguousDone(shipKey, nowMillis).stream()
+      .max(Comparator.comparing(Chunk::getToInstant))
+      .map(Chunk::getToInstant)
+      .map(Instant::toEpochMilli)
+      .orElse(0L);
   }
 
   @Override
-  public Collection<Chunk> computeAll(String shipKey) {
-    var fromSecondsUTC = computeFromSecondUTC();
+  public Collection<Chunk> getAll(String shipKey, long nowMillis) {
+    var fromSecondsUTC = computeFromSecondUTC(nowMillis);
     return Stream.iterate(0, n -> n + 1)
       .limit(shipAheadChunks)
       .map(n -> computeOne(shipKey, fromSecondsUTC + n * shipChunkSeconds, shipChunkSeconds))
@@ -49,24 +53,25 @@ public class ChunkManagerImpl implements ChunkManager {
   }
 
   @Override
-  public Collection<Chunk> computeAllContiguousDone(String shipKey) {
+  public Collection<Chunk> getContiguousDone(String shipKey, long nowMillis) {
     var seeking = true;
     List<Chunk> done = Lists.newArrayList();
-    var chunks = computeAll(shipKey);
-    for (var chunk : chunks)
+    var chunks = getAll(shipKey, nowMillis);
+    for (var chunk : chunks) {
       if (seeking && ChunkState.Done.equals(chunk.getState())) {
         done.add(chunk);
       } else seeking = false;
+    }
     return done;
   }
 
   /**
-   * Compute one chunk for the given ship key, start from seconds utc, and length seconds
-   *
-   * @param shipKey        of chunk
-   * @param fromSecondsUTC of chunk
-   * @param lengthSeconds  of chunk
-   * @return chunk
+   Compute one chunk for the given ship key, start from seconds utc, and length seconds
+
+   @param shipKey        of chunk
+   @param fromSecondsUTC of chunk
+   @param lengthSeconds  of chunk
+   @return chunk
    */
   private Chunk computeOne(String shipKey, long fromSecondsUTC, long lengthSeconds) {
     if (!chunks.containsKey(shipKey)) chunks.put(shipKey, Maps.newConcurrentMap());
@@ -75,31 +80,38 @@ public class ChunkManagerImpl implements ChunkManager {
   }
 
   /**
-   * Compute the seconds UTC from which we will create chunks.
-   * This number is always rounded down to the latest 6-second interval since 0 seconds UTC.
-   *
-   * @return seconds UTC from which to create chunks
+   Compute the seconds UTC from which we will create chunks.
+   This number is always rounded down to the latest 6-second interval since 0 seconds UTC.
+
+   @param nowMillis from which to compute seconds UTC
+   @return seconds UTC from which to create chunks
    */
-  private long computeFromSecondUTC() {
-    return (long) (Math.floor((double) Instant.now().getEpochSecond() / shipChunkSeconds) * shipChunkSeconds);
+  private long computeFromSecondUTC(long nowMillis) {
+    return (long) (Math.floor((double) (nowMillis / MILLIS_PER_SECOND) / shipChunkSeconds) * shipChunkSeconds);
   }
 
   @Override
   public Chunk put(Chunk chunk) {
+    chunk.setUpdated(Instant.now());
     getChunks(chunk.getShipKey()).put(chunk.getFromSecondsUTC(), chunk);
     return chunk;
   }
 
   @Override
-  public boolean isAssembledFarEnoughAhead() {
-    return computeAssembledToMillis() < System.currentTimeMillis() + shipAheadMillis;
+  public void clear() {
+    chunks.clear();
+  }
+
+  @Override
+  public boolean isAssembledFarEnoughAhead(String shipKey, long nowMillis) {
+    return computeAssembledToMillis(shipKey, nowMillis) >= nowMillis + shipAheadMillis;
   }
 
   /**
-   * Get the map of chunks for a given ship key
-   *
-   * @param shipKey for which to get chunks
-   * @return chunk map
+   Get the map of chunks for a given ship key
+
+   @param shipKey for which to get chunks
+   @return chunk map
    */
   private Map<Long, Chunk> getChunks(String shipKey) {
     if (!chunks.containsKey(shipKey)) chunks.put(shipKey, Maps.newConcurrentMap());

@@ -6,5 +6,6 @@ import java.util.concurrent.RecursiveAction;
 /**
  Ship broadcast via HTTP Live Streaming #179453189
  */
-public abstract class Janitor extends RecursiveAction {
+public interface Janitor {
+  void cleanup();
 }

@@ -30,31 +30,26 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   private final FileStoreProvider fileStoreProvider;
   private final String shipBucket;
   private final NexusEntityStore store;
+  private final SegmentAudioFactory segmentAudioFactory;
 
   @Inject
   public SegmentAudioManagerImpl(
     Environment env,
     FileStoreProvider fileStoreProvider,
-    NexusEntityStore store
+    NexusEntityStore store,
+    SegmentAudioFactory segmentAudioFactory
   ) {
     this.fileStoreProvider = fileStoreProvider;
 
     shipBucket = env.getShipBucket();
     this.store = store;
+    this.segmentAudioFactory = segmentAudioFactory;
   }
 
   @Override
   public Optional<SegmentAudio> get(UUID segmentId) {
     if (segmentAudios.containsKey(segmentId)) return Optional.of(segmentAudios.get(segmentId));
     return Optional.empty();
-  }
-
-  @Override
-  public void updateStateFailed(UUID segmentId) {
-    if (!segmentAudios.containsKey(segmentId)) return;
-    var audio = segmentAudios.get(segmentId);
-    audio.setState(SegmentAudioState.Failed);
-    segmentAudios.put(segmentId, audio);
   }
 
   @Override
@@ -65,7 +60,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
     } catch (NexusException e) {
       LOG.error("Failed to put Segment in store", e);
     }
-    var segmentAudio = SegmentAudio.from(segment, shipKey);
+    var segmentAudio = segmentAudioFactory.from(shipKey, segment);
     put(segmentAudio);
 
     // Then we try to load the actual audio data
@@ -81,6 +76,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   @Override
   public void put(SegmentAudio segmentAudio) {
     try {
+      segmentAudio.setUpdated(Instant.now());
       store.put(segmentAudio.getSegment());
     } catch (NexusException e) {
       LOG.error("Failed to put Segment[{}]", segmentAudio.getSegment().getId());
@@ -99,10 +95,24 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   }
 
   @Override
+  public void retry(UUID segmentId) {
+    SegmentAudio audio = segmentAudios.get(segmentId);
+    createAndLoadAudio(audio.getShipKey(), audio.getSegment());
+  }
+
+  @Override
   public Collection<SegmentAudio> getAllIntersecting(String shipKey, Instant fromInstant, Instant toInstant) {
     return segmentAudios.values().stream()
       .filter(sa -> sa.intersects(shipKey, fromInstant, toInstant))
       .collect(Collectors.toList());
+  }
+
+  @Override
+  public boolean isLoadingOrReady(UUID segmentId, Long nowMillis) {
+    return
+      get(segmentId)
+        .map(sa -> sa.isLoadingOrReady(nowMillis))
+        .orElse(false);
   }
 }
 

@@ -23,10 +23,9 @@ public class ShipWorkModule extends AbstractModule {
       .implement(ChainBoss.class, ChainBossImpl.class)
       .implement(ChunkPrinter.class, ChunkPrinterImpl.class)
       .implement(ChunksPublisher.class, ChunksPublisherImpl.class)
-      .implement(Janitor.class, JanitorImpl.class)
       .implement(SegmentLoader.class, SegmentLoaderImpl.class)
       .build(WorkFactory.class));
-
+    bind(Janitor.class).to(JanitorImpl.class);
     bind(Work.class).to(WorkImpl.class);
   }
 }

@@ -90,7 +90,7 @@ jobs:
 
       - name: Build & Run Tests
         id: test
-        run: "./gradlew --info --no-daemon build test"
+        run: "./gradlew -Penvironment=production --info --no-daemon build test"
         continue-on-error: false
 
       - name: Nothing left TODO
@@ -98,7 +98,7 @@ jobs:
 
       - name: Build & Push Docker Image
         id: jib
-        run: "./gradlew --info --no-daemon jib"
+        run: "./gradlew -Penvironment=production --info --no-daemon jib"
         continue-on-error: false
 
       - name: Kubernetes rollout Lab/Hub

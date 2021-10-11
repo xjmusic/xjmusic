@@ -15,6 +15,7 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.persistence.*;
+import io.xj.ship.persistence.SegmentAudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +40,10 @@ public class ChainBossImpl extends ChainBoss {
   private final FileStoreProvider fileStoreProvider;
   private final int eraseSegmentsOlderThanSeconds;
   private final int shipFabricatedAheadThreshold;
-  private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final JsonProvider jsonProvider;
+  private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final Runnable onFailure;
+  private final SegmentAudioManager segmentAudioManager;
   private final SegmentManager segmentManager;
   private final String shipBucket;
   private final String shipKey;
@@ -54,8 +56,9 @@ public class ChainBossImpl extends ChainBoss {
     ChainManager chainManager,
     Environment env,
     FileStoreProvider fileStoreProvider,
-    JsonapiPayloadFactory jsonapiPayloadFactory,
     JsonProvider jsonProvider,
+    JsonapiPayloadFactory jsonapiPayloadFactory,
+    SegmentAudioManager segmentAudioManager,
     SegmentManager segmentManager,
     WorkFactory work
   ) {
@@ -72,6 +75,7 @@ public class ChainBossImpl extends ChainBoss {
     shipFabricatedAheadThreshold = env.getWorkShipFabricatedAheadThresholdSeconds();
 
     shipBucket = env.getShipBucket();
+    this.segmentAudioManager = segmentAudioManager;
 
     threadName = String.format("CHAIN:%s", this.shipKey);
   }
@@ -92,6 +96,7 @@ public class ChainBossImpl extends ChainBoss {
    Do the work inside a named thread
    */
   private void doWork() {
+    var nowMillis = Instant.now().toEpochMilli();
     var success = new AtomicBoolean(true);
     var segmentSkipped = new AtomicInteger(0);
     var segmentLoaded = new AtomicInteger(0);
@@ -132,13 +137,15 @@ public class ChainBossImpl extends ChainBoss {
           if (Segments.isBefore(segment, ignoreSegmentsBefore)) {
             segmentSkipped.incrementAndGet();
             LOG.debug("Skipped past Segment[{}]", Segments.getIdentifier(segment));
-          } else if (segmentManager.exists(segment.getId())) {
+
+          } else if (segmentAudioManager.isLoadingOrReady(segment.getId(), nowMillis)) {
             segmentSkipped.incrementAndGet();
             LOG.debug("Skipped existing Segment[{}] ({})", Segments.getIdentifier(segment),
               segmentManager.readOne(segment.getId()).getState());
+
           } else {
             segmentLoaded.incrementAndGet();
-            ForkJoinPool.commonPool().execute(work.loadSegmentAudio(shipKey, segment));
+            ForkJoinPool.commonPool().execute(work.spawnSegmentLoader(shipKey, segment));
           }
 
         } catch (Exception e) {

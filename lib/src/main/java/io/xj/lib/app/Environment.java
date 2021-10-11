@@ -79,10 +79,11 @@ public class Environment {
   private final int redisPort;
   private final int segmentComputeTimeFramesPerBeat;
   private final int segmentComputeTimeResolutionHz;
-  private final int segmentRequeueSeconds;
   private final int shipAheadChunks;
+  private final int shipChunkPrintTimeoutSeconds;
   private final int shipChunkSeconds;
   private final int shipReloadSeconds;
+  private final int shipSegmentLoadTimeoutSeconds;
   private final int workBufferAheadSeconds;
   private final int workBufferBeforeSeconds;
   private final int workBufferPreviewSeconds;
@@ -94,6 +95,7 @@ public class Environment {
   private final int workJanitorCycleSeconds;
   private final int workLabHubLabPollSeconds;
   private final int workMedicCycleSeconds;
+  private final int workPublishCycleSeconds;
   private final int workRehydrateFabricatedAheadThreshold;
   private final int workShipFabricatedAheadThresholdSeconds;
 
@@ -206,14 +208,15 @@ public class Environment {
     redisSessionNamespace = readStr(vars, "REDIS_SESSION_NAMESPACE", "xj_session");
     segmentComputeTimeFramesPerBeat = readInt(vars, "SEGMENT_COMPUTE_TIME_FRAMES_PER_BEAT", 64);
     segmentComputeTimeResolutionHz = readInt(vars, "SEGMENT_COMPUTE_TIME_RESOLUTION_HZ", 1000000);
-    segmentRequeueSeconds = readInt(vars, "SEGMENT_REQUEUE_SECONDS", 1);
     shipAheadChunks = readInt(vars, "SHIP_AHEAD_CHUNKS", 10);
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
     shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 6);
+    shipChunkPrintTimeoutSeconds = readInt(vars, "SHIP_CHUNK_PRINT_SECONDS", 5);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
     shipMp2tsBitrate = readStr(vars, "SHIP_MPEG2_TS_BITRATE", "128k");
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
+    shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
     streamBucket = readStr(vars, "STREAM_BUCKET", "xj-dev-stream");
     telemetryNamespace = readStr(vars, "TELEMETRY_NAMESPACE", "Lab/Hub");
@@ -232,6 +235,7 @@ public class Environment {
     workLabHubLabPollSeconds = readInt(vars, "WORK_LAB_HUB_LAB_POLL_SECONDS", 10);
     workMedicCycleSeconds = readInt(vars, "WORK_MEDIC_CYCLE_SECONDS", 30);
     workMedicEnabled = readBool(vars, "WORK_MEDIC_ENABLED", true);
+    workPublishCycleSeconds = readInt(vars, "WORK_PUBLISH_CYCLE_SECONDS", 10);
     workRehydrateFabricatedAheadThreshold = readInt(vars, "WORK_REHYDRATE_FABRICATED_AHEAD_THRESHOLD", 60);
     workShipFabricatedAheadThresholdSeconds = readInt(vars, "WORK_SHIP_FABRICATED_AHEAD_THRESHOLD_SECONDS", 60);
   }
@@ -341,7 +345,7 @@ public class Environment {
   /**
    * @return the application base URL
    */
-  public String getAppBaseURL() {
+  public String getAppBaseUrl() {
     return appBaseURL;
   }
 
@@ -355,7 +359,7 @@ public class Environment {
   /**
    * @return the audio base URL
    */
-  public String getAudioBaseURL() {
+  public String getAudioBaseUrl() {
     return audioBaseURL;
   }
 
@@ -502,7 +506,7 @@ public class Environment {
   }
 
   /**
-   * @return the ingest URL
+   * @return ingest URL
    */
   public String getIngestURL() {
     return ingestURL;
@@ -595,7 +599,7 @@ public class Environment {
   /**
    * @return the Player base URL
    */
-  public String getPlayerBaseURL() {
+  public String getPlayerBaseUrl() {
     return playerBaseURL;
   }
 
@@ -632,13 +636,6 @@ public class Environment {
    */
   public int getSegmentComputeTimeResolutionHz() {
     return segmentComputeTimeResolutionHz;
-  }
-
-  /**
-   * @return the segment requeue seconds
-   */
-  public int getSegmentRequeueSeconds() {
-    return segmentRequeueSeconds;
   }
 
   /**
@@ -684,6 +681,13 @@ public class Environment {
   }
 
   /**
+   * @return the ship chunk printer timeout seconds
+   */
+  public int getShipChunkPrintTimeoutSeconds() {
+    return shipChunkPrintTimeoutSeconds;
+  }
+
+  /**
    * @return the ship MPEG2 TS bitrate
    */
   public String getShipMp2tsBitrate() {
@@ -691,9 +695,16 @@ public class Environment {
   }
 
   /**
+   @return ship segment load timeout seconds
+   */
+  public int getShipSegmentLoadTimeoutSeconds() {
+    return shipSegmentLoadTimeoutSeconds;
+  }
+
+  /**
    * @return stream base URL
    */
-  public String getStreamBaseURL() {
+  public String getStreamBaseUrl() {
     return streamBaseURL;
   }
 
@@ -821,6 +832,13 @@ public class Environment {
    */
   public boolean getWorkMedicEnabled() {
     return workMedicEnabled;
+  }
+
+  /**
+   * @return the work publish cycle seconds
+   */
+  public int getWorkPublishCycleSeconds() {
+    return workPublishCycleSeconds;
   }
 
   /**

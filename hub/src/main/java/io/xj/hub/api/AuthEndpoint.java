@@ -10,6 +10,7 @@ import io.xj.hub.access.HubAccessControlProvider;
 import io.xj.hub.access.HubAccessException;
 import io.xj.hub.dao.DAOException;
 import io.xj.hub.dao.UserDAO;
+import io.xj.lib.app.Environment;
 import io.xj.lib.json.ApiUrlProvider;
 import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiHttpResponseProvider;
@@ -35,31 +36,37 @@ import java.util.Objects;
 @Path("auth")
 public class AuthEndpoint extends HubJsonapiEndpoint {
   private static final Logger log = LoggerFactory.getLogger(AuthEndpoint.class);
-  private final UserDAO userDAO;
-  private final HubAccessControlProvider hubAccessControlProvider;
-  private final GoogleProvider authGoogleProvider;
   private final ApiUrlProvider apiUrlProvider;
+  private final GoogleProvider authGoogleProvider;
+  private final HubAccessControlProvider hubAccessControlProvider;
   private final JsonapiHttpResponseProvider httpResponseProvider;
+  private final String appPathUnauthorized;
+  private final String appPathWelcome;
+  private final UserDAO userDAO;
 
   /**
    Constructor
    */
   @Inject
   public AuthEndpoint(
+    ApiUrlProvider apiUrlProvider,
+    Environment env,
+    GoogleProvider authGoogleProvider,
+    HubAccessControlProvider hubAccessControlProvider,
+    JsonapiHttpResponseProvider httpResponseProvider,
     JsonapiHttpResponseProvider response,
     JsonapiPayloadFactory payloadFactory,
-    UserDAO userDAO,
-    HubAccessControlProvider hubAccessControlProvider,
-    GoogleProvider authGoogleProvider,
-    ApiUrlProvider apiUrlProvider,
-    JsonapiHttpResponseProvider httpResponseProvider
+    UserDAO userDAO
   ) {
     super(response, payloadFactory);
-    this.userDAO = userDAO;
-    this.hubAccessControlProvider = hubAccessControlProvider;
-    this.authGoogleProvider = authGoogleProvider;
     this.apiUrlProvider = apiUrlProvider;
+    this.authGoogleProvider = authGoogleProvider;
     this.httpResponseProvider = httpResponseProvider;
+    this.hubAccessControlProvider = hubAccessControlProvider;
+    this.userDAO = userDAO;
+
+    appPathUnauthorized = env.getApiUnauthorizedRedirectPath();
+    appPathWelcome = env.getApiWelcomeRedirectPath();
   }
 
   /**
@@ -155,7 +162,7 @@ public class AuthEndpoint extends HubJsonapiEndpoint {
       return errorResponse("Unknown error with authenticating access code", e);
     }
 
-    return response.internalRedirectWithCookie(apiUrlProvider.getAppPathWelcome(), hubAccessControlProvider.newCookie(accessToken));
+    return response.internalRedirectWithCookie(appPathWelcome, hubAccessControlProvider.newCookie(accessToken));
   }
 
   /**
@@ -187,7 +194,7 @@ public class AuthEndpoint extends HubJsonapiEndpoint {
    @return Response
    */
   private Response errorResponse() {
-    return response.internalRedirect(apiUrlProvider.getAppPathUnauthorized());
+    return response.internalRedirect(appPathUnauthorized);
   }
 
 }

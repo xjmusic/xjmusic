@@ -97,6 +97,7 @@ class GoogleProviderImpl implements GoogleProvider {
 
   @Override
   public Person getMe(String externalAccessToken) throws HubAccessException {
+    @SuppressWarnings("deprecation")
     GoogleCredential credential = new GoogleCredential()
       .setAccessToken(externalAccessToken)
       .createScoped(SCOPES);

@@ -18,14 +18,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
 
 /**
- * Ship Work Service Implementation
- * <p>
- * Ship broadcast via HTTP Live Streaming #179453189
- * <p>
- * SEE: https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
- * SEE: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ForkJoinPool.html
- * <p>
- * Work is performed by runnable executables in a cached thread pool, with callback functions for success and failure.
+ Ship Work Service Implementation
+ <p>
+ Ship broadcast via HTTP Live Streaming #179453189
+ <p>
+ SEE: https://www.nurkiewicz.com/2014/11/executorservice-10-tips-and-tricks.html
+ SEE: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ForkJoinPool.html
+ <p>
+ Work is performed by runnable executables in a cached thread pool, with callback functions for success and failure.
  */
 @Singleton
 public class WorkImpl implements Work {
@@ -36,12 +36,15 @@ public class WorkImpl implements Work {
   private final ChunkManager chunkManager;
   private final int cycleMillis;
   private final int janitorCycleSeconds;
+  private final int publishCycleSeconds;
   private final int shipReloadSeconds;
   private final long healthCycleStalenessThresholdMillis;
-  private final WorkFactory work;
+  private final Janitor janitor;
   private final NotificationProvider notification;
+  private final WorkFactory work;
   private long nextCycleMillis = 0;
   private long nextJanitorMillis = 0;
+  private long nextPublishMillis = 0;
   private long nextShipReloadMillis = 0;
 
   @Nullable
@@ -51,9 +54,11 @@ public class WorkImpl implements Work {
   public WorkImpl(
     ChunkManager chunkManager,
     Environment env,
+    Janitor janitor,
     NotificationProvider notification,
     WorkFactory work
   ) {
+    this.janitor = janitor;
     this.work = work;
     this.chunkManager = chunkManager;
     this.notification = notification;
@@ -66,6 +71,7 @@ public class WorkImpl implements Work {
     healthCycleStalenessThresholdMillis = env.getWorkHealthCycleStalenessThresholdSeconds() * MILLIS_PER_SECOND;
     janitorCycleSeconds = env.getWorkJanitorCycleSeconds();
     janitorEnabled = env.getWorkJanitorEnabled();
+    publishCycleSeconds = env.getWorkPublishCycleSeconds();
 
     if (Strings.isNullOrEmpty(shipKey)) {
       LOG.error("Cannot start with null or empty bootstrap ship key!");
@@ -91,7 +97,7 @@ public class WorkImpl implements Work {
   }
 
   /**
-   * @return true if the cycle is stale
+   @return true if the cycle is stale
    */
   private boolean isCycleStale() {
     if (0 == nextCycleMillis) return false;
@@ -99,33 +105,36 @@ public class WorkImpl implements Work {
   }
 
   /**
-   * Run one work cycle
+   Run one work cycle
    */
   private void run() {
-    if (System.currentTimeMillis() < nextCycleMillis) return;
-    nextCycleMillis = System.currentTimeMillis() + cycleMillis;
+    var nowMillis = System.currentTimeMillis();
+    if (nowMillis < nextCycleMillis) return;
+    nextCycleMillis = nowMillis + cycleMillis;
 
     if (state.get() == State.Active)
       try {
-        var nowMillis = System.currentTimeMillis();
         if (nowMillis > nextShipReloadMillis) {
-          nextShipReloadMillis = System.currentTimeMillis() + shipReloadSeconds * MILLIS_PER_SECOND;
-          ForkJoinPool.commonPool().execute(work.loadChainManifest(shipKey,
+          nextShipReloadMillis = nowMillis + shipReloadSeconds * MILLIS_PER_SECOND;
+          ForkJoinPool.commonPool().execute(work.spawnChainBoss(shipKey,
             () -> state.set(State.Fail)
           ));
         }
 
-        if (chunkManager.isAssembledFarEnoughAhead()) {
-          for (var chunk : chunkManager.computeAll(shipKey))
-            ForkJoinPool.commonPool().execute(work.print(chunk));
-          ForkJoinPool.commonPool().execute(work.publish(shipKey));
+        if (!chunkManager.isAssembledFarEnoughAhead(shipKey, nowMillis))
+          for (var chunk : chunkManager.getAll(shipKey, nowMillis))
+            work.printer(chunk).print();
+
+        if (nowMillis > nextPublishMillis) {
+          nextPublishMillis = nowMillis + (publishCycleSeconds * MILLIS_PER_SECOND);
+          work.publisher(shipKey).publish();
         }
 
-        if (janitorEnabled) {
-          if (System.currentTimeMillis() < nextJanitorMillis) return;
-          nextJanitorMillis = System.currentTimeMillis() + (janitorCycleSeconds * MILLIS_PER_SECOND);
-          ForkJoinPool.commonPool().execute(work.doCleanup());
-        }
+        if (janitorEnabled)
+          if (nowMillis > nextJanitorMillis) {
+            nextJanitorMillis = nowMillis + (janitorCycleSeconds * MILLIS_PER_SECOND);
+            janitor.cleanup();
+          }
 
       } catch (Exception e) {
         var detail = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();

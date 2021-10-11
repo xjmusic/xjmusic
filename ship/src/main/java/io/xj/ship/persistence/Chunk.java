@@ -17,12 +17,12 @@ import java.util.List;
 public class Chunk {
   private final Instant fromInstant;
   private final Instant toInstant;
+  private final List<String> streamOutputKeys;
   private final Long fromSecondsUTC;
   private final Long lengthSeconds;
   private final String shipKey;
-
-  private final List<String> streamOutputKeys;
   private ChunkState state;
+  private Instant updated;
 
   public Chunk(String shipKey, long fromSecondsUTC, long lengthSeconds) {
     this.fromSecondsUTC = fromSecondsUTC;
@@ -56,6 +56,7 @@ public class Chunk {
 
   public Chunk setState(ChunkState state) {
     this.state = state;
+
     return this;
   }
 
@@ -73,5 +74,19 @@ public class Chunk {
 
   public List<String> getStreamOutputKeys() {
     return streamOutputKeys;
+  }
+
+  public Instant getUpdated() {
+    return updated;
+  }
+
+  public void setUpdated(Instant updated) {
+    this.updated = updated;
+  }
+
+  public Chunk reset() {
+    state = ChunkState.Pending;
+    streamOutputKeys.clear();
+    return this;
   }
 }

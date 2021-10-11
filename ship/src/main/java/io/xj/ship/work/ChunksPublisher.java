@@ -1,14 +1,14 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.ship.work;
 
-import java.util.concurrent.RecursiveAction;
-
 /**
- * Ship broadcast via HTTP Live Streaming #179453189
+ This process is run directly in the hard loop (not in a Fork/Join pool)
+ <p>
+ Ship broadcast via HTTP Live Streaming #179453189
  */
-public abstract class ChunksPublisher extends RecursiveAction {
+public interface ChunksPublisher {
   /**
-   * Invoke the recursive action
+   Invoke the recursive action
    */
-  public abstract void compute();
+  void publish();
 }

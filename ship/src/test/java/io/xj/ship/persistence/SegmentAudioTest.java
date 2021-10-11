@@ -1,5 +1,6 @@
 package io.xj.ship.persistence;
 
+import com.google.inject.Guice;
 import io.xj.api.*;
 import io.xj.hub.enums.TemplateType;
 import org.junit.Before;
@@ -17,6 +18,7 @@ public class SegmentAudioTest {
   private Segment segment1;
   private Chain chain1;
   private SegmentAudio subject;
+  private SegmentAudioFactory factory;
 
   @Before
   public void setUp() {
@@ -41,12 +43,14 @@ public class SegmentAudioTest {
       120.0,
       "seg123.ogg",
       "wav");
-    subject = new SegmentAudio(chain1.getShipKey(), segment1);
+    var injector = Guice.createInjector(new ShipPersistenceModule());
+    factory = injector.getInstance(SegmentAudioFactory.class);
+    subject = factory.from(chain1.getShipKey(), segment1);
   }
 
   @Test
   public void from() {
-    var result = SegmentAudio.from(segment1, chain1.getShipKey());
+    var result = factory.from(chain1.getShipKey(), segment1);
 
     assertEquals(result.getSegment(), subject.getSegment());
     assertEquals(SegmentAudioState.Pending, result.getState());

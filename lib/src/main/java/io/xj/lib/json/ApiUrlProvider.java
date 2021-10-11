@@ -13,20 +13,10 @@ import java.net.URI;
 @Singleton
 public class ApiUrlProvider {
   private final String appBaseUrl;
-  private final String audioBaseUrl;
-  private final String shipBaseUrl;
-  private final String playerBaseUrl;
-  private final String appPathUnauthorized;
-  private final String appPathWelcome;
 
   @Inject
   public ApiUrlProvider(Environment env) {
-    this.appBaseUrl = env.getAppBaseURL();
-    this.appPathUnauthorized = env.getApiUnauthorizedRedirectPath();
-    this.appPathWelcome = env.getApiWelcomeRedirectPath();
-    this.audioBaseUrl = env.getAudioBaseURL();
-    this.playerBaseUrl = env.getPlayerBaseURL();
-    this.shipBaseUrl = env.getShipBaseUrl();
+    this.appBaseUrl = env.getAppBaseUrl();
   }
 
   /**
@@ -66,39 +56,5 @@ public class ApiUrlProvider {
     return String.format("%s%s", appBaseUrl, path);
   }
 
-  /**
-   * @return Audio base URL (for Amazon S3)
-   */
-  public String getAudioBaseUrl() {
-    return audioBaseUrl;
-  }
-
-  /**
-   * @return Segments base URL (for Amazon S3)
-   */
-  public String getShipBaseUrl() {
-    return shipBaseUrl;
-  }
-
-  /**
-   * @return Players base URL
-   */
-  public String getPlayerBaseUrl() {
-    return playerBaseUrl;
-  }
-
-  /**
-   * @return path for unauthorized redirect
-   */
-  public String getAppPathUnauthorized() {
-    return appPathUnauthorized;
-  }
-
-  /**
-   * @return path for unauthorized redirect
-   */
-  public String getAppPathWelcome() {
-    return appPathWelcome;
-  }
 
 }

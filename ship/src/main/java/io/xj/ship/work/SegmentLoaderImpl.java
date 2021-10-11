@@ -56,8 +56,10 @@ public class SegmentLoaderImpl extends SegmentLoader {
         segmentAudioManager.createAndLoadAudio(shipKey, segment);
 
       } else switch (audio.get().getState()) {
-        case Pending, Ready -> { /* no op */ }
-        case Failed -> segmentAudioManager.collectGarbage(segment.getId());
+        case Pending, Decoding, Ready -> {
+          // no op; if the segment spends too much time in this state, it'll time out
+        }
+        case Failed -> segmentAudioManager.retry(segment.getId());
       }
 
     } catch (Exception e) {
