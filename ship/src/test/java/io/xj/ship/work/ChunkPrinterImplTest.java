@@ -123,10 +123,10 @@ public class ChunkPrinterImplTest {
     subject.print();
 
     verify(chunkManager, times(4)).put(any());
-    assertFileMatchesResourceFile("/tmp/test5-1513040424.wav", "chunk_reference_outputs/test5-1513040424.wav");
-    assertFileSizeToleranceFromResourceFile("/tmp/test5-1513040424-128k.ts", "chunk_reference_outputs/test5-1513040424-128k.ts");
+    assertFileMatchesResourceFile("/tmp/test5-252173404.wav", "chunk_reference_outputs/test5-252173404.wav");
+    assertFileSizeToleranceFromResourceFile("/tmp/test5-252173404.ts", "chunk_reference_outputs/test5-252173404.ts");
     verify(fileStoreProvider, times(1))
-      .putS3ObjectFromTempFile(eq("/tmp/test5-1513040424-128k.ts"), eq("xj-dev-stream"), eq("test5-1513040424-128k.ts"));
+      .putS3ObjectFromTempFile(eq("/tmp/test5-252173404.ts"), eq("xj-dev-stream"), eq("test5-252173404.ts"));
   }
 
   @Test
@@ -149,12 +149,12 @@ public class ChunkPrinterImplTest {
 
   @Test
   public void getWavFilePath() {
-    assertEquals("/tmp/test5-1513040424.wav", subject.getWavFilePath());
+    assertEquals("/tmp/test5-252173404.wav", subject.getWavFilePath());
   }
 
   @Test
   public void getTsFilePath() {
-    assertEquals("/tmp/test5-1513040424-128k.ts", subject.getTsFilePath());
+    assertEquals("/tmp/test5-252173404.ts", subject.getTsFilePath());
   }
 
 

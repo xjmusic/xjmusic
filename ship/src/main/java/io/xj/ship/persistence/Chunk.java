@@ -6,27 +6,25 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * An HTTP Live Streaming Media Chunk
- * <p>
- * SEE: https://en.m.wikipedia.org/wiki/HTTP_Live_Streaming
- * <p>
- * SEE: https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
- * <p>
- * Ship broadcast via HTTP Live Streaming #179453189
+ An HTTP Live Streaming Media Chunk
+ <p>
+ SEE: https://en.m.wikipedia.org/wiki/HTTP_Live_Streaming
+ <p>
+ SEE: https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
+ <p>
+ Ship broadcast via HTTP Live Streaming #179453189
  */
 public class Chunk {
   private final Instant fromInstant;
   private final Instant toInstant;
   private final List<String> streamOutputKeys;
   private final Long fromSecondsUTC;
-  private final Long lengthSeconds;
   private final String shipKey;
   private ChunkState state;
   private Instant updated;
 
   public Chunk(String shipKey, long fromSecondsUTC, long lengthSeconds) {
     this.fromSecondsUTC = fromSecondsUTC;
-    this.lengthSeconds = lengthSeconds;
     this.shipKey = shipKey;
     this.state = ChunkState.Pending;
     fromInstant = Instant.ofEpochSecond(fromSecondsUTC);
@@ -40,10 +38,6 @@ public class Chunk {
 
   public Long getFromSecondsUTC() {
     return fromSecondsUTC;
-  }
-
-  public long getLengthSeconds() {
-    return lengthSeconds;
   }
 
   public String getShipKey() {
@@ -61,7 +55,7 @@ public class Chunk {
   }
 
   public String getKey() {
-    return String.format("%s-%d", shipKey, fromSecondsUTC);
+    return String.format("%s-%d", shipKey, fromSecondsUTC / 6);
   }
 
   public Instant getFromInstant() {

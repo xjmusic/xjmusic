@@ -69,9 +69,9 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     shipChunkSeconds = env.getShipChunkSeconds();
     shipChunkPrintTimeoutSeconds = env.getShipChunkPrintTimeoutSeconds();
     streamBucket = env.getStreamBucket();
-    streamKey = String.format("%s-%s.ts", chunk.getKey(), mp2tsBitrate);
+    streamKey = String.format("%s.ts", chunk.getKey());
     threadName = String.format("CHUNK:%s", chunk.getKey());
-    tsFilePath = String.format("%s%s-%s.ts", env.getTempFilePathPrefix(), chunk.getKey(), mp2tsBitrate);
+    tsFilePath = String.format("%s%s.ts", env.getTempFilePathPrefix(), chunk.getKey());
     wavFilePath = String.format("%s%s.wav", env.getTempFilePathPrefix(), chunk.getKey());
   }
 
