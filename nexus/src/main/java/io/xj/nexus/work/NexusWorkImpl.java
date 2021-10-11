@@ -8,7 +8,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.xj.api.*;
+import io.xj.api.Chain;
+import io.xj.api.ChainState;
+import io.xj.api.Segment;
+import io.xj.api.SegmentMessage;
+import io.xj.api.SegmentMessageType;
+import io.xj.api.SegmentState;
 import io.xj.hub.enums.TemplateType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
@@ -26,12 +31,25 @@ import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubClientException;
 import io.xj.nexus.hub_client.client.HubContent;
-import io.xj.nexus.persistence.*;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.Chains;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
+import io.xj.nexus.persistence.ManagerValidationException;
+import io.xj.nexus.persistence.NexusEntityStore;
+import io.xj.nexus.persistence.SegmentManager;
+import io.xj.nexus.persistence.Segments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
@@ -582,9 +600,9 @@ public class NexusWorkImpl implements NexusWork {
    @return true if segment is before threshold
    */
   protected boolean isBefore(Segment segment, Instant eraseBefore) {
-    return Values.isSet(segment.getEndAt()) ?
-      Instant.parse(segment.getEndAt()).isBefore(eraseBefore) :
-      Instant.parse(segment.getBeginAt()).isBefore(eraseBefore);
+    if (Values.isSet(segment.getEndAt())) return Instant.parse(segment.getEndAt()).isBefore(eraseBefore);
+    if (Values.isSet(segment.getBeginAt())) return Instant.parse(segment.getBeginAt()).isBefore(eraseBefore);
+    return false;
   }
 
   /**
