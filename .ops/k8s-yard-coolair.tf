@@ -129,7 +129,7 @@ resource "kubernetes_deployment" "xj-prod-yard-coolair-ship" {
             }
             limits = {
               cpu    = "1500m"
-              memory = "2Gi"
+              memory = "3Gi"
             }
           }
 
