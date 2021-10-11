@@ -121,13 +121,13 @@ public class WorkImpl implements Work {
           ));
         }
 
-        if (!chunkManager.isAssembledFarEnoughAhead(shipKey, nowMillis))
-          for (var chunk : chunkManager.getAll(shipKey, nowMillis))
-            work.printer(chunk).print();
+        for (var chunk : chunkManager.getAll(shipKey, nowMillis))
+          work.printer(chunk).print();
 
         if (nowMillis > nextPublishMillis) {
           nextPublishMillis = nowMillis + (publishCycleSeconds * MILLIS_PER_SECOND);
-          work.publisher(shipKey).publish();
+          if (chunkManager.isAssembledFarEnoughAhead(shipKey, nowMillis))
+            work.publisher(shipKey).publish();
         }
 
         if (janitorEnabled)

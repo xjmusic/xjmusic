@@ -31,7 +31,7 @@ public class ChunkManagerImpl implements ChunkManager {
   ) {
     shipAheadChunks = env.getShipAheadChunks();
     shipChunkSeconds = env.getShipChunkSeconds();
-    shipAheadMillis = shipChunkSeconds * shipAheadChunks * MILLIS_PER_SECOND;
+    shipAheadMillis = (shipAheadChunks - 1) * shipChunkSeconds * MILLIS_PER_SECOND;
   }
 
   @Override
