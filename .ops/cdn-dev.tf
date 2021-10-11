@@ -660,8 +660,8 @@ resource "aws_cloudfront_distribution" "xj-dev-stream" {
       "OPTIONS",
     ]
     compress               = true
-    default_ttl            = 10
-    max_ttl                = 20
+    default_ttl            = 1
+    max_ttl                = 1
     min_ttl                = 1
     target_origin_id       = "stream-dev-xj-io-s3-origin"
     viewer_protocol_policy = "redirect-to-https"
