@@ -13,15 +13,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChunkManagerImplTest {
 
   // Under Test
   private ChunkManager subject;
+  private ShipPersistenceFactory persistenceFactory;
 
   // Fixtures
   private static final String SHIP_KEY = "test5";
@@ -32,8 +31,6 @@ public class ChunkManagerImplTest {
 
   @Before
   public void setUp() {
-    chunk1 = Chunk.from(SHIP_KEY, 1513040424, 6);
-
     var env = Environment.getDefault();
     var injector = Guice.createInjector(Modules.override(new ShipWorkModule()).with(new AbstractModule() {
       @Override
@@ -43,21 +40,23 @@ public class ChunkManagerImplTest {
       }
     }));
     subject = injector.getInstance(ChunkManager.class);
+    persistenceFactory = injector.getInstance(ShipPersistenceFactory.class);
+    chunk1 = persistenceFactory.chunk(SHIP_KEY, 1513040424);
     subject.clear();
   }
 
   @Test
   public void testIsAssembledFarEnoughAhead() {
     subject.put(chunk1.setState(ChunkState.Done));
-    subject.put(Chunk.from(SHIP_KEY, 1513040430, 6).setState(ChunkState.Done));
-    subject.put(Chunk.from(SHIP_KEY, 1513040436, 6).setState(ChunkState.Done));
-    subject.put(Chunk.from(SHIP_KEY, 1513040442, 6).setState(ChunkState.Done));
-    subject.put(Chunk.from(SHIP_KEY, 1513040448, 6).setState(ChunkState.Done));
-    subject.put(Chunk.from(SHIP_KEY, 1513040454, 6).setState(ChunkState.Done));
-    subject.put(Chunk.from(SHIP_KEY, 1513040460, 6).setState(ChunkState.Done));
-    subject.put(Chunk.from(SHIP_KEY, 1513040466, 6).setState(ChunkState.Done));
-    subject.put(Chunk.from(SHIP_KEY, 1513040472, 6).setState(ChunkState.Done));
-    subject.put(Chunk.from(SHIP_KEY, 1513040478, 6).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040430).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040436).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040442).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040448).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040454).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040460).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040466).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040472).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040478).setState(ChunkState.Done));
 
     assertTrue(subject.isAssembledFarEnoughAhead(SHIP_KEY, 1513040424000L));
   }
@@ -70,14 +69,14 @@ public class ChunkManagerImplTest {
   @Test
   public void testComputeAssembledToMillis() {
     subject.put(chunk1.setState(ChunkState.Done));
-    subject.put(Chunk.from(SHIP_KEY, 1513040430, 6).setState(ChunkState.Done));
-    subject.put(Chunk.from(SHIP_KEY, 1513040436, 6).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040430).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040436).setState(ChunkState.Done));
 
     assertEquals(1513040442000L, subject.computeAssembledToMillis(SHIP_KEY, 1513040424000L));
   }
 
   /**
-   This computes all the expected chunks, given the ship chunks ahead value
+   * This computes all the expected chunks, given the ship chunks ahead value
    */
   @Test
   public void testGetAll() {
@@ -94,7 +93,7 @@ public class ChunkManagerImplTest {
   @Test
   public void testPut() {
     subject.put(chunk1.setState(ChunkState.Done));
-    var chunk2 = subject.put(Chunk.from(SHIP_KEY, 1513040430, 6).setState(ChunkState.Done));
+    var chunk2 = subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040430).setState(ChunkState.Done));
 
     assertEquals(ImmutableList.of(chunk1, chunk2), subject.getContiguousDone(SHIP_KEY, 1513040428000L));
   }

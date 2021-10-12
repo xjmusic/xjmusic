@@ -2,6 +2,7 @@
 package io.xj.ship.work;
 
 import com.google.api.client.util.Lists;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.lib.app.Environment;
@@ -167,7 +168,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     chunkManager.put(chunk.setState(ChunkState.Encoding));
     try {
       Files.deleteIfExists(Path.of(getTsFilePath()));
-      var cmd = String.format("ffmpeg -i %s -c:a mp2 -b:a %s %s", getWavFilePath(), mp2tsBitrate, getTsFilePath());
+      var cmd = computeCmdFFMPEG();
       var proc = Runtime.getRuntime().exec(cmd);
 
       String line;
@@ -197,6 +198,24 @@ public class ChunkPrinterImpl implements ChunkPrinter {
 
     chunk.addStreamOutputKey(streamKey);
     chunkManager.put(chunk.setState(ChunkState.Done));
+  }
+
+  /**
+   * Compute the command to run ffmpeg for this chunk printing
+   *
+   * @return ffmpeg command
+   */
+  private String computeCmdFFMPEG() {
+    return String.join(" ", ImmutableList.of(
+      "ffmpeg",
+      "-i", getWavFilePath(),
+      "-c:a", "mp2",
+      "-b", mp2tsBitrate,
+      "-ab", mp2tsBitrate,
+      "-minrate", mp2tsBitrate,
+      "-maxrate", mp2tsBitrate,
+      "-f", "hls",
+      getTsFilePath()));
   }
 
   /**

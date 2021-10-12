@@ -5,11 +5,18 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.api.Segment;
 
 /**
- Ship broadcast via HTTP Live Streaming #179453189
+ * Ship broadcast via HTTP Live Streaming #179453189
  */
-public interface SegmentAudioFactory {
-  SegmentAudio from(
+public interface ShipPersistenceFactory {
+
+  SegmentAudio segmentAudio(
     @Assisted("shipKey") String shipKey,
     @Assisted("segment") Segment segment
   );
+
+  Chunk chunk(
+    @Assisted("shipKey") String shipKey,
+    @Assisted("fromSecondsUTC") long fromSecondsUTC
+  );
+
 }

@@ -159,6 +159,8 @@ public class Environment {
    */
   public Environment(Map<String, String> vars) {
     LOG.debug("Received values for {} keys: {}", vars.size(), CSV.join(vars.keySet()));
+
+    // Application
     accessLogFilename = readStr(vars, "ACCESS_LOG_FILENAME", "/tmp/access.log");
     accessTokenDomain = readStr(vars, "ACCESS_TOKEN_DOMAIN", "");
     accessTokenMaxAgeSeconds = readInt(vars, "ACCESS_TOKEN_MAX_AGE_SECONDS", 2419200);
@@ -172,14 +174,6 @@ public class Environment {
     audioCacheFilePrefix = readStr(vars, "AUDIO_CACHE_FILE_PREFIX", "/tmp/");
     audioFileBucket = readStr(vars, "AUDIO_FILE_BUCKET", "xj-dev-audio");
     audioUploadURL = readStr(vars, "AUDIO_UPLOAD_URL", "https://xj-dev-audio.s3.amazonaws.com/");
-    awsAccessKeyID = readStr(vars, "AWS_ACCESS_KEY_ID", EMPTY);
-    awsDefaultRegion = readStr(vars, "AWS_DEFAULT_REGION", EMPTY);
-    awsFileUploadACL = readStr(vars, "AWS_FILE_UPLOAD_ACL", "bucket-owner-full-control");
-    awsS3retryLimit = readInt(vars, "AWS_S3_RETRY_LIMIT", 10);
-    awsSecretKey = readStr(vars, "AWS_SECRET_KEY", EMPTY);
-    awsSecretName = readStr(vars, "AWS_SECRET_NAME", EMPTY);
-    awsSnsTopicArn = readStr(vars, "AWS_SNS_TOPIC_ARN", EMPTY);
-    awsUploadExpireMinutes = readInt(vars, "AWS_UPLOAD_EXPIRE_MINUTES", 60);
     bootstrapShipKey = readStr(vars, "BOOTSTRAP_SHIP_KEY", EMPTY);
     bootstrapTemplateId = readStr(vars, "BOOTSTRAP_TEMPLATE_ID", EMPTY);
     chainStartInFutureSeconds = readInt(vars, "CHAIN_START_IN_FUTURE_SECONDS", 0);
@@ -187,8 +181,6 @@ public class Environment {
     fabricationPreviewShipKeyLength = readInt(vars, "FABRICATION_PREVIEW_SHIP_KEY_LENGTH", 20);
     fabricationReviveChainFabricatedBehindSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_FABRICATED_BEHIND_SECONDS", 15);
     fabricationReviveChainProductionGraceSeconds = readInt(vars, "FABRICATION_REVIVE_CHAIN_PRODUCTION_GRACE_SECONDS", 15);
-    googleClientID = readStr(vars, "GOOGLE_CLIENT_ID", EMPTY);
-    googleClientSecret = readStr(vars, "GOOGLE_CLIENT_SECRET", EMPTY);
     hostname = readStr(vars, "HOSTNAME", "localhost");
     ingestTokenName = readStr(vars, "INGEST_TOKEN_NAME", "access_token");
     ingestTokenValue = readStr(vars, "INGEST_TOKEN_VALUE", EMPTY);
@@ -196,23 +188,13 @@ public class Environment {
     platformEnvironment = readStr(vars, "ENVIRONMENT", "dev");
     playbackExpireSeconds = readInt(vars, "PLAYBACK_EXPIRE_SECONDS", SECONDS_PER_HOUR * 8);
     playerBaseURL = readStr(vars, "PLAYER_BASE_URL", "http://localhost/");
-    postgresDatabase = readStr(vars, "POSTGRES_DATABASE", "xj_test");
-    postgresHost = readStr(vars, "POSTGRES_HOST", "localhost");
-    postgresPass = readStr(vars, "POSTGRES_PASS", "postgres");
-    postgresPoolSizeMax = readInt(vars, "postgres pool size max", 20);
-    postgresPort = readInt(vars, "POSTGRES_PORT", 5432);
-    postgresSchemas = readStr(vars, "postgres schemas", "xj");
-    postgresUser = readStr(vars, "POSTGRES_USER", "postgres");
-    redisHost = readStr(vars, "REDIS_HOST", "localhost");
-    redisPort = readInt(vars, "REDIS_PORT", 6379);
-    redisSessionNamespace = readStr(vars, "REDIS_SESSION_NAMESPACE", "xj_session");
     segmentComputeTimeFramesPerBeat = readInt(vars, "SEGMENT_COMPUTE_TIME_FRAMES_PER_BEAT", 64);
     segmentComputeTimeResolutionHz = readInt(vars, "SEGMENT_COMPUTE_TIME_RESOLUTION_HZ", 1000000);
     shipAheadChunks = readInt(vars, "SHIP_AHEAD_CHUNKS", 10);
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
-    shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 6);
     shipChunkPrintTimeoutSeconds = readInt(vars, "SHIP_CHUNK_PRINT_SECONDS", 5);
+    shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 6);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
     shipMp2tsBitrate = readStr(vars, "SHIP_MPEG2_TS_BITRATE", "128k");
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
@@ -238,6 +220,34 @@ public class Environment {
     workPublishCycleSeconds = readInt(vars, "WORK_PUBLISH_CYCLE_SECONDS", 10);
     workRehydrateFabricatedAheadThreshold = readInt(vars, "WORK_REHYDRATE_FABRICATED_AHEAD_THRESHOLD", 60);
     workShipFabricatedAheadThresholdSeconds = readInt(vars, "WORK_SHIP_FABRICATED_AHEAD_THRESHOLD_SECONDS", 60);
+
+    // Resource: Amazon Web Services (AWS)
+    awsAccessKeyID = readStr(vars, "AWS_ACCESS_KEY_ID", EMPTY);
+    awsDefaultRegion = readStr(vars, "AWS_DEFAULT_REGION", EMPTY);
+    awsFileUploadACL = readStr(vars, "AWS_FILE_UPLOAD_ACL", "bucket-owner-full-control");
+    awsS3retryLimit = readInt(vars, "AWS_S3_RETRY_LIMIT", 10);
+    awsSecretKey = readStr(vars, "AWS_SECRET_KEY", EMPTY);
+    awsSecretName = readStr(vars, "AWS_SECRET_NAME", EMPTY);
+    awsSnsTopicArn = readStr(vars, "AWS_SNS_TOPIC_ARN", EMPTY);
+    awsUploadExpireMinutes = readInt(vars, "AWS_UPLOAD_EXPIRE_MINUTES", 60);
+
+    // Resource: Google
+    googleClientID = readStr(vars, "GOOGLE_CLIENT_ID", EMPTY);
+    googleClientSecret = readStr(vars, "GOOGLE_CLIENT_SECRET", EMPTY);
+
+    // Resource: Postgres
+    postgresDatabase = readStr(vars, "POSTGRES_DATABASE", "xj_test");
+    postgresHost = readStr(vars, "POSTGRES_HOST", "localhost");
+    postgresPass = readStr(vars, "POSTGRES_PASS", "postgres");
+    postgresPoolSizeMax = readInt(vars, "postgres pool size max", 20);
+    postgresPort = readInt(vars, "POSTGRES_PORT", 5432);
+    postgresSchemas = readStr(vars, "postgres schemas", "xj");
+    postgresUser = readStr(vars, "POSTGRES_USER", "postgres");
+
+    // Resource: Redis
+    redisHost = readStr(vars, "REDIS_HOST", "localhost");
+    redisPort = readInt(vars, "REDIS_PORT", 6379);
+    redisSessionNamespace = readStr(vars, "REDIS_SESSION_NAMESPACE", "xj_session");
   }
 
   /**

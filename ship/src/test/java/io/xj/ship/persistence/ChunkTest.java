@@ -1,6 +1,10 @@
 package io.xj.ship.persistence;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.util.Modules;
+import io.xj.lib.app.Environment;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,7 +16,14 @@ public class ChunkTest {
 
   @Before
   public void setUp() {
-    subject = Chunk.from(SHIP_KEY, 1513040424, 6);
+    var injector = Guice.createInjector(Modules.override(new ShipPersistenceModule()).with(new AbstractModule() {
+      @Override
+      protected void configure() {
+        bind(Environment.class).toInstance(Environment.getDefault());
+      }
+    }));
+    var persistenceFactory = injector.getInstance(ShipPersistenceFactory.class);
+    subject = persistenceFactory.chunk(SHIP_KEY, 1513040424);
   }
 
   @Test
@@ -33,12 +44,12 @@ public class ChunkTest {
 
   @Test
   public void getKey() {
-    assertEquals("test63-252173404", subject.getKey());
+    assertEquals("test63-1513040424", subject.getKey());
   }
 
   @Test
   public void addStreamOutputKey_getStreamOutputKeys() {
-    assertEquals(ImmutableList.of("test63-252173404.ts"),
-      subject.addStreamOutputKey("test63-252173404.ts").getStreamOutputKeys());
+    assertEquals(ImmutableList.of("test63-1513040424.ts"),
+      subject.addStreamOutputKey("test63-1513040424.ts").getStreamOutputKeys());
   }
 }

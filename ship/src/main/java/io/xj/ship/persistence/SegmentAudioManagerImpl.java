@@ -30,20 +30,20 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   private final FileStoreProvider fileStoreProvider;
   private final String shipBucket;
   private final NexusEntityStore store;
-  private final SegmentAudioFactory segmentAudioFactory;
+  private final ShipPersistenceFactory shipPersistenceFactory;
 
   @Inject
   public SegmentAudioManagerImpl(
     Environment env,
     FileStoreProvider fileStoreProvider,
     NexusEntityStore store,
-    SegmentAudioFactory segmentAudioFactory
+    ShipPersistenceFactory shipPersistenceFactory
   ) {
     this.fileStoreProvider = fileStoreProvider;
 
     shipBucket = env.getShipBucket();
     this.store = store;
-    this.segmentAudioFactory = segmentAudioFactory;
+    this.shipPersistenceFactory = shipPersistenceFactory;
   }
 
   @Override
@@ -60,7 +60,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
     } catch (NexusException e) {
       LOG.error("Failed to put Segment in store", e);
     }
-    var segmentAudio = segmentAudioFactory.from(shipKey, segment);
+    var segmentAudio = shipPersistenceFactory.segmentAudio(shipKey, segment);
     put(segmentAudio);
 
     // Then we try to load the actual audio data

@@ -20,8 +20,9 @@ public class ShipPersistenceModule extends AbstractModule {
     install(new FileStoreModule());
     install(new NotificationModule());
     install(new FactoryModuleBuilder()
-      .implement(SegmentAudioManager.class, SegmentAudioManagerImpl.class)
-      .build(SegmentAudioFactory.class));
+      .implement(SegmentAudio.class, SegmentAudio.class)
+      .implement(Chunk.class, Chunk.class)
+      .build(ShipPersistenceFactory.class));
   }
 }
 

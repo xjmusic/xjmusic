@@ -15,22 +15,25 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- Ship broadcast via HTTP Live Streaming #179453189
+ * Ship broadcast via HTTP Live Streaming #179453189
  */
 @Singleton
 public class ChunkManagerImpl implements ChunkManager {
   private static final long MILLIS_PER_SECOND = 1000;
   private final Map<String/* shipKey */, Map<Long/* secondsUTC */, Chunk>> chunks = Maps.newConcurrentMap();
+  private final ShipPersistenceFactory factory;
   private final int shipAheadChunks;
-  private final long shipChunkSeconds;
   private final long shipAheadMillis;
+  private final long shipChunkSeconds;
 
   @Inject
   public ChunkManagerImpl(
-    Environment env
+    Environment env,
+    ShipPersistenceFactory factory
   ) {
     shipAheadChunks = env.getShipAheadChunks();
     shipChunkSeconds = env.getShipChunkSeconds();
+    this.factory = factory;
     shipAheadMillis = (shipAheadChunks - 1) * shipChunkSeconds * MILLIS_PER_SECOND;
   }
 
@@ -48,7 +51,7 @@ public class ChunkManagerImpl implements ChunkManager {
     var fromSecondsUTC = computeFromSecondUTC(nowMillis);
     return Stream.iterate(0, n -> n + 1)
       .limit(shipAheadChunks)
-      .map(n -> computeOne(shipKey, fromSecondsUTC + n * shipChunkSeconds, shipChunkSeconds))
+      .map(n -> computeOne(shipKey, fromSecondsUTC + n * shipChunkSeconds))
       .collect(Collectors.toList());
   }
 
@@ -66,17 +69,16 @@ public class ChunkManagerImpl implements ChunkManager {
   }
 
   /**
-   Compute one chunk for the given ship key, start from seconds utc, and length seconds
-
-   @param shipKey        of chunk
-   @param fromSecondsUTC of chunk
-   @param lengthSeconds  of chunk
-   @return chunk
+   * Compute one chunk for the given ship key, start from seconds utc, and length seconds
+   *
+   * @param shipKey        of chunk
+   * @param fromSecondsUTC of chunk
+   * @return chunk
    */
-  private Chunk computeOne(String shipKey, long fromSecondsUTC, long lengthSeconds) {
+  private Chunk computeOne(String shipKey, long fromSecondsUTC) {
     if (!chunks.containsKey(shipKey)) chunks.put(shipKey, Maps.newConcurrentMap());
     if (chunks.get(shipKey).containsKey(fromSecondsUTC)) return chunks.get(shipKey).get(fromSecondsUTC);
-    return put(Chunk.from(shipKey, fromSecondsUTC, lengthSeconds));
+    return put(factory.chunk(shipKey, fromSecondsUTC));
   }
 
   @Override
@@ -102,10 +104,10 @@ public class ChunkManagerImpl implements ChunkManager {
   }
 
   /**
-   Get the map of chunks for a given ship key
-
-   @param shipKey for which to get chunks
-   @return chunk map
+   * Get the map of chunks for a given ship key
+   *
+   * @param shipKey for which to get chunks
+   * @return chunk map
    */
   private Map<Long, Chunk> getChunks(String shipKey) {
     if (!chunks.containsKey(shipKey)) chunks.put(shipKey, Maps.newConcurrentMap());

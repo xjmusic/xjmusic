@@ -18,7 +18,7 @@ public class SegmentAudioTest {
   private Segment segment1;
   private Chain chain1;
   private SegmentAudio subject;
-  private SegmentAudioFactory factory;
+  private ShipPersistenceFactory factory;
 
   @Before
   public void setUp() {
@@ -44,13 +44,13 @@ public class SegmentAudioTest {
       "seg123.ogg",
       "wav");
     var injector = Guice.createInjector(new ShipPersistenceModule());
-    factory = injector.getInstance(SegmentAudioFactory.class);
-    subject = factory.from(chain1.getShipKey(), segment1);
+    factory = injector.getInstance(ShipPersistenceFactory.class);
+    subject = factory.segmentAudio(chain1.getShipKey(), segment1);
   }
 
   @Test
   public void from() {
-    var result = factory.from(chain1.getShipKey(), segment1);
+    var result = factory.segmentAudio(chain1.getShipKey(), segment1);
 
     assertEquals(result.getSegment(), subject.getSegment());
     assertEquals(SegmentAudioState.Pending, result.getState());
