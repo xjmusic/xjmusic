@@ -190,11 +190,11 @@ public class Environment {
     playerBaseURL = readStr(vars, "PLAYER_BASE_URL", "http://localhost/");
     segmentComputeTimeFramesPerBeat = readInt(vars, "SEGMENT_COMPUTE_TIME_FRAMES_PER_BEAT", 64);
     segmentComputeTimeResolutionHz = readInt(vars, "SEGMENT_COMPUTE_TIME_RESOLUTION_HZ", 1000000);
-    shipAheadChunks = readInt(vars, "SHIP_AHEAD_CHUNKS", 10);
+    shipAheadChunks = readInt(vars, "SHIP_AHEAD_CHUNKS", 6);
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
     shipChunkPrintTimeoutSeconds = readInt(vars, "SHIP_CHUNK_PRINT_SECONDS", 5);
-    shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 6);
+    shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 10);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
     shipMp2tsBitrate = readStr(vars, "SHIP_MPEG2_TS_BITRATE", "128k");
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);

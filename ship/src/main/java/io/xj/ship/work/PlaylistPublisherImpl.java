@@ -51,7 +51,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     lines.add("#EXTM3U");
     lines.add(String.format("#EXT-X-TARGETDURATION:%d", shipChunkSeconds));
     lines.add("#EXT-X-VERSION:4");
-    lines.add(String.format("#EXT-X-MEDIA-SEQUENCE:%d", chunkManager.computeFromSecondUTC(nowMillis) / 6));
+    lines.add(String.format("#EXT-X-MEDIA-SEQUENCE:%d", chunkManager.computeFromSecondUTC(nowMillis) / shipChunkSeconds));
     lines.add("#EXT-X-PLAYLIST-TYPE:EVENT");
     LOG.info("chunks {}",
       chunkManager.getAll(shipKey, nowMillis).stream()

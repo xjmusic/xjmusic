@@ -41,7 +41,7 @@ public class ChunkManagerImplTest {
     }));
     subject = injector.getInstance(ChunkManager.class);
     persistenceFactory = injector.getInstance(ShipPersistenceFactory.class);
-    chunk1 = persistenceFactory.chunk(SHIP_KEY, 1513040424);
+    chunk1 = persistenceFactory.chunk(SHIP_KEY, 1513040420);
     subject.clear();
   }
 
@@ -49,30 +49,26 @@ public class ChunkManagerImplTest {
   public void testIsAssembledFarEnoughAhead() {
     subject.put(chunk1.setState(ChunkState.Done));
     subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040430).setState(ChunkState.Done));
-    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040436).setState(ChunkState.Done));
-    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040442).setState(ChunkState.Done));
-    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040448).setState(ChunkState.Done));
-    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040454).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040440).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040450).setState(ChunkState.Done));
     subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040460).setState(ChunkState.Done));
-    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040466).setState(ChunkState.Done));
-    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040472).setState(ChunkState.Done));
-    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040478).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040470).setState(ChunkState.Done));
 
-    assertTrue(subject.isAssembledFarEnoughAhead(SHIP_KEY, 1513040424000L));
+    assertTrue(subject.isAssembledFarEnoughAhead(SHIP_KEY, 1513040420000L));
   }
 
   @Test
   public void testIsAssembledFarEnoughAhead_false() {
-    assertFalse(subject.isAssembledFarEnoughAhead(SHIP_KEY, 1513040424000L));
+    assertFalse(subject.isAssembledFarEnoughAhead(SHIP_KEY, 1513040420000L));
   }
 
   @Test
   public void testComputeAssembledToMillis() {
     subject.put(chunk1.setState(ChunkState.Done));
     subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040430).setState(ChunkState.Done));
-    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040436).setState(ChunkState.Done));
+    subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040440).setState(ChunkState.Done));
 
-    assertEquals(1513040442000L, subject.computeAssembledToMillis(SHIP_KEY, 1513040424000L));
+    assertEquals(1513040450000L, subject.computeAssembledToMillis(SHIP_KEY, 1513040420000L));
   }
 
   /**
@@ -80,14 +76,14 @@ public class ChunkManagerImplTest {
    */
   @Test
   public void testGetAll() {
-    assertEquals(10, subject.getAll(SHIP_KEY, 1513040428000L).size());
+    assertEquals(6, subject.getAll(SHIP_KEY, 1513040430000L).size());
   }
 
   @Test
   public void testGetContiguousDone() {
     subject.put(chunk1.setState(ChunkState.Done));
 
-    assertEquals(ImmutableList.of(chunk1), subject.getContiguousDone(SHIP_KEY, 1513040428000L));
+    assertEquals(ImmutableList.of(chunk1), subject.getContiguousDone(SHIP_KEY, 1513040420000L));
   }
 
   @Test
@@ -95,6 +91,6 @@ public class ChunkManagerImplTest {
     subject.put(chunk1.setState(ChunkState.Done));
     var chunk2 = subject.put(persistenceFactory.chunk(SHIP_KEY, 1513040430).setState(ChunkState.Done));
 
-    assertEquals(ImmutableList.of(chunk1, chunk2), subject.getContiguousDone(SHIP_KEY, 1513040428000L));
+    assertEquals(ImmutableList.of(chunk1, chunk2), subject.getContiguousDone(SHIP_KEY, 1513040420000L));
   }
 }
