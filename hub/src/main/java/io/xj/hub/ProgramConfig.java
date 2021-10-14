@@ -26,7 +26,6 @@ public class ProgramConfig {
       }
       """
   );
-  private static final String KEY_PATTERN_RESTART_ON_CHORD = "doPatternRestartOnChord";
   private final Boolean doPatternRestartOnChord;
 
   /**
@@ -41,7 +40,7 @@ public class ProgramConfig {
         DEFAULT :
         ConfigFactory.parseString(String.format("program {\n%s\n}", configText))
           .withFallback(DEFAULT);
-      doPatternRestartOnChord = getOptionalBoolean(config, prefixed(KEY_PATTERN_RESTART_ON_CHORD));
+      doPatternRestartOnChord = getOptionalBoolean(config, prefixed("doPatternRestartOnChord"));
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
@@ -96,7 +95,7 @@ public class ProgramConfig {
   @Override
   public String toString() {
     Map<String, String> config = Maps.newHashMap();
-    config.put(KEY_PATTERN_RESTART_ON_CHORD, doPatternRestartOnChord.toString());
+    config.put("doPatternRestartOnChord", doPatternRestartOnChord.toString());
     return Text.formatMultiline(config.entrySet().stream()
       .sorted(Map.Entry.comparingByKey())
       .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))

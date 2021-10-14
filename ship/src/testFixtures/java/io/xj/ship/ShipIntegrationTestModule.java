@@ -5,14 +5,14 @@ import com.google.inject.AbstractModule;
 import io.xj.lib.filestore.FileStoreModule;
 import io.xj.lib.jsonapi.JsonapiModule;
 import io.xj.lib.mixer.MixerModule;
-import io.xj.ship.persistence.ShipPersistenceModule;
+import io.xj.ship.source.ShipSourceModule;
 import io.xj.ship.work.ShipWorkModule;
 
 public class ShipIntegrationTestModule extends AbstractModule {
   @Override
   protected void configure() {
     install(new MixerModule());
-    install(new ShipPersistenceModule());
+    install(new ShipSourceModule());
     install(new ShipWorkModule());
     install(new JsonapiModule());
     install(new FileStoreModule());

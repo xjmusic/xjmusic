@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.access;
 
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -72,7 +70,6 @@ public class RedisHubAccessTokenTest {
           bind(HubAccessTokenGenerator.class).toInstance(hubAccessTokenGenerator);
           bind(HubRedisProvider.class).toInstance(hubRedisProvider);
           bind(HubAccessControlProvider.class).to(HubAccessControlProviderImpl.class);
-          bind(JsonFactory.class).to(JacksonFactory.class);
         }
       }));
     hubAccessControlProvider = injector.getInstance(HubAccessControlProvider.class);

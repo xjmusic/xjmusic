@@ -7,7 +7,7 @@ import com.google.inject.Singleton;
 import io.xj.lib.app.Environment;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.Text;
-import io.xj.ship.persistence.ChunkManager;
+import io.xj.ship.broadcast.ChunkManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +50,12 @@ public class WorkImpl implements Work {
   @Nullable
   private final String shipKey;
 
+  @Nullable
+  private final String shipTitle;
+
+  @Nullable
+  private final String shipSource;
+
   @Inject
   public WorkImpl(
     ChunkManager chunkManager,
@@ -64,6 +70,8 @@ public class WorkImpl implements Work {
     this.notification = notification;
 
     shipKey = env.getBootstrapShipKey();
+    shipTitle = env.getBootstrapShipTitle();
+    shipSource = env.getBootstrapShipSource();
     state = new AtomicReference<>(State.Active);
     shipReloadSeconds = env.getShipReloadSeconds();
 
@@ -127,7 +135,7 @@ public class WorkImpl implements Work {
         if (nowMillis > nextPublishMillis) {
           nextPublishMillis = nowMillis + (publishCycleSeconds * MILLIS_PER_SECOND);
           if (chunkManager.isAssembledFarEnoughAhead(shipKey, nowMillis))
-            work.publisher(shipKey).publish();
+            work.publisher(shipKey, shipTitle, shipSource).publish(nowMillis);
         }
 
         if (janitorEnabled)

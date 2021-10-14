@@ -37,6 +37,8 @@ public class Environment {
   private final String awsSecretName;
   private final String awsSnsTopicArn;
   private final String bootstrapShipKey;
+  private final String bootstrapShipSource;
+  private final String bootstrapShipTitle;
   private final String bootstrapTemplateId;
   private final String googleClientID;
   private final String googleClientSecret;
@@ -56,7 +58,6 @@ public class Environment {
   private final String shipBaseUrl;
   private final String shipBucket;
   private final String shipM3u8ContentType;
-  private final String shipMp2tsBitrate;
   private final String streamBaseURL;
   private final String streamBucket;
   private final String telemetryNamespace;
@@ -80,6 +81,7 @@ public class Environment {
   private final int segmentComputeTimeFramesPerBeat;
   private final int segmentComputeTimeResolutionHz;
   private final int shipAheadChunks;
+  private final int shipBitrateHigh;
   private final int shipChunkPrintTimeoutSeconds;
   private final int shipChunkSeconds;
   private final int shipReloadSeconds;
@@ -175,6 +177,8 @@ public class Environment {
     audioFileBucket = readStr(vars, "AUDIO_FILE_BUCKET", "xj-dev-audio");
     audioUploadURL = readStr(vars, "AUDIO_UPLOAD_URL", "https://xj-dev-audio.s3.amazonaws.com/");
     bootstrapShipKey = readStr(vars, "BOOTSTRAP_SHIP_KEY", EMPTY);
+    bootstrapShipTitle = readStr(vars, "BOOTSTRAP_SHIP_TITLE", EMPTY);
+    bootstrapShipSource = readStr(vars, "BOOTSTRAP_SHIP_SOURCE", EMPTY);
     bootstrapTemplateId = readStr(vars, "BOOTSTRAP_TEMPLATE_ID", EMPTY);
     chainStartInFutureSeconds = readInt(vars, "CHAIN_START_IN_FUTURE_SECONDS", 0);
     fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 8);
@@ -196,7 +200,7 @@ public class Environment {
     shipChunkPrintTimeoutSeconds = readInt(vars, "SHIP_CHUNK_PRINT_SECONDS", 5);
     shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 10);
     shipM3u8ContentType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/x-mpegURL");
-    shipMp2tsBitrate = readStr(vars, "SHIP_MPEG2_TS_BITRATE", "128k");
+    shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 128000);
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
@@ -460,6 +464,20 @@ public class Environment {
   }
 
   /**
+   * @return the bootstrap ship title
+   */
+  public String getBootstrapShipTitle() {
+    return bootstrapShipTitle;
+  }
+
+  /**
+   * @return the bootstrap ship source
+   */
+  public String getBootstrapShipSource() {
+    return bootstrapShipSource;
+  }
+
+  /**
    * @return the bootstrap template id
    */
   public String getBootstrapTemplateId() {
@@ -700,12 +718,12 @@ public class Environment {
   /**
    * @return the ship MPEG2 TS bitrate
    */
-  public String getShipMp2tsBitrate() {
-    return shipMp2tsBitrate;
+  public int getShipBitrateHigh() {
+    return shipBitrateHigh;
   }
 
   /**
-   @return ship segment load timeout seconds
+   * @return ship segment load timeout seconds
    */
   public int getShipSegmentLoadTimeoutSeconds() {
     return shipSegmentLoadTimeoutSeconds;

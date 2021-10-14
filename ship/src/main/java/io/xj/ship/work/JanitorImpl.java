@@ -13,7 +13,7 @@ import io.xj.lib.util.Text;
 import io.xj.nexus.NexusException;
 import io.xj.nexus.persistence.*;
 import io.xj.ship.ShipException;
-import io.xj.ship.persistence.SegmentAudioManager;
+import io.xj.ship.source.SegmentAudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

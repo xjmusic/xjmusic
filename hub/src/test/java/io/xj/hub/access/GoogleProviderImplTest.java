@@ -3,8 +3,6 @@ package io.xj.hub.access;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.testing.http.MockHttpTransport;
 import com.google.api.client.testing.http.MockLowLevelHttpResponse;
 import com.google.api.services.plus.model.Person;
@@ -37,9 +35,9 @@ public class GoogleProviderImplTest extends Mockito {
   @Before
   public void setUp() throws Exception {
     var env = Environment.from(ImmutableMap.of(
-      "GOOGLE_CLIENT_ID","12345",
-      "GOOGLE_CLIENT_SECRET","ab1cd2ef3",
-      "APP_BASE_URL","http://shammy/"
+      "GOOGLE_CLIENT_ID", "12345",
+      "GOOGLE_CLIENT_SECRET", "ab1cd2ef3",
+      "APP_BASE_URL", "http://shammy/"
     ));
     var injector = Guice.createInjector(Modules.override(ImmutableSet.of(new HubAccessControlModule(), new DAOModule(), new HubIngestModule(), new HubPersistenceModule(), new JsonapiModule(),
       new FileStoreModule())).with(new AbstractModule() {
@@ -48,7 +46,6 @@ public class GoogleProviderImplTest extends Mockito {
         bind(Environment.class).toInstance(env);
         bind(GoogleProvider.class).to(GoogleProviderImpl.class);
         bind(GoogleHttpProvider.class).toInstance(googleHttpProvider);
-        bind(JsonFactory.class).to(JacksonFactory.class);
       }
     }));
     googleProvider = injector.getInstance(GoogleProvider.class);

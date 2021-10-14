@@ -125,4 +125,9 @@ public class ValuesTest {
   public void toEpochMicros() {
     assertEquals(1407845823054142L, Values.toEpochMicros(Instant.parse("2014-08-12T12:17:02.527142Z")));
   }
+
+  @Test
+  public void kbps() {
+    assertEquals("128kbps", Values.kbps(128000));
+  }
 }

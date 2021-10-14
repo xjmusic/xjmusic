@@ -17,17 +17,10 @@ public interface ChunkPrinter {
 
    @return PCM data[frame][channel]
    */
-  public abstract double[][] getOutputPcmData();
-
-  /**
-   Get the file path of an MPEG2 TS file by bitrate
-
-   @return path to .ts file
-   */
-  public abstract String getTsFilePath();
+  double[][] getOutputPcmData();
 
   /**
    @return the .wav file path
    */
-  public abstract String getWavFilePath();
+  String getWavFilePath();
 }

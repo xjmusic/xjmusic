@@ -30,7 +30,7 @@ public enum Assertion {
    * @throws ValueException if not the same items
    */
   public static void assertSameItems(Collection<?> expect, Collection<?> actual) throws ValueException {
-    assertEquals(String.format("Different number create items! expected=[%s] vs actual=[%s]",
+    assertEquality(String.format("Different number create items! expected=[%s] vs actual=[%s]",
         expect.stream().map(Object::toString).collect(Collectors.joining(",")),
         actual.stream().map(Object::toString).collect(Collectors.joining(","))),
       expect.size(), actual.size());
@@ -55,7 +55,7 @@ public enum Assertion {
    * @param actual  to compare
    * @throws ValueException if not equal
    */
-  public static void assertEquals(String message, Object expect, Object actual) throws ValueException {
+  public static void assertEquality(String message, Object expect, Object actual) throws ValueException {
     if (!Objects.equals(expect, actual)) throw new ValueException(message);
   }
 
@@ -89,7 +89,7 @@ public enum Assertion {
    * @throws ValueException if not the same items
    */
   public static void assertSameItems(Map<String, ?> expect, Map<String, ?> actual) throws ValueException {
-    assertEquals(String.format("Different number create keys! expected=[%s] vs actual=[%s]", expect.toString(), actual.toString()), expect.size(), actual.size());
+    assertEquality(String.format("Different number create keys! expected=[%s] vs actual=[%s]", expect.toString(), actual.toString()), expect.size(), actual.size());
 
     // prepare a map of expected segment chord, all marked false (not yet found)
     Map<String, Boolean> found = Maps.newHashMap();
@@ -98,22 +98,11 @@ public enum Assertion {
     // for each found segment chord, assert that we were expecting it, assert that it hasn't been found yet, then mark that it's been found
     for (Map.Entry<String, ?> entry : actual.entrySet()) {
       String key = entry.getKey();
-      Object value = entry.getValue();
       assertTrue(String.format("Not expecting key %s", Text.singleQuoted(key)), found.containsKey(key));
       assertFalse(String.format("Already encountered %s and can't have a duplicate", Text.singleQuoted(key)), found.get(key));
-      assertEquals(String.format("Values equal for key %s", Text.singleQuoted(key)), expect.get(key), actual.get(key));
+      assertEquality(String.format("Values equal for key %s", Text.singleQuoted(key)), expect.get(key), actual.get(key));
       found.put(key, true);
     }
-  }
-
-  /**
-   * Assert string contains expected string
-   *
-   * @param actual         string to search
-   * @param expectContains string to assert contained
-   */
-  public static void assertContains(String expectContains, String actual) throws ValueException {
-    assertTrue(String.format("'%s' contains '%s'", actual, expectContains), actual.equals(expectContains) || actual.contains(expectContains));
   }
 
   /**

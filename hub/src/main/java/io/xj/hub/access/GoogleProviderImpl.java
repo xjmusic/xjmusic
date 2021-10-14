@@ -8,7 +8,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleOAuthConstants;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.*;
-import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.plus.model.Person;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -26,7 +26,7 @@ class GoogleProviderImpl implements GoogleProvider {
   private static final String API_PEOPLE_ENDPOINT = "https://www.googleapis.com/plus/v1/people/me";
   private static final Logger log = LoggerFactory.getLogger(GoogleProviderImpl.class);
   private final GoogleHttpProvider googleHttpProvider;
-  private final JsonFactory jsonFactory;
+  private final GsonFactory gsonFactory;
   private final ApiUrlProvider apiUrlProvider;
 
   private String clientId;
@@ -35,12 +35,12 @@ class GoogleProviderImpl implements GoogleProvider {
   @Inject
   public GoogleProviderImpl(
     GoogleHttpProvider googleHttpProvider,
-    JsonFactory jsonFactory,
+    GsonFactory gsonFactory,
     ApiUrlProvider apiUrlProvider,
     Environment env
   ) {
     this.googleHttpProvider = googleHttpProvider;
-    this.jsonFactory = jsonFactory;
+    this.gsonFactory = gsonFactory;
     this.apiUrlProvider = apiUrlProvider;
     try {
       clientId = env.getGoogleClientID();
@@ -80,7 +80,7 @@ class GoogleProviderImpl implements GoogleProvider {
     GoogleTokenResponse response;
     try {
       HttpTransport httpTransport = googleHttpProvider.getTransport();
-      GoogleAuthorizationCodeTokenRequest request = new GoogleAuthorizationCodeTokenRequest(httpTransport, jsonFactory,
+      GoogleAuthorizationCodeTokenRequest request = new GoogleAuthorizationCodeTokenRequest(httpTransport, gsonFactory,
         clientId, clientSecret,
         code, getCallbackUrl());
       response = request.execute();
@@ -90,6 +90,9 @@ class GoogleProviderImpl implements GoogleProvider {
     } catch (IOException e) {
       log.error("GoogleProvider.getTokenFromCode had I/O failure!", e);
       throw new HubAccessException("I/O failure.", e);
+    } catch (IllegalArgumentException e) {
+      log.error("GoogleProvider.getTokenFromCode had illegal argument failure!", e);
+      throw new HubAccessException("Illegal argument failure.", e);
     }
 
     return response;
@@ -115,7 +118,7 @@ class GoogleProviderImpl implements GoogleProvider {
 
     Person person;
     try {
-      person = jsonFactory.createJsonParser(responseJson).parse(Person.class);
+      person = gsonFactory.createJsonParser(responseJson).parse(Person.class);
     } catch (Exception e) {
       throw new HubAccessException("Google API result is not valid JSON", e);
     }

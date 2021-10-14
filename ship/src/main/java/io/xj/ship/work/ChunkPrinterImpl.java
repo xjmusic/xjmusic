@@ -11,9 +11,15 @@ import io.xj.lib.mixer.AudioStreamWriter;
 import io.xj.lib.mixer.OutputEncoder;
 import io.xj.lib.util.CSV;
 import io.xj.lib.util.Text;
+import io.xj.lib.util.Values;
 import io.xj.nexus.persistence.Segments;
 import io.xj.ship.ShipException;
-import io.xj.ship.persistence.*;
+import io.xj.ship.broadcast.Chunk;
+import io.xj.ship.broadcast.ChunkManager;
+import io.xj.ship.broadcast.ChunkState;
+import io.xj.ship.source.SegmentAudio;
+import io.xj.ship.source.SegmentAudioManager;
+import io.xj.ship.source.SegmentAudioState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +47,14 @@ public class ChunkPrinterImpl implements ChunkPrinter {
   private final ChunkManager chunkManager;
   private final FileStoreProvider fileStoreProvider;
   private final SegmentAudioManager segmentAudioManager;
-  private final String mp2tsBitrate;
+  private final String mp4InitFileName;
+  private final String m4sFilePath;
   private final String streamBucket;
-  private final String streamKey;
+  private final String m4sFileName;
+  private final String tempMpdFilePath;
   private final String threadName;
-  private final String tsFilePath;
   private final String wavFilePath;
+  private final int bitrate;
   private final int shipChunkSeconds;
   private final int shipChunkPrintTimeoutSeconds;
 
@@ -66,14 +74,17 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     this.fileStoreProvider = fileStoreProvider;
     this.segmentAudioManager = segmentAudioManager;
 
-    mp2tsBitrate = env.getShipMp2tsBitrate();
-    shipChunkSeconds = env.getShipChunkSeconds();
+    bitrate = env.getShipBitrateHigh();
+    mp4InitFileName = String.format("%s-%s-IS.mp4", chunk.getShipKey(), Values.kbps(bitrate));
+
+    m4sFileName = String.format("%s.m4s", chunk.getKey(bitrate));
+    m4sFilePath = String.format("%s%s", env.getTempFilePathPrefix(), m4sFileName);
     shipChunkPrintTimeoutSeconds = env.getShipChunkPrintTimeoutSeconds();
+    shipChunkSeconds = env.getShipChunkSeconds();
     streamBucket = env.getStreamBucket();
-    streamKey = String.format("%s.ts", chunk.getKey());
     threadName = String.format("CHUNK:%s", chunk.getKey());
-    tsFilePath = String.format("%s%s.ts", env.getTempFilePathPrefix(), chunk.getKey());
     wavFilePath = String.format("%s%s.wav", env.getTempFilePathPrefix(), chunk.getKey());
+    tempMpdFilePath = String.format("%s%s.mpd", env.getTempFilePathPrefix(), chunk.getKey());
   }
 
   @Override
@@ -84,11 +95,6 @@ public class ChunkPrinterImpl implements ChunkPrinter {
   @Override
   public String getWavFilePath() {
     return wavFilePath;
-  }
-
-  @Override
-  public String getTsFilePath() {
-    return tsFilePath;
   }
 
   @Override
@@ -155,9 +161,10 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     }
 
     LOG.debug("mixed; will write");
+    var audioFormat = computeAudioFormat(audios);
     try {
       var writer = new AudioStreamWriter(output, QUALITY);
-      writer.writeToFile(getWavFilePath(), computeAudioFormat(audios), OutputEncoder.WAV, output.length);
+      writer.writeToFile(getWavFilePath(), audioFormat, OutputEncoder.WAV, output.length);
       LOG.debug("did write {}", getWavFilePath());
     } catch (Exception e) {
       LOG.error("Failed to write audio", e);
@@ -167,8 +174,8 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     LOG.debug("mixed; will encode");
     chunkManager.put(chunk.setState(ChunkState.Encoding));
     try {
-      Files.deleteIfExists(Path.of(getTsFilePath()));
-      var cmd = computeCmdFFMPEG();
+      Files.deleteIfExists(Path.of(m4sFilePath));
+      var cmd = computeCmdFFMPEG((int) audioFormat.getSampleRate());
       var proc = Runtime.getRuntime().exec(cmd);
 
       String line;
@@ -180,7 +187,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
         return;
       }
 
-      LOG.debug("did encode MPEG-2 transport stream at {} to {}", mp2tsBitrate, getTsFilePath());
+      LOG.debug("did encode MPEG-2 transport stream at {} to {}", bitrate, m4sFilePath);
     } catch (Exception e) {
       LOG.error("Failed to encode audio", e);
       return;
@@ -189,33 +196,44 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     LOG.debug("encoded; will ship");
     chunkManager.put(chunk.setState(ChunkState.Shipping));
     try {
-      fileStoreProvider.putS3ObjectFromTempFile(getTsFilePath(), streamBucket, streamKey);
-      LOG.info("did ship {} bytes of MPEG-2 transport stream at {} to s3://{}/{}", getFileSize(getTsFilePath()), mp2tsBitrate, streamBucket, streamKey);
+      fileStoreProvider.putS3ObjectFromTempFile(m4sFilePath, streamBucket, m4sFileName);
+      LOG.info("did ship {} bytes of MPEG-2 transport stream at {} to s3://{}/{}", getFileSize(m4sFilePath), Values.kbps(bitrate), streamBucket, m4sFileName);
     } catch (Exception e) {
       LOG.error("Failed to ship audio", e);
       return;
     }
 
-    chunk.addStreamOutputKey(streamKey);
+    chunk.addStreamOutputKey(m4sFileName);
     chunkManager.put(chunk.setState(ChunkState.Done));
   }
 
   /**
    * Compute the command to run ffmpeg for this chunk printing
    *
+   * @param bitrate of target
    * @return ffmpeg command
    */
-  private String computeCmdFFMPEG() {
+  private String computeCmdFFMPEG(int bitrate) {
+    var ffmpegBitrate = String.format("%dk", bitrate / 1000);
     return String.join(" ", ImmutableList.of(
       "ffmpeg",
       "-i", getWavFilePath(),
-      "-c:a", "mp2",
-      "-b", mp2tsBitrate,
-      "-ab", mp2tsBitrate,
-      "-minrate", mp2tsBitrate,
-      "-maxrate", mp2tsBitrate,
-      "-f", "hls",
-      getTsFilePath()));
+      "-b:a", ffmpegBitrate,
+      "-minrate", ffmpegBitrate,
+      "-maxrate", ffmpegBitrate,
+      "-vcodec", "libx264",
+      "-keyint_min", "0",
+      "-g", "100",
+      "-ac", "2",
+      "-strict", "2",
+      "-c:a", "aac",
+      "-f", "dash",
+      "-seg_duration", "11.0",
+      "-use_template", "1",
+      "-use_timeline", "0",
+      "-init_seg_name", mp4InitFileName,
+      "-media_seg_name", m4sFileName,
+      tempMpdFilePath));
   }
 
   /**

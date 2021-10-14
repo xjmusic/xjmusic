@@ -159,6 +159,16 @@ resource "kubernetes_deployment" "xj-prod-yard-coolair-ship" {
             value = "coolair"
           }
 
+          env {
+            name  = "BOOTSTRAP_SHIP_TITLE"
+            value = "Cool Air"
+          }
+
+          env {
+            name  = "BOOTSTRAP_SHIP_SOURCE"
+            value = "AIRCRAFT"
+          }
+
           liveness_probe {
             http_get {
               path = "/healthz"

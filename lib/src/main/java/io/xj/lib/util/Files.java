@@ -63,6 +63,16 @@ public interface Files {
   }
 
   /**
+   * get the content of a file from java resources
+   *
+   * @param filePath to get
+   * @return File
+   */
+  static String getResourceFileContent(String filePath) throws IOException {
+    return new String(new BufferedInputStream(new FileInputStream(getResourceFile(filePath))).readAllBytes());
+  }
+
+  /**
    * get a file from java resources
    *
    * @param filePath to get

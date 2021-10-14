@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.api.Segment;
 import io.xj.nexus.persistence.Segments;
-import io.xj.ship.persistence.SegmentAudioManager;
+import io.xj.ship.source.SegmentAudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

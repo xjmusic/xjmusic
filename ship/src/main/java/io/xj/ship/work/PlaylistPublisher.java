@@ -2,13 +2,13 @@
 package io.xj.ship.work;
 
 /**
- This process is run directly in the hard loop (not in a Fork/Join pool)
- <p>
- Ship broadcast via HTTP Live Streaming #179453189
+ * This process is run directly in the hard loop (not in a Fork/Join pool)
+ * <p>
+ * Ship broadcast via HTTP Live Streaming #179453189
  */
 public interface PlaylistPublisher {
   /**
-   Invoke the recursive action
+   * @param nowMillis at which to publish
    */
-  void publish();
+  void publish(long nowMillis);
 }

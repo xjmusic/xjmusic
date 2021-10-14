@@ -15,7 +15,7 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.persistence.*;
-import io.xj.ship.persistence.SegmentAudioManager;
+import io.xj.ship.source.SegmentAudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

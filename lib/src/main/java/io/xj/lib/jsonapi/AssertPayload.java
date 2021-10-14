@@ -52,12 +52,12 @@ public class AssertPayload {
    */
   public AssertPayload hasDataMany(String resourceType, Collection<String> resourceIds) throws JsonapiException {
     try {
-      assertEquals("payload data type", PayloadDataType.Many, jsonapiPayload.getDataType());
-      assertEquals("same number of ids", resourceIds.size(), jsonapiPayload.getDataMany().size());
+      assertEquality("payload data type", PayloadDataType.Many, jsonapiPayload.getDataType());
+      assertEquality("same number of ids", resourceIds.size(), jsonapiPayload.getDataMany().size());
       Collection<String> foundIds = Lists.newArrayList();
       for (JsonapiPayloadObject jsonapiPayloadObject : jsonapiPayload.getDataMany()) {
         assertFalse("already found id", foundIds.contains(jsonapiPayloadObject.getId()));
-        assertEquals(String.format("unexpected %s", jsonapiPayloadObject.getType()), resourceType, jsonapiPayloadObject.getType());
+        assertEquality(String.format("unexpected %s", jsonapiPayloadObject.getType()), resourceType, jsonapiPayloadObject.getType());
         assertTrue(String.format("unexpected %s id=%s", resourceType, jsonapiPayloadObject.getId()), resourceIds.contains(jsonapiPayloadObject.getId()));
         foundIds.add(jsonapiPayloadObject.getId());
       }
@@ -75,8 +75,8 @@ public class AssertPayload {
    */
   public void hasDataManyEmpty() throws JsonapiException {
     try {
-      assertEquals("payload data type", PayloadDataType.Many, jsonapiPayload.getDataType());
-      assertEquals("empty set", 0, jsonapiPayload.getDataMany().size());
+      assertEquality("payload data type", PayloadDataType.Many, jsonapiPayload.getDataType());
+      assertEquality("empty set", 0, jsonapiPayload.getDataMany().size());
 
     } catch (ValueException e) {
       throw new JsonapiException(e);
@@ -93,11 +93,11 @@ public class AssertPayload {
    */
   public AssertPayloadObject hasDataOne(String resourceType, String resourceId) throws JsonapiException {
     try {
-      assertEquals("payload data type", PayloadDataType.One, jsonapiPayload.getDataType());
+      assertEquality("payload data type", PayloadDataType.One, jsonapiPayload.getDataType());
       Optional<JsonapiPayloadObject> dataOne = jsonapiPayload.getDataOne();
       assertTrue("has one data", dataOne.isPresent());
-      assertEquals("payload object type", resourceType, dataOne.orElseThrow().getType());
-      assertEquals("payload object id", resourceId, dataOne.orElseThrow().getId());
+      assertEquality("payload object type", resourceType, dataOne.orElseThrow().getType());
+      assertEquality("payload object id", resourceId, dataOne.orElseThrow().getId());
       return new AssertPayloadObject(dataOne.get());
 
     } catch (ValueException e) {
@@ -114,7 +114,7 @@ public class AssertPayload {
    */
   public <N> AssertPayloadObject hasDataOne(N resource) throws JsonapiException {
     try {
-      assertEquals("payload data type", PayloadDataType.One, jsonapiPayload.getDataType());
+      assertEquality("payload data type", PayloadDataType.One, jsonapiPayload.getDataType());
       Optional<JsonapiPayloadObject> dataOne = jsonapiPayload.getDataOne();
       assertTrue("has one data", dataOne.isPresent());
       assertTrue(String.format("one data same as %s id=%s", Entities.toType(resource), Entities.getId(resource)), dataOne.orElseThrow().isSame(resource));
@@ -132,7 +132,7 @@ public class AssertPayload {
    */
   public void hasDataOneEmpty() throws JsonapiException {
     try {
-      assertEquals("payload data type", PayloadDataType.One, jsonapiPayload.getDataType());
+      assertEquality("payload data type", PayloadDataType.One, jsonapiPayload.getDataType());
       Optional<JsonapiPayloadObject> dataOne = jsonapiPayload.getDataOne();
       assertTrue("has empty data", dataOne.isEmpty());
 
@@ -150,7 +150,7 @@ public class AssertPayload {
    */
   public AssertPayload hasErrorCount(int errorCount) throws JsonapiException {
     try {
-      assertEquals("payload errors count", errorCount, jsonapiPayload.getErrors().size());
+      assertEquality("payload errors count", errorCount, jsonapiPayload.getErrors().size());
       return this;
 
     } catch (ValueException e) {
@@ -187,7 +187,7 @@ public class AssertPayload {
   public <N> AssertPayload hasIncluded(String resourceType, ImmutableList<N> resources) throws JsonapiException {
     try {
       Collection<JsonapiPayloadObject> included = jsonapiPayload.getIncludedOfType(resourceType);
-      assertEquals("same number of ids", resources.size(), included.size());
+      assertEquality("same number of ids", resources.size(), included.size());
       Collection<String> foundIds = Lists.newArrayList();
       Collection<String> resourceIds = new ArrayList<>();
       for (N resource : resources) {
@@ -197,7 +197,7 @@ public class AssertPayload {
       }
       for (JsonapiPayloadObject jsonapiPayloadObject : included) {
         assertFalse("already found id", foundIds.contains(jsonapiPayloadObject.getId()));
-        assertEquals(String.format("unexpected %s", jsonapiPayloadObject.getType()), resourceType, jsonapiPayloadObject.getType());
+        assertEquality(String.format("unexpected %s", jsonapiPayloadObject.getType()), resourceType, jsonapiPayloadObject.getType());
         assertTrue(String.format("unexpected %s id=%s", resourceType, jsonapiPayloadObject.getId()), resourceIds.contains(jsonapiPayloadObject.getId()));
         foundIds.add(jsonapiPayloadObject.getId());
       }
