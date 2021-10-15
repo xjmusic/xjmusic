@@ -11,7 +11,7 @@ jobs:
       CI_BOT_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
       CI_BOT_USERNAME: ${{ secrets.CI_BOT_USERNAME }}
     name: Gradle
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
 
     #
     services:
