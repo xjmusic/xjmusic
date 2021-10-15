@@ -49,10 +49,11 @@ public class ChunkPrinterImpl implements ChunkPrinter {
   private final SegmentAudioManager segmentAudioManager;
   private final String m4sFileName;
   private final String m4sFilePath;
+  private final String m4sFilePathTemplate;
   private final String mp4InitFileName;
   private final String mp4InitFilePath;
   private final String streamBucket;
-  private final String tempMpdFilePath;
+  private final String tempPlaylistFilePath;
   private final String threadName;
   private final String wavFilePath;
   private final int bitrate;
@@ -79,12 +80,14 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     mp4InitFileName = String.format("%s-%s-IS.mp4", chunk.getShipKey(), Values.kbps(bitrate));
     mp4InitFilePath = String.format("%s%s", env.getTempFilePathPrefix(), mp4InitFileName);
 
-    m4sFileName = String.format("%s.m4s", chunk.getKey(bitrate));
+    String key = chunk.getKey(bitrate);
+    m4sFileName = String.format("%s.m4s", key);
     m4sFilePath = String.format("%s%s", env.getTempFilePathPrefix(), m4sFileName);
+    m4sFilePathTemplate = String.format("%s%s-%s-%%d.m4s", env.getTempFilePathPrefix(), chunk.getShipKey(), Values.kbps(bitrate));
     shipChunkPrintTimeoutSeconds = env.getShipChunkPrintTimeoutSeconds();
     shipChunkSeconds = env.getShipChunkSeconds();
     streamBucket = env.getStreamBucket();
-    tempMpdFilePath = String.format("%s%s.mpd", env.getTempFilePathPrefix(), chunk.getKey());
+    tempPlaylistFilePath = String.format("%s%s-%s.m3u8", env.getTempFilePathPrefix(), chunk.getShipKey(), Values.kbps(bitrate));
     threadName = String.format("CHUNK:%s", chunk.getKey());
     wavFilePath = String.format("%s%s.wav", env.getTempFilePathPrefix(), chunk.getKey());
   }
@@ -229,23 +232,18 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     return String.join(" ", ImmutableList.of(
       "ffmpeg",
       "-i", getWavFilePath(),
+      "-f", "hls",
       "-ac", "2",
-      "-b:a", ffmpegBitrate,
       "-c:a", "aac",
-      "-chunk_start_index", String.valueOf(chunk.getIndex()),
-      "-f", "dash",
-      "-g", "100",
-      "-index_correction", "1",
-      "-init_seg_name", mp4InitFileName,
-      "-keyint_min", "0",
-      "-maxrate", ffmpegBitrate,
-      "-media_seg_name", m4sFileName,
+      "-b:a", ffmpegBitrate,
       "-minrate", ffmpegBitrate,
-      "-seg_duration", "11.0",
-      "-use_template", "1",
-      "-use_timeline", "0",
-      "-vcodec", "libx264",
-      tempMpdFilePath));
+      "-maxrate", ffmpegBitrate,
+      "-start_number", String.valueOf(chunk.getIndex()),
+      "-hls_fmp4_init_filename", mp4InitFileName,
+      "-hls_segment_filename", m4sFilePathTemplate,
+      "-hls_segment_type", "fmp4",
+      "-hls_time", "11",
+      tempPlaylistFilePath));
   }
 
   /**

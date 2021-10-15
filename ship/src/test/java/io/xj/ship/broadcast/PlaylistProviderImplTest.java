@@ -6,7 +6,6 @@ import com.google.inject.util.Modules;
 import io.xj.lib.app.Environment;
 import io.xj.lib.util.ValueException;
 import io.xj.ship.ShipException;
-import io.xj.ship.source.SegmentAudio;
 import io.xj.ship.source.SegmentAudioManager;
 import io.xj.ship.work.ShipWorkModule;
 import org.junit.Before;
@@ -15,14 +14,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 import java.util.List;
 
 import static io.xj.lib.util.Files.getResourceFileContent;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -41,9 +38,6 @@ public class PlaylistProviderImplTest {
 
   @Mock
   private SegmentAudioManager segmentAudioManager;
-
-  @Mock
-  private SegmentAudio segmentAudio;
 
   @Before
   public void setUp() {
@@ -68,8 +62,6 @@ public class PlaylistProviderImplTest {
     when(chunkManager.getAll(eq(SHIP_KEY), eq(1513040450000L))).thenReturn(List.of(chunk0));
     when(chunkManager.computeFromSecondUTC(eq(1513040450000L))).thenReturn(1513040450L);
     when(chunkManager.getContiguousDone(eq(SHIP_KEY), eq(1513040450000L))).thenReturn(List.of(chunk0));
-    when(segmentAudioManager.getAllIntersecting(eq(SHIP_KEY), eq(chunk0.getFromInstant()), eq(chunk0.getToInstant()))).thenReturn(List.of(segmentAudio));
-    doReturn(new AudioFormat(48000, 16, 2, true, false)).when(segmentAudio).getAudioFormat();
 
     var result = subject.computeMpdXML(SHIP_KEY, SHIP_TITLE, SHIP_SOURCE, 1513040450000L);
 
