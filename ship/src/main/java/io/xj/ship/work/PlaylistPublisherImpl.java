@@ -20,7 +20,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private static final Logger LOG = LoggerFactory.getLogger(ChunkPrinterImpl.class);
   private final FileStoreProvider fileStoreProvider;
   private final PlaylistProvider playlistProvider;
-  private final String m3u8ContentType;
+  private final String mpdMimeType;
   private final String playlistKey;
   private final String shipKey;
   private final String shipSource;
@@ -43,7 +43,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
 
     streamBucket = env.getStreamBucket();
     playlistKey = String.format("%s.mpd", shipKey);
-    m3u8ContentType = env.getShipM3u8ContentType();
+    mpdMimeType = env.getShipMpdMimeType();
     this.playlistProvider = playlistProvider;
   }
 
@@ -52,7 +52,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     String content = "";
     try {
       content = playlistProvider.computeMpdXML(shipKey, shipTitle, shipSource, nowMillis);
-      fileStoreProvider.putS3ObjectFromString(content, streamBucket, playlistKey, m3u8ContentType);
+      fileStoreProvider.putS3ObjectFromString(content, streamBucket, playlistKey, mpdMimeType);
       LOG.info("did ship {} bytes to s3://{}/{}", content.length(), streamBucket, playlistKey);
     } catch (FileStoreException | IOException | ShipException | ValueException e) {
       LOG.error("failed to ship {} bytes to s3://{}/{}", content.length(), streamBucket, playlistKey);
