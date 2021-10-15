@@ -199,7 +199,7 @@ public class Environment {
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
     shipChunkPrintTimeoutSeconds = readInt(vars, "SHIP_CHUNK_PRINT_SECONDS", 5);
     shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 10);
-    shipMpdMimeType = readStr(vars, "SHIP_M3U8_CONTENT_TYPE", "application/dash+xml");
+    shipMpdMimeType = readStr(vars, "SHIP_MPD_MIME_TYPE", "application/dash+xml");
     shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 128000);
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);

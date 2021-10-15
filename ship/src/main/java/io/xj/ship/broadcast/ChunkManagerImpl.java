@@ -1,17 +1,14 @@
 package io.xj.ship.broadcast;
 
 import com.google.api.client.util.Lists;
+import com.google.api.client.util.Sets;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.xj.lib.app.Environment;
-import io.xj.lib.util.Values;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,6 +23,7 @@ public class ChunkManagerImpl implements ChunkManager {
   private final int shipAheadChunks;
   private final long shipAheadMillis;
   private final long shipChunkSeconds;
+  private final Set<String> initializedShipKeys;
 
   @Inject
   public ChunkManagerImpl(
@@ -36,6 +34,7 @@ public class ChunkManagerImpl implements ChunkManager {
     shipAheadChunks = env.getShipAheadChunks();
     shipChunkSeconds = env.getShipChunkSeconds();
     shipAheadMillis = (shipAheadChunks - 1) * shipChunkSeconds * MILLIS_PER_SECOND;
+    initializedShipKeys = Sets.newHashSet();
   }
 
   @Override
@@ -97,6 +96,16 @@ public class ChunkManagerImpl implements ChunkManager {
   @Override
   public void clear() {
     chunks.clear();
+  }
+
+  @Override
+  public boolean isInitialized(String shipKey) {
+    return initializedShipKeys.contains(shipKey);
+  }
+
+  @Override
+  public void didInitialize(String shipKey) {
+    initializedShipKeys.add(shipKey);
   }
 
   @Override

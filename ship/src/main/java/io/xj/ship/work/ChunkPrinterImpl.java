@@ -47,16 +47,17 @@ public class ChunkPrinterImpl implements ChunkPrinter {
   private final ChunkManager chunkManager;
   private final FileStoreProvider fileStoreProvider;
   private final SegmentAudioManager segmentAudioManager;
-  private final String mp4InitFileName;
-  private final String m4sFilePath;
-  private final String streamBucket;
   private final String m4sFileName;
+  private final String m4sFilePath;
+  private final String mp4InitFileName;
+  private final String mp4InitFilePath;
+  private final String streamBucket;
   private final String tempMpdFilePath;
   private final String threadName;
   private final String wavFilePath;
   private final int bitrate;
-  private final int shipChunkSeconds;
   private final int shipChunkPrintTimeoutSeconds;
+  private final int shipChunkSeconds;
 
   // PCM data
   private double[][] output;
@@ -76,15 +77,16 @@ public class ChunkPrinterImpl implements ChunkPrinter {
 
     bitrate = env.getShipBitrateHigh();
     mp4InitFileName = String.format("%s-%s-IS.mp4", chunk.getShipKey(), Values.kbps(bitrate));
+    mp4InitFilePath = String.format("%s%s", env.getTempFilePathPrefix(), mp4InitFileName);
 
     m4sFileName = String.format("%s.m4s", chunk.getKey(bitrate));
     m4sFilePath = String.format("%s%s", env.getTempFilePathPrefix(), m4sFileName);
     shipChunkPrintTimeoutSeconds = env.getShipChunkPrintTimeoutSeconds();
     shipChunkSeconds = env.getShipChunkSeconds();
     streamBucket = env.getStreamBucket();
+    tempMpdFilePath = String.format("%s%s.mpd", env.getTempFilePathPrefix(), chunk.getKey());
     threadName = String.format("CHUNK:%s", chunk.getKey());
     wavFilePath = String.format("%s%s.wav", env.getTempFilePathPrefix(), chunk.getKey());
-    tempMpdFilePath = String.format("%s%s.mpd", env.getTempFilePathPrefix(), chunk.getKey());
   }
 
   @Override
@@ -197,11 +199,20 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     chunkManager.put(chunk.setState(ChunkState.Shipping));
     try {
       fileStoreProvider.putS3ObjectFromTempFile(m4sFilePath, streamBucket, m4sFileName);
-      LOG.info("did ship {} bytes of MPEG-2 transport stream at {} to s3://{}/{}", getFileSize(m4sFilePath), Values.kbps(bitrate), streamBucket, m4sFileName);
+      LOG.info("did ship {} bytes of {} audio to s3://{}/{}", getFileSize(m4sFilePath), Values.kbps(bitrate), streamBucket, m4sFileName);
     } catch (Exception e) {
       LOG.error("Failed to ship audio", e);
       return;
     }
+    if (!chunkManager.isInitialized(chunk.getShipKey()))
+      try {
+        fileStoreProvider.putS3ObjectFromTempFile(mp4InitFilePath, streamBucket, mp4InitFileName);
+        chunkManager.didInitialize(chunk.getShipKey());
+        LOG.info("did ship {} bytes of {} initializer to s3://{}/{}", getFileSize(mp4InitFilePath), Values.kbps(bitrate), streamBucket, mp4InitFileName);
+      } catch (Exception e) {
+        LOG.error("Failed to ship audio", e);
+        return;
+      }
 
     chunk.addStreamOutputKey(m4sFileName);
     chunkManager.put(chunk.setState(ChunkState.Done));

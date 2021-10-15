@@ -93,4 +93,12 @@ public class ChunkManagerImplTest {
 
     assertEquals(ImmutableList.of(chunk1, chunk2), subject.getContiguousDone(SHIP_KEY, 1513040420000L));
   }
+
+  @Test
+  public void isInitialized_didInitialize() {
+    assertFalse(subject.isInitialized("test123"));
+    subject.didInitialize("test123");
+    assertTrue(subject.isInitialized("test123"));
+  }
+
 }
