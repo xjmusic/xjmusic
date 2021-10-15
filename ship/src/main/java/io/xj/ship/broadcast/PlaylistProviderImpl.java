@@ -66,7 +66,7 @@ public class PlaylistProviderImpl implements PlaylistProvider {
     var mpd = MPD.builder()
       .withProfiles(Profiles.builder().withProfiles(List.of(Profile.MPEG_DASH_LIVE)).build())
       .withType(PresentationType.DYNAMIC)
-      .withMinBufferTime(Duration.ofSeconds(2))
+//      .withMinBufferTime(Duration.ofSeconds(2))
       .withProgramInformations(List.of(
         ProgramInformation.builder()
           .withSource(shipSource)
@@ -74,7 +74,7 @@ public class PlaylistProviderImpl implements PlaylistProvider {
           .build()))
       .withPeriods(List.of(
         Period.builder()
-          .withStart(Duration.ZERO)
+//          .withStart(Duration.ZERO)
           .withAdaptationSet(
             AdaptationSet.builder()
               .withAudioSamplingRate(String.valueOf(ref.getSampleRate()))
