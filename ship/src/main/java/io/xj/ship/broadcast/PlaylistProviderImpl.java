@@ -3,6 +3,7 @@ package io.xj.ship.broadcast;
 import com.google.inject.Inject;
 import io.lindstrom.mpd.MPDParser;
 import io.lindstrom.mpd.data.*;
+import io.lindstrom.mpd.data.Period;
 import io.lindstrom.mpd.data.descriptor.Descriptor;
 import io.xj.lib.app.Environment;
 import io.xj.ship.ShipException;
@@ -11,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.time.Duration;
+import java.time.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,8 @@ public class PlaylistProviderImpl implements PlaylistProvider {
     var mpd = MPD.builder()
       .withProfiles(Profiles.builder().withProfiles(List.of(Profile.MPEG_DASH_LIVE)).build())
       .withType(PresentationType.DYNAMIC)
-//      .withMinBufferTime(Duration.ofSeconds(2))
+      .withMinBufferTime(Duration.ofSeconds(2))
+      .withAvailabilityStartTime(OffsetDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.systemDefault()))
       .withProgramInformations(List.of(
         ProgramInformation.builder()
           .withSource(shipSource)
@@ -74,7 +76,7 @@ public class PlaylistProviderImpl implements PlaylistProvider {
           .build()))
       .withPeriods(List.of(
         Period.builder()
-//          .withStart(Duration.ZERO)
+          .withStart(Duration.ofSeconds(nowSeconds))
           .withAdaptationSet(
             AdaptationSet.builder()
               .withAudioSamplingRate(String.valueOf(ref.getSampleRate()))
