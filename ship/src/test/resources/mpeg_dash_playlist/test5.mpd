@@ -5,7 +5,7 @@
     <Source>XJ Music Testing</Source>
   </ProgramInformation>
   <Period start="PT0S">
-    <AdaptationSet id="3" mimeType="audio/mp4" segmentAlignment="true" audioSamplingRate="48000.0" codecs="mp4a.40.2" startWithSAP="2" lang="eng">
+    <AdaptationSet id="3" mimeType="audio/mp4" segmentAlignment="true" audioSamplingRate="48000.0" codecs="mp4a.40.2" startWithSAP="1" lang="eng">
       <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" id="2"/>
       <BaseURL></BaseURL>
       <SegmentTemplate initialization="test5-$RepresentationID$-IS.mp4" media="test5-$RepresentationID$-$Number$.m4s" startNumber="151304045" timescale="1" duration="10"/>

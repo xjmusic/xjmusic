@@ -83,7 +83,7 @@ public class PlaylistProviderImpl implements PlaylistProvider {
               .withLang("eng")
               .withMimeType(AUDIO_MIME_TYPE)
               .withSegmentAlignment("true")
-              .withStartWithSAP(2L)
+              .withStartWithSAP(1L)
               .withAudioChannelConfigurations(new Descriptor("urn:mpeg:dash:23003:3:audio_channel_configuration:2011", "2") {
                 @Override
                 public String getValue() {
