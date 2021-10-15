@@ -46,6 +46,7 @@ jobs:
     steps:
       - name: Install system packages
         run: |
+          sudo apt-get update
           sudo apt-get -y install ffmpeg
           sudo apt-get -y install postgresql-client
           sudo apt-get -y install amazon-ecr-credential-helper
