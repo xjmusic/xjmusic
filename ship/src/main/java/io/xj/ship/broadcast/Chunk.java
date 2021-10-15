@@ -24,10 +24,11 @@ public class Chunk {
   private final List<String> streamOutputKeys;
   private final Long fromSecondsUTC;
   private final String shipKey;
+
   private final long index;
+
   private ChunkState state;
   private Instant updated;
-
   @Inject
   public Chunk(
     @Assisted("shipKey") String shipKey,
@@ -54,6 +55,10 @@ public class Chunk {
 
   public ChunkState getState() {
     return state;
+  }
+
+  public long getIndex() {
+    return index;
   }
 
   public Chunk setState(ChunkState state) {
