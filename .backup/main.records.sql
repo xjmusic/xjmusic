@@ -284,8 +284,10 @@ d8de4aec-6317-11ea-a6db-9f44c189845f	3a11cdf4-fb1d-11eb-bda4-8f35e39004fe	Drum	D
 227cba9c-2a24-11ec-b6d8-0ffe8873a511	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Published	New Stripe 01	0.6	isMultiphonic = true\nisTonal = true
 1a866750-2aa8-11ec-8789-63165bbd43fe	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Published	New Stripe 02	0.6	isMultiphonic = true\nisTonal = true
 5621abd6-2ab6-11ec-9fa5-1f15d94a00a5	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Published	New Stripe 03	0.6	isMultiphonic = true\nisTonal = true
-39582db6-02e0-11ec-9cd8-138a25e9d4dc	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Triangle Pattern 1	1	isMultiphonic = false\nisTonal = false
 021885c2-2abc-11ec-8ed8-0fffe10df85e	2f621894-fb24-11eb-80a6-63ed42857ac1	Stripe	Published	New Stripe 04	0.6	isMultiphonic = true\nisTonal = true
+39582db6-02e0-11ec-9cd8-138a25e9d4dc	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Triangle Pattern	1	isMultiphonic = false\nisTonal = false
+e83e508a-316b-11ec-942c-fbd97b259ec0	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Draft	Synco Shake	1	isMultiphonic = false\nisTonal = false
+12443efe-3170-11ec-83fa-a32cd647727d	c40012d4-fb20-11eb-a2de-278de10ba0a8	PercLoop	Published	Toca Shake	1	isMultiphonic = false\nisTonal = false
 \.
 
 
@@ -3112,7 +3114,8 @@ c18f7d70-c6c2-11ea-a4db-fb9139cb132a	d247d096-c6c1-11ea-a4db-538e1ac4667f	Fire.L
 7286e508-c6ca-11ea-b6c0-57c13b66ceeb	d9dd91c6-c6c9-11ea-a21e-0bcae3c78831	Water.Large.2.Snare	d8e5b433-1e3f-427a-a1e7-06d37b97c1b1-instrument-d9dd91c6-c6c9-11ea-a21e-0bcae3c78831-audio.wav	0	1	115	0.5	SNARE	1	x
 2b76e99a-635d-11ea-ad65-ff59031d2f42	d8de4aec-6317-11ea-a6db-9f44c189845f	Wat.B.Kick.1	instrument-d8de4aec-6317-11ea-a6db-9f44c189845f-audio-6c5e3d5a-9909-41f5-8262-5bd1c90071e3	0	0.581	121	0.5	KICK	1.5	X
 a975c623-f4b3-4d78-9633-f7c23d930f86	06121a8e-60d4-11ea-ba4d-8786ea357f01	Kenkeni 3	instrument-06121a8e-60d4-11ea-ba4d-8786ea357f01-audio-e60615d4-63be-48b5-9951-8da2d121dfff	0	1	121	0.6	TOM	1	F#1
-52f8e7f6-02e0-11ec-a0b6-0b0c0d30dc15	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 1 take 1	instrument-39582db6-02e0-11ec-9cd8-138a25e9d4dc-audio-e4b26af0-f64a-47d8-929e-1aec821b665a	0	2	120	0.5	TRILOOP	0.4	X
+8d6e3792-02e0-11ec-9cd8-478d52e4b5d4	76de8b1c-02e0-11ec-9cd8-e764c2cad43d	Go-go Bell Pattern 1 take 1	instrument-76de8b1c-02e0-11ec-9cd8-e764c2cad43d-audio-5a22cd33-4009-4eac-bfec-d3fd39cbbfe9	0	2	120	0.5	BELLLOOP	0.8	X
+1911fea0-02dc-11ec-aff9-c7936e21cccb	04940888-02dc-11ec-aff9-0fbc509153f6	Claps Backbeat take 1	instrument-04940888-02dc-11ec-aff9-0fbc509153f6-audio-b83de6c5-2e92-4a06-a0ae-bb1d69fc9246	0	2	120	0.5	CLAPS	2	X
 d084c7aa-02de-11ec-9525-ab099145dee9	bfd5a5d2-02de-11ec-ad7a-f77d2854066a	Snaps BackBeat take 1	instrument-bfd5a5d2-02de-11ec-ad7a-f77d2854066a-audio-d0ae806a-b589-4b09-aea0-2384cfe651e4	0	2	120	0.5	SNAPLOOP	1	X
 e6fdd412-02df-11ec-9cd8-8ba8727b90b2	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo Pattern 1 take 1	instrument-5994a4de-02df-11ec-9cd8-83626e718f0f-audio-9e997178-0768-4213-a273-bbac749a2897	0	2	120	0.5	BONGOLOOP	1	X
 17e21e4a-16eb-11ea-8a37-efc901c1178c	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.3	d400fe01-c7ce-4bf2-83f6-70034e77fa83-instrument-42-audio.wav	0	0.238	121	0.6	HIHATCLOSED	0.6	Eb7
@@ -3120,8 +3123,7 @@ e6fdd412-02df-11ec-9cd8-8ba8727b90b2	5994a4de-02df-11ec-9cd8-83626e718f0f	Bongo 
 17c7dc24-16eb-11ea-8a37-d772101739bb	17b34ca0-16eb-11ea-8a37-6b86e3816409	Shekere.1	8fdee415-877a-4920-94e9-49cf501ceaae-instrument-42-audio.wav	0	0.576	121	0.6	HIHATOPEN	0.6	F7
 7f797418-64e8-11ea-a513-0b42be7bd64d	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Clave.1	instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio-7b2924e8-eeda-4d6f-8810-10ffaeadf8b5	0.001	0.267	121	0.5	SNARE	1	X
 aaf5c936-64eb-11ea-8888-4b863b462a00	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.Open.Hat.1	51472116-e369-4c9b-b798-112af51d5129-instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio.wav	0	0.23	121	0.5	HIHATOPEN	0.5	X
-1911fea0-02dc-11ec-aff9-c7936e21cccb	04940888-02dc-11ec-aff9-0fbc509153f6	Claps Backbeat take 1	instrument-04940888-02dc-11ec-aff9-0fbc509153f6-audio-b83de6c5-2e92-4a06-a0ae-bb1d69fc9246	0	2	120	0.5	CLAPS	1	X
-8d6e3792-02e0-11ec-9cd8-478d52e4b5d4	76de8b1c-02e0-11ec-9cd8-e764c2cad43d	Go-go Bell Pattern 1 take 1	instrument-76de8b1c-02e0-11ec-9cd8-e764c2cad43d-audio-5a22cd33-4009-4eac-bfec-d3fd39cbbfe9	0	2	120	0.5	BELLLOOP	1	X
+52f8e7f6-02e0-11ec-a0b6-0b0c0d30dc15	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 1 take 1	instrument-39582db6-02e0-11ec-9cd8-138a25e9d4dc-audio-e4b26af0-f64a-47d8-929e-1aec821b665a	0	2	120	0.5	TRILOOP	0.4	X
 c8a5a214-64d5-11ea-acd9-1b883c73ba91	0c668776-64d5-11ea-acd9-c772fe2ee43d	Fire.B.Electric.Tom	488e2a58-e35e-4ad2-85de-1b249c343e0e-instrument-0c668776-64d5-11ea-acd9-c772fe2ee43d-audio.wav	0.031	1.323	121	0.5	NONE	0.3	X
 98b13e52-c6c2-11ea-a4db-6bd1c0e6c519	d247d096-c6c1-11ea-a4db-538e1ac4667f	Fire.Large.2.Kick	e4090c71-75d8-40e8-ab33-dc059fe827ac-instrument-d247d096-c6c1-11ea-a4db-538e1ac4667f-audio.wav	0	2	120	0.5	KICK	1	x
 a3675a0a-95ba-408b-8e51-0e7dd78c4a07	8b3d1b0c-1422-11ec-ab32-3b6ef042d0ea	Shaker Backbeat Accents take 1	instrument-30b0600e-fb22-11eb-ac21-3fdc6eba2bf0-audio-f750618f-0b61-4c03-93ec-c90f1e4a09c5	0	2	120	0.5	SHAKERLOOP	1	X
@@ -3213,6 +3215,40 @@ f3f78350-92f4-450a-9827-c7173a3ba15d	090c7776-205e-11eb-bd64-431b46a4aa7b	F5	ins
 483adacc-0213-4646-a7db-356f33b4411e	0acbe1d8-1bbc-11eb-ba62-876a9ec11059	C1	instrument-0acbe1d8-1bbc-11eb-ba62-876a9ec11059-audio-6f3fb676-dc51-4611-9ee3-11408676462f	0	1	120	0.5	BASS	0.8	C1
 38afec5a-1078-4ab1-a895-80fbf4db30c3	0acbe1d8-1bbc-11eb-ba62-876a9ec11059	A#1	instrument-0acbe1d8-1bbc-11eb-ba62-876a9ec11059-audio-578543f6-4438-4d2b-b9da-d382220de68e	0	1	120	0.5	BASS	0.8	A#1
 5c7cba65-00cf-43c0-95e2-14eb1bbb781f	0acbe1d8-1bbc-11eb-ba62-876a9ec11059	D#3	instrument-0acbe1d8-1bbc-11eb-ba62-876a9ec11059-audio-71b22b8d-e955-4975-b84d-72abd3592ca8	0	1	120	0.5	BASS	0.8	D#3
+e156787a-316a-11ec-87bc-7bddb2e9f661	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 9	instrument-d42b52f6-316a-11ec-ab3c-83abcf0260e8-audio-34af7e60-7eda-4443-a1d9-7d88b03d65c2	0	2	120	0.5	TRILOOP	0.25	X
+0a96f680-3169-11ec-87bc-9b93c5c97902	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 4	instrument-fba6c114-3168-11ec-99b2-7f8db6c7d187-audio-70d64c36-9faf-462b-a103-5c02bc2e9489	0	2	120	0.5	TRILOOP	0.25	X
+1fdd3aac-316b-11ec-99b2-e35a3cbd17c6	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 8 	instrument-a73a012a-316a-11ec-87bc-e36929d2c1b7-audio-bcf9fbb8-c1df-44ad-a251-433df3df78f0	0	2	120	0.5	TRILOOP	0.25	X
+1a24c26e-3167-11ec-8af3-bb2bd685b82f	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 3	instrument-08f872ba-3167-11ec-b8f9-93e9f0a92be0-audio-74c0a39f-28ce-4df8-8e8e-762a6c07b8d9	0	2	120	0.5	TRILOOP	0.25	X
+6ba70ce2-3166-11ec-856b-73e6ea242f38	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 2	instrument-bac7563e-3165-11ec-ab61-fba08544bf44-audio-a3a569f7-ba3f-4283-9bf7-c7b27d11da1d	0	2	120	0.5	TRILOOP	0.25	X
+fc58c354-3169-11ec-a2ba-5bf9b66c2bae	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 5	instrument-d4db9df6-3169-11ec-9742-773d8b0ed3b9-audio-cee90488-907d-4dda-8fec-85d6ff853a77	0	2	120	0.5	\N	0.25	\N
+46ccb576-316a-11ec-99b2-5fe60fb1d4fe	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 6	instrument-2f317d48-316a-11ec-9742-074e3f998b98-audio-381acd1e-c08d-4dd0-91ba-ccc1d0908db3	0	2	120	0.5	TRILOOP	0.25	X
+fb0ac3ec-316b-11ec-942c-37a17c464234	e83e508a-316b-11ec-942c-fbd97b259ec0	Synco Shake 1	instrument-e83e508a-316b-11ec-942c-fbd97b259ec0-audio-93713372-a2e2-40a0-9f2a-7a7a83beeeca	0	2	120	0.5	SHAKERLOOP	1	X
+4bb0830a-3170-11ec-83fa-37e91ca84c6a	12443efe-3170-11ec-83fa-a32cd647727d	Toca Shake 2	instrument-3f613630-3170-11ec-83fa-e3fa4da25e10-audio-87e8d042-6c4e-4fac-b86f-f6408aaed897	0	2	120	0.5	SHAKERLOOP	1	X
+6f6a0c12-3170-11ec-ac00-9f27d7c4fb2d	12443efe-3170-11ec-83fa-a32cd647727d	Toca Shake 3	instrument-62c7a2ee-3170-11ec-83fa-6b766b5cecc2-audio-23e88424-c6c3-4eef-a0ff-b7f840e68e3b	0	2	120	0.5	SHAKERLOOP	1	X
+bc6a5224-3170-11ec-ac00-83e21d429411	12443efe-3170-11ec-83fa-a32cd647727d	Toca Shake 5	instrument-88b2f850-3170-11ec-83fa-672a42ae9b84-audio-9650ec60-7b18-47d6-9906-2908166e75ca	0	2	120	0.5	SHAKERLOOP	1	X
+225dabe0-3170-11ec-83fa-bf8136c8ba15	12443efe-3170-11ec-83fa-a32cd647727d	Toca Shake 1	instrument-12443efe-3170-11ec-83fa-a32cd647727d-audio-426608ac-4dd1-4314-a434-ac0fceff9505	0	2	120	0.5	SHAKERLOOP	1	X
+fae58c08-3170-11ec-ac00-db3a4100c23b	12443efe-3170-11ec-83fa-a32cd647727d	Toca Shake 6	instrument-eb8746de-3170-11ec-83fa-db7c2de05739-audio-525794ac-8fda-4ecd-95de-2cf02321a0e4	0	2	120	0.5	SHAKERLOOP	1	X
+1baf32e0-3171-11ec-83fa-af007b10f82c	12443efe-3170-11ec-83fa-a32cd647727d	Toca Shake 7	instrument-103455b2-3171-11ec-ac00-bbd6de2fa9ad-audio-c53454c7-d339-4601-a626-f00954828e0c	0	2	120	0.5	SHAKERLOOP	1	X
+f51398f0-316c-11ec-95f5-736a74ac6d04	e83e508a-316b-11ec-942c-fbd97b259ec0	Synco Shake 3	instrument-e73cf2ee-316c-11ec-804b-132f7a382630-audio-4379c058-1194-45cf-b40e-079602507375	0	2	120	0.5	SHAKERLOOP	1	X
+c6bc8c0a-316c-11ec-8ef2-ef362e6609a8	e83e508a-316b-11ec-942c-fbd97b259ec0	Synco Shake 2	instrument-bb5e63ba-316c-11ec-a680-3738cab19372-audio-d88b5553-64a1-4fca-8f3d-db0d77f0dcfa	0	2	120	0.5	SHAKERLOOP	1	X
+23c18de2-316d-11ec-a9b1-33b2e4a1179e	e83e508a-316b-11ec-942c-fbd97b259ec0	Synco Shake 4	instrument-0b1e293a-316d-11ec-942c-0f6bf142d530-audio-212df32a-c81b-4e84-95a6-f30443afd452	0	2	120	0.5	SHAKERLOOP	1	X
+663ef88a-316d-11ec-beb9-f7d9f224fa9a	e83e508a-316b-11ec-942c-fbd97b259ec0	Synco Shake 5	instrument-590ecd16-316d-11ec-8ef2-b3d0dd412fbc-audio-46b336dd-8573-4b4d-887d-1cbf286ad6eb	0	2	120	0.5	SHAKERLOOP	1	X
+9421c610-316d-11ec-8bd2-d37f9ecf4df5	e83e508a-316b-11ec-942c-fbd97b259ec0	Synco Shake 6	instrument-875e197e-316d-11ec-8ef2-73016ded63ec-audio-6e70e926-a010-43d8-bc6f-d7115502ec4a	0	2	120	0.5	SHAKERLOOP	1	X
+d6d956b2-316d-11ec-8ef2-874a4d523f22	e83e508a-316b-11ec-942c-fbd97b259ec0	Synco Shake 8	instrument-ca692448-316d-11ec-8bd2-f787d57e5ee6-audio-2af86f0e-936e-41bd-8a8d-c27ba8db2a71	0	2	120	0.5	SHAKERLOOP	1	X
+1dfd5afc-316e-11ec-8bd2-9b8f6cb8e19a	e83e508a-316b-11ec-942c-fbd97b259ec0	Synco Shake 9	instrument-0fb52b3c-316e-11ec-942c-2fc84cd964b3-audio-bdc2ac2a-7889-4bd8-8f6c-90febfcf2ffe	0	2	120	0.5	SHAKERLOOP	1	X
+54b6b070-316e-11ec-a9b1-7f242d7d2051	e83e508a-316b-11ec-942c-fbd97b259ec0	Synco Shake 10	instrument-4325d6b0-316e-11ec-a9b1-370a72ea7d21-audio-dfeab422-6ca5-4dda-8375-cc5d095911b6	0	2	120	0.5	SHAKERLOOP	1	X
+8d1ba09c-316e-11ec-8ef2-1fce7f92f6db	e83e508a-316b-11ec-942c-fbd97b259ec0	Synco Shake 11	instrument-72f04eac-316e-11ec-8bd2-ef610d7d29ab-audio-4a4eeb3b-a9a1-472f-b980-0e014dadca69	0	2	120	0.5	SHAKERLOOP 	1	X
+c5636214-316e-11ec-942c-13c7fcd20528	e83e508a-316b-11ec-942c-fbd97b259ec0	Sycno Shake 12	instrument-b73080be-316e-11ec-8ef2-471869b3f5a8-audio-19beac3a-165d-4883-8102-dd987d18eec1	0	2	120	0.5	SHAKERLOOP	1	X
+fb62fc12-316e-11ec-a680-5ffc606dd065	e83e508a-316b-11ec-942c-fbd97b259ec0	Synco Shake 13	instrument-b73080be-316e-11ec-8ef2-471869b3f5a8-audio-55bd1c1d-e1a4-418d-b5a7-86e17316f070	0	2	120	0.5	SHAKERLOOP	1	X
+66766366-3171-11ec-83fa-2b52e59d6c3b	12443efe-3170-11ec-83fa-a32cd647727d	Toca Shake 10	instrument-3514bf84-3171-11ec-ac00-c3b2618ed4ee-audio-46b1c570-981e-4915-9f90-f7cf3dc2a5eb	0	2	120	0.5	SHAKERLOOP	1	X
+83fa5e60-3171-11ec-ac00-5b85fa3af77b	12443efe-3170-11ec-83fa-a32cd647727d	Toca Shake 11	instrument-77784102-3171-11ec-83fa-4b43ffdd3691-audio-af9965a7-d3b7-4406-ae3c-2b9957b6937f	0	2	120	0.5	SHAKERLOOP	1	X
+a1c71dc0-3171-11ec-83fa-2bec002da84d	12443efe-3170-11ec-83fa-a32cd647727d	Toca Shake 12	instrument-98e22a56-3171-11ec-83fa-672d752c7286-audio-611ac92d-f1e3-4194-b15e-35a8f2ec0d3a	0	2	120	0.5	SHAKERLOOP	1	X
+cb99fdde-3171-11ec-ac00-8fcdc67fd175	12443efe-3170-11ec-83fa-a32cd647727d	Toca Shake 13	instrument-c0b3bad6-3171-11ec-83fa-dfc53a279163-audio-7fd82c23-bfce-4583-9420-29524954e9a0	0	2	120	0.5	SHAKERLOOP	1	X
+22ae9e02-316f-11ec-a680-e347ba7e2d23	e83e508a-316b-11ec-942c-fbd97b259ec0	Synco Shake 14	instrument-16026b52-316f-11ec-804b-abae0d8bd6eb-audio-818d8996-a91b-456b-8632-81c767f7d27f	0	2	120	0.5	SHAKERLOOP	0	X
+5feaa5fe-316f-11ec-804b-9fffdbe7764b	e83e508a-316b-11ec-942c-fbd97b259ec0	Synco Shake 15	instrument-51cbac66-316f-11ec-8bd2-03a02c9c506b-audio-42e4e06d-724b-46b9-9004-d74c139e45ff	0	2	120	0.5	SHAKERLOOP	1	X
+7fd964fe-316a-11ec-bb86-9b2d7557d57b	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 7	instrument-6e033da4-316a-11ec-bb86-03e480ceca8b-audio-7f2a4555-fa66-4499-83b1-b7297e300fcf	0	2	120	0.5	TRILOOP	0.25	X
+4318e1b0-316b-11ec-99b2-037ab8e94220	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 10	instrument-387f80a6-316b-11ec-a2ba-ff923454bd9a-audio-9c3aca2f-e122-491f-8c1a-da1c6508fdfd	0	2	120	0.5	TRILOOP	0.25	X
+76034b06-316b-11ec-957f-cfbc6ff3df5e	39582db6-02e0-11ec-9cd8-138a25e9d4dc	Triangle Pattern 11	instrument-687be3f8-316b-11ec-8061-f70c6a2e5461-audio-54aa1f83-a596-49c4-ad24-022ac0eb99eb	0	2	120	0.5	TRILOOP	0.25	X
 \.
 
 
@@ -3811,7 +3847,9 @@ f8388a3a-229a-11ec-9a4d-8b7597cb1ece	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	
 1a21695e-16eb-11ea-8a37-471123a2fa62	15085f36-16eb-11ea-8a37-57a336f886a8	Published	G minor	120	Macro	Deep, from Cool to Hot1	0	doPatternRestartOnChord = false
 216131b8-227e-11ec-b96c-03cecff6e964	15085f36-16eb-11ea-8a37-57a336f886a8	Published	G minor	120	Macro	Deep, from Cool to Hot	0	doPatternRestartOnChord = false
 f62e6a7c-2798-11ec-a1cc-b3d0a2e72f1b	5545dcfe-fb23-11eb-80a6-4372a28aca52	Draft	A-	120	Detail	Bass 1 test 	0.5	doPatternRestartOnChord = false
+cecbffca-3117-11ec-8f3b-1b19bd391007	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	test	1	Macro	test	1	doPatternRestartOnChord = false
 08001fb2-2eaa-11ec-9931-6f6edc32eadd	15085f36-16eb-11ea-8a37-57a336f886a8	Published	G minor	120	Macro	Deep, from Cool to Hot	0	doPatternRestartOnChord = false
+8e00ba18-3120-11ec-923c-abaef3f306fe	15085f36-16eb-11ea-8a37-57a336f886a8	Draft	asd	123	Macro	asd	123	doPatternRestartOnChord = false
 \.
 
 
@@ -15490,7 +15528,7 @@ a5ffa7a2-09be-11ec-b9a9-0b37c89ec993	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Charne
 adccb000-1cfc-11ec-a1a8-3bde1278bdd9	14e58a74-16eb-11ea-8a37-27b15e9fd30c	David Cole's Preview Template	choiceDeltaEnabled = true\ndeltaArcDetailPlateauRatio = 0.38\ndeltaArcRhythmPlateauRatio = 0.62\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercussive = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30.0\nmixerLowpassThresholdHz = 15000.0\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopFixedSizeBeats = 4.0\npercLoopLayerMax = 5.0\npercLoopLayerMin = 1.0	pus6rpxpx	Preview
 5d7f23c6-105e-11ec-bee8-f7be79aa5352	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Ian Hersey's Preview Template	choiceDeltaEnabled = true\ndeltaArcDetailPlateauRatio = 0.38\ndeltaArcDetailPlateauShiftRatio = 0.62\ndeltaArcRhythmPlateauRatio = 0.62\ndeltaArcRhythmPlateauShiftRatio = 0.38\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercussive = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 20.0\nmixerLowpassThresholdHz = 15000.0\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopFixedSizeBeats = 4.0\npercLoopLayerMax = 5.0\npercLoopLayerMin = 1.0	dxuzhmbum	Preview
 1f97c3de-1e22-11ec-aa95-9b3828fb2748	14e468ba-16eb-11ea-8a37-53e6360023c1	Vernon Grant's Preview Template	choiceDeltaEnabled = true\ndeltaArcDetailPlateauRatio = 0.38\ndeltaArcRhythmPlateauRatio = 0.62\ndubMasterVolumeInstrumentTypeBass = 1.0\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercussive = 1.0\ndubMasterVolumeInstrumentTypeStab = 1.0\ndubMasterVolumeInstrumentTypeSticky = 1.0\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 1.0\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30.0\nmixerLowpassThresholdHz = 15000.0\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopFixedSizeBeats = 4.0\npercLoopLayerMax = 5.0\npercLoopLayerMin = 1.0	gcuxayoii	Preview
-eb0cf5ce-09ba-11ec-8016-d72d36e2270c	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Cool Air	choiceDeltaEnabled = true\ndeltaArcDetailPlateauRatio = 0.2\ndeltaArcDetailPlateauShiftRatio = 0.62\ndeltaArcRhythmPlateauRatio = 0.5\ndeltaArcRhythmPlateauShiftRatio = 0.38\ndubMasterVolumeInstrumentTypeBass = 1.5\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercussive = 0.8\ndubMasterVolumeInstrumentTypeStab = 0.75\ndubMasterVolumeInstrumentTypeSticky = 0.55\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = AIRCRAFT\nmetaTitle = Cool Air\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 0.5\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30.0\nmixerLowpassThresholdHz = 15000.0\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopFixedSizeBeats = 4.0\npercLoopLayerMax = 5.0\npercLoopLayerMin = 1.0	coolair	Production
+eb0cf5ce-09ba-11ec-8016-d72d36e2270c	14e58a74-16eb-11ea-8a37-27b15e9fd30c	Cool Air	choiceDeltaEnabled = true\ndeltaArcDetailPlateauRatio = 0.2\ndeltaArcDetailPlateauShiftRatio = 0.62\ndeltaArcRhythmPlateauRatio = 0.5\ndeltaArcRhythmPlateauShiftRatio = 0.38\ndubMasterVolumeInstrumentTypeBass = 1.2\ndubMasterVolumeInstrumentTypePad = 1.0\ndubMasterVolumeInstrumentTypePercussive = 0.8\ndubMasterVolumeInstrumentTypeStab = 0.75\ndubMasterVolumeInstrumentTypeSticky = 0.55\ndubMasterVolumeInstrumentTypeStripe = 1.0\nmainProgramLengthMaxDelta = 280\nmetaSource = AIRCRAFT\nmetaTitle = Cool Air\nmixerCompressAheadSeconds = 0.05\nmixerCompressDecaySeconds = 0.125\nmixerCompressRatioMax = 1.0\nmixerCompressRatioMin = 0.3\nmixerCompressToAmplitude = 0.5\nmixerDspBufferSize = 1024\nmixerHighpassThresholdHz = 30.0\nmixerLowpassThresholdHz = 15000.0\nmixerNormalizationBoostThreshold = 1.0\nmixerNormalizationCeiling = 0.999\noutputChannels = 2\noutputContainer = "OGG"\noutputEncoding = "PCM_FLOAT"\noutputEncodingQuality = 0.618\noutputFrameRate = 48000\noutputSampleBits = 16\npercLoopFixedSizeBeats = 4.0\npercLoopLayerMax = 5.0\npercLoopLayerMin = 1.0	coolair	Production
 \.
 
 
@@ -15581,7 +15619,8 @@ d5bda52a-2e12-11ec-b797-9f4af7d1777b	Instrument	5d7f23c6-105e-11ec-bee8-f7be79aa
 7fe6ee32-2e16-11ec-b891-9f68dac89dc1	Library	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	55ab659c-fb3c-11eb-85f4-87f8295902e9
 828408e6-2e16-11ec-9f5d-0b968e36f7a6	Library	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	1509102a-16eb-11ea-8a37-4764c2a771db
 85afbc40-2e16-11ec-b891-1ffc3b9d3439	Library	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	9d966418-fb20-11eb-a2de-172ecc754afd
-af27ff06-2e16-11ec-b891-d343cc9645dc	Instrument	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	39582db6-02e0-11ec-9cd8-138a25e9d4dc
+315e8936-3169-11ec-bb86-db4de5c30274	Instrument	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	fba6c114-3168-11ec-99b2-7f8db6c7d187
+1b05f590-316c-11ec-a917-ef24639bccc1	Instrument	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	e83e508a-316b-11ec-942c-fbd97b259ec0
 \.
 
 
@@ -15592,6 +15631,7 @@ af27ff06-2e16-11ec-b891-d343cc9645dc	Instrument	adccb000-1cfc-11ec-a1a8-3bde1278
 COPY xj.template_playback (id, template_id, user_id, created_at) FROM stdin;
 499f44c0-1c12-11ec-a377-032c3a855ced	2325dabe-0c2e-11ec-9d13-cbf3461a3ded	14e0e8c0-16eb-11ea-8a37-336eae21d833	2021-09-23 02:02:21.17997
 1a5aca7c-2e00-11ec-b5af-cb4ada508f9c	5d7f23c6-105e-11ec-bee8-f7be79aa5352	8a2439bc-a9ca-11ea-9cb5-33555a4054e4	2021-10-15 21:37:31.867656
+6bef4f06-31df-11ec-9016-2fef186745e9	adccb000-1cfc-11ec-a1a8-3bde1278bdd9	1b299a74-f187-11eb-8314-cf9697b34927	2021-10-20 19:53:39.994938
 \.
 
 
@@ -15710,6 +15750,10 @@ d506f48e-2a1a-11ec-8bc9-0f92566f067a	8a24f74e-a9ca-11ea-9cb5-eb23857bab60	8a2439
 c0addce8-2afe-11ec-8484-6faa2601bd3c	06920d56-8f3d-11ea-ab8d-979cef4f3286	06901f6e-8f3d-11ea-ab8d-836f6e9422f1	1634003418406-68e75271-ea52-435a-962c-48fcf5633b8f-6474484750242198
 85ac8846-2e15-11ec-b118-c3decdff3d01	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1634343051335-4e8bb96b-ec7f-4ab1-9d5f-fbc262f53fc4-1151273053502529
 76727002-2f82-11ec-86ce-6ff8f832b5e7	488d266c-16ea-11ea-88e3-afea5aeef804	488ada38-16ea-11ea-88e3-573050fbaae5	1634499792097-f2297e3a-7455-4357-95d1-49e57803a46e-5716965624978049
+63f2ebec-3120-11ec-923c-a367387d64c1	06920d56-8f3d-11ea-ab8d-979cef4f3286	06901f6e-8f3d-11ea-ab8d-836f6e9422f1	1634677572696-46438844-2a8f-4df2-b2e5-022babc725f8-3640925684756859
+38d4aa1c-3121-11ec-9c5b-c7798c1e0558	4fec6b4e-60d6-11ea-85c7-e7e65109099b	14e0e8c0-16eb-11ea-8a37-336eae21d833	1634677929868-e5e9040b-76b1-4281-b6f2-dddb8a2eab0f-2878946302396859
+0e49f064-3161-11ec-ad91-9b96b29733b5	1b350d78-f187-11eb-8314-db91e69d556b	1b299a74-f187-11eb-8314-cf9697b34927	1634705346277-0d4b5302-6840-49a9-8fa0-450bade764f5-8853306448434169
+1e9a6b42-3161-11ec-ad91-27ef13cdf7e8	1b350d78-f187-11eb-8314-db91e69d556b	1b299a74-f187-11eb-8314-cf9697b34927	1634705373664-7b4d9a78-26d0-4c2e-a3a5-c0f76e0d7694-1086082385734169
 \.
 
 

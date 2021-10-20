@@ -89,9 +89,7 @@ SET default_table_access_method = heap;
 
 CREATE TABLE xj.account (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    name character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    name character varying(255) NOT NULL
 );
 
 
@@ -104,65 +102,11 @@ ALTER TABLE xj.account OWNER TO postgres;
 CREATE TABLE xj.account_user (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     user_id uuid NOT NULL,
-    account_id uuid NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    account_id uuid NOT NULL
 );
 
 
 ALTER TABLE xj.account_user OWNER TO postgres;
-
---
--- Name: chain; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.chain (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    account_id uuid NOT NULL,
-    name character varying(255) NOT NULL,
-    state character varying(255) NOT NULL,
-    type character varying(255) NOT NULL,
-    start_at timestamp without time zone NOT NULL,
-    stop_at timestamp without time zone,
-    embed_key character varying(1023) DEFAULT NULL::character varying,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.chain OWNER TO postgres;
-
---
--- Name: chain_binding; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.chain_binding (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    chain_id uuid NOT NULL,
-    target_id uuid NOT NULL,
-    type character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.chain_binding OWNER TO postgres;
-
---
--- Name: chain_config; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.chain_config (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    chain_id uuid NOT NULL,
-    type character varying(255) NOT NULL,
-    value text NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.chain_config OWNER TO postgres;
 
 --
 -- Name: flyway_schema_history; Type: TABLE; Schema: xj; Owner: postgres
@@ -190,14 +134,12 @@ ALTER TABLE xj.flyway_schema_history OWNER TO postgres;
 
 CREATE TABLE xj.instrument (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    user_id uuid NOT NULL,
     library_id uuid NOT NULL,
     type character varying(255) NOT NULL,
     state character varying(255) NOT NULL,
     name character varying(255) NOT NULL,
     density real NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    config text DEFAULT ''::text NOT NULL
 );
 
 
@@ -211,55 +153,18 @@ CREATE TABLE xj.instrument_audio (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     instrument_id uuid NOT NULL,
     name character varying(255) NOT NULL,
-    waveform_key character varying(2047) NOT NULL,
+    waveform_key character varying(2047),
     start real NOT NULL,
     length real NOT NULL,
     tempo real NOT NULL,
-    pitch real NOT NULL,
     density real NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    event character varying(255) DEFAULT NULL::character varying,
+    volume real,
+    note character varying(255) DEFAULT NULL::character varying
 );
 
 
 ALTER TABLE xj.instrument_audio OWNER TO postgres;
-
---
--- Name: instrument_audio_chord; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.instrument_audio_chord (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    instrument_id uuid NOT NULL,
-    instrument_audio_id uuid NOT NULL,
-    name character varying(255) NOT NULL,
-    "position" double precision NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.instrument_audio_chord OWNER TO postgres;
-
---
--- Name: instrument_audio_event; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.instrument_audio_event (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    instrument_id uuid NOT NULL,
-    instrument_audio_id uuid NOT NULL,
-    name character varying(255) NOT NULL,
-    velocity real NOT NULL,
-    "position" double precision NOT NULL,
-    duration real NOT NULL,
-    note character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.instrument_audio_event OWNER TO postgres;
 
 --
 -- Name: instrument_meme; Type: TABLE; Schema: xj; Owner: postgres
@@ -268,9 +173,7 @@ ALTER TABLE xj.instrument_audio_event OWNER TO postgres;
 CREATE TABLE xj.instrument_meme (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     instrument_id uuid NOT NULL,
-    name character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    name character varying(255) NOT NULL
 );
 
 
@@ -283,28 +186,11 @@ ALTER TABLE xj.instrument_meme OWNER TO postgres;
 CREATE TABLE xj.library (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     name character varying(255) NOT NULL,
-    account_id uuid NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    account_id uuid NOT NULL
 );
 
 
 ALTER TABLE xj.library OWNER TO postgres;
-
---
--- Name: platform_message; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.platform_message (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    type character varying(255) NOT NULL,
-    body text NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.platform_message OWNER TO postgres;
 
 --
 -- Name: program; Type: TABLE; Schema: xj; Owner: postgres
@@ -312,7 +198,6 @@ ALTER TABLE xj.platform_message OWNER TO postgres;
 
 CREATE TABLE xj.program (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    user_id uuid NOT NULL,
     library_id uuid NOT NULL,
     state character varying(255) NOT NULL,
     key character varying(255) NOT NULL,
@@ -320,8 +205,7 @@ CREATE TABLE xj.program (
     type character varying(255) NOT NULL,
     name character varying(255) NOT NULL,
     density real NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    config text DEFAULT ''::text NOT NULL
 );
 
 
@@ -334,9 +218,7 @@ ALTER TABLE xj.program OWNER TO postgres;
 CREATE TABLE xj.program_meme (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     name character varying(255) NOT NULL,
-    program_id uuid NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    program_id uuid NOT NULL
 );
 
 
@@ -353,9 +235,7 @@ CREATE TABLE xj.program_sequence (
     key character varying(255) NOT NULL,
     density real NOT NULL,
     total smallint NOT NULL,
-    tempo real NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    tempo real NOT NULL
 );
 
 
@@ -369,9 +249,7 @@ CREATE TABLE xj.program_sequence_binding (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     program_id uuid NOT NULL,
     program_sequence_id uuid NOT NULL,
-    "offset" integer NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    "offset" integer NOT NULL
 );
 
 
@@ -385,9 +263,7 @@ CREATE TABLE xj.program_sequence_binding_meme (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     program_id uuid NOT NULL,
     program_sequence_binding_id uuid NOT NULL,
-    name character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    name character varying(255) NOT NULL
 );
 
 
@@ -402,13 +278,26 @@ CREATE TABLE xj.program_sequence_chord (
     program_id uuid NOT NULL,
     program_sequence_id uuid NOT NULL,
     name character varying(255) NOT NULL,
-    "position" double precision NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    "position" double precision NOT NULL
 );
 
 
 ALTER TABLE xj.program_sequence_chord OWNER TO postgres;
+
+--
+-- Name: program_sequence_chord_voicing; Type: TABLE; Schema: xj; Owner: postgres
+--
+
+CREATE TABLE xj.program_sequence_chord_voicing (
+    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
+    program_id uuid NOT NULL,
+    program_sequence_chord_id uuid NOT NULL,
+    type character varying(255) NOT NULL,
+    notes text NOT NULL
+);
+
+
+ALTER TABLE xj.program_sequence_chord_voicing OWNER TO postgres;
 
 --
 -- Name: program_sequence_pattern; Type: TABLE; Schema: xj; Owner: postgres
@@ -421,9 +310,7 @@ CREATE TABLE xj.program_sequence_pattern (
     program_voice_id uuid NOT NULL,
     name character varying(255) NOT NULL,
     type character varying(255) NOT NULL,
-    total smallint NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    total smallint NOT NULL
 );
 
 
@@ -441,9 +328,7 @@ CREATE TABLE xj.program_sequence_pattern_event (
     velocity real NOT NULL,
     "position" double precision NOT NULL,
     duration real NOT NULL,
-    note character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    note character varying(255) NOT NULL
 );
 
 
@@ -458,8 +343,7 @@ CREATE TABLE xj.program_voice (
     program_id uuid NOT NULL,
     type character varying(255) NOT NULL,
     name character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    "order" double precision DEFAULT 1000.0
 );
 
 
@@ -474,141 +358,55 @@ CREATE TABLE xj.program_voice_track (
     program_id uuid NOT NULL,
     program_voice_id uuid NOT NULL,
     name character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    "order" double precision DEFAULT 1000.0
 );
 
 
 ALTER TABLE xj.program_voice_track OWNER TO postgres;
 
 --
--- Name: segment; Type: TABLE; Schema: xj; Owner: postgres
+-- Name: template; Type: TABLE; Schema: xj; Owner: postgres
 --
 
-CREATE TABLE xj.segment (
-    chain_id uuid NOT NULL,
+CREATE TABLE xj.template (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    state character varying(255) NOT NULL,
-    begin_at timestamp without time zone NOT NULL,
-    "offset" bigint NOT NULL,
-    type character varying(255) DEFAULT NULL::character varying,
-    end_at timestamp without time zone,
-    total smallint,
-    density real,
-    tempo real,
-    key character varying(255) DEFAULT NULL::character varying,
-    waveform_key character varying(255) DEFAULT NULL::character varying,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    waveform_preroll double precision DEFAULT 0
+    account_id uuid NOT NULL,
+    name character varying(255) NOT NULL,
+    config text DEFAULT ''::text,
+    embed_key character varying(255) DEFAULT ''::character varying,
+    type character varying(255) DEFAULT 'Preview'::character varying
 );
 
 
-ALTER TABLE xj.segment OWNER TO postgres;
+ALTER TABLE xj.template OWNER TO postgres;
 
 --
--- Name: segment_choice; Type: TABLE; Schema: xj; Owner: postgres
+-- Name: template_binding; Type: TABLE; Schema: xj; Owner: postgres
 --
 
-CREATE TABLE xj.segment_choice (
+CREATE TABLE xj.template_binding (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    segment_id uuid NOT NULL,
-    program_id uuid NOT NULL,
-    program_sequence_binding_id uuid,
     type character varying(255) NOT NULL,
-    transpose smallint NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    template_id uuid NOT NULL,
+    target_id uuid NOT NULL
 );
 
 
-ALTER TABLE xj.segment_choice OWNER TO postgres;
+ALTER TABLE xj.template_binding OWNER TO postgres;
 
 --
--- Name: segment_choice_arrangement; Type: TABLE; Schema: xj; Owner: postgres
+-- Name: template_playback; Type: TABLE; Schema: xj; Owner: postgres
 --
 
-CREATE TABLE xj.segment_choice_arrangement (
+CREATE TABLE xj.template_playback (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    segment_id uuid NOT NULL,
-    segment_choice_id uuid NOT NULL,
-    program_voice_id uuid NOT NULL,
-    instrument_id uuid NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    template_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
-ALTER TABLE xj.segment_choice_arrangement OWNER TO postgres;
-
---
--- Name: segment_choice_arrangement_pick; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.segment_choice_arrangement_pick (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    segment_id uuid NOT NULL,
-    segment_choice_arrangement_id uuid NOT NULL,
-    instrument_audio_id uuid NOT NULL,
-    program_sequence_pattern_event_id uuid NOT NULL,
-    start real NOT NULL,
-    length real NOT NULL,
-    amplitude real NOT NULL,
-    pitch real NOT NULL,
-    name character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.segment_choice_arrangement_pick OWNER TO postgres;
-
---
--- Name: segment_chord; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.segment_chord (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    segment_id uuid NOT NULL,
-    name character varying(255) NOT NULL,
-    "position" double precision NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.segment_chord OWNER TO postgres;
-
---
--- Name: segment_meme; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.segment_meme (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    segment_id uuid NOT NULL,
-    name character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.segment_meme OWNER TO postgres;
-
---
--- Name: segment_message; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.segment_message (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    segment_id uuid NOT NULL,
-    type character varying(255) NOT NULL,
-    body text NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.segment_message OWNER TO postgres;
+ALTER TABLE xj.template_playback OWNER TO postgres;
 
 --
 -- Name: user; Type: TABLE; Schema: xj; Owner: postgres
@@ -618,9 +416,7 @@ CREATE TABLE xj."user" (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     name character varying(255) NOT NULL,
     email character varying(1023) DEFAULT NULL::character varying,
-    avatar_url character varying(1023) DEFAULT NULL::character varying,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    avatar_url character varying(1023) DEFAULT NULL::character varying
 );
 
 
@@ -636,9 +432,7 @@ CREATE TABLE xj.user_auth (
     external_access_token character varying(1023) NOT NULL,
     external_refresh_token character varying(1023) DEFAULT NULL::character varying,
     external_account character varying(1023) NOT NULL,
-    user_id uuid NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    user_id uuid NOT NULL
 );
 
 
@@ -652,9 +446,7 @@ CREATE TABLE xj.user_auth_token (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     user_auth_id uuid NOT NULL,
     user_id uuid NOT NULL,
-    access_token text NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    access_token text NOT NULL
 );
 
 
@@ -667,28 +459,11 @@ ALTER TABLE xj.user_auth_token OWNER TO postgres;
 CREATE TABLE xj.user_role (
     id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
     type character varying(255) NOT NULL,
-    user_id uuid NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    user_id uuid NOT NULL
 );
 
 
 ALTER TABLE xj.user_role OWNER TO postgres;
-
---
--- Name: work; Type: TABLE; Schema: xj; Owner: postgres
---
-
-CREATE TABLE xj.work (
-    id uuid DEFAULT xj.uuid_generate_v1mc() NOT NULL,
-    type character varying(255) NOT NULL,
-    target_id uuid,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE xj.work OWNER TO postgres;
 
 --
 -- Name: account account_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
@@ -707,51 +482,11 @@ ALTER TABLE ONLY xj.account_user
 
 
 --
--- Name: chain_binding chain_binding_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.chain_binding
-    ADD CONSTRAINT chain_binding_pkey PRIMARY KEY (id);
-
-
---
--- Name: chain_config chain_config_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.chain_config
-    ADD CONSTRAINT chain_config_pkey PRIMARY KEY (id);
-
-
---
--- Name: chain chain_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.chain
-    ADD CONSTRAINT chain_pkey PRIMARY KEY (id);
-
-
---
 -- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
 ALTER TABLE ONLY xj.flyway_schema_history
     ADD CONSTRAINT flyway_schema_history_pk PRIMARY KEY (installed_rank);
-
-
---
--- Name: instrument_audio_chord instrument_audio_chord_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.instrument_audio_chord
-    ADD CONSTRAINT instrument_audio_chord_pkey PRIMARY KEY (id);
-
-
---
--- Name: instrument_audio_event instrument_audio_event_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.instrument_audio_event
-    ADD CONSTRAINT instrument_audio_event_pkey PRIMARY KEY (id);
 
 
 --
@@ -784,14 +519,6 @@ ALTER TABLE ONLY xj.instrument
 
 ALTER TABLE ONLY xj.library
     ADD CONSTRAINT library_pkey PRIMARY KEY (id);
-
-
---
--- Name: platform_message platform_message_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.platform_message
-    ADD CONSTRAINT platform_message_pkey PRIMARY KEY (id);
 
 
 --
@@ -835,6 +562,14 @@ ALTER TABLE ONLY xj.program_sequence_chord
 
 
 --
+-- Name: program_sequence_chord_voicing program_sequence_chord_voicing_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.program_sequence_chord_voicing
+    ADD CONSTRAINT program_sequence_chord_voicing_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: program_sequence_pattern_event program_sequence_pattern_event_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
@@ -875,59 +610,27 @@ ALTER TABLE ONLY xj.program_voice_track
 
 
 --
--- Name: segment_choice_arrangement_pick segment_choice_arrangement_pick_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+-- Name: template_binding template_binding_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
-ALTER TABLE ONLY xj.segment_choice_arrangement_pick
-    ADD CONSTRAINT segment_choice_arrangement_pick_pkey PRIMARY KEY (id);
-
-
---
--- Name: segment_choice_arrangement segment_choice_arrangement_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.segment_choice_arrangement
-    ADD CONSTRAINT segment_choice_arrangement_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY xj.template_binding
+    ADD CONSTRAINT template_binding_pkey PRIMARY KEY (id);
 
 
 --
--- Name: segment_choice segment_choice_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+-- Name: template template_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
-ALTER TABLE ONLY xj.segment_choice
-    ADD CONSTRAINT segment_choice_pkey PRIMARY KEY (id);
-
-
---
--- Name: segment_chord segment_chord_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.segment_chord
-    ADD CONSTRAINT segment_chord_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY xj.template
+    ADD CONSTRAINT template_pkey PRIMARY KEY (id);
 
 
 --
--- Name: segment_meme segment_meme_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
+-- Name: template_playback template_playback_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
 --
 
-ALTER TABLE ONLY xj.segment_meme
-    ADD CONSTRAINT segment_meme_pkey PRIMARY KEY (id);
-
-
---
--- Name: segment_message segment_message_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.segment_message
-    ADD CONSTRAINT segment_message_pkey PRIMARY KEY (id);
-
-
---
--- Name: segment segment_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.segment
-    ADD CONSTRAINT segment_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY xj.template_playback
+    ADD CONSTRAINT template_playback_pkey PRIMARY KEY (id);
 
 
 --
@@ -963,14 +666,6 @@ ALTER TABLE ONLY xj.user_role
 
 
 --
--- Name: work work_pkey; Type: CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.work
-    ADD CONSTRAINT work_pkey PRIMARY KEY (id);
-
-
---
 -- Name: flyway_schema_history_s_idx; Type: INDEX; Schema: xj; Owner: postgres
 --
 
@@ -978,241 +673,17 @@ CREATE INDEX flyway_schema_history_s_idx ON xj.flyway_schema_history USING btree
 
 
 --
--- Name: account account___updated; Type: TRIGGER; Schema: xj; Owner: postgres
+-- Name: program_voice_order_idx; Type: INDEX; Schema: xj; Owner: postgres
 --
 
-CREATE TRIGGER account___updated BEFORE UPDATE ON xj.account FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
+CREATE INDEX program_voice_order_idx ON xj.program_voice USING btree ("order");
 
 
 --
--- Name: account_user account_user___updated; Type: TRIGGER; Schema: xj; Owner: postgres
+-- Name: program_voice_track_order_idx; Type: INDEX; Schema: xj; Owner: postgres
 --
 
-CREATE TRIGGER account_user___updated BEFORE UPDATE ON xj.account_user FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: chain chain___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER chain___updated BEFORE UPDATE ON xj.chain FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: chain_binding chain_binding___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER chain_binding___updated BEFORE UPDATE ON xj.chain_binding FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: chain_config chain_config___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER chain_config___updated BEFORE UPDATE ON xj.chain_config FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: instrument instrument___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER instrument___updated BEFORE UPDATE ON xj.instrument FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: instrument_audio instrument_audio___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER instrument_audio___updated BEFORE UPDATE ON xj.instrument_audio FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: instrument_audio_chord instrument_audio_chord___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER instrument_audio_chord___updated BEFORE UPDATE ON xj.instrument_audio_chord FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: instrument_audio_event instrument_audio_event___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER instrument_audio_event___updated BEFORE UPDATE ON xj.instrument_audio_event FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: instrument_meme instrument_meme___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER instrument_meme___updated BEFORE UPDATE ON xj.instrument_meme FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: library library___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER library___updated BEFORE UPDATE ON xj.library FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: platform_message platform_message___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER platform_message___updated BEFORE UPDATE ON xj.platform_message FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: program program___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER program___updated BEFORE UPDATE ON xj.program FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: program_meme program_meme___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER program_meme___updated BEFORE UPDATE ON xj.program_meme FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: program_sequence program_sequence___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER program_sequence___updated BEFORE UPDATE ON xj.program_sequence FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: program_sequence_binding program_sequence_binding___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER program_sequence_binding___updated BEFORE UPDATE ON xj.program_sequence_binding FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: program_sequence_binding_meme program_sequence_binding_meme___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER program_sequence_binding_meme___updated BEFORE UPDATE ON xj.program_sequence_binding_meme FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: program_sequence_chord program_sequence_chord___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER program_sequence_chord___updated BEFORE UPDATE ON xj.program_sequence_chord FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: program_sequence_pattern program_sequence_pattern___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER program_sequence_pattern___updated BEFORE UPDATE ON xj.program_sequence_pattern FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: program_sequence_pattern_event program_sequence_pattern_event___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER program_sequence_pattern_event___updated BEFORE UPDATE ON xj.program_sequence_pattern_event FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: program_voice program_voice___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER program_voice___updated BEFORE UPDATE ON xj.program_voice FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: program_voice_track program_voice_track___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER program_voice_track___updated BEFORE UPDATE ON xj.program_voice_track FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: segment segment___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER segment___updated BEFORE UPDATE ON xj.segment FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: segment_choice segment_choice___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER segment_choice___updated BEFORE UPDATE ON xj.segment_choice FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: segment_choice_arrangement segment_choice_arrangement___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER segment_choice_arrangement___updated BEFORE UPDATE ON xj.segment_choice_arrangement FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: segment_choice_arrangement_pick segment_choice_arrangement_pick___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER segment_choice_arrangement_pick___updated BEFORE UPDATE ON xj.segment_choice_arrangement_pick FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: segment_chord segment_chord___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER segment_chord___updated BEFORE UPDATE ON xj.segment_chord FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: segment_meme segment_meme___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER segment_meme___updated BEFORE UPDATE ON xj.segment_meme FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: segment_message segment_message___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER segment_message___updated BEFORE UPDATE ON xj.segment_message FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: user user___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER user___updated BEFORE UPDATE ON xj."user" FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: user_auth user_auth____updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER user_auth____updated BEFORE UPDATE ON xj.user_auth FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: user_auth_token user_auth_token___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER user_auth_token___updated BEFORE UPDATE ON xj.user_auth_token FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: user_role user_role___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER user_role___updated BEFORE UPDATE ON xj.user_role FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
-
-
---
--- Name: work work___updated; Type: TRIGGER; Schema: xj; Owner: postgres
---
-
-CREATE TRIGGER work___updated BEFORE UPDATE ON xj.work FOR EACH ROW EXECUTE FUNCTION xj.updated_at_now();
+CREATE INDEX program_voice_track_order_idx ON xj.program_voice_track USING btree ("order");
 
 
 --
@@ -1229,62 +700,6 @@ ALTER TABLE ONLY xj.account_user
 
 ALTER TABLE ONLY xj.account_user
     ADD CONSTRAINT account_user_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
-
-
---
--- Name: chain chain_account_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.chain
-    ADD CONSTRAINT chain_account_id_fkey FOREIGN KEY (account_id) REFERENCES xj.account(id);
-
-
---
--- Name: chain_binding chain_binding_chain_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.chain_binding
-    ADD CONSTRAINT chain_binding_chain_id_fkey FOREIGN KEY (chain_id) REFERENCES xj.chain(id);
-
-
---
--- Name: chain_config chain_config_chain_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.chain_config
-    ADD CONSTRAINT chain_config_chain_id_fkey FOREIGN KEY (chain_id) REFERENCES xj.chain(id);
-
-
---
--- Name: instrument_audio_chord instrument_audio_chord_instrument_audio_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.instrument_audio_chord
-    ADD CONSTRAINT instrument_audio_chord_instrument_audio_id_fkey FOREIGN KEY (instrument_audio_id) REFERENCES xj.instrument_audio(id);
-
-
---
--- Name: instrument_audio_chord instrument_audio_chord_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.instrument_audio_chord
-    ADD CONSTRAINT instrument_audio_chord_instrument_id_fkey FOREIGN KEY (instrument_id) REFERENCES xj.instrument(id);
-
-
---
--- Name: instrument_audio_event instrument_audio_event_instrument_audio_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.instrument_audio_event
-    ADD CONSTRAINT instrument_audio_event_instrument_audio_id_fkey FOREIGN KEY (instrument_audio_id) REFERENCES xj.instrument_audio(id);
-
-
---
--- Name: instrument_audio_event instrument_audio_event_instrument_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.instrument_audio_event
-    ADD CONSTRAINT instrument_audio_event_instrument_id_fkey FOREIGN KEY (instrument_id) REFERENCES xj.instrument(id);
 
 
 --
@@ -1309,14 +724,6 @@ ALTER TABLE ONLY xj.instrument
 
 ALTER TABLE ONLY xj.instrument_meme
     ADD CONSTRAINT instrument_meme_instrument_id_fkey FOREIGN KEY (instrument_id) REFERENCES xj.instrument(id);
-
-
---
--- Name: instrument instrument_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.instrument
-    ADD CONSTRAINT instrument_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
 
 
 --
@@ -1392,6 +799,22 @@ ALTER TABLE ONLY xj.program_sequence_chord
 
 
 --
+-- Name: program_sequence_chord_voicing program_sequence_chord_voicing_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.program_sequence_chord_voicing
+    ADD CONSTRAINT program_sequence_chord_voicing_program_id_fkey FOREIGN KEY (program_id) REFERENCES xj.program(id);
+
+
+--
+-- Name: program_sequence_chord_voicing program_sequence_chord_voicing_program_sequence_chord_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
+--
+
+ALTER TABLE ONLY xj.program_sequence_chord_voicing
+    ADD CONSTRAINT program_sequence_chord_voicing_program_sequence_chord_id_fkey FOREIGN KEY (program_sequence_chord_id) REFERENCES xj.program_sequence_chord(id);
+
+
+--
 -- Name: program_sequence_pattern_event program_sequence_pattern_event_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
@@ -1448,14 +871,6 @@ ALTER TABLE ONLY xj.program_sequence
 
 
 --
--- Name: program program_user_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.program
-    ADD CONSTRAINT program_user_id_fkey FOREIGN KEY (user_id) REFERENCES xj."user"(id);
-
-
---
 -- Name: program_voice program_voice_program_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
 --
 
@@ -1477,78 +892,6 @@ ALTER TABLE ONLY xj.program_voice_track
 
 ALTER TABLE ONLY xj.program_voice_track
     ADD CONSTRAINT program_voice_track_program_voice_id_fkey FOREIGN KEY (program_voice_id) REFERENCES xj.program_voice(id);
-
-
---
--- Name: segment segment_chain_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.segment
-    ADD CONSTRAINT segment_chain_id_fkey FOREIGN KEY (chain_id) REFERENCES xj.chain(id);
-
-
---
--- Name: segment_choice_arrangement_pick segment_choice_arrangement_pi_segment_choice_arrangement_i_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.segment_choice_arrangement_pick
-    ADD CONSTRAINT segment_choice_arrangement_pi_segment_choice_arrangement_i_fkey FOREIGN KEY (segment_choice_arrangement_id) REFERENCES xj.segment_choice_arrangement(id);
-
-
---
--- Name: segment_choice_arrangement_pick segment_choice_arrangement_pick_segment_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.segment_choice_arrangement_pick
-    ADD CONSTRAINT segment_choice_arrangement_pick_segment_id_fkey FOREIGN KEY (segment_id) REFERENCES xj.segment(id);
-
-
---
--- Name: segment_choice_arrangement segment_choice_arrangement_segment_choice_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.segment_choice_arrangement
-    ADD CONSTRAINT segment_choice_arrangement_segment_choice_id_fkey FOREIGN KEY (segment_choice_id) REFERENCES xj.segment_choice(id);
-
-
---
--- Name: segment_choice_arrangement segment_choice_arrangement_segment_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.segment_choice_arrangement
-    ADD CONSTRAINT segment_choice_arrangement_segment_id_fkey FOREIGN KEY (segment_id) REFERENCES xj.segment(id);
-
-
---
--- Name: segment_choice segment_choice_segment_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.segment_choice
-    ADD CONSTRAINT segment_choice_segment_id_fkey FOREIGN KEY (segment_id) REFERENCES xj.segment(id);
-
-
---
--- Name: segment_chord segment_chord_segment_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.segment_chord
-    ADD CONSTRAINT segment_chord_segment_id_fkey FOREIGN KEY (segment_id) REFERENCES xj.segment(id);
-
-
---
--- Name: segment_meme segment_meme_segment_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.segment_meme
-    ADD CONSTRAINT segment_meme_segment_id_fkey FOREIGN KEY (segment_id) REFERENCES xj.segment(id);
-
-
---
--- Name: segment_message segment_message_segment_id_fkey; Type: FK CONSTRAINT; Schema: xj; Owner: postgres
---
-
-ALTER TABLE ONLY xj.segment_message
-    ADD CONSTRAINT segment_message_segment_id_fkey FOREIGN KEY (segment_id) REFERENCES xj.segment(id);
 
 
 --
@@ -1648,6 +991,21 @@ COPY xj.flyway_schema_history (installed_rank, version, description, type, scrip
 35	36	platform message	SQL	V36__platform_message.sql	-1549213473	root	2020-03-03 15:30:26.827204	14	t
 36	37	work	SQL	V37__work.sql	-1737567323	root	2020-03-03 15:30:26.847661	8	t
 37	38	segment waveform preroll	SQL	V38__segment_waveform_preroll.sql	-1820712501	root	2020-03-03 15:30:26.869638	1	t
+38	39	nexus tables dropped	SQL	V39__nexus_tables_dropped.sql	639873279	postgres	2021-10-18 19:58:08.386445	1508	t
+39	40	program voice track order	SQL	V40__program_voice_track_order.sql	-2048787325	postgres	2021-10-18 19:58:12.033119	866	t
+40	41	program sequence chord voicing	SQL	V41__program_sequence_chord_voicing.sql	-1144011713	postgres	2021-10-18 19:58:13.914151	734	t
+41	42	config program and instrument	SQL	V42__config_program_and_instrument.sql	-1304738102	postgres	2021-10-18 19:58:15.650577	582	t
+42	43	delete created updated at columns	SQL	V43__delete_created_updated_at_columns.sql	2082510389	postgres	2021-10-18 19:58:17.233789	4333	t
+43	44	updated at delete procedures	SQL	V44__updated_at_delete_procedures.sql	-845882979	postgres	2021-10-18 19:58:22.565047	2390	t
+44	45	drop column program instrument user id	SQL	V45__drop_column_program_instrument_user_id.sql	1859235592	postgres	2021-10-18 19:58:25.951699	584	t
+45	46	instrument audio waveform key optional	SQL	V46__instrument_audio_waveform_key_optional.sql	298148594	postgres	2021-10-18 19:58:27.592071	501	t
+46	47	update instrument types	SQL	V47__update_instrument_types.sql	-438215389	postgres	2021-10-18 19:58:29.091422	1016	t
+47	48	remove pitch	SQL	V48__remove_pitch.sql	-2076774207	postgres	2021-10-18 19:58:31.107022	499	t
+48	49	migrate instrument audio event	SQL	V49__migrate_instrument_audio_event.sql	-959935337	postgres	2021-10-18 19:58:32.601159	792	t
+49	50	templates	SQL	V50__templates.sql	-1571497899	postgres	2021-10-18 19:58:34.536298	878	t
+50	51	template playback stateless	SQL	V51__template_playback_stateless.sql	-1969369120	postgres	2021-10-18 19:58:36.424511	495	t
+51	52	template playback created at	SQL	V52__template_playback_created_at.sql	-155540697	postgres	2021-10-18 19:58:37.917238	795	t
+52	53	template type	SQL	V53__template_type.sql	1695445248	postgres	2021-10-18 19:58:39.774438	493	t
 \.
 
 
