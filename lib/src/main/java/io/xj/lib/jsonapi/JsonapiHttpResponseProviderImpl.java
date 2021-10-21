@@ -48,7 +48,7 @@ class JsonapiHttpResponseProviderImpl implements JsonapiHttpResponseProvider {
           .created(jsonapiPayload.getSelfURI().orElseThrow())
           .entity(jsonapiPayloadFactory.serialize(jsonapiPayload))
           .type(MediaType.APPLICATION_JSON)
-          .build():
+          .build() :
         Response
           .created(apiUrlProvider.getApiURI(""))
           .entity(jsonapiPayloadFactory.serialize(jsonapiPayload))

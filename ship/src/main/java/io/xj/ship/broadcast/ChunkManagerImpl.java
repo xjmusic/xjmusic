@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.ship.broadcast;
 
 import com.google.api.client.util.Lists;
@@ -13,13 +15,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming #179453189
  */
 @Singleton
 public class ChunkManagerImpl implements ChunkManager {
   private static final long MILLIS_PER_SECOND = 1000;
   private final Map<String/* shipKey */, Map<Long/* secondsUTC */, Chunk>> chunks = Maps.newConcurrentMap();
-  private final ShipBroadcastFactory broadcast;
+  private final BroadcastFactory broadcast;
   private final int shipAheadChunks;
   private final long shipAheadMillis;
   private final long shipChunkSeconds;
@@ -28,9 +30,9 @@ public class ChunkManagerImpl implements ChunkManager {
   @Inject
   public ChunkManagerImpl(
     Environment env,
-    ShipBroadcastFactory shipBroadcastFactory
+    BroadcastFactory broadcastFactory
   ) {
-    broadcast = shipBroadcastFactory;
+    broadcast = broadcastFactory;
     shipAheadChunks = env.getShipAheadChunks();
     shipChunkSeconds = env.getShipChunkSeconds();
     shipAheadMillis = (shipAheadChunks - 1) * shipChunkSeconds * MILLIS_PER_SECOND;
@@ -69,11 +71,11 @@ public class ChunkManagerImpl implements ChunkManager {
   }
 
   /**
-   * Compute one chunk for the given ship key, start from seconds utc, and length seconds
-   *
-   * @param shipKey        of chunk
-   * @param fromSecondsUTC of chunk
-   * @return chunk
+   Compute one chunk for the given ship key, start from seconds utc, and length seconds
+
+   @param shipKey        of chunk
+   @param fromSecondsUTC of chunk
+   @return chunk
    */
   private Chunk computeOne(String shipKey, long fromSecondsUTC) {
     if (!chunks.containsKey(shipKey)) chunks.put(shipKey, Maps.newConcurrentMap());
@@ -114,10 +116,10 @@ public class ChunkManagerImpl implements ChunkManager {
   }
 
   /**
-   * Get the map of chunks for a given ship key
-   *
-   * @param shipKey for which to get chunks
-   * @return chunk map
+   Get the map of chunks for a given ship key
+
+   @param shipKey for which to get chunks
+   @return chunk map
    */
   private Map<Long, Chunk> getChunks(String shipKey) {
     if (!chunks.containsKey(shipKey)) chunks.put(shipKey, Maps.newConcurrentMap());

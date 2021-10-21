@@ -39,11 +39,11 @@ class MixerImpl implements Mixer {
   private final int framesAhead;
   private final int dspBufferSize;
   private final int framesDecay;
+  private final List<String> busIds = Lists.newArrayList();
+  private final Map<String, Double> busLevel = Maps.newHashMap();
   // fields: playback state-machine
   private MixerState state = MixerState.Ready;
   private int uniquePutId; // key for storage in map of Puts
-  private final List<String> busIds = Lists.newArrayList();
-  private final Map<String, Double> busLevel = Maps.newHashMap();
 
   /**
    Instantiate a single Mix instance

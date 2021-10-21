@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.ship.source;
 
 import com.google.common.collect.Maps;
@@ -30,20 +32,20 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
   private final FileStoreProvider fileStoreProvider;
   private final String shipBucket;
   private final NexusEntityStore store;
-  private final ShipSourceFactory shipSourceFactory;
+  private final SourceFactory sourceFactory;
 
   @Inject
   public SegmentAudioManagerImpl(
     Environment env,
     FileStoreProvider fileStoreProvider,
     NexusEntityStore store,
-    ShipSourceFactory shipSourceFactory
+    SourceFactory sourceFactory
   ) {
     this.fileStoreProvider = fileStoreProvider;
 
     shipBucket = env.getShipBucket();
     this.store = store;
-    this.shipSourceFactory = shipSourceFactory;
+    this.sourceFactory = sourceFactory;
   }
 
   @Override
@@ -60,7 +62,7 @@ public class SegmentAudioManagerImpl implements SegmentAudioManager {
     } catch (NexusException e) {
       LOG.error("Failed to put Segment in store", e);
     }
-    var segmentAudio = shipSourceFactory.segmentAudio(shipKey, segment);
+    var segmentAudio = sourceFactory.segmentAudio(shipKey, segment);
     put(segmentAudio);
 
     // Then we try to load the actual audio data

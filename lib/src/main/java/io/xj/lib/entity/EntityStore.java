@@ -53,22 +53,21 @@ public interface EntityStore {
   /**
    Get all entities by type and a belongs-to relationship from the store
 
-   @return collection of given type
-   @throws EntityStoreException on failure to retrieve the requested key
    @param <N>           types of entities
    @param <B>           types of belongs-to entities
    @param type          of entity
    @param belongsToType type of belongs-to entity
    @param belongsToIds  ids of belongs-to entity
+   @return collection of given type
+   @throws EntityStoreException on failure to retrieve the requested key
    */
   <N, B> Collection<N> getAll(Class<N> type, Class<B> belongsToType, Collection<UUID> belongsToIds) throws EntityStoreException;
 
   /**
    Delete an entity specified by class and id@param <N>  types of entities
+
    @param type of class to delete
    @param id   to delete
-
-
    */
   <N> void delete(Class<N> type, UUID id);
 

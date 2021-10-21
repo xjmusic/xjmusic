@@ -164,7 +164,7 @@ public class codebook {
 
           quantvals = b._book_maptype1_quantvals();
           for (j = 0; j < b.entries; j++) {
-            if (((sparsemap != null) && (b.lengthlist[j] != 0)) || sparsemap == null) {
+            if (sparsemap == null || (b.lengthlist[j] != 0)) {
               float last = 0.f;
               int indexdiv = 1;
               for (k = 0; k < b.dim; k++) {
@@ -189,7 +189,7 @@ public class codebook {
         case 2: {
 
           for (j = 0; j < b.entries; j++) {
-            if (((sparsemap != null) && (b.lengthlist[j] != 0)) || sparsemap == null) {
+            if (sparsemap == null || (b.lengthlist[j] != 0)) {
               float last = 0.f;
               for (k = 0; k < b.dim; k++) {
                 float val = b.quantlist[j * b.dim + k];

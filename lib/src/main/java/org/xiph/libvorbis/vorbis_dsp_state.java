@@ -41,7 +41,7 @@ public class vorbis_dsp_state {
 
   private vorbis_look_floor1 floor1_look(vorbis_info_floor1 info) {
 
-    int sortpointer[] = new int[integer_constants.VIF_POSIT + 2];
+    int[] sortpointer = new int[integer_constants.VIF_POSIT + 2];
     vorbis_look_floor1 look = new vorbis_look_floor1();
 
     int i, j, n = 0;

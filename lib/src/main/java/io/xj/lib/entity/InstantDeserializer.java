@@ -3,7 +3,6 @@
 package io.xj.lib.entity;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -24,7 +23,7 @@ public class InstantDeserializer extends StdDeserializer<Instant> {
   }
 
   @Override
-  public Instant deserialize(JsonParser jp, DeserializationContext context) throws IOException, JsonProcessingException {
+  public Instant deserialize(JsonParser jp, DeserializationContext context) throws IOException {
     JsonNode node = jp.getCodec().readTree(jp);
     return Instant.parse(node.asText());
   }

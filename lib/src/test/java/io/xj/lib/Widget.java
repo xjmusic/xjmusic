@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.lib;
 
 import java.util.UUID;
@@ -9,17 +11,12 @@ public class Widget {
   private WidgetState state;
   private double position;
 
-  public Widget setId(UUID id) {
-    this.id = id;
-    return this;
-  }
-
   public UUID getId() {
     return id;
   }
 
-  public Widget setName(String name) {
-    this.name = name;
+  public Widget setId(UUID id) {
+    this.id = id;
     return this;
   }
 
@@ -27,8 +24,8 @@ public class Widget {
     return name;
   }
 
-  public Widget setSuperwidgetId(UUID superwidgetId) {
-    this.superwidgetId = superwidgetId;
+  public Widget setName(String name) {
+    this.name = name;
     return this;
   }
 
@@ -36,8 +33,8 @@ public class Widget {
     return superwidgetId;
   }
 
-  public Widget setState(WidgetState state) {
-    this.state = state;
+  public Widget setSuperwidgetId(UUID superwidgetId) {
+    this.superwidgetId = superwidgetId;
     return this;
   }
 
@@ -45,12 +42,17 @@ public class Widget {
     return state;
   }
 
-  public Widget setPosition(double position) {
-    this.position = position;
+  public Widget setState(WidgetState state) {
+    this.state = state;
     return this;
   }
 
   public double getPosition() {
     return position;
+  }
+
+  public Widget setPosition(double position) {
+    this.position = position;
+    return this;
   }
 }

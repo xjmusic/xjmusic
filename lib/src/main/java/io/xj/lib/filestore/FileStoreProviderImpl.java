@@ -48,9 +48,9 @@ class FileStoreProviderImpl implements FileStoreProvider {
   }
 
   /**
-   * Get an Amazon S3 client
-   *
-   * @return S3 client
+   Get an Amazon S3 client
+
+   @return S3 client
    */
   private AmazonS3 s3Client() {
     BasicAWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretKey);

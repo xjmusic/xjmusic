@@ -63,7 +63,7 @@ public class TemplateBindingIT {
 
     // Jenny has a "user" role and belongs to account "bananas"
     fake.user3 = test.insert(buildUser("jenny", "jenny@email.com", "http://pictures.com/jenny.gif", "User"));
-    test.insert(buildAccountUser(fake.account1,fake.user3));
+    test.insert(buildAccountUser(fake.account1, fake.user3));
 
     // Template "sandwich" has templateBinding "jams" and templateBinding "buns"
     fake.template1 = test.insert(buildTemplate(fake.account1, "sandwich"));

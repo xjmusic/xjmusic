@@ -2,8 +2,10 @@
 
 package org.xiph.libshout;
 
+import java.nio.charset.StandardCharsets;
+
 public class Base64EncoderDecoder extends java.util.prefs.AbstractPreferences {
-  private java.util.Hashtable encodedStore = new java.util.Hashtable();
+  private final java.util.Hashtable encodedStore = new java.util.Hashtable();
 
   public Base64EncoderDecoder(java.util.prefs.AbstractPreferences prefs, java.lang.String string) {
     super(prefs, string);
@@ -11,25 +13,25 @@ public class Base64EncoderDecoder extends java.util.prefs.AbstractPreferences {
 
   public java.lang.String encodeBase64(java.lang.String raw)
     throws java.io.UnsupportedEncodingException {
-    byte[] rawUTF8 = raw.getBytes("UTF8");
+    byte[] rawUTF8 = raw.getBytes(StandardCharsets.UTF_8);
     this.putByteArray(raw, rawUTF8);
     return (java.lang.String) this.encodedStore.get(raw);
   }
 
   public java.lang.String encodeBase64(java.lang.String key, java.lang.String raw)
     throws java.io.UnsupportedEncodingException {
-    byte[] rawUTF8 = raw.getBytes("UTF8");
+    byte[] rawUTF8 = raw.getBytes(StandardCharsets.UTF_8);
     this.putByteArray(key, rawUTF8);
     return (java.lang.String) this.encodedStore.get(key);
   }
 
   @SuppressWarnings("unchecked")
   public java.lang.String decodeBase64(java.lang.String key, java.lang.String base64String)
-    throws java.io.UnsupportedEncodingException, java.io.IOException {
+    throws java.io.IOException {
     byte[] def = {(byte) 'D', (byte) 'E', (byte) 'F'};//placeholder
     this.encodedStore.put(key, base64String);
     byte[] byteResults = this.getByteArray(key, def);
-    return new java.lang.String(byteResults, "UTF8");
+    return new java.lang.String(byteResults, StandardCharsets.UTF_8);
   }
 
   public String get(String key, String def) {

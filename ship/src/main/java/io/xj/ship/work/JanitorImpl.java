@@ -23,7 +23,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Ship broadcast via HTTP Live Streaming #179453189
+ Ship broadcast via HTTP Live Streaming #179453189
  */
 public class JanitorImpl implements Janitor {
   private static final Logger LOG = LoggerFactory.getLogger(JanitorImpl.class);
@@ -69,7 +69,7 @@ public class JanitorImpl implements Janitor {
   }
 
   /**
-   * Do the work inside a named thread
+   Do the work inside a named thread
    */
   private void doWork() {
     // Seek segments to erase
@@ -100,9 +100,9 @@ public class JanitorImpl implements Janitor {
   }
 
   /**
-   * Get the IDs of all Segments that we ought to erase
-   *
-   * @return list of IDs of Segments we ought to erase
+   Get the IDs of all Segments that we ought to erase
+
+   @return list of IDs of Segments we ought to erase
    */
   private Collection<UUID> getSegmentIdsToErase() throws ShipException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, NexusException {
     Instant eraseBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);

@@ -56,7 +56,7 @@ public interface Source {
    Get the value for a given frame and channel
 
    @param atMicros to get frame
-   @param c channel
+   @param c        channel
    @return value
    */
   double getValue(long atMicros, int c);

@@ -4,13 +4,12 @@ package io.xj.lib.json;
 
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.gson.GsonFactory;
 import com.google.inject.AbstractModule;
 
 /**
- * JSON interaction module
- * <p>
- * Created by Charney Kaye on 2020/06/22
+ JSON interaction module
+ <p>
+ Created by Charney Kaye on 2020/06/22
  */
 public class JsonModule extends AbstractModule {
   @Override

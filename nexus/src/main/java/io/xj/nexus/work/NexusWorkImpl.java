@@ -8,12 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.xj.api.Chain;
-import io.xj.api.ChainState;
-import io.xj.api.Segment;
-import io.xj.api.SegmentMessage;
-import io.xj.api.SegmentMessageType;
-import io.xj.api.SegmentState;
+import io.xj.api.*;
 import io.xj.hub.enums.TemplateType;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
@@ -31,25 +26,12 @@ import io.xj.nexus.hub_client.client.HubClient;
 import io.xj.nexus.hub_client.client.HubClientAccess;
 import io.xj.nexus.hub_client.client.HubClientException;
 import io.xj.nexus.hub_client.client.HubContent;
-import io.xj.nexus.persistence.ChainManager;
-import io.xj.nexus.persistence.Chains;
-import io.xj.nexus.persistence.ManagerExistenceException;
-import io.xj.nexus.persistence.ManagerFatalException;
-import io.xj.nexus.persistence.ManagerPrivilegeException;
-import io.xj.nexus.persistence.ManagerValidationException;
-import io.xj.nexus.persistence.NexusEntityStore;
-import io.xj.nexus.persistence.SegmentManager;
-import io.xj.nexus.persistence.Segments;
+import io.xj.nexus.persistence.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
@@ -94,12 +76,12 @@ public class NexusWorkImpl implements NexusWork {
   private final int reviveChainFabricatedBehindSeconds;
   private final int reviveChainProductionGraceSeconds;
   private final long healthCycleStalenessThresholdMillis;
+  private final ChainManager chainManager;
   private MultiStopwatch timer;
   private long nextCycleMillis = 0;
   private long nextJanitorMillis = 0;
   private long nextMedicMillis = 0;
   private boolean alive = true;
-  private final ChainManager chainManager;
 
   @Inject
   public NexusWorkImpl(

@@ -6,7 +6,7 @@ import java.util.UUID;
 class HubAccessTokenGeneratorImpl implements HubAccessTokenGenerator {
   @Override
   public String generate() {
-    return String.valueOf(System.currentTimeMillis()) + "-" + UUID.randomUUID().toString() + "-" + new StringBuilder(String.valueOf(System.nanoTime())).reverse().toString();
+    return System.currentTimeMillis() + "-" + UUID.randomUUID() + "-" + new StringBuilder(String.valueOf(System.nanoTime())).reverse();
   }
 }
 

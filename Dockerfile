@@ -12,3 +12,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install openjdk-
 
 # Install FFMPEG
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install ffmpeg
+
+# Install FFMPEG
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install gpac

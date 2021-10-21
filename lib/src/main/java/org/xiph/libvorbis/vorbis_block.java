@@ -808,10 +808,7 @@ public class vorbis_block {
 
     // if(bm->queue_binned)return(1);
 
-    if (vd.backend_state.bms.managed > 0)
-      return true;
-
-    return false;
+    return vd.backend_state.bms.managed > 0;
   }
 
   public boolean vorbis_analysis(ogg_packet op) {

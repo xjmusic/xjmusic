@@ -1,7 +1,7 @@
 name: "Pull Request"
 
 on:
-  [pull_request]
+  [ pull_request ]
 
 jobs:
   Gradle:
@@ -46,6 +46,7 @@ jobs:
       - name: Install system packages
         run: |
           sudo apt-get -y install ffmpeg
+          sudo apt-get -y install gpac
           sudo apt-get -y install postgresql-client
 
       - name: Setup JDK 16

@@ -64,6 +64,15 @@ public abstract class MessageEntity {
   }
 
   /**
+   Message Type
+
+   @return type
+   */
+  public MessageType getType() {
+    return type;
+  }
+
+  /**
    Set Type
 
    @param type to set
@@ -76,15 +85,6 @@ public abstract class MessageEntity {
       this.typeException = e;
     }
     return this;
-  }
-
-  /**
-   Message Type
-
-   @return type
-   */
-  public MessageType getType() {
-    return type;
   }
 
   /**

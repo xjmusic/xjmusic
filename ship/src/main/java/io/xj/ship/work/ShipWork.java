@@ -4,7 +4,7 @@ package io.xj.ship.work;
 /**
  Ship broadcast via HTTP Live Streaming #179453189
  */
-public interface Work {
+public interface ShipWork {
   /**
    This method just does work until failure, blocks until interrupted
    */

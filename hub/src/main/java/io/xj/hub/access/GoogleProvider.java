@@ -11,9 +11,9 @@ public interface GoogleProvider {
    auth.google.id
    auth.google.secret
 
+   @param callbackBaseUrl (optional, nullable) override callback base URL
    @return String authorization code request URL
    @throws HubAccessException if required system properties are not set
-   @param callbackBaseUrl (optional, nullable) override callback base URL
    */
   String getAuthCodeRequestUrl() throws HubAccessException;
 
@@ -32,7 +32,7 @@ public interface GoogleProvider {
    @return String access_token of a successful completed OAuth2 flow
    @throws HubAccessException if authentication fails
    */
-  GoogleTokenResponse getTokenFromCode(String code) throws HubAccessException, HubAccessException;
+  GoogleTokenResponse getTokenFromCode(String code) throws HubAccessException;
 
   /**
    Retrieves the authenticating user's Google API person data.

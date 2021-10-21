@@ -38,11 +38,11 @@ resource "kubernetes_deployment" "xj-prod-yard-coolair-nexus" {
           resources {
             requests = {
               cpu    = "2000m"
-              memory = "3.5Gi"
+              memory = "3Gi"
             }
             limits = {
-              cpu    = "2500m"
-              memory = "4Gi"
+              cpu    = "3000m"
+              memory = "6Gi"
             }
           }
 

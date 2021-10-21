@@ -21,7 +21,6 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigEndpointTest {
@@ -47,7 +46,7 @@ public class ConfigEndpointTest {
   }
 
   /**
-   * [#175771083] Enums should not have unrecognized values
+   [#175771083] Enums should not have unrecognized values
    */
   @Test
   public void getConfig() {

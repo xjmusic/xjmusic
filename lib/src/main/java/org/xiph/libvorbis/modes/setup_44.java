@@ -421,8 +421,8 @@ public class setup_44 {
       11, 12, 13, 14, 15, 16, 17, 18,     /* 39dB */
     })
   };
-  static float _psy_compand_short_mapping[] = new float[]{0.5f, 1.f, 1.f, 1.3f, 1.6f, 2.f, 2.f, 2.f, 2.f, 2.f, 2.f, 2.f};
-  static float _psy_compand_long_mapping[] = new float[]{3.5f, 4.f, 4.f, 4.3f, 4.6f, 5.f, 5.f, 5.f, 5.f, 5.f, 5.f, 5.f};
+  static float[] _psy_compand_short_mapping = new float[]{0.5f, 1.f, 1.f, 1.3f, 1.6f, 2.f, 2.f, 2.f, 2.f, 2.f, 2.f, 2.f};
+  static float[] _psy_compand_long_mapping = new float[]{3.5f, 4.f, 4.f, 4.3f, 4.6f, 5.f, 5.f, 5.f, 5.f, 5.f, 5.f, 5.f};
   static int[] _noise_start_short_44 = new int[]{32, 16, 16, 16, 32, 9999, 9999, 9999, 9999, 9999, 9999};
   static int[] _noise_start_long_44 = new int[]{256, 128, 128, 256, 512, 9999, 9999, 9999, 9999, 9999, 9999};
   static int[] _noise_part_short_44 = new int[]{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
@@ -583,8 +583,8 @@ public class setup_44 {
       7, 23, 39, 55, 79, 110, 156, 232, 360},
       60, 30, 500, 1, 18, -1),
   };
-  static int _floor_short_mapping_44[] = new int[]{1, 0, 0, 2, 2, 4, 5, 5, 5, 5, 5};
-  static int _floor_long_mapping_44[] = new int[]{8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
+  static int[] _floor_short_mapping_44 = new int[]{1, 0, 0, 2, 2, 4, 5, 5, 5, 5, 5};
+  static int[] _floor_long_mapping_44 = new int[]{8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
   public ve_setup_data_template data;
 
 

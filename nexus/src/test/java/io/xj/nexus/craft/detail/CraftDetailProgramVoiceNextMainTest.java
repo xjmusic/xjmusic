@@ -201,7 +201,7 @@ public class CraftDetailProgramVoiceNextMainTest {
       fake.program15,
       fake.program15_sequence0_binding0));
     for (String memeName : ImmutableList.of("Regret", "Sky", "Hindsight", "Tropical"))
-      store.put(buildSegmentMeme(segment4,memeName));
+      store.put(buildSegmentMeme(segment4, memeName));
 
     SegmentChord chord0 = store.put(buildSegmentChord(segment4, 0.0, "G minor"));
     store.put(buildSegmentChordVoicing(chord0, InstrumentType.Bass, "G2, Bb2, D3"));

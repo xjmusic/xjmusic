@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.ship.source;
 
 import com.google.inject.Guice;
@@ -18,7 +20,7 @@ public class SegmentAudioTest {
   private Segment segment1;
   private Chain chain1;
   private SegmentAudio subject;
-  private ShipSourceFactory factory;
+  private SourceFactory factory;
 
   @Before
   public void setUp() {
@@ -43,8 +45,8 @@ public class SegmentAudioTest {
       120.0,
       "seg123.ogg",
       "wav");
-    var injector = Guice.createInjector(new ShipSourceModule());
-    factory = injector.getInstance(ShipSourceFactory.class);
+    var injector = Guice.createInjector(new SourceModule());
+    factory = injector.getInstance(SourceFactory.class);
     subject = factory.segmentAudio(chain1.getShipKey(), segment1);
   }
 

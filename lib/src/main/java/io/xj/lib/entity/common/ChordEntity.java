@@ -54,15 +54,6 @@ public class ChordEntity {
   }
 
   /**
-   Position
-
-   @return position
-   */
-  public Double getPosition() {
-    return this.position;
-  }
-
-  /**
    Set name
 
    @param name to set
@@ -71,6 +62,15 @@ public class ChordEntity {
   public ChordEntity setName(String name) {
     this.name = name;
     return this;
+  }
+
+  /**
+   Position
+
+   @return position
+   */
+  public Double getPosition() {
+    return this.position;
   }
 
   /**

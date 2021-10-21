@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response;
  */
 @Path("api/1/account-users")
 public class AccountUserEndpoint extends HubJsonapiEndpoint {
-  private AccountUserDAO dao;
+  private final AccountUserDAO dao;
 
   /**
    Constructor

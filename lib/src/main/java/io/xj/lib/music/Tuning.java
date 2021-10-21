@@ -29,6 +29,15 @@ public class Tuning {
   private final Map<Double, Note> _pitchNotes = Maps.newHashMap();
 
   /**
+   private constructor
+   */
+  private Tuning(Note rootNote, Double rootPitch) throws MusicalException {
+    this.rootNote = rootNote;
+    this.rootPitch = rootPitch;
+    validate();
+  }
+
+  /**
    A `Tuning` instance, fixed to a given tuning of note A4, in Hz.
 
    @param a4 tuning of note A4, in Hz
@@ -105,15 +114,6 @@ public class Tuning {
    */
   private Double pitchAtDelta(Integer delta) {
     return rootPitch * StrictMath.pow(TWELFTH_ROOT_OF_TWO, delta);
-  }
-
-  /**
-   private constructor
-   */
-  private Tuning(Note rootNote, Double rootPitch) throws MusicalException {
-    this.rootNote = rootNote;
-    this.rootPitch = rootPitch;
-    validate();
   }
 
   /**

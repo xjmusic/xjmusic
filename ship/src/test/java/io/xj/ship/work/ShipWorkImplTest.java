@@ -19,8 +19,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WorkImplTest {
-  private Work subject;
+public class ShipWorkImplTest {
+  private ShipWork subject;
 
   @Before
   public void setUp() throws Exception {
@@ -43,7 +43,7 @@ public class WorkImplTest {
     test.deleteAll();
 
     // Instantiate the test subject
-    subject = injector.getInstance(Work.class);
+    subject = injector.getInstance(ShipWork.class);
   }
 
   @Test
@@ -59,7 +59,7 @@ public class WorkImplTest {
         protected void configure() {
           bind(Environment.class).toInstance(Environment.getDefault());
         }
-      })).getInstance(Work.class);
+      })).getInstance(ShipWork.class);
 
     assertFalse(subject.isHealthy());
   }

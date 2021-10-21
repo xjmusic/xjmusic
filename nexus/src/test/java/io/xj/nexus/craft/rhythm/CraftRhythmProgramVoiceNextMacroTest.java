@@ -239,8 +239,8 @@ public class CraftRhythmProgramVoiceNextMacroTest {
       fake.program15_sequence0_binding0));
     for (String memeName : ImmutableList.of("Hindsight", "Chunky", "Regret", "Tangy"))
       store.put(buildSegmentMeme(segment4, memeName));
-    store.put(buildSegmentChord(segment4,0.0,"F minor"));
-    store.put(buildSegmentChord(segment4,8.0,"Gb minor"));
+    store.put(buildSegmentChord(segment4, 0.0, "F minor"));
+    store.put(buildSegmentChord(segment4, 8.0, "Gb minor"));
   }
 
 }

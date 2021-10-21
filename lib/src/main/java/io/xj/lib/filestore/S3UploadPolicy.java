@@ -20,8 +20,8 @@ import java.util.SimpleTimeZone;
 public class S3UploadPolicy {
 
   private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
-  private String policySignature;
-  private String policyString;
+  private final String policySignature;
+  private final String policyString;
 
   /**
    Creates a new S3 upload policy object of the specified parameters. Once

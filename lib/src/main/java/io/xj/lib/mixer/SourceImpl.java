@@ -49,6 +49,17 @@ class SourceImpl implements Source {
     LOG.debug("Did load source {}", sourceId);
   }
 
+  /**
+   Enforce a maximum
+
+   @param value actual
+   @throws SourceException if value greater than allowable
+   */
+  static void enforceMaxStereo(int value) throws SourceException {
+    if (value > 2)
+      throw new SourceException("more than 2 input audio channels not allowed");
+  }
+
   @Override
   public long lengthMicros() {
     return inputLengthMicros;
@@ -97,17 +108,6 @@ class SourceImpl implements Source {
    */
   private int frameAtMicros(long atMicros) {
     return (int) Math.floor(atMicros / microsPerFrame);
-  }
-
-  /**
-   Enforce a maximum
-
-   @param value actual
-   @throws SourceException if value greater than allowable
-   */
-  static void enforceMaxStereo(int value) throws SourceException {
-    if (value > 2)
-      throw new SourceException("more than 2 input audio channels not allowed");
   }
 
 }

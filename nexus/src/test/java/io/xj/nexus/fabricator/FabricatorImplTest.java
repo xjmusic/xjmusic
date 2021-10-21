@@ -50,7 +50,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * FUTURE: [#170035559] Split the FabricatorImplTest into separate tests of the FabricatorImpl, SegmentWorkbenchImpl, SegmentRetrospectiveImpl, and IngestImpl
+ FUTURE: [#170035559] Split the FabricatorImplTest into separate tests of the FabricatorImpl, SegmentWorkbenchImpl, SegmentRetrospectiveImpl, and IngestImpl
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FabricatorImplTest {
@@ -309,7 +309,7 @@ public class FabricatorImplTest {
 
 
   /**
-   * [#176728582] Choose next Macro program based on the memes of the last sequence from the previous Macro program
+   [#176728582] Choose next Macro program based on the memes of the last sequence from the previous Macro program
    */
   @Test
   public void getType() throws NexusException, ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException {

@@ -27,7 +27,7 @@ import java.net.UnknownHostException;
 import java.util.Set;
 
 /**
- * Nexus service
+ Nexus service
  */
 public interface Main {
   Set<Module> injectorModules = ImmutableSet.of(
@@ -44,9 +44,9 @@ public interface Main {
   );
 
   /**
-   * Main method.
-   *
-   * @param args arguments-- the first argument must be the path to the configuration file
+   Main method.
+
+   @param args arguments-- the first argument must be the path to the configuration file
    */
   @SuppressWarnings("DuplicatedCode")
   static void main(String[] args) throws AppException, UnknownHostException {
@@ -88,17 +88,17 @@ public interface Main {
   }
 
   /**
-   * AWS code snippet for fetching app secret.
-   * If you need more information about configurations or implementing the sample code, visit the AWS docs:
-   * https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-samples.html#prerequisites
-   * <p>
-   * In this sample we only handle the specific exceptions for the 'GetSecretValue' API.
-   * See https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-   * Runtime exceptions are passed through.
-   *
-   * @param region     from which to get secret
-   * @param secretName to retrieve
-   * @return app secret
+   AWS code snippet for fetching app secret.
+   If you need more information about configurations or implementing the sample code, visit the AWS docs:
+   https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-samples.html#prerequisites
+   <p>
+   In this sample we only handle the specific exceptions for the 'GetSecretValue' API.
+   See https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+   Runtime exceptions are passed through.
+
+   @param region     from which to get secret
+   @param secretName to retrieve
+   @return app secret
    */
   static String getSecret(String region, String secretName) {
     AWSSecretsManager client = AWSSecretsManagerClientBuilder.standard().withRegion(region).build();

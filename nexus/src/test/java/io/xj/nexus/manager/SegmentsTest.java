@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.nexus.manager;
 
 import com.google.common.collect.ImmutableList;
@@ -20,7 +22,7 @@ import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 public class SegmentsTest extends TestCase {
   private final Account account = buildAccount("Test");
   private final Template template = buildTemplate(account, "Test");
-  private final Chain chain = buildChain(account,"Test", ChainType.PRODUCTION, ChainState.FABRICATE,template, Instant.parse("2017-02-14T12:02:04.000001Z"));
+  private final Chain chain = buildChain(account, "Test", ChainType.PRODUCTION, ChainState.FABRICATE, template, Instant.parse("2017-02-14T12:02:04.000001Z"));
   private final Segment seg0 = buildSegment(
     chain,
     SegmentType.INITIAL,

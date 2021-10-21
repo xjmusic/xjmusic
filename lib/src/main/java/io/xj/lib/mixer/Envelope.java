@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.lib.mixer;
 
 import java.util.stream.IntStream;
@@ -9,6 +11,13 @@ public enum Envelope {
   ;
   static double MAX = 62.0;
   static double HALF_PI = 1.57079632679;
+  /**
+   Cached result of exponential envelope over 300 frames
+   */
+  public static double[] exponential = IntStream.range(1, (int) MAX)
+    .mapToDouble(i ->
+      Math.sin(HALF_PI * i / MAX)
+    ).toArray();
 
   /**
    Return the value at a given delta from the end of an envelope
@@ -20,12 +29,4 @@ public enum Envelope {
   public static double at(int delta, double value) {
     return delta < exponential.length ? exponential[delta] * value : value;
   }
-
-  /**
-   Cached result of exponential envelope over 300 frames
-   */
-  public static double[] exponential = IntStream.range(1, (int) MAX)
-    .mapToDouble(i ->
-      Math.sin(HALF_PI * i / MAX)
-    ).toArray();
 }

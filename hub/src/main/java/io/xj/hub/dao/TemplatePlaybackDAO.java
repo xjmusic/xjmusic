@@ -17,10 +17,10 @@ public interface TemplatePlaybackDAO extends DAO<TemplatePlayback> {
   /**
    Read the one template playback for a given user
 
-   @return template playback
-   @throws DAOException on failure to read
    @param hubAccess control
    @param userId    for which to read playback
+   @return template playback
+   @throws DAOException on failure to read
    */
   Optional<TemplatePlayback> readOneForUser(HubAccess hubAccess, UUID userId) throws DAOException;
 }

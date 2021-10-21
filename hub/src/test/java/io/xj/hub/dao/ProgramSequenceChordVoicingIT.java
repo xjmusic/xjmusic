@@ -140,11 +140,11 @@ public class ProgramSequenceChordVoicingIT {
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramSequenceChordVoicing();
-      inputData.setId(UUID.randomUUID());
-      inputData.setProgramId(fake.program3.getId());
-      inputData.setProgramSequenceChordId(fake.program3_chord1.getId());
-      inputData.setType(InstrumentType.Bass);
-      inputData.setNotes("C5, Eb5, G5");
+    inputData.setId(UUID.randomUUID());
+    inputData.setProgramId(fake.program3.getId());
+    inputData.setProgramSequenceChordId(fake.program3_chord1.getId());
+    inputData.setType(InstrumentType.Bass);
+    inputData.setNotes("C5, Eb5, G5");
 
     var result = testDAO.create(
       hubAccess, inputData);

@@ -4,6 +4,7 @@ package io.xj.hub.api;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import com.typesafe.config.ConfigFactory;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.InstrumentConfig;
 import io.xj.hub.ProgramConfig;
@@ -76,9 +77,9 @@ public class ConfigEndpoint extends HubJsonapiEndpoint {
       .put("chainStates", CHAIN_STATES)
       .put("chainTypes", CHAIN_TYPES)
       .put("choiceTypes", ProgramType.values())
-      .put("defaultInstrumentConfig", Text.format(InstrumentConfig.DEFAULT))
-      .put("defaultProgramConfig", Text.format(ProgramConfig.DEFAULT))
-      .put("defaultTemplateConfig", Text.format(TemplateConfig.DEFAULT))
+      .put("defaultInstrumentConfig", Text.format(ConfigFactory.parseString(InstrumentConfig.DEFAULT)))
+      .put("defaultProgramConfig", Text.format(ConfigFactory.parseString(ProgramConfig.DEFAULT)))
+      .put("defaultTemplateConfig", Text.format(ConfigFactory.parseString(TemplateConfig.DEFAULT)))
       .put("instrumentStates", InstrumentState.values())
       .put("instrumentTypes", InstrumentType.values())
       .put("patternDetailTypes", ProgramSequencePatternType.values())

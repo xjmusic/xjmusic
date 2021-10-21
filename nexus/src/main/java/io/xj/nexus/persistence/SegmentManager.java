@@ -52,11 +52,11 @@ public interface SegmentManager extends Manager<Segment> {
   /**
    Fetch many records for Chain by ship key, if accessible
 
+   @param shipKey to fetch records for.
    @return collection of retrieved records
    @throws ManagerFatalException     on failure
    @throws ManagerExistenceException if the entity does not exist
    @throws ManagerPrivilegeException if access is prohibited
-   @param shipKey to fetch records for.
    */
   Collection<Segment> readManyByShipKey(String shipKey) throws ManagerPrivilegeException, ManagerFatalException, ManagerExistenceException;
 
@@ -115,7 +115,7 @@ public interface SegmentManager extends Manager<Segment> {
    [#150279540] Unauthenticated public Client wants to access a Chain by ship key (as alias for chain id) in order to provide data for playback.
 
    @param access         control
-   @param shipKey   to read all segments of
+   @param shipKey        to read all segments of
    @param fromSecondsUTC to read segments of
    @return array of segments as JSON
    @throws ManagerFatalException     on failure

@@ -34,9 +34,8 @@ import org.xiph.libvorbis.vorbis_constants.integer_constants;
 
 public class vorbisenc {
 
+  private final ve_setup_data_template[] setup_list;
   private vorbis_info vi;
-
-  private ve_setup_data_template[] setup_list;
 
 
   public vorbisenc() {
@@ -632,8 +631,8 @@ public class vorbisenc {
       // memcpy(g.coupling_prepointamp, p[is].pre, sizeof(*p[is].pre)*PACKETBLOBS);
       // memcpy(g.coupling_postpointamp, p[is].post, sizeof(*p[is].post)*PACKETBLOBS);
 
-      g.coupling_prepointamp = (int[]) p[is].pre.clone();
-      g.coupling_postpointamp = (int[]) p[is].post.clone();
+      g.coupling_prepointamp = p[is].pre.clone();
+      g.coupling_postpointamp = p[is].post.clone();
 
       if (hi.managed != 0) {
         // interpolate the kHz threshholds

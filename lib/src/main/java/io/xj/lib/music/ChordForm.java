@@ -15,10 +15,10 @@ import java.util.regex.Pattern;
  Form is identified by positive/negative regular expressions, and then adds/removes pitch classes by interval from the root of the chord.
  */
 public class ChordForm {
-  private String name;
-  private Pattern search;
-  private Map<Interval, Integer> add;
-  private List<Interval> omit;
+  private final String name;
+  private final Pattern search;
+  private final Map<Interval, Integer> add;
+  private final List<Interval> omit;
 
   ChordForm(String name, Pattern search, Map<Interval, Integer> add, List<Interval> omit) {
     this.name = name;

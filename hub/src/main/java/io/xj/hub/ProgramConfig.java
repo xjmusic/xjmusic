@@ -13,33 +13,32 @@ import io.xj.lib.util.ValueException;
 import java.util.Map;
 
 /**
- * Parse a TypeSafe `config` value for a Program's configuration, overriding values from top-level default.conf--
- * e.g.
- * if the `config` value contains only `previewLengthMaxHours = 8`
+ Parse a TypeSafe `config` value for a Program's configuration, overriding values from top-level default.conf--
+ e.g.
+ if the `config` value contains only `previewLengthMaxHours = 8`
  */
 public class ProgramConfig {
-  private static final String KEY_PREFIX = "program.";
-  public static final Config DEFAULT = ConfigFactory.parseString(
+  public static final String DEFAULT =
     """
-      program {
-        doPatternRestartOnChord = false
-      }
-      """
-  );
+        program {
+          doPatternRestartOnChord = false
+        }
+      """;
+  private static final String KEY_PREFIX = "program.";
   private final Boolean doPatternRestartOnChord;
 
   /**
-   * Instantiate a Program configuration from a string of typesafe config.
-   * Said string will be embedded in a `program{...}` block such that
-   * provided simple Key=Value pairs will be understood as members of `program`
-   * e.g. will override values from the `program{...}` block of the top-level **default.conf**
+   Instantiate a Program configuration from a string of typesafe config.
+   Said string will be embedded in a `program{...}` block such that
+   provided simple Key=Value pairs will be understood as members of `program`
+   e.g. will override values from the `program{...}` block of the top-level **default.conf**
    */
   public ProgramConfig(String configText) throws ValueException {
     try {
       Config config = Strings.isNullOrEmpty(configText) ?
-        DEFAULT :
+        ConfigFactory.parseString(DEFAULT) :
         ConfigFactory.parseString(String.format("program {\n%s\n}", configText))
-          .withFallback(DEFAULT);
+          .withFallback(ConfigFactory.parseString(DEFAULT));
       doPatternRestartOnChord = getOptionalBoolean(config, prefixed("doPatternRestartOnChord"));
 
     } catch (ConfigException e) {
@@ -48,31 +47,31 @@ public class ProgramConfig {
   }
 
   /**
-   * Instantiate a Program configuration from a string of typesafe config.
-   * Said string will be embedded in a `program{...}` block such that
-   * provided simple Key=Value pairs will be understood as members of `program`
-   * e.g. will override values from the `program{...}` block of the top-level **default.conf**
-   *
-   * @param program to get config from
+   Instantiate a Program configuration from a string of typesafe config.
+   Said string will be embedded in a `program{...}` block such that
+   provided simple Key=Value pairs will be understood as members of `program`
+   e.g. will override values from the `program{...}` block of the top-level **default.conf**
+
+   @param program to get config from
    */
   public ProgramConfig(Program program) throws ValueException {
     this(program.getConfig());
   }
 
   /**
-   * Get a program config from only the default config
-   *
-   * @throws ValueException on failure
+   Get a program config from only the default config
+
+   @throws ValueException on failure
    */
   public ProgramConfig() throws ValueException {
     this("");
   }
 
   /**
-   * Program-prefixed version of a key
-   *
-   * @param key to prefix
-   * @return program-prefixed key
+   Program-prefixed version of a key
+
+   @param key to prefix
+   @return program-prefixed key
    */
   @SuppressWarnings("SameParameterValue")
   private static String prefixed(String key) {
@@ -80,11 +79,11 @@ public class ProgramConfig {
   }
 
   /**
-   * If a boolean value is present in the config, return it, otherwise false
-   *
-   * @param config to search for value at key
-   * @param key    at which to search
-   * @return value if present, else false
+   If a boolean value is present in the config, return it, otherwise false
+
+   @param config to search for value at key
+   @param key    at which to search
+   @return value if present, else false
    */
   private static Boolean getOptionalBoolean(Config config, String key) {
     if (!config.hasPath(key)) return false;
@@ -103,7 +102,7 @@ public class ProgramConfig {
   }
 
   /**
-   * @return True if multiphonic
+   @return True if multiphonic
    */
   public Boolean doPatternRestartOnChord() {
     return doPatternRestartOnChord;

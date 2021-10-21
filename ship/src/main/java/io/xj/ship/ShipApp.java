@@ -9,31 +9,32 @@ import io.xj.lib.app.AppException;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.EntityFactory;
 import io.xj.ship.api.ShipAppHealthEndpoint;
+import io.xj.ship.work.ShipWork;
 import org.slf4j.LoggerFactory;
 
 /**
-Base application for XJ services.
-<p>
-USAGE
-<p>
-+ Create a Guice injector that will be used throughout the entire application, by means of:
-- Creating an application with new App(pathToConfigFile, resourcePackages, injector) <-- pass in Guice injector
-- Making that injector available to Jersey2-based resources for their injection
-- Ensuring all classes within the application are injected via their constructors (NOT creating another injector)
-- ensuring all classes rely on factory and provider modules (NOT creating another injector)
-<p>
-+ Accept one runtime argument, pointing to the location of a TypeSafe config
-- ingest that configuration and make it available throughout the application
-<p>
-+ Configure Jersey server resources
-<p>
-+ Call application start()
-- Add shutdown hook that calls application stop()
+ Base application for XJ services.
+ <p>
+ USAGE
+ <p>
+ + Create a Guice injector that will be used throughout the entire application, by means of:
+ - Creating an application with new App(pathToConfigFile, resourcePackages, injector) <-- pass in Guice injector
+ - Making that injector available to Jersey2-based resources for their injection
+ - Ensuring all classes within the application are injected via their constructors (NOT creating another injector)
+ - ensuring all classes rely on factory and provider modules (NOT creating another injector)
+ <p>
+ + Accept one runtime argument, pointing to the location of a TypeSafe config
+ - ingest that configuration and make it available throughout the application
+ <p>
+ + Configure Jersey server resources
+ <p>
+ + Call application start()
+ - Add shutdown hook that calls application stop()
  */
 public class ShipApp extends App {
   private static final String APP_NAME = "ship";
   private final org.slf4j.Logger LOG = LoggerFactory.getLogger(ShipApp.class);
-  private final io.xj.ship.work.Work work;
+  private final ShipWork shipWork;
   private final String platformRelease;
 
   /**
@@ -54,7 +55,7 @@ public class ShipApp extends App {
     platformRelease = env.getPlatformEnvironment();
 
     // core delegates
-    work = injector.getInstance(io.xj.ship.work.Work.class);
+    shipWork = injector.getInstance(ShipWork.class);
 
     // Setup Entity topology
     EntityFactory entityFactory = injector.getInstance(EntityFactory.class);
@@ -80,8 +81,8 @@ public class ShipApp extends App {
 
    @return work manager
    */
-  public io.xj.ship.work.Work getWork() {
-    return work;
+  public ShipWork getWork() {
+    return shipWork;
   }
 
 
@@ -89,7 +90,7 @@ public class ShipApp extends App {
    stop App Server
    */
   public void finish() {
-    work.stop();
+    shipWork.stop();
     super.finish();
     LOG.info("{} ({}}) did exit OK at {}", getName(), platformRelease, getBaseURI());
   }

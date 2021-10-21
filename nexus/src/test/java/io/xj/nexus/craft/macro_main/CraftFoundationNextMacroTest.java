@@ -46,8 +46,8 @@ public class CraftFoundationNextMacroTest {
 
 
   /**
-   * Test to ensure that the following Macro-Program is based on its first sequence-binding meme
-   * matching the last sequence-binding meme of the preceding Macro-Program
+   Test to ensure that the following Macro-Program is based on its first sequence-binding meme
+   matching the last sequence-binding meme of the preceding Macro-Program
    */
   @Test
   public void craftFoundationNextMacro() throws Exception {

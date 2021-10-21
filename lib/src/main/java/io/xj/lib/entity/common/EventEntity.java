@@ -39,33 +39,6 @@ public abstract class EventEntity {
   }
 
   /**
-   get Note
-
-   @return Note
-   */
-  public String getNote() {
-    return note;
-  }
-
-  /**
-   get Position
-
-   @return Position
-   */
-  public Double getPosition() {
-    return position;
-  }
-
-  /**
-   get Velocity
-
-   @return Velocity
-   */
-  public Double getVelocity() {
-    return velocity;
-  }
-
-  /**
    set Duration of EventEntity
 
    @param duration to set
@@ -74,6 +47,15 @@ public abstract class EventEntity {
   public EventEntity setDuration(Double duration) {
     this.duration = duration;
     return this;
+  }
+
+  /**
+   get Note
+
+   @return Note
+   */
+  public String getNote() {
+    return note;
   }
 
   /**
@@ -88,6 +70,15 @@ public abstract class EventEntity {
   }
 
   /**
+   get Position
+
+   @return Position
+   */
+  public Double getPosition() {
+    return position;
+  }
+
+  /**
    set Position of EventEntity
 
    @param position to set
@@ -96,6 +87,15 @@ public abstract class EventEntity {
   public EventEntity setPosition(Double position) {
     this.position = position;
     return this;
+  }
+
+  /**
+   get Velocity
+
+   @return Velocity
+   */
+  public Double getVelocity() {
+    return velocity;
   }
 
   /**

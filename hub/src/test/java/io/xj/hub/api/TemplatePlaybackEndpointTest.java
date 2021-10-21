@@ -50,15 +50,15 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TemplatePlaybackEndpointTest {
+  @Mock
+  ContainerRequestContext crc;
+  @Mock
+  TemplatePlaybackDAO templatePlaybackDAO;
   private HubAccess hubAccess;
   private TemplatePlaybackEndpoint subject;
   private Template template25;
   private Template template1;
   private User user1;
-  @Mock
-  ContainerRequestContext crc;
-  @Mock
-  TemplatePlaybackDAO templatePlaybackDAO;
 
   @Before
   public void setUp() throws AppException {

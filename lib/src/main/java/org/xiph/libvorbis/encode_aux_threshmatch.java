@@ -15,12 +15,12 @@ public class encode_aux_threshmatch {
     if (_quantthresh == null)
       quantthresh = null;
     else
-      quantthresh = (float[]) _quantthresh.clone();
+      quantthresh = _quantthresh.clone();
 
     if (_quantmap == null)
       quantmap = null;
     else
-      quantmap = (int[]) _quantmap.clone();
+      quantmap = _quantmap.clone();
 
     quantvals = _quantvals;
     threshvals = _threshvals;

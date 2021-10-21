@@ -140,13 +140,13 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
   }
 
   /**
-   * Read one record
-   *
-   * @param db        DSL context
-   * @param hubAccess control
-   * @param id        to read
-   * @return record
-   * @throws DAOException on failure
+   Read one record
+
+   @param db        DSL context
+   @param hubAccess control
+   @param id        to read
+   @return record
+   @throws DAOException on failure
    */
   private TemplatePlayback readOne(DSLContext db, HubAccess hubAccess, UUID id) throws DAOException {
     if (hubAccess.isTopLevel())
@@ -163,10 +163,10 @@ public class TemplatePlaybackDAOImpl extends DAOImpl<TemplatePlayback> implement
   }
 
   /**
-   * Validate data
-   *
-   * @param builder to validate
-   * @throws DAOException if invalid
+   Validate data
+
+   @param builder to validate
+   @throws DAOException if invalid
    */
   public TemplatePlayback validate(TemplatePlayback builder) throws DAOException {
     try {

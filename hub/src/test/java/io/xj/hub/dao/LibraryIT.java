@@ -36,12 +36,11 @@ import static io.xj.hub.IntegrationTestingFixtures.*;
 import static org.junit.Assert.*;
 
 public class LibraryIT {
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private LibraryDAO testDAO;
   private HubIntegrationTestProvider test;
   private IntegrationTestingFixtures fake;
-
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
 
   @Before
   public void setUp() throws Exception {

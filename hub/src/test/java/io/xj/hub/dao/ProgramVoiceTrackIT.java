@@ -108,10 +108,10 @@ public class ProgramVoiceTrackIT {
   public void create() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var subject = new ProgramVoiceTrack();
-      subject.setId(UUID.randomUUID());
-      subject.setProgramId(fake.program3.getId());
-      subject.setProgramVoiceId(fake.program2_voice1.getId());
-      subject.setName("Jams");
+    subject.setId(UUID.randomUUID());
+    subject.setProgramId(fake.program3.getId());
+    subject.setProgramVoiceId(fake.program2_voice1.getId());
+    subject.setName("Jams");
 
     var result = testDAO.create(
       hubAccess, subject);
@@ -130,10 +130,10 @@ public class ProgramVoiceTrackIT {
   public void create_asArtist() throws Exception {
     HubAccess hubAccess = HubAccess.create(fake.user2, ImmutableList.of(fake.account1));
     var inputData = new ProgramVoiceTrack();
-      inputData.setId(UUID.randomUUID());
-      inputData.setProgramId(fake.program3.getId());
-      inputData.setProgramVoiceId(fake.program2_voice1.getId());
-      inputData.setName("Jams");
+    inputData.setId(UUID.randomUUID());
+    inputData.setProgramId(fake.program3.getId());
+    inputData.setProgramVoiceId(fake.program2_voice1.getId());
+    inputData.setName("Jams");
 
     var result = testDAO.create(
       hubAccess, inputData);
@@ -244,7 +244,7 @@ public class ProgramVoiceTrackIT {
   @Test
   public void update_moveToDifferentVoice() throws Exception {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Artist");
-    fake.program2_voice2 = test.insert(buildProgramVoice(fake.program2,InstrumentType.Drum,"Cans"));
+    fake.program2_voice2 = test.insert(buildProgramVoice(fake.program2, InstrumentType.Drum, "Cans"));
     voiceTrack1a_0.setProgramVoiceId(fake.program2_voice2.getId());
 
     testDAO.update(hubAccess, voiceTrack1a_0.getId(), voiceTrack1a_0);

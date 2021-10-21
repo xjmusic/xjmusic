@@ -127,7 +127,7 @@ public class ValuesTest {
   }
 
   @Test
-  public void kbps() {
-    assertEquals("128kbps", Values.kbps(128000));
+  public void k() {
+    assertEquals("128k", Values.k(128000));
   }
 }

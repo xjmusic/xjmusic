@@ -7,7 +7,9 @@ import com.google.inject.Singleton;
 import io.xj.lib.app.Environment;
 import io.xj.lib.notification.NotificationProvider;
 import io.xj.lib.util.Text;
+import io.xj.ship.broadcast.BroadcastFactory;
 import io.xj.ship.broadcast.ChunkManager;
+import io.xj.ship.source.SourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,50 +30,50 @@ import static io.xj.lib.telemetry.MultiStopwatch.MILLIS_PER_SECOND;
  Work is performed by runnable executables in a cached thread pool, with callback functions for success and failure.
  */
 @Singleton
-public class WorkImpl implements Work {
-  private static final Logger LOG = LoggerFactory.getLogger(WorkImpl.class);
-  private boolean alive = true;
+public class ShipWorkImpl implements ShipWork {
+  private static final Logger LOG = LoggerFactory.getLogger(ShipWorkImpl.class);
   private final AtomicReference<State> state;
-  private final boolean janitorEnabled;
+  private final BroadcastFactory broadcast;
   private final ChunkManager chunkManager;
+  private final Janitor janitor;
+  private final NotificationProvider notification;
+  private final SourceFactory sources;
+  private final boolean janitorEnabled;
   private final int cycleMillis;
   private final int janitorCycleSeconds;
   private final int publishCycleSeconds;
   private final int shipReloadSeconds;
   private final long healthCycleStalenessThresholdMillis;
-  private final Janitor janitor;
-  private final NotificationProvider notification;
-  private final WorkFactory work;
+  @Nullable
+  private final String shipKey;
+  @Nullable
+  private final String shipTitle;
+  @Nullable
+  private final String shipSource;
+  private boolean alive = true;
   private long nextCycleMillis = 0;
   private long nextJanitorMillis = 0;
   private long nextPublishMillis = 0;
   private long nextShipReloadMillis = 0;
 
-  @Nullable
-  private final String shipKey;
-
-  @Nullable
-  private final String shipTitle;
-
-  @Nullable
-  private final String shipSource;
-
   @Inject
-  public WorkImpl(
+  public ShipWorkImpl(
     ChunkManager chunkManager,
     Environment env,
     Janitor janitor,
     NotificationProvider notification,
-    WorkFactory work
+    SourceFactory sources,
+    BroadcastFactory broadcast
   ) {
     this.janitor = janitor;
-    this.work = work;
+    this.sources = sources;
     this.chunkManager = chunkManager;
     this.notification = notification;
 
     shipKey = env.getBootstrapShipKey();
     shipTitle = env.getBootstrapShipTitle();
     shipSource = env.getBootstrapShipSource();
+    this.broadcast = broadcast;
     state = new AtomicReference<>(State.Active);
     shipReloadSeconds = env.getShipReloadSeconds();
 
@@ -124,18 +126,18 @@ public class WorkImpl implements Work {
       try {
         if (nowMillis > nextShipReloadMillis) {
           nextShipReloadMillis = nowMillis + shipReloadSeconds * MILLIS_PER_SECOND;
-          ForkJoinPool.commonPool().execute(work.spawnChainBoss(shipKey,
+          ForkJoinPool.commonPool().execute(sources.spawnChainBoss(shipKey,
             () -> state.set(State.Fail)
           ));
         }
 
         for (var chunk : chunkManager.getAll(shipKey, nowMillis))
-          work.printer(chunk).print();
+          broadcast.printer(chunk).print();
 
         if (nowMillis > nextPublishMillis) {
           nextPublishMillis = nowMillis + (publishCycleSeconds * MILLIS_PER_SECOND);
           if (chunkManager.isAssembledFarEnoughAhead(shipKey, nowMillis))
-            work.publisher(shipKey, shipTitle, shipSource).publish(nowMillis);
+            broadcast.publisher(shipKey, shipTitle, shipSource).publish(nowMillis);
         }
 
         if (janitorEnabled)

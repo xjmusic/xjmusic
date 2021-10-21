@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.ship.work;
+package io.xj.ship.broadcast;
 
 /**
  This process is run directly in the hard loop (not in a Fork/Join pool)
@@ -23,4 +23,14 @@ public interface ChunkPrinter {
    @return the .wav file path
    */
   String getWavFilePath();
+
+  /**
+   @return the m4s file path
+   */
+  String getM4sFilePath();
+
+  /**
+   @return the mp4 init file path
+   */
+  String getMp4InitFilePath();
 }

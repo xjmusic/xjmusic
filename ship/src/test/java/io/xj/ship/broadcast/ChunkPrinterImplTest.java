@@ -1,4 +1,6 @@
-package io.xj.ship.work;
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+package io.xj.ship.broadcast;
 
 import com.google.api.client.util.Lists;
 import com.google.inject.AbstractModule;
@@ -8,29 +10,37 @@ import io.xj.api.*;
 import io.xj.hub.tables.pojos.Account;
 import io.xj.hub.tables.pojos.Template;
 import io.xj.lib.app.Environment;
-import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.mixer.InternalResource;
 import io.xj.lib.util.ValueException;
-import io.xj.ship.broadcast.Chunk;
-import io.xj.ship.broadcast.ChunkManager;
-import io.xj.ship.broadcast.ShipBroadcastFactory;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.ship.source.SegmentAudio;
 import io.xj.ship.source.SegmentAudioManager;
-import io.xj.ship.source.ShipSourceFactory;
+import io.xj.ship.source.SourceFactory;
+import io.xj.ship.work.ShipWorkModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mp4parser.Box;
+import org.mp4parser.IsoFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
 import static io.xj.lib.util.Assertion.assertFileMatchesResourceFile;
-import static io.xj.lib.util.Assertion.assertFileSizeToleranceFromResourceFile;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildChain;
 import static io.xj.nexus.NexusIntegrationTestingFixtures.buildSegment;
 import static org.junit.Assert.assertEquals;
@@ -41,15 +51,17 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChunkPrinterImplTest {
-
-  // Under Test
-  private ChunkPrinter subject;
-
+  private static final Logger LOG = LoggerFactory.getLogger(ChunkPrinterImplTest.class);
   // Fixture
   private static final String SHIP_KEY = "test5";
+  // Under Test
+  private ChunkPrinter subject;
   private Collection<SegmentAudio> segmentAudios;
   private Segment segment2;
-  private ShipSourceFactory source;
+  private SourceFactory source;
+
+  @Mock
+  private ChainManager chainManager;
 
   @Mock
   private ChunkManager chunkManager;
@@ -61,7 +73,7 @@ public class ChunkPrinterImplTest {
   private SegmentAudioManager segmentAudioManager;
 
   @Before
-  public void setUp() {
+  public void setUp() throws ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
     Account account1 = buildAccount("Testing");
     Template template1 = buildTemplate(account1, "fonds", "ABC");
     Chain chain1 = buildChain(
@@ -88,15 +100,18 @@ public class ChunkPrinterImplTest {
     var injector = Guice.createInjector(Modules.override(new ShipWorkModule()).with(new AbstractModule() {
       @Override
       protected void configure() {
+        bind(ChainManager.class).toInstance(chainManager);
         bind(ChunkManager.class).toInstance(chunkManager);
         bind(Environment.class).toInstance(env);
         bind(FileStoreProvider.class).toInstance(fileStoreProvider);
         bind(SegmentAudioManager.class).toInstance(segmentAudioManager);
       }
     }));
-    var factory = injector.getInstance(WorkFactory.class);
-    source = injector.getInstance(ShipSourceFactory.class);
-    ShipBroadcastFactory broadcast = injector.getInstance(ShipBroadcastFactory.class);
+    source = injector.getInstance(SourceFactory.class);
+    BroadcastFactory broadcast = injector.getInstance(BroadcastFactory.class);
+
+    when(chainManager.readOneByShipKey(eq(SHIP_KEY)))
+      .thenReturn(buildChain(buildTemplate(buildAccount("Testing"), "Testing")));
 
     Chunk chunk = broadcast.chunk(SHIP_KEY, 1513040420);
     segmentAudios = Lists.newArrayList();
@@ -107,23 +122,39 @@ public class ChunkPrinterImplTest {
       eq(chunk.getToInstant())))
       .thenReturn(segmentAudios);
 
-    subject = factory.printer(chunk);
+    subject = broadcast.printer(chunk);
   }
 
   @Test
-  public void run() throws ValueException, IOException, FileStoreException {
+  public void run() throws IOException, ValueException {
     var loader = ChunkPrinterImplTest.class.getClassLoader();
     var input = loader.getResourceAsStream("ogg_decoding/coolair-1633586832900943.ogg");
     segmentAudios.add(source.segmentAudio(SHIP_KEY, segment2).loadOggVorbis(input));
 
     subject.print();
 
-    verify(chunkManager, times(4)).put(any());
-    verify(fileStoreProvider, times(1))
-      .putS3ObjectFromTempFile(eq("/tmp/test5-128kbps-151304042.m4s"), eq("xj-dev-stream"), eq("test5-128kbps-151304042.m4s"));
-    assertFileMatchesResourceFile("/tmp/test5-151304042.wav", "chunk_reference_outputs/test5-151304042.wav");
-    assertFileSizeToleranceFromResourceFile("/tmp/test5-128kbps-151304042.m4s", "chunk_reference_outputs/test5-128kbps-151304042.m4s");
-    assertFileSizeToleranceFromResourceFile("/tmp/test5-128kbps-IS.mp4", "chunk_reference_outputs/test5-128kbps-IS.mp4");
+    assertFileMatchesResourceFile("chunk_reference_outputs/test5-151304042.wav", subject.getWavFilePath());
+
+    var boxesActual = getMp4Boxes(subject.getM4sFilePath());
+    var boxesExpected = getMp4Boxes(new InternalResource("chunk_reference_outputs/test5-128kbps-151304042.m4s").getFile().getAbsolutePath());
+
+    LOG.info("EXPECTED");
+    for (var box : boxesExpected) LOG.info("{}", box.toString());
+    LOG.info("ACTUAL");
+    for (var box : boxesActual) LOG.info("{}", box.toString());
+  }
+
+  /**
+   Get the boxes of an MP4 file
+
+   @param path of file to get
+   @return mp4 boxes
+   @throws IOException on failure
+   */
+  private List<Box> getMp4Boxes(String path) throws IOException {
+    var dataSource = Files.newByteChannel(Path.of(path));
+    var isoFile = new IsoFile(dataSource);
+    return isoFile.getBoxes();
   }
 
   @Test

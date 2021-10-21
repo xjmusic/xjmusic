@@ -1,4 +1,4 @@
-//  Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.hub;
 
@@ -23,6 +23,7 @@ import java.util.UUID;
  as they are about testing all resources.
  */
 public class IntegrationTestingFixtures {
+  public static final String TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\nchoiceDeltaEnabled = false\n";
   private final HubIntegrationTestProvider test;
 
   // These are fully exposed (no getters/setters) for ease of use in testing
@@ -103,6 +104,22 @@ public class IntegrationTestingFixtures {
   public User user5;
   //
   public HubContentFixtures content;
+
+  /**
+   Create a new Integration Testing Fixtures instance by providing the integration test provider
+   */
+  public IntegrationTestingFixtures(HubIntegrationTestProvider hubIntegrationTestProvider) {
+    test = hubIntegrationTestProvider;
+    content = new HubContentFixtures();
+  }
+
+  /**
+   Create a new Integration Testing Fixtures instance by providing the integration test provider and content fixtures
+   */
+  public IntegrationTestingFixtures(HubIntegrationTestProvider hubIntegrationTestProvider, HubContentFixtures content) {
+    test = hubIntegrationTestProvider;
+    this.content = content;
+  }
 
   public static Collection<Object> buildInstrumentWithAudios(Instrument instrument, String notes) {
     List<Object> result = Lists.newArrayList(instrument);
@@ -379,171 +396,6 @@ public class IntegrationTestingFixtures {
     return binding;
   }
 
-
-  /**
-   Library of Content A (shared test fixture)
-   */
-  public void insertFixtureA() throws HubException, JsonapiException {
-    // account
-    account1 = test.insert(buildAccount("testing"));
-    user101 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin"));
-
-    // Library content all created at this known time
-    Instant at = Instant.parse("2014-08-12T12:17:02.527142Z");
-    library10000001 = test.insert(buildLibrary(account1, "leaves"));
-
-    // Templates: enhanced preview chain creation for artists in Lab UI #178457569
-    template1 = test.insert(buildTemplate(account1, "test", UUID.randomUUID().toString()));
-    templateBinding1 = test.insert(buildTemplateBinding(template1, library10000001));
-
-    // Instrument 201
-    instrument201 = test.insert(buildInstrument(library10000001, InstrumentType.Drum, InstrumentState.Published, "808 Drums"));
-    test.insert(buildInstrumentMeme(instrument201, "Ants"));
-    test.insert(buildInstrumentMeme(instrument201, "Mold"));
-    //
-    instrument201_audio402 = test.insert(buildInstrumentAudio(instrument201, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f));
-    //
-    var audio401 = test.insert(buildInstrumentAudio(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f));
-
-    // Instrument 202
-    instrument202 = test.insert(buildInstrument(library10000001, InstrumentType.Drum, InstrumentState.Published, "909 Drums"));
-    test.insert(buildInstrumentMeme(instrument202, "Peel"));
-
-    // Program 701, main-type, has sequence with chords, bound to many offsets
-    program701 = test.insert(buildProgram(library10000001, ProgramType.Main, ProgramState.Published, "leaves", "C#", 120.4f, 0.6f));
-    program701_meme0 = test.insert(buildProgramMeme(program701, "Ants"));
-    var sequence902 = test.insert(buildProgramSequence(program701, (short) 16, "decay", 0.25f, "F#", 110.3f));
-    test.insert(buildProgramSequenceChord(sequence902, 0.0, "G minor"));
-    test.insert(buildProgramSequenceChord(sequence902, 4.0, "C major"));
-    test.insert(buildProgramSequenceChord(sequence902, 8.0, "F7"));
-    test.insert(buildProgramSequenceChord(sequence902, 12.0, "G7"));
-    test.insert(buildProgramSequenceChord(sequence902, 16.0, "F minor"));
-    test.insert(buildProgramSequenceChord(sequence902, 20.0, "Bb major"));
-    var binding902_0 = test.insert(buildProgramSequenceBinding(sequence902, 0));
-    var binding902_1 = test.insert(buildProgramSequenceBinding(sequence902, 1));
-    var binding902_2 = test.insert(buildProgramSequenceBinding(sequence902, 2));
-    var binding902_3 = test.insert(buildProgramSequenceBinding(sequence902, 3));
-    var binding902_4 = test.insert(buildProgramSequenceBinding(sequence902, 4));
-    test.insert(buildProgramSequenceBinding(sequence902, 5));
-    test.insert(buildProgramSequenceBindingMeme(binding902_0, "Gravel"));
-    test.insert(buildProgramSequenceBindingMeme(binding902_1, "Gravel"));
-    test.insert(buildProgramSequenceBindingMeme(binding902_2, "Gravel"));
-    test.insert(buildProgramSequenceBindingMeme(binding902_3, "Rocks"));
-    test.insert(buildProgramSequenceBindingMeme(binding902_1, "Fuzz"));
-    test.insert(buildProgramSequenceBindingMeme(binding902_2, "Fuzz"));
-    test.insert(buildProgramSequenceBindingMeme(binding902_3, "Fuzz"));
-    test.insert(buildProgramSequenceBindingMeme(binding902_4, "Noise"));
-
-    // Program 702, rhythm-type, has unbound sequence with pattern with events
-    program702 = test.insert(buildProgram(library10000001, ProgramType.Rhythm, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f));
-    test.insert(buildProgramMeme(program702, "Ants"));
-    program2_voice1 = test.insert(buildProgramVoice(program702, InstrumentType.Drum, "Drums"));
-    var sequence702a = test.insert(buildProgramSequence(program702, (short) 16, "Base", 0.5f, "C", 110.3f));
-    var pattern901 = test.insert(buildProgramSequencePattern(sequence702a, program2_voice1, ProgramSequencePatternType.Loop, (short) 16, "growth"));
-    var trackBoom = test.insert(buildProgramVoiceTrack(program2_voice1, "BOOM"));
-    var trackSmack = test.insert(buildProgramVoiceTrack(program2_voice1, "BOOM"));
-    program702_pattern901_boomEvent = test.insert(buildProgramSequencePatternEvent(pattern901, trackBoom, 0.0f, 1.0f, "C", 1.0f));
-    test.insert(buildProgramSequencePatternEvent(pattern901, trackSmack, 1.0f, 1.0f, "G", 0.8f));
-    test.insert(buildProgramSequencePatternEvent(pattern901, trackBoom, 2.5f, 1.0f, "C", 0.6f));
-    test.insert(buildProgramSequencePatternEvent(pattern901, trackSmack, 3.0f, 1.0f, "G", 0.9f));
-
-    // Program 703
-    program703 = test.insert(buildProgram(library10000001, ProgramType.Main, ProgramState.Published, "bananas", "Gb", 100.6f, 0.6f));
-    test.insert(buildProgramMeme(program703, "Peel"));
-
-    // DELIBERATELY UNUSED stuff that should not get used because it's in a different library
-    library10000002 = test.insert(buildLibrary(account1, "Garbage Library"));
-    //
-    instrument251 = test.insert(buildInstrument(library10000002, InstrumentType.Drum, InstrumentState.Published, "Garbage Instrument"));
-    test.insert(buildInstrumentMeme(instrument251, "Garbage MemeObject"));
-    //
-    program751 = test.insert(buildProgram(library10000002, ProgramType.Rhythm, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f));
-    test.insert(buildProgramMeme(program751, "Ants"));
-    var voiceGarbage = test.insert(buildProgramVoice(program751, InstrumentType.Drum, "Garbage"));
-    var sequence751a = test.insert(buildProgramSequence(program751, (short) 16, "Base", 0.5f, "C", 110.3f));
-    var pattern951 = test.insert(buildProgramSequencePattern(sequence751a, voiceGarbage, ProgramSequencePatternType.Loop, (short) 16, "Garbage"));
-    var trackGr = test.insert(buildProgramVoiceTrack(voiceGarbage, "GR"));
-    var trackBag = test.insert(buildProgramVoiceTrack(voiceGarbage, "BAG"));
-    test.insert(buildProgramSequencePatternEvent(pattern951, trackGr, 0.0f, 1.0f, "C", 1.0f));
-    test.insert(buildProgramSequencePatternEvent(pattern951, trackBag, 1.0f, 1.0f, "G", 0.8f));
-    test.insert(buildProgramSequencePatternEvent(pattern951, trackGr, 2.5f, 1.0f, "C", 0.6f));
-    test.insert(buildProgramSequencePatternEvent(pattern951, trackBag, 3.0f, 1.0f, "G", 0.9f));
-  }
-
-  /**
-   Library of Content B-1 (shared test fixture)
-   */
-  public void insertFixtureB1() throws HubException {
-    Collection<Object> entities = content.setupFixtureB1(true);
-    for (Object Object : entities) {
-      test.insert(Object);
-    }
-  }
-
-  /**
-   Library of Content B-1 (shared test fixture)
-   <p>
-   [#165954673] Integration tests use shared scenario fixtures as much as possible
-   */
-  public void insertFixtureB2() throws HubException {
-    Collection<Object> entities = content.setupFixtureB2();
-    for (Object Object : entities) {
-      test.insert(Object);
-    }
-  }
-
-  /**
-   Library of Content B-3 (shared test fixture)
-   <p>
-   [#165954673] Integration tests use shared scenario fixtures as much as possible
-   <p>
-   [#163158036] memes bound to sequence-pattern because sequence-binding is not considered for rhythm sequences, rhythm sequence patterns do not have memes.
-   <p>
-   [#165954619] Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (rhythm- and detail-type sequences)
-   <p>
-   [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Rhythm or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
-   + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
-   <p>
-   [#150279647] Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
-   */
-  public void insertFixtureB3() throws HubException {
-    Collection<Object> entities = content.setupFixtureB3();
-    for (Object Object : entities) {
-      test.insert(Object);
-    }
-  }
-
-  /**
-   Library of Content B: Instruments (shared test fixture)
-   <p>
-   [#165954673] Integration tests use shared scenario fixtures as much as possible
-   */
-  public void insertFixtureB_Instruments() throws HubException, JsonapiException {
-    instrument201 = test.insert(buildInstrument(library2, InstrumentType.Drum, InstrumentState.Published, "808 Drums"));
-    test.insert(buildInstrumentMeme(instrument201, "Ants"));
-    test.insert(buildInstrumentMeme(instrument201, "Mold"));
-    //
-    audio401 = test.insert(buildInstrumentAudio(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f));
-    //
-    var audio402 = test.insert(buildInstrumentAudio(instrument201, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f));
-  }
-
-  /**
-   Create a new Integration Testing Fixtures instance by providing the integration test provider
-   */
-  public IntegrationTestingFixtures(HubIntegrationTestProvider hubIntegrationTestProvider) {
-    test = hubIntegrationTestProvider;
-    content = new HubContentFixtures();
-  }
-
-  /**
-   Create a new Integration Testing Fixtures instance by providing the integration test provider and content fixtures
-   */
-  public IntegrationTestingFixtures(HubIntegrationTestProvider hubIntegrationTestProvider, HubContentFixtures content) {
-    test = hubIntegrationTestProvider;
-    this.content = content;
-  }
-
   public static InstrumentAudio buildInstrumentAudio(Instrument instrument, String name, String waveformKey, float start, float length, float tempo, float density, String event, String note, float volume) {
     var instrumentAudio = new InstrumentAudio();
     instrumentAudio.setId(UUID.randomUUID());
@@ -613,7 +465,7 @@ public class IntegrationTestingFixtures {
     template.setId(UUID.randomUUID());
     template.setShipKey(shipKey);
     template.setType(type);
-    template.setConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\nchoiceDeltaEnabled = false\n");
+    template.setConfig(TEST_TEMPLATE_CONFIG);
     template.setAccountId(account1.getId());
     template.setName(name);
     return template;
@@ -838,6 +690,154 @@ public class IntegrationTestingFixtures {
     authorship.setDescription(description);
     authorship.setHours(hours);
     return authorship;
+  }
+
+  /**
+   Library of Content A (shared test fixture)
+   */
+  public void insertFixtureA() throws HubException, JsonapiException {
+    // account
+    account1 = test.insert(buildAccount("testing"));
+    user101 = test.insert(buildUser("john", "john@email.com", "http://pictures.com/john.gif", "Admin"));
+
+    // Library content all created at this known time
+    Instant at = Instant.parse("2014-08-12T12:17:02.527142Z");
+    library10000001 = test.insert(buildLibrary(account1, "leaves"));
+
+    // Templates: enhanced preview chain creation for artists in Lab UI #178457569
+    template1 = test.insert(buildTemplate(account1, "test", UUID.randomUUID().toString()));
+    templateBinding1 = test.insert(buildTemplateBinding(template1, library10000001));
+
+    // Instrument 201
+    instrument201 = test.insert(buildInstrument(library10000001, InstrumentType.Drum, InstrumentState.Published, "808 Drums"));
+    test.insert(buildInstrumentMeme(instrument201, "Ants"));
+    test.insert(buildInstrumentMeme(instrument201, "Mold"));
+    //
+    instrument201_audio402 = test.insert(buildInstrumentAudio(instrument201, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f));
+    //
+    var audio401 = test.insert(buildInstrumentAudio(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f));
+
+    // Instrument 202
+    instrument202 = test.insert(buildInstrument(library10000001, InstrumentType.Drum, InstrumentState.Published, "909 Drums"));
+    test.insert(buildInstrumentMeme(instrument202, "Peel"));
+
+    // Program 701, main-type, has sequence with chords, bound to many offsets
+    program701 = test.insert(buildProgram(library10000001, ProgramType.Main, ProgramState.Published, "leaves", "C#", 120.4f, 0.6f));
+    program701_meme0 = test.insert(buildProgramMeme(program701, "Ants"));
+    var sequence902 = test.insert(buildProgramSequence(program701, (short) 16, "decay", 0.25f, "F#", 110.3f));
+    test.insert(buildProgramSequenceChord(sequence902, 0.0, "G minor"));
+    test.insert(buildProgramSequenceChord(sequence902, 4.0, "C major"));
+    test.insert(buildProgramSequenceChord(sequence902, 8.0, "F7"));
+    test.insert(buildProgramSequenceChord(sequence902, 12.0, "G7"));
+    test.insert(buildProgramSequenceChord(sequence902, 16.0, "F minor"));
+    test.insert(buildProgramSequenceChord(sequence902, 20.0, "Bb major"));
+    var binding902_0 = test.insert(buildProgramSequenceBinding(sequence902, 0));
+    var binding902_1 = test.insert(buildProgramSequenceBinding(sequence902, 1));
+    var binding902_2 = test.insert(buildProgramSequenceBinding(sequence902, 2));
+    var binding902_3 = test.insert(buildProgramSequenceBinding(sequence902, 3));
+    var binding902_4 = test.insert(buildProgramSequenceBinding(sequence902, 4));
+    test.insert(buildProgramSequenceBinding(sequence902, 5));
+    test.insert(buildProgramSequenceBindingMeme(binding902_0, "Gravel"));
+    test.insert(buildProgramSequenceBindingMeme(binding902_1, "Gravel"));
+    test.insert(buildProgramSequenceBindingMeme(binding902_2, "Gravel"));
+    test.insert(buildProgramSequenceBindingMeme(binding902_3, "Rocks"));
+    test.insert(buildProgramSequenceBindingMeme(binding902_1, "Fuzz"));
+    test.insert(buildProgramSequenceBindingMeme(binding902_2, "Fuzz"));
+    test.insert(buildProgramSequenceBindingMeme(binding902_3, "Fuzz"));
+    test.insert(buildProgramSequenceBindingMeme(binding902_4, "Noise"));
+
+    // Program 702, rhythm-type, has unbound sequence with pattern with events
+    program702 = test.insert(buildProgram(library10000001, ProgramType.Rhythm, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f));
+    test.insert(buildProgramMeme(program702, "Ants"));
+    program2_voice1 = test.insert(buildProgramVoice(program702, InstrumentType.Drum, "Drums"));
+    var sequence702a = test.insert(buildProgramSequence(program702, (short) 16, "Base", 0.5f, "C", 110.3f));
+    var pattern901 = test.insert(buildProgramSequencePattern(sequence702a, program2_voice1, ProgramSequencePatternType.Loop, (short) 16, "growth"));
+    var trackBoom = test.insert(buildProgramVoiceTrack(program2_voice1, "BOOM"));
+    var trackSmack = test.insert(buildProgramVoiceTrack(program2_voice1, "BOOM"));
+    program702_pattern901_boomEvent = test.insert(buildProgramSequencePatternEvent(pattern901, trackBoom, 0.0f, 1.0f, "C", 1.0f));
+    test.insert(buildProgramSequencePatternEvent(pattern901, trackSmack, 1.0f, 1.0f, "G", 0.8f));
+    test.insert(buildProgramSequencePatternEvent(pattern901, trackBoom, 2.5f, 1.0f, "C", 0.6f));
+    test.insert(buildProgramSequencePatternEvent(pattern901, trackSmack, 3.0f, 1.0f, "G", 0.9f));
+
+    // Program 703
+    program703 = test.insert(buildProgram(library10000001, ProgramType.Main, ProgramState.Published, "bananas", "Gb", 100.6f, 0.6f));
+    test.insert(buildProgramMeme(program703, "Peel"));
+
+    // DELIBERATELY UNUSED stuff that should not get used because it's in a different library
+    library10000002 = test.insert(buildLibrary(account1, "Garbage Library"));
+    //
+    instrument251 = test.insert(buildInstrument(library10000002, InstrumentType.Drum, InstrumentState.Published, "Garbage Instrument"));
+    test.insert(buildInstrumentMeme(instrument251, "Garbage MemeObject"));
+    //
+    program751 = test.insert(buildProgram(library10000002, ProgramType.Rhythm, ProgramState.Published, "coconuts", "F#", 110.3f, 0.6f));
+    test.insert(buildProgramMeme(program751, "Ants"));
+    var voiceGarbage = test.insert(buildProgramVoice(program751, InstrumentType.Drum, "Garbage"));
+    var sequence751a = test.insert(buildProgramSequence(program751, (short) 16, "Base", 0.5f, "C", 110.3f));
+    var pattern951 = test.insert(buildProgramSequencePattern(sequence751a, voiceGarbage, ProgramSequencePatternType.Loop, (short) 16, "Garbage"));
+    var trackGr = test.insert(buildProgramVoiceTrack(voiceGarbage, "GR"));
+    var trackBag = test.insert(buildProgramVoiceTrack(voiceGarbage, "BAG"));
+    test.insert(buildProgramSequencePatternEvent(pattern951, trackGr, 0.0f, 1.0f, "C", 1.0f));
+    test.insert(buildProgramSequencePatternEvent(pattern951, trackBag, 1.0f, 1.0f, "G", 0.8f));
+    test.insert(buildProgramSequencePatternEvent(pattern951, trackGr, 2.5f, 1.0f, "C", 0.6f));
+    test.insert(buildProgramSequencePatternEvent(pattern951, trackBag, 3.0f, 1.0f, "G", 0.9f));
+  }
+
+  /**
+   Library of Content B-1 (shared test fixture)
+   */
+  public void insertFixtureB1() throws HubException {
+    Collection<Object> entities = content.setupFixtureB1(true);
+    for (Object Object : entities) {
+      test.insert(Object);
+    }
+  }
+
+  /**
+   Library of Content B-1 (shared test fixture)
+   <p>
+   [#165954673] Integration tests use shared scenario fixtures as much as possible
+   */
+  public void insertFixtureB2() throws HubException {
+    Collection<Object> entities = content.setupFixtureB2();
+    for (Object Object : entities) {
+      test.insert(Object);
+    }
+  }
+
+  /**
+   Library of Content B-3 (shared test fixture)
+   <p>
+   [#165954673] Integration tests use shared scenario fixtures as much as possible
+   <p>
+   [#163158036] memes bound to sequence-pattern because sequence-binding is not considered for rhythm sequences, rhythm sequence patterns do not have memes.
+   <p>
+   [#165954619] Choice is either by sequence-pattern (macro- or main-type sequences) or by sequence (rhythm- and detail-type sequences)
+   <p>
+   [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Rhythm or Detail-type Sequence) in order to of a composition that is dynamic when chosen to fill a Segment.
+   + For this test, there's an Intro Pattern with all BLEEPS, multiple Loop Patterns with KICK and SNARE (2x each), and an Outro Pattern with all TOOTS.
+   <p>
+   [#150279647] Artist wants to of multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
+   */
+  public void insertFixtureB3() throws HubException {
+    Collection<Object> entities = content.setupFixtureB3();
+    for (Object Object : entities) {
+      test.insert(Object);
+    }
+  }
+
+  /**
+   Library of Content B: Instruments (shared test fixture)
+   <p>
+   [#165954673] Integration tests use shared scenario fixtures as much as possible
+   */
+  public void insertFixtureB_Instruments() throws HubException, JsonapiException {
+    instrument201 = test.insert(buildInstrument(library2, InstrumentType.Drum, InstrumentState.Published, "808 Drums"));
+    test.insert(buildInstrumentMeme(instrument201, "Ants"));
+    test.insert(buildInstrumentMeme(instrument201, "Mold"));
+    //
+    audio401 = test.insert(buildInstrumentAudio(instrument201, "Beat", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f));
+    //
+    var audio402 = test.insert(buildInstrumentAudio(instrument201, "Chords Cm to D", "a0b9f74kf9b4h8d9e0g73k107s09f7-g0e73982.wav", 0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb", 1.0f));
   }
 
 }

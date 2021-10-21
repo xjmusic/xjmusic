@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.ship.broadcast;
 
 import com.google.inject.Inject;
@@ -86,7 +88,7 @@ public class PlaylistProviderImpl implements PlaylistProvider {
 
                 // FUTURE: multiple available representations, e.g. 320kbps, 240kbps, and 160kbps
                 Representation.builder()
-                  .withId(Values.kbps(shipBitrateHigh))
+                  .withId(Values.k(shipBitrateHigh))
                   .withAudioSamplingRate(String.valueOf(shipBitrateHigh))
                   .withBandwidth(shipBitrateHigh)
                   .withCodecs(AUDIO_CODECS)

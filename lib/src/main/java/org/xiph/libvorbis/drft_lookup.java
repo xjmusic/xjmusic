@@ -36,8 +36,8 @@ class drft_lookup {
   public drft_lookup(int _n, float[] _trigcache, int[] _splitcache) {
 
     n = _n;
-    trigcache = (float[]) _trigcache.clone();
-    splitcache = (int[]) _splitcache.clone();
+    trigcache = _trigcache.clone();
+    splitcache = _splitcache.clone();
   }
 
   public drft_lookup(drft_lookup src) {
@@ -56,7 +56,7 @@ class drft_lookup {
 
   static void drfti1(int _n, float[] wa, int[] ifac) {
 
-    int ntryh[] = {4, 2, 3, 5};
+    int[] ntryh = {4, 2, 3, 5};
     float tpi = 6.28318530717958648f;
     float arg, argh, argld, fi;
     int ntry = 0, i, j = -1;

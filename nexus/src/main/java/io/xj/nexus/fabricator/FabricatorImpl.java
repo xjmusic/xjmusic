@@ -41,7 +41,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
+ [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 class FabricatorImpl implements Fabricator {
   private static final double MICROS_PER_SECOND = 1000000.0F;
@@ -893,7 +893,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * @return Chain base key
+   @return Chain base key
    */
   private String computeChainBaseKey() {
     return
@@ -903,11 +903,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Compute the lowest optimal range shift octaves
-   *
-   * @param sourceRange from
-   * @param targetRange to
-   * @return lowest optimal range shift octaves
+   Compute the lowest optimal range shift octaves
+
+   @param sourceRange from
+   @param targetRange to
+   @return lowest optimal range shift octaves
    */
   private Integer computeLowestOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) throws NexusException {
     var shiftOctave = 0; // search for optimal value
@@ -926,11 +926,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Compute the median optimal range shift octaves
-   *
-   * @param sourceRange from
-   * @param targetRange to
-   * @return median optimal range shift octaves
+   Compute the median optimal range shift octaves
+
+   @param sourceRange from
+   @param targetRange to
+   @return median optimal range shift octaves
    */
   private Integer computeMedianOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) throws NexusException {
     if (sourceRange.getLow().isEmpty() ||
@@ -956,11 +956,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Compute a Segment ship key: the chain ship key concatenated with the begin-at time in microseconds since epoch
-   *
-   * @param chain   for which to compute segment ship key
-   * @param segment for which to compute segment ship key
-   * @return Segment ship key computed for the given chain and Segment
+   Compute a Segment ship key: the chain ship key concatenated with the begin-at time in microseconds since epoch
+
+   @param chain   for which to compute segment ship key
+   @param segment for which to compute segment ship key
+   @return Segment ship key computed for the given chain and Segment
    */
   private String computeShipKey(Chain chain, Segment segment) {
     String chainName = Strings.isNullOrEmpty(chain.getShipKey()) ?
@@ -971,21 +971,21 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Format a message with the segmentId as prefix
-   *
-   * @param message to format
-   * @return formatted message with segmentId as prefix
+   Format a message with the segmentId as prefix
+
+   @param message to format
+   @return formatted message with segmentId as prefix
    */
   private String formatLog(String message) {
     return String.format("[segId=%s] %s", workbench.getSegment().getId(), message);
   }
 
   /**
-   * Get the Chain Metadata JSON file from a set of segments
-   *
-   * @param segments to include in metadata JSON
-   * @return metadata JSON
-   * @throws NexusException on failure
+   Get the Chain Metadata JSON file from a set of segments
+
+   @param segments to include in metadata JSON
+   @return metadata JSON
+   @throws NexusException on failure
    */
   private String computeChainMetadataJson(Collection<Segment> segments) throws NexusException {
     try {
@@ -1003,11 +1003,11 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Key for a chord + event pairing
-   *
-   * @param eventId   to get key for
-   * @param chordName to get key for
-   * @return key for chord + event
+   Key for a chord + event pairing
+
+   @param eventId   to get key for
+   @param chordName to get key for
+   @return key for chord + event
    */
   private String computeEventChordKey(@Nullable UUID eventId, @Nullable String chordName) throws NexusException, EntityStoreException {
     return String.format("%s__%s",
@@ -1016,10 +1016,10 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Get a time computer, configured for the current segment.
-   * Don't use it before this segment has enough choices to determine its time computer
-   *
-   * @return Time Computer
+   Get a time computer, configured for the current segment.
+   Don't use it before this segment has enough choices to determine its time computer
+
+   @return Time Computer
    */
   private TimeComputer buildTimeComputer() throws NexusException {
     double toTempo = workbench.getSegment().getTempo(); // velocity at current segment tempo
@@ -1035,7 +1035,7 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Ensure the current segment has a storage key; if not, add a storage key to this Segment
+   Ensure the current segment has a storage key; if not, add a storage key to this Segment
    */
   private void ensureShipKey() {
     if (Values.isEmpty(workbench.getSegment().getStorageKey()) || workbench.getSegment().getStorageKey().isEmpty()) {
@@ -1047,9 +1047,9 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Compute the type of the current segment
-   *
-   * @return type of the current segment
+   Compute the type of the current segment
+
+   @return type of the current segment
    */
   private SegmentType computeType() {
     if (isInitialSegment())
@@ -1072,9 +1072,9 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Get the delta of the previous segment
-   *
-   * @return delta from previous segment
+   Get the delta of the previous segment
+
+   @return delta from previous segment
    */
   private int getPreviousSegmentDelta() {
     return retrospective.getPreviousSegment()
@@ -1083,9 +1083,9 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Digest all previously picked events for the same main program
-   *
-   * @return map of program types to instrument types to list of programs chosen
+   Digest all previously picked events for the same main program
+
+   @return map of program types to instrument types to list of programs chosen
    */
   private Map<String, Set<String>> computePreferredNotes() {
     Map<String, Set<String>> notes = Maps.newHashMap();
@@ -1107,9 +1107,9 @@ class FabricatorImpl implements Fabricator {
   }
 
   /**
-   * Compute the preferred instrument audio
-   *
-   * @return preferred instrument audio
+   Compute the preferred instrument audio
+
+   @return preferred instrument audio
    */
   private Map<String, InstrumentAudio> computePreferredInstrumentAudio() {
     Map<String, InstrumentAudio> audios = Maps.newHashMap();

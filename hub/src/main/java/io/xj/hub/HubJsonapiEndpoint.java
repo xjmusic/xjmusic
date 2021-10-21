@@ -19,7 +19,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * A JAX-RS resource
+ A JAX-RS resource
  */
 public class HubJsonapiEndpoint {
   public static final String ADMIN = "Admin";
@@ -32,7 +32,7 @@ public class HubJsonapiEndpoint {
   protected final JsonapiPayloadFactory payloadFactory;
 
   /**
-   * Constructor
+   Constructor
    */
   @Inject
   public HubJsonapiEndpoint(
@@ -44,13 +44,13 @@ public class HubJsonapiEndpoint {
   }
 
   /**
-   * Create one Entity via a DAO given a JSON:API payload request
-   *
-   * @param crc            request context
-   * @param dao            via which to of Entity
-   * @param jsonapiPayload of data to of Entity
-   * @param <N>            type of Entity
-   * @return HTTP response comprising JSON:API payload
+   Create one Entity via a DAO given a JSON:API payload request
+
+   @param crc            request context
+   @param dao            via which to of Entity
+   @param jsonapiPayload of data to of Entity
+   @param <N>            type of Entity
+   @return HTTP response comprising JSON:API payload
    */
   public <N> Response create(ContainerRequestContext crc, DAO<N> dao, JsonapiPayload jsonapiPayload) {
     try {
@@ -67,13 +67,13 @@ public class HubJsonapiEndpoint {
   }
 
   /**
-   * Read one Entity of a DAO and return the JSON:API payload response
-   *
-   * @param crc request context
-   * @param dao of which to read one Entity
-   * @param id  of Entity to read
-   * @param <N> type of Entity
-   * @return HTTP response comprising JSON:API payload
+   Read one Entity of a DAO and return the JSON:API payload response
+
+   @param crc request context
+   @param dao of which to read one Entity
+   @param id  of Entity to read
+   @param <N> type of Entity
+   @return HTTP response comprising JSON:API payload
    */
   public <N> Response readOne(ContainerRequestContext crc, DAO<N> dao, Object id) {
     try {
@@ -91,13 +91,13 @@ public class HubJsonapiEndpoint {
   }
 
   /**
-   * Read many Entity of a DAO and return the JSON:API payload response
-   *
-   * @param crc       request context
-   * @param dao       of which to read many Entity
-   * @param parentIds of Entity to read
-   * @param <N>       type of Entity
-   * @return HTTP response comprising JSON:API payload
+   Read many Entity of a DAO and return the JSON:API payload response
+
+   @param crc       request context
+   @param dao       of which to read many Entity
+   @param parentIds of Entity to read
+   @param <N>       type of Entity
+   @return HTTP response comprising JSON:API payload
    */
   public <N, O> Response readMany(ContainerRequestContext crc, DAO<N> dao, Collection<O> parentIds) {
     try {
@@ -114,13 +114,13 @@ public class HubJsonapiEndpoint {
   }
 
   /**
-   * Read many Entity of a DAO and return the JSON:API payload response
-   *
-   * @param crc      request context
-   * @param dao      of which to read many Entity
-   * @param parentId of Entity to read
-   * @param <N>      type of Entity
-   * @return HTTP response comprising JSON:API payload
+   Read many Entity of a DAO and return the JSON:API payload response
+
+   @param crc      request context
+   @param dao      of which to read many Entity
+   @param parentId of Entity to read
+   @param <N>      type of Entity
+   @return HTTP response comprising JSON:API payload
    */
   public <N> Response readMany(ContainerRequestContext crc, DAO<N> dao, String parentId) {
     if (Objects.isNull(parentId))
@@ -130,14 +130,14 @@ public class HubJsonapiEndpoint {
   }
 
   /**
-   * Update one Entity via a DAO given a JSON:API payload request
-   *
-   * @param crc            request context
-   * @param dao            via which to read one Entity
-   * @param id             of Entity to read
-   * @param jsonapiPayload of data to update
-   * @param <N>            type of Entity
-   * @return HTTP response comprising JSON:API payload
+   Update one Entity via a DAO given a JSON:API payload request
+
+   @param crc            request context
+   @param dao            via which to read one Entity
+   @param id             of Entity to read
+   @param jsonapiPayload of data to update
+   @param <N>            type of Entity
+   @return HTTP response comprising JSON:API payload
    */
   public <N> Response update(ContainerRequestContext crc, DAO<N> dao, String id, JsonapiPayload jsonapiPayload) {
     try {
@@ -151,13 +151,13 @@ public class HubJsonapiEndpoint {
   }
 
   /**
-   * Update many Entities via a DAO given a JSON:API payload request
-   *
-   * @param crc            request context
-   * @param dao            via which to read one Entity
-   * @param jsonapiPayload of data to update, type:many
-   * @param <N>            type of Entity
-   * @return HTTP response comprising JSON:API payload
+   Update many Entities via a DAO given a JSON:API payload request
+
+   @param crc            request context
+   @param dao            via which to read one Entity
+   @param jsonapiPayload of data to update, type:many
+   @param <N>            type of Entity
+   @return HTTP response comprising JSON:API payload
    */
   public <N> Response updateMany(ContainerRequestContext crc, DAO<N> dao, JsonapiPayload jsonapiPayload) {
     try {
@@ -176,13 +176,13 @@ public class HubJsonapiEndpoint {
   }
 
   /**
-   * Delete one Entity via a DAO
-   *
-   * @param crc request context
-   * @param dao via which to delete one Entity
-   * @param id  of Entity to delete
-   * @param <N> type of Entity
-   * @return HTTP response comprising JSON:API payload
+   Delete one Entity via a DAO
+
+   @param crc request context
+   @param dao via which to delete one Entity
+   @param id  of Entity to delete
+   @param <N> type of Entity
+   @return HTTP response comprising JSON:API payload
    */
   public <N> Response delete(ContainerRequestContext crc, DAO<N> dao, String id) {
     try {

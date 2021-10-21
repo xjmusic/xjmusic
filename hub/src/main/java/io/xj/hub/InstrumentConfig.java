@@ -14,36 +14,34 @@ import io.xj.lib.util.ValueException;
 import java.util.Map;
 
 /**
- * Parse a TypeSafe `config` value for an Instrument's configuration, overriding values from top-level default.conf--
- * e.g.
- * if the `config` value contains only `previewLengthMaxHours = 8`
+ Parse a TypeSafe `config` value for an Instrument's configuration, overriding values from top-level default.conf--
+ e.g.
+ if the `config` value contains only `previewLengthMaxHours = 8`
  */
 public class InstrumentConfig {
-  private static final String KEY_PREFIX = "instrument.";
-  public static final Config DEFAULT = ConfigFactory.parseString(
+  public static final String DEFAULT =
     """
       instrument {
         isMultiphonic = false
         isTonal = false
       }
-      """
-  );
-
+      """;
+  private static final String KEY_PREFIX = "instrument.";
   private final Boolean isTonal;
   private final Boolean isMultiphonic;
 
   /**
-   * Instantiate an Instrument configuration from a string of typesafe config.
-   * Said string will be embedded in a `instrument{...}` block such that
-   * provided simple Key=Value pairs will be understood as members of `instrument`
-   * e.g. will override values from the `instrument{...}` block of the top-level **default.conf**
+   Instantiate an Instrument configuration from a string of typesafe config.
+   Said string will be embedded in a `instrument{...}` block such that
+   provided simple Key=Value pairs will be understood as members of `instrument`
+   e.g. will override values from the `instrument{...}` block of the top-level **default.conf**
    */
   public InstrumentConfig(String configText) throws ValueException {
     try {
       Config config = Strings.isNullOrEmpty(configText) ?
-        DEFAULT :
+        ConfigFactory.parseString(DEFAULT) :
         ConfigFactory.parseString(String.format("instrument {\n%s\n}", configText))
-          .withFallback(DEFAULT);
+          .withFallback(ConfigFactory.parseString(DEFAULT));
       isTonal = getOptionalBoolean(config, prefixed("isTonal"));
       isMultiphonic = getOptionalBoolean(config, prefixed("isMultiphonic"));
 
@@ -53,32 +51,32 @@ public class InstrumentConfig {
   }
 
   /**
-   * Instantiate an Instrument configuration from a string of typesafe config.
-   * Said string will be embedded in a `instrument{...}` block such that
-   * provided simple Key=Value pairs will be understood as members of `instrument`
-   * e.g. will override values from the `instrument{...}` block of the top-level **default.conf**
-   *
-   * @param instrument to get config from
+   Instantiate an Instrument configuration from a string of typesafe config.
+   Said string will be embedded in a `instrument{...}` block such that
+   provided simple Key=Value pairs will be understood as members of `instrument`
+   e.g. will override values from the `instrument{...}` block of the top-level **default.conf**
+
+   @param instrument to get config from
    */
   public InstrumentConfig(Instrument instrument) throws ValueException {
     this(instrument.getConfig());
   }
 
   /**
-   * Get an instrument config from only the default config
-   *
-   * @throws ValueException on failure
+   Get an instrument config from only the default config
+
+   @throws ValueException on failure
    */
   public InstrumentConfig() throws ValueException {
     this("");
   }
 
   /**
-   * If a boolean value is present in the config, return it, otherwise false
-   *
-   * @param config to search for value at key
-   * @param key    at which to search
-   * @return value if present, else false
+   If a boolean value is present in the config, return it, otherwise false
+
+   @param config to search for value at key
+   @param key    at which to search
+   @return value if present, else false
    */
   private Boolean getOptionalBoolean(Config config, String key) {
     if (!config.hasPath(key)) return false;
@@ -86,10 +84,10 @@ public class InstrumentConfig {
   }
 
   /**
-   * Instrument-prefixed version of a key
-   *
-   * @param key to prefix
-   * @return instrument-prefixed key
+   Instrument-prefixed version of a key
+
+   @param key to prefix
+   @return instrument-prefixed key
    */
   private String prefixed(String key) {
     return String.format("%s%s", KEY_PREFIX, key);
@@ -108,14 +106,14 @@ public class InstrumentConfig {
   }
 
   /**
-   * @return True if multiphonic
+   @return True if multiphonic
    */
   public Boolean isMultiphonic() {
     return isMultiphonic;
   }
 
   /**
-   * @return true if tonal
+   @return true if tonal
    */
   public Boolean isTonal() {
     return isTonal;

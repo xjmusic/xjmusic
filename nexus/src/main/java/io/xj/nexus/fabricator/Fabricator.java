@@ -48,18 +48,21 @@ public interface Fabricator {
 
   /**
    Add a message of the given type to the segment, with the given body
+
    @param body to include in message
    */
   void addMessage(SegmentMessageType messageType, String body) throws NexusException;
 
   /**
    Add an error message to the segment, with the given body
+
    @param body to include in message
    */
   void addMessageError(String body) throws NexusException;
 
   /**
    Add an info message to the segment, with the given body
+
    @param body to include in message
    */
   void addMessageInfo(String body) throws NexusException;
@@ -284,8 +287,8 @@ public interface Fabricator {
    determine the next available SequenceBinding offset of the chosen sequence,
    or loop back to zero (if past the end of the available SequenceBinding offsets)
 
-   @return next available SequenceBinding offset of the chosen sequence, or zero (if past the end of the available SequenceBinding offsets)
    @param choice having a SequenceBinding
+   @return next available SequenceBinding offset of the chosen sequence, or zero (if past the end of the available SequenceBinding offsets)
    */
   Integer getNextSequenceBindingOffset(SegmentChoice choice);
 
@@ -329,9 +332,9 @@ public interface Fabricator {
   /**
    Get preferred (previously chosen) notes
 
-   @return notes
    @param eventId   of event
    @param chordName of chord
+   @return notes
    */
   Optional<Set<String>> getPreferredNotes(UUID eventId, String chordName);
 
@@ -364,9 +367,9 @@ public interface Fabricator {
   /**
    Get the note range for an arrangement based on all the events in its program
 
-   @return Note range of arrangement
    @param programId      to get range of
    @param instrumentType to get range of
+   @return Note range of arrangement
    */
   NoteRange getProgramRange(UUID programId, InstrumentType instrumentType) throws NexusException;
 
@@ -430,17 +433,17 @@ public interface Fabricator {
   /**
    Randomly select any sequence binding at the given offset
 
-   @return randomly selected sequence binding
    @param offset to get sequence binding at
+   @return randomly selected sequence binding
    */
   Optional<ProgramSequenceBinding> getRandomlySelectedSequenceBindingAtOffset(Program program, Integer offset);
 
   /**
    Get a randomly selected voice of the given program id
 
-   @return randomly selected voice
-   @param programId for which to randomly select voice
+   @param programId       for which to randomly select voice
    @param excludeVoiceIds to exclude from random selection
+   @return randomly selected voice
    */
   Optional<ProgramVoice> getRandomlySelectedVoiceForProgramId(UUID programId, Collection<UUID> excludeVoiceIds);
 
@@ -514,8 +517,8 @@ public interface Fabricator {
   /**
    Get the sequence pattern offset of a given Choice
 
-   @return sequence pattern offset
    @param choice having a SequenceBinding
+   @return sequence pattern offset
    */
   Integer getSequenceBindingOffsetForChoice(SegmentChoice choice);
 
@@ -613,10 +616,10 @@ public interface Fabricator {
   /**
    Remember which notes were picked for a given event
 
-   @return notes to pass  through for chaining method calls
    @param programSequencePatternEventId to remember notes picked for
    @param chordName                     to remember notes picked for
    @param notes                         to remember were picked
+   @return notes to pass  through for chaining method calls
    */
   Set<String> rememberPickedNotes(UUID programSequencePatternEventId, String chordName, Set<String> notes);
 

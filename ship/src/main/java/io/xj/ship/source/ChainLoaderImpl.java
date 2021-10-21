@@ -1,5 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.ship.work;
+package io.xj.ship.source;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -15,7 +15,6 @@ import io.xj.lib.jsonapi.JsonapiException;
 import io.xj.lib.jsonapi.JsonapiPayload;
 import io.xj.lib.jsonapi.JsonapiPayloadFactory;
 import io.xj.nexus.persistence.*;
-import io.xj.ship.source.SegmentAudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +32,9 @@ import static io.xj.lib.filestore.FileStoreProvider.EXTENSION_JSON;
 /**
  Ship broadcast via HTTP Live Streaming #179453189
  */
-public class ChainBossImpl extends ChainBoss {
-  private static final Logger LOG = LoggerFactory.getLogger(ChainBossImpl.class);
-  private final WorkFactory work;
+@SuppressWarnings("DuplicatedCode")
+public class ChainLoaderImpl extends ChainLoader {
+  private static final Logger LOG = LoggerFactory.getLogger(ChainLoaderImpl.class);
   private final ChainManager chainManager;
   private final FileStoreProvider fileStoreProvider;
   private final int eraseSegmentsOlderThanSeconds;
@@ -44,13 +43,14 @@ public class ChainBossImpl extends ChainBoss {
   private final JsonapiPayloadFactory jsonapiPayloadFactory;
   private final Runnable onFailure;
   private final SegmentAudioManager segmentAudioManager;
+  private final SourceFactory source;
   private final SegmentManager segmentManager;
   private final String shipBucket;
   private final String shipKey;
   private final String threadName;
 
   @Inject
-  public ChainBossImpl(
+  public ChainLoaderImpl(
     @Assisted("shipKey") String shipKey,
     @Assisted("onFailure") Runnable onFailure,
     ChainManager chainManager,
@@ -60,22 +60,22 @@ public class ChainBossImpl extends ChainBoss {
     JsonapiPayloadFactory jsonapiPayloadFactory,
     SegmentAudioManager segmentAudioManager,
     SegmentManager segmentManager,
-    WorkFactory work
+    SourceFactory source
   ) {
-    this.work = work;
     this.chainManager = chainManager;
     this.fileStoreProvider = fileStoreProvider;
-    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.jsonProvider = jsonProvider;
+    this.jsonapiPayloadFactory = jsonapiPayloadFactory;
     this.onFailure = onFailure;
+    this.segmentAudioManager = segmentAudioManager;
     this.segmentManager = segmentManager;
     this.shipKey = shipKey;
+    this.source = source;
 
     eraseSegmentsOlderThanSeconds = env.getWorkEraseSegmentsOlderThanSeconds();
     shipFabricatedAheadThreshold = env.getWorkShipFabricatedAheadThresholdSeconds();
 
     shipBucket = env.getShipBucket();
-    this.segmentAudioManager = segmentAudioManager;
 
     threadName = String.format("CHAIN:%s", this.shipKey);
   }
@@ -145,7 +145,7 @@ public class ChainBossImpl extends ChainBoss {
 
           } else {
             segmentLoaded.incrementAndGet();
-            ForkJoinPool.commonPool().execute(work.spawnSegmentLoader(shipKey, segment));
+            ForkJoinPool.commonPool().execute(source.spawnSegmentLoader(shipKey, segment));
           }
 
         } catch (Exception e) {

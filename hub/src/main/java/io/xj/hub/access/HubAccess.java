@@ -221,6 +221,17 @@ public class HubAccess {
   }
 
   /**
+   Set User Id
+
+   @param userId to set
+   @return this HubAccess (for chaining setters)
+   */
+  public HubAccess setUserId(@Nullable UUID userId) {
+    this.userId = userId;
+    return this;
+  }
+
+  /**
    Get Accounts
 
    @return array of account id
@@ -230,12 +241,36 @@ public class HubAccess {
   }
 
   /**
+   Set AccountIds
+
+   @param accountIds to set
+   @return this HubAccess (for chaining setters)
+   */
+  public HubAccess setAccountIds(Collection<UUID> accountIds) {
+    this.accountIds.clear();
+    this.accountIds.addAll(accountIds);
+    return this;
+  }
+
+  /**
    Get user role types
 
    @return user role types
    */
   public Collection<UserRoleType> getRoleTypes() {
     return Collections.unmodifiableCollection(roleTypes);
+  }
+
+  /**
+   Set RoleTypes
+
+   @param roleTypes to set
+   @return this HubAccess (for chaining setters)
+   */
+  public HubAccess setRoleTypes(Collection<UserRoleType> roleTypes) {
+    this.roleTypes.clear();
+    this.roleTypes.addAll(roleTypes);
+    return this;
   }
 
   /**
@@ -258,41 +293,6 @@ public class HubAccess {
     if (roleTypes.isEmpty()) return false;
     if (Objects.isNull(userAuthId)) return false;
     return !Objects.isNull(userId);
-  }
-
-  /**
-   Set RoleTypes
-
-   @param roleTypes to set
-   @return this HubAccess (for chaining setters)
-   */
-  public HubAccess setRoleTypes(Collection<UserRoleType> roleTypes) {
-    this.roleTypes.clear();
-    this.roleTypes.addAll(roleTypes);
-    return this;
-  }
-
-  /**
-   Set AccountIds
-
-   @param accountIds to set
-   @return this HubAccess (for chaining setters)
-   */
-  public HubAccess setAccountIds(Collection<UUID> accountIds) {
-    this.accountIds.clear();
-    this.accountIds.addAll(accountIds);
-    return this;
-  }
-
-  /**
-   Set User Id
-
-   @param userId to set
-   @return this HubAccess (for chaining setters)
-   */
-  public HubAccess setUserId(@Nullable UUID userId) {
-    this.userId = userId;
-    return this;
   }
 
   /**

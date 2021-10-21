@@ -15,5 +15,5 @@ public enum ChordTechnique {
   GuitarTechnique,
   OpenTechnique,
   PowerTechnique,
-  SlashTechnique;
+  SlashTechnique
 }

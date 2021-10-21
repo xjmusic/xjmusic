@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.nexus.craft.arrangement;
 
 import com.google.api.client.util.Strings;
@@ -47,6 +49,26 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   @Inject
   public ArrangementCraftImpl(Fabricator fabricator) {
     super(fabricator);
+  }
+
+  /**
+   Whether a given choice has deltaIn unlimited
+
+   @param choice to test
+   @return true if deltaIn is unlimited
+   */
+  protected static boolean isUnlimitedIn(SegmentChoice choice) {
+    return DELTA_UNLIMITED == choice.getDeltaIn();
+  }
+
+  /**
+   Whether a given choice has deltaOut unlimited
+
+   @param choice to test
+   @return true if deltaOut is unlimited
+   */
+  protected static boolean isUnlimitedOut(SegmentChoice choice) {
+    return DELTA_UNLIMITED == choice.getDeltaOut();
   }
 
   /**
@@ -551,26 +573,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   Whether a given choice has deltaIn unlimited
-
-   @param choice to test
-   @return true if deltaIn is unlimited
-   */
-  protected static boolean isUnlimitedIn(SegmentChoice choice) {
-    return DELTA_UNLIMITED == choice.getDeltaIn();
-  }
-
-  /**
-   Whether a given choice has deltaOut unlimited
-
-   @param choice to test
-   @return true if deltaOut is unlimited
-   */
-  protected static boolean isUnlimitedOut(SegmentChoice choice) {
-    return DELTA_UNLIMITED == choice.getDeltaOut();
-  }
-
-  /**
    Pick final note based on instrument type, voice event, transposition and current chord
    <p>
    [#176695166] XJ should choose correct instrument note based on detail program note
@@ -788,15 +790,6 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
   }
 
   /**
-   Representation of a section of an arrangement, having a chord, beginning position and end position
-   */
-  static class Section {
-    public SegmentChord chord;
-    public double fromPos;
-    public double toPos;
-  }
-
-  /**
    Instrument provider to make some code more portable
    */
   public interface InstrumentProvider {
@@ -808,6 +801,15 @@ public class ArrangementCraftImpl extends FabricationWrapperImpl {
    */
   public interface ChoiceIndexProvider {
     String get(SegmentChoice choice) throws NexusException;
+  }
+
+  /**
+   Representation of a section of an arrangement, having a chord, beginning position and end position
+   */
+  static class Section {
+    public SegmentChord chord;
+    public double fromPos;
+    public double toPos;
   }
 
   /**

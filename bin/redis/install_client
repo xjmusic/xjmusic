@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 build_from_source() {
   BASEURL="${1}"
   TARGET="${2}"

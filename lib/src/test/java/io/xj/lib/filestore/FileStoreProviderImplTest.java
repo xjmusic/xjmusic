@@ -30,7 +30,7 @@ public class FileStoreProviderImplTest {
         @Override
         public void configure() {
           bind(Environment.class).toInstance(env);
-          }
+        }
       })));
     when(env.getAudioUploadURL()).thenReturn("https://s3.amazonaws.com/test-bucket/");
     when(env.getAwsAccessKeyID()).thenReturn("AKIALKSFDJKGIOURTJ7H");

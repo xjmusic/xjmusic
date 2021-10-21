@@ -70,11 +70,10 @@ public abstract class DAOImpl<E> implements DAO<E> {
 
   /**
    Execute a database UPDATE operation@param <R>   record type dynamic
+
    @param db    context in which to execute
    @param table to update
    @param id    of record to update
-
-
    */
   protected <R extends UpdatableRecord<R>> void executeUpdate(DSLContext db, Table<R> table, UUID id, E entity) throws DAOException, JsonapiException {
     R record = db.newRecord(table);

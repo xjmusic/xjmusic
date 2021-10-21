@@ -35,6 +35,6 @@ public enum ChordFunction {
   CommonOther,
   ContrastOther,
   PrimaryTriadOther,
-  SubsidiaryOther;
+  SubsidiaryOther
 
 }

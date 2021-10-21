@@ -17,7 +17,7 @@ public interface TemplateDAO extends DAO<Template> {
   /**
    Read one template by its ship key
 
-   @param access      control
+   @param access     control
    @param rawShipKey for which to read ship key
    @return template if found
    */

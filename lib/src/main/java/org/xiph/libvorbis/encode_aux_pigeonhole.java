@@ -28,24 +28,24 @@ public class encode_aux_pigeonhole {
     if (_pigeonmap == null)
       pigeonmap = null;
     else
-      pigeonmap = (int[]) _pigeonmap.clone();
+      pigeonmap = _pigeonmap.clone();
 
     fittotal = _fittotal;
 
     if (_fitlist == null)
       fitlist = null;
     else
-      fitlist = (int[]) _fitlist.clone();
+      fitlist = _fitlist.clone();
 
     if (_fitmap == null)
       fitmap = null;
     else
-      fitmap = (int[]) _fitmap.clone();
+      fitmap = _fitmap.clone();
 
     if (_fitlength == null)
       fitlength = null;
     else
-      fitlength = (int[]) _fitlength.clone();
+      fitlength = _fitlength.clone();
   }
 
   public encode_aux_pigeonhole(encode_aux_pigeonhole src) {

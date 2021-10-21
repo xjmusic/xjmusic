@@ -108,8 +108,8 @@ public class HubApp extends App {
   }
 
   /**
-   * Starts Grizzly HTTP server
-   * exposing JAX-RS resources defined in this app.
+   Starts Grizzly HTTP server
+   exposing JAX-RS resources defined in this app.
    */
   public void start() throws AppException {
     // start the underlying app
@@ -118,7 +118,7 @@ public class HubApp extends App {
   }
 
   /**
-   * stop App Server
+   stop App Server
    */
   public void finish() {
     // stop the underlying app
@@ -131,16 +131,16 @@ public class HubApp extends App {
   }
 
   /**
-   * Get base URI
-   *
-   * @return base URI
+   Get base URI
+
+   @return base URI
    */
   public String getBaseURI() {
     return "http://" + getHostname() + ":" + getPort() + "/";
   }
 
   /**
-   * Run database migrations
+   Run database migrations
    */
   public void migrate() {
     // Database migrations

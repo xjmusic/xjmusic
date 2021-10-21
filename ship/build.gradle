@@ -1,4 +1,4 @@
-//  Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 plugins {
   id 'application'
@@ -89,6 +89,9 @@ dependencies {
   implementation 'org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-simple:2.33'
   implementation 'org.jooq:jooq:3.12.3'
   implementation 'org.json:json:20160810'
+  implementation 'org.mp4parser:isoparser:1.9.41'
+  implementation 'org.mp4parser:muxer:1.9.41'
+  implementation 'org.mp4parser:streaming:1.9.41'
   implementation 'org.reflections:reflections:0.9.11'
   implementation 'org.slf4j:log4j-over-slf4j:1.7.13'
   implementation 'org.slf4j:slf4j-api:1.7.5'

@@ -51,7 +51,7 @@ public class CraftSegmentPatternMemeTest {
   @Test
   public void craftSegment() throws Exception {
     for (int i = 0; i < TEST_REPEAT_ITERATIONS; i++) {
-        Environment env = Environment.getDefault();
+      Environment env = Environment.getDefault();
       Injector injector = Guice.createInjector(Modules.override(new NexusWorkModule())
         .with(new AbstractModule() {
           @Override

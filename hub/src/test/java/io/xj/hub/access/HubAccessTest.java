@@ -74,7 +74,7 @@ public class HubAccessTest {
         bind(Environment.class).toInstance(env);
       }
     }));
-   JsonapiPayloadFactory payloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
+    JsonapiPayloadFactory payloadFactory = injector.getInstance(JsonapiPayloadFactory.class);
 
     var userId = UUID.randomUUID();
     var accountId = UUID.randomUUID();

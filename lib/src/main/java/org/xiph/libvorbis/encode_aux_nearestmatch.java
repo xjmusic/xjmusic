@@ -20,22 +20,22 @@ public class encode_aux_nearestmatch {
     if (_ptr0 == null)
       ptr0 = null;
     else
-      ptr0 = (int[]) _ptr0.clone();
+      ptr0 = _ptr0.clone();
 
     if (_ptr1 == null)
       ptr1 = null;
     else
-      ptr1 = (int[]) _ptr1.clone();
+      ptr1 = _ptr1.clone();
 
     if (_p == null)
       p = null;
     else
-      p = (int[]) _p.clone();
+      p = _p.clone();
 
     if (_q == null)
       q = null;
     else
-      q = (int[]) _q.clone();
+      q = _q.clone();
 
     aux = _aux;
     alloc = _alloc;

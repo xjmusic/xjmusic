@@ -210,8 +210,8 @@ public class TextTest {
   @Test
   public void parseEnvironmentVariableKeyPairs() {
     assertEquals(ImmutableMap.of(
-      "YO", "MA",
-      "HELLA", "BEANS"
+        "YO", "MA",
+        "HELLA", "BEANS"
       ),
       Text.parseEnvironmentVariableKeyPairs("YO=MA\nHELLA=BEANS"));
   }

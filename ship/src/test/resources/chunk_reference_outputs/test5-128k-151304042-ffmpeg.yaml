@@ -1,0 +1,58 @@
+SegmentTypeBox:
+  majorBrand: msdh
+  minorVersion: 0
+  compatibleBrand:
+    - msdh
+    - msix
+
+SegmentIndexBox:
+  entries:
+    - Entry:
+        referenceType: 0
+        referencedSize: 64690
+        subsegmentDuration: 480000
+        startsWithSap: 1
+        sapType: 0
+        sapDeltaTime: 0
+  referenceId: 1
+  timeScale: 48000
+  earliestPresentationTime: 0
+  firstOffset: 0
+  reserved: 0
+
+MovieFragmentBox:
+  MovieFragmentHeaderBox:
+    sequenceNumber: 1
+
+  TrackFragmentBox:
+    TrackFragmentHeaderBox:
+      trackId: 1
+      baseDataOffset: -1
+      sampleDescriptionIndex: 0
+      defaultSampleDuration: 1024
+      defaultSampleSize: 111
+      defaultSampleFlags:
+        - SampleFlags:
+            reserved: 0
+            isLeading: 0
+            depOn: 2
+            isDepOn: 0
+            hasRedundancy: 0
+            padValue: 0
+            isDiffSample: false
+            degradPrio: 0
+      durationIsEmpty: false
+      defaultBaseIsMoof: true
+
+    TrackFragmentBaseMediaDecodeTimeBox:
+      baseMediaDecodeTime: 0
+
+    TrackRunBox:
+      sampleCount: 470
+      dataOffset: 3868
+      dataOffsetPresent: true
+      sampleSizePresent: true
+      sampleDurationPresent: true
+      sampleFlagsPresentPresent: false
+      sampleCompositionTimeOffsetPresent: false
+      firstSampleFlags: null

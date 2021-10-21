@@ -23,7 +23,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 /**
- * Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
+ Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
  */
 @Singleton
 public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentManager {
@@ -48,11 +48,11 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   /**
-   * Require state is in an array of states
-   *
-   * @param toState       to check
-   * @param allowedStates required to be in
-   * @throws ValueException if not in required states
+   Require state is in an array of states
+
+   @param toState       to check
+   @param allowedStates required to be in
+   @throws ValueException if not in required states
    */
   public static void onlyAllowSegmentStateTransitions(SegmentState toState, SegmentState... allowedStates) throws ValueException {
     List<String> allowedStateNames = Lists.newArrayList();
@@ -67,11 +67,11 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   /**
-   * Segment state transitions are protected, dependent on the state this segment is being transitioned of, and the intended state it is being transitioned to.
-   *
-   * @param fromState to protect transition of
-   * @param toState   to test transition to
-   * @throws ValueException on prohibited transition
+   Segment state transitions are protected, dependent on the state this segment is being transitioned of, and the intended state it is being transitioned to.
+
+   @param fromState to protect transition of
+   @param toState   to test transition to
+   @throws ValueException on prohibited transition
    */
   public static void protectSegmentStateTransition(SegmentState fromState, SegmentState toState) throws ValueException {
     switch (fromState) {
@@ -356,10 +356,10 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
   }
 
   /**
-   * Validate a segment or child entity
-   *
-   * @param entity to validate
-   * @throws ManagerValidationException if invalid
+   Validate a segment or child entity
+
+   @param entity to validate
+   @throws ManagerValidationException if invalid
    */
   public void validate(Object entity) throws ManagerValidationException {
     try {
@@ -441,7 +441,7 @@ public class SegmentManagerImpl extends ManagerImpl<Segment> implements SegmentM
 
 
   /**
-   * Require the given runnable throws an exception.@param mustThrowException when run, this must throw an exception
+   Require the given runnable throws an exception.@param mustThrowException when run, this must throw an exception
    */
   protected void requireNotSameOffsetInChain(Callable<?> mustThrowException) throws ManagerValidationException {
     try {

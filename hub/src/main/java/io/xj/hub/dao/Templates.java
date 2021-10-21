@@ -1,4 +1,4 @@
-// Copyright (c) 1999-2021, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.hub.dao;
 
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  */
 public enum Templates {
   ;
-   private static final String EXTENSION_SEPARATOR = ".";
+  private static final String EXTENSION_SEPARATOR = ".";
 
   /**
    Get the full key from a key
@@ -46,7 +46,7 @@ public enum Templates {
    Filter and map target ids of a specified type from a set of template bindings
 
    @param templateBindings to filter and map from
-   @param type          to include
+   @param type             to include
    @return set of target ids of the specified type of template binding targets
    */
   public static Set<UUID> targetIdsOfType(Collection<TemplateBinding> templateBindings, ContentBindingType type) {

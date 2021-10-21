@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 # Workflow Dependencies
 deps() {
   ensure_version "docker version" "Docker Engine"

@@ -16,10 +16,10 @@ public interface ProgramSequencePatternDAO extends DAO<ProgramSequencePattern> {
    without setting values (we will do this better in the future)--
    when cloning a pattern, `type` and `total` will always be set from the source pattern, and cannot be overridden.
 
-   @return cloner comprising newly cloned entity and its newly cloned child entities
    @param hubAccess control
    @param cloneId   of entity to clone attributes and children of
    @param entity    with attributes to set on new entity
+   @return cloner comprising newly cloned entity and its newly cloned child entities
    */
   DAOCloner<ProgramSequencePattern> clone(HubAccess hubAccess, UUID cloneId, ProgramSequencePattern entity) throws DAOException;
 }

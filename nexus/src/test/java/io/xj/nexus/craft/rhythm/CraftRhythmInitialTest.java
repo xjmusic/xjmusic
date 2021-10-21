@@ -86,20 +86,20 @@ public class CraftRhythmInitialTest {
 
     // segment crafting
     segment6 = store.put(buildSegment(
-        chain2,
-        SegmentType.INITIAL,
-        0,
-        0,
-        SegmentState.CRAFTING,
-        Instant.parse("2017-02-14T12:01:00.000001Z"),
-        Instant.parse("2017-02-14T12:01:07.384616Z"),
-        "C minor",
-        16,
-        0.55,
-        130.0,
-        "chains-1-segments-9f7s89d8a7892.wav"));
-      store.put(buildSegmentChoice(
-        segment6,
+      chain2,
+      SegmentType.INITIAL,
+      0,
+      0,
+      SegmentState.CRAFTING,
+      Instant.parse("2017-02-14T12:01:00.000001Z"),
+      Instant.parse("2017-02-14T12:01:07.384616Z"),
+      "C minor",
+      16,
+      0.55,
+      130.0,
+      "chains-1-segments-9f7s89d8a7892.wav"));
+    store.put(buildSegmentChoice(
+      segment6,
       Segments.DELTA_UNLIMITED,
       Segments.DELTA_UNLIMITED,
       fake.program4,

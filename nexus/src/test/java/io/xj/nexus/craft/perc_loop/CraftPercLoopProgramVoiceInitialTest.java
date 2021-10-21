@@ -8,6 +8,7 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import io.xj.api.*;
 import io.xj.hub.HubTopology;
+import io.xj.hub.TemplateConfig;
 import io.xj.lib.app.Environment;
 import io.xj.lib.entity.Entities;
 import io.xj.lib.entity.EntityFactory;
@@ -81,6 +82,7 @@ public class CraftPercLoopProgramVoiceInitialTest {
     chain2.setId(UUID.randomUUID());
     chain2.setAccountId(fake.account1.getId());
     chain2.name("Print #2");
+    chain2.setTemplateConfig(TemplateConfig.DEFAULT);
     chain2.setType(ChainType.PRODUCTION);
     chain2.setState(ChainState.FABRICATE);
     chain2.startAt("2014-08-12T12:17:02.527142Z");

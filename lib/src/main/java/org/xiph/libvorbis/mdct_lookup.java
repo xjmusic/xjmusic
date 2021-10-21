@@ -23,8 +23,8 @@ class mdct_lookup {
     n = _n;
     log2n = _log2n;
 
-    trig = (float[]) _trig.clone();
-    bitrev = (int[]) _bitrev.clone();
+    trig = _trig.clone();
+    bitrev = _bitrev.clone();
 
     scale = _scale;
   }

@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.nexus.work;
 
 import com.google.api.client.util.Lists;
@@ -145,9 +147,9 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   }
 
   /**
-   * Whether all lab chains are healthy
-   *
-   * @return true if all lab chains are healthy
+   Whether all lab chains are healthy
+
+   @return true if all lab chains are healthy
    */
   private boolean labChainsAllHealthy() {
     // FUTURE test healthiness of yard chain or lab chain(s)
@@ -155,9 +157,9 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   }
 
   /**
-   * Whether all yard chains are healthy
-   *
-   * @return true if all yard chains are healthy
+   Whether all yard chains are healthy
+
+   @return true if all yard chains are healthy
    */
   private boolean yardChainsAllHealthy() {
     // FUTURE test healthiness of yard chain or yard chain(s)
@@ -165,9 +167,9 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   }
 
   /**
-   * Maintain a chain for each current hub template playback
-   *
-   * @return true if all is well, false if something has failed
+   Maintain a chain for each current hub template playback
+
+   @return true if all is well, false if something has failed
    */
   private boolean maintainPreviewChains() {
     Collection<Template> templates;
@@ -208,13 +210,13 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   }
 
   /**
-   * Bootstrap a chain from JSON chain bootstrap data,
-   * first rehydrating store from last shipped JSON matching this ship key.
-   * <p>
-   * Nexus with bootstrap chain rehydrates store on startup from shipped JSON files
-   * https://www.pivotaltracker.com/story/show/178718006
-   *
-   * @return true if successful
+   Bootstrap a chain from JSON chain bootstrap data,
+   first rehydrating store from last shipped JSON matching this ship key.
+   <p>
+   Nexus with bootstrap chain rehydrates store on startup from shipped JSON files
+   https://www.pivotaltracker.com/story/show/178718006
+
+   @return true if successful
    */
   private Boolean createChainForTemplate(UUID templateId, TemplateType type) {
     Template template;
@@ -244,10 +246,10 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   }
 
   /**
-   * Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
-   *
-   * @param template from which to rehydrate
-   * @return true if the rehydration was successful
+   Attempt to rehydrate the store from a bootstrap, and return true if successful, so we can skip other stuff
+
+   @param template from which to rehydrate
+   @return true if the rehydration was successful
    */
   private Boolean rehydrateTemplate(Template template) {
     var success = new AtomicBoolean(true);

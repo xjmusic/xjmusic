@@ -39,17 +39,14 @@ public interface UserDAO extends DAO<User> {
   /**
    (ADMIN ONLY)
    Destroy all access tokens for a specified User@param userId to destroy all access tokens for.
-
-
    */
   void destroyAllTokens(UUID userId) throws DAOException;
 
   /**
    (ADMIN ONLY)
    Update a specified User's roles, and destroy all their tokens.@param userId of specific User to update.
+
    @param entity for the updated User.
-
-
    */
   void updateUserRolesAndDestroyTokens(HubAccess hubAccess, UUID userId, User entity) throws DAOException, ValueException;
 
@@ -65,9 +62,9 @@ public interface UserDAO extends DAO<User> {
   /**
    (ADMIN ONLY) read one user auth
 
-   @return model
    @param hubAccess  control
    @param userAuthId to read
+   @return model
    */
   UserAuth readOneAuth(HubAccess hubAccess, UUID userAuthId) throws DAOException;
 }

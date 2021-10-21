@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.ship.source;
 
 import com.google.inject.Inject;
@@ -29,12 +31,12 @@ import static io.xj.lib.util.Values.MICROS_IN_A_SECOND;
 public class SegmentAudio {
   private static final Logger LOG = LoggerFactory.getLogger(SegmentAudio.class);
   private static final int MILLIS_PER_SECOND = 1000;
-  private Instant updated;
-  private OGGVorbisDecoder ogg;
-  private SegmentAudioState state;
   private final Segment segment;
   private final String shipKey;
   private final int shipSegmentLoadTimeoutMillis;
+  private Instant updated;
+  private OGGVorbisDecoder ogg;
+  private SegmentAudioState state;
 
   @Inject
   public SegmentAudio(

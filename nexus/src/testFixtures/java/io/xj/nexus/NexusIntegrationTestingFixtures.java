@@ -1,4 +1,4 @@
-//  Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.nexus;
 
@@ -294,6 +294,7 @@ public class NexusIntegrationTestingFixtures {
     chain.setTemplateId(template.getId());
     chain.setName("Test Chain");
     chain.setType(ChainType.PRODUCTION);
+    chain.setTemplateConfig(template.getConfig());
     chain.setState(state);
     chain.startAt(Values.formatIso8601UTC(Instant.now()));
     return chain;

@@ -43,7 +43,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
- * [#166481918] Rhythm fabrication composited of layered Patterns
+ [#166481918] Rhythm fabrication composited of layered Patterns
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CraftRhythm_LayeredVoicesTest {
@@ -162,9 +162,9 @@ public class CraftRhythm_LayeredVoicesTest {
 
 
   /**
-   * Some custom fixtures for testing
-   *
-   * @return list of all entities
+   Some custom fixtures for testing
+
+   @return list of all entities
    */
   private Collection<Object> customFixtures() {
     Collection<Object> entities = Lists.newArrayList();

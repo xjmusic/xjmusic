@@ -42,8 +42,6 @@ public class Root {
 
   /**
    First group matching pattern in text, else null@param pattern to in@param text              to search
-
-
    */
   private void evaluate(Pattern pattern, String text) {
     Matcher matcher = pattern.matcher(text);

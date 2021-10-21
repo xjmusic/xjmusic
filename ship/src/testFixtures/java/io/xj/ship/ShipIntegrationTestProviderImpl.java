@@ -1,4 +1,4 @@
-//  Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.ship;
 
 import com.google.inject.Inject;
@@ -17,8 +17,8 @@ public class ShipIntegrationTestProviderImpl implements ShipIntegrationTestProvi
   private final NexusEntityStore store;
 
   /**
-   * Since this class is a singleton, the process here in its constructor
-   * will happen only once for a whole test suite
+   Since this class is a singleton, the process here in its constructor
+   will happen only once for a whole test suite
    */
   @Inject
   ShipIntegrationTestProviderImpl(

@@ -5,7 +5,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.inject.Inject;
 
 class GoogleHttpProviderImpl implements GoogleHttpProvider {
-  private HttpTransport httpTransport;
+  private final HttpTransport httpTransport;
 
   @Inject
   public GoogleHttpProviderImpl(

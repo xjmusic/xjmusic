@@ -1,6 +1,6 @@
-package io.xj.lib.entity;
-
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+package io.xj.lib.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
@@ -52,27 +52,27 @@ public class EntityStoreImplTest {
     Superwidget superwidget = new Superwidget()
       .setId(UUID.randomUUID())
       .setName("parent5");
-         Widget widget2 = new Widget()
+    Widget widget2 = new Widget()
       .setId(UUID.randomUUID())
       .setSuperwidgetId(superwidget.getId())
       .setName("Test2");
-         Widget widget3 = new Widget()
+    Widget widget3 = new Widget()
       .setId(UUID.randomUUID())
       .setSuperwidgetId(superwidget.getId())
       .setName("Test7");
-         Widget widget2_widget0 = new Widget()
+    Widget widget2_widget0 = new Widget()
       .setId(UUID.randomUUID())
       .setSuperwidgetId(widget2.getId())
       .setName("Test2_A");
-         Widget widget3_widget0 = new Widget()
+    Widget widget3_widget0 = new Widget()
       .setId(UUID.randomUUID())
       .setSuperwidgetId(widget3.getId())
       .setName("Test7_B");
-         Widget widget3_widget1 = new Widget()
+    Widget widget3_widget1 = new Widget()
       .setId(UUID.randomUUID())
       .setSuperwidgetId(widget3.getId())
       .setName("Test7_C");
-         assertEquals(5, subject.putAll(ImmutableList.of(widget2, widget3, widget2_widget0, widget3_widget0, widget3_widget1)).size());
+    assertEquals(5, subject.putAll(ImmutableList.of(widget2, widget3, widget2_widget0, widget3_widget0, widget3_widget1)).size());
 
     Collection<Widget> result = subject.getAll(Widget.class, Superwidget.class, ImmutableList.of(superwidget.getId()));
     assertEquals(2, result.size());

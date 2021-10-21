@@ -4,7 +4,6 @@
 
 **the XJ Music Inc computing cluster on Amazon Web Services**
 
-
 ## Kubernetes
 
 Configured the EKS cluster according to [this hashicorp tutorial](https://learn.hashicorp.com/tutorials/terraform/eks)
@@ -21,7 +20,6 @@ Then, to go through the steps of updating the dashboard kube internal, getting a
 bin/kube/dashboard.sh
 ```
 
-
 ### Configure kubectl
 
 Run the following command to retrieve the access credentials for your cluster and automatically configure kubectl.
@@ -34,7 +32,8 @@ The Kubernetes cluster name and region correspond to the output variables showed
 
 ### EBS as persistent volume for Kubernetes
 
-Configured EKS with EBS according to [this AWS tutorial](https://aws.amazon.com/premiumsupport/knowledge-center/eks-persistent-storage/)
+Configured EKS with EBS according
+to [this AWS tutorial](https://aws.amazon.com/premiumsupport/knowledge-center/eks-persistent-storage/)
 
 ### AWS Kubernetes drivers
 

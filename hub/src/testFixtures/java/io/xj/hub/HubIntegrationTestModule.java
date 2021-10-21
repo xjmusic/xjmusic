@@ -1,6 +1,8 @@
-//  Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.hub;import com.google.inject.AbstractModule;
+package io.xj.hub;
+
+import com.google.inject.AbstractModule;
 
 public class HubIntegrationTestModule extends AbstractModule {
   @Override

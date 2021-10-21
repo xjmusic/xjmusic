@@ -10,5 +10,5 @@ public interface HubAccessTokenGenerator {
 
    @return new access token
    */
-  public String generate();
+  String generate();
 }

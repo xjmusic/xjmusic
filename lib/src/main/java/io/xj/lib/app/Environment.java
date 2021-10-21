@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * All secrets from environment variables
+ All secrets from environment variables
  */
 public class Environment {
   private static final Logger LOG = LoggerFactory.getLogger(Environment.class);
@@ -102,7 +102,7 @@ public class Environment {
   private final int workShipFabricatedAheadThresholdSeconds;
 
   /**
-   * Zero-argument construction defaults to system environment
+   Zero-argument construction defaults to system environment
    */
   @Inject
   public Environment() {
@@ -110,54 +110,9 @@ public class Environment {
   }
 
   /**
-   * Get the environment from a specific set of variables
-   *
-   * @param vars from which to get environment
-   * @return environment from variables
-   */
-  public static Environment from(Map<String, String> vars) {
-    return new Environment(vars);
-  }
+   Manual construction
 
-  /**
-   * Get the environment from system environment variables
-   *
-   * @return system environment
-   */
-  public static Environment fromSystem() {
-    return from(System.getenv());
-  }
-
-  /**
-   * Get the default environment
-   *
-   * @return environment with default values
-   */
-  public static Environment getDefault() {
-    return from(ImmutableMap.of());
-  }
-
-  /**
-   * Augment the system environment variables with a source text body of key=value lines
-   *
-   * @param secretKeyValueLines to parse for key=value lines
-   * @return system environment augmented with source
-   */
-  public static Environment augmentSystem(String secretKeyValueLines) {
-    var vars = new HashMap<>(System.getenv());
-    var pairs = Text.parseEnvironmentVariableKeyPairs(secretKeyValueLines);
-    vars.putAll(pairs);
-    if (0 < pairs.size())
-      LOG.info("Augmented system environment with {} secrets having keys {}", pairs.size(), CSV.join(pairs.keySet()));
-    else
-      LOG.warn("Did not parse any secrets with which to augment system environment.");
-    return from(vars);
-  }
-
-  /**
-   * Manual construction
-   *
-   * @param vars to build environment from
+   @param vars to build environment from
    */
   public Environment(Map<String, String> vars) {
     LOG.debug("Received values for {} keys: {}", vars.size(), CSV.join(vars.keySet()));
@@ -255,12 +210,57 @@ public class Environment {
   }
 
   /**
-   * Get an integer value from the given map, or if the key isn't in the map, return the default value
-   *
-   * @param map    in which to search for a key
-   * @param key    to search for
-   * @param orElse to return if the key is not found in the map
-   * @return value at key in map, else the default value
+   Get the environment from a specific set of variables
+
+   @param vars from which to get environment
+   @return environment from variables
+   */
+  public static Environment from(Map<String, String> vars) {
+    return new Environment(vars);
+  }
+
+  /**
+   Get the environment from system environment variables
+
+   @return system environment
+   */
+  public static Environment fromSystem() {
+    return from(System.getenv());
+  }
+
+  /**
+   Get the default environment
+
+   @return environment with default values
+   */
+  public static Environment getDefault() {
+    return from(ImmutableMap.of());
+  }
+
+  /**
+   Augment the system environment variables with a source text body of key=value lines
+
+   @param secretKeyValueLines to parse for key=value lines
+   @return system environment augmented with source
+   */
+  public static Environment augmentSystem(String secretKeyValueLines) {
+    var vars = new HashMap<>(System.getenv());
+    var pairs = Text.parseEnvironmentVariableKeyPairs(secretKeyValueLines);
+    vars.putAll(pairs);
+    if (0 < pairs.size())
+      LOG.info("Augmented system environment with {} secrets having keys {}", pairs.size(), CSV.join(pairs.keySet()));
+    else
+      LOG.warn("Did not parse any secrets with which to augment system environment.");
+    return from(vars);
+  }
+
+  /**
+   Get an integer value from the given map, or if the key isn't in the map, return the default value
+
+   @param map    in which to search for a key
+   @param key    to search for
+   @param orElse to return if the key is not found in the map
+   @return value at key in map, else the default value
    */
   @SuppressWarnings("SameParameterValue")
   private Integer readInt(Map<String, String> map, String key, Integer orElse) {
@@ -275,12 +275,12 @@ public class Environment {
   }
 
   /**
-   * Get a boolean value from the given map, or if the key isn't in the map, return the default value
-   *
-   * @param map    in which to search for a key
-   * @param key    to search for
-   * @param orElse to return if the key is not found in the map
-   * @return value at key in map, else the default value
+   Get a boolean value from the given map, or if the key isn't in the map, return the default value
+
+   @param map    in which to search for a key
+   @param key    to search for
+   @param orElse to return if the key is not found in the map
+   @return value at key in map, else the default value
    */
   @SuppressWarnings("SameParameterValue")
   private Boolean readBool(Map<String, String> map, String key, Boolean orElse) {
@@ -295,12 +295,12 @@ public class Environment {
   }
 
   /**
-   * Get a string value from the given map, or if the key isn't in the map, return the default value
-   *
-   * @param map    in which to search for a key
-   * @param key    to search for
-   * @param orElse to return if the key is not found in the map
-   * @return value at key in map, else the default value
+   Get a string value from the given map, or if the key isn't in the map, return the default value
+
+   @param map    in which to search for a key
+   @param key    to search for
+   @param orElse to return if the key is not found in the map
+   @return value at key in map, else the default value
    */
   private String readStr(Map<String, String> map, String key, String orElse) {
     if (!map.containsKey(key)) return orElse;
@@ -308,569 +308,569 @@ public class Environment {
   }
 
   /**
-   * @return the access token domain
+   @return the access token domain
    */
   public String getAccessTokenDomain() {
     return accessTokenDomain;
   }
 
   /**
-   * @return the access log filename, e.g. "/var/log/my-app/access.log"
+   @return the access log filename, e.g. "/var/log/my-app/access.log"
    */
   public String getAccessLogFilename() {
     return accessLogFilename;
   }
 
   /**
-   * @return the access token max age seconds
+   @return the access token max age seconds
    */
   public int getAccessTokenMaxAgeSeconds() {
     return accessTokenMaxAgeSeconds;
   }
 
   /**
-   * @return the access token name
+   @return the access token name
    */
   public String getAccessTokenName() {
     return accessTokenName;
   }
 
   /**
-   * @return the access token path
+   @return the access token path
    */
   public String getAccessTokenPath() {
     return accessTokenPath;
   }
 
   /**
-   * @return the api unauthorized redirect path
+   @return the api unauthorized redirect path
    */
   public String getApiUnauthorizedRedirectPath() {
     return apiUnauthorizedRedirectPath;
   }
 
   /**
-   * @return the api welcome redirect path
+   @return the api welcome redirect path
    */
   public String getApiWelcomeRedirectPath() {
     return apiWelcomeRedirectPath;
   }
 
   /**
-   * @return the application base URL
+   @return the application base URL
    */
   public String getAppBaseUrl() {
     return appBaseURL;
   }
 
   /**
-   * @return application port
+   @return application port
    */
   public int getAppPort() {
     return appPort;
   }
 
   /**
-   * @return the audio base URL
+   @return the audio base URL
    */
   public String getAudioBaseUrl() {
     return audioBaseURL;
   }
 
   /**
-   * @return the audio cache file prefix
+   @return the audio cache file prefix
    */
   public String getAudioCacheFilePrefix() {
     return audioCacheFilePrefix;
   }
 
   /**
-   * @return the audio file Bucket
+   @return the audio file Bucket
    */
   public String getAudioFileBucket() {
     return audioFileBucket;
   }
 
   /**
-   * @return the audio upload URL
+   @return the audio upload URL
    */
   public String getAudioUploadURL() {
     return audioUploadURL;
   }
 
   /**
-   * @return the AWS access key ID
+   @return the AWS access key ID
    */
   public String getAwsAccessKeyID() {
     return awsAccessKeyID;
   }
 
   /**
-   * @return the AWS default region, e.g. "us-east-1"
+   @return the AWS default region, e.g. "us-east-1"
    */
   public String getAwsDefaultRegion() {
     return awsDefaultRegion;
   }
 
   /**
-   * @return the aws file upload ACL
+   @return the aws file upload ACL
    */
   public String getAwsFileUploadACL() {
     return awsFileUploadACL;
   }
 
   /**
-   * @return the aws s3 retry limit
+   @return the aws s3 retry limit
    */
   public int getAwsS3retryLimit() {
     return awsS3retryLimit;
   }
 
   /**
-   * @return the AWS secret key
+   @return the AWS secret key
    */
   public String getAwsSecretKey() {
     return awsSecretKey;
   }
 
   /**
-   * @return aws secret name
+   @return aws secret name
    */
   public String getAwsSecretName() {
     return awsSecretName;
   }
 
   /**
-   * @return the AWS SNS topic ARN
+   @return the AWS SNS topic ARN
    */
   public String getAwsSnsTopicArn() {
     return awsSnsTopicArn;
   }
 
   /**
-   * @return the aws upload expire minutes
+   @return the aws upload expire minutes
    */
   public int getAwsUploadExpireMinutes() {
     return awsUploadExpireMinutes;
   }
 
   /**
-   * Ship broadcast via HTTP Live Streaming #179453189
-   *
-   * @return the bootstrap ship key for this ship instance
+   Ship broadcast via HTTP Live Streaming #179453189
+
+   @return the bootstrap ship key for this ship instance
    */
   public String getBootstrapShipKey() {
     return bootstrapShipKey;
   }
 
   /**
-   * @return the bootstrap ship title
+   @return the bootstrap ship title
    */
   public String getBootstrapShipTitle() {
     return bootstrapShipTitle;
   }
 
   /**
-   * @return the bootstrap ship source
+   @return the bootstrap ship source
    */
   public String getBootstrapShipSource() {
     return bootstrapShipSource;
   }
 
   /**
-   * @return the bootstrap template id
+   @return the bootstrap template id
    */
   public String getBootstrapTemplateId() {
     return bootstrapTemplateId;
   }
 
   /**
-   * @return chain start in future seconds
+   @return chain start in future seconds
    */
   public int getChainStartInFutureSeconds() {
     return chainStartInFutureSeconds;
   }
 
   /**
-   * @return the fabrication preview length max hours
+   @return the fabrication preview length max hours
    */
   public int getFabricationPreviewLengthMaxHours() {
     return fabricationPreviewLengthMaxHours;
   }
 
   /**
-   * @return the fabrication preview ship key length
+   @return the fabrication preview ship key length
    */
   public int getFabricationPreviewShipKeyLength() {
     return fabricationPreviewShipKeyLength;
   }
 
   /**
-   * @return the fabrication revive chain fabricated behind seconds
+   @return the fabrication revive chain fabricated behind seconds
    */
   public int getFabricationReviveChainFabricatedBehindSeconds() {
     return fabricationReviveChainFabricatedBehindSeconds;
   }
 
   /**
-   * @return the fabrication revive chain production grace seconds
+   @return the fabrication revive chain production grace seconds
    */
   public int getFabricationReviveChainProductionGraceSeconds() {
     return fabricationReviveChainProductionGraceSeconds;
   }
 
   /**
-   * @return the application hostname, e.g. "localhost"
+   @return the application hostname, e.g. "localhost"
    */
   public String getHostname() {
     return hostname;
   }
 
   /**
-   * @return the Hub internal token name
+   @return the Hub internal token name
    */
   public String getIngestTokenName() {
     return ingestTokenName;
   }
 
   /**
-   * @return ingest URL
+   @return ingest URL
    */
   public String getIngestURL() {
     return ingestURL;
   }
 
   /**
-   * @return the Hub internal token
+   @return the Hub internal token
    */
   public String getIngestTokenValue() {
     return ingestTokenValue;
   }
 
   /**
-   * @return the Google client ID
+   @return the Google client ID
    */
   public String getGoogleClientID() {
     return googleClientID;
   }
 
   /**
-   * @return the Google client secret
+   @return the Google client secret
    */
   public String getGoogleClientSecret() {
     return googleClientSecret;
   }
 
   /**
-   * @return the environment, e.g. "dev" "stage" or "prod"
+   @return the environment, e.g. "dev" "stage" or "prod"
    */
   public String getPlatformEnvironment() {
     return platformEnvironment;
   }
 
   /**
-   * @return the postgres database
+   @return the postgres database
    */
   public String getPostgresDatabase() {
     return postgresDatabase;
   }
 
   /**
-   * @return the postgres host
+   @return the postgres host
    */
   public String getPostgresHost() {
     return postgresHost;
   }
 
   /**
-   * @return postgres schemas
+   @return postgres schemas
    */
   public String getPostgresSchemas() {
     return postgresSchemas;
   }
 
   /**
-   * @return postgres pool size max
+   @return postgres pool size max
    */
   public int getPostgresPoolSizeMax() {
     return postgresPoolSizeMax;
   }
 
   /**
-   * @return the postgres port
+   @return the postgres port
    */
   public Integer getPostgresPort() {
     return postgresPort;
   }
 
   /**
-   * @return the postgres user
+   @return the postgres user
    */
   public String getPostgresUser() {
     return postgresUser;
   }
 
   /**
-   * @return the postgres pass
+   @return the postgres pass
    */
   public String getPostgresPass() {
     return postgresPass;
   }
 
   /**
-   * @return the playback expire seconds
+   @return the playback expire seconds
    */
   public int getPlaybackExpireSeconds() {
     return playbackExpireSeconds;
   }
 
   /**
-   * @return the Player base URL
+   @return the Player base URL
    */
   public String getPlayerBaseUrl() {
     return playerBaseURL;
   }
 
   /**
-   * @return the Redis host
+   @return the Redis host
    */
   public String getRedisHost() {
     return redisHost;
   }
 
   /**
-   * @return the Redis port
+   @return the Redis port
    */
   public int getRedisPort() {
     return redisPort;
   }
 
   /**
-   * @return the redis session namespace
+   @return the redis session namespace
    */
   public String getRedisSessionNamespace() {
     return redisSessionNamespace;
   }
 
   /**
-   * @return the segment compute time frames per beat
+   @return the segment compute time frames per beat
    */
   public int getSegmentComputeTimeFramesPerBeat() {
     return segmentComputeTimeFramesPerBeat;
   }
 
   /**
-   * @return the segment compute time resolution hz
+   @return the segment compute time resolution hz
    */
   public int getSegmentComputeTimeResolutionHz() {
     return segmentComputeTimeResolutionHz;
   }
 
   /**
-   * @return the ship ahead chunks
+   @return the ship ahead chunks
    */
   public int getShipAheadChunks() {
     return shipAheadChunks;
   }
 
   /**
-   * @return the ship chunk seconds
+   @return the ship chunk seconds
    */
   public int getShipChunkSeconds() {
     return shipChunkSeconds;
   }
 
   /**
-   * @return the ship .m3u8 playlist content-type
+   @return the ship .m3u8 playlist content-type
    */
   public String getShipMpdMimeType() {
     return shipMpdMimeType;
   }
 
   /**
-   * @return the ship reload seconds
+   @return the ship reload seconds
    */
   public int getShipReloadSeconds() {
     return shipReloadSeconds;
   }
 
   /**
-   * @return the segment base URL
+   @return the segment base URL
    */
   public String getShipBaseUrl() {
     return shipBaseUrl;
   }
 
   /**
-   * @return the segment file bucket
+   @return the segment file bucket
    */
   public String getShipBucket() {
     return shipBucket;
   }
 
   /**
-   * @return the ship chunk printer timeout seconds
+   @return the ship chunk printer timeout seconds
    */
   public int getShipChunkPrintTimeoutSeconds() {
     return shipChunkPrintTimeoutSeconds;
   }
 
   /**
-   * @return the ship MPEG2 TS bitrate
+   @return the ship MPEG2 TS bitrate
    */
   public int getShipBitrateHigh() {
     return shipBitrateHigh;
   }
 
   /**
-   * @return ship segment load timeout seconds
+   @return ship segment load timeout seconds
    */
   public int getShipSegmentLoadTimeoutSeconds() {
     return shipSegmentLoadTimeoutSeconds;
   }
 
   /**
-   * @return stream base URL
+   @return stream base URL
    */
   public String getStreamBaseUrl() {
     return streamBaseURL;
   }
 
   /**
-   * @return stream base URL
+   @return stream base URL
    */
   public String getStreamBucket() {
     return streamBucket;
   }
 
   /**
-   * @return the namespace
+   @return the namespace
    */
   public String getTelemetryNamespace() {
     return telemetryNamespace;
   }
 
   /**
-   * @return temp file path prefix
+   @return temp file path prefix
    */
   public String getTempFilePathPrefix() {
     return tempFilePathPrefix;
   }
 
   /**
-   * @return ship fabricated ahead threshold seconds
+   @return ship fabricated ahead threshold seconds
    */
   public int getWorkShipFabricatedAheadThresholdSeconds() {
     return workShipFabricatedAheadThresholdSeconds;
   }
 
   /**
-   * @return erase segments older than seconds
+   @return erase segments older than seconds
    */
   public int getWorkEraseSegmentsOlderThanSeconds() {
     return workEraseSegmentsOlderThanSeconds;
   }
 
   /**
-   * @return the work buffer ahead seconds
+   @return the work buffer ahead seconds
    */
   public int getWorkBufferAheadSeconds() {
     return workBufferAheadSeconds;
   }
 
   /**
-   * @return the work buffer before seconds
+   @return the work buffer before seconds
    */
   public int getWorkBufferBeforeSeconds() {
     return workBufferBeforeSeconds;
   }
 
   /**
-   * @return the work buffer preview seconds
+   @return the work buffer preview seconds
    */
   public int getWorkBufferPreviewSeconds() {
     return workBufferPreviewSeconds;
   }
 
   /**
-   * @return the work buffer production seconds
+   @return the work buffer production seconds
    */
   public int getWorkBufferProductionSeconds() {
     return workBufferProductionSeconds;
   }
 
   /**
-   * @return true if the work chain management enabled
+   @return true if the work chain management enabled
    */
   public boolean getWorkChainManagementEnabled() {
     return workChainManagementEnabled;
   }
 
   /**
-   * @return the work cycle millis
+   @return the work cycle millis
    */
   public int getWorkCycleMillis() {
     return workCycleMillis;
   }
 
   /**
-   * @return the work health cycle staleness threshold seconds
+   @return the work health cycle staleness threshold seconds
    */
   public int getWorkHealthCycleStalenessThresholdSeconds() {
     return workHealthCycleStalenessThresholdSeconds;
   }
 
   /**
-   * @return the work ingest cycle seconds
+   @return the work ingest cycle seconds
    */
   public int getWorkIngestCycleSeconds() {
     return workIngestCycleSeconds;
   }
 
   /**
-   * @return the work janitor cycle seconds
+   @return the work janitor cycle seconds
    */
   public int getWorkJanitorCycleSeconds() {
     return workJanitorCycleSeconds;
   }
 
   /**
-   * @return true if the work janitor is enabled
+   @return true if the work janitor is enabled
    */
   public boolean getWorkJanitorEnabled() {
     return workJanitorEnabled;
   }
 
   /**
-   * @return the work lab hub lab poll seconds
+   @return the work lab hub lab poll seconds
    */
   public int getWorkLabHubLabPollSeconds() {
     return workLabHubLabPollSeconds;
   }
 
   /**
-   * @return the work medic cycle seconds
+   @return the work medic cycle seconds
    */
   public int getWorkMedicCycleSeconds() {
     return workMedicCycleSeconds;
   }
 
   /**
-   * @return true if the work medic is enabled
+   @return true if the work medic is enabled
    */
   public boolean getWorkMedicEnabled() {
     return workMedicEnabled;
   }
 
   /**
-   * @return the work publish cycle seconds
+   @return the work publish cycle seconds
    */
   public int getWorkPublishCycleSeconds() {
     return workPublishCycleSeconds;
   }
 
   /**
-   * @return the work rehydrate fabricated ahead threshold
+   @return the work rehydrate fabricated ahead threshold
    */
   public int getWorkRehydrateFabricatedAheadThreshold() {
     return workRehydrateFabricatedAheadThreshold;

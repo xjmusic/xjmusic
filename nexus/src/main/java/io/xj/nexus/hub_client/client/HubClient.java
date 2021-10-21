@@ -19,10 +19,10 @@ public interface HubClient {
    <p>
    HubAccess entity contains the token itself, such that one of these entities can also be used (e.g. by a HubClient) in order to make a request to a Hub API
 
+   @param access     control
+   @param templateId to ingest
    @return HubClient comprising ingested entities, including all child sub-entities
    @throws HubClientException on failure to perform request
-   @param access        control
-   @param templateId    to ingest
    */
   HubContent ingest(HubClientAccess access, UUID templateId) throws HubClientException;
 
@@ -39,13 +39,15 @@ public interface HubClient {
 
   /**
    Read a Template from Hub by id
-   @return template if found
+
    @param templateId to read
+   @return template if found
    */
   Template readTemplate(UUID templateId) throws HubClientException;
 
   /**
    Read all Templates playing from Hub
+
    @return Templates currently playing
    */
   Collection<Template> readAllTemplatesPlaying() throws HubClientException;

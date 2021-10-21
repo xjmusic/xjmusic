@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.ship.source;
 
 import com.google.api.client.util.Lists;
@@ -15,13 +17,13 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * An HTTP Live Streaming Media Segment
- * <p>
- * SEE: https://en.m.wikipedia.org/wiki/HTTP_Live_Streaming
- * <p>
- * SEE: https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
- * <p>
- * Ship broadcast via HTTP Live Streaming #179453189
+ An HTTP Live Streaming Media Segment
+ <p>
+ SEE: https://en.m.wikipedia.org/wiki/HTTP_Live_Streaming
+ <p>
+ SEE: https://developer.apple.com/documentation/http_live_streaming/hls_authoring_specification_for_apple_devices
+ <p>
+ Ship broadcast via HTTP Live Streaming #179453189
  */
 public class OGGVorbisDecoder {
   private static final Logger LOG = LoggerFactory.getLogger(OGGVorbisDecoder.class);
@@ -31,18 +33,18 @@ public class OGGVorbisDecoder {
   private AudioFormat audioFormat;
 
   /**
-   * Create an OGG decoder from the input stream
-   *
-   * @param inputStream to decode
+   Create an OGG decoder from the input stream
+
+   @param inputStream to decode
    */
   private OGGVorbisDecoder(InputStream inputStream) {
     this.inputStream = inputStream;
   }
 
   /**
-   * Create an OGG decoder from the input stream
-   *
-   * @param inputStream to decode
+   Create an OGG decoder from the input stream
+
+   @param inputStream to decode
    */
   public static OGGVorbisDecoder decode(InputStream inputStream) {
     var ogg = new OGGVorbisDecoder(inputStream);
@@ -51,9 +53,9 @@ public class OGGVorbisDecoder {
   }
 
   /**
-   * Get the target audio format
-   *
-   * @return target audio format
+   Get the target audio format
+
+   @return target audio format
    */
   public AudioFormat getAudioFormat() {
     return audioFormat;
@@ -101,9 +103,9 @@ public class OGGVorbisDecoder {
   }
 
   /**
-   * Get an array of the final PCM data
-   *
-   * @return PCM data
+   Get an array of the final PCM data
+
+   @return PCM data
    */
   public List<double[]> getPcmData() {
     return pcmData;

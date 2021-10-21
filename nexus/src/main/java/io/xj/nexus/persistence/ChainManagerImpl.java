@@ -30,17 +30,17 @@ import java.util.stream.Collectors;
 import static java.time.temporal.ChronoUnit.HOURS;
 
 /**
- * Chain D.A.O. Implementation
- * <p>
- * Core directive here is to keep business logic CENTRAL ("oneness")
- * <p>
- * All variants on an update resolve (after recordUpdateFirstStep transformation,
- * or additional validation) to one singular central update(fieldValues)
- * <p>
- * Also note buildNextSegmentOrComplete(...) is one singular central implementation
- * of the logic around adding segments to chain and updating chain state to complete.
- * <p>
- * Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
+ Chain D.A.O. Implementation
+ <p>
+ Core directive here is to keep business logic CENTRAL ("oneness")
+ <p>
+ All variants on an update resolve (after recordUpdateFirstStep transformation,
+ or additional validation) to one singular central update(fieldValues)
+ <p>
+ Also note buildNextSegmentOrComplete(...) is one singular central implementation
+ of the logic around adding segments to chain and updating chain state to complete.
+ <p>
+ Nexus Managers are Singletons unless some other requirement changes that-- 'cuz here be cyclic dependencies...
  */
 @Singleton
 public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager {
@@ -415,9 +415,9 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
   }
 
   /**
-   * Generate a Preview Chain ship key
-   *
-   * @return generated Preview Chain ship key
+   Generate a Preview Chain ship key
+
+   @return generated Preview Chain ship key
    */
   private String generatePreviewShipKey() {
     byte[] L = new byte[previewShipKeyLength];
@@ -427,11 +427,11 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
   }
 
   /**
-   * Require that the provided chain is the only one existing with this ship key
-   *
-   * @param chain to test ship key uniqueness of
-   * @throws ManagerValidationException if another Chain exists with this ship key
-   * @throws ManagerFatalException      on failure to determine
+   Require that the provided chain is the only one existing with this ship key
+
+   @param chain to test ship key uniqueness of
+   @throws ManagerValidationException if another Chain exists with this ship key
+   @throws ManagerFatalException      on failure to determine
    */
   private void requireUniqueShipKey(Chain chain) throws ManagerValidationException, ManagerFatalException {
     if (Values.isSet(chain.getShipKey()))
@@ -445,11 +445,11 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
   }
 
   /**
-   * Validate access and make other modifications to a chain before update
-   *
-   * @param chain     payload  to test and modify before update
-   * @param fromState to test for transition from
-   * @throws ManagerPrivilegeException on insufficient privileges
+   Validate access and make other modifications to a chain before update
+
+   @param chain     payload  to test and modify before update
+   @param fromState to test for transition from
+   @throws ManagerPrivilegeException on insufficient privileges
    */
   private void beforeUpdate(Chain chain, ChainState fromState) throws ManagerPrivilegeException, ManagerValidationException {
     // Conditions based on Chain state
@@ -484,10 +484,10 @@ public class ChainManagerImpl extends ManagerImpl<Chain> implements ChainManager
   }
 
   /**
-   * Require state is in an array of states
-   *
-   * @param toState       to check
-   * @param allowedStates required to be in
+   Require state is in an array of states
+
+   @param toState       to check
+   @param allowedStates required to be in
    */
   private void onlyAllowTransitions(ChainState toState, ChainState... allowedStates) throws ManagerPrivilegeException {
     List<String> allowedStateNames = Lists.newArrayList();

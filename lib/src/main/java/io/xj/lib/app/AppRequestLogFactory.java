@@ -10,7 +10,7 @@ import org.slf4j.Logger;
  */
 class AppRequestLogFactory {
 
-  private Logger logger;
+  private final Logger logger;
 
   AppRequestLogFactory(Logger logger) {
     this.logger = logger;

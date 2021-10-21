@@ -6,7 +6,7 @@ import io.xj.lib.mixer.InternalResource;
 import java.io.*;
 
 /**
- * Get a temp file
+ Get a temp file
  */
 public interface Files {
   String DEFAULT_TEMP_FILE_PATH_PREFIX_CHUNK = "tmp";
@@ -14,7 +14,7 @@ public interface Files {
   String DEFAULT_TEMP_FILE_PATH_PREFIX_CREATE_SUFFIX = ".tmp";
 
   /**
-   * @return temp file path prefix
+   @return temp file path prefix
    */
   static String getTempFilePathPrefix() {
     String path = File.separator + DEFAULT_TEMP_FILE_PATH_PREFIX_CHUNK + File.separator;
@@ -28,13 +28,12 @@ public interface Files {
     return path;
   }
 
-
   /**
-   * Assert size of two different files is within a tolerated threshold
-   *
-   * @param f1 to compare
-   * @param f2 to compare
-   * @return true if within tolerance
+   Assert size of two different files is within a tolerated threshold
+
+   @param f1 to compare
+   @param f2 to compare
+   @return true if within tolerance
    */
   static boolean isFileSizeWithin(File f1, File f2) {
     float deviance = (float) f1.getTotalSpace() / f2.getTotalSpace();
@@ -42,41 +41,41 @@ public interface Files {
   }
 
   /**
-   * Get file size
-   *
-   * @param path to get size of
-   * @return size of file
+   Get file size
+
+   @param path to get size of
+   @return size of file
    */
   static long getFileSize(String path) {
     return new File(path).getTotalSpace();
   }
 
   /**
-   * Fetch new buffered input stream from file
-   *
-   * @param filePath to fetch
-   * @return buffered stream of file
-   * @throws FileNotFoundException on failure
+   Fetch new buffered input stream from file
+
+   @param filePath to fetch
+   @return buffered stream of file
+   @throws FileNotFoundException on failure
    */
   static BufferedInputStream inputFile(String filePath) throws FileNotFoundException {
     return new BufferedInputStream(new FileInputStream(getResourceFile(filePath)));
   }
 
   /**
-   * get the content of a file from java resources
-   *
-   * @param filePath to get
-   * @return File
+   get the content of a file from java resources
+
+   @param filePath to get
+   @return File
    */
   static String getResourceFileContent(String filePath) throws IOException {
     return new String(new BufferedInputStream(new FileInputStream(getResourceFile(filePath))).readAllBytes());
   }
 
   /**
-   * get a file from java resources
-   *
-   * @param filePath to get
-   * @return File
+   get a file from java resources
+
+   @param filePath to get
+   @return File
    */
   static File getResourceFile(String filePath) {
     InternalResource internalResource = new InternalResource(filePath);
@@ -84,10 +83,10 @@ public interface Files {
   }
 
   /**
-   * get unique temp filename
-   *
-   * @param subFilename filename within this filename
-   * @return filename
+   get unique temp filename
+
+   @param subFilename filename within this filename
+   @return filename
    */
   static String getUniqueTempFilename(String subFilename) {
     return getTempFilePathPrefix() + System.nanoTime() + "-" + subFilename;

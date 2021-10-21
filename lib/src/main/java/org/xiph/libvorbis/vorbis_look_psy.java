@@ -777,12 +777,12 @@ class vorbis_look_psy {
     n = _n;
     vi = _vi;
 
-    tonecurves = (float[][][]) _tonecurves.clone();
-    noiseoffset = (float[][]) _noiseoffset.clone();
+    tonecurves = _tonecurves.clone();
+    noiseoffset = _noiseoffset.clone();
 
-    ath = (float[]) _ath.clone();
-    octave = (int[]) _octave.clone();
-    bark = (int[]) _bark.clone();
+    ath = _ath.clone();
+    octave = _octave.clone();
+    bark = _bark.clone();
 
     firstoc = _firstoc;
     shiftoc = _shiftoc;

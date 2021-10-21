@@ -3,7 +3,6 @@ package io.xj.lib.jsonapi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import io.xj.lib.Widget;
 import org.junit.Before;

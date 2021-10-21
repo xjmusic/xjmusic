@@ -193,11 +193,11 @@ public class TemplateDAOImpl extends DAOImpl<Template> implements TemplateDAO {
   }
 
   /**
-   * Validate a template record
-   *
-   * @param access control
-   * @param record to validate
-   * @throws DAOException if invalid
+   Validate a template record
+
+   @param access control
+   @param record to validate
+   @throws DAOException if invalid
    */
   public Template validate(HubAccess access, Template record) throws DAOException {
     try {

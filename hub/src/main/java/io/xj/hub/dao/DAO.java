@@ -118,8 +118,6 @@ public interface DAO<E> {
 
   /**
    Delete a specified Entity@param hubAccess control@param id of specific Entity to delete.
-
-
    */
   void destroy(HubAccess hubAccess, UUID id) throws DAOException;
 
@@ -133,28 +131,27 @@ public interface DAO<E> {
   /**
    Fetch many records for many parents by id, if accessible
 
-   @return collection of retrieved records
-   @throws DAOException on failure
    @param hubAccess control
    @param parentIds to fetch records for.
+   @return collection of retrieved records
+   @throws DAOException on failure
    */
   Collection<E> readMany(HubAccess hubAccess, Collection<UUID> parentIds) throws DAOException;
 
   /**
    Fetch one record  if accessible
 
-   @return retrieved record
-   @throws DAOException on failure
    @param hubAccess control
    @param id        of record to fetch
+   @return retrieved record
+   @throws DAOException on failure
    */
   E readOne(HubAccess hubAccess, UUID id) throws DAOException;
 
   /**
    Update a specified Entity@param hubAccess control@param id     of specific Entity to update.
+
    @param entity for the updated Entity.
-
-
    */
   E update(HubAccess hubAccess, UUID id, E entity) throws DAOException, JsonapiException, ValueException;
 

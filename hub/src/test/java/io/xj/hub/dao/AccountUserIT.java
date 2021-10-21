@@ -76,7 +76,7 @@ public class AccountUserIT {
     HubAccess hubAccess = HubAccess.create("Admin");
     fake.user5 = test.insert(buildUser("Jim", "jim@email.com", "http://pictures.com/jim.gif", "Admin"));
     var inputData = new AccountUser();
-       inputData.setAccountId(fake.account1.getId());
+    inputData.setAccountId(fake.account1.getId());
     inputData.setUserId(fake.user5.getId());
 
     var result = testDAO.create(

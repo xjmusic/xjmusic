@@ -36,6 +36,20 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
     super(fabricator);
   }
 
+  /**
+   Remove some number of ids from the list
+
+   @param fromIds to begin with
+   @param count   number of ids to add
+   @return list including added ids
+   */
+  public static List<UUID> withIdsRemoved(List<UUID> fromIds, int count) {
+    var ids = new ArrayList<>(fromIds);
+    for (int i = 0; i < count; i++)
+      ids.remove((int) TremendouslyRandom.zeroToLimit(ids.size()));
+    return ids;
+  }
+
   @Override
   public void doWork() throws NexusException {
     List<SegmentChoice> previousChoices = fabricator.retrospective().getPreviousChoicesOfType(InstrumentType.PercLoop);
@@ -65,7 +79,6 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
     // Finally, update the segment with the crafted content
     fabricator.done();
   }
-
 
   /**
    Craft percussion loop
@@ -125,20 +138,6 @@ public class PercLoopCraftImpl extends RhythmCraftImpl implements PercLoopCraft 
     for (int i = 0; i < count; i++)
       chooseFreshPercLoopInstrument(ids)
         .ifPresent((instrument) -> ids.add(instrument.getId()));
-    return ids;
-  }
-
-  /**
-   Remove some number of ids from the list
-
-   @param fromIds to begin with
-   @param count   number of ids to add
-   @return list including added ids
-   */
-  public static List<UUID> withIdsRemoved(List<UUID> fromIds, int count) {
-    var ids = new ArrayList<>(fromIds);
-    for (int i = 0; i < count; i++)
-      ids.remove((int) TremendouslyRandom.zeroToLimit(ids.size()));
     return ids;
   }
 

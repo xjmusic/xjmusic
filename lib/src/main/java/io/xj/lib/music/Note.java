@@ -12,8 +12,8 @@ import java.util.stream.Stream;
  https://en.wikipedia.org/wiki/Musical_note
  */
 public class Note {
-  private static final Pattern rgxValidNote = Pattern.compile("^([ABCDEFGX][♯#♭b]*[0-9]*)$");
   public static final String ATONAL = "X";
+  private static final Pattern rgxValidNote = Pattern.compile("^([ABCDEFGX][♯#♭b]*[0-9]*)$");
   private static final int MAX_DELTA_SEMITONES = 1000; // this max is only for extreme-case infinite loop prevention
   private Integer octave; // octave #
   private PitchClass pitchClass; // pitch class of note
@@ -75,6 +75,28 @@ public class Note {
    */
   public static Note atonal() {
     return of(Note.ATONAL);
+  }
+
+  /**
+   Only stream a valid note, else empty
+   </>
+   NC sections should not cache notes from the previous section #179409784
+
+   @param name of note to test for validity
+   @return valid note stream, or empty stream (if invalid)
+   */
+  public static Stream<Note> ofValid(String name) {
+    return isValid(name) ? Stream.of(Note.of(name)) : Stream.empty();
+  }
+
+  /**
+   Whether the current note is valid
+
+   @param name of note to test
+   @return true if valid
+   */
+  public static boolean isValid(String name) {
+    return rgxValidNote.matcher(name).find();
   }
 
   /**
@@ -172,7 +194,7 @@ public class Note {
    */
   public Note conformedTo(Chord chord) {
 
-    if (chord.getPitchClasses().values().contains(pitchClass))
+    if (chord.getPitchClasses().containsValue(pitchClass))
       return copy();
 
     int delta = 0;
@@ -182,11 +204,11 @@ public class Note {
       delta++;
 
       noteDown = noteDown.shift(-1);
-      if (chord.getPitchClasses().values().contains(noteDown.getPitchClass()))
+      if (chord.getPitchClasses().containsValue(noteDown.getPitchClass()))
         return noteDown;
 
       noteUp = noteUp.shift(1);
-      if (chord.getPitchClasses().values().contains(noteUp.getPitchClass()))
+      if (chord.getPitchClasses().containsValue(noteUp.getPitchClass()))
         return noteUp;
     }
 
@@ -270,26 +292,5 @@ public class Note {
    */
   public boolean isAtonal() {
     return PitchClass.None.equals(pitchClass);
-  }
-
-  /**
-   Only stream a valid note, else empty
-   </>
-   NC sections should not cache notes from the previous section #179409784
-
-   @param name of note to test for validity
-   @return valid note stream, or empty stream (if invalid)
-   */
-  public static Stream<Note> ofValid(String name) {
-    return isValid(name) ? Stream.of(Note.of(name)) : Stream.empty();
-  }
-
-  /**
-   Whether the current note is valid
-   @param name of note to test
-   @return true if valid
-   */
-  public static boolean isValid(String name) {
-    return rgxValidNote.matcher(name).find();
   }
 }

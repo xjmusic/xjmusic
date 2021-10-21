@@ -18,10 +18,10 @@ public interface FabricatorFactory {
   /**
    Create a fabricator to fabricate a segment
 
-   @return Fabricator
-   @throws NexusException on failure
    @param sourceMaterial from which to fabricate
    @param segment        segment to be fabricated
+   @return Fabricator
+   @throws NexusException on failure
    */
   Fabricator fabricate(
     @Assisted("sourceMaterial") HubContent sourceMaterial,
@@ -35,10 +35,10 @@ public interface FabricatorFactory {
    ... do things with this content, like craft or dub ...
    content.putReport();
 
-   @return SegmentRetrospective
-   @throws NexusException on failure
    @param segment        Segment that's on the workbench
    @param sourceMaterial to get answers about the segment content
+   @return SegmentRetrospective
+   @throws NexusException on failure
    */
   SegmentRetrospective loadRetrospective(
     @Assisted("segment") Segment segment,
@@ -64,9 +64,9 @@ public interface FabricatorFactory {
   /**
    Create a workbench to fabricate a particular segment
 
+   @param segment Segment to be worked on
    @return SegmentWorkbench
    @throws NexusException on failure
-   @param segment Segment to be worked on
    */
   SegmentWorkbench setupWorkbench(
     @Assisted("chain") Chain chain,

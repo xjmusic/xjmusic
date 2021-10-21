@@ -1,3 +1,5 @@
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.lib;
 
 /**
@@ -5,5 +7,5 @@ package io.xj.lib;
  */
 enum MockEnumValue {
   Apples,
-  Oranges;
+  Oranges
 }

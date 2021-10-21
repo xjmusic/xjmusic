@@ -13,10 +13,10 @@ import java.util.regex.Pattern;
  Scales have different Modes, such as Locrian, Ionian, Natural, Melodic Minor or Augmented Phrygian.
  */
 public class ScaleMode {
-  private String name;
-  private Pattern search;
-  private List<Integer> deltas;
-  private List<Interval> omit;
+  private final String name;
+  private final Pattern search;
+  private final List<Integer> deltas;
+  private final List<Interval> omit;
 
   ScaleMode(String name, Pattern search, List<Integer> deltas, List<Interval> omit) {
     this.name = name;

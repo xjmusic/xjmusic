@@ -40,7 +40,7 @@ public class static_codebook {
     if (_lengthlist == null)
       lengthlist = null;
     else
-      lengthlist = (int[]) _lengthlist.clone();
+      lengthlist = _lengthlist.clone();
 
 
     maptype = _maptype;
@@ -53,7 +53,7 @@ public class static_codebook {
     if (_quantlist == null)
       quantlist = null;
     else
-      quantlist = (int[]) _quantlist.clone();
+      quantlist = _quantlist.clone();
 
     nearest_tree = _nearest_tree;
     thresh_tree = _thresh_tree;

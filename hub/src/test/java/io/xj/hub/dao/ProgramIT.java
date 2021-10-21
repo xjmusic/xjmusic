@@ -471,8 +471,8 @@ public class ProgramIT {
     test.insert(buildProgramSequenceBinding(programSequence, 0));
     var voice = test.insert(buildProgramVoice(program, InstrumentType.Drum, "drums"));
     var track = test.insert(buildProgramVoiceTrack(voice, "Kick"));
-    test.insert(buildProgramSequenceChord(programSequence,0.0f,"D"));
-    var pattern = test.insert(buildProgramSequencePattern(programSequence,voice, ProgramSequencePatternType.Loop,       8, "jam"));
+    test.insert(buildProgramSequenceChord(programSequence, 0.0f, "D"));
+    var pattern = test.insert(buildProgramSequencePattern(programSequence, voice, ProgramSequencePatternType.Loop, 8, "jam"));
     test.insert(buildProgramSequencePatternEvent(pattern, track, 0.0f, 1.0f, "C", 1.0f));
 
     testDAO.destroy(hubAccess, program.getId());

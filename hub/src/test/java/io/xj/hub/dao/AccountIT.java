@@ -97,7 +97,7 @@ public class AccountIT {
     HubAccess hubAccess = HubAccess.create(ImmutableList.of(fake.account1), "Admin");
     var entity = new Account();
     entity.setId(UUID.randomUUID());
-       entity.setName("jammers");
+    entity.setName("jammers");
 
     testDAO.update(hubAccess, fake.account1.getId(), entity);
 

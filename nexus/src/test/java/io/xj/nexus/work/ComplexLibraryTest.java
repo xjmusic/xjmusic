@@ -135,9 +135,9 @@ public class ComplexLibraryTest {
   }
 
   /**
-   * Whether this test is within the time limit
-   *
-   * @return true if within time limit
+   Whether this test is within the time limit
+
+   @return true if within time limit
    */
   private boolean isWithinTimeLimit() {
     if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > System.currentTimeMillis() - startTime)
@@ -147,10 +147,10 @@ public class ComplexLibraryTest {
   }
 
   /**
-   * Does a specified Chain contain at least N segments?
-   *
-   * @param chainId to test
-   * @return true if it has at least N segments
+   Does a specified Chain contain at least N segments?
+
+   @param chainId to test
+   @return true if it has at least N segments
    */
   private boolean hasSegmentsDubbedPastMinimumOffset(UUID chainId) {
     try {

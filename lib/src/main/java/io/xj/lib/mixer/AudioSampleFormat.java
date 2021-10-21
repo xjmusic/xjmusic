@@ -423,7 +423,7 @@ public enum AudioSampleFormat {
    @return value
    */
   private static double fromBytesF32LSB(byte[] sample) {
-    return (double) ByteBuffer.wrap(sample)
+    return ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
       .getFloat();
   }
@@ -435,7 +435,7 @@ public enum AudioSampleFormat {
    @return value
    */
   private static double fromBytesF32MSB(byte[] sample) {
-    return (double) ByteBuffer.wrap(sample)
+    return ByteBuffer.wrap(sample)
       .order(ByteOrder.BIG_ENDIAN)
       .getFloat();
   }

@@ -1,4 +1,4 @@
-// Copyright (c) 1999-2021, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 package io.xj.nexus.persistence;
 
@@ -108,6 +108,7 @@ public enum Chains {
   public static Chain fromTemplate(Template template) {
     var chain = new Chain();
     chain.setTemplateId(template.getId());
+    chain.setTemplateConfig(template.getConfig());
     chain.setShipKey(template.getShipKey());
     chain.setAccountId(template.getAccountId());
     chain.setType(ChainType.fromValue(template.getType().toString()));

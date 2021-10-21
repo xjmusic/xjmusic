@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user-token | awk '{print $1}')
 
 echo ""

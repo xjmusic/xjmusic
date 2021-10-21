@@ -200,6 +200,17 @@ public class MixerConfig {
   }
 
   /**
+   Set normalization max value
+
+   @param normalizationCeiling value
+   @return MixerConfig to chain setters
+   */
+  public MixerConfig setNormalizationCeiling(Double normalizationCeiling) {
+    this.normalizationCeiling = normalizationCeiling;
+    return this;
+  }
+
+  /**
    @return normalization boost threshold
    */
   public Double getNormalizationBoostThreshold() {
@@ -213,17 +224,6 @@ public class MixerConfig {
    */
   public MixerConfig setNormalizationBoostThreshold(double normalizationBoostThreshold) {
     this.normalizationBoostThreshold = normalizationBoostThreshold;
-    return this;
-  }
-
-  /**
-   Set normalization max value
-
-   @param normalizationCeiling value
-   @return MixerConfig to chain setters
-   */
-  public MixerConfig setNormalizationCeiling(Double normalizationCeiling) {
-    this.normalizationCeiling = normalizationCeiling;
     return this;
   }
 

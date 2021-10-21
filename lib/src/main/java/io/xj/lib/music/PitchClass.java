@@ -144,6 +144,28 @@ public enum PitchClass {
   }
 
   /**
+   Nearest difference, +/- semitones, between two pitch classes
+
+   @param from pitch class
+   @param to   pitch class
+   @param inc  increment, +1 or -1 (else risk infinite loop)
+   @return difference +/- semitones
+   */
+  private static int deltaDirectional(PitchClass from, PitchClass to, int inc) {
+    if (from == None)
+      return 0;
+
+    int delta = 0;
+    while (true) {
+      if (from == to) {
+        return delta;
+      }
+      delta += inc;
+      from = from.step(inc).getPitchClass();
+    }
+  }
+
+  /**
    Note stepped +/- semitones to a new Note
 
    @param inc +/- semitones to transpose
@@ -217,28 +239,6 @@ public enum PitchClass {
       return deltaUp;
     else
       return deltaDown;
-  }
-
-  /**
-   Nearest difference, +/- semitones, between two pitch classes
-
-   @param from pitch class
-   @param to   pitch class
-   @param inc  increment, +1 or -1 (else risk infinite loop)
-   @return difference +/- semitones
-   */
-  private static int deltaDirectional(PitchClass from, PitchClass to, int inc) {
-    if (from == None)
-      return 0;
-
-    int delta = 0;
-    while (true) {
-      if (from == to) {
-        return delta;
-      }
-      delta += inc;
-      from = from.step(inc).getPitchClass();
-    }
   }
 
   /**
