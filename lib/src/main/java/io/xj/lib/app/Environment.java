@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,6 +55,7 @@ public class Environment {
   private final String redisSessionNamespace;
   private final String shipBaseUrl;
   private final String shipBucket;
+  private final String shipFragmentConstructionMethod;
   private final String shipMpdMimeType;
   private final String streamBaseURL;
   private final String streamBucket;
@@ -147,11 +147,12 @@ public class Environment {
     segmentComputeTimeResolutionHz = readInt(vars, "SEGMENT_COMPUTE_TIME_RESOLUTION_HZ", 1000000);
     shipAheadChunks = readInt(vars, "SHIP_AHEAD_CHUNKS", 6);
     shipBaseUrl = readStr(vars, "SHIP_BASE_URL", "https://ship.dev.xj.io/");
+    shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 128000);
     shipBucket = readStr(vars, "SHIP_BUCKET", "xj-dev-ship");
     shipChunkPrintTimeoutSeconds = readInt(vars, "SHIP_CHUNK_PRINT_SECONDS", 5);
     shipChunkSeconds = readInt(vars, "SHIP_CHUNK_SECONDS", 10);
+    shipFragmentConstructionMethod = readStr(vars, "SHIP_FRAGMENT_CONSTRUCTION_METHOD", "Manual");
     shipMpdMimeType = readStr(vars, "SHIP_MPD_MIME_TYPE", "application/dash+xml");
-    shipBitrateHigh = readInt(vars, "SHIP_BITRATE_HIGH", 128000);
     shipReloadSeconds = readInt(vars, "SHIP_RELOAD_SECONDS", 15);
     shipSegmentLoadTimeoutSeconds = readInt(vars, "SHIP_SEGMENT_LOAD_TIMEOUT_SECONDS", 5);
     streamBaseURL = readStr(vars, "STREAM_BASE_URL", "https://stream.dev.xj.io/");
@@ -849,5 +850,12 @@ public class Environment {
    */
   public int getWorkRehydrateFabricatedAheadThreshold() {
     return workRehydrateFabricatedAheadThreshold;
+  }
+
+  /**
+   @return the ship fragment construction method
+   */
+  public String getShipFragmentConstructionMethod() {
+    return shipFragmentConstructionMethod;
   }
 }

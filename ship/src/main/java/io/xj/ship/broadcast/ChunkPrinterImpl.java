@@ -53,6 +53,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
   private static final int AUDIO_CHANNELS = 2;
   private static final float QUALITY = 100;
   private final Chunk chunk;
+  private final ChunkFragmentMethod fragmentConstructionMethod;
   private final ChunkManager chunkManager;
   private final FileStoreProvider fileStoreProvider;
   private final SegmentAudioManager segmentAudioManager;
@@ -90,6 +91,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     this.segmentAudioManager = segmentAudioManager;
 
     bitrate = env.getShipBitrateHigh();
+    fragmentConstructionMethod = ChunkFragmentMethod.fromString(env.getShipFragmentConstructionMethod());
     String key = chunk.getKey(bitrate);
 
     aacFilePath = String.format("%s%s.aac", env.getTempFilePathPrefix(), key);
@@ -213,7 +215,10 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     LOG.debug("will construct .m4s fragment from AAC");
     chunkManager.put(chunk.setState(ChunkState.Encoding));
     try {
-      constructM4S();
+      switch (fragmentConstructionMethod) {
+        case MANUAL -> constructM4S_manually();
+        case MP4BOX -> constructM4S_mp4box();
+      }
       LOG.info("did construct M4S at {} to {}", bitrate, m4sFilePath);
     } catch (Exception e) {
       LOG.error("Failed to construct M4S at {} to {}", bitrate, m4sFilePath, e);
@@ -230,7 +235,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       return;
     }
 
-    LOG.debug("will ship .mp4 initialization segment if necessary");
+    LOG.debug("will construct and ship .mp4 initialization segment if necessary");
     if (!chunkManager.isInitialized(chunk.getShipKey()))
       try {
         constructInitialMP4_mp4box();
@@ -312,7 +317,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
 
    @throws IOException on failure
    */
-  private void constructM4S() throws IOException {
+  private void constructM4S_manually() throws IOException {
     Files.deleteIfExists(Path.of(m4sFilePath));
     AACTrackImpl aacTrack = new AACTrackImpl(new FileDataSourceImpl(aacFilePath));
     Movie movie = new Movie();
@@ -328,11 +333,11 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     fc.close();
   }
 
-  /*
+  /**
    Construct the M4S output with MP4Box
 
    @throws IOException on failure
-   *
+   */
   private void constructM4S_mp4box() throws IOException, InterruptedException {
     Files.deleteIfExists(Path.of(m4sFilePath));
 
@@ -356,7 +361,6 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       "-v",
       "/tmp:period=%s", adjSeqNum));
   }
-   */
 
   /**
    Whether all the source segments for this chunk are ready

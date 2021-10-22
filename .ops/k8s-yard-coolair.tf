@@ -159,6 +159,11 @@ resource "kubernetes_deployment" "xj-prod-yard-coolair-ship" {
             value = "coolair"
           }
 
+          env {
+            name  = "SHIP_FRAGMENT_CONSTRUCTION_METHOD"
+            value = "mp4box"
+          }
+
           liveness_probe {
             http_get {
               path = "/healthz"
