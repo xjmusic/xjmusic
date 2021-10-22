@@ -14,7 +14,6 @@ public class BroadcastModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(ChunkManager.class).to(ChunkManagerImpl.class);
-    bind(PlaylistProvider.class).to(PlaylistProviderImpl.class);
     install(new FactoryModuleBuilder()
       .implement(Chunk.class, Chunk.class)
       .implement(ChunkPrinter.class, ChunkPrinterImpl.class)

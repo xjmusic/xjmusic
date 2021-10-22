@@ -13,15 +13,14 @@ import io.xj.ship.source.SourceModule;
 public class ShipWorkModule extends AbstractModule {
   @Override
   protected void configure() {
-    install(new SourceModule());
-    install(new BroadcastModule());
     bind(Janitor.class).to(JanitorImpl.class);
     bind(ShipWork.class).to(ShipWorkImpl.class);
-
+    install(new BroadcastModule());
     install(new JsonModule());
     install(new JsonapiModule());
     install(new MixerModule());
     install(new NotificationModule());
+    install(new SourceModule());
     install(new TelemetryModule());
   }
 }

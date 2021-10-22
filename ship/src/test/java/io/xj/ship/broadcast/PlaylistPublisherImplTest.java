@@ -32,13 +32,13 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PlaylistProviderImplTest {
+public class PlaylistPublisherImplTest {
   // Fixtures
   private static final String SHIP_TITLE = "Test Stream 5";
   private static final String SHIP_SOURCE = "XJ Music Testing";
   private static final String SHIP_KEY = "test5";
   // Under Test
-  private PlaylistProvider subject;
+  private PlaylistPublisher subject;
   private Chunk chunk0;
 
   @Mock
@@ -69,7 +69,7 @@ public class PlaylistProviderImplTest {
     chunk0 = injector.getInstance(BroadcastFactory.class)
       .chunk(SHIP_KEY, 1513040420).setState(ChunkState.Done).addStreamOutputKey("test5-128000-151304042.m4a");
 
-    subject = injector.getInstance(PlaylistProvider.class);
+    subject = injector.getInstance(BroadcastFactory.class).publisher(SHIP_KEY, "Test Channel 5", "Test Artist");
   }
 
   @Test
