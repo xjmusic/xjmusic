@@ -47,7 +47,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private final String streamBucket;
   private final int chunkSeconds;
   private final int shipBitrateHigh;
-  private final int shipChunkSeconds;
 
   @Inject
   public PlaylistPublisherImpl(
@@ -67,7 +66,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
     parser = new MPDParser();
     playlistKey = String.format("%s.mpd", shipKey);
     shipBitrateHigh = env.getShipBitrateHigh();
-    shipChunkSeconds = env.getShipChunkSeconds();
     streamBucket = env.getStreamBucket();
   }
 
@@ -85,8 +83,6 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
 
   @Override
   public String computeMediaPresentationDescriptionXML(long nowMillis) throws IOException, ShipException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ValueException {
-    var nowSeconds = chunks.computeFromSecondUTC(nowMillis);
-    var startNumber = nowSeconds / shipChunkSeconds;
 
     LOG.info("chunks {}",
       chunks.getAll(shipKey, nowMillis).stream()
@@ -139,7 +135,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
                       .withDuration((long) chunkSeconds * 1000000L)
                       .withInitialization(String.format("%s-$RepresentationID$-IS.mp4", shipKey))
                       .withMedia(String.format("%s-$RepresentationID$-$Number$.m4s", shipKey))
-                      .withStartNumber(startNumber)
+                      .withStartNumber(0L)
                       .withTimescale(1000000L)
                       .build()
                   ).build()

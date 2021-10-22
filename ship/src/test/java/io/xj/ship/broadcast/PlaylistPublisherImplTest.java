@@ -74,7 +74,6 @@ public class PlaylistPublisherImplTest {
   @Test
   public void computeMpdXML() throws IOException, ShipException, ValueException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
     when(chunkManager.getAll(eq(SHIP_KEY), eq(1513040450000L))).thenReturn(List.of(chunk0));
-    when(chunkManager.computeFromSecondUTC(eq(1513040450000L))).thenReturn(1513040450L);
     when(chunkManager.getContiguousDone(eq(SHIP_KEY), eq(1513040450000L))).thenReturn(List.of(chunk0));
 
     var result = subject.computeMediaPresentationDescriptionXML(1513040450000L);
