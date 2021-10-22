@@ -136,17 +136,24 @@ public class ChunkPrinterImplTest {
     subject.print();
 
     assertFileMatchesResourceFile("chunk_reference_outputs/test5-151304042.wav", subject.getWavFilePath());
+    logAllMp4Boxes("EXPECTED M4s", new InternalResource("chunk_reference_outputs/test5-128kbps-151304042.m4s").getFile().getAbsolutePath());
+    logAllMp4Boxes("ACTUAL M4S", subject.getM4sFilePath());
+    logAllMp4Boxes("EXPECTED INIT MP4 (ffmpeg)", new InternalResource("chunk_reference_outputs/test5-128kbps-IS-ffmpeg.mp4").getFile().getAbsolutePath());
+    logAllMp4Boxes("EXPECTED INIT MP4 (mp4box)", new InternalResource("chunk_reference_outputs/test5-128kbps-IS-mp4box.mp4").getFile().getAbsolutePath());
+    logAllMp4Boxes("ACTUAL INIT MP4", subject.getMp4InitFilePath());
+  }
 
-    var boxesExpected = getMp4Boxes(new InternalResource("chunk_reference_outputs/test5-128kbps-151304042.m4s").getFile().getAbsolutePath());
-    var boxesActual = getMp4Boxes(subject.getM4sFilePath());
-    var boxesActualInit = getMp4Boxes(subject.getMp4InitFilePath());
+  /**
+   Log all MP4 boxes of the given file path
 
-    LOG.info("EXPECTED");
-    for (var box : boxesExpected) LOG.info("{}", box.toString());
-    LOG.info("ACTUAL");
-    for (var box : boxesActual) LOG.info("{}", box.toString());
-    LOG.info("ACTUAL INIT FILE");
-    for (var box : boxesActualInit) LOG.info("{}", box.toString());
+   @param name of this log section
+   @param path to file
+   @throws IOException on failure
+   */
+  private void logAllMp4Boxes(String name, String path) throws IOException {
+    LOG.info("----[ {} ]----", name);
+    for (var box : getMp4Boxes(path)) LOG.info("{}", box.toString());
+    LOG.info("--------------");
   }
 
   /**

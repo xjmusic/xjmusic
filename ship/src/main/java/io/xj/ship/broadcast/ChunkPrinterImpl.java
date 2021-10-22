@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static io.xj.lib.util.Files.getFileSize;
 import static io.xj.lib.util.Text.formatMultiline;
+import static org.joda.time.DateTimeConstants.MILLIS_PER_SECOND;
 
 /**
  Ship broadcast via HTTP Live Streaming #179453189
@@ -92,7 +93,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     m4sFileName = String.format("%s.m4s", key);
     m4sFilePath = String.format("%s%s-1.m4s", env.getTempFilePathPrefix(), key);
     mp4InitFileName = String.format("%s-%s-IS.mp4", chunk.getShipKey(), Values.k(bitrate));
-    mp4InitFilePath = String.format("%s%s", env.getTempFilePathPrefix(), mp4InitFileName);
+    mp4InitFilePath = String.format("%s%s-temp_init.mp4", env.getTempFilePathPrefix(), key);
     shipChunkPrintTimeoutSeconds = env.getShipChunkPrintTimeoutSeconds();
     shipChunkSeconds = env.getShipChunkSeconds();
     streamBucket = env.getStreamBucket();
@@ -245,7 +246,8 @@ public class ChunkPrinterImpl implements ChunkPrinter {
   /**
    run ffmpeg to create the initial segment for MPEG-DASH
    */
-  private void constructInitialMP4() throws IOException, InterruptedException {
+  @SuppressWarnings("unused")
+  private void constructInitialMP4_ffmpeg() throws IOException, InterruptedException {
     Files.deleteIfExists(Path.of(mp4InitFilePath));
     execute("to construct initial MP4", List.of(
       "ffmpeg",
@@ -263,6 +265,27 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       "-hls_time", "11",
       tempPlaylistPath));
   }
+
+  /**
+   run ffmpeg to create the initial segment for MPEG-DASH
+   */
+  private void constructInitialMP4() throws IOException, InterruptedException {
+    Files.deleteIfExists(Path.of(mp4InitFilePath));
+    String adjSeqNum = String.valueOf(chunk.getSequenceNumber() - 1);
+    execute("to construct initial MP4", List.of(
+      "MP4Box",
+      "-add", aacFilePath,
+      "-dash", String.valueOf(chunk.getLengthSeconds() * MILLIS_PER_SECOND),
+      "-frag", String.valueOf(chunk.getLengthSeconds() * MILLIS_PER_SECOND),
+      "-idx", adjSeqNum,
+      "-moof-sn", adjSeqNum,
+      "-out", tempPlaylistPath,
+      "-profile", "live",
+      "-segment-name", String.format("%s-", chunk.getKey(bitrate)),
+      "-v",
+      "/tmp:period=%s", adjSeqNum));
+  }
+
 
   /**
    run ffmpeg for this chunk printing
@@ -290,7 +313,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     AACTrackImpl aacTrack = new AACTrackImpl(new FileDataSourceImpl(aacFilePath));
     Movie movie = new Movie();
     movie.addTrack(aacTrack);
-    Container mp4file = new CustomFragmentMp4Builder(
+    Container mp4file = new CustomFragmentM4sBuilder(
       chunk.getTemplateConfig().getOutputFrameRate(),
       chunk.getLengthSeconds(),
       chunk.getSequenceNumber(),

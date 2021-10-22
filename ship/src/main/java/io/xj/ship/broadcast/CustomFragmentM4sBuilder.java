@@ -25,8 +25,8 @@ import static org.mp4parser.tools.CastUtils.l2i;
 /**
  Creates a plain MP4 file from a video. Plain as plain can be.
  */
-public class CustomFragmentMp4Builder implements Mp4Builder {
-    private static final Logger LOG = LoggerFactory.getLogger(CustomFragmentMp4Builder.class);
+public class CustomFragmentM4sBuilder implements Mp4Builder {
+    private static final Logger LOG = LoggerFactory.getLogger(CustomFragmentM4sBuilder.class);
     private static final String BRAND_MSDH = "msdh";
     private static final String BRAND_MSIX = "msix";
     private final long subsegmentDuration;
@@ -40,7 +40,7 @@ public class CustomFragmentMp4Builder implements Mp4Builder {
     HashMap<Track, long[]> track2SampleSizes = new HashMap<>();
     private Fragmenter fragmenter;
 
-    public CustomFragmentMp4Builder(
+    public CustomFragmentM4sBuilder(
             int sampleRate,
             int lengthSeconds,
             long sequenceNumber,
@@ -140,17 +140,17 @@ public class CustomFragmentMp4Builder implements Mp4Builder {
         SegmentIndexBox sidx = new SegmentIndexBox();
         sidx.setEntries(List.of(new SegmentIndexBox.Entry(
                 0,
-                64690, // TODO what is the meaning of "referenced size" and how do we compute it?
+                64690, // FUTURE what is the meaning of "referenced size" and how do we compute it?
                 subsegmentDuration,
                 true,
                 0,
                 0
         )));
         sidx.setTimeScale(getTimescale());
-        sidx.setReferenceId(1); // TODO set reference id from for real chunk values
-        sidx.setEarliestPresentationTime(0); // TODO set earliest presentation time from for real chunk values
-        sidx.setFirstOffset(0); // TODO set first offset from for real chunk values
-        sidx.setReserved(0); // TODO set reserved from for real chunk values
+        sidx.setReferenceId(1);
+        sidx.setEarliestPresentationTime(0);
+        sidx.setFirstOffset(0);
+        sidx.setReserved(0);
         return sidx;
     }
 
@@ -338,7 +338,7 @@ public class CustomFragmentMp4Builder implements Mp4Builder {
 
             chunkSizes[i] = l2i(end - start);
         }
-        assert CustomFragmentMp4Builder.this.track2Sample.get(track).size() == sum(chunkSizes) : "The number of samples and the sum of all chunk lengths must be equal";
+        assert CustomFragmentM4sBuilder.this.track2Sample.get(track).size() == sum(chunkSizes) : "The number of samples and the sum of all chunk lengths must be equal";
         return chunkSizes;
     }
 

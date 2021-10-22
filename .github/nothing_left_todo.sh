@@ -13,18 +13,9 @@ check() {
   fi
 }
 
-check build.gradle
-
-check hub/build.gradle
-check hub/src
-
-check lib/build.gradle
-check lib/src
-
-check nexus/build.gradle
-check nexus/src
-
-check spec/build.gradle
-check spec/src
-
 check .ops
+check hub/src
+check lib/src
+check nexus/src
+check ship/src
+check spec/src
