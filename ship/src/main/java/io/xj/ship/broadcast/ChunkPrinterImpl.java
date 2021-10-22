@@ -94,7 +94,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
 
     aacFilePath = String.format("%s%s.aac", env.getTempFilePathPrefix(), key);
     m4sFileName = String.format("%s.m4s", key);
-    m4sFilePath = String.format("%s%s-1.m4s", env.getTempFilePathPrefix(), key);
+    m4sFilePath = String.format("%s%s.m4s", env.getTempFilePathPrefix(), key);
     mp4InitFileName = String.format("%s-%s-IS.mp4", chunk.getShipKey(), Values.k(bitrate));
     mp4InitFilePath = String.format("%s%s-temp_init.mp4", env.getTempFilePathPrefix(), key);
     shipChunkPrintTimeoutSeconds = env.getShipChunkPrintTimeoutSeconds();
@@ -213,7 +213,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     LOG.debug("will construct .m4s fragment from AAC");
     chunkManager.put(chunk.setState(ChunkState.Encoding));
     try {
-      constructM4S_mp4box();
+      constructM4S();
       LOG.info("did construct M4S at {} to {}", bitrate, m4sFilePath);
     } catch (Exception e) {
       LOG.error("Failed to construct M4S at {} to {}", bitrate, m4sFilePath, e);
@@ -307,12 +307,12 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       aacFilePath));
   }
 
-  /*
-   Check the M4S output
+  /**
+   Construct the M4s manually
 
    @throws IOException on failure
-   *
-  private void constructM4S_mp4parser() throws IOException {
+   */
+  private void constructM4S() throws IOException {
     Files.deleteIfExists(Path.of(m4sFilePath));
     AACTrackImpl aacTrack = new AACTrackImpl(new FileDataSourceImpl(aacFilePath));
     Movie movie = new Movie();
@@ -327,13 +327,12 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     mp4file.writeContainer(fc);
     fc.close();
   }
-   */
 
-  /**
-   Check the M4S output
+  /*
+   Construct the M4S output with MP4Box
 
    @throws IOException on failure
-   */
+   *
   private void constructM4S_mp4box() throws IOException, InterruptedException {
     Files.deleteIfExists(Path.of(m4sFilePath));
 
@@ -348,7 +347,8 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       "-idx", adjSeqNum,
       "-moof-sn", adjSeqNum,
       "-out", tempPlaylistPath,
-      "-segment-name", String.format("%s-", chunk.getKey(bitrate)),
+      "-segment-name", String.format("%s", chunk.getKey(bitrate)),
+      "-segment-ext", "m4s",
       "-single-traf",
       "-subsegs-per-sidx", "0",
       "-daisy-chain",
@@ -356,6 +356,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       "-v",
       "/tmp:period=%s", adjSeqNum));
   }
+   */
 
   /**
    Whether all the source segments for this chunk are ready
