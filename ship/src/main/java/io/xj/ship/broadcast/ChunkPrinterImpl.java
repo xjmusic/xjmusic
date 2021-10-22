@@ -213,7 +213,7 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     LOG.debug("will construct .m4s fragment from AAC");
     chunkManager.put(chunk.setState(ChunkState.Encoding));
     try {
-      constructM4S_mp4parser();
+      constructM4S_mp4box();
       LOG.info("did construct M4S at {} to {}", bitrate, m4sFilePath);
     } catch (Exception e) {
       LOG.error("Failed to construct M4S at {} to {}", bitrate, m4sFilePath, e);
@@ -307,11 +307,11 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       aacFilePath));
   }
 
-  /**
+  /*
    Check the M4S output
 
    @throws IOException on failure
-   */
+   *
   private void constructM4S_mp4parser() throws IOException {
     Files.deleteIfExists(Path.of(m4sFilePath));
     AACTrackImpl aacTrack = new AACTrackImpl(new FileDataSourceImpl(aacFilePath));
@@ -327,12 +327,13 @@ public class ChunkPrinterImpl implements ChunkPrinter {
     mp4file.writeContainer(fc);
     fc.close();
   }
+   */
 
-  /*
+  /**
    Check the M4S output
 
    @throws IOException on failure
-   *
+   */
   private void constructM4S_mp4box() throws IOException, InterruptedException {
     Files.deleteIfExists(Path.of(m4sFilePath));
 
@@ -347,12 +348,14 @@ public class ChunkPrinterImpl implements ChunkPrinter {
       "-idx", adjSeqNum,
       "-moof-sn", adjSeqNum,
       "-out", tempPlaylistPath,
-      "-profile", "live",
       "-segment-name", String.format("%s-", chunk.getKey(bitrate)),
+      "-single-traf",
+      "-subsegs-per-sidx", "0",
+      "-daisy-chain",
+      "-single-segment",
       "-v",
       "/tmp:period=%s", adjSeqNum));
   }
-   */
 
   /**
    Whether all the source segments for this chunk are ready
