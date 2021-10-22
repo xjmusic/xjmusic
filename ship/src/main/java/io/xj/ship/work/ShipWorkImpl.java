@@ -46,10 +46,6 @@ public class ShipWorkImpl implements ShipWork {
   private final long healthCycleStalenessThresholdMillis;
   @Nullable
   private final String shipKey;
-  @Nullable
-  private final String shipTitle;
-  @Nullable
-  private final String shipSource;
   private boolean alive = true;
   private long nextCycleMillis = 0;
   private long nextJanitorMillis = 0;
@@ -70,9 +66,7 @@ public class ShipWorkImpl implements ShipWork {
     this.chunkManager = chunkManager;
     this.notification = notification;
 
-    shipKey = env.getBootstrapShipKey();
-    shipTitle = env.getBootstrapShipTitle();
-    shipSource = env.getBootstrapShipSource();
+    shipKey = env.getBootstrapShipKeys().stream().findAny().orElse(null);
     this.broadcast = broadcast;
     state = new AtomicReference<>(State.Active);
     shipReloadSeconds = env.getShipReloadSeconds();
@@ -124,33 +118,62 @@ public class ShipWorkImpl implements ShipWork {
 
     if (state.get() == State.Active)
       try {
-        if (nowMillis > nextShipReloadMillis) {
-          nextShipReloadMillis = nowMillis + shipReloadSeconds * MILLIS_PER_SECOND;
-          ForkJoinPool.commonPool().execute(sources.spawnChainBoss(shipKey,
-            () -> state.set(State.Fail)
-          ));
-        }
-
-        for (var chunk : chunkManager.getAll(shipKey, nowMillis))
-          broadcast.printer(chunk).print();
-
-        if (nowMillis > nextPublishMillis) {
-          nextPublishMillis = nowMillis + (publishCycleSeconds * MILLIS_PER_SECOND);
-          if (chunkManager.isAssembledFarEnoughAhead(shipKey, nowMillis))
-            broadcast.publisher(shipKey, shipTitle, shipSource).publish(nowMillis);
-        }
-
-        if (janitorEnabled)
-          if (nowMillis > nextJanitorMillis) {
-            nextJanitorMillis = nowMillis + (janitorCycleSeconds * MILLIS_PER_SECOND);
-            janitor.cleanup();
-          }
+        doLoadCycle(nowMillis);
+        doPrintCycle(nowMillis);
+        doPublishCycle(nowMillis);
+        doCleanupCycle(nowMillis);
 
       } catch (Exception e) {
         var detail = Strings.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
         LOG.error("Failed while running ship work because {}", detail, e);
         notification.publish(String.format("Failed while running ship work because %s\n\n%s", detail, Text.formatStackTrace(e)), "Failure");
       }
+  }
+
+  /**
+   Print the chunks every N milliseconds
+
+   @param nowMillis current
+   */
+  private void doPrintCycle(long nowMillis) {
+    for (var chunk : chunkManager.getAll(shipKey, nowMillis)) broadcast.printer(chunk).print();
+  }
+
+  /**
+   Load sources every N milliseconds
+
+   @param nowMillis current
+   */
+  private void doLoadCycle(long nowMillis) {
+    if (nowMillis < nextShipReloadMillis) return;
+    nextShipReloadMillis = nowMillis + shipReloadSeconds * MILLIS_PER_SECOND;
+    ForkJoinPool.commonPool().execute(sources.spawnChainBoss(shipKey,
+      () -> state.set(State.Fail)
+    ));
+  }
+
+  /**
+   Clean up every N milliseconds
+
+   @param nowMillis current
+   */
+  private void doCleanupCycle(long nowMillis) {
+    if (!janitorEnabled) return;
+    if (nowMillis < nextJanitorMillis) return;
+    nextJanitorMillis = nowMillis + (janitorCycleSeconds * MILLIS_PER_SECOND);
+    janitor.cleanup();
+  }
+
+  /**
+   Publish the playlist every N milliseconds
+
+   @param nowMillis current
+   */
+  private void doPublishCycle(long nowMillis) {
+    if (nowMillis < nextPublishMillis) return;
+    nextPublishMillis = nowMillis + (publishCycleSeconds * MILLIS_PER_SECOND);
+    if (chunkManager.isAssembledFarEnoughAhead(shipKey, nowMillis))
+      broadcast.publisher(shipKey).publish(nowMillis);
   }
 
   enum State {

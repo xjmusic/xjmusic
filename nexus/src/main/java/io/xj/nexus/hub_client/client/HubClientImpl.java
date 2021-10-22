@@ -122,10 +122,9 @@ public class HubClientImpl implements HubClient {
   }
 
   @Override
-  public Template readTemplate(UUID templateId) throws HubClientException {
+  public Template readTemplate(String identifier) throws HubClientException {
     try {
-      HttpGet request = new HttpGet(buildURI(String.format("%s%s",
-        API_PATH_TEMPLATES_PREFIX, templateId.toString())));
+      HttpGet request = new HttpGet(buildURI(String.format("%s%s", API_PATH_TEMPLATES_PREFIX, identifier)));
       setAccessCookie(request, ingestTokenValue);
       CloseableHttpResponse response = httpClient.execute(request);
 

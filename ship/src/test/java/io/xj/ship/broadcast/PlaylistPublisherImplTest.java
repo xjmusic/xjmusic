@@ -34,8 +34,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class PlaylistPublisherImplTest {
   // Fixtures
-  private static final String SHIP_TITLE = "Test Stream 5";
-  private static final String SHIP_SOURCE = "XJ Music Testing";
   private static final String SHIP_KEY = "test5";
   // Under Test
   private PlaylistPublisher subject;
@@ -63,22 +61,23 @@ public class PlaylistPublisherImplTest {
       }
     }));
 
-    when(chainManager.readOneByShipKey(eq(SHIP_KEY)))
-      .thenReturn(buildChain(buildTemplate(buildAccount("Testing"), "Testing")));
+    var chain = buildChain(buildTemplate(buildAccount("Testing"), "Testing"));
+    chain.setTemplateConfig("metaSource = \"XJ Music Testing\"\nmetaTitle = \"Test Stream 5\"");
+    when(chainManager.readOneByShipKey(eq(SHIP_KEY))).thenReturn(chain);
 
     chunk0 = injector.getInstance(BroadcastFactory.class)
       .chunk(SHIP_KEY, 1513040420).setState(ChunkState.Done).addStreamOutputKey("test5-128000-151304042.m4a");
 
-    subject = injector.getInstance(BroadcastFactory.class).publisher(SHIP_KEY, "Test Channel 5", "Test Artist");
+    subject = injector.getInstance(BroadcastFactory.class).publisher(SHIP_KEY);
   }
 
   @Test
-  public void computeMpdXML() throws IOException, ShipException, ValueException {
+  public void computeMpdXML() throws IOException, ShipException, ValueException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException {
     when(chunkManager.getAll(eq(SHIP_KEY), eq(1513040450000L))).thenReturn(List.of(chunk0));
     when(chunkManager.computeFromSecondUTC(eq(1513040450000L))).thenReturn(1513040450L);
     when(chunkManager.getContiguousDone(eq(SHIP_KEY), eq(1513040450000L))).thenReturn(List.of(chunk0));
 
-    var result = subject.computeMediaPresentationDescriptionXML(SHIP_KEY, SHIP_TITLE, SHIP_SOURCE, 1513040450000L);
+    var result = subject.computeMediaPresentationDescriptionXML(1513040450000L);
 
     assertMatchesResourceFile(result, "mpeg_dash_playlist/test5.mpd");
   }

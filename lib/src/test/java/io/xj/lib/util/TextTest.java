@@ -15,7 +15,14 @@ public class TextTest {
 
   @Test
   public void formatMultiline() {
-    assertEquals("Line One\nLine Two", Text.formatMultiline(new String[]{"Line One", "Line Two"}));
+    assertEquals("Line One\nLine Two\n", Text.formatMultiline(new String[]{"Line One", "Line Two"}));
+  }
+
+  @Test
+  public void orEmptyQuotes() {
+    assertEquals("\"\"", Text.orEmptyQuotes(""));
+    assertEquals("\"\"", Text.orEmptyQuotes(null));
+    assertEquals("tubs", Text.orEmptyQuotes("tubs"));
   }
 
   @Test

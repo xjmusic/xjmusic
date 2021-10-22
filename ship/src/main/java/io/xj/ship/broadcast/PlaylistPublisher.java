@@ -2,6 +2,9 @@
 package io.xj.ship.broadcast;
 
 import io.xj.lib.util.ValueException;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.ship.ShipException;
 
 import java.io.IOException;
@@ -33,15 +36,12 @@ public interface PlaylistPublisher {
   /**
    Compute the media presentation description XML
 
-   @param shipKey    of stream
-   @param shipTitle  of stream
-   @param shipSource of stream
-   @param nowMillis  of stream
    @return XML
    @throws IOException    on failure
    @throws ShipException  on failure
    @throws ValueException on failure
+   @param nowMillis  of stream
    */
-  String computeMediaPresentationDescriptionXML(String shipKey, String shipTitle, String shipSource, long nowMillis) throws IOException, ShipException, ValueException;
+  String computeMediaPresentationDescriptionXML(long nowMillis) throws IOException, ShipException, ValueException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException;
 
 }

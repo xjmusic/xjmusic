@@ -9,7 +9,9 @@ import io.xj.lib.util.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,10 +38,7 @@ public class Environment {
   private final String awsSecretKey;
   private final String awsSecretName;
   private final String awsSnsTopicArn;
-  private final String bootstrapShipKey;
-  private final String bootstrapShipSource;
-  private final String bootstrapShipTitle;
-  private final String bootstrapTemplateId;
+  private final Collection<String> bootstrapShipKeys;
   private final String googleClientID;
   private final String googleClientSecret;
   private final String hostname;
@@ -131,10 +130,7 @@ public class Environment {
     audioCacheFilePrefix = readStr(vars, "AUDIO_CACHE_FILE_PREFIX", "/tmp/");
     audioFileBucket = readStr(vars, "AUDIO_FILE_BUCKET", "xj-dev-audio");
     audioUploadURL = readStr(vars, "AUDIO_UPLOAD_URL", "https://xj-dev-audio.s3.amazonaws.com/");
-    bootstrapShipKey = readStr(vars, "BOOTSTRAP_SHIP_KEY", EMPTY);
-    bootstrapShipTitle = readStr(vars, "BOOTSTRAP_SHIP_TITLE", EMPTY);
-    bootstrapShipSource = readStr(vars, "BOOTSTRAP_SHIP_SOURCE", EMPTY);
-    bootstrapTemplateId = readStr(vars, "BOOTSTRAP_TEMPLATE_ID", EMPTY);
+    bootstrapShipKeys = CSV.split(readStr(vars, "BOOTSTRAP_SHIP_KEYS", EMPTY));
     chainStartInFutureSeconds = readInt(vars, "CHAIN_START_IN_FUTURE_SECONDS", 0);
     fabricationPreviewLengthMaxHours = readInt(vars, "FABRICATION_PREVIEW_LENGTH_MAX_HOURS", 8);
     fabricationPreviewShipKeyLength = readInt(vars, "FABRICATION_PREVIEW_SHIP_KEY_LENGTH", 20);
@@ -459,29 +455,8 @@ public class Environment {
 
    @return the bootstrap ship key for this ship instance
    */
-  public String getBootstrapShipKey() {
-    return bootstrapShipKey;
-  }
-
-  /**
-   @return the bootstrap ship title
-   */
-  public String getBootstrapShipTitle() {
-    return bootstrapShipTitle;
-  }
-
-  /**
-   @return the bootstrap ship source
-   */
-  public String getBootstrapShipSource() {
-    return bootstrapShipSource;
-  }
-
-  /**
-   @return the bootstrap template id
-   */
-  public String getBootstrapTemplateId() {
-    return bootstrapTemplateId;
+  public Collection<String> getBootstrapShipKeys() {
+    return bootstrapShipKeys;
   }
 
   /**

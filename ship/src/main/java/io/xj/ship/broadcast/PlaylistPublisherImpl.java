@@ -7,10 +7,16 @@ import com.google.inject.assistedinject.Assisted;
 import io.lindstrom.mpd.MPDParser;
 import io.lindstrom.mpd.data.*;
 import io.lindstrom.mpd.data.descriptor.GenericDescriptor;
+import io.xj.hub.TemplateConfig;
 import io.xj.lib.app.Environment;
 import io.xj.lib.filestore.FileStoreException;
 import io.xj.lib.filestore.FileStoreProvider;
+import io.xj.lib.util.ValueException;
 import io.xj.lib.util.Values;
+import io.xj.nexus.persistence.ChainManager;
+import io.xj.nexus.persistence.ManagerExistenceException;
+import io.xj.nexus.persistence.ManagerFatalException;
+import io.xj.nexus.persistence.ManagerPrivilegeException;
 import io.xj.ship.ShipException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,33 +37,30 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
   private static final String AUDIO_MIME_TYPE = "audio/mp4";
   private static final String AUDIO_CODECS = "mp4a.40.2";
+  private final ChainManager chains;
+  private final ChunkManager chunks;
   private final FileStoreProvider fileStoreProvider;
+  private final MPDParser parser;
   private final String mpdMimeType;
   private final String playlistKey;
   private final String shipKey;
-  private final String shipSource;
-  private final String shipTitle;
   private final String streamBucket;
-  private final MPDParser parser;
+  private final int chunkSeconds;
   private final int shipBitrateHigh;
   private final int shipChunkSeconds;
-  private final ChunkManager chunkManager;
-  private final int chunkSeconds;
 
   @Inject
   public PlaylistPublisherImpl(
     @Assisted("shipKey") String shipKey,
-    @Assisted("shipTitle") String shipTitle,
-    @Assisted("shipSource") String shipSource,
-    ChunkManager chunkManager,
+    ChainManager chains,
+    ChunkManager chunks,
     Environment env,
     FileStoreProvider fileStoreProvider
   ) {
-    this.chunkManager = chunkManager;
+    this.chains = chains;
+    this.chunks = chunks;
     this.fileStoreProvider = fileStoreProvider;
     this.shipKey = shipKey;
-    this.shipSource = shipSource;
-    this.shipTitle = shipTitle;
 
     chunkSeconds = env.getShipChunkSeconds();
     mpdMimeType = env.getShipMpdMimeType();
@@ -72,26 +75,27 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
   public void publish(long nowMillis) {
     String content = "";
     try {
-      content = computeMediaPresentationDescriptionXML(shipKey, shipTitle, shipSource, nowMillis);
+      content = computeMediaPresentationDescriptionXML(nowMillis);
       fileStoreProvider.putS3ObjectFromString(content, streamBucket, playlistKey, mpdMimeType);
       LOG.info("did ship {} bytes to s3://{}/{}", content.length(), streamBucket, playlistKey);
-    } catch (FileStoreException | IOException | ShipException e) {
+    } catch (FileStoreException | IOException | ShipException | ManagerFatalException | ManagerExistenceException | ManagerPrivilegeException | ValueException e) {
       LOG.error("failed to ship {} bytes to s3://{}/{}", content.length(), streamBucket, playlistKey);
     }
   }
 
   @Override
-  public String computeMediaPresentationDescriptionXML(String shipKey, String shipTitle, String shipSource, long nowMillis) throws IOException, ShipException {
-    var nowSeconds = chunkManager.computeFromSecondUTC(nowMillis);
+  public String computeMediaPresentationDescriptionXML(long nowMillis) throws IOException, ShipException, ManagerFatalException, ManagerExistenceException, ManagerPrivilegeException, ValueException {
+    var nowSeconds = chunks.computeFromSecondUTC(nowMillis);
     var startNumber = nowSeconds / shipChunkSeconds;
 
     LOG.info("chunks {}",
-      chunkManager.getAll(shipKey, nowMillis).stream()
+      chunks.getAll(shipKey, nowMillis).stream()
         .map(chunk -> String.format("%s(%s)", chunk.getKey(shipBitrateHigh), chunk.getState()))
         .collect(Collectors.joining(",")));
 
-    var chunks = chunkManager.getContiguousDone(shipKey, nowMillis);
+    var chunks = this.chunks.getContiguousDone(shipKey, nowMillis);
     var chunk = chunks.stream().findFirst().orElseThrow(() -> new ShipException("No chunks!"));
+    var templateConfig = new TemplateConfig(chains.readOneByShipKey(shipKey).getTemplateConfig());
 
     // use any segment to determine audio metadata
     // NOTE: INCONSISTENCY AMONG SOURCE AUDIO RATES WILL RESULT IN A MALFORMED OUTPUT
@@ -104,8 +108,8 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
       .withProgramInformations(List.of(
         ProgramInformation.builder()
           .withLang("eng")
-          .withSource(shipSource)
-          .withTitle(shipTitle)
+          .withSource(templateConfig.getMetaSource())
+          .withTitle(templateConfig.getMetaTitle())
           .build()))
       .withPeriods(List.of(
         Period.builder()

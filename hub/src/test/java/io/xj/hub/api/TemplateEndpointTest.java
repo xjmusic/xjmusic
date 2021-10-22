@@ -35,6 +35,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Optional;
 
 import static io.xj.hub.IntegrationTestingFixtures.buildAccount;
 import static io.xj.hub.IntegrationTestingFixtures.buildTemplate;
@@ -120,6 +121,21 @@ public class TemplateEndpointTest {
     when(templateDAO.readOne(same(hubAccess), eq(template1.getId()))).thenReturn(template1);
 
     Response result = subject.readOne(crc, template1.getId().toString());
+
+    assertEquals(200, result.getStatus());
+    assertTrue(result.hasEntity());
+    JsonapiPayload resultJsonapiPayload = new ObjectMapper().readValue(String.valueOf(result.getEntity()), JsonapiPayload.class);
+    assertPayload(resultJsonapiPayload)
+      .hasDataOne("templates", template1.getId().toString());
+  }
+
+  @Test
+  public void readOne_byShipKey() throws DAOException, IOException, JsonapiException {
+    when(crc.getProperty(CONTEXT_KEY)).thenReturn(hubAccess);
+    Template template1 = buildTemplate(account1, "fonds", "ABC");
+    when(templateDAO.readOneByShipKey(same(hubAccess), eq("ABC"))).thenReturn(Optional.of(template1));
+
+    Response result = subject.readOne(crc, "ABC");
 
     assertEquals(200, result.getStatus());
     assertTrue(result.hasEntity());

@@ -120,6 +120,7 @@ public class ChainLoaderImpl extends ChainLoader {
     LOG.debug("will load Chain");
 
     Instant ignoreSegmentsBefore = Instant.now().minusSeconds(eraseSegmentsOlderThanSeconds);
+    //noinspection DuplicatedCode
     chainPayload.getIncluded().stream()
       .filter(po -> po.isType(Segment.class))
       .flatMap(po -> {

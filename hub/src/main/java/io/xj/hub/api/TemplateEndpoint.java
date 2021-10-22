@@ -4,15 +4,18 @@ package io.xj.hub.api;
 import com.google.inject.Inject;
 import io.xj.hub.HubJsonapiEndpoint;
 import io.xj.hub.access.HubAccess;
+import io.xj.hub.dao.DAOException;
 import io.xj.hub.dao.TemplateDAO;
 import io.xj.lib.jsonapi.*;
 
+import javax.annotation.Nullable;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  Templates
@@ -71,8 +74,31 @@ public class TemplateEndpoint extends HubJsonapiEndpoint {
   @GET
   @Path("templates/{id}")
   @RolesAllowed(USER)
-  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String id) {
-    return readOne(crc, dao(), id);
+  public Response readOne(@Context ContainerRequestContext crc, @PathParam("id") String identifier) {
+    var access = HubAccess.fromContext(crc);
+
+    @Nullable UUID uuid;
+    try {
+      uuid = UUID.fromString(identifier);
+    } catch (Exception ignored) {
+      uuid = null;
+    }
+
+    try {
+      Object entity = Objects.isNull(uuid)
+        ? dao.readOneByShipKey(access, identifier).orElseThrow(() -> new DAOException("not found"))
+        : dao.readOne(access, uuid);
+
+      JsonapiPayload jsonapiPayload = new JsonapiPayload();
+      jsonapiPayload.setDataOne(payloadFactory.toPayloadObject(entity));
+      return response.ok(jsonapiPayload);
+
+    } catch (DAOException ignored) {
+      return response.notFound(dao.newInstance().getClass(), identifier);
+
+    } catch (Exception e) {
+      return response.failure(e);
+    }
   }
 
   /**

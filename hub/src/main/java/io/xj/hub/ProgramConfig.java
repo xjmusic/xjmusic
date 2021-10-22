@@ -20,11 +20,8 @@ import java.util.Map;
 public class ProgramConfig {
   public static final String DEFAULT =
     """
-        program {
-          doPatternRestartOnChord = false
-        }
+      doPatternRestartOnChord = false
       """;
-  private static final String KEY_PREFIX = "program.";
   private final Boolean doPatternRestartOnChord;
 
   /**
@@ -37,9 +34,8 @@ public class ProgramConfig {
     try {
       Config config = Strings.isNullOrEmpty(configText) ?
         ConfigFactory.parseString(DEFAULT) :
-        ConfigFactory.parseString(String.format("program {\n%s\n}", configText))
-          .withFallback(ConfigFactory.parseString(DEFAULT));
-      doPatternRestartOnChord = getOptionalBoolean(config, prefixed("doPatternRestartOnChord"));
+        ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
+      doPatternRestartOnChord = getOptionalBoolean(config, "doPatternRestartOnChord");
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
@@ -68,23 +64,13 @@ public class ProgramConfig {
   }
 
   /**
-   Program-prefixed version of a key
-
-   @param key to prefix
-   @return program-prefixed key
-   */
-  @SuppressWarnings("SameParameterValue")
-  private static String prefixed(String key) {
-    return String.format("%s%s", KEY_PREFIX, key);
-  }
-
-  /**
    If a boolean value is present in the config, return it, otherwise false
 
    @param config to search for value at key
    @param key    at which to search
    @return value if present, else false
    */
+  @SuppressWarnings("SameParameterValue")
   private static Boolean getOptionalBoolean(Config config, String key) {
     if (!config.hasPath(key)) return false;
     return config.getBoolean(key);

@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.lib.util;
 
+import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 
 import javax.annotation.Nullable;
@@ -49,7 +50,7 @@ public interface Text {
    */
   static String formatMultiline(Object[] stack) {
     String[] stackLines = Arrays.stream(stack).map(String::valueOf).toArray(String[]::new);
-    return String.join(System.getProperty("line.separator"), stackLines);
+    return String.join(System.getProperty("line.separator"), stackLines) + System.getProperty("line.separator");
   }
 
   /**
@@ -430,7 +431,7 @@ public interface Text {
   }
 
   /**
-   Format an ship key
+   Format af ship key
 
    @param shipKey to format
    @return formatted ship key
@@ -449,5 +450,13 @@ public interface Text {
     return Arrays.stream(secretValue.split("\n"))
       .map(pair -> pair.split("="))
       .collect(Collectors.toMap(p -> p[0], p -> p[1]));
+  }
+
+  /**
+   @param value to quote if empty
+   @return value, or empty quotes
+   */
+  static String orEmptyQuotes(@Nullable String value) {
+    return Strings.isNullOrEmpty(value) ? "\"\"" : value;
   }
 }

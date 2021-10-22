@@ -38,12 +38,12 @@ public interface HubClient {
   HubClientAccess auth(String accessToken) throws HubClientException;
 
   /**
-   Read a Template from Hub by id
+   Read a Template from Hub by uuid or ship key
 
-   @param templateId to read
    @return template if found
+   @param identifier to read, either a UUID or a ship key (string)
    */
-  Template readTemplate(UUID templateId) throws HubClientException;
+  Template readTemplate(String identifier) throws HubClientException;
 
   /**
    Read all Templates playing from Hub

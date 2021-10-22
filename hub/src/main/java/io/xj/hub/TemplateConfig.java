@@ -24,43 +24,40 @@ import java.util.Map;
 public class TemplateConfig {
   public static final String DEFAULT =
     """
-      template {
-        choiceDeltaEnabled = true
-        deltaArcDetailPlateauRatio = 0.38
-        deltaArcDetailPlateauShiftRatio = 0.62
-        deltaArcRhythmPlateauRatio = 0.62
-        deltaArcRhythmPlateauShiftRatio = 0.38
-        dubMasterVolumeInstrumentTypeBass = 1.0
-        dubMasterVolumeInstrumentTypePad = 1.0
-        dubMasterVolumeInstrumentTypePercussive = 1.0
-        dubMasterVolumeInstrumentTypeStab = 1.0
-        dubMasterVolumeInstrumentTypeSticky = 1.0
-        dubMasterVolumeInstrumentTypeStripe = 1.0
-        mainProgramLengthMaxDelta = 280
-        metaSource = ""
-        metaTitle = ""
-        mixerCompressAheadSeconds = 0.05
-        mixerCompressDecaySeconds = 0.125
-        mixerCompressRatioMax = 1.0
-        mixerCompressRatioMin = 0.3
-        mixerCompressToAmplitude = 1.0
-        mixerDspBufferSize = 1024
-        mixerHighpassThresholdHz = 30
-        mixerLowpassThresholdHz = 15000
-        mixerNormalizationBoostThreshold = 1.0
-        mixerNormalizationCeiling = 0.999
-        outputChannels = 2
-        outputContainer = "OGG"
-        outputEncoding = "PCM_FLOAT"
-        outputEncodingQuality = 0.618
-        outputFrameRate = 48000
-        outputSampleBits = 16
-        percLoopFixedSizeBeats = 4
-        percLoopLayerMax = 5
-        percLoopLayerMin = 1
-      }
+      choiceDeltaEnabled = true
+      deltaArcDetailPlateauRatio = 0.38
+      deltaArcDetailPlateauShiftRatio = 0.62
+      deltaArcRhythmPlateauRatio = 0.62
+      deltaArcRhythmPlateauShiftRatio = 0.38
+      dubMasterVolumeInstrumentTypeBass = 1.0
+      dubMasterVolumeInstrumentTypePad = 1.0
+      dubMasterVolumeInstrumentTypePercussive = 1.0
+      dubMasterVolumeInstrumentTypeStab = 1.0
+      dubMasterVolumeInstrumentTypeSticky = 1.0
+      dubMasterVolumeInstrumentTypeStripe = 1.0
+      mainProgramLengthMaxDelta = 280
+      metaSource = ""
+      metaTitle = ""
+      mixerCompressAheadSeconds = 0.05
+      mixerCompressDecaySeconds = 0.125
+      mixerCompressRatioMax = 1.0
+      mixerCompressRatioMin = 0.3
+      mixerCompressToAmplitude = 1.0
+      mixerDspBufferSize = 1024
+      mixerHighpassThresholdHz = 30
+      mixerLowpassThresholdHz = 15000
+      mixerNormalizationBoostThreshold = 1.0
+      mixerNormalizationCeiling = 0.999
+      outputChannels = 2
+      outputContainer = "OGG"
+      outputEncoding = "PCM_FLOAT"
+      outputEncodingQuality = 0.618
+      outputFrameRate = 48000
+      outputSampleBits = 16
+      percLoopFixedSizeBeats = 4
+      percLoopLayerMax = 5
+      percLoopLayerMin = 1
       """;
-  private static final String KEY_PREFIX = "template.";
 
   private final AudioFormat.Encoding outputEncoding;
   private final String metaSource;
@@ -77,21 +74,21 @@ public class TemplateConfig {
   private final double dubMasterVolumeInstrumentTypeStab;
   private final double dubMasterVolumeInstrumentTypeSticky;
   private final double dubMasterVolumeInstrumentTypeStripe;
+  private final int mainProgramLengthMaxDelta;
   private final double mixerCompressAheadSeconds;
   private final double mixerCompressDecaySeconds;
   private final double mixerCompressRatioMax;
   private final double mixerCompressRatioMin;
   private final double mixerCompressToAmplitude;
-  private final double mixerHighpassThresholdHz;
-  private final double mixerLowpassThresholdHz;
+  private final int mixerDspBufferSize;
+  private final int mixerHighpassThresholdHz;
+  private final int mixerLowpassThresholdHz;
   private final double mixerNormalizationBoostThreshold;
   private final double mixerNormalizationCeiling;
   private final double outputEncodingQuality;
-  private final double percLoopFixedSizeBeats;
-  private final double percLoopLayerMax;
-  private final double percLoopLayerMin;
-  private final int mainProgramLengthMaxDelta;
-  private final int mixerDspBufferSize;
+  private final int percLoopFixedSizeBeats;
+  private final int percLoopLayerMax;
+  private final int percLoopLayerMin;
   private final int outputChannels;
   private final int outputFrameRate;
   private final int outputSampleBits;
@@ -127,54 +124,43 @@ public class TemplateConfig {
     try {
       Config config = Strings.isNullOrEmpty(configText) ?
         ConfigFactory.parseString(DEFAULT) :
-        ConfigFactory.parseString(String.format("template {\n%s\n}", configText))
-          .withFallback(ConfigFactory.parseString(DEFAULT));
-      choiceDeltaEnabled = config.getBoolean(tmplPfx("choiceDeltaEnabled"));
-      deltaArcDetailPlateauRatio = config.getDouble(tmplPfx("deltaArcDetailPlateauRatio"));
-      deltaArcDetailPlateauShiftRatio = config.getDouble(tmplPfx("deltaArcDetailPlateauShiftRatio"));
-      deltaArcRhythmPlateauRatio = config.getDouble(tmplPfx("deltaArcRhythmPlateauRatio"));
-      deltaArcRhythmPlateauShiftRatio = config.getDouble(tmplPfx("deltaArcRhythmPlateauShiftRatio"));
-      dubMasterVolumeInstrumentTypeBass = config.getDouble(tmplPfx("dubMasterVolumeInstrumentTypeBass"));
-      dubMasterVolumeInstrumentTypePad = config.getDouble(tmplPfx("dubMasterVolumeInstrumentTypePad"));
-      dubMasterVolumeInstrumentTypePercussive = config.getDouble(tmplPfx("dubMasterVolumeInstrumentTypePercussive"));
-      dubMasterVolumeInstrumentTypeStab = config.getDouble(tmplPfx("dubMasterVolumeInstrumentTypeStab"));
-      dubMasterVolumeInstrumentTypeSticky = config.getDouble(tmplPfx("dubMasterVolumeInstrumentTypeSticky"));
-      dubMasterVolumeInstrumentTypeStripe = config.getDouble(tmplPfx("dubMasterVolumeInstrumentTypeStripe"));
-      mainProgramLengthMaxDelta = config.getInt(tmplPfx("mainProgramLengthMaxDelta"));
-      metaSource = config.getString(tmplPfx("metaSource"));
-      metaTitle = config.getString(tmplPfx("metaTitle"));
-      mixerCompressAheadSeconds = config.getDouble(tmplPfx("mixerCompressAheadSeconds"));
-      mixerCompressDecaySeconds = config.getDouble(tmplPfx("mixerCompressDecaySeconds"));
-      mixerCompressRatioMax = config.getDouble(tmplPfx("mixerCompressRatioMax"));
-      mixerCompressRatioMin = config.getDouble(tmplPfx("mixerCompressRatioMin"));
-      mixerCompressToAmplitude = config.getDouble(tmplPfx("mixerCompressToAmplitude"));
-      mixerDspBufferSize = config.getInt(tmplPfx("mixerDspBufferSize"));
-      mixerHighpassThresholdHz = config.getDouble(tmplPfx("mixerHighpassThresholdHz"));
-      mixerLowpassThresholdHz = config.getDouble(tmplPfx("mixerLowpassThresholdHz"));
-      mixerNormalizationBoostThreshold = config.getDouble(tmplPfx("mixerNormalizationBoostThreshold"));
-      mixerNormalizationCeiling = config.getDouble(tmplPfx("mixerNormalizationCeiling"));
-      outputChannels = config.getInt(tmplPfx("outputChannels"));
-      outputContainer = config.getString(tmplPfx("outputContainer"));
-      outputEncoding = new AudioFormat.Encoding(config.getString(tmplPfx("outputEncoding")));
-      outputEncodingQuality = config.getDouble(tmplPfx("outputEncodingQuality"));
-      outputFrameRate = config.getInt(tmplPfx("outputFrameRate"));
-      outputSampleBits = config.getInt(tmplPfx("outputSampleBits"));
-      percLoopFixedSizeBeats = config.getInt(tmplPfx("percLoopFixedSizeBeats"));
-      percLoopLayerMax = config.getInt(tmplPfx("percLoopLayerMax"));
-      percLoopLayerMin = config.getInt(tmplPfx("percLoopLayerMin"));
+        ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
+      choiceDeltaEnabled = config.getBoolean("choiceDeltaEnabled");
+      deltaArcDetailPlateauRatio = config.getDouble("deltaArcDetailPlateauRatio");
+      deltaArcDetailPlateauShiftRatio = config.getDouble("deltaArcDetailPlateauShiftRatio");
+      deltaArcRhythmPlateauRatio = config.getDouble("deltaArcRhythmPlateauRatio");
+      deltaArcRhythmPlateauShiftRatio = config.getDouble("deltaArcRhythmPlateauShiftRatio");
+      dubMasterVolumeInstrumentTypeBass = config.getDouble("dubMasterVolumeInstrumentTypeBass");
+      dubMasterVolumeInstrumentTypePad = config.getDouble("dubMasterVolumeInstrumentTypePad");
+      dubMasterVolumeInstrumentTypePercussive = config.getDouble("dubMasterVolumeInstrumentTypePercussive");
+      dubMasterVolumeInstrumentTypeStab = config.getDouble("dubMasterVolumeInstrumentTypeStab");
+      dubMasterVolumeInstrumentTypeSticky = config.getDouble("dubMasterVolumeInstrumentTypeSticky");
+      dubMasterVolumeInstrumentTypeStripe = config.getDouble("dubMasterVolumeInstrumentTypeStripe");
+      mainProgramLengthMaxDelta = config.getInt("mainProgramLengthMaxDelta");
+      metaSource = config.getString("metaSource");
+      metaTitle = config.getString("metaTitle");
+      mixerCompressAheadSeconds = config.getDouble("mixerCompressAheadSeconds");
+      mixerCompressDecaySeconds = config.getDouble("mixerCompressDecaySeconds");
+      mixerCompressRatioMax = config.getDouble("mixerCompressRatioMax");
+      mixerCompressRatioMin = config.getDouble("mixerCompressRatioMin");
+      mixerCompressToAmplitude = config.getDouble("mixerCompressToAmplitude");
+      mixerDspBufferSize = config.getInt("mixerDspBufferSize");
+      mixerHighpassThresholdHz = config.getInt("mixerHighpassThresholdHz");
+      mixerLowpassThresholdHz = config.getInt("mixerLowpassThresholdHz");
+      mixerNormalizationBoostThreshold = config.getDouble("mixerNormalizationBoostThreshold");
+      mixerNormalizationCeiling = config.getDouble("mixerNormalizationCeiling");
+      outputChannels = config.getInt("outputChannels");
+      outputContainer = config.getString("outputContainer");
+      outputEncoding = new AudioFormat.Encoding(config.getString("outputEncoding"));
+      outputEncodingQuality = config.getDouble("outputEncodingQuality");
+      outputFrameRate = config.getInt("outputFrameRate");
+      outputSampleBits = config.getInt("outputSampleBits");
+      percLoopFixedSizeBeats = config.getInt("percLoopFixedSizeBeats");
+      percLoopLayerMax = config.getInt("percLoopLayerMax");
+      percLoopLayerMin = config.getInt("percLoopLayerMin");
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
     }
-  }
-
-  /**
-   Template-prefixed version of a key
-
-   @param key to prefix
-   @return template-prefixed key
-   */
-  private String tmplPfx(String key) {
-    return String.format("%s%s", KEY_PREFIX, key);
   }
 
   @SuppressWarnings("DuplicatedCode")
@@ -193,8 +179,8 @@ public class TemplateConfig {
     config.put("dubMasterVolumeInstrumentTypeSticky", String.valueOf(dubMasterVolumeInstrumentTypeSticky));
     config.put("dubMasterVolumeInstrumentTypeStripe", String.valueOf(dubMasterVolumeInstrumentTypeStripe));
     config.put("mainProgramLengthMaxDelta", String.valueOf(mainProgramLengthMaxDelta));
-    config.put("metaSource", String.valueOf(metaSource));
-    config.put("metaTitle", String.valueOf(metaTitle));
+    config.put("metaSource", Text.orEmptyQuotes(metaSource));
+    config.put("metaTitle", Text.orEmptyQuotes(metaTitle));
     config.put("mixerCompressAheadSeconds", String.valueOf(mixerCompressAheadSeconds));
     config.put("mixerCompressDecaySeconds", String.valueOf(mixerCompressDecaySeconds));
     config.put("mixerCompressRatioMax", String.valueOf(mixerCompressRatioMax));

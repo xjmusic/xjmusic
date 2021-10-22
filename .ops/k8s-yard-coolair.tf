@@ -68,8 +68,8 @@ resource "kubernetes_deployment" "xj-prod-yard-coolair-nexus" {
           }
 
           env {
-            name  = "BOOTSTRAP_TEMPLATE_ID"
-            value = "eb0cf5ce-09ba-11ec-8016-d72d36e2270c"
+            name  = "BOOTSTRAP_SHIP_KEYS"
+            value = "coolair"
           }
 
           liveness_probe {
@@ -155,18 +155,8 @@ resource "kubernetes_deployment" "xj-prod-yard-coolair-ship" {
           }
 
           env {
-            name  = "BOOTSTRAP_SHIP_KEY"
+            name  = "BOOTSTRAP_SHIP_KEYS"
             value = "coolair"
-          }
-
-          env {
-            name  = "BOOTSTRAP_SHIP_TITLE"
-            value = "Cool Air"
-          }
-
-          env {
-            name  = "BOOTSTRAP_SHIP_SOURCE"
-            value = "AIRCRAFT"
           }
 
           liveness_probe {

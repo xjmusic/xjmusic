@@ -65,7 +65,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
   private final boolean enabled;
 
   @Nullable
-  private final UUID yardTemplateId;
+  private final String shipKey;
 
   @Inject
   public NexusWorkChainManagerImpl(
@@ -86,8 +86,8 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
     this.entityStore = entityStore;
     this.ChainManager = ChainManager;
 
-    yardTemplateId = io.xj.lib.util.Values.uuidOrNull(env.getBootstrapTemplateId());
-    mode = new AtomicReference<>(Objects.nonNull(yardTemplateId) ? Mode.Yard : Mode.Lab);
+    shipKey = env.getBootstrapShipKeys().stream().findAny().orElse(null);
+    mode = new AtomicReference<>(Objects.nonNull(shipKey) ? Mode.Yard : Mode.Lab);
     state = new AtomicReference<>(State.Init);
     shipBucket = env.getShipBucket();
     rehydrateFabricatedAheadThreshold = env.getWorkRehydrateFabricatedAheadThreshold();
@@ -106,7 +106,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
           case Lab -> state.set(State.Active);
           case Yard -> {
             state.set(State.Loading);
-            if (createChainForTemplate(yardTemplateId, TemplateType.Production))
+            if (createChainForTemplate(shipKey, TemplateType.Production))
               state.set(State.Active);
             else
               state.set(State.Fail);
@@ -187,7 +187,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
       Set<UUID> chainTemplateIds = chains.stream().map(Chain::getTemplateId).collect(Collectors.toSet());
       for (Template template : templates)
         if (!chainTemplateIds.contains(template.getId()))
-          createChainForTemplate(template.getId(), TemplateType.Preview);
+          createChainForTemplate(template.getShipKey(), TemplateType.Preview);
     } catch (ManagerFatalException | ManagerPrivilegeException e) {
       LOG.error("Failed to start Chain(s) for playing Template(s)!", e);
       return false;
@@ -218,13 +218,13 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
 
    @return true if successful
    */
-  private Boolean createChainForTemplate(UUID templateId, TemplateType type) {
+  private Boolean createChainForTemplate(String identifier, TemplateType type) {
     Template template;
     try {
-      LOG.info("Will load Template[{}]", templateId);
-      template = hubClient.readTemplate(templateId);
+      LOG.info("Will load Template[{}]", identifier);
+      template = hubClient.readTemplate(identifier);
     } catch (HubClientException e) {
-      LOG.error("Failed to load Template[{}]!", templateId, e);
+      LOG.error("Failed to load Template[{}]!", identifier, e);
       return false;
     }
 
@@ -283,6 +283,7 @@ public class NexusWorkChainManagerImpl implements NexusWorkChainManager {
           }
         });
 
+      //noinspection DuplicatedCode
       chainPayload.getIncluded().stream()
         .filter(po -> po.isType(Segment.class))
         .flatMap(po -> {

@@ -23,13 +23,11 @@ public interface BroadcastFactory {
   /**
    Publish the playlist for a ship key
 
-   @param shipKey to publish
    @return playlist
+   @param shipKey to publish
    */
   PlaylistPublisher publisher(
-    @Assisted("shipKey") String shipKey,
-    @Assisted("shipTitle") String shipTitle,
-    @Assisted("shipSource") String shipSource
+    @Assisted("shipKey") String shipKey
   );
 
   /**

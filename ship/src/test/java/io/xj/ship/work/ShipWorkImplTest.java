@@ -25,7 +25,7 @@ public class ShipWorkImplTest {
   @Before
   public void setUp() throws Exception {
     Environment env = Environment.from(ImmutableMap.of(
-      "BOOTSTRAP_SHIP_KEY", "coolair"
+      "BOOTSTRAP_SHIP_KEYS", "coolair"
     ));
     var injector = Guice.createInjector(Modules.override(new ShipWorkModule())
       .with(new AbstractModule() {

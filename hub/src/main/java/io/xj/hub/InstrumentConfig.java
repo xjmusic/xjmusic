@@ -21,12 +21,9 @@ import java.util.Map;
 public class InstrumentConfig {
   public static final String DEFAULT =
     """
-      instrument {
-        isMultiphonic = false
-        isTonal = false
-      }
+      isMultiphonic = false
+      isTonal = false
       """;
-  private static final String KEY_PREFIX = "instrument.";
   private final Boolean isTonal;
   private final Boolean isMultiphonic;
 
@@ -40,10 +37,9 @@ public class InstrumentConfig {
     try {
       Config config = Strings.isNullOrEmpty(configText) ?
         ConfigFactory.parseString(DEFAULT) :
-        ConfigFactory.parseString(String.format("instrument {\n%s\n}", configText))
-          .withFallback(ConfigFactory.parseString(DEFAULT));
-      isTonal = getOptionalBoolean(config, prefixed("isTonal"));
-      isMultiphonic = getOptionalBoolean(config, prefixed("isMultiphonic"));
+        ConfigFactory.parseString(configText).withFallback(ConfigFactory.parseString(DEFAULT));
+      isTonal = getOptionalBoolean(config, "isTonal");
+      isMultiphonic = getOptionalBoolean(config, "isMultiphonic");
 
     } catch (ConfigException e) {
       throw new ValueException(e.getMessage());
@@ -81,16 +77,6 @@ public class InstrumentConfig {
   private Boolean getOptionalBoolean(Config config, String key) {
     if (!config.hasPath(key)) return false;
     return config.getBoolean(key);
-  }
-
-  /**
-   Instrument-prefixed version of a key
-
-   @param key to prefix
-   @return instrument-prefixed key
-   */
-  private String prefixed(String key) {
-    return String.format("%s%s", KEY_PREFIX, key);
   }
 
   @SuppressWarnings("DuplicatedCode")
