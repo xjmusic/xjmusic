@@ -113,8 +113,7 @@ public class PlaylistPublisherImpl implements PlaylistPublisher {
           .build()))
       .withPeriods(List.of(
         Period.builder()
-          .withId(String.valueOf(chunk.getSequenceNumber()))
-          .withStart(Duration.ofSeconds(nowSeconds))
+          .withStart(Duration.ofSeconds(0))
           .withAdaptationSet(
             AdaptationSet.builder()
               .withId(0)
